@@ -76,10 +76,10 @@
             <id>bps_profiles_menu</id>
             <i18n-key>workflow.bps.profiles</i18n-key>
             <i18n-bundle>org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources</i18n-bundle>
-            <parent-menu>workflow_mgt_menu</parent-menu>
+            <parent-menu>configure_menu</parent-menu>
             <link>#</link>
             <region>region1</region>
-            <order>2</order>
+            <order>50</order>
             <style-class>manage</style-class>
             <!--<icon>../tools-saml/images/lock_blue.png</icon>-->
             <require-permission>/permission/admin/configure/security</require-permission>

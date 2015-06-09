@@ -120,7 +120,7 @@ public class DefaultBPELExecutor implements WorkFlowExecutor {
 
         HttpTransportProperties.Authenticator auth = new HttpTransportProperties.Authenticator();
         auth.setUsername((String) initParams.get(WorkFlowConstants.TemplateConstants.AUTH_USER));
-        auth.setPassword(new String((char[]) initParams.get(WorkFlowConstants.TemplateConstants.AUTH_USER_PASSWORD)));
+        auth.setPassword((String) initParams.get(WorkFlowConstants.TemplateConstants.AUTH_USER_PASSWORD));
         auth.setPreemptiveAuthentication(true);
         List<String> authSchemes = new ArrayList<>();
         authSchemes.add(HttpTransportProperties.Authenticator.BASIC);

@@ -65,7 +65,7 @@
                                 </tr>
                                 <tr>
                                     <td><fmt:message key='workflow.bps.profile.auth.password'/></td>
-                                    <td><input type="text" name="<%=WorkflowUIConstants.PARAM_BPS_AUTH_PASSWORD%>"/>
+                                    <td><input type="password" name="<%=WorkflowUIConstants.PARAM_BPS_AUTH_PASSWORD%>"/>
                                     </td>
                                 </tr>
                             </table>

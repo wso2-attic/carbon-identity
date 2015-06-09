@@ -122,7 +122,7 @@
                     <th width="30%"><fmt:message key="workflow.bps.profile.name"/></th>
                     <th width="30%"><fmt:message key="workflow.bps.profile.host"/></th>
                     <th width="15%"><fmt:message key="workflow.bps.profile.auth.user"/></th>
-                    <th><fmt:message key="service.actions"/></th>
+                    <th><fmt:message key="actions"/></th>
                 </tr>
                 </thead>
                 <tbody>

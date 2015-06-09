@@ -76,7 +76,7 @@ public class ApprovalBPELDeployer implements TemplateInitializer {
         processName = (String) initParams.get(WorkFlowConstants.TemplateConstants.PROCESS_NAME);
         bpsHost = (String) initParams.get(WorkFlowConstants.TemplateConstants.HOST);
         bpsUser = (String) initParams.get(WorkFlowConstants.TemplateConstants.AUTH_USER);
-        password = (String)initParams.get(WorkFlowConstants.TemplateConstants.AUTH_USER_PASSWORD);
+        password = (String) initParams.get(WorkFlowConstants.TemplateConstants.AUTH_USER_PASSWORD);
         callBackUser = (String) initParams.get(WorkFlowConstants.TemplateConstants.CALLBACK_USER);
         callBackUserPassword = (String) initParams.get(WorkFlowConstants.TemplateConstants.CALLBACK_USER_PASSWORD);
         htSubject = (String) initParams.get(WorkFlowConstants.TemplateConstants.HT_SUBJECT);
@@ -362,7 +362,7 @@ public class ApprovalBPELDeployer implements TemplateInitializer {
         static {
             String PORT_OFFSET = "Ports.Offset";
             String HOST_NAME = "HostName";
-            int DEFAULT_HTTPS_PORT = 9763;
+            int DEFAULT_HTTPS_PORT = 9443;
             CARBON_HOST_URL = "https://" + ServerConfiguration.getInstance().getFirstProperty(HOST_NAME) + ":" +
                     //adds the offset defined in the server configs to the default 9763 port
                     (Integer.parseInt(ServerConfiguration.getInstance().getFirstProperty(PORT_OFFSET)) +
