@@ -97,11 +97,11 @@ public class JsonEndpointInfo {
     }
 
     public char[] getPassword() {
-        return password;
+        return password.clone();
     }
 
     public void setPassword(char[] password) {
-        this.password = password;
+        this.password = password.clone();
     }
 
     public String getEndpoint() {
