@@ -64,7 +64,7 @@ public class IdentityCacheEntry implements Serializable {
         this.cacheEntry = cacheEntry;
         this.secretKey = secretKey;
 
-        if (date !=null){
+        if (date != null) {
             this.date = new Date(date.getTime());
         }
     }
@@ -88,7 +88,7 @@ public class IdentityCacheEntry implements Serializable {
 
     public String[] getCacheEntryArray() {
 
-        if (cacheEntryArray!=null){
+        if (cacheEntryArray != null) {
             return cacheEntryArray.clone();
         }
         return new String[0];
@@ -99,9 +99,9 @@ public class IdentityCacheEntry implements Serializable {
     }
 
     public Date getDate() {
-        if(date!=null){
+        if (date != null) {
             return new Date(date.getTime());
         }
-        return  null;
+        return null;
     }
 }

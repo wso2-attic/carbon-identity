@@ -20,7 +20,6 @@
 
 package org.wso2.carbon.identity.sso.agent.saml;
 
-import com.google.inject.internal.cglib.core.CollectionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.xml.security.signature.XMLSignature;
@@ -98,7 +97,7 @@ public class SAML2SSOManager {
         String signerClassName = ssoAgentConfig.getSAML2().getSignatureValidatorImplClass();
         try {
             if (signerClassName != null) {
-                SSOAgentDataHolder.getInstance().setSignatureValidator( Class.forName(signerClassName).newInstance());
+                SSOAgentDataHolder.getInstance().setSignatureValidator(Class.forName(signerClassName).newInstance());
             }
         } catch (ClassNotFoundException e) {
             throw new SSOAgentException("Error loading custom signature validator class", e);
@@ -300,11 +299,11 @@ public class SAML2SSOManager {
         XMLObject saml2Object = null;
         if (request.getParameter(SSOAgentConstants.SAML2SSO.HTTP_POST_PARAM_SAML2_AUTH_REQ) != null) {
             saml2Object = SSOAgentUtils.unmarshall(new String(Base64.decode(request.getParameter(
-                    SSOAgentConstants.SAML2SSO.HTTP_POST_PARAM_SAML2_AUTH_REQ)),Charset.forName("UTF-8")));
+                    SSOAgentConstants.SAML2SSO.HTTP_POST_PARAM_SAML2_AUTH_REQ)), Charset.forName("UTF-8")));
         }
         if (saml2Object == null) {
             saml2Object = SSOAgentUtils.unmarshall(new String(Base64.decode(request.getParameter(
-                    SSOAgentConstants.SAML2SSO.HTTP_POST_PARAM_SAML2_RESP)),Charset.forName("UTF-8")));
+                    SSOAgentConstants.SAML2SSO.HTTP_POST_PARAM_SAML2_RESP)), Charset.forName("UTF-8")));
         }
         if (saml2Object instanceof LogoutRequest) {
             LogoutRequest logoutRequest = (LogoutRequest) saml2Object;
@@ -347,7 +346,7 @@ public class SAML2SSOManager {
 
         String saml2ResponseString =
                 new String(Base64.decode(request.getParameter(
-                        SSOAgentConstants.SAML2SSO.HTTP_POST_PARAM_SAML2_RESP)),Charset.forName("UTF-8"));
+                        SSOAgentConstants.SAML2SSO.HTTP_POST_PARAM_SAML2_RESP)), Charset.forName("UTF-8"));
         Response saml2Response = (Response) SSOAgentUtils.unmarshall(saml2ResponseString);
         sessionBean.getSAML2SSO().setResponseString(saml2ResponseString);
         sessionBean.getSAML2SSO().setSAMLResponse(saml2Response);
@@ -736,13 +735,10 @@ public class SAML2SSOManager {
             decrypter = new Decrypter(new StaticKeyInfoCredentialResolver(shared), null, null);
             decrypter.setRootInNewDocument(true);
             return decrypter.decrypt(encryptedAssertion);
-        } catch (Exception e){
-            if(log.isDebugEnabled()){
-                log.debug("Decrypted assertion error : ",e);
-                throw new SSOAgentException(e);
-            }
+        } catch (Exception e) {
+            throw new SSOAgentException("Decrypted assertion error", e);
+
         }
-        return null;
     }
 
     protected boolean isNoPassive(Response response) {

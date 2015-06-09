@@ -77,12 +77,21 @@ import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
+import java.io.ByteArrayInputStream;
+import java.io.BufferedInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.nio.charset.Charset;
-import java.security.*;
+import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
+import java.security.UnrecoverableKeyException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -485,7 +494,7 @@ public class WSXACMLEntitlementServiceClient extends AbstractEntitlementServiceC
             LSOutput output = impl.createLSOutput();
             output.setByteStream(byteArrayOutputStrm);
             writer.write(element, output);
-            return new String(byteArrayOutputStrm.toByteArray(),Charset.forName("UTF-8"));
+            return new String(byteArrayOutputStrm.toByteArray(), Charset.forName("UTF-8"));
         } catch (Exception e) {
             log.error("Error Serializing the SAML Response");
             throw new EntitlementProxyException("Error Serializing the SAML Response", e);
@@ -523,7 +532,7 @@ public class WSXACMLEntitlementServiceClient extends AbstractEntitlementServiceC
                 signature.setKeyInfo(keyInfo);
             } catch (CertificateEncodingException e) {
 
-                if(log.isDebugEnabled()){
+                if (log.isDebugEnabled()) {
                     log.debug("Certificate Encoding Exception occurred : ", e);
                 }
 

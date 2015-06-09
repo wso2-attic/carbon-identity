@@ -79,8 +79,16 @@ public class Attribute {
     }
 
     @Override
-    public boolean equals(Object obj) {
-        return super.equals(obj);
-    }
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
+        Attribute attribute = (Attribute) o;
+
+        if (!type.equals(attribute.type)) return false;
+        if (!id.equals(attribute.id)) return false;
+        if (!value.equals(attribute.value)) return false;
+        return category.equals(attribute.category);
+
+    }
 }

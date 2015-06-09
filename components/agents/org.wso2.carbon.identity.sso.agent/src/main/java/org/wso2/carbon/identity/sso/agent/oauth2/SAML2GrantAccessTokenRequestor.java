@@ -120,10 +120,8 @@ public class SAML2GrantAccessTokenRequestor {
             return response.toString();
 
         } catch (Exception e) {
-            if (log.isDebugEnabled()) {
-                log.debug("Exception occurred : ", e);
-            }
-            throw new SSOAgentException(e);
+
+            throw new SSOAgentException("Exception while executiong post", e);
         } finally {
 
             if (connection != null) {
