@@ -42,19 +42,14 @@ public class DefaultBPELExecutor implements WorkFlowExecutor {
 
     private static final String EXECUTOR_NAME = "DefaultBPELExecutor";
     private static final Set<String> REQUIRED_PARAMS;
-    private static final String HOST = "Host";
-    private static final String SERVICE_NAME = "ServiceName";
-    private static final String SERVICE_ACTION = "ServiceAction";
-    private static final String AUTH_USER = "User";
-    private static final String AUTH_USER_PASSWORD = "UserPassword";
 
     static {
         REQUIRED_PARAMS = new HashSet<>();
-        REQUIRED_PARAMS.add(HOST);
-        REQUIRED_PARAMS.add(SERVICE_NAME);
-        REQUIRED_PARAMS.add(SERVICE_ACTION);
-        REQUIRED_PARAMS.add(AUTH_USER);
-        REQUIRED_PARAMS.add(AUTH_USER_PASSWORD);
+        REQUIRED_PARAMS.add(WorkFlowConstants.TemplateConstants.HOST);
+        REQUIRED_PARAMS.add(WorkFlowConstants.TemplateConstants.PROCESS_NAME);
+        REQUIRED_PARAMS.add(WorkFlowConstants.TemplateConstants.SERVICE_ACTION);
+        REQUIRED_PARAMS.add(WorkFlowConstants.TemplateConstants.AUTH_USER);
+        REQUIRED_PARAMS.add(WorkFlowConstants.TemplateConstants.AUTH_USER_PASSWORD);
     }
 
     private Map<String, Object> initParams;
@@ -67,11 +62,13 @@ public class DefaultBPELExecutor implements WorkFlowExecutor {
 
     @Override
     public void initialize(Map<String, Object> params) {
+
         this.initParams = params;
     }
 
     @Override
     public void execute(WorkFlowRequest workFlowRequest) throws WorkflowException {
+
         validateExecutionParams();
         OMElement requestBody = WorkflowRequestBuilder.buildXMLRequest(workFlowRequest);
         try {
@@ -84,6 +81,7 @@ public class DefaultBPELExecutor implements WorkFlowExecutor {
 
     @Override
     public String getName() {
+
         return EXECUTOR_NAME;
     }
 
@@ -103,25 +101,26 @@ public class DefaultBPELExecutor implements WorkFlowExecutor {
     }
 
     private void callService(OMElement messagePayload) throws AxisFault {
+
         ServiceClient client = new ServiceClient(WorkflowServiceDataHolder.getInstance()
                 .getConfigurationContextService().getClientConfigContext(), null);
         Options options = new Options();
-        options.setAction((String) initParams.get(SERVICE_ACTION));
+        options.setAction((String) initParams.get(WorkFlowConstants.TemplateConstants.SERVICE_ACTION));
         String endpoint;
-        String host = (String) initParams.get(HOST);
-        String serviceName = (String) initParams.get(SERVICE_NAME);
+        String host = (String) initParams.get(WorkFlowConstants.TemplateConstants.HOST);
+        String serviceName = (String) initParams.get(WorkFlowConstants.TemplateConstants.PROCESS_NAME);
         if (host.endsWith("/")) {
-            endpoint = host + "services/" + serviceName;
+            endpoint = host + "services/" + serviceName + WorkFlowConstants.TemplateConstants.SERVICE_SUFFIX;
         } else {
-            endpoint = host + "/services/" + serviceName;
+            endpoint = host + "/services/" + serviceName + WorkFlowConstants.TemplateConstants.SERVICE_SUFFIX;
         }
 
         options.setTo(new EndpointReference(endpoint));
         options.setProperty(Constants.Configuration.MESSAGE_TYPE, HTTPConstants.MEDIA_TYPE_APPLICATION_XML);
 
         HttpTransportProperties.Authenticator auth = new HttpTransportProperties.Authenticator();
-        auth.setUsername((String) initParams.get(AUTH_USER));
-        auth.setPassword(new String((char[]) initParams.get(AUTH_USER_PASSWORD)));
+        auth.setUsername((String) initParams.get(WorkFlowConstants.TemplateConstants.AUTH_USER));
+        auth.setPassword(new String((char[]) initParams.get(WorkFlowConstants.TemplateConstants.AUTH_USER_PASSWORD)));
         auth.setPreemptiveAuthentication(true);
         List<String> authSchemes = new ArrayList<>();
         authSchemes.add(HttpTransportProperties.Authenticator.BASIC);

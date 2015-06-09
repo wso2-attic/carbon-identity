@@ -54,5 +54,10 @@ public class WorkFlowConstants {
 
         public static final String HT_SUBJECT = "HTSubject";
         public static final String HT_DESCRIPTION = "HTDescription";
+        public static final String SERVICE_ACTION = "ServiceAction";
+        public static final String SERVICE_SUFFIX = "Service";
+
+        public static final String DEFAULT_APPROVAL_BPEL_SOAP_ACTION = "http://bpel.mgt.workflow.carbon.wso2" +
+                ".org/approvalProcess/initiate";
     }
 }

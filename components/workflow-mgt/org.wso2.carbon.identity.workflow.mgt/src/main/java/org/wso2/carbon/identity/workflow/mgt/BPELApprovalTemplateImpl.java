@@ -80,6 +80,8 @@ public class BPELApprovalTemplateImpl extends AbstractWorkflowTemplateImpl {
         Map<String, Object> bpelProfileParams = workflowService.getBPSProfileParams(
                 (String) initParams.get(WorkFlowConstants.TemplateConstants.BPEL_IMPL_BPS_PROFILE));
         initParams.putAll(bpelProfileParams);
+        initParams.put(WorkFlowConstants.TemplateConstants.SERVICE_ACTION,WorkFlowConstants.TemplateConstants
+                .DEFAULT_APPROVAL_BPEL_SOAP_ACTION);
         super.initializeExecutor(initParams);
     }
 
