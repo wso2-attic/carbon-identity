@@ -1,73 +1,71 @@
-<!--
- ~ Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
- ~
- ~ WSO2 Inc. licenses this file to you under the Apache License,
- ~ Version 2.0 (the "License"); you may not use this file except
- ~ in compliance with the License.
- ~ You may obtain a copy of the License at
- ~
- ~    http://www.apache.org/licenses/LICENSE-2.0
- ~
- ~ Unless required by applicable law or agreed to in writing,
- ~ software distributed under the License is distributed on an
- ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- ~ KIND, either express or implied.  See the License for the
- ~ specific language governing permissions and limitations
- ~ under the License.
- -->
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
+<%--
+  ~ Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+  ~
+  ~ WSO2 Inc. licenses this file to you under the Apache License,
+  ~ Version 2.0 (the "License"); you may not use this file except
+  ~ in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied.  See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  --%>
+
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar"
-	prefix="carbon"%>
-<%@ page import="org.wso2.carbon.ui.CarbonUIMessage"%>
-<%@ page import="java.util.ResourceBundle" %>
-<%@page import="java.lang.Exception"%>
-<%@ page import="java.io.IOException" %>
-<%@ page import="org.wso2.carbon.identity.entitlement.ui.EntitlementPolicyConstants" %>
-<%@ page import="org.wso2.carbon.identity.entitlement.stub.dto.EntitlementTreeNodeDTO" %>
-<%@ page import="org.wso2.carbon.identity.entitlement.stub.dto.EntitlementFinderDataHolder" %>
-<%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
+           prefix="carbon" %>
 <%@ page import="org.apache.axis2.context.ConfigurationContext" %>
 <%@ page import="org.wso2.carbon.CarbonConstants" %>
+<%@page import="org.wso2.carbon.identity.entitlement.stub.dto.EntitlementFinderDataHolder" %>
+<%@ page import="org.wso2.carbon.identity.entitlement.stub.dto.EntitlementTreeNodeDTO" %>
+<%@ page import="org.wso2.carbon.identity.entitlement.ui.EntitlementPolicyConstants" %>
+<%@ page import="org.wso2.carbon.identity.entitlement.ui.client.EntitlementPolicyAdminServiceClient" %>
+<%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
-<%@ page
-        import="org.wso2.carbon.identity.entitlement.ui.client.EntitlementPolicyAdminServiceClient" %>
+<%@ page import="java.io.IOException" %>
+<%@ page import="java.util.ResourceBundle" %>
 <%@ page import="java.util.Set" %>
 <jsp:useBean id="entitlementPolicyBean" type="org.wso2.carbon.identity.entitlement.ui.EntitlementPolicyBean"
              class="org.wso2.carbon.identity.entitlement.ui.EntitlementPolicyBean" scope="session"/>
-<jsp:setProperty name="entitlementPolicyBean" property="*" />
+<jsp:setProperty name="entitlementPolicyBean" property="*"/>
 <%!
     public void printChildrenTree(EntitlementTreeNodeDTO node, JspWriter out) throws IOException {
-        if(node != null){
+        if (node != null) {
             EntitlementTreeNodeDTO[] children = node.getChildNodes();
-            if(children != null  && children.length > 0){
+            if (children != null && children.length > 0) {
                 out.write("<li><a class='plus' onclick='treeColapse(this)'>&nbsp;</a> " +
                           "<a class='treeNode' onclick='selectMe(this)'>" + node.getName() + "</a>");
                 out.write("<ul style='display:none'>");
-                for(EntitlementTreeNodeDTO child : children){
+                for (EntitlementTreeNodeDTO child : children) {
                     printChildrenTree(child, out);
                 }
                 out.write("</ul>");
             } else {
                 out.write("<li><a class='minus' onclick='treeColapse(this)'>&nbsp;</a> " +
-                          "<a class='treeNode' onclick='selectMe(this)'>" + node.getName() + "</a>");                
+                          "<a class='treeNode' onclick='selectMe(this)'>" + node.getName() + "</a>");
                 out.write("</li>");
             }
         }
     }
 
     public void printChildren(EntitlementTreeNodeDTO node, String parentNodeName, JspWriter out) throws IOException {
-        if(node != null){
+        if (node != null) {
             String nodeName;
-            if(parentNodeName != null && parentNodeName.trim().length() > 0){
+            if (parentNodeName != null && parentNodeName.trim().length() > 0) {
                 nodeName = parentNodeName + "/" + node.getName();
             } else {
-               nodeName = node.getName();                
+                nodeName = node.getName();
             }
 
-            out.write("<li><a class='treeNode' onclick='selectMe(this)'>" + nodeName + "</a></li>") ;
+            out.write("<li><a class='treeNode' onclick='selectMe(this)'>" + nodeName + "</a></li>");
             EntitlementTreeNodeDTO[] children = node.getChildNodes();
-            if(children != null  && children.length > 0){
-                for(EntitlementTreeNodeDTO child : children){
+            if (children != null && children.length > 0) {
+                for (EntitlementTreeNodeDTO child : children) {
                     printChildren(child, nodeName, out);
                 }
             }
@@ -96,53 +94,53 @@
     String ruleId = request.getParameter("ruleId");
     String returnPage = request.getParameter("returnPage");
     selectedFinderModule = request.getParameter("finderModule");
-    if(selectedFinderModule == null || selectedFinderModule.trim().length() < 1){
+    if (selectedFinderModule == null || selectedFinderModule.trim().length() < 1) {
         selectedFinderModule = EntitlementPolicyConstants.DEFAULT_META_DATA_MODULE_NAME;
     }
 
     category = request.getParameter("category");
     String selectedDataLevelString = request.getParameter("selectedDataLevel");
     int selectedDataLevel = 0;
-    try{
+    try {
         selectedDataLevel = Integer.parseInt(selectedDataLevelString);
-    } catch (Exception e){
+    } catch (Exception e) {
         //ignore
     }
     String selectedData = request.getParameter("selectedData" + selectedDataLevel);
-    Set<EntitlementFinderDataHolder> holders =  entitlementPolicyBean.getEntitlementFinders(category);
+    Set<EntitlementFinderDataHolder> holders = entitlementPolicyBean.getEntitlementFinders(category);
     try {
         EntitlementPolicyAdminServiceClient client =
                 new EntitlementPolicyAdminServiceClient(cookie, serverURL, configContext);
 
-        if(selectedFinderModule != null && selectedFinderModule.trim().length() > 0){
+        if (selectedFinderModule != null && selectedFinderModule.trim().length() > 0) {
             finderDataHolder = entitlementPolicyBean.getEntitlementFinders().get(selectedFinderModule);
             levels = finderDataHolder.getHierarchicalLevels();
 
-            if(searchString != null && searchString.trim().length() > 0){
+            if (searchString != null && searchString.trim().length() > 0) {
                 selectedTree = client.getEntitlementData(selectedFinderModule,
-                                            category, searchString, 0, 100);
-                if(selectedTree == null){
+                                                         category, searchString, 0, 100);
+                if (selectedTree == null) {
                     showNoData = true;
                 }
-            } else if(levels > 0 && selectedData != null && selectedData.trim().length() > 0 &&
-                    selectedDataLevel + 1 != levels){
+            } else if (levels > 0 && selectedData != null && selectedData.trim().length() > 0 &&
+                       selectedDataLevel + 1 != levels) {
                 EntitlementTreeNodeDTO nodeDTO = client.getEntitlementData(selectedFinderModule,
-                                                category, selectedData, selectedDataLevel + 1, 100);
+                                                                           category, selectedData, selectedDataLevel + 1, 100);
                 entitlementPolicyBean.getEntitlementLevelData().put(selectedDataLevel + 1, nodeDTO);
-                if(selectedData != null && selectedData.trim().length() > 0 ){
+                if (selectedData != null && selectedData.trim().length() > 0) {
                     entitlementPolicyBean.getSelectedEntitlementData().put(selectedDataLevel, selectedData);
                 }
             }
         } else {
             String message = resourceBundle.getString("no.entitlement.data.finder.defined");
-            %>
-            <script type="text/javascript">
-                CARBON.showWarningDialog('<%=message%>', null, null);
-            </script>
-            <%
-        }
-    } catch (Exception e) {
-    	String message = resourceBundle.getString("error.while.retrieving.attribute.values");
+%>
+<script type="text/javascript">
+    CARBON.showWarningDialog('<%=message%>', null, null);
+</script>
+<%
+    }
+} catch (Exception e) {
+    String message = resourceBundle.getString("error.while.retrieving.attribute.values");
 %>
 <script type="text/javascript">
     CARBON.showErrorDialog('<%=message%>', null, null);
@@ -152,11 +150,11 @@
 %>
 
 <%
-    if(holders == null || holders.size() == 0){
+    if (holders == null || holders.size() == 0) {
         String message = resourceBundle.getString("no.entitlement.data.finder.defined");
 %>
 <script type="text/javascript">
-    CARBON.showWarningDialog('<%=message%>',  function () {
+    CARBON.showWarningDialog('<%=message%>', function () {
         location.href = "basic-policy-editor.jsp";
     });
 </script>
@@ -164,7 +162,7 @@
     }
 %>
 <%
-    if(showNoData){
+    if (showNoData) {
         String message = resourceBundle.getString("no.entitlement.data.defined");
 %>
 <script type="text/javascript">
@@ -174,11 +172,11 @@
     }
 %>
 <fmt:bundle basename="org.wso2.carbon.identity.entitlement.ui.i18n.Resources">
-<carbon:breadcrumb
-		label="select.attribute.values"
-		resourceBundle="org.wso2.carbon.identity.entitlement.ui.i18n.Resources"
-		topPage="true"
-		request="<%=request%>" />
+    <carbon:breadcrumb
+            label="select.attribute.values"
+            resourceBundle="org.wso2.carbon.identity.entitlement.ui.i18n.Resources"
+            topPage="true"
+            request="<%=request%>"/>
 
     <script type="text/javascript" src="../carbon/admin/js/breadcrumbs.js"></script>
     <script type="text/javascript" src="../carbon/admin/js/cookies.js"></script>
@@ -188,9 +186,10 @@
     <script src="../entitlement/js/create-basic-policy.js" type="text/javascript"></script>
     <link href="../entitlement/css/entitlement.css" rel="stylesheet" type="text/css" media="all"/>
 
-    
-     <!--Yahoo includes for dom event handling-->
-    <script src="http://yui.yahooapis.com/2.8.1/build/yahoo-dom-event/yahoo-dom-event.js" type="text/javascript"></script>
+
+    <!--Yahoo includes for dom event handling-->
+    <script src="http://yui.yahooapis.com/2.8.1/build/yahoo-dom-event/yahoo-dom-event.js"
+            type="text/javascript"></script>
 
     <!--Yahoo includes for animations-->
     <script src="http://yui.yahooapis.com/2.8.1/build/animation/animation-min.js" type="text/javascript"></script>
@@ -199,278 +198,292 @@
     <script type="text/javascript" src="js/treecontrol.js"></script>
     <script type="text/javascript" src="js/popup.js"></script>
 
-    <link href="css/tree-styles.css" media="all" rel="stylesheet" />
-    <link href="css/dsxmleditor.css" media="all" rel="stylesheet" />
-<script type="text/javascript">
+    <link href="css/tree-styles.css" media="all" rel="stylesheet"/>
+    <link href="css/dsxmleditor.css" media="all" rel="stylesheet"/>
+    <script type="text/javascript">
 
-    function getFinderModule() {
-        preSubmit();
-        document.attributeValueForm.action = "select-attribute-values.jsp";
-        document.attributeValueForm.submit();
-        <%--var comboBox = document.getElementById("finderModule");--%>
-        <%--var finderModule = comboBox[comboBox.selectedIndex].value;--%>
-        <%--location.href = 'select-attribute-values.jsp?finderModule=' + finderModule--%>
-                        <%--+ "&category=" + '<%=category%>' + "&ruleId=" + '<%=ruleId%>';--%>
-    }
-
-    function getNextData() {
-        preSubmit();
-        document.attributeValueForm.action = "select-attribute-values.jsp";
-        document.attributeValueForm.submit();
-        <%--var comboBox = document.getElementById("finderModule");--%>
-        <%--var finderModule = comboBox[comboBox.selectedIndex].value;--%>
-        <%--location.href = 'select-attribute-values.jsp?finderModule=' + finderModule--%>
-                <%--+ "&category=" + '<%=category%>' + "&ruleId=" + '<%=ruleId%>';--%>
-    }
-
-    function doSearch() {
-        preSubmit();
-        document.attributeValueForm.action = "select-attribute-values.jsp";
-        document.attributeValueForm.submit();
-    <%--var comboBox = document.getElementById("finderModule");--%>
-    <%--var finderModule = comboBox[comboBox.selectedIndex].value;--%>
-    <%--location.href = 'select-attribute-values.jsp?finderModule=' + finderModule--%>
-    <%--+ "&category=" + '<%=category%>' + "&ruleId=" + '<%=ruleId%>';--%>
-    }
-
-    function createInputs(value){
-        var mainTable = document.getElementById('mainTable');
-        var newTr = mainTable.insertRow(mainTable.rows.length);
-        var cell1 = newTr.insertCell(0);
-        cell1.innerHTML = '<input type="hidden" name="attributeValue'+ mainTable.rows.length
-                +'" id="attributeValue'+ mainTable.rows.length +'" value="' + value + '"/>';
-    }
-
-    function submitForm(fullPathSupported){
-        preSubmit();
-        for(var i in paths){
-            if(fullPathSupported){
-                createInputs(paths[i].path);
-            } else {
-                createInputs(paths[i].name);
-            }
+        function getFinderModule() {
+            preSubmit();
+            document.attributeValueForm.action = "select-attribute-values.jsp";
+            document.attributeValueForm.submit();
+            <%--var comboBox = document.getElementById("finderModule");--%>
+            <%--var finderModule = comboBox[comboBox.selectedIndex].value;--%>
+            <%--location.href = 'select-attribute-values.jsp?finderModule=' + finderModule--%>
+            <%--+ "&category=" + '<%=category%>' + "&ruleId=" + '<%=ruleId%>';--%>
         }
-        document.attributeValueForm.action = "<%=returnPage%>?category="
-                + '<%=category%>' +"&ruleId=" + '<%=ruleId%>' ;
-        document.attributeValueForm.submit();
-    }
 
-    function doCancel(){
-        preSubmit();
-        document.attributeValueForm.action = "<%=returnPage%>?ruleId=" + '<%=ruleId%>';
-        document.attributeValueForm.submit();
-    }
+        function getNextData() {
+            preSubmit();
+            document.attributeValueForm.action = "select-attribute-values.jsp";
+            document.attributeValueForm.submit();
+            <%--var comboBox = document.getElementById("finderModule");--%>
+            <%--var finderModule = comboBox[comboBox.selectedIndex].value;--%>
+            <%--location.href = 'select-attribute-values.jsp?finderModule=' + finderModule--%>
+            <%--+ "&category=" + '<%=category%>' + "&ruleId=" + '<%=ruleId%>';--%>
+        }
 
-    <%--var selectedPaths = new Array();--%>
-    <%--<%--%>
+        function doSearch() {
+            preSubmit();
+            document.attributeValueForm.action = "select-attribute-values.jsp";
+            document.attributeValueForm.submit();
+            <%--var comboBox = document.getElementById("finderModule");--%>
+            <%--var finderModule = comboBox[comboBox.selectedIndex].value;--%>
+            <%--location.href = 'select-attribute-values.jsp?finderModule=' + finderModule--%>
+            <%--+ "&category=" + '<%=category%>' + "&ruleId=" + '<%=ruleId%>';--%>
+        }
+
+        function createInputs(value) {
+            var mainTable = document.getElementById('mainTable');
+            var newTr = mainTable.insertRow(mainTable.rows.length);
+            var cell1 = newTr.insertCell(0);
+            cell1.innerHTML = '<input type="hidden" name="attributeValue' + mainTable.rows.length
+                    + '" id="attributeValue' + mainTable.rows.length + '" value="' + value + '"/>';
+        }
+
+        function submitForm(fullPathSupported) {
+            preSubmit();
+            for (var i in paths) {
+                if (fullPathSupported) {
+                    createInputs(paths[i].path);
+                } else {
+                    createInputs(paths[i].name);
+                }
+            }
+            document.attributeValueForm.action = "<%=returnPage%>?category="
+                    + '<%=category%>' + "&ruleId=" + '<%=ruleId%>';
+            document.attributeValueForm.submit();
+        }
+
+        function doCancel() {
+            preSubmit();
+            document.attributeValueForm.action = "<%=returnPage%>?ruleId=" + '<%=ruleId%>';
+            document.attributeValueForm.submit();
+        }
+
+        <%--var selectedPaths = new Array();--%>
+        <%--<%--%>
         <%--for(int i=0;i<resourceNames.length;i++){--%>
-            <%--%>--%>
-                <%--selectedPaths.push('<%=resourceNames[i]%>');--%>
-            <%--<%--%>
+        <%--%>--%>
+        <%--selectedPaths.push('<%=resourceNames[i]%>');--%>
+        <%--<%--%>
         <%--}--%>
-    <%--%>--%>
-    <%--if(selectedPaths.length > 0){--%>
-        
-    <%--}--%>
-    <%--jQuery(document).ready(--%>
-            <%--function(){--%>
-                <%--pickNames();           --%>
-            <%--}--%>
-    <%--);--%>
+        <%--%>--%>
+        <%--if(selectedPaths.length > 0){--%>
 
-    function preSubmit(){
+        <%--}--%>
+        <%--jQuery(document).ready(--%>
+        <%--function(){--%>
+        <%--pickNames();           --%>
+        <%--}--%>
+        <%--);--%>
 
-        jQuery('#attributeValueTable > tbody:last').append('<tr><td><input type="hidden" name="category" id="category" value="<%=category%>" /><input type="hidden" name="ruleId" id="ruleId" value="<%=ruleId%>" /><input type="hidden" name="returnPage" id="returnPage" value="<%=returnPage%>" /></td></tr>') ;
+        function preSubmit() {
 
-    }
+            jQuery('#attributeValueTable > tbody:last').append('<tr><td><input type="hidden" name="category" id="category" value="<%=category%>" /><input type="hidden" name="ruleId" id="ruleId" value="<%=ruleId%>" /><input type="hidden" name="returnPage" id="returnPage" value="<%=returnPage%>" /></td></tr>');
 
-</script>
+        }
 
-<div id="middle">
-    <h2><fmt:message key="select.attribute.values"/></h2>
-    <div id="workArea">
-        <form id="attributeValueForm" name="attributeValueForm" method="post" action="basic-policy-editor.jsp">
-        <table width="60%" id="attributeValueTable" class="styledLeft">
-        <tbody>
-        <tr>
-            <td class="formRaw">
-            <table class="normal" cellpadding="0" cellspacing="0" class="treeTable" style="width:100%">
-            <tr>
-                <td>
-                <table>
-    <%
-        if(holders != null && holders.size() > 0){
-    %>
-                <tr>
-                    <td class="leftCel-med">
-                        <fmt:message key="attribute.finder.module"/>
-                    </td>
-                    <td>
-                        <select onchange="getFinderModule();" id="finderModule" name="finderModule">
-                        <%
-                                for (EntitlementFinderDataHolder entry : holders) {
-                                    String moduleName = entry.getName();
-                                    if(moduleName.equals(selectedFinderModule)){
-                        %>
-                              <option value="<%=moduleName%>" selected="selected"><%=moduleName%></option>
-                        <%
-                                    } else {
-                        %>
-                              <option value="<%=moduleName%>"><%=moduleName%></option>
-                        <%
-                                    }
-                                }
-                        %>
-                        </select>
-                    </td>
-                </tr>
-                <%
-                    int i = 1;
-                    while (true) {
-                    EntitlementTreeNodeDTO  nodeDTO =  entitlementPolicyBean.getEntitlementLevelData().get(i);
-                        if(nodeDTO == null){
-                            break;
-                        }
-                %>
+    </script>
 
+    <div id="middle">
+        <h2><fmt:message key="select.attribute.values"/></h2>
+
+        <div id="workArea">
+            <form id="attributeValueForm" name="attributeValueForm" method="post" action="basic-policy-editor.jsp">
+                <table width="60%" id="attributeValueTable" class="styledLeft">
+                    <tbody>
                     <tr>
-                        <td class="leftCel-med">
-                            <fmt:message key="select.attribute.data"/> <%=i%>
-                        </td>
-                        <td>
-                            <select onchange="getNextData();" id="selectedData<%=i%>"
-                                                    name="selectedData<%=i%>" >
-                                <%
-                                    
-                                EntitlementTreeNodeDTO[] childNodeDTOs = nodeDTO.getChildNodes();
-                                for (EntitlementTreeNodeDTO childNodeDTO : childNodeDTOs) {
-                                    String name = childNodeDTO.getName();
-                                    if(name.equals(entitlementPolicyBean.getSelectedEntitlementData().get(i))){
-                                %>
-                                <option value="<%=name%>" selected="selected"><%=name%></option>
-                                <%
-                                    } else {
-                                %>
-                                <option value="<%=name%>"><%=name%></option>
+                        <td class="formRaw">
+                            <table class="normal" cellpadding="0" cellspacing="0" class="treeTable" style="width:100%">
+                                <tr>
+                                    <td>
+                                        <table>
+                                            <%
+                                                if (holders != null && holders.size() > 0) {
+                                            %>
+                                            <tr>
+                                                <td class="leftCel-med">
+                                                    <fmt:message key="attribute.finder.module"/>
+                                                </td>
+                                                <td>
+                                                    <select onchange="getFinderModule();" id="finderModule"
+                                                            name="finderModule">
+                                                        <%
+                                                            for (EntitlementFinderDataHolder entry : holders) {
+                                                                String moduleName = entry.getName();
+                                                                if (moduleName.equals(selectedFinderModule)) {
+                                                        %>
+                                                        <option value="<%=moduleName%>"
+                                                                selected="selected"><%=moduleName%>
+                                                        </option>
+                                                        <%
+                                                        } else {
+                                                        %>
+                                                        <option value="<%=moduleName%>"><%=moduleName%>
+                                                        </option>
+                                                        <%
+                                                                }
+                                                            }
+                                                        %>
+                                                    </select>
+                                                </td>
+                                            </tr>
+                                            <%
+                                                int i = 1;
+                                                while (true) {
+                                                    EntitlementTreeNodeDTO nodeDTO = entitlementPolicyBean.getEntitlementLevelData().get(i);
+                                                    if (nodeDTO == null) {
+                                                        break;
+                                                    }
+                                            %>
+
+                                            <tr>
+                                                <td class="leftCel-med">
+                                                    <fmt:message key="select.attribute.data"/> <%=i%>
+                                                </td>
+                                                <td>
+                                                    <select onchange="getNextData();" id="selectedData<%=i%>"
+                                                            name="selectedData<%=i%>">
+                                                        <%
+
+                                                            EntitlementTreeNodeDTO[] childNodeDTOs = nodeDTO.getChildNodes();
+                                                            for (EntitlementTreeNodeDTO childNodeDTO : childNodeDTOs) {
+                                                                String name = childNodeDTO.getName();
+                                                                if (name.equals(entitlementPolicyBean.getSelectedEntitlementData().get(i))) {
+                                                        %>
+                                                        <option value="<%=name%>" selected="selected"><%=name%>
+                                                        </option>
+                                                        <%
+                                                        } else {
+                                                        %>
+                                                        <option value="<%=name%>"><%=name%>
+                                                        </option>
+                                                        <%
+                                                                }
+                                                            }
+                                                        %>
+                                                    </select>
+                                                </td>
+                                                <td>
+                                                    <input type="hidden" name="selectedDataLevel"
+                                                           id="selectedDataLevel" value="<%=i%>"/>
+                                                </td>
+                                            </tr>
+                                            <%
+                                                    i++;
+                                                }
+                                            %>
+                                            <%
+                                                if (levels == 0 || selectedDataLevel + 1 == levels) {
+                                            %>
+                                            <tr>
+                                                <td class="leftCel-med">
+                                                    <fmt:message key="enter.attribute.search.pattern"/>
+                                                </td>
+                                                <td>
+                                                    <input type="text" name="searchString" id="searchString"
+                                                           value="<%= searchString != null? searchString :""%>"/>
+                                                </td>
+                                                <td style="border:0; !important">
+                                                    <a class="icon-link" href="#"
+                                                       style="background-image: url(images/search.gif);"
+                                                       onclick="doSearch(); return false;"
+                                                       alt="<fmt:message key="search"/>"></a>
+                                                </td>
+                                            </tr>
+                                            <%
+                                                }
+                                            %>
+                                        </table>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td>
+                                        <table id="mainTable" class="styledLeft noBorders" style="display:none">
+                                        </table>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="3">
+                                        <table cellpadding="0" cellspacing="0" class="treeTable" style="width:100%">
+                                            <thead>
+                                            <tr>
+                                                <th><fmt:message key="attribute.values"/></th>
+                                                <th style="background-image:none;border:none"></th>
+                                                <th><fmt:message key="selected.attribute.values"/></th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            <tr>
+                                                <%
+                                                    if (selectedTree != null) {
+                                                %>
+                                                <td style="width: 500px;border:solid 1px #ccc">
+                                                    <div class="treeControl">
+                                                        <ul>
+                                                            <%
+                                                                if (finderDataHolder.getHierarchicalTree()) {
+                                                                    EntitlementTreeNodeDTO[] childNodes = selectedTree.getChildNodes();
+                                                                    if (childNodes != null && childNodes.length > 0) {
+                                                                        for (EntitlementTreeNodeDTO childNode : childNodes) {
+                                                                            printChildrenTree(childNode, out);
+                                                                        }
+                                                                    }
+                                                                } else {
+                                                                    EntitlementTreeNodeDTO[] childNodes = selectedTree.getChildNodes();
+                                                                    if (childNodes != null && childNodes.length > 0) {
+                                                                        for (EntitlementTreeNodeDTO childNode : childNodes) {
+                                                                            printChildren(childNode, selectedTree.getName(), out);
+                                                                        }
+                                                                    }
+                                                                }
+                                                            %>
+                                                        </ul>
+                                                    </div>
+                                                </td>
+                                                <td style="width:50px;vertical-align: middle;border-bottom:solid 1px #ccc">
+                                                    <input class="button" value=">>"
+                                                           onclick="pickNames(<%=finderDataHolder.getFullPathSupported()%>)"
+                                                           style="width:30px;margin:10px;"/>
+                                                </td>
+                                                <td style="border:solid 1px #ccc">
+                                                    <div style="overflow: auto;height:300px" id="listView"></div>
+                                                </td>
+                                                <%
+                                                    }
+                                                %>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                    </td>
+                                </tr>
+
+
+                                <tr>
+                                    <td class="buttonRow">
+                                        <%
+                                            if (selectedTree != null) {
+                                        %>
+                                        <input type="button"
+                                               onclick="submitForm(<%=finderDataHolder.getFullPathSupported()%>)"
+                                               value="<fmt:message key="add"/>" class="button"/>
+                                        <%
+                                            }
+                                        %>
+                                        <input type="button" onclick="doCancel();" value="<fmt:message key="cancel" />"
+                                               class="button"/>
+                                    </td>
+                                </tr>
                                 <%
                                     }
-                                }
                                 %>
-                            </select>
-                        </td>
-                        <td>
-                            <input type="hidden" name="selectedDataLevel"
-                                   id="selectedDataLevel" value="<%=i%>" />
+                            </table>
                         </td>
                     </tr>
-                <%
-                        i++;
-                    }
-                %>
-                <%
-                    if(levels == 0 || selectedDataLevel + 1 == levels){
-                %>
-                <tr>
-                    <td class="leftCel-med">
-                        <fmt:message key="enter.attribute.search.pattern"/>
-                    </td>
-                    <td>
-                        <input type="text" name="searchString" id="searchString"
-                               value="<%= searchString != null? searchString :""%>"/>
-                    </td>
-                    <td style="border:0; !important">
-                        <a class="icon-link" href="#" style="background-image: url(images/search.gif);"
-                           onclick="doSearch(); return false;"
-                           alt="<fmt:message key="search"/>"></a>
-                    </td>
-                </tr>
-                <%
-                    }
-                %>
-                </table>
-                </td>
-                </tr>
-
-                <tr>
-                    <td>
-                        <table id="mainTable" class="styledLeft noBorders" style="display:none">
-                        </table>
-                    </td>
-                </tr>
-                <tr>
-                <td colspan="3">
-                    <table cellpadding="0" cellspacing="0" class="treeTable" style="width:100%">
-                    <thead>
-                        <tr>
-                            <th ><fmt:message key="attribute.values"/></th>
-                            <th  style="background-image:none;border:none"></th>
-                            <th><fmt:message key="selected.attribute.values"/></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                             <%
-                                if(selectedTree != null){
-                             %>
-                            <td style="width: 500px;border:solid 1px #ccc">
-                                <div class="treeControl">
-                                <ul>
-                            <%
-                                if(finderDataHolder.getHierarchicalTree()){
-                                    EntitlementTreeNodeDTO[] childNodes = selectedTree.getChildNodes();
-                                    if(childNodes != null && childNodes.length > 0){
-                                        for(EntitlementTreeNodeDTO childNode : childNodes){
-                                            printChildrenTree(childNode , out);
-                                        }
-                                    }
-                                } else {
-                                    EntitlementTreeNodeDTO[] childNodes = selectedTree.getChildNodes();
-                                    if(childNodes != null && childNodes.length > 0){
-                                        for(EntitlementTreeNodeDTO childNode : childNodes){
-                                            printChildren(childNode, selectedTree.getName(), out);
-                                        }
-                                    }
-                                }
-                            %>
-                                </ul>
-                                </div>
-                            </td>
-                            <td style="width:50px;vertical-align: middle;border-bottom:solid 1px #ccc">
-                                <input class="button" value=">>" onclick="pickNames(<%=finderDataHolder.getFullPathSupported()%>)" style="width:30px;margin:10px;" />
-                            </td>
-                            <td style="border:solid 1px #ccc"><div style="overflow: auto;height:300px" id="listView"></div>
-                            </td>
-                            <%
-                                }
-                            %>
-                        </tr>
                     </tbody>
-                    </table>
-                </td>
-                </tr>
-
-
-                <tr>
-                    <td class="buttonRow" >
-                         <%
-                        if(selectedTree != null){
-                        %>
-                            <input type="button" onclick="submitForm(<%=finderDataHolder.getFullPathSupported()%>)" value="<fmt:message key="add"/>"  class="button"/>
-                        <%
-                            }
-                        %>
-                        <input type="button" onclick="doCancel();" value="<fmt:message key="cancel" />" class="button"/>
-                    </td>
-                </tr>
-                <%
-                    }
-                %>
                 </table>
-                </td>                
-            </tr>
-            </tbody>
-        </table>
-        </form>
+            </form>
+        </div>
     </div>
-</div>
 </fmt:bundle>

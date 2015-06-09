@@ -1,12 +1,12 @@
 /*
- *  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- *  WSO2 Inc. licenses this file to you under the Apache License,
- *  Version 2.0 (the "License"); you may not use this file except
- *  in compliance with the License.
- *  You may obtain a copy of the License at
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -22,12 +22,30 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.wso2.balana.*;
-import org.wso2.balana.attr.*;
+import org.wso2.balana.AbstractPolicy;
+import org.wso2.balana.Balana;
+import org.wso2.balana.ParsingException;
+import org.wso2.balana.Policy;
+import org.wso2.balana.PolicySet;
+import org.wso2.balana.XACMLConstants;
+import org.wso2.balana.attr.AttributeValue;
+import org.wso2.balana.attr.BooleanAttribute;
+import org.wso2.balana.attr.DateAttribute;
+import org.wso2.balana.attr.DateTimeAttribute;
+import org.wso2.balana.attr.DoubleAttribute;
+import org.wso2.balana.attr.HexBinaryAttribute;
+import org.wso2.balana.attr.IntegerAttribute;
+import org.wso2.balana.attr.StringAttribute;
+import org.wso2.balana.attr.TimeAttribute;
 import org.wso2.balana.combine.PolicyCombiningAlgorithm;
 import org.wso2.balana.combine.xacml2.FirstApplicablePolicyAlg;
 import org.wso2.balana.combine.xacml2.OnlyOneApplicablePolicyAlg;
-import org.wso2.balana.combine.xacml3.*;
+import org.wso2.balana.combine.xacml3.DenyOverridesPolicyAlg;
+import org.wso2.balana.combine.xacml3.DenyUnlessPermitPolicyAlg;
+import org.wso2.balana.combine.xacml3.OrderedDenyOverridesPolicyAlg;
+import org.wso2.balana.combine.xacml3.OrderedPermitOverridesPolicyAlg;
+import org.wso2.balana.combine.xacml3.PermitOverridesPolicyAlg;
+import org.wso2.balana.combine.xacml3.PermitUnlessDenyPolicyAlg;
 import org.wso2.balana.ctx.AbstractRequestCtx;
 import org.wso2.balana.ctx.Attribute;
 import org.wso2.balana.xacml3.Attributes;
@@ -63,17 +81,25 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.text.ParseException;
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 
 /**
  * Provides utility functionalities used across different classes.
  */
 public class EntitlementUtil {
 
-    private static Log log = LogFactory.getLog(EntitlementUtil.class);
+    private static final Log log = LogFactory.getLog(EntitlementUtil.class);
 
+
+    private EntitlementUtil() {
+    }
 
     /**
      * Return an instance of a named cache that is common to all tenants.
@@ -86,16 +112,7 @@ public class EntitlementUtil {
 
         // We create a single cache for all tenants. It is not a good choice to create per-tenant
         // caches in this case. We qualify tenants by adding the tenant identifier in the cache key.
-//	    PrivilegedCarbonContext currentContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
-//	    PrivilegedCarbonContext.startTenantFlow();
-//		try {
-//			currentContext.setTenantId(MultitenantConstants.SUPER_TENANT_ID);
-//			return CacheManager.getInstance().getCache(name);
-//		} finally {
-//		    PrivilegedCarbonContext.endTenantFlow();
-//		}
-
-        return new EntitlementBaseCache<IdentityCacheKey, IdentityCacheEntry>(name);
+        return new EntitlementBaseCache<>(name);
     }
 
     /**
@@ -132,7 +149,7 @@ public class EntitlementUtil {
                 return TimeAttribute.getInstance(value);
             }
             if (HexBinaryAttribute.identifier.equals(type)) {
-                return new HexBinaryAttribute(value.getBytes());
+                return new HexBinaryAttribute(value.getBytes(StandardCharsets.UTF_8));
             }
 
             return new AttributeValue(new URI(type)) {
@@ -142,15 +159,9 @@ public class EntitlementUtil {
                 }
             };
 
-        } catch (ParsingException e) {
+        } catch (ParsingException | ParseException | URISyntaxException e) {
             throw new EntitlementException("Error while creating AttributeValue object for given " +
-                    "string value and data type");
-        } catch (ParseException e) {
-            throw new EntitlementException("Error while creating AttributeValue object for given " +
-                    "string value and data type");
-        } catch (URISyntaxException e) {
-            throw new EntitlementException("Error while creating AttributeValue object for given " +
-                    "string value and data type");
+                                           "string value and data type", e);
         }
     }
 
@@ -159,14 +170,13 @@ public class EntitlementUtil {
      *
      * @param attributeDTOs AttributeDTO objects as List
      * @return DOM element as XACML request
-     * @throws EntitlementException throws, if fails
      */
     public static AbstractRequestCtx createRequestContext(List<AttributeDTO> attributeDTOs) {
 
-        Set<Attributes> attributesSet = new HashSet<Attributes>();
+        Set<Attributes> attributesSet = new HashSet<>();
 
-        for (AttributeDTO DTO : attributeDTOs) {
-            Attributes attributes = getAttributes(DTO);
+        for (AttributeDTO dto : attributeDTOs) {
+            Attributes attributes = getAttributes(dto);
             if (attributes != null) {
                 attributesSet.add(attributes);
             }
@@ -183,7 +193,7 @@ public class EntitlementUtil {
     public static boolean validatePolicy(PolicyDTO policy) {
         try {
 
-            if (!"true".equalsIgnoreCase((String) EntitlementServiceComponent.getEntitlementConfig()
+            if (!Boolean.TRUE.toString().equalsIgnoreCase((String) EntitlementServiceComponent.getEntitlementConfig()
                     .getEngineProperties().get(EntitlementExtensionBuilder.PDP_SCHEMA_VALIDATION))) {
                 return true;
             }
@@ -207,7 +217,7 @@ public class EntitlementUtil {
                 DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
                 documentBuilderFactory.setNamespaceAware(true);
                 DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
-                InputStream stream = new ByteArrayInputStream(policy.getPolicy().getBytes());
+                InputStream stream = new ByteArrayInputStream(policy.getPolicy().getBytes(StandardCharsets.UTF_8));
                 Document doc = documentBuilder.parse(stream);
                 //Do the DOM validation
                 DOMSource domSource = new DOMSource(doc);
@@ -222,15 +232,14 @@ public class EntitlementUtil {
                 log.error("Invalid Namespace in policy");
             }
         } catch (SAXException e) {
-            log.error("XACML policy is not valid according to the schema :" + e.getMessage());
-        } catch (IOException e) {
-            //ignore
-        } catch (ParserConfigurationException e) {
-            //ignore
+            log.error("XACML policy is not valid according to the schema :" + e.getMessage(), e);
+        } catch (IOException | ParserConfigurationException e) {
+            if (log.isDebugEnabled()) {
+                log.debug("Exception ignored. ", e);
+            }
         }
         return false;
     }
-
 
     public static String getPolicyVersion(String policy) {
 
@@ -239,30 +248,31 @@ public class EntitlementUtil {
             DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
             documentBuilderFactory.setNamespaceAware(true);
             DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
-            InputStream stream = new ByteArrayInputStream(policy.getBytes());
+            InputStream stream = new ByteArrayInputStream(policy.getBytes(StandardCharsets.UTF_8));
             Document doc = documentBuilder.parse(stream);
 
             //get policy version
             Element policyElement = doc.getDocumentElement();
             return policyElement.getNamespaceURI();
         } catch (Exception e) {
-            log.debug(e);
+            if (log.isDebugEnabled()) {
+                log.debug("Ignore exception as default value is used ignored in Waining. ", e);
+            }
             // ignore exception as default value is used
             log.warn("Policy version can not be identified. Default XACML 3.0 version is used");
             return XACMLConstants.XACML_3_0_IDENTIFIER;
         }
     }
 
-
     public static Attributes getAttributes(AttributeDTO attributeDataDTO) {
 
         try {
             AttributeValue value = Balana.getInstance().getAttributeFactory().
                     createValue(new URI(attributeDataDTO.getAttributeDataType()),
-                            attributeDataDTO.getAttributeValue());
+                                attributeDataDTO.getAttributeValue());
             Attribute attribute = new Attribute(new URI(attributeDataDTO.getAttributeId()),
-                    null, null, value, XACMLConstants.XACML_VERSION_3_0);
-            Set<Attribute> set = new HashSet<Attribute>();
+                                                null, null, value, XACMLConstants.XACML_VERSION_3_0);
+            Set<Attribute> set = new HashSet<>();
             set.add(attribute);
             String category = attributeDataDTO.getCategory();
             // We are only creating XACML 3.0 requests Therefore covert order XACML categories to new uris
@@ -277,8 +287,10 @@ public class EntitlementUtil {
             }
             return new Attributes(new URI(category), set);
         } catch (Exception e) {
-            log.debug(e);
-            //ignore and return null;
+            if (log.isDebugEnabled()) {
+                log.debug("Exceptin gnore and return null. ", e);
+
+            }
         }
 
         return null;
@@ -328,35 +340,35 @@ public class EntitlementUtil {
     public static String createSimpleXACMLRequest(String subject, String resource, String action, String environment) {
 
         return "<Request xmlns=\"urn:oasis:names:tc:xacml:3.0:core:schema:wd-17\" CombinedDecision=\"false\" ReturnPolicyIdList=\"false\">\n" +
-                "<Attributes Category=\"urn:oasis:names:tc:xacml:3.0:attribute-category:action\">\n" +
-                "<Attribute AttributeId=\"urn:oasis:names:tc:xacml:1.0:action:action-id\" IncludeInResult=\"false\">\n" +
-                "<AttributeValue DataType=\"http://www.w3.org/2001/XMLSchema#string\">" + action + "</AttributeValue>\n" +
-                "</Attribute>\n" +
-                "</Attributes>\n" +
-                "<Attributes Category=\"urn:oasis:names:tc:xacml:1.0:subject-category:access-subject\">\n" +
-                "<Attribute AttributeId=\"urn:oasis:names:tc:xacml:1.0:subject:subject-id\" IncludeInResult=\"false\">\n" +
-                "<AttributeValue DataType=\"http://www.w3.org/2001/XMLSchema#string\">" + subject + "</AttributeValue>\n" +
-                "</Attribute>\n" +
-                "</Attributes>\n" +
-                "<Attributes Category=\"urn:oasis:names:tc:xacml:3.0:attribute-category:environment\">\n" +
-                "<Attribute AttributeId=\"urn:oasis:names:tc:xacml:1.0:environment:environment-id\" IncludeInResult=\"false\">\n" +
-                "<AttributeValue DataType=\"http://www.w3.org/2001/XMLSchema#string\">" + environment + "</AttributeValue>\n" +
-                "</Attribute>\n" +
-                "</Attributes>\n" +
-                "<Attributes Category=\"urn:oasis:names:tc:xacml:3.0:attribute-category:resource\">\n" +
-                "<Attribute AttributeId=\"urn:oasis:names:tc:xacml:1.0:resource:resource-id\" IncludeInResult=\"false\">\n" +
-                "<AttributeValue DataType=\"http://www.w3.org/2001/XMLSchema#string\">" + resource + "</AttributeValue>\n" +
-                "</Attribute>\n" +
-                "</Attributes>\n" +
-                "</Request> ";
+               "<Attributes Category=\"urn:oasis:names:tc:xacml:3.0:attribute-category:action\">\n" +
+               "<Attribute AttributeId=\"urn:oasis:names:tc:xacml:1.0:action:action-id\" IncludeInResult=\"false\">\n" +
+               "<AttributeValue DataType=\"http://www.w3.org/2001/XMLSchema#string\">" + action + "</AttributeValue>\n" +
+               "</Attribute>\n" +
+               "</Attributes>\n" +
+               "<Attributes Category=\"urn:oasis:names:tc:xacml:1.0:subject-category:access-subject\">\n" +
+               "<Attribute AttributeId=\"urn:oasis:names:tc:xacml:1.0:subject:subject-id\" IncludeInResult=\"false\">\n" +
+               "<AttributeValue DataType=\"http://www.w3.org/2001/XMLSchema#string\">" + subject + "</AttributeValue>\n" +
+               "</Attribute>\n" +
+               "</Attributes>\n" +
+               "<Attributes Category=\"urn:oasis:names:tc:xacml:3.0:attribute-category:environment\">\n" +
+               "<Attribute AttributeId=\"urn:oasis:names:tc:xacml:1.0:environment:environment-id\" IncludeInResult=\"false\">\n" +
+               "<AttributeValue DataType=\"http://www.w3.org/2001/XMLSchema#string\">" + environment + "</AttributeValue>\n" +
+               "</Attribute>\n" +
+               "</Attributes>\n" +
+               "<Attributes Category=\"urn:oasis:names:tc:xacml:3.0:attribute-category:resource\">\n" +
+               "<Attribute AttributeId=\"urn:oasis:names:tc:xacml:1.0:resource:resource-id\" IncludeInResult=\"false\">\n" +
+               "<AttributeValue DataType=\"http://www.w3.org/2001/XMLSchema#string\">" + resource + "</AttributeValue>\n" +
+               "</Attribute>\n" +
+               "</Attributes>\n" +
+               "</Request> ";
     }
 
     public static void addSamplePolicies(Registry registry) {
 
         File policyFolder = new File(CarbonUtils.getCarbonHome() + File.separator
-                + "repository" + File.separator + "resources" + File.separator
-                + "security" + File.separator + "policies" + File.separator + "xacml"
-                + File.separator + "default");
+                                     + "repository" + File.separator + "resources" + File.separator
+                                     + "security" + File.separator + "policies" + File.separator + "xacml"
+                                     + File.separator + "default");
 
         if (policyFolder.exists()) {
             for (File policyFile : policyFolder.listFiles()) {
@@ -446,7 +458,6 @@ public class EntitlementUtil {
         }
     }
 
-
     public static AbstractPolicy getPolicy(String policy) {
 
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -462,9 +473,9 @@ public class EntitlementUtil {
             Element root = doc.getDocumentElement();
             String name = root.getTagName();
             // see what type of policy this is
-            if (name.equals("Policy")) {
+            if ("Policy".equals(name)) {
                 return Policy.getInstance(root);
-            } else if (name.equals("PolicySet")) {
+            } else if ("PolicySet".equals(name)) {
                 return PolicySet.getInstance(root, null);
             } else {
                 // this isn't a root type that we know how to handle
@@ -477,7 +488,7 @@ public class EntitlementUtil {
                 try {
                     stream.close();
                 } catch (IOException e) {
-                    log.error("Error while closing input stream");
+                    log.error("Error while closing input stream", e);
                 }
             }
         }
@@ -517,9 +528,9 @@ public class EntitlementUtil {
         }
 
         if (policyStoreDTO == null || policyStoreDTO.getPolicy() == null
-                || policyStoreDTO.getPolicy().trim().length() == 0
-                || policyStoreDTO.getPolicyId() == null
-                || policyStoreDTO.getPolicyId().trim().length() == 0) {
+            || policyStoreDTO.getPolicy().trim().length() == 0
+            || policyStoreDTO.getPolicyId() == null
+            || policyStoreDTO.getPolicyId().trim().length() == 0) {
             return;
         }
 
@@ -568,10 +579,10 @@ public class EntitlementUtil {
         if (attributeDTOs != null) {
             for (AttributeDTO attributeDTO : attributeDTOs) {
                 resource.setProperty("policyMetaData" + attributeElementNo,
-                        attributeDTO.getCategory() + "," +
-                                attributeDTO.getAttributeValue() + "," +
-                                attributeDTO.getAttributeId() + "," +
-                                attributeDTO.getAttributeDataType());
+                                     attributeDTO.getCategory() + "," +
+                                     attributeDTO.getAttributeValue() + "," +
+                                     attributeDTO.getAttributeId() + "," +
+                                     attributeDTO.getAttributeDataType());
                 attributeElementNo++;
             }
         }

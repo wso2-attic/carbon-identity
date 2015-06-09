@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2012, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -59,7 +59,12 @@ import org.opensaml.xml.io.Unmarshaller;
 import org.opensaml.xml.io.UnmarshallerFactory;
 import org.opensaml.xml.security.x509.BasicX509Credential;
 import org.opensaml.xml.security.x509.X509Credential;
-import org.opensaml.xml.signature.*;
+import org.opensaml.xml.signature.KeyInfo;
+import org.opensaml.xml.signature.Signature;
+import org.opensaml.xml.signature.SignatureValidator;
+import org.opensaml.xml.signature.Signer;
+import org.opensaml.xml.signature.X509Certificate;
+import org.opensaml.xml.signature.X509Data;
 import org.opensaml.xml.validation.ValidationException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -83,6 +88,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.nio.charset.StandardCharsets;
 import java.security.PrivateKey;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateEncodingException;
@@ -93,9 +99,11 @@ import java.util.List;
 public class WSXACMLMessageReceiver extends RPCMessageReceiver {
 
     private static final String SECURITY_MANAGER_PROPERTY = Constants.XERCES_PROPERTY_PREFIX +
-            Constants.SECURITY_MANAGER_PROPERTY;
+                                                            Constants.SECURITY_MANAGER_PROPERTY;
     private static final int ENTITY_EXPANSION_LIMIT = 0;
-    private static Log log = LogFactory.getLog(WSXACMLMessageReceiver.class);
+    private static final Log log = LogFactory.getLog(WSXACMLMessageReceiver.class);
+    public static final String HTTPS_IDENTITY_CARBON_WSO2_ORG = "https://identity.carbon.wso2.org";
+    public static final String SPPPROVIER_ID = "SPPProvierId";
     private static boolean isBootStrapped = false;
     private static OMNamespace xacmlContextNS = OMAbstractFactory.getOMFactory()
             .createOMNamespace("urn:oasis:names:tc:xacml:2.0:context:schema:os", "xacml-context");
@@ -125,8 +133,8 @@ public class WSXACMLMessageReceiver extends RPCMessageReceiver {
         IssuerBuilder issuer = (IssuerBuilder) org.opensaml.xml.Configuration.getBuilderFactory().
                 getBuilder(Issuer.DEFAULT_ELEMENT_NAME);
         Issuer issuerObject = issuer.buildObject();
-        issuerObject.setValue("https://identity.carbon.wso2.org");
-        issuerObject.setSPProvidedID("SPPProvierId");
+        issuerObject.setValue(HTTPS_IDENTITY_CARBON_WSO2_ORG);
+        issuerObject.setSPProvidedID(SPPPROVIER_ID);
         return issuerObject;
     }
 
@@ -158,6 +166,9 @@ public class WSXACMLMessageReceiver extends RPCMessageReceiver {
                 keyInfo.getX509Datas().add(data);
                 signature.setKeyInfo(keyInfo);
             } catch (CertificateEncodingException e) {
+                if (log.isDebugEnabled()) {
+                    log.debug("CertificateEncodingException : ", e);
+                }
                 throw new EntitlementException("errorGettingCert");
             }
             response.setSignature(signature);
@@ -187,10 +198,10 @@ public class WSXACMLMessageReceiver extends RPCMessageReceiver {
         XMLObjectBuilder builder = org.opensaml.xml.Configuration.getBuilderFactory().getBuilder(objectQName);
         if (builder == null) {
             throw new EntitlementException("Unable to retrieve builder for object QName "
-                    + objectQName);
+                                           + objectQName);
         }
         return builder.buildObject(objectQName.getNamespaceURI(), objectQName.getLocalPart(),
-                objectQName.getPrefix());
+                                   objectQName.getPrefix());
     }
 
     /**
@@ -208,24 +219,17 @@ public class WSXACMLMessageReceiver extends RPCMessageReceiver {
 
         keyAlias = ServerConfiguration.getInstance().getFirstProperty("Security.KeyStore.KeyAlias");
 
-//        try {
         keyAdmin = new KeyStoreAdmin(-1234, (Registry) CarbonContext.getThreadLocalCarbonContext().
-                getRegistry((RegistryType.SYSTEM_GOVERNANCE)));
-//        } catch (RegistryException e) {
-//            log.error("Error occurred while creating KeyStoreAdmin.", e);
-//        }
+                getRegistry(RegistryType.SYSTEM_GOVERNANCE));
         keyMan = KeyStoreManager.getInstance(-1234);
 
-        if (keyAdmin != null) {
-            try {
-                issuerPK = (PrivateKey) keyAdmin.getPrivateKey(keyAlias, true);
-            } catch (SecurityConfigException e) {
-                log.error("Error while getting the private key KeyAdmin.", e);
-            }
+        try {
+            issuerPK = (PrivateKey) keyAdmin.getPrivateKey(keyAlias, true);
+        } catch (SecurityConfigException e) {
+            log.error("Error while getting the private key KeyAdmin.", e);
         }
 
         try {
-            //issuerPK = keyMan.getDefaultPrivateKey();
             certificate = keyMan.getPrimaryKeyStore().getCertificate(keyAlias);
         } catch (Exception e) {
             log.error("Error occurred while getting the KeyStore from KeyManger.", e);
@@ -267,10 +271,13 @@ public class WSXACMLMessageReceiver extends RPCMessageReceiver {
                 serviceClass = inMessageContext.getAxisService().getParameterValue("XACMLHandlerImplClass").
                         toString().trim();
             } catch (NullPointerException e) {
+                if (log.isDebugEnabled()) {
+                    log.debug("NullPointerException occurred.  ", e);
+                }
                 log.error("WS-XACML ServiceClass not specified in service context");
                 throw new AxisFault("WS-XACML ServiceClass not specified in service context");
             }
-            if (serviceClass == null || serviceClass.length() == 0) {
+            if (serviceClass.length() == 0) {
                 log.error("WS-XACML ServiceClass not specified in service context");
                 throw new AxisFault("WS-XACML ServiceClass not specified in service context");
             }
@@ -284,7 +291,7 @@ public class WSXACMLMessageReceiver extends RPCMessageReceiver {
                 outSOAPEnvelope.getBody().addChild(samlResponseElement);
                 outMessageContext.setEnvelope(outSOAPEnvelope);
             } else {
-                throw new Exception("SOAP envelope can not be null");
+                throw new EntitlementException("SOAP envelope can not be null");
             }
         } catch (Exception e) {
             log.error("Error occurred while evaluating XACML request.", e);
@@ -320,7 +327,7 @@ public class WSXACMLMessageReceiver extends RPCMessageReceiver {
      * @return xacml Request
      * @throws Exception
      */
-    private String extractXACMLRequest(String decisionQuery) throws Exception {
+    private String extractXACMLRequest(String decisionQuery) throws EntitlementException {
 
         RequestType xacmlRequest = null;
         doBootstrap();
@@ -346,7 +353,7 @@ public class WSXACMLMessageReceiver extends RPCMessageReceiver {
             return queryString;
         } catch (Exception e) {
             log.error("Error unmarshalling the XACMLAuthzDecisionQuery.", e);
-            throw new Exception("Error unmarshalling the XACMLAuthzDecisionQuery.", e);
+            throw new EntitlementException("Error unmarshalling the XACMLAuthzDecisionQuery.", e);
         }
 
     }
@@ -373,7 +380,8 @@ public class WSXACMLMessageReceiver extends RPCMessageReceiver {
 
             DocumentBuilder docBuilder = documentBuilderFactory.newDocumentBuilder();
             docBuilder.setEntityResolver(new CarbonEntityResolver());
-            Document document = docBuilder.parse(new ByteArrayInputStream(xmlString.trim().getBytes()));
+            Document document = docBuilder.parse(new ByteArrayInputStream(xmlString.trim().getBytes(StandardCharsets
+                                                                                                            .UTF_8)));
             Element element = document.getDocumentElement();
             UnmarshallerFactory unmarshallerFactory = Configuration.getUnmarshallerFactory();
             Unmarshaller unmarshaller = unmarshallerFactory.getUnmarshaller(element);
@@ -394,8 +402,8 @@ public class WSXACMLMessageReceiver extends RPCMessageReceiver {
 
         boolean isValidated = false;
 
-        if (issuer.getValue().equals("https://identity.carbon.wso2.org")
-                && issuer.getSPProvidedID().equals("SPPProvierId")) {
+        if (HTTPS_IDENTITY_CARBON_WSO2_ORG.equals(issuer.getValue())
+            && SPPPROVIER_ID.equals(issuer.getSPProvidedID())) {
             isValidated = true;
         }
         return isValidated;
@@ -414,7 +422,7 @@ public class WSXACMLMessageReceiver extends RPCMessageReceiver {
         try {
             doBootstrap();
             System.setProperty("javax.xml.parsers.DocumentBuilderFactory",
-                    "org.apache.xerces.jaxp.DocumentBuilderFactoryImpl");
+                               "org.apache.xerces.jaxp.DocumentBuilderFactoryImpl");
 
             MarshallerFactory marshallerFactory = org.opensaml.xml.Configuration.getMarshallerFactory();
             Marshaller marshaller = marshallerFactory.getMarshaller(xmlObject);
@@ -440,9 +448,9 @@ public class WSXACMLMessageReceiver extends RPCMessageReceiver {
      *
      * @param signature : XML Signature that authenticates the assertion
      * @return whether the signature is valid
-     * @throws Exception
+     * @throws EntitlementException
      */
-    private boolean validateSignature(Signature signature) throws Exception {
+    private boolean validateSignature(Signature signature) throws EntitlementException {
 
         boolean isSignatureValid = false;
 
@@ -451,9 +459,12 @@ public class WSXACMLMessageReceiver extends RPCMessageReceiver {
             validator.validate(signature);
             isSignatureValid = true;
         } catch (ValidationException e) {
+            if (log.isDebugEnabled()) {
+                log.debug("ValidationException : ", e);
+            }
             log.warn("Signature validation failed.");
         } catch (Exception e) {
-            throw new Exception("Error in getting public X509Credentials to validate signature. ");
+            throw new EntitlementException("Error in getting public X509Credentials to validate signature. ", e);
         }
         return isSignatureValid;
     }
@@ -463,7 +474,7 @@ public class WSXACMLMessageReceiver extends RPCMessageReceiver {
      *
      * @return created X509Credential
      */
-    private X509CredentialImpl getPublicX509CredentialImpl() throws Exception {
+    private X509CredentialImpl getPublicX509CredentialImpl() throws EntitlementException {
 
         X509CredentialImpl credentialImpl;
         KeyStoreManager keyStoreManager;
@@ -475,9 +486,9 @@ public class WSXACMLMessageReceiver extends RPCMessageReceiver {
             return credentialImpl;
         } catch (Exception e) {
             log.error("Error instantiating an org.wso2.carbon.identity.entitlement.wsxacml.X509CredentialImpl " +
-                    "object for the public cert.", e);
-            throw new Exception("Error instantiating an org.wso2.carbon.identity.entitlement.wsxacml.X509CredentialImpl " +
-                    "object for the public cert.", e);
+                      "object for the public cert.", e);
+            throw new EntitlementException("Error instantiating an org.wso2.carbon.identity.entitlement.wsxacml" +
+                                           ".X509CredentialImpl object for the public cert.", e);
         }
     }
 
@@ -488,7 +499,7 @@ public class WSXACMLMessageReceiver extends RPCMessageReceiver {
      * @return saml response
      * @throws Exception
      */
-    public String secureXACMLResponse(String xacmlResponse) throws Exception {
+    public String secureXACMLResponse(String xacmlResponse) throws EntitlementException {
 
         ResponseType responseType;
         String responseString;
@@ -528,7 +539,7 @@ public class WSXACMLMessageReceiver extends RPCMessageReceiver {
             return responseString;
         } catch (EntitlementException e) {
             log.error("Error occurred while marshalling the SAML Response.", e);
-            throw new Exception("Error occurred while marshalling the SAML Response.", e);
+            throw new EntitlementException("Error occurred while marshalling the SAML Response.", e);
         }
     }
 
@@ -538,7 +549,7 @@ public class WSXACMLMessageReceiver extends RPCMessageReceiver {
      * @param xacmlResponse : received XACML response
      * @return formatted response
      */
-    private String formatResponse(String xacmlResponse) throws Exception {
+    private String formatResponse(String xacmlResponse) throws EntitlementException {
 
         xacmlResponse = xacmlResponse.replace("\n", "");
         OMElement omElemnt;
@@ -552,7 +563,7 @@ public class WSXACMLMessageReceiver extends RPCMessageReceiver {
             }
         } catch (Exception e) {
             log.error("Error while generating the OMElement from the XACML request.", e);
-            throw new Exception("Error while generating the OMElement from the XACML request.", e);
+            throw new EntitlementException("Error while generating the OMElement from the XACML request.", e);
         }
 
         return omElemnt.toString();
