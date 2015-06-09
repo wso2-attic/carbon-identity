@@ -6,12 +6,12 @@
  * in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the
+ * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
  * under the License.
  */
@@ -22,7 +22,6 @@ import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.identity.application.authenticator.fido.internal.FIDOAuthenticatorServiceComponent;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.service.RealmService;
-import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -30,43 +29,48 @@ import javax.servlet.http.HttpServletRequest;
  * FIDOUtil class for FIDO authentication component.
  */
 public class FIDOUtil {
-	public static void logTrace(String msg, Log log) {
-		if (log.isTraceEnabled()) {
-			log.trace(msg);
-		}
-	}
+    private FIDOUtil() {
+    }
 
-	public static String getOrigin(HttpServletRequest request) {
+    public static void logTrace(String msg, Log log) {
+        if (log.isTraceEnabled()) {
+            log.trace(msg);
+        }
+    }
 
-		return request.getScheme() + "://" + request.getServerName() + ":" +
-		       request.getServerPort();
-	}
+    public static String getOrigin(HttpServletRequest request) {
+
+        return request.getScheme() + "://" + request.getServerName() + ":" +
+                request.getServerPort();
+    }
 
     public static int getTenantID(String tenantDomain) throws UserStoreException {
 
         RealmService realmService = null;
         int tenantId;
         realmService = FIDOAuthenticatorServiceComponent.getRealmService();
-            tenantId = realmService.getTenantManager().getTenantId(tenantDomain);
+        tenantId = realmService.getTenantManager().getTenantId(tenantDomain);
         return tenantId;
     }
 
-	public static String getSafeText(String text) {
-		if (text == null) {
-			return text;
-		}
-		text = text.trim();
-		if (text.indexOf('<') > -1) {
-			text = text.replace("<", "&lt;");
-		}
-		if (text.indexOf('>') > -1) {
-			text = text.replace(">", "&gt;");
-		}
-		return text;
-	}
-	public static String getUniqueUsername(HttpServletRequest request, String username){
-		return request.getServerName() + "/" + username;
-	}
+    public static String getSafeText(String text) {
+        String trimmedText = null;
+        if (text == null) {
+            return text;
+        }
+        trimmedText = text.trim();
+        if (trimmedText.indexOf('<') > -1) {
+            trimmedText = trimmedText.replace("<", "&lt;");
+        }
+        if (trimmedText.indexOf('>') > -1) {
+            trimmedText = trimmedText.replace(">", "&gt;");
+        }
+        return trimmedText;
+    }
+
+    public static String getUniqueUsername(HttpServletRequest request, String username) {
+        return request.getServerName() + "/" + username;
+    }
 
     public static String getDomainName(String username) {
         int index = username.indexOf(CarbonConstants.DOMAIN_SEPARATOR);

@@ -15,18 +15,25 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.carbon.identity.application.authenticator.openid.manager;
 
-public interface AttributesRequestor {
+package org.wso2.carbon.identity.thrift.authentication.exception;
 
-    void init();
+import javax.servlet.ServletException;
 
-    String[] getRequestedAttributes(String claimed_id);
+/**
+ * This class is used for denote the exceptions thrown from the SSO agent module
+ */
+public class ThriftAuthenticationException extends ServletException {
 
-    boolean isRequired(String claimed_id, String alias);
+    public ThriftAuthenticationException(String message) {
+        super(message);
+    }
 
-    String getTypeURI(String claimed_id, String alias);
+    public ThriftAuthenticationException(Throwable cause) {
+        super(cause);
+    }
 
-    int getCount(String claimed_id, String alias);
-
+    public ThriftAuthenticationException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }
