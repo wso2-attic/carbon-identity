@@ -330,7 +330,7 @@ public class KeyStoreAdmin {
                         .generateCertificate(new ByteArrayInputStream(bytes));
             } catch (CertificateException e) {
                 log.error(e.getMessage(), e);
-                throw new SecurityConfigException("Invalid format of the provided certificate file", e);
+                throw new SecurityConfigException("Invalid format of the provided certificate file");
             }
 
             if (ks.getCertificateAlias(cert) != null) {
@@ -372,7 +372,7 @@ public class KeyStoreAdmin {
                 cert = (X509Certificate) factory
                         .generateCertificate(new ByteArrayInputStream(bytes));
             } catch (Exception e) {
-                throw new SecurityConfigException("Invalid format of the provided certificate file");
+                throw new SecurityConfigException("Invalid format of the provided certificate file", e);
             }
 
             if (ks.getCertificateAlias(cert) != null) {
@@ -392,7 +392,7 @@ public class KeyStoreAdmin {
         } catch (Exception e) {
             String msg = "Error when importing cert to keyStore";
             log.error(msg, e);
-            throw new SecurityConfigException(msg, e);
+            throw new SecurityConfigException(msg);
         }
     }
 
@@ -417,7 +417,7 @@ public class KeyStoreAdmin {
         } catch (Exception e) {
             String msg = "Error when removing cert from store";
             log.error(msg, e);
-            throw new SecurityConfigException(msg, e);
+            throw new SecurityConfigException(msg);
         }
     }
 
@@ -443,7 +443,7 @@ public class KeyStoreAdmin {
         } catch (Exception e) {
             String msg = "Error when getting store entries";
             log.error(msg, e);
-            throw new SecurityConfigException(msg, e);
+            throw new SecurityConfigException(msg);
         }
 
         return names;
@@ -537,7 +537,7 @@ public class KeyStoreAdmin {
             String msg = "Error has encounted while loading the keystore to the given keystore name "
                     + keyStoreName;
             log.error(msg, e);
-            throw new SecurityConfigException(msg, e);
+            throw new SecurityConfigException(msg);
         }
 
     }
@@ -562,7 +562,7 @@ public class KeyStoreAdmin {
         } catch (Exception e) {
             String msg = "Error has encounted while loading the key for the given alias " + alias;
             log.error(msg, e);
-            throw new SecurityConfigException(msg, e);
+            throw new SecurityConfigException(msg);
         }
         return null;
     }
@@ -757,7 +757,7 @@ public class KeyStoreAdmin {
             String msg = "Error has encounted while loading the keystore to the given keystore name "
                     + keyStoreName;
             log.error(msg, e);
-            throw new SecurityConfigException(msg, e);
+            throw new SecurityConfigException(msg);
         }
 
     }
