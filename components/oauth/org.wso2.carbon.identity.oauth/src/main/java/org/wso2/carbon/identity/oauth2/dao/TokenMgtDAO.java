@@ -1,20 +1,20 @@
 /*
-*Copyright (c) 2005-2013, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*WSO2 Inc. licenses this file to you under the Apache License,
-*Version 2.0 (the "License"); you may not use this file except
-*in compliance with the License.
-*You may obtain a copy of the License at
-*
-*http://www.apache.org/licenses/LICENSE-2.0
-*
-*Unless required by applicable law or agreed to in writing,
-*software distributed under the License is distributed on an
-*"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-*KIND, either express or implied.  See the License for the
-*specific language governing permissions and limitations
-*under the License.
-*/
+ * Copyright (c) 2013, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 
 package org.wso2.carbon.identity.oauth2.dao;
 
@@ -35,8 +35,18 @@ import org.wso2.carbon.identity.oauth2.model.AuthzCodeDO;
 import org.wso2.carbon.identity.oauth2.model.RefreshTokenValidationDataDO;
 import org.wso2.carbon.identity.oauth2.util.OAuth2Util;
 
-import java.sql.*;
-import java.util.*;
+import java.sql.Connection;
+import java.sql.DataTruncation;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.SQLIntegrityConstraintViolationException;
+import java.sql.Timestamp;
+import java.util.Calendar;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.TimeZone;
+import java.util.UUID;
 import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -54,11 +64,9 @@ public class TokenMgtDAO {
 
     private boolean enablePersist = true;
 
-    private static BlockingDeque<AccessContextTokenDO> accessContextTokenQueue
-            = new LinkedBlockingDeque<AccessContextTokenDO>();
+    private static BlockingDeque<AccessContextTokenDO> accessContextTokenQueue = new LinkedBlockingDeque<>();
 
-    private static BlockingDeque<AuthContextTokenDO> authContextTokenQueue
-            = new LinkedBlockingDeque<AuthContextTokenDO>();
+    private static BlockingDeque<AuthContextTokenDO> authContextTokenQueue = new LinkedBlockingDeque<>();
 
     private static final Log log = LogFactory.getLog(TokenMgtDAO.class);
 
@@ -71,7 +79,8 @@ public class TokenMgtDAO {
         try {
             maxPoolSize =
                     Integer.parseInt(IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.PoolSize"));
-        } catch (Exception e) {
+        } catch (NumberFormatException e) {
+            log.error("Error while parsing the integer", e);
         }
 
         if (maxPoolSize > 0) {
@@ -96,7 +105,7 @@ public class TokenMgtDAO {
         try {
             persistenceProcessor = OAuthServerConfiguration.getInstance().getPersistenceProcessor();
         } catch (IdentityOAuth2Exception e) {
-            log.error("Error retrieving TokenPersistenceProcessor. Defaulting to PlainTextProcessor");
+            log.error("Error retrieving TokenPersistenceProcessor. Defaulting to PlainTextProcessor", e);
             persistenceProcessor = new PlainTextPersistenceProcessor();
         }
 
@@ -255,9 +264,11 @@ public class TokenMgtDAO {
                                               "store connection", e);
         }
 
+        PreparedStatement prepStmt = null;
+        ResultSet resultSet = null;
         try {
 
-            String sql = null;
+            String sql;
             if (connection.getMetaData().getDriverName().contains("MySQL")
                 || connection.getMetaData().getDriverName().contains("H2")) {
                 sql = SQLQueries.RETRIEVE_LATEST_ACCESS_TOKEN_BY_CLIENT_ID_USER_SCOPE_MYSQL;
@@ -280,13 +291,13 @@ public class TokenMgtDAO {
                 sql = sql.replace(IDN_OAUTH2_ACCESS_TOKEN, IDN_OAUTH2_ACCESS_TOKEN + "_" + userStoreDomain);
             }
 
-            PreparedStatement prepStmt = connection.prepareStatement(sql);
+            prepStmt = connection.prepareStatement(sql);
             prepStmt.setString(1, persistenceProcessor.getProcessedClientId(consumerKey));
             prepStmt.setString(2, userName.toLowerCase());
             if (StringUtils.isNotEmpty(scope)) {
                 prepStmt.setString(3, scope);
             }
-            ResultSet resultSet = prepStmt.executeQuery();
+            resultSet = prepStmt.executeQuery();
 
             if (resultSet.next()) {
                 boolean returnToken = false;
@@ -336,7 +347,7 @@ public class TokenMgtDAO {
             }
             throw new IdentityOAuth2Exception(errorMsg, e);
         } finally {
-            IdentityDatabaseUtil.closeAllConnections(connection, null, null);
+            IdentityDatabaseUtil.closeAllConnections(connection, resultSet, prepStmt);
         }
     }
 
@@ -697,9 +708,10 @@ public class TokenMgtDAO {
 	    try {
 		    connection = JDBCPersistenceManager.getInstance().getDBConnection();
 	    } catch (IdentityException e) {
-		    throw new IdentityOAuth2Exception("Error occurred while trying to get a Identity " +
-		                                      "persistence store instance");
-	    }
+            throw new IdentityOAuth2Exception("Error occurred while trying to get a Identity persistence store " +
+                    "instance", e);
+
+        }
 	    try {
 		    setAccessTokenState(connection, accessToken, tokenState, tokenStateId, userStoreDomain);
 		    connection.commit();
@@ -755,7 +767,7 @@ public class TokenMgtDAO {
 
         String accessTokenStoreTable = OAuthConstants.ACCESS_TOKEN_STORE_TABLE;
         Connection connection = null;
-        PreparedStatement ps;
+        PreparedStatement ps = null;
         try {
             if (OAuth2Util.checkAccessTokenPartitioningEnabled() &&
                     OAuth2Util.checkUserNameAssertionEnabled()) {
@@ -779,7 +791,7 @@ public class TokenMgtDAO {
         } catch (IdentityException e) {
             throw new IdentityOAuth2Exception("Error occurred while revoking Access Token : " + token, e);
         } finally {
-            IdentityDatabaseUtil.closeConnection(connection);
+            IdentityDatabaseUtil.closeAllConnections(connection, null, ps);
         }
     }
 
@@ -795,6 +807,7 @@ public class TokenMgtDAO {
         String accessTokenStoreTable = OAuthConstants.ACCESS_TOKEN_STORE_TABLE;
         PreparedStatement ps = null;
         Connection connection = null;
+        ResultSet rs = null;
         Set<String> distinctConsumerKeys = new HashSet<String>();
         try {
             try {
@@ -811,7 +824,7 @@ public class TokenMgtDAO {
                     IDN_OAUTH2_ACCESS_TOKEN, accessTokenStoreTable);
             ps = connection.prepareStatement(sqlQuery);
             ps.setString(1, authzUser.toLowerCase());
-            ResultSet rs = ps.executeQuery();
+            rs = ps.executeQuery();
             while (rs.next()) {
                 String consumerKey = persistenceProcessor.getPreprocessedClientId(rs.getString(1));
                 distinctConsumerKeys.add(consumerKey);
@@ -821,7 +834,7 @@ public class TokenMgtDAO {
                     "Error occurred while retrieving all distinct Client IDs authorized by " +
                             "User ID : " + authzUser + " until now", e);
         } finally {
-            IdentityDatabaseUtil.closeConnection(connection);
+            IdentityDatabaseUtil.closeAllConnections(connection, rs, ps);
         }
         return distinctConsumerKeys;
     }
@@ -829,8 +842,8 @@ public class TokenMgtDAO {
     public String findScopeOfResource(String resourceUri) throws IdentityOAuth2Exception {
 
         Connection connection = null;
-        PreparedStatement ps;
-        ResultSet rs;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
 
         try {
             connection = JDBCPersistenceManager.getInstance().getDBConnection();
@@ -855,7 +868,7 @@ public class TokenMgtDAO {
             String errorMsg = "Error getting scopes for resource - " + resourceUri + " : " + e.getMessage();
             log.error(errorMsg, e);
         } finally {
-            IdentityDatabaseUtil.closeAllConnections(connection, null, null);
+            IdentityDatabaseUtil.closeAllConnections(connection, rs, ps);
         }
         return null;
     }

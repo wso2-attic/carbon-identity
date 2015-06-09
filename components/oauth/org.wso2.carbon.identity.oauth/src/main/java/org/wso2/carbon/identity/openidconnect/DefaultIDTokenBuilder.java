@@ -23,6 +23,7 @@ import com.nimbusds.jwt.PlainJWT;
 import com.nimbusds.jwt.SignedJWT;
 import org.apache.amber.oauth2.common.message.types.GrantType;
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.io.Charsets;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.oltu.openidconnect.as.messages.IDTokenBuilder;
@@ -72,8 +73,8 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
     private static final String SHA512_WITH_EC = "SHA512withEC";
     private static final String AUTHORIZATION_CODE = "AuthorizationCode";
     private static final String INBOUND_AUTH2_TYPE = "oauth2";
-    private static Log log = LogFactory.getLog(DefaultIDTokenBuilder.class);
-    private static Map<Integer, Key> privateKeys = new ConcurrentHashMap<Integer, Key>();
+    private static final Log log = LogFactory.getLog(DefaultIDTokenBuilder.class);
+    private static Map<Integer, Key> privateKeys = new ConcurrentHashMap<>();
     private OAuthServerConfiguration config = null;
     private Algorithm signatureAlgorithm = null;
 
@@ -152,28 +153,19 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
         }
         // Get access token issued time
         long accessTokenIssuedTime = getAccessTokenIssuedTime(tokenRespDTO.getAccessToken(), request) / 1000;
-        String atHash = new String(Base64.encodeBase64(tokenRespDTO.getAccessToken().getBytes()));
+        String atHash = new String(Base64.encodeBase64(tokenRespDTO.getAccessToken().getBytes(Charsets.UTF_8)), Charsets.UTF_8);
 
         if (log.isDebugEnabled()) {
-            StringBuilder stringBuilder = (new StringBuilder()).
-                    append("Using issuer " + issuer).
-                    append("\n").
-
-                    append("Subject " + subject).
-                    append("\n").
-
-                    append("ID Token life time " + lifetime).
-                    append("\n").
-
-                    append("Current time " + curTime).
-                    append("\n").
-
-                    append("Nonce Value " + nonceValue).
-                    append("\n").
-
-                    append("Signature Algorithm " + signatureAlgorithm).
-                    append("\n");
-            log.debug(stringBuilder.toString());
+            StringBuilder stringBuilder = (new StringBuilder())
+                    .append("Using issuer ").append(issuer).append("\n")
+                    .append("Subject ").append(subject).append("\n")
+                    .append("ID Token life time ").append(lifetime).append("\n")
+                    .append("Current time ").append(curTime).append("\n")
+                    .append("Nonce Value ").append(nonceValue).append("\n")
+                    .append("Signature Algorithm ").append(signatureAlgorithm).append("\n");
+            if (log.isDebugEnabled()) {
+                log.debug(stringBuilder.toString());
+            }
         }
 
         IDTokenBuilder builder =
