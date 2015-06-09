@@ -28,7 +28,7 @@ public class RuntimeProvisioningConfig implements Serializable {
      */
     private static final long serialVersionUID = -2629523092537958531L;
     private boolean blocking;
-    private transient Entry<String, AbstractOutboundProvisioningConnector> provisioningConnectorEntry;
+    private Entry<String, AbstractOutboundProvisioningConnector> provisioningConnectorEntry;
 
     /**
      * @return

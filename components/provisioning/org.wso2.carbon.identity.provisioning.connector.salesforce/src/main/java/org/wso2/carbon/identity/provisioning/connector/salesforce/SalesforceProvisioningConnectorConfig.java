@@ -51,7 +51,7 @@ public class SalesforceProvisioningConnectorConfig implements Serializable {
         List<String> requiredAttributeList = new ArrayList<>();
         String requiredAttributes = this.configs
                 .getProperty(SalesforceConnectorConstants.PropertyConfig.REQUIRED_FIELDS);
-        if (requiredAttributes != null && !StringUtils.isBlank(requiredAttributes)) {
+        if (StringUtils.isNotBlank(requiredAttributes)) {
             requiredAttributeList = Arrays.asList(requiredAttributes
                     .split(IdentityProvisioningConstants.PropertyConfig.DELIMATOR));
         }
@@ -65,7 +65,7 @@ public class SalesforceProvisioningConnectorConfig implements Serializable {
     public String getUserIdClaim() throws IdentityProvisioningException {
         String userIDClaim = this.configs
                 .getProperty(SalesforceConnectorConstants.PropertyConfig.USER_ID_CLAIM);
-        if (userIDClaim == null || StringUtils.isBlank(userIDClaim)) {
+        if (StringUtils.isBlank(userIDClaim)) {
             log.error("Required claim for user id is not defined in config");
             throw new IdentityProvisioningException(
                     "Required claim for user id is not defined in config");

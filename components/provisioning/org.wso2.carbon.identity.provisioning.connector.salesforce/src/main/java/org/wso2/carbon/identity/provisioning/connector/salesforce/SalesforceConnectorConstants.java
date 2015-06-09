@@ -54,8 +54,6 @@ public class SalesforceConnectorConstants {
 
     public class PropertyConfig {
 
-        private PropertyConfig(){}
-
         public static final String IDP_NAME = "Identity.Provisioning.Connector.Salesforce.IdP.Name";
         public static final String DOMAIN_NAME = "sf-domain-name";
         public static final String API_VERSION = "sf-api-version";
@@ -74,6 +72,8 @@ public class SalesforceConnectorConstants {
         public static final String USERNAME = "sf-username";
         public static final String PASSWORD = "sf-password";
         public static final String OAUTH2_TOKEN_ENDPOINT = "sf-token-endpoint";
+
+        private PropertyConfig(){}
 
     }
 

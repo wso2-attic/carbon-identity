@@ -35,8 +35,8 @@ public class ProvisioningEntity implements Serializable {
     private ProvisionedIdentifier identifier;
     private String entityName;
     private boolean jitProvisioning;
-    private transient Map<ClaimMapping, List<String>> attributes;
-    private transient Map<String, String> inboundAttributes;
+    private Map<ClaimMapping, List<String>> attributes;
+    private Map<String, String> inboundAttributes;
 
     /**
      *

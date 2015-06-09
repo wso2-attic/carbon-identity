@@ -49,8 +49,8 @@ public class GoogleConnectorServiceComponent {
             if (log.isDebugEnabled()) {
                 log.debug("Google Identity Provisioning Connector bundle is activated");
             }
-        } catch (Exception e) {
-            log.error(" Error while activating Google Identity Provisioning Connector ", e);
+        } catch (Throwable e) {
+            log.error("Error while activating Google Identity Provisioning Connector", e);
         }
     }
 

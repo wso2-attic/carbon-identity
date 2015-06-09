@@ -60,7 +60,7 @@ import java.util.Map;
  */
 public class IdentityProvisionServiceComponent {
 
-    private static Log log = LogFactory.getLog(IdentityProvisionServiceComponent.class);
+    private static final Log log = LogFactory.getLog(IdentityProvisionServiceComponent.class);
 
     /**
      * @return
@@ -126,9 +126,8 @@ public class IdentityProvisionServiceComponent {
             if (log.isDebugEnabled()) {
                 log.debug("Identity Provisioning framework bundle is activated");
             }
-        } catch (IdentityProvisioningException e) {
+        } catch (Throwable e) {
             log.error("Error while initiating identity provisioning connector framework", e);
-            log.error("Error while activating Identity Provision bundle", e);
         }
     }
 

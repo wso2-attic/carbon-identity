@@ -83,7 +83,7 @@ public class ProvisioningThread implements Callable<Boolean> {
             }
 
             success = true;
-        } catch (Exception e) {
+        } catch (IdentityApplicationManagementException e) {
             String errMsg = " Provisioning for Entity " + provisioningEntity.getEntityName() +
                     " For operation = " + provisioningEntity.getOperation();
             throw new IdentityProvisioningException(errMsg, e);

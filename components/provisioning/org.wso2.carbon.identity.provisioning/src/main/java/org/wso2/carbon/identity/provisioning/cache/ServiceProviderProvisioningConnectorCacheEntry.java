@@ -27,7 +27,7 @@ public class ServiceProviderProvisioningConnectorCacheEntry extends CacheEntry {
 
     private static final long serialVersionUID = 1L;
 
-    private transient Map<String, RuntimeProvisioningConfig> connectors = null;
+    private Map<String, RuntimeProvisioningConfig> connectors = null;
 
     public Map<String, RuntimeProvisioningConfig> getConnectors() {
         return connectors;

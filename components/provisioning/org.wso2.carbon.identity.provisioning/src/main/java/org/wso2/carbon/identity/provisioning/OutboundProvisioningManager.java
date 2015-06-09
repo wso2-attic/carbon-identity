@@ -50,7 +50,12 @@ import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 import java.util.AbstractMap.SimpleEntry;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -660,7 +665,7 @@ public class OutboundProvisioningManager {
 
         List<String> userGroups = getGroupNames(provisioningEntity.getAttributes());
 
-        if (userGroups == null || CollectionUtils.isEmpty(userGroups)) {
+        if (CollectionUtils.isEmpty(userGroups)) {
             return;
         }
 
@@ -761,7 +766,7 @@ public class OutboundProvisioningManager {
         List<String> userList = ProvisioningUtil.getClaimValues(attributeMap,
                 IdentityProvisioningConstants.USERNAME_CLAIM_URI, null);
 
-        if (userList != null && CollectionUtils.isNotEmpty(userList)) {
+        if (CollectionUtils.isNotEmpty(userList)) {
             return userList.get(0);
         }
 

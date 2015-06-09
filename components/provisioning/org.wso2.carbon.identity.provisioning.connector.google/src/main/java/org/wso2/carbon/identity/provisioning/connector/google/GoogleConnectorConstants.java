@@ -25,9 +25,9 @@ public class GoogleConnectorConstants {
     public static final String ATTRIBUTE_PASSWORD = "password";
     public static final String ATTRIBUTE_PRIMARYEMAIL = "primaryEmail";
 
-    public class PropertyConfig {
+    public static final String PRIVATE_KEY = "google_prov_private_key";
 
-        private PropertyConfig(){}
+    public class PropertyConfig {
 
         public static final String IDP_NAME = "Identity.Provisioning.Connector.Google.IdP";
         public static final String DOMAIN_NAME = "Identity.Provisioning.Connector.Google.Domain.Name";
@@ -44,6 +44,6 @@ public class GoogleConnectorConstants {
         public static final String SERVICE_ACCOUNT_PKCS12_FILE_PATH = "Identity.Provisioning.Connector.Google.ServiceAccountPKCS12FilePath";
         public static final String APPLICATION_NAME = "Identity.Provisioning.Connector.Google.ApplicationName";
 
-        public static final String PRIVATE_KEY = "google_prov_private_key";
+        private PropertyConfig(){}
     }
 }

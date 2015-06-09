@@ -31,9 +31,19 @@ import org.json.JSONObject;
 import org.json.JSONTokener;
 import org.wso2.carbon.identity.application.common.model.Property;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
-import org.wso2.carbon.identity.provisioning.*;
+import org.wso2.carbon.identity.provisioning.AbstractOutboundProvisioningConnector;
+import org.wso2.carbon.identity.provisioning.IdentityProvisioningConstants;
+import org.wso2.carbon.identity.provisioning.IdentityProvisioningException;
+import org.wso2.carbon.identity.provisioning.ProvisionedIdentifier;
+import org.wso2.carbon.identity.provisioning.ProvisioningEntity;
+import org.wso2.carbon.identity.provisioning.ProvisioningEntityType;
+import org.wso2.carbon.identity.provisioning.ProvisioningOperation;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -141,7 +151,7 @@ public class SalesforceProvisioningConnector extends AbstractOutboundProvisionin
             String provisioningDomain = this.configHolder.getValue(provisioningDomainKey);
             String userId = provisioningEntity.getEntityName();
 
-            if (userIdClaimURL != null && StringUtils.isNotBlank(requiredAttributes.get(userIdClaimURL))) {
+            if (StringUtils.isNotBlank(requiredAttributes.get(userIdClaimURL))) {
                 userId = requiredAttributes.get(userIdClaimURL);
             }
 
@@ -243,8 +253,7 @@ public class SalesforceProvisioningConnector extends AbstractOutboundProvisionin
                 }
             }
         } catch (HttpException | IOException | JSONException e) {
-            log.error("Error in invoking provisioning operation for the user");
-            throw new IdentityProvisioningException(e);
+            throw new IdentityProvisioningException("Error in invoking provisioning operation for the user", e);
         } finally {
             post.releaseConnection();
         }
@@ -352,7 +361,7 @@ public class SalesforceProvisioningConnector extends AbstractOutboundProvisionin
         boolean isDebugEnabled = log.isDebugEnabled();
 
         String accessToken = authenticate();
-        if (accessToken != null && StringUtils.isNotBlank(accessToken)) {
+        if (StringUtils.isNotBlank(accessToken)) {
             httpMethod.setRequestHeader(SalesforceConnectorConstants.AUTHORIZATION_HEADER_NAME,
                     SalesforceConnectorConstants.AUTHORIZATION_HEADER_OAUTH + " " + accessToken);
 
@@ -380,7 +389,7 @@ public class SalesforceProvisioningConnector extends AbstractOutboundProvisionin
 
         String url = configHolder.getValue(SalesforceConnectorConstants.PropertyConfig.OAUTH2_TOKEN_ENDPOINT);
 
-        PostMethod post = new PostMethod(url != null && StringUtils.isNotBlank(url) ?
+        PostMethod post = new PostMethod(StringUtils.isNotBlank(url) ?
                 url : IdentityApplicationConstants.SF_OAUTH2_TOKEN_ENDPOINT);
 
         post.addParameter(SalesforceConnectorConstants.CLIENT_ID,
@@ -488,7 +497,7 @@ public class SalesforceProvisioningConnector extends AbstractOutboundProvisionin
         }
         boolean isDebugEnabled = log.isDebugEnabled();
 
-        if (query == null || StringUtils.isBlank(query)) {
+        if (StringUtils.isBlank(query)) {
             query = SalesforceConnectorDBQueries.SALESFORCE_LIST_USER_SIMPLE_QUERY;
         }
 

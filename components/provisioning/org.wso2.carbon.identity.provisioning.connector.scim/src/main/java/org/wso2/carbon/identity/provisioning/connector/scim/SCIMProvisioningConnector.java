@@ -42,7 +42,7 @@ public class SCIMProvisioningConnector extends AbstractOutboundProvisioningConne
 
     private static final long serialVersionUID = -2800777564581005554L;
     private static Log log = LogFactory.getLog(SCIMProvisioningConnector.class);
-    private transient SCIMProvider scimProvider;
+    private SCIMProvider scimProvider;
     private String userStoreDomainName;
 
     @Override
@@ -126,7 +126,7 @@ public class SCIMProvisioningConnector extends AbstractOutboundProvisioningConne
             List<String> userNames = getUserNames(userEntity.getAttributes());
             String userName = null;
 
-            if (userNames != null && CollectionUtils.isNotEmpty(userNames) && userNames.get(0) != null) {
+            if (CollectionUtils.isNotEmpty(userNames)) {
                 userName = userNames.get(0);
             }
 
@@ -137,7 +137,7 @@ public class SCIMProvisioningConnector extends AbstractOutboundProvisioningConne
             Map<String, String> singleValued = getSingleValuedClaims(userEntity.getAttributes());
 
             // if user created through management console, claim values are not present.
-            if (singleValued != null && MapUtils.isNotEmpty(singleValued)) {
+            if (MapUtils.isNotEmpty(singleValued)) {
                 user = (User) AttributeMapper.constructSCIMObjectFromAttributes(singleValued,
                         SCIMConstants.USER_INT);
             } else {
@@ -167,7 +167,7 @@ public class SCIMProvisioningConnector extends AbstractOutboundProvisioningConne
             List<String> userNames = getUserNames(userEntity.getAttributes());
             String userName = null;
 
-            if (userNames != null && CollectionUtils.isNotEmpty(userNames) && userNames.get(0) != null) {
+            if (CollectionUtils.isNotEmpty(userNames)) {
                 userName = userNames.get(0);
             }
 
@@ -203,7 +203,7 @@ public class SCIMProvisioningConnector extends AbstractOutboundProvisioningConne
             List<String> userNames = getUserNames(userEntity.getAttributes());
             String userName = null;
 
-            if (userNames != null && CollectionUtils.isNotEmpty(userNames) && userNames.get(0) != null) {
+            if (CollectionUtils.isNotEmpty(userNames)) {
                 userName = userNames.get(0);
             }
 
@@ -230,7 +230,7 @@ public class SCIMProvisioningConnector extends AbstractOutboundProvisioningConne
             List<String> groupNames = getGroupNames(groupEntity.getAttributes());
             String groupName = null;
 
-            if (groupNames != null && CollectionUtils.isNotEmpty(groupNames) && groupNames.get(0) != null) {
+            if (CollectionUtils.isNotEmpty(groupNames)) {
                 groupName = groupNames.get(0);
             }
 
@@ -241,7 +241,7 @@ public class SCIMProvisioningConnector extends AbstractOutboundProvisioningConne
 
             List<String> userList = getUserNames(groupEntity.getAttributes());
 
-            if (userList != null && CollectionUtils.isNotEmpty(userList)) {
+            if (CollectionUtils.isNotEmpty(userList)) {
                 for (Iterator<String> iterator = userList.iterator(); iterator.hasNext(); ) {
                     String userName = iterator.next();
                     Map<String, Object> members = new HashMap<>();
@@ -270,7 +270,7 @@ public class SCIMProvisioningConnector extends AbstractOutboundProvisioningConne
             List<String> groupNames = getGroupNames(groupEntity.getAttributes());
             String groupName = null;
 
-            if (groupNames != null && CollectionUtils.isNotEmpty(groupNames) && groupNames.get(0) != null) {
+            if (CollectionUtils.isNotEmpty(groupNames)) {
                 groupName = groupNames.get(0);
             }
 
@@ -299,7 +299,7 @@ public class SCIMProvisioningConnector extends AbstractOutboundProvisioningConne
             List<String> groupNames = getGroupNames(groupEntity.getAttributes());
             String groupName = null;
 
-            if (groupNames != null && CollectionUtils.isNotEmpty(groupNames) && groupNames.get(0) != null) {
+            if (CollectionUtils.isNotEmpty(groupNames)) {
                 groupName = groupNames.get(0);
             }
 
@@ -309,7 +309,7 @@ public class SCIMProvisioningConnector extends AbstractOutboundProvisioningConne
 
             List<String> userList = getUserNames(groupEntity.getAttributes());
 
-            if (userList != null && CollectionUtils.isNotEmpty(userList)) {
+            if (CollectionUtils.isNotEmpty(userList)) {
                 for (Iterator<String> iterator = userList.iterator(); iterator.hasNext(); ) {
                     String userName = iterator.next();
                     Map<String, Object> members = new HashMap<>();

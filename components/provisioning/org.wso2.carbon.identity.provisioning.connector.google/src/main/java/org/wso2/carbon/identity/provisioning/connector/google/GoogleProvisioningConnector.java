@@ -64,7 +64,7 @@ public class GoogleProvisioningConnector extends AbstractOutboundProvisioningCon
         if (provisioningProperties != null && provisioningProperties.length > 0) {
             for (Property property : provisioningProperties) {
 
-                if (GoogleConnectorConstants.PropertyConfig.PRIVATE_KEY.equals(property.getName())) {
+                if (GoogleConnectorConstants.PRIVATE_KEY.equals(property.getName())) {
                     try {
                         byte[] decodedBytes = Base64Utils.decode(property.getValue());
                         googlePrvKey = new File("googlePrvKey");
@@ -376,7 +376,7 @@ public class GoogleProvisioningConnector extends AbstractOutboundProvisioningCon
         List<String> wso2IsUsernames = getUserNames(provisioningEntity.getAttributes());
         String wso2IsUsername = null;
 
-        if (wso2IsUsernames != null && CollectionUtils.isNotEmpty(wso2IsUsernames)) {
+        if (CollectionUtils.isNotEmpty(wso2IsUsernames)) {
             // first element must be the user name.
             wso2IsUsername = wso2IsUsernames.get(0);
         }
@@ -429,9 +429,9 @@ public class GoogleProvisioningConnector extends AbstractOutboundProvisioningCon
         // Set given name
         String givenNameClaim = this.configHolder.getValue(givenNameClaimKey);
         String givenNameValue = requiredAttributes.get(givenNameClaim);
-        if (givenNameValue == null || StringUtils.isBlank(givenNameValue)) {
+        if (StringUtils.isBlank(givenNameValue)) {
             String defaultGivenNameValue = this.configHolder.getValue(defaultGivenNameKey);
-            if (defaultGivenNameValue != null && StringUtils.isNotBlank(defaultGivenNameValue)) {
+            if (StringUtils.isNotBlank(defaultGivenNameValue)) {
                 givenNameValue = defaultGivenNameValue;
             } else {
                 givenNameValue = wso2IsUsername;
@@ -445,9 +445,9 @@ public class GoogleProvisioningConnector extends AbstractOutboundProvisioningCon
         // Set family name
         String familyNameClaim = this.configHolder.getValue(familyNameClaimKey);
         String familyNameValue = requiredAttributes.get(familyNameClaim);
-        if (familyNameValue == null || StringUtils.isBlank(familyNameValue)) {
+        if (StringUtils.isBlank(familyNameValue)) {
             String defaultFamilyNameValue = this.configHolder.getValue(defaultFamilyNameKey);
-            if (defaultFamilyNameValue != null && StringUtils.isNotBlank(defaultFamilyNameValue)) {
+            if (StringUtils.isNotBlank(defaultFamilyNameValue)) {
                 familyNameValue = defaultFamilyNameValue;
             } else {
                 familyNameValue = wso2IsUsername;
@@ -498,9 +498,9 @@ public class GoogleProvisioningConnector extends AbstractOutboundProvisioningCon
         // Set given name
         String givenNameClaim = this.configHolder.getValue(givenNameClaimKey);
         String givenNameValue = requiredAttributes.get(givenNameClaim);
-        if (givenNameValue == null || StringUtils.isBlank(givenNameValue)) {
+        if (StringUtils.isBlank(givenNameValue)) {
             String defaultGivenNameValue = this.configHolder.getValue(defaultGivenNameKey);
-            if (defaultGivenNameValue != null && StringUtils.isNotBlank(defaultGivenNameValue)) {
+            if (StringUtils.isNotBlank(defaultGivenNameValue)) {
                 givenNameValue = defaultGivenNameValue;
             }
         }
@@ -512,9 +512,9 @@ public class GoogleProvisioningConnector extends AbstractOutboundProvisioningCon
         // Set family name
         String familyNameClaim = this.configHolder.getValue(familyNameClaimKey);
         String familyNameValue = requiredAttributes.get(familyNameClaim);
-        if (familyNameValue == null || StringUtils.isBlank(familyNameValue)) {
+        if (StringUtils.isBlank(familyNameValue)) {
             String defaultFamilyNameValue = this.configHolder.getValue(defaultFamilyNameKey);
-            if (defaultFamilyNameValue != null && StringUtils.isNotBlank(defaultFamilyNameValue)) {
+            if (StringUtils.isNotBlank(defaultFamilyNameValue)) {
                 familyNameValue = defaultFamilyNameValue;
             }
         }

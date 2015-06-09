@@ -294,10 +294,6 @@ public class ProvisioningManagementDAO {
             prepStmt.clearParameters();
             IdentityApplicationManagementUtil.closeStatement(prepStmt);
 
-            sqlStmt = IdPManagementConstants.SQLQueries.GET_IDP_BY_NAME_SQL;
-            prepStmt = dbConnection.prepareStatement(sqlStmt);
-            prepStmt.setInt(1, tenantId);
-            prepStmt.setString(2, newIdentityProvider.getIdentityProviderName());
             dbConnection.commit();
         } catch (SQLException | IdentityException e) {
             log.error(e.getMessage(), e);

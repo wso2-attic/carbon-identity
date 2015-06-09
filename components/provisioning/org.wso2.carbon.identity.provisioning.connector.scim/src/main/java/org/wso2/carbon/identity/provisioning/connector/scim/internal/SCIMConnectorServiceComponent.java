@@ -44,8 +44,8 @@ public class SCIMConnectorServiceComponent {
             if (log.isDebugEnabled()) {
                 log.debug("SCIM Provisioning Connector bundle is activated");
             }
-        } catch (Exception e) {
-            log.fatal(" Error while activating SCIM Provisioning Connector ", e);
+        } catch (Throwable e) {
+            log.error(" Error while activating SCIM Provisioning Connector ", e);
         }
     }
 }

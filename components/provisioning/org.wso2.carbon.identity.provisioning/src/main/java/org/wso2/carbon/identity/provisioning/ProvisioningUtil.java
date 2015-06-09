@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.identity.provisioning;
 
+import org.apache.commons.lang3.StringUtils;
 import org.wso2.carbon.identity.application.common.model.ClaimMapping;
 
 import java.util.ArrayList;
@@ -27,7 +28,8 @@ import java.util.Map;
 
 public class ProvisioningUtil {
 
-    private ProvisioningUtil(){}
+    private ProvisioningUtil() {
+    }
 
     /**
      * @return
@@ -51,7 +53,7 @@ public class ProvisioningUtil {
 
             for (Iterator<String> iterator = claimValues.iterator(); iterator.hasNext(); ) {
                 String claimValue = iterator.next();
-                if (claimValue != null && claimValue.contains("/")) {
+                if (StringUtils.contains(claimValue, "/")) {
                     claimValue = claimValue.substring(claimValue.indexOf("/") + 1);
                 }
 

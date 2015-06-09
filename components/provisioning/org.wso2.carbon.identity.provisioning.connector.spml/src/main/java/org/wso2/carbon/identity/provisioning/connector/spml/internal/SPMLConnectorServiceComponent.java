@@ -45,8 +45,8 @@ public class SPMLConnectorServiceComponent {
             if (log.isDebugEnabled()) {
                 log.debug("SPML Provisioning Connector bundle is activated");
             }
-        } catch (Exception e) {
-            log.fatal(" Error while activating SPML Provisioning Connector ", e);
+        } catch (Throwable e) {
+            log.error(" Error while activating SPML Provisioning Connector ", e);
         }
     }
 }

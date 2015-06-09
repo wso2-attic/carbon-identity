@@ -39,8 +39,6 @@ public class IdentityProvisioningConstants {
 
     public static class SQLQueries {
 
-        private SQLQueries(){}
-
         public static final String ADD_PROVISIONING_ENTITY_SQL = "INSERT INTO IDP_PROVISIONING_ENTITY (PROVISIONING_CONFIG_ID, ENTITY_TYPE, "
                 + "ENTITY_LOCAL_USERSTORE, ENTITY_NAME, ENTITY_VALUE, TENANT_ID) VALUES (?, ?, ?, ?, ?, ?)";
 
@@ -60,11 +58,11 @@ public class IdentityProvisioningConstants {
         public static final String GET_SP_NAMES_OF_PROVISIONING_CONNECTORS_BY_IDP = "SELECT DISTINCT(APP.APP_NAME) FROM SP_PROVISIONING_CONNECTOR PC JOIN SP_APP APP " +
                 "ON APP.ID = PC.APP_ID WHERE PC.IDP_NAME = ? AND APP.TENANT_ID = PC.TENANT_ID " +
                 "AND APP.TENANT_ID = (SELECT UM_ID FROM UM_TENANT WHERE UM_DOMAIN_NAME = ?) ";
+
+        private SQLQueries(){}
     }
 
     public class PropertyConfig {
-
-        private PropertyConfig(){}
 
         public static final String CONFIG_FILE_NAME = "identity-provision.properties";
 
@@ -79,5 +77,7 @@ public class IdentityProvisioningConstants {
         public static final String PREFIX_IDENTITY_PROVISIONING_CONNECTOR_CLASS = "Identity.Provisioning.Connector.Class.";
 
         public static final String DELIMATOR = ",";
+
+        private PropertyConfig(){}
     }
 }
