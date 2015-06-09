@@ -465,7 +465,7 @@ public class SCIMUserManager implements UserManager {
                 user store*/
                 List<String> userIds = group.getMembers();
                 List<String> userDisplayNames = group.getMembersWithDisplayName();
-                if (userIds != null && !CollectionUtils.isEmpty(userIds)) {
+                if (CollectionUtils.isNotEmpty(userIds)) {
                     List<String> members = new ArrayList<String>();
                     for (String userId : userIds) {
                         String[] userNames = carbonUM.getUserList(SCIMConstants.ID_URI, userId,
@@ -480,7 +480,7 @@ public class SCIMUserManager implements UserManager {
                             throw new IdentitySCIMException(error);
                         } else {
                             members.add(userNames[0]);
-                            if (userDisplayNames != null && !CollectionUtils.isEmpty(userDisplayNames)) {
+                            if (CollectionUtils.isNotEmpty(userDisplayNames)) {
                                 boolean userContains = false;
                                 for (String user : userDisplayNames) {
                                     user =
@@ -705,7 +705,7 @@ public class SCIMUserManager implements UserManager {
 
                 }
 
-                if (userIds != null && !CollectionUtils.isEmpty(userIds)) {
+                if (CollectionUtils.isNotEmpty(userIds)) {
                     String[] userNames = null;
                     for (String userId : userIds) {
                         userNames = carbonUM.getUserList(SCIMConstants.ID_URI,
@@ -743,7 +743,7 @@ public class SCIMUserManager implements UserManager {
                     List<String> deletedMembers = new ArrayList<String>();
 
                     //check for deleted members
-                    if (oldMembers != null && !CollectionUtils.isEmpty(oldMembers)) {
+                    if (CollectionUtils.isNotEmpty(oldMembers)) {
                         for (String oldMember : oldMembers) {
                             if (newMembers != null && newMembers.contains(oldMember)) {
                                 continue;
@@ -753,7 +753,7 @@ public class SCIMUserManager implements UserManager {
                     }
 
                     //check for added members
-                    if (newMembers != null && !CollectionUtils.isEmpty(newMembers)) {
+                    if (CollectionUtils.isNotEmpty(newMembers)) {
                         for (String newMember : newMembers) {
                             if (oldMembers != null && oldMembers.contains(newMember)) {
                                 continue;
@@ -762,7 +762,7 @@ public class SCIMUserManager implements UserManager {
                         }
                     }
 
-                    if (addedMembers.size() != 0 || !CollectionUtils.isEmpty(deletedMembers)) {
+                    if (CollectionUtils.isNotEmpty(addedMembers) || CollectionUtils.isNotEmpty(deletedMembers)) {
                         carbonUM.updateUserListOfRole(newGroup.getDisplayName(),
                                 deletedMembers.toArray(new String[deletedMembers.size()]),
                                 addedMembers.toArray(new String[addedMembers.size()]));
@@ -911,7 +911,7 @@ public class SCIMUserManager implements UserManager {
                     }
                 }
 
-                if (newGroup.getDisplayName() != null && ((!CollectionUtils.isEmpty(addedMembers)) || (!CollectionUtils.isEmpty(deletedMembers)))) {
+                if (newGroup.getDisplayName() != null && ((CollectionUtils.isNotEmpty(addedMembers)) || (CollectionUtils.isNotEmpty(deletedMembers)))) {
                     carbonUM.updateUserListOfRole(newGroup.getDisplayName(),
                             deletedMembers.toArray(new String[deletedMembers.size()]),
                             addedMembers.toArray(new String[addedMembers.size()]));

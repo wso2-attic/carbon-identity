@@ -129,9 +129,9 @@ public class IdentitySCIMManager implements CharonManager {
     @Override
     public AuthenticationHandler getAuthenticationHandler(String authMechanism)
             throws CharonException {
-        if (!MapUtils.isEmpty(authenticators)) {
+        if (MapUtils.isNotEmpty(authenticators)) {
             Map authenticatorProperties = authenticators.get(authMechanism);
-            if (authenticatorProperties != null && !MapUtils.isEmpty(authenticatorProperties)) {
+            if (MapUtils.isNotEmpty(authenticatorProperties)) {
                 return (AuthenticationHandler) authenticatorProperties.get(INSTANCE);
             }
         }
@@ -312,7 +312,7 @@ public class IdentitySCIMManager implements CharonManager {
     }
 
     private void registerEndpointURLs() {
-        if (endpointURLs != null && !MapUtils.isEmpty(endpointURLs)) {
+        if (MapUtils.isNotEmpty(endpointURLs)) {
             AbstractResourceEndpoint.registerResourceEndpointURLs(endpointURLs);
         }
     }

@@ -30,7 +30,7 @@ public class JAXRSResponseBuilder {
         Response.ResponseBuilder responseBuilder = Response.status(scimResponse.getResponseCode());
         //set the headers on the response
         Map<String, String> httpHeaders = scimResponse.getHeaderParameterMap();
-        if (httpHeaders != null && !MapUtils.isEmpty(httpHeaders)) {
+        if (MapUtils.isNotEmpty(httpHeaders)) {
             for (Map.Entry<String, String> entry : httpHeaders.entrySet()) {
 
                 responseBuilder.header(entry.getKey(), entry.getValue());
