@@ -1,17 +1,19 @@
 /*
  * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package org.wso2.carbon.user.cassandra;
@@ -65,7 +67,7 @@ import java.util.*;
 public class CassandraUserStoreManager extends AbstractUserStoreManager {
 
     private static final String TRUE = "TRUE";
-    private static Log log = LogFactory.getLog(CassandraUserStoreManager.class);
+    private static final Log log = LogFactory.getLog(CassandraUserStoreManager.class);
     private final StringSerializer stringSerializer = StringSerializer.get();
     protected DataSource jdbcDataSource = null;
     protected boolean useOnlyInternalRoles;
@@ -559,8 +561,8 @@ public class CassandraUserStoreManager extends AbstractUserStoreManager {
      * and (role, tenantId) -> userName
      *
      * @param userNames The username list of the user the role need to be added to.
-     * @param roleName The role that needs to be mapped against the user list.
-     * @param mutator  Passes the mutator and returns it with the insert statements.
+     * @param roleName  The role that needs to be mapped against the user list.
+     * @param mutator   Passes the mutator and returns it with the insert statements.
      */
     private Mutator<Composite> addRoleToUsersList(String[] userNames, String roleName, Mutator<Composite> mutator) {
         if (userNames != null) {
@@ -765,11 +767,9 @@ public class CassandraUserStoreManager extends AbstractUserStoreManager {
             return true;
         }
 
-        if (getExistingUserId(userName, CFConstants.DEFAULT_TYPE) == null) {
-            return false;
-        } else {
-            return true;
-        }
+        return !(getExistingUserId(userName, CFConstants.DEFAULT_TYPE) == null);
+
+
     }
 
     /**
@@ -1097,14 +1097,12 @@ public class CassandraUserStoreManager extends AbstractUserStoreManager {
     @Override
     public String[] getUserListFromProperties(String property, String value, String profileName)
             throws UserStoreException {
-        //TODO To-Be Implemented
         return new String[0];
     }
 
     @Override
     protected String[] doGetSharedRoleNames(String tenantDomain, String filter, int maxItemLimit)
             throws UserStoreException {
-        //TODO TO-Be Completed
         return new String[0];
     }
 
@@ -1124,14 +1122,12 @@ public class CassandraUserStoreManager extends AbstractUserStoreManager {
     @Override
     protected String[] doGetSharedRoleListOfUser(String userName, String tenantDomain, String filter)
             throws UserStoreException {
-        //TODO TO-Be Completed
         return new String[0];
 
     }
 
     @Override
     public String[] getAllProfileNames() throws UserStoreException {
-        //TODO TO BE Implemented
         return new String[0];
     }
 
@@ -1145,19 +1141,16 @@ public class CassandraUserStoreManager extends AbstractUserStoreManager {
 
     @Override
     public Date getPasswordExpirationTime(String username) throws UserStoreException {
-        //TODO To Be Implemented
         return null;
     }
 
     @Override
     public int getUserId(String username) throws UserStoreException {
-        //TODO To Be Implemented
         return 0;
     }
 
     @Override
     public int getTenantId(String username) throws UserStoreException {
-        //TODO To Be Implemented
         return tenantId;
     }
 
@@ -1169,7 +1162,6 @@ public class CassandraUserStoreManager extends AbstractUserStoreManager {
     @Override
     public Map<String, String> getProperties(org.wso2.carbon.user.api.Tenant tenant)
             throws org.wso2.carbon.user.api.UserStoreException {
-        //TODO To Be Implemented
         return null;
     }
 
@@ -1180,55 +1172,46 @@ public class CassandraUserStoreManager extends AbstractUserStoreManager {
 
     @Override
     public void addRememberMe(String userName, String token) throws org.wso2.carbon.user.api.UserStoreException {
-        //TODO To Be Implemented
     }
 
     @Override
     public boolean isValidRememberMeToken(String userName, String token)
             throws org.wso2.carbon.user.api.UserStoreException {
-        //TODO To Be Implemented
         return false;
     }
 
     @Override
     public boolean isBulkImportSupported() throws UserStoreException {
-        //TODO To Be Implemented
         return false;
     }
 
     @Override
     public void doSetUserClaimValue(String userName, String claimURI, String claimValue, String profileName)
             throws UserStoreException {
-        //TODO To Be Implemented
     }
 
     @Override
     public void doSetUserClaimValues(String userName, Map<String, String> claims, String profileName)
             throws UserStoreException {
-        //TODO To Be Implemented
 
     }
 
     @Override
     public void doDeleteUserClaimValue(String userName, String claimURI, String profileName) throws UserStoreException {
-        //TODO To Be Implemented
     }
 
     @Override
     public void doDeleteUserClaimValues(String userName, String[] claims, String profileName) throws UserStoreException {
-        //TODO To Be Implemented
     }
 
     @Override
     protected String[] doGetDisplayNamesForInternalRole(String[] strings) throws UserStoreException {
-        //TODO To Be Implemented
         throw new UserStoreException(
                 "doGetDisplayNamesForInternalRole(String[]) not implemented for CassandraUserStoreManager");
     }
 
     @Override
     public String[] getProfileNames(String userName) throws UserStoreException {
-        //TODO To Be Implemented
         return new String[0];
     }
 
@@ -1237,21 +1220,18 @@ public class CassandraUserStoreManager extends AbstractUserStoreManager {
      */
     @Override
     public Map<String, String> getProperties(Tenant tenant) throws UserStoreException {
-        //TODO TO-Be Completed
         return null;
     }
 
     @Override
     public org.wso2.carbon.user.api.Properties getDefaultUserStoreProperties() {
-        //TODO To Be Implemented
-        Properties properties = new Properties();
-        return properties;
+
+        return new Properties();
     }
 
     @Override
     public Map<String, String> getUserPropertyValues(String userName, String[] propertyNames, String profileName)
             throws UserStoreException {
-        //TODO To Be implemented
         return null;
     }
 
@@ -1264,50 +1244,56 @@ public class CassandraUserStoreManager extends AbstractUserStoreManager {
         private Integer[] sharedTenantids;
 
         public String[] getRoles() {
-            return roles;
+            if (roles != null) {
+                return roles.clone();
+            }
+            return new String[0];
         }
 
         public void setRoles(String[] roles) {
-            this.roles = roles;
+
+            if (roles != null) {
+                this.roles = roles.clone();
+            }
+
         }
 
         public Integer[] getTenantIds() {
 
-            if(tenantIds !=null){
+            if (tenantIds != null) {
                 return tenantIds.clone();
             }
             return new Integer[0];
         }
 
         public void setTenantIds(Integer[] tenantIds) {
-            if(tenantIds!=null){
+            if (tenantIds != null) {
                 this.tenantIds = tenantIds.clone();
 
             }
         }
 
         public String[] getSharedRoles() {
-            if(sharedRoles!=null){
+            if (sharedRoles != null) {
                 return sharedRoles.clone();
             }
             return new String[0];
         }
 
         public void setSharedRoles(String[] sharedRoles) {
-            if(sharedRoles!=null){
+            if (sharedRoles != null) {
                 this.sharedRoles = sharedRoles.clone();
             }
         }
 
         public Integer[] getSharedTenantids() {
-            if(sharedTenantids!=null){
+            if (sharedTenantids != null) {
                 return sharedTenantids.clone();
-            }
-            else return new Integer[0];
+            } else return new Integer[0];
         }
 
         public void setSharedTenantids(Integer[] sharedTenantids) {
-            if(sharedTenantids!=null){
+            if (sharedTenantids != null) {
                 this.sharedTenantids = sharedTenantids.clone();
             }
         }

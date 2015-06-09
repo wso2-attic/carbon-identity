@@ -1,17 +1,19 @@
 /*
  * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 package org.wso2.carbon.identity.user.store.remote;
 
@@ -39,12 +41,15 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
 
     private static final String CONNECTION_REFUSED = "Connection refused";
     private static final Log log = LogFactory.getLog(CarbonRemoteUserStoreManger.class);
+    public static final String SERVER_URLS = "serverUrls";
+    public static final String REMOTE_USER_NAME = "remoteUserName";
+    public static final String PASSWORD = "password";
     private WSUserStoreManager remoteUserStore;
     private RealmConfiguration realmConfig;
     private String domainName;
     private UserStoreManager secondaryUserStoreManager;
     private Map<String, WSUserStoreManager> remoteServers = new HashMap<String, WSUserStoreManager>();
-    private String remoteErrorMsg="Error occured while getting remote store value: ignoring the error";
+    private static final String REMOTE_ERROR_MSG = "Error occured while getting remote store value: ignoring the error";
 
     public CarbonRemoteUserStoreManger() {
 
@@ -67,12 +72,12 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
             transportOutDescription.getSender().init(configurationContext, transportOutDescription);
         }
 
-        String[] serverUrls = realmConfig.getUserStoreProperty("serverUrls").split(",");
+        String[] serverUrls = realmConfig.getUserStoreProperty(SERVER_URLS).split(",");
 
         for (int i = 0; i < serverUrls.length; i++) {
             remoteUserStore = new WSUserStoreManager(
-                    realmConfig.getUserStoreProperty("remoteUserName"),
-                    realmConfig.getUserStoreProperty("password"), serverUrls[i],
+                    realmConfig.getUserStoreProperty(REMOTE_USER_NAME),
+                    realmConfig.getUserStoreProperty(PASSWORD), serverUrls[i],
                     configurationContext);
 
             if (log.isDebugEnabled()) {
@@ -96,16 +101,16 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
         Property[] mandatoryProperties = null;
         Property[] optionalProperties = null;
         Property remoteServerUserName = new Property(
-                "remoteUserName",
+                REMOTE_USER_NAME,
                 "",
                 "Remote Sever Username#Name of a user from the remote server, having enough privileges for user management",
                 null);
-        Property password = new Property("password", "",
+        Property password = new Property(PASSWORD, "",
                 "Remote Server Password#The password correspoing to the remote server " +
                         "username#encrypt",
                 null);
         Property serverUrls = new Property(
-                "serverUrls",
+                SERVER_URLS,
                 "",
                 "Remote Server URL(s)#Remote server URLs. e.g.: https://ca-datacenter/services,https://va-datacenter/services",
                 null);
@@ -159,7 +164,7 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
 
                             if(log.isDebugEnabled()){
 
-                                log.debug(remoteErrorMsg,ex);
+                                log.debug(REMOTE_ERROR_MSG,ex);
 
                             }
 
@@ -234,7 +239,7 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
 
                             if(log.isDebugEnabled()){
 
-                                log.debug(remoteErrorMsg,ex);
+                                log.debug(REMOTE_ERROR_MSG,ex);
 
                             }
 
@@ -309,7 +314,7 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
 
                             if(log.isDebugEnabled()){
 
-                                log.debug(remoteErrorMsg,ex);
+                                log.debug(REMOTE_ERROR_MSG,ex);
 
                             }
 
@@ -355,7 +360,7 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
 
                             if(log.isDebugEnabled()){
 
-                                log.debug(remoteErrorMsg,ex);
+                                log.debug(REMOTE_ERROR_MSG,ex);
 
                             }
 
@@ -392,7 +397,7 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
 
                             if(log.isDebugEnabled()){
 
-                                log.debug(remoteErrorMsg,ex);
+                                log.debug(REMOTE_ERROR_MSG,ex);
 
                             }
 
@@ -431,7 +436,7 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
 
                             if(log.isDebugEnabled()){
 
-                                log.debug(remoteErrorMsg,ex);
+                                log.debug(REMOTE_ERROR_MSG,ex);
 
                             }
 
@@ -478,7 +483,7 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
 
                             if(log.isDebugEnabled()){
 
-                                log.debug(remoteErrorMsg,ex);
+                                log.debug(REMOTE_ERROR_MSG,ex);
 
                             }
                             throw e;
@@ -524,7 +529,7 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
 
                             if(log.isDebugEnabled()){
 
-                                log.debug(remoteErrorMsg,ex);
+                                log.debug(REMOTE_ERROR_MSG,ex);
 
                             }
 
@@ -562,7 +567,7 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
 
                             if(log.isDebugEnabled()){
 
-                                log.debug(remoteErrorMsg,ex);
+                                log.debug(REMOTE_ERROR_MSG,ex);
 
                             }
 
@@ -607,7 +612,7 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
 
                             if(log.isDebugEnabled()){
 
-                                log.debug(remoteErrorMsg,ex);
+                                log.debug(REMOTE_ERROR_MSG,ex);
 
                             }
 
@@ -655,7 +660,7 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
 
                             if(log.isDebugEnabled()){
 
-                                log.debug(remoteErrorMsg,ex);
+                                log.debug(REMOTE_ERROR_MSG,ex);
 
                             }
 
@@ -695,7 +700,7 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
 
                             if(log.isDebugEnabled()){
 
-                                log.debug(remoteErrorMsg,ex);
+                                log.debug(REMOTE_ERROR_MSG,ex);
 
                             }
 
@@ -736,7 +741,7 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
 
                             if(log.isDebugEnabled()){
 
-                                log.debug(remoteErrorMsg,ex);
+                                log.debug(REMOTE_ERROR_MSG,ex);
 
                             }
 
@@ -776,7 +781,7 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
 
                             if(log.isDebugEnabled()){
 
-                                log.debug(remoteErrorMsg,ex);
+                                log.debug(REMOTE_ERROR_MSG,ex);
 
                             }
 
@@ -813,7 +818,7 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
 
                             if(log.isDebugEnabled()){
 
-                                log.debug(remoteErrorMsg,ex);
+                                log.debug(REMOTE_ERROR_MSG,ex);
 
                             }
 
@@ -1063,7 +1068,7 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
 
                             if(log.isDebugEnabled()){
 
-                                log.debug(remoteErrorMsg,ex);
+                                log.debug(REMOTE_ERROR_MSG,ex);
 
                             }
 
@@ -1109,7 +1114,7 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
 
                             if(log.isDebugEnabled()){
 
-                                log.debug(remoteErrorMsg,ex);
+                                log.debug(REMOTE_ERROR_MSG,ex);
 
                             }
 
@@ -1153,7 +1158,7 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
 
                             if(log.isDebugEnabled()){
 
-                                log.debug(remoteErrorMsg,ex);
+                                log.debug(REMOTE_ERROR_MSG,ex);
 
                             }
 
@@ -1190,7 +1195,7 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
 
                             if(log.isDebugEnabled()){
 
-                                log.debug(remoteErrorMsg,ex);
+                                log.debug(REMOTE_ERROR_MSG,ex);
 
                             }
 
@@ -1227,7 +1232,7 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
 
                             if(log.isDebugEnabled()){
 
-                                log.debug(remoteErrorMsg,ex);
+                                log.debug(REMOTE_ERROR_MSG,ex);
 
                             }
 
@@ -1264,7 +1269,7 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
 
                             if(log.isDebugEnabled()){
 
-                                log.debug(remoteErrorMsg,ex);
+                                log.debug(REMOTE_ERROR_MSG,ex);
 
                             }
 
@@ -1301,7 +1306,7 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
 
                             if(log.isDebugEnabled()){
 
-                                log.debug(remoteErrorMsg,ex);
+                                log.debug(REMOTE_ERROR_MSG,ex);
 
                             }
 
@@ -1360,7 +1365,7 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
 
                             if(log.isDebugEnabled()){
 
-                                log.debug(remoteErrorMsg,ex);
+                                log.debug(REMOTE_ERROR_MSG,ex);
 
                             }
 
