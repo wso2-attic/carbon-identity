@@ -16,14 +16,15 @@
  * under the License.
  */
 
-package org.wso2.carbon.identity.workflow.mgt.ui.bpel;
+package org.wso2.carbon.identity.workflow.mgt;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.bpel.stub.upload.types.UploadedFileItem;
-import org.wso2.carbon.identity.workflow.mgt.ui.WorkflowDeployerClient;
-import org.wso2.carbon.identity.workflow.mgt.ui.bpel.bean.ApprovalServiceParams;
+import org.wso2.carbon.identity.workflow.mgt.exception.RuntimeWorkflowException;
+import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 
 import javax.activation.DataHandler;
 import javax.activation.DataSource;
@@ -44,19 +45,57 @@ import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-public class ApprovalServiceGenerator {
+public class ApprovalBPELDeployer implements TemplateInitializer {
 
-    private static final String TEMP_DIR_PROPERTY = "java.io.tmpdir";
-    private static final String ZIP_TYPE = "zip";
-    private static Log log = LogFactory.getLog(ApprovalServiceGenerator.class);
+    private static Log log = LogFactory.getLog(ApprovalBPELDeployer.class);
 
-    private ApprovalServiceParams serviceParams;
+    private String processName;
+    private String bpsHost;
+    private String bpsUser;
+    private String password;
+    private String htName;
+    private String htSubject;
+    private String htBody;
+    private String callBackUser;
+    private String callBackUserPassword;
 
-    public ApprovalServiceGenerator(ApprovalServiceParams serviceParams) {
-        this.serviceParams = serviceParams;
+    private String role;
+
+    @Override
+    public boolean initNeededAtStartUp() {
+
+        return false;
     }
 
+    @Override
+    public void initialize(Map<String, Object> initParams) throws WorkflowException {
+
+        if (!validateParams(initParams)) {
+            throw new RuntimeWorkflowException("Workflow initialization failed, required parameter is missing");
+        }
+        processName = (String) initParams.get(WorkFlowConstants.TemplateConstants.PROCESS_NAME);
+        bpsHost = (String) initParams.get(WorkFlowConstants.TemplateConstants.HOST);
+        bpsUser = (String) initParams.get(WorkFlowConstants.TemplateConstants.AUTH_USER);
+        password = (String)initParams.get(WorkFlowConstants.TemplateConstants.AUTH_USER_PASSWORD);
+        callBackUser = (String) initParams.get(WorkFlowConstants.TemplateConstants.CALLBACK_USER);
+        callBackUserPassword = (String) initParams.get(WorkFlowConstants.TemplateConstants.CALLBACK_USER_PASSWORD);
+        htSubject = (String) initParams.get(WorkFlowConstants.TemplateConstants.HT_SUBJECT);
+        htBody = (String) initParams.get(WorkFlowConstants.TemplateConstants.HT_DESCRIPTION);
+        role = (String) initParams.get(WorkFlowConstants.TemplateConstants.SIMPLE_APPROVAL_ROLE_NAME);
+
+
+        htName = processName + Constants.HT_SUFFIX;
+        generateAndDeployArtifacts();
+    }
+
+    private boolean validateParams(Map<String, Object> initParams) {
+        //todo: implement
+        return true;
+    }
+
+
     public void generateAndDeployArtifacts() {
+
         try {
             generateProcessArtifact();
             generateHTArtifact();
@@ -64,27 +103,27 @@ public class ApprovalServiceGenerator {
             //todo:deploy
         } catch (IOException e) {
             log.error("Error when generating artifacts.", e);
-            //todo: throw
         }
-
     }
 
     private void deployArtifacts() throws RemoteException {
-        String bpelArchiveName = serviceParams.getBpelProcessName() + Constants.ZIP_EXT;
-        String archiveHome = System.getProperty(TEMP_DIR_PROPERTY) + File.separator;
+
+        String bpelArchiveName = processName + Constants.ZIP_EXT;
+        String archiveHome = System.getProperty(Constants.TEMP_DIR_PROPERTY) + File.separator;
         DataSource bpelDataSource = new FileDataSource(archiveHome + bpelArchiveName);
-        WorkflowDeployerClient workflowDeployerClient = new WorkflowDeployerClient(serviceParams.getBpsHostName(),
-                serviceParams.getBpsUsername(), serviceParams.getBpsUserPassword().toCharArray());
+        WorkflowDeployerClient workflowDeployerClient = new WorkflowDeployerClient(bpsHost,
+                bpsUser, password.toCharArray());
         workflowDeployerClient.uploadBPEL(getBPELUploadedFileItem(new DataHandler(bpelDataSource),
-                bpelArchiveName, ZIP_TYPE));
-        String htArchiveName = serviceParams.getHtServiceName() + Constants.ZIP_EXT;
+                bpelArchiveName, Constants.ZIP_TYPE));
+        String htArchiveName = htName + Constants.ZIP_EXT;
         DataSource htDataSource = new FileDataSource(archiveHome + htArchiveName);
         workflowDeployerClient.uploadHumanTask(getHTUploadedFileItem(new DataHandler(htDataSource), htArchiveName,
-                ZIP_TYPE));
+                Constants.ZIP_TYPE));
     }
 
     private UploadedFileItem[] getBPELUploadedFileItem(DataHandler dataHandler, String fileName,
                                                        String fileType) {
+
         UploadedFileItem[] uploadedFileItems = new UploadedFileItem[1];
         UploadedFileItem uploadedFileItem = new UploadedFileItem();
         uploadedFileItem.setDataHandler(dataHandler);
@@ -98,6 +137,7 @@ public class ApprovalServiceGenerator {
             DataHandler dataHandler,
             String fileName,
             String fileType) {
+
         org.wso2.carbon.humantask.stub.upload.types.UploadedFileItem[] uploadedFileItems = new org.wso2.carbon
                 .humantask.stub.upload.types.UploadedFileItem[1];
         org.wso2.carbon.humantask.stub.upload.types.UploadedFileItem uploadedFileItem =
@@ -110,21 +150,23 @@ public class ApprovalServiceGenerator {
     }
 
     private Map<String, String> getPlaceHolderValues() {
+
         Map<String, String> placeHolderValues = new HashMap<>();
-        placeHolderValues.put(Constants.BPEL_PROCESS_NAME, serviceParams.getBpelProcessName());
-        placeHolderValues.put(Constants.HT_SERVICE_NAME, serviceParams.getHtServiceName());
-        placeHolderValues.put(Constants.BPS_HOST_NAME, serviceParams.getBpsHostName());
-        placeHolderValues.put(Constants.CARBON_HOST_NAME, serviceParams.getCarbonHostName());
-        placeHolderValues.put(Constants.CARBON_CALLBACK_AUTH_USER, serviceParams.getCarbonAuthUser());
-        placeHolderValues.put(Constants.CARBON_CALLBACK_AUTH_PASSWORD, serviceParams.getCarbonUserPassword());
-        placeHolderValues.put(Constants.HT_SUBJECT, serviceParams.getHumanTaskSubject());
-        placeHolderValues.put(Constants.HT_DESCRIPTION, serviceParams.getHumanTaskDescription());
-        placeHolderValues.put(Constants.HT_OWNER_ROLE, serviceParams.getHtPotentialOwnerRole());
-        placeHolderValues.put(Constants.HT_ADMIN_ROLE, serviceParams.getHtAdminRole());
+        placeHolderValues.put(Constants.BPEL_PROCESS_NAME, processName);
+        placeHolderValues.put(Constants.HT_SERVICE_NAME, htName);
+        placeHolderValues.put(Constants.BPS_HOST_NAME, bpsHost);
+        placeHolderValues.put(Constants.CARBON_HOST_NAME, Constants.CARBON_HOST_URL);
+        placeHolderValues.put(Constants.CARBON_CALLBACK_AUTH_USER, callBackUser);
+        placeHolderValues.put(Constants.CARBON_CALLBACK_AUTH_PASSWORD, new String(callBackUserPassword));
+        placeHolderValues.put(Constants.HT_SUBJECT, htSubject);
+        placeHolderValues.put(Constants.HT_DESCRIPTION, htBody);
+        placeHolderValues.put(Constants.HT_OWNER_ROLE, role);
+        placeHolderValues.put(Constants.HT_ADMIN_ROLE, role);
         return placeHolderValues;
     }
 
     private void removePlaceHolders(String relativeFilePath, String destination) throws IOException {
+
         InputStream inputStream = getClass().getResourceAsStream("/" + relativeFilePath);
         String content = IOUtils.toString(inputStream);
         for (Map.Entry<String, String> placeHolderEntry : getPlaceHolderValues().entrySet()) {
@@ -143,18 +185,19 @@ public class ApprovalServiceGenerator {
     }
 
     private void generateProcessArtifact() throws IOException {
+
         Set<String> filesToAdd = new HashSet<>();
         String taskWsdl = null; //to keep without deleting for human task
         String resourceHomePath =
                 Constants.TEMPLATE_RESOURCE_LOCATION + File.separator + Constants.BPEL_RESOURCE_LOCATION +
                         File.separator + Constants.APPROVAL_SERVICE_RESOURCE_LOCATION + File.separator;
-        String outputPath = System.getProperty(TEMP_DIR_PROPERTY) + File.separator;
+        String outputPath = System.getProperty(Constants.TEMP_DIR_PROPERTY) + File.separator;
         //process.wsdl
-        String outputFile = outputPath + serviceParams.getBpelProcessName() + Constants.PROCESS_WSDL_FILE;
+        String outputFile = outputPath + processName + Constants.PROCESS_WSDL_FILE;
         removePlaceHolders(resourceHomePath + Constants.PROCESS_WSDL_FILE, outputFile);
         filesToAdd.add(outputFile);
         //process.bpel
-        outputFile = outputPath + serviceParams.getBpelProcessName() + Constants.BPEL_EXT;
+        outputFile = outputPath + processName + Constants.BPEL_EXT;
         removePlaceHolders(resourceHomePath + Constants.PROCESS_BPEL_FILE, outputFile);
         filesToAdd.add(outputFile);
         //callback.wsdl
@@ -162,7 +205,7 @@ public class ApprovalServiceGenerator {
         removePlaceHolders(resourceHomePath + Constants.CALLBACK_WSDL_FILE, outputFile);
         filesToAdd.add(outputFile);
         //task.wsdl
-        outputFile = outputPath + serviceParams.getHtServiceName() + Constants.WSDL_EXT;
+        outputFile = outputPath + htName + Constants.WSDL_EXT;
         removePlaceHolders(resourceHomePath + Constants.TASK_WSDL_FILE, outputFile);
         filesToAdd.add(outputFile);
         taskWsdl = outputFile;
@@ -176,7 +219,7 @@ public class ApprovalServiceGenerator {
         filesToAdd.add(outputFile);
 
         FileOutputStream zipFOS =
-                new FileOutputStream(outputPath + serviceParams.getBpelProcessName() + Constants.ZIP_EXT);
+                new FileOutputStream(outputPath + processName + Constants.ZIP_EXT);
         ZipOutputStream zipOutputStream = new ZipOutputStream(zipFOS);
         for (String fileName : filesToAdd) {
             addToZipFile(fileName, zipOutputStream);
@@ -195,13 +238,14 @@ public class ApprovalServiceGenerator {
     }
 
     private void generateHTArtifact() throws IOException {
+
         Set<String> filesToAdd = new HashSet<>();
         String resourceHomePath =
                 Constants.TEMPLATE_RESOURCE_LOCATION + File.separator + Constants.HT_RESOURCE_LOCATION +
                         File.separator + Constants.APPROVAL_HT_RESOURCE_LOCATION + File.separator;
-        String outputPath = System.getProperty(TEMP_DIR_PROPERTY) + File.separator;
+        String outputPath = System.getProperty(Constants.TEMP_DIR_PROPERTY) + File.separator;
         //task.ht
-        String outputFile = outputPath + serviceParams.getHtServiceName() + Constants.HT_EXT;
+        String outputFile = outputPath + htName + Constants.HT_EXT;
         removePlaceHolders(resourceHomePath + Constants.TASK_HT_FILE, outputFile);
         filesToAdd.add(outputFile);
         //htconfig.xml
@@ -209,8 +253,8 @@ public class ApprovalServiceGenerator {
         removePlaceHolders(resourceHomePath + Constants.HTCONFIG_XML_FILE, outputFile);
         filesToAdd.add(outputFile);
         //task-input.jsp
-        outputFile = outputPath + Constants.APPROVAL_JSP_LOCATION + File.separator + serviceParams
-                .getHtServiceName() + Constants.INPUT_JSP_SUFFIX;
+        outputFile =
+                outputPath + Constants.APPROVAL_JSP_LOCATION + File.separator + htName + Constants.INPUT_JSP_SUFFIX;
         File outputFileParent = new File(outputFile).getParentFile();
         if (!outputFileParent.exists()) {
             outputFileParent.mkdirs();
@@ -218,21 +262,21 @@ public class ApprovalServiceGenerator {
         removePlaceHolders(resourceHomePath + Constants.TASK_INPUT_JSP_FILE, outputFile);
         filesToAdd.add(outputFile);
         //task-output.jsp
-        outputFile = outputPath + Constants.APPROVAL_JSP_LOCATION + File.separator + serviceParams
-                .getHtServiceName() + Constants.OUTPUT_JSP_SUFFIX;
+        outputFile =
+                outputPath + Constants.APPROVAL_JSP_LOCATION + File.separator + htName + Constants.OUTPUT_JSP_SUFFIX;
         removePlaceHolders(resourceHomePath + Constants.TASK_OUTPUT_JSP_FILE, outputFile);
         filesToAdd.add(outputFile);
         //task-response.jsp
-        outputFile = outputPath + Constants.APPROVAL_JSP_LOCATION + File.separator + serviceParams
-                .getHtServiceName() + Constants.RESPONSE_JSP_SUFFIX;
+        outputFile =
+                outputPath + Constants.APPROVAL_JSP_LOCATION + File.separator + htName + Constants.RESPONSE_JSP_SUFFIX;
         removePlaceHolders(resourceHomePath + Constants.TASK_RESPONSE_JSP_FILE, outputFile);
         filesToAdd.add(outputFile);
 
         //created from process
-        filesToAdd.add(outputPath + serviceParams.getHtServiceName() + Constants.WSDL_EXT);
+        filesToAdd.add(outputPath + htName + Constants.WSDL_EXT);
 
         FileOutputStream zipFOS =
-                new FileOutputStream(outputPath + serviceParams.getHtServiceName() + Constants.ZIP_EXT);
+                new FileOutputStream(outputPath + htName + Constants.ZIP_EXT);
         ZipOutputStream zipOutputStream = new ZipOutputStream(zipFOS);
         for (String fileName : filesToAdd) {
             addToZipFile(fileName, zipOutputStream);
@@ -251,7 +295,8 @@ public class ApprovalServiceGenerator {
     }
 
     private void addToZipFile(String fileName, ZipOutputStream zos) throws FileNotFoundException, IOException {
-        File zipRootPath = new File(System.getProperty(TEMP_DIR_PROPERTY));
+
+        File zipRootPath = new File(System.getProperty(Constants.TEMP_DIR_PROPERTY));
         File file = new File(fileName);
         String relativePath = zipRootPath.toURI().relativize(file.toURI()).getPath();
         FileInputStream fis = new FileInputStream(fileName);
@@ -268,6 +313,7 @@ public class ApprovalServiceGenerator {
     }
 
     private static class Constants {
+
         private static final String BPEL_PROCESS_NAME = "${bpelProcessName}";
         private static final String HT_SERVICE_NAME = "${htServiceName}";
         private static final String BPS_HOST_NAME = "${bpsHostName}";
@@ -303,10 +349,24 @@ public class ApprovalServiceGenerator {
         private static final String BPEL_EXT = ".bpel";
         private static final String ZIP_EXT = ".zip";
         private static final String HT_EXT = ".ht";
+        private static final String HT_SUFFIX = "Task";
         private static final String INPUT_JSP_SUFFIX = "-input.jsp";
         private static final String OUTPUT_JSP_SUFFIX = "-output.jsp";
         private static final String RESPONSE_JSP_SUFFIX = "-response.jsp";
 
-    }
+        private static final String TEMP_DIR_PROPERTY = "java.io.tmpdir";
+        private static final String ZIP_TYPE = "zip";
 
+        private static final String CARBON_HOST_URL;
+
+        static {
+            String PORT_OFFSET = "Ports.Offset";
+            String HOST_NAME = "HostName";
+            int DEFAULT_HTTPS_PORT = 9763;
+            CARBON_HOST_URL = "https://" + ServerConfiguration.getInstance().getFirstProperty(HOST_NAME) + ":" +
+                    //adds the offset defined in the server configs to the default 9763 port
+                    (Integer.parseInt(ServerConfiguration.getInstance().getFirstProperty(PORT_OFFSET)) +
+                            DEFAULT_HTTPS_PORT);
+        }
+    }
 }

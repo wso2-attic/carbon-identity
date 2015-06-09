@@ -19,31 +19,60 @@
 package org.wso2.carbon.identity.workflow.mgt.bean;
 
 public class TemplateParameterDef {
+
     private String paramName;
+    private String displayName;
     private String paramType;
+    private String defaultValue;
     private boolean mandatory;
 
     public String getParamName() {
+
         return paramName;
     }
 
     public void setParamName(String paramName) {
+
         this.paramName = paramName;
     }
 
     public String getParamType() {
+
         return paramType;
     }
 
     public void setParamType(String paramType) {
+
         this.paramType = paramType;
     }
 
     public boolean isMandatory() {
+
         return mandatory;
     }
 
     public void setMandatory(boolean mandatory) {
+
         this.mandatory = mandatory;
+    }
+
+    public String getDisplayName() {
+
+        return displayName;
+    }
+
+    public void setDisplayName(String displayName) {
+
+        this.displayName = displayName;
+    }
+
+    public String getDefaultValue() {
+
+        return defaultValue;
+    }
+
+    public void setDefaultValue(String defaultValue) {
+
+        this.defaultValue = defaultValue;
     }
 }

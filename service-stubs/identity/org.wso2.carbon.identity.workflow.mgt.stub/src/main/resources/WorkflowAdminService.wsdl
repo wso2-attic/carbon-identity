@@ -87,6 +87,8 @@
             </xs:complexType>
             <xs:complexType name="TemplateParameterDef">
                 <xs:sequence>
+                    <xs:element minOccurs="0" name="defaultValue" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="displayName" nillable="true" type="xs:string"/>
                     <xs:element minOccurs="0" name="mandatory" type="xs:boolean"/>
                     <xs:element minOccurs="0" name="paramName" nillable="true" type="xs:string"/>
                     <xs:element minOccurs="0" name="paramType" nillable="true" type="xs:string"/>
@@ -125,17 +127,6 @@
                     <xs:sequence>
                         <xs:element minOccurs="0" name="WorkflowException" nillable="true"
                                     type="ax2393:WorkflowException"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="addBPSProfile">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="profileName" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="host" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="user" nillable="true" type="xs:string"/>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="password" nillable="true"
-                                    type="xs:string"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
@@ -234,6 +225,16 @@
                     <xs:sequence>
                         <xs:element minOccurs="0" name="deploymentDTO" nillable="true"
                                     type="ax2395:TemplateDeploymentDTO"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="addBPSProfile">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="profileName" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="host" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="user" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="password" nillable="true" type="xs:string"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>

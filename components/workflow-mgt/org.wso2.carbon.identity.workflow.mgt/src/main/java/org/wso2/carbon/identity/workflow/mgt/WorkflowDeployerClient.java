@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.carbon.identity.workflow.mgt.ui;
+package org.wso2.carbon.identity.workflow.mgt;
 
 import org.apache.axis2.AxisFault;
 import org.apache.axis2.client.Options;
@@ -31,7 +31,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class WorkflowDeployerClient {
-
     private static final String BPEL_UPLOADER_SERVICE = "/services/BPELUploader";
     private final static String HT_UPLOADER_SERVICE = "/services/HumanTaskUploader";
 
@@ -68,6 +67,5 @@ public class WorkflowDeployerClient {
             throws RemoteException {
         humanTaskUploaderStub.uploadHumanTask(fileItems);
     }
-
 
 }

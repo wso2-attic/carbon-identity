@@ -26,11 +26,12 @@ public class SimpleApprovalTemplate extends AbstractWorkflowTemplate {
     private static final String DESCRIPTION = "The operation should be approved by an authorized person with given " +
             "role, to complete.";
 
-
     static {
         TemplateParameterDef roleDef = new TemplateParameterDef();
         roleDef.setParamName(WorkFlowConstants.TemplateConstants.SIMPLE_APPROVAL_ROLE_NAME);
         roleDef.setParamType(WorkflowTemplateParamType.USER_ROLE);
+        roleDef.setDisplayName("Role to Authorize the Request");
+        roleDef.setMandatory(true);
         PARAMETER_DEFINITIONS = new TemplateParameterDef[]{roleDef};
     }
 

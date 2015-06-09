@@ -18,11 +18,13 @@
 
 package org.wso2.carbon.identity.workflow.mgt;
 
+import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
+
 import java.util.Map;
 
 public interface TemplateInitializer {
 
     boolean initNeededAtStartUp();
 
-    void initialize(String templateName, Map<String, Object> initParams);
+    void initialize(Map<String, Object> initParams) throws WorkflowException;
 }

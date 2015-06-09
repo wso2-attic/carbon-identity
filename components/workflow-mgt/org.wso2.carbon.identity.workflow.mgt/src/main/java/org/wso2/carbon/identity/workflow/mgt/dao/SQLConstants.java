@@ -78,7 +78,7 @@ public class SQLConstants {
     public static final String ADD_BPS_PROFILE_QUERY =
             "INSERT INTO WF_BPS_PROFILE(PROFILE_NAME, HOST_URL, USERNAME, PASSWORD) VALUES (?, ?, ?, ?)";
 
-    public static final String GET_BPS_PROFILE_QUERY = "SELECT PROFILE_NAME, HOST_URL, USERNAME, PASSWORD FROM " +
+    public static final String GET_BPS_PROFILE_QUERY = "SELECT HOST_URL, USERNAME, PASSWORD FROM " +
             "WF_BPS_PROFILE WHERE PROFILE_NAME = ?";
 
     public static final String LIST_BPS_PROFILES_QUERY = "SELECT PROFILE_NAME, HOST_URL, USERNAME FROM WF_BPS_PROFILE";

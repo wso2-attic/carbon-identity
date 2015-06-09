@@ -43,24 +43,29 @@ public class WorkflowAdminService {
     private WorkflowService service = new WorkflowService();
 
     public EventBean[] listWorkflowEvents() {
+
         List<EventBean> events = service.listWorkflowEvents();
         return events.toArray(new EventBean[events.size()]);
     }
 
     public TemplateBean[] listWorkflowTemplates() {
+
         List<TemplateBean> templates = service.listWorkflowTemplates();
         return templates.toArray(new TemplateBean[templates.size()]);
     }
 
     public TemplateDTO getTemplateDTO(String templateName) {
+
         return service.getTemplateDTO(templateName);
     }
 
     public TemplateImplDTO getTemplateImplDTO(String template, String implName) {
+
         return service.getTemplateImplDTO(template, implName);
     }
 
     public void deployTemplate(TemplateDeploymentDTO deploymentDTO) throws WorkflowException {
+
         String uuid = UUID.randomUUID().toString();
         try {
             service.addWorkflow(uuid, deploymentDTO.getWorkflowName(), deploymentDTO.getWorkflowDescription(),
@@ -71,9 +76,10 @@ public class WorkflowAdminService {
             log.error("Error occurred when deploying template " + deploymentDTO.getWorkflowName());
             throw new WorkflowException("Server error occurred when deploying the template");
         }
-    }
+}
 
-    public void addBPSProfile(String profileName, String host, String user, char[] password) throws WorkflowException {
+    public void addBPSProfile(String profileName, String host, String user, String password) throws WorkflowException {
+
         try {
             service.addBPSProfile(profileName, host, user, password);
         } catch (InternalWorkflowException e) {
@@ -83,6 +89,7 @@ public class WorkflowAdminService {
     }
 
     public BPSProfileBean[] listBPSProfiles() throws WorkflowException {
+
         List<BPSProfileBean> bpsProfiles = null;
         try {
             bpsProfiles = service.listBPSProfiles();
@@ -97,6 +104,7 @@ public class WorkflowAdminService {
     }
 
     public void removeBPSProfile(String profileName) throws WorkflowException {
+
         try {
             service.removeBPSProfile(profileName);
         } catch (InternalWorkflowException e) {
@@ -107,6 +115,7 @@ public class WorkflowAdminService {
 
     public void addWorkflow(String id, String name, String description, String templateId, String templateImpl,
                             Parameter[] templateParams, Parameter[] implParams) throws WorkflowException {
+
         try {
             service.addWorkflow(id, name, description, templateId, templateImpl, templateParams, implParams);
         } catch (WorkflowException e) {
@@ -116,6 +125,7 @@ public class WorkflowAdminService {
     }
 
     public void addAssociation(String workflowId, String eventId, String condition) throws WorkflowException {
+
         try {
             service.addAssociation(workflowId, eventId, condition);
         } catch (InternalWorkflowException e) {
@@ -125,6 +135,7 @@ public class WorkflowAdminService {
     }
 
     public WorkflowBean[] listWorkflows() throws WorkflowException {
+
         List<WorkflowBean> workflows;
         try {
             workflows = service.listWorkflows();
@@ -139,6 +150,7 @@ public class WorkflowAdminService {
     }
 
     public void removeWorkflow(String id) throws WorkflowException {
+
         try {
             service.removeWorkflow(id);
         } catch (InternalWorkflowException e) {
@@ -148,6 +160,7 @@ public class WorkflowAdminService {
     }
 
     public void removeAssociation(String associationId) throws WorkflowException {
+
         try {
             service.removeAssociation(Integer.parseInt(associationId));
         } catch (InternalWorkflowException e) {

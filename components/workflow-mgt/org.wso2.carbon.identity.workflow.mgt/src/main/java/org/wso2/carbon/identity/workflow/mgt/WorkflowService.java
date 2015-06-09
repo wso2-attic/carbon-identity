@@ -44,12 +44,14 @@ import java.util.List;
 import java.util.Map;
 
 public class WorkflowService {
+
     private static Log log = LogFactory.getLog(WorkflowService.class);
 
     WorkflowDAO workflowDAO = new WorkflowDAO();
     BPSProfileDAO bpsProfileDAO = new BPSProfileDAO();
 
     public List<EventBean> listWorkflowEvents() {
+
         List<WorkflowRequestHandler> workflowRequestHandlers =
                 WorkflowServiceDataHolder.getInstance().listRequestHandlers();
         List<EventBean> eventList = new ArrayList<>();
@@ -67,6 +69,7 @@ public class WorkflowService {
     }
 
     public List<TemplateBean> listWorkflowTemplates() {
+
         List<AbstractWorkflowTemplate> templateList =
                 WorkflowServiceDataHolder.getInstance().listTemplates();
         List<TemplateBean> templateBeans = new ArrayList<>();
@@ -83,6 +86,7 @@ public class WorkflowService {
     }
 
     public TemplateDTO getTemplateDTO(String templateId) {
+
         AbstractWorkflowTemplate template = WorkflowServiceDataHolder.getInstance().getTemplate(templateId);
         TemplateDTO templateDTO = new TemplateDTO();
         templateDTO.setId(template.getTemplateId());
@@ -105,6 +109,7 @@ public class WorkflowService {
     }
 
     public TemplateImplDTO getTemplateImplDTO(String template, String implName) {
+
         AbstractWorkflowTemplate workflowTemplate = WorkflowServiceDataHolder.getInstance().getTemplate(template);
         if (template != null) {
             AbstractWorkflowTemplateImpl templateImpl = workflowTemplate.getImplementation(implName);
@@ -120,23 +125,27 @@ public class WorkflowService {
         return null;
     }
 
-    public void addBPSProfile(String profileName, String host, String user, char[] password)
+    public void addBPSProfile(String profileName, String host, String user, String password)
             throws InternalWorkflowException {
+
         bpsProfileDAO.addProfile(profileName, host, user, password);
     }
 
     public List<BPSProfileBean> listBPSProfiles() throws WorkflowException {
+
         return bpsProfileDAO.listBPSProfiles();
     }
 
     public void removeBPSProfile(String profileName) throws WorkflowException {
+
         bpsProfileDAO.removeBPSProfile(profileName);
     }
 
     public void addWorkflow(String id, String name, String description, String templateId, String templateImpl,
                             Parameter[] templateParams, Parameter[] implParams) throws WorkflowException {
+
         workflowDAO.addWorkflow(id, name, description, templateId, templateImpl);
-        Map<String, String> paramMap = new HashMap<>();
+        Map<String, Object> paramMap = new HashMap<>();
         if (templateParams != null) {
             for (Parameter param : templateParams) {
                 paramMap.put(param.getParamName(), param.getParamValue());
@@ -148,9 +157,14 @@ public class WorkflowService {
             }
         }
         workflowDAO.addWorkflowParams(id, paramMap);
+        AbstractWorkflowTemplateImpl templateImplementation =
+                WorkflowServiceDataHolder.getInstance().getTemplateImplementation(templateId, templateImpl);
+        //deploying the template
+        templateImplementation.deploy(paramMap);
     }
 
     public void addAssociation(String workflowId, String eventId, String condition) throws WorkflowException {
+
         if (StringUtils.isBlank(workflowId)) {
             log.error("Null or empty string given as workflow id to be associated to event.");
             throw new InternalWorkflowException("Service alias cannot be null");
@@ -179,18 +193,22 @@ public class WorkflowService {
     }
 
     public List<WorkflowBean> listWorkflows() throws WorkflowException {
+
         return workflowDAO.listWorkflows();
     }
 
     public void removeWorkflow(String id) throws WorkflowException {
+
         workflowDAO.removeWorkflow(id);
     }
 
     public void removeAssociation(int associationId) throws WorkflowException {
+
         workflowDAO.removeAssociation(associationId);
     }
 
     public Map<String, Object> getBPSProfileParams(String profileName) throws WorkflowException {
+
         return bpsProfileDAO.getBPELProfileParams(profileName);
     }
 }

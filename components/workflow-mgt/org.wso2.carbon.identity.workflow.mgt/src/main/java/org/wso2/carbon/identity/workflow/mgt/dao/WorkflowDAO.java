@@ -67,18 +67,18 @@ public class WorkflowDAO {
         }
     }
 
-    public void addWorkflowParams(String workflowId, Map<String, String> values) throws InternalWorkflowException {
+    public void addWorkflowParams(String workflowId, Map<String, Object> values) throws InternalWorkflowException {
         Connection connection = null;
         PreparedStatement prepStmt = null;
 
         String query = SQLConstants.ADD_WORKFLOW_PARAMS_QUERY;
         try {
             connection = IdentityDatabaseUtil.getDBConnection();
-            for (Map.Entry<String, String> entry : values.entrySet()) {
+            for (Map.Entry<String, Object> entry : values.entrySet()) {
                 prepStmt = connection.prepareStatement(query);
                 prepStmt.setString(1, workflowId);
                 prepStmt.setString(2, entry.getKey());
-                prepStmt.setString(3, entry.getValue());
+                prepStmt.setString(3, (String)entry.getValue());    //The values should be string
                 prepStmt.executeUpdate();
             }
             connection.commit();
@@ -197,7 +197,7 @@ public class WorkflowDAO {
             rs = prepStmt.executeQuery();
             while (rs.next()) {
                 String id = rs.getString(SQLConstants.ID_COLUMN);
-                String name = rs.getString(SQLConstants.NAME_COLUMN);
+                String name = rs.getString(SQLConstants.WF_NAME_COLUMN);
                 String description = rs.getString(SQLConstants.DESCRIPTION_COLUMN);
                 String templateId = rs.getString(SQLConstants.TEMPLATE_ID_COLUMN);
                 String templateImplId = rs.getString(SQLConstants.TEMPLATE_IMPL_ID_COLUMN);

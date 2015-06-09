@@ -47,9 +47,9 @@ public abstract class AbstractWorkflowTemplateImpl {
         this.executor = executor;
     }
 
-    public void activate(String templateName, Map<String, Object> initParams) {
-        if (initializer != null && initializer.initNeededAtStartUp()) {
-            initializer.initialize(templateName, initParams);
+    public void activate(Map<String, Object> initParams) throws WorkflowException {
+        if (initializer.initNeededAtStartUp()) {
+            deploy(initParams);
         }
     }
 
@@ -57,9 +57,9 @@ public abstract class AbstractWorkflowTemplateImpl {
         executor.initialize(initParams);
     }
 
-    public void deploy(String templateName, Map<String, Object> initParams) {
+    public void deploy(Map<String, Object> initParams) throws WorkflowException {
         if (initializer != null) {
-            initializer.initialize(templateName, initParams);
+            initializer.initialize(initParams);
         }
     }
 

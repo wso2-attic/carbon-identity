@@ -39,14 +39,20 @@ public class WorkFlowConstants {
     }
 
     public static class TemplateConstants {
-        public static final String APPROVAL_TEMPLATE_NAME = "Simple Approval";
-        public static final String SIMPLE_APPROVAL_ROLE_NAME = "Role Name";
-        public static final String BPEL_IMPL_BPS_PROFILE = "BPEL Engine profile";
-        public static final String BPEL_IMPL_PROCESS_NAME = "BPEL process";
+
+        public static final String APPROVAL_TEMPLATE_NAME = "SimpleApproval";
+        public static final String SIMPLE_APPROVAL_ROLE_NAME = "RoleName";
+        public static final String BPEL_IMPL_BPS_PROFILE = "BPELEngineProfile";
 
         public static final String HOST = "Host";
-        public static final String SERVICE_NAME = "ServiceName";
+        public static final String PROCESS_NAME = "ServiceName";
         public static final String AUTH_USER = "User";
         public static final String AUTH_USER_PASSWORD = "UserPassword";
+
+        public static final String CALLBACK_USER = "CarbonUser";
+        public static final String CALLBACK_USER_PASSWORD = "CarbonUserPassword";
+
+        public static final String HT_SUBJECT = "HTSubject";
+        public static final String HT_DESCRIPTION = "HTDescription";
     }
 }

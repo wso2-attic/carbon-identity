@@ -35,7 +35,7 @@ import java.util.Map;
 
 public class BPSProfileDAO {
 
-    public void addProfile(String profileName, String host, String user, char[] password)
+    public void addProfile(String profileName, String host, String user, String password)
             throws InternalWorkflowException {
         Connection connection = null;
         PreparedStatement prepStmt = null;
@@ -46,7 +46,7 @@ public class BPSProfileDAO {
             prepStmt.setString(1, profileName);
             prepStmt.setString(2, host);
             prepStmt.setString(3, user);
-            prepStmt.setString(4, new String(password));
+            prepStmt.setString(4, password);
             prepStmt.executeUpdate();
             connection.commit();
         } catch (IdentityException e) {
@@ -70,11 +70,9 @@ public class BPSProfileDAO {
             prepStmt.setString(1, profileName);
             rs = prepStmt.executeQuery();
             if (rs.next()) {
-                String name = rs.getString(SQLConstants.NAME_COLUMN);
                 String hostName = rs.getString(SQLConstants.HOST_URL_COLUMN);
                 String user = rs.getString(SQLConstants.USERNAME_COLUMN);
-                char[] password = rs.getString(SQLConstants.PASSWORD_COLUMN).toCharArray();
-                profileParams.put(WorkFlowConstants.TemplateConstants.SERVICE_NAME, name);
+                String password = rs.getString(SQLConstants.PASSWORD_COLUMN);
                 profileParams.put(WorkFlowConstants.TemplateConstants.HOST, hostName);
                 profileParams.put(WorkFlowConstants.TemplateConstants.AUTH_USER, user);
                 profileParams.put(WorkFlowConstants.TemplateConstants.AUTH_USER_PASSWORD, password);
@@ -99,8 +97,8 @@ public class BPSProfileDAO {
             connection = IdentityDatabaseUtil.getDBConnection();
             prepStmt = connection.prepareStatement(query);
             rs = prepStmt.executeQuery();
-            if (rs.next()) {
-                String name = rs.getString(SQLConstants.NAME_COLUMN);
+            while (rs.next()) {
+                String name = rs.getString(SQLConstants.PROFILE_NAME_COLUMN);
                 String hostName = rs.getString(SQLConstants.HOST_URL_COLUMN);
                 String user = rs.getString(SQLConstants.USERNAME_COLUMN);
                 BPSProfileBean profileBean = new BPSProfileBean();

@@ -88,8 +88,8 @@ public class WorkflowAdminServiceClient {
     public void addBPSProfile(String profileName, String host, String user, String password)
             throws RemoteException, WorkflowAdminServiceWorkflowException {
 
-        String[] splittedPw = password.split("(?!^)");
-        stub.addBPSProfile(profileName, host, user, splittedPw);
+//        String[] splittedPw = password.split("(?!^)");
+        stub.addBPSProfile(profileName, host, user, password);
     }
 
     public BPSProfileBean[] listBPSProfiles() throws RemoteException, WorkflowAdminServiceWorkflowException {
