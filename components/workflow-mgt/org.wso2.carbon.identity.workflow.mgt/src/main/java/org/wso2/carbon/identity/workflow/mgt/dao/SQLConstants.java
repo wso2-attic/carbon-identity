@@ -27,10 +27,11 @@ public class SQLConstants {
     public static final String DESCRIPTION_COLUMN = "DESCRIPTION";
 
     public static final String ID_COLUMN = "ID";
-    public static final String NAME_COLUMN = "NAME";
+    public static final String WF_NAME_COLUMN = "WF_NAME";
     public static final String TEMPLATE_ID_COLUMN = "TEMPLATE_ID";
     public static final String TEMPLATE_IMPL_ID_COLUMN = "IMPL_ID";
     public static final String CONDITION_COLUMN = "CONDITION";
+    public static final String PROFILE_NAME_COLUMN = "PROFILE_NAME";
     public static final String HOST_URL_COLUMN = "HOST_URL";
     public static final String USERNAME_COLUMN = "USERNAME";
     public static final String PASSWORD_COLUMN = "PASSWORD";
@@ -47,7 +48,7 @@ public class SQLConstants {
             " = ?";
 
     public static final String ADD_WORKFLOW_QUERY =
-            "INSERT INTO WF_WORKFLOW(ID, NAME, DESCRIPTION, TEMPLATE_ID, IMPL_ID) VALUES (?, ?, ?, ?, ?)";
+            "INSERT INTO WF_WORKFLOW(ID, WF_NAME, DESCRIPTION, TEMPLATE_ID, IMPL_ID) VALUES (?, ?, ?, ?, ?)";
 
     public static final String ADD_WORKFLOW_PARAMS_QUERY = "INSERT INTO WF_WORKFLOW_CONFIG_PARAM(WORKFLOW_ID, " +
             "PARAM_NAME, PARAM_VALUE) VALUES(?, ?, ?)";
@@ -70,19 +71,19 @@ public class SQLConstants {
     public static final String ASSOCIATE_WF_TO_EVENT = "INSERT INTO WF_WORKFLOW_ASSOCIATION(EVENT_ID, " +
             "CONDITION, WORKFLOW_ID) VALUES (?, ?, ?)";
 
-    public static final String LIST_WORKFLOWS_QUERY = "SELECT ID, NAME, DESCRIPTION, TEMPLATE_ID, IMPL_ID FROM " +
-            "WF_WORKFLOW ORDER BY NAME";
+    public static final String LIST_WORKFLOWS_QUERY = "SELECT ID, WF_NAME, DESCRIPTION, TEMPLATE_ID, IMPL_ID FROM " +
+            "WF_WORKFLOW ORDER BY WF_NAME";
 
     //queries for BPS profiles
     public static final String ADD_BPS_PROFILE_QUERY =
-            "INSERT INTO WF_BPS_PROFILE(NAME, HOST_URL, USERNAME, PASSWORD) VALUES (?, ?, ?, ?)";
+            "INSERT INTO WF_BPS_PROFILE(PROFILE_NAME, HOST_URL, USERNAME, PASSWORD) VALUES (?, ?, ?, ?)";
 
-    public static final String GET_BPS_PROFILE_QUERY = "SELECT NAME, HOST_URL, USERNAME, PASSWORD FROM " +
-            "WF_BPS_PROFILE WHERE NAME = ?";
+    public static final String GET_BPS_PROFILE_QUERY = "SELECT PROFILE_NAME, HOST_URL, USERNAME, PASSWORD FROM " +
+            "WF_BPS_PROFILE WHERE PROFILE_NAME = ?";
 
-    public static final String LIST_BPS_PROFILES_QUERY = "SELECT NAME, HOST_URL, USERNAME FROM WF_BPS_PROFILE";
+    public static final String LIST_BPS_PROFILES_QUERY = "SELECT PROFILE_NAME, HOST_URL, USERNAME FROM WF_BPS_PROFILE";
 
-    public static final String DELETE_BPS_PROFILES_QUERY = "DELETE FROM WF_BPS_PROFILE WHERE NAME = ?";
+    public static final String DELETE_BPS_PROFILES_QUERY = "DELETE FROM WF_BPS_PROFILE WHERE PROFILE_NAME = ?";
 
     private SQLConstants() {
     }
