@@ -603,8 +603,7 @@ public class UserProfileAdmin extends AbstractAdmin {
             log.error(persistenceErrorMsg, e);
             throw new UserProfileException(persistenceErrorMsg, e);
         } catch (SQLException e) {
-            log.error(SQLErrorMsg + sql);
-            log.error(e.getMessage(), e);
+            log.error(SQLErrorMsg + sql, e);
             throw new UserProfileException("Error occurred while persisting the federated user ID");
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
@@ -691,8 +690,7 @@ public class UserProfileAdmin extends AbstractAdmin {
             log.error(persistenceErrorMsg, e);
             throw new UserProfileException(persistenceErrorMsg, e);
         } catch (SQLException e) {
-            log.error(SQLErrorMsg + sql);
-            log.error(e.getMessage(), e);
+            log.error(SQLErrorMsg + sql, e);
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
         }

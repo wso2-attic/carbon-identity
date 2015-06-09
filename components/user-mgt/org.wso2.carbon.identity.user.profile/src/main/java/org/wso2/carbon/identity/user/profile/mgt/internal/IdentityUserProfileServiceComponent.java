@@ -39,7 +39,7 @@ public class IdentityUserProfileServiceComponent {
             if (log.isDebugEnabled()) {
                 log.debug("User Profile Mgt bundle is activated ");
             }
-        } catch (Exception e) {
+        } catch (Throwable e) {
             log.error("Failed to activate ProfileMgt bundle ", e);
         }
     }
