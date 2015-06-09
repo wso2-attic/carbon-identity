@@ -98,9 +98,9 @@ public class NotificationManagementServiceComponent {
             if (log.isDebugEnabled()) {
                 log.debug("Notification Management bundle is activated");
             }
-            // Catch throwable since there may be run time exceptions.
-        } catch (Throwable t) {
-            log.error("Error while initiating Notification Management component", t);
+            // Catch Exception since there may be run time exceptions.
+        } catch (Exception e) {
+            log.error("Error while initiating Notification Management component", e);
         }
     }
 
@@ -139,7 +139,7 @@ public class NotificationManagementServiceComponent {
             module.init(moduleConfiguration);
             notificationSendingModules.add(module);
         } catch (NotificationManagementException e) {
-            log.error("Error while initializing Notification sending module " + module.getModuleName());
+            log.error("Error while initializing Notification sending module " + module.getModuleName(), e);
         }
     }
 
