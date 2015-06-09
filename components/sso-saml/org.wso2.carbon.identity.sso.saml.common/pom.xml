@@ -84,6 +84,7 @@
                             version="${carbon.identity.package.import.version.range}",
                             org.wso2.carbon.identity.sso.saml.stub.types;
                             version="${carbon.identity.package.import.version.range}",
+                            org.apache.commons.logging; version="${commons-logging.osgi.version.range}",
                         </Import-Package>
                         <Export-Package>
                             org.wso2.carbon.identity.sso.saml.common.*;
