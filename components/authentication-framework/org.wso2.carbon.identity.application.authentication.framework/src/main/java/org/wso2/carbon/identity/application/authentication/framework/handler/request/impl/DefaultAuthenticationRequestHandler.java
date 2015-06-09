@@ -228,6 +228,18 @@ public class DefaultAuthenticationRequestHandler implements AuthenticationReques
 
         if (isAuthenticated) {
 
+            if (!sequenceConfig.getApplicationConfig().isSaaSApp()) {
+                String spTenantDomain = context.getTenantDomain();
+                String userTenantDomain = sequenceConfig.getAuthenticatedUserTenantDomain();
+                if (userTenantDomain != null && !userTenantDomain.isEmpty()) {
+                    if (spTenantDomain != null && !spTenantDomain.isEmpty() && !spTenantDomain.equals
+                            (userTenantDomain)) {
+                        throw new FrameworkException("Service Provider tenant domain must be equal to user tenant " +
+                                                     "domain for non-SaaS applications");
+                    }
+                }
+            }
+
             authenticationResult.setSubject(new AuthenticatedUser(sequenceConfig.getAuthenticatedUser()));
             ApplicationConfig appConfig = sequenceConfig.getApplicationConfig();
 
