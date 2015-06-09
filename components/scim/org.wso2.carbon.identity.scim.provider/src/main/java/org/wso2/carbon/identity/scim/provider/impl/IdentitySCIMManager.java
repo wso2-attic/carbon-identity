@@ -194,7 +194,7 @@ public class IdentitySCIMManager implements CharonManager {
             //get user store manager
         } catch (UserStoreException e) {
             String error = "Error obtaining user realm for the user: " + userName;
-            throw new CharonException(error);
+            throw new CharonException(error, e);
         }
         return scimUserManager;
     }
@@ -253,7 +253,7 @@ public class IdentitySCIMManager implements CharonManager {
             //get user store manager
         } catch (UserStoreException e) {
             String error = "Error obtaining user realm for the user: " + userName;
-            throw new CharonException(error);
+            throw new CharonException(error, e);
         }
         return scimUserManager;
     }
@@ -289,7 +289,7 @@ public class IdentitySCIMManager implements CharonManager {
                 }
             }
         } catch (CharonException e) {
-            throw new UnauthorizedException();
+            throw new UnauthorizedException("Error in handling authentication", e);
         }
         throw new UnauthorizedException();
     }

@@ -30,8 +30,12 @@ public class SCIMUIServiceComponent {
 
     protected void activate(ComponentContext ctx) {
 
-        if (logger.isDebugEnabled()) {
-            logger.debug("SCIM Common component activated successfully.");
+        try {
+            if (logger.isDebugEnabled()) {
+                logger.debug("SCIM Common component activated successfully.");
+            }
+        } catch (Throwable e) {
+            logger.error("Error in activating SCIM Component", e);
         }
     }
 }

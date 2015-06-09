@@ -48,7 +48,7 @@ public class ApplicationInitializer implements ServletContextListener {
 
         } catch (CharonException e) {
             logger.error("Error in initializing the IdentitySCIMManager at the initialization of " +
-                    "SCIM webapp");
+                    "SCIM webapp", e);
         }
     }
 

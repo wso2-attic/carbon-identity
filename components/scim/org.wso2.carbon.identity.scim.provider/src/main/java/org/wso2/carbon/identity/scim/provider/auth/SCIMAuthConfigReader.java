@@ -73,7 +73,7 @@ public class SCIMAuthConfigReader {
 
         } catch (ServerConfigurationException e) {
             logger.error("Error in reading authenticator config from " +
-                    "identity.xml when initializing the SCIM webapp...");
+                    "identity.xml when initializing the SCIM webapp...", e);
         } catch (ClassNotFoundException e) {
             //we just log the exception and continue loading other authenticators.
             logger.error("Error in loading the authenticator class...", e);

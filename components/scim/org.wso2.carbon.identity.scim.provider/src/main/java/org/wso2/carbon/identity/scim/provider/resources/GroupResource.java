@@ -52,7 +52,7 @@ public class GroupResource extends AbstractResource {
     public Response getGroup(@PathParam(SCIMConstants.CommonSchemaConstants.ID) String id,
                              @HeaderParam(SCIMConstants.ACCEPT_HEADER) String outputFormat,
                              @HeaderParam(SCIMConstants.AUTHORIZATION_HEADER) String authorization) {
-        Map<String, String> requestAttributes = new HashMap<String, String>();
+        Map<String, String> requestAttributes = new HashMap<>();
         requestAttributes.put(SCIMProviderConstants.ID, id);
         requestAttributes.put(SCIMProviderConstants.OUTPUT_FORMAT, outputFormat);
         requestAttributes.put(SCIMProviderConstants.AUTHORIZATION, authorization);
@@ -65,7 +65,7 @@ public class GroupResource extends AbstractResource {
                                 @HeaderParam(SCIMConstants.ACCEPT_HEADER) String outputFormat,
                                 @HeaderParam(SCIMConstants.AUTHORIZATION_HEADER) String authorization,
                                 String resourceString) {
-        Map<String, String> requestAttributes = new HashMap<String, String>();
+        Map<String, String> requestAttributes = new HashMap<>();
         requestAttributes.put(SCIMProviderConstants.INPUT_FORMAT, inputFormat);
         requestAttributes.put(SCIMProviderConstants.OUTPUT_FORMAT, outputFormat);
         requestAttributes.put(SCIMProviderConstants.AUTHORIZATION, authorization);
@@ -79,7 +79,7 @@ public class GroupResource extends AbstractResource {
     public Response deleteGroup(@PathParam(SCIMConstants.CommonSchemaConstants.ID) String id,
                                 @HeaderParam(SCIMConstants.ACCEPT_HEADER) String outputFormat,
                                 @HeaderParam(SCIMConstants.AUTHORIZATION_HEADER) String authorization) {
-        Map<String, String> requestAttributes = new HashMap<String, String>();
+        Map<String, String> requestAttributes = new HashMap<>();
         requestAttributes.put(SCIMProviderConstants.ID, id);
         requestAttributes.put(SCIMProviderConstants.OUTPUT_FORMAT, outputFormat);
         requestAttributes.put(SCIMProviderConstants.AUTHORIZATION, authorization);
@@ -94,7 +94,7 @@ public class GroupResource extends AbstractResource {
                                 @HeaderParam(SCIMConstants.ACCEPT_HEADER) String outputFormat,
                                 @HeaderParam(SCIMConstants.AUTHORIZATION_HEADER) String authorization,
                                 String resourceString) {
-        Map<String, String> requestAttributes = new HashMap<String, String>();
+        Map<String, String> requestAttributes = new HashMap<>();
         requestAttributes.put(SCIMProviderConstants.ID, id);
         requestAttributes.put(SCIMProviderConstants.INPUT_FORMAT, inputFormat);
         requestAttributes.put(SCIMProviderConstants.OUTPUT_FORMAT, outputFormat);
@@ -111,7 +111,7 @@ public class GroupResource extends AbstractResource {
                                @HeaderParam(SCIMConstants.ACCEPT_HEADER) String outputFormat,
                                @HeaderParam(SCIMConstants.AUTHORIZATION_HEADER) String authorization,
                                String resourceString) {
-        Map<String, String> requestAttributes = new HashMap<String, String>();
+        Map<String, String> requestAttributes = new HashMap<>();
         requestAttributes.put(SCIMProviderConstants.ID, id);
         requestAttributes.put(SCIMProviderConstants.INPUT_FORMAT, inputFormat);
         requestAttributes.put(SCIMProviderConstants.OUTPUT_FORMAT, outputFormat);
@@ -129,7 +129,7 @@ public class GroupResource extends AbstractResource {
                              @QueryParam("startIndex") String startIndex,
                              @QueryParam("count") String count, @QueryParam("sortBy") String sortBy,
                              @QueryParam("sortOrder") String sortOrder) {
-        Map<String, String> requestAttributes = new HashMap<String, String>();
+        Map<String, String> requestAttributes = new HashMap<>();
         requestAttributes.put(SCIMProviderConstants.OUTPUT_FORMAT, outputFormat);
         requestAttributes.put(SCIMProviderConstants.AUTHORIZATION, authorization);
         requestAttributes.put(SCIMProviderConstants.HTTP_VERB, GET.class.getSimpleName());

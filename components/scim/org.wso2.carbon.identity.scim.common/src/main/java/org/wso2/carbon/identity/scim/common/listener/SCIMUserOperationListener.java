@@ -165,7 +165,7 @@ public class SCIMUserOperationListener implements UserOperationEventListener {
                     }
                 }
             } catch (org.wso2.carbon.user.api.UserStoreException e) {
-                throw new UserStoreException("Error when updating SCIM attributes of the user.");
+                throw new UserStoreException("Error when updating SCIM attributes of the user.", e);
             }
             //do provisioning
             try {
@@ -193,9 +193,9 @@ public class SCIMUserOperationListener implements UserOperationEventListener {
                             consumerUserId, user, SCIMConstants.POST, null));
                 }
             } catch (NotFoundException e) {
-                throw new UserStoreException("Error in constructing SCIM object from attributes when provisioning.");
+                throw new UserStoreException("Error in constructing SCIM object from attributes when provisioning.", e);
             } catch (CharonException e) {
-                throw new UserStoreException("Error in constructing SCIM object from attributes when provisioning.");
+                throw new UserStoreException("Error in constructing SCIM object from attributes when provisioning.", e);
             }
             return true;
 
@@ -277,7 +277,7 @@ public class SCIMUserOperationListener implements UserOperationEventListener {
                     }
                 }
             } catch (CharonException e) {
-                throw new UserStoreException("Error in provisioning 'update credential by admin' operation");
+                throw new UserStoreException("Error in provisioning 'update credential by admin' operation", e);
             }
             return true;
 
@@ -309,7 +309,7 @@ public class SCIMUserOperationListener implements UserOperationEventListener {
                     provisioningThreadPool.submit(getProvisioningHandlerFromUser(consumerUserId, user, SCIMConstants.DELETE, null));
                 }
             } catch (CharonException e) {
-                throw new UserStoreException("Error in provisioning delete operation");
+                throw new UserStoreException("Error in provisioning delete operation", e);
             }
             return true;
 
@@ -405,13 +405,13 @@ public class SCIMUserOperationListener implements UserOperationEventListener {
                     }
                 } catch (org.wso2.carbon.user.api.UserStoreException e) {
                     throw new UserStoreException("Error in retrieving claim values while provisioning " +
-                            "'update user' operation.");
+                            "'update user' operation.", e);
                 } catch (CharonException e) {
                     throw new UserStoreException("Error in constructing SCIM User object from claims" +
-                            "while provisioning 'update user' operation.");
+                            "while provisioning 'update user' operation.", e);
                 } catch (NotFoundException e) {
                     throw new UserStoreException("Error in constructing SCIM User object from claims" +
-                            "while provisioning 'update user' operation.");
+                            "while provisioning 'update user' operation.", e);
                 }
             }
             return true;
@@ -505,7 +505,7 @@ public class SCIMUserOperationListener implements UserOperationEventListener {
                             consumerUserId, group, SCIMConstants.POST, null));
                 }
             } catch (CharonException e) {
-                throw new UserStoreException("Error in constructing SCIM object from attributes when provisioning.");
+                throw new UserStoreException("Error in constructing SCIM object from attributes when provisioning.", e);
             }
 
             return true;
@@ -553,7 +553,7 @@ public class SCIMUserOperationListener implements UserOperationEventListener {
                     provisioningThreadPool.submit(getProvisioningHandlerFromGroup(consumerUserId, group, SCIMConstants.DELETE, null));
                 }
             } catch (CharonException e) {
-                throw new UserStoreException("Error in provisioning delete operation");
+                throw new UserStoreException("Error in provisioning delete operation", e);
             }
             return true;
 
@@ -621,7 +621,7 @@ public class SCIMUserOperationListener implements UserOperationEventListener {
                             consumerUserId, group, SCIMConstants.PUT, additionalInformation));
                 }
             } catch (CharonException e) {
-                throw new UserStoreException("Error in provisioning delete operation");
+                throw new UserStoreException("Error in provisioning delete operation", e);
             }
             return true;
 
@@ -671,7 +671,7 @@ public class SCIMUserOperationListener implements UserOperationEventListener {
                             consumerUserId, group, SCIMConstants.PUT, null));
                 }
             } catch (CharonException e) {
-                throw new UserStoreException("Error in provisioning delete operation");
+                throw new UserStoreException("Error in provisioning delete operation", e);
             }
             return true;
 
@@ -788,7 +788,7 @@ public class SCIMUserOperationListener implements UserOperationEventListener {
             }
         } catch (org.wso2.carbon.user.api.UserStoreException e) {
             throw new UserStoreException("Error in authorizing user: " + currentUser + tenantDomain
-                    + " for provisioning.");
+                    + " for provisioning.", e);
         }
         return false;
     }
@@ -811,15 +811,15 @@ public class SCIMUserOperationListener implements UserOperationEventListener {
             provisioningHandler = (ProvisioningHandler) cons.newInstance(consumerUserId, user, httpMethod, additionalInformation);
 
         } catch (ClassNotFoundException e) {
-            log.error("Cannot find class: " + provisioningHandlerImplClass);
+            log.error("Cannot find class: " + provisioningHandlerImplClass, e);
         } catch (InstantiationException e) {
-            log.error("Error instantiating: " + provisioningHandlerImplClass);
+            log.error("Error instantiating: " + provisioningHandlerImplClass, e);
         } catch (IllegalAccessException e) {
-            log.error("Error while initializing " + provisioningHandlerImplClass);
+            log.error("Error while initializing " + provisioningHandlerImplClass, e);
         } catch (NoSuchMethodException e) {
-            log.error("Error while initializing " + provisioningHandlerImplClass);
+            log.error("Error while initializing " + provisioningHandlerImplClass, e);
         } catch (InvocationTargetException e) {
-            log.error("Error while initializing " + provisioningHandlerImplClass);
+            log.error("Error while initializing " + provisioningHandlerImplClass, e);
         }
 
         return provisioningHandler;
@@ -835,15 +835,15 @@ public class SCIMUserOperationListener implements UserOperationEventListener {
             provisioningHandler = (ProvisioningHandler) cons.newInstance(consumerUserId, group, httpMethod, additionalInformation);
 
         } catch (ClassNotFoundException e) {
-            log.error("Cannot find class: " + provisioningHandlerImplClass);
+            log.error("Cannot find class: " + provisioningHandlerImplClass, e);
         } catch (InstantiationException e) {
-            log.error("Error instantiating: " + provisioningHandlerImplClass);
+            log.error("Error instantiating: " + provisioningHandlerImplClass, e);
         } catch (IllegalAccessException e) {
-            log.error("Error while initializing " + provisioningHandlerImplClass);
+            log.error("Error while initializing " + provisioningHandlerImplClass, e);
         } catch (NoSuchMethodException e) {
-            log.error("Error while initializing " + provisioningHandlerImplClass);
+            log.error("Error while initializing " + provisioningHandlerImplClass, e);
         } catch (InvocationTargetException e) {
-            log.error("Error while initializing " + provisioningHandlerImplClass);
+            log.error("Error while initializing " + provisioningHandlerImplClass, e);
         }
 
         return provisioningHandler;

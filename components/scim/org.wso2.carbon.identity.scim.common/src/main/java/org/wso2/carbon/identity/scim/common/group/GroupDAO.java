@@ -102,7 +102,7 @@ public class GroupDAO {
             String errorMsg = "Error when getting an Identity Persistence Store instance.";
             throw new IdentitySCIMException(errorMsg, e);
         } catch (SQLException e) {
-            throw new IdentitySCIMException("Error when reading the group information from the persistence store.");
+            throw new IdentitySCIMException("Error when reading the group information from the persistence store.", e);
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, rSet, prepStmt);
         }
@@ -133,7 +133,7 @@ public class GroupDAO {
             throw new IdentitySCIMException(errorMsg, e);
         } catch (SQLException e) {
             throw new IdentitySCIMException("Error when reading the group attribute information from " +
-                    "the persistence store.");
+                    "the persistence store.", e);
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, rSet, prepStmt);
         }
@@ -170,7 +170,7 @@ public class GroupDAO {
                 throw new IdentitySCIMException(errorMsg, e);
             } catch (SQLException e) {
                 throw new IdentitySCIMException("Error when adding SCIM attributes for the group: "
-                        + roleName);
+                        + roleName, e);
             } finally {
                 IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
             }
@@ -213,7 +213,7 @@ public class GroupDAO {
                 String errorMsg = "Error when getting an Identity Persistence Store instance.";
                 throw new IdentitySCIMException(errorMsg, e);
             } catch (SQLException e) {
-                throw new IdentitySCIMException("Error updating the SCIM Group Attributes.");
+                throw new IdentitySCIMException("Error updating the SCIM Group Attributes.", e);
             } finally {
                 IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
             }
@@ -241,7 +241,7 @@ public class GroupDAO {
             throw new IdentitySCIMException(errorMsg, e);
         } catch (SQLException e) {
             log.error("Error when executing the SQL : " + SQLQueries.DELETE_GROUP_SQL);
-            throw new IdentitySCIMException("Error deleting the SCIM Group.");
+            throw new IdentitySCIMException("Error deleting the SCIM Group.", e);
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
         }
@@ -272,7 +272,7 @@ public class GroupDAO {
         } catch (SQLException e) {
             log.error("Error when executing the SQL : " + SQLQueries.GET_ATTRIBUTES_SQL);
             throw new IdentitySCIMException("Error when reading the SCIM Group information from the " +
-                    "persistence store.");
+                    "persistence store.", e);
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, rSet, prepStmt);
         }
@@ -300,7 +300,7 @@ public class GroupDAO {
             String errorMsg = "Error when getting an Identity Persistence Store instance.";
             throw new IdentitySCIMException(errorMsg, e);
         } catch (SQLException e) {
-            throw new IdentitySCIMException("Error when reading the SCIM Group information from the persistence store.");
+            throw new IdentitySCIMException("Error when reading the SCIM Group information from the persistence store.", e);
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, rSet, prepStmt);
         }
@@ -336,7 +336,7 @@ public class GroupDAO {
             } catch (SQLException e) {
                 log.error("Error when executing the SQL : " + SQLQueries.UPDATE_GROUP_NAME_SQL);
                 log.error(e.getMessage(), e);
-                throw new IdentitySCIMException("Error updating the SCIM Group Attributes.");
+                throw new IdentitySCIMException("Error updating the SCIM Group Attributes.", e);
             } finally {
                 IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
             }

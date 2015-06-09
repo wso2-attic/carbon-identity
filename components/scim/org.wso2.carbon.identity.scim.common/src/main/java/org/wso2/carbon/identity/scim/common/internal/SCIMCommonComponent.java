@@ -84,7 +84,7 @@ public class SCIMCommonComponent {
                 logger.debug("SCIM Common component activated successfully.");
             }
         } catch (CharonException | IdentitySCIMException e) {
-            logger.error("Error in reading information from identity tables at SCIMCommonComponentStartup.");
+            logger.error("Error in reading information from identity tables at SCIMCommonComponentStartup.", e);
         }
     }
 
@@ -120,7 +120,7 @@ public class SCIMCommonComponent {
                                     scimProviderDAO.addProvider(consumerId, scimDTO);
                                 } catch (IdentitySCIMException e) {
                                     logger.error("Error in persisting scim provider: " +
-                                            scimProvider.getId() + " for scim consumer: " + consumerId);
+                                            scimProvider.getId() + " for scim consumer: " + consumerId, e);
                                 }
                             }
                         }

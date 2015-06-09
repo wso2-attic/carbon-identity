@@ -75,7 +75,7 @@ public class SCIMProviderDAO {
         } catch (SQLException e) {
             log.error("Error when executing the SQL : " + SQLQueries.GET_ALL_PROVIDERS_SQL, e);
             throw new IdentitySCIMException("Error when reading the SCIM Providers information from " +
-                    "the persistence store.", e);
+                    "the persistence store.");
         } catch (CryptoException e) {
             String errorMsg = "Error in decrypting the password.";
             log.error(errorMsg, e);
@@ -120,7 +120,7 @@ public class SCIMProviderDAO {
         } catch (SQLException e) {
             log.error("Error when executing the SQL : " + SQLQueries.GET_PROVIDER_SQL, e);
             throw new IdentitySCIMException("Error when reading the SCIM Provider information from " +
-                    "the persistence store.", e);
+                    "the persistence store.");
         } catch (CryptoException e) {
             String errorMsg = "Error in decrypting the password.";
             log.error(errorMsg, e);
@@ -164,7 +164,7 @@ public class SCIMProviderDAO {
                 throw new IdentitySCIMException(errorMsg, e);
             } catch (SQLException e) {
                 log.error("Error when executing the SQL : " + sqlStmt, e);
-                throw new IdentitySCIMException("Error when adding a new SCIM Provider.", e);
+                throw new IdentitySCIMException("Error when adding a new SCIM Provider.");
             } catch (CryptoException e) {
                 String errorMsg = "Error when encrypting the password.";
                 log.error(errorMsg, e);
@@ -202,7 +202,7 @@ public class SCIMProviderDAO {
                 throw new IdentitySCIMException(errorMsg, e);
             } catch (SQLException e) {
                 log.error("Error when executing the SQL : " + SQLQueries.DELETE_GROUP_SQL, e);
-                throw new IdentitySCIMException("Error deleting the SCIM Group.", e);
+                throw new IdentitySCIMException("Error deleting the SCIM Group.");
             } finally {
                 IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
             }
@@ -250,7 +250,7 @@ public class SCIMProviderDAO {
                 throw new IdentitySCIMException(errorMsg, e);
             } catch (SQLException e) {
                 log.error("Error when executing the SQL : " + SQLQueries.UPDATE_PROVIDER_SQL, e);
-                throw new IdentitySCIMException("Error updating the SCIM Provider.", e);
+                throw new IdentitySCIMException("Error updating the SCIM Provider.");
             } catch (CryptoException e) {
                 String errorMsg = "Error when encrypting the password.";
                 log.error(errorMsg, e);
@@ -290,7 +290,7 @@ public class SCIMProviderDAO {
         } catch (SQLException e) {
             log.error("Error when executing the SQL : " + SQLQueries.CHECK_EXISTING_PROVIDER_SQL, e);
             throw new IdentitySCIMException("Error when reading provider information from " +
-                    "the persistence store.", e);
+                    "the persistence store.");
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, rSet, prepStmt);
         }
@@ -320,7 +320,7 @@ public class SCIMProviderDAO {
         } catch (SQLException e) {
             log.error("Error when executing the SQL : " + SQLQueries.CHECK_EXISTING_CONSUMER_SQL, e);
             throw new IdentitySCIMException("Error when reading provider information from " +
-                    "the persistence store.", e);
+                    "the persistence store.");
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, rSet, prepStmt);
         }
@@ -349,7 +349,7 @@ public class SCIMProviderDAO {
         } catch (SQLException e) {
             log.error("Error when executing the SQL : " + SQLQueries.CHECK_FIRST_STARTUP_SQL, e);
             throw new IdentitySCIMException("Error when reading provider information from " +
-                    "the persistence store.", e);
+                    "the persistence store.");
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, rSet, prepStmt);
         }

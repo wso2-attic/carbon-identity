@@ -20,8 +20,6 @@ package org.wso2.carbon.identity.scim.provider.util;
 
 public class SCIMProviderConstants {
 
-    private SCIMProviderConstants(){}
-
     public static final String PROPERTY_NAME_PRIORITY = "Priority";
     public static final String PROPERTY_NAME_AUTH_SERVER = "AuthorizationServer";
     public static final String PROPERTY_NAME_USERNAME = "UserName";
@@ -49,5 +47,7 @@ public class SCIMProviderConstants {
     public static final String SORT_BY = "SORT_BY";
     public static final String SORT_ORDER = "SORT_ORDER";
     public static final String PATCH = "PATCH";
+
+    private SCIMProviderConstants(){}
 
 }
