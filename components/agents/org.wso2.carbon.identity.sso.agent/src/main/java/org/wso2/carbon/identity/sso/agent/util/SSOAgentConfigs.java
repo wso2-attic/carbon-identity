@@ -1,23 +1,28 @@
 /*
-*  Copyright (c) WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ *
+ */
 
 package org.wso2.carbon.identity.sso.agent.util;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.identity.sso.agent.bean.SSOAgentConfig;
 import org.wso2.carbon.identity.sso.agent.exception.SSOAgentException;
 
 import javax.servlet.FilterConfig;
@@ -31,7 +36,9 @@ import java.util.logging.Logger;
 
 public class SSOAgentConfigs {
 
-    private static Logger LOGGER = Logger.getLogger("InfoLogging");
+    private static final Logger LOGGER = Logger.getLogger("InfoLogging");
+    private static final Log log = LogFactory.getLog(SSOAgentConfig.class);
+
 
     private static Boolean samlSSOLoginEnabled;
     private static Boolean openidLoginEnabled;
@@ -74,21 +81,29 @@ public class SSOAgentConfigs {
 
     private static String addExtension;
 
+    private SSOAgentConfigs() {
+    }
+
     public static void initConfig(FilterConfig fConfigs) throws SSOAgentException {
 
         Properties properties = new Properties();
         try {
             if (fConfigs.getInitParameter("SSOAgentPropertiesFilePath") != null &&
-                    !fConfigs.getInitParameter("SSOAgentPropertiesFilePath").equals("")) {
+                    !"".equals(fConfigs.getInitParameter("SSOAgentPropertiesFilePath"))) {
                 properties.load(new FileInputStream(fConfigs.getInitParameter("SSOAgentPropertiesFilePath")));
                 initConfig(properties);
             } else {
                 LOGGER.warning("\'SSOAgentPropertiesFilePath\' not configured");
             }
         } catch (FileNotFoundException e) {
+            if (log.isDebugEnabled()) {
+                log.debug("File not found  ", e);
+            }
             throw new SSOAgentException("Agent properties file not found");
+
         } catch (IOException e) {
-            throw new SSOAgentException("Error occurred while reading Agent properties file");
+
+            throw new SSOAgentException("Error occurred while reading Agent properties file", e);
         }
 
     }
@@ -99,9 +114,11 @@ public class SSOAgentConfigs {
             properties.load(new FileInputStream(propertiesFilePath));
             initConfig(properties);
         } catch (FileNotFoundException e) {
-            throw new SSOAgentException("Agent properties file not found at " + propertiesFilePath);
+
+            throw new SSOAgentException("Agent properties file not found at " + propertiesFilePath, e);
         } catch (IOException e) {
-            throw new SSOAgentException("Error reading Agent properties file at " + propertiesFilePath);
+
+            throw new SSOAgentException("Error reading Agent properties file at " + propertiesFilePath, e);
         }
     }
 
@@ -194,7 +211,8 @@ public class SSOAgentConfigs {
             try {
                 keyStoreStream = new FileInputStream(properties.getProperty("KeyStore"));
             } catch (FileNotFoundException e) {
-                throw new SSOAgentException("Cannot find file " + properties.getProperty("KeyStore"));
+
+                throw new SSOAgentException("Cannot find file " + properties.getProperty("KeyStore"), e);
             }
         }
         keyStorePassword = properties.getProperty("KeyStorePassword");
@@ -221,6 +239,7 @@ public class SSOAgentConfigs {
 
         if ((SSOAgentConfigs.isSAMLSSOLoginEnabled() || SSOAgentConfigs.isOpenIDLoginEnabled()) &&
                 SSOAgentConfigs.getLoginUrl() == null) {
+
             throw new SSOAgentException("\'LoginUrl\' not configured");
         }
 
@@ -614,6 +633,10 @@ public class SSOAgentConfigs {
         try {
             SSOAgentConfigs.keyStoreStream = new FileInputStream(keyStore);
         } catch (FileNotFoundException e) {
+            if (log.isDebugEnabled()) {
+                log.debug("File not found : ", e);
+            }
+
             throw new SSOAgentException("Cannot find file " + keyStore);
         }
     }
@@ -649,13 +672,15 @@ public class SSOAgentConfigs {
             keyStore.load(is, storePassword.toCharArray());
             return keyStore;
         } catch (Exception e) {
+
             throw new SSOAgentException("Error while loading key store file", e);
         } finally {
             if (is != null) {
                 try {
                     is.close();
                 } catch (IOException ignored) {
-                    throw new SSOAgentException("Error while closing input stream of key store");
+
+                    throw new SSOAgentException("Error while closing input stream of key store", ignored);
                 }
             }
         }

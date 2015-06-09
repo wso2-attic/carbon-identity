@@ -1,24 +1,25 @@
 /*
- *  Licensed to the Apache Software Foundation (ASF) under one
- *  or more contributor license agreements.  See the NOTICE file
- *  distributed with this work for additional information
- *  regarding copyright ownership.  The ASF licenses this file
- *  to you under the Apache License, Version 2.0 (the
- *  "License"); you may not use this file except in compliance
- *  with the License.  You may obtain a copy of the License at
+ * Copyright (c) 2012, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *  Unless required by applicable law or agreed to in writing,
- *  software distributed under the License is distributed on an
- *   * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *  KIND, either express or implied.  See the License for the
- *  specific language governing permissions and limitations
- *  under the License.
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ *
  */
+
 package org.wso2.carbon.identity.entitlement.proxy.thrift;
 
-import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TCompactProtocol;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.transport.THttpClient;
@@ -32,17 +33,17 @@ public class Authenticator {
     private String serverUrl;
     private String sessionId;
 
-    public Authenticator(String userName, String password, String serverUrl) throws Exception {
+    public Authenticator(String userName, String password, String serverUrl) throws EntitlementProxyException {
         this.userName = userName;
         this.password = password;
         this.serverUrl = serverUrl;
 
         if (!authenticate()) {
-            throw new Exception("Authentication Failed");
+            throw new EntitlementProxyException("Authentication Failed");
         }
     }
 
-    private boolean authenticate() throws Exception {
+    private boolean authenticate() throws EntitlementProxyException {
         boolean isAuthenticated;
         try {
             THttpClient client = new THttpClient(serverUrl);
@@ -52,14 +53,14 @@ public class Authenticator {
             sessionId = authClient.authenticate(userName, password);
             client.close();
             isAuthenticated = true;
-        } catch (TException e) {
+        } catch (Exception e) {
             throw new EntitlementProxyException("Error while authenticating with ThriftAuthenticator", e);
         }
         return isAuthenticated;
 
     }
 
-    public String getSessionId(boolean isExpired) throws Exception {
+    public String getSessionId(boolean isExpired) throws EntitlementProxyException {
         if (isExpired) {
             authenticate();
         }
