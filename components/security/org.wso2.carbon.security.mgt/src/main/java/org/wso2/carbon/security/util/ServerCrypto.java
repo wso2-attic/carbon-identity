@@ -1,17 +1,19 @@
 /*
- * Copyright 2005-2007 WSO2, Inc. (http://wso2.com)
+ * Copyright (c) 2007, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package org.wso2.carbon.security.util;
@@ -20,6 +22,7 @@ import org.apache.axiom.om.OMAttribute;
 import org.apache.axiom.om.OMElement;
 import org.apache.axis2.description.Parameter;
 import org.apache.axis2.engine.AxisConfiguration;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.ws.security.WSSecurityException;
@@ -68,7 +71,7 @@ public class ServerCrypto implements Crypto {
     private Properties properties = null;
     private KeyStore keystore = null;
     private KeyStore cacerts = null;
-    private List<KeyStore> trustStores = new ArrayList<KeyStore>();
+    private List<KeyStore> trustStores = new ArrayList<>();
     private Registry registry = null;
     private Boolean useXkms;
 
@@ -113,7 +116,6 @@ public class ServerCrypto implements Crypto {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
             log.error("error creating ServerCryto", e);
             throw new CredentialException(3, "secError00", e);
         }
@@ -129,8 +131,8 @@ public class ServerCrypto implements Crypto {
             cacerts.load(cacertsIs, cacertsPasswd.toCharArray());
 
         } catch (GeneralSecurityException e) {
-            log.warn("Unable load to cacerts from the JDK.");
-            if (trustStores != null && trustStores.size() > 0) {
+            log.warn("Unable load to cacerts from the JDK.", e);
+            if (CollectionUtils.isNotEmpty(trustStores)) {
                 cacerts = this.trustStores.get(0);
             } else {
                 throw new CredentialException(3, "secError00", e);
@@ -141,6 +143,7 @@ public class ServerCrypto implements Crypto {
 
     }
 
+    @Override
     /**
      * @see org.apache.ws.security.components.crypto.Crypto#loadCertificate(java.io.InputStream)
      */
@@ -155,6 +158,7 @@ public class ServerCrypto implements Crypto {
         return cert;
     }
 
+    @Override
     /**
      * @see org.apache.ws.security.components.crypto.Crypto#getX509Certificates(byte[], boolean)
      */
@@ -172,11 +176,12 @@ public class ServerCrypto implements Crypto {
         X509Certificate[] certs = new X509Certificate[l.size()];
         Iterator iterator = l.iterator();
         for (int i = 0; i < l.size(); i++) {
-            certs[(reverse) ? (l.size() - 1 - i) : i] = (X509Certificate) iterator.next();
+            certs[reverse ? (l.size() - 1 - i) : i] = (X509Certificate) iterator.next();
         }
         return certs;
     }
 
+    @Override
     /**
      * @see org.apache.ws.security.components.crypto.Crypto#getCertificateData(boolean,
      * java.security.cert.X509Certificate[])
@@ -203,6 +208,7 @@ public class ServerCrypto implements Crypto {
         }
     }
 
+    @Override
     /**
      * @see org.apache.ws.security.components.crypto.Crypto#getPrivateKey(java.lang.String,
      * java.lang.String)
@@ -212,19 +218,6 @@ public class ServerCrypto implements Crypto {
             throw new Exception("alias is null");
         }
         boolean b = keystore.isKeyEntry(alias);
-
-//        if (!b && useXKMS()) {
-//            PrivateKey privateKey = XKMSCryptoClient.getPrivateKey(alias,
-//                    properties.getProperty(PROP_ID_XKMS_SERVICE_URL),
-//                    properties.getProperty(PROP_ID_XKMS_SERVICE_PASS_PHRASE));
-//            if (privateKey == null) {
-//                log.error("Cannot find key for alias" + alias);
-//                throw new Exception("Cannot find key for alias: " + alias);
-//            }
-//
-//            return privateKey;
-//
-//         } else {
 
         if (!b) {
             log.error("Cannot find key for alias: " + alias);
@@ -238,9 +231,9 @@ public class ServerCrypto implements Crypto {
         }
 
         return (PrivateKey) keyTmp;
-//        }
     }
 
+    @Override
     /**
      * This first looks into the primary keystore and then looks at the other trust stores
      *
@@ -289,13 +282,8 @@ public class ServerCrypto implements Crypto {
                 certs = new Certificate[]{cert};
             } else if (certs == null) {
 
-//            if (useXKMS()) {
-//                return XKMSCryptoClient.getCertificates(alias, properties
-//                        .getProperty(PROP_ID_XKMS_SERVICE_URL));
-//            }
-
                 // At this pont we don't have certs or a cert
-                return null;
+                return new X509Certificate[0];
             }
         } catch (KeyStoreException e) {
             throw new WSSecurityException(WSSecurityException.FAILURE, "keystore");
@@ -311,6 +299,7 @@ public class ServerCrypto implements Crypto {
         return x509certs;
     }
 
+    @Override
     /**
      * @see org.apache.ws.security.components.crypto.Crypto#getAliasForX509Cert(java.security.cert.Certificate)
      */
@@ -368,12 +357,6 @@ public class ServerCrypto implements Crypto {
             throw new WSSecurityException(WSSecurityException.FAILURE, "keystore");
         }
 
-//        if (useXKMS()) {
-//            return XKMSCryptoClient.getAliasForX509Certificate(
-//                    (X509Certificate) cert, properties
-//                    .getProperty(PROP_ID_XKMS_SERVICE_URL));
-//        }
-
         return null;
     }
 
@@ -389,6 +372,7 @@ public class ServerCrypto implements Crypto {
         return null;
     }
 
+    @Override
     /**
      * @see org.apache.ws.security.components.crypto.Crypto#getAliasForX509Cert(java.lang.String)
      */
@@ -408,6 +392,7 @@ public class ServerCrypto implements Crypto {
         return alias;
     }
 
+    @Override
     /**
      * @see org.apache.ws.security.components.crypto.Crypto#getAliasForX509Cert(java.lang.String,
      * java.math.BigInteger)
@@ -428,6 +413,7 @@ public class ServerCrypto implements Crypto {
         return alias;
     }
 
+    @Override
     /**
      * @see org.apache.ws.security.components.crypto.Crypto#getAliasForX509Cert(byte[])
      */
@@ -458,15 +444,10 @@ public class ServerCrypto implements Crypto {
         } catch (KeyStoreException e) {
             throw new WSSecurityException(WSSecurityException.FAILURE, "keystore");
         }
-
-//        if (useXKMS()) {
-//            return XKMSCryptoClient.getAliasForX509Certificate(skiBytes,
-//                    properties.getProperty(PROP_ID_XKMS_SERVICE_URL));
-//        }
-
         return null;
     }
 
+    @Override
     /**
      * @see org.apache.ws.security.components.crypto.Crypto#getDefaultX509Alias()
      */
@@ -474,6 +455,7 @@ public class ServerCrypto implements Crypto {
         return this.properties.getProperty(PROP_ID_DEFAULT_ALIAS);
     }
 
+    @Override
     /**
      * @see org.apache.ws.security.components.crypto.Crypto#getSKIBytesFromCert(java.security.cert.X509Certificate)
      */
@@ -518,6 +500,7 @@ public class ServerCrypto implements Crypto {
         return abyte0;
     }
 
+    @Override
     /**
      * @see org.apache.ws.security.components.crypto.Crypto#getAliasForX509CertThumb(byte[])
      */
@@ -560,6 +543,7 @@ public class ServerCrypto implements Crypto {
         return null;
     }
 
+    @Override
     /**
      * @see org.apache.ws.security.components.crypto.Crypto#getKeyStore()
      */
@@ -567,6 +551,7 @@ public class ServerCrypto implements Crypto {
         return this.keystore;
     }
 
+    @Override
     /**
      * @see org.apache.ws.security.components.crypto.Crypto#getCertificateFactory()
      */
@@ -590,20 +575,13 @@ public class ServerCrypto implements Crypto {
         return certFact;
     }
 
+    @Override
     /**
      * @see org.apache.ws.security.components.crypto.Crypto#validateCertPath(java.security.cert.X509Certificate[])
      */
     public boolean validateCertPath(X509Certificate[] certs) throws WSSecurityException {
 
         boolean result;
-
-//        if (useXKMS()) {
-//            result = XKMSCryptoClient.validateCertPath(certs, properties
-//                    .getProperty(PROP_ID_XKMS_SERVICE_URL));
-//            if (result) {
-//                return true;
-//             }
-//        }
 
         result = this.validateCertPath(this.keystore, certs);
 
@@ -621,6 +599,7 @@ public class ServerCrypto implements Crypto {
         return result;
     }
 
+    @Override
     /**
      * @see org.apache.ws.security.components.crypto.Crypto#getAliasesForDN(java.lang.String)
      */
@@ -640,7 +619,7 @@ public class ServerCrypto implements Crypto {
 
                 Certificate[] certs = this.getCertificates(alias);
                 if (certs == null || certs.length == 0) {
-                    return null;
+                    return new String[0];
                 } else {
                     cert = certs[0];
                 }
@@ -656,17 +635,6 @@ public class ServerCrypto implements Crypto {
         } catch (KeyStoreException e) {
             throw new WSSecurityException(WSSecurityException.FAILURE, "keystore");
         }
-
-//        if (aliases.isEmpty() && useXKMS()) {
-//            String[] xkmsAliases = XKMSCryptoClient.getAliasesForDN(subjectDN,
-//                    properties.getProperty(PROP_ID_XKMS_SERVICE_URL));
-//            if (xkmsAliases != null) {
-//                for (int i = 0; i < xkmsAliases.length; i++) {
-//                    aliases.add(xkmsAliases[i]);
-//                }
-//            }
-//        }
-
 
         // Convert the vector into an array
         String[] result = new String[aliases.size()];
@@ -745,91 +713,11 @@ public class ServerCrypto implements Crypto {
                 certPathValidator = CertPathValidator.getInstance("PKIX", provider);
             }
             certPathValidator.validate(path, param);
-        } catch (NoSuchProviderException ex) {
-            throw new WSSecurityException(WSSecurityException.FAILURE, "certpath",
-                    new Object[]{ex.getMessage()}, ex);
-        } catch (NoSuchAlgorithmException ex) {
-            throw new WSSecurityException(WSSecurityException.FAILURE, "certpath",
-                    new Object[]{ex.getMessage()}, ex);
-        } catch (CertificateException ex) {
-            throw new WSSecurityException(WSSecurityException.FAILURE, "certpath",
-                    new Object[]{ex.getMessage()}, ex);
-        } catch (InvalidAlgorithmParameterException ex) {
-            throw new WSSecurityException(WSSecurityException.FAILURE, "certpath",
-                    new Object[]{ex.getMessage()}, ex);
-        } catch (CertPathValidatorException ex) {
-            throw new WSSecurityException(WSSecurityException.FAILURE, "certpath",
-                    new Object[]{ex.getMessage()}, ex);
-        } catch (KeyStoreException ex) {
+        } catch (NoSuchProviderException | NoSuchAlgorithmException | CertificateException |
+                InvalidAlgorithmParameterException | CertPathValidatorException | KeyStoreException ex) {
             throw new WSSecurityException(WSSecurityException.FAILURE, "certpath",
                     new Object[]{ex.getMessage()}, ex);
         }
-
         return true;
     }
-
-    //************* TODO fix these problems all of the above method ..... temporary
-
-
-    /**
-     * Returns the type of the keystore
-     *
-     * @param ksId keystore identifier
-     * @return The Key Store Type
-     */
-    private String getKeyStoreType(String ksId) throws Exception {
-        String path = SecurityConstants.KEY_STORES + "/" + ksId;
-        Resource resource = (Resource) registry.get(path);
-        return resource.getProperty(SecurityConstants.PROP_TYPE);
-
-    }
-
-    /**
-     * Get the provider name of the keystore
-     *
-     * @param ksId keystore identifier
-     * @return The Key Store Provider
-     */
-    private String getKeyStoreProvider(String ksId) throws Exception {
-        String path = SecurityConstants.KEY_STORES + "/" + ksId;
-        Resource resource = (Resource) registry.get(path);
-        return resource.getProperty(SecurityConstants.PROP_PROVIDER);
-
-    }
-
-    private boolean useXKMS() {
-
-        if (useXkms != null) {
-            return useXkms.booleanValue();
-        }
-
-        AxisConfiguration axisConfiguration =
-                SecurityMgtServiceComponent.getServerConfigurationContext().getAxisConfiguration();
-        Parameter parameter = axisConfiguration.getParameter("XKMSConfig");
-
-        if (parameter == null) {
-            useXkms = Boolean.FALSE;
-            return useXkms.booleanValue();
-        }
-
-        OMElement parameterElement = parameter.getParameterElement();
-        OMAttribute attribute = parameterElement.getAttribute(new QName("enabled"));
-
-        if (attribute != null) {
-            String value = attribute.getAttributeValue();
-            useXkms = Boolean.valueOf(value);
-        }
-
-        OMElement urlElement = parameterElement
-                .getFirstChildWithName(new QName("URL"));
-        properties.setProperty(PROP_ID_XKMS_SERVICE_URL, urlElement.getText());
-
-        OMElement passPhraseElement = parameterElement
-                .getFirstChildWithName(new QName("PassPhrase"));
-        properties.setProperty(PROP_ID_XKMS_SERVICE_PASS_PHRASE,
-                passPhraseElement.getText());
-
-        return useXkms.booleanValue();
-    }
-
 }
