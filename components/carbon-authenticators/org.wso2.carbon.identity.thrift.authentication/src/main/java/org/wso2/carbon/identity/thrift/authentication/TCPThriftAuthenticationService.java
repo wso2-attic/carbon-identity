@@ -25,6 +25,7 @@ import org.apache.thrift.transport.TSSLTransportFactory;
 import org.apache.thrift.transport.TServerSocket;
 import org.apache.thrift.transport.TTransportException;
 import org.wso2.carbon.identity.thrift.authentication.dao.InMemoryThriftSessionDAO;
+import org.wso2.carbon.identity.thrift.authentication.exception.ThriftAuthenticationException;
 import org.wso2.carbon.identity.thrift.authentication.internal.AuthenticatorServiceImpl;
 import org.wso2.carbon.identity.thrift.authentication.internal.ThriftAuthenticatorServiceImpl;
 import org.wso2.carbon.identity.thrift.authentication.internal.generatedCode.AuthenticatorService;
@@ -56,18 +57,18 @@ public class TCPThriftAuthenticationService {
         this.thriftAuthenticatorService = thriftAuthenticatorService;
     }
 
-    public TCPThriftAuthenticationService(String hostName, int port, long thriftSessionTimeOut) throws Exception {
+    public TCPThriftAuthenticationService(String hostName, int port, long thriftSessionTimeOut) throws ThriftAuthenticationException {
         this.hostName = hostName;
         this.port = port;
         String SecurityKeyStore = System.getProperty(ThriftAuthenticationConstants.SECURITY_KEY_STORE_LOCATION);
         if (SecurityKeyStore == null) {
-            throw new Exception("Cannot start agent server, not valid Security.KeyStore.Location is null");
+            throw new ThriftAuthenticationException("Cannot start agent server, not valid Security.KeyStore.Location is null");
         }
 
         String SecurityKeyStorePassword
                 = System.getProperty(ThriftAuthenticationConstants.SECURITY_KEY_STORE_PASSWORD);
         if (SecurityKeyStorePassword == null) {
-            throw new Exception("Cannot start agent server, not valid Security.KeyStore.Password is null ");
+            throw new ThriftAuthenticationException("Cannot start agent server, not valid Security.KeyStore.Password is null ");
         }
 
         this.keyStore = SecurityKeyStore;
