@@ -98,8 +98,8 @@ public class NotificationManagementServiceComponent {
             if (log.isDebugEnabled()) {
                 log.debug("Notification Management bundle is activated");
             }
-            // Catch Exception since there may be run time exceptions.
-        } catch (Exception e) {
+            // Catch throwable since there may be run time exceptions.
+        } catch (Throwable e) {
             log.error("Error while initiating Notification Management component", e);
         }
     }
