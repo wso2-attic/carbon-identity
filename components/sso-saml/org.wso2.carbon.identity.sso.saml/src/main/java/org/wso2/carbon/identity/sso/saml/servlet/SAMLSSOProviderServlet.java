@@ -841,8 +841,14 @@ public class SAMLSSOProviderServlet extends HttpServlet {
     }
 
     private String getACSUrlWithTenantPartitioning(String acsUrl, String tenantDomain) {
-
-        return acsUrl;
+        String acsUrlWithTenantDomain = acsUrl;
+        if (tenantDomain != null && "true".equals(IdentityUtil.getProperty(
+                IdentityConstants.ServerConfig.SSO_TENANT_PARTITIONING_ENABLED))) {
+            acsUrlWithTenantDomain =
+                    acsUrlWithTenantDomain + "?" +
+                            MultitenantConstants.TENANT_DOMAIN + "=" + tenantDomain;
+        }
+        return acsUrlWithTenantDomain;
     }
 
     private void addSessionDataToCache(String sessionDataKey, SAMLSSOSessionDTO sessionDTO, int cacheTimeout) {
