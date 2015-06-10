@@ -578,9 +578,8 @@ public class UserProfileAdmin extends AbstractAdmin {
 
         try {
             connection = JDBCPersistenceManager.getInstance().getDBConnection();
-            sql = "INSERT INTO IDN_ASSOCIATED_ID (TENANT_ID, IDP_ID, IDP_USER_ID, DOMAIN_ID, USER_NAME) " +
-                  "VALUES (? , (SELECT ID FROM IDP WHERE NAME = ? AND TENANT_ID = ? ), ? , " +
-                  "(SELECT UM_DOMAIN_ID FROM UM_DOMAIN WHERE UM_DOMAIN_NAME = ? AND UM_TENANT_ID= ? ), ?);";
+            sql = "INSERT INTO IDN_ASSOCIATED_ID (TENANT_ID, IDP_ID, IDP_USER_ID, DOMAIN_NAME, USER_NAME) " +
+                  "VALUES (? , (SELECT ID FROM IDP WHERE NAME = ? AND TENANT_ID = ? ), ? , ?, ?)";
 
             prepStmt = connection.prepareStatement(sql);
             prepStmt.setInt(1, tenantID);
@@ -588,8 +587,7 @@ public class UserProfileAdmin extends AbstractAdmin {
             prepStmt.setInt(3, tenantID);
             prepStmt.setString(4, associatedID);
             prepStmt.setString(5, domainName);
-            prepStmt.setInt(6, tenantID);
-            prepStmt.setString(7, tenantAwareUsername);
+            prepStmt.setString(6, tenantAwareUsername);
 
 
             prepStmt.execute();
@@ -619,9 +617,8 @@ public class UserProfileAdmin extends AbstractAdmin {
 
         try {
             connection = JDBCPersistenceManager.getInstance().getDBConnection();
-            sql = "SELECT UM_DOMAIN_NAME, USER_NAME FROM UM_DOMAIN JOIN IDN_ASSOCIATED_ID ON UM_DOMAIN.UM_DOMAIN_ID =" +
-                  " IDN_ASSOCIATED_ID.DOMAIN_ID WHERE IDN_ASSOCIATED_ID.TENANT_ID = ? AND IDN_ASSOCIATED_ID.IDP_ID = " +
-                  "(SELECT ID FROM IDP WHERE NAME = ? AND UM_TENANT_ID= ?) And IDN_ASSOCIATED_ID.IDP_USER_ID = ?";
+            sql = "SELECT DOMAIN_NAME, USER_NAME FROM IDN_ASSOCIATED_ID WHERE TENANT_ID = ? AND IDP_ID = (SELECT ID " +
+                  "FROM IDP WHERE NAME = ? AND TENANT_ID = ?) AND IDP_USER_ID = ?";
 
             prepStmt = connection.prepareStatement(sql);
             prepStmt.setInt(1, tenantID);
@@ -667,13 +664,11 @@ public class UserProfileAdmin extends AbstractAdmin {
         try {
             connection = JDBCPersistenceManager.getInstance().getDBConnection();
             sql = "SELECT IDP.NAME, IDP_USER_ID FROM IDN_ASSOCIATED_ID JOIN IDP ON IDN_ASSOCIATED_ID.IDP_ID = IDP.ID " +
-            "WHERE IDN_ASSOCIATED_ID.TENANT_ID = ? AND USER_NAME = ? AND DOMAIN_ID = " +
-            "(SELECT UM_DOMAIN_ID FROM UM_DOMAIN WHERE UM_DOMAIN_NAME = ? AND UM_TENANT_ID= ?)";
+                  "WHERE IDN_ASSOCIATED_ID.TENANT_ID = ? AND USER_NAME = ? AND DOMAIN_NAME = ?";
             prepStmt = connection.prepareStatement(sql);
             prepStmt.setInt(1, tenantID);
             prepStmt.setString(2, tenantAwareUsername);
             prepStmt.setString(3, domainName);
-            prepStmt.setInt(4, tenantID);
 
             resultSet = prepStmt.executeQuery();
             while (resultSet.next()) {
@@ -712,9 +707,8 @@ public class UserProfileAdmin extends AbstractAdmin {
         try {
             connection = JDBCPersistenceManager.getInstance().getDBConnection();
 
-            sql = "DELETE FROM IDN_ASSOCIATED_ID  WHERE TENANT_ID = ? AND IDP_ID = (SELECT ID FROM IDP WHERE NAME = ? AND TENANT_ID = ? ) AND IDP_USER_ID = ? AND " +
-                  "USER_NAME = ? AND DOMAIN_ID = (SELECT UM_DOMAIN_ID FROM UM_DOMAIN WHERE UM_DOMAIN_NAME = ? AND " +
-                  "UM_TENANT_ID= ?)";
+            sql = "DELETE FROM IDN_ASSOCIATED_ID WHERE TENANT_ID = ? AND IDP_ID = (SELECT ID FROM IDP WHERE NAME = ? " +
+                  "AND TENANT_ID = ? ) AND IDP_USER_ID = ? AND USER_NAME = ? AND DOMAIN_NAME = ?";
             prepStmt = connection.prepareStatement(sql);
             prepStmt.setInt(1, tenantID);
             prepStmt.setString(2, idpID);
@@ -722,7 +716,6 @@ public class UserProfileAdmin extends AbstractAdmin {
             prepStmt.setString(4, associatedID);
             prepStmt.setString(5, tenantAwareUsername);
             prepStmt.setString(6, domainName);
-            prepStmt.setInt(7, tenantID);
 
             prepStmt.executeUpdate();
             connection.commit();

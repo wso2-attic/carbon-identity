@@ -66,9 +66,8 @@ public class UserAccountAssociationDAO {
 
             preparedStatement.setString(1, associationKey);
             preparedStatement.setInt(2, tenantId);
-            preparedStatement.setString(3, userName);
-            preparedStatement.setString(4, domainName);
-            preparedStatement.setInt(5, tenantId);
+            preparedStatement.setString(3, domainName);
+            preparedStatement.setString(4, userName);
             preparedStatement.executeUpdate();
 
             if (!dbConnection.getAutoCommit()) {
@@ -97,10 +96,9 @@ public class UserAccountAssociationDAO {
             preparedStatement = dbConnection.prepareStatement(UserAccountAssociationConstants
                                                                       .SQLQueries.DELETE_CONNECTION);
 
-            preparedStatement.setString(1, domainName);
-            preparedStatement.setInt(2, tenantId);
-            preparedStatement.setInt(3, tenantId);
-            preparedStatement.setString(4, userName);
+            preparedStatement.setInt(1, tenantId);
+            preparedStatement.setString(2, domainName);
+            preparedStatement.setString(3, userName);
             preparedStatement.executeUpdate();
 
             if (!dbConnection.getAutoCommit()) {
@@ -139,8 +137,8 @@ public class UserAccountAssociationDAO {
                 resultSet = preparedStatement.executeQuery();
 
                 while (resultSet.next()) {
-                    String conUserDomain = resultSet.getString(1);
-                    int conUserTenantId = resultSet.getInt(2);
+                    int conUserTenantId = resultSet.getInt(1);
+                    String conUserDomain = resultSet.getString(2);
                     String conUserName = resultSet.getString(3);
 
                     if (domainName.equals(conUserDomain) && (tenantId == conUserTenantId) && userName.equals
@@ -191,10 +189,9 @@ public class UserAccountAssociationDAO {
             preparedStatement = dbConnection.prepareStatement(UserAccountAssociationConstants
                                                                       .SQLQueries.GET_ASSOCIATION_KEY_OF_USER);
 
-            preparedStatement.setString(1, domainName);
-            preparedStatement.setInt(2, tenantId);
-            preparedStatement.setInt(3, tenantId);
-            preparedStatement.setString(4, userName);
+            preparedStatement.setInt(1, tenantId);
+            preparedStatement.setString(2, domainName);
+            preparedStatement.setString(3, userName);
             resultSet = preparedStatement.executeQuery();
 
             if (resultSet.next()) {
@@ -258,16 +255,14 @@ public class UserAccountAssociationDAO {
             preparedStatement = dbConnection.prepareStatement(UserAccountAssociationConstants
                                                                       .SQLQueries.IS_VALID_ASSOCIATION);
 
-            preparedStatement.setString(1, domainName);
-            preparedStatement.setInt(2, tenantId);
-            preparedStatement.setInt(3, tenantId);
-            preparedStatement.setString(4, userName);
+            preparedStatement.setInt(1, tenantId);
+            preparedStatement.setString(2, domainName);
+            preparedStatement.setString(3, userName);
+            preparedStatement.setInt(4, CarbonContext.getThreadLocalCarbonContext().getTenantId());
             preparedStatement.setString(5, UserAccountAssociationUtil.getDomainName(CarbonContext
                                                                                             .getThreadLocalCarbonContext()
                                                                                             .getUsername()));
-            preparedStatement.setInt(6, CarbonContext.getThreadLocalCarbonContext().getTenantId());
-            preparedStatement.setInt(7, CarbonContext.getThreadLocalCarbonContext().getTenantId());
-            preparedStatement.setString(8, UserAccountAssociationUtil.getUsernameWithoutDomain(CarbonContext
+            preparedStatement.setString(6, UserAccountAssociationUtil.getUsernameWithoutDomain(CarbonContext
                                                                                                        .getThreadLocalCarbonContext().getUsername()));
             resultSet = preparedStatement.executeQuery();
 

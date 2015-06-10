@@ -85,43 +85,32 @@ public class UserAccountAssociationConstants {
 
     public static class SQLQueries {
 
-        public static final String ADD_USER_ACCOUNT_ASSOCIATION = "INSERT INTO UM_USER_ACCOUNT_ASSOCIATIONS " +
-                                                                  "(ASSOCIATION_KEY, DOMAIN_ID, TENANT_ID, " +
-                                                                  "USER_NAME) SELECT ?, UM_DOMAIN_ID, ?, " +
-                                                                  "? FROM UM_DOMAIN WHERE UM_DOMAIN_NAME = ? AND " +
-                                                                  "UM_TENANT_ID = ?";
+        public static final String ADD_USER_ACCOUNT_ASSOCIATION = "INSERT INTO IDN_USER_ACCOUNT_ASSOCIATION " +
+                                                                  "(ASSOCIATION_KEY, TENANT_ID, DOMAIN_NAME, " +
+                                                                  "USER_NAME) VALUES (?, ?, ?, ?)";
 
         public static final String GET_ASSOCIATION_KEY_OF_USER = "SELECT ASSOCIATION_KEY FROM " +
-                                                                 "UM_USER_ACCOUNT_ASSOCIATIONS WHERE DOMAIN_ID = " +
-                                                                 "(SELECT UM_DOMAIN_ID FROM UM_DOMAIN WHERE " +
-                                                                 "UM_DOMAIN_NAME = ? AND UM_TENANT_ID= ?)  AND " +
-                                                                 "TENANT_ID = ? AND USER_NAME = ?";
+                                                                 "IDN_USER_ACCOUNT_ASSOCIATION WHERE TENANT_ID = ? " +
+                                                                 "AND DOMAIN_NAME = ? AND USER_NAME = ?";
 
-        public static final String LIST_USER_ACCOUNT_ASSOCIATIONS = "SELECT UM_DOMAIN_NAME, TENANT_ID, " +
-                                                                    "USER_NAME FROM UM_DOMAIN JOIN " +
-                                                                    "UM_USER_ACCOUNT_ASSOCIATIONS ON UM_DOMAIN" +
-                                                                    ".UM_DOMAIN_ID = UM_USER_ACCOUNT_ASSOCIATIONS" +
-                                                                    ".DOMAIN_ID WHERE UM_USER_ACCOUNT_ASSOCIATIONS" +
-                                                                    ".ASSOCIATION_KEY = ?";
+        public static final String LIST_USER_ACCOUNT_ASSOCIATIONS = "SELECT TENANT_ID, DOMAIN_NAME, " +
+                                                                    "USER_NAME FROM IDN_USER_ACCOUNT_ASSOCIATION " +
+                                                                    "WHERE ASSOCIATION_KEY = ?";
 
-        public static final String DELETE_CONNECTION = "DELETE FROM UM_USER_ACCOUNT_ASSOCIATIONS WHERE DOMAIN_ID = " +
-                                                       "(SELECT UM_DOMAIN_ID FROM UM_DOMAIN WHERE UM_DOMAIN_NAME = ? " +
-                                                       "AND UM_TENANT_ID= ?) AND TENANT_ID = ? AND USER_NAME = ?";
+        public static final String DELETE_CONNECTION = "DELETE FROM IDN_USER_ACCOUNT_ASSOCIATION WHERE TENANT_ID = ? " +
+                                                       "AND DOMAIN_NAME = ? AND USER_NAME = ?";
 
-        public static final String DELETE_CONNECTION_FROM_TENANT_ID = "DELETE FROM UM_USER_ACCOUNT_ASSOCIATIONS WHERE" +
+        public static final String DELETE_CONNECTION_FROM_TENANT_ID = "DELETE FROM IDN_USER_ACCOUNT_ASSOCIATION WHERE" +
                                                                       " TENANT_ID = ?";
 
-        public static final String UPDATE_ASSOCIATION_KEY = "UPDATE UM_USER_ACCOUNT_ASSOCIATIONS SET ASSOCIATION_KEY " +
+        public static final String UPDATE_ASSOCIATION_KEY = "UPDATE IDN_USER_ACCOUNT_ASSOCIATION SET ASSOCIATION_KEY " +
                                                             "= ? WHERE ASSOCIATION_KEY = ?";
 
-        public static final String IS_VALID_ASSOCIATION = "SELECT COUNT(*) FROM UM_USER_ACCOUNT_ASSOCIATIONS WHERE " +
-                                                          "DOMAIN_ID = (SELECT UM_DOMAIN_ID FROM UM_DOMAIN WHERE " +
-                                                          "UM_DOMAIN_NAME = ? AND UM_TENANT_ID= ?) AND TENANT_ID = ? " +
-                                                          "AND USER_NAME = ? AND ASSOCIATION_KEY = (SELECT  " +
-                                                          "ASSOCIATION_KEY FROM UM_USER_ACCOUNT_ASSOCIATIONS WHERE " +
-                                                          "DOMAIN_ID =  (SELECT UM_DOMAIN_ID FROM UM_DOMAIN WHERE " +
-                                                          "UM_DOMAIN_NAME =  ? AND UM_TENANT_ID= ?) AND TENANT_ID = ?" +
-                                                          " AND USER_NAME = ?)";
+        public static final String IS_VALID_ASSOCIATION = "SELECT COUNT(*) FROM IDN_USER_ACCOUNT_ASSOCIATION WHERE " +
+                                                          "TENANT_ID = ? AND DOMAIN_NAME = ? AND USER_NAME = ? AND " +
+                                                          "ASSOCIATION_KEY = (SELECT ASSOCIATION_KEY FROM " +
+                                                          "IDN_USER_ACCOUNT_ASSOCIATION WHERE TENANT_ID = ? AND " +
+                                                          "DOMAIN_NAME = ? AND USER_NAME = ?)";
 
     }
 
