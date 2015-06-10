@@ -69,7 +69,7 @@
         <h2><fmt:message key='workflow.add'/></h2>
 
         <div id="workArea">
-            <form method="post" name="serviceAdd" onsubmit="return doValidation();" action="add-workflow-finish.jsp">
+            <form method="post" name="serviceAdd" onsubmit="return doValidation();" action="update-workflow-finish.jsp">
                 <input type="hidden" name="<%=WorkflowUIConstants.PARAM_WORKFLOW_NAME%>" value="<%=workflowName%>">
                 <input type="hidden" name="<%=WorkflowUIConstants.PARAM_ASSOCIATED_OPERATION%>" value="<%=event%>">
                 <input type="hidden" name="<%=WorkflowUIConstants.PARAM_ACTION%>" value="<%=action%>">

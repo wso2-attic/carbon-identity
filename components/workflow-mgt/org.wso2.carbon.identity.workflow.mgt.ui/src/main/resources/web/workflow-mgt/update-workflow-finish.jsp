@@ -17,6 +17,7 @@
   --%>
 
 <%@ page import="org.apache.axis2.context.ConfigurationContext" %>
+<%@ page import="org.apache.commons.lang.StringUtils" %>
 <%@ page import="org.wso2.carbon.CarbonConstants" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.WorkflowAdminServiceWorkflowException" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.Parameter" %>
@@ -36,10 +37,7 @@
     String bundle = "org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources";
     ResourceBundle resourceBundle = ResourceBundle.getBundle(bundle, request.getLocale());
 
-    String workflowName = CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_WORKFLOW_NAME));
     String action = CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_ACTION));
-    String operation =
-            CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_ASSOCIATED_OPERATION));
     String cookie = (String) session.getAttribute(ServerConstants.ADMIN_SERVICE_COOKIE);
     String backendServerURL = CarbonUIUtil.getServerURL(config.getServletContext(), session);
     ConfigurationContext configContext =
@@ -50,6 +48,10 @@
 
 
     if (WorkflowUIConstants.ACTION_VALUE_ADD.equals(action)) {
+        String workflowName =
+                CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_WORKFLOW_NAME));
+        String operation =
+                CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_ASSOCIATED_OPERATION));
         String templateName =
                 CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_WORKFLOW_TEMPLATE));
         String templateImplName =
@@ -94,6 +96,17 @@
             forwardTo = "../admin/error.jsp";
         }
 
+    } else if (WorkflowUIConstants.ACTION_VALUE_DELETE.equals(action)) {
+        String workflowId = CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_WORKFLOW_ID));
+        if (StringUtils.isNotBlank(workflowId)) {
+            try {
+                client.deleteWorkflow(workflowId);
+            } catch (WorkflowAdminServiceWorkflowException e) {
+                String message = resourceBundle.getString("workflow.error.when.deleting.workflow");
+                CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
+                forwardTo = "../admin/error.jsp";
+            }
+        }
     }
 %>
 <script type="text/javascript">

@@ -106,4 +106,8 @@ public class WorkflowAdminServiceClient {
 
         return stub.listWorkflows();
     }
+
+    public void deleteWorkflow(String workflowId) throws RemoteException, WorkflowAdminServiceWorkflowException {
+        stub.removeWorkflow(workflowId);
+    }
 }

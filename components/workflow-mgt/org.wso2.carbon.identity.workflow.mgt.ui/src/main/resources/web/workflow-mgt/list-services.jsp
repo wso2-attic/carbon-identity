@@ -19,19 +19,18 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar"
            prefix="carbon" %>
-<%@page import="org.apache.axis2.AxisFault" %>
-<%@page import="org.apache.axis2.context.ConfigurationContext" %>
-<%@page import="org.wso2.carbon.CarbonConstants" %>
-<%@page import="org.wso2.carbon.identity.workflow.mgt.stub.WorkflowAdminServiceWorkflowException" %>
-<%@page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.ServiceAssociationDTO" %>
-<%@page import="org.wso2.carbon.identity.workflow.mgt.ui.WorkflowAdminServiceClient" %>
-<%@page import="org.wso2.carbon.identity.workflow.mgt.ui.WorkflowUIConstants" %>
+<%@ page import="org.apache.axis2.AxisFault" %>
+<%@ page import="org.apache.axis2.context.ConfigurationContext" %>
+<%@ page import="org.wso2.carbon.CarbonConstants" %>
+<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.WorkflowAdminServiceWorkflowException" %>
+<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.WorkflowBean" %>
+<%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.WorkflowAdminServiceClient" %>
+<%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.WorkflowUIConstants" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
 <%@ page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@ page import="java.util.ResourceBundle" %>
-<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.WorkflowBean" %>
 
 <script type="text/javascript" src="extensions/js/vui.js"></script>
 <script type="text/javascript" src="../extensions/core/js/vui.js"></script>
@@ -51,9 +50,12 @@
     int pageNumberInt = 0;
     int numberOfPages = 0;
 
-    try {
-        pageNumberInt = Integer.parseInt(pageNumber);
-    } catch (NumberFormatException ignored) {
+    if (pageNumber != null) {
+        try {
+            pageNumberInt = Integer.parseInt(pageNumber);
+        } catch (NumberFormatException ignored) {
+            //not needed here since it's defaulted to 0
+        }
     }
     try {
         String cookie = (String) session.getAttribute(ServerConstants.ADMIN_SERVICE_COOKIE);
@@ -102,11 +104,9 @@
     }
 %>
 <fmt:bundle basename="org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources">
-    <carbon:breadcrumb
-            label="workflow.mgt"
+    <carbon:breadcrumb label="workflow.mgt"
             resourceBundle="org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources"
-            topPage="true"
-            request="<%=request%>"/>
+            topPage="true" request="<%=request%>"/>
 
     <script type="text/javascript" src="../carbon/admin/js/breadcrumbs.js"></script>
     <script type="text/javascript" src="../carbon/admin/js/cookies.js"></script>
@@ -115,15 +115,19 @@
         function doCancel() {
             location.href = 'list-services.jsp';
         }
-        function removeAssociation(alias, event) {
-            location.href = 'service-condition.jsp?<%=WorkflowUIConstants.PARAM_ACTION%>=' +
-            '<%=WorkflowUIConstants.ACTION_VALUE_DELETE%>&<%=WorkflowUIConstants.PARAM_WORKFLOW_NAME%>=' + alias +
-            '&<%=WorkflowUIConstants.PARAM_ASSOCIATED_OPERATION%>=' + event;
+        function removeWorkflow(id, name) {
+            function doDelete() {
+                location.href = 'update-workflow-finish.jsp?<%=WorkflowUIConstants.PARAM_ACTION%>=' +
+                '<%=WorkflowUIConstants.ACTION_VALUE_DELETE%>&<%=WorkflowUIConstants.PARAM_WORKFLOW_ID%>=' + id;
+            }
+
+            CARBON.showConfirmationDialog('<fmt:message key="confirmation.workflow.delete"/> ' + name + '?',
+                    doDelete, null);
         }
     </script>
 
     <div id="middle">
-        <h2><fmt:message key='workflow.service.associate'/></h2>
+        <h2><fmt:message key='workflow.list'/></h2>
 
         <div id="workArea">
 
@@ -133,7 +137,8 @@
                     <th width="30%"><fmt:message key="workflow.name"/></th>
                     <th width="30%"><fmt:message key="workflow.description"/></th>
                     <th width="15%"><fmt:message key="workflow.template"/></th>
-                    <th><fmt:message key="service.actions"/></th>
+                    <th width="15%"><fmt:message key="workflow.template.impl"/></th>
+                    <th><fmt:message key="actions"/></th>
                 </tr>
                 </thead>
                 <tbody>
@@ -145,13 +150,16 @@
                 <tr>
                     <td><%=workflow.getWorkflowName()%>
                     </td>
-                    <td><%=workflow.getWorkflowDescription()%>
+                    <td><%=workflow.getWorkflowDescription() == null ? "" : workflow.getWorkflowDescription()%>
                     </td>
                     <td><%=workflow.getTemplateName()%>
                     </td>
+                    <td><%=workflow.getImplementationName()%>
+                    </td>
                     <td>
                         <a title="<fmt:message key='workflow.service.association.delete.title'/>"
-                           onclick="removeAssociation('<%=workflow.getServiceAlias()%>','<%=workflow.getEvent()%>');return false;"
+                           onclick="removeWorkflow('<%=workflow.getWorkflowId()%>','<%=workflow.getWorkflowName()%>');
+                                   return false;"
                            href="#" style="background-image: url(images/delete.gif);"
                            class="icon-link"><fmt:message key='delete'/></a>
                     </td>
