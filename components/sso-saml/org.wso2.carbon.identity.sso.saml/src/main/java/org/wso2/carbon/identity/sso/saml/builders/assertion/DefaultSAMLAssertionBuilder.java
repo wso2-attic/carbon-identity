@@ -1,20 +1,20 @@
 /*
-*  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package org.wso2.carbon.identity.sso.saml.builders.assertion;
 
 import org.apache.commons.logging.Log;
@@ -24,8 +24,33 @@ import org.joda.time.DateTime;
 import org.opensaml.Configuration;
 import org.opensaml.common.SAMLVersion;
 import org.opensaml.saml1.core.NameIdentifier;
-import org.opensaml.saml2.core.*;
-import org.opensaml.saml2.core.impl.*;
+import org.opensaml.saml2.core.Assertion;
+import org.opensaml.saml2.core.Attribute;
+import org.opensaml.saml2.core.AttributeStatement;
+import org.opensaml.saml2.core.AttributeValue;
+import org.opensaml.saml2.core.Audience;
+import org.opensaml.saml2.core.AudienceRestriction;
+import org.opensaml.saml2.core.AuthnContext;
+import org.opensaml.saml2.core.AuthnContextClassRef;
+import org.opensaml.saml2.core.AuthnStatement;
+import org.opensaml.saml2.core.Conditions;
+import org.opensaml.saml2.core.NameID;
+import org.opensaml.saml2.core.Subject;
+import org.opensaml.saml2.core.SubjectConfirmation;
+import org.opensaml.saml2.core.SubjectConfirmationData;
+import org.opensaml.saml2.core.impl.AssertionBuilder;
+import org.opensaml.saml2.core.impl.AttributeBuilder;
+import org.opensaml.saml2.core.impl.AttributeStatementBuilder;
+import org.opensaml.saml2.core.impl.AudienceBuilder;
+import org.opensaml.saml2.core.impl.AudienceRestrictionBuilder;
+import org.opensaml.saml2.core.impl.AuthnContextBuilder;
+import org.opensaml.saml2.core.impl.AuthnContextClassRefBuilder;
+import org.opensaml.saml2.core.impl.AuthnStatementBuilder;
+import org.opensaml.saml2.core.impl.ConditionsBuilder;
+import org.opensaml.saml2.core.impl.NameIDBuilder;
+import org.opensaml.saml2.core.impl.SubjectBuilder;
+import org.opensaml.saml2.core.impl.SubjectConfirmationBuilder;
+import org.opensaml.saml2.core.impl.SubjectConfirmationDataBuilder;
 import org.opensaml.xml.schema.XSString;
 import org.opensaml.xml.schema.impl.XSStringBuilder;
 import org.wso2.carbon.identity.base.IdentityException;
@@ -47,6 +72,7 @@ public class DefaultSAMLAssertionBuilder implements SAMLAssertionBuilder {
 
     @Override
     public void init() throws IdentityException {
+        //Overridden method, no need to implement the body
     }
 
     @Override
@@ -139,7 +165,7 @@ public class DefaultSAMLAssertionBuilder implements SAMLAssertionBuilder {
             Map<String, String> claims = SAMLSSOUtil.getAttributes(authReqDTO);
             if (claims != null && !claims.isEmpty()) {
                 AttributeStatement attrStmt = buildAttributeStatement(claims);
-                if(attrStmt != null) {
+                if (attrStmt != null) {
                     samlAssertion.getAttributeStatements().add(attrStmt);
                 }
             }
@@ -184,17 +210,18 @@ public class DefaultSAMLAssertionBuilder implements SAMLAssertionBuilder {
         }
 
         AttributeStatement attStmt = new AttributeStatementBuilder().buildObject();
-        Iterator<String> ite = claims.keySet().iterator();
+        Iterator<Map.Entry<String, String>> iterator = claims.entrySet().iterator();
         boolean atLeastOneNotEmpty = false;
         for (int i = 0; i < claims.size(); i++) {
-            String claimUri = ite.next();
-            String claimValue = claims.get(claimUri);
-            if(claimUri != null && !claimUri.trim().isEmpty() && claimValue != null && !claimValue.trim().isEmpty()) {
+            Map.Entry<String, String> claimEntry = iterator.next();
+            String claimUri = claimEntry.getKey();
+            String claimValue = claimEntry.getValue();
+            if (claimUri != null && !claimUri.trim().isEmpty() && claimValue != null && !claimValue.trim().isEmpty()) {
                 atLeastOneNotEmpty = true;
-                Attribute attrib = new AttributeBuilder().buildObject();
-                attrib.setName(claimUri);
+                Attribute attribute = new AttributeBuilder().buildObject();
+                attribute.setName(claimUri);
                 //setting NAMEFORMAT attribute value to basic attribute profile
-                attrib.setNameFormat(SAMLSSOConstants.NAME_FORMAT_BASIC);
+                attribute.setNameFormat(SAMLSSOConstants.NAME_FORMAT_BASIC);
                 // look
                 // https://wiki.shibboleth.net/confluence/display/OpenSAML/OSTwoUsrManJavaAnyTypes
                 XSStringBuilder stringBuilder = (XSStringBuilder) Configuration.getBuilderFactory().
@@ -209,19 +236,19 @@ public class DefaultSAMLAssertionBuilder implements SAMLAssertionBuilder {
                         if (attValue != null && attValue.trim().length() > 0) {
                             stringValue = stringBuilder.buildObject(AttributeValue.DEFAULT_ELEMENT_NAME, XSString.TYPE_NAME);
                             stringValue.setValue(attValue);
-                            attrib.getAttributeValues().add(stringValue);
+                            attribute.getAttributeValues().add(stringValue);
                         }
                     }
                 } else {
                     stringValue = stringBuilder.buildObject(AttributeValue.DEFAULT_ELEMENT_NAME, XSString.TYPE_NAME);
                     stringValue.setValue(claimValue);
-                    attrib.getAttributeValues().add(stringValue);
+                    attribute.getAttributeValues().add(stringValue);
                 }
 
-                attStmt.getAttributes().add(attrib);
+                attStmt.getAttributes().add(attribute);
             }
         }
-        if(atLeastOneNotEmpty){
+        if (atLeastOneNotEmpty) {
             return attStmt;
         } else {
             return null;
