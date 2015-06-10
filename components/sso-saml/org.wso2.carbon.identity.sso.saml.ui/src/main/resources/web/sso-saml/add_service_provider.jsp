@@ -815,7 +815,7 @@ function clearAll() {
         <fmt:message key="logout.url"/>
     </td>
     <td><input type="text" id="logoutURL" name="logoutURL"
-               value="<%=provider.getLogoutURL()%>"
+               value="<%=(provider.getLogoutURL().equals(provider.getAssertionConsumerUrl()))?"":provider.getLogoutURL()%>"
                class="text-box-big"></td>
 </tr>
 <% } else {%>
