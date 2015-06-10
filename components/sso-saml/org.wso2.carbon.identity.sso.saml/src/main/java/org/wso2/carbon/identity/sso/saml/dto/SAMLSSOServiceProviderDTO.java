@@ -1,12 +1,12 @@
 /*
- *  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- *  WSO2 Inc. licenses this file to you under the Apache License,
+ * WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
- *  in compliance with the License.
- *  You may obtain a copy of the License at
+ * in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -156,41 +156,65 @@ public class SAMLSSOServiceProviderDTO implements Serializable {
      * @return the requestedClaims
      */
     public String[] getRequestedClaims() {
-        return requestedClaims;
+
+        if (requestedClaims == null) {
+            return new String[0];
+        }
+        return requestedClaims.clone();
     }
 
     /**
      * @param requestedClaims the requestedClaims to set
      */
     public void setRequestedClaims(String[] requestedClaims) {
-        this.requestedClaims = requestedClaims;
+
+        if (requestedClaims == null) {
+            requestedClaims = new String[0];
+        }
+        this.requestedClaims = requestedClaims.clone();
     }
 
     /**
      * @return the requestedAudiences
      */
     public String[] getRequestedAudiences() {
-        return requestedAudiences;
+
+        if (requestedAudiences == null) {
+            return new String[0];
+        }
+        return requestedAudiences.clone();
     }
 
     /**
      * @param requestedAudiences the requestedAudiences to set
      */
     public void setRequestedAudiences(String[] requestedAudiences) {
-        this.requestedAudiences = requestedAudiences;
+
+        if (requestedAudiences == null) {
+            requestedAudiences = new String[0];
+        }
+        this.requestedAudiences = requestedAudiences.clone();
     }
 
     /**
      * @return the requestedRecipients
      */
     public String[] getRequestedRecipients() {
-        return requestedRecipients;
+
+        if (requestedRecipients == null) {
+            return new String[0];
+        }
+        return requestedRecipients.clone();
     }
 
     /**
      * @param requestedRecipients the requestedRecipients to set
      */
     public void setRequestedRecipients(String[] requestedRecipients) {
+
+        if (requestedRecipients == null) {
+            requestedRecipients = new String[0];
+        }
         this.requestedRecipients = requestedRecipients;
     }
 
