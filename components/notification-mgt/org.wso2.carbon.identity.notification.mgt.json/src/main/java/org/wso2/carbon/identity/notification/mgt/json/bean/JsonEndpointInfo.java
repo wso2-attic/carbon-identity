@@ -97,10 +97,18 @@ public class JsonEndpointInfo {
     }
 
     public char[] getPassword() {
+
+        if(password == null){
+            return new char[0];
+        }
         return password.clone();
     }
 
     public void setPassword(char[] password) {
+
+        if(password == null){
+            password = new char[0];
+        }
         this.password = password.clone();
     }
 
