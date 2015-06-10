@@ -29,6 +29,7 @@ import org.wso2.carbon.identity.sso.saml.stub.IdentitySAMLSSOConfigServiceIdenti
 import org.wso2.carbon.identity.sso.saml.stub.IdentitySAMLSSOConfigServiceStub;
 import org.wso2.carbon.identity.sso.saml.stub.types.SAMLSSOServiceProviderDTO;
 import org.wso2.carbon.identity.sso.saml.stub.types.SAMLSSOServiceProviderInfoDTO;
+import org.wso2.carbon.identity.sso.saml.ui.exception.IdentitySAML2SSOUiException;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -60,30 +61,30 @@ public class SAMLSSOConfigServiceClient {
 
     // TODO : This method must return the added service provider data instead
     public boolean addServiceProvider(SAMLSSOServiceProviderDTO serviceProviderDTO) throws
-            SAMLSSOConfigServiceClientException {
+            IdentitySAML2SSOUiException {
 
         boolean status;
         try {
             status = stub.addRPServiceProvider(serviceProviderDTO);
         } catch (RemoteException | IdentitySAMLSSOConfigServiceIdentitySAML2SSOException e) {
-            throw new SAMLSSOConfigServiceClientException("Error while uploading the service provider", e);
+            throw new IdentitySAML2SSOUiException("Error while uploading the service provider", e);
         }
         return status;
     }
 
-    public SAMLSSOServiceProviderDTO uploadServiceProvider(String metadata) throws SAMLSSOConfigServiceClientException {
+    public SAMLSSOServiceProviderDTO uploadServiceProvider(String metadata) throws IdentitySAML2SSOUiException {
 
         SAMLSSOServiceProviderDTO serviceProviderDTO;
         try {
             serviceProviderDTO = stub.uploadRPServiceProvider(metadata);
         } catch (RemoteException | IdentitySAMLSSOConfigServiceIdentitySAML2SSOException e) {
-            throw new SAMLSSOConfigServiceClientException("Error while uploading the service provider", e);
+            throw new IdentitySAML2SSOUiException("Error while uploading the service provider", e);
         }
         return serviceProviderDTO;
     }
 
     public SAMLSSOServiceProviderDTO uploadServiceProviderFromUrl(String url) throws
-            SAMLSSOConfigServiceClientException {
+            IdentitySAML2SSOUiException {
 
         InputStream in = null;
         SAMLSSOServiceProviderDTO serviceProviderDTO;
@@ -93,7 +94,7 @@ public class SAMLSSOConfigServiceClient {
             System.out.println(metadata);
             serviceProviderDTO = stub.uploadRPServiceProvider(metadata);
         } catch (IOException | IdentitySAMLSSOConfigServiceIdentitySAML2SSOException e) {
-            throw new SAMLSSOConfigServiceClientException("Error while uploading the service provider", e);
+            throw new IdentitySAML2SSOUiException("Error while uploading the service provider", e);
         } finally {
             IOUtils.closeQuietly(in);
         }
@@ -101,13 +102,13 @@ public class SAMLSSOConfigServiceClient {
     }
 
     public boolean updateServiceProvider(SAMLSSOServiceProviderDTO serviceProviderDTO) throws
-            SAMLSSOConfigServiceClientException {
+            IdentitySAML2SSOUiException {
 
         boolean status;
         try {
             status = stub.updateRPServiceProvider(serviceProviderDTO);
         } catch (RemoteException  | IdentitySAMLSSOConfigServiceIdentitySAML2SSOException e) {
-            throw new SAMLSSOConfigServiceClientException("Error while uploading the service provider", e);
+            throw new IdentitySAML2SSOUiException("Error while uploading the service provider", e);
         }
         return status;
     }

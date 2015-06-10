@@ -16,15 +16,15 @@
  * under the License.
  */
 
-package org.wso2.carbon.identity.sso.saml.ui.client;
+package org.wso2.carbon.identity.sso.saml.ui.exception;
 
-public class SAMLSSOConfigServiceClientException extends Exception {
+public class IdentitySAML2SSOUiException extends Exception {
 
-    public SAMLSSOConfigServiceClientException(String message) {
+    public IdentitySAML2SSOUiException(String message) {
         super(message);
     }
 
-    public SAMLSSOConfigServiceClientException(String message, Throwable e) {
+    public IdentitySAML2SSOUiException(String message, Throwable e) {
         super(message, e);
     }
 }
