@@ -36,6 +36,7 @@ import java.util.Arrays;
 @SuppressWarnings({"UnusedDeclaration"})
 public class PartitionInfo extends DomainNameEntry {
 
+    public static final String DC = "dc";
     /**
      * An id given to the partition.
      */
@@ -163,7 +164,7 @@ public class PartitionInfo extends DomainNameEntry {
 
         for (String part : parts) {
             String[] elements = part.split("=");
-            if ("dc".equals(elements[0])) {
+            if (DC.equals(elements[0])) {
                 return elements[1];
             }
         }

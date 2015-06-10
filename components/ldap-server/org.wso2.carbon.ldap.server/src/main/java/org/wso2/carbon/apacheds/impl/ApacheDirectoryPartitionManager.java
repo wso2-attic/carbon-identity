@@ -20,6 +20,7 @@
 package org.wso2.carbon.apacheds.impl;
 
 import org.apache.axiom.om.util.Base64;
+import org.apache.commons.lang.StringUtils;
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.factory.JdbmPartitionFactory;
@@ -602,7 +603,7 @@ class ApacheDirectoryPartitionManager implements PartitionManager {
 
         AdminGroupInfo groupInfo = adminInfo.getGroupInformation();
 
-        if (groupInfo != null && groupInfo.getAdminRoleName().contains("/")) {
+        if (groupInfo != null && StringUtils.contains(groupInfo.getAdminRoleName(),"/")) {
             String adminRole = groupInfo.getAdminRoleName();
             adminRole = adminRole.substring(adminRole.indexOf("/") + 1);
             groupInfo.setAdminRoleName(adminRole);
