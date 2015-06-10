@@ -229,7 +229,7 @@ public class IWAServelet extends HttpServlet {
      */
     private void sendUnauthorized(HttpServletResponse response, boolean close) {
         try {
-            providers.sendUnauthorized(response);
+            IWAServiceDataHolder.getInstance().getProviders().sendUnauthorized(response);
             if (close) {
                 response.setHeader(IWAConstants.HTTP_CONNECTION_HEADER, IWAConstants.CONNECTION_CLOSE);
             } else {
