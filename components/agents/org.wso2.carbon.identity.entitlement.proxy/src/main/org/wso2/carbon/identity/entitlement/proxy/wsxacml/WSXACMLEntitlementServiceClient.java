@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2012 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -14,6 +14,8 @@
  * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
  * under the License.
+ *
+ *
  */
 
 package org.wso2.carbon.identity.entitlement.proxy.wsxacml;
@@ -76,6 +78,7 @@ import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.*;
+import java.nio.charset.Charset;
 import java.security.*;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateEncodingException;
@@ -203,13 +206,13 @@ public class WSXACMLEntitlementServiceClient extends AbstractEntitlementServiceC
 
     @Override
     public List<String> getResourcesForAlias(String alias, String appId) throws Exception {
-        return null;
+        return new ArrayList<String>();
     }
 
     @Override
     public List<String> getActionableResourcesForAlias(String alias, String appId)
             throws Exception {
-        return null;
+        return new ArrayList<String>();
     }
 
     @Override
@@ -217,14 +220,14 @@ public class WSXACMLEntitlementServiceClient extends AbstractEntitlementServiceC
                                                             String action, String appId)
             throws Exception {
 
-        return null;
+        return new ArrayList<String>();
     }
 
     @Override
     public List<String> getActionsForResource(String alias, String resources, String appId)
             throws Exception {
 
-        return null;
+        return new ArrayList<String>();
     }
 
     /**
@@ -237,7 +240,6 @@ public class WSXACMLEntitlementServiceClient extends AbstractEntitlementServiceC
 
         Response samlResponseObject = null;
         ResponseType xacmlResponse = null;
-        String decision = null;
         doBootstrap();
         Init.init();
 
@@ -260,7 +262,6 @@ public class WSXACMLEntitlementServiceClient extends AbstractEntitlementServiceC
 
                     xacmlResponse = ((XACMLAuthzDecisionStatementType) assertion1.
                             getStatements(XACMLAuthzDecisionStatementType.TYPE_NAME_XACML20).get(0)).getResponse();
-                    //decision = xacmlResponse.getResult().getDecision().getDecision().toString();
                     try {
                         xacmlResponseString = org.apache.axis2.util.XMLUtils.toOM(xacmlResponse.getDOM()).
                                 toString().replaceAll("xacml-context:", "");
@@ -291,8 +292,8 @@ public class WSXACMLEntitlementServiceClient extends AbstractEntitlementServiceC
     private boolean validateIssuer(Issuer issuer) {
 
         boolean isValidated = false;
-        if (issuer.getValue().equals("https://identity.carbon.wso2.org")
-                && issuer.getSPProvidedID().equals("SPPProvierId")) {
+        if ("https://identity.carbon.wso2.org".equals(issuer.getValue())
+                && "SPPProvider".equals(issuer.getSPProvidedID())) {
             isValidated = true;
         }
         return isValidated;
@@ -440,7 +441,8 @@ public class WSXACMLEntitlementServiceClient extends AbstractEntitlementServiceC
 
             DocumentBuilder docBuilder = documentBuilderFactory.newDocumentBuilder();
             docBuilder.setEntityResolver(new CarbonEntityResolver());
-            Document document = docBuilder.parse(new ByteArrayInputStream(xmlString.trim().getBytes()));
+            Document document = docBuilder.parse(new ByteArrayInputStream(xmlString.trim().getBytes(Charset.forName
+                    ("UTF-8"))));
             Element element = document.getDocumentElement();
             UnmarshallerFactory unmarshallerFactory = Configuration.getUnmarshallerFactory();
             Unmarshaller unmarshaller = unmarshallerFactory.getUnmarshaller(element);
@@ -477,7 +479,7 @@ public class WSXACMLEntitlementServiceClient extends AbstractEntitlementServiceC
             LSOutput output = impl.createLSOutput();
             output.setByteStream(byteArrayOutputStrm);
             writer.write(element, output);
-            return byteArrayOutputStrm.toString();
+            return new String(byteArrayOutputStrm.toByteArray(),Charset.forName("UTF-8"));
         } catch (Exception e) {
             log.error("Error Serializing the SAML Response");
             throw new EntitlementProxyException("Error Serializing the SAML Response", e);
@@ -514,6 +516,11 @@ public class WSXACMLEntitlementServiceClient extends AbstractEntitlementServiceC
                 keyInfo.getX509Datas().add(data);
                 signature.setKeyInfo(keyInfo);
             } catch (CertificateEncodingException e) {
+
+                if(log.isDebugEnabled()){
+                    log.debug("Certificate Encoding Exception occurred : ", e);
+                }
+
                 throw new EntitlementProxyException("Error getting the certificate.");
             }
 
