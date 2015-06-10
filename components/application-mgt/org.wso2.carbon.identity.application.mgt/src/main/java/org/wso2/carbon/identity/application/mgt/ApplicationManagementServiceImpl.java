@@ -23,11 +23,13 @@ import org.apache.axis2.AxisFault;
 import org.apache.axis2.description.AxisService;
 import org.apache.axis2.description.Parameter;
 import org.apache.axis2.engine.AxisConfiguration;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.rahas.impl.SAMLTokenIssuerConfig;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
+import org.wso2.carbon.context.RegistryType;
 import org.wso2.carbon.core.RegistryResources;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
 import org.wso2.carbon.identity.application.common.model.*;
@@ -43,6 +45,7 @@ import org.wso2.carbon.identity.application.mgt.internal.ApplicationMgtListenerS
 import org.wso2.carbon.identity.application.mgt.listener.ApplicationMgtListener;
 import org.wso2.carbon.registry.api.RegistryException;
 import org.wso2.carbon.registry.core.Registry;
+import org.wso2.carbon.registry.core.RegistryConstants;
 import org.wso2.carbon.registry.core.Resource;
 import org.wso2.carbon.security.SecurityConfigException;
 import org.wso2.carbon.security.config.SecurityServiceAdmin;
@@ -245,10 +248,17 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
             ApplicationPermission[] permissions =
                     serviceProvider.getPermissionAndRoleConfig()
                             .getPermissions();
-            if(!storedAppName.equals(serviceProvider.getApplicationName())){
+            String applicationNode = ApplicationMgtUtil.getApplicationPermissionPath() + RegistryConstants
+                    .PATH_SEPARATOR +storedAppName;
+            org.wso2.carbon.registry.api.Registry tenantGovReg = CarbonContext.getThreadLocalCarbonContext()
+                    .getRegistry(RegistryType.USER_GOVERNANCE);
+
+            boolean exist = tenantGovReg.resourceExists(applicationNode);
+            if (exist && !storedAppName.equals(serviceProvider.getApplicationName())) {
                 ApplicationMgtUtil.renameAppPermissionPathNode(storedAppName, serviceProvider.getApplicationName());
             }
-            if (permissions != null) {
+
+            if (ArrayUtils.isNotEmpty(permissions)) {
                 ApplicationMgtUtil.updatePermissions(serviceProvider.getApplicationName(),
                         permissions);
             }
