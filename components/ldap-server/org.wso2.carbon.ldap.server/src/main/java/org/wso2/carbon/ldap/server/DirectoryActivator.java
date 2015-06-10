@@ -121,9 +121,7 @@ public class DirectoryActivator implements BundleActivator {
             }
 
         } catch (FileNotFoundException | EmbeddingLDAPException | DirectoryServerException e) {
-            String errorMessage = "Could not start the embedded-ldap. ";
-            logger.error(errorMessage, e);
-
+            logger.error("Could not start the embedded-ldap. ", e);
         }
 
     }

@@ -37,6 +37,8 @@ import static org.wso2.carbon.apacheds.KdcConfiguration.ProtocolType.UDP_PROTOCO
 @SuppressWarnings({"UnusedDeclaration"})
 public class KdcConfiguration {
 
+    public static final String TCP = "TCP";
+    public static final String UDP = "UDP";
     /**
      * A name given to a KDC server.
      */
@@ -238,9 +240,9 @@ public class KdcConfiguration {
 
         public static ProtocolType getProtocolType(String protocolName)
                 throws DirectoryServerException {
-            if ("TCP".equals(protocolName)) {
+            if (TCP.equals(protocolName)) {
                 return ProtocolType.TCP_PROTOCOL;
-            } else if ("UDP".equals(protocolName)) {
+            } else if (UDP.equals(protocolName)) {
                 return UDP_PROTOCOL;
             } else {
                 throw new DirectoryServerException(
