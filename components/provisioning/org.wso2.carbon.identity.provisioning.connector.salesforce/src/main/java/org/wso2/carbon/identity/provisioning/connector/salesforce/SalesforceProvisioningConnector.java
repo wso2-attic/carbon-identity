@@ -252,7 +252,7 @@ public class SalesforceProvisioningConnector extends AbstractOutboundProvisionin
                     log.debug("Error response : " + readResponse(post));
                 }
             }
-        } catch (HttpException | IOException | JSONException e) {
+        } catch (IOException | JSONException e) {
             throw new IdentityProvisioningException("Error in invoking provisioning operation for the user", e);
         } finally {
             post.releaseConnection();
@@ -337,7 +337,7 @@ public class SalesforceProvisioningConnector extends AbstractOutboundProvisionin
                     }
                 }
 
-            } catch (HttpException | IOException e) {
+            } catch (IOException e) {
                 log.error("Error in invoking provisioning request");
                 throw new IdentityProvisioningException(e);
             } finally {
@@ -539,7 +539,7 @@ public class SalesforceProvisioningConnector extends AbstractOutboundProvisionin
                 log.error("recieved response status code:" + get.getStatusCode() + " text : "
                         + get.getStatusText());
             }
-        } catch (JSONException | HttpException | IOException e) {
+        } catch (JSONException | IOException e) {
             log.error("Error in invoking provisioning operation for the user listing");
             throw new IdentityProvisioningException(e);
         }finally {

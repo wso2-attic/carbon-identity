@@ -43,13 +43,14 @@ import org.wso2.carbon.identity.provisioning.ProvisioningEntity;
 import org.wso2.carbon.identity.provisioning.ProvisioningEntityType;
 import org.wso2.carbon.identity.provisioning.ProvisioningOperation;
 
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.GeneralSecurityException;
 import java.security.SecureRandom;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -89,7 +90,7 @@ public class GoogleProvisioningConnector extends AbstractOutboundProvisioningCon
                 configs.put(property.getName(), property.getValue());
 
                 if (IdentityProvisioningConstants.JIT_PROVISIONING_ENABLED.equals(property
-                        .getName()) && "1".equals(property.getValue())) {
+                                                                                          .getName()) && "1".equals(property.getValue())) {
                     jitProvisioningEnabled = true;
 
 
@@ -171,14 +172,14 @@ public class GoogleProvisioningConnector extends AbstractOutboundProvisioningCon
                         provisionedIdentifier.getIdentifier(), updateUser);
                 request.execute();
 
-            } catch (GoogleJsonResponseException | IOException e) {
+            } catch (IOException e) {
                 throw new IdentityProvisioningException("Error while updating Google user : "
-                        + provisioningEntity.getEntityName(), e);
+                                                        + provisioningEntity.getEntityName(), e);
             }
 
             if (isDebugEnabled) {
                 log.debug("updating user :" + provisioningEntity.getEntityName()
-                        + " with the primaryEmail : " + provisionedIdentifier.getIdentifier());
+                          + " with the primaryEmail : " + provisionedIdentifier.getIdentifier());
             }
         } else {
             throw new IdentityProvisioningException(
@@ -210,9 +211,9 @@ public class GoogleProvisioningConnector extends AbstractOutboundProvisioningCon
             Directory.Users.Insert request = getDirectoryService().users().insert(newUser);
             createdUser = request.execute();
 
-        } catch (GoogleJsonResponseException | IOException e) {
+        } catch (IOException e) {
             throw new IdentityProvisioningException("Error while creating user : "
-                    + provisioningEntity.getEntityName(), e);
+                                                    + provisioningEntity.getEntityName(), e);
         }
 
         if (isDebugEnabled) {
@@ -249,14 +250,14 @@ public class GoogleProvisioningConnector extends AbstractOutboundProvisioningCon
                         provisionedIdentifier.getIdentifier());
                 request.execute();
 
-            } catch (GoogleJsonResponseException | IOException e) {
+            } catch (IOException e) {
                 throw new IdentityProvisioningException("Error while deleting Google user : "
-                        + provisioningEntity.getEntityName(), e);
+                                                        + provisioningEntity.getEntityName(), e);
             }
 
             if (isDebugEnabled) {
                 log.debug("Deleted user :" + provisioningEntity.getEntityName()
-                        + " with the primaryEmail : " + provisionedIdentifier.getIdentifier());
+                          + " with the primaryEmail : " + provisionedIdentifier.getIdentifier());
             }
         } else {
             throw new IdentityProvisioningException(
@@ -346,7 +347,7 @@ public class GoogleProvisioningConnector extends AbstractOutboundProvisioningCon
         if (isDebugEnabled) {
             log.debug("serviceAccountId" + serviceAccountId);
             log.debug("setServiceAccountScopes"
-                    + Arrays.asList(DirectoryScopes.ADMIN_DIRECTORY_USER));
+                      + Arrays.asList(DirectoryScopes.ADMIN_DIRECTORY_USER));
             log.debug("setServiceAccountUser" + serviceAccountUser);
         }
 
@@ -365,7 +366,7 @@ public class GoogleProvisioningConnector extends AbstractOutboundProvisioningCon
 
         } catch (GeneralSecurityException | IOException e) {
             throw new IdentityProvisioningException("Error while obtaining connection from google",
-                    e);
+                                                    e);
         }
 
         if (log.isDebugEnabled()) {
@@ -406,7 +407,7 @@ public class GoogleProvisioningConnector extends AbstractOutboundProvisioningCon
         String userIdClaimUriKey = "userIdClaimUri";
 
         Map<String, String> requiredAttributes = getSingleValuedClaims(provisioningEntity
-                .getAttributes());
+                                                                               .getAttributes());
 
         /** Provisioning Pattern */
         String provisioningPattern = this.configHolder.getValue(provisioningPatternKey);
@@ -426,7 +427,7 @@ public class GoogleProvisioningConnector extends AbstractOutboundProvisioningCon
 
         if (provisioningPattern != null) {
             userIdFromPattern = buildUserId(provisioningEntity, provisioningPattern,
-                    provisioningSeparator, idpName);
+                                            provisioningSeparator, idpName);
         }
 
         if (StringUtils.isNotBlank(userIdFromPattern)) {
@@ -500,7 +501,7 @@ public class GoogleProvisioningConnector extends AbstractOutboundProvisioningCon
         String givenNameClaimKey = "google_prov_givenname_claim_dropdown";
 
         Map<String, String> requiredAttributes = getSingleValuedClaims(provisioningEntity
-                .getAttributes());
+                                                                               .getAttributes());
 
         if (MapUtils.isEmpty(requiredAttributes)) {
             return null;

@@ -120,6 +120,7 @@
                         </Private-Package>
                         <Import-Package>
                             org.apache.commons.logging; version="${commons-logging.osgi.version.range}",
+                            org.apache.commons.collections; version="${commons-collections.wso2.osgi.version.range}",
                             org.osgi.framework; version="${osgi.framework.imp.pkg.version.range}",
                             org.osgi.service.component; version="${osgi.service.component.imp.pkg.version.range}",
                             org.wso2.carbon.identity.application.common.model;

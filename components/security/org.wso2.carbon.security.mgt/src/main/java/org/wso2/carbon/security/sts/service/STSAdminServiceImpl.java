@@ -77,7 +77,6 @@ public class STSAdminServiceImpl extends AbstractAdmin implements STSAdminServic
         }
     }
 
-    @Override
     public void removeTrustedService(String serviceAddress) throws SecurityConfigException {
         try {
             AxisService stsService = getAxisConfig().getService(ServerConstants.STS_NAME);

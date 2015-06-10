@@ -220,7 +220,9 @@ public class Util {
                     else
                         normalized.append(percentCode);
                 } catch (UnsupportedEncodingException e) {
-                    log.error("Url Encoding not supported.", e);
+                    if(log.isDebugEnabled()){
+                        log.debug("Url Encoding not supported.", e);
+                    }
                     normalized.append(percentCode);
                 }
                 i += 2;
