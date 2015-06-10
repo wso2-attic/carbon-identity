@@ -74,7 +74,7 @@ public class IWAServelet extends HttpServlet {
             throw new IllegalArgumentException(IWAConstants.IWA_PARAM_STATE + " parameter is null.");
         }
         commonAuthURL += "?" + IWAConstants.IWA_PARAM_STATE + "=" + URLEncoder.encode(param, IWAConstants.UTF_8) +
-                "&" + IWAAuthenticator.IWA_PROCESSED + "=1";
+                         "&" + IWAAuthenticator.IWA_PROCESSED + "=1";
 
         if (doFilterPrincipal(request)) {
             // previously authenticated user
@@ -105,7 +105,7 @@ public class IWAServelet extends HttpServlet {
                 }
                 if (log.isDebugEnabled()) {
                     log.debug("logged in user: " + windowsIdentity.getFqn() + " (" + windowsIdentity.getSidString() +
-                            ")");
+                              ")");
                 }
                 HttpSession session = request.getSession(true);
                 if (session == null) {
@@ -274,7 +274,8 @@ public class IWAServelet extends HttpServlet {
 
         if (authProvider != null) {
             try {
-                IWAServiceDataHolder.getInstance().setAuth((IWindowsAuthProvider) Class.forName(authProvider).getConstructor().newInstance());
+                IWAServiceDataHolder.getInstance().setAuth(
+                        (IWindowsAuthProvider) Class.forName(authProvider).getConstructor().newInstance());
             } catch (Exception e) {
                 throw new ServletException("Error loading '" + authProvider, e);
             }
@@ -285,8 +286,8 @@ public class IWAServelet extends HttpServlet {
         }
 
         if (providerNames != null) {
-            IWAServiceDataHolder.getInstance().setProviders(new SecurityFilterProviderCollection(providerNames,
-                    IWAServiceDataHolder.getInstance().getAuth()));
+            IWAServiceDataHolder.getInstance().setProviders(new SecurityFilterProviderCollection(
+                    providerNames, IWAServiceDataHolder.getInstance().getAuth()));
         }
 
         // create default providers if none specified
@@ -294,7 +295,8 @@ public class IWAServelet extends HttpServlet {
             if (log.isDebugEnabled()) {
                 log.debug("initializing default security filter providers");
             }
-            IWAServiceDataHolder.getInstance().setProviders(new SecurityFilterProviderCollection(IWAServiceDataHolder.getInstance().getAuth()))
+            IWAServiceDataHolder.getInstance().setProviders(new SecurityFilterProviderCollection(
+                    IWAServiceDataHolder.getInstance().getAuth()));
         }
 
         // apply provider implementation parameters
@@ -304,9 +306,10 @@ public class IWAServelet extends HttpServlet {
                 try {
                     if (log.isDebugEnabled()) {
                         log.debug("Setting " + classAndParameter[0] + ", " + classAndParameter[1] + "=" +
-                                implParameter.getValue());
+                                  implParameter.getValue());
                     }
-                    SecurityFilterProvider provider = IWAServiceDataHolder.getInstance().getProviders().getByClassName(classAndParameter[0]);
+                    SecurityFilterProvider provider = IWAServiceDataHolder.getInstance().getProviders().getByClassName(
+                            classAndParameter[0]);
                     provider.initParameter(classAndParameter[1], implParameter.getValue());
                 } catch (ClassNotFoundException e) {
                     throw new ServletException("Invalid class: " + classAndParameter[0] + " in " + implParameter
