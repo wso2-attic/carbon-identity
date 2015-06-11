@@ -65,7 +65,7 @@
             <i18n-key>list</i18n-key>
             <i18n-bundle>org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources</i18n-bundle>
             <parent-menu>configure_workflow_menu</parent-menu>
-            <link>../workflow-mgt/list-services.jsp</link>
+            <link>../workflow-mgt/list-workflows.jsp</link>
             <icon>../workflow-mgt/images/list.png</icon>
             <region>region1</region>
             <order>2</order>

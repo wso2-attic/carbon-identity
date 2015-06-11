@@ -28,6 +28,7 @@ import org.wso2.carbon.identity.workflow.mgt.bean.WorkFlowRequest;
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowAssociation;
 import org.wso2.carbon.identity.workflow.mgt.dao.WorkflowDAO;
 import org.wso2.carbon.identity.workflow.mgt.dao.WorkflowRequestDAO;
+import org.wso2.carbon.identity.workflow.mgt.exception.InternalWorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.internal.WorkflowServiceDataHolder;
 import org.wso2.carbon.identity.workflow.mgt.ws.WorkflowRequestBuilder;
@@ -86,7 +87,7 @@ public class WorkFlowExecutorManager {
             String eventId = request.getEventType();
             WorkflowRequestHandler requestHandler = WorkflowServiceDataHolder.getInstance().getRequestHandler(eventId);
             if (requestHandler == null) {
-                throw new WorkflowException("No request handlers registered for the id: " + eventId);
+                throw new InternalWorkflowException("No request handlers registered for the id: " + eventId);
             }
             requestHandler.onWorkflowCompletion(status, request, additionalParams);
         }
