@@ -25,12 +25,17 @@
 <%@ page import="org.wso2.carbon.CarbonConstants" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.WorkflowAdminServiceWorkflowException" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.AssociationDTO" %>
+<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.EventBean" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.WorkflowAdminServiceClient" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.WorkflowUIConstants" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
 <%@ page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
+<%@ page import="java.util.ArrayList" %>
+<%@ page import="java.util.HashMap" %>
+<%@ page import="java.util.List" %>
+<%@ page import="java.util.Map" %>
 <%@ page import="java.util.ResourceBundle" %>
 
 <script type="text/javascript" src="extensions/js/vui.js"></script>
@@ -51,6 +56,8 @@
     int pageNumberInt = 0;
     int numberOfPages = 0;
     String workflowId = StringUtils.EMPTY;
+    EventBean[] workflowEvents;
+    Map<String, List<EventBean>> events = new HashMap<String, List<EventBean>>();
 
     if (pageNumber != null) {
         try {
@@ -68,16 +75,25 @@
         client = new WorkflowAdminServiceClient(cookie, backendServerURL, configContext);
         workflowId = CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_WORKFLOW_ID));
 
-        AssociationDTO[] assciations = client.listAssociationsForWorkflow(workflowId);
+        AssociationDTO[] associations = client.listAssociationsForWorkflow(workflowId);
 
-        numberOfPages = (int) Math.ceil((double) assciations.length / WorkflowUIConstants.RESULTS_PER_PAGE);
+        numberOfPages = (int) Math.ceil((double) associations.length / WorkflowUIConstants.RESULTS_PER_PAGE);
 
         int startIndex = pageNumberInt * WorkflowUIConstants.RESULTS_PER_PAGE;
         int endIndex = (pageNumberInt + 1) * WorkflowUIConstants.RESULTS_PER_PAGE;
         associationToDisplay = new AssociationDTO[WorkflowUIConstants.RESULTS_PER_PAGE];
 
-        for (int i = startIndex, j = 0; i < endIndex && i < assciations.length; i++, j++) {
-            associationToDisplay[j] = assciations[i];
+        for (int i = startIndex, j = 0; i < endIndex && i < associations.length; i++, j++) {
+            associationToDisplay[j] = associations[i];
+        }
+
+        workflowEvents = client.listWorkflowEvents();
+        for (EventBean event : workflowEvents) {
+            String category = event.getCategory();
+            if (!events.containsKey(category)) {
+                events.put(category, new ArrayList<EventBean>());
+            }
+            events.get(category).add(event);
         }
     } catch (WorkflowAdminServiceWorkflowException e) {
         String message = resourceBundle.getString("workflow.error.when.listing.services");
@@ -109,7 +125,7 @@
 <fmt:bundle basename="org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources">
     <carbon:breadcrumb label="workflow.mgt"
                        resourceBundle="org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources"
-                       topPage="true" request="<%=request%>"/>
+                       topPage="false" request="<%=request%>"/>
 
     <script type="text/javascript" src="../carbon/admin/js/breadcrumbs.js"></script>
     <script type="text/javascript" src="../carbon/admin/js/cookies.js"></script>
@@ -129,13 +145,93 @@
             CARBON.showConfirmationDialog('<fmt:message key="confirmation.association.delete"/> ' + event + '?',
                     doDelete, null);
         }
+        function addAssociation() {
+            updateActions();
+            document.getElementById('addNew').style.display = 'block';
+        }
+
+        function doCancel() {
+            document.getElementById('addNew').style.display = 'none';
+        }
+    </script>
+    <script type="text/javascript">
+        eventsObj = {};
+        <%
+            for (Map.Entry<String,List<EventBean>> eventCategory : events.entrySet()) {
+            %>
+        eventsObj["<%=eventCategory.getKey()%>"] = [];
+        <%
+            for (EventBean event : eventCategory.getValue()) {
+                %>
+        var eventObj = {};
+        eventObj.displayName = "<%=event.getFriendlyName()%>";
+        eventObj.value = "<%=event.getId()%>";
+        eventObj.title = "<%=event.getDescription()!=null?event.getDescription():""%>";
+        eventsObj["<%=eventCategory.getKey()%>"].push(eventObj);
+        <%
+                    }
+            }
+        %>
+
+        function updateActions() {
+            var categoryDropdown = document.getElementById("categoryDropdown");
+            var actionDropdown = document.getElementById("actionDropdown");
+            var selectedCategory = categoryDropdown.options[categoryDropdown.selectedIndex].value;
+            var eventsOfCategory = eventsObj[selectedCategory];
+            for (var i = 0; i < eventsOfCategory.length; i++) {
+                var opt = document.createElement("option");
+                opt.text = eventsOfCategory[i].displayName;
+                opt.value = eventsOfCategory[i].value;
+                opt.title = eventsOfCategory[i].title;
+                actionDropdown.options.add(opt);
+            }
+        }
+
     </script>
 
     <div id="middle">
         <h2><fmt:message key='workflow.list'/></h2>
 
         <div id="workArea">
-
+            <a title="<fmt:message key='workflow.service.association.add'/>"
+               onclick="addAssociation();return false;"
+               href="#" style="background-image: url(images/add.png);" class="icon-link">
+                <fmt:message key='workflow.service.association.add'/></a>
+            <div id="addNew" style="display: none; clear: left">
+                <form action="operation-association.jsp" method="post">
+                    <input type="hidden" name="<%=WorkflowUIConstants.PARAM_WORKFLOW_ID%>" value="<%=workflowId%>">
+                    <table class="styledLeft">
+                        <tr>
+                            <td><fmt:message key='workflow.operation.category'/></td>
+                            <td>
+                                <select id="categoryDropdown" onchange="updateActions();">
+                                    <%
+                                        for (String key : events.keySet()) {
+                                    %>
+                                    <option value="<%=key%>"><%=key%>
+                                    </option>
+                                    <%
+                                        }
+                                    %>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><fmt:message key='workflow.operation.name'/></td>
+                            <td><select id="actionDropdown"
+                                        name="<%=WorkflowUIConstants.PARAM_ASSOCIATED_OPERATION%>"></select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="buttonRow">
+                                <input class="button" value="<fmt:message key="add"/>" type="submit"/>
+                                <input class="button" value="<fmt:message key="cancel"/>" type="button"
+                                       onclick="doCancel();"/>
+                            </td>
+                        </tr>
+                    </table>
+                </form>
+            </div>
             <table class="styledLeft" id="servicesTable">
                 <thead>
                 <tr>
@@ -147,15 +243,14 @@
                 <%
                     for (AssociationDTO association : associationToDisplay) {
                         if (association != null) {
-
                 %>
                 <tr>
                     <td><%=association.getEventName()%>
                     </td>
                     <td>
                         <a title="<fmt:message key='workflow.service.association.delete.title'/>"
-                           onclick="removeAssociation('<%=association.getAssociationId()%>','<%=association.getEventName()%>');
-                                   return false;"
+                           onclick="removeAssociation('<%=association.getAssociationId()%>',
+                                   '<%=association.getEventName()%>');return false;"
                            href="#" style="background-image: url(images/delete.gif);"
                            class="icon-link"><fmt:message key='delete'/></a>
                     </td>

@@ -91,8 +91,16 @@
                 %>
                 <input type="hidden" name="<%=paramEntry.getKey()%>" value="<%=paramValue%>">
                 <%
-                            }
                         }
+                    }
+                } else if (WorkflowUIConstants.ACTION_VALUE_ADD_ASSOCIATION.equals(action)) {
+                    String workflowId = CharacterEncoder
+                            .getSafeText(request.getParameter(WorkflowUIConstants.PARAM_WORKFLOW_ID));
+                %>
+                <input type="hidden" name="<%=WorkflowUIConstants.PARAM_ASSOCIATED_OPERATION%>" value="<%=event%>">
+                <input type="hidden" name="<%=WorkflowUIConstants.PARAM_WORKFLOW_ID%>" value="<%=workflowId%>">
+                <input type="hidden" name="<%=WorkflowUIConstants.PARAM_ACTION%>" value="<%=action%>">
+                <%
                     }
                 %>
                 <table class="styledLeft">

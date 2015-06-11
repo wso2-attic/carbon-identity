@@ -119,6 +119,21 @@
             CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
             forwardTo = "../admin/error.jsp";
         }
+    } else if (WorkflowUIConstants.ACTION_VALUE_ADD_ASSOCIATION.equals(action)) {
+        String workflowId =
+                CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_WORKFLOW_ID));
+        String operation =
+                CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_ASSOCIATED_OPERATION));
+        String condition =
+                CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_ASSOCIATION_CONDITION));
+        try {
+            client.addAssociation(workflowId, operation, condition);
+            forwardTo = "view-workflow.jsp?" + WorkflowUIConstants.PARAM_WORKFLOW_ID + "=" + workflowId;
+        } catch (WorkflowAdminServiceWorkflowException e) {
+            String message = resourceBundle.getString("workflow.error.when.deleting.association");
+            CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
+            forwardTo = "../admin/error.jsp";
+        }
     }
 %>
 <script type="text/javascript">

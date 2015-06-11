@@ -58,11 +58,10 @@
         workflowEvents = client.listWorkflowEvents();
         for (EventBean event : workflowEvents) {
             String category = event.getCategory();
-            if (events.containsKey(category)) {
-                events.get(category).add(event);
-            } else {
+            if (!events.containsKey(category)) {
                 events.put(category, new ArrayList<EventBean>());
             }
+            events.get(category).add(event);
         }
         templateList = client.listTemplates();
         if (templateList == null) {

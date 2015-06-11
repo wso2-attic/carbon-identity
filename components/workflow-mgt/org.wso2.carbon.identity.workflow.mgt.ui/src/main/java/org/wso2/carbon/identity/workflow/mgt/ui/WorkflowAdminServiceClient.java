@@ -119,4 +119,9 @@ public class WorkflowAdminServiceClient {
     public void deleteAssociation(String associationId) throws RemoteException, WorkflowAdminServiceWorkflowException {
         stub.removeAssociation(associationId);
     }
+
+    public void addAssociation(String workflowId, String eventId, String condition)
+            throws RemoteException, WorkflowAdminServiceWorkflowException {
+        stub.addAssociation(workflowId, eventId, condition);
+    }
 }

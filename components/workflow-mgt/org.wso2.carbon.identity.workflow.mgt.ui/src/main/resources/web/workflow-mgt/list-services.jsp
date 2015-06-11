@@ -105,8 +105,8 @@
 %>
 <fmt:bundle basename="org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources">
     <carbon:breadcrumb label="workflow.mgt"
-            resourceBundle="org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources"
-            topPage="true" request="<%=request%>"/>
+                       resourceBundle="org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources"
+                       topPage="true" request="<%=request%>"/>
 
     <script type="text/javascript" src="../carbon/admin/js/breadcrumbs.js"></script>
     <script type="text/javascript" src="../carbon/admin/js/cookies.js"></script>
@@ -148,7 +148,10 @@
 
                 %>
                 <tr>
-                    <td><%=workflow.getWorkflowName()%>
+                    <td>
+                        <a href="view-workflow.jsp?<%=WorkflowUIConstants.PARAM_WORKFLOW_ID%>=<%=workflow.getWorkflowId()%>">
+                            <%=workflow.getWorkflowName()%>
+                        </a>
                     </td>
                     <td><%=workflow.getWorkflowDescription() == null ? "" : workflow.getWorkflowDescription()%>
                     </td>

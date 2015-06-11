@@ -29,6 +29,7 @@ public class WorkflowUIConstants {
     public static final String ACTION_VALUE_DEPLOY = "deploy";
     public static final String ACTION_VALUE_DELETE = "delete";
     public static final String ACTION_VALUE_DELETE_ASSOCIATION = "deleteAssociation";
+    public static final String ACTION_VALUE_ADD_ASSOCIATION = "addAssociation";
 
     public static final String PARAM_WORKFLOW_NAME = "workflowName";
     public static final String PARAM_WORKFLOW_ID = "workflowId";
