@@ -599,7 +599,6 @@ public class SAMLSSOServiceProviderDAO extends AbstractDAO<SAMLSSOServiceProvide
 
             EntityDescriptor entityDescriptor = generateMetadataObjectFromServiceProviderDO(serviceProviderDO);
             String metadataString = getMetadataString(entityDescriptor);
-            log.info(metadataString);
             resource.setContent(metadataString.getBytes());
 
             try {
@@ -663,7 +662,6 @@ public class SAMLSSOServiceProviderDAO extends AbstractDAO<SAMLSSOServiceProvide
                 resource = registry.newResource();
 
                 String metadataString = getMetadataString(entityDescriptor);
-                log.info(metadataString);
                 resource.setContent(metadataString.getBytes());
 
                 try {
@@ -737,7 +735,6 @@ public class SAMLSSOServiceProviderDAO extends AbstractDAO<SAMLSSOServiceProvide
 
                 EntityDescriptor entityDescriptor = generateMetadataObjectFromServiceProviderDO(serviceProviderDO);
                 String metadataString = getMetadataString(entityDescriptor);
-                log.info(metadataString);
                 resource.setContent(metadataString.getBytes());
 
                 try {
