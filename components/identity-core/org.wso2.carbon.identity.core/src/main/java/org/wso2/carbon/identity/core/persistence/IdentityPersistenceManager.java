@@ -235,7 +235,7 @@ public class IdentityPersistenceManager {
     }
 
     /**
-     * update an existing service provider
+     * update an existing SAML SSO service provider
      *
      * @param registry
      * @param serviceProviderDO
@@ -249,7 +249,7 @@ public class IdentityPersistenceManager {
     }
 
     /**
-     * upload service provider metadata directly
+     * upload service provider metadata directly for SAML SSO
      *
      * @param registry
      * @param metadata

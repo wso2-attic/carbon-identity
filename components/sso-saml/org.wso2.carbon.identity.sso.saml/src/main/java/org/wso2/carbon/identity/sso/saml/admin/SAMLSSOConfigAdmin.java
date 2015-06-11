@@ -47,7 +47,7 @@ public class SAMLSSOConfigAdmin {
     }
 
     /**
-     * Add a new service provider
+     * Add a new SAML SSO service provider
      *
      * @param serviceProviderDTO service Provider DTO
      * @return true if successful, false otherwise
@@ -67,7 +67,7 @@ public class SAMLSSOConfigAdmin {
     }
 
     /**
-     * update an existing service provider
+     * update an existing SAML SSO service provider
      *
      * @param serviceProviderDTO
      * @return
@@ -87,7 +87,7 @@ public class SAMLSSOConfigAdmin {
     }
 
     /**
-     * upload service provider metadata directly
+     * upload SAML SSO service provider metadata directly
      *
      * @param metadata
      * @return

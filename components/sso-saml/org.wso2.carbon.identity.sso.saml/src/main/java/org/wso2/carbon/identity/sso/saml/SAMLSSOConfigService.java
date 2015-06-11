@@ -46,6 +46,7 @@ public class SAMLSSOConfigService extends AbstractAdmin {
     private static Log log = LogFactory.getLog(SAMLSSOConfigService.class);
 
     /**
+     * add a new SAML SSO service provider
      * @param spDto
      * @return
      * @throws IdentityException
@@ -61,7 +62,7 @@ public class SAMLSSOConfigService extends AbstractAdmin {
     }
 
     /**
-     * update an existing service provider
+     * update an existing SAML SSO service provider
      *
      * @param spDto
      * @return
@@ -78,7 +79,7 @@ public class SAMLSSOConfigService extends AbstractAdmin {
     }
 
     /**
-     * upload service provider metadata directly
+     * upload SAML SSO service provider metadata directly
      *
      * @param metadata
      * @return

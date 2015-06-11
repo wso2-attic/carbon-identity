@@ -91,7 +91,7 @@ if (applicationComponentFound) { %>
     CarbonUIMessage.sendCarbonUIMessage(e.getMessage(), CarbonUIMessage.ERROR, request, e);
 %>
 <script type="text/javascript">
-    location.href = "../admin/error.jsp";
+    location.href = "../sso-saml/add_service_provider.jsp?spName=<%=spName%>";
 </script>
 <%
         return;

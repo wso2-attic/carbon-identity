@@ -1220,7 +1220,8 @@ if (isEditSP && show) {
         </thead>
         <tbody>
             <tr>
-                <td><input type="file" id="metadataFromFileSystem" name="metadataFromFileSystem" size="50" /></td>
+                <td><span>File Location: </span><input type="file" id="metadataFromFileSystem"
+                                                   name="metadataFromFileSystem" size="50" /></td>
             </tr>
             <tr><td>
                 <input type="button" value="<fmt:message key='saml.sso.upload'/>" class="button" onclick="doSubmit();"/>
@@ -1236,12 +1237,12 @@ if (isEditSP && show) {
             <table class="styledLeft" width="100%">
             <thead>
                 <tr>
-                    <th><fmt:message key="saml.sso.upload.service.provider.metadata"/></th>
+                    <th><fmt:message key="saml.sso.upload.service.provider.metadata.from.url"/></th>
                 </tr>
             </thead>
             <tbody>
                 <tr>
-                    <td><input type="url" id="metadataFromUrl" name="metadataFromUrl"/></td>
+                    <td><span>URL: </span><input type="url" class="text-box-big" id="metadataFromUrl" name="metadataFromUrl"/></td>
                 </tr>
                 <tr><td>
                     <input type="submit" class="button" value="<fmt:message key='saml.sso.upload'/>" class="button"/>

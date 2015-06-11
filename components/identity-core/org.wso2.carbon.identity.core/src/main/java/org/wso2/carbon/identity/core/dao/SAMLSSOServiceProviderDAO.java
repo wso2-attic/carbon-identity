@@ -184,7 +184,8 @@ public class SAMLSSOServiceProviderDAO extends AbstractDAO<SAMLSSOServiceProvide
      * @return
      */
     private SAMLSSOServiceProviderDO convertMetadataObjectToServiceProviderDO(EntityDescriptor entityDescriptor,
-                                                                              SAMLSSOServiceProviderDO samlssoServiceProviderDO) {
+                                                                              SAMLSSOServiceProviderDO
+                                                                                      samlssoServiceProviderDO) {
 
         if (entityDescriptor != null) {
             samlssoServiceProviderDO.setIssuer(entityDescriptor.getEntityID());
@@ -256,8 +257,8 @@ public class SAMLSSOServiceProviderDAO extends AbstractDAO<SAMLSSOServiceProvide
                     }
                 }
                 if (!foundAssertionConsumerUrl) {
-                    samlssoServiceProviderDO.setAssertionConsumerUrl(spssoDescriptor.getDefaultAssertionConsumerService()
-                            .getLocation());
+                    samlssoServiceProviderDO.setAssertionConsumerUrl(spssoDescriptor
+                            .getDefaultAssertionConsumerService().getLocation());
                     foundAssertionConsumerUrl = true;
                 }
                 //select atleast one
@@ -281,7 +282,6 @@ public class SAMLSSOServiceProviderDAO extends AbstractDAO<SAMLSSOServiceProvide
             List<SingleLogoutService> singleLogoutServices = spssoDescriptor.getSingleLogoutServices();
             if (CollectionUtils.isNotEmpty(singleLogoutServices)) {
                 boolean foundSingleLogoutServicePostBinding = false;
-                String singleLogoutServiceLocation;
                 for (SingleLogoutService singleLogoutService : singleLogoutServices) {
                     if (singleLogoutService.getBinding().equals(SAMLConstants.SAML2_POST_BINDING_URI)) {
                         samlssoServiceProviderDO.setLogoutURL(singleLogoutService.getLocation());
@@ -498,15 +498,6 @@ public class SAMLSSOServiceProviderDAO extends AbstractDAO<SAMLSSOServiceProvide
         return entityDescriptor;
     }
 
-    /**
-     * create a metadata object of given type
-     *
-     * @param clazz
-     * @param <T>
-     * @return
-     * @throws NoSuchFieldException
-     * @throws IllegalAccessException
-     */
     private <T> T createSAMLObject(final Class<T> clazz) throws NoSuchFieldException, IllegalAccessException {
         XMLObjectBuilderFactory builderFactory = Configuration.getBuilderFactory();
 
@@ -515,18 +506,6 @@ public class SAMLSSOServiceProviderDAO extends AbstractDAO<SAMLSSOServiceProvide
         return (T) builderFactory.getBuilder(defaultElementName).buildObject(defaultElementName);
     }
 
-    /**
-     * create a metadata extension object of given type
-     *
-     * @param clazz
-     * @param builder
-     * @param useFullyQualifiedUsernameMarshaller
-     * @param useFullyQualifiedUsernameUnmarshaller
-     * @param <T>
-     * @return
-     * @throws NoSuchFieldException
-     * @throws IllegalAccessException
-     */
     private <T> T createSAMLExtensionObject(final Class<T> clazz, AbstractSAMLObjectBuilder builder,
                                             AbstractSAMLObjectMarshaller useFullyQualifiedUsernameMarshaller,
                                             AbstractSAMLObjectUnmarshaller useFullyQualifiedUsernameUnmarshaller)
@@ -540,12 +519,6 @@ public class SAMLSSOServiceProviderDAO extends AbstractDAO<SAMLSSOServiceProvide
         return (T) builderFactory.getBuilder(defaultElementName).buildObject(defaultElementName);
     }
 
-    /**
-     * create the metadata string from the opensaml metadata object
-     *
-     * @param entityDescriptor
-     * @return
-     */
     private String getMetadataString(EntityDescriptor entityDescriptor) throws IdentityException {
 
         String metadataXML;
@@ -578,6 +551,13 @@ public class SAMLSSOServiceProviderDAO extends AbstractDAO<SAMLSSOServiceProvide
         return metadataXML;
     }
 
+    /**
+     * persist the the service provider in registry
+     *
+     * @param serviceProviderDO
+     * @return
+     * @throws IdentityException
+     */
     public boolean addServiceProvider(SAMLSSOServiceProviderDO serviceProviderDO) throws IdentityException {
 
         String path = null;
@@ -667,55 +647,58 @@ public class SAMLSSOServiceProviderDAO extends AbstractDAO<SAMLSSOServiceProvide
         SAMLSSOServiceProviderDO serviceProviderDO = new SAMLSSOServiceProviderDO();
         serviceProviderDO = convertMetadataObjectToServiceProviderDO(entityDescriptor, serviceProviderDO);
 
-        String path = null;
-        Resource resource;
+        if (serviceProviderDO.getIssuer() != null && serviceProviderDO.getAssertionConsumerUrl() != null){
+            String path = IdentityRegistryResources.SAML_SSO_SERVICE_PROVIDERS + encodePath(serviceProviderDO
+                    .getIssuer());
+            Resource resource;
 
-        if (serviceProviderDO.getIssuer() != null) {
-            path = IdentityRegistryResources.SAML_SSO_SERVICE_PROVIDERS + encodePath(serviceProviderDO.getIssuer());
-        }
-
-        boolean isTransactionStarted = Transaction.isStarted();
-        try {
-            if (registry.resourceExists(path)) {
-                if (log.isDebugEnabled()) {
-                    log.debug("Service Provider already exists with the same issuer name" + serviceProviderDO
-                            .getIssuer());
-                }
-                throw new IdentityException("Service provider already exists");
-            }
-
-            resource = registry.newResource();
-
-            String metadataString = getMetadataString(entityDescriptor);
-            log.info(metadataString);
-            resource.setContent(metadataString.getBytes());
-
+            boolean isTransactionStarted = Transaction.isStarted();
             try {
-                if (!isTransactionStarted) {
-                    registry.beginTransaction();
+                if (registry.resourceExists(path)) {
+                    if (log.isDebugEnabled()) {
+                        log.debug("Service Provider already exists with the same issuer name" + serviceProviderDO
+                                .getIssuer());
+                    }
+                    throw new IdentityException("Service provider already exists");
                 }
 
-                registry.put(path + "/initial", resource);
-                registry.put(path + "/editable", resource);
+                resource = registry.newResource();
 
-                if (!isTransactionStarted) {
-                    registry.commitTransaction();
+                String metadataString = getMetadataString(entityDescriptor);
+                log.info(metadataString);
+                resource.setContent(metadataString.getBytes());
+
+                try {
+                    if (!isTransactionStarted) {
+                        registry.beginTransaction();
+                    }
+
+                    registry.put(path + "/initial", resource);
+                    registry.put(path + "/editable", resource);
+
+                    if (!isTransactionStarted) {
+                        registry.commitTransaction();
+                    }
+
+                } catch (RegistryException e) {
+                    if (!isTransactionStarted) {
+                        registry.rollbackTransaction();
+                    }
+                    throw e;
                 }
 
             } catch (RegistryException e) {
-                if (!isTransactionStarted) {
-                    registry.rollbackTransaction();
-                }
-                throw e;
+                throw new IdentityException("Error while adding Service Provider.", e);
             }
 
-        } catch (RegistryException e) {
-            throw new IdentityException("Error while adding Service Provider", e);
+            if (log.isDebugEnabled()) {
+                log.debug("Service Provider " + serviceProviderDO.getIssuer() + " is added successfully.");
+            }
+        }else {
+            throw new IdentityException("Invalid Service Provider Metadata.");
         }
 
-        if (log.isDebugEnabled()) {
-            log.debug("Service Provider " + serviceProviderDO.getIssuer() + " is added successfully.");
-        }
+
         return serviceProviderDO;
 
     }
@@ -742,21 +725,15 @@ public class SAMLSSOServiceProviderDAO extends AbstractDAO<SAMLSSOServiceProvide
                 resource = registry.newResource();
                 if (serviceProviderDO.getNameIdClaimUri() != null
                         && serviceProviderDO.getNameIdClaimUri().trim().length() > 0) {
-                    resource.addProperty(
-                            IdentityRegistryResources.PROP_SAML_SSO_ENABLE_NAMEID_CLAIMURI,
-                            "true");
-                    resource.addProperty(
-                            IdentityRegistryResources.PROP_SAML_SSO_NAMEID_CLAIMURI,
-                            serviceProviderDO.getNameIdClaimUri());
+                    resource.addProperty(IdentityRegistryResources.PROP_SAML_SSO_ENABLE_NAMEID_CLAIMURI, "true");
+                    resource.addProperty(IdentityRegistryResources.PROP_SAML_SSO_NAMEID_CLAIMURI, serviceProviderDO
+                            .getNameIdClaimUri());
                 } else {
-                    resource.addProperty(
-                            IdentityRegistryResources.PROP_SAML_SSO_ENABLE_NAMEID_CLAIMURI,
-                            "false");
+                    resource.addProperty(IdentityRegistryResources.PROP_SAML_SSO_ENABLE_NAMEID_CLAIMURI, "false");
                 }
 
                 if (serviceProviderDO.getAttributeConsumingServiceIndex() != null) {
-                    resource.addProperty(
-                            IdentityRegistryResources.PROP_SAML_SSO_ATTRIB_CONSUMING_SERVICE_INDEX,
+                    resource.addProperty(IdentityRegistryResources.PROP_SAML_SSO_ATTRIB_CONSUMING_SERVICE_INDEX,
                             serviceProviderDO.getAttributeConsumingServiceIndex());
                 }
 
