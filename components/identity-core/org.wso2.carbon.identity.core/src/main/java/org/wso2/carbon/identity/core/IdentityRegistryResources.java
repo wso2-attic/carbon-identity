@@ -141,7 +141,7 @@ public class IdentityRegistryResources {
     public static final String PROP_SAML_SSO_NAMEID_CLAIMURI = "NameIDClaimUri";
     public static final String PROP_SAML_SSO_NAMEID_FORMAT = "NameIDFormat";
     public static final String PROP_SAML_SSO_IDP_INIT_SSO_ENABLED = "IdPInitSSOEnabled";
-    public static final String PROP_SAML_SSO_ENABLE_ENCRYPTED_ASSERTION = "enableEncryptedAssertion";
+    public static final String PROP_SAML_SSO_ENABLE_ENCRYPTED_ASSERTION = "doEnableEncryptedAssertion";
     public static final String PROP_SAML_SSO_VALIDATE_SIGNATURE_IN_REQUESTS = "doValidateSignatureInRequests";
 
 

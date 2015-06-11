@@ -209,7 +209,7 @@ public class SAMLSSOServiceProviderDAO extends AbstractDAO<SAMLSSOServiceProvide
                     //Enable audience Restriction
                     List<Audience> audiences = ((RequestedAudiences) extension).getAudiences();
 
-                    if (audiences != null && audiences.size() > 0) {
+                    if (CollectionUtils.isNotEmpty(audiences)) {
                         List<String> audiencesString = new ArrayList<>();
                         for (Audience audience : audiences) {
                             audiencesString.add(audience.getAudience());
@@ -219,7 +219,7 @@ public class SAMLSSOServiceProviderDAO extends AbstractDAO<SAMLSSOServiceProvide
                 } else if (extension instanceof RequestedRecipients) {
                     //Enable recipient Validation
                     List<Recipient> recipients = ((RequestedRecipients) extension).getRecipients();
-                    if (recipients != null && recipients.size() > 0) {
+                    if (CollectionUtils.isNotEmpty(recipients)) {
                         List<String> recipientString = new ArrayList<>();
                         for (Recipient recipient : recipients) {
                             recipientString.add(recipient.getRecipient());
@@ -302,7 +302,7 @@ public class SAMLSSOServiceProviderDAO extends AbstractDAO<SAMLSSOServiceProvide
             List<KeyDescriptor> keyDescriptors = spssoDescriptor.getKeyDescriptors();
             if (CollectionUtils.isNotEmpty(keyDescriptors)) {
                 List<KeyName> keyInfo = keyDescriptors.get(0).getKeyInfo().getKeyNames();
-                if (keyInfo.size() > 0) {
+                if (CollectionUtils.isNotEmpty(keyInfo)) {
                     KeyName keyName = keyDescriptors.get(0).getKeyInfo().getKeyNames().get(0);
                     samlssoServiceProviderDO.setCertAlias(keyName.getValue());
                 }
@@ -395,8 +395,7 @@ public class SAMLSSOServiceProviderDAO extends AbstractDAO<SAMLSSOServiceProvide
             idPInitSSOEnabled.setIdPInitSSOEnabled(samlssoServiceProviderDO.isIdPInitSSOEnabled());
             extensions.getUnknownXMLObjects().add(idPInitSSOEnabled);
 
-            if (samlssoServiceProviderDO.getRequestedAudiencesList() != null
-                    && samlssoServiceProviderDO.getRequestedAudiencesList().size() > 0) {
+            if (CollectionUtils.isNotEmpty(samlssoServiceProviderDO.getRequestedAudiencesList())) {
                 //set audiences
                 RequestedAudiences requestedAudiences = createSAMLExtensionObject(RequestedAudiences.class, new
                         RequestedAudiencesBuilder(), new RequestedAudiencesMarshaller(), new
@@ -409,8 +408,7 @@ public class SAMLSSOServiceProviderDAO extends AbstractDAO<SAMLSSOServiceProvide
                 }
                 extensions.getUnknownXMLObjects().add(requestedAudiences);
             }
-            if (samlssoServiceProviderDO.getRequestedRecipientsList() != null
-                    && samlssoServiceProviderDO.getRequestedRecipientsList().size() > 0) {
+            if (CollectionUtils.isNotEmpty(samlssoServiceProviderDO.getRequestedRecipientsList())) {
                 //set recipients
                 RequestedRecipients requestedRecipients = createSAMLExtensionObject(RequestedRecipients.class, new
                         RequestedRecipientsBuilder(), new RequestedRecipientsMarshaller(), new
