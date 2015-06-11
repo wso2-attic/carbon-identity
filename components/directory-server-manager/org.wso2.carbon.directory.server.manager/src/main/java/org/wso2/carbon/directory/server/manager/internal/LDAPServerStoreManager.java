@@ -19,6 +19,7 @@
 package org.wso2.carbon.directory.server.manager.internal;
 
 import org.apache.axiom.om.util.Base64;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.directory.server.manager.DirectoryServerManagerException;
@@ -39,7 +40,6 @@ import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -98,8 +98,7 @@ public class LDAPServerStoreManager {
 
         log.info("Using service password format - " + regularExpression);
 
-        return password != null && password.length() >= 1 &&
-               isFormatCorrect(regularExpression, password);
+        return StringUtils.isNotEmpty(password) && isFormatCorrect(regularExpression, password);
 
     }
 
@@ -323,7 +322,7 @@ public class LDAPServerStoreManager {
         //Since we are using the KDC, we will always use plain text password.
         //KDC does not support other types of passwords
         String password = getPasswordToStore((String) credential,
-                LDAPServerManagerConstants.PASSWORD_HASH_METHOD_PLAIN_TEXT);
+                                             LDAPServerManagerConstants.PASSWORD_HASH_METHOD_PLAIN_TEXT);
 
         userPassword.add(password.getBytes());
         basicAttributes.put(userPassword);
@@ -500,7 +499,7 @@ public class LDAPServerStoreManager {
                 }
             } catch (NamingException e) {
                 log.error("Unable to retrieve old password details.", e);
-                throw new DirectoryServerManagerException("Could not find old password details", e);
+                throw new DirectoryServerManagerException("Could not find old password details");
             }
         }
 
@@ -598,7 +597,7 @@ public class LDAPServerStoreManager {
                 String passwordHashMethod = null;
                 if (passwords.hasMore()) {
                     byte[] byteArray = (byte[]) passwords.next();
-                    String password = new String(byteArray, Charset.forName("UTF-8"));
+                    String password = new String(byteArray, StandardCharsets.UTF_8);
 
                     if (password.startsWith("{")) {
                         passwordHashMethod = password.substring(password.indexOf("{") + 1, password.indexOf("}"));
