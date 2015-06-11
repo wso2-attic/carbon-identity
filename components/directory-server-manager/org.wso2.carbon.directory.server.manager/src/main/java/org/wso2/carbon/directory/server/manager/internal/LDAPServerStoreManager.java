@@ -487,7 +487,7 @@ public class LDAPServerStoreManager {
 
                 if (passwords.hasMore()) {
                     byte[] byteArray = (byte[]) passwords.next();
-                    String password = new String(byteArray, java.nio.charset.StandardCharsets.UTF_8);
+                    String password = new String(byteArray, StandardCharsets.UTF_8);
 
                     if (password.startsWith("{")) {
                         passwordHashMethod = password.substring(password.indexOf("{") + 1, password.indexOf("}"));
