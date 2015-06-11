@@ -37,7 +37,7 @@ public class SCIMCommonUtils {
 
     //this is temporary - until persisted in DB
     private static Map<String, List<SCIMProviderDTO>> providers =
-            new HashMap<String, List<SCIMProviderDTO>>();
+            new HashMap<>();
     private static String scimGroupLocation;
     private static String scimUserLocation;
     /**

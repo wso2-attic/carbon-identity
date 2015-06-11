@@ -51,7 +51,13 @@ import org.wso2.charon.core.objects.User;
 import org.wso2.charon.core.provisioning.ProvisioningHandler;
 import org.wso2.charon.core.schema.SCIMConstants;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -193,8 +199,8 @@ public class SCIMUserManager implements UserManager {
                 return null;
             } else {
                 //get claims related to SCIM claim dialect
-                claims = carbonClaimManager.getAllClaimMappings(SCIMCommonUtils.SCIM_CLAIM_DIALECT);
-                List<String> claimURIList = new ArrayList<String>();
+                claims = carbonClaimManager.getAllClaimMappings(SCIMCommonConstants.SCIM_CLAIM_DIALECT);
+                List<String> claimURIList = new ArrayList<>();
                 for (ClaimMapping claim : claims) {
                     claimURIList.add(claim.getClaim().getClaimUri());
                 }
@@ -215,13 +221,13 @@ public class SCIMUserManager implements UserManager {
     public List<User> listUsers() throws CharonException {
 
         ClaimMapping[] claims;
-        List<User> users = new ArrayList<User>();
+        List<User> users = new ArrayList<>();
         try {
             String[] userNames = carbonUM.getUserList(SCIMConstants.ID_URI, "*", null);
             if (userNames != null && userNames.length != 0) {
                 //get claims related to SCIM claim dialect
-                claims = carbonClaimManager.getAllClaimMappings(SCIMCommonUtils.SCIM_CLAIM_DIALECT);
-                List<String> claimURIList = new ArrayList<String>();
+                claims = carbonClaimManager.getAllClaimMappings(SCIMCommonConstants.SCIM_CLAIM_DIALECT);
+                List<String> claimURIList = new ArrayList<>();
                 for (ClaimMapping claim : claims) {
                     claimURIList.add(claim.getClaim().getClaimUri());
                 }
@@ -255,7 +261,7 @@ public class SCIMUserManager implements UserManager {
             log.debug("Listing users by filter: " + attributeName + filterOperation +
                     attributeValue);
         }
-        List<User> filteredUsers = new ArrayList<User>();
+        List<User> filteredUsers = new ArrayList<>();
         ClaimMapping[] claims;
         User scimUser = null;
         try {
@@ -279,8 +285,8 @@ public class SCIMUserManager implements UserManager {
                 return Collections.emptyList();
             } else {
                 //get claims related to SCIM claim dialect
-                claims = carbonClaimManager.getAllClaimMappings(SCIMCommonUtils.SCIM_CLAIM_DIALECT);
-                List<String> claimURIList = new ArrayList<String>();
+                claims = carbonClaimManager.getAllClaimMappings(SCIMCommonConstants.SCIM_CLAIM_DIALECT);
+                List<String> claimURIList = new ArrayList<>();
                 for (ClaimMapping claim : claims) {
                     claimURIList.add(claim.getClaim().getClaimUri());
                 }
@@ -481,7 +487,7 @@ public class SCIMUserManager implements UserManager {
                 List<String> userIds = group.getMembers();
                 List<String> userDisplayNames = group.getMembersWithDisplayName();
                 if (CollectionUtils.isNotEmpty(userIds)) {
-                    List<String> members = new ArrayList<String>();
+                    List<String> members = new ArrayList<>();
                     for (String userId : userIds) {
                         String[] userNames = carbonUM.getUserList(SCIMConstants.ID_URI, userId,
                                 UserCoreConstants.DEFAULT_PROFILE);
@@ -571,7 +577,7 @@ public class SCIMUserManager implements UserManager {
 
     @Override
     public List<Group> listGroups() throws CharonException {
-        List<Group> groupList = new ArrayList<Group>();
+        List<Group> groupList = new ArrayList<>();
         try {
             SCIMGroupHandler groupHandler = new SCIMGroupHandler(carbonUM.getTenantId());
             Set<String> roleNames = groupHandler.listSCIMRoles();
@@ -604,7 +610,7 @@ public class SCIMUserManager implements UserManager {
             log.debug("Listing groups with filter: " + filterAttribute + filterOperation +
                     attributeValue);
         }
-        List<Group> filteredGroups = new ArrayList<Group>();
+        List<Group> filteredGroups = new ArrayList<>();
         Group group = null;
         try {
             if (attributeValue != null && carbonUM.isExistingRole(attributeValue, false)) {
@@ -668,7 +674,7 @@ public class SCIMUserManager implements UserManager {
                         "Hence, operation is not persisted, it will only be provisioned.");
             }
             //add old role name details.
-            Map<String, Object> additionalInformation = new HashMap<String, Object>();
+            Map<String, Object> additionalInformation = new HashMap<>();
             additionalInformation.put(SCIMCommonConstants.IS_ROLE_NAME_CHANGED_ON_UPDATE, true);
             additionalInformation.put(SCIMCommonConstants.OLD_GROUP_NAME, oldGroup.getDisplayName());
 
@@ -752,8 +758,8 @@ public class SCIMUserManager implements UserManager {
                 List<String> newMembers = newGroup.getMembersWithDisplayName();
                 if (newMembers != null) {
 
-                    List<String> addedMembers = new ArrayList<String>();
-                    List<String> deletedMembers = new ArrayList<String>();
+                    List<String> addedMembers = new ArrayList<>();
+                    List<String> deletedMembers = new ArrayList<>();
 
                     //check for deleted members
                     if (CollectionUtils.isNotEmpty(oldMembers)) {
@@ -789,9 +795,7 @@ public class SCIMUserManager implements UserManager {
                             ". Therefore ignoring the provisioning.");
                 }
 
-            } catch (UserStoreException e) {
-                throw new CharonException("Error occurred while updating old group : " + oldGroup.getDisplayName(), e);
-            } catch (IdentitySCIMException e) {
+            } catch (UserStoreException | IdentitySCIMException e) {
                 throw new CharonException("Error occurred while updating old group : " + oldGroup.getDisplayName(), e);
             }
             return newGroup;
@@ -826,7 +830,7 @@ public class SCIMUserManager implements UserManager {
                         + "Hence, operation is not persisted, it will only be provisioned.");
             }
             // add old role name details.
-            Map<String, Object> additionalInformation = new HashMap<String, Object>();
+            Map<String, Object> additionalInformation = new HashMap<>();
             additionalInformation.put(SCIMCommonConstants.IS_ROLE_NAME_CHANGED_ON_UPDATE, true);
             additionalInformation.put(SCIMCommonConstants.OLD_GROUP_NAME, oldGroup.getDisplayName());
 
@@ -901,8 +905,8 @@ public class SCIMUserManager implements UserManager {
                 List<String> deleteRequestedMembers =
                         newGroup.getMembersWithDisplayName(SCIMConstants.CommonSchemaConstants.OPERATION_DELETE);
 
-                List<String> addedMembers = new ArrayList<String>();
-                List<String> deletedMembers = new ArrayList<String>();
+                List<String> addedMembers = new ArrayList<>();
+                List<String> deletedMembers = new ArrayList<>();
 
                 if (addRequestedMembers.isEmpty() && deleteRequestedMembers.isEmpty()) {
                     String users[] = carbonUM.getUserListOfRole(newGroup.getDisplayName());
@@ -985,9 +989,7 @@ public class SCIMUserManager implements UserManager {
                     }
                     throw new NotFoundException();
                 }
-            } catch (UserStoreException e) {
-                throw new CharonException("Error occurred while deleting group " + groupId, e);
-            } catch (IdentitySCIMException e) {
+            } catch (UserStoreException | IdentitySCIMException e) {
                 throw new CharonException("Error occurred while deleting group " + groupId, e);
             }
         }
@@ -995,7 +997,7 @@ public class SCIMUserManager implements UserManager {
 
     private User getSCIMMetaUser(String userName) throws CharonException {
 
-        List<String> claimURIList = new ArrayList<String>();
+        List<String> claimURIList = new ArrayList<>();
         claimURIList.add(SCIMConstants.ID_URI);
         claimURIList.add(SCIMConstants.META_LOCATION_URI);
         claimURIList.add(SCIMConstants.META_CREATED_URI);
@@ -1008,17 +1010,10 @@ public class SCIMUserManager implements UserManager {
             attributes.put(SCIMConstants.USER_NAME_URI, userName);
             scimUser = (User) AttributeMapper.constructSCIMObjectFromAttributes(
                     attributes, SCIMConstants.USER_INT);
-        } catch (UserStoreException e) {
+        } catch (UserStoreException | CharonException | NotFoundException e) {
             throw new CharonException("Error in getting user information from Carbon User Store for " +
                     "user: " + userName + " ", e);
-        } catch (CharonException e) {
-            throw new CharonException("Error in getting user information from Carbon User Store for " +
-                    "user: " + userName, e);
-        } catch (NotFoundException e) {
-            throw new CharonException("Error in getting user information from Carbon User Store for " +
-                    "user: " + userName, e);
         }
-
         return scimUser;
     }
 
@@ -1059,14 +1054,8 @@ public class SCIMUserManager implements UserManager {
                     scimUser.setGroup(null, group.getId(), role);
                 }
             }
-        } catch (UserStoreException e) {
+        } catch (UserStoreException | CharonException | NotFoundException | IdentitySCIMException e) {
             throw new CharonException("Error in getting user information for user: " + userName, e);
-        } catch (CharonException e) {
-            throw new CharonException("Error in getting user information for user: " + userName, e);
-        } catch (NotFoundException e) {
-            throw new CharonException("Error in getting user information for user: " + userName, e);
-        } catch (IdentitySCIMException e) {
-            throw new CharonException("Error in getting group information for user: " + userName, e);
         }
         return scimUser;
     }
@@ -1158,11 +1147,7 @@ public class SCIMUserManager implements UserManager {
                 throw new CharonException("Server is operating in dumb mode, " +
                         "but no provisioning connectors are registered.");
             }
-        } catch (ClassNotFoundException e) {
-            throw new CharonException("Error in initializing provisioning handler", e);
-        } catch (InstantiationException e) {
-            throw new CharonException("Error in initializing provisioning handler", e);
-        } catch (IllegalAccessException e) {
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
             throw new CharonException("Error in initializing provisioning handler", e);
         }
     }
