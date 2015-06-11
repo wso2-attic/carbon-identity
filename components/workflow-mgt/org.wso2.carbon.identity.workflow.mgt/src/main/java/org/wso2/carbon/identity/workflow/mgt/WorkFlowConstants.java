@@ -40,7 +40,7 @@ public class WorkFlowConstants {
 
     public static class TemplateConstants {
 
-        public static final String APPROVAL_TEMPLATE_NAME = "SimpleApproval";
+        public static final String APPROVAL_TEMPLATE_ID = "SimpleApproval";
         public static final String SIMPLE_APPROVAL_ROLE_NAME = "RoleName";
         public static final String BPEL_IMPL_BPS_PROFILE = "BPELEngineProfile";
 

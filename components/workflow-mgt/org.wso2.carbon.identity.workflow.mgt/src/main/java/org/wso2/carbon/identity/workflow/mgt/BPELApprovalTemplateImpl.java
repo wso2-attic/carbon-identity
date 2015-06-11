@@ -41,8 +41,8 @@ public class BPELApprovalTemplateImpl extends AbstractWorkflowTemplateImpl {
                 {WorkFlowConstants.TemplateConstants.HT_SUBJECT, "Approval Request Subject",
                         WorkflowTemplateParamType.STRING, "Approval required", true},
                 {WorkFlowConstants.TemplateConstants.HT_DESCRIPTION, "Approval Request Body",
-                        WorkflowTemplateParamType.STRING, "A request has been made with following details. Please " +
-                        "approve to proceed.", true},
+                        WorkflowTemplateParamType.LONG_STRING,
+                        "A request has been made with following details. Please approve to proceed.", true},
         };
         PARAMETER_DEFINITIONS = new TemplateParameterDef[paramDef.length];
         for (int i = 0; i < paramDef.length; i++) {
@@ -80,7 +80,7 @@ public class BPELApprovalTemplateImpl extends AbstractWorkflowTemplateImpl {
         Map<String, Object> bpelProfileParams = workflowService.getBPSProfileParams(
                 (String) initParams.get(WorkFlowConstants.TemplateConstants.BPEL_IMPL_BPS_PROFILE));
         initParams.putAll(bpelProfileParams);
-        initParams.put(WorkFlowConstants.TemplateConstants.SERVICE_ACTION,WorkFlowConstants.TemplateConstants
+        initParams.put(WorkFlowConstants.TemplateConstants.SERVICE_ACTION, WorkFlowConstants.TemplateConstants
                 .DEFAULT_APPROVAL_BPEL_SOAP_ACTION);
         super.initializeExecutor(initParams);
     }
@@ -88,7 +88,7 @@ public class BPELApprovalTemplateImpl extends AbstractWorkflowTemplateImpl {
     @Override
     public String getTemplateId() {
 
-        return WorkFlowConstants.TemplateConstants.APPROVAL_TEMPLATE_NAME;
+        return WorkFlowConstants.TemplateConstants.APPROVAL_TEMPLATE_ID;
     }
 
     @Override

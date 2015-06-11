@@ -20,8 +20,8 @@
                   xmlns:ax2393="http://exception.mgt.workflow.identity.carbon.wso2.org/xsd"
                   xmlns:ns="http://mgt.workflow.identity.carbon.wso2.org/xsd"
                   xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl"
-                  xmlns:tns="http://mgt.workflow.identity.carbon.wso2.org"
                   xmlns:http="http://schemas.xmlsoap.org/wsdl/http/"
+                  xmlns:tns="http://mgt.workflow.identity.carbon.wso2.org"
                   xmlns:ax2395="http://bean.mgt.workflow.identity.carbon.wso2.org/xsd"
                   xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
                   xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/"
@@ -115,6 +115,14 @@
                     <xs:element minOccurs="0" name="workflowDescription" nillable="true" type="xs:string"/>
                     <xs:element minOccurs="0" name="workflowId" nillable="true" type="xs:string"/>
                     <xs:element minOccurs="0" name="workflowName" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="AssociationDTO">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="associationId" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="condition" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="eventId" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="eventName" nillable="true" type="xs:string"/>
                 </xs:sequence>
             </xs:complexType>
         </xs:schema>
@@ -258,6 +266,21 @@
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
+            <xs:element name="getAssociationsForWorkflow">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="workflowId" nillable="true" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getAssociationsForWorkflowResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true"
+                                    type="ax2395:AssociationDTO"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
             <xs:element name="addAssociation">
                 <xs:complexType>
                     <xs:sequence>
@@ -276,6 +299,15 @@
             </xs:element>
         </xs:schema>
     </wsdl:types>
+    <wsdl:message name="getAssociationsForWorkflowRequest">
+        <wsdl:part name="parameters" element="ns:getAssociationsForWorkflow"/>
+    </wsdl:message>
+    <wsdl:message name="getAssociationsForWorkflowResponse">
+        <wsdl:part name="parameters" element="ns:getAssociationsForWorkflowResponse"/>
+    </wsdl:message>
+    <wsdl:message name="WorkflowAdminServiceWorkflowException">
+        <wsdl:part name="parameters" element="ns:WorkflowAdminServiceWorkflowException"/>
+    </wsdl:message>
     <wsdl:message name="getTemplateDTORequest">
         <wsdl:part name="parameters" element="ns:getTemplateDTO"/>
     </wsdl:message>
@@ -284,9 +316,6 @@
     </wsdl:message>
     <wsdl:message name="addBPSProfileRequest">
         <wsdl:part name="parameters" element="ns:addBPSProfile"/>
-    </wsdl:message>
-    <wsdl:message name="WorkflowAdminServiceWorkflowException">
-        <wsdl:part name="parameters" element="ns:WorkflowAdminServiceWorkflowException"/>
     </wsdl:message>
     <wsdl:message name="removeBPSProfileRequest">
         <wsdl:part name="parameters" element="ns:removeBPSProfile"/>
@@ -337,6 +366,13 @@
         <wsdl:part name="parameters" element="ns:removeWorkflow"/>
     </wsdl:message>
     <wsdl:portType name="WorkflowAdminServicePortType">
+        <wsdl:operation name="getAssociationsForWorkflow">
+            <wsdl:input message="tns:getAssociationsForWorkflowRequest" wsaw:Action="urn:getAssociationsForWorkflow"/>
+            <wsdl:output message="tns:getAssociationsForWorkflowResponse"
+                         wsaw:Action="urn:getAssociationsForWorkflowResponse"/>
+            <wsdl:fault message="tns:WorkflowAdminServiceWorkflowException" name="WorkflowAdminServiceWorkflowException"
+                        wsaw:Action="urn:getAssociationsForWorkflowWorkflowAdminServiceWorkflowException"/>
+        </wsdl:operation>
         <wsdl:operation name="getTemplateDTO">
             <wsdl:input message="tns:getTemplateDTORequest" wsaw:Action="urn:getTemplateDTO"/>
             <wsdl:output message="tns:getTemplateDTOResponse" wsaw:Action="urn:getTemplateDTOResponse"/>
@@ -403,6 +439,18 @@
     </wsdl:portType>
     <wsdl:binding name="WorkflowAdminServiceSoap11Binding" type="tns:WorkflowAdminServicePortType">
         <soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
+        <wsdl:operation name="getAssociationsForWorkflow">
+            <soap:operation soapAction="urn:getAssociationsForWorkflow" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="WorkflowAdminServiceWorkflowException">
+                <soap:fault use="literal" name="WorkflowAdminServiceWorkflowException"/>
+            </wsdl:fault>
+        </wsdl:operation>
         <wsdl:operation name="getTemplateDTO">
             <soap:operation soapAction="urn:getTemplateDTO" style="document"/>
             <wsdl:input>
@@ -529,6 +577,18 @@
     </wsdl:binding>
     <wsdl:binding name="WorkflowAdminServiceSoap12Binding" type="tns:WorkflowAdminServicePortType">
         <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
+        <wsdl:operation name="getAssociationsForWorkflow">
+            <soap12:operation soapAction="urn:getAssociationsForWorkflow" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="WorkflowAdminServiceWorkflowException">
+                <soap12:fault use="literal" name="WorkflowAdminServiceWorkflowException"/>
+            </wsdl:fault>
+        </wsdl:operation>
         <wsdl:operation name="getTemplateDTO">
             <soap12:operation soapAction="urn:getTemplateDTO" style="document"/>
             <wsdl:input>
@@ -655,6 +715,15 @@
     </wsdl:binding>
     <wsdl:binding name="WorkflowAdminServiceHttpBinding" type="tns:WorkflowAdminServicePortType">
         <http:binding verb="POST"/>
+        <wsdl:operation name="getAssociationsForWorkflow">
+            <http:operation location="getAssociationsForWorkflow"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:output>
+        </wsdl:operation>
         <wsdl:operation name="getTemplateDTO">
             <http:operation location="getTemplateDTO"/>
             <wsdl:input>

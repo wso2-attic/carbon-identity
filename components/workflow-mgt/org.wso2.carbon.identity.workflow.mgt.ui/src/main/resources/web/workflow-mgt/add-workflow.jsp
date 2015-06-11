@@ -114,6 +114,7 @@
         var eventObj = {};
         eventObj.displayName = "<%=event.getFriendlyName()%>";
         eventObj.value = "<%=event.getId()%>";
+        eventObj.title = "<%=event.getDescription()!=null?event.getDescription():""%>";
         eventsObj["<%=eventCategory.getKey()%>"].push(eventObj);
         <%
                     }
@@ -129,6 +130,7 @@
                 var opt = document.createElement("option");
                 opt.text = eventsOfCategory[i].displayName;
                 opt.value = eventsOfCategory[i].value;
+                opt.title = eventsOfCategory[i].title;
                 actionDropdown.options.add(opt);
             }
         }
@@ -151,6 +153,11 @@
                                 <tr>
                                     <td><fmt:message key='workflow.name'/></td>
                                     <td><input type="text" name="<%=WorkflowUIConstants.PARAM_WORKFLOW_NAME%>"/></td>
+                                </tr>
+                                <tr>
+                                    <td><fmt:message key='workflow.description'/></td>
+                                    <td><textarea name="<%=WorkflowUIConstants.PARAM_WORKFLOW_DESCRIPTION%>"></textarea>
+                                    </td>
                                 </tr>
                                 <tr>
                                     <td><fmt:message key='workflow.template'/></td>

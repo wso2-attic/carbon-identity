@@ -21,6 +21,7 @@ package org.wso2.carbon.identity.workflow.mgt;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.identity.workflow.mgt.bean.AssociationDTO;
 import org.wso2.carbon.identity.workflow.mgt.bean.BPSProfileBean;
 import org.wso2.carbon.identity.workflow.mgt.bean.EventBean;
 import org.wso2.carbon.identity.workflow.mgt.bean.Parameter;
@@ -76,7 +77,7 @@ public class WorkflowAdminService {
             log.error("Error occurred when deploying template " + deploymentDTO.getWorkflowName());
             throw new WorkflowException("Server error occurred when deploying the template");
         }
-}
+    }
 
     public void addBPSProfile(String profileName, String host, String user, String password) throws WorkflowException {
 
@@ -168,4 +169,20 @@ public class WorkflowAdminService {
             throw new WorkflowException("Server error occurred when removing association");
         }
     }
+
+    public AssociationDTO[] getAssociationsForWorkflow(String workflowId) throws WorkflowException {
+
+        List<AssociationDTO> associations;
+        try {
+            associations = service.getAssociationsForWorkflow(workflowId);
+        } catch (InternalWorkflowException e) {
+            log.error("Server error when listing associations for workflow id:" + workflowId, e);
+            throw new WorkflowException("Server error when listing associations");
+        }
+        if (CollectionUtils.isEmpty(associations)) {
+            return new AssociationDTO[0];
+        }
+        return associations.toArray(new AssociationDTO[associations.size()]);
+    }
+
 }

@@ -157,7 +157,7 @@ public class ApprovalBPELDeployer implements TemplateInitializer {
         placeHolderValues.put(Constants.BPS_HOST_NAME, bpsHost);
         placeHolderValues.put(Constants.CARBON_HOST_NAME, Constants.CARBON_HOST_URL);
         placeHolderValues.put(Constants.CARBON_CALLBACK_AUTH_USER, callBackUser);
-        placeHolderValues.put(Constants.CARBON_CALLBACK_AUTH_PASSWORD, new String(callBackUserPassword));
+        placeHolderValues.put(Constants.CARBON_CALLBACK_AUTH_PASSWORD, callBackUserPassword);
         placeHolderValues.put(Constants.HT_SUBJECT, htSubject);
         placeHolderValues.put(Constants.HT_DESCRIPTION, htBody);
         placeHolderValues.put(Constants.HT_OWNER_ROLE, role);

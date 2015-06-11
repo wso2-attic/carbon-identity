@@ -21,6 +21,7 @@ package org.wso2.carbon.identity.workflow.mgt;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.identity.workflow.mgt.bean.AssociationDTO;
 import org.wso2.carbon.identity.workflow.mgt.bean.BPSProfileBean;
 import org.wso2.carbon.identity.workflow.mgt.bean.EventBean;
 import org.wso2.carbon.identity.workflow.mgt.bean.Parameter;
@@ -40,6 +41,7 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -210,5 +212,22 @@ public class WorkflowService {
     public Map<String, Object> getBPSProfileParams(String profileName) throws WorkflowException {
 
         return bpsProfileDAO.getBPELProfileParams(profileName);
+    }
+
+    public List<AssociationDTO> getAssociationsForWorkflow(String workflowId) throws WorkflowException {
+
+        List<AssociationDTO> associations = workflowDAO.getAssociationsForWorkflow(workflowId);
+        for (Iterator<AssociationDTO> iterator = associations.iterator(); iterator.hasNext(); ) {
+            AssociationDTO association = iterator.next();
+            WorkflowRequestHandler requestHandler =
+                    WorkflowServiceDataHolder.getInstance().getRequestHandler(association.getEventId());
+            if (requestHandler != null) {
+                association.setEventName(requestHandler.getFriendlyName());
+            } else {
+                //invalid reference, probably event id is renamed or removed
+                iterator.remove();
+            }
+        }
+        return associations;
     }
 }

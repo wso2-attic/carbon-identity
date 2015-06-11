@@ -107,6 +107,18 @@
                 forwardTo = "../admin/error.jsp";
             }
         }
+    } else if (WorkflowUIConstants.ACTION_VALUE_DELETE_ASSOCIATION.equals(action)) {
+        String associationId =
+                CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_ASSOCIATION_ID));
+        String workflowId = CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_WORKFLOW_ID));
+        try {
+            client.deleteAssociation(associationId);
+            forwardTo = "view-workflow.jsp?" + WorkflowUIConstants.PARAM_WORKFLOW_ID + "=" + workflowId;
+        } catch (WorkflowAdminServiceWorkflowException e) {
+            String message = resourceBundle.getString("workflow.error.when.deleting.association");
+            CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
+            forwardTo = "../admin/error.jsp";
+        }
     }
 %>
 <script type="text/javascript">

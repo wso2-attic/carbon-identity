@@ -19,7 +19,10 @@
 package org.wso2.carbon.identity.workflow.mgt;
 
 public class WorkflowTemplateParamType {
+    public static final String INTEGER = "INTEGER";
+    public static final String DOUBLE = "DOUBLE";
     public static final String STRING = "STRING";
+    public static final String LONG_STRING = "TEXT";
     public static final String BOOLEAN = "BOOLEAN";
     public static final String PASSWORD = "PASSWORD";
     public static final String USER_ROLE = "USER_ROLE";

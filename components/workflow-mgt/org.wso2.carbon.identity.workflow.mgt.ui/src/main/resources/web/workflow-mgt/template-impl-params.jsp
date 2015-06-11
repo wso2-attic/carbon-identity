@@ -21,6 +21,7 @@
 <%@ page import="org.apache.axis2.AxisFault" %>
 <%@ page import="org.apache.axis2.context.ConfigurationContext" %>
 <%@ page import="org.wso2.carbon.CarbonConstants" %>
+<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.BPSProfileBean" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.TemplateImplDTO" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.TemplateParameterDef" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.WorkflowAdminServiceClient" %>
@@ -44,6 +45,7 @@
     String forwardTo = null;
     TemplateImplDTO templateImplDTO = null;
 
+    BPSProfileBean[] bpsProfiles = new BPSProfileBean[0];
     try {
         String cookie = (String) session.getAttribute(ServerConstants.ADMIN_SERVICE_COOKIE);
         String backendServerURL = CarbonUIUtil.getServerURL(config.getServletContext(), session);
@@ -52,6 +54,7 @@
                         .getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
         client = new WorkflowAdminServiceClient(cookie, backendServerURL, configContext);
         templateImplDTO = client.getTemplateImpDTO(template, templateImpl);
+        bpsProfiles = client.listBPSProfiles();
     } catch (AxisFault e) {
         String message = resourceBundle.getString("workflow.error.when.initiating.service.client");
         CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
@@ -124,8 +127,44 @@
                             <table class="normal">
                                 <%
                                     for (TemplateParameterDef parameter : templateImplDTO.getImplementationParams()) {
+                                        if (parameter != null) {
+                                %>
+                                <tr>
+                                    <td><%=parameter.getDisplayName()%>
+                                    </td>
+                                    <%
+                                        //Text areas
+                                        if (WorkflowUIConstants.ParamTypes.LONG_STRING
+                                                .equals(parameter.getParamType())) {
+                                    %>
+                                    <td><textarea name="imp-<%=parameter.getParamName()%>"
+                                                  title="<%=parameter.getDisplayName()%>"></textarea>
+                                    </td>
+                                    <%
+                                    } else if (WorkflowUIConstants.ParamTypes.BPS_PROFILE
+                                            .equals(parameter.getParamType())) {
+                                        //bps profiles
+                                    %>
+                                    <td><select name="imp-<%=parameter.getParamName()%>">
+                                        <%
+                                            for (BPSProfileBean bpsProfile : bpsProfiles) {
+                                                if (bpsProfile != null) {
+                                        %>
+                                        <option value="<%=bpsProfile.getProfileName()%>"><%=bpsProfile
+                                                .getProfileName()%>
+                                        </option>
+                                        <%
+                                                }
+                                            }
+                                        %>
+                                    </select>
+                                    </td>
+                                    <%
+                                    } else {
+                                        //other types
                                         String type = "text";
-                                        if (WorkflowUIConstants.ParamTypes.BOOLEAN.equals(parameter.getParamType())) {
+                                        if (WorkflowUIConstants.ParamTypes.BOOLEAN
+                                                .equals(parameter.getParamType())) {
                                             type = "checkbox";
                                         } else if (WorkflowUIConstants.ParamTypes.INTEGER
                                                 .equals(parameter.getParamType())) {
@@ -134,13 +173,16 @@
                                                 .equals(parameter.getParamType())) {
                                             type = "password";
                                         }
-//                            todo:handle 'required' value
-                                %>
-                                <tr>
-                                    <td><%=parameter.getParamName()%>
-                                    </td>
-                                        <%--Appending 'imp-' to differentiate dynamic params--%>
+                                    %>
+                                        <%--Appending 'p-' to differentiate dynamic params--%>
                                     <td><input name="imp-<%=parameter.getParamName()%>" type="<%=type%>"></td>
+                                    <%
+
+                                            }
+//                            todo:handle 'required' value
+
+                                        }
+                                    %>
                                 </tr>
                                 <%
                                     }

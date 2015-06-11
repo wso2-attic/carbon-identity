@@ -37,6 +37,7 @@ public class SQLConstants {
     public static final String PASSWORD_COLUMN = "PASSWORD";
 
     public static final String WORKFLOW_ID_COLUMN = "WORKFLOW_ID";
+    public static final String EVENT_ID_COLUMN = "EVENT_ID";
     public static final String PARAM_NAME_COLUMN = "PARAM_NAME";
     public static final String PARAM_VALUE_COLUMN = "PARAM_VALUE";
 
@@ -57,6 +58,9 @@ public class SQLConstants {
             "WF_WORKFLOW.TEMPLATE_ID, WF_WORKFLOW.IMPL_ID, WF_WORKFLOW_ASSOCIATION.CONDITION FROM WF_WORKFLOW, " +
             "WF_WORKFLOW_ASSOCIATION WHERE WF_WORKFLOW_ASSOCIATION.EVENT_ID = ? AND WF_WORKFLOW_ASSOCIATION" +
             ".WORKFLOW_ID = WF_WORKFLOW.ID";
+
+    public static final String GET_WORKFLOWS_FOR_WORKFLOW_QUERY = "SELECT ID, EVENT_ID, CONDITION FROM" +
+            "WF_WORKFLOW_ASSOCIATION WHERE WORKFLOW_ID = ?";
 
 //    public static final String GET_WORKFLOWS_FOR_EVENT_QUERY = "SELECT WORKFLOW_ID, CONDITION FROM " +
 //            "WF_WORKFLOW_ASSOCIATION WHERE EVENT_ID = ?";
@@ -86,6 +90,7 @@ public class SQLConstants {
     public static final String DELETE_BPS_PROFILES_QUERY = "DELETE FROM WF_BPS_PROFILE WHERE PROFILE_NAME = ?";
 
     private SQLConstants() {
+
     }
 
 }

@@ -28,9 +28,12 @@ public class WorkflowUIConstants {
     public static final String ACTION_VALUE_EDIT = "edit";
     public static final String ACTION_VALUE_DEPLOY = "deploy";
     public static final String ACTION_VALUE_DELETE = "delete";
+    public static final String ACTION_VALUE_DELETE_ASSOCIATION = "deleteAssociation";
 
     public static final String PARAM_WORKFLOW_NAME = "workflowName";
     public static final String PARAM_WORKFLOW_ID = "workflowId";
+    public static final String PARAM_ASSOCIATION_ID = "associationId";
+    public static final String PARAM_WORKFLOW_DESCRIPTION = "workflowDescription";
     public static final String PARAM_TEMPLATE_IMPL = "templateImpl";
     public static final String PARAM_WORKFLOW_TEMPLATE = "workflowTemplate";
     public static final String VALUE_EXISTING_SERVICE = "EXISTING";
@@ -57,10 +60,14 @@ public class WorkflowUIConstants {
     public static final int RESULTS_PER_PAGE = 20;
 
     public static class ParamTypes{
-        public static final String BOOLEAN = "BOOLEAN";
         public static final String INTEGER = "INTEGER";
         public static final String DOUBLE = "DOUBLE";
         public static final String STRING = "STRING";
+        public static final String LONG_STRING = "TEXT";
+        public static final String BOOLEAN = "BOOLEAN";
         public static final String PASSWORD = "PASSWORD";
+        public static final String USER_ROLE = "USER_ROLE";
+        public static final String USER_NAME = "USER_NAME";
+        public static final String BPS_PROFILE = "BPS_PROFILE";
     }
 }

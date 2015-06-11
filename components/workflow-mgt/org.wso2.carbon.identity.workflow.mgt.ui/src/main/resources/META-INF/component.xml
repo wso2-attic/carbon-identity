@@ -79,7 +79,7 @@
             <parent-menu>configure_menu</parent-menu>
             <link>#</link>
             <region>region1</region>
-            <order>50</order>
+            <order>60</order>
             <style-class>manage</style-class>
             <!--<icon>../tools-saml/images/lock_blue.png</icon>-->
             <require-permission>/permission/admin/configure/security</require-permission>

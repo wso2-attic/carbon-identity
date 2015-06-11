@@ -1,7 +1,7 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
-<%@ page import="org.apache.axis2.AxisFault" %>
 <%@ page import="org.apache.axis2.context.ConfigurationContext" %>
 <%@ page import="org.wso2.carbon.CarbonConstants" %>
+<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.BPSProfileBean" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.TemplateDTO" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.TemplateImplDTO" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.TemplateParameterDef" %>
@@ -40,6 +40,7 @@
     ResourceBundle resourceBundle = ResourceBundle.getBundle(bundle, request.getLocale());
     String forwardTo = null;
     TemplateDTO templateDTO = null;
+    BPSProfileBean[] bpsProfiles = new BPSProfileBean[0];
 
     try {
         String cookie = (String) session.getAttribute(ServerConstants.ADMIN_SERVICE_COOKIE);
@@ -49,7 +50,8 @@
                         .getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
         client = new WorkflowAdminServiceClient(cookie, backendServerURL, configContext);
         templateDTO = client.getTemplate(template);
-    } catch (AxisFault e) {
+        bpsProfiles = client.listBPSProfiles();
+    } catch (Exception e) {
         String message = resourceBundle.getString("workflow.error.when.initiating.service.client");
         CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
         forwardTo = "../admin/error.jsp";
@@ -106,27 +108,63 @@
                                 <%
                                     for (TemplateParameterDef parameter : templateDTO.getParameters()) {
                                         if (parameter != null) {
-                                            String type = "text";
-                                            if (WorkflowUIConstants.ParamTypes.BOOLEAN
-                                                    .equals(parameter.getParamType())) {
-                                                type = "checkbox";
-                                            } else if (WorkflowUIConstants.ParamTypes.INTEGER
-                                                    .equals(parameter.getParamType())) {
-                                                type = "number";
-                                            } else if (WorkflowUIConstants.ParamTypes.PASSWORD
-                                                    .equals(parameter.getParamType())) {
-                                                type = "password";
-                                            }
-//                            todo:handle 'required' value
                                 %>
                                 <tr>
-                                    <td><%=parameter.getParamName()%>
+                                    <td><%=parameter.getDisplayName()%>
                                     </td>
+                                    <%
+                                        //Text areas
+                                        if (WorkflowUIConstants.ParamTypes.LONG_STRING
+                                                .equals(parameter.getParamType())) {
+                                    %>
+                                    <td><textarea name="p-<%=parameter.getParamName()%>"
+                                                  title="<%=parameter.getDisplayName()%>"></textarea>
+                                    </td>
+                                    <%
+                                    } else if (WorkflowUIConstants.ParamTypes.BPS_PROFILE
+                                            .equals(parameter.getParamType())) {
+                                        //bps profiles
+                                    %>
+                                    <td><select name="p-<%=parameter.getParamName()%>">
+                                        <%
+                                            for (BPSProfileBean bpsProfile : bpsProfiles) {
+                                                if (bpsProfile != null) {
+                                        %>
+                                        <option value="<%=bpsProfile.getProfileName()%>"><%=bpsProfile
+                                                .getProfileName()%>
+                                        </option>
+                                        <%
+                                                }
+                                            }
+                                        %>
+                                    </select>
+                                    </td>
+                                    <%
+                                    } else {
+                                        //other types
+                                        String type = "text";
+                                        if (WorkflowUIConstants.ParamTypes.BOOLEAN
+                                                .equals(parameter.getParamType())) {
+                                            type = "checkbox";
+                                        } else if (WorkflowUIConstants.ParamTypes.INTEGER
+                                                .equals(parameter.getParamType())) {
+                                            type = "number";
+                                        } else if (WorkflowUIConstants.ParamTypes.PASSWORD
+                                                .equals(parameter.getParamType())) {
+                                            type = "password";
+                                        }
+                                    %>
                                         <%--Appending 'p-' to differentiate dynamic params--%>
                                     <td><input name="p-<%=parameter.getParamName()%>" type="<%=type%>"></td>
+                                    <%
+
+                                            }
+//                            todo:handle 'required' value
+
+                                        }
+                                    %>
                                 </tr>
                                 <%
-                                        }
                                     }
 
                                 %>

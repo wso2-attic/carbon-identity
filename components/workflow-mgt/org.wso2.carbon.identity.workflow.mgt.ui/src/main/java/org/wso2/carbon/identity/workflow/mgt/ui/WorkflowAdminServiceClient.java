@@ -26,6 +26,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.workflow.mgt.stub.WorkflowAdminServiceStub;
 import org.wso2.carbon.identity.workflow.mgt.stub.WorkflowAdminServiceWorkflowException;
+import org.wso2.carbon.identity.workflow.mgt.stub.bean.AssociationDTO;
 import org.wso2.carbon.identity.workflow.mgt.stub.bean.BPSProfileBean;
 import org.wso2.carbon.identity.workflow.mgt.stub.bean.EventBean;
 import org.wso2.carbon.identity.workflow.mgt.stub.bean.TemplateBean;
@@ -109,5 +110,13 @@ public class WorkflowAdminServiceClient {
 
     public void deleteWorkflow(String workflowId) throws RemoteException, WorkflowAdminServiceWorkflowException {
         stub.removeWorkflow(workflowId);
+    }
+
+    public AssociationDTO[] listAssociationsForWorkflow(String workflowId)
+            throws RemoteException, WorkflowAdminServiceWorkflowException {
+        return stub.getAssociationsForWorkflow(workflowId);
+    }
+    public void deleteAssociation(String associationId) throws RemoteException, WorkflowAdminServiceWorkflowException {
+        stub.removeAssociation(associationId);
     }
 }

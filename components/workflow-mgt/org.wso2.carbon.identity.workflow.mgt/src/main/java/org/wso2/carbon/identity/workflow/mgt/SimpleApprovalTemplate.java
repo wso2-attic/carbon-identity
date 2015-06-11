@@ -25,6 +25,7 @@ public class SimpleApprovalTemplate extends AbstractWorkflowTemplate {
     private static final TemplateParameterDef[] PARAMETER_DEFINITIONS;
     private static final String DESCRIPTION = "The operation should be approved by an authorized person with given " +
             "role, to complete.";
+    public static final String APPROVAL_TEMPLATE_NAME = "Simple Approval";
 
     static {
         TemplateParameterDef roleDef = new TemplateParameterDef();
@@ -37,21 +38,25 @@ public class SimpleApprovalTemplate extends AbstractWorkflowTemplate {
 
     @Override
     public TemplateParameterDef[] getParamDefinitions() {
+
         return PARAMETER_DEFINITIONS;
     }
 
     @Override
     public String getTemplateId() {
-        return WorkFlowConstants.TemplateConstants.APPROVAL_TEMPLATE_NAME;
+
+        return WorkFlowConstants.TemplateConstants.APPROVAL_TEMPLATE_ID;
     }
 
     @Override
     public String getFriendlyName() {
-        return WorkFlowConstants.TemplateConstants.APPROVAL_TEMPLATE_NAME;
+
+        return APPROVAL_TEMPLATE_NAME;
     }
 
     @Override
     public String getDescription() {
+
         return DESCRIPTION;
     }
 }
