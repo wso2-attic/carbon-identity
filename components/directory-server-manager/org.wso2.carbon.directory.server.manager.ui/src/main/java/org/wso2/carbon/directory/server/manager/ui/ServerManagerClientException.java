@@ -25,14 +25,14 @@ package org.wso2.carbon.directory.server.manager.ui;
 @SuppressWarnings({"UnusedDeclaration"})
 public class ServerManagerClientException extends Exception {
 
-    static final String LIST_SERVICE_PRINCIPLES_ERROR = "service.principle.list.error";
-    static final String ADD_SERVICE_PRINCIPLES_ERROR = "service.principle.add.error";
-    static final String REMOVE_SERVICE_PRINCIPLES_ERROR = "service.principle.remove.error";
-    static final String CHANGE_SERVICE_PRINCIPLES_ERROR = "service.principle.change.error";
-    static final String INIT_SERVICE_PRINCIPLE_ERROR = "service.principle.init.error";
-    static final String SERVICE_PRINCIPLE_ALREADY_EXISTS = "service.principle.exists";
-    static final String PASSWORD_FORMAT_RETRIEVING_ERROR = "password.format.get.error";
-    static final String NAME_FORMAT_RETRIEVING_ERROR = "name.format.get.error";
+    public static final String LIST_SERVICE_PRINCIPLES_ERROR = "service.principle.list.error";
+    public static final String ADD_SERVICE_PRINCIPLES_ERROR = "service.principle.add.error";
+    public static final String REMOVE_SERVICE_PRINCIPLES_ERROR = "service.principle.remove.error";
+    public static final String CHANGE_SERVICE_PRINCIPLES_ERROR = "service.principle.change.error";
+    public static final String INIT_SERVICE_PRINCIPLE_ERROR = "service.principle.init.error";
+    public static final String SERVICE_PRINCIPLE_ALREADY_EXISTS = "service.principle.exists";
+    public static final String PASSWORD_FORMAT_RETRIEVING_ERROR = "password.format.get.error";
+    public static final String NAME_FORMAT_RETRIEVING_ERROR = "name.format.get.error";
 
     public ServerManagerClientException() {
         super();
