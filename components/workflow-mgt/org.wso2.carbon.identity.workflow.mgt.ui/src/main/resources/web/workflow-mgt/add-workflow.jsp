@@ -102,7 +102,9 @@
     <script type="text/javascript" src="../carbon/admin/js/cookies.js"></script>
     <script type="text/javascript" src="../carbon/admin/js/main.js"></script>
     <script type="text/javascript">
-        eventsObj = {};
+        var eventsObj = {};
+        var lastSelectedCategory = '';
+
         <%
             for (Map.Entry<String,List<EventBean>> eventCategory : events.entrySet()) {
             %>
@@ -124,13 +126,16 @@
             var categoryDropdown = document.getElementById("categoryDropdown");
             var actionDropdown = document.getElementById("actionDropdown");
             var selectedCategory = categoryDropdown.options[categoryDropdown.selectedIndex].value;
-            var eventsOfCategory = eventsObj[selectedCategory];
-            for (var i = 0; i < eventsOfCategory.length; i++) {
-                var opt = document.createElement("option");
-                opt.text = eventsOfCategory[i].displayName;
-                opt.value = eventsOfCategory[i].value;
-                opt.title = eventsOfCategory[i].title;
-                actionDropdown.options.add(opt);
+            if (selectedCategory != lastSelectedCategory) {
+                var eventsOfCategory = eventsObj[selectedCategory];
+                for (var i = 0; i < eventsOfCategory.length; i++) {
+                    var opt = document.createElement("option");
+                    opt.text = eventsOfCategory[i].displayName;
+                    opt.value = eventsOfCategory[i].value;
+                    opt.title = eventsOfCategory[i].title;
+                    actionDropdown.options.add(opt);
+                }
+                lastSelectedCategory = selectedCategory;
             }
         }
     </script>

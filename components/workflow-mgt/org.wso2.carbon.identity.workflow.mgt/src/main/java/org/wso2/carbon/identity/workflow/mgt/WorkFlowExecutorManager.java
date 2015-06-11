@@ -59,7 +59,8 @@ public class WorkFlowExecutorManager {
             handleCallback(workFlowRequest, WorkflowRequestStatus.SKIPPED.toString(), null);
             return;
         }
-
+        WorkflowRequestDAO requestDAO = new WorkflowRequestDAO();
+        requestDAO.addWorkflowEntry(workFlowRequest);
         for (WorkflowAssociation association : associations) {
             try {
                 AXIOMXPath axiomxPath = new AXIOMXPath(association.getCondition());

@@ -70,9 +70,6 @@
 
         <div id="workArea">
             <form method="post" name="serviceAdd" onsubmit="return doValidation();" action="update-workflow-finish.jsp">
-                <input type="hidden" name="<%=WorkflowUIConstants.PARAM_WORKFLOW_NAME%>" value="<%=workflowName%>">
-                <input type="hidden" name="<%=WorkflowUIConstants.PARAM_ASSOCIATED_OPERATION%>" value="<%=event%>">
-                <input type="hidden" name="<%=WorkflowUIConstants.PARAM_ACTION%>" value="<%=action%>">
                 <%
                     if (WorkflowUIConstants.ACTION_VALUE_ADD.equals(action)) {
                         String template = CharacterEncoder
@@ -80,6 +77,9 @@
                         String templateImpl = CharacterEncoder
                                 .getSafeText(request.getParameter(WorkflowUIConstants.PARAM_TEMPLATE_IMPL));
                 %>
+                <input type="hidden" name="<%=WorkflowUIConstants.PARAM_WORKFLOW_NAME%>" value="<%=workflowName%>">
+                <input type="hidden" name="<%=WorkflowUIConstants.PARAM_ASSOCIATED_OPERATION%>" value="<%=event%>">
+                <input type="hidden" name="<%=WorkflowUIConstants.PARAM_ACTION%>" value="<%=action%>">
                 <input type="hidden" name="<%=WorkflowUIConstants.PARAM_WORKFLOW_TEMPLATE%>" value="<%=template%>">
                 <input type="hidden" name="<%=WorkflowUIConstants.PARAM_TEMPLATE_IMPL%>" value="<%=templateImpl%>">
                 <%

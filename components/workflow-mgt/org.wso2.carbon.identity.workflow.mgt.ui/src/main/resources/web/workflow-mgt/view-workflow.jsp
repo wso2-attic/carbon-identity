@@ -155,7 +155,8 @@
         }
     </script>
     <script type="text/javascript">
-        eventsObj = {};
+        var eventsObj = {};
+        var lastSelectedCategory = '';
         <%
             for (Map.Entry<String,List<EventBean>> eventCategory : events.entrySet()) {
             %>
@@ -177,13 +178,16 @@
             var categoryDropdown = document.getElementById("categoryDropdown");
             var actionDropdown = document.getElementById("actionDropdown");
             var selectedCategory = categoryDropdown.options[categoryDropdown.selectedIndex].value;
-            var eventsOfCategory = eventsObj[selectedCategory];
-            for (var i = 0; i < eventsOfCategory.length; i++) {
-                var opt = document.createElement("option");
-                opt.text = eventsOfCategory[i].displayName;
-                opt.value = eventsOfCategory[i].value;
-                opt.title = eventsOfCategory[i].title;
-                actionDropdown.options.add(opt);
+            if (selectedCategory != lastSelectedCategory) {
+                var eventsOfCategory = eventsObj[selectedCategory];
+                for (var i = 0; i < eventsOfCategory.length; i++) {
+                    var opt = document.createElement("option");
+                    opt.text = eventsOfCategory[i].displayName;
+                    opt.value = eventsOfCategory[i].value;
+                    opt.title = eventsOfCategory[i].title;
+                    actionDropdown.options.add(opt);
+                }
+                lastSelectedCategory = selectedCategory;
             }
         }
 
@@ -197,29 +201,44 @@
                onclick="addAssociation();return false;"
                href="#" style="background-image: url(images/add.png);" class="icon-link">
                 <fmt:message key='workflow.service.association.add'/></a>
+
             <div id="addNew" style="display: none; clear: left">
                 <form action="operation-association.jsp" method="post">
                     <input type="hidden" name="<%=WorkflowUIConstants.PARAM_WORKFLOW_ID%>" value="<%=workflowId%>">
+                    <input type="hidden" name="<%=WorkflowUIConstants.PARAM_ACTION%>"
+                           value="<%=WorkflowUIConstants.ACTION_VALUE_ADD_ASSOCIATION%>">
                     <table class="styledLeft">
+                        <thead>
                         <tr>
-                            <td><fmt:message key='workflow.operation.category'/></td>
-                            <td>
-                                <select id="categoryDropdown" onchange="updateActions();">
-                                    <%
-                                        for (String key : events.keySet()) {
-                                    %>
-                                    <option value="<%=key%>"><%=key%>
-                                    </option>
-                                    <%
-                                        }
-                                    %>
-                                </select>
-                            </td>
+                            <th><fmt:message key="workflow.details"/></th>
                         </tr>
+                        </thead>
                         <tr>
-                            <td><fmt:message key='workflow.operation.name'/></td>
-                            <td><select id="actionDropdown"
-                                        name="<%=WorkflowUIConstants.PARAM_ASSOCIATED_OPERATION%>"></select>
+                            <td class="formRow">
+                                <table class="normal">
+
+                                    <tr>
+                                        <td><fmt:message key='workflow.operation.category'/></td>
+                                        <td>
+                                            <select id="categoryDropdown" onchange="updateActions();">
+                                                <%
+                                                    for (String key : events.keySet()) {
+                                                %>
+                                                <option value="<%=key%>"><%=key%>
+                                                </option>
+                                                <%
+                                                    }
+                                                %>
+                                            </select>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><fmt:message key='workflow.operation.name'/></td>
+                                        <td><select id="actionDropdown"
+                                                    name="<%=WorkflowUIConstants.PARAM_ASSOCIATED_OPERATION%>"></select>
+                                        </td>
+                                    </tr>
+                                </table>
                             </td>
                         </tr>
                         <tr>
