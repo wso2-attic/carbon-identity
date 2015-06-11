@@ -18,7 +18,7 @@
 
 package org.wso2.carbon.identity.provisioning;
 
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang.StringUtils;
 import org.wso2.carbon.identity.application.common.model.ClaimMapping;
 
 import java.util.ArrayList;
