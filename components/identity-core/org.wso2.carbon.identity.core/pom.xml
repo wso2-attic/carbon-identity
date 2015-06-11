@@ -142,6 +142,9 @@
 
                             org.wso2.carbon.identity.base;version="${carbon.identity.package.import.version.range}",
                             org.wso2.carbon.security.config;version="${carbon.identity.package.import.version.range}",
+                            org.wso2.carbon.security; version="${carbon.identity.package.import.version.range}",
+                            org.wso2.carbon.security.keystore; version="${carbon.identity.package.import.version.range}",
+                            org.wso2.carbon.security.keystore.service; version="${carbon.identity.package.import.version.range}",
 
                             org.wso2.carbon.registry.core.*;version="${carbon.kernel.registry.imp.pkg.version}",
 
@@ -150,21 +153,9 @@
                             javax.xml.transform,
                             javax.xml.transform.dom,
                             javax.xml.transform.stream,
-                            org.opensaml.common,
-                            org.opensaml.common.impl,
-                            org.opensaml.saml2.common,
-                            org.opensaml.saml2.metadata,
-                            org.opensaml.xml,
-                            org.opensaml.xml.io,
-                            org.opensaml.xml.util,
-                            org.opensaml,
-                            org.opensaml.saml2.metadata.provider,
-                            org.opensaml.xml.parse,
+                            org.opensaml.*; version="${opensaml2.wso2.osgi.version.range}",
                             org.xml.sax,
-                            org.opensaml.xml.signature,
-                            org.wso2.carbon.security,
-                            org.wso2.carbon.security.keystore,
-                            org.wso2.carbon.security.keystore.service,
+
                         </Import-Package>
                         <Export-Package>
                             !org.wso2.carbon.identity.core.internal,
