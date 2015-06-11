@@ -17,7 +17,6 @@
  */
 package org.wso2.carbon.identity.sso.saml.builders;
 
-import edu.emory.mathcs.backport.java.util.Collections;
 import org.apache.xml.security.signature.XMLSignature;
 import org.opensaml.xml.security.credential.Credential;
 import org.opensaml.xml.security.credential.CredentialContextSet;
@@ -42,6 +41,9 @@ import java.security.cert.X509CRL;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+
+
 
 public class SignKeyDataHolder implements X509Credential {
 
