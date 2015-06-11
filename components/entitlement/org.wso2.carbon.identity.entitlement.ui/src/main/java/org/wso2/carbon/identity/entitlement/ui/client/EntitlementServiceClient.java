@@ -61,6 +61,7 @@ public class EntitlementServiceClient {
             if (request != null) {
                 request = request.trim().replaceAll("&lt;", "<"); //TODO should be properly fixed
                 request = request.trim().replaceAll("&gt;", ">");
+                request = request.trim().replaceAll("&quot;", "\"");
             }
             return stub.getDecision(request);
         } catch (Exception e) {

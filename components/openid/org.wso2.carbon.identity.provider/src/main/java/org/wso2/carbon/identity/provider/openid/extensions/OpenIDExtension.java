@@ -36,6 +36,8 @@ import java.util.Map;
 
 public abstract class OpenIDExtension {
 
+    private static final String MULTI_ATTRIBUTE_SEPARATOR = "MultiAttributeSeparator";
+
     /**
      * Creates an instance of MessageExtension for the OpenID authentication
      * response
@@ -62,7 +64,6 @@ public abstract class OpenIDExtension {
      *
      * @param requiredClaims Required claims as requested by the RP.
      * @param requestDTO
-     * @param userId         User ID.
      * @return A map, populated with ClaimDO objects which have OpenIDTag, that
      * is OpenID supported
      * claims.
@@ -103,6 +104,9 @@ public abstract class OpenIDExtension {
 
         if (requiredClaims.isEmpty()) {
             for (Map.Entry<ClaimMapping, String> entry : receivedClaims.entrySet()) {
+                if (MULTI_ATTRIBUTE_SEPARATOR.equals(entry.getKey().getRemoteClaim().getClaimUri())) {
+                    continue;
+                }
                 OpenIDClaimDTO openIDClaimDTO = new OpenIDClaimDTO();
                 openIDClaimDTO.setClaimUri(entry.getKey().getRemoteClaim().getClaimUri());
                 openIDClaimDTO.setClaimValue(entry.getValue());

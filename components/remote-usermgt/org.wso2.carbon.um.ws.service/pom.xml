@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.wso2.carbon.identity</groupId>
         <artifactId>remote-usermgt</artifactId>
-        <version>4.4.1-SNAPSHOT</version>
+        <version>4.5.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -73,19 +73,19 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Export-Package>org.wso2.carbon.um.ws.service.*</Export-Package>
                         <Import-Package>
-                            org.apache.axiom.*; version="${axiom.osgi.version.range}",
-                            org.wso2.carbon.um.ws.service.*,
-                            org.osgi.framework.*,
-                            org.wso2.carbon.registry.core.*,
-                            javax.xml.namespace.*;version="0.0.0",
-                            javax.xml.stream.*;version="1.0.1",
-                            org.apache.commons.logging.*,
-                            javax.sql.*,
-                            *;resolution:=optional
+                            org.osgi.service.component; version="${osgi.service.component.imp.pkg.version.range}",
+                            org.apache.commons.logging; version="${commons-logging.osgi.version.range}",
+                            org.wso2.carbon.context; version="${carbon.kernel.package.import.version.range}",
+                            org.wso2.carbon.core; version="${carbon.kernel.package.import.version.range}",
+                            org.wso2.carbon.user.core.*; version="${carbon.kernel.package.import.version.range}",
+                            org.wso2.carbon.user.mgt.common; version="${carbon.commons.imp.pkg.version}",
+                            org.wso2.carbon.registry.core.service; version="${carbon.kernel.registry.imp.pkg.version}",
+                            org.wso2.carbon.user.api; version="${carbon.user.api.imp.pkg.version.range}",
                         </Import-Package>
-                        <DynamicImport-Package>*</DynamicImport-Package>
+                        <Export-Package>
+                            org.wso2.carbon.um.ws.service.*; version="${carbon.identity.package.export.version}"
+                        </Export-Package>
                     </instructions>
                 </configuration>
             </plugin>

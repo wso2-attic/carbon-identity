@@ -123,9 +123,13 @@ public class UserStoreBasedIdentityDataStore extends InMemoryIdentityDataStore {
                         userDataMap.put(claimUri, claim.getValue());
                     }
                 }
+            } else {
+                // null is returned when the user doesn't exist
+                return null;
             }
         } catch (UserStoreException e) {
-            // ignore may be user is not exist
+            log.error("Error while reading user claim values", e);
+            return null;
         } finally {
             // reset to initial value
             if (log.isDebugEnabled()) {
@@ -133,19 +137,19 @@ public class UserStoreBasedIdentityDataStore extends InMemoryIdentityDataStore {
             }
             userStoreInvoked.set("FALSE");
         }
-        // if user is exiting there must be at least one user attribute.
-        if (userDataMap != null && userDataMap.size() > 0) {
-            userIdentityDTO = new UserIdentityClaimsDO(userName, userDataMap);
-            int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
-            userIdentityDTO.setTenantId(tenantId);
 
-            Cache<String, UserIdentityClaimsDO> cache = getCache();
-            if (cache != null) {
-                cache.put(tenantId + userName, userIdentityDTO);
-            }
-            return userIdentityDTO;
+        userIdentityDTO = new UserIdentityClaimsDO(userName, userDataMap);
+        int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
+        userIdentityDTO.setTenantId(tenantId);
+        org.wso2.carbon.user.core.UserStoreManager store = (org.wso2.carbon.user.core.UserStoreManager) userStoreManager;
+        String domainName= store.getRealmConfiguration().getUserStoreProperty(
+                UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
+
+        Cache<String, UserIdentityClaimsDO> cache = getCache();
+        if (cache != null) {
+            cache.put(domainName+tenantId + userName, userIdentityDTO);
         }
-        return null;
+        return userIdentityDTO;
     }
 
 }

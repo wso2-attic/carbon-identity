@@ -228,6 +228,18 @@ public class DefaultAuthenticationRequestHandler implements AuthenticationReques
 
         if (isAuthenticated) {
 
+            if (!sequenceConfig.getApplicationConfig().isSaaSApp()) {
+                String spTenantDomain = context.getTenantDomain();
+                String userTenantDomain = sequenceConfig.getAuthenticatedUserTenantDomain();
+                if (userTenantDomain != null && !userTenantDomain.isEmpty()) {
+                    if (spTenantDomain != null && !spTenantDomain.isEmpty() && !spTenantDomain.equals
+                            (userTenantDomain)) {
+                        throw new FrameworkException("Service Provider tenant domain must be equal to user tenant " +
+                                                     "domain for non-SaaS applications");
+                    }
+                }
+            }
+
             authenticationResult.setSubject(new AuthenticatedUser(sequenceConfig.getAuthenticatedUser()));
             ApplicationConfig appConfig = sequenceConfig.getApplicationConfig();
 
@@ -338,8 +350,11 @@ public class DefaultAuthenticationRequestHandler implements AuthenticationReques
             debugMessage.append(FrameworkConstants.ResponseParams.AUTHENTICATED).append(": ");
             debugMessage.append(String.valueOf(context.isRequestAuthenticated())).append("\n");
             debugMessage.append(FrameworkConstants.ResponseParams.AUTHENTICATED_USER).append(": ");
-            debugMessage.append(context.getSequenceConfig().getAuthenticatedUser().getAuthenticatedSubjectIdentifier())
-                        .append("\n");
+            if(context.getSequenceConfig().getAuthenticatedUser()!=null) {
+                debugMessage.append(context.getSequenceConfig().getAuthenticatedUser().getAuthenticatedSubjectIdentifier()).append("\n");
+            }else{
+                debugMessage.append("No Authenticated User").append("\n");
+            }
             debugMessage.append(FrameworkConstants.ResponseParams.AUTHENTICATED_IDPS).append(": ");
             debugMessage.append(context.getSequenceConfig().getAuthenticatedIdPs()).append("\n");
             debugMessage.append(FrameworkConstants.SESSION_DATA_KEY).append(": ");

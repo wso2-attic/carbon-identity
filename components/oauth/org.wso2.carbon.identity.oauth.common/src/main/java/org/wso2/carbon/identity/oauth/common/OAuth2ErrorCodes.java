@@ -29,4 +29,5 @@ public class OAuth2ErrorCodes {
     public static final String INVALID_OAUTH_URL = "invalid_request_url";
     public static final String INVALID_CLIENT = "invalid_client";
     public static final String INVALID_GRANT = "invalid_grant";
+    public static final String UNSUPPORTED_GRANT_TYPE = "unsupported_grant_type";
 }

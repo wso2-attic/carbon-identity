@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.wso2.carbon.identity</groupId>
         <artifactId>scim</artifactId>
-        <version>4.4.1-SNAPSHOT</version>
+        <version>4.5.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -98,18 +98,19 @@
                         <Private-Package>
                             org.wso2.carbon.identity.scim.ui.internal
                         </Private-Package>
+                        <Import-Package>
+                            org.apache.axis2.*; version="${axis2.osgi.version.range}",
+                            org.apache.commons.logging; version="${commons-logging.osgi.version.range}",
+                            org.osgi.service.component; version="${osgi.service.component.imp.pkg.version.range}",
+                            org.wso2.carbon.context; version="${carbon.kernel.package.import.version.range}",
+                            org.wso2.carbon.identity.scim.common.stub.*;
+                            version="${carbon.identity.package.import.version.range}",
+                        </Import-Package>
                         <Export-Package>
                             !org.wso2.carbon.identity.scim.ui.internal,
-                            org.wso2.carbon.identity.scim.ui.*,
+                            org.wso2.carbon.identity.scim.ui.*; version="${carbon.identity.package.export.version}"
                         </Export-Package>
-                        <Import-Package>
-                            org.wso2.charon.core.*,
-                            org.apache.commons.logging.*,
-                            org.apache.commons.httpclient.*,
-                            *;resolution:=optional
-                        </Import-Package>
                         <Carbon-Component>UIBundle</Carbon-Component>
-                        <DynamicImport-Package>*</DynamicImport-Package>
                     </instructions>
                 </configuration>
             </plugin>

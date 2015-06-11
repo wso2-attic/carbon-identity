@@ -19,11 +19,9 @@
 package org.wso2.carbon.identity.sso.agent.saml;
 
 import org.apache.xerces.impl.Constants;
-import org.apache.xerces.util.SecurityManager;
 import org.apache.xml.security.signature.XMLSignature;
 import org.joda.time.DateTime;
 import org.opensaml.Configuration;
-import org.opensaml.DefaultBootstrap;
 import org.opensaml.common.SAMLVersion;
 import org.opensaml.common.xml.SAMLConstants;
 import org.opensaml.saml2.common.Extensions;
@@ -31,10 +29,11 @@ import org.opensaml.saml2.core.*;
 import org.opensaml.saml2.core.impl.*;
 import org.opensaml.saml2.ecp.RelayState;
 import org.opensaml.saml2.encryption.Decrypter;
-import org.opensaml.xml.ConfigurationException;
 import org.opensaml.xml.XMLObject;
 import org.opensaml.xml.encryption.EncryptedKey;
-import org.opensaml.xml.io.*;
+import org.opensaml.xml.io.Marshaller;
+import org.opensaml.xml.io.MarshallerFactory;
+import org.opensaml.xml.io.MarshallingException;
 import org.opensaml.xml.security.SecurityHelper;
 import org.opensaml.xml.security.credential.Credential;
 import org.opensaml.xml.security.keyinfo.KeyInfoCredentialResolver;
@@ -43,7 +42,6 @@ import org.opensaml.xml.signature.SignatureValidator;
 import org.opensaml.xml.util.Base64;
 import org.opensaml.xml.util.XMLHelper;
 import org.opensaml.xml.validation.ValidationException;
-import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.bootstrap.DOMImplementationRegistry;
 import org.w3c.dom.ls.DOMImplementationLS;
@@ -53,20 +51,17 @@ import org.wso2.carbon.identity.sso.agent.SSOAgentConstants;
 import org.wso2.carbon.identity.sso.agent.SSOAgentException;
 import org.wso2.carbon.identity.sso.agent.bean.LoggedInSessionBean;
 import org.wso2.carbon.identity.sso.agent.bean.SSOAgentConfig;
-import org.wso2.carbon.identity.sso.agent.util.CarbonEntityResolver;
 import org.wso2.carbon.identity.sso.agent.util.SAMLSignatureValidator;
 import org.wso2.carbon.identity.sso.agent.util.SSOAgentUtils;
-import org.xml.sax.SAXException;
 
 import javax.crypto.SecretKey;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import javax.xml.XMLConstants;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.List;
@@ -108,18 +103,7 @@ public class SAML2SSOManager {
         } catch (InstantiationException e) {
             throw new SSOAgentException("Error loading custom signature validator class", e);
         }
-        try {
-            if (!bootStrapped) {
-                synchronized (this) {
-                    if (!bootStrapped) {
-                        DefaultBootstrap.bootstrap();
-                        bootStrapped = true;
-                    }
-                }
-            }
-        } catch (ConfigurationException e) {
-            throw new SSOAgentException("Error while bootstrapping OpenSAML library", e);
-        }
+        SSOAgentUtils.doBootstrap();
     }
 
     /**
@@ -280,7 +264,7 @@ public class SAML2SSOManager {
 
         if (saml2SSOResponse != null) {
             String decodedResponse = new String(Base64.decode(saml2SSOResponse));
-            XMLObject samlObject = unmarshall(decodedResponse);
+            XMLObject samlObject = SSOAgentUtils.unmarshall(decodedResponse);
             if (samlObject instanceof LogoutResponse) {
                 //This is a SAML response for a single logout request from the SP
                 doSLO(request);
@@ -310,11 +294,11 @@ public class SAML2SSOManager {
 
         XMLObject saml2Object = null;
         if (request.getParameter(SSOAgentConstants.SAML2SSO.HTTP_POST_PARAM_SAML2_AUTH_REQ) != null) {
-            saml2Object = unmarshall(new String(Base64.decode(request.getParameter(
+            saml2Object = SSOAgentUtils.unmarshall(new String(Base64.decode(request.getParameter(
                     SSOAgentConstants.SAML2SSO.HTTP_POST_PARAM_SAML2_AUTH_REQ))));
         }
         if (saml2Object == null) {
-            saml2Object = unmarshall(new String(Base64.decode(request.getParameter(
+            saml2Object = SSOAgentUtils.unmarshall(new String(Base64.decode(request.getParameter(
                     SSOAgentConstants.SAML2SSO.HTTP_POST_PARAM_SAML2_RESP))));
         }
         if (saml2Object instanceof LogoutRequest) {
@@ -334,7 +318,12 @@ public class SAML2SSOManager {
                 Set<HttpSession> sessions =
                         SSOAgentSessionManager.invalidateAllSessions(request.getSession(false));
                 for (HttpSession session : sessions) {
-                    session.invalidate();
+                    try {
+                        session.invalidate();
+                    } catch (IllegalStateException ignore) {
+                        //ignore
+                        //session is already invalidated
+                    }
                 }
             }
         } else {
@@ -350,7 +339,7 @@ public class SAML2SSOManager {
         String saml2ResponseString =
                 new String(Base64.decode(request.getParameter(
                         SSOAgentConstants.SAML2SSO.HTTP_POST_PARAM_SAML2_RESP)));
-        Response saml2Response = (Response) unmarshall(saml2ResponseString);
+        Response saml2Response = (Response) SSOAgentUtils.unmarshall(saml2ResponseString);
         sessionBean.getSAML2SSO().setResponseString(saml2ResponseString);
         sessionBean.getSAML2SSO().setSAMLResponse(saml2Response);
 
@@ -560,39 +549,6 @@ public class SAML2SSOManager {
         } catch (IOException e) {
             throw new SSOAgentException("Error occurred while encoding SAML2 request", e);
         }
-    }
-
-    protected XMLObject unmarshall(String saml2SSOString) throws SSOAgentException {
-
-        try {
-            String decodedString = decodeHTMLCharacters(saml2SSOString);
-            DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-            documentBuilderFactory.setNamespaceAware(true);
-
-            documentBuilderFactory.setExpandEntityReferences(false);
-            documentBuilderFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
-            SecurityManager securityManager = new SecurityManager();
-            securityManager.setEntityExpansionLimit(ENTITY_EXPANSION_LIMIT);
-            documentBuilderFactory.setAttribute(SECURITY_MANAGER_PROPERTY, securityManager);
-
-            DocumentBuilder docBuilder = documentBuilderFactory.newDocumentBuilder();
-            docBuilder.setEntityResolver(new CarbonEntityResolver());
-            ByteArrayInputStream is = new ByteArrayInputStream(decodedString.getBytes());
-            Document document = docBuilder.parse(is);
-            Element element = document.getDocumentElement();
-            UnmarshallerFactory unmarshallerFactory = Configuration.getUnmarshallerFactory();
-            Unmarshaller unmarshaller = unmarshallerFactory.getUnmarshaller(element);
-            return unmarshaller.unmarshall(element);
-        } catch (ParserConfigurationException e) {
-            throw new SSOAgentException("Error in unmarshalling SAML2SSO Request from the encoded String", e);
-        } catch (UnmarshallingException e) {
-            throw new SSOAgentException("Error in unmarshalling SAML2SSO Request from the encoded String", e);
-        } catch (SAXException e) {
-            throw new SSOAgentException("Error in unmarshalling SAML2SSO Request from the encoded String", e);
-        } catch (IOException e) {
-            throw new SSOAgentException("Error in unmarshalling SAML2SSO Request from the encoded String", e);
-        }
-
     }
 
     private String decodeHTMLCharacters(String encodedStr) {

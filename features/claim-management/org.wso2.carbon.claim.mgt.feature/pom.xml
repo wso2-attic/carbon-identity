@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.wso2.carbon.identity</groupId>
         <artifactId>claim-management-feature</artifactId>
-        <version>4.4.1-SNAPSHOT</version>
+        <version>4.5.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -61,9 +61,6 @@
                         <configuration>
                             <id>org.wso2.carbon.claim.mgt</id>
                             <propertiesFile>../../etc/feature.properties</propertiesFile>
-                            <importFeatures>
-                                <importFeatureDef>org.wso2.carbon.core:${carbon.kernel.version}</importFeatureDef>
-                            </importFeatures>
                             <includedFeatures>
                                 <includedFeatureDef>org.wso2.carbon.identity:org.wso2.carbon.claim.mgt.server.feature
                                 </includedFeatureDef>

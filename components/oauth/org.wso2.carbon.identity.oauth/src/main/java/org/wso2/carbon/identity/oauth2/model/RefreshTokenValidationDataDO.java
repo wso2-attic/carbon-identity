@@ -18,6 +18,8 @@
 
 package org.wso2.carbon.identity.oauth2.model;
 
+import java.sql.Timestamp;
+
 /**
  * Results holder for refresh token validation query.
  */
@@ -31,7 +33,9 @@ public class RefreshTokenValidationDataDO {
 
     private String refreshTokenState;
 
-    private long issuedAt;
+    private Timestamp issuedTime;
+
+    private long validityPeriodInMillis;
 
     public String getAccessToken() {
         return accessToken;
@@ -65,11 +69,20 @@ public class RefreshTokenValidationDataDO {
         this.refreshTokenState = refreshTokenState;
     }
 
-    public long getIssuedAt() {
-        return issuedAt;
+    public long getValidityPeriodInMillis() {
+        return validityPeriodInMillis;
     }
 
-    public void setIssuedAt(long issuedAt) {
-        this.issuedAt = issuedAt;
+    public void setValidityPeriodInMillis(long validityPeriod) {
+        this.validityPeriodInMillis = validityPeriod;
     }
+
+    public Timestamp getIssuedTime() {
+        return issuedTime;
+    }
+
+    public void setIssuedTime(Timestamp issuedTime) {
+        this.issuedTime = issuedTime;
+    }
+
 }

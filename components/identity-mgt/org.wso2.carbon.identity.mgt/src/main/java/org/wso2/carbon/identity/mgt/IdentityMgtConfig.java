@@ -44,6 +44,7 @@ public class IdentityMgtConfig {
 
     private static final Log log = LogFactory.getLog(IdentityMgtConfig.class);
     private static IdentityMgtConfig identityMgtConfig;
+    private boolean saasEnable;
     private boolean listenerEnable;
     private int noOfUserChallenges;
     private boolean notificationInternallyManaged;
@@ -116,6 +117,11 @@ public class IdentityMgtConfig {
             if (notificationInternallyManaged != null) {
                 this.notificationInternallyManaged = Boolean.
                         parseBoolean(notificationInternallyManaged.trim());
+            }
+
+            String saasEnable = properties.getProperty(IdentityMgtConstants.PropertyConfig.USER_INFO_RECOVERY_SAA_SENABLE);
+            if(saasEnable != null){
+                this.saasEnable = Boolean.parseBoolean(saasEnable.trim());
             }
 
             String listenerEnable = properties.
@@ -382,6 +388,10 @@ public class IdentityMgtConfig {
         return noOfUserChallenges;
     }
 
+    public boolean isSaasEnabled() {
+        return saasEnable;
+    }
+
     public boolean isNotificationInternallyManaged() {
         return notificationInternallyManaged;
     }
@@ -518,8 +528,17 @@ public class IdentityMgtConfig {
         // First property must start with 1.
         int count = 1;
         String className = null;
-
-        while ((className = properties.getProperty(extensionType + "." + count)) != null) {
+        int size = 0;
+        if (properties != null) {
+            size = properties.size();
+        }
+        while (size > 0) {
+            className = properties.getProperty(extensionType + "." + count);
+            if (className == null) {
+                count++;
+                size--;
+                continue;
+            }
             try {
                 Class clazz = Thread.currentThread().getContextClassLoader().loadClass(className);
 
@@ -528,7 +547,7 @@ public class IdentityMgtConfig {
 
                 this.policyRegistry.addPolicy((PolicyEnforcer) policy);
                 count++;
-
+                size--;
             } catch (ClassNotFoundException e) {
                 log.error("Error while loading password policies " + className + " " + e.getMessage());
             } catch (SecurityException e) {

@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.wso2.carbon.identity</groupId>
         <artifactId>provisioning</artifactId>
-        <version>4.4.1-SNAPSHOT</version>
+        <version>4.5.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -113,22 +113,30 @@
                         <Private-Package>
                             org.wso2.carbon.identity.provisioning.connector.spml.internal
                         </Private-Package>
+                        <Import-Package>
+                            javax.swing,
+                            javax.xml.parsers,
+                            javax.xml.transform.*,
+                            javax.servlet; version="${imp.pkg.version.javax.servlet}",
+                            javax.servlet.http; version="${imp.pkg.version.javax.servlet}",
+                            org.w3c.dom,
+                            org.xml.sax,
+                            org.apache.commons.logging; version="${commons-logging.osgi.version.range}",
+                            org.osgi.framework; version="${osgi.framework.imp.pkg.version.range}",
+                            org.osgi.service.component; version="${osgi.service.component.imp.pkg.version.range}",
+                            org.wso2.carbon.identity.application.common.model;
+                            version="${carbon.identity.package.import.version.range}",
+                            org.wso2.carbon.identity.provisioning;
+                            version="${carbon.identity.package.import.version.range}",
+                        </Import-Package>
                         <Export-Package>
                             !org.wso2.carbon.identity.provisioning.connector.spml.internal,
-                            org.wso2.carbon.identity.provisioning.connector.spml.*,
+                            org.wso2.carbon.identity.provisioning.connector.spml.*;
+                            version="${carbon.identity.package.export.version}"
                         </Export-Package>
-                        <Import-Package>
-                            org.wso2.charon.core.*,
-                            org.wso2.carbon.identity.core.*,
-                            org.wso2.carbon.core.*,
-                            org.apache.commons.logging.*,
-                            org.apache.commons.httpclient.*,
-                            *;resolution:=optional
-                        </Import-Package>
                         <Embed-Dependency>
                             openspml2|runtime;inline=false
                         </Embed-Dependency>
-                        <DynamicImport-Package>*</DynamicImport-Package>
                     </instructions>
                 </configuration>
             </plugin>

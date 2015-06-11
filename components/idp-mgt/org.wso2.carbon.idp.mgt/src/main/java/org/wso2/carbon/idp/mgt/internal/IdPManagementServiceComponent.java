@@ -28,7 +28,6 @@ import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
 import org.wso2.carbon.identity.application.common.model.IdentityProvider;
-import org.wso2.carbon.identity.application.common.persistence.JDBCPersistenceManager;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
 import org.wso2.carbon.idp.mgt.IdentityProviderManager;
 import org.wso2.carbon.idp.mgt.util.IdPManagementConstants;
@@ -37,6 +36,7 @@ import org.wso2.carbon.user.core.listener.UserOperationEventListener;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.utils.ConfigurationContextService;
+import org.wso2.carbon.identity.core.util.IdentityCoreInitializedEvent;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -52,6 +52,9 @@ import java.util.*;
  * interface="org.wso2.carbon.utils.ConfigurationContextService" cardinality="1..1"
  * policy="dynamic" bind="setConfigurationContextService"
  * unbind="unsetConfigurationContextService"
+ * @scr.reference name="identityCoreInitializedEventService"
+ * interface="org.wso2.carbon.identity.core.util.IdentityCoreInitializedEvent" cardinality="1..1"
+ * policy="dynamic" bind="setIdentityCoreInitializedEventService" unbind="unsetIdentityCoreInitializedEventService"
  */
 public class IdPManagementServiceComponent {
 
@@ -119,15 +122,6 @@ public class IdPManagementServiceComponent {
                 log.debug("Identity Provider Management - UserOperationEventListener registered");
             } else {
                 log.error("Identity Provider Management - UserOperationEventListener could not be registered");
-            }
-
-            JDBCPersistenceManager jdbcPersistenceManager = JDBCPersistenceManager.getInstance();
-            if (System.getProperty("setup") != null) {
-                // initialize the identity application persistence manager
-                jdbcPersistenceManager.initializeDatabase();
-            } else {
-                log.info("Identity Application Management Database initialization not attempted since \'setup\' " +
-                        "variable was not provided during startup");
             }
 
             buildFileBasedIdPList();
@@ -250,4 +244,9 @@ public class IdPManagementServiceComponent {
     protected void unsetConfigurationContextService(ConfigurationContextService service) {
         configurationContextService = null;
     }
+
+    protected void unsetIdentityCoreInitializedEventService(IdentityCoreInitializedEvent identityCoreInitializedEvent){}
+
+    protected void setIdentityCoreInitializedEventService(IdentityCoreInitializedEvent identityCoreInitializedEvent){}
+
 }

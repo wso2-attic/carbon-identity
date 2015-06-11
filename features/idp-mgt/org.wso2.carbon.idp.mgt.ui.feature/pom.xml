@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.wso2.carbon.identity</groupId>
         <artifactId>identity-provider-management-feature</artifactId>
-        <version>4.4.1-SNAPSHOT</version>
+        <version>4.5.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -79,15 +79,13 @@
                                 </properties>
                             </adviceFile>
                             <bundles>
-                                <bundleDef>org.apache.ws.commons.axiom.wso2:axiom</bundleDef>
                                 <bundleDef>org.wso2.carbon.identity:org.wso2.carbon.idp.mgt.stub</bundleDef>
                                 <bundleDef>org.wso2.carbon.identity:org.wso2.carbon.idp.mgt.ui</bundleDef>
                                 <bundleDef>org.wso2.carbon.identity:org.wso2.carbon.identity.application.common
                                 </bundleDef>
-
                             </bundles>
                             <importFeatures>
-                                <importFeatureDef>org.wso2.carbon.core.ui:${carbon.kernel.version}</importFeatureDef>
+                                <importFeatureDef>org.wso2.carbon.core:${carbon.kernel.version}</importFeatureDef>
                             </importFeatures>
                         </configuration>
                     </execution>

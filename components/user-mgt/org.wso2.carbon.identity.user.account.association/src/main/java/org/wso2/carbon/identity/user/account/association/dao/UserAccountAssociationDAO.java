@@ -20,7 +20,8 @@ package org.wso2.carbon.identity.user.account.association.dao;
 
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
-import org.wso2.carbon.identity.application.common.persistence.JDBCPersistenceManager;
+import org.wso2.carbon.identity.base.IdentityException;
+import org.wso2.carbon.identity.core.persistence.JDBCPersistenceManager;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
 import org.wso2.carbon.identity.user.account.association.dto.UserAccountAssociationDTO;
 import org.wso2.carbon.identity.user.account.association.exception.UserAccountAssociationException;
@@ -76,7 +77,7 @@ public class UserAccountAssociationDAO {
         } catch (SQLException e) {
             throw new UserAccountAssociationServerException(UserAccountAssociationConstants.ErrorMessages
                                                                     .CONN_CREATE_DB_ERROR.getDescription(), e);
-        } catch (IdentityApplicationManagementException e) {
+        } catch (IdentityException e) {
             throw new UserAccountAssociationServerException(UserAccountAssociationConstants.ErrorMessages
                                                                     .DB_CONN_ERROR.getDescription(), e);
         } finally {
@@ -108,7 +109,7 @@ public class UserAccountAssociationDAO {
         } catch (SQLException e) {
             throw new UserAccountAssociationServerException(UserAccountAssociationConstants.ErrorMessages
                                                                     .CONN_DELETE_DB_ERROR.getDescription(), e);
-        } catch (IdentityApplicationManagementException e) {
+        } catch (IdentityException e) {
             throw new UserAccountAssociationServerException(UserAccountAssociationConstants.ErrorMessages
                                                                     .DB_CONN_ERROR.getDescription(), e);
         } finally {
@@ -203,7 +204,7 @@ public class UserAccountAssociationDAO {
             throw new UserAccountAssociationServerException(UserAccountAssociationConstants.ErrorMessages
                                                                     .ERROR_WHILE_RETRIEVING_ASSOC_KEY.getDescription
                             (), e);
-        } catch (IdentityApplicationManagementException e) {
+        } catch (IdentityException e) {
             throw new UserAccountAssociationServerException(UserAccountAssociationConstants.ErrorMessages
                                                                     .DB_CONN_ERROR.getDescription(), e);
         } finally {
@@ -235,7 +236,7 @@ public class UserAccountAssociationDAO {
         } catch (SQLException e) {
             throw new UserAccountAssociationServerException(UserAccountAssociationConstants.ErrorMessages
                                                                     .CONN_UPDATE_DB_ERROR.getDescription(), e);
-        } catch (IdentityApplicationManagementException e) {
+        } catch (IdentityException e) {
             throw new UserAccountAssociationServerException(UserAccountAssociationConstants.ErrorMessages
                                                                     .DB_CONN_ERROR.getDescription(), e);
         } finally {
@@ -276,7 +277,7 @@ public class UserAccountAssociationDAO {
         } catch (SQLException e) {
             throw new UserAccountAssociationServerException(UserAccountAssociationConstants.ErrorMessages
                                                                     .CHECK_ASSOCIATION_DB_ERROR.getDescription(), e);
-        } catch (IdentityApplicationManagementException e) {
+        } catch (IdentityException e) {
             throw new UserAccountAssociationServerException(UserAccountAssociationConstants.ErrorMessages
                                                                     .DB_CONN_ERROR.getDescription(), e);
         } finally {
@@ -307,7 +308,7 @@ public class UserAccountAssociationDAO {
         } catch (SQLException e) {
             throw new UserAccountAssociationServerException(UserAccountAssociationConstants.ErrorMessages
                                                                     .ASSOCIATIONS_DELETE_DB_ERROR.getDescription(), e);
-        } catch (IdentityApplicationManagementException e) {
+        } catch (IdentityException e) {
             throw new UserAccountAssociationServerException(UserAccountAssociationConstants.ErrorMessages
                                                                     .DB_CONN_ERROR.getDescription(), e);
         } finally {
