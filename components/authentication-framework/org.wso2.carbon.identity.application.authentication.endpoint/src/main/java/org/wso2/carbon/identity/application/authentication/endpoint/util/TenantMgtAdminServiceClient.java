@@ -39,7 +39,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.URL;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -109,12 +109,12 @@ public class TenantMgtAdminServiceClient {
         } catch (KeyStoreException | CertificateException | NoSuchAlgorithmException | IOException e) {
             throw new AuthenticationException("Error while trying to load Key Store.", e);
         } finally {
-            try {
-                if (fis != null) {
+            if (fis != null) {
+                try {
                     fis.close();
+                } catch (IOException e) {
+                    log.error("Failed to close file. ", e);
                 }
-            } catch (IOException e) {
-                log.error("Failed to close file. ", e);
             }
         }
     }
@@ -249,7 +249,7 @@ public class TenantMgtAdminServiceClient {
             httpsURLConnection.setDoInput(true);
             httpsURLConnection.setRequestMethod(HTTP_POST);
 
-            if (requestProps != null && !requestProps.isEmpty()) {
+            if (requestProps != null) {
                 for (Map.Entry<String, String> entry : requestProps.entrySet()) {
                     httpsURLConnection.setRequestProperty(entry.getKey(), entry.getValue());
                 }
@@ -257,10 +257,10 @@ public class TenantMgtAdminServiceClient {
             outputStream = httpsURLConnection.getOutputStream();
 
             if (StringUtils.isNotEmpty(message)) {
-                outputStream.write(message.getBytes(Charset.forName("UTF-8")));
+                outputStream.write(message.getBytes(StandardCharsets.UTF_8));
             }
             inputStream = httpsURLConnection.getInputStream();
-            reader = new BufferedReader(new InputStreamReader(inputStream, Charset.forName("UTF-8")));
+            reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
             StringBuilder builder = new StringBuilder();
             String line;
 

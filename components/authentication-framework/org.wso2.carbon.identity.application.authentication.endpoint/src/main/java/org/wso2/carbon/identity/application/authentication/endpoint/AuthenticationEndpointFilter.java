@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.identity.application.authentication.endpoint;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.application.authentication.endpoint.util.AuthenticationEndpointUtil;
@@ -84,7 +85,7 @@ public class AuthenticationEndpointFilter implements Filter {
                                             servletRequest.getParameter(REQUEST_PARAM_APPLICATION) : null;
         String relativePath = ((HttpServletRequest) servletRequest).getRequestURI().substring(
                 ((HttpServletRequest) servletRequest).getContextPath().length());
-        if (serviceProviderName != null && !serviceProviderName.isEmpty()) {
+        if (StringUtils.isNotBlank(serviceProviderName)) {
             appSpecificCustomPageConfigKey = AuthenticationEndpointUtil.getApplicationSpecificCustomPageConfigKey
                     (CharacterEncoder.getSafeText(serviceProviderName), relativePath);
         }
