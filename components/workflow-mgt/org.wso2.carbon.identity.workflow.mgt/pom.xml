@@ -103,7 +103,9 @@
                             org.wso2.carbon.bpel.stub.upload,
                             org.wso2.carbon.bpel.stub.upload.types,
                             org.wso2.carbon.humantask.stub.upload,
-                            org.wso2.carbon.humantask.stub.upload.types
+                            org.wso2.carbon.humantask.stub.upload.types,
+                            org.wso2.carbon.user.api,
+                            org.wso2.carbon.user.core.tenant
                         </Import-Package>
                         <Export-Package>
                             !org.wso2.carbon.identity.workflow.mgt.internal,

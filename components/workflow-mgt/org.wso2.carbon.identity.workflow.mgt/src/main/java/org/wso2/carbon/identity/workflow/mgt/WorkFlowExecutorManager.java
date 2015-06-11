@@ -24,6 +24,8 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jaxen.JaxenException;
+import org.wso2.carbon.base.MultitenantConstants;
+import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkFlowRequest;
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowAssociation;
 import org.wso2.carbon.identity.workflow.mgt.dao.WorkflowDAO;
@@ -32,6 +34,7 @@ import org.wso2.carbon.identity.workflow.mgt.exception.InternalWorkflowException
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.internal.WorkflowServiceDataHolder;
 import org.wso2.carbon.identity.workflow.mgt.ws.WorkflowRequestBuilder;
+import org.wso2.carbon.user.api.UserStoreException;
 
 import java.util.List;
 import java.util.Map;
@@ -44,13 +47,16 @@ public class WorkFlowExecutorManager {
     private static Log log = LogFactory.getLog(WorkFlowExecutorManager.class);
 
     private WorkFlowExecutorManager() {
+
     }
 
     public static WorkFlowExecutorManager getInstance() {
+
         return instance;
     }
 
     public void executeWorkflow(WorkFlowRequest workFlowRequest) throws WorkflowException {
+
         workFlowRequest.setUuid(UUID.randomUUID().toString());
         OMElement xmlRequest = WorkflowRequestBuilder.buildXMLRequest(workFlowRequest);
         WorkflowDAO workflowDAO = new WorkflowDAO();
@@ -83,18 +89,40 @@ public class WorkFlowExecutorManager {
 
     private void handleCallback(WorkFlowRequest request, String status, Map<String, Object> additionalParams)
             throws WorkflowException {
+
         if (request != null) {
             String eventId = request.getEventType();
             WorkflowRequestHandler requestHandler = WorkflowServiceDataHolder.getInstance().getRequestHandler(eventId);
             if (requestHandler == null) {
                 throw new InternalWorkflowException("No request handlers registered for the id: " + eventId);
             }
-            requestHandler.onWorkflowCompletion(status, request, additionalParams);
+            if (request.getTenantId() == MultitenantConstants.INVALID_TENANT_ID) {
+                throw new InternalWorkflowException(
+                        "Invalid tenant id for request " + eventId + " with id" + request.getUuid());
+            }
+            PrivilegedCarbonContext.startTenantFlow();
+            PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext
+                    .getThreadLocalCarbonContext();
+            try {
+                String tenantDomain = WorkflowServiceDataHolder.getInstance().getRealmService().getTenantManager()
+                        .getDomain(request.getTenantId());
+                carbonContext.setTenantId(request.getTenantId());
+                carbonContext.setTenantDomain(tenantDomain);
+                requestHandler.onWorkflowCompletion(status, request, additionalParams);
+            } catch (WorkflowException e) {
+                throw e;
+            } catch (UserStoreException e) {
+                throw new InternalWorkflowException("Error when getting tenant domain for tenant id " + request
+                        .getTenantId());
+            } finally {
+                PrivilegedCarbonContext.endTenantFlow();
+            }
         }
     }
 
     public void handleCallback(String uuid, String status, Map<String, Object> additionalParams)
             throws WorkflowException {
+
         WorkflowRequestDAO requestDAO = new WorkflowRequestDAO();
         WorkFlowRequest request = requestDAO.retrieveWorkflow(uuid);
         handleCallback(request, status, additionalParams);
