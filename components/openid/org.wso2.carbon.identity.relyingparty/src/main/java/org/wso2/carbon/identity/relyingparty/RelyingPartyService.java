@@ -150,11 +150,11 @@ public class RelyingPartyService extends AbstractAdmin {
         claims = claimManager.getAllSupportedClaims(dialect, realm);
 
         String openidRealm = (String) IdentityConfigParser.getInstance().getConfiguration()
-                                                          .get(IdentityConfigParser.OPENID_REALM);
+                .get(IdentityConfigParser.OPENID_REALM);
 
         boolean requestClaimsFromIdP = Boolean
                 .parseBoolean((String) IdentityConfigParser.getInstance().getConfiguration()
-                                                           .get(IdentityConfigParser.REQUEST_CLAIMS_FROM_IDP));
+                        .get(IdentityConfigParser.REQUEST_CLAIMS_FROM_IDP));
 
         if (claims == null || claims.length == 0) {
             return null;
@@ -174,7 +174,7 @@ public class RelyingPartyService extends AbstractAdmin {
         dto = new OpenIDAuthInfoDTO();
         dto.setOptionalClaims(optional.toArray(new String[optional.size()]));
         dto.setRequiredClaims(required.toArray(new String[required.size()]));
-        dto.setRequestTypes(new String[] { IdentityConstants.OpenId.SIMPLE_REGISTRATION });
+        dto.setRequestTypes(new String[]{IdentityConstants.OpenId.SIMPLE_REGISTRATION});
         dto.setRealm(openidRealm);
         dto.setRequestClaimsFromIdP(requestClaimsFromIdP);
         return dto;
@@ -237,28 +237,29 @@ public class RelyingPartyService extends AbstractAdmin {
             int tenantId = realmService.getTenantManager().getTenantId(domainName);
 
             if (tenantId == -1) {
-                String message = "Your google app domain " + domainName
-                                 +
-                                 " is not setup for Stratos. Please contact your Goole Apps administrator and ask him to setup Stratos via Google Apps Marketplace.";
+                String message = "Your google app domain " + domainName +
+                                 " is not setup for Stratos. Please contact your Goole Apps administrator and ask him" +
+                                 " to setup Stratos via Google Apps Marketplace.";
                 throw new Exception(message);
             }
 
             userRealm = IdentityTenantUtil.getRealm(domainName, null);
             if (!userRealm.getUserStoreManager().isExistingUser(username)) {
                 if (!GOOGLE_APPS_IDP_NAME.equals(userRealm.getRealmConfiguration().getUserStoreProperties()
-                                                          .get(UserCoreConstants.RealmConfig.PROPERTY_EXTERNAL_IDP))) {
+                                                         .get(UserCoreConstants.RealmConfig.PROPERTY_EXTERNAL_IDP))) {
                     throw new Exception(
-                            "The domain you are trying to login already exist. If you can prove your rights to this domain please contact administrator.");
+                            "The domain you are trying to login already exist. If you can prove your rights to this " +
+                            "domain please contact administrator.");
                 }
                 String password = UUIDGenerator.getUUID();
                 UserStoreManager userStore = userRealm.getUserStoreManager();
                 if (!userStore.isExistingRole(IdentityConstants.IDENTITY_DEFAULT_ROLE)) {
                     Permission permission = new Permission("/permission/admin/login", UserMgtConstants.EXECUTE_ACTION);
                     userStore.addRole(IdentityConstants.IDENTITY_DEFAULT_ROLE, null,
-                                      new Permission[] { permission }, false);
+                                      new Permission[]{permission}, false);
                 }
                 userStore.addUser(username, password,
-                                  new String[] { IdentityConstants.IDENTITY_DEFAULT_ROLE }, null, null);
+                                  new String[]{IdentityConstants.IDENTITY_DEFAULT_ROLE}, null, null);
                 IdentityPersistenceManager manager = IdentityPersistenceManager.getPersistanceManager();
                 registry = IdentityRPServiceComponent.getRegistryService().getConfigSystemRegistry(tenantId);
                 manager.doOpenIdSignUp(registry, userRealm, openId.getOpenID(), username);
