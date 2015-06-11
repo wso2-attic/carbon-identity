@@ -1,17 +1,19 @@
 /*
- * Copyright 2005-2008 WSO2, Inc. (http://wso2.com)
+ * Copyright (c) 2008, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package org.wso2.carbon.identity.relyingparty.openid;
@@ -31,7 +33,10 @@ import java.net.URL;
 public class OpenIDUtil {
 
     private static OpenIDRelyingPartyData rpData;
-    private static Log log = LogFactory.getLog(OpenIDUtil.class);
+    private static final Log log = LogFactory.getLog(OpenIDUtil.class);
+
+    private OpenIDUtil() {
+    }
 
     /**
      * When the RP hosted Tomcat is behind an Apache serever, OpenID verification fails since
@@ -82,23 +87,21 @@ public class OpenIDUtil {
                 log.debug("Mapping port number facing Apache:" + data.getMappingPortNumber());
             }
 
-            if (data.getMappedHostName() != null && data.getMappingHostName() != null) {
-                if (data.getMappingHostName().equals(url.getHost())) {
-                    hostName = data.getMappedHostName();
-                }
+            if (data.getMappedHostName() != null && data.getMappingHostName() != null &&
+                data.getMappingHostName().equals(url.getHost())) {
+                hostName = data.getMappedHostName();
             }
 
-            if (data.getMappedPortNumber() != null && data.getMappingPortNumber() != null) {
-                if (Integer.parseInt(data.getMappingPortNumber()) == url.getPort()) {
-                    portNumber = Integer.parseInt(data.getMappedPortNumber());
-                }
+            if (data.getMappedPortNumber() != null && data.getMappingPortNumber() != null &&
+                Integer.parseInt(data.getMappingPortNumber()) == url.getPort()) {
+                portNumber = Integer.parseInt(data.getMappedPortNumber());
             }
         }
 
         try {
 
-            if ((url.getProtocol().toLowerCase().equals("http") && portNumber == 80)
-                    || (url.getProtocol().toLowerCase().equals("https") && portNumber == 443)) {
+            if (("http".equalsIgnoreCase(url.getProtocol()) && portNumber == 80)
+                || ("https".equalsIgnoreCase(url.getProtocol()) && portNumber == 443)) {
                 url = new URL(url.getProtocol().toLowerCase(), hostName, url.getPath());
             } else {
                 url = new URL(url.getProtocol().toLowerCase(), hostName, portNumber, url.getPath());
