@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -16,10 +16,19 @@
  * under the License.
  */
 
-package org.wso2.carbon.identity.application.authentication.framework;
+package org.wso2.carbon.claim.mgt;
 
-import java.io.Serializable;
+public class ClaimManagementException extends Exception {
 
-public enum AuthenticatorStatus implements Serializable {
-    FAIL, PASS, CONTINUE
+    public ClaimManagementException() {
+        super();
+    }
+
+    public ClaimManagementException(String message) {
+        super(message);
+    }
+
+    public ClaimManagementException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }
