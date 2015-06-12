@@ -67,8 +67,8 @@ public class CacheBasedArtifactStorage implements ArtifactStorage {
         SAMLSSOArtifactResponse artifactResponse = null;
         SAMLSSOArtifactCacheKey key = new SAMLSSOArtifactCacheKey(artifact);
         CacheEntry cacheEntry = SAMLSSOArtifactCache.getInstance(0).getValueFromCache(key);
-        if(cacheEntry != null) {
-            artifactResponse = ((SAMLSSOArtifactCacheEntry)cacheEntry).getArtifactResponse();
+        if (cacheEntry != null) {
+            artifactResponse = ((SAMLSSOArtifactCacheEntry) cacheEntry).getArtifactResponse();
         } else {
             if (log.isDebugEnabled()) {
                 log.debug("Cache Entry Not Found for the Received Artifact");

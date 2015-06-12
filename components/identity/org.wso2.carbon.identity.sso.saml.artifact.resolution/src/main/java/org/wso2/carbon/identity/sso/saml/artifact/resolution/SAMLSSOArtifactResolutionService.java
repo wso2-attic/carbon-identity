@@ -40,6 +40,7 @@ public class SAMLSSOArtifactResolutionService {
 
     /**
      * Receives the SOAP message containing the <ArtifactResolve>
+     *
      * @param omElement Artifact Resolve message
      * @return
      * @throws Exception
@@ -53,7 +54,7 @@ public class SAMLSSOArtifactResolutionService {
                 log.debug(xmlString);
             }
 
-            ArtifactResolve artifactResolve = (ArtifactResolve)SAMLSSOUtil.unmarshall(xmlString);
+            ArtifactResolve artifactResolve = (ArtifactResolve) SAMLSSOUtil.unmarshall(xmlString);
             ArtifactResponse artifactResponse = new SAMLSSOArtifactResolver().resolveArtifact(artifactResolve);
             OMElement responseElement = AXIOMUtil.stringToOM(SAMLSSOUtil.marshall(artifactResponse));
             return responseElement;

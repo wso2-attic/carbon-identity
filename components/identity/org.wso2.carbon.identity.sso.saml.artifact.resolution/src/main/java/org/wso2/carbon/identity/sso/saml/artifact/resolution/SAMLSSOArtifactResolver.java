@@ -40,14 +40,14 @@ public class SAMLSSOArtifactResolver {
 
         SAMLSSOArtifactResponse samlSsoArtifactResponse = null;
 
-        if(artifactResolve.getArtifact() != null) {
+        if (artifactResolve.getArtifact() != null) {
             Artifact artifact = artifactResolve.getArtifact();
             String artifactStr = artifact.getArtifact();
 
-            if(artifactStr != null) {
+            if (artifactStr != null) {
                 ArtifactStorage artifactStorage = ArtifactStorageRegistry.getInstance().getArtifactStorage();
                 samlSsoArtifactResponse = artifactStorage.retrieve(artifactStr);
-                if(samlSsoArtifactResponse != null) {
+                if (samlSsoArtifactResponse != null) {
                     artifactStorage.clearEntry(artifactStr);  // Ensure one time use property
                 }
             } else {

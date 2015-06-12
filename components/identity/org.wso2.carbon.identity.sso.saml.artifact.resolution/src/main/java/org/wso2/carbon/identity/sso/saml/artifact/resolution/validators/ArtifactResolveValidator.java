@@ -73,7 +73,7 @@ public class ArtifactResolveValidator {
             Registry registry = (Registry) PrivilegedCarbonContext.getThreadLocalCarbonContext().getRegistry(RegistryType.SYSTEM_CONFIGURATION);
             SAMLSSOServiceProviderDO serviceProviderDO = persistenceManager.getServiceProvider(registry, artifactResolve.getIssuer().getValue());
             String alias = serviceProviderDO.getCertAlias();
-            return SAMLSSOUtil.validateXMLSignature((RequestAbstractType)artifactResolve, alias, domainName);
+            return SAMLSSOUtil.validateXMLSignature((RequestAbstractType) artifactResolve, alias, domainName);
         }
     }
 }

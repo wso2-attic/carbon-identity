@@ -37,7 +37,7 @@ public class ArtifactResolutionServiceComponent {
     protected void activate(ComponentContext componentContext) {
 
         ArtifactStorage artifactStorage = new CacheBasedArtifactStorage();
-        ((CacheBasedArtifactStorage)artifactStorage).setDefaultPriority();
+        ((CacheBasedArtifactStorage) artifactStorage).setDefaultPriority();
         ArtifactStorageRegistry.getInstance().addArtifactStorage(artifactStorage);
         if (log.isDebugEnabled()) {
             log.info("Artifact Resolution Service bundle is activated");
