@@ -1,20 +1,22 @@
 /*
- * Copyright 2004,2005 The Apache Software Foundation.
+ * Copyright (c) 2005, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
-package org.wso2.carbon.identity.sts.store.dao;
 
+package org.wso2.carbon.identity.sts.store.dao;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -23,10 +25,20 @@ import org.apache.rahas.TrustException;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
 import org.wso2.carbon.identity.sts.store.DBQueries;
-import org.wso2.carbon.identity.sts.store.util.STSStoreUtils;
+import org.wso2.carbon.identity.sts.store.STSMgtConstants;
 
-import java.io.*;
-import java.sql.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.sql.Blob;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -63,7 +75,6 @@ public class DBStsDAO {
             connection.commit();
 
         } catch (Exception e) {
-            STSStoreUtils.removeTokenFromCache(token.getId());
             try {
                 if (connection != null) {
                     connection.rollback();
@@ -99,7 +110,6 @@ public class DBStsDAO {
         try {
             connection = getDBConnection();
             prepStmt = connection.prepareStatement(query);
-            //  prepStmt.setObject(1, token);
             byte[] tokenByteContainer = getTokenContent(token);
             InputStream tokenInputStream = new ByteArrayInputStream(tokenByteContainer);
             prepStmt.setBinaryStream(1, tokenInputStream, tokenByteContainer.length);
@@ -111,7 +121,6 @@ public class DBStsDAO {
             connection.commit();
 
         } catch (Exception e) {
-            STSStoreUtils.removeTokenFromCache(token.getId());
             String msg = "Failed to update token ";
             if (connection != null) {
                 try {
@@ -166,20 +175,20 @@ public class DBStsDAO {
         PreparedStatement prepStmt = null;
         ResultSet rs = null;
         List<String> keyList;
-        String keys[] = new String[0];
+        String[] keys = new String[0];
         String query = DBQueries.ALL_TOKEN_KEYS;
         try {
             connection = getDBConnection();
             prepStmt = connection.prepareStatement(query);
             rs = prepStmt.executeQuery();
 
-            keyList = new ArrayList<String>();
+            keyList = new ArrayList<>();
             if (rs != null) {
                 while (rs.next()) {
-                    keyList.add(rs.getString("TOKEN_ID"));
+                    keyList.add(rs.getString(STSMgtConstants.TOKEN_ID));
                 }
             }
-            if (keyList.size() > 0) {
+            if (!keyList.isEmpty()) {
                 keys = keyList.toArray(new String[keyList.size()]);
             }
         } catch (Exception e) {
@@ -213,7 +222,7 @@ public class DBStsDAO {
 
             if (rs != null) {
                 while (rs.next()) {
-                    Blob tokenContent = rs.getBlob("TOKEN_CONTENT");
+                    Blob tokenContent = rs.getBlob(STSMgtConstants.TOKEN_CONTENT);
                     byte[] tokenContentBytes = tokenContent.getBytes(1, (int) tokenContent.length());
                     token = getToken(tokenContentBytes);
                 }
@@ -228,7 +237,7 @@ public class DBStsDAO {
         return token;
     }
 
-    private Token getToken(byte tokenContentBytes[]) throws TrustException {
+    private Token getToken(byte[] tokenContentBytes) throws TrustException {
         Token token;
         try {
             ByteArrayInputStream tokenContentByteArray = new ByteArrayInputStream(tokenContentBytes);
@@ -262,7 +271,7 @@ public class DBStsDAO {
 
             if (rs != null) {
                 while (rs.next()) {
-                    tokens.add(getToken((byte[]) rs.getObject("TOKEN_CONTENT")));
+                    tokens.add(getToken((byte[]) rs.getObject(STSMgtConstants.TOKEN_CONTENT)));
                 }
             }
             return tokens;
@@ -282,7 +291,7 @@ public class DBStsDAO {
      * @return Arrays of Tokens
      * @throws TrustException if failed to get valid tokens
      */
-    public Token[] getValidTokens(int status[]) throws TrustException {
+    public Token[] getValidTokens(int[] status) throws TrustException {
         Connection connection = null;
         PreparedStatement prepStmt = null;
         ResultSet rs = null;
@@ -298,7 +307,7 @@ public class DBStsDAO {
 
             if (rs != null) {
                 while (rs.next()) {
-                    Token token = getToken((byte[]) rs.getObject("TOKEN_CONTENT"));
+                    Token token = getToken((byte[]) rs.getObject(STSMgtConstants.TOKEN_CONTENT));
                     tokens.add(token);
                 }
             }
@@ -360,7 +369,7 @@ public class DBStsDAO {
 
             if (rs != null) {
                 while (rs.next()) {
-                    Token token = getToken((byte[]) rs.getObject("TOKEN_CONTENT"));
+                    Token token = getToken((byte[]) rs.getObject(STSMgtConstants.TOKEN_CONTENT));
                     tokens.add(token);
                 }
             }
@@ -392,10 +401,8 @@ public class DBStsDAO {
             prepStmt = connection.prepareStatement(query);
             rs = prepStmt.executeQuery();
 
-            if (rs != null) {
-                if (rs.next()) {
-                    return true;
-                }
+            if (rs != null && rs.next()) {
+                return true;
             }
 
         } catch (Exception e) {
@@ -424,6 +431,5 @@ public class DBStsDAO {
         }
         return tokenBytes;
     }
-
 
 }

@@ -1,3 +1,20 @@
+/*
+ * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package org.wso2.carbon.identity.user.store.remote;
 
 import org.apache.axis2.context.ConfigurationContext;
@@ -23,12 +40,16 @@ import java.util.Map.Entry;
 public class CarbonRemoteUserStoreManger implements UserStoreManager {
 
     private static final String CONNECTION_REFUSED = "Connection refused";
-    private static Log log = LogFactory.getLog(CarbonRemoteUserStoreManger.class);
+    private static final Log log = LogFactory.getLog(CarbonRemoteUserStoreManger.class);
+    public static final String SERVER_URLS = "serverUrls";
+    public static final String REMOTE_USER_NAME = "remoteUserName";
+    public static final String PASSWORD = "password";
     private WSUserStoreManager remoteUserStore;
     private RealmConfiguration realmConfig;
     private String domainName;
     private UserStoreManager secondaryUserStoreManager;
     private Map<String, WSUserStoreManager> remoteServers = new HashMap<String, WSUserStoreManager>();
+    private static final String REMOTE_ERROR_MSG = "Error occured while getting remote store value: ignoring the error";
 
     public CarbonRemoteUserStoreManger() {
 
@@ -45,18 +66,18 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
         ConfigurationContext configurationContext = ConfigurationContextFactory
                 .createDefaultConfigurationContext();
 
-        HashMap<String, TransportOutDescription> transportsOut = configurationContext
+        Map<String, TransportOutDescription> transportsOut = configurationContext
                 .getAxisConfiguration().getTransportsOut();
         for (TransportOutDescription transportOutDescription : transportsOut.values()) {
             transportOutDescription.getSender().init(configurationContext, transportOutDescription);
         }
 
-        String[] serverUrls = realmConfig.getUserStoreProperty("serverUrls").split(",");
+        String[] serverUrls = realmConfig.getUserStoreProperty(SERVER_URLS).split(",");
 
         for (int i = 0; i < serverUrls.length; i++) {
             remoteUserStore = new WSUserStoreManager(
-                    realmConfig.getUserStoreProperty("remoteUserName"),
-                    realmConfig.getUserStoreProperty("password"), serverUrls[i],
+                    realmConfig.getUserStoreProperty(REMOTE_USER_NAME),
+                    realmConfig.getUserStoreProperty(PASSWORD), serverUrls[i],
                     configurationContext);
 
             if (log.isDebugEnabled()) {
@@ -73,21 +94,23 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
     /**
      *
      */
+
+    @Override
     public Properties getDefaultUserStoreProperties() {
         Properties properties = new Properties();
         Property[] mandatoryProperties = null;
         Property[] optionalProperties = null;
         Property remoteServerUserName = new Property(
-                "remoteUserName",
+                REMOTE_USER_NAME,
                 "",
                 "Remote Sever Username#Name of a user from the remote server, having enough privileges for user management",
                 null);
-        Property password = new Property("password", "",
+        Property password = new Property(PASSWORD, "",
                 "Remote Server Password#The password correspoing to the remote server " +
                         "username#encrypt",
                 null);
         Property serverUrls = new Property(
-                "serverUrls",
+                SERVER_URLS,
                 "",
                 "Remote Server URL(s)#Remote server URLs. e.g.: https://ca-datacenter/services,https://va-datacenter/services",
                 null);
@@ -138,6 +161,13 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
                         break;
                     } catch (UserStoreException ex) {
                         if (!CONNECTION_REFUSED.equalsIgnoreCase(e.getMessage())) {
+
+                            if(log.isDebugEnabled()){
+
+                                log.debug(REMOTE_ERROR_MSG,ex);
+
+                            }
+
                             throw e;
                         }
                         log.error("Failed to connect to the remote server : "
@@ -206,6 +236,13 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
                         break;
                     } catch (UserStoreException ex) {
                         if (!CONNECTION_REFUSED.equalsIgnoreCase(e.getMessage())) {
+
+                            if(log.isDebugEnabled()){
+
+                                log.debug(REMOTE_ERROR_MSG,ex);
+
+                            }
+
                             throw e;
                         }
                         log.error("Failed to connect to the remote server : "
@@ -274,6 +311,13 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
                         break;
                     } catch (UserStoreException ex) {
                         if (!CONNECTION_REFUSED.equalsIgnoreCase(e.getMessage())) {
+
+                            if(log.isDebugEnabled()){
+
+                                log.debug(REMOTE_ERROR_MSG,ex);
+
+                            }
+
                             throw e;
                         }
                         log.error("Failed to connect to the remote server : "
@@ -313,6 +357,13 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
                         break;
                     } catch (UserStoreException ex) {
                         if (!CONNECTION_REFUSED.equalsIgnoreCase(e.getMessage())) {
+
+                            if(log.isDebugEnabled()){
+
+                                log.debug(REMOTE_ERROR_MSG,ex);
+
+                            }
+
                             throw e;
                         }
                         log.error("Failed to connect to the remote server : "
@@ -343,6 +394,13 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
                         break;
                     } catch (UserStoreException ex) {
                         if (!CONNECTION_REFUSED.equalsIgnoreCase(e.getMessage())) {
+
+                            if(log.isDebugEnabled()){
+
+                                log.debug(REMOTE_ERROR_MSG,ex);
+
+                            }
+
                             throw e;
                         }
                         log.error("Failed to connect to the remote server : "
@@ -375,6 +433,13 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
                         break;
                     } catch (UserStoreException ex) {
                         if (!CONNECTION_REFUSED.equalsIgnoreCase(e.getMessage())) {
+
+                            if(log.isDebugEnabled()){
+
+                                log.debug(REMOTE_ERROR_MSG,ex);
+
+                            }
+
                             throw e;
                         }
                         log.error("Failed to connect to the remote server : "
@@ -415,6 +480,12 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
                         break;
                     } catch (UserStoreException ex) {
                         if (!CONNECTION_REFUSED.equalsIgnoreCase(e.getMessage())) {
+
+                            if(log.isDebugEnabled()){
+
+                                log.debug(REMOTE_ERROR_MSG,ex);
+
+                            }
                             throw e;
                         }
                         log.error("Failed to connect to the remote server : "
@@ -455,6 +526,13 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
                         break;
                     } catch (UserStoreException ex) {
                         if (!CONNECTION_REFUSED.equalsIgnoreCase(e.getMessage())) {
+
+                            if(log.isDebugEnabled()){
+
+                                log.debug(REMOTE_ERROR_MSG,ex);
+
+                            }
+
                             throw e;
                         }
                         log.error("Failed to connect to the remote server : "
@@ -486,6 +564,13 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
                         break;
                     } catch (UserStoreException ex) {
                         if (!CONNECTION_REFUSED.equalsIgnoreCase(e.getMessage())) {
+
+                            if(log.isDebugEnabled()){
+
+                                log.debug(REMOTE_ERROR_MSG,ex);
+
+                            }
+
                             throw e;
                         }
                         log.error("Failed to connect to the remote server : "
@@ -524,6 +609,13 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
                         break;
                     } catch (UserStoreException ex) {
                         if (!CONNECTION_REFUSED.equalsIgnoreCase(e.getMessage())) {
+
+                            if(log.isDebugEnabled()){
+
+                                log.debug(REMOTE_ERROR_MSG,ex);
+
+                            }
+
                             throw e;
                         }
                         log.error("Failed to connect to the remote server : "
@@ -565,6 +657,13 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
                         break;
                     } catch (UserStoreException ex) {
                         if (!CONNECTION_REFUSED.equalsIgnoreCase(e.getMessage())) {
+
+                            if(log.isDebugEnabled()){
+
+                                log.debug(REMOTE_ERROR_MSG,ex);
+
+                            }
+
                             throw e;
                         }
                         log.error("Failed to connect to the remote server : "
@@ -598,6 +697,13 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
                         break;
                     } catch (UserStoreException ex) {
                         if (!CONNECTION_REFUSED.equalsIgnoreCase(e.getMessage())) {
+
+                            if(log.isDebugEnabled()){
+
+                                log.debug(REMOTE_ERROR_MSG,ex);
+
+                            }
+
                             throw e;
                         }
                         log.error("Failed to connect to the remote server : "
@@ -632,6 +738,13 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
                         break;
                     } catch (UserStoreException ex) {
                         if (!CONNECTION_REFUSED.equalsIgnoreCase(e.getMessage())) {
+
+                            if(log.isDebugEnabled()){
+
+                                log.debug(REMOTE_ERROR_MSG,ex);
+
+                            }
+
                             throw e;
                         }
                         log.error("Failed to connect to the remote server : "
@@ -665,6 +778,13 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
                         break;
                     } catch (UserStoreException ex) {
                         if (!CONNECTION_REFUSED.equalsIgnoreCase(e.getMessage())) {
+
+                            if(log.isDebugEnabled()){
+
+                                log.debug(REMOTE_ERROR_MSG,ex);
+
+                            }
+
                             throw e;
                         }
                         log.error("Failed to connect to the remote server : "
@@ -695,6 +815,13 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
                         break;
                     } catch (UserStoreException ex) {
                         if (!CONNECTION_REFUSED.equalsIgnoreCase(e.getMessage())) {
+
+                            if(log.isDebugEnabled()){
+
+                                log.debug(REMOTE_ERROR_MSG,ex);
+
+                            }
+
                             throw e;
                         }
                         log.error("Failed to connect to the remote server : "
@@ -717,6 +844,8 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
                 remoteStore.getValue().addUser(userName, credential, roleList, claims, profileName);
             } catch (UserStoreException e) {
                 if (!CONNECTION_REFUSED.equalsIgnoreCase(e.getMessage())) {
+
+
                     throw e;
                 }
                 log.error("Failed to connect to the remote server : " + remoteStore.getKey());
@@ -779,13 +908,13 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
     @Override
     public void deleteUser(String userName) throws UserStoreException {
 
-        userName = UserCoreUtil.removeDomainFromName(userName);
+        String domainAwareUserName = UserCoreUtil.removeDomainFromName(userName);
 
         for (Iterator<Entry<String, WSUserStoreManager>> iterator = remoteServers.entrySet()
                 .iterator(); iterator.hasNext(); ) {
             Entry<String, WSUserStoreManager> remoteStore = iterator.next();
             try {
-                remoteStore.getValue().deleteUser(userName);
+                remoteStore.getValue().deleteUser(domainAwareUserName);
             } catch (UserStoreException e) {
                 if (!CONNECTION_REFUSED.equalsIgnoreCase(e.getMessage())) {
                     throw e;
@@ -798,13 +927,13 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
     @Override
     public void deleteRole(String roleName) throws UserStoreException {
 
-        roleName = UserCoreUtil.removeDomainFromName(roleName);
+        String domainAwareRoleName = UserCoreUtil.removeDomainFromName(roleName);
 
         for (Iterator<Entry<String, WSUserStoreManager>> iterator = remoteServers.entrySet()
                 .iterator(); iterator.hasNext(); ) {
             Entry<String, WSUserStoreManager> remoteStore = iterator.next();
             try {
-                remoteStore.getValue().deleteRole(roleName);
+                remoteStore.getValue().deleteRole(domainAwareRoleName);
             } catch (UserStoreException e) {
                 if (!CONNECTION_REFUSED.equalsIgnoreCase(e.getMessage())) {
                     throw e;
@@ -936,6 +1065,13 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
                         break;
                     } catch (UserStoreException ex) {
                         if (!CONNECTION_REFUSED.equalsIgnoreCase(e.getMessage())) {
+
+                            if(log.isDebugEnabled()){
+
+                                log.debug(REMOTE_ERROR_MSG,ex);
+
+                            }
+
                             throw e;
                         }
                         log.error("Failed to connect to the remote server : "
@@ -975,6 +1111,13 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
                         break;
                     } catch (UserStoreException ex) {
                         if (!CONNECTION_REFUSED.equalsIgnoreCase(e.getMessage())) {
+
+                            if(log.isDebugEnabled()){
+
+                                log.debug(REMOTE_ERROR_MSG,ex);
+
+                            }
+
                             throw e;
                         }
                         log.error("Failed to connect to the remote server : "
@@ -1012,6 +1155,13 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
                         break;
                     } catch (UserStoreException ex) {
                         if (!CONNECTION_REFUSED.equalsIgnoreCase(e.getMessage())) {
+
+                            if(log.isDebugEnabled()){
+
+                                log.debug(REMOTE_ERROR_MSG,ex);
+
+                            }
+
                             throw e;
                         }
                         log.error("Failed to connect to the remote server : "
@@ -1042,6 +1192,13 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
                         break;
                     } catch (UserStoreException ex) {
                         if (!CONNECTION_REFUSED.equalsIgnoreCase(e.getMessage())) {
+
+                            if(log.isDebugEnabled()){
+
+                                log.debug(REMOTE_ERROR_MSG,ex);
+
+                            }
+
                             throw e;
                         }
                         log.error("Failed to connect to the remote server : "
@@ -1072,6 +1229,13 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
                         break;
                     } catch (UserStoreException ex) {
                         if (!CONNECTION_REFUSED.equalsIgnoreCase(e.getMessage())) {
+
+                            if(log.isDebugEnabled()){
+
+                                log.debug(REMOTE_ERROR_MSG,ex);
+
+                            }
+
                             throw e;
                         }
                         log.error("Failed to connect to the remote server : "
@@ -1102,6 +1266,13 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
                         break;
                     } catch (UserStoreException ex) {
                         if (!CONNECTION_REFUSED.equalsIgnoreCase(e.getMessage())) {
+
+                            if(log.isDebugEnabled()){
+
+                                log.debug(REMOTE_ERROR_MSG,ex);
+
+                            }
+
                             throw e;
                         }
                         log.error("Failed to connect to the remote server : "
@@ -1132,6 +1303,13 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
                         break;
                     } catch (UserStoreException ex) {
                         if (!CONNECTION_REFUSED.equalsIgnoreCase(e.getMessage())) {
+
+                            if(log.isDebugEnabled()){
+
+                                log.debug(REMOTE_ERROR_MSG,ex);
+
+                            }
+
                             throw e;
                         }
                         log.error("Failed to connect to the remote server : "
@@ -1184,6 +1362,13 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
                         break;
                     } catch (UserStoreException ex) {
                         if (!CONNECTION_REFUSED.equalsIgnoreCase(e.getMessage())) {
+
+                            if(log.isDebugEnabled()){
+
+                                log.debug(REMOTE_ERROR_MSG,ex);
+
+                            }
+
                             throw e;
                         }
                         log.error("Failed to connect to the remote server : "
@@ -1221,7 +1406,7 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
 
     @Override
     public void addSecondaryUserStoreManager(String userDomain, UserStoreManager userStoreManager) {
-
+        return;
     }
 
     @Override

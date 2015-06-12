@@ -1,27 +1,34 @@
 /*
-*  Copyright (c) WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ *
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 
 package org.wso2.carbon.ldap.server;
 
 import org.apache.log4j.Logger;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
-import org.wso2.carbon.apacheds.*;
+import org.wso2.carbon.apacheds.DirectoryServiceFactory;
+import org.wso2.carbon.apacheds.KDCServer;
+import org.wso2.carbon.apacheds.KdcConfiguration;
+import org.wso2.carbon.apacheds.LDAPConfiguration;
+import org.wso2.carbon.apacheds.LDAPServer;
+import org.wso2.carbon.apacheds.PartitionInfo;
+import org.wso2.carbon.apacheds.PartitionManager;
 import org.wso2.carbon.ldap.server.configuration.LDAPConfigurationBuilder;
 import org.wso2.carbon.ldap.server.exception.DirectoryServerException;
 import org.wso2.carbon.ldap.server.tenant.LDAPTenantManagerService;
@@ -44,6 +51,7 @@ public class DirectoryActivator implements BundleActivator {
      *
      * @param bundleContext The input bundle context.
      */
+    @Override
     public void start(BundleContext bundleContext) {
 
         try {
@@ -112,23 +120,8 @@ public class DirectoryActivator implements BundleActivator {
                 logger.info("Embedded LDAP is disabled.");
             }
 
-        } catch (FileNotFoundException e) {
-            String errorMessage = "Could not start the embedded-ldap. ";
-            logger.error(errorMessage, e);
-
-        } catch (DirectoryServerException e) {
-            String errorMessage = "Could not start the embedded-ldap. ";
-            logger.error(errorMessage, e);
-
-        } catch (EmbeddingLDAPException e) {
-            String errorMessage = "Could not start the embedded-ldap. ";
-            logger.error(errorMessage, e);
-        } catch (Exception e) {
-            String errorMessage = "An unknown exception occurred while starting LDAP server. ";
-            logger.error(errorMessage, e);
-        } catch (Throwable e) {
-            String errorMessage = "An unknown error occurred while starting LDAP server. ";
-            logger.error(errorMessage, e);
+        } catch (FileNotFoundException | EmbeddingLDAPException | DirectoryServerException e) {
+            logger.error("Could not start the embedded-ldap. ", e);
         }
 
     }
@@ -163,25 +156,22 @@ public class DirectoryActivator implements BundleActivator {
     private void setWorkingDirectory(LDAPConfiguration ldapConfiguration)
             throws EmbeddingLDAPException {
 
-        if (ldapConfiguration.getWorkingDirectory().equals(".")) {
+        if (".".equals(ldapConfiguration.getWorkingDirectory())) {
             File dataDir = new File(getCarbonHome(), "repository/data");
-            if (!dataDir.exists()) {
-                if (!dataDir.mkdir()) {
-                    String msg = "Unable to create data directory at " + dataDir.getAbsolutePath();
-                    logger.error(msg);
-                    throw new EmbeddingLDAPException(msg);
-                }
+            if (!dataDir.exists() && !dataDir.mkdir()) {
+                String msg = "Unable to create data directory at " + dataDir.getAbsolutePath();
+                logger.error(msg);
+                throw new EmbeddingLDAPException(msg);
             }
 
             File bundleDataDir = new File(dataDir, "org.wso2.carbon.directory");
-            if (!bundleDataDir.exists()) {
-                if (!bundleDataDir.mkdirs()) {
-                    String msg = "Unable to create schema data directory at " + bundleDataDir.
-                            getAbsolutePath();
-                    logger.error(msg);
-                    throw new EmbeddingLDAPException(msg);
+            if (!bundleDataDir.exists() && !bundleDataDir.mkdirs()) {
+                String msg = "Unable to create schema data directory at " + bundleDataDir.
+                        getAbsolutePath();
+                logger.error(msg);
+                throw new EmbeddingLDAPException(msg);
 
-                }
+
             }
 
             ldapConfiguration.setWorkingDirectory(bundleDataDir.getAbsolutePath());
@@ -215,6 +205,7 @@ public class DirectoryActivator implements BundleActivator {
 
     }
 
+    @Override
     public void stop(BundleContext bundleContext)
             throws Exception {
 

@@ -1,20 +1,22 @@
 /*
-*  Copyright (c) WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ *
+ */
 
 package org.wso2.carbon.identity.sso.agent.bean;
 
@@ -27,7 +29,6 @@ import org.wso2.carbon.identity.sso.agent.util.SSOAgentUtils;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -95,6 +96,7 @@ public class LoggedInSessionBean implements Serializable{
             this.expiresIn = expiresIn;
         }
 
+        @Override
         public String toString() {
             Gson gson = new Gson();
             return gson.toJson(this);
@@ -106,7 +108,7 @@ public class LoggedInSessionBean implements Serializable{
         }
     }
 
-    public class OpenID {
+    public class OpenID implements Serializable {
 
         private DiscoveryInformation discoveryInformation;
 
@@ -141,6 +143,7 @@ public class LoggedInSessionBean implements Serializable{
 
     public class SAML2SSO implements Serializable{
 
+        public static final String EMPTY_STRING = "";
         private String subjectId;
 
         private Response response;
@@ -170,7 +173,7 @@ public class LoggedInSessionBean implements Serializable{
             if (accessTokenResponseBean != null) {
                 stream.writeObject(accessTokenResponseBean.toString());
             } else {
-                stream.writeObject("");
+                stream.writeObject(EMPTY_STRING);
             }
             stream.writeObject(subjectAttributes);
         }
@@ -181,18 +184,18 @@ public class LoggedInSessionBean implements Serializable{
             subjectId = (String) stream.readObject();
 
             responseString = (String) stream.readObject();
-            if (responseString != null && !"".equals(responseString)) {
+            if (responseString != null && !EMPTY_STRING.equals(responseString)) {
                 response = (Response) SSOAgentUtils.unmarshall(responseString);
             }
 
             assertionString = (String) stream.readObject();
-            if (responseString != null && !"".equals(assertionString)) {
+            if (responseString != null && !EMPTY_STRING.equals(assertionString)) {
                 assertion = (Assertion) SSOAgentUtils.unmarshall(assertionString);
             }
 
             sessionIndex = (String) stream.readObject();
             String accessTokenResponseBeanString = (String) stream.readObject();
-            if (!"".equals(accessTokenResponseBeanString)) {
+            if (!EMPTY_STRING.equals(accessTokenResponseBeanString)) {
                 accessTokenResponseBean = accessTokenResponseBean.deSerialize(accessTokenResponseBeanString);
             } else {
                 accessTokenResponseBean = null;

@@ -1,20 +1,21 @@
 /*
-*  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 package org.wso2.carbon.security.config;
 
 import org.apache.axiom.om.OMAbstractFactory;
@@ -125,12 +126,8 @@ public class SecurityServiceAdmin {
                 }
                 serviceGroupFilePM.put(serviceGroupId, policyWrapperElement, policiesXPath);
 
-//           todo the old impl doesn't add the policyUUID to the binding elements. Is it ok?
-//            if (!serviceGroupFilePM.elementExists(serviceGroupId, serviceXPath+
-//                    PersistenceUtils.getXPathTextPredicate(
-//                            Resources.ServiceProperties.POLICY_UUID, policy.getId() ))) {
-//                serviceGroupFilePM.put(serviceGroupId, idElement.cloneOMElement(), serviceXPath); + path to bindings?
-//            }
+            //todo the old impl doesn't add the policyUUID to the binding elements. Is it ok?
+
             }
 
             //to registry if proxy
@@ -144,7 +141,7 @@ public class SecurityServiceAdmin {
             }
 
             Map endPointMap = axisService.getEndpoints();
-            List<String> lst = new ArrayList<String>();
+            List<String> lst = new ArrayList<>();
             for (Object o : endPointMap.entrySet()) {
                 Map.Entry entry = (Map.Entry) o;
                 AxisEndpoint point = (AxisEndpoint) entry.getValue();
@@ -175,11 +172,14 @@ public class SecurityServiceAdmin {
                     continue;
                 }
 
-                String bindingElementPath = serviceXPath +
-                        "/" + Resources.ServiceProperties.BINDINGS +
-                        "/" + Resources.ServiceProperties.BINDING_XML_TAG +
-                        PersistenceUtils.getXPathAttrPredicate(Resources.NAME, bindingName);
-
+                StringBuilder bindingElementPathValue = new StringBuilder();
+                String bindingElementPath = (bindingElementPathValue
+                        .append(serviceXPath)
+                        .append("/")
+                        .append(Resources.ServiceProperties.BINDINGS)
+                        .append("/")
+                        .append(Resources.ServiceProperties.BINDING_XML_TAG)
+                        .append(PersistenceUtils.getXPathAttrPredicate(Resources.NAME, bindingName))).toString();
                 if (!serviceGroupFilePM.elementExists(serviceGroupId, bindingElementPath +
                         "/" + Resources.ServiceProperties.POLICY_UUID +
                         PersistenceUtils.getXPathTextPredicate(null, policy.getId()))) {
@@ -203,9 +203,9 @@ public class SecurityServiceAdmin {
             }
             // at axis2
         } catch (Exception e) {
-            log.error(e);
+            log.error("Error in adding security policy to all bindings", e);
             serviceGroupFilePM.rollbackTransaction(serviceGroupId);
-            throw new ServerException("addPoliciesToService");
+            throw new ServerException("addPoliciesToService", e);
         }
     }
 
@@ -217,7 +217,7 @@ public class SecurityServiceAdmin {
             String serviceXPath = PersistenceUtils.getResourcePath(axisService);
 
             Map endPointMap = axisService.getEndpoints();
-            List<String> lst = new ArrayList<String>();
+            List<String> lst = new ArrayList<>();
             for (Object o : endPointMap.entrySet()) {
                 Map.Entry entry = (Map.Entry) o;
                 AxisEndpoint point = (AxisEndpoint) entry.getValue();
@@ -238,10 +238,14 @@ public class SecurityServiceAdmin {
                 serviceGroupFilePM.beginTransaction(serviceGroupId);
             }
             for (String bindingName : lst) {
-                String bindingElementPath = serviceXPath +
-                        "/" + Resources.ServiceProperties.BINDINGS +
-                        "/" + Resources.ServiceProperties.BINDING_XML_TAG +
-                        PersistenceUtils.getXPathAttrPredicate(Resources.NAME, bindingName);
+                StringBuilder bindingElementPathValue = new StringBuilder();
+                String bindingElementPath = (bindingElementPathValue
+                        .append(serviceXPath)
+                        .append("/")
+                        .append(Resources.ServiceProperties.BINDINGS)
+                        .append("/")
+                        .append(Resources.ServiceProperties.BINDING_XML_TAG)
+                        .append(PersistenceUtils.getXPathAttrPredicate(Resources.NAME, bindingName))).toString();
                 serviceGroupFilePM.delete(serviceGroupId, bindingElementPath +
                         "/" + Resources.ServiceProperties.POLICY_UUID +
                         PersistenceUtils.getXPathTextPredicate(null, uuid));
@@ -251,9 +255,9 @@ public class SecurityServiceAdmin {
             }
             // at axis2
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            log.error("Error in removing security policy from all bindings", e);
             serviceGroupFilePM.rollbackTransaction(serviceGroupId);
-            throw new ServerException("addPoliciesToService");
+            throw new ServerException("addPoliciesToService", e);
         }
     }
 

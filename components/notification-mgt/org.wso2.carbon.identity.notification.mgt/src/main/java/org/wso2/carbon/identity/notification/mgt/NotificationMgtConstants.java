@@ -27,9 +27,15 @@ public class NotificationMgtConstants {
     public static final String MODULE_CONFIG_FILE = "msg-mgt.properties";
     public static final int THREAD_POOL_DEFAULT_SIZE = 5;
 
+    private NotificationMgtConstants() {
+    }
+
     public static class Configs {
         public static final String MODULE_NAME = "module.name";
         public static final String SUBSCRIPTION = "subscription";
         public static final String THREAD_POOL_SIZE = "threadPool.size";
+
+        private Configs() {
+        }
     }
 }

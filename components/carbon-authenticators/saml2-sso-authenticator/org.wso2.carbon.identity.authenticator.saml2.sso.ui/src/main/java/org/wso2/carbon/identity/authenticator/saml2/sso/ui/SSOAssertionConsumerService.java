@@ -181,7 +181,6 @@ public class SSOAssertionConsumerService extends HttpServlet {
             if (federatedSSOToken != null) {
                 isFederated = true;
                 HttpServletRequest fedRequest = federatedSSOToken.getHttpServletRequest();
-                HttpServletResponse fedResponse = federatedSSOToken.getHttpServletResponse();
 
                 String samlRequest = fedRequest.getParameter("SAMLRequest");
                 String authMode = SAMLConstants.AuthnModes.USERNAME_PASSWORD;
@@ -397,7 +396,7 @@ public class SSOAssertionConsumerService extends HttpServlet {
         Cookie[] cookies = req.getCookies();
         if (cookies != null) {
             for (Cookie cookie : cookies) {
-                if (cookie.getName().equals("ssoTokenId")) {
+                if ("ssoTokenId".equals(cookie.getName())) {
                     return cookie;
                 }
             }

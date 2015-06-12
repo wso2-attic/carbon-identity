@@ -1,17 +1,19 @@
 /*
- * Copyright 2005-2008 WSO2, Inc. (http://wso2.com)
+ * Copyright (c) 2008, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package org.wso2.carbon.identity.relyingparty;
@@ -37,7 +39,7 @@ public class RelyingPartyData {
     // To enable attempted thread-safety using double-check locking
     private static Object lock = new Object();
     private static RelyingPartyData relyingPartyData = null;
-    private static Log log = LogFactory.getLog(RelyingPartyData.class);
+    private static final Log log = LogFactory.getLog(RelyingPartyData.class);
     private KeyStore systemStore = null;
     private PrivateKey privateKey = null;
     private String validatePolicy = null;
@@ -91,7 +93,7 @@ public class RelyingPartyData {
             // Set the default value
             issuerPolicy = TokenVerifierConstants.SELF_AND_MANGED;
         } else if (!(issuerPolicy.equals(TokenVerifierConstants.SELF_ONLY)
-                || issuerPolicy.equals(TokenVerifierConstants.MANGED_ONLY) || issuerPolicy
+                     || issuerPolicy.equals(TokenVerifierConstants.MANGED_ONLY) || issuerPolicy
                 .equals(TokenVerifierConstants.SELF_AND_MANGED))) {
             throw new IdentityException("Invalid Issuer Policy!");
         }
@@ -145,8 +147,8 @@ public class RelyingPartyData {
         }
 
         if (validatePolicy.equals(TokenVerifierConstants.WHITE_LIST)
-                || validatePolicy.equals(TokenVerifierConstants.BLACK_LIST)
-                || validatePolicy.equals(TokenVerifierConstants.CERT_VALIDATE)) {
+            || validatePolicy.equals(TokenVerifierConstants.BLACK_LIST)
+            || validatePolicy.equals(TokenVerifierConstants.CERT_VALIDATE)) {
 
             String javaHome = null;
             String defaultKeyStore = null;
@@ -170,7 +172,7 @@ public class RelyingPartyData {
             if (defaultKeyStore != null && defaultKeyStore.trim().length() > 0) {
                 defaultKeyStore = javaHome + defaultKeyStore;
             } else {
-                if (File.separator.equals("/")) {
+                if ("/".equals(File.separator)) {
                     defaultKeyStore = javaHome + TokenVerifierConstants.CACERTS_STORE_UNIX;
                 } else {
                     defaultKeyStore = javaHome + TokenVerifierConstants.CACERTS_STORE_WIN;
@@ -182,10 +184,8 @@ public class RelyingPartyData {
                 sysKS = KeyStore.getInstance("JKS");
                 sysKS.load(fileStream, defaultStorePass.toCharArray());
                 this.systemStore = sysKS;
-            } catch (RuntimeException e) {
-                throw e;
             } catch (Exception e) {
-                throw new IdentityException("Cannot load system key store");
+                throw new IdentityException("Cannot load system key store", e);
             } finally {
                 if (fileStream != null) {
                     try {
@@ -260,13 +260,13 @@ public class RelyingPartyData {
 
         if (array != null) {
             if ((array.length > 1) && array[0].startsWith("{")) {
-                StringBuffer buff = new StringBuffer(array[0]);
+                StringBuilder buff = new StringBuilder(array[0]);
                 buff.deleteCharAt(0);
                 array[0] = buff.toString();
             }
             int lastIndex = array.length - 1;
             if ((array.length > 1) && array[lastIndex].endsWith("}")) {
-                StringBuffer buff = new StringBuffer(array[lastIndex]);
+                StringBuilder buff = new StringBuilder(array[lastIndex]);
                 buff.deleteCharAt(buff.length() - 1);
                 array[lastIndex] = buff.toString();
             }

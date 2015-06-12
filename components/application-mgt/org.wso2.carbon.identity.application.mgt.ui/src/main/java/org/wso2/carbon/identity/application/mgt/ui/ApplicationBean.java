@@ -1,22 +1,23 @@
 /*
- *Copyright (c) 2005-2013, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- *WSO2 Inc. licenses this file to you under the Apache License,
- *Version 2.0 (the "License"); you may not use this file except
- *in compliance with the License.
- *You may obtain a copy of the License at
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *Unless required by applicable law or agreed to in writing,
- *software distributed under the License is distributed on an
- *"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *KIND, either express or implied.  See the License for the
- *specific language governing permissions and limitations
- *under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 package org.wso2.carbon.identity.application.mgt.ui;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.wso2.carbon.identity.application.common.model.xsd.*;
 import org.wso2.carbon.ui.util.CharacterEncoder;
 
@@ -66,7 +67,6 @@ public class ApplicationBean {
         roleMap = null;
         claimMap = null;
         requestedClaims = new HashMap<String, String>();
-        ;
         samlIssuer = null;
         oauthAppName = null;
         wstrustEp = null;
@@ -518,7 +518,7 @@ public class ApplicationBean {
                 }
                 tempAuthRequest.add(authRequest[i]);
             }
-            if (tempAuthRequest.size() > 0) {
+            if (CollectionUtils.isNotEmpty(tempAuthRequest)) {
                 serviceProvider
                         .getInboundAuthenticationConfig()
                         .setInboundAuthenticationRequestConfigs(
@@ -553,7 +553,7 @@ public class ApplicationBean {
                 }
                 tempAuthRequest.add(authRequest[i]);
             }
-            if (tempAuthRequest.size() > 0) {
+            if (CollectionUtils.isNotEmpty(tempAuthRequest)) {
                 serviceProvider
                         .getInboundAuthenticationConfig()
                         .setInboundAuthenticationRequestConfigs(
@@ -580,7 +580,7 @@ public class ApplicationBean {
                 }
                 tempAuthRequest.add(authRequest[i]);
             }
-            if (tempAuthRequest.size() > 0) {
+            if (CollectionUtils.isNotEmpty(tempAuthRequest)) {
                 serviceProvider
                         .getInboundAuthenticationConfig()
                         .setInboundAuthenticationRequestConfigs(
@@ -687,7 +687,6 @@ public class ApplicationBean {
     }
 
     /**
-     *
      * @return
      */
     public String getPassiveSTSWReply() {
@@ -707,7 +706,7 @@ public class ApplicationBean {
                     Property[] properties = authRequest[i].getProperties();
                     if (properties != null) {
                         for (int j = 0; j < properties.length; j++) {
-                            if("passiveSTSWReply".equalsIgnoreCase(properties[j].getName())) {
+                            if ("passiveSTSWReply".equalsIgnoreCase(properties[j].getName())) {
                                 passiveSTSWReply = properties[j].getValue();
                                 break;
                             }
@@ -748,12 +747,12 @@ public class ApplicationBean {
                 authStep.setStepOrder(Integer.parseInt(authstep));
 
                 boolean isSubjectStep = request.getParameter("subject_step_" + authstep) != null
-                        && request.getParameter("subject_step_" + authstep).equals("on") ? true
+                        && "on".equals(request.getParameter("subject_step_" + authstep)) ? true
                         : false;
                 authStep.setSubjectStep(isSubjectStep);
 
                 boolean isAttributeStep = request.getParameter("attribute_step_" + authstep) != null
-                        && request.getParameter("attribute_step_" + authstep).equals("on") ? true
+                        && "on".equals(request.getParameter("attribute_step_" + authstep)) ? true
                         : false;
                 authStep.setAttributeStep(isAttributeStep);
 
@@ -778,7 +777,7 @@ public class ApplicationBean {
                         }
                     }
 
-                    if (localAuthList.size() > 0) {
+                    if (localAuthList != null && !localAuthList.isEmpty()) {
                         authStep.setLocalAuthenticatorConfigs(localAuthList
                                 .toArray(new LocalAuthenticatorConfig[localAuthList.size()]));
                     }
@@ -796,8 +795,8 @@ public class ApplicationBean {
                             idp.setIdentityProviderName(name);
 
                             FederatedAuthenticatorConfig authenticator = new FederatedAuthenticatorConfig();
-                            authenticator.setName(CharacterEncoder.getSafeText(request.getParameter("step_" + authstep + "_idp_"
-                                    + name + "_fed_authenticator")));
+                            authenticator.setName(CharacterEncoder.getSafeText(request.getParameter("step_" +
+                                    authstep + "_idp_" + name + "_fed_authenticator")));
                             idp.setDefaultAuthenticatorConfig(authenticator);
                             idp.setFederatedAuthenticatorConfigs(new FederatedAuthenticatorConfig[]{authenticator});
 
@@ -805,7 +804,7 @@ public class ApplicationBean {
                         }
                     }
 
-                    if (fedIdpList.size() > 0) {
+                    if (fedIdpList != null && !fedIdpList.isEmpty()) {
                         authStep.setFederatedIdentityProviders(fedIdpList
                                 .toArray(new IdentityProvider[fedIdpList.size()]));
                     }
@@ -825,7 +824,7 @@ public class ApplicationBean {
                         .setLocalAndOutBoundAuthenticationConfig(new LocalAndOutboundAuthenticationConfig());
             }
 
-            if (authStepList != null && authStepList.size() > 0) {
+            if (CollectionUtils.isNotEmpty(authStepList)) {
                 serviceProvider.getLocalAndOutBoundAuthenticationConfig().setAuthenticationSteps(
                         authStepList.toArray(new AuthenticationStep[authStepList.size()]));
             }
@@ -869,8 +868,10 @@ public class ApplicationBean {
             List<IdentityProvider> provisioningIdps = new ArrayList<IdentityProvider>();
 
             for (String proProvider : provisioningProviders) {
-                String connector = CharacterEncoder.getSafeText(request.getParameter("provisioning_con_idp_" + proProvider));
-                String jitEnabled = CharacterEncoder.getSafeText(request.getParameter("provisioning_jit_" + proProvider));
+                String connector = CharacterEncoder.getSafeText(request.getParameter("provisioning_con_idp_"
+                        + proProvider));
+                String jitEnabled = CharacterEncoder.getSafeText(request.getParameter("provisioning_jit_"
+                        + proProvider));
                 String blocking = CharacterEncoder.getSafeText(request.getParameter("blocking_prov_" + proProvider));
                 if (connector != null) {
                     IdentityProvider proIdp = new IdentityProvider();
@@ -896,7 +897,7 @@ public class ApplicationBean {
                 }
             }
 
-            if (provisioningIdps.size() > 0) {
+            if (CollectionUtils.isNotEmpty(provisioningIdps)) {
                 OutboundProvisioningConfig outboundProConfig = new OutboundProvisioningConfig();
                 outboundProConfig.setProvisioningIdentityProviders(provisioningIdps
                         .toArray(new IdentityProvider[provisioningIdps.size()]));
@@ -920,7 +921,7 @@ public class ApplicationBean {
                 }
             }
 
-            if (reqAuthList.size() > 0) {
+            if (CollectionUtils.isNotEmpty(reqAuthList)) {
                 serviceProvider.setRequestPathAuthenticatorConfigs(reqAuthList
                         .toArray(new RequestPathAuthenticatorConfig[reqAuthList.size()]));
             } else {
@@ -980,7 +981,7 @@ public class ApplicationBean {
                 Property property = new Property();
                 property.setName("passiveSTSWReply");
                 property.setValue(passiveSTSWReply);
-                Property[] properties = { property };
+                Property[] properties = {property};
                 opicAuthenticationRequest.setProperties(properties);
             }
             authRequestList.add(opicAuthenticationRequest);
@@ -999,7 +1000,7 @@ public class ApplicationBean {
             serviceProvider.setInboundAuthenticationConfig(new InboundAuthenticationConfig());
         }
 
-        if (authRequestList.size() > 0) {
+        if (CollectionUtils.isNotEmpty(authRequestList)) {
             serviceProvider.getInboundAuthenticationConfig()
                     .setInboundAuthenticationRequestConfigs(
                             authRequestList
@@ -1040,7 +1041,8 @@ public class ApplicationBean {
             // already updated.
         }
 
-        String alwaysSendAuthListOfIdPs = CharacterEncoder.getSafeText(request.getParameter("always_send_auth_list_of_idps"));
+        String alwaysSendAuthListOfIdPs = CharacterEncoder.getSafeText(
+                request.getParameter("always_send_auth_list_of_idps"));
         serviceProvider.getLocalAndOutBoundAuthenticationConfig()
                 .setAlwaysSendBackAuthenticatedListOfIdPs(alwaysSendAuthListOfIdPs != null &&
                         "on".equals(alwaysSendAuthListOfIdPs) ? true : false);
@@ -1065,7 +1067,7 @@ public class ApplicationBean {
             }
         }
 
-        if (appPermList.size() > 0) {
+        if (CollectionUtils.isNotEmpty(appPermList)) {
             permAndRoleConfig.setPermissions(appPermList
                     .toArray(new ApplicationPermission[appPermList.size()]));
         }
@@ -1094,7 +1096,7 @@ public class ApplicationBean {
         }
 
         if (request.getParameter("claim_dialect") != null
-                && request.getParameter("claim_dialect").equals("custom")) {
+                && "custom".equals(request.getParameter("claim_dialect"))) {
             serviceProvider.getClaimConfig().setLocalClaimDialect(false);
         } else {
             serviceProvider.getClaimConfig().setLocalClaimDialect(true);
@@ -1137,7 +1139,8 @@ public class ApplicationBean {
         serviceProvider.getClaimConfig().setClaimMappings(
                 claimMappingList.toArray(new ClaimMapping[claimMappingList.size()]));
 
-        serviceProvider.getClaimConfig().setRoleClaimURI(CharacterEncoder.getSafeText(request.getParameter("roleClaim")));
+        serviceProvider.getClaimConfig().setRoleClaimURI(CharacterEncoder.getSafeText(
+                request.getParameter("roleClaim")));
 
         String alwaysSendMappedLocalSubjectId = CharacterEncoder.getSafeText(request
                 .getParameter("always_send_local_subject_id"));
@@ -1169,7 +1172,6 @@ public class ApplicationBean {
     }
 
     /**
-     *
      * @param passiveSTSWReply
      */
     public void setPassiveSTSWReply(String passiveSTSWReply) {
@@ -1207,8 +1209,10 @@ public class ApplicationBean {
 
         if (provisioningProviders != null && provisioningProviders.length > 0) {
             for (String proProvider : provisioningProviders) {
-                String connector = CharacterEncoder.getSafeText(request.getParameter("provisioning_con_idp_" + proProvider));
-                String jitEnabled = CharacterEncoder.getSafeText(request.getParameter("provisioning_jit_" + proProvider));
+                String connector = CharacterEncoder.getSafeText(request.getParameter(
+                        "provisioning_con_idp_" + proProvider));
+                String jitEnabled = CharacterEncoder.getSafeText(request.getParameter(
+                        "provisioning_jit_" + proProvider));
                 String blocking = CharacterEncoder.getSafeText(request.getParameter("blocking_prov_" + proProvider));
 
                 JustInTimeProvisioningConfig jitpro = new JustInTimeProvisioningConfig();
@@ -1232,7 +1236,7 @@ public class ApplicationBean {
                 }
             }
 
-            if (provisioningIdps.size() > 0) {
+            if (CollectionUtils.isNotEmpty(provisioningIdps)) {
                 OutboundProvisioningConfig outboundProConfig = new OutboundProvisioningConfig();
                 outboundProConfig.setProvisioningIdentityProviders(provisioningIdps
                         .toArray(new IdentityProvider[provisioningIdps.size()]));

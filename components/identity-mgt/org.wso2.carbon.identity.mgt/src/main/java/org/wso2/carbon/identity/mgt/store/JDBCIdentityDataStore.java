@@ -1,17 +1,19 @@
 /*
- * Copyright (c) WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package org.wso2.carbon.identity.mgt.store;
@@ -46,7 +48,7 @@ public class JDBCIdentityDataStore extends InMemoryIdentityDataStore {
     public void store(UserIdentityClaimsDO userIdentityDTO, UserStoreManager userStoreManager)
             throws IdentityException {
 
-        if (userIdentityDTO == null || userIdentityDTO.getUserDataMap().size() < 1) {
+        if (userIdentityDTO == null || userIdentityDTO.getUserDataMap().isEmpty()) {
             return;
         }
 
@@ -65,7 +67,7 @@ public class JDBCIdentityDataStore extends InMemoryIdentityDataStore {
         try {
             tenantId = userStoreManager.getTenantId();
         } catch (UserStoreException e) {
-            log.error(e);
+            log.error("Error while getting tenant Id.", e);
         }
 
 
@@ -217,6 +219,7 @@ public class JDBCIdentityDataStore extends InMemoryIdentityDataStore {
         return null;
     }
 
+    @Override
     public void remove(String userName, UserStoreManager userStoreManager) throws IdentityException {
 
         super.remove(userName, userStoreManager);
@@ -233,11 +236,7 @@ public class JDBCIdentityDataStore extends InMemoryIdentityDataStore {
             prepStmt.setString(2, userName);
             prepStmt.execute();
             connection.commit();
-        } catch (SQLException e) {
-            log.error("Error while reading user identity data", e);
-        } catch (UserStoreException e) {
-            log.error("Error while reading user identity data", e);
-        } catch (IdentityException e) {
+        } catch (SQLException | UserStoreException | IdentityException e) {
             log.error("Error while reading user identity data", e);
         } finally {
             IdentityDatabaseUtil.closeStatement(prepStmt);
@@ -252,9 +251,8 @@ public class JDBCIdentityDataStore extends InMemoryIdentityDataStore {
      * The primary key is tenantId, userName, DatKey combination
      */
     private static class SQLQuery {
-        public static final String CHECK_EXIST_USER_DATA = "SELECT " + "DATA_VALUE "
-                + "FROM IDN_IDENTITY_USER_DATA "
-                + "WHERE TENANT_ID = ? AND USER_NAME = ? AND DATA_KEY=?";
+        public static final String CHECK_EXIST_USER_DATA = "SELECT DATA_VALUE FROM IDN_IDENTITY_USER_DATA WHERE " +
+                "TENANT_ID = ? AND USER_NAME = ? AND DATA_KEY = ?";
         public static final String STORE_USER_DATA =
                 "INSERT "
                         + "INTO IDN_IDENTITY_USER_DATA "
@@ -271,5 +269,8 @@ public class JDBCIdentityDataStore extends InMemoryIdentityDataStore {
 
         public static final String DELETE_USER_DATA = "DELETE FROM IDN_IDENTITY_USER_DATA WHERE " +
                 "TENANT_ID = ? AND USER_NAME = ?";
+
+        private SQLQuery() {
+        }
     }
 }

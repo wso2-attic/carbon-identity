@@ -1,23 +1,25 @@
 /*
-*  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package org.wso2.carbon.identity.sts.passive.ui;
 
 import org.apache.axis2.context.ConfigurationContext;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
@@ -41,7 +43,13 @@ import org.wso2.carbon.identity.sts.passive.ui.dto.SessionDTO;
 import org.wso2.carbon.registry.core.utils.UUIDGenerator;
 import org.wso2.carbon.ui.CarbonUIUtil;
 
-import javax.net.ssl.*;
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -51,10 +59,15 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
-import java.util.*;
+import java.util.Enumeration;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 public class PassiveSTS extends HttpServlet {
 
@@ -65,8 +78,8 @@ public class PassiveSTS extends HttpServlet {
      */
     private static final long serialVersionUID = 1927253892844132565L;
 
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException,
-            IOException {
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
         if (req.getParameter("sessionDataKey") != null) {
             handleResponseFromAuthenticationFramework(req, resp);
@@ -77,16 +90,9 @@ public class PassiveSTS extends HttpServlet {
         }
     }
 
-    private void sendData(HttpServletRequest httpReq, HttpServletResponse httpResp,
-                          ResponseToken respToken, String action, String authenticatedIdPs)
+    private void sendData(HttpServletResponse httpResp, ResponseToken respToken, String action,
+                          String authenticatedIdPs)
             throws ServletException, IOException {
-
-//        String responseTokenResult = respToken.getResults();
-//        
-//        if (responseTokenResult == null) {
-//        	httpResp.sendRedirect(frontEndUrl + "passivests_login.do");
-//        	return;
-//        }
 
         PrintWriter out = httpResp.getWriter();
         out.println("<html>");
@@ -99,7 +105,7 @@ public class PassiveSTS extends HttpServlet {
 
         if (authenticatedIdPs != null && !authenticatedIdPs.isEmpty()) {
             out.println("<input type='hidden' name='AuthenticatedIdPs' value='"
-                    + URLEncoder.encode(authenticatedIdPs, "UTF-8") + "'>");
+                        + URLEncoder.encode(authenticatedIdPs, "UTF-8") + "'>");
         }
 
         out.println("<button type='submit'>POST</button>");
@@ -121,37 +127,34 @@ public class PassiveSTS extends HttpServlet {
         return null;
     }
 
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp)
-            throws ServletException, IOException {
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         doGet(req, resp);
-    }
-
-    private String getAdminConsoleURL(HttpServletRequest request) {
-        String url = CarbonUIUtil.getAdminConsoleURL(request);
-        if (url.indexOf("/passivests/") != -1) {
-            url = url.replace("/passivests", "");
-        }
-        url = url.replace("carbon/", "authenticationendpoint/");
-        return url;
     }
 
     private void openURLWithNoTrust(String realm) throws IOException {
         // Create a trust manager that does not validate certificate chains
-        TrustManager[] trustAllCerts = new TrustManager[]{
+        TrustManager[] trustAllCerts = new TrustManager[] {
                 new X509TrustManager() {
+                    @Override
                     public X509Certificate[] getAcceptedIssuers() {
                         return new X509Certificate[0];
                     }
 
+                    @Override
                     public void checkClientTrusted(X509Certificate[] certs, String authType) {
+                        // Nothing to implement
                     }
 
+                    @Override
                     public void checkServerTrusted(X509Certificate[] certs, String authType) {
+                        // Nothing to implement
                     }
-                }};
+                } };
 
         // Ignore differences between given hostname and certificate hostname
         HostnameVerifier hv = new HostnameVerifier() {
+            @Override
             public boolean verify(String hostname, SSLSession session) {
                 return true;
             }
@@ -161,10 +164,8 @@ public class PassiveSTS extends HttpServlet {
         try {
             SSLContext sc = SSLContext.getInstance("SSL");
             sc.init(null, trustAllCerts, new SecureRandom());
-            SSLSocketFactory defaultSSLSocketFactory =
-                    HttpsURLConnection.getDefaultSSLSocketFactory();
-            HostnameVerifier defaultHostnameVerifier =
-                    HttpsURLConnection.getDefaultHostnameVerifier();
+            SSLSocketFactory defaultSSLSocketFactory = HttpsURLConnection.getDefaultSSLSocketFactory();
+            HostnameVerifier defaultHostnameVerifier = HttpsURLConnection.getDefaultHostnameVerifier();
             String renegotiation = System.getProperty("sun.security.ssl.allowUnsafeRenegotiation");
             try {
                 HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
@@ -177,31 +178,30 @@ public class PassiveSTS extends HttpServlet {
                 System.getProperty("sun.security.ssl.allowUnsafeRenegotiation", renegotiation);
             }
         } catch (Exception ignore) {
+            if (log.isDebugEnabled()) {
+                log.debug("Error while installing trust manager", ignore);
+            }
         }
     }
 
     private void persistRealms(RequestToken reqToken, HttpSession session) {
         Set<String> realms = (Set<String>) session.getAttribute("realms");
         if (realms == null) {
-            realms = new HashSet<String>();
+            realms = new HashSet<>();
             session.setAttribute("realms", realms);
         }
         realms.add(reqToken.getRealm());
     }
 
-    private void sendToAuthenticationFramework(HttpServletRequest request,
-                                               HttpServletResponse response,
-                                               String sessionDataKey,
-                                               SessionDTO sessionDTO) throws IOException {
+    private void sendToAuthenticationFramework(HttpServletRequest request, HttpServletResponse response,
+                                               String sessionDataKey, SessionDTO sessionDTO) throws IOException {
 
         String commonAuthURL = CarbonUIUtil.getAdminConsoleURL(request);
-        commonAuthURL = commonAuthURL.replace(FrameworkConstants.CARBON + "/",
-                FrameworkConstants.COMMONAUTH);
+        commonAuthURL = commonAuthURL.replace(FrameworkConstants.CARBON + "/", FrameworkConstants.COMMONAUTH);
 
-        String selfPath = URLEncoder.encode("/" + FrameworkConstants.PASSIVE_STS, "UTF-8");
+        String selfPath = URLEncoder.encode("/" + FrameworkConstants.PASSIVE_STS, StandardCharsets.UTF_8.name());
         //Authentication context keeps data which should be sent to commonAuth endpoint
-        AuthenticationRequest authenticationRequest = new
-                AuthenticationRequest();
+        AuthenticationRequest authenticationRequest = new AuthenticationRequest();
         authenticationRequest.setRelyingParty(sessionDTO.getRealm());
         authenticationRequest.setCommonAuthCallerPath(selfPath);
         authenticationRequest.setForceAuth(false);
@@ -214,19 +214,18 @@ public class PassiveSTS extends HttpServlet {
         }
 
         //Add authenticationRequest cache entry to cache
-        AuthenticationRequestCacheEntry authRequest = new AuthenticationRequestCacheEntry
-                (authenticationRequest);
+        AuthenticationRequestCacheEntry authRequest = new AuthenticationRequestCacheEntry(authenticationRequest);
         FrameworkUtils.addAuthenticationRequestToCache(sessionDataKey, authRequest,
-                request.getSession().getMaxInactiveInterval());
+                                                       request.getSession().getMaxInactiveInterval());
         StringBuilder queryStringBuilder = new StringBuilder();
         queryStringBuilder.append("?").
                 append(FrameworkConstants.SESSION_DATA_KEY).
-                append("=").
-                append(sessionDataKey).
-                append("&").
-                append(FrameworkConstants.RequestParams.TYPE).
-                append("=").
-                append(FrameworkConstants.PASSIVE_STS);
+                                  append("=").
+                                  append(sessionDataKey).
+                                  append("&").
+                                  append(FrameworkConstants.RequestParams.TYPE).
+                                  append("=").
+                                  append(FrameworkConstants.PASSIVE_STS);
         response.sendRedirect(commonAuthURL + queryStringBuilder.toString());
     }
 
@@ -252,8 +251,7 @@ public class PassiveSTS extends HttpServlet {
     }
 
     private void process(HttpServletRequest request, HttpServletResponse response,
-                         SessionDTO sessionDTO, AuthenticationResult authnResult)
-            throws ServletException, IOException {
+                         SessionDTO sessionDTO, AuthenticationResult authnResult) throws ServletException, IOException {
 
         HttpSession session = request.getSession();
 
@@ -262,15 +260,14 @@ public class PassiveSTS extends HttpServlet {
         RequestToken reqToken = new RequestToken();
 
         Map<ClaimMapping, String> attrMap = authnResult.getSubject().getUserAttributes();
-        StringBuffer buffer = null;
+        StringBuilder buffer = null;
 
-        if (attrMap != null && attrMap.size() > 0) {
-            buffer = new StringBuffer();
+        if (MapUtils.isNotEmpty(attrMap)) {
+            buffer = new StringBuilder();
             for (Iterator<Entry<ClaimMapping, String>> iterator = attrMap.entrySet().iterator(); iterator
                     .hasNext(); ) {
                 Entry<ClaimMapping, String> entry = iterator.next();
-                buffer.append("{" + entry.getKey().getRemoteClaim().getClaimUri() + "|"
-                        + entry.getValue() + "}#CODE#");
+                buffer.append("{" + entry.getKey().getRemoteClaim().getClaimUri() + "|" + entry.getValue() + "}#CODE#");
             }
         }
 
@@ -291,29 +288,26 @@ public class PassiveSTS extends HttpServlet {
         reqToken.setUserName(authnResult.getSubject().getAuthenticatedSubjectIdentifier());
 
         String serverURL = CarbonUIUtil.getServerURL(session.getServletContext(), session);
-        ConfigurationContext configContext = (ConfigurationContext) session.getServletContext().getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
+        ConfigurationContext configContext =
+                (ConfigurationContext) session.getServletContext().getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
 
         IdentityPassiveSTSClient passiveSTSClient = null;
         passiveSTSClient = new IdentityPassiveSTSClient(serverURL, configContext);
 
         ResponseToken respToken = passiveSTSClient.getResponse(reqToken);
 
-        if (respToken != null/* && respToken.getAuthenticated() */ && respToken.getResults() != null) {
-//        	session.setAttribute("username", userName);
+        if (respToken != null && respToken.getResults() != null) {
             persistRealms(reqToken, request.getSession());
-            sendData(request, response, respToken, reqToken.getAction(),
-                    authnResult.getAuthenticatedIdPs());
-        } /*else {
-                resp.sendRedirect(frontEndUrl + "passivests_login.do");
-                return;
-        }*/
+            sendData(response, respToken, reqToken.getAction(),
+                     authnResult.getAuthenticatedIdPs());
+        }
     }
 
     private void handleLogoutRequest(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
         Set<String> realms = (Set<String>) request.getSession().getAttribute("realms");
 
-        if (realms != null && realms.size() > 0) {
+        if (CollectionUtils.isNotEmpty(realms)) {
             for (String realm : realms) {
                 openURLWithNoTrust(realm + "?wa=wsignoutcleanup1.0");
             }
@@ -367,11 +361,6 @@ public class PassiveSTS extends HttpServlet {
         }
 
         return sessionDTO;
-    }
-
-    private void removeSessionDataFromCache(String sessionDataKey) {
-        SessionDataCacheKey cacheKey = new SessionDataCacheKey(sessionDataKey);
-        SessionDataCache.getInstance(0).clearCacheEntry(cacheKey);
     }
 
     private AuthenticationResult getAuthenticationResultFromCache(String sessionDataKey) {
