@@ -32,6 +32,7 @@ public class FIDOAuthenticatorConstants {
 
     public static final String U2F_KEY_HANDLE = "KEY_HANDLE";
     public static final String U2F_DEVICE_DATA = "DEVICE_DATA";
+    public static final String UTF_8 = "UTF-8";
 
     public static class SQLQueries {
         public static final String ADD_DEVICE_REGISTRATION_QUERY = "INSERT INTO FIDO_DEVICE_STORE (TENANT_ID, DOMAIN_ID," +

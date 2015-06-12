@@ -35,6 +35,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
 
+/**
+ * Performs DAO operations related to the FIDO Device Store.
+ */
 public class DeviceStoreDAO {
 
     private static Log log = LogFactory.getLog(DeviceStoreDAO.class);

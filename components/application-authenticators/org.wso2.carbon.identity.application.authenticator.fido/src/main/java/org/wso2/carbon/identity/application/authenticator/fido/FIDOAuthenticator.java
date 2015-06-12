@@ -115,7 +115,7 @@ public class FIDOAuthenticator extends AbstractApplicationAuthenticator
         try {
             //authentication page's URL.
             String loginPage = ConfigurationFacade.getInstance().getAuthenticationEndpointURL();
-            loginPage.replace("login.do", "authentication.jsp");
+            loginPage = loginPage.replace("login.do", "authentication.jsp");
             //username from basic authenticator.
             AuthenticatedUser user = getUsername(context);
             //origin as appID eg.: http://example.com:8080
@@ -133,9 +133,9 @@ public class FIDOAuthenticator extends AbstractApplicationAuthenticator
                                       "&data=" + data.toJson());
             } else {
                 String redirectURL = loginPage.replace("login.do", "retry.do");
-                redirectURL = response.encodeRedirectURL(redirectURL + ("?")) + "&failedUsername=" + URLEncoder.encode(user.getUserName(), "UTF-8") +
-                              "&statusMsg=" + URLEncoder.encode(FIDOAuthenticatorConstants.AUTHENTICATION_ERROR_MESSAGE, "UTF-8") +
-                              "&status=" + URLEncoder.encode(FIDOAuthenticatorConstants.AUTHENTICATION_STATUS, "UTF-8");
+                redirectURL = response.encodeRedirectURL(redirectURL + ("?")) + "&failedUsername=" + URLEncoder.encode(user.getUserName(), FIDOAuthenticatorConstants.UTF_8) +
+                        "&statusMsg=" + URLEncoder.encode(FIDOAuthenticatorConstants.AUTHENTICATION_ERROR_MESSAGE, FIDOAuthenticatorConstants.UTF_8) +
+                        "&status=" + URLEncoder.encode(FIDOAuthenticatorConstants.AUTHENTICATION_STATUS, FIDOAuthenticatorConstants.UTF_8);
                 response.sendRedirect(redirectURL);
             }
 
