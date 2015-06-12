@@ -108,27 +108,6 @@ public class IdentityMgtServiceImpl implements IdentityMgtService {
      */
     public void updateConfiguration(int tenantId, Map<String, String> configurationDetails) throws IdentityMgtException {
 
-/*        HashMap<String, String> configurationDetailsDB = getConfiguration(tenantId);
-
-        for (Map.Entry<String, String> entrydb : configurationDetailsDB.entrySet()) {
-
-            boolean isConfigExists = false;
-
-            for (Map.Entry<String, String> entry : configurationDetails.entrySet()) {
-
-                if (entry.getKey().equals(entrydb.getKey())) {
-
-                    configurationDetails.put(entry.getKey(), entry.getValue());
-                    isConfigExists = true;
-                    break;
-                }
-            }
-
-            if (!isConfigExists) {
-                configurationDetails.put(entrydb.getKey(), entrydb.getValue());
-            }
-        }*/
-
         CacheBackedConfig cacheBackedConfig = CacheBackedConfig.getInstance();
         TenantConfiguration tenantConfiguration = new TenantConfiguration(tenantId, configurationDetails);
         cacheBackedConfig.updateConfig(tenantConfiguration);
@@ -155,7 +134,7 @@ public class IdentityMgtServiceImpl implements IdentityMgtService {
 
         Properties properties = new Properties();
         InputStream inStream = null;
-        HashMap<String, String> configMap = new HashMap<>();
+        Map<String, String> configMap = new HashMap<>();
 
         CacheBackedConfig cacheBackedConfig = CacheBackedConfig.getInstance();
         configMap = cacheBackedConfig.getConfig(tenantId);

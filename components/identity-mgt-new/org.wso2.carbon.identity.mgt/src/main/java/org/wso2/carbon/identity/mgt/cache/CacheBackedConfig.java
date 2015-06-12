@@ -64,7 +64,7 @@ public class CacheBackedConfig {
     /**
      * Get configurations from cache if exists or get from database
      */
-    public HashMap<String, String> getConfig(int tenantId) throws IdentityMgtException {
+    public Map<String, String> getConfig(int tenantId) throws IdentityMgtException {
 
         ConfigTenantIdCacheKey cacheKey = new ConfigTenantIdCacheKey(tenantId);
         ConfigCacheEntry entry = (ConfigCacheEntry) residentIDPConfigCache.getValueFromCache(cacheKey);

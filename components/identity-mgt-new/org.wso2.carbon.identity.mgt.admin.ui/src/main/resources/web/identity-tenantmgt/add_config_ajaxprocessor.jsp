@@ -26,6 +26,7 @@
 <%@ page import="java.text.MessageFormat" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
 <%@ page import="java.util.List" %>
+<%@ page import="java.util.Map" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 
 
@@ -43,61 +44,7 @@
                 .getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
 
         List updatedConfigList = (List) request.getAttribute("updatedConfigList");
-        HashMap<String, String> configMap = new HashMap<>();
-
-
-/*        String accountLockEnable = request.getParameter("Account.Lock.Enable");
-        String notificationSendingEnable = request.getParameter("Notification.Sending.Enable");
-        String notificationExpireTime = request.getParameter("Notification.Expire.Time");
-        String notificationSendingInternallymanaged = request.getParameter("Notification.Sending.Internally.Managed");
-        String authenticationPolicyEnable = request.getParameter("Authentication.Policy.Enable");
-        String authenticationPolicyCheckAccountExist = request.getParameter("Authentication.Policy.Check.Account.Exist");
-        String authenticationPolicyCheckPasswordExpire = request.getParameter("Authentication.Policy.Check.Password.Expire");
-        String authenticationPolicyPasswordExpireTime = request.getParameter("Authentication.Policy.Password.Expire.Time");
-        String authenticationPolicyAccountLockTime = request.getParameter("Authentication.Policy.Account.Lock.Time");
-        String authenticationPolicyAccountLockOnFailure = request.getParameter("Authentication.Policy.Account.Lock.On.Failure");
-        String authenticationPolicyAccountLockOnFailureMaxAttempts = request.getParameter("Authentication.Policy.Account.Lock.On.Failure.Max.Attempts");
-        String authenticationPolicyCheckPasswordReuse = request.getParameter("Authentication.Policy.Check.Password.Reuse");
-        String passwordExpireFrequency = request.getParameter("Password.Expire.Frequency");
-        String passwordReuseFrequency = request.getParameter("Password.Reuse.Frequency");
-        String captchaVerificationInternallyManaged = request.getParameter("Captcha.Verification.Internally.Managed");
-        String authenticationPolicyCheckAccountLock = request.getParameter("Authentication.Policy.Check.Account.Lock");
-        String passwordPolicyExtensions1MinLength = request.getParameter("Password.policy.extensions.1.min.length");
-        String passwordPolicyExtensions1MaxLength = request.getParameter("Password.policy.extensions.1.max.length");
-        String passwordPolicyExtensions3Pattern = request.getParameter("Password.policy.extensions.3.pattern");
-        String authenticationPolicyCheckOneTimePassword = request.getParameter("Authentication.Policy.Check.OneTime.Password");
-        String userAccountVerificationEnable = request.getParameter("UserAccount.Verification.Enable");
-        String temporaryPasswordEnable = request.getParameter("Temporary.Password.Enable");
-        String temporaryPasswordDefaultValue = request.getParameter("Temporary.Password.Default.Value");
-        String authenticationPolicyAccountLockOnCreation = request.getParameter("Authentication.Policy.Account.Lock.On.Creation");
-
-        HashMap<String, String> configMap = new HashMap<String, String>();
-        configMap.put("Account.Lock.Enable", accountLockEnable);
-        configMap.put("Notification.Sending.Enable", notificationSendingEnable);
-        configMap.put("Notification.Expire.Time", notificationExpireTime);
-        configMap.put("Notification.Sending.Internally.Managed", notificationSendingInternallymanaged);
-        configMap.put("UserAccount.Verification.Enable", userAccountVerificationEnable);
-        configMap.put("Captcha.Verification.Internally.Managed", captchaVerificationInternallyManaged);
-        configMap.put("Temporary.Password.Enable", temporaryPasswordEnable);
-        configMap.put("Temporary.Password.Default.Value", temporaryPasswordDefaultValue);
-        configMap.put("Authentication.Policy.Enable", authenticationPolicyEnable);
-        configMap.put("Authentication.Policy.Check.Account.Exist", authenticationPolicyCheckAccountExist);
-        configMap.put("Authentication.Policy.Check.Account.Lock", authenticationPolicyCheckAccountLock);
-        configMap.put("Authentication.Policy.Check.OneTime.Password", authenticationPolicyCheckOneTimePassword);
-        configMap.put("Authentication.Policy.Check.Password.Expire", authenticationPolicyCheckPasswordExpire);
-        configMap.put("Authentication.Policy.Password.Expire.Time", authenticationPolicyPasswordExpireTime);
-        configMap.put("Authentication.Policy.Account.Lock.On.Creation", authenticationPolicyAccountLockOnCreation);
-        configMap.put("Authentication.Policy.Account.Lock.Time", authenticationPolicyAccountLockTime);
-        configMap.put("Authentication.Policy.Account.Lock.On.Failure", authenticationPolicyAccountLockOnFailure);
-        configMap.put("Authentication.Policy.Account.Lock.On.Failure.Max.Attempts", authenticationPolicyAccountLockOnFailureMaxAttempts);
-        configMap.put("Authentication.Policy.Check.Password.Reuse", authenticationPolicyCheckPasswordReuse);
-        configMap.put("Password.Expire.Frequency", passwordExpireFrequency);
-        configMap.put("Password.Reuse.Frequency", passwordReuseFrequency);
-
-        configMap.put("Password.policy.extensions.1.min.length", passwordPolicyExtensions1MinLength);
-        configMap.put("Password.policy.extensions.1.max.length", passwordPolicyExtensions1MaxLength);
-        configMap.put("Password.policy.extensions.3.pattern", passwordPolicyExtensions3Pattern);*/
-
+        Map<String, String> configMap = new HashMap<>();
 
         for(int i=0; i<updatedConfigList.size(); i++){
             configMap.put(updatedConfigList.get(i), request.getParameter(updatedConfigList.get(i)));

@@ -58,7 +58,7 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
             UserStoreManager userStoreMng = IdentityMgtServiceComponent.getRealmService()
                     .getBootstrapRealm().getUserStoreManager();
             if (!userStoreMng.isReadOnly()) {
-                Map<String, String> claimMap = new HashMap<String, String>();
+                Map<String, String> claimMap = new HashMap<>();
                 claimMap.put(IdentityMgtConstants.Claim.ACCOUNT_LOCK, Boolean.toString(false));
                 userStoreMng.setUserClaimValues(adminUserName, claimMap, null);
             }
@@ -109,7 +109,7 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
     protected void getConfigurations(UserStoreManager userStoreManager) {
 
         try {
-            IdentityMgtConfig.getIdentityMgtConfig(IdentityMgtServiceComponent.getRealmService().getBootstrapRealmConfiguration(), userStoreManager.getTenantId());
+            IdentityMgtConfig.getIdentityMgtConfig(userStoreManager.getTenantId());
         } catch (UserStoreException e) {
             log.error(e.getMessage(), e);
         }
