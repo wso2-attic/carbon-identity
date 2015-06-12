@@ -92,6 +92,11 @@ public class OAuth2TokenEndpoint {
                         return handleBasicAuthFailure();
                     }
 
+                    //If a client sends an invalid base64 encoded clientid:clientsecret value, it results in this
+                    //array to only contain 1 element. This happens on specific errors though.
+                    if(clientCredentials == null || clientCredentials.length < 2){
+                        return handleBasicAuthFailure();
+                    }
                     // add the credentials available in Authorization header to the parameter map
                     paramMap.add(OAuth.OAUTH_CLIENT_ID, clientCredentials[0]);
                     paramMap.add(OAuth.OAUTH_CLIENT_SECRET, clientCredentials[1]);
