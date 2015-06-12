@@ -35,8 +35,9 @@ import java.util.Map;
 
 public class BPSProfileDAO {
 
-    public void addProfile(String profileName, String host, String user, String password)
+    public void addProfile(String profileName, String host, String user, String password, int tenantId)
             throws InternalWorkflowException {
+
         Connection connection = null;
         PreparedStatement prepStmt = null;
         String query = SQLConstants.ADD_BPS_PROFILE_QUERY;
@@ -47,6 +48,7 @@ public class BPSProfileDAO {
             prepStmt.setString(2, host);
             prepStmt.setString(3, user);
             prepStmt.setString(4, password);
+            prepStmt.setInt(5, tenantId);
             prepStmt.executeUpdate();
             connection.commit();
         } catch (IdentityException e) {
@@ -59,6 +61,7 @@ public class BPSProfileDAO {
     }
 
     public Map<String, Object> getBPELProfileParams(String profileName) throws InternalWorkflowException {
+
         Connection connection = null;
         PreparedStatement prepStmt = null;
         ResultSet rs;
@@ -87,7 +90,8 @@ public class BPSProfileDAO {
         return profileParams;
     }
 
-    public List<BPSProfileBean> listBPSProfiles() throws InternalWorkflowException {
+    public List<BPSProfileBean> listBPSProfiles(int tenantId) throws InternalWorkflowException {
+
         Connection connection = null;
         PreparedStatement prepStmt = null;
         ResultSet rs;
@@ -96,6 +100,7 @@ public class BPSProfileDAO {
         try {
             connection = IdentityDatabaseUtil.getDBConnection();
             prepStmt = connection.prepareStatement(query);
+            prepStmt.setInt(1, tenantId);
             rs = prepStmt.executeQuery();
             while (rs.next()) {
                 String name = rs.getString(SQLConstants.PROFILE_NAME_COLUMN);
@@ -118,6 +123,7 @@ public class BPSProfileDAO {
     }
 
     public void removeBPSProfile(String profileName) throws InternalWorkflowException {
+
         Connection connection = null;
         PreparedStatement prepStmt = null;
         String query = SQLConstants.DELETE_BPS_PROFILES_QUERY;

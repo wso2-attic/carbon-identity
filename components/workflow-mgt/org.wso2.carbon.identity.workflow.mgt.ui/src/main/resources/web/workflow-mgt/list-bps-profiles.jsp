@@ -1,4 +1,5 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="carbon" uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar" %>
 <%@ page import="org.apache.axis2.context.ConfigurationContext" %>
 <%@ page import="org.wso2.carbon.CarbonConstants" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.BPSProfileBean" %>
@@ -104,10 +105,16 @@
     <script type="text/javascript" src="../carbon/admin/js/cookies.js"></script>
     <script type="text/javascript" src="../carbon/admin/js/main.js"></script>
     <script type="text/javascript">
-        function removeProfile(profileName) {
-            location.href = 'edit-bps-profile.jsp?<%=WorkflowUIConstants.PARAM_ACTION%>=' +
-            '<%=WorkflowUIConstants.ACTION_VALUE_DELETE%>&<%=WorkflowUIConstants.PARAM_BPS_PROFILE_NAME%>=' +
-            profileName;
+
+        function removeAssociation(profileName) {
+            function doDelete() {
+                location.href = 'edit-bps-profile.jsp?<%=WorkflowUIConstants.PARAM_ACTION%>=' +
+                '<%=WorkflowUIConstants.ACTION_VALUE_DELETE%>&<%=WorkflowUIConstants.PARAM_BPS_PROFILE_NAME%>=' +
+                profileName;
+            }
+
+            CARBON.showConfirmationDialog('<fmt:message key="confirmation.bpel.profile.delete"/> ' + profileName + '?',
+                    doDelete, null);
         }
     </script>
 
@@ -140,7 +147,7 @@
                     </td>
                     <td>
                         <a title="<fmt:message key='workflow.bps.profile.delete.title'/>"
-                           onclick="removeAssociation('<%=profile.getProfileName()%>');return false;"
+                           onclick="removeProfile('<%=profile.getProfileName()%>');return false;"
                            href="#" style="background-image: url(images/delete.gif);"
                            class="icon-link"><fmt:message key='delete'/></a>
                     </td>

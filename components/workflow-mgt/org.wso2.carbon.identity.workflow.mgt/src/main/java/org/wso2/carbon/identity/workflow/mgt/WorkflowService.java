@@ -127,15 +127,15 @@ public class WorkflowService {
         return null;
     }
 
-    public void addBPSProfile(String profileName, String host, String user, String password)
+    public void addBPSProfile(String profileName, String host, String user, String password, int tenantId)
             throws InternalWorkflowException {
 
-        bpsProfileDAO.addProfile(profileName, host, user, password);
+        bpsProfileDAO.addProfile(profileName, host, user, password, tenantId);
     }
 
-    public List<BPSProfileBean> listBPSProfiles() throws WorkflowException {
+    public List<BPSProfileBean> listBPSProfiles(int tenantId) throws WorkflowException {
 
-        return bpsProfileDAO.listBPSProfiles();
+        return bpsProfileDAO.listBPSProfiles(tenantId);
     }
 
     public void removeBPSProfile(String profileName) throws WorkflowException {
@@ -144,9 +144,9 @@ public class WorkflowService {
     }
 
     public void addWorkflow(String id, String name, String description, String templateId, String templateImpl,
-                            Parameter[] templateParams, Parameter[] implParams) throws WorkflowException {
+                            Parameter[] templateParams, Parameter[] implParams, int tenantId) throws WorkflowException {
 
-        workflowDAO.addWorkflow(id, name, description, templateId, templateImpl);
+        workflowDAO.addWorkflow(id, name, description, templateId, templateImpl, tenantId);
         Map<String, Object> paramMap = new HashMap<>();
         if (templateParams != null) {
             for (Parameter param : templateParams) {
@@ -194,9 +194,9 @@ public class WorkflowService {
         }
     }
 
-    public List<WorkflowBean> listWorkflows() throws WorkflowException {
+    public List<WorkflowBean> listWorkflows(int tenantId) throws WorkflowException {
 
-        return workflowDAO.listWorkflows();
+        return workflowDAO.listWorkflows(tenantId);
     }
 
     public void removeWorkflow(String id) throws WorkflowException {

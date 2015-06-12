@@ -43,8 +43,9 @@ public class WorkflowDAO {
     /**
      * Stores Workflow executor service details
      */
-    public void addWorkflow(String id, String name, String description, String templateId, String templateImpl)
-            throws InternalWorkflowException {
+    public void addWorkflow(String id, String name, String description, String templateId, String templateImpl, int
+            tenantId) throws InternalWorkflowException {
+
         Connection connection = null;
         PreparedStatement prepStmt = null;
 
@@ -57,6 +58,7 @@ public class WorkflowDAO {
             prepStmt.setString(3, description);
             prepStmt.setString(4, templateId);
             prepStmt.setString(5, templateImpl);
+            prepStmt.setInt(6, tenantId);
             prepStmt.executeUpdate();
             connection.commit();
         } catch (IdentityException e) {
@@ -69,6 +71,7 @@ public class WorkflowDAO {
     }
 
     public void addWorkflowParams(String workflowId, Map<String, Object> values) throws InternalWorkflowException {
+
         Connection connection = null;
         PreparedStatement prepStmt = null;
 
@@ -79,7 +82,7 @@ public class WorkflowDAO {
                 prepStmt = connection.prepareStatement(query);
                 prepStmt.setString(1, workflowId);
                 prepStmt.setString(2, entry.getKey());
-                prepStmt.setString(3, (String)entry.getValue());    //The values should be string
+                prepStmt.setString(3, (String) entry.getValue());    //The values should be string
                 prepStmt.executeUpdate();
             }
             connection.commit();
@@ -93,6 +96,7 @@ public class WorkflowDAO {
     }
 
     public Map<String, Object> getWorkflowParams(String workflowId) throws InternalWorkflowException {
+
         Connection connection = null;
         PreparedStatement prepStmt = null;
         ResultSet rs = null;
@@ -125,6 +129,7 @@ public class WorkflowDAO {
      */
     public void addAssociation(String workflowId, String eventId, String condition)
             throws InternalWorkflowException {
+
         Connection connection = null;
         PreparedStatement prepStmt = null;
 
@@ -147,6 +152,7 @@ public class WorkflowDAO {
     }
 
     public void removeAssociation(int id) throws InternalWorkflowException {
+
         Connection connection = null;
         PreparedStatement prepStmt = null;
         String query = SQLConstants.DELETE_ASSOCIATION_QUERY;
@@ -166,6 +172,7 @@ public class WorkflowDAO {
     }
 
     public void removeWorkflow(String id) throws InternalWorkflowException {
+
         Connection connection = null;
         PreparedStatement prepStmt = null;
         String query = SQLConstants.DELETE_WORKFLOW_QUERY;
@@ -186,7 +193,8 @@ public class WorkflowDAO {
 
 //todo: updateWorkflow()
 
-    public List<WorkflowBean> listWorkflows() throws InternalWorkflowException {
+    public List<WorkflowBean> listWorkflows(int tenantId) throws InternalWorkflowException {
+
         Connection connection = null;
         PreparedStatement prepStmt = null;
         ResultSet rs = null;
@@ -195,6 +203,7 @@ public class WorkflowDAO {
         try {
             connection = IdentityDatabaseUtil.getDBConnection();
             prepStmt = connection.prepareStatement(query);
+            prepStmt.setInt(1, tenantId);
             rs = prepStmt.executeQuery();
             while (rs.next()) {
                 String id = rs.getString(SQLConstants.ID_COLUMN);
@@ -228,8 +237,9 @@ public class WorkflowDAO {
         return workflowList;
     }
 
-    public List<WorkflowAssociation> getWorkflowsForRequest(String eventId)
+    public List<WorkflowAssociation> getWorkflowsForRequest(String eventId, int tenantId)
             throws InternalWorkflowException {
+
         Connection connection = null;
         PreparedStatement prepStmt = null;
         ResultSet rs;
@@ -239,6 +249,7 @@ public class WorkflowDAO {
             connection = IdentityDatabaseUtil.getDBConnection();
             prepStmt = connection.prepareStatement(query);
             prepStmt.setString(1, eventId);
+            prepStmt.setInt(2, tenantId);
             rs = prepStmt.executeQuery();
             while (rs.next()) {
                 String condition = rs.getString(SQLConstants.CONDITION_COLUMN);
@@ -264,11 +275,12 @@ public class WorkflowDAO {
 
     public List<AssociationDTO> getAssociationsForWorkflow(String workflowId)
             throws InternalWorkflowException {
+
         Connection connection = null;
         PreparedStatement prepStmt = null;
         ResultSet rs;
         List<AssociationDTO> associations = new ArrayList<>();
-        String query = SQLConstants.GET_WORKFLOWS_FOR_WORKFLOW_QUERY;
+        String query = SQLConstants.GET_ASSOCIATIONS_FOR_WORKFLOW_QUERY;
         try {
             connection = IdentityDatabaseUtil.getDBConnection();
             prepStmt = connection.prepareStatement(query);
