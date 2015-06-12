@@ -55,6 +55,7 @@ public class CacheBasedArtifactStorage implements ArtifactStorage {
 
     @Override
     public void store(SAMLSSOArtifactResponse artifactResponse) {
+
         SAMLSSOArtifactCacheKey cacheKey = new SAMLSSOArtifactCacheKey(artifactResponse.getArtifact());
         SAMLSSOArtifactCacheEntry cacheEntry = new SAMLSSOArtifactCacheEntry();
         cacheEntry.setArtifactResponse(artifactResponse);

@@ -39,6 +39,7 @@ public class SAMLSSOArtifactCacheKey extends CacheKey {
 
     @Override
     public boolean equals(Object obj) {
+
         if (this == obj)
             return true;
         if (obj == null)
@@ -56,6 +57,7 @@ public class SAMLSSOArtifactCacheKey extends CacheKey {
 
     @Override
     public int hashCode() {
+
         final int prime = 31;
         int result = 1;
         result = prime * result + ((artifactKey == null) ? 0 : artifactKey.hashCode());

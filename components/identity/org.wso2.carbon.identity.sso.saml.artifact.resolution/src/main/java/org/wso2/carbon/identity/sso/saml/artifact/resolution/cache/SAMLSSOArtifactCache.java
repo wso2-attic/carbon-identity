@@ -39,6 +39,7 @@ public class SAMLSSOArtifactCache extends BaseCache<CacheKey, CacheEntry> {
     }
 
     public static SAMLSSOArtifactCache getInstance(int timeout) {
+
         if (instance == null) {
             synchronized (SAMLSSOArtifactCache.class) {
 

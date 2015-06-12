@@ -26,6 +26,7 @@ public class SAMLSSOArtifactResolutionConstants {
     public static final int DEFAULT_ARTIFACT_LIFETIME = 1000 * 60;
 
     public class Notification {
+
         public static final String NO_ARTIFACT_RESOLVE_STATUS = "Artifact Resolve not found in the request";
         public static final String EXCEPTION_STATUS_ARTIFACT_RESOLVE = "Error while resolving SAML artifact";
         public static final String EXCEPTION_STATUS_SOAP_RESPONSE = "Error while building soap response";
