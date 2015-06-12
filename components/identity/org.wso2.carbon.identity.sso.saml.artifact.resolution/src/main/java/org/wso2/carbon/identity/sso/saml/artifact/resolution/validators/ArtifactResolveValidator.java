@@ -32,6 +32,9 @@ import org.wso2.carbon.identity.core.persistence.IdentityPersistenceManager;
 import org.wso2.carbon.identity.sso.saml.util.SAMLSSOUtil;
 import org.wso2.carbon.registry.core.Registry;
 
+/**
+ * This class is responsible for validating a received SAML Artifact Resolve request
+ */
 public class ArtifactResolveValidator {
 
     private static Log log = LogFactory.getLog(ArtifactResolveValidator.class);

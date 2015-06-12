@@ -18,6 +18,9 @@
 
 package org.wso2.carbon.identity.sso.saml.artifact.resolution;
 
+/**
+ * This class contains the constants relevant to SAML Artifact Resolution
+ */
 public class SAMLSSOArtifactResolutionConstants {
 
     public static final int DEFAULT_ARTIFACT_LIFETIME = 1000 * 60;

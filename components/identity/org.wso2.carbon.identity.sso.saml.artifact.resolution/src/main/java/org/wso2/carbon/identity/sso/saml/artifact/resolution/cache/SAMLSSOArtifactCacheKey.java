@@ -20,6 +20,9 @@ package org.wso2.carbon.identity.sso.saml.artifact.resolution.cache;
 
 import org.wso2.carbon.identity.sso.saml.cache.CacheKey;
 
+/**
+ * Cache key for SAML Artifact cache storage
+ */
 public class SAMLSSOArtifactCacheKey extends CacheKey {
 
     private static final long serialVersionUID = -7367205961527597657L;

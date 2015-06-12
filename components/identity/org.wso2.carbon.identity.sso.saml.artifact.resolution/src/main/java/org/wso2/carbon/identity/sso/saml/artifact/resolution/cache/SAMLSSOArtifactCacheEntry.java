@@ -21,6 +21,9 @@ package org.wso2.carbon.identity.sso.saml.artifact.resolution.cache;
 import org.wso2.carbon.identity.sso.saml.cache.CacheEntry;
 import org.wso2.carbon.identity.sso.saml.persistence.model.SAMLSSOArtifactResponse;
 
+/**
+ * Cache entry for SAML Artifact cache storage
+ */
 public class SAMLSSOArtifactCacheEntry extends CacheEntry {
 
     private static final long serialVersionUID = -5753542359364950392L;

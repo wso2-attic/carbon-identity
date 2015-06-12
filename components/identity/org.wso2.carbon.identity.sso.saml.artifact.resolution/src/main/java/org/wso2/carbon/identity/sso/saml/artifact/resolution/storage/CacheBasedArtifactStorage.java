@@ -28,6 +28,9 @@ import org.wso2.carbon.identity.sso.saml.cache.CacheEntry;
 import org.wso2.carbon.identity.sso.saml.persistence.ArtifactStorage;
 import org.wso2.carbon.identity.sso.saml.persistence.model.SAMLSSOArtifactResponse;
 
+/**
+ * The default storage implementation for the Artifact objects - cache based
+ */
 public class CacheBasedArtifactStorage implements ArtifactStorage {
 
     private final int DEFAULT_PRIORITY = 5;

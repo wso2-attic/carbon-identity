@@ -22,6 +22,9 @@ import org.wso2.carbon.identity.sso.saml.cache.BaseCache;
 import org.wso2.carbon.identity.sso.saml.cache.CacheEntry;
 import org.wso2.carbon.identity.sso.saml.cache.CacheKey;
 
+/**
+ * Cache implementation for SAML Artifact storage
+ */
 public class SAMLSSOArtifactCache extends BaseCache<CacheKey, CacheEntry> {
 
     private static final String ARTIFACT_CACHE_NAME = "SAMLSSOArtifactCache";

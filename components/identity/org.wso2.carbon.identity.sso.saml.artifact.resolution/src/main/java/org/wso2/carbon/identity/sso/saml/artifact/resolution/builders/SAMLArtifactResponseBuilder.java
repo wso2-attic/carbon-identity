@@ -34,6 +34,9 @@ import org.wso2.carbon.identity.sso.saml.builders.SignKeyDataHolder;
 import org.wso2.carbon.identity.sso.saml.persistence.model.SAMLSSOArtifactResponse;
 import org.wso2.carbon.identity.sso.saml.util.SAMLSSOUtil;
 
+/**
+ * This class is responsible for building SAML Artifact Response
+ */
 public class SAMLArtifactResponseBuilder {
 
     private static Log log = LogFactory.getLog(SAMLArtifactResponseBuilder.class);

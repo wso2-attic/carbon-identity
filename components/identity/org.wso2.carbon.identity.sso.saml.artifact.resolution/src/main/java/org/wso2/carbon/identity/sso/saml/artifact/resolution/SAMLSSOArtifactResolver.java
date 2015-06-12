@@ -29,6 +29,9 @@ import org.wso2.carbon.identity.sso.saml.persistence.ArtifactStorage;
 import org.wso2.carbon.identity.sso.saml.persistence.ArtifactStorageRegistry;
 import org.wso2.carbon.identity.sso.saml.persistence.model.SAMLSSOArtifactResponse;
 
+/**
+ * This class is responsible for validating and processing the received Artifact Resolve request
+ */
 public class SAMLSSOArtifactResolver {
 
     private static Log log = LogFactory.getLog(SAMLSSOArtifactResolver.class);

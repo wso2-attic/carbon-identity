@@ -30,6 +30,10 @@ import org.wso2.carbon.identity.sso.saml.util.SAMLSSOUtil;
 
 import javax.xml.stream.XMLStreamException;
 
+/**
+ * This is the service class which receives the SAML Artifact Resolve Request
+ * For a valid SAML Artifact Resolve request, this will respond with a valid Artifact Response
+ */
 public class SAMLSSOArtifactResolutionService {
 
     private static Log log = LogFactory.getLog(SAMLSSOArtifactResolutionService.class);
