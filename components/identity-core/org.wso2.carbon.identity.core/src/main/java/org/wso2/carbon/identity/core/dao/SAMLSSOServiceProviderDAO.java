@@ -128,7 +128,7 @@ public class SAMLSSOServiceProviderDAO extends AbstractDAO<SAMLSSOServiceProvide
      * @param metadataString
      * @return
      */
-    private EntityDescriptor generateMetadataObjectFromString(String metadataString) {
+    private EntityDescriptor generateMetadataObjectFromString(String metadataString) throws IdentityException {
         EntityDescriptor entityDescriptor = null;
 
         try {
@@ -170,7 +170,8 @@ public class SAMLSSOServiceProviderDAO extends AbstractDAO<SAMLSSOServiceProvide
             XMLObject xmlObject = idpMetaDataProvider.getMetadata();
             entityDescriptor = (EntityDescriptor) xmlObject;
         } catch (MetadataProviderException | SAXException | ParserConfigurationException | IOException e) {
-            log.error("Error While reading Service Provider metadata xml", e);
+            log.error("Error While reading Service Provider metadata xml");
+            throw new IdentityException("Error While reading Service Provider metadata xml", e);
         }
 
         return entityDescriptor;
@@ -348,6 +349,8 @@ public class SAMLSSOServiceProviderDAO extends AbstractDAO<SAMLSSOServiceProvide
             }
         } catch (RegistryException e) {
             log.error("Error while reading the resource");
+        } catch (IdentityException e) {
+            e.printStackTrace();
         }
 
         return serviceProviderDO;
@@ -360,7 +363,8 @@ public class SAMLSSOServiceProviderDAO extends AbstractDAO<SAMLSSOServiceProvide
      * @return
      */
     private EntityDescriptor generateMetadataObjectFromServiceProviderDO(SAMLSSOServiceProviderDO
-                                                                                 samlssoServiceProviderDO) {
+                                                                                 samlssoServiceProviderDO) throws
+            IdentityException {
 
         EntityDescriptor entityDescriptor = null;
         try {
@@ -488,7 +492,8 @@ public class SAMLSSOServiceProviderDAO extends AbstractDAO<SAMLSSOServiceProvide
 
 
         } catch (NoSuchFieldException | IllegalAccessException e) {
-            log.error("Error While reading Service Provider details", e);
+            log.error("Error While reading Service Provider details");
+            throw new IdentityException("Error While reading Service Provider details", e);
         }
 
 
@@ -638,7 +643,6 @@ public class SAMLSSOServiceProviderDAO extends AbstractDAO<SAMLSSOServiceProvide
      */
     public SAMLSSOServiceProviderDO uploadServiceProvider(String metadata) throws IdentityException {
 
-        //TODO: check the constraints in issuer id
         EntityDescriptor entityDescriptor = generateMetadataObjectFromString(metadata);
         SAMLSSOServiceProviderDO serviceProviderDO = new SAMLSSOServiceProviderDO();
         serviceProviderDO = convertMetadataObjectToServiceProviderDO(entityDescriptor, serviceProviderDO);
