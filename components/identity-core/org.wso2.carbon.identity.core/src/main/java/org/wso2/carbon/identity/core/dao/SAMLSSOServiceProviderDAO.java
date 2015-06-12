@@ -324,32 +324,31 @@ public class SAMLSSOServiceProviderDAO extends AbstractDAO<SAMLSSOServiceProvide
 
             serviceProviderDO = convertMetadataObjectToServiceProviderDO(generateMetadataObjectFromString(content),
                     serviceProviderDO);
-        } catch (RegistryException e) {
-            e.printStackTrace();
-        }
 
-        if (resource
-                .getProperty(IdentityRegistryResources.PROP_SAML_SSO_ENABLE_NAMEID_CLAIMURI) != null) {
-            if (new Boolean(resource.getProperty(
-                    IdentityRegistryResources.PROP_SAML_SSO_ENABLE_NAMEID_CLAIMURI)
-                    .trim())) {
-                serviceProviderDO.setNameIdClaimUri(resource.
-                        getProperty(IdentityRegistryResources.PROP_SAML_SSO_NAMEID_CLAIMURI));
+            if (resource
+                    .getProperty(IdentityRegistryResources.PROP_SAML_SSO_ENABLE_NAMEID_CLAIMURI) != null) {
+                if (new Boolean(resource.getProperty(
+                        IdentityRegistryResources.PROP_SAML_SSO_ENABLE_NAMEID_CLAIMURI)
+                        .trim())) {
+                    serviceProviderDO.setNameIdClaimUri(resource.
+                            getProperty(IdentityRegistryResources.PROP_SAML_SSO_NAMEID_CLAIMURI));
+                }
             }
-        }
 
-        if (resource
-                .getProperty(IdentityRegistryResources.PROP_SAML_SSO_ATTRIB_CONSUMING_SERVICE_INDEX) != null) {
-            serviceProviderDO
-                    .setAttributeConsumingServiceIndex(resource
-                            .getProperty(IdentityRegistryResources.PROP_SAML_SSO_ATTRIB_CONSUMING_SERVICE_INDEX));
-        }
+            if (resource
+                    .getProperty(IdentityRegistryResources.PROP_SAML_SSO_ATTRIB_CONSUMING_SERVICE_INDEX) != null) {
+                serviceProviderDO
+                        .setAttributeConsumingServiceIndex(resource
+                                .getProperty(IdentityRegistryResources.PROP_SAML_SSO_ATTRIB_CONSUMING_SERVICE_INDEX));
+            }
 
-        if (resource.getProperty(IdentityRegistryResources.PROP_SAML_SSO_REQUESTED_CLAIMS) != null) {
-            serviceProviderDO.setRequestedClaims(resource
-                    .getPropertyValues(IdentityRegistryResources.PROP_SAML_SSO_REQUESTED_CLAIMS));
+            if (resource.getProperty(IdentityRegistryResources.PROP_SAML_SSO_REQUESTED_CLAIMS) != null) {
+                serviceProviderDO.setRequestedClaims(resource
+                        .getPropertyValues(IdentityRegistryResources.PROP_SAML_SSO_REQUESTED_CLAIMS));
+            }
+        } catch (RegistryException e) {
+            log.error("Error while reading the resource");
         }
-
 
         return serviceProviderDO;
     }
