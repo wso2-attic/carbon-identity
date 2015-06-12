@@ -70,7 +70,7 @@
                             !org.wso2.carbon.identity.sso.saml.artifact.resolution.internal,
                             org.wso2.carbon.identity.sso.saml.artifact.resolution.*
                         </Export-Package>
-                        <Import-Package>  org.wso2.carbon.utils.*,
+                        <Import-Package>org.wso2.carbon.utils.*,
                             org.osgi.service.component.*,
                             org.wso2.carbon.identity.sso.saml.*,
                             *;resolution:=optional

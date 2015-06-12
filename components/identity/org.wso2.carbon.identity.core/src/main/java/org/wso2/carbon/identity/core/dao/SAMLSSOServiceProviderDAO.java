@@ -132,15 +132,15 @@ public class SAMLSSOServiceProviderDAO extends AbstractDAO<SAMLSSOServiceProvide
            serviceProviderDO.setDoValidateSignatureInRequests(new Boolean(resource.getProperty(
                    IdentityRegistryResources.PROP_SAML_SSO_VALIDATE_SIGNATURE_IN_REQUESTS).trim()));
         }
-        if(resource.getProperty(IdentityRegistryResources.PROP_SAML_SSO_ARTIFACT_BINDING_ENABLED) != null) {
+        if (resource.getProperty(IdentityRegistryResources.PROP_SAML_SSO_ARTIFACT_BINDING_ENABLED) != null) {
             serviceProviderDO.setArtifactBindingEnabled(new Boolean(resource.getProperty(
                     IdentityRegistryResources.PROP_SAML_SSO_ARTIFACT_BINDING_ENABLED).trim()));
         }
-        if(resource.getProperty(IdentityRegistryResources.PROP_SAML_SSO_ARTIFACT_RESOLUTION_SERVICE) != null) {
+        if (resource.getProperty(IdentityRegistryResources.PROP_SAML_SSO_ARTIFACT_RESOLUTION_SERVICE) != null) {
             serviceProviderDO.setArtifactResolutionService(resource
                     .getProperty(IdentityRegistryResources.PROP_SAML_SSO_ARTIFACT_RESOLUTION_SERVICE));
         }
-        if(resource.getProperty(IdentityRegistryResources.PROP_SAML_SSO_ARTIFACT_LIFETIME) != null) {
+        if (resource.getProperty(IdentityRegistryResources.PROP_SAML_SSO_ARTIFACT_LIFETIME) != null) {
             serviceProviderDO.setArtifactLifetime(new Integer(resource.getProperty(
                     IdentityRegistryResources.PROP_SAML_SSO_ARTIFACT_LIFETIME).trim()));
         }
