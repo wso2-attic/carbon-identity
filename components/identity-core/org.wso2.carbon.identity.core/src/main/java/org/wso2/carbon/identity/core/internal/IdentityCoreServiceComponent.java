@@ -21,6 +21,8 @@ import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.identity.base.IdentityConstants;
+import org.wso2.carbon.identity.core.util.IdentityCoreInitializedEvent;
+import org.wso2.carbon.identity.core.util.IdentityCoreInitializedEventImpl;
 import org.wso2.carbon.identity.core.persistence.JDBCPersistenceManager;
 import org.wso2.carbon.identity.core.um.listener.IdentityUserMgtListener;
 import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
@@ -69,6 +71,11 @@ public class IdentityCoreServiceComponent {
             IdentityUserMgtListener userMgtListener = new IdentityUserMgtListener();
             ctxt.getBundleContext().registerService(UserStoreManagerListener.class.getName(), userMgtListener, null);
             bundleContext = ctxt.getBundleContext();
+
+            // Register initialize service To guarantee the activation order. Component which is referring this service will wait until
+            // this component activated.
+            ctxt.getBundleContext().registerService(IdentityCoreInitializedEvent.class.getName(),
+                                                    new IdentityCoreInitializedEventImpl(), null);
 
             // Identity database schema creation can be avoided by setting
             // JDBCPersistenceManager.SkipDBSchemaCreation property to "true".
