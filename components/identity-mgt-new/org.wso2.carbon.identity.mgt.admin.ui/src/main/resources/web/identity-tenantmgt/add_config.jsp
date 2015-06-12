@@ -1,3 +1,21 @@
+<!--
+~ Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+~
+~ WSO2 Inc. licenses this file to you under the Apache License,
+~ Version 2.0 (the "License"); you may not use this file except
+~ in compliance with the License.
+~ You may obtain a copy of the License at
+~
+~    http://www.apache.org/licenses/LICENSE-2.0
+~
+~ Unless required by applicable law or agreed to in writing,
+~ software distributed under the License is distributed on an
+~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+~ KIND, either express or implied.  See the License for the
+~ specific language governing permissions and limitations
+~ under the License.
+-->
+
 <%@ page import="org.wso2.carbon.identity.mgt.admin.ui.client.TenantIdentityMgtClient" %>
 <%@ page import="java.util.HashMap" %>
 <%@ page import="org.wso2.carbon.CarbonConstants" %>
@@ -18,10 +36,10 @@
             .getServletContext()
             .getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
 
-    HashMap<String, String> configMap = new HashMap<String, String>();
+    Map<String, String> configMap = new HashMap<>();
     TenantIdentityMgtClient client =
             new TenantIdentityMgtClient(cookie, backendServerURL, configContext);
-    configMap = client.getAllConfigurations();
+    configMap = client.getConfiguration();
 
 %>
 
@@ -57,18 +75,20 @@
 <div id="middle">
 
 <h2>
-    Add Tenant Configuration Details
+    Add Configuration Details
 </h2>
 
 <div id="workArea">
 <form id="addTenantConfigurationForm" name="addTenantConfigurationForm" action="add_config_ajaxprocessor.jsp"
       method="post">
-    <% Map<String, String> configurations = new HashMap<String, String>();
+    <% Map<String, String> configurations = new HashMap<>();
    int i=0;
-    ArrayList<String> values = new ArrayList<String>() {{
+    List<String> values = new ArrayList<String>() {{
         add("true");
         add("false");
     }};
+
+    List<String> updatedConfigList = new ArrayList<>();
 %>
 
 <h2 id="role_permission_config_head22" class="active trigger">
@@ -81,17 +101,18 @@
 
 <tr>
     <%
-        configurations.put("configuration" + i, configMap.get("Account.Lock.Enable"));
+        configurations.put("tenantConfiguration" + i, configMap.get("Account.Lock.Enable"));
     %>
 
     <td><span>Account Lock Enable</span></td>
     <td colspan="2">
         <select name="Account.Lock.Enable"
-                id="Account.Lock.Enable" style="width:410px">
+                id="Account.Lock.Enable" style="width:410px"
+                onchange=<%updatedConfigList.add("Account.Lock.Enable");%>>
 
             <%
                 for (String value : values) {
-                    if (configurations.get("configuration" + i).equals(value)) {
+                    if (configurations.get("tenantConfiguration" + i).equals(value)) {
             %>
             <option selected="selected" value="<%=value%>"><%=value%>
             </option>
@@ -114,7 +135,7 @@
 
 <tr>
     <%
-        configurations.put("configuration" + i, configMap.get("Account.Unlock.Enable"));
+        configurations.put("tenantConfiguration" + i, configMap.get("Account.Unlock.Enable"));
     %>
 
     <td><span>Account Unlock Enable</span></td>
@@ -124,7 +145,7 @@
 
             <%
                 for (String value : values) {
-                    if (configurations.get("configuration" + i).equals(value)) {
+                    if (configurations.get("tenantConfiguration" + i).equals(value)) {
             %>
             <option selected="selected" value="<%=value%>"><%=value%>
             </option>
@@ -147,7 +168,7 @@
 
 <tr>
     <%
-        configurations.put("configuration" + i, configMap.get("Account.Max.Attempt.Enable"));
+        configurations.put("tenantConfiguration" + i, configMap.get("Account.Max.Attempt.Enable"));
     %>
 
     <td><span>Account Max Attempt Enable</span></td>
@@ -157,7 +178,7 @@
 
             <%
                 for (String value : values) {
-                    if (configurations.get("configuration" + i).equals(value)) {
+                    if (configurations.get("tenantConfiguration" + i).equals(value)) {
             %>
             <option selected="selected" value="<%=value%>"><%=value%>
             </option>
@@ -181,7 +202,7 @@
 
 <tr>
     <%
-        configurations.put("configuration" + i, configMap.get("Account.OneTime.Password.Enable"));
+        configurations.put("tenantConfiguration" + i, configMap.get("Account.OneTime.Password.Enable"));
     %>
 
     <td><span>Account Onetime Password Enable</span></td>
@@ -191,7 +212,7 @@
 
             <%
                 for (String value : values) {
-                    if (configurations.get("configuration" + i).equals(value)) {
+                    if (configurations.get("tenantConfiguration" + i).equals(value)) {
             %>
             <option selected="selected" value="<%=value%>"><%=value%>
             </option>
@@ -215,7 +236,7 @@
 
 <tr>
     <%
-        configurations.put("configuration" + i, configMap.get("Account.Password.Reuse.Enable"));
+        configurations.put("tenantConfiguration" + i, configMap.get("Account.Password.Reuse.Enable"));
     %>
 
     <td><span>Account Password Reuse Enable</span></td>
@@ -225,7 +246,7 @@
 
             <%
                 for (String value : values) {
-                    if (configurations.get("configuration" + i).equals(value)) {
+                    if (configurations.get("tenantConfiguration" + i).equals(value)) {
             %>
             <option selected="selected" value="<%=value%>"><%=value%>
             </option>
@@ -249,7 +270,7 @@
 
 <tr>
     <%
-        configurations.put("configuration" + i, configMap.get("Account.Password.Expire.Enable"));
+        configurations.put("tenantConfiguration" + i, configMap.get("Account.Password.Expire.Enable"));
     %>
 
     <td><span>Account Password Expire Enable</span></td>
@@ -259,7 +280,7 @@
 
             <%
                 for (String value : values) {
-                    if (configurations.get("configuration" + i).equals(value)) {
+                    if (configurations.get("tenantConfiguration" + i).equals(value)) {
             %>
             <option selected="selected" value="<%=value%>"><%=value%>
             </option>
@@ -283,7 +304,7 @@
 
 <tr>
     <%
-        configurations.put("configuration" + i, configMap.get("Notification.Sending.Enable"));
+        configurations.put("tenantConfiguration" + i, configMap.get("Notification.Sending.Enable"));
     %>
     <td>
         <span>Notification Sending Enable</span></td>
@@ -293,7 +314,7 @@
 
             <%
                 for (String value : values) {
-                    if (configurations.get("configuration" + i).equals(value)) {
+                    if (configurations.get("tenantConfiguration" + i).equals(value)) {
             %>
             <option selected="selected" value="<%=value%>"><%=value%>
             </option>
@@ -314,19 +335,19 @@
 
 <tr>
     <%
-        configurations.put("configuration" + i, configMap.get("Notification.Expire.Time"));
+        configurations.put("tenantConfiguration" + i, configMap.get("Notification.Expire.Time"));
     %>
     <td>
         Notification Expire Time
     </td>
     <td colspan="2"><input type="text" name="Notification.Expire.Time"
                            id="Notification.Expire.Time" style="width:400px"
-                           value="<%=configurations.get("configuration"+i)%>"/></td>
+                           value="<%=configurations.get("tenantConfiguration"+i)%>"/></td>
 </tr>
 
 <tr>
     <%
-        configurations.put("configuration" + i, configMap.get("Notification.Sending.Internally.Managed"));
+        configurations.put("tenantConfiguration" + i, configMap.get("Notification.Sending.Internally.Managed"));
     %>
     <td>
         Notification Sending Internally Managed
@@ -337,7 +358,7 @@
 
             <%
                 for (String value : values) {
-                    if (configurations.get("configuration" + i).equals(value)) {
+                    if (configurations.get("tenantConfiguration" + i).equals(value)) {
             %>
             <option selected="selected" value="<%=value%>"><%=value%>
             </option>
@@ -358,7 +379,7 @@
 
 <tr>
     <%
-        configurations.put("configuration" + i, configMap.get("Authentication.Policy.Enable"));
+        configurations.put("tenantConfiguration" + i, configMap.get("Authentication.Policy.Enable"));
     %>
     <td>
         Authentication Policy Enable
@@ -370,7 +391,7 @@
 
             <%
                 for (String value : values) {
-                    if (configurations.get("configuration" + i).equals(value)) {
+                    if (configurations.get("tenantConfiguration" + i).equals(value)) {
             %>
             <option selected="selected" value="<%=value%>"><%=value%>
             </option>
@@ -393,7 +414,7 @@
 
 <tr>
     <%
-        configurations.put("configuration" + i, configMap.get("Authentication.Policy.Check.Account.Exist"));
+        configurations.put("tenantConfiguration" + i, configMap.get("Authentication.Policy.Check.Account.Exist"));
     %>
     <td>
         Authentication Policy Check Account Exist
@@ -405,7 +426,7 @@
 
             <%
                 for (String value : values) {
-                    if (configurations.get("configuration" + i).equals(value)) {
+                    if (configurations.get("tenantConfiguration" + i).equals(value)) {
             %>
             <option selected="selected" value="<%=value%>"><%=value%>
             </option>
@@ -428,7 +449,7 @@
 
 <tr>
     <%
-        configurations.put("configuration" + i, configMap.get("Authentication.Policy.Check.Password.Expire"));
+        configurations.put("tenantConfiguration" + i, configMap.get("Authentication.Policy.Check.Password.Expire"));
     %>
     <td>
         Authentication Policy Check Password Expire
@@ -440,7 +461,7 @@
 
             <%
                 for (String value : values) {
-                    if (configurations.get("configuration" + i).equals(value)) {
+                    if (configurations.get("tenantConfiguration" + i).equals(value)) {
             %>
             <option selected="selected" value="<%=value%>"><%=value%>
             </option>
@@ -460,31 +481,31 @@
 
 <tr>
     <%
-        configurations.put("configuration" + i, configMap.get("Authentication.Policy.Password.Expire.Time"));
+        configurations.put("tenantConfiguration" + i, configMap.get("Authentication.Policy.Password.Expire.Time"));
     %>
     <td>
         Authentication Policy Password Expire Time
     </td>
     <td colspan="2"><input type="text" name="Authentication.Policy.Password.Expire.Time"
                            id="Authentication.Policy.Password.Expire.Time" style="width:400px"
-                           value="<%=configurations.get("configuration"+i)%>"/></td>
+                           value="<%=configurations.get("tenantConfiguration"+i)%>"/></td>
 </tr>
 
 <tr>
     <%
-        configurations.put("configuration" + i, configMap.get("Authentication.Policy.Account.Lock.Time"));
+        configurations.put("tenantConfiguration" + i, configMap.get("Authentication.Policy.Account.Lock.Time"));
     %>
     <td>
         Authentication Policy Account Lock Time
     </td>
     <td colspan="2"><input type="text" name="Authentication.Policy.Account.Lock.Time"
                            id="Authentication.Policy.Account.Lock.Time" style="width:400px"
-                           value="<%=configurations.get("configuration"+i)%>"/></td>
+                           value="<%=configurations.get("tenantConfiguration"+i)%>"/></td>
 </tr>
 
 <tr>
     <%
-        configurations.put("configuration" + i, configMap.get("Authentication.Policy.Account.Lock.On.Failure"));
+        configurations.put("tenantConfiguration" + i, configMap.get("Authentication.Policy.Account.Lock.On.Failure"));
     %>
     <td>
         Authentication Policy Account Lock On Failure
@@ -496,7 +517,7 @@
 
             <%
                 for (String value : values) {
-                    if (configurations.get("configuration" + i).equals(value)) {
+                    if (configurations.get("tenantConfiguration" + i).equals(value)) {
             %>
             <option selected="selected" value="<%=value%>"><%=value%>
             </option>
@@ -516,34 +537,34 @@
 
 <tr>
     <%
-        configurations.put("configuration" + i, configMap.get("Authentication.Policy.Account.Lock.On.Failure.Max.Attempts"));
+        configurations.put("tenantConfiguration" + i, configMap.get("Authentication.Policy.Account.Lock.On.Failure.Max.Attempts"));
     %>
     <td>
         Authentication Policy Account Lock On Failure Max Attempts
     </td>
     <td colspan="2"><input type="text" name="Authentication.Policy.Account.Lock.On.Failure.Max.Attempts"
                            id="Authentication.Policy.Account.Lock.On.Failure.Max.Attempts" style="width:400px"
-                           value="<%=configurations.get("configuration"+i)%>"/></td>
+                           value="<%=configurations.get("tenantConfiguration"+i)%>"/></td>
 </tr>
 
 
 <%--<tr>
     <%
-        configurations.put("configuration" + i, configMap.get("Identity.Mgt.User.Recovery.Data.Store"));
+        configurations.put("tenantConfiguration" + i, configMap.get("Identity.Mgt.User.Recovery.Data.Store"));
     %>
     <td>
         Identity Mgt User Recovery Data Store
     </td>
     <td colspan="2"><input type="text" name="Identity.Mgt.User.Recovery.Data.Store"
                            id="Identity.Mgt.User.Recovery.Data.Store" style="width:400px"
-                           value="<%=configurations.get("configuration"+i)%>"/>
+                           value="<%=configurations.get("tenantConfiguration"+i)%>"/>
     </td>
 </tr>--%>
 
 
 <tr>
     <%
-        configurations.put("configuration" + i, configMap.get("Authentication.Policy.Check.Password.Reuse"));
+        configurations.put("tenantConfiguration" + i, configMap.get("Authentication.Policy.Check.Password.Reuse"));
     %>
     <td>
         Authentication Policy Check Password Reuse
@@ -555,7 +576,7 @@
 
             <%
                 for (String value : values) {
-                    if (configurations.get("configuration" + i).equals(value)) {
+                    if (configurations.get("tenantConfiguration" + i).equals(value)) {
             %>
             <option selected="selected" value="<%=value%>"><%=value%>
             </option>
@@ -575,28 +596,28 @@
 
 <tr>
     <%
-        configurations.put("configuration" + i, configMap.get("Password.Expire.Frequency"));
+        configurations.put("tenantConfiguration" + i, configMap.get("Password.Expire.Frequency"));
     %>
     <td>
         Password Expire Frequency
     </td>
     <td colspan="2"><input type="text" name="Password.Expire.Frequency"
                            id="Password.Expire.Frequency" style="width:400px"
-                           value="<%=configurations.get("configuration"+i)%>"/>
+                           value="<%=configurations.get("tenantConfiguration"+i)%>"/>
     </td>
 </tr>
 
 
 <tr>
     <%
-        configurations.put("configuration" + i, configMap.get("Password.Reuse.Frequency"));
+        configurations.put("tenantConfiguration" + i, configMap.get("Password.Reuse.Frequency"));
     %>
     <td>
         Password Reuse Frequency
     </td>
     <td colspan="2"><input type="text" name="Password.Reuse.Frequency"
                            id="Password.Reuse.Frequency" style="width:400px"
-                           value="<%=configurations.get("configuration"+i)%>"/>
+                           value="<%=configurations.get("tenantConfiguration"+i)%>"/>
     </td>
 </tr>
 
@@ -615,7 +636,7 @@
 
         <tr>
             <%
-                configurations.put("configuration" + i, configMap.get("Captcha.Verification.Internally.Managed"));
+                configurations.put("tenantConfiguration" + i, configMap.get("Captcha.Verification.Internally.Managed"));
             %>
             <td>
                 Captcha Verification Internally Managed
@@ -626,7 +647,7 @@
 
                     <%
                         for (String value : values) {
-                            if (configurations.get("configuration" + i).equals(value)) {
+                            if (configurations.get("tenantConfiguration" + i).equals(value)) {
                     %>
                     <option selected="selected" value="<%=value%>"><%=value%>
                     </option>
@@ -659,7 +680,7 @@
 
         <tr>
             <%
-                configurations.put("configuration" + i, configMap.get("Authentication.Policy.Check.Account.Lock"));
+                configurations.put("tenantConfiguration" + i, configMap.get("Authentication.Policy.Check.Account.Lock"));
             %>
             <td>
                 Authentication Policy Check Account Lock
@@ -671,7 +692,7 @@
 
                     <%
                         for (String value : values) {
-                            if (configurations.get("configuration" + i).equals(value)) {
+                            if (configurations.get("tenantConfiguration" + i).equals(value)) {
                     %>
                     <option selected="selected" value="<%=value%>"><%=value%>
                     </option>
@@ -706,38 +727,38 @@
 
         <tr>
             <%
-                configurations.put("configuration" + i, configMap.get("Password.policy.extensions.1.min.length"));
+                configurations.put("tenantConfiguration" + i, configMap.get("Password.policy.extensions.1.min.length"));
             %>
             <td>
                 Password policy extensions 1 min length
             </td>
             <td colspan="2"><input type="text" name="Password.policy.extensions.1.min.length"
                                    id="Password.policy.extensions.1.min.length" style="width:400px"
-                                   value="<%=configurations.get("configuration"+i)%>"/></td>
+                                   value="<%=configurations.get("tenantConfiguration"+i)%>"/></td>
         </tr>
 
         <tr>
             <%
-                configurations.put("configuration" + i, configMap.get("Password.policy.extensions.1.max.length"));
+                configurations.put("tenantConfiguration" + i, configMap.get("Password.policy.extensions.1.max.length"));
             %>
             <td>
                 Password policy extensions 1 max length
             </td>
             <td colspan="2"><input type="text" name="Password.policy.extensions.1.max.length"
                                    id="Password.policy.extensions.1.max.length" style="width:400px"
-                                   value="<%=configurations.get("configuration"+i)%>"/></td>
+                                   value="<%=configurations.get("tenantConfiguration"+i)%>"/></td>
         </tr>
 
         <tr>
             <%
-                configurations.put("configuration" + i, configMap.get("Password.policy.extensions.3.pattern"));
+                configurations.put("tenantConfiguration" + i, configMap.get("Password.policy.extensions.3.pattern"));
             %>
             <td>
                 Password policy extensions 3 pattern
             </td>
             <td colspan="2"><input type="text" name="Password.policy.extensions.3.pattern"
                                    id="Password.policy.extensions.3.pattern" style="width:400px"
-                                   value="<%=configurations.get("configuration"+i)%>"/>
+                                   value="<%=configurations.get("tenantConfiguration"+i)%>"/>
 
             </td>
         </tr>
@@ -756,7 +777,7 @@
 
         <tr>
             <%
-                configurations.put("configuration" + i, configMap.get("Authentication.Policy.Check.OneTime.Password"));
+                configurations.put("tenantConfiguration" + i, configMap.get("Authentication.Policy.Check.OneTime.Password"));
             %>
             <td>
                 Authentication Policy Check OneTime Password
@@ -767,7 +788,7 @@
 
                     <%
                         for (String value : values) {
-                            if (configurations.get("configuration" + i).equals(value)) {
+                            if (configurations.get("tenantConfiguration" + i).equals(value)) {
                     %>
                     <option selected="selected" value="<%=value%>"><%=value%>
                     </option>
@@ -797,7 +818,7 @@
 
         <tr>
             <%
-                configurations.put("configuration" + i, configMap.get("UserAccount.Verification.Enable"));
+                configurations.put("tenantConfiguration" + i, configMap.get("UserAccount.Verification.Enable"));
             %>
             <td>
                 UserAccount Verification Enable
@@ -809,7 +830,7 @@
 
                     <%
                         for (String value : values) {
-                            if (configurations.get("configuration" + i).equals(value)) {
+                            if (configurations.get("tenantConfiguration" + i).equals(value)) {
                     %>
                     <option selected="selected" value="<%=value%>"><%=value%>
                     </option>
@@ -829,7 +850,7 @@
 
         <tr>
             <%
-                configurations.put("configuration" + i, configMap.get("Temporary.Password.Enable"));
+                configurations.put("tenantConfiguration" + i, configMap.get("Temporary.Password.Enable"));
             %>
             <td>
                 Temporary Password Enable
@@ -841,7 +862,7 @@
 
                     <%
                         for (String value : values) {
-                            if (configurations.get("configuration" + i).equals(value)) {
+                            if (configurations.get("tenantConfiguration" + i).equals(value)) {
                     %>
                     <option selected="selected" value="<%=value%>"><%=value%>
                     </option>
@@ -863,19 +884,19 @@
 
         <tr>
             <%
-                configurations.put("configuration" + i, configMap.get("Temporary.Password.Default.Value"));
+                configurations.put("tenantConfiguration" + i, configMap.get("Temporary.Password.Default.Value"));
             %>
             <td>
                 Temporary Password Default Value
             </td>
             <td colspan="2"><input type="text" name="Temporary.Password.Default.Value"
                                    id="Temporary.Password.Default.Value" style="width:400px"
-                                   value="<%=configurations.get("configuration"+i)%>"/></td>
+                                   value="<%=configurations.get("tenantConfiguration"+i)%>"/></td>
         </tr>
 
         <tr>
             <%
-                configurations.put("configuration" + i, configMap.get("Authentication.Policy.Account.Lock.On.Creation"));
+                configurations.put("tenantConfiguration" + i, configMap.get("Authentication.Policy.Account.Lock.On.Creation"));
             %>
             <td>
                 Authentication Policy Account Lock On Creation
@@ -886,7 +907,7 @@
 
                     <%
                         for (String value : values) {
-                            if (configurations.get("configuration" + i).equals(value)) {
+                            if (configurations.get("tenantConfiguration" + i).equals(value)) {
                     %>
                     <option selected="selected" value="<%=value%>"><%=value%>
                     </option>
@@ -905,6 +926,10 @@
         </tr>
     </table>
 </div>
+
+<%
+request.setAttribute("updatedConfigList", updatedConfigList);
+%>
 
 <tr id="buttonRow">
     <td class="buttonRow">

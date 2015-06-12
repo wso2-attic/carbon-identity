@@ -16,27 +16,34 @@
  * under the License.
  */
 
-package org.wso2.carbon.identity.mgt.cache;
+package org.wso2.carbon.identity.mgt.dto;
 
-import org.wso2.carbon.identity.application.common.cache.CacheEntry;
+public class Configuration {
 
-import java.util.HashMap;
-import java.util.Map;
+    private String property;
+    private String propertyValue;
 
-public class ConfigCacheEntry extends CacheEntry {
-
-    private Map<String, String> configurationDetails;
-
-    public ConfigCacheEntry(Map<String, String> configurationDetails) {
-        this.configurationDetails = configurationDetails;
+    public Configuration() {
     }
 
-    public Map<String, String> getConfigurationDetails() {
-        return configurationDetails;
+    public Configuration(String property, String propertyValue) {
+        this.property = property;
+        this.propertyValue = propertyValue;
     }
 
-    public void setConfigurationDetails(Map<String, String> configurationDetails) {
-        this.configurationDetails = configurationDetails;
+    public String getProperty() {
+        return property;
     }
 
+    public void setProperty(String property) {
+        this.property = property;
+    }
+
+    public String getPropertyValue() {
+        return propertyValue;
+    }
+
+    public void setPropertyValue(String propertyValue) {
+        this.propertyValue = propertyValue;
+    }
 }

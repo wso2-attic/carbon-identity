@@ -16,19 +16,31 @@
  * under the License.
  */
 
-package org.wso2.carbon.identity.mgt.cache;
+package org.wso2.carbon.identity.mgt.bean;
 
-import org.wso2.carbon.identity.application.common.cache.CacheEntry;
+import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ConfigCacheEntry extends CacheEntry {
+public class TenantConfiguration implements Serializable {
 
-    private Map<String, String> configurationDetails;
+    private int tenantId = MultitenantConstants.SUPER_TENANT_ID;
 
-    public ConfigCacheEntry(Map<String, String> configurationDetails) {
+    Map<String, String> configurationDetails = new HashMap<>();
+
+    public TenantConfiguration(int tenantId, Map<String, String> configurationDetails) {
+        this.tenantId = tenantId;
         this.configurationDetails = configurationDetails;
+    }
+
+    public int getTenantId() {
+        return tenantId;
+    }
+
+    public void setTenantId(int tenantId) {
+        this.tenantId = tenantId;
     }
 
     public Map<String, String> getConfigurationDetails() {
@@ -38,5 +50,4 @@ public class ConfigCacheEntry extends CacheEntry {
     public void setConfigurationDetails(Map<String, String> configurationDetails) {
         this.configurationDetails = configurationDetails;
     }
-
 }

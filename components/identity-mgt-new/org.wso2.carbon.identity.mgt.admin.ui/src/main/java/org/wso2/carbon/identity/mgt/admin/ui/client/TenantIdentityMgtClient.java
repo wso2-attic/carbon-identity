@@ -1,3 +1,21 @@
+/*
+ * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 package org.wso2.carbon.identity.mgt.admin.ui.client;
 
 import org.apache.axis2.client.Options;
@@ -30,13 +48,12 @@ public class TenantIdentityMgtClient {
             option.setManageSession(true);
             option.setProperty(org.apache.axis2.transport.http.HTTPConstants.COOKIE_STRING, cookie);
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
             throw new Exception("Error occurred while creating TenantIdentityMgtClient Object");
         }
     }
 
 
-    public void setAllConfigurations(HashMap<String, String> configMap) {
+    public void updateConfiguration(Map<String, String> configMap) {
 
         try {
             TenantConfigDTO[] tenantConfigDTOs = new TenantConfigDTO[configMap.size()];
@@ -52,17 +69,17 @@ public class TenantIdentityMgtClient {
                 ++count;
             }
 
-            stub.setAllConfigurations(tenantConfigDTOs);
+            stub.updateConfiguration(tenantConfigDTOs);
         } catch (RemoteException e) {
-            log.error(e.getMessage(), e);
+            log.error("Error occurred when updating configuration details");
         }
     }
 
-    public HashMap<String, String> getAllConfigurations() {
-        HashMap<String, String> configMap = new HashMap<String, String>();
+    public Map<String, String> getConfiguration() {
+        Map<String, String> configMap = new HashMap<>();
 
         try {
-            TenantConfigDTO[] tenantConfigDTOs = stub.getAllConfigurations();
+            TenantConfigDTO[] tenantConfigDTOs = stub.getConfiguration();
 
             for (int i = 0; i < tenantConfigDTOs.length; i++) {
                 TenantConfigDTO tenantConfigDTO = tenantConfigDTOs[i];
@@ -71,7 +88,7 @@ public class TenantIdentityMgtClient {
             }
 
         } catch (RemoteException e) {
-            log.error(e.getMessage(), e);
+            log.error("Error occurred when retrieving configuration details");
         }
 
         return configMap;

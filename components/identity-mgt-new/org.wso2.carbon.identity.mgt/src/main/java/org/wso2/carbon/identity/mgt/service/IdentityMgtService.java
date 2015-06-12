@@ -16,27 +16,24 @@
  * under the License.
  */
 
-package org.wso2.carbon.identity.mgt.cache;
+package org.wso2.carbon.identity.mgt.service;
 
-import org.wso2.carbon.identity.application.common.cache.CacheEntry;
+import org.wso2.carbon.identity.mgt.IdentityMgtException;
+import org.wso2.carbon.identity.mgt.event.IdentityMgtEvent;
+import org.wso2.carbon.user.core.UserStoreException;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
-public class ConfigCacheEntry extends CacheEntry {
+public interface IdentityMgtService {
 
-    private Map<String, String> configurationDetails;
+    public Properties addConfiguration(int tenantId) throws IdentityMgtException;
 
-    public ConfigCacheEntry(Map<String, String> configurationDetails) {
-        this.configurationDetails = configurationDetails;
-    }
+    public void updateConfiguration(int tenantId, Map<String, String> configurationDetails) throws IdentityMgtException;
 
-    public Map<String, String> getConfigurationDetails() {
-        return configurationDetails;
-    }
+    public Map<String, String> getConfiguration(int tenantId) throws IdentityMgtException;
 
-    public void setConfigurationDetails(Map<String, String> configurationDetails) {
-        this.configurationDetails = configurationDetails;
-    }
+    public boolean handleEvent(IdentityMgtEvent identityMgtEvent) throws UserStoreException, IdentityMgtException;
 
 }

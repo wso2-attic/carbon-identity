@@ -247,14 +247,14 @@
 			<Claim>
 				<ClaimURI>http://wso2.org/claims/identity/unlockTime</ClaimURI>
 				<DisplayName>Unlock Time</DisplayName>
-				<AttributeID>description</AttributeID>
+				<AttributeID>unlockTime</AttributeID>
 				<Description>Unlock Time</Description>
 		    	</Claim>
 
 			<Claim>
 				<ClaimURI>http://wso2.org/claims/identity/failedLoginAttempts</ClaimURI>
 				<DisplayName>Failed Login Attempts</DisplayName>
-				<AttributeID>im</AttributeID>
+				<AttributeID>failedLoginAttempts</AttributeID>
 				<Description>Failed Login Attempts</Description>
 		    	</Claim>
 

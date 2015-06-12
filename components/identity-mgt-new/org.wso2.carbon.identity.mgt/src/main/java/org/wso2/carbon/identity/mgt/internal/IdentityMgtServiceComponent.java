@@ -1,18 +1,21 @@
 /*
- * Copyright (c)  WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *  http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
+
 package org.wso2.carbon.identity.mgt.internal;
 
 import org.apache.commons.logging.Log;
@@ -20,6 +23,7 @@ import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.identity.mgt.IdentityMgtConfig;
+import org.wso2.carbon.identity.mgt.IdentityMgtException;
 import org.wso2.carbon.identity.mgt.listener.IdentityMgtEventListener;
 import org.wso2.carbon.identity.mgt.handler.EventHandler;
 import org.wso2.carbon.identity.mgt.handler.internal.AccountLockEventHandler;
@@ -59,7 +63,7 @@ public class IdentityMgtServiceComponent {
     private static IdentityMgtEventListener listener = null;
 
     // list of all registered event handlers
-    public static List<EventHandler> eventHandlerList = new ArrayList<EventHandler>();
+    public static List<EventHandler> eventHandlerList = new ArrayList<>();
 
     protected void activate(ComponentContext context) {
 
@@ -72,16 +76,20 @@ public class IdentityMgtServiceComponent {
         serviceRegistration =
                 context.getBundleContext().registerService(UserOperationEventListener.class.getName(),
                         listener, null);
+        if(log.isDebugEnabled()){
         log.debug("Identity Management Listener is enabled");
+        }
     }
 
 
     protected void deactivate(ComponentContext context) {
+        if(log.isDebugEnabled()){
         log.debug("Identity Management bundle is de-activated");
+        }
     }
 
 
-    protected void registerEventHandler(EventHandler eventHandler) {
+    protected void registerEventHandler(EventHandler eventHandler) throws IdentityMgtException {
         eventHandler.init();
         eventHandlerList.add(eventHandler);
     }
@@ -95,12 +103,16 @@ public class IdentityMgtServiceComponent {
     protected  void unRegisterTenantMgtListener(TenantMgtListener tenantMgtListener){}
 
     protected void setRealmService(RealmService realmService) {
+        if(log.isDebugEnabled()){
         log.debug("Setting the Realm Service");
+        }
         IdentityMgtServiceComponent.realmService = realmService;
     }
 
     protected void unsetRealmService(RealmService realmService) {
+        if(log.isDebugEnabled()){
         log.debug("UnSetting the Realm Service");
+        }
         IdentityMgtServiceComponent.realmService = null;
     }
 
@@ -109,7 +121,7 @@ public class IdentityMgtServiceComponent {
     }
 
     private static void init() {
-        IdentityMgtConfig.getInstance(realmService.getBootstrapRealmConfiguration());
+        IdentityMgtConfig.getIdentityMgtConfig(realmService.getBootstrapRealmConfiguration());
     }
 
 }

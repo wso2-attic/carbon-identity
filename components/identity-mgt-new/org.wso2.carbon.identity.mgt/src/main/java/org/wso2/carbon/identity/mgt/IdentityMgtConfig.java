@@ -1,37 +1,35 @@
 /*
- * Copyright (c) WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *  http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package org.wso2.carbon.identity.mgt;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.identity.mgt.constants.IdentityMgtConstants;
-import org.wso2.carbon.identity.mgt.mail.DefaultEmailSendingModule;
-import org.wso2.carbon.identity.mgt.password.DefaultPasswordGenerator;
-import org.wso2.carbon.identity.mgt.password.RandomPasswordGenerator;
-import org.wso2.carbon.identity.mgt.policy.PolicyRegistry;
-import org.wso2.carbon.identity.mgt.services.IdentityMgtService;
-import org.wso2.carbon.identity.mgt.services.impl.IdentityMgtServiceImpl;
-import org.wso2.carbon.identity.mgt.store.UserIdentityDataStore;
-import org.wso2.carbon.user.api.RealmConfiguration;
-import org.wso2.carbon.user.core.jdbc.JDBCRealmConstants;
-import org.wso2.carbon.utils.CarbonUtils;
+
+import org.wso2.carbon.identity.mgt.service.IdentityMgtService;
+import org.wso2.carbon.identity.mgt.service.IdentityMgtServiceImpl;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Properties;
+
 
 /**
  * encapsulates recovery config data
@@ -45,58 +43,69 @@ public class IdentityMgtConfig {
     private boolean enableAuthPolicy;
     private boolean authPolicyAccountExistCheck;
     private int authPolicyMaxLoginAttempts;
-    private UserIdentityDataStore identityDataStore;
-    private PolicyRegistry policyRegistry = new PolicyRegistry();
 
-    public IdentityMgtConfig(RealmConfiguration configuration) {
+    public IdentityMgtConfig(){
 
-        Properties properties = identityMgtService.addConfigurations(MultitenantConstants.SUPER_TENANT_ID);
-        setConfigurations(configuration, properties);
-
-    }
-
-    public IdentityMgtConfig(RealmConfiguration configuration, int tenantId) {
-
-        Properties properties = identityMgtService.getConfigurations(tenantId);
-        setConfigurations(configuration, properties);
+        Properties properties = null;
+        try {
+            properties = identityMgtService.addConfiguration(MultitenantConstants.SUPER_TENANT_ID);
+        } catch (IdentityMgtException e) {
+            log.error("Error when adding configurations");
+        }
+        setConfigurations(properties);
 
     }
 
-    public void setConfigurations(RealmConfiguration configuration, Properties properties) {
+    public IdentityMgtConfig(int tenantId) {
+
+        Properties properties = new Properties();
+        Map<String, String> configMap = null;
+        try {
+            configMap = identityMgtService.getConfiguration(tenantId);
+        } catch (IdentityMgtException e) {
+            log.error("Error when retrieving configurations");
+        }
+        Iterator<Map.Entry<String, String>> iterator = configMap.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Map.Entry<String, String> pair = iterator.next();
+            properties.setProperty(pair.getKey(), pair.getValue());
+            System.out.println(pair.getKey() + " = " + pair.getValue());
+        }
+        setConfigurations(properties);
+
+    }
+
+    public void setConfigurations(Properties properties) {
 
         if (!properties.isEmpty()) {
 
-            try {
-                String authPolicyAccountExistCheck = properties.
-                        getProperty(IdentityMgtConstants.PropertyConfig.AUTH_POLICY_ACCOUNT_EXIST);
-                if (authPolicyAccountExistCheck != null) {
-                    this.authPolicyAccountExistCheck = Boolean.parseBoolean(authPolicyAccountExistCheck.trim());
-                }
+            String authPolicyAccountExistCheck = properties.
+                    getProperty(IdentityMgtConstants.PropertyConfig.AUTH_POLICY_ACCOUNT_EXIST);
+            if (authPolicyAccountExistCheck != null) {
+                this.authPolicyAccountExistCheck = Boolean.parseBoolean(authPolicyAccountExistCheck.trim());
+            }
 
-                String enableAuthPolicy = properties.
-                        getProperty(IdentityMgtConstants.PropertyConfig.AUTH_POLICY_ENABLE);
-                if (enableAuthPolicy != null) {
-                    this.enableAuthPolicy = Boolean.parseBoolean(enableAuthPolicy.trim());
-                }
+            String enableAuthPolicy = properties.
+                    getProperty(IdentityMgtConstants.PropertyConfig.AUTH_POLICY_ENABLE);
+            if (enableAuthPolicy != null) {
+                this.enableAuthPolicy = Boolean.parseBoolean(enableAuthPolicy.trim());
+            }
 
-                String accountLockEnable = properties.
-                        getProperty(IdentityMgtConstants.PropertyConfig.ACCOUNT_LOCK_ENABLE);
-                if (accountLockEnable != null) {
-                    this.accountLockEnable = Boolean.parseBoolean(accountLockEnable.trim());
-                }
+            String accountLockEnable = properties.
+                    getProperty(IdentityMgtConstants.PropertyConfig.ACCOUNT_LOCK_ENABLE);
+            if (accountLockEnable != null) {
+                this.accountLockEnable = Boolean.parseBoolean(accountLockEnable.trim());
+            }
 
-                String maxLoginAttemptProperty = properties.
-                        getProperty(IdentityMgtConstants.PropertyConfig.AUTH_POLICY_ACCOUNT_LOCKING_FAIL_ATTEMPTS);
-                if (maxLoginAttemptProperty != null) {
-                    this.authPolicyMaxLoginAttempts = Integer.valueOf(maxLoginAttemptProperty.trim());
-                }
+            String maxLoginAttemptProperty = properties.
+                    getProperty(IdentityMgtConstants.PropertyConfig.AUTH_POLICY_ACCOUNT_LOCKING_FAIL_ATTEMPTS);
+            if (maxLoginAttemptProperty != null) {
+                this.authPolicyMaxLoginAttempts = Integer.valueOf(maxLoginAttemptProperty.trim());
+            }
 
-                if (this.authPolicyMaxLoginAttempts == 0) {
-                    // default value is set
-                    this.authPolicyMaxLoginAttempts = 10;
-                }
-            } catch (Exception e) {
-                log.error("Error while loading identity mgt configurations", e);
+            if (this.authPolicyMaxLoginAttempts == 0) {
+                // default value is set
+                this.authPolicyMaxLoginAttempts = 10;
             }
         }
     }
@@ -106,18 +115,17 @@ public class IdentityMgtConfig {
      * <p/>
      * As this is only called in start up syn and null check is not needed
      *
-     * @param configuration a primary <code>RealmConfiguration</code>
      * @return <code>IdentityMgtConfig</code>
      */
-    public static IdentityMgtConfig getInstance(RealmConfiguration configuration) {
+    public static IdentityMgtConfig getIdentityMgtConfig() {
 
-        identityMgtConfig = new IdentityMgtConfig(configuration);
+        identityMgtConfig = new IdentityMgtConfig();
         return identityMgtConfig;
     }
 
-    public static IdentityMgtConfig getInstance(RealmConfiguration configuration, int tenantId) {
+    public static IdentityMgtConfig getIdentityMgtConfig(int tenantId) {
 
-        identityMgtConfig = new IdentityMgtConfig(configuration, tenantId);
+        identityMgtConfig = new IdentityMgtConfig(tenantId);
         return identityMgtConfig;
     }
 
@@ -139,13 +147,5 @@ public class IdentityMgtConfig {
 
     public int getAuthPolicyMaxLoginAttempts() {
         return authPolicyMaxLoginAttempts;
-    }
-
-    public UserIdentityDataStore getIdentityDataStore() {
-        return identityDataStore;
-    }
-
-    public PolicyRegistry getPolicyRegistry() {
-        return policyRegistry;
     }
 }
