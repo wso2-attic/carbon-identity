@@ -16,7 +16,7 @@
 *under the License.
 */
 
-package org.wso2.carbon.identity.oauth2.token.AccessTokenIssuer;
+package org.wso2.carbon.identity.oauth2.token;
 
 import org.apache.amber.oauth2.common.error.OAuthError;
 import org.apache.amber.oauth2.common.message.types.GrantType;
