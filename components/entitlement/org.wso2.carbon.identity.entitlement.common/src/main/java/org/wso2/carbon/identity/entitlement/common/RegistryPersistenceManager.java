@@ -1,30 +1,32 @@
 /*
-*  Copyright (c)  WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 
 package org.wso2.carbon.identity.entitlement.common;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.context.RegistryType;
 import org.wso2.carbon.registry.api.Registry;
 import org.wso2.carbon.registry.api.RegistryException;
 import org.wso2.carbon.registry.api.Resource;
 
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -32,6 +34,8 @@ import java.util.Map;
  *
  */
 public class RegistryPersistenceManager extends InMemoryPersistenceManager {
+
+    private static final Log log = LogFactory.getLog(RegistryPersistenceManager.class);
 
     @Override
     public void persistConfig(String policyEditorType, String xmlConfig) throws PolicyEditorException {
@@ -57,14 +61,14 @@ public class RegistryPersistenceManager extends InMemoryPersistenceManager {
             }
             registry.put(path, resource);
         } catch (RegistryException e) {
-            throw new PolicyEditorException("Error while persisting policy editor config");
+            throw new PolicyEditorException("Error while persisting policy editor config", e);
         }
     }
 
     @Override
     public Map<String, String> getConfig() {
         Map<String, String> config = super.getConfig();
-        if (config == null || config.size() == 0) {
+        if (config == null || config.isEmpty()) {
             config = new HashMap<String, String>();
             Registry registry = CarbonContext.getThreadLocalCarbonContext().getRegistry(RegistryType.SYSTEM_GOVERNANCE);
             String configString = null;
@@ -72,11 +76,13 @@ public class RegistryPersistenceManager extends InMemoryPersistenceManager {
                 Resource resource = registry.
                         get(EntitlementConstants.ENTITLEMENT_POLICY_BASIC_EDITOR_CONFIG_FILE_REGISTRY_PATH);
                 if (resource != null && resource.getContent() != null) {
-                    configString = new String((byte[]) resource.getContent(), Charset.forName("UTF-8"));
+                    configString = new String((byte[]) resource.getContent(), StandardCharsets.UTF_8);
 
                 }
-            } catch (Exception e) {
-                //ignore
+            } catch (RegistryException e) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Ignore Exception. ", e);
+                }
             }
 
             if (configString == null) {
@@ -89,11 +95,13 @@ public class RegistryPersistenceManager extends InMemoryPersistenceManager {
                 Resource resource = registry.
                         get(EntitlementConstants.ENTITLEMENT_POLICY_STANDARD_EDITOR_CONFIG_FILE_REGISTRY_PATH);
                 if (resource != null && resource.getContent() != null) {
-                    configString = new String((byte[]) resource.getContent(), Charset.forName("UTF-8"));
+                    configString = new String((byte[]) resource.getContent(), StandardCharsets.UTF_8);
                     config.put(EntitlementConstants.PolicyEditor.STANDARD, configString);
                 }
             } catch (Exception e) {
-                //ignore
+                if (log.isDebugEnabled()) {
+                    log.debug("Ignore Exception. ", e);
+                }
             }
             if (configString == null) {
                 configString = getDefaultConfig();
@@ -105,11 +113,11 @@ public class RegistryPersistenceManager extends InMemoryPersistenceManager {
                 Resource resource = registry.
                         get(EntitlementConstants.ENTITLEMENT_POLICY_RBAC_EDITOR_CONFIG_FILE_REGISTRY_PATH);
                 if (resource != null && resource.getContent() != null) {
-                    configString = new String((byte[]) resource.getContent(), Charset.forName("UTF-8"));
+                    configString = new String((byte[]) resource.getContent(), StandardCharsets.UTF_8);
                     config.put(EntitlementConstants.PolicyEditor.RBAC, configString);
                 }
             } catch (Exception e) {
-                //ignore
+                log.debug("Ignore Exception. ", e);
             }
             if (configString == null) {
                 configString = getSimpleConfig();
@@ -121,11 +129,11 @@ public class RegistryPersistenceManager extends InMemoryPersistenceManager {
                 Resource resource = registry.
                         get(EntitlementConstants.ENTITLEMENT_POLICY_SET_EDITOR_CONFIG_FILE_REGISTRY_PATH);
                 if (resource != null && resource.getContent() != null) {
-                    configString = new String((byte[]) resource.getContent(), Charset.forName("UTF-8"));
+                    configString = new String((byte[]) resource.getContent(), StandardCharsets.UTF_8);
                     config.put(EntitlementConstants.PolicyEditor.SET, configString);
                 }
             } catch (Exception e) {
-                //ignore
+                log.debug("Ignore Exception. ", e);
             }
             if (configString == null) {
                 configString = getDefaultSetConfig();

@@ -1,24 +1,22 @@
 /*
-*  Copyright (c) WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 
 package org.wso2.carbon.identity.entitlement.dto;
-
-import java.util.Arrays;
 
 /**
  * Encapsulates the data of entitlement data finder modules
@@ -50,11 +48,17 @@ public class EntitlementFinderDataHolder {
     }
 
     public String[] getApplicationIds() {
-        return Arrays.copyOf(applicationIds, applicationIds.length);
+        if (applicationIds != null) {
+            return applicationIds.clone();
+        } else {
+            return new String[0];
+        }
     }
 
     public void setApplicationIds(String[] applicationIds) {
-        this.applicationIds = applicationIds;
+        if (applicationIds != null) {
+            this.applicationIds = applicationIds.clone();
+        }
     }
 
     public boolean isFullPathSupported() {
@@ -90,11 +94,17 @@ public class EntitlementFinderDataHolder {
     }
 
     public String[] getSupportedCategory() {
-        return Arrays.copyOf(supportedCategory, supportedCategory.length);
+        if (supportedCategory != null) {
+            return supportedCategory.clone();
+        } else {
+            return new String[0];
+        }
     }
 
     public void setSupportedCategory(String[] supportedCategory) {
-        this.supportedCategory = supportedCategory;
+        if (supportedCategory != null) {
+            this.supportedCategory = supportedCategory.clone();
+        }
     }
 
     public boolean isSearchSupported() {
