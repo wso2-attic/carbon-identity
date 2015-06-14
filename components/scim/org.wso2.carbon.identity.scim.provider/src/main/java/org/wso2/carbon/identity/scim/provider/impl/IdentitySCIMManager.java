@@ -289,7 +289,10 @@ public class IdentitySCIMManager implements CharonManager {
                 }
             }
         } catch (CharonException e) {
-            throw new UnauthorizedException("Error in handling authentication", e);
+            if (log.isDebugEnabled()) {
+                log.debug("CharonException in handle authentication. ", e);
+            }
+            throw new UnauthorizedException("Error in handling authentication");
         }
         throw new UnauthorizedException();
     }

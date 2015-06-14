@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2005-2007, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2007, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- *  WSO2 Inc. licenses this file to you under the Apache License,
- *  Version 2.0 (the "License"); you may not use this file except
- *  in compliance with the License.
- *  You may obtain a copy of the License at
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -18,7 +18,6 @@
 package org.wso2.carbon.identity.provider;
 
 import org.apache.axiom.om.OMElement;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -47,19 +46,22 @@ import org.wso2.carbon.user.core.claim.Claim;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import javax.xml.namespace.QName;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.StringTokenizer;
 
 public class AttributeCallbackHandler implements SAMLCallbackHandler {
 
     private static final Log log = LogFactory.getLog(AttributeCallbackHandler.class);
+    private static final String MULTI_ATTRIBUTE_SEPARATOR = "MultiAttributeSeparator";
     protected Map<String, RequestedClaimData> requestedClaims = new HashMap<String, RequestedClaimData>();
     protected Map<String, String> requestedClaimValues = new HashMap<String, String>();
-
-    private static final String MULTI_ATTRIBUTE_SEPARATOR = "MultiAttributeSeparator";
-
-    private String userAttributeSeparator = ",";
-
     protected Map<String, Claim> supportedClaims = new HashMap<String, Claim>();
+    private String userAttributeSeparator = ",";
 
     @Override
     public void handle(SAMLCallback callback) throws SAMLException {
@@ -109,7 +111,7 @@ public class AttributeCallbackHandler implements SAMLCallbackHandler {
                 } else {
                     SAMLAttribute attribute = new SAMLAttribute("Name",
                                                                 "https://rahas.apache.org/saml/attrns", null, -1,
-                                                                Arrays.asList(new String[] { "Colombo/Rahas" }));
+                                                                Arrays.asList(new String[]{"Colombo/Rahas"}));
                     attrCallback.addAttributes(attribute);
                 }
             }
