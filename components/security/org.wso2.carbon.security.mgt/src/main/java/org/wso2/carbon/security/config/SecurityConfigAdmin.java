@@ -1,17 +1,19 @@
 /*
- * Copyright 2005-2007 WSO2, Inc. (http://wso2.com)
+ * Copyright (c) 2007, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package org.wso2.carbon.security.config;
@@ -24,6 +26,7 @@ import org.apache.axiom.om.impl.builder.StAXOMBuilder;
 import org.apache.axis2.AxisFault;
 import org.apache.axis2.description.*;
 import org.apache.axis2.engine.AxisConfiguration;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.neethi.Policy;
@@ -78,8 +81,6 @@ import java.io.*;
 import java.security.KeyStore;
 import java.util.*;
 
-//import javax.cache.Cache;
-
 /**
  * Admin service for configuring Security scenarios
  */
@@ -132,14 +133,13 @@ public class SecurityConfigAdmin {
         } catch (Exception e) {
             log.error("Error creating an PersistenceFactory instance", e);
             // TODO : handle this exception properly. - kasung
-//            throw new SecurityConfigException("Error creating an PersistenceFactory instance", e);
         }
         try {
             this.govRegistry = SecurityServiceHolder.getRegistryService().getGovernanceSystemRegistry(
                     ((UserRegistry) reg).getTenantId());
         } catch (Exception e) {
             // TODO : handle this exception properly.
-            log.error("Error when obtaining the governance registry instance.");
+            log.error("Error when obtaining the governance registry instance.", e);
         }
     }
 
@@ -205,22 +205,25 @@ public class SecurityConfigAdmin {
                 serviceGroupFilePM.beginTransaction(serviceGroupId);
             }
             String serviceXPath = PersistenceUtils.getResourcePath(service);
-            String policyResourcePath = serviceXPath + "/" + Resources.POLICIES + "/" + Resources.POLICY;
+            StringBuilder policyResourcePathValue = new StringBuilder();
+            String policyResourcePath = (policyResourcePathValue
+                    .append(serviceXPath)
+                    .append("/")
+                    .append(Resources.POLICIES)
+                    .append("/")
+                    .append(Resources.POLICY)).toString();
 
-            if (!serviceGroupFilePM.elementExists(serviceGroupId, policyResourcePath)) {
-                if (service.getPolicySubject() != null &&
-                        service.getPolicySubject().getAttachedPolicyComponents() != null) {
-                    Iterator iterator = service.getPolicySubject().
-                            getAttachedPolicyComponents().iterator();
-                    if (!iterator.hasNext()) {
-                        if (!isTransactionStarted) {
-                            serviceGroupFilePM.rollbackTransaction(serviceGroupId); //no need to commit because no writes happened.
-                        }
-                        return data;
+            if (!serviceGroupFilePM.elementExists(serviceGroupId, policyResourcePath) && service.getPolicySubject() != null &&
+                    service.getPolicySubject().getAttachedPolicyComponents() != null) {
+                Iterator iterator = service.getPolicySubject().
+                        getAttachedPolicyComponents().iterator();
+                if (!iterator.hasNext()) {
+                    if (!isTransactionStarted) {
+                        serviceGroupFilePM.rollbackTransaction(serviceGroupId); //no need to commit because no writes happened.
                     }
+                    return data;
                 }
             }
-
 
             /**
              * First check whether there's a custom policy engaged from registry. If it is not
@@ -248,7 +251,7 @@ public class SecurityConfigAdmin {
         } catch (Exception e) {
             log.error("Error while reading persisted data", e);
             serviceGroupFilePM.rollbackTransaction(serviceGroupId);
-            throw new SecurityConfigException("readingSecurity");
+            throw new SecurityConfigException("readingSecurity", e);
         }
     }
 
@@ -258,12 +261,12 @@ public class SecurityConfigAdmin {
         if (securityScenarioData != null) {
             SecurityScenario securityScenario = SecurityScenarioDatabase.get(securityScenarioData
                     .getScenarioId());
-            String[] moduleNames = (String[]) securityScenario.modules
-                    .toArray(new String[securityScenario.modules.size()]);
+            String[] moduleNames = (String[]) securityScenario.getModules()
+                    .toArray(new String[securityScenario.getModules().size()]);
             return moduleNames;
         }
 
-        return null;
+        return new String[0];
     }
 
     public void disableSecurityOnService(String serviceName) throws SecurityConfigException {
@@ -283,7 +286,13 @@ public class SecurityConfigAdmin {
             }
 
             //persist
-            String policyElementPath = serviceXPath + "/" + Resources.POLICIES + "/" + Resources.POLICY;
+            StringBuilder policyElementPathValue = new StringBuilder();
+            String policyElementPath = (policyElementPathValue
+                    .append(serviceXPath)
+                    .append("/")
+                    .append(Resources.POLICIES)
+                    .append(Resources.POLICY)).toString();
+
             if (log.isDebugEnabled()) {
                 log.debug("Removing " + policyElementPath);
             }
@@ -302,16 +311,21 @@ public class SecurityConfigAdmin {
                 return;
             }
 
-            String secPolicyPath = policyElementPath +
-                    PersistenceUtils.
-                            getXPathTextPredicate(Resources.ServiceProperties.POLICY_UUID, scenario.getWsuId());
+            StringBuilder secPolicyPathValue = new StringBuilder();
+            String secPolicyPath = (secPolicyPathValue
+                    .append(policyElementPath)
+                    .append(PersistenceUtils.
+                    getXPathTextPredicate(Resources.ServiceProperties.POLICY_UUID, scenario.getWsuId()))).toString();
             if (serviceGroupFilePM.elementExists(serviceGroupId, secPolicyPath)) {
                 serviceGroupFilePM.delete(serviceGroupId, secPolicyPath);
             }
 
             if (isProxyService) {   //if proxy, delete the policy in registry as well.
-                String registrySecPolicyPath = PersistenceUtils.getRegistryResourcePath(service)
-                        + RegistryResources.POLICIES + scenario.getWsuId();
+                StringBuilder registrySecPolicyPathValue = new StringBuilder();
+                String registrySecPolicyPath = (registrySecPolicyPathValue
+                        .append(PersistenceUtils.getRegistryResourcePath(service))
+                        .append(RegistryResources.POLICIES)
+                        .append(scenario.getWsuId())).toString();
                 if (registry.resourceExists(registrySecPolicyPath)) {
                     registry.delete(registrySecPolicyPath);
                 }
@@ -330,14 +344,17 @@ public class SecurityConfigAdmin {
                     version = module.getVersion().toString();
                 }
 
-                String modPath = serviceXPath +
-                        "/" + Resources.ModuleProperties.MODULE_XML_TAG +
-                        PersistenceUtils.getXPathAttrPredicate(
-                                Resources.NAME, module.getName()) +        //checks name
-                        PersistenceUtils.getXPathAttrPredicate(
-                                Resources.VERSION, version) +              //checks version
-                        PersistenceUtils.getXPathAttrPredicate(
-                                Resources.ModuleProperties.TYPE, Resources.Associations.ENGAGED_MODULES);
+                StringBuilder modPathValue = new StringBuilder();
+                String modPath = (modPathValue
+                        .append(serviceXPath)
+                        .append("/")
+                        .append(Resources.ModuleProperties.MODULE_XML_TAG)
+                        .append(PersistenceUtils.getXPathAttrPredicate(
+                                Resources.NAME, module.getName()))
+                        .append(PersistenceUtils.getXPathAttrPredicate(
+                                Resources.VERSION, version))
+                        .append(PersistenceUtils.getXPathAttrPredicate(
+                                Resources.ModuleProperties.TYPE, Resources.Associations.ENGAGED_MODULES))).toString();
                 //checks the module is of type engagedModules
                 serviceGroupFilePM.delete(serviceGroupId, modPath);
             }
@@ -359,13 +376,15 @@ public class SecurityConfigAdmin {
                 if (!transactionStarted) {
                     serviceGroupFilePM.beginTransaction(serviceGroupId);
                 }
-//                registry.removeAssociation(resourceUri, servicePath,
-//                        SecurityConstants.ASSOCIATION_SERVICE_SECURING_POLICY);
 
+                StringBuilder pathValue = new StringBuilder();
                 serviceGroupFilePM.delete(serviceGroupId,
-                        serviceXPath +
-                                "/" + Resources.Associations.ASSOCIATION_XML_TAG +
-                                PersistenceUtils.getXPathAttrPredicate(Resources.Associations.DESTINATION_PATH, resourceUri));
+                        (pathValue
+                                .append(serviceXPath)
+                                .append("/")
+                                .append(Resources.Associations.ASSOCIATION_XML_TAG)
+                                .append(PersistenceUtils.getXPathAttrPredicate
+                                        (Resources.Associations.DESTINATION_PATH, resourceUri))).toString());
 
                 AuthorizationManager acAdmin = realm.getAuthorizationManager();
                 String resourceName = serviceGroupId + "/" + serviceName;
@@ -392,15 +411,19 @@ public class SecurityConfigAdmin {
                 }
 
                 if ((roles == null || roles.length == 0) ||
-                        (kss == null || kss.isEmpty()) ||
-                        (tkss == null || tkss.isEmpty())) {
+                        (kss == null || CollectionUtils.isEmpty(kss)) ||
+                        (tkss == null || CollectionUtils.isEmpty(tkss))) {
                     serviceGroupFilePM.setMetaFileModification(serviceGroupId);
                 }
 
                 // remove the policy path parameter if it is set..
-                String paramXPath = serviceXPath + "/" + Resources.ParameterProperties.PARAMETER +
-                        PersistenceUtils.getXPathAttrPredicate(
-                                Resources.NAME, SecurityConstants.SECURITY_POLICY_PATH);
+                StringBuilder paramXPathValue = new StringBuilder();
+                String paramXPath = (paramXPathValue
+                        .append(serviceXPath)
+                        .append("/")
+                        .append(Resources.ParameterProperties.PARAMETER)
+                        .append(PersistenceUtils.getXPathAttrPredicate(
+                                Resources.NAME, SecurityConstants.SECURITY_POLICY_PATH))).toString();
                 if (serviceGroupFilePM.elementExists(serviceGroupId, paramXPath)) {
                     serviceGroupFilePM.delete(serviceGroupId, paramXPath);
                     serviceGroupFilePM.setMetaFileModification(serviceGroupId);
@@ -447,33 +470,8 @@ public class SecurityConfigAdmin {
 
                     persistenceFactory.getServicePM().deleteServiceProperty(service, Resources.ServiceProperties.IS_UT_ENABLED);
 
-//                    List<String> transports = getAllTransports();
-//                    setServiceTransports(serviceName, transports);
-
-                    // Fire the transport binding added event
-//                    AxisEvent event = new AxisEvent(CarbonConstants.AxisEvent.TRANSPORT_BINDING_ADDED,
-//                            service);
-//                    axisConfig.notifyObservers(event, service);
-
                     persistenceFactory.getServicePM().setServiceProperty(service,
                             Resources.ServiceProperties.EXPOSED_ON_ALL_TANSPORTS, Boolean.FALSE.toString());
-
-//                    for (String trans : transports) {
-//                        if (trans.endsWith("https")) {
-//                            continue;
-//                        }
-                    //in registry - kasung
-//                        String transPath = RegistryResources.TRANSPORTS + trans + "/listener";
-//                        if (registry.resourceExists(transPath)) {
-//                            persistenceFactory.getServicePM().updateServiceAssociation(service,
-//                                    transPath, Resources.Associations.EXPOSED_TRANSPORTS);
-//                        } else {
-//                            String msg = "Transport path " + transPath + " does not exist in the registry";
-//                            log.error(msg);
-//                            serviceGroupFilePM.rollbackTransaction(serviceGroupId);
-//                            throw new AxisFault(msg);
-//                        }
-//                    }
 
                     if (!transactionStarted) {
                         serviceGroupFilePM.commitTransaction(serviceGroupId);
@@ -490,16 +488,12 @@ public class SecurityConfigAdmin {
             if (service.getFileName() != null) {
                 updateSecScenarioInGhostFile(service.getFileName().getPath(), serviceName, null);
             }
-        } catch (AxisFault e) {
-            log.error(e.getMessage(), e);
+        } catch (AxisFault | SecurityConfigException e) {
+            log.error("Error in disabling security on service ", e);
             serviceGroupFilePM.rollbackTransaction(serviceGroupId);
-            //why don't we throw a exception here? - kasung
-        } catch (SecurityConfigException e) {
-            log.error(e.getMessage(), e);
-            serviceGroupFilePM.rollbackTransaction(serviceGroupId);
-            throw e;
+            throw new SecurityConfigException("Error in disabling security on service ", e);
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            log.error("Error in disabling security on service ", e);
             serviceGroupFilePM.rollbackTransaction(serviceGroupId);
             throw new SecurityConfigException("removingPolicy", e);
         }
@@ -552,7 +546,11 @@ public class SecurityConfigAdmin {
     }
 
     private String getKerberosConfigXPath(AxisService service) {
-        return PersistenceUtils.getResourcePath(service) + "/" + RampartConfigUtil.KERBEROS_CONFIG_RESOURCE;
+        StringBuilder pathValue = new StringBuilder();
+        return (pathValue
+                .append(PersistenceUtils.getResourcePath(service))
+                .append("/")
+                .append(KerberosConfigData.KERBEROS_CONFIG_RESOURCE)).toString();
     }
 
     /**
@@ -581,7 +579,7 @@ public class SecurityConfigAdmin {
 
             //<kerberos service.principal.name="xxx" service.principal.name="yyy"/>
             OMElement kerberosElement = OMAbstractFactory.getOMFactory().
-                    createOMElement(RampartConfigUtil.KERBEROS_CONFIG_RESOURCE, null);
+                    createOMElement(KerberosConfigData.KERBEROS_CONFIG_RESOURCE, null);
             kerberosElement.addAttribute(KerberosConfig.SERVICE_PRINCIPLE_NAME,
                     kerberosConfigData.getServicePrincipleName(), null);
             kerberosElement.addAttribute(KerberosConfig.SERVICE_PRINCIPLE_PASSWORD,
@@ -611,9 +609,12 @@ public class SecurityConfigAdmin {
 
     private String getRegistryServicePath(AxisService service) {
 
-        return RegistryResources.SERVICE_GROUPS
-                + service.getAxisServiceGroup().getServiceGroupName()
-                + RegistryResources.SERVICES + service.getName();
+        StringBuilder pathValue = new StringBuilder();
+        return (pathValue
+                .append(RegistryResources.SERVICE_GROUPS)
+                .append(service.getAxisServiceGroup().getServiceGroupName())
+                .append(RegistryResources.SERVICES)
+                .append(service.getName())).toString();
     }
 
     public void activateUsernameTokenAuthentication(String serviceName, String[] userGroups)
@@ -666,18 +667,7 @@ public class SecurityConfigAdmin {
                 serviceGroupFilePM.commitTransaction(serviceGroupId);
             }
 
-//            Cache cache = CacheManager.getInstance().getCache(POXSecurityHandler.POX_ENABLED);
-//            cache.remove(serviceName);
             this.getPOXCache().remove(serviceName);
-
-//            CacheInvalidator invalidator = SecurityMgtServiceComponent.getCacheInvalidator();
-//            try {
-//                invalidator.invalidateCache(POXSecurityHandler.POX_ENABLED, new StringCacheKey(serviceName));
-//            } catch (CacheException e1) {
-//                String msg = "Failed to propagate changes immediately. It will take time to update nodes in cluster";
-//                log.error(msg, e1);
-//                throw new SecurityConfigException(msg, e1);
-//            }
 
         } catch (PersistenceException e) {
             StringBuilder str = new StringBuilder("Error persisting security scenario ").
@@ -707,8 +697,7 @@ public class SecurityConfigAdmin {
             if (userGroups != null) {
                 Arrays.sort(userGroups);
                 if (Arrays.binarySearch(userGroups, CarbonConstants.REGISTRY_ANONNYMOUS_ROLE_NAME) > -1) {
-                    log
-                            .error("Security breach. A user is attempting to enable anonymous for UT access");
+                    log.error("Security breach. A user is attempting to enable anonymous for UT access");
                     throw new SecurityConfigException("Invalid data provided"); // obscure error message
                 }
             }
@@ -779,22 +768,16 @@ public class SecurityConfigAdmin {
                 throw new SecurityConfigException(msg, e1);
             }
 
-        } catch (RegistryException e) {
-            log.error(e.getMessage(), e);
+        } catch (RegistryException | PersistenceException e) {
+            log.error("Error in applying security", e);
             serviceGroupFilePM.rollbackTransaction(serviceGroupId);
             try {
                 registry.rollbackTransaction();
             } catch (RegistryException ex) {
                 log.error("Error while rollback", ex);
+                throw new SecurityConfigException("Error in applying security", e);
             }
-        } catch (PersistenceException e) {
-            log.error(e.getMessage(), e);
-            serviceGroupFilePM.rollbackTransaction(serviceGroupId);
-            try {
-                registry.rollbackTransaction();
-            } catch (RegistryException ex) {
-                log.error("Error while rollback", ex);
-            }
+            throw new SecurityConfigException("Error in applying security", e);
         }
     }
 
@@ -812,15 +795,13 @@ public class SecurityConfigAdmin {
         String serviceGroupId = service.getAxisServiceGroup().getServiceGroupName();
         try {
 
-            String registryServicePath = getRegistryServicePath(service);
-
             String serviceXPath = PersistenceUtils.getResourcePath(service);
 
             CallbackHandler handler = null;
             if (callback == null) {
                 // This will break kerberos from management console UI
                 handler = new ServicePasswordCallbackHandler(null, serviceGroupId, service.getName(),
-                                                             registry, realm);
+                        registry, realm);
             } else {
                 handler = this.callback;
             }
@@ -832,7 +813,6 @@ public class SecurityConfigAdmin {
 
             Properties props = getServerCryptoProperties(privateStore, trustedStores);
             RampartConfig rampartConfig = new RampartConfig();
-            // rampartConfig.setTokenStoreClass(SimpleTokenStore.class.getName());
             populateRampartConfig(rampartConfig, props, kerberosConfig);
             Policy policy = loadPolicy(scenarioId, policyPath);
 
@@ -848,7 +828,6 @@ public class SecurityConfigAdmin {
                 //pathParam.setLocked(true); this causes errors at proxy redeployments 
                 service.addParameter(pathParam);
                 persistenceFactory.getServicePM().updateServiceParameter(service, pathParam);
-//                persistParameter(serviceGroupId, pathParam, serviceXPath);
             }
 
             if (isHttpsTransportOnly(policy)) {
@@ -893,7 +872,11 @@ public class SecurityConfigAdmin {
                     }
 
                     if (!isExists) {
-                        String transportResourcePath = RegistryResources.TRANSPORTS + "https" + "/listener";
+                        StringBuilder transportResourcePathValue = new StringBuilder();
+                        String transportResourcePath = (transportResourcePathValue
+                                .append(RegistryResources.TRANSPORTS)
+                                .append("https")
+                                .append("/listener")).toString();
                         if (registry.resourceExists(transportResourcePath)) {
                             serviceGroupFilePM.put(serviceGroupId,
                                     PersistenceUtils.createAssociation(transportResourcePath,
@@ -921,25 +904,15 @@ public class SecurityConfigAdmin {
 
             SecurityServiceAdmin secAdmin = new SecurityServiceAdmin(axisConfig, registry);
             secAdmin.addSecurityPolicyToAllBindings(service, policy);
-            /*
-             * ServiceAdmin serviceAdmin =
-             * SecurityServiceTrackers.getServiceAdmin(); Map endPointMap =
-             * service.getEndpoints(); for (Object o : endPointMap.entrySet()) {
-             * Map.Entry entry = (Map.Entry) o; AxisEndpoint point =
-             * (AxisEndpoint) entry.getValue(); AxisBinding binding =
-             * point.getBinding(); String bindingName =
-             * binding.getName().getLocalPart();
-             * serviceAdmin.setBindingPolicy(service.getBindingName(),
-             * bindingName, policy .toString()); }
-             */
+
         } catch (ServerException e) {
-            log.error(e.getMessage(), e);
+            log.error("Error in applying policy", e);
             serviceGroupFilePM.rollbackTransaction(serviceGroupId);
-            throw new SecurityConfigException(e.getMessage(), e);
+            throw new SecurityConfigException("Error in applying policy", e);
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            log.error("Error in applying policy", e);
             serviceGroupFilePM.rollbackTransaction(serviceGroupId);
-            throw new SecurityConfigException(e.getMessage(), e);
+            throw new SecurityConfigException("Error in applying policy", e);
         }
     }
 
@@ -947,8 +920,8 @@ public class SecurityConfigAdmin {
             throws SecurityConfigException {
         boolean isRahasEngaged = false;
         SecurityScenario securityScenario = SecurityScenarioDatabase.get(scenarioId);
-        String[] moduleNames = (String[]) securityScenario.modules
-                .toArray(new String[securityScenario.modules.size()]);
+        String[] moduleNames = (String[]) securityScenario.getModules()
+                .toArray(new String[securityScenario.getModules().size()]);
 
         String serviceGroupId = axisService.getAxisServiceGroup().getServiceGroupName();
         String serviceXPath = PersistenceUtils.getResourcePath(axisService);
@@ -961,13 +934,14 @@ public class SecurityConfigAdmin {
                     serviceGroupFilePM.beginTransaction(serviceGroupId);
                 }
 
-                List assocs = serviceGroupFilePM.getAll(serviceGroupId, serviceXPath +
-                        "/" + Resources.ModuleProperties.MODULE_XML_TAG +
-                        PersistenceUtils.getXPathAttrPredicate(
-                                Resources.ModuleProperties.TYPE, Resources.Associations.ENGAGED_MODULES));
+                StringBuilder pathValue = new StringBuilder();
+                List assocs = serviceGroupFilePM.getAll(serviceGroupId, (pathValue
+                        .append(serviceXPath)
+                        .append(Resources.ModuleProperties.MODULE_XML_TAG)
+                        .append(PersistenceUtils.getXPathAttrPredicate(
+                                Resources.ModuleProperties.TYPE, Resources.Associations.ENGAGED_MODULES))).toString());
                 for (String modName : moduleNames) {
                     AxisModule module = axisService.getAxisConfiguration().getModule(modName);
-//                    String path = RegistryResources.MODULES + modName + "/" + module.getVersion();
 
                     boolean isFound = false;
                     for (Object node : assocs) {
@@ -982,10 +956,13 @@ public class SecurityConfigAdmin {
                     }
 
                     if (!isFound) {
+
                         //associations for modules is a little different
-                        String modulePath = Resources.ModuleProperties.VERSION_XPATH +
-                                PersistenceUtils.getXPathAttrPredicate(Resources.ModuleProperties.VERSION_ID,
-                                        module.getVersion().toString());
+                        StringBuilder modulePathValue = new StringBuilder();
+                        String modulePath = (modulePathValue
+                                .append(Resources.ModuleProperties.VERSION_XPATH)
+                                .append(PersistenceUtils.getXPathAttrPredicate(Resources.ModuleProperties.VERSION_ID,
+                                        module.getVersion().toString()))).toString();
 
                         if (moduleFilePM.elementExists(modName, modulePath)) {
                             OMElement moduleElement = OMAbstractFactory.getOMFactory().createOMElement(
@@ -1002,7 +979,7 @@ public class SecurityConfigAdmin {
                     // engage at axis2
                     axisService.disengageModule(module);
                     axisService.engageModule(module);
-                    if (modName.equalsIgnoreCase("rahas")) {
+                    if ("rahas".equalsIgnoreCase(modName)) {
                         isRahasEngaged = true;
                     }
                 }
@@ -1018,7 +995,7 @@ public class SecurityConfigAdmin {
         } catch (AxisFault e) {
             log.error(e);
             serviceGroupFilePM.rollbackTransaction(serviceGroupId);
-            throw new SecurityConfigException(e.getMessage(), e);
+            throw new SecurityConfigException("Error in engaging modules", e);
         }
         return isRahasEngaged;
     }
@@ -1060,18 +1037,19 @@ public class SecurityConfigAdmin {
                 serviceGroupFilePM.beginTransaction(serviceGroupId);
             }
 
-            // registry.addAssociation(resourceUri, servicePath,
-            // SecurityConstants.ASSOCIATION_SERVICE_SECURING_POLICY);
-
             if (privateStore != null) {
-                String ksPath = SecurityConstants.KEY_STORES + "/" + privateStore;
+                StringBuilder ksPathValue = new StringBuilder();
+                String ksPath = (ksPathValue
+                        .append(SecurityConstants.KEY_STORES)
+                        .append("/")
+                        .append(privateStore)).toString();
                 if (govRegistry.resourceExists(ksPath)) {
                     OMElement assoc = PersistenceUtils.createAssociation(RegistryConstants.GOVERNANCE_REGISTRY_BASE_PATH +
                             ksPath, SecurityConstants.ASSOCIATION_PRIVATE_KEYSTORE);
                     serviceGroupFilePM.put(serviceGroupId, assoc, serviceXPath);
                 } else if (KeyStoreUtil.isPrimaryStore(privateStore)) {
                     OMElement assoc = PersistenceUtils.createAssociation(RegistryConstants.GOVERNANCE_REGISTRY_BASE_PATH +
-                                    RegistryResources.SecurityManagement.PRIMARY_KEYSTORE_PHANTOM_RESOURCE,
+                            RegistryResources.SecurityManagement.PRIMARY_KEYSTORE_PHANTOM_RESOURCE,
                             SecurityConstants.ASSOCIATION_PRIVATE_KEYSTORE);
                     serviceGroupFilePM.put(serviceGroupId, assoc, serviceXPath);
                 } else {
@@ -1088,7 +1066,7 @@ public class SecurityConfigAdmin {
                         serviceGroupFilePM.put(serviceGroupId, assoc, serviceXPath);
                     } else if (KeyStoreUtil.isPrimaryStore(storeName)) {
                         OMElement assoc = PersistenceUtils.createAssociation(RegistryConstants.GOVERNANCE_REGISTRY_BASE_PATH +
-                                        RegistryResources.SecurityManagement.PRIMARY_KEYSTORE_PHANTOM_RESOURCE,
+                                RegistryResources.SecurityManagement.PRIMARY_KEYSTORE_PHANTOM_RESOURCE,
                                 SecurityConstants.ASSOCIATION_TRUSTED_KEYSTORE);
                         serviceGroupFilePM.put(serviceGroupId, assoc, serviceXPath);
                     } else {
@@ -1116,9 +1094,9 @@ public class SecurityConfigAdmin {
                 serviceGroupFilePM.commitTransaction(serviceGroupId);
             }
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            log.error("Error in persisting data", e);
             serviceGroupFilePM.rollbackTransaction(serviceGroupId);
-            throw new SecurityConfigException(e.getMessage(), e);
+            throw new SecurityConfigException("Error in persisting data", e);
         }
     }
 
@@ -1247,8 +1225,6 @@ public class SecurityConfigAdmin {
 
                 rampartConfig.setTimestampTTL(Integer.toString(ttl));
                 rampartConfig.setTimestampMaxSkew(Integer.toString(timeSkew));
-                //adding this class as default one.
-                //rampartConfig.setTokenStoreClass("org.wso2.carbon.identity.sts.store.DBTokenStore");
 
                 //this will check for TokenStoreClassName property under Security in carbon.xml
                 //if it is not found, default token store class will be set
@@ -1267,8 +1243,6 @@ public class SecurityConfigAdmin {
         Properties props = new Properties();
 
         int tenantId = ((UserRegistry) registry).getTenantId();
-        UserRegistry govRegistry = SecurityServiceHolder.getRegistryService().
-                getGovernanceSystemRegistry(tenantId);
 
         if (trustedCertStores != null && trustedCertStores.length > 0) {
             StringBuilder trustString = new StringBuilder();
@@ -1295,7 +1269,7 @@ public class SecurityConfigAdmin {
         if (privateStore != null || (trustedCertStores != null && trustedCertStores.length > 0)) {
             //Set the tenant-ID in the properties
             props.setProperty(ServerCrypto.PROP_ID_TENANT_ID,
-                    new Integer(tenantId).toString());
+                    Integer.toString(tenantId));
         }
 
         return props;
@@ -1318,7 +1292,7 @@ public class SecurityConfigAdmin {
             throw new SecurityConfigException("nullService");
         }
 
-        ArrayList<String> transports = new ArrayList<String>();
+        List<String> transports = new ArrayList<>();
         for (int i = 0; i < transportProtocols.size(); i++) {
             transports.add(transportProtocols.get(i));
         }
@@ -1356,8 +1330,6 @@ public class SecurityConfigAdmin {
                     if (encrToken instanceof SecureConversationToken) {
                         Policy bsPol = ((SecureConversationToken) encrToken).getBootstrapPolicy();
                         Iterator alts = bsPol.getAlternatives();
-                        if (alts.hasNext()) {
-                        }
                         List bsIt = (List) alts.next();
                         RampartPolicyData bsRampartPolicyData = RampartPolicyBuilder.build(bsIt);
                         httpsRequired = bsRampartPolicyData.isTransportBinding();
@@ -1365,8 +1337,8 @@ public class SecurityConfigAdmin {
                 }
             }
         } catch (WSSPolicyException e) {
-            log.error(e);
-            throw new SecurityConfigException(e.getMessage(), e);
+            log.error("Error in checking http transport only", e);
+            throw new SecurityConfigException("Error in checking http transport only", e);
         }
 
         return httpsRequired;
@@ -1379,7 +1351,7 @@ public class SecurityConfigAdmin {
      */
     public List<String> getHttpsTransports() {
 
-        List<String> httpsTransports = new ArrayList<String>();
+        List<String> httpsTransports = new ArrayList<>();
         for (Iterator iter = axisConfig.getTransportsIn().keySet().iterator(); iter.hasNext(); ) {
             String transport = (String) iter.next();
             if (transport.toLowerCase().indexOf(SecurityConstants.HTTPS_TRANSPORT) != -1) {
@@ -1396,7 +1368,7 @@ public class SecurityConfigAdmin {
      */
     public List<String> getAllTransports() {
 
-        List<String> allTransports = new ArrayList<String>();
+        List<String> allTransports = new ArrayList<>();
         for (Iterator iter = axisConfig.getTransportsIn().keySet().iterator(); iter.hasNext(); ) {
             String transport = (String) iter.next();
             allTransports.add(transport);
@@ -1451,7 +1423,7 @@ public class SecurityConfigAdmin {
             List pvtStores = serviceGroupFilePM.getAssociations(serviceGroupId, serviceXPath,
                     SecurityConstants.ASSOCIATION_PRIVATE_KEYSTORE);
 
-            if (pvtStores.size() > 0) {
+            if (!CollectionUtils.isEmpty(pvtStores)) {
                 String temp = ((OMElement) pvtStores.get(0)).
                         getAttributeValue(new QName(Resources.Associations.DESTINATION_PATH));
                 if (temp.startsWith("//")) {
@@ -1502,10 +1474,11 @@ public class SecurityConfigAdmin {
             return data;
         } catch (PersistenceException e) {
             // TODO Auto-generated catch block
-            log.error(e.getMessage(), e);
+            log.error("Error in getting security config data", e);
             serviceGroupFilePM.rollbackTransaction(serviceGroupId);
+            throw new SecurityConfigException("Error in getting security config data", e);
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            log.error("Error in getting security config data", e);
             serviceGroupFilePM.rollbackTransaction(serviceGroupId);
         }
         return data;
@@ -1556,7 +1529,7 @@ public class SecurityConfigAdmin {
             } else {
                 // if there are no policies under the collection, no need to proceed
                 List policyElements = serviceGroupFilePM.getAll(serviceGroupId, policyElementPath);
-                if (policyElements.size() == 0) {
+                if (CollectionUtils.isEmpty(policyElements)) {
                     if (!isTransactionStarted) {
                         serviceGroupFilePM.rollbackTransaction(serviceGroupId);
                     }
@@ -1689,7 +1662,7 @@ public class SecurityConfigAdmin {
         List tstedStores = serviceGroupFilePM.getAssociations(serviceGroupId, serviceXPath,
                 SecurityConstants.ASSOCIATION_TRUSTED_KEYSTORE);
 
-        if (pvtStores != null && pvtStores.size() > 0) {
+        if (pvtStores != null && !CollectionUtils.isEmpty(pvtStores)) {
             String keyAlias = null;
             ServerConfiguration serverConfig = ServerConfiguration.getInstance();
             keyAlias = serverConfig.getFirstProperty("Security.KeyStore.KeyAlias");
@@ -1719,32 +1692,6 @@ public class SecurityConfigAdmin {
             throw new AxisFault("Could not configure Rahas parameters", e);
         }
 
-    }
-
-    private void persistParameter(String serviceGroupId, Parameter parameter,
-                                  String serviceXPath) throws Exception {
-        boolean transactionStarted = serviceGroupFilePM.isTransactionStarted(serviceGroupId);
-        if (!transactionStarted) {
-            serviceGroupFilePM.beginTransaction(serviceGroupId);
-        }
-        String paramName = parameter.getName();
-        if (paramName != null && paramName.trim().length() != 0) {
-            if (parameter.getParameterElement() == null && parameter.getValue() != null
-                    && parameter.getValue() instanceof String) {
-                parameter = ParameterUtil.createParameter(paramName.trim(),
-                        (String) parameter.getValue(), parameter.isLocked());
-            }
-            if (parameter.getParameterElement() != null) {
-                OMElement paramElemenet = parameter.getParameterElement().cloneOMElement();
-                if (paramElemenet.getAttribute(new QName(Resources.NAME)) == null) {
-                    paramElemenet.addAttribute(Resources.NAME, parameter.getName(), null);
-                }
-                serviceGroupFilePM.put(serviceGroupId, paramElemenet, serviceXPath);
-            }
-        }
-        if (!transactionStarted) {
-            serviceGroupFilePM.commitTransaction(serviceGroupId);
-        }
     }
 
     private void removeRahasParameters(AxisService axisService) throws AxisFault {
@@ -1832,7 +1779,7 @@ public class SecurityConfigAdmin {
                 ghostSGElement.serialize(ghostOutStream);
                 ghostOutStream.flush();
             } catch (Exception e) {
-                log.error("Error while reading ghost file for service : " + servicePath);
+                log.error("Error while reading ghost file for service : " + servicePath, e);
             } finally {
                 try {
                     if (ghostInStream != null) {

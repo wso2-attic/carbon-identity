@@ -1,19 +1,19 @@
 /*
- *Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- *WSO2 Inc. licenses this file to you under the Apache License,
- *Version 2.0 (the "License"); you may not use this file except
- *in compliance with the License.
- *You may obtain a copy of the License at
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *Unless required by applicable law or agreed to in writing,
- *software distributed under the License is distributed on an
- *"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *KIND, either express or implied.  See the License for the
- *specific language governing permissions and limitations
- *under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package org.wso2.carbon.identity.application.mgt;
@@ -62,14 +62,15 @@ public class ApplicationInfoProvider {
      * @throws IdentityApplicationManagementException
      */
     public Map<String, String> getServiceProviderToLocalIdPClaimMapping(String serviceProviderName,
-                                                                        String tenantDomain) throws IdentityApplicationManagementException {
+                                                                        String tenantDomain)
+            throws IdentityApplicationManagementException {
 
         ApplicationDAO appDAO = ApplicationMgtSystemConfig.getInstance().getApplicationDAO();
         Map<String, String> claimMap = appDAO.getServiceProviderToLocalIdPClaimMapping(
                 serviceProviderName, tenantDomain);
 
         if (claimMap == null
-                || claimMap.size() == 0
+                || claimMap.isEmpty()
                 && ApplicationManagementServiceComponent.getFileBasedSPs().containsKey(
                 serviceProviderName)) {
             return new FileBasedApplicationDAO().getServiceProviderToLocalIdPClaimMapping(
@@ -88,14 +89,15 @@ public class ApplicationInfoProvider {
      * @throws IdentityApplicationManagementException
      */
     public Map<String, String> getLocalIdPToServiceProviderClaimMapping(String serviceProviderName,
-                                                                        String tenantDomain) throws IdentityApplicationManagementException {
+                                                                        String tenantDomain)
+            throws IdentityApplicationManagementException {
 
         ApplicationDAO appDAO = ApplicationMgtSystemConfig.getInstance().getApplicationDAO();
         Map<String, String> claimMap = appDAO.getLocalIdPToServiceProviderClaimMapping(
                 serviceProviderName, tenantDomain);
 
         if (claimMap == null
-                || claimMap.size() == 0
+                || claimMap.isEmpty()
                 && ApplicationManagementServiceComponent.getFileBasedSPs().containsKey(
                 serviceProviderName)) {
             return new FileBasedApplicationDAO().getLocalIdPToServiceProviderClaimMapping(
@@ -115,14 +117,15 @@ public class ApplicationInfoProvider {
      * @throws IdentityApplicationManagementException
      */
     public List<String> getAllRequestedClaimsByServiceProvider(String serviceProviderName,
-                                                               String tenantDomain) throws IdentityApplicationManagementException {
+                                                               String tenantDomain)
+            throws IdentityApplicationManagementException {
 
         ApplicationDAO appDAO = ApplicationMgtSystemConfig.getInstance().getApplicationDAO();
         List<String> reqClaims = appDAO.getAllRequestedClaimsByServiceProvider(serviceProviderName,
                 tenantDomain);
 
         if (reqClaims == null
-                || reqClaims.size() == 0
+                || reqClaims.isEmpty()
                 && ApplicationManagementServiceComponent.getFileBasedSPs().containsKey(
                 serviceProviderName)) {
             return new FileBasedApplicationDAO().getAllRequestedClaimsByServiceProvider(
@@ -192,17 +195,20 @@ public class ApplicationInfoProvider {
      * @throws IdentityApplicationManagementException
      */
     public ServiceProvider getServiceProviderByClienId(String clientId, String clientType,
-                                                       String tenantDomain) throws IdentityApplicationManagementException {
+                                                       String tenantDomain) throws IdentityApplicationManagementException
+    {
+
+        String clientKey = null;
 
         // client id can contain the @ to identify the tenant domain.
         if (clientId != null && clientId.contains("@")) {
-            clientId = clientId.split("@")[0];
+            clientKey = clientId.split("@")[0];
         }
 
         String serviceProviderName = null;
         ServiceProvider serviceProvider = null;
 
-        serviceProviderName = getServiceProviderNameByClientId(clientId, clientType, tenantDomain);
+        serviceProviderName = getServiceProviderNameByClientId(clientKey, clientType, tenantDomain);
 
         String tenantDomainName = null;
         int tenantId = -1234;

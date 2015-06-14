@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  * 
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -62,17 +62,26 @@ public class SAMLSSOProviderConstants {
 
     public static final String LOGIN_PAGE = "customLoginPage";
 
-    public class AuthnModes {
-        public static final String USERNAME_PASSWORD = "usernamePasswordBasedAuthn";
-        public static final String OPENID = "openIDBasedAuthn";
+    private SAMLSSOProviderConstants() {
     }
 
-    public class Notification {
+    public static class AuthnModes {
+        public static final String USERNAME_PASSWORD = "usernamePasswordBasedAuthn";
+        public static final String OPENID = "openIDBasedAuthn";
+
+        private AuthnModes() {
+        }
+    }
+
+    public static class Notification {
         public static final String EXCEPTION_STATUS = "Error when processing the authentication request!";
         public static final String EXCEPTION_MESSAGE = "Please try login again.";
         public static final String NORELAY_STATUS = "RealyState is not present in the request!";
         public static final String NORELAY_MESSAGE = "This request will not be processed further.";
         public static final String INVALID_MESSAGE_STATUS = "Not a valid SAML 2.0 Request Message!";
         public static final String INVALID_MESSAGE_MESSAGE = "The message was not recognized by the SAML 2.0 SSO Provider. Please check the logs for more details";
+
+        private Notification() {
+        }
     }
 }

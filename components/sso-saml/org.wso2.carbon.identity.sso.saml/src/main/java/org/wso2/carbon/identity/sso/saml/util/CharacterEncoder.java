@@ -22,6 +22,9 @@ package org.wso2.carbon.identity.sso.saml.util;
 */
 public class CharacterEncoder {
 
+    private CharacterEncoder() {
+    }
+
     public static String getSafeText(String text) {
         if (text == null) {
             return text;

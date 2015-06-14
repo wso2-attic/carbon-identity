@@ -1,17 +1,19 @@
 /*
- * Copyright 2005-2007 WSO2, Inc. (http://wso2.com)
+ * Copyright (c) 2007, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package org.wso2.carbon.security.util;
@@ -35,6 +37,7 @@ import org.wso2.carbon.security.SecurityServiceHolder;
 import org.wso2.carbon.security.UserCredentialRetriever;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserRealm;
+import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
@@ -70,6 +73,7 @@ public class ServicePasswordCallbackHandler implements CallbackHandler {
         this.configParams = configParams;
     }
 
+    @Override
     public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
         try {
             for (int i = 0; i < callbacks.length; i++) {
@@ -175,17 +179,17 @@ public class ServicePasswordCallbackHandler implements CallbackHandler {
                     throw new UnsupportedCallbackException(callbacks[i], "Unrecognized Callback");
                 }
             }
-        } catch (UnsupportedCallbackException e) {
+        } catch (UnsupportedCallbackException | IOException e) {
             if (log.isDebugEnabled()) {
-                log.debug(e.getMessage(), e); //logging invlaid passwords and attempts
+                log.debug("Error in handling ServicePasswordCallbackHandler", e); //logging invlaid passwords and attempts
                 throw e;
             }
             throw e;
-        } catch (IOException e) {
-            log.error(e.getMessage(), e);
-            throw e;
+        } catch (UserStoreException | SecurityConfigException e) {
+            log.error("Error in handling ServicePasswordCallbackHandler", e);
+            throw new UnsupportedCallbackException(null, e.getMessage());
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            log.error("Error in handling ServicePasswordCallbackHandler", e);
             //can't build an unsupported exception.
             throw new UnsupportedCallbackException(null, e.getMessage());
         }
@@ -235,11 +239,6 @@ public class ServicePasswordCallbackHandler implements CallbackHandler {
         String tenantAwareUserName = MultitenantUtils.getTenantAwareUsername(user);
 
         try {
-
-//			UserRealm realm = AnonymousSessionUtil.getRealmByUserName(
-//					SecurityServiceHolder.getRegistryService(),
-//					SecurityServiceHolder.getRealmService(), user);
-
             isAuthenticated = realm.getUserStoreManager().authenticate(
                     tenantAwareUserName, password);
 
@@ -261,7 +260,7 @@ public class ServicePasswordCallbackHandler implements CallbackHandler {
 
             return isAuthorized;
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            log.error("Error in authenticating user.", e);
             throw e;
         }
     }
@@ -312,10 +311,10 @@ public class ServicePasswordCallbackHandler implements CallbackHandler {
                 }
             }
         } catch (IOException e) {
-            log.error(e.getMessage(), e);
+            log.error("Error when getting PrivateKeyPassword.", e);
             throw e;
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            log.error("Error when getting PrivateKeyPassword.", e);
             throw e;
         }
 

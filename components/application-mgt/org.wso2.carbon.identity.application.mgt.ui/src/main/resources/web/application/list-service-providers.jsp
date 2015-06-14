@@ -135,10 +135,10 @@
 			</table>
 			<carbon:paginator pageNumber="0"
                                       numberOfPages="1"
-                                      page="list-apps.jsp"
+                                      page="list-service-providers.jsp"
                                       pageNumberParameterName="pageNumber"
                                       parameters="10"
-                                      resourceBundle="org.wso2.carbon.identity.oauth.ui.i18n.Resources"
+                                      resourceBundle="org.wso2.carbon.identity.application.mgt.ui.i18n.Resources"
                                       prevKey="prev" nextKey="next"/>
 		</div>
 	</div>

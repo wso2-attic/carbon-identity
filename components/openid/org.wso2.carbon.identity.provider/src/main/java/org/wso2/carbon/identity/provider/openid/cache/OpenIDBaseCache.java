@@ -1,30 +1,26 @@
-package org.wso2.carbon.identity.provider.openid.cache;
+/*
+ * Copyright (c) 2004-2005, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+package org.wso2.carbon.identity.provider.openid.cache;
 
 import javax.cache.Cache;
 import javax.cache.CacheManager;
 import javax.cache.Caching;
-/*
- * Copyright 2004,2005 The Apache Software Foundation.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
-/**
- * Date: Oct 1, 2010 Time: 2:47:14 PM
- */
 
 /**
  * A base class for all cache implementations in user core module.
@@ -32,11 +28,10 @@ import javax.cache.Caching;
 public abstract class OpenIDBaseCache<K extends OpenIDCacheKey, V extends OpenIDCacheEntry> {
 
     private static final String OPENID_CACHE_MANAGER = "OpenIDCacheManager";
-    private static Log log = LogFactory.getLog(OpenIDBaseCache.class);
-    private String OPENID_CACHE_NAME;
+    private String openidCacheName;
 
     protected OpenIDBaseCache(String cacheName) {
-        this.OPENID_CACHE_NAME = cacheName;
+        this.openidCacheName = cacheName;
     }
 
     /**
@@ -45,8 +40,7 @@ public abstract class OpenIDBaseCache<K extends OpenIDCacheKey, V extends OpenID
      */
     private Cache<K, V> getOpenIDCache() {
         CacheManager cacheManager = Caching.getCacheManagerFactory().getCacheManager(OPENID_CACHE_MANAGER);
-        Cache<K, V> cache = cacheManager.getCache(OPENID_CACHE_NAME);
-        return cache;
+        return cacheManager.getCache(openidCacheName);
     }
 
     /**
@@ -73,10 +67,8 @@ public abstract class OpenIDBaseCache<K extends OpenIDCacheKey, V extends OpenID
      */
     public V getValueFromCache(K key) {
         Cache<K, V> cache = getOpenIDCache();
-        if (cache != null) {
-            if (cache.containsKey(key)) {
-                return (V) cache.get(key);
-            }
+        if (cache != null && cache.containsKey(key)) {
+            return (V) cache.get(key);
         }
         return null;
     }
@@ -88,10 +80,8 @@ public abstract class OpenIDBaseCache<K extends OpenIDCacheKey, V extends OpenID
      */
     public void clearCacheEntry(K key) {
         Cache<K, V> cache = getOpenIDCache();
-        if (cache != null) {
-            if (cache.containsKey(key)) {
-                cache.remove(key);
-            }
+        if (cache != null && cache.containsKey(key)) {
+            cache.remove(key);
         }
     }
 

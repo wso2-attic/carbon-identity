@@ -1,20 +1,24 @@
 /*
- * Copyright (c) WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
+
 package org.wso2.carbon.identity.mgt.store;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.CarbonContext;
@@ -36,8 +40,6 @@ public class InMemoryIdentityDataStore extends UserIdentityDataStore {
     private static final String IDENTITY_LOGIN_DATA_CACHE_MANAGER = "IDENTITY_LOGIN_DATA_CACHE_MANAGER";
     private static final String IDENTITY_LOGIN_DATA_CACHE = "IDENTITY_LOGIN_DATA_CACHE";
 
-    //protected Cache<String, UserIdentityClaimsDO> cache = getCache();//CarbonUtils.getLocalCache("IDENTITY_LOGIN_DATA_CACHE");
-
     private static Log log = LogFactory.getLog(InMemoryIdentityDataStore.class);
 
     protected Cache<String, UserIdentityClaimsDO> getCache() {
@@ -55,8 +57,8 @@ public class InMemoryIdentityDataStore extends UserIdentityDataStore {
             if (userStoreManager instanceof org.wso2.carbon.user.core.UserStoreManager) {
                 String caseInsensitiveUsername = ((org.wso2.carbon.user.core.UserStoreManager) userStoreManager).
                         getRealmConfiguration().getUserStoreProperty("CaseInsensitiveUsername");
-                if (caseInsensitiveUsername != null && !caseInsensitiveUsername.isEmpty() &&
-                        caseInsensitiveUsername.trim().equalsIgnoreCase("true")) {
+                if (StringUtils.isNotBlank(caseInsensitiveUsername) &&
+                        "true".equalsIgnoreCase(caseInsensitiveUsername.trim())) {
                     if (log.isDebugEnabled()) {
                         log.debug("Case insensitive user store found. Changing username from : " + userName +
                                 " to : " + userName.toLowerCase());
@@ -64,30 +66,27 @@ public class InMemoryIdentityDataStore extends UserIdentityDataStore {
                     userName = userName.toLowerCase();
                 }
             }
-            if (userIdentityDTO != null) {
-                if (log.isDebugEnabled()) {
-                    StringBuilder data = new StringBuilder("{");
-                    if (userIdentityDTO.getUserIdentityDataMap() != null) {
-                        for (Map.Entry<String, String> entry : userIdentityDTO.getUserIdentityDataMap().entrySet()) {
-                            data.append("[" + entry.getKey() + " = " + entry.getValue() + "], ");
-                        }
+
+            if (log.isDebugEnabled()) {
+                StringBuilder data = new StringBuilder("{");
+                if (userIdentityDTO.getUserIdentityDataMap() != null) {
+                    for (Map.Entry<String, String> entry : userIdentityDTO.getUserIdentityDataMap().entrySet()) {
+                        data.append("[").append(entry.getKey()).append(" = ").append(entry.getValue()).append("], ");
                     }
-                    if (data.indexOf(",") >= 0) {
-                        data.deleteCharAt(data.lastIndexOf(","));
-                    }
-                    data.append("}");
-                    log.debug("Storing UserIdentityClaimsDO to cache for user: " + userName + " with claims: " + data);
                 }
+                if (data.indexOf(",") >= 0) {
+                    data.deleteCharAt(data.lastIndexOf(","));
+                }
+                data.append("}");
+                log.debug("Storing UserIdentityClaimsDO to cache for user: " + userName + " with claims: " + data);
             }
+
             org.wso2.carbon.user.core.UserStoreManager store = (org.wso2.carbon.user.core.UserStoreManager) userStoreManager;
             String domainName = store.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
 
             String key = domainName +
                     CarbonContext.getThreadLocalCarbonContext().getTenantId() +
                     userName;
-//			if (cache.containsKey(key)) {
-//				invalidateCache(userIdentityDTO.getUserName());
-//			}
 
             Cache<String, UserIdentityClaimsDO> cache = getCache();
             if(cache != null) {
@@ -104,8 +103,8 @@ public class InMemoryIdentityDataStore extends UserIdentityDataStore {
             if (userStoreManager instanceof org.wso2.carbon.user.core.UserStoreManager) {
                 String caseInsensitiveUsername = ((org.wso2.carbon.user.core.UserStoreManager) userStoreManager).
                         getRealmConfiguration().getUserStoreProperty("CaseInsensitiveUsername");
-                if (caseInsensitiveUsername != null && !caseInsensitiveUsername.isEmpty() &&
-                        caseInsensitiveUsername.trim().equalsIgnoreCase("true")) {
+                if (!StringUtils.isBlank(caseInsensitiveUsername) &&
+                        "true".equalsIgnoreCase(caseInsensitiveUsername.trim())) {
                     if (log.isDebugEnabled()) {
                         log.debug("Case insensitive user store found. Changing username from : " + userName +
                                 " to : " + userName.toLowerCase());
@@ -121,8 +120,7 @@ public class InMemoryIdentityDataStore extends UserIdentityDataStore {
             UserIdentityClaimsDO userIdentityDTO = (UserIdentityClaimsDO) cache.get(domainName +
                     CarbonContext.getThreadLocalCarbonContext().getTenantId() + userName);
 
-            if (userIdentityDTO != null) {
-                if (log.isDebugEnabled()) {
+            if (userIdentityDTO != null && log.isDebugEnabled()) {
                     StringBuilder data = new StringBuilder("{");
                     if (userIdentityDTO.getUserIdentityDataMap() != null) {
                         for (Map.Entry<String, String> entry : userIdentityDTO.getUserIdentityDataMap().entrySet()) {
@@ -134,13 +132,14 @@ public class InMemoryIdentityDataStore extends UserIdentityDataStore {
                     }
                     data.append("}");
                     log.debug("Loaded UserIdentityClaimsDO from cache for user :" + userName + " with claims: " + data);
-                }
+
             }
             return userIdentityDTO;
         }
         return null;
     }
 
+    @Override
     public void remove(String userName, UserStoreManager userStoreManager) throws IdentityException {
         Cache<String, UserIdentityClaimsDO> cache = getCache();
         if (userName == null) {
@@ -150,35 +149,6 @@ public class InMemoryIdentityDataStore extends UserIdentityDataStore {
         String domainName = store.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
 
         cache.remove(domainName + CarbonContext.getThreadLocalCarbonContext().getTenantId() + userName);
-
-//		invalidateCache(userName);
-
-
-//		invalidateCache(userName);
     }
 
-//	public void invalidateCache(String userName){
-//
-//		if (log.isDebugEnabled()) {
-//			log.debug("Init invalidation caching process");
-//		}
-    // sending cluster message
-//		CacheInvalidator invalidator = IdentityMgtServiceComponent.getCacheInvalidator();
-//		try {
-//			if (invalidator != null) {
-//				invalidator.invalidateCache("IDENTITY_LOGIN_DATA_CACHE",
-//				                            CarbonContext.getCurrentContext().getTenantId() +
-//				                                    userName);
-//				if (log.isDebugEnabled()) {
-//					log.debug("Calling invalidation cache");
-//				}
-//			} else {
-//				if (log.isDebugEnabled()) {
-//					log.debug("Not calling invalidation cache");
-//				}
-//			}
-//		} catch (CacheException e) {
-//			log.error("Error while invalidating cache", e);
-//		}
-//	}
 }

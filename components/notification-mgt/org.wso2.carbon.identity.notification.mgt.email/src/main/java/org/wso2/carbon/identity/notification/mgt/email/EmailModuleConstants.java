@@ -30,6 +30,10 @@ public class EmailModuleConstants {
     public static final String SUBJECT_PROPERTY_LABEL = "subject";
     public static final String MAILTO_LABEL = "mailto:";
 
+
+    private EmailModuleConstants() {
+    }
+
     /**
      * Configuration constants for email sending module
      */
@@ -38,6 +42,9 @@ public class EmailModuleConstants {
         public static final String ENDPOINT_QNAME = "endpoint";
         public static final String ADDRESS_QNAME = "address";
         public static final String SUBSCRIPTION_NS = MODULE_NAME + "." + NotificationMgtConstants.Configs.SUBSCRIPTION;
+
+        private Config() {
+        }
     }
 }
 

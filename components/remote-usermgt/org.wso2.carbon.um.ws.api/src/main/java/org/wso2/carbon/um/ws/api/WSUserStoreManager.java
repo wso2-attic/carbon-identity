@@ -1,34 +1,19 @@
 /*
- *  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- *  WSO2 Inc. licenses this file to you under the Apache License,
- *  Version 2.0 (the "License"); you may not use this file except
- *  in compliance with the License.
- *  You may obtain a copy of the License at
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
+ * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
- */
-/*
- * Copyright - WSO, Inc. (http://wso.com)
- *
- * Licensed under the Apache License, Version .0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
  */
 
 package org.wso2.carbon.um.ws.api;
@@ -53,18 +38,23 @@ import org.wso2.carbon.user.core.claim.Claim;
 import org.wso2.carbon.user.core.tenant.Tenant;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 public class WSUserStoreManager implements UserStoreManager {
 
-    private static Log log = LogFactory.getLog(WSUserStoreManager.class);
+    private static final Log log = LogFactory.getLog(WSUserStoreManager.class);
     private RemoteUserStoreManagerServiceStub stub = null;
+
+    private static final String UNSUPPORTED_PASSWORD_MESSAGE = "Unsupported type of password";
+    private static final String SERVICE_NAME = "RemoteUserStoreManagerService";
 
     public WSUserStoreManager(String serverUrl, String cookie, ConfigurationContext configCtxt)
             throws UserStoreException {
         try {
             stub = new RemoteUserStoreManagerServiceStub(configCtxt, serverUrl
-                    + "RemoteUserStoreManagerService");
+                    + SERVICE_NAME);
             ServiceClient client = stub._getServiceClient();
             Options option = client.getOptions();
             option.setManageSession(true);
@@ -83,7 +73,7 @@ public class WSUserStoreManager implements UserStoreManager {
             }
 
             stub = new RemoteUserStoreManagerServiceStub(configCtxt, serverUrl
-                    + "RemoteUserStoreManagerService");
+                    + SERVICE_NAME);
 
             HttpTransportProperties.Authenticator authenticator = new HttpTransportProperties.Authenticator();
             authenticator.setUsername(userName);
@@ -100,12 +90,13 @@ public class WSUserStoreManager implements UserStoreManager {
         }
     }
 
+    @Override
     public void addUser(String userName, Object credential, String[] roleList,
                         Map<String, String> claims, String profileName, boolean requirePasswordChange)
             throws UserStoreException {
         try {
             if (!(credential instanceof String)) {
-                throw new UserStoreException("Unsupported type of password");
+                throw new UserStoreException(UNSUPPORTED_PASSWORD_MESSAGE);
             }
             String password = (String) credential;
             ClaimValue[] claimValues = WSRealmUtil.convertMapToClaimValue(claims);
@@ -126,10 +117,11 @@ public class WSUserStoreManager implements UserStoreManager {
 
     }
 
+    @Override
     public void addUser(String userName, Object credential, String[] roleList,
                         Map<String, String> claims, String profileName) throws UserStoreException {
         if (!(credential instanceof String)) {
-            throw new UserStoreException("Unsupported type of password");
+            throw new UserStoreException(UNSUPPORTED_PASSWORD_MESSAGE);
         }
         try {
             stub.addUser(userName, (String) credential, roleList,
@@ -140,9 +132,10 @@ public class WSUserStoreManager implements UserStoreManager {
 
     }
 
+    @Override
     public boolean authenticate(String userName, Object credential) throws UserStoreException {
         if (!(credential instanceof String)) {
-            throw new UserStoreException("Unsupported type of password");
+            throw new UserStoreException(UNSUPPORTED_PASSWORD_MESSAGE);
         }
         try {
             return stub.authenticate(userName, (String) credential);
@@ -152,6 +145,7 @@ public class WSUserStoreManager implements UserStoreManager {
         return false;
     }
 
+    @Override
     public void deleteRole(String roleName) throws UserStoreException {
         try {
             stub.deleteRole(roleName);
@@ -161,6 +155,7 @@ public class WSUserStoreManager implements UserStoreManager {
 
     }
 
+    @Override
     public void deleteUser(String userName) throws UserStoreException {
         try {
             stub.deleteUser(userName);
@@ -169,6 +164,7 @@ public class WSUserStoreManager implements UserStoreManager {
         }
     }
 
+    @Override
     public void deleteUserClaimValue(String userName, String claimURI, String profileName)
             throws UserStoreException {
         try {
@@ -178,6 +174,7 @@ public class WSUserStoreManager implements UserStoreManager {
         }
     }
 
+    @Override
     public void deleteUserClaimValues(String userName, String[] claims, String profileName)
             throws UserStoreException {
         try {
@@ -188,29 +185,33 @@ public class WSUserStoreManager implements UserStoreManager {
 
     }
 
+    @Override
     public String[] getAllProfileNames() throws UserStoreException {
         try {
             return stub.getAllProfileNames();
         } catch (Exception e) {
             handleException(e.getMessage(), e);
         }
-        return null;
+        return new String[0];
     }
 
+    @Override
     public String[] getHybridRoles() throws UserStoreException {
         try {
             return stub.getHybridRoles();
         } catch (Exception e) {
             handleException(e.getMessage(), e);
         }
-        return null;
+        return new String[0];
     }
 
+    @Override
     public String[] getAllSecondaryRoles() throws UserStoreException {
         return new String[0]; // To change body of implemented methods use File | Settings | File
         // Templates.
     }
 
+    @Override
     public Date getPasswordExpirationTime(String username) throws UserStoreException {
         try {
             long time = stub.getPasswordExpirationTime(username);
@@ -223,38 +224,43 @@ public class WSUserStoreManager implements UserStoreManager {
         return null;
     }
 
+    @Override
     public String[] getProfileNames(String userName) throws UserStoreException {
         try {
             return stub.getProfileNames(userName);
         } catch (Exception e) {
             handleException(e.getMessage(), e);
         }
-        return null;
+        return new String[0];
     }
 
+    @Override
     public String[] getRoleListOfUser(String userName) throws UserStoreException {
         try {
             return stub.getRoleListOfUser(userName);
         } catch (Exception e) {
             handleException(e.getMessage(), e);
         }
-        return null;
+        return new String[0];
     }
 
+    @Override
     public String[] getRoleNames() throws UserStoreException {
         try {
             return stub.getRoleNames();
         } catch (Exception e) {
             handleException(e.getMessage(), e);
         }
-        return null;
+        return new String[0];
     }
 
+    @Override
     public String[] getRoleNames(boolean b) throws UserStoreException {
         return new String[0]; // To change body of implemented methods use File | Settings | File
         // Templates.
     }
 
+    @Override
     public int getTenantId() throws UserStoreException {
         try {
             return stub.getTenantId();
@@ -264,6 +270,7 @@ public class WSUserStoreManager implements UserStoreManager {
         return -1;
     }
 
+    @Override
     public int getTenantId(String username) throws UserStoreException {
         try {
             return stub.getTenantIdofUser(username);
@@ -273,6 +280,7 @@ public class WSUserStoreManager implements UserStoreManager {
         return -1;
     }
 
+    @Override
     public String getUserClaimValue(String userName, String claim, String profileName)
             throws UserStoreException {
         try {
@@ -283,6 +291,7 @@ public class WSUserStoreManager implements UserStoreManager {
         return profileName;
     }
 
+    @Override
     public Claim[] getUserClaimValues(String userName, String profileName)
             throws UserStoreException {
         try {
@@ -290,9 +299,10 @@ public class WSUserStoreManager implements UserStoreManager {
         } catch (Exception e) {
             handleException(e.getMessage(), e);
         }
-        return null;
+        return new Claim[0];
     }
 
+    @Override
     public Map<String, String> getUserClaimValues(String userName, String[] claims,
                                                   String profileName) throws UserStoreException {
         try {
@@ -301,9 +311,10 @@ public class WSUserStoreManager implements UserStoreManager {
         } catch (Exception e) {
             handleException(e.getMessage(), e);
         }
-        return null;
+        return new TreeMap<String, String>();
     }
 
+    @Override
     public int getUserId(String username) throws UserStoreException {
         try {
             return stub.getUserId(username);
@@ -313,15 +324,17 @@ public class WSUserStoreManager implements UserStoreManager {
         return -1;
     }
 
+    @Override
     public String[] getUserListOfRole(String roleName) throws UserStoreException {
         try {
             return stub.getUserListOfRole(roleName);
         } catch (Exception e) {
             handleException(e.getMessage(), e);
         }
-        return null;
+        return new String[0];
     }
 
+    @Override
     public boolean isExistingRole(String roleName, boolean isSharedRole) throws UserStoreException {
 
         try {
@@ -332,6 +345,7 @@ public class WSUserStoreManager implements UserStoreManager {
         return false;
     }
 
+    @Override
     public boolean isExistingUser(String userName) throws UserStoreException {
 
         try {
@@ -342,6 +356,7 @@ public class WSUserStoreManager implements UserStoreManager {
         return false;
     }
 
+    @Override
     public boolean isReadOnly() throws UserStoreException {
 
         try {
@@ -352,6 +367,7 @@ public class WSUserStoreManager implements UserStoreManager {
         return false;
     }
 
+    @Override
     public String[] listUsers(String filter, int maxItemLimit) throws UserStoreException {
 
         try {
@@ -359,9 +375,10 @@ public class WSUserStoreManager implements UserStoreManager {
         } catch (Exception e) {
             handleException(e.getMessage(), e);
         }
-        return null;
+        return new String[0];
     }
 
+    @Override
     public void setUserClaimValue(String userName, String claimURI, String claimValue,
                                   String profileName) throws UserStoreException {
 
@@ -372,6 +389,7 @@ public class WSUserStoreManager implements UserStoreManager {
         }
     }
 
+    @Override
     public void setUserClaimValues(String userName, Map<String, String> claims, String profileName)
             throws UserStoreException {
         try {
@@ -402,10 +420,11 @@ public class WSUserStoreManager implements UserStoreManager {
         }
     }
 
+    @Override
     public void updateCredential(String userName, Object newCredential, Object oldCredential)
             throws UserStoreException {
         if (!(newCredential instanceof String) || !(oldCredential instanceof String)) {
-            throw new UserStoreException("Unsupported type of password");
+            throw new UserStoreException(UNSUPPORTED_PASSWORD_MESSAGE);
         }
         try {
             stub.updateCredential(userName, (String) newCredential, (String) oldCredential);
@@ -414,10 +433,11 @@ public class WSUserStoreManager implements UserStoreManager {
         }
     }
 
+    @Override
     public void updateCredentialByAdmin(String userName, Object newCredential)
             throws UserStoreException {
         if (!(newCredential instanceof String)) {
-            throw new UserStoreException("Unsupported type of password");
+            throw new UserStoreException(UNSUPPORTED_PASSWORD_MESSAGE);
         }
 
         try {
@@ -427,6 +447,7 @@ public class WSUserStoreManager implements UserStoreManager {
         }
     }
 
+    @Override
     public void updateRoleListOfUser(String userName, String[] deletedRoles, String[] newRoles)
             throws UserStoreException {
         try {
@@ -436,6 +457,7 @@ public class WSUserStoreManager implements UserStoreManager {
         }
     }
 
+    @Override
     public void updateUserListOfRole(String roleName, String[] deletedUsers, String[] newUsers)
             throws UserStoreException {
         try {
@@ -445,6 +467,7 @@ public class WSUserStoreManager implements UserStoreManager {
         }
     }
 
+    @Override
     public void updateRoleName(String roleName, String newRoleName) throws UserStoreException {
         try {
             stub.updateRoleName(roleName, newRoleName);
@@ -461,13 +484,14 @@ public class WSUserStoreManager implements UserStoreManager {
      *
      * @return
      */
+    @Override
     public boolean isMultipleProfilesAllowed() {
         return true;
     }
 
     private PermissionDTO[] convertPermission(Permission[] permissions) {
         if (permissions == null) {
-            return null;
+            return new PermissionDTO[0];
         }
         PermissionDTO[] perms = new PermissionDTO[permissions.length];
         for (int i = 0; i < permissions.length; i++) {
@@ -484,11 +508,12 @@ public class WSUserStoreManager implements UserStoreManager {
         throw new UserStoreException(msg, e);
     }
 
+    @Override
     public Map<String, String> getProperties(Tenant tenant) throws UserStoreException {
-        // TODO Auto-generated method stub
-        return null;
+        return new HashMap<>();
     }
 
+    @Override
     public void addRole(String roleName, String[] userList,
                         org.wso2.carbon.user.api.Permission[] permissions, boolean isSharedRole)
             throws org.wso2.carbon.user.core.UserStoreException {
@@ -509,33 +534,36 @@ public class WSUserStoreManager implements UserStoreManager {
     }
 
 
+    @Override
     public Map<String, String> getProperties(org.wso2.carbon.user.api.Tenant tenant)
             throws org.wso2.carbon.user.core.UserStoreException {
         return getProperties(Tenant.class.cast(tenant));
     }
 
+    @Override
     public void addRememberMe(String userName, String token)
             throws org.wso2.carbon.user.api.UserStoreException {
-        // TODO Auto-generated method stub
-
+        return;
     }
 
+    @Override
     public boolean isValidRememberMeToken(String userName, String token)
             throws org.wso2.carbon.user.api.UserStoreException {
-        // TODO Auto-generated method stub
         return false;
     }
 
+    @Override
     public ClaimManager getClaimManager() throws org.wso2.carbon.user.api.UserStoreException {
         return null; // To change body of implemented methods use File | Settings | File Templates.
     }
 
+    @Override
     public boolean isSCIMEnabled() throws org.wso2.carbon.user.api.UserStoreException {
         return false; // To change body of implemented methods use File | Settings | File Templates.
     }
 
+    @Override
     public boolean isBulkImportSupported() throws UserStoreException {
-        // TODO Auto-generated method stub
         return false;
     }
 
@@ -548,29 +576,35 @@ public class WSUserStoreManager implements UserStoreManager {
             handleException(e.getMessage(), e);
         }
 
-        return null;
+        return new String[0];
     }
 
+    @Override
     public UserStoreManager getSecondaryUserStoreManager() {
         return null; // To change body of implemented methods use File | Settings | File Templates.
     }
 
+    @Override
     public void setSecondaryUserStoreManager(UserStoreManager userStoreManager) {
         // To change body of implemented methods use File | Settings | File Templates.
     }
 
+    @Override
     public UserStoreManager getSecondaryUserStoreManager(String s) {
         return null; // To change body of implemented methods use File | Settings | File Templates.
     }
 
+    @Override
     public void addSecondaryUserStoreManager(String s, UserStoreManager userStoreManager) {
         // To change body of implemented methods use File | Settings | File Templates.
     }
 
+    @Override
     public RealmConfiguration getRealmConfiguration() {
         return null;
     }
 
+    @Override
     public Properties getDefaultUserStoreProperties() {
         return null;
     }

@@ -1,27 +1,31 @@
 /*
- * Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2014 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package org.wso2.carbon.idp.mgt.ui.util;
 
 import org.apache.axiom.om.util.Base64;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.fileupload.FileItemFactory;
 import org.apache.commons.fileupload.disk.DiskFileItem;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.fileupload.servlet.ServletRequestContext;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
@@ -32,11 +36,17 @@ import org.wso2.carbon.ui.CarbonUIUtil;
 import javax.servlet.http.HttpServletRequest;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class IdPManagementUIUtil {
 
-    private static Log log = LogFactory.getLog(IdPManagementUIUtil.class);
+    private static final Log log = LogFactory.getLog(IdPManagementUIUtil.class);
 
     /**
      * Validates an URI.
@@ -48,7 +58,7 @@ public class IdPManagementUIUtil {
 
         if (uriString != null) {
             try {
-                new URL(uriString);
+                URL url = new URL(uriString);
             } catch (MalformedURLException e) {
                 log.debug(e.getMessage(), e);
                 return false;
@@ -64,31 +74,31 @@ public class IdPManagementUIUtil {
     public static String getOpenIDUrl(HttpServletRequest request) {
         String adminConsoleURL = CarbonUIUtil.getAdminConsoleURL(request);
         String endpointURL = adminConsoleURL.substring(0, adminConsoleURL.indexOf("/carbon"));
-        return (endpointURL + "/openid/");
+        return endpointURL + "/openid/";
     }
 
     public static String getSAML2SSOUrl(HttpServletRequest request) {
         String adminConsoleURL = CarbonUIUtil.getAdminConsoleURL(request);
         String endpointURL = adminConsoleURL.substring(0, adminConsoleURL.indexOf("/carbon"));
-        return (endpointURL + "/samlsso/");
+        return endpointURL + "/samlsso/";
     }
 
     public static String getOAuth2AuthzEPURL(HttpServletRequest request) {
         String adminConsoleURL = CarbonUIUtil.getAdminConsoleURL(request);
         String endpointURL = adminConsoleURL.substring(0, adminConsoleURL.indexOf("/carbon"));
-        return (endpointURL + "/oauth2/authorize/");
+        return endpointURL + "/oauth2/authorize/";
     }
 
     public static String getOAuth2TokenEPURL(HttpServletRequest request) {
         String adminConsoleURL = CarbonUIUtil.getAdminConsoleURL(request);
         String endpointURL = adminConsoleURL.substring(0, adminConsoleURL.indexOf("/carbon"));
-        return (endpointURL + "/oauth2/token/");
+        return endpointURL + "/oauth2/token/";
     }
 
     public static String getPassiveSTSURL(HttpServletRequest request) {
         String adminConsoleURL = CarbonUIUtil.getAdminConsoleURL(request);
         String endpointURL = adminConsoleURL.substring(0, adminConsoleURL.indexOf("/carbon"));
-        return (endpointURL + "/passivests/");
+        return endpointURL + "/passivests/";
     }
 
     /**
@@ -209,7 +219,7 @@ public class IdPManagementUIUtil {
                 ProvisioningConnectorConfig[] provisioningConnectorConfig = oldIdentityProvider
                         .getProvisioningConnectorConfigs();
                 for (ProvisioningConnectorConfig provisioningConnector : provisioningConnectorConfig) {
-                    if (provisioningConnector.getName().equals("googleapps")) {
+                    if (("googleapps").equals(provisioningConnector.getName())) {
                         Property[] googleProperties = provisioningConnector
                                 .getProvisioningProperties();
                         for (Property property : googleProperties) {
@@ -727,7 +737,7 @@ public class IdPManagementUIUtil {
     private static ClaimConfig claimMappingFromUI(ClaimConfig claimConfiguration,
                                                   Map<String, String> paramMap) {
         Set<ClaimMapping> claimMappingList = new HashSet<ClaimMapping>();
-        HashMap<String, String> advancedMapping = new HashMap<String, String>();
+        Map<String, String> advancedMapping = new HashMap<String, String>();
 
         int mappedClaimCount = 0;
         int advancedClaimCount = 0;
@@ -752,7 +762,7 @@ public class IdPManagementUIUtil {
             mappedClaimCount = Integer.parseInt(paramMap.get("claimrow_name_count"));
         }
 
-        if (paramMap.get("choose_dialet_type_group").equals("choose_dialet_type1")) {
+        if (("choose_dialet_type1").equals(paramMap.get("choose_dialet_type_group"))) {
             claimConfiguration.setLocalClaimDialect(true);
             for (int i = 0; i < advancedClaimCount; i++) {
                 String idPClaimURI = paramMap.get("advancnedIdpClaim_" + i);
@@ -774,7 +784,7 @@ public class IdPManagementUIUtil {
                 claimMappingList.add(mapping);
             }
 
-        } else if (paramMap.get("choose_dialet_type_group").equals("choose_dialet_type2")) {
+        } else if (("choose_dialet_type2").equals(paramMap.get("choose_dialet_type_group"))) {
             claimConfiguration.setLocalClaimDialect(false);
             for (int i = 0; i < mappedClaimCount; i++) {
                 String idPClaimURI = paramMap.get("claimrowname_" + i);
@@ -793,7 +803,7 @@ public class IdPManagementUIUtil {
                     mapping.setLocalClaim(localClaim);
 
                     if (advancedMapping.get(idPClaimURI) != null) {
-                        if (!advancedMapping.get(idPClaimURI).equals("")) {
+                        if (StringUtils.isNotEmpty(advancedMapping.get(idPClaimURI))) {
                             mapping.setDefaultValue(advancedMapping.get(idPClaimURI));
                         }
                         mapping.setRequested(true);
@@ -863,7 +873,7 @@ public class IdPManagementUIUtil {
         // set identity provider display name.
         fedIdp.setDisplayName(paramMap.get("idpDisplayName"));
 
-        if (paramMap.get("enable") != null && paramMap.get("enable").equals("1")) {
+        if (paramMap.get("enable") != null && ("1").equals(paramMap.get("enable"))) {
             fedIdp.setEnable(true);
         } else {
             fedIdp.setEnable(false);
@@ -901,7 +911,7 @@ public class IdPManagementUIUtil {
 
         // if there is no new certificate and not a delete - use the old one.
         if (oldCertFile != null && certFile == null
-                && (deletePublicCert == null || deletePublicCert.equals("false"))) {
+                && (deletePublicCert == null || ("false").equals(deletePublicCert))) {
             certFile = oldCertFile;
         }
 
@@ -1038,7 +1048,7 @@ public class IdPManagementUIUtil {
         property = new Property();
         property.setName(IdentityApplicationConstants.Authenticator.Facebook.USER_INFO_FIELDS);
         String fbUserInfoFields = paramMap.get("fbUserInfoFields");
-        if(fbUserInfoFields != null && fbUserInfoFields.endsWith(",")) {
+        if (fbUserInfoFields != null && fbUserInfoFields.endsWith(",")) {
             fbUserInfoFields = fbUserInfoFields.substring(0, fbUserInfoFields.length() - 1);
         }
         property.setValue(fbUserInfoFields);
@@ -1208,7 +1218,7 @@ public class IdPManagementUIUtil {
                                                              List<String> proConnectorNames, Map<String, List<Property>> customProProperties,
                                                              Map<String, String> paramMap) throws IdentityApplicationManagementException {
 
-        if (proConnectorNames != null && proConnectorNames.size() > 0) {
+        if (CollectionUtils.isNotEmpty(proConnectorNames)) {
 
             ProvisioningConnectorConfig[] proConfigConnList = new ProvisioningConnectorConfig[proConnectorNames
                     .size()];
@@ -1227,7 +1237,7 @@ public class IdPManagementUIUtil {
 
                 List<Property> customProps = customProProperties.get(conName);
 
-                if (customProps != null && customProps.size() > 0) {
+                if (CollectionUtils.isNotEmpty(customProps)) {
                     customConfig.setProvisioningProperties(customProps
                             .toArray(new Property[customProps.size()]));
                 }
@@ -1257,7 +1267,7 @@ public class IdPManagementUIUtil {
                                                                Map<String, List<Property>> customAuthenticatorProperties, Map<String, String> paramMap)
             throws IdentityApplicationManagementException {
 
-        if (authenticatorNames != null && authenticatorNames.size() > 0) {
+        if (CollectionUtils.isNotEmpty(authenticatorNames)) {
 
             FederatedAuthenticatorConfig[] fedAuthConfigList = new FederatedAuthenticatorConfig[authenticatorNames
                     .size()];
@@ -1278,7 +1288,7 @@ public class IdPManagementUIUtil {
 
                 List<Property> customProps = customAuthenticatorProperties.get(authName);
 
-                if (customProps != null && customProps.size() > 0) {
+                if (CollectionUtils.isNotEmpty(customProps)) {
                     customConfig
                             .setProperties(customProps.toArray(new Property[customProps.size()]));
                 }

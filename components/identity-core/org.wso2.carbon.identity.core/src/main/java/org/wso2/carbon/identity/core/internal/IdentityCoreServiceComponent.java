@@ -21,10 +21,10 @@ import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.identity.base.IdentityConstants;
-import org.wso2.carbon.identity.core.util.IdentityCoreInitializedEvent;
-import org.wso2.carbon.identity.core.util.IdentityCoreInitializedEventImpl;
 import org.wso2.carbon.identity.core.persistence.JDBCPersistenceManager;
 import org.wso2.carbon.identity.core.um.listener.IdentityUserMgtListener;
+import org.wso2.carbon.identity.core.util.IdentityCoreInitializedEvent;
+import org.wso2.carbon.identity.core.util.IdentityCoreInitializedEventImpl;
 import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.registry.core.service.RegistryService;
@@ -72,11 +72,6 @@ public class IdentityCoreServiceComponent {
             ctxt.getBundleContext().registerService(UserStoreManagerListener.class.getName(), userMgtListener, null);
             bundleContext = ctxt.getBundleContext();
 
-            // Register initialize service To guarantee the activation order. Component which is referring this service will wait until
-            // this component activated.
-            ctxt.getBundleContext().registerService(IdentityCoreInitializedEvent.class.getName(),
-                                                    new IdentityCoreInitializedEventImpl(), null);
-
             // Identity database schema creation can be avoided by setting
             // JDBCPersistenceManager.SkipDBSchemaCreation property to "true".
             String skipSchemaCreation = IdentityUtil.getProperty(
@@ -88,17 +83,23 @@ public class IdentityCoreServiceComponent {
                 // This ideally should be an info log but in API Manager it could be confusing to say
                 // DB initialization was skipped, because DB initialization is done by apimgt components
                 log.debug("Identity Provider Database initialization attempt was skipped since '" +
-                        IdentityConstants.ServerConfig.SKIP_DB_SCHEMA_CREATION + "' property has been set to \'true\'");
+                          IdentityConstants.ServerConfig.SKIP_DB_SCHEMA_CREATION + "' property has been set to \'true\'");
             } else if (System.getProperty("setup") == null) {
                 log.info("Identity Database schema initialization check was skipped since " +
-                        "\'setup\' variable was not given during startup");
+                         "\'setup\' variable was not given during startup");
             } else {
                 jdbcPersistenceManager.initializeDatabase();
             }
 
             //taking the service registration after DB initialization.
             ctxt.getBundleContext().registerService(IdentityUtil.class.getName(),
-                    new IdentityUtil(), null);
+                                                    new IdentityUtil(), null);
+
+            // Register initialize service To guarantee the activation order. Component which is referring this
+            // service will wait until
+            // this component activated.
+            ctxt.getBundleContext().registerService(IdentityCoreInitializedEvent.class.getName(),
+                                                    new IdentityCoreInitializedEventImpl(), null);
 
         } catch (Throwable e) {
             log.error("Error occurred while populating identity configuration properties", e);

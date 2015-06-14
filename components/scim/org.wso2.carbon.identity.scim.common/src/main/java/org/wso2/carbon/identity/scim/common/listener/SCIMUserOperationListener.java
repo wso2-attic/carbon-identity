@@ -1,22 +1,24 @@
 /*
-*  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 package org.wso2.carbon.identity.scim.common.listener;
 
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
@@ -65,15 +67,18 @@ public class SCIMUserOperationListener implements UserOperationEventListener {
     private ExecutorService provisioningThreadPool = Executors.newCachedThreadPool();
     private String provisioningHandlerImplClass = SCIMProvisioningConfigManager.getProvisioningHandlers()[0];
 
+    @Override
     public int getExecutionOrderId() {
         return 1;
     }
 
+    @Override
     public boolean doPreAuthenticate(String s, Object o, UserStoreManager userStoreManager)
             throws UserStoreException {
         return true;
     }
 
+    @Override
     public boolean doPostAuthenticate(String userName, boolean authenticated,
                                       UserStoreManager userStoreManager)
             throws UserStoreException {
@@ -103,12 +108,14 @@ public class SCIMUserOperationListener implements UserOperationEventListener {
 
     }
 
+    @Override
     public boolean doPreAddUser(String s, Object o, String[] strings,
                                 Map<String, String> stringStringMap, String s1,
                                 UserStoreManager userStoreManager) throws UserStoreException {
         return true;
     }
 
+    @Override
     public boolean doPostAddUser(String userName, Object credential, String[] roleList,
                                  Map<String, String> claims, String profile,
                                  UserStoreManager userStoreManager)
@@ -129,8 +136,8 @@ public class SCIMUserOperationListener implements UserOperationEventListener {
                     ClaimManager claimManager = userStoreManager.getClaimManager();
 
                     //get existingClaims related to SCIM claim dialect
-                    ClaimMapping[] existingClaims = claimManager.getAllClaimMappings(SCIMCommonUtils.SCIM_CLAIM_DIALECT);
-                    List<String> claimURIList = new ArrayList<String>();
+                    ClaimMapping[] existingClaims = claimManager.getAllClaimMappings(SCIMCommonConstants.SCIM_CLAIM_DIALECT);
+                    List<String> claimURIList = new ArrayList<>();
                     for (ClaimMapping claim : existingClaims) {
                         claimURIList.add(claim.getClaim().getClaimUri());
                     }
@@ -138,7 +145,8 @@ public class SCIMUserOperationListener implements UserOperationEventListener {
                     attributes = userStoreManager.getUserClaimValues(
                             userName, claimURIList.toArray(new String[claimURIList.size()]), null);
                     //if null, or if id attribute not present, add them
-                    if (attributes != null && !attributes.isEmpty()) {
+
+                    if (MapUtils.isNotEmpty(attributes)) {
                         if (!attributes.containsKey(SCIMConstants.ID_URI)) {
                             Map<String, String> updatesAttributes =
                                     this.getSCIMAttributes(userName,
@@ -157,7 +165,7 @@ public class SCIMUserOperationListener implements UserOperationEventListener {
                     }
                 }
             } catch (org.wso2.carbon.user.api.UserStoreException e) {
-                throw new UserStoreException("Error when updating SCIM attributes of the user.");
+                throw new UserStoreException("Error when updating SCIM attributes of the user.", e);
             }
             //do provisioning
             try {
@@ -167,7 +175,7 @@ public class SCIMUserOperationListener implements UserOperationEventListener {
                 if (consumerUserId != null && isProvisioningActionAuthorized(false, null) &&
                         isSCIMConsumerEnabled(consumerUserId)) {
                     //if user created through management console, claim values are not present.
-                    if (attributes != null && attributes.size() != 0) {
+                    if (MapUtils.isNotEmpty(attributes)) {
                         user = (User) AttributeMapper.constructSCIMObjectFromAttributes(
                                 attributes, SCIMConstants.USER_INT);
                     } else {
@@ -181,16 +189,13 @@ public class SCIMUserOperationListener implements UserOperationEventListener {
                     //TODO if groups are set (through) carbon APIs, then need to send a update group provisioning request as well.
                     //but for the moment, do group-mgt operations through group resource.
 
-                    //create a map with provisioning data
-                    Map<String, Object> provisioningData = new HashMap<String, Object>();
-
                     provisioningThreadPool.submit(getProvisioningHandlerFromUser(
                             consumerUserId, user, SCIMConstants.POST, null));
                 }
             } catch (NotFoundException e) {
-                throw new UserStoreException("Error in constructing SCIM object from attributes when provisioning.");
+                throw new UserStoreException("Error in constructing SCIM object from attributes when provisioning.", e);
             } catch (CharonException e) {
-                throw new UserStoreException("Error in constructing SCIM object from attributes when provisioning.");
+                throw new UserStoreException("Error in constructing SCIM object from attributes when provisioning.", e);
             }
             return true;
 
@@ -200,24 +205,28 @@ public class SCIMUserOperationListener implements UserOperationEventListener {
 
     }
 
+    @Override
     public boolean doPreUpdateCredential(String s, Object o, Object o1,
                                          UserStoreManager userStoreManager)
             throws UserStoreException {
         return true;
     }
 
+    @Override
     public boolean doPostUpdateCredential(String s, Object credential, UserStoreManager userStoreManager)
             throws UserStoreException {
         String currentUser = CarbonContext.getThreadLocalCarbonContext().getUsername();
         return doPostUpdateCredentialByAdmin(currentUser, credential, userStoreManager);
     }
 
+    @Override
     public boolean doPreUpdateCredentialByAdmin(String s, Object o,
                                                 UserStoreManager userStoreManager)
             throws UserStoreException {
         return true;
     }
 
+    @Override
     public boolean doPostUpdateCredentialByAdmin(String userName, Object credential,
                                                  UserStoreManager userStoreManager)
             throws UserStoreException {
@@ -268,7 +277,7 @@ public class SCIMUserOperationListener implements UserOperationEventListener {
                     }
                 }
             } catch (CharonException e) {
-                throw new UserStoreException("Error in provisioning 'update credential by admin' operation");
+                throw new UserStoreException("Error in provisioning 'update credential by admin' operation", e);
             }
             return true;
 
@@ -278,6 +287,7 @@ public class SCIMUserOperationListener implements UserOperationEventListener {
 
     }
 
+    @Override
     public boolean doPreDeleteUser(String userName, UserStoreManager userStoreManager)
             throws UserStoreException {
 
@@ -299,7 +309,7 @@ public class SCIMUserOperationListener implements UserOperationEventListener {
                     provisioningThreadPool.submit(getProvisioningHandlerFromUser(consumerUserId, user, SCIMConstants.DELETE, null));
                 }
             } catch (CharonException e) {
-                throw new UserStoreException("Error in provisioning delete operation");
+                throw new UserStoreException("Error in provisioning delete operation", e);
             }
             return true;
 
@@ -310,29 +320,34 @@ public class SCIMUserOperationListener implements UserOperationEventListener {
 
     }
 
+    @Override
     public boolean doPostDeleteUser(String s, UserStoreManager userStoreManager)
             throws UserStoreException {
         return true;
     }
 
+    @Override
     public boolean doPreSetUserClaimValue(String s, String s1, String s2, String s3,
                                           UserStoreManager userStoreManager)
             throws UserStoreException {
         return true;
     }
 
+    @Override
     public boolean doPostSetUserClaimValue(String s, UserStoreManager userStoreManager)
             throws UserStoreException {
         //TODO: need to set last modified time.
         return true;
     }
 
+    @Override
     public boolean doPreSetUserClaimValues(String userName, Map<String, String> claims,
                                            String profileName, UserStoreManager userStoreManager)
             throws UserStoreException {
         return true;
     }
 
+    @Override
     public boolean doPostSetUserClaimValues(String userName, Map<String, String> claims,
                                             String profileName, UserStoreManager userStoreManager)
             throws UserStoreException {
@@ -368,13 +383,13 @@ public class SCIMUserOperationListener implements UserOperationEventListener {
                         if (isProvisioningActionAuthorized(true, userNameInClaims) &&
                                 isSCIMConsumerEnabled(consumerUserId)) {
                             //if no claim values are present, no need to do provisioning.
-                            if (claims != null && claims.size() != 0) {
+                            if (MapUtils.isNotEmpty(claims)) {
                                 ClaimManager claimManager = userStoreManager.getClaimManager();
                                 if (claimManager != null) {
                                     //get existingClaims related to SCIM claim dialect
                                     ClaimMapping[] existingClaims = claimManager.getAllClaimMappings(
-                                            SCIMCommonUtils.SCIM_CLAIM_DIALECT);
-                                    List<String> claimURIList = new ArrayList<String>();
+                                            SCIMCommonConstants.SCIM_CLAIM_DIALECT);
+                                    List<String> claimURIList = new ArrayList<>();
                                     for (ClaimMapping claim : existingClaims) {
                                         claimURIList.add(claim.getClaim().getClaimUri());
                                     }
@@ -394,13 +409,13 @@ public class SCIMUserOperationListener implements UserOperationEventListener {
                     }
                 } catch (org.wso2.carbon.user.api.UserStoreException e) {
                     throw new UserStoreException("Error in retrieving claim values while provisioning " +
-                            "'update user' operation.");
+                            "'update user' operation.", e);
                 } catch (CharonException e) {
                     throw new UserStoreException("Error in constructing SCIM User object from claims" +
-                            "while provisioning 'update user' operation.");
+                            "while provisioning 'update user' operation.", e);
                 } catch (NotFoundException e) {
                     throw new UserStoreException("Error in constructing SCIM User object from claims" +
-                            "while provisioning 'update user' operation.");
+                            "while provisioning 'update user' operation.", e);
                 }
             }
             return true;
@@ -410,28 +425,33 @@ public class SCIMUserOperationListener implements UserOperationEventListener {
         }
     }
 
+    @Override
     public boolean doPreDeleteUserClaimValues(String s, String[] strings, String s1,
                                               UserStoreManager userStoreManager)
             throws UserStoreException {
         return true;
     }
 
+    @Override
     public boolean doPostDeleteUserClaimValues(String s, UserStoreManager userStoreManager)
             throws UserStoreException {
         return true;
     }
 
+    @Override
     public boolean doPreDeleteUserClaimValue(String s, String s1, String s2,
                                              UserStoreManager userStoreManager)
             throws UserStoreException {
         return true;
     }
 
+    @Override
     public boolean doPostDeleteUserClaimValue(String s, UserStoreManager userStoreManager)
             throws UserStoreException {
         return true;
     }
 
+    @Override
     public boolean doPreAddRole(String s, String[] strings,
                                 org.wso2.carbon.user.api.Permission[] permissions,
                                 UserStoreManager userStoreManager) throws UserStoreException {
@@ -439,6 +459,7 @@ public class SCIMUserOperationListener implements UserOperationEventListener {
         return true;
     }
 
+    @Override
     public boolean doPostAddRole(String roleName, String[] userList,
                                  org.wso2.carbon.user.api.Permission[] permissions,
                                  UserStoreManager userStoreManager) throws UserStoreException {
@@ -479,7 +500,7 @@ public class SCIMUserOperationListener implements UserOperationEventListener {
                     group.setDisplayName(roleName);
                     if (userList != null && userList.length != 0) {
                         for (String user : userList) {
-                            Map<String, Object> members = new HashMap<String, Object>();
+                            Map<String, Object> members = new HashMap<>();
                             members.put(SCIMConstants.CommonSchemaConstants.DISPLAY, user);
                             group.setMember(members);
                         }
@@ -488,7 +509,7 @@ public class SCIMUserOperationListener implements UserOperationEventListener {
                             consumerUserId, group, SCIMConstants.POST, null));
                 }
             } catch (CharonException e) {
-                throw new UserStoreException("Error in constructing SCIM object from attributes when provisioning.");
+                throw new UserStoreException("Error in constructing SCIM object from attributes when provisioning.", e);
             }
 
             return true;
@@ -500,6 +521,7 @@ public class SCIMUserOperationListener implements UserOperationEventListener {
 
     }
 
+    @Override
     public boolean doPreDeleteRole(String roleName, UserStoreManager userStoreManager)
             throws UserStoreException {
 
@@ -535,7 +557,7 @@ public class SCIMUserOperationListener implements UserOperationEventListener {
                     provisioningThreadPool.submit(getProvisioningHandlerFromGroup(consumerUserId, group, SCIMConstants.DELETE, null));
                 }
             } catch (CharonException e) {
-                throw new UserStoreException("Error in provisioning delete operation");
+                throw new UserStoreException("Error in provisioning delete operation", e);
             }
             return true;
 
@@ -546,16 +568,19 @@ public class SCIMUserOperationListener implements UserOperationEventListener {
 
     }
 
+    @Override
     public boolean doPostDeleteRole(String roleName, UserStoreManager userStoreManager)
             throws UserStoreException {
         return true;
     }
 
+    @Override
     public boolean doPreUpdateRoleName(String s, String s1, UserStoreManager userStoreManager)
             throws UserStoreException {
         return true;
     }
 
+    @Override
     public boolean doPostUpdateRoleName(String roleName, String newRoleName,
                                         UserStoreManager userStoreManager)
             throws UserStoreException {
@@ -588,7 +613,7 @@ public class SCIMUserOperationListener implements UserOperationEventListener {
                 String consumerUserId = getSCIMConsumerId();
                 if (isProvisioningActionAuthorized(false, null) && isSCIMConsumerEnabled(consumerUserId)) {
                     //add old role name details.
-                    Map<String, Object> additionalInformation = new HashMap<String, Object>();
+                    Map<String, Object> additionalInformation = new HashMap<>();
                     additionalInformation.put(SCIMCommonConstants.IS_ROLE_NAME_CHANGED_ON_UPDATE, true);
                     additionalInformation.put(SCIMCommonConstants.OLD_GROUP_NAME, roleName);
 
@@ -600,7 +625,7 @@ public class SCIMUserOperationListener implements UserOperationEventListener {
                             consumerUserId, group, SCIMConstants.PUT, additionalInformation));
                 }
             } catch (CharonException e) {
-                throw new UserStoreException("Error in provisioning delete operation");
+                throw new UserStoreException("Error in provisioning delete operation", e);
             }
             return true;
 
@@ -611,12 +636,14 @@ public class SCIMUserOperationListener implements UserOperationEventListener {
 
     }
 
+    @Override
     public boolean doPreUpdateUserListOfRole(String s, String[] strings, String[] strings1,
                                              UserStoreManager userStoreManager)
             throws UserStoreException {
         return true;
     }
 
+    @Override
     public boolean doPostUpdateUserListOfRole(String roleName, String[] deletedUsers,
                                               String[] newUsers, UserStoreManager userStoreManager)
             throws UserStoreException {
@@ -639,7 +666,7 @@ public class SCIMUserOperationListener implements UserOperationEventListener {
                     String[] userList = userStoreManager.getUserListOfRole(roleName);
                     if (userList != null && userList.length != 0) {
                         for (String user : userList) {
-                            Map<String, Object> members = new HashMap<String, Object>();
+                            Map<String, Object> members = new HashMap<>();
                             members.put(SCIMConstants.CommonSchemaConstants.DISPLAY, user);
                             group.setMember(members);
                         }
@@ -648,7 +675,7 @@ public class SCIMUserOperationListener implements UserOperationEventListener {
                             consumerUserId, group, SCIMConstants.PUT, null));
                 }
             } catch (CharonException e) {
-                throw new UserStoreException("Error in provisioning delete operation");
+                throw new UserStoreException("Error in provisioning delete operation", e);
             }
             return true;
 
@@ -659,12 +686,14 @@ public class SCIMUserOperationListener implements UserOperationEventListener {
 
     }
 
+    @Override
     public boolean doPreUpdateRoleListOfUser(String s, String[] strings, String[] strings1,
                                              UserStoreManager userStoreManager)
             throws UserStoreException {
         return true;
     }
 
+    @Override
     public boolean doPostUpdateRoleListOfUser(String s, String[] strings, String[] strings1,
                                               UserStoreManager userStoreManager)
             throws UserStoreException {
@@ -674,10 +703,10 @@ public class SCIMUserOperationListener implements UserOperationEventListener {
 
     public Map<String, String> getSCIMAttributes(String userName, Map<String, String> claimsMap) {
         Map<String, String> attributes = null;
-        if (claimsMap != null && !claimsMap.isEmpty()) {
+        if (MapUtils.isNotEmpty(claimsMap)) {
             attributes = claimsMap;
         } else {
-            attributes = new HashMap<String, String>();
+            attributes = new HashMap<>();
         }
         String id = UUID.randomUUID().toString();
         attributes.put(SCIMConstants.ID_URI, id);
@@ -717,9 +746,6 @@ public class SCIMUserOperationListener implements UserOperationEventListener {
         } else {
             consumerUserId = tenantDomain;
         }
-        /*if (consumerUserId == null) {
-            throw new CharonException("Consumer Id is null for the provisioning request");
-        }*/
         return consumerUserId;
     }
 
@@ -758,17 +784,15 @@ public class SCIMUserOperationListener implements UserOperationEventListener {
                     return true;
                 }
                 //else, check if it is a profile update req and user is updating his profile.
-                if (!authorized && isProfileUpdate) {
-                    if (currentUser.equals(userNameOfProfile) &&
-                            authzManager.isUserAuthorized(currentUser, SCIMCommonConstants.PROVISIONING_USER_PERMISSION,
-                                    SCIMCommonConstants.RESOURCE_TO_BE_AUTHORIZED)) {
-                        return true;
-                    }
+                if (!authorized && isProfileUpdate && currentUser.equals(userNameOfProfile) &&
+                        authzManager.isUserAuthorized(currentUser, SCIMCommonConstants.PROVISIONING_USER_PERMISSION,
+                                SCIMCommonConstants.RESOURCE_TO_BE_AUTHORIZED)) {
+                    return true;
                 }
             }
         } catch (org.wso2.carbon.user.api.UserStoreException e) {
             throw new UserStoreException("Error in authorizing user: " + currentUser + tenantDomain
-                    + " for provisioning.");
+                    + " for provisioning.", e);
         }
         return false;
     }
@@ -791,15 +815,15 @@ public class SCIMUserOperationListener implements UserOperationEventListener {
             provisioningHandler = (ProvisioningHandler) cons.newInstance(consumerUserId, user, httpMethod, additionalInformation);
 
         } catch (ClassNotFoundException e) {
-            log.error("Cannot find class: " + provisioningHandlerImplClass);
+            log.error("Cannot find class: " + provisioningHandlerImplClass, e);
         } catch (InstantiationException e) {
-            log.error("Error instantiating: " + provisioningHandlerImplClass);
+            log.error("Error instantiating: " + provisioningHandlerImplClass, e);
         } catch (IllegalAccessException e) {
-            log.error("Error while initializing " + provisioningHandlerImplClass);
+            log.error("Error while initializing " + provisioningHandlerImplClass, e);
         } catch (NoSuchMethodException e) {
-            log.error("Error while initializing " + provisioningHandlerImplClass);
+            log.error("Error while initializing " + provisioningHandlerImplClass, e);
         } catch (InvocationTargetException e) {
-            log.error("Error while initializing " + provisioningHandlerImplClass);
+            log.error("Error while initializing " + provisioningHandlerImplClass, e);
         }
 
         return provisioningHandler;
@@ -815,15 +839,15 @@ public class SCIMUserOperationListener implements UserOperationEventListener {
             provisioningHandler = (ProvisioningHandler) cons.newInstance(consumerUserId, group, httpMethod, additionalInformation);
 
         } catch (ClassNotFoundException e) {
-            log.error("Cannot find class: " + provisioningHandlerImplClass);
+            log.error("Cannot find class: " + provisioningHandlerImplClass, e);
         } catch (InstantiationException e) {
-            log.error("Error instantiating: " + provisioningHandlerImplClass);
+            log.error("Error instantiating: " + provisioningHandlerImplClass, e);
         } catch (IllegalAccessException e) {
-            log.error("Error while initializing " + provisioningHandlerImplClass);
+            log.error("Error while initializing " + provisioningHandlerImplClass, e);
         } catch (NoSuchMethodException e) {
-            log.error("Error while initializing " + provisioningHandlerImplClass);
+            log.error("Error while initializing " + provisioningHandlerImplClass, e);
         } catch (InvocationTargetException e) {
-            log.error("Error while initializing " + provisioningHandlerImplClass);
+            log.error("Error while initializing " + provisioningHandlerImplClass, e);
         }
 
         return provisioningHandler;

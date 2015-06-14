@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2014 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -15,7 +15,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package org.wso2.carbon.identity.application.authenticator.iwa.internal;
 
 import org.apache.commons.logging.Log;
@@ -31,7 +30,7 @@ import org.wso2.carbon.identity.application.authenticator.iwa.servlet.IWAServele
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
-import java.util.Hashtable;
+
 
 /**
  * @scr.component name="identity.application.authenticator.basicauth.component" immediate="true"
@@ -45,22 +44,19 @@ public class IWAAuthenticatorServiceComponent {
     private static HttpService httpService;
 
     protected void activate(ComponentContext ctxt) {
-
-        IWAAuthenticator iwaAuth = new IWAAuthenticator();
-        Hashtable<String, String> props = new Hashtable<String, String>();
-
-        // Register iwa servlet
-        Servlet iwaServlet = new ContextPathServletAdaptor(new IWAServelet(), IWAConstants.IWA_URL);
         try {
+            IWAAuthenticator iwaAuth = new IWAAuthenticator();
+            // Register iwa servlet
+            Servlet iwaServlet = new ContextPathServletAdaptor(new IWAServelet(), IWAConstants.IWA_URL);
             httpService.registerServlet(IWAConstants.IWA_URL, iwaServlet, null, null);
-        } catch (NamespaceException e) {
-            log.error("Error when registering the IWA servlet, '" + IWAConstants.IWA_URL + "' may be already in use.");
-        } catch (ServletException e) {
-            log.error("Error when registering the IWA servlet.", e);
-        }
-        ctxt.getBundleContext().registerService(ApplicationAuthenticator.class.getName(), iwaAuth, props);
-        if (log.isDebugEnabled()) {
-            log.debug("IWAAuthenticator bundle is activated");
+            ctxt.getBundleContext().registerService(ApplicationAuthenticator.class.getName(), iwaAuth, null);
+            if (log.isDebugEnabled()) {
+                log.debug("IWAAuthenticator bundle is activated");
+            }
+        } catch (NamespaceException | ServletException e) {
+            log.error("Error when registering the IWA servlet, '" + IWAConstants.IWA_URL + "' may be already in use." + e);
+        } catch (Throwable e) {
+            log.error("IWAAuthenticator bundle activation failed");
         }
     }
 

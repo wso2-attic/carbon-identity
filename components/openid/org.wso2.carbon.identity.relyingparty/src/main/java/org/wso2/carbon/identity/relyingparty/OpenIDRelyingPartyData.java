@@ -1,17 +1,19 @@
 /*
- * Copyright 2005-2008 WSO2, Inc. (http://wso2.com)
+ * Copyright (c) 2008, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package org.wso2.carbon.identity.relyingparty;
@@ -30,7 +32,7 @@ import java.security.KeyStore;
  */
 public class OpenIDRelyingPartyData {
 
-    private static Log log = LogFactory.getLog(OpenIDRelyingPartyData.class);
+    private static final Log log = LogFactory.getLog(OpenIDRelyingPartyData.class);
     private String opValidationPolicy;
     private KeyStore opKeyStore;
     private String mappedHostName;
@@ -45,19 +47,15 @@ public class OpenIDRelyingPartyData {
 
         loadOpenIDHostMapping(filterConfig);
 
-        opValidationPolicy = filterConfig
-                .getInitParameter(TokenVerifierConstants.OP_VALIDATION_POLICY);
+        opValidationPolicy = filterConfig.getInitParameter(TokenVerifierConstants.OP_VALIDATION_POLICY);
 
         if (opValidationPolicy != null
-                && (opValidationPolicy.equals(TokenVerifierConstants.WHITE_LIST) || opValidationPolicy
+            && (opValidationPolicy.equals(TokenVerifierConstants.WHITE_LIST) || opValidationPolicy
                 .equals(TokenVerifierConstants.BLACK_LIST))) {
 
-            String opStoreFilePath = filterConfig
-                    .getInitParameter(TokenVerifierConstants.OP_KEY_STORE);
-            String opStorePass = filterConfig
-                    .getInitParameter(TokenVerifierConstants.OP_STORE_PASS);
-            String opStoreType = filterConfig
-                    .getInitParameter(TokenVerifierConstants.OP_STORE_TYPE);
+            String opStoreFilePath = filterConfig.getInitParameter(TokenVerifierConstants.OP_KEY_STORE);
+            String opStorePass = filterConfig.getInitParameter(TokenVerifierConstants.OP_STORE_PASS);
+            String opStoreType = filterConfig.getInitParameter(TokenVerifierConstants.OP_STORE_TYPE);
             FileInputStream inputStream = null;
             String realPath = null;
 
@@ -67,8 +65,7 @@ public class OpenIDRelyingPartyData {
                 inputStream = new FileInputStream(realPath);
                 opKeyStore.load(inputStream, opStorePass.toCharArray());
             } catch (Exception e) {
-                throw new ServletException("Cannot load OP key store" + opStoreFilePath + " and "
-                        + opStorePass, e);
+                throw new ServletException("Cannot load OP key store" + opStoreFilePath + " and " + opStorePass, e);
             } finally {
                 if (inputStream != null) {
                     try {
