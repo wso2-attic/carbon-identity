@@ -80,7 +80,10 @@ public class TokenMgtDAO {
             maxPoolSize =
                     Integer.parseInt(IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.PoolSize"));
         } catch (NumberFormatException e) {
-            log.error("Error while parsing the integer", e);
+            if(log.isDebugEnabled()){
+                log.debug("Error while parsing the integer", e);
+            }
+            log.warn("Session data persistence pool size is not configured. Using default value.");
         }
 
         if (maxPoolSize > 0) {
