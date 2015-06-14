@@ -23,10 +23,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.ComponentContext;
-import org.wso2.carbon.identity.core.util.IdentityUtil;
+import org.wso2.carbon.identity.core.util.IdentityCoreInitializedEvent;
 import org.wso2.carbon.identity.provider.IdentityAttributeService;
 import org.wso2.carbon.identity.provider.IdentityAttributeServiceStore;
-import org.wso2.carbon.identity.provider.IdentityProviderUtil;
 import org.wso2.carbon.identity.provider.openid.listener.IdentityOpenIDUserEventListener;
 import org.wso2.carbon.registry.core.service.RegistryService;
 import org.wso2.carbon.user.core.UserRealm;
@@ -49,9 +48,9 @@ import javax.servlet.ServletContext;
  * @scr.reference name="user.realmservice.default" interface="org.wso2.carbon.user.core.service.RealmService"
  * cardinality="1..1" policy="dynamic" bind="setRealmService"
  * unbind="unsetRealmService"
- * @scr.reference name="identity.core.util.service"
- * interface="org.wso2.carbon.identity.core.util.IdentityUtil" cardinality="1..1"
- * policy="dynamic" bind="setIdentityUtil" unbind="unsetIdentityUtil"
+ * @scr.reference name="identityCoreInitializedEventService"
+ * interface="org.wso2.carbon.identity.core.util.IdentityCoreInitializedEvent" cardinality="1..1"
+ * policy="dynamic" bind="setIdentityCoreInitializedEventService" unbind="unsetIdentityCoreInitializedEventService"
  * @scr.reference name="identity.attribute.service"
  * interface="org.wso2.carbon.identity.provider.IdentityAttributeService"
  * cardinality="0..n" policy="dynamic" bind="addAttributeService"
@@ -211,22 +210,14 @@ public class IdentityProviderServiceComponent {
         }
     }
 
-    /**
-     * @param identityUtil
-     */
-    protected void setIdentityUtil(IdentityUtil identityUtil) {
-        if (log.isDebugEnabled()) {
-            log.debug("IdentityUtil set in Identity Provider bundle");
-        }
+    protected void unsetIdentityCoreInitializedEventService(IdentityCoreInitializedEvent identityCoreInitializedEvent) {
+        /* reference IdentityCoreInitializedEvent service to guarantee that this component will wait until identity core
+         is started */
     }
 
-    /**
-     * @param identityUtil
-     */
-    protected void unsetIdentityUtil(IdentityUtil identityUtil) {
-        if (log.isDebugEnabled()) {
-            log.debug("IdentityUtil unset in Identity Provider bundle");
-        }
+    protected void setIdentityCoreInitializedEventService(IdentityCoreInitializedEvent identityCoreInitializedEvent) {
+        /* reference IdentityCoreInitializedEvent service to guarantee that this component will wait until identity core
+         is started */
     }
 
 }
