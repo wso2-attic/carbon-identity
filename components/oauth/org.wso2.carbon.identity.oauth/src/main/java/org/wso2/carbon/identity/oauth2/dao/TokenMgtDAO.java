@@ -880,7 +880,7 @@ public class TokenMgtDAO {
 	/**
 	 * This method is used invalidate the existing token and generate a new toke within one DB transaction.
 	 *
-	 * @param accessToken     access token need to be updated.
+	 * @param oldAccessToken     access token need to be updated.
 	 * @param tokenState      token state before generating new token.
 	 * @param consumerKey     consumer key of the existing token
 	 * @param tokenStateId    new token state id to be updated
@@ -888,7 +888,7 @@ public class TokenMgtDAO {
 	 * @param userStoreDomain user store domain which is related to this consumer
 	 * @throws IdentityOAuth2Exception
 	 */
-	public void invalidateAndCreateNewToken(String accessToken, String tokenState,
+	public void invalidateAndCreateNewToken(String oldAccessToken, String tokenState,
 	                                        String consumerKey, String tokenStateId,
 	                                        AccessTokenDO accessTokenDO, String userStoreDomain)
 			throws IdentityOAuth2Exception {
@@ -899,10 +899,10 @@ public class TokenMgtDAO {
 			connection.setAutoCommit(false);
 
 			// update existing token as inactive
-			setAccessTokenState(connection, accessToken, tokenState, tokenStateId, userStoreDomain);
+			setAccessTokenState(connection, oldAccessToken, tokenState, tokenStateId, userStoreDomain);
 
 			// store new token in the DB
-			storeAccessToken(accessToken, consumerKey, accessTokenDO, connection, userStoreDomain);
+			storeAccessToken(accessTokenDO.getAccessToken(), consumerKey, accessTokenDO, connection, userStoreDomain);
 
 			// commit both transactions
 			connection.commit();
