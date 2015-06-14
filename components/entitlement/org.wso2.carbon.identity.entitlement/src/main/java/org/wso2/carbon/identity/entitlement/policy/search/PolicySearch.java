@@ -1,12 +1,12 @@
 /*
- *  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- *  WSO2 Inc. licenses this file to you under the Apache License,
- *  Version 2.0 (the "License"); you may not use this file except
- *  in compliance with the License.
- *  You may obtain a copy of the License at
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -36,7 +36,15 @@ import org.wso2.carbon.identity.entitlement.internal.EntitlementServiceComponent
 import org.wso2.carbon.identity.entitlement.pdp.EntitlementEngine;
 import org.wso2.carbon.identity.entitlement.policy.finder.PolicyFinderModule;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 
 /**
  * This contains the searching methods for policies based on policy attribute values and how subjects
@@ -44,7 +52,7 @@ import java.util.*;
  */
 public class PolicySearch {
 
-    private static Log log = LogFactory.getLog(PolicySearch.class);
+    private static final Log log = LogFactory.getLog(PolicySearch.class);
 
 
     private List<PolicyFinderModule> finderModules = null;
@@ -55,11 +63,11 @@ public class PolicySearch {
 
     public PolicySearch(boolean cachingEnable, int cachingInterval) {
         // get registered finder modules
-        Map<PolicyFinderModule, Properties> finderModules = EntitlementServiceComponent.
+        Map<PolicyFinderModule, Properties> tempFinderModules = EntitlementServiceComponent.
                 getEntitlementConfig().getPolicyFinderModules();
 
-        if (finderModules != null) {
-            this.finderModules = new ArrayList<PolicyFinderModule>(finderModules.keySet());
+        if (tempFinderModules != null) {
+            this.finderModules = new ArrayList<>(tempFinderModules.keySet());
         }
 
         this.cachingEnable = cachingEnable;
@@ -93,8 +101,8 @@ public class PolicySearch {
             }
 
             cacheKey = (subjectId != null ? subjectId : "") + (subjectName != null ? subjectName : "") +
-                    (resourceName != null ? resourceName : "") +
-                    (action != null ? action : "") + enableChildSearch;
+                       (resourceName != null ? resourceName : "") +
+                       (action != null ? action : "") + enableChildSearch;
             SearchResult searchResult = policySearchCache.getFromCache(cacheKey);
 
             if (searchResult != null) {
@@ -132,8 +140,8 @@ public class PolicySearch {
 
         for (PolicyFinderModule module : finderModules) {
             if (module.isDefaultCategoriesSupported() &&
-                    PolicyFinderModule.COMBINATIONS_BY_CATEGORY_AND_PARAMETER ==
-                            module.getSupportedSearchAttributesScheme()) {
+                PolicyFinderModule.COMBINATIONS_BY_CATEGORY_AND_PARAMETER ==
+                module.getSupportedSearchAttributesScheme()) {
                 Map<String, Set<AttributeDTO>> requestMap = module.
                         getSearchAttributes(null, new HashSet<AttributeDTO>(Arrays.asList(subjectAttributeDTO)));
 
@@ -161,12 +169,12 @@ public class PolicySearch {
 
                         for (AttributeDTO attributeDTO : attributeDTOs) {
                             if (PDPConstants.ENVIRONMENT_CATEGORY_URI.equals(attributeDTO.getCategory()) ||
-                                    PDPConstants.ENVIRONMENT_ELEMENT.equals(attributeDTO.getCategory())) {
+                                PDPConstants.ENVIRONMENT_ELEMENT.equals(attributeDTO.getCategory())) {
                                 requestAttributes.add(attributeDTO);
                                 attributeDTO.setAttributeId(PDPConstants.ENVIRONMENT_ID_DEFAULT);
                                 requestAttributes.add(attributeDTO);
                             } else if (PDPConstants.ACTION_CATEGORY_URI.equals(attributeDTO.getCategory()) ||
-                                    PDPConstants.ACTION_ELEMENT.equals(attributeDTO.getCategory())) {
+                                       PDPConstants.ACTION_ELEMENT.equals(attributeDTO.getCategory())) {
                                 if (action != null && action.trim().length() > 0) {
                                     attributeDTO.setAttributeValue(action);
                                 }
@@ -174,8 +182,8 @@ public class PolicySearch {
                                 attributeDTO.setAttributeId(PDPConstants.ACTION_ID_DEFAULT);
                                 actions.add(attributeDTO);
                             } else if ((PDPConstants.RESOURCE_CATEGORY_URI.equals(attributeDTO.getCategory()) ||
-                                    PDPConstants.RESOURCE_ELEMENT.equals(attributeDTO
-                                            .getCategory())) && !hierarchicalResource) {
+                                        PDPConstants.RESOURCE_ELEMENT.equals(attributeDTO
+                                                                                     .getCategory())) && !hierarchicalResource) {
                                 attributeDTO.setAttributeId(PDPConstants.RESOURCE_ID_DEFAULT);
                                 resources.add(attributeDTO);
                             }
@@ -199,7 +207,7 @@ public class PolicySearch {
 
                             for (AttributeDTO resource : resources) {
                                 if (PDPConstants.RESOURCE_CATEGORY_URI.equals(resource.getCategory())
-                                        || PDPConstants.RESOURCE_ELEMENT.equals(resource.getCategory())) {
+                                    || PDPConstants.RESOURCE_ELEMENT.equals(resource.getCategory())) {
 
                                     boolean allActionsAllowed = false;
 
@@ -381,9 +389,7 @@ public class PolicySearch {
 
         if (PolicyFinderModule.ALL_COMBINATIONS == supportedSearchScheme) {
 
-            if (attributesMap.entrySet() != null) {
-                return getAllCombinations(attributesMap.entrySet().iterator().next().getValue());
-            }
+            return getAllCombinations(attributesMap.entrySet().iterator().next().getValue());
 
         } else if (PolicyFinderModule.COMBINATIONS_BY_CATEGORY == supportedSearchScheme) {
 
@@ -421,7 +427,7 @@ public class PolicySearch {
             return requestSet;
         }
 
-        return null;
+        return Collections.emptySet();
     }
 
     /**
