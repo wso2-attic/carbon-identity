@@ -1,12 +1,12 @@
 /*
- *  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- *  WSO2 Inc. licenses this file to you under the Apache License,
- *  Version 2.0 (the "License"); you may not use this file except
- *  in compliance with the License.
- *  You may obtain a copy of the License at
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -28,8 +28,8 @@ import java.util.Map;
 public class EntitlementLRUCache<String, Set> extends LinkedHashMap<String, Set> {
 
     private static final long serialVersionUID = -1308554805704597171L;
-    private final static int INITIAL_CACHE_CAPACITY = 16;
-    private final static float LOAD_FACTOR = 75f;
+    private static final int INITIAL_CACHE_CAPACITY = 16;
+    private static final float LOAD_FACTOR = 75f;
     private int cacheSize;
 
     public EntitlementLRUCache(int cacheSize) {
@@ -43,4 +43,28 @@ public class EntitlementLRUCache<String, Set> extends LinkedHashMap<String, Set>
         return size() == this.cacheSize;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
+
+        EntitlementLRUCache<?, ?> that = (EntitlementLRUCache<?, ?>) o;
+
+        return cacheSize == that.cacheSize;
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + cacheSize;
+        return result;
+    }
 }

@@ -1,12 +1,12 @@
 /*
- *  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- *  WSO2 Inc. licenses this file to you under the Apache License,
- *  Version 2.0 (the "License"); you may not use this file except
- *  in compliance with the License.
- *  You may obtain a copy of the License at
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -24,7 +24,14 @@ import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.context.RegistryType;
 import org.wso2.carbon.identity.entitlement.common.EntitlementConstants;
-import org.wso2.carbon.identity.entitlement.dto.*;
+import org.wso2.carbon.identity.entitlement.dto.AttributeDTO;
+import org.wso2.carbon.identity.entitlement.dto.EntitlementFinderDataHolder;
+import org.wso2.carbon.identity.entitlement.dto.EntitlementTreeNodeDTO;
+import org.wso2.carbon.identity.entitlement.dto.PaginatedPolicySetDTO;
+import org.wso2.carbon.identity.entitlement.dto.PaginatedStatusHolder;
+import org.wso2.carbon.identity.entitlement.dto.PolicyDTO;
+import org.wso2.carbon.identity.entitlement.dto.PublisherDataHolder;
+import org.wso2.carbon.identity.entitlement.dto.StatusHolder;
 import org.wso2.carbon.identity.entitlement.internal.EntitlementServiceComponent;
 import org.wso2.carbon.identity.entitlement.pap.EntitlementAdminEngine;
 import org.wso2.carbon.identity.entitlement.pap.EntitlementDataFinder;
@@ -53,7 +60,8 @@ import java.util.regex.Pattern;
  */
 public class EntitlementPolicyAdminService {
 
-    private static Log log = LogFactory.getLog(EntitlementPolicyAdminService.class);
+    private static final Log log = LogFactory.getLog(EntitlementPolicyAdminService.class);
+    public static final String ITEMS_PER_PAGE = "ItemsPerPage";
 
 
     /**
@@ -104,7 +112,7 @@ public class EntitlementPolicyAdminService {
         // Finding from which registry by comparing prefix of resource path
         String resourceUri = policyRegistryPath.substring(policyRegistryPath.lastIndexOf(':') + 1);
         String registryIdentifier = policyRegistryPath.substring(0,
-                policyRegistryPath.lastIndexOf(':'));
+                                                                 policyRegistryPath.lastIndexOf(':'));
         if ("conf".equals(registryIdentifier)) {
             registry = (Registry) CarbonContext.getThreadLocalCarbonContext().
                     getRegistry(RegistryType.SYSTEM_CONFIGURATION);
@@ -191,13 +199,13 @@ public class EntitlementPolicyAdminService {
             boolean useAttributeFiler = false;
             // Filter out policies based on policy type
             if (!policyTypeFilter.equals(EntitlementConstants.PolicyType.POLICY_ALL)
-                    && (!policyTypeFilter.equals(policyDTO.getPolicyType()) &&
+                && (!policyTypeFilter.equals(policyDTO.getPolicyType()) &&
                     !(EntitlementConstants.PolicyType.POLICY_ENABLED.equals(policyTypeFilter) && policyDTO.isActive()) &&
                     !(EntitlementConstants.PolicyType.POLICY_DISABLED.equals(policyTypeFilter) && !policyDTO.isActive()))) {
                 continue;
             }
 
-            if (policySearchString != null && policySearchString.trim().length() > 0) {
+            if (policySearchString.trim().length() > 0) {
 
                 if (!isPDPPolicy) {
                     // Filter out policies based on attribute value
@@ -214,13 +222,10 @@ public class EntitlementPolicyAdminService {
                     }
                 }
 
-                if (!useAttributeFiler) {
-                    // Filter out policies based on policy Search String
-                    if (policySearchString.trim().length() > 0) {
-                        Matcher matcher = pattern.matcher(policyDTO.getPolicyId());
-                        if (!matcher.matches()) {
-                            continue;
-                        }
+                if (!useAttributeFiler && policySearchString.trim().length() > 0) {
+                    Matcher matcher = pattern.matcher(policyDTO.getPolicyId());
+                    if (!matcher.matches()) {
+                        continue;
                     }
                 }
             }
@@ -342,7 +347,9 @@ public class EntitlementPolicyAdminService {
             try {
                 oldPolicy = getPolicy(policyId, false);
             } catch (Exception e) {
-                // exception is ignore. as unwanted details are throws
+                if (log.isDebugEnabled()) {
+                    log.debug("Exception ignored.", e);
+                }
             }
             if (oldPolicy == null) {
                 oldPolicy = new PolicyDTO();
@@ -363,7 +370,7 @@ public class EntitlementPolicyAdminService {
         // policy remove from PDP.  this is done by separate thread
         if (dePromote) {
             publishToPDP(new String[]{policyId}, null,
-                    EntitlementConstants.PolicyPublish.ACTION_DELETE);
+                         EntitlementConstants.PolicyPublish.ACTION_DELETE);
         }
     }
 
@@ -570,7 +577,7 @@ public class EntitlementPolicyAdminService {
             return holders.toArray(new PublisherDataHolder[holders.size()]);
         }
 
-        return null;
+        return new PublisherDataHolder[0];
     }
 
 
@@ -620,7 +627,7 @@ public class EntitlementPolicyAdminService {
             storeManager.addOrUpdatePolicy(policyDTO);
         }
         publishToPDP(new String[]{policyDTO.getPolicyId()}, null, EntitlementConstants.PolicyPublish.ACTION_ORDER,
-                false, newOrder);
+                     false, newOrder);
     }
 
     public void enableDisablePolicy(String policyId, boolean enable) throws EntitlementException {
@@ -636,10 +643,10 @@ public class EntitlementPolicyAdminService {
 
         if (enable) {
             publishToPDP(new String[]{policyDTO.getPolicyId()}, null,
-                    EntitlementConstants.PolicyPublish.ACTION_ENABLE);
+                         EntitlementConstants.PolicyPublish.ACTION_ENABLE);
         } else {
             publishToPDP(new String[]{policyDTO.getPolicyId()}, null,
-                    EntitlementConstants.PolicyPublish.ACTION_DISABLE);
+                         EntitlementConstants.PolicyPublish.ACTION_DISABLE);
         }
     }
 
@@ -650,7 +657,7 @@ public class EntitlementPolicyAdminService {
     public void dePromotePolicy(String policyId) throws EntitlementException {
 
         publishToPDP(new String[]{policyId}, null,
-                EntitlementConstants.PolicyPublish.ACTION_DELETE);
+                     EntitlementConstants.PolicyPublish.ACTION_DELETE);
 
     }
 
@@ -695,7 +702,7 @@ public class EntitlementPolicyAdminService {
                 policyDTO.setPolicy(policy.replaceAll(">\\s+<", "><"));
                 if (!EntitlementUtil.validatePolicy(policyDTO)) {
                     throw new EntitlementException("Invalid Entitlement Policy. " +
-                            "Policy is not valid according to XACML schema");
+                                                   "Policy is not valid according to XACML schema");
                 }
                 policyObj = PAPPolicyReader.getInstance(null).getPolicy(policy);
                 if (policyObj != null) {
@@ -708,27 +715,21 @@ public class EntitlementPolicyAdminService {
                         throw new EntitlementException(
                                 " Policy Id cannot contain / characters. Please correct and upload again");
                     }
+
                     if (!policyId.matches(regString)) {
                         throw new EntitlementException(
                                 "An Entitlement Policy Id is not valid. It contains illegal characters");
                     }
 
                     policyDTO.setPolicyId(policyId);
-                    if (isAdd) {
-                        if (policyAdmin.isExistPolicy(policyId)) {
-                            throw new EntitlementException(
-                                    "An Entitlement Policy with the given Id already exists");
-                        }
+                    if (isAdd && policyAdmin.isExistPolicy(policyId)) {
+                        throw new EntitlementException(
+                                "An Entitlement Policy with the given Id already exists");
                     }
                 } else {
                     throw new EntitlementException("Unsupported Entitlement Policy. Policy can not be parsed");
                 }
-                try {
-                    String version = versionManager.createVersion(policyDTO);
-                    policyDTO.setVersion(version);
-                } catch (EntitlementException e) {
-                    log.error("Policy versioning is not supported", e);
-                }
+                setPolicyVersion(policyDTO, versionManager);
             }
             policyAdmin.addOrUpdatePolicy(policyDTO);
         } catch (EntitlementException e) {
@@ -742,12 +743,21 @@ public class EntitlementPolicyAdminService {
         // publish policy to PDP directly
         if (policyDTO.isPromote()) {
             if (isAdd) {
-                publishToPDP(new String[] {policyDTO.getPolicyId()}, EntitlementConstants.PolicyPublish.ACTION_CREATE,
-                        null, policyDTO.isActive(), policyDTO.getPolicyOrder());
+                publishToPDP(new String[]{policyDTO.getPolicyId()}, EntitlementConstants.PolicyPublish.ACTION_CREATE,
+                             null, policyDTO.isActive(), policyDTO.getPolicyOrder());
             } else {
                 publishToPDP(new String[]{policyDTO.getPolicyId()}, EntitlementConstants.PolicyPublish.ACTION_UPDATE,
-                        null, policyDTO.isActive(), policyDTO.getPolicyOrder());
+                             null, policyDTO.isActive(), policyDTO.getPolicyOrder());
             }
+        }
+    }
+
+    private void setPolicyVersion(PolicyDTO policyDTO, PolicyVersionManager versionManager) {
+        try {
+            String version = versionManager.createVersion(policyDTO);
+            policyDTO.setVersion(version);
+        } catch (EntitlementException e) {
+            log.error("Policy versioning is not supported", e);
         }
     }
 
@@ -770,7 +780,7 @@ public class EntitlementPolicyAdminService {
         String itemsPerPage = EntitlementServiceComponent.getEntitlementConfig().
                 getEngineProperties().getProperty(PDPConstants.ENTITLEMENT_ITEMS_PER_PAGE);
         if (itemsPerPage != null) {
-            itemsPerPage = ServerConfiguration.getInstance().getFirstProperty("ItemsPerPage");
+            itemsPerPage = ServerConfiguration.getInstance().getFirstProperty(ITEMS_PER_PAGE);
         }
         int itemsPerPageInt = PDPConstants.DEFAULT_ITEMS_PER_PAGE;
         if (itemsPerPage != null) {
@@ -813,7 +823,7 @@ public class EntitlementPolicyAdminService {
         String itemsPerPage = EntitlementServiceComponent.getEntitlementConfig().
                 getEngineProperties().getProperty(PDPConstants.ENTITLEMENT_ITEMS_PER_PAGE);
         if (itemsPerPage != null) {
-            itemsPerPage = ServerConfiguration.getInstance().getFirstProperty("ItemsPerPage");
+            itemsPerPage = ServerConfiguration.getInstance().getFirstProperty(ITEMS_PER_PAGE);
         }
         int itemsPerPageInt = PDPConstants.DEFAULT_ITEMS_PER_PAGE;
         if (itemsPerPage != null) {
@@ -837,51 +847,6 @@ public class EntitlementPolicyAdminService {
         return paginatedStatusHolder;
     }
 
-
-    /**
-     * This method is used internally to do the pagination purposes.
-     *
-     * @param pageNumber page Number
-     * @param ids        <code>String</code>
-     * @return PaginatedStringDTO object containing the number of pages and the set of policies
-     * that reside in the given page.
-     */
-    private PaginatedStringDTO doPagingString(int pageNumber, String[] ids) {
-
-        PaginatedStringDTO paginatedStatusHolder = new PaginatedStringDTO();
-        if (ids.length == 0) {
-            paginatedStatusHolder.setStatusHolders(new String[0]);
-            return paginatedStatusHolder;
-        }
-
-        String itemsPerPage = EntitlementServiceComponent.getEntitlementConfig().
-                getEngineProperties().getProperty(PDPConstants.ENTITLEMENT_ITEMS_PER_PAGE);
-        if (itemsPerPage != null) {
-            itemsPerPage = ServerConfiguration.getInstance().getFirstProperty("ItemsPerPage");
-        }
-        int itemsPerPageInt = PDPConstants.DEFAULT_ITEMS_PER_PAGE;
-        if (itemsPerPage != null) {
-            itemsPerPageInt = Integer.parseInt(itemsPerPage);
-        }
-        int numberOfPages = (int) Math.ceil((double) ids.length / itemsPerPageInt);
-        if (pageNumber > numberOfPages - 1) {
-            pageNumber = numberOfPages - 1;
-        }
-        int startIndex = pageNumber * itemsPerPageInt;
-        int endIndex = (pageNumber + 1) * itemsPerPageInt;
-        String[] returnedHolders = new String[itemsPerPageInt];
-
-        for (int i = startIndex, j = 0; i < endIndex && i < ids.length; i++, j++) {
-            returnedHolders[j] = ids[i];
-        }
-
-        paginatedStatusHolder.setStatusHolders(returnedHolders);
-        paginatedStatusHolder.setNumberOfPages(numberOfPages);
-
-        return paginatedStatusHolder;
-    }
-
-
     private void handleStatus(String action, PolicyDTO policyDTO, boolean success, String message) {
 
         Set<PAPStatusDataHandler> handlers = EntitlementServiceComponent.
@@ -890,7 +855,7 @@ public class EntitlementPolicyAdminService {
         String target = "PAP POLICY STORE";
         String targetAction = "";
         if (EntitlementConstants.StatusTypes.ADD_POLICY.equals(action) ||
-                EntitlementConstants.StatusTypes.UPDATE_POLICY.equals(action)) {
+            EntitlementConstants.StatusTypes.UPDATE_POLICY.equals(action)) {
             targetAction = "PERSIST";
         } else if (EntitlementConstants.StatusTypes.DELETE_POLICY.equals(action)) {
             targetAction = "REMOVE";
@@ -905,7 +870,7 @@ public class EntitlementPolicyAdminService {
 
         StatusHolder holder =
                 new StatusHolder(action, policyId, policyDTO.getVersion(),
-                        target, targetAction, success, message);
+                                 target, targetAction, success, message);
 
         if (handlers != null) {
             for (PAPStatusDataHandler handler : handlers) {

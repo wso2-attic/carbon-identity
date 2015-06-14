@@ -1,73 +1,74 @@
 <!--
- ~ Copyright (c) 2005-2011, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
- ~
- ~ WSO2 Inc. licenses this file to you under the Apache License,
- ~ Version 2.0 (the "License"); you may not use this file except
- ~ in compliance with the License.
- ~ You may obtain a copy of the License at
- ~
- ~    http://www.apache.org/licenses/LICENSE-2.0
- ~
- ~ Unless required by applicable law or agreed to in writing,
- ~ software distributed under the License is distributed on an
- ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- ~ KIND, either express or implied.  See the License for the
- ~ specific language governing permissions and limitations
- ~ under the License.
- -->
+  ~ Copyright (c) 2011, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+  ~
+  ~  WSO2 Inc. licenses this file to you under the Apache License,
+  ~  Version 2.0 (the "License"); you may not use this file except
+  ~  in compliance with the License.
+  ~  You may obtain a copy of the License at
+  ~
+  ~    http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied.  See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
 <wsp:Policy xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy"
-	Id="selfIssuedCredentialPolicy">
-	<wsp:ExactlyOne>
-		<wsp:All>
-			<ic:RequireFederatedIdentityProvisioning
-				xmlns:ic="http://schemas.xmlsoap.org/ws/2005/05/identity" />
-			<sp:TransportBinding
-				xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
-				<wsp:Policy>
-					<sp:TransportToken>
-						<wsp:Policy>
-							<sp:HttpsToken RequireClientCertificate="false" />
-						</wsp:Policy>
-					</sp:TransportToken>
-					<sp:AlgorithmSuite
-						xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
-						<wsp:Policy>
-							<sp:Basic256 />
-						</wsp:Policy>
-					</sp:AlgorithmSuite>
-					<sp:Layout>
-						<wsp:Policy>
-							<sp:Lax />
-						</wsp:Policy>
-					</sp:Layout>
-					<sp:IncludeTimestamp />
-				</wsp:Policy>
-			</sp:TransportBinding>
-			<sp:SignedSupportingTokens
-				xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
-				<wsp:Policy>
-					<sp:IssuedToken
-						sp:IncludeToken="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy/IncludeToken/AlwaysToRecipient">
-						<sp:Issuer>
-							<Address xmlns="http://www.w3.org/2005/08/addressing">
-								http://schemas.xmlsoap.org/ws/2005/05/identity/issuer/self
-							</Address>
-						</sp:Issuer>
-						<sp:RequestSecurityTokenTemplate>
-							<t:TokenType xmlns:t="http://schemas.xmlsoap.org/ws/2005/02/trust">
-								urn:oasis:names:tc:SAML:1.0:assertion</t:TokenType>
-							<t:KeyType xmlns:t="http://schemas.xmlsoap.org/ws/2005/02/trust">
-								http://schemas.xmlsoap.org/ws/2005/02/trust/SymmetricKey
-							</t:KeyType>
-							<t:Claims xmlns:t="http://schemas.xmlsoap.org/ws/2005/02/trust">
-								<wsid:ClaimType xmlns:wsid="http://schemas.xmlsoap.org/ws/2005/05/identity"
-									Uri="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/privatepersonalidentifier" />
-							</t:Claims>
-						</sp:RequestSecurityTokenTemplate>
-					</sp:IssuedToken>
-				</wsp:Policy>
-			</sp:SignedSupportingTokens>
-			<wsaw:UsingAddressing xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" />
-		</wsp:All>
-	</wsp:ExactlyOne>
+            Id="selfIssuedCredentialPolicy">
+    <wsp:ExactlyOne>
+        <wsp:All>
+            <ic:RequireFederatedIdentityProvisioning
+                    xmlns:ic="http://schemas.xmlsoap.org/ws/2005/05/identity"/>
+            <sp:TransportBinding
+                    xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
+                <wsp:Policy>
+                    <sp:TransportToken>
+                        <wsp:Policy>
+                            <sp:HttpsToken RequireClientCertificate="false"/>
+                        </wsp:Policy>
+                    </sp:TransportToken>
+                    <sp:AlgorithmSuite
+                            xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
+                        <wsp:Policy>
+                            <sp:Basic256/>
+                        </wsp:Policy>
+                    </sp:AlgorithmSuite>
+                    <sp:Layout>
+                        <wsp:Policy>
+                            <sp:Lax/>
+                        </wsp:Policy>
+                    </sp:Layout>
+                    <sp:IncludeTimestamp/>
+                </wsp:Policy>
+            </sp:TransportBinding>
+            <sp:SignedSupportingTokens
+                    xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
+                <wsp:Policy>
+                    <sp:IssuedToken
+                            sp:IncludeToken="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy/IncludeToken/AlwaysToRecipient">
+                        <sp:Issuer>
+                            <Address xmlns="http://www.w3.org/2005/08/addressing">
+                                http://schemas.xmlsoap.org/ws/2005/05/identity/issuer/self
+                            </Address>
+                        </sp:Issuer>
+                        <sp:RequestSecurityTokenTemplate>
+                            <t:TokenType xmlns:t="http://schemas.xmlsoap.org/ws/2005/02/trust">
+                                urn:oasis:names:tc:SAML:1.0:assertion
+                            </t:TokenType>
+                            <t:KeyType xmlns:t="http://schemas.xmlsoap.org/ws/2005/02/trust">
+                                http://schemas.xmlsoap.org/ws/2005/02/trust/SymmetricKey
+                            </t:KeyType>
+                            <t:Claims xmlns:t="http://schemas.xmlsoap.org/ws/2005/02/trust">
+                                <wsid:ClaimType xmlns:wsid="http://schemas.xmlsoap.org/ws/2005/05/identity"
+                                                Uri="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/privatepersonalidentifier"/>
+                            </t:Claims>
+                        </sp:RequestSecurityTokenTemplate>
+                    </sp:IssuedToken>
+                </wsp:Policy>
+            </sp:SignedSupportingTokens>
+            <wsaw:UsingAddressing xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl"/>
+        </wsp:All>
+    </wsp:ExactlyOne>
 </wsp:Policy>

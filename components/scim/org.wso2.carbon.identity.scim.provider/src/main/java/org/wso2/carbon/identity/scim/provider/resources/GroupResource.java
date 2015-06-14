@@ -1,20 +1,21 @@
 /*
- * Copyright (c) 2012, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the
+ * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.wso2.carbon.identity.scim.provider.resources;
 
 import org.apache.commons.logging.Log;
@@ -51,7 +52,7 @@ public class GroupResource extends AbstractResource {
     public Response getGroup(@PathParam(SCIMConstants.CommonSchemaConstants.ID) String id,
                              @HeaderParam(SCIMConstants.ACCEPT_HEADER) String outputFormat,
                              @HeaderParam(SCIMConstants.AUTHORIZATION_HEADER) String authorization) {
-        Map<String, String> requestAttributes = new HashMap<String, String>();
+        Map<String, String> requestAttributes = new HashMap<>();
         requestAttributes.put(SCIMProviderConstants.ID, id);
         requestAttributes.put(SCIMProviderConstants.OUTPUT_FORMAT, outputFormat);
         requestAttributes.put(SCIMProviderConstants.AUTHORIZATION, authorization);
@@ -64,7 +65,7 @@ public class GroupResource extends AbstractResource {
                                 @HeaderParam(SCIMConstants.ACCEPT_HEADER) String outputFormat,
                                 @HeaderParam(SCIMConstants.AUTHORIZATION_HEADER) String authorization,
                                 String resourceString) {
-        Map<String, String> requestAttributes = new HashMap<String, String>();
+        Map<String, String> requestAttributes = new HashMap<>();
         requestAttributes.put(SCIMProviderConstants.INPUT_FORMAT, inputFormat);
         requestAttributes.put(SCIMProviderConstants.OUTPUT_FORMAT, outputFormat);
         requestAttributes.put(SCIMProviderConstants.AUTHORIZATION, authorization);
@@ -78,7 +79,7 @@ public class GroupResource extends AbstractResource {
     public Response deleteGroup(@PathParam(SCIMConstants.CommonSchemaConstants.ID) String id,
                                 @HeaderParam(SCIMConstants.ACCEPT_HEADER) String outputFormat,
                                 @HeaderParam(SCIMConstants.AUTHORIZATION_HEADER) String authorization) {
-        Map<String, String> requestAttributes = new HashMap<String, String>();
+        Map<String, String> requestAttributes = new HashMap<>();
         requestAttributes.put(SCIMProviderConstants.ID, id);
         requestAttributes.put(SCIMProviderConstants.OUTPUT_FORMAT, outputFormat);
         requestAttributes.put(SCIMProviderConstants.AUTHORIZATION, authorization);
@@ -93,7 +94,7 @@ public class GroupResource extends AbstractResource {
                                 @HeaderParam(SCIMConstants.ACCEPT_HEADER) String outputFormat,
                                 @HeaderParam(SCIMConstants.AUTHORIZATION_HEADER) String authorization,
                                 String resourceString) {
-        Map<String, String> requestAttributes = new HashMap<String, String>();
+        Map<String, String> requestAttributes = new HashMap<>();
         requestAttributes.put(SCIMProviderConstants.ID, id);
         requestAttributes.put(SCIMProviderConstants.INPUT_FORMAT, inputFormat);
         requestAttributes.put(SCIMProviderConstants.OUTPUT_FORMAT, outputFormat);
@@ -110,7 +111,7 @@ public class GroupResource extends AbstractResource {
                                @HeaderParam(SCIMConstants.ACCEPT_HEADER) String outputFormat,
                                @HeaderParam(SCIMConstants.AUTHORIZATION_HEADER) String authorization,
                                String resourceString) {
-        Map<String, String> requestAttributes = new HashMap<String, String>();
+        Map<String, String> requestAttributes = new HashMap<>();
         requestAttributes.put(SCIMProviderConstants.ID, id);
         requestAttributes.put(SCIMProviderConstants.INPUT_FORMAT, inputFormat);
         requestAttributes.put(SCIMProviderConstants.OUTPUT_FORMAT, outputFormat);
@@ -128,7 +129,7 @@ public class GroupResource extends AbstractResource {
                              @QueryParam("startIndex") String startIndex,
                              @QueryParam("count") String count, @QueryParam("sortBy") String sortBy,
                              @QueryParam("sortOrder") String sortOrder) {
-        Map<String, String> requestAttributes = new HashMap<String, String>();
+        Map<String, String> requestAttributes = new HashMap<>();
         requestAttributes.put(SCIMProviderConstants.OUTPUT_FORMAT, outputFormat);
         requestAttributes.put(SCIMProviderConstants.AUTHORIZATION, authorization);
         requestAttributes.put(SCIMProviderConstants.HTTP_VERB, GET.class.getSimpleName());

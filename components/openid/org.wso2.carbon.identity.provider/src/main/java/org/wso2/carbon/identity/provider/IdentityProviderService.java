@@ -1,30 +1,33 @@
 /*
-*  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ * Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package org.wso2.carbon.identity.provider;
 
 import org.apache.axis2.context.MessageContext;
 import org.apache.axis2.transport.http.HTTPConstants;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.CarbonException;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.core.AbstractAdmin;
 import org.wso2.carbon.core.util.AdminServicesUtil;
 import org.wso2.carbon.identity.base.IdentityConstants.ServerConfig;
+import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.persistence.IdentityPersistenceManager;
 import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
@@ -41,8 +44,7 @@ import javax.servlet.http.HttpSession;
  */
 public class IdentityProviderService extends AbstractAdmin {
 
-    protected Log log = LogFactory.getLog(IdentityProviderService.class);
-
+    private static final Log log = LogFactory.getLog(IdentityProviderService.class);
 
     /**
      * @param userName
@@ -50,11 +52,11 @@ public class IdentityProviderService extends AbstractAdmin {
      * @throws Exception
      * @throws
      */
-    public String getPrimaryOpenID(String userName) throws Exception {
-        userName = getUserNameWithDomain(userName);
-        validateInputParameters(new String[]{userName}, "Invalid parameters provided to getOpenID");
-        checkUserAuthorization(userName, "getOpenID");
-        return IdentityUtil.getProperty(ServerConfig.OPENID_USER_PATTERN) + userName;
+    public String getPrimaryOpenID(String userName) throws IdentityProviderException {
+        String userNameWithDomain = getUserNameWithDomain(userName);
+        validateInputParameters(new String[] { userNameWithDomain }, "Invalid parameters provided to getOpenID");
+        checkUserAuthorization(userNameWithDomain, "getOpenID");
+        return IdentityUtil.getProperty(ServerConfig.OPENID_USER_PATTERN) + userNameWithDomain;
     }
 
     /**
@@ -62,16 +64,20 @@ public class IdentityProviderService extends AbstractAdmin {
      * @return
      * @throws Exception
      */
-    public String[] getAllOpenIDs(String userName) throws Exception {
-        validateInputParameters(new String[]{userName},
-                "Invalid parameters provided to getAllOpenIDs");
-        // checkUserAuthorization(extractPrimaryUserName(userName), "getAllOpenIDs");
+    public String[] getAllOpenIDs(String userName) throws IdentityProviderException {
+        validateInputParameters(new String[] { userName }, "Invalid parameters provided to getAllOpenIDs");
 
-        IdentityPersistenceManager persistenceManager = IdentityPersistenceManager.getPersistanceManager();
+        IdentityPersistenceManager persistenceManager = null;
+        String[] externalOpenIDs = null;
+        try {
+            persistenceManager = IdentityPersistenceManager.getPersistanceManager();
 
-        // Get all External OpenIDs of an user
-        String[] externalOpenIDs = persistenceManager.getOpenIDsForUser(IdentityTenantUtil.getRegistry()
-                , AdminServicesUtil.getUserRealm(), userName);
+            // Get all External OpenIDs of an user
+            externalOpenIDs = persistenceManager.getOpenIDsForUser(IdentityTenantUtil.getRegistry()
+                    , AdminServicesUtil.getUserRealm(), userName);
+        } catch (IdentityException | CarbonException e) {
+            throw new IdentityProviderException("Failed to retrieve OpenID for user " + userName, e);
+        }
 
         String[] openIDset = new String[externalOpenIDs.length + 1];
         // Index zero of the returning array would be the primary OpenID.
@@ -89,8 +95,8 @@ public class IdentityProviderService extends AbstractAdmin {
         try {
 
             IdentityPersistenceManager persistenceManager = IdentityPersistenceManager.getPersistanceManager();
-            persistenceManager.removeOpenIDSignUp(IdentityTenantUtil.getRegistry(),
-                    AdminServicesUtil.getUserRealm(), openID);
+            persistenceManager
+                    .removeOpenIDSignUp(IdentityTenantUtil.getRegistry(), AdminServicesUtil.getUserRealm(), openID);
 
         } catch (Exception e) {
             log.error("Error instantiating a Persistence Manager.", e);
@@ -124,32 +130,23 @@ public class IdentityProviderService extends AbstractAdmin {
      * @param operation
      * @throws IdentityProviderException
      */
-    private void checkUserAuthorization(String username, String operation)
-            throws IdentityProviderException {
+    private void checkUserAuthorization(String username, String operation) throws IdentityProviderException {
         MessageContext msgContext = MessageContext.getCurrentMessageContext();
-        HttpServletRequest request = (HttpServletRequest) msgContext
-                .getProperty(HTTPConstants.MC_HTTP_SERVLETREQUEST);
+        HttpServletRequest request = (HttpServletRequest) msgContext.getProperty(HTTPConstants.MC_HTTP_SERVLETREQUEST);
         HttpSession httpSession = request.getSession(false);
 
-        if (username.contains("@")) {
-            if (MultitenantUtils.isEmailUserName()) {
-                String[] partitionedUserName = username.trim().split("@");
-                username = partitionedUserName[0] + "@" + partitionedUserName[1];
-            } else {
-                username = username.substring(0, username.indexOf("@"));
-            }
-        }
+        String tenantFreeUsername = MultitenantUtils.getTenantAwareUsername(username);
 
         if (httpSession != null) {
-            String userName = (String) httpSession.getAttribute(ServerConstants.USER_LOGGED_IN);
-            if (!username.equals(userName)) {
+            String loggedInUsername = (String) httpSession.getAttribute(ServerConstants.USER_LOGGED_IN);
+            if (!tenantFreeUsername.equals(loggedInUsername)) {
                 throw new IdentityProviderException("Unauthorised action by user " + username
-                        + " to access " + operation);
+                                                    + " to access " + operation);
             }
-            return;
+        } else {
+            throw new IdentityProviderException("Unauthorised action by user " + tenantFreeUsername
+                                                + " to access " + operation);
         }
-        throw new IdentityProviderException("Unauthorised action by user " + username
-                + " to access " + operation);
     }
 
     /**
@@ -168,15 +165,18 @@ public class IdentityProviderService extends AbstractAdmin {
     }
 
     private String getUserNameWithDomain(String userName) {
-        if (userName == null) {
-            userName = CarbonContext.getThreadLocalCarbonContext().getUsername();
+        String usernameWithDomain;
+        if (StringUtils.isBlank(userName)) {
+            usernameWithDomain = CarbonContext.getThreadLocalCarbonContext().getUsername();
+        } else {
+            usernameWithDomain = userName;
         }
-        if (MultitenantUtils.getTenantDomain(userName) == null) {
-            if (CarbonContext.getThreadLocalCarbonContext().getTenantDomain() != null) {
-                userName = userName + "@" + CarbonContext.getThreadLocalCarbonContext().getTenantDomain(); //TODO no constant for @
-            }
+        if (MultitenantUtils.getTenantDomain(usernameWithDomain) == null &&
+            CarbonContext.getThreadLocalCarbonContext().getTenantDomain() != null) {
+            usernameWithDomain = usernameWithDomain + "@" + CarbonContext.getThreadLocalCarbonContext()
+                                                                         .getTenantDomain();
         }
 
-        return userName;
+        return usernameWithDomain;
     }
 }

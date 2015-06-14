@@ -1,30 +1,36 @@
 /*
-*  Copyright (c)  WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 
 package org.wso2.carbon.identity.entitlement.dto;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.core.util.CryptoException;
 import org.wso2.carbon.core.util.CryptoUtil;
 import org.wso2.carbon.registry.core.Resource;
 
-import java.util.*;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
 /**
  *
@@ -32,7 +38,7 @@ import java.util.*;
 public class PublisherDataHolder {
 
     public static final String MODULE_NAME = "EntitlementModuleName";
-    private static Log log = LogFactory.getLog(PublisherDataHolder.class);
+    private static final Log log = LogFactory.getLog(PublisherDataHolder.class);
     private String moduleName;
     private PublisherPropertyDTO[] propertyDTOs = new PublisherPropertyDTO[0];
 
@@ -44,7 +50,7 @@ public class PublisherDataHolder {
     }
 
     public PublisherDataHolder(Resource resource, boolean returnSecrets) {
-        List<PublisherPropertyDTO> propertyDTOs = new ArrayList<PublisherPropertyDTO>();
+        List<PublisherPropertyDTO> propertyDTOList = new ArrayList<PublisherPropertyDTO>();
         if (resource != null && resource.getProperties() != null) {
             Properties properties = resource.getProperties();
             for (Map.Entry<Object, Object> entry : properties.entrySet()) {
@@ -53,7 +59,7 @@ public class PublisherDataHolder {
                 Object value = entry.getValue();
                 if (value instanceof ArrayList) {
                     List list = (ArrayList) entry.getValue();
-                    if (list != null && list.size() > 0 && list.get(0) != null) {
+                    if (CollectionUtils.isNotEmpty(list) && list.get(0) != null) {
                         dto.setValue((String) list.get(0));
 
                         if (list.size() > 1 && list.get(1) != null) {
@@ -69,18 +75,15 @@ public class PublisherDataHolder {
                             dto.setSecret(Boolean.parseBoolean((String) list.get(4)));
                         }
 
-                        if (dto.isSecret()) {
-                            if (returnSecrets) {
-                                String password = dto.getValue();
-                                try {
-                                    password = new String(CryptoUtil.getDefaultCryptoUtil().
-                                            base64DecodeAndDecrypt(dto.getValue()));
-                                } catch (CryptoException e) {
-                                    log.error(e);
-                                    // ignore
-                                }
-                                dto.setValue(password);
+                        if (dto.isSecret() && returnSecrets) {
+                            String password = dto.getValue();
+                            try {
+                                password = new String(CryptoUtil.getDefaultCryptoUtil().
+                                        base64DecodeAndDecrypt(dto.getValue()), StandardCharsets.UTF_8);
+                            } catch (CryptoException e) {
+                                log.error("CryptoException occurred. ", e);
                             }
+                            dto.setValue(password);
                         }
                     }
                 }
@@ -89,10 +92,10 @@ public class PublisherDataHolder {
                     continue;
                 }
 
-                propertyDTOs.add(dto);
+                propertyDTOList.add(dto);
             }
         }
-        this.propertyDTOs = propertyDTOs.toArray(new PublisherPropertyDTO[propertyDTOs.size()]);
+        this.propertyDTOs = propertyDTOList.toArray(new PublisherPropertyDTO[propertyDTOList.size()]);
     }
 
     public String getModuleName() {

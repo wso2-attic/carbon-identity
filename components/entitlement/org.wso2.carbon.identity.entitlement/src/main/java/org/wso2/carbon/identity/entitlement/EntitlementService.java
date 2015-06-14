@@ -1,12 +1,12 @@
 /*
- *  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- *  WSO2 Inc. licenses this file to you under the Apache License,
- *  Version 2.0 (the "License"); you may not use this file except
- *  in compliance with the License.
- *  You may obtain a copy of the License at
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -30,7 +30,7 @@ import org.wso2.carbon.identity.entitlement.wsxacml.XACMLHandler;
  */
 public class EntitlementService implements XACMLHandler {
 
-    private static Log log = LogFactory.getLog(EntitlementService.class);
+    private static final Log log = LogFactory.getLog(EntitlementService.class);
 
     /**
      * Evaluates the given XACML request and returns the Response that the EntitlementEngine will
@@ -92,17 +92,14 @@ public class EntitlementService implements XACMLHandler {
      * @return XACML response as boolean true or false
      * @throws Exception throws
      */
-    public boolean getBooleanDecision(String subject, String resource, String action) throws Exception {
+    public boolean getBooleanDecision(String subject, String resource, String action) throws EntitlementException {
         try {
             EntitlementEngine entitlementEngine = EntitlementEngine.getInstance();
             String response = entitlementEngine.evaluate(subject, resource, action, null);
-            if (response.contains("Permit")) {
-                return true;
-            }
-            return false;
+            return response.contains("Permit");
         } catch (Exception e) {
             log.error("Error occurred while evaluating XACML request", e);
-            throw new Exception("Error occurred while evaluating XACML request");
+            throw new EntitlementException("Error occurred while evaluating XACML request");
         }
     }
 
@@ -130,7 +127,7 @@ public class EntitlementService implements XACMLHandler {
 
         PolicySearch policySearch = EntitlementEngine.getInstance().getPolicySearch();
         return policySearch.getEntitledAttributes(subjectName, resourceName, subjectId, action,
-                enableChildSearch);
+                                                  enableChildSearch);
     }
 
     /**
@@ -156,7 +153,8 @@ public class EntitlementService implements XACMLHandler {
      * @return XACML response as a String Object
      * @throws Exception throws if fails
      */
-    public String XACMLAuthzDecisionQuery(String request) throws Exception {
+    @Override
+    public String XACMLAuthzDecisionQuery(String request) throws EntitlementException {
         return getDecision(request);
     }
 

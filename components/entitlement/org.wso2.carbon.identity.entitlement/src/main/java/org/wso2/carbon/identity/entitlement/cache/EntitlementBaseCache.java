@@ -1,20 +1,20 @@
 /*
-*  Copyright (c) WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 
 package org.wso2.carbon.identity.entitlement.cache;
 
@@ -22,7 +22,11 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.CarbonContext;
 
-import javax.cache.*;
+import javax.cache.Cache;
+import javax.cache.CacheBuilder;
+import javax.cache.CacheConfiguration;
+import javax.cache.CacheManager;
+import javax.cache.Caching;
 import java.io.Serializable;
 import java.util.concurrent.TimeUnit;
 
@@ -32,10 +36,10 @@ import java.util.concurrent.TimeUnit;
 public class EntitlementBaseCache<K extends IdentityCacheKey, V extends Serializable> {
 
     private static final String ENTITLEMENT_CACHE_MANAGER = "ENTITLEMENT_CACHE_MANAGER";
-    private static Log log = LogFactory.getLog(EntitlementBaseCache.class);
-    private String Entitlement_CACHE_NAME;
+    private static final Log log = LogFactory.getLog(EntitlementBaseCache.class);
+    private String entitlementCacheName;
     private int cacheTimeout;
-    private CacheBuilder<K, V> cacheBuilder;
+    private volatile CacheBuilder<K, V> cacheBuilder;
 
     /**
      * Create Entiltement cache object
@@ -44,7 +48,7 @@ public class EntitlementBaseCache<K extends IdentityCacheKey, V extends Serializ
      * @param timeout   Cache timeout in milliseconds.
      */
     public EntitlementBaseCache(String cacheName, int timeout) {
-        this.Entitlement_CACHE_NAME = cacheName;
+        this.entitlementCacheName = cacheName;
         if (timeout > 0) {
             this.cacheTimeout = timeout;
         } else {
@@ -52,8 +56,8 @@ public class EntitlementBaseCache<K extends IdentityCacheKey, V extends Serializ
         }
         if (log.isDebugEnabled()) {
             String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-            log.debug("Cache : " + Entitlement_CACHE_NAME + "  is initialized" +
-                    " for tenant domain : " + tenantDomain);
+            log.debug("Cache : " + entitlementCacheName + "  is initialized" +
+                      " for tenant domain : " + tenantDomain);
         }
     }
 
@@ -63,12 +67,12 @@ public class EntitlementBaseCache<K extends IdentityCacheKey, V extends Serializ
      * @param cacheName Name for the cache, entitlement caches differentiate from this name.
      */
     public EntitlementBaseCache(String cacheName) {
-        this.Entitlement_CACHE_NAME = cacheName;
+        this.entitlementCacheName = cacheName;
         this.cacheTimeout = -1;
         if (log.isDebugEnabled()) {
             String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-            log.debug("Cache : " + Entitlement_CACHE_NAME + "  is initialized" +
-                    " for tenant domain : " + tenantDomain);
+            log.debug("Cache : " + entitlementCacheName + "  is initialized" +
+                      " for tenant domain : " + tenantDomain);
         }
     }
 
@@ -84,26 +88,26 @@ public class EntitlementBaseCache<K extends IdentityCacheKey, V extends Serializ
         CacheManager cacheManager = Caching.getCacheManagerFactory().getCacheManager(ENTITLEMENT_CACHE_MANAGER);
         if (this.cacheTimeout > 0) {
             if (cacheBuilder == null) {
-                synchronized (Entitlement_CACHE_NAME.intern()) {
+                synchronized (entitlementCacheName.intern()) {
                     if (cacheBuilder == null) {
-                        cacheManager.removeCache(Entitlement_CACHE_NAME);
-                        this.cacheBuilder = cacheManager.<K, V>createCacheBuilder(Entitlement_CACHE_NAME).
+                        cacheManager.removeCache(entitlementCacheName);
+                        this.cacheBuilder = cacheManager.<K, V>createCacheBuilder(entitlementCacheName).
                                 setExpiry(CacheConfiguration.ExpiryType.MODIFIED,
-                                        new CacheConfiguration.Duration(TimeUnit.SECONDS, cacheTimeout)).
+                                          new CacheConfiguration.Duration(TimeUnit.SECONDS, cacheTimeout)).
                                 setStoreByValue(false);
                         cache = cacheBuilder.build();
                         if (log.isDebugEnabled()) {
                             String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-                            log.debug("Cache : " + Entitlement_CACHE_NAME + "  is built with time out value " +
-                                    ": " + cacheTimeout + " for tenant domain : " + tenantDomain);
+                            log.debug("Cache : " + entitlementCacheName + "  is built with time out value " +
+                                      ": " + cacheTimeout + " for tenant domain : " + tenantDomain);
                         }
                     }
                 }
             } else {
-                cache = cacheManager.getCache(Entitlement_CACHE_NAME);
+                cache = cacheManager.getCache(entitlementCacheName);
             }
         } else {
-            cache = cacheManager.getCache(Entitlement_CACHE_NAME);
+            cache = cacheManager.getCache(entitlementCacheName);
         }
         return cache;
     }
@@ -124,8 +128,8 @@ public class EntitlementBaseCache<K extends IdentityCacheKey, V extends Serializ
         }
         if (log.isDebugEnabled()) {
             String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-            log.debug("Cache : " + Entitlement_CACHE_NAME + "  is populated with new entry " +
-                    "in tenant domain : " + tenantDomain);
+            log.debug("Cache : " + entitlementCacheName + "  is populated with new entry " +
+                      "in tenant domain : " + tenantDomain);
         }
     }
 
@@ -137,20 +141,18 @@ public class EntitlementBaseCache<K extends IdentityCacheKey, V extends Serializ
      */
     public V getValueFromCache(K key) {
         Cache<K, V> cache = getEntitlementCache();
-        if (cache != null) {
-            if (cache.containsKey(key)) {
-                if (log.isDebugEnabled()) {
-                    String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-                    log.debug("Cache : " + Entitlement_CACHE_NAME + "  is HIT " +
-                            "in tenant domain : " + tenantDomain);
-                }
-                return cache.get(key);
+        if (cache != null && cache.containsKey(key)) {
+            if (log.isDebugEnabled()) {
+                String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+                log.debug("Cache : " + entitlementCacheName + "  is HIT " +
+                          "in tenant domain : " + tenantDomain);
             }
+            return cache.get(key);
         }
         if (log.isDebugEnabled()) {
             String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-            log.debug("Cache : " + Entitlement_CACHE_NAME + "  is MISSED " +
-                    "in tenant domain : " + tenantDomain);
+            log.debug("Cache : " + entitlementCacheName + "  is MISSED " +
+                      "in tenant domain : " + tenantDomain);
         }
         return null;
     }
@@ -162,14 +164,12 @@ public class EntitlementBaseCache<K extends IdentityCacheKey, V extends Serializ
      */
     public void clearCacheEntry(K key) {
         Cache<K, V> cache = getEntitlementCache();
-        if (cache != null) {
-            if (cache.containsKey(key)) {
-                cache.remove(key);
-                if (log.isDebugEnabled()) {
-                    String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-                    log.debug("Cache : " + Entitlement_CACHE_NAME + " entry is removed " +
-                            "in tenant domain : " + tenantDomain);
-                }
+        if (cache != null && cache.containsKey(key)) {
+            cache.remove(key);
+            if (log.isDebugEnabled()) {
+                String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+                log.debug("Cache : " + entitlementCacheName + " entry is removed " +
+                          "in tenant domain : " + tenantDomain);
             }
         }
     }
@@ -185,11 +185,14 @@ public class EntitlementBaseCache<K extends IdentityCacheKey, V extends Serializ
                 if (log.isDebugEnabled()) {
                     String tenantDomain = CarbonContext
                             .getThreadLocalCarbonContext().getTenantDomain();
-                    log.debug("Cache : " + Entitlement_CACHE_NAME + " is cleared " +
-                            "in tenant domain : " + tenantDomain);
+                    log.debug("Cache : " + entitlementCacheName + " is cleared " +
+                              "in tenant domain : " + tenantDomain);
                 }
             } catch (Exception e) {
                 //TODO - Handle the IdentityCacheKey exception in cluster env.
+                if(log.isDebugEnabled()){
+                    log.debug("Ignore exception. ", e);
+                }
             }
         }
     }

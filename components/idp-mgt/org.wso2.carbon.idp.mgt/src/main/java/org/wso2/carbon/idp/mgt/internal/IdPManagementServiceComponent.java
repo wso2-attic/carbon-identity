@@ -36,6 +36,7 @@ import org.wso2.carbon.user.core.listener.UserOperationEventListener;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.utils.ConfigurationContextService;
+import org.wso2.carbon.identity.core.util.IdentityCoreInitializedEvent;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -55,6 +56,9 @@ import java.util.Set;
  * interface="org.wso2.carbon.utils.ConfigurationContextService" cardinality="1..1"
  * policy="dynamic" bind="setConfigurationContextService"
  * unbind="unsetConfigurationContextService"
+ * @scr.reference name="identityCoreInitializedEventService"
+ * interface="org.wso2.carbon.identity.core.util.IdentityCoreInitializedEvent" cardinality="1..1"
+ * policy="dynamic" bind="setIdentityCoreInitializedEventService" unbind="unsetIdentityCoreInitializedEventService"
  */
 public class IdPManagementServiceComponent {
 
@@ -244,4 +248,9 @@ public class IdPManagementServiceComponent {
     protected void unsetConfigurationContextService(ConfigurationContextService service) {
         configurationContextService = null;
     }
+
+    protected void unsetIdentityCoreInitializedEventService(IdentityCoreInitializedEvent identityCoreInitializedEvent){}
+
+    protected void setIdentityCoreInitializedEventService(IdentityCoreInitializedEvent identityCoreInitializedEvent){}
+
 }

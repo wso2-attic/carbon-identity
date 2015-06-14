@@ -1,17 +1,19 @@
-/*                                                                             
- * Copyright 2005,2006 WSO2, Inc. http://www.wso2.org
- *                                                                             
- * Licensed under the Apache License, Version 2.0 (the "License");             
- * you may not use this file except in compliance with the License.            
- * You may obtain a copy of the License at                                     
- *                                                                             
- *      http://www.apache.org/licenses/LICENSE-2.0                             
- *                                                                             
- * Unless required by applicable law or agreed to in writing, software         
- * distributed under the License is distributed on an "AS IS" BASIS,           
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.    
- * See the License for the specific language governing permissions and         
- * limitations under the License.                                              
+/*
+ * Copyright (c) 2005-2006, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 package org.wso2.carbon.identity.provider;
 
@@ -36,11 +38,10 @@ import java.util.Vector;
  * Meta-data collection of related to CardSpace required for token issuance.
  */
 public class IdentityProviderData extends GenericIdentityProviderData {
-    private static Log log = LogFactory.getLog(IdentityProviderData.class);
+    private static final Log log = LogFactory.getLog(IdentityProviderData.class);
     private SAMLAssertion assertion;
 
-    public IdentityProviderData(RahasData data) throws IdentityProviderException,
-            ClassNotFoundException {
+    public IdentityProviderData(RahasData data) throws IdentityProviderException, ClassNotFoundException {
         super(data);
     }
 
@@ -48,6 +49,7 @@ public class IdentityProviderData extends GenericIdentityProviderData {
      * @param rst
      * @throws IdentityProviderException
      */
+    @Override
     protected void processInfoCardReference(OMElement rst) throws IdentityProviderException {
         OMElement infoCardRef = null;
         OMElement omCardID = null;
@@ -57,10 +59,10 @@ public class IdentityProviderData extends GenericIdentityProviderData {
         }
 
         infoCardRef = rst.getFirstChildWithName(new QName(IdentityConstants.NS,
-                IdentityConstants.LocalNames.INFO_CARD_REFERENCE));
+                                                          IdentityConstants.LocalNames.INFO_CARD_REFERENCE));
 
         omCardID = infoCardRef.getFirstChildWithName(new QName(IdentityConstants.NS,
-                IdentityConstants.LocalNames.CARD_ID));
+                                                               IdentityConstants.LocalNames.CARD_ID));
 
         this.cardID = omCardID.getText();
     }
@@ -69,6 +71,7 @@ public class IdentityProviderData extends GenericIdentityProviderData {
      * @param data
      * @throws IdentityProviderException
      */
+    @Override
     protected void readAuthenticationMechanism(RahasData data) throws IdentityProviderException {
         MessageContext inContext = null;
         Vector results = null;
@@ -88,16 +91,13 @@ public class IdentityProviderData extends GenericIdentityProviderData {
                 Vector wsSecEngineResults = rResult.getResults();
 
                 for (int j = 0; j < wsSecEngineResults.size(); j++) {
-                    WSSecurityEngineResult wser = (WSSecurityEngineResult) wsSecEngineResults
-                            .get(j);
+                    WSSecurityEngineResult wser = (WSSecurityEngineResult) wsSecEngineResults.get(j);
                     int action = ((Integer) wser.get(WSSecurityEngineResult.TAG_ACTION)).intValue();
                     if (action == WSConstants.ST_UNSIGNED) {
 
                         this.authMechanism = IdentityConstants.AUTH_TYPE_SELF_ISSUED;
-                        this.assertion = (SAMLAssertion) wser
-                                .get(WSSecurityEngineResult.TAG_SAML_ASSERTION);
-                    } else if (action == WSConstants.UT
-                            && wser.get(WSSecurityEngineResult.TAG_PRINCIPAL) != null) {
+                        this.assertion = (SAMLAssertion) wser.get(WSSecurityEngineResult.TAG_SAML_ASSERTION);
+                    } else if (action == WSConstants.UT && wser.get(WSSecurityEngineResult.TAG_PRINCIPAL) != null) {
                         this.authMechanism = IdentityConstants.AUTH_TYPE_USERNAME_TOKEN;
                     }
                 }
@@ -105,6 +105,7 @@ public class IdentityProviderData extends GenericIdentityProviderData {
         }
     }
 
+    @Override
     public String getUserIdentifier() {
         return userIdentifier;
     }
@@ -113,6 +114,7 @@ public class IdentityProviderData extends GenericIdentityProviderData {
         this.userIdentifier = userIdentifier;
     }
 
+    @Override
     public String getTenantDomain() throws IdentityProviderException {
         if (this.authMechanism == IdentityConstants.AUTH_TYPE_SELF_ISSUED) { //only for tenant 0
             return null;
@@ -125,23 +127,23 @@ public class IdentityProviderData extends GenericIdentityProviderData {
         }
 
         String domain = null;
-        ;
         domain = MultitenantUtils.getTenantDomain(userIdentifier);
         return domain;
     }
 
     /**
-     * @param URI
+     * @param uri
      * @return
      */
-    public String getDisplayName(String URI) {
+    @Override
+    public String getDisplayName(String uri) {
         Claim claim = null;
 
         if (log.isDebugEnabled()) {
             log.debug("");
         }
 
-        claim = supportedClaims.get(URI);
+        claim = supportedClaims.get(uri);
         if (claim != null) {
             if (IdentityConstants.CLAIM_PPID.equals(claim.getClaimUri())) {
                 return IdentityConstants.PPID_DISPLAY_VALUE;
@@ -151,10 +153,12 @@ public class IdentityProviderData extends GenericIdentityProviderData {
         return null;
     }
 
+    @Override
     public String getCardID() {
         return cardID;
     }
 
+    @Override
     public String getDisplayTokenLang() {
         return displayTokenLang;
     }
