@@ -1,23 +1,24 @@
 /*
-*  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 
 package org.wso2.carbon.identity.entitlement.pip;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.balana.ParsingException;
@@ -27,6 +28,7 @@ import org.wso2.balana.cond.EvaluationResult;
 import org.wso2.balana.ctx.EvaluationCtx;
 import org.wso2.balana.ctx.Status;
 import org.wso2.balana.finder.AttributeFinderModule;
+import org.wso2.carbon.identity.entitlement.EntitlementException;
 import org.wso2.carbon.identity.entitlement.EntitlementUtil;
 import org.wso2.carbon.identity.entitlement.PDPConstants;
 import org.wso2.carbon.identity.entitlement.cache.DecisionInvalidationCache;
@@ -38,8 +40,15 @@ import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 
 /**
  * CarbonAttributeFinder registers with sun-xacml engine as an AttributeFinderModule and delegate
@@ -50,9 +59,9 @@ import java.util.*;
  */
 public class CarbonAttributeFinder extends AttributeFinderModule {
 
-    private static Log log = LogFactory.getLog(CarbonAttributeFinder.class);
+    private static final Log log = LogFactory.getLog(CarbonAttributeFinder.class);
     protected int tenantId;
-    private Map<String, List<PIPAttributeFinder>> attrFinders = new HashMap<String, List<PIPAttributeFinder>>();
+    private Map<String, List<PIPAttributeFinder>> attrFinders = new HashMap<>();
     private PIPAttributeCache attributeFinderCache = null;
 
     public CarbonAttributeFinder(int tenantId) {
@@ -75,7 +84,9 @@ public class CarbonAttributeFinder extends AttributeFinderModule {
                 try {
                     attributeCachingInterval = Integer.parseInt(cacheInterval.trim());
                 } catch (Exception e) {
-                    //ignore
+                    if (log.isDebugEnabled()) {
+                        log.debug("Exception ignored. ", e);
+                    }
                 }
             }
             attributeFinderCache = new PIPAttributeCache(attributeCachingInterval);
@@ -83,20 +94,18 @@ public class CarbonAttributeFinder extends AttributeFinderModule {
         // clear decision cache
         if (designators != null && !designators.isEmpty()) {
             Set<PIPAttributeFinder> pipAttributeFinders = designators.keySet();
-            for (Iterator iterator = pipAttributeFinders.iterator(); iterator.hasNext(); ) {
-                PIPAttributeFinder pipAttributeFinder = (PIPAttributeFinder) iterator.next();
+            for (PIPAttributeFinder pipAttributeFinder : pipAttributeFinders) {
                 Set<String> attrs = pipAttributeFinder.getSupportedAttributes();
                 if (attrs != null) {
-                    for (Iterator attrsIter = attrs.iterator(); attrsIter.hasNext(); ) {
-                        String attr = (String) attrsIter.next();
+                    for (String attr : attrs) {
                         if (attrFinders.containsKey(attr)) {
                             List<PIPAttributeFinder> finders = attrFinders.get(attr);
                             if (!finders.contains(pipAttributeFinder)) {
                                 finders.add(pipAttributeFinder);
                                 if (log.isDebugEnabled()) {
                                     log.debug(String
-                                            .format("PIP attribute handler %1$s registered for the supported attribute %2$s",
-                                                    pipAttributeFinder.getClass(), attr));
+                                                      .format("PIP attribute handler %1$s registered for the supported attribute %2$s",
+                                                              pipAttributeFinder.getClass(), attr));
                                 }
                             }
                         } else {
@@ -105,8 +114,8 @@ public class CarbonAttributeFinder extends AttributeFinderModule {
                             attrFinders.put(attr, finders);
                             if (log.isDebugEnabled()) {
                                 log.debug(String
-                                        .format("PIP attribute handler %1$s registered for the supported attribute %2$s",
-                                                pipAttributeFinder.getClass(), attr));
+                                                  .format("PIP attribute handler %1$s registered for the supported attribute %2$s",
+                                                          pipAttributeFinder.getClass(), attr));
                             }
                         }
                     }
@@ -121,6 +130,7 @@ public class CarbonAttributeFinder extends AttributeFinderModule {
      * @see org.wso2.balana.finder.AttributeFinderModule#findAttribute(java.net.URI, java.net.URI,
      * java.net.URI, java.net.URI, org.wso2.balana.EvaluationCtx, int)
      */
+    @Override
     public EvaluationResult findAttribute(URI attributeType, URI attributeId, String issuer,
                                           URI category, EvaluationCtx context) {
 
@@ -129,12 +139,12 @@ public class CarbonAttributeFinder extends AttributeFinderModule {
         List<PIPAttributeFinder> finders = attrFinders.get(attributeId.toString());
 
 
-        if (finders == null || finders.size() == 0) {
+        if (CollectionUtils.isEmpty(finders)) {
             finders = attrFinders.get(attributeId.toString());
-            if (finders == null || finders.size() == 0) {
+            if (CollectionUtils.isEmpty(finders)) {
                 if (log.isDebugEnabled()) {
                     log.debug("No attribute designators defined for the attribute "
-                            + attributeId.toString());
+                              + attributeId.toString());
                 }
                 return new EvaluationResult(BagAttribute.createEmptyBag(attributeType));
 
@@ -143,8 +153,7 @@ public class CarbonAttributeFinder extends AttributeFinderModule {
 
         try {
 
-            for (Iterator iterator = finders.iterator(); iterator.hasNext(); ) {
-                PIPAttributeFinder pipAttributeFinder = (PIPAttributeFinder) iterator.next();
+            for (PIPAttributeFinder pipAttributeFinder : finders) {
                 if (log.isDebugEnabled()) {
                     log.debug(String.format(
                             "Finding attributes with the PIP attribute handler %1$s",
@@ -157,63 +166,39 @@ public class CarbonAttributeFinder extends AttributeFinderModule {
                 if (attributeFinderCache != null && !pipAttributeFinder.overrideDefaultCache()) {
 
                     key = attributeType.toString() + attributeId.toString() + category.toString() +
-                            encodeContext(context);
+                          encodeContext(context);
 
                     if (issuer != null) {
                         key += issuer;
                     }
 
-                    if (key != null) {
-                        attrs = attributeFinderCache.getFromCache(tenantId, key);
-                    }
+                    attrs = attributeFinderCache.getFromCache(tenantId, key);
                 }
 
                 if (attrs == null) {
                     attrs = pipAttributeFinder.getAttributeValues(attributeType, attributeId, category,
-                            issuer, context);
+                                                                  issuer, context);
                     if (attributeFinderCache != null && key != null
-                            && !pipAttributeFinder.overrideDefaultCache()) {
+                        && !pipAttributeFinder.overrideDefaultCache()) {
                         attributeFinderCache.addToCache(tenantId, key, attrs);
                     }
                 }
 
                 if (attrs != null) {
-                    for (Iterator iterAttr = attrs.iterator(); iterAttr.hasNext(); ) {
-                        final String attr = (String) iterAttr.next();
+                    for (final String attr : attrs) {
                         AttributeValue attribute = EntitlementUtil.
                                 getAttributeValue(attr, attributeType.toString());
                         attrBag.add(attribute);
                     }
                 }
             }
-        } catch (ParsingException e) {
-            log.error("Error while parsing attribute values from EvaluationCtx : " + e);
-            ArrayList<String> code = new ArrayList<String>();
-            code.add(Status.STATUS_MISSING_ATTRIBUTE);
-            Status status = new Status(code,
-                    "Error while parsing attribute values from EvaluationCtx : " + e.getMessage());
-            return new EvaluationResult(status);
-        } catch (ParseException e) {
-            e.printStackTrace();
-            log.error("Error while parsing attribute values from EvaluationCtx : " + e);
-            ArrayList<String> code = new ArrayList<String>();
-            code.add(Status.STATUS_MISSING_ATTRIBUTE);
-            Status status = new Status(code,
-                    "Error while parsing attribute values from EvaluationCtx : " + e.getMessage());
-            return new EvaluationResult(status);
-        } catch (URISyntaxException e) {
-            log.error("Error while parsing attribute values from EvaluationCtx : " + e);
-            ArrayList<String> code = new ArrayList<String>();
-            code.add(Status.STATUS_MISSING_ATTRIBUTE);
-            Status status = new Status(code,
-                    "Error while parsing attribute values from EvaluationCtx :" + e.getMessage());
-            return new EvaluationResult(status);
-        } catch (Exception e) {
+
+        } catch (EntitlementException | TransformerException e) {
             log.error("Error while retrieving attribute values from PIP  attribute finder : " + e);
-            ArrayList<String> code = new ArrayList<String>();
+            List<String> code = new ArrayList<String>();
             code.add(Status.STATUS_MISSING_ATTRIBUTE);
             Status status = new Status(code, "Error while retrieving attribute values from PIP"
-                    + " attribute finder : " + e.getMessage());
+                                             + " attribute finder : " + e.getMessage());
             return new EvaluationResult(status);
         }
         return new EvaluationResult(new BagAttribute(attributeType, attrBag));
@@ -224,6 +209,7 @@ public class CarbonAttributeFinder extends AttributeFinderModule {
      *
      * @see org.wso2.balana.finder.AttributeFinderModule#isDesignatorSupported()
      */
+    @Override
     public boolean isDesignatorSupported() {
         return true;
     }
@@ -234,30 +220,10 @@ public class CarbonAttributeFinder extends AttributeFinderModule {
      *
      * @see org.wso2.balana.finder.AttributeFinderModule#getSupportedIds()
      */
+    @Override
     public Set getSupportedIds() {
-        return null;
+        return Collections.emptySet();
     }
-
-    /**
-     * Registers PIP attribute handlers are initialized when the server is start-up. This method can
-     * be used to refresh all attribute finders internally. refreshSupportedAttribute() method must be
-     * implemented within the PIP attribute finder to perform this operation. Also this uses to find newly
-     * defined attributes, attribute caches are would not be cleared.
-     *
-     * @throws Exception throws then initialization of attribute finders are failed
-     */
-    private void refreshAttributeFindersForNewAttributeId() throws Exception {
-        Map<PIPAttributeFinder, Properties> designators = EntitlementServiceComponent.getEntitlementConfig()
-                .getDesignators();
-        if (designators != null && !designators.isEmpty()) {
-            Set<Map.Entry<PIPAttributeFinder, Properties>> attributeFinders = designators.entrySet();
-            for (Map.Entry<PIPAttributeFinder, Properties> attributeFinder : attributeFinders) {
-                attributeFinder.getKey().init(attributeFinder.getValue());
-            }
-            init();
-        }
-    }
-
 
     /**
      * Clears attribute cache

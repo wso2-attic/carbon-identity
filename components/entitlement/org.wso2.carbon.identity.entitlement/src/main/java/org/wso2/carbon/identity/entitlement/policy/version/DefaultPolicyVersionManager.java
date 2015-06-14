@@ -1,20 +1,20 @@
 /*
-*  Copyright (c)  WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package org.wso2.carbon.identity.entitlement.policy.version;
 
 import org.apache.commons.logging.Log;
@@ -85,8 +85,8 @@ public class DefaultPolicyVersionManager implements PolicyVersionManager {
         PAPPolicyStoreReader reader = new PAPPolicyStoreReader(policyStore);
 
         Resource resource = policyStore.getPolicy(version,
-                PDPConstants.ENTITLEMENT_POLICY_VERSION + policyId +
-                        RegistryConstants.PATH_SEPARATOR);
+                                                  PDPConstants.ENTITLEMENT_POLICY_VERSION + policyId +
+                                                  RegistryConstants.PATH_SEPARATOR);
         if (resource == null) {
             throw new EntitlementException("Invalid policy version");
         }
@@ -119,12 +119,12 @@ public class DefaultPolicyVersionManager implements PolicyVersionManager {
                 collection = registry.newCollection();
                 collection.setProperty("version", "1");
                 registry.put(PDPConstants.ENTITLEMENT_POLICY_VERSION +
-                        policyDTO.getPolicyId(), collection);
+                             policyDTO.getPolicyId(), collection);
             }
 
             int versionInt = Integer.parseInt(version);
             String policyPath = PDPConstants.ENTITLEMENT_POLICY_VERSION +
-                    policyDTO.getPolicyId() + RegistryConstants.PATH_SEPARATOR;
+                                policyDTO.getPolicyId() + RegistryConstants.PATH_SEPARATOR;
 
             // check whether this is larger than max version
             if (versionInt > maxVersions) {
@@ -147,7 +147,7 @@ public class DefaultPolicyVersionManager implements PolicyVersionManager {
             // set new version
             collection.setProperty("version", version);
             registry.put(PDPConstants.ENTITLEMENT_POLICY_VERSION +
-                    policyDTO.getPolicyId(), collection);
+                         policyDTO.getPolicyId(), collection);
         } catch (RegistryException e) {
             log.error("Error while creating new version of policy", e);
         }
