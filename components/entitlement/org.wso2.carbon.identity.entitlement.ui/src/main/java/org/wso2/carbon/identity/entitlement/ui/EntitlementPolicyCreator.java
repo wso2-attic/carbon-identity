@@ -1,20 +1,20 @@
 /*
- * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
- *
- * WSO2 Inc. licenses this file to you under the Apache License,
- * Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
- */
+*  Copyright (c) WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*
+*  WSO2 Inc. licenses this file to you under the Apache License,
+*  Version 2.0 (the "License"); you may not use this file except
+*  in compliance with the License.
+*  You may obtain a copy of the License at
+*
+*    http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing,
+* software distributed under the License is distributed on an
+* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+* KIND, either express or implied.  See the License for the
+* specific language governing permissions and limitations
+* under the License.
+*/
 
 package org.wso2.carbon.identity.entitlement.ui;
 
@@ -22,21 +22,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.balana.utils.exception.PolicyBuilderException;
 import org.wso2.balana.utils.policy.PolicyBuilder;
-import org.wso2.balana.utils.policy.dto.BasicPolicyDTO;
-import org.wso2.balana.utils.policy.dto.ObligationElementDTO;
-import org.wso2.balana.utils.policy.dto.PolicyElementDTO;
-import org.wso2.balana.utils.policy.dto.PolicySetElementDTO;
-import org.wso2.balana.utils.policy.dto.RequestElementDTO;
-import org.wso2.balana.utils.policy.dto.RuleElementDTO;
-import org.wso2.balana.utils.policy.dto.TargetElementDTO;
+import org.wso2.balana.utils.policy.dto.*;
 import org.wso2.carbon.identity.entitlement.common.PolicyEditorException;
 import org.wso2.carbon.identity.entitlement.ui.client.EntitlementPolicyAdminServiceClient;
-import org.wso2.carbon.identity.entitlement.ui.dto.PolicyDTO;
-import org.wso2.carbon.identity.entitlement.ui.dto.PolicyRefIdDTO;
-import org.wso2.carbon.identity.entitlement.ui.dto.PolicySetDTO;
-import org.wso2.carbon.identity.entitlement.ui.dto.RequestDTO;
-import org.wso2.carbon.identity.entitlement.ui.dto.RuleDTO;
-import org.wso2.carbon.identity.entitlement.ui.dto.SimplePolicyEditorDTO;
+import org.wso2.carbon.identity.entitlement.ui.dto.*;
 import org.wso2.carbon.identity.entitlement.ui.util.PolicyCreatorUtil;
 import org.wso2.carbon.identity.entitlement.ui.util.PolicyEditorUtil;
 
@@ -65,9 +54,8 @@ public class EntitlementPolicyCreator {
         try {
             return PolicyBuilder.getInstance().build(basicPolicyDTO);
         } catch (PolicyBuilderException e) {
-            String msg = "Error while building XACML Policy";
-            log.error(msg, e);
-            throw new PolicyEditorException(msg);
+            log.error(e);
+            throw new PolicyEditorException("Error while building policy");
         }
     }
 
@@ -113,9 +101,7 @@ public class EntitlementPolicyCreator {
         try {
             return PolicyBuilder.getInstance().build(policyElementDTO);
         } catch (PolicyBuilderException e) {
-            String msg = "Error while building XACML Policy";
-            log.error(msg, e);
-            throw new PolicyEditorException(msg);
+            throw new PolicyEditorException("Error while building XACML Policy");
         }
     }
 
@@ -196,9 +182,7 @@ public class EntitlementPolicyCreator {
         try {
             return PolicyBuilder.getInstance().build(policyElementDTO);
         } catch (PolicyBuilderException e) {
-            String msg = "Error while building XACML Policy";
-            log.error(msg, e);
-            throw new PolicyEditorException(msg);
+            throw new PolicyEditorException("Error while building XACML Policy");
         }
     }
 
@@ -217,9 +201,7 @@ public class EntitlementPolicyCreator {
             RequestElementDTO requestElementDTO = PolicyCreatorUtil.createRequestElementDTO(requestDTO);
             return PolicyBuilder.getInstance().buildRequest(requestElementDTO);
         } catch (PolicyBuilderException e) {
-            String msg = "Error while building XACML Request";
-            log.error(msg, e);
-            throw new PolicyEditorException(msg);
+            throw new PolicyEditorException("Error while building XACML Request");
         }
 
     }

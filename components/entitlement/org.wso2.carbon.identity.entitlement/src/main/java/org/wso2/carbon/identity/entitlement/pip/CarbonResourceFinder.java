@@ -1,24 +1,23 @@
 /*
- * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
- *
- * WSO2 Inc. licenses this file to you under the Apache License,
- * Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
- */
+*  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*
+*  WSO2 Inc. licenses this file to you under the Apache License,
+*  Version 2.0 (the "License"); you may not use this file except
+*  in compliance with the License.
+*  You may obtain a copy of the License at
+*
+*    http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing,
+* software distributed under the License is distributed on an
+* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+* KIND, either express or implied.  See the License for the
+* specific language governing permissions and limitations
+* under the License.
+*/
 
 package org.wso2.carbon.identity.entitlement.pip;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Node;
@@ -41,12 +40,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.StringWriter;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 
 /**
  * CarbonResourceFinder implements the ResourceFinderModule in the sum-xacml. This class would find
@@ -56,10 +50,11 @@ import java.util.Set;
 
 public class CarbonResourceFinder extends ResourceFinderModule {
 
-    private static final Log log = LogFactory.getLog(CarbonResourceFinder.class);
+    private static Log log = LogFactory.getLog(CarbonResourceFinder.class);
     boolean isResourceCachingEnabled = false;
     private int tenantId;
-    private Set<PIPResourceFinder> resourceFinders = new HashSet<>();
+    private Set<PIPResourceFinder> resourceFinders = new HashSet<PIPResourceFinder>();
+    //private Cache<IdentityCacheKey,IdentityCacheEntry> resourceCache = null;
     private EntitlementBaseCache<IdentityCacheKey, IdentityCacheEntry> resourceCache = null;
 
     public CarbonResourceFinder(int tenantId) {
@@ -108,9 +103,9 @@ public class CarbonResourceFinder extends ResourceFinderModule {
                 if (isResourceCachingEnabled && !finder.overrideDefaultCache()) {
                     IdentityCacheKey cacheKey = null;
                     String key = PDPConstants.RESOURCE_DESCENDANTS + parentResourceId.encode() +
-                                 domToString(context.getRequestRoot());
+                            domToString(context.getRequestRoot());
                     cacheKey = new IdentityCacheKey(tenantId, key);
-                    IdentityCacheEntry cacheEntry = resourceCache.getValueFromCache(cacheKey);
+                    IdentityCacheEntry cacheEntry = (IdentityCacheEntry) resourceCache.getValueFromCache(cacheKey);
                     if (cacheEntry != null) {
                         String[] values = cacheEntry.getCacheEntryArray();
                         resourceNames = new HashSet<String>(Arrays.asList(values));
@@ -168,15 +163,15 @@ public class CarbonResourceFinder extends ResourceFinderModule {
                 if (isResourceCachingEnabled && !finder.overrideDefaultCache()) {
                     IdentityCacheKey cacheKey = null;
                     String key = PDPConstants.RESOURCE_CHILDREN + parentResourceId.encode() +
-                                 domToString(context.getRequestRoot());
+                            domToString(context.getRequestRoot());
                     cacheKey = new IdentityCacheKey(tenantId, key);
-                    IdentityCacheEntry cacheEntry = resourceCache.getValueFromCache(cacheKey);
+                    IdentityCacheEntry cacheEntry = (IdentityCacheEntry) resourceCache.getValueFromCache(cacheKey);
                     if (cacheEntry != null) {
                         String cacheEntryString = cacheEntry.getCacheEntry();
                         String[] attributes = cacheEntryString.split(PDPConstants.ATTRIBUTE_SEPARATOR);
-                        if (attributes.length > 0) {
+                        if (attributes != null && attributes.length > 0) {
                             List<String> list = Arrays.asList(attributes);
-                            resourceNames = new HashSet<>(list);
+                            resourceNames = new HashSet<String>(list);
                         }
                         if (log.isDebugEnabled()) {
                             log.debug("Carbon Resource Cache Hit");
@@ -187,9 +182,9 @@ public class CarbonResourceFinder extends ResourceFinderModule {
                             log.debug("Carbon Resource Cache Miss");
                         }
                         String cacheEntryString = "";
-                        if (CollectionUtils.isNotEmpty(resourceNames)) {
+                        if (resourceNames != null && resourceNames.size() > 0) {
                             for (String attribute : resourceNames) {
-                                if ("".equals(cacheEntryString)) {
+                                if (cacheEntryString.equals("")) {
                                     cacheEntryString = attribute;
                                 } else {
                                     cacheEntryString = cacheEntryString + PDPConstants.ATTRIBUTE_SEPARATOR + attribute;
@@ -203,13 +198,17 @@ public class CarbonResourceFinder extends ResourceFinderModule {
                     resourceNames = finder.findChildResources(parentResourceId.encode(), context);
                 }
 
-                if (CollectionUtils.isNotEmpty(resourceNames)) {
-                    resources = new HashSet<>();
+                if (resourceNames != null && !resourceNames.isEmpty()) {
+                    resources = new HashSet<AttributeValue>();
                     for (String resourceName : resourceNames) {
                         resources.add(EntitlementUtil.getAttributeValue(resourceName, dataType));
                     }
                 }
-            } catch (EntitlementException | TransformerException e) {
+            } catch (EntitlementException e) {
+                log.error("Error while finding child resources", e);
+            } catch (TransformerException e) {
+                log.error("Error while finding child resources", e);
+            } catch (Exception e) {
                 log.error("Error while finding child resources", e);
             }
         }
@@ -263,7 +262,7 @@ public class CarbonResourceFinder extends ResourceFinderModule {
         StringWriter buffer = new StringWriter();
         transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
         transformer.transform(new DOMSource(node),
-                              new StreamResult(buffer));
+                new StreamResult(buffer));
         return buffer.toString();
     }
 }

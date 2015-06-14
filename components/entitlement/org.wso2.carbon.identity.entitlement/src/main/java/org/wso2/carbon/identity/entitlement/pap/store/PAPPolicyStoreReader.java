@@ -1,20 +1,20 @@
 /*
- * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
- *
- * WSO2 Inc. licenses this file to you under the Apache License,
- * Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
- */
+*  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*
+*  WSO2 Inc. licenses this file to you under the Apache License,
+*  Version 2.0 (the "License"); you may not use this file except
+*  in compliance with the License.
+*  You may obtain a copy of the License at
+*
+*    http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing,
+* software distributed under the License is distributed on an
+* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+* KIND, either express or implied.  See the License for the
+* specific language governing permissions and limitations
+* under the License.
+*/
 package org.wso2.carbon.identity.entitlement.pap.store;
 
 import org.apache.commons.logging.Log;
@@ -29,14 +29,14 @@ import org.wso2.carbon.identity.entitlement.policy.PolicyAttributeBuilder;
 import org.wso2.carbon.registry.core.Resource;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
 
-import java.nio.charset.StandardCharsets;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
 public class PAPPolicyStoreReader {
 
     // the optional logger used for error reporting
-    private static final Log log = LogFactory.getLog(PAPPolicyStoreReader.class);
+    private static Log log = LogFactory.getLog(PAPPolicyStoreReader.class);
 
     private PAPPolicyStore store;
 
@@ -59,7 +59,7 @@ public class PAPPolicyStoreReader {
         Resource resource = store.getPolicy(policyId, PDPConstants.ENTITLEMENT_POLICY_PAP);
         if (resource != null) {
             try {
-                String policy = new String((byte[]) resource.getContent(), StandardCharsets.UTF_8);
+                String policy = new String((byte[]) resource.getContent(), Charset.forName("UTF-8"));
                 return PAPPolicyReader.getInstance(null).getPolicy(policy);
             } catch (RegistryException e) {
                 log.error("Error while parsing entitlement policy", e);
@@ -113,7 +113,7 @@ public class PAPPolicyStoreReader {
 
             dto = new PolicyDTO();
             dto.setPolicyId(policyId);
-            dto.setPolicy(new String((byte[]) resource.getContent(), StandardCharsets.UTF_8));
+            dto.setPolicy(new String((byte[]) resource.getContent(), Charset.forName("UTF-8")));
             dto.setActive(Boolean.parseBoolean(resource.getProperty(PDPConstants.ACTIVE_POLICY)));
             String policyOrder = resource.getProperty(PDPConstants.POLICY_ORDER);
             if (policyOrder != null) {
@@ -146,7 +146,7 @@ public class PAPPolicyStoreReader {
             //read policy meta data that is used for basic policy editor
             dto.setPolicyEditor(resource.getProperty(PDPConstants.POLICY_EDITOR_TYPE));
             String basicPolicyEditorMetaDataAmount = resource.getProperty(PDPConstants.
-                                                                                  BASIC_POLICY_EDITOR_META_DATA_AMOUNT);
+                    BASIC_POLICY_EDITOR_META_DATA_AMOUNT);
             if (basicPolicyEditorMetaDataAmount != null) {
                 int amount = Integer.parseInt(basicPolicyEditorMetaDataAmount);
                 String[] basicPolicyEditorMetaData = new String[amount];
@@ -163,7 +163,7 @@ public class PAPPolicyStoreReader {
         } catch (RegistryException e) {
             log.error("Error while loading entitlement policy " + policyId + " from PAP policy store", e);
             throw new EntitlementException("Error while loading entitlement policy " + policyId +
-                                           " from PAP policy store");
+                    " from PAP policy store");
         }
     }
 
@@ -181,9 +181,7 @@ public class PAPPolicyStoreReader {
                 return true;
             }
         } catch (EntitlementException e) {
-            if (log.isDebugEnabled()) {
-                log.debug("Exception ignored. ", e);
-            }
+            //ignore
         }
         return false;
     }
@@ -294,7 +292,7 @@ public class PAPPolicyStoreReader {
 
         dto.setPolicyEditor(resource.getProperty(PDPConstants.POLICY_EDITOR_TYPE));
         String basicPolicyEditorMetaDataAmount = resource.getProperty(PDPConstants.
-                                                                              BASIC_POLICY_EDITOR_META_DATA_AMOUNT);
+                BASIC_POLICY_EDITOR_META_DATA_AMOUNT);
         if (basicPolicyEditorMetaDataAmount != null) {
             int amount = Integer.parseInt(basicPolicyEditorMetaDataAmount);
             String[] basicPolicyEditorMetaData = new String[amount];
@@ -324,7 +322,7 @@ public class PAPPolicyStoreReader {
         AbstractPolicy absPolicy = null;
         PolicyDTO dto = null;
         try {
-            policy = new String((byte[]) resource.getContent(), StandardCharsets.UTF_8);
+            policy = new String((byte[]) resource.getContent(), Charset.forName("UTF-8"));
             absPolicy = PAPPolicyReader.getInstance(null).getPolicy(policy);
             policyId = absPolicy.getId().toASCIIString();
             dto = new PolicyDTO();
@@ -363,7 +361,7 @@ public class PAPPolicyStoreReader {
             //read policy meta data that is used for basic policy editor
             dto.setPolicyEditor(resource.getProperty(PDPConstants.POLICY_EDITOR_TYPE));
             String basicPolicyEditorMetaDataAmount = resource.getProperty(PDPConstants.
-                                                                                  BASIC_POLICY_EDITOR_META_DATA_AMOUNT);
+                    BASIC_POLICY_EDITOR_META_DATA_AMOUNT);
             if (basicPolicyEditorMetaDataAmount != null) {
                 int amount = Integer.parseInt(basicPolicyEditorMetaDataAmount);
                 String[] basicPolicyEditorMetaData = new String[amount];
@@ -380,7 +378,7 @@ public class PAPPolicyStoreReader {
         } catch (RegistryException e) {
             log.error("Error while loading entitlement policy " + policyId + " from PAP policy store", e);
             throw new EntitlementException("Error while loading entitlement policy " + policyId +
-                                           " from PAP policy store");
+                    " from PAP policy store");
         }
     }
 }
