@@ -22,7 +22,12 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.mgt.IdentityMgtServiceException;
-import org.wso2.carbon.identity.mgt.config.*;
+import org.wso2.carbon.identity.mgt.config.Config;
+import org.wso2.carbon.identity.mgt.config.ConfigBuilder;
+import org.wso2.carbon.identity.mgt.config.ConfigType;
+import org.wso2.carbon.identity.mgt.config.EmailConfigTransformer;
+import org.wso2.carbon.identity.mgt.config.EmailNotificationConfig;
+import org.wso2.carbon.identity.mgt.config.StorageType;
 import org.wso2.carbon.identity.mgt.dto.EmailTemplateDTO;
 
 import java.util.Properties;
@@ -54,10 +59,10 @@ public class AccountCredentialMgtConfigService {
             emailConfig.setProperties(props);
 
             configBuilder.saveConfiguration(StorageType.REGISTRY, tenantId,
-                    emailConfig);
+                                            emailConfig);
         } catch (Exception e) {
-            throw new IdentityMgtServiceException(
-                    "Error occurred while saving email configuration", e);
+            log.error("Error occurred while saving email configuration", e);
+            throw new IdentityMgtServiceException("Error occurred while saving email configuration");
         }
     }
 
@@ -76,14 +81,14 @@ public class AccountCredentialMgtConfigService {
         ConfigBuilder configBuilder = ConfigBuilder.getInstance();
         try {
             emailConfig = configBuilder.loadConfiguration(ConfigType.EMAIL,
-                    StorageType.REGISTRY, tenantId);
+                                                          StorageType.REGISTRY, tenantId);
             if (emailConfig != null) {
 
                 templates = EmailConfigTransformer.transform(emailConfig.getProperties());
             }
         } catch (Exception e) {
-            throw new IdentityMgtServiceException(
-                    "Error occurred while loading email configuration", e);
+            log.error("Error occurred while loading email configuration", e);
+            throw new IdentityMgtServiceException("Error occurred while loading email configuration");
         }
 
         return templates;

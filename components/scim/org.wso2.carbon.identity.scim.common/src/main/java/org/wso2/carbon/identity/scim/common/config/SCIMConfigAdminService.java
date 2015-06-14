@@ -19,9 +19,9 @@
 package org.wso2.carbon.identity.scim.common.config;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.commons.lang.StringUtils;
 import org.wso2.carbon.identity.scim.common.utils.IdentitySCIMException;
 import org.wso2.carbon.identity.scim.common.utils.SCIMCommonUtils;
 
@@ -43,7 +43,7 @@ public class SCIMConfigAdminService {
         SCIMProviderDTO[] scimProviderDTOs = new SCIMProviderDTO[0];
 
         if (StringUtils.isEmpty(consumerId) ||
-                StringUtils.equals(consumerId, SCIMCommonUtils.getGlobalConsumerId())) {
+            StringUtils.equals(consumerId, SCIMCommonUtils.getGlobalConsumerId())) {
             SCIMProviderDAO providerDAO = new SCIMProviderDAO();
             List<SCIMProviderDTO> globalProviders =
                     providerDAO.getAllProviders(SCIMCommonUtils.getGlobalConsumerId());
@@ -61,9 +61,9 @@ public class SCIMConfigAdminService {
         } else {
             String errorMessage =
                     "Security error: consumer:" + consumerId +
-                            " is trying to obtain " +
-                            "provisioning configuration of :" +
-                            SCIMCommonUtils.getGlobalConsumerId();
+                    " is trying to obtain " +
+                    "provisioning configuration of :" +
+                    SCIMCommonUtils.getGlobalConsumerId();
             log.error(errorMessage);
             throw new IdentitySCIMException(errorMessage);
         }
@@ -74,15 +74,15 @@ public class SCIMConfigAdminService {
             throws IdentitySCIMException {
 
         if (StringUtils.isEmpty(consumerId) ||
-                StringUtils.equals(consumerId, SCIMCommonUtils.getGlobalConsumerId())) {
+            StringUtils.equals(consumerId, SCIMCommonUtils.getGlobalConsumerId())) {
             SCIMProviderDAO providerDAO = new SCIMProviderDAO();
             providerDAO.addProvider(SCIMCommonUtils.getGlobalConsumerId(), scimProviderDTO);
 
         } else {
             String errorMessage =
                     "Security error: consumer:" + consumerId + " is trying to add " +
-                            "provisioning configuration to :" +
-                            SCIMCommonUtils.getGlobalConsumerId();
+                    "provisioning configuration to :" +
+                    SCIMCommonUtils.getGlobalConsumerId();
             log.error(errorMessage);
             throw new IdentitySCIMException(errorMessage);
         }
@@ -93,18 +93,18 @@ public class SCIMConfigAdminService {
 
         SCIMProviderDTO scimProviderDTO = null;
         if (StringUtils.isEmpty(consumerId) ||
-                StringUtils.equals(consumerId, SCIMCommonUtils.getGlobalConsumerId())) {
+            StringUtils.equals(consumerId, SCIMCommonUtils.getGlobalConsumerId())) {
             SCIMProviderDAO providerDAO = new SCIMProviderDAO();
             scimProviderDTO =
                     providerDAO.getProvider(SCIMCommonUtils.getGlobalConsumerId(),
-                            providerId);
+                                            providerId);
 
         } else {
             String errorMessage =
                     "Security error: consumer:" + consumerId +
-                            " is trying to obtain " +
-                            "provisioning configuration of :" +
-                            SCIMCommonUtils.getGlobalConsumerId();
+                    " is trying to obtain " +
+                    "provisioning configuration of :" +
+                    SCIMCommonUtils.getGlobalConsumerId();
             log.error(errorMessage);
             throw new IdentitySCIMException(errorMessage);
         }
@@ -115,16 +115,16 @@ public class SCIMConfigAdminService {
             throws IdentitySCIMException {
 
         if (StringUtils.isEmpty(consumerId) ||
-                StringUtils.equals(consumerId, SCIMCommonUtils.getGlobalConsumerId())) {
+            StringUtils.equals(consumerId, SCIMCommonUtils.getGlobalConsumerId())) {
             SCIMProviderDAO providerDAO = new SCIMProviderDAO();
             providerDAO.updateProvider(SCIMCommonUtils.getGlobalConsumerId(), scimProviderDTO);
 
         } else {
             String errorMessage =
                     "Security error: consumer:" + consumerId +
-                            " is trying to update " +
-                            "provisioning configuration to :" +
-                            SCIMCommonUtils.getGlobalConsumerId();
+                    " is trying to update " +
+                    "provisioning configuration to :" +
+                    SCIMCommonUtils.getGlobalConsumerId();
             log.error(errorMessage);
             throw new IdentitySCIMException(errorMessage);
         }
@@ -133,16 +133,16 @@ public class SCIMConfigAdminService {
     public void deleteGlobalProvider(String consumerId, String providerId)
             throws IdentitySCIMException {
         if (StringUtils.isEmpty(consumerId) ||
-                StringUtils.equals(consumerId, SCIMCommonUtils.getGlobalConsumerId())) {
+            StringUtils.equals(consumerId, SCIMCommonUtils.getGlobalConsumerId())) {
             SCIMProviderDAO providerDAO = new SCIMProviderDAO();
             providerDAO.deleteProvider(SCIMCommonUtils.getGlobalConsumerId(), providerId);
 
         } else {
             String errorMessage =
                     "Security error: consumer:" + consumerId +
-                            " is trying to delete " +
-                            "provisioning configuration to :" +
-                            SCIMCommonUtils.getGlobalConsumerId();
+                    " is trying to delete " +
+                    "provisioning configuration to :" +
+                    SCIMCommonUtils.getGlobalConsumerId();
             log.error(errorMessage);
             throw new IdentitySCIMException(errorMessage);
         }
@@ -152,7 +152,7 @@ public class SCIMConfigAdminService {
 
         SCIMProviderDTO[] scimProviderDTOs = new SCIMProviderDTO[0];
         if (StringUtils.isEmpty(consumerId) ||
-                StringUtils.equals(consumerId, SCIMCommonUtils.getGlobalConsumerId())) {
+            StringUtils.equals(consumerId, SCIMCommonUtils.getUserConsumerId())) {
             SCIMProviderDAO providerDAO = new SCIMProviderDAO();
             List<SCIMProviderDTO> globalProviders =
                     providerDAO.getAllProviders(SCIMCommonUtils.getUserConsumerId());
@@ -170,9 +170,9 @@ public class SCIMConfigAdminService {
         } else {
             String errorMessage =
                     "Security error: consumer:" + consumerId +
-                            " is trying to obtain " +
-                            "provisioning configuration of :" +
-                            SCIMCommonUtils.getUserConsumerId();
+                    " is trying to obtain " +
+                    "provisioning configuration of :" +
+                    SCIMCommonUtils.getUserConsumerId();
             log.error(errorMessage);
             throw new IdentitySCIMException(errorMessage);
         }
@@ -183,15 +183,15 @@ public class SCIMConfigAdminService {
             throws IdentitySCIMException {
 
         if (StringUtils.isEmpty(consumerId) ||
-                StringUtils.equals(consumerId, SCIMCommonUtils.getGlobalConsumerId())) {
+            StringUtils.equals(consumerId, SCIMCommonUtils.getUserConsumerId())) {
             SCIMProviderDAO providerDAO = new SCIMProviderDAO();
             providerDAO.addProvider(SCIMCommonUtils.getUserConsumerId(), scimProviderDTO);
 
         } else {
             String errorMessage =
                     "Security error: consumer:" + consumerId + " is trying to add " +
-                            "provisioning configuration to :" +
-                            SCIMCommonUtils.getUserConsumerId();
+                    "provisioning configuration to :" +
+                    SCIMCommonUtils.getUserConsumerId();
             log.error(errorMessage);
             throw new IdentitySCIMException(errorMessage);
         }
@@ -202,18 +202,18 @@ public class SCIMConfigAdminService {
 
         SCIMProviderDTO scimProviderDTO = null;
         if (StringUtils.isEmpty(consumerId) ||
-                StringUtils.equals(consumerId, SCIMCommonUtils.getGlobalConsumerId())) {
+            StringUtils.equals(consumerId, SCIMCommonUtils.getUserConsumerId())) {
             SCIMProviderDAO providerDAO = new SCIMProviderDAO();
             scimProviderDTO =
                     providerDAO.getProvider(SCIMCommonUtils.getUserConsumerId(),
-                            providerId);
+                                            providerId);
 
         } else {
             String errorMessage =
                     "Security error: consumer:" + consumerId +
-                            " is trying to obtain " +
-                            "provisioning configuration of :" +
-                            SCIMCommonUtils.getUserConsumerId();
+                    " is trying to obtain " +
+                    "provisioning configuration of :" +
+                    SCIMCommonUtils.getUserConsumerId();
             log.error(errorMessage);
             throw new IdentitySCIMException(errorMessage);
         }
@@ -224,16 +224,16 @@ public class SCIMConfigAdminService {
             throws IdentitySCIMException {
 
         if (StringUtils.isEmpty(consumerId) ||
-                StringUtils.equals(consumerId, SCIMCommonUtils.getGlobalConsumerId())) {
+            StringUtils.equals(consumerId, SCIMCommonUtils.getUserConsumerId())) {
             SCIMProviderDAO providerDAO = new SCIMProviderDAO();
             providerDAO.updateProvider(SCIMCommonUtils.getUserConsumerId(), scimProviderDTO);
 
         } else {
             String errorMessage =
                     "Security error: consumer:" + consumerId +
-                            " is trying to update " +
-                            "provisioning configuration to :" +
-                            SCIMCommonUtils.getUserConsumerId();
+                    " is trying to update " +
+                    "provisioning configuration to :" +
+                    SCIMCommonUtils.getUserConsumerId();
             log.error(errorMessage);
             throw new IdentitySCIMException(errorMessage);
         }
@@ -243,16 +243,16 @@ public class SCIMConfigAdminService {
             throws IdentitySCIMException {
 
         if (StringUtils.isEmpty(consumerId) ||
-                StringUtils.equals(consumerId, SCIMCommonUtils.getGlobalConsumerId())) {
+            StringUtils.equals(consumerId, SCIMCommonUtils.getUserConsumerId())) {
             SCIMProviderDAO providerDAO = new SCIMProviderDAO();
             providerDAO.deleteProvider(SCIMCommonUtils.getUserConsumerId(), providerId);
 
         } else {
             String errorMessage =
                     "Security error: consumer:" + consumerId +
-                            " is trying to delete " +
-                            "provisioning configuration to :" +
-                            SCIMCommonUtils.getUserConsumerId();
+                    " is trying to delete " +
+                    "provisioning configuration to :" +
+                    SCIMCommonUtils.getUserConsumerId();
             log.error(errorMessage);
             throw new IdentitySCIMException(errorMessage);
         }

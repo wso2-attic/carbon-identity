@@ -54,8 +54,7 @@
 <p>Touch your U2F token.</p>
 
 <form method="POST" action="../commonauth" id="form" onsubmit="return false;">
-    <input type="hidden" name="sessionDataKey"
-           value='<%=CharacterEncoder.getSafeText(request.getParameter("sessionDataKey"))%>'/>
+    <input type="hidden" name="sessionDataKey" value='<%=CharacterEncoder.getSafeText(request.getParameter("sessionDataKey"))%>'/>
     <input type="hidden" name="tokenResponse" id="tokenResponse" value="tmp val"/>
 </form>
 </body>
