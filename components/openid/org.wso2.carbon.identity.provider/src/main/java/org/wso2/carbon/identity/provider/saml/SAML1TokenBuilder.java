@@ -1,20 +1,20 @@
 /*
-*  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ * Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package org.wso2.carbon.identity.provider.saml;
 
 import org.apache.commons.logging.Log;
@@ -51,7 +51,7 @@ import java.util.Map;
 public class SAML1TokenBuilder implements SAMLTokenBuilder {
 
     public static final String CONF_KEY = "urn:oasis:names:tc:SAML:1.0:cm:holder-of-key";
-    private static Log log = LogFactory.getLog(SAML1TokenBuilder.class);
+    private static final Log log = LogFactory.getLog(SAML1TokenBuilder.class);
     protected Assertion assertion = null;
     protected AttributeStatement attributeStmt = null;
     protected List<Signature> signatureList = new ArrayList<Signature>();
@@ -61,13 +61,12 @@ public class SAML1TokenBuilder implements SAMLTokenBuilder {
     protected static XMLObject buildXMLObject(QName objectQName) throws IdentityProviderException {
         XMLObjectBuilder builder = Configuration.getBuilderFactory().getBuilder(objectQName);
         if (builder == null) {
-            throw new IdentityProviderException("Unable to retrieve builder for object QName "
-                    + objectQName);
+            throw new IdentityProviderException("Unable to retrieve builder for object QName " + objectQName);
         }
-        return builder.buildObject(objectQName.getNamespaceURI(), objectQName.getLocalPart(),
-                objectQName.getPrefix());
+        return builder.buildObject(objectQName.getNamespaceURI(), objectQName.getLocalPart(), objectQName.getPrefix());
     }
 
+    @Override
     public void createStatement(GenericIdentityProviderData ipData, RahasData rahasData)
             throws IdentityProviderException {
         if (log.isDebugEnabled()) {
@@ -76,7 +75,8 @@ public class SAML1TokenBuilder implements SAMLTokenBuilder {
         attributeStmt = (AttributeStatement) buildXMLObject(AttributeStatement.DEFAULT_ELEMENT_NAME);
 
         Subject subject = (Subject) buildXMLObject(Subject.DEFAULT_ELEMENT_NAME);
-        SubjectConfirmation subjectConf = (SubjectConfirmation) buildXMLObject(SubjectConfirmation.DEFAULT_ELEMENT_NAME);
+        SubjectConfirmation subjectConf =
+                (SubjectConfirmation) buildXMLObject(SubjectConfirmation.DEFAULT_ELEMENT_NAME);
         ConfirmationMethod confMethod = (ConfirmationMethod) buildXMLObject(ConfirmationMethod.DEFAULT_ELEMENT_NAME);
         confMethod.setConfirmationMethod(CONF_KEY);
         subjectConf.getConfirmationMethods().add(confMethod);
@@ -93,7 +93,7 @@ public class SAML1TokenBuilder implements SAMLTokenBuilder {
         Iterator<RequestedClaimData> ite = mapClaims.values().iterator();
 
         while (ite.hasNext()) {
-            RequestedClaimData claim = (RequestedClaimData) ite.next();
+            RequestedClaimData claim = ite.next();
             String uri = claim.getUri();
 
             int index = uri.lastIndexOf("/");
@@ -105,11 +105,10 @@ public class SAML1TokenBuilder implements SAMLTokenBuilder {
             attribute.setAttributeNamespace(attrNamespace);
 
             XMLObjectBuilderFactory builderFactory = Configuration.getBuilderFactory();
-            XSStringBuilder attributeValueBuilder = (XSStringBuilder) builderFactory
-                    .getBuilder(XSString.TYPE_NAME);
+            XSStringBuilder attributeValueBuilder = (XSStringBuilder) builderFactory.getBuilder(XSString.TYPE_NAME);
 
-            XSString stringValue = attributeValueBuilder.buildObject(
-                    AttributeValue.DEFAULT_ELEMENT_NAME, XSString.TYPE_NAME);
+            XSString stringValue =
+                    attributeValueBuilder.buildObject(AttributeValue.DEFAULT_ELEMENT_NAME, XSString.TYPE_NAME);
             stringValue.setValue(claim.getValue());
             attribute.getAttributeValues().add(stringValue);
 
@@ -117,6 +116,7 @@ public class SAML1TokenBuilder implements SAMLTokenBuilder {
         }
     }
 
+    @Override
     public void createSAMLAssertion(DateTime notAfter, DateTime notBefore, String assertionId)
             throws IdentityProviderException {
         assertion = (Assertion) buildXMLObject(Assertion.DEFAULT_ELEMENT_NAME);
@@ -132,7 +132,8 @@ public class SAML1TokenBuilder implements SAMLTokenBuilder {
         if (appilesTo != null) {
             Audience audience = (Audience) buildXMLObject(Audience.DEFAULT_ELEMENT_NAME);
             audience.setUri(appilesTo);
-            AudienceRestrictionCondition audienceRestrictions = (AudienceRestrictionCondition) buildXMLObject(AudienceRestrictionCondition.DEFAULT_ELEMENT_NAME);
+            AudienceRestrictionCondition audienceRestrictions =
+                    (AudienceRestrictionCondition) buildXMLObject(AudienceRestrictionCondition.DEFAULT_ELEMENT_NAME);
             audienceRestrictions.getAudiences().add(audience);
 
             conditions.getAudienceRestrictionConditions().add(audienceRestrictions);
@@ -145,8 +146,8 @@ public class SAML1TokenBuilder implements SAMLTokenBuilder {
 
     }
 
-    public void setSignature(String signatureAlgorithm, X509Credential cred)
-            throws IdentityProviderException {
+    @Override
+    public void setSignature(String signatureAlgorithm, X509Credential cred) throws IdentityProviderException {
         Signature signature = (Signature) buildXMLObject(Signature.DEFAULT_ELEMENT_NAME);
         signature.setSigningCredential(cred);
         signature.setSignatureAlgorithm(signatureAlgorithm);
@@ -162,13 +163,15 @@ public class SAML1TokenBuilder implements SAMLTokenBuilder {
             keyInfo.getX509Datas().add(data);
             signature.setKeyInfo(keyInfo);
         } catch (CertificateEncodingException e) {
-            throw new IdentityProviderException("errorGettingCert");
+            log.error("Error while getting the encoded certificate", e);
+            throw new IdentityProviderException("Error while getting the encoded certificate");
         }
 
         assertion.setSignature(signature);
         signatureList.add(signature);
     }
 
+    @Override
     public void marshellAndSign() throws IdentityProviderException {
         try {
             MarshallerFactory marshallerFactory = Configuration.getMarshallerFactory();
@@ -186,6 +189,7 @@ public class SAML1TokenBuilder implements SAMLTokenBuilder {
         }
     }
 
+    @Override
     public Element getSAMLasDOM() throws IdentityProviderException {
         return signedAssertion;
     }

@@ -1,17 +1,19 @@
 /*
- * Copyright 2005-2007 WSO2, Inc. (http://wso2.com)
+ * Copyright (c) 2005-2007, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package org.wso2.carbon.identity.provider;
@@ -20,11 +22,12 @@ import org.apache.axis2.context.MessageContext;
 import org.apache.axis2.transport.http.HTTPConstants;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.CarbonException;
 import org.wso2.carbon.core.util.AdminServicesUtil;
-import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.provider.dto.XMPPSettingsDTO;
 import org.wso2.carbon.identity.provider.xmpp.XMPPConfigurator;
 import org.wso2.carbon.user.core.UserCoreConstants;
+import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.utils.ServerConstants;
 
@@ -39,7 +42,7 @@ import java.util.Map;
  */
 public class XMPPConfigurationService {
 
-    protected Log log = LogFactory.getLog(XMPPConfigurationService.class);
+    private static final Log log = LogFactory.getLog(XMPPConfigurationService.class);
 
     /**
      * Add XMPP Settings
@@ -57,8 +60,8 @@ public class XMPPConfigurationService {
                 throw new IllegalArgumentException(message);
             }
         }
-        validateInputParameters(new String[]{dto.getUserId(), dto.getXmppServer(),
-                dto.getXmppUserName(), dto.getUserCode()}, message);
+        validateInputParameters(new String[] { dto.getUserId(), dto.getXmppServer(),
+                                               dto.getXmppUserName(), dto.getUserCode() }, message);
         checkUserAuthorization(dto.getUserId(), "addUserXmppSettings");
 
         XMPPConfigurator provider = new XMPPConfigurator();
@@ -81,8 +84,8 @@ public class XMPPConfigurationService {
                 throw new IllegalArgumentException(message);
             }
         }
-        validateInputParameters(new String[]{dto.getUserId(), dto.getXmppServer(),
-                dto.getXmppUserName(), dto.getUserCode()}, message);
+        validateInputParameters(new String[] { dto.getUserId(), dto.getXmppServer(),
+                                               dto.getXmppUserName(), dto.getUserCode() }, message);
         checkUserAuthorization(dto.getUserId(), "editXmppSettings");
         XMPPConfigurator provider = new XMPPConfigurator();
         provider.editXmppSettings(dto);
@@ -97,7 +100,7 @@ public class XMPPConfigurationService {
      */
     public XMPPSettingsDTO getXmppSettings(String userId) throws IdentityProviderException {
         String message = "Invalid parameters provided to getXmppSettings";
-        validateInputParameters(new String[]{userId}, message);
+        validateInputParameters(new String[] { userId }, message);
         checkUserAuthorization(userId, "getXmppSettings");
         XMPPConfigurator provider = new XMPPConfigurator();
         return provider.getXmppSettings(userId);
@@ -112,7 +115,7 @@ public class XMPPConfigurationService {
      */
     public boolean isXMPPSettingsEnabled(String userId) throws IdentityProviderException {
         String message = "Invalid parameters provided to isXMPPSettingsEnabled";
-        validateInputParameters(new String[]{userId}, message);
+        validateInputParameters(new String[] { userId }, message);
         checkUserAuthorization(userId, "isXMPPSettingsEnabled");
         XMPPConfigurator provider = new XMPPConfigurator();
         return provider.isXmppSettingsEnabled(userId);
@@ -127,7 +130,7 @@ public class XMPPConfigurationService {
      */
     public boolean hasXMPPSettings(String userId) throws IdentityProviderException {
         String message = "Invalid parameters provided to hasXMPPSettings";
-        validateInputParameters(new String[]{userId}, message);
+        validateInputParameters(new String[] { userId }, message);
         checkUserAuthorization(userId, "hasXMPPSettings");
         XMPPConfigurator provider = new XMPPConfigurator();
         return provider.hasXMPPSettings(userId);
@@ -136,19 +139,23 @@ public class XMPPConfigurationService {
     /**
      * Get the IM Address of an user to populate the IM field of XMPP Configuration page.
      *
-     * @param userID
+     * @param userId
      * @return
-     * @throws IdentityException
+     * @throws IdentityProviderException
      */
-    public String getUserIM(String userId) throws Exception {
+    public String getUserIM(String userId) throws IdentityProviderException {
         String message = "Invalid parameters provided to hasXMPPSettings";
-        validateInputParameters(new String[]{userId}, message);
+        validateInputParameters(new String[] { userId }, message);
         checkUserAuthorization(userId, "hasXMPPSettings");
 
-        UserStoreManager userStore = AdminServicesUtil.getUserRealm().getUserStoreManager();
-        String[] imClaim = {UserCoreConstants.ClaimTypeURIs.IM};
-        Map<String, String> claimValues = userStore.getUserClaimValues(userId, imClaim,
-                UserCoreConstants.DEFAULT_PROFILE);
+        Map<String, String> claimValues = null;
+        try {
+            UserStoreManager userStore = AdminServicesUtil.getUserRealm().getUserStoreManager();
+            String[] imClaim = { UserCoreConstants.ClaimTypeURIs.IM };
+            claimValues = userStore.getUserClaimValues(userId, imClaim, UserCoreConstants.DEFAULT_PROFILE);
+        } catch (UserStoreException | CarbonException e) {
+            throw new IdentityProviderException("Failed to get claims for user " + userId);
+        }
 
         if (claimValues.containsKey(UserCoreConstants.ClaimTypeURIs.IM)) {
             return claimValues.get(UserCoreConstants.ClaimTypeURIs.IM);
@@ -165,19 +172,18 @@ public class XMPPConfigurationService {
     private void checkUserAuthorization(String username, String operation)
             throws IdentityProviderException {
         MessageContext msgContext = MessageContext.getCurrentMessageContext();
-        HttpServletRequest request = (HttpServletRequest) msgContext
-                .getProperty(HTTPConstants.MC_HTTP_SERVLETREQUEST);
+        HttpServletRequest request = (HttpServletRequest) msgContext.getProperty(HTTPConstants.MC_HTTP_SERVLETREQUEST);
         HttpSession httpSession = request.getSession(false);
         if (httpSession != null) {
             String userName = (String) httpSession.getAttribute(ServerConstants.USER_LOGGED_IN);
             if (!username.equals(userName)) {
                 throw new IdentityProviderException("Unauthorised action by user " + username
-                        + " to access " + operation);
+                                                    + " to access " + operation);
             }
             return;
         }
         throw new IdentityProviderException("Unauthorised action by user " + username
-                + " to access " + operation);
+                                            + " to access " + operation);
     }
 
     /**
