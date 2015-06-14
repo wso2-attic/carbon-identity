@@ -91,13 +91,8 @@ public class IdentityCoreServiceComponent {
                 jdbcPersistenceManager.initializeDatabase();
             }
 
-            //taking the service registration after DB initialization.
-            ctxt.getBundleContext().registerService(IdentityUtil.class.getName(),
-                                                    new IdentityUtil(), null);
-
             // Register initialize service To guarantee the activation order. Component which is referring this
-            // service will wait until
-            // this component activated.
+            // service will wait until this component activated.
             ctxt.getBundleContext().registerService(IdentityCoreInitializedEvent.class.getName(),
                                                     new IdentityCoreInitializedEventImpl(), null);
 

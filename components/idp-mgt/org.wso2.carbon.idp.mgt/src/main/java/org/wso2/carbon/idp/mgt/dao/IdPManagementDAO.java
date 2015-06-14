@@ -807,7 +807,7 @@ public class IdPManagementDAO {
                         String sqlStmt = IdPManagementConstants.SQLQueries.GET_IDP_PROVISIONING_PROPERTY_SQL;
                         prepStmt = dbConnection.prepareStatement(sqlStmt);
 
-                        int configId = rs1.getInt("TENANT_ID");
+                        int configId = rs1.getInt("ID");
                         prepStmt.setInt(1, tenantId);
                         prepStmt.setInt(2, configId);
 
@@ -821,7 +821,7 @@ public class IdPManagementDAO {
                             String blobValue = getBlobValue(rs2.getBinaryStream("PROPERTY_BLOB_VALUE"));
 
                             String propertyType = rs2.getString("PROPERTY_TYPE");
-                            String isSecret = rs2.getString("IS_SECRET FROM IDP_PROV_CONFIG_PROPERTY");
+                            String isSecret = rs2.getString("IS_SECRET");
 
                             Property.setName(name);
                             if (propertyType != null && IdentityApplicationConstants.ConfigElements.

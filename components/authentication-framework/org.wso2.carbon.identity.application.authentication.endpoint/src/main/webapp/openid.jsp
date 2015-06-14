@@ -33,8 +33,7 @@
 
         <div class="controls">
             <input class="input-large" type="text" id="claimed_id" name="claimed_id" size='30'/>
-            <input type="hidden" name="sessionDataKey"
-                   value='<%=CharacterEncoder.getSafeText(request.getParameter("sessionDataKey"))%>'/>
+            <input type="hidden" name="sessionDataKey" value='<%=CharacterEncoder.getSafeText(request.getParameter("sessionDataKey"))%>'/>
         </div>
     </div>
 

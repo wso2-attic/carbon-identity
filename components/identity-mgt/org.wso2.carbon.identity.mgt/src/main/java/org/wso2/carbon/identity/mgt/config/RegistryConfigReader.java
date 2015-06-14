@@ -66,17 +66,15 @@ public class RegistryConfigReader implements ConfigReader {
             }
 
         } catch (ResourceNotFoundException e) {
-            throw new IdentityMgtConfigException(
-                    "Error occurred while reading registry data from path : " + resourcePath, e);
-        } catch (RegistryException e) {
             // Ignore the registry resource exception.
             readerProps = new Properties();
-            if (log.isDebugEnabled()) {
+            if(log.isDebugEnabled()) {
                 log.debug("Ignored ResourceNotFoundException", e);
             }
-
+        } catch (RegistryException e) {
+            throw new IdentityMgtConfigException(
+                    "Error occurred while reading registry data from path : " + resourcePath, e);
         }
-
         return readerProps;
     }
 
