@@ -1,20 +1,20 @@
 /*
- * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
- *
- * WSO2 Inc. licenses this file to you under the Apache License,
- * Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
- */
+*  Copyright (c) WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*
+*  WSO2 Inc. licenses this file to you under the Apache License,
+*  Version 2.0 (the "License"); you may not use this file except
+*  in compliance with the License.
+*  You may obtain a copy of the License at
+*
+*    http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing,
+* software distributed under the License is distributed on an
+* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+* KIND, either express or implied.  See the License for the
+* specific language governing permissions and limitations
+* under the License.
+*/
 
 package org.wso2.carbon.identity.entitlement.ui.util;
 
@@ -27,22 +27,7 @@ import org.w3c.dom.Element;
 import org.wso2.balana.utils.Constants.PolicyConstants;
 import org.wso2.balana.utils.exception.PolicyBuilderException;
 import org.wso2.balana.utils.policy.PolicyBuilder;
-import org.wso2.balana.utils.policy.dto.AllOfElementDTO;
-import org.wso2.balana.utils.policy.dto.AnyOfElementDTO;
-import org.wso2.balana.utils.policy.dto.ApplyElementDTO;
-import org.wso2.balana.utils.policy.dto.AttributeAssignmentElementDTO;
-import org.wso2.balana.utils.policy.dto.AttributeDesignatorDTO;
-import org.wso2.balana.utils.policy.dto.AttributeSelectorDTO;
-import org.wso2.balana.utils.policy.dto.AttributeValueElementDTO;
-import org.wso2.balana.utils.policy.dto.BasicPolicyDTO;
-import org.wso2.balana.utils.policy.dto.BasicRuleDTO;
-import org.wso2.balana.utils.policy.dto.BasicTargetDTO;
-import org.wso2.balana.utils.policy.dto.ConditionElementDT0;
-import org.wso2.balana.utils.policy.dto.MatchElementDTO;
-import org.wso2.balana.utils.policy.dto.ObligationElementDTO;
-import org.wso2.balana.utils.policy.dto.PolicyElementDTO;
-import org.wso2.balana.utils.policy.dto.RuleElementDTO;
-import org.wso2.balana.utils.policy.dto.TargetElementDTO;
+import org.wso2.balana.utils.policy.dto.*;
 import org.wso2.carbon.identity.entitlement.common.EntitlementConstants;
 import org.wso2.carbon.identity.entitlement.common.PolicyEditorEngine;
 import org.wso2.carbon.identity.entitlement.common.PolicyEditorException;
@@ -50,27 +35,11 @@ import org.wso2.carbon.identity.entitlement.common.dto.PolicyEditorDataHolder;
 import org.wso2.carbon.identity.entitlement.ui.EntitlementPolicyConstants;
 import org.wso2.carbon.identity.entitlement.ui.EntitlementPolicyCreationException;
 import org.wso2.carbon.identity.entitlement.ui.PolicyEditorConstants;
-import org.wso2.carbon.identity.entitlement.ui.dto.ExtendAttributeDTO;
-import org.wso2.carbon.identity.entitlement.ui.dto.ObligationDTO;
-import org.wso2.carbon.identity.entitlement.ui.dto.PolicyDTO;
-import org.wso2.carbon.identity.entitlement.ui.dto.PolicyRefIdDTO;
-import org.wso2.carbon.identity.entitlement.ui.dto.PolicySetDTO;
-import org.wso2.carbon.identity.entitlement.ui.dto.RowDTO;
-import org.wso2.carbon.identity.entitlement.ui.dto.RuleDTO;
-import org.wso2.carbon.identity.entitlement.ui.dto.SimplePolicyEditorDTO;
-import org.wso2.carbon.identity.entitlement.ui.dto.SimplePolicyEditorElementDTO;
-import org.wso2.carbon.identity.entitlement.ui.dto.TargetDTO;
+import org.wso2.carbon.identity.entitlement.ui.dto.*;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * Util class that helps to create the XACML policy which is defined by the XACML basic policy editor
@@ -109,8 +78,8 @@ public class PolicyEditorUtil {
         if (PolicyEditorConstants.SOA_CATEGORY_USER.equals(policyEditorDTO.getAppliedCategory())) {
 
             if (policyEditorDTO.getUserAttributeValue() != null &&
-                !PolicyEditorConstants.FunctionIdentifier.ANY.
-                        equals(policyEditorDTO.getUserAttributeValue().trim())) {
+                    !PolicyEditorConstants.FunctionIdentifier.ANY.
+                            equals(policyEditorDTO.getUserAttributeValue().trim())) {
 
                 basicTargetDTO = new BasicTargetDTO();
                 String selectedDataType = null;
@@ -129,7 +98,7 @@ public class PolicyEditorUtil {
                 }
 
                 String function = findFunction(policyEditorDTO.getUserAttributeValue(),
-                                               basicTargetDTO.getSubjectDataType());
+                        basicTargetDTO.getSubjectDataType());
                 String value = findAttributeValue(policyEditorDTO.getUserAttributeValue());
                 basicTargetDTO.setSubjectList(value);
                 basicTargetDTO.setFunctionOnSubjects(function);
@@ -143,17 +112,17 @@ public class PolicyEditorUtil {
                     BasicRuleDTO ruleElementDTO = new BasicRuleDTO();
 
                     if (dto.getResourceValue() != null && dto.getResourceValue().trim().length() > 0 &&
-                        !PolicyEditorConstants.FunctionIdentifier.ANY.equals(dto.getResourceValue().trim())) {
+                            !PolicyEditorConstants.FunctionIdentifier.ANY.equals(dto.getResourceValue().trim())) {
                         addResourceElement(ruleElementDTO, dto);
                     }
 
                     if (dto.getActionValue() != null && dto.getActionValue().trim().length() > 0 &&
-                        !PolicyEditorConstants.FunctionIdentifier.ANY.equals(dto.getActionValue().trim())) {
+                            !PolicyEditorConstants.FunctionIdentifier.ANY.equals(dto.getActionValue().trim())) {
                         addActionElement(ruleElementDTO, dto);
                     }
 
                     if (dto.getEnvironmentValue() != null && dto.getEnvironmentValue().trim().length() > 0 &&
-                        !PolicyEditorConstants.FunctionIdentifier.ANY.equals(dto.getEnvironmentValue().trim())) {
+                            !PolicyEditorConstants.FunctionIdentifier.ANY.equals(dto.getEnvironmentValue().trim())) {
                         addEnvironmentElement(ruleElementDTO, dto);
                     }
 
@@ -171,14 +140,14 @@ public class PolicyEditorUtil {
         } else if (PolicyEditorConstants.SOA_CATEGORY_RESOURCE.equals(policyEditorDTO.getAppliedCategory())) {
 
             if (policyEditorDTO.getResourceValue() != null &&
-                !PolicyEditorConstants.FunctionIdentifier.ANY.equals(policyEditorDTO.getResourceValue().trim())) {
+                    !PolicyEditorConstants.FunctionIdentifier.ANY.equals(policyEditorDTO.getResourceValue().trim())) {
                 basicTargetDTO = new BasicTargetDTO();
 
                 basicTargetDTO.setResourceId(PolicyEditorConstants.RESOURCE_ID_DEFAULT);
                 basicTargetDTO.setResourceDataType(PolicyConstants.DataType.STRING);
 
                 String function = findFunction(policyEditorDTO.getResourceValue(),
-                                               basicTargetDTO.getResourceDataType());
+                        basicTargetDTO.getResourceDataType());
                 String value = findAttributeValue(policyEditorDTO.getResourceValue());
                 basicTargetDTO.setResourceList(value);
                 basicTargetDTO.setFunctionOnResources(function);
@@ -192,25 +161,25 @@ public class PolicyEditorUtil {
                     BasicRuleDTO ruleElementDTO = new BasicRuleDTO();
 
                     if (dto.getResourceValue() != null && dto.getResourceValue().trim().length() > 0 &&
-                        !PolicyEditorConstants.FunctionIdentifier.ANY.equals(dto.getResourceValue().trim())) {
+                            !PolicyEditorConstants.FunctionIdentifier.ANY.equals(dto.getResourceValue().trim())) {
 
                         addResourceElement(ruleElementDTO, dto);
                     }
 
                     if (dto.getUserAttributeValue() != null && dto.getUserAttributeValue().trim().length() > 0 &&
-                        !PolicyEditorConstants.FunctionIdentifier.ANY.equals(dto.getUserAttributeValue().trim())) {
+                            !PolicyEditorConstants.FunctionIdentifier.ANY.equals(dto.getUserAttributeValue().trim())) {
 
                         addSubjectElement(ruleElementDTO, dto);
                     }
 
                     if (dto.getActionValue() != null && dto.getActionValue().trim().length() > 0 &&
-                        !PolicyEditorConstants.FunctionIdentifier.ANY.equals(dto.getActionValue().trim())) {
+                            !PolicyEditorConstants.FunctionIdentifier.ANY.equals(dto.getActionValue().trim())) {
 
                         addActionElement(ruleElementDTO, dto);
                     }
 
                     if (dto.getEnvironmentValue() != null && dto.getEnvironmentValue().trim().length() > 0 &&
-                        !PolicyEditorConstants.FunctionIdentifier.ANY.equals(dto.getEnvironmentValue().trim())) {
+                            !PolicyEditorConstants.FunctionIdentifier.ANY.equals(dto.getEnvironmentValue().trim())) {
 
                         addEnvironmentElement(ruleElementDTO, dto);
                     }
@@ -229,7 +198,7 @@ public class PolicyEditorUtil {
         } else if (PolicyEditorConstants.SOA_CATEGORY_ACTION.equals(policyEditorDTO.getAppliedCategory())) {
 
             if (policyEditorDTO.getActionValue() != null &&
-                !PolicyEditorConstants.FunctionIdentifier.ANY.equals(policyEditorDTO.getActionValue().trim())) {
+                    !PolicyEditorConstants.FunctionIdentifier.ANY.equals(policyEditorDTO.getActionValue().trim())) {
 
                 basicTargetDTO = new BasicTargetDTO();
 
@@ -237,7 +206,7 @@ public class PolicyEditorUtil {
                 basicTargetDTO.setActionDataType(PolicyConstants.DataType.STRING);
 
                 String function = findFunction(policyEditorDTO.getActionValue(),
-                                               basicTargetDTO.getActionDataType());
+                        basicTargetDTO.getActionDataType());
                 String value = findAttributeValue(policyEditorDTO.getActionValue());
                 basicTargetDTO.setActionList(value);
                 basicTargetDTO.setFunctionOnActions(function);
@@ -251,17 +220,17 @@ public class PolicyEditorUtil {
                     BasicRuleDTO ruleElementDTO = new BasicRuleDTO();
 
                     if (dto.getResourceValue() != null && dto.getResourceValue().trim().length() > 0 &&
-                        !PolicyEditorConstants.FunctionIdentifier.ANY.equals(dto.getResourceValue().trim())) {
+                            !PolicyEditorConstants.FunctionIdentifier.ANY.equals(dto.getResourceValue().trim())) {
                         addResourceElement(ruleElementDTO, dto);
                     }
 
                     if (dto.getUserAttributeValue() != null && dto.getUserAttributeValue().trim().length() > 0 &&
-                        !PolicyEditorConstants.FunctionIdentifier.ANY.equals(dto.getUserAttributeValue().trim())) {
+                            !PolicyEditorConstants.FunctionIdentifier.ANY.equals(dto.getUserAttributeValue().trim())) {
                         addSubjectElement(ruleElementDTO, dto);
                     }
 
                     if (dto.getEnvironmentValue() != null && dto.getEnvironmentValue().trim().length() > 0 &&
-                        !PolicyEditorConstants.FunctionIdentifier.ANY.equals(dto.getEnvironmentValue().trim())) {
+                            !PolicyEditorConstants.FunctionIdentifier.ANY.equals(dto.getEnvironmentValue().trim())) {
                         addEnvironmentElement(ruleElementDTO, dto);
                     }
 
@@ -279,7 +248,7 @@ public class PolicyEditorUtil {
         } else if (PolicyEditorConstants.SOA_CATEGORY_ENVIRONMENT.equals(policyEditorDTO.getAppliedCategory())) {
 
             if (policyEditorDTO.getEnvironmentValue() != null &&
-                !PolicyEditorConstants.FunctionIdentifier.ANY.equals(policyEditorDTO.getEnvironmentValue().trim())) {
+                    !PolicyEditorConstants.FunctionIdentifier.ANY.equals(policyEditorDTO.getEnvironmentValue().trim())) {
 
                 basicTargetDTO = new BasicTargetDTO();
 
@@ -300,7 +269,7 @@ public class PolicyEditorUtil {
 
 
                 String function = findFunction(policyEditorDTO.getEnvironmentValue(),
-                                               basicTargetDTO.getEnvironmentDataType());
+                        basicTargetDTO.getEnvironmentDataType());
                 String value = findAttributeValue(policyEditorDTO.getEnvironmentValue());
                 basicTargetDTO.setEnvironmentList(value);
                 basicTargetDTO.setFunctionOnEnvironment(function);
@@ -314,17 +283,17 @@ public class PolicyEditorUtil {
                     BasicRuleDTO ruleElementDTO = new BasicRuleDTO();
 
                     if (dto.getResourceValue() != null && dto.getResourceValue().trim().length() > 0 &&
-                        !PolicyEditorConstants.FunctionIdentifier.ANY.equals(dto.getResourceValue().trim())) {
+                            !PolicyEditorConstants.FunctionIdentifier.ANY.equals(dto.getResourceValue().trim())) {
                         addResourceElement(ruleElementDTO, dto);
                     }
 
                     if (dto.getUserAttributeValue() != null && dto.getUserAttributeValue().trim().length() > 0 &&
-                        !PolicyEditorConstants.FunctionIdentifier.ANY.equals(dto.getUserAttributeValue().trim())) {
+                            !PolicyEditorConstants.FunctionIdentifier.ANY.equals(dto.getUserAttributeValue().trim())) {
                         addSubjectElement(ruleElementDTO, dto);
                     }
 
                     if (dto.getActionValue() != null && dto.getActionValue().trim().length() > 0 &&
-                        !PolicyEditorConstants.FunctionIdentifier.ANY.equals(dto.getActionValue().trim())) {
+                            !PolicyEditorConstants.FunctionIdentifier.ANY.equals(dto.getActionValue().trim())) {
                         addActionElement(ruleElementDTO, dto);
                     }
 
@@ -370,7 +339,7 @@ public class PolicyEditorUtil {
         ruleElementDTO.setResourceId(PolicyEditorConstants.RESOURCE_ID_DEFAULT);
         ruleElementDTO.setResourceDataType(PolicyConstants.DataType.STRING);
         String function = findFunction(editorElementDTO.getResourceValue(),
-                                       ruleElementDTO.getResourceDataType());
+                ruleElementDTO.getResourceDataType());
         String value = findAttributeValue(editorElementDTO.getResourceValue());
         ruleElementDTO.setResourceList(value);
         ruleElementDTO.setFunctionOnResources(function);
@@ -402,7 +371,7 @@ public class PolicyEditorUtil {
             ruleElementDTO.setSubjectDataType(PolicyConstants.DataType.STRING);
         }
         String function = findFunction(editorElementDTO.getUserAttributeValue(),
-                                       ruleElementDTO.getSubjectDataType());
+                ruleElementDTO.getSubjectDataType());
         String value = findAttributeValue(editorElementDTO.getUserAttributeValue());
         ruleElementDTO.setSubjectList(value);
         ruleElementDTO.setFunctionOnSubjects(function);
@@ -421,7 +390,7 @@ public class PolicyEditorUtil {
         ruleElementDTO.setActionDataType(PolicyConstants.DataType.STRING);
 
         String function = findFunction(editorElementDTO.getActionValue(),
-                                       ruleElementDTO.getActionDataType());
+                ruleElementDTO.getActionDataType());
         String value = findAttributeValue(editorElementDTO.getActionValue());
         ruleElementDTO.setActionList(value);
         ruleElementDTO.setFunctionOnActions(function);
@@ -453,7 +422,7 @@ public class PolicyEditorUtil {
         }
 
         String function = findFunction(editorElementDTO.getEnvironmentValue(),
-                                       ruleElementDTO.getEnvironmentDataType());
+                ruleElementDTO.getEnvironmentDataType());
         String value = findAttributeValue(editorElementDTO.getEnvironmentValue());
         ruleElementDTO.setEnvironmentDataType(ruleElementDTO.getEnvironmentDataType());
         ruleElementDTO.setEnvironmentList(value);
@@ -479,11 +448,11 @@ public class PolicyEditorUtil {
 
         // only time range finction are valid for following data types
         if (PolicyConstants.DataType.DATE.equals(dataType) ||
-            PolicyConstants.DataType.INT.equals(dataType) ||
-            PolicyConstants.DataType.TIME.equals(dataType) ||
-            PolicyConstants.DataType.DATE_TIME.equals(dataType) ||
-            PolicyConstants.DataType.DOUBLE.equals(dataType) ||
-            PolicyConstants.DataType.STRING.equals(dataType)) {
+                PolicyConstants.DataType.INT.equals(dataType) ||
+                PolicyConstants.DataType.TIME.equals(dataType) ||
+                PolicyConstants.DataType.DATE_TIME.equals(dataType) ||
+                PolicyConstants.DataType.DOUBLE.equals(dataType) ||
+                PolicyConstants.DataType.STRING.equals(dataType)) {
 
             if (value.startsWith(PolicyEditorConstants.FunctionIdentifier.EQUAL_RANGE)) {
                 if (value.contains(PolicyEditorConstants.FunctionIdentifier.RANGE_CLOSE)) {
@@ -543,31 +512,106 @@ public class PolicyEditorUtil {
         value = value.replace("&lt;", "<");
 
         if (value.startsWith(PolicyEditorConstants.FunctionIdentifier.EQUAL_RANGE) ||
-            value.startsWith(PolicyEditorConstants.FunctionIdentifier.RANGE) ||
-            value.startsWith(PolicyEditorConstants.FunctionIdentifier.REGEX)) {
+                value.startsWith(PolicyEditorConstants.FunctionIdentifier.RANGE) ||
+                value.startsWith(PolicyEditorConstants.FunctionIdentifier.REGEX)) {
 
             return value.substring(1, value.length() - 1).trim();
 
         } else if (value.startsWith(PolicyEditorConstants.FunctionIdentifier.GREATER) ||
-                   value.startsWith(PolicyEditorConstants.FunctionIdentifier.LESS)) {
+                value.startsWith(PolicyEditorConstants.FunctionIdentifier.LESS)) {
             return value.substring(1).trim();
         } else if (value.startsWith(PolicyEditorConstants.FunctionIdentifier.GREATER_EQUAL) ||
-                   value.startsWith(PolicyEditorConstants.FunctionIdentifier.LESS_EQUAL)) {
+                value.startsWith(PolicyEditorConstants.FunctionIdentifier.LESS_EQUAL)) {
             return value.substring(2).trim();
         }
 
         if (value.contains(PolicyEditorConstants.FunctionIdentifier.AND)) {
             value = value.replace(PolicyEditorConstants.FunctionIdentifier.AND,
-                                  PolicyEditorConstants.ATTRIBUTE_SEPARATOR);
+                    PolicyEditorConstants.ATTRIBUTE_SEPARATOR);
         }
 
         if (value.contains(PolicyEditorConstants.FunctionIdentifier.OR)) {
             value = value.replace(PolicyEditorConstants.FunctionIdentifier.OR,
-                                  PolicyEditorConstants.ATTRIBUTE_SEPARATOR);
+                    PolicyEditorConstants.ATTRIBUTE_SEPARATOR);
         }
 
         return value.trim();
     }
+
+
+// TODO for what?
+//    public static String createRules(List<SimplePolicyEditorElementDTO> elementDTOs, Document doc)
+//                                                                    throws  PolicyEditorException {
+//
+//        List<BasicRuleDTO> ruleElementDTOs = new ArrayList<BasicRuleDTO>();
+//        if(elementDTOs != null){
+//            int ruleNo = 1;
+//            for(SimplePolicyEditorElementDTO dto : elementDTOs){
+//                BasicRuleDTO ruleElementDTO = new BasicRuleDTO();
+//
+//                if(dto.getResourceValue() != null && dto.getResourceValue().trim().length() > 0 &&
+//                    !PolicyEditorConstants.FunctionIdentifier.ANY.equals(dto.getResourceValue().trim())){
+//                    ruleElementDTO.setResourceDataType(PolicyEditorConstants.DataType.STRING);
+//                    ruleElementDTO.setResourceId(PolicyEditorConstants.RESOURCE_ID_DEFAULT);
+//                    ruleElementDTO.setResourceList(dto.getResourceValue());
+//                    ruleElementDTO.setFunctionOnResources(getBasicPolicyEditorFunction(dto.
+//                                                                    getFunctionOnResources()));
+//                }
+//
+//                if(dto.getUserAttributeValue() != null && dto.getUserAttributeValue().trim().length() > 0 &&
+//                    !PolicyEditorConstants.FunctionIdentifier.ANY.equals(dto.getUserAttributeValue().trim())){
+//                    ruleElementDTO.setSubjectDataType(PolicyEditorConstants.DataType.STRING);
+//                    ruleElementDTO.setSubjectId(dto.getUserAttributeId());
+//                    ruleElementDTO.setSubjectList(dto.getUserAttributeValue());
+//                    ruleElementDTO.setFunctionOnSubjects(getBasicPolicyEditorFunction(dto.
+//                                                                        getFunctionOnUsers()));
+//                }
+//
+//                if(dto.getActionValue() != null && dto.getActionValue().trim().length() > 0 &&
+//                    !PolicyEditorConstants.FunctionIdentifier.ANY.equals(dto.getActionValue().trim())){
+//                    ruleElementDTO.setActionDataType(PolicyEditorConstants.DataType.STRING);
+//                    ruleElementDTO.setActionList(dto.getActionValue());
+//                    ruleElementDTO.setActionId(PolicyEditorConstants.ACTION_ID_DEFAULT);
+//                    ruleElementDTO.setFunctionOnActions(getBasicPolicyEditorFunction(dto.
+//                                                                    getFunctionOnActions()));
+//                }
+//
+//                if(dto.getEnvironmentValue() != null && dto.getEnvironmentValue().trim().length() > 0 &&
+//                    !PolicyEditorConstants.FunctionIdentifier.ANY.equals(dto.getEnvironmentValue().trim())){
+//                    ruleElementDTO.setEnvironmentId(dto.getEnvironmentId());
+//                    ruleElementDTO.setEnvironmentList(dto.getEnvironmentValue());
+//                    ruleElementDTO.setEnvironmentDataType(PolicyEditorConstants.DataType.STRING);
+//                    ruleElementDTO.setFunctionOnEnvironment(getBasicPolicyEditorFunction(dto.
+//                                                                getFunctionOnEnvironments()));
+//                }
+//
+//                if(dto.getOperationType() != null && PolicyEditorConstants.PreFunctions.CAN_DO.
+//                                                        equals(dto.getOperationType().trim())){
+//                    ruleElementDTO.setRuleEffect(PolicyEditorConstants.RULE_EFFECT_PERMIT);
+//                } else {
+//                    ruleElementDTO.setRuleEffect(PolicyEditorConstants.RULE_EFFECT_DENY);
+//                }
+//                ruleElementDTO.setRuleId("Rule-" + System.currentTimeMillis() + "-" + ruleNo);
+//                ruleElementDTOs.add(ruleElementDTO);
+//                ruleNo ++;
+//            }
+//        }
+//
+//         if(ruleElementDTOs.size() > 0){
+//            for(BasicRuleDTO dto : ruleElementDTOs){
+//                Element rule = null;
+//                try {
+//                    rule = BasicPolicyHelper.createRuleElement(dto, doc);
+//                } catch (PolicyBuilderException e) {
+//                    throw new PolicyEditorException("Error while creating rule element");
+//                }
+//                doc.appendChild(rule);
+//            }
+//        }
+//
+//        return PolicyCreatorUtil.getStringFromDocument(doc);
+//    }
+
 
     /**
      * Creates DOM representation of the XACML rule element.
@@ -669,7 +713,7 @@ public class PolicyEditorUtil {
             String attributeDataType = dynamicAttributeDTO.getDataType();
 
             if (category != null && category.trim().length() > 0 && attributeDataType != null &&
-                attributeDataType.trim().length() > 0) {
+                    attributeDataType.trim().length() > 0) {
                 AttributeDesignatorDTO designatorDTO = new AttributeDesignatorDTO();
                 designatorDTO.setCategory(category);
                 designatorDTO.setAttributeId(attributeId);
@@ -741,7 +785,7 @@ public class PolicyEditorUtil {
             String resultingAttributeId = obligationDTO.getResultAttributeId();
 
             if (attributeValue != null && attributeValue.trim().length() > 0 &&
-                resultingAttributeId != null && resultingAttributeId.trim().length() > 0) {
+                    resultingAttributeId != null && resultingAttributeId.trim().length() > 0) {
 
                 AttributeAssignmentElementDTO assignmentElementDTO = new
                         AttributeAssignmentElementDTO();
@@ -873,12 +917,12 @@ public class PolicyEditorUtil {
 
         if (function == null || function.trim().length() < 1) {
             throw new PolicyEditorException("Can not create Apply element:" +
-                                            "Missing required function Id");
+                    "Missing required function Id");
         }
 
         if (attributeValue == null || attributeValue.trim().length() < 1) {
             throw new PolicyEditorException("Can not create Apply element:" +
-                                            "Missing required attribute value");
+                    "Missing required attribute value");
         }
 
         ApplyElementDTO applyElementDTO = null;
@@ -892,7 +936,7 @@ public class PolicyEditorUtil {
 
         if (rowDTO.getFunction().contains("less") || rowDTO.getFunction().contains("greater")) {
             applyElementDTO = processGreaterLessThanFunctions(function, dataType, attributeValue,
-                                                              designatorDTO);
+                    designatorDTO);
         } else if (PolicyConstants.Functions.FUNCTION_EQUAL.equals(rowDTO.getFunction())) {
             applyElementDTO = processEqualFunctions(function, dataType, attributeValue, designatorDTO);
         } else {
@@ -1007,7 +1051,7 @@ public class PolicyEditorUtil {
             return applyElementDTO;
 
         } else if (PolicyConstants.Functions.FUNCTION_AT_LEAST_ONE.equals(function) ||
-                   PolicyConstants.Functions.FUNCTION_SET_EQUALS.equals(function)) {
+                PolicyConstants.Functions.FUNCTION_SET_EQUALS.equals(function)) {
 
             ApplyElementDTO applyElementDTO = new ApplyElementDTO();
             if (PolicyConstants.Functions.FUNCTION_AT_LEAST_ONE.equals(function)) {
@@ -1056,7 +1100,7 @@ public class PolicyEditorUtil {
 
             ApplyElementDTO applyElementDTO = new ApplyElementDTO();
             if (PolicyEditorConstants.DataType.DAY_TIME_DURATION.equals(dataType) ||
-                PolicyEditorConstants.DataType.YEAR_MONTH_DURATION.equals(dataType)) {
+                    PolicyEditorConstants.DataType.YEAR_MONTH_DURATION.equals(dataType)) {
                 applyElementDTO.setFunctionId(processFunction("equal", dataType, "3.0"));
             } else {
                 applyElementDTO.setFunctionId(processFunction("equal", dataType));
@@ -1094,17 +1138,16 @@ public class PolicyEditorUtil {
      * @throws PolicyEditorException
      */
     public static ApplyElementDTO processGreaterLessThanFunctions(String function, String dataType,
-                                                                  String attributeValue,
-                                                                  AttributeDesignatorDTO designatorDTO)
+                                                                  String attributeValue, AttributeDesignatorDTO designatorDTO)
             throws PolicyEditorException {
 
         String[] values = attributeValue.split(PolicyEditorConstants.ATTRIBUTE_SEPARATOR);
 
 
         if (PolicyConstants.Functions.FUNCTION_GREATER_EQUAL_AND_LESS_EQUAL.equals(function) ||
-            PolicyConstants.Functions.FUNCTION_GREATER_AND_LESS_EQUAL.equals(function) ||
-            PolicyConstants.Functions.FUNCTION_GREATER_EQUAL_AND_LESS.equals(function) ||
-            PolicyConstants.Functions.FUNCTION_GREATER_AND_LESS.equals(function)) {
+                PolicyConstants.Functions.FUNCTION_GREATER_AND_LESS_EQUAL.equals(function) ||
+                PolicyConstants.Functions.FUNCTION_GREATER_EQUAL_AND_LESS.equals(function) ||
+                PolicyConstants.Functions.FUNCTION_GREATER_AND_LESS.equals(function)) {
 
             String leftValue;
             String rightValue;
@@ -1114,7 +1157,7 @@ public class PolicyEditorUtil {
                 rightValue = values[1].trim();
             } else {
                 throw new PolicyEditorException("Can not create Apply element:" +
-                                                "Missing required attribute values for function : " + function);
+                        "Missing required attribute values for function : " + function);
             }
 
             ApplyElementDTO andApplyElement = new ApplyElementDTO();
@@ -1123,7 +1166,7 @@ public class PolicyEditorUtil {
 
             ApplyElementDTO greaterThanApplyElement = new ApplyElementDTO();
             if (PolicyConstants.Functions.FUNCTION_GREATER_AND_LESS.equals(function) ||
-                PolicyConstants.Functions.FUNCTION_GREATER_AND_LESS_EQUAL.equals(function)) {
+                    PolicyConstants.Functions.FUNCTION_GREATER_AND_LESS_EQUAL.equals(function)) {
                 greaterThanApplyElement.setFunctionId(processFunction("greater-than", dataType));
             } else {
                 greaterThanApplyElement.setFunctionId(processFunction("greater-than-or-equal", dataType));
@@ -1132,7 +1175,7 @@ public class PolicyEditorUtil {
 
             ApplyElementDTO lessThanApplyElement = new ApplyElementDTO();
             if (PolicyConstants.Functions.FUNCTION_GREATER_AND_LESS.equals(function) ||
-                PolicyConstants.Functions.FUNCTION_GREATER_EQUAL_AND_LESS.equals(function)) {
+                    PolicyConstants.Functions.FUNCTION_GREATER_EQUAL_AND_LESS.equals(function)) {
                 lessThanApplyElement.setFunctionId(processFunction("less-than", dataType));
             } else {
                 lessThanApplyElement.setFunctionId(processFunction("less-than-or-equal", dataType));
@@ -1175,7 +1218,7 @@ public class PolicyEditorUtil {
                 applyElementDTO.setFunctionId(processFunction("less-than-or-equal", dataType));
             } else {
                 throw new PolicyEditorException("Can not create Apply element:" +
-                                                "Invalid function : " + function);
+                        "Invalid function : " + function);
             }
 
             ApplyElementDTO oneAndOnlyApplyElement = new ApplyElementDTO();
@@ -1204,7 +1247,7 @@ public class PolicyEditorUtil {
      */
     private static String processFunction(String function, String type, String version) {
         return "urn:oasis:names:tc:xacml:" + version + ":function:" + getDataTypePrefix(type) +
-               "-" + function;
+                "-" + function;
     }
 
     /**
@@ -1227,6 +1270,45 @@ public class PolicyEditorUtil {
     private static String processFunction(String function, String type) {
         return "urn:oasis:names:tc:xacml:1.0:function:" + getDataTypePrefix(type) + "-" + function;
     }
+//
+//    /**
+//     * Helper method to check whether attribute value is pre-defined one
+//     *
+//     * @param value
+//     * @return
+//     */
+//    private static boolean isPreDefinedValue(String value){
+//
+//        if(value != null && applyElementMap != null && applyElementMap.size() > 0){
+//            value = value.trim();
+//            if(value.startsWith("${") && value.endsWith("}")){
+//                value = value.substring(value.indexOf("{") + 1, value.indexOf("}"));
+//                return applyElementMap.containsKey(value);
+//            }
+//        }
+//
+//        return false;
+//    }
+//
+//    /**
+//     * Helper method to check whether attribute value is pre-defined one
+//     *
+//     * @param value
+//     * @param map
+//     * @return
+//     */
+//    private static boolean isPreDefinedValue(String value, Map<String, ExtendAttributeDTO> map){
+//
+//        if(value != null && map != null && map.size() > 0){
+//            value = value.trim();
+//            if(value.startsWith("${") && value.endsWith("}")){
+//                value = value.substring(value.indexOf("{") + 1, value.indexOf("}"));
+//                return map.containsKey(value);
+//            }
+//        }
+//
+//        return false;
+//    }
 
     /**
      * Helper method to create full XACML function URI
@@ -1266,10 +1348,10 @@ public class PolicyEditorUtil {
         MatchElementDTO matchElementDTO;
 
         if (functionId != null && functionId.trim().length() > 0 && attributeValue != null &&
-            attributeValue.trim().length() > 0 && category != null &&
-            category.trim().length() > 0 && attributeId != null &&
-            attributeId.trim().length() > 0 && dataType != null &&
-            dataType.trim().length() > 0) {
+                attributeValue.trim().length() > 0 && category != null &&
+                category.trim().length() > 0 && attributeId != null &&
+                attributeId.trim().length() > 0 && dataType != null &&
+                dataType.trim().length() > 0) {
 
             functionId = processFunction(functionId, dataType);
 
@@ -1313,7 +1395,7 @@ public class PolicyEditorUtil {
             matchElement = doc.createElement(PolicyEditorConstants.MATCH_ELEMENT);
 
             matchElement.setAttribute(PolicyEditorConstants.MATCH_ID,
-                                      matchElementDTO.getMatchId());
+                    matchElementDTO.getMatchId());
 
             if (matchElementDTO.getAttributeValueElementDTO() != null) {
                 Element attributeValueElement = createAttributeValueElement(matchElementDTO.
@@ -1332,7 +1414,7 @@ public class PolicyEditorUtil {
             }
         } else {
             throw new PolicyEditorException("Can not create Match element:" +
-                                            " Required Attributes are missing");
+                    " Required Attributes are missing");
         }
         return matchElement;
     }
@@ -1357,10 +1439,10 @@ public class PolicyEditorUtil {
             if (attributeValueElementDTO.getAttributeDataType() != null && attributeValueElementDTO.
                     getAttributeDataType().trim().length() > 0) {
                 attributeValueElement.setAttribute(EntitlementPolicyConstants.DATA_TYPE,
-                                                   attributeValueElementDTO.getAttributeDataType());
+                        attributeValueElementDTO.getAttributeDataType());
             } else {
                 attributeValueElement.setAttribute(EntitlementPolicyConstants.DATA_TYPE,
-                                                   EntitlementPolicyConstants.STRING_DATA_TYPE);
+                        EntitlementPolicyConstants.STRING_DATA_TYPE);
             }
 
         }
@@ -1377,8 +1459,7 @@ public class PolicyEditorUtil {
      * @throws PolicyEditorException throws if missing required data
      */
     public static Element createAttributeDesignatorElement(AttributeDesignatorDTO
-                                                                   attributeDesignatorDTO, Document doc)
-            throws PolicyEditorException {
+                                                                   attributeDesignatorDTO, Document doc) throws PolicyEditorException {
 
         Element attributeDesignatorElement;
 
@@ -1390,14 +1471,14 @@ public class PolicyEditorUtil {
             String mustBe = attributeDesignatorDTO.getMustBePresent();
 
             if (category != null && category.trim().length() > 0 && attributeId != null &&
-                attributeId.trim().length() > 0 && dataType != null && dataType.trim().length() > 0 &&
-                mustBe != null && mustBe.trim().length() > 0) {
+                    attributeId.trim().length() > 0 && dataType != null && dataType.trim().length() > 0 &&
+                    mustBe != null && mustBe.trim().length() > 0) {
 
                 attributeDesignatorElement = doc.
                         createElement(PolicyEditorConstants.ATTRIBUTE_DESIGNATOR);
 
                 attributeDesignatorElement.setAttribute(PolicyEditorConstants.ATTRIBUTE_ID,
-                                                        attributeId);
+                        attributeId);
 
                 attributeDesignatorElement.setAttribute(PolicyEditorConstants.CATEGORY, category);
 
@@ -1408,15 +1489,15 @@ public class PolicyEditorUtil {
                 if (attributeDesignatorDTO.getIssuer() != null && attributeDesignatorDTO.getIssuer().
                         trim().length() > 0) {
                     attributeDesignatorElement.setAttribute(EntitlementPolicyConstants.ISSUER,
-                                                            attributeDesignatorDTO.getIssuer());
+                            attributeDesignatorDTO.getIssuer());
                 }
             } else {
                 throw new PolicyEditorException("Can not create AttributeDesignator element:" +
-                                                " Required Attributes are missing");
+                        " Required Attributes are missing");
             }
         } else {
             throw new PolicyEditorException("Can not create AttributeDesignator element:" +
-                                            " A Null object is received");
+                    " A Null object is received");
         }
         return attributeDesignatorElement;
     }
@@ -1432,28 +1513,28 @@ public class PolicyEditorUtil {
                                                          Document doc) {
 
         Element attributeSelectorElement = doc.createElement(EntitlementPolicyConstants.
-                                                                     ATTRIBUTE_SELECTOR);
+                ATTRIBUTE_SELECTOR);
 
         if (attributeSelectorDTO.getAttributeSelectorRequestContextPath() != null &&
-            attributeSelectorDTO.getAttributeSelectorRequestContextPath().trim().length() > 0) {
+                attributeSelectorDTO.getAttributeSelectorRequestContextPath().trim().length() > 0) {
 
             attributeSelectorElement.setAttribute(EntitlementPolicyConstants.REQUEST_CONTEXT_PATH,
-                                                  EntitlementPolicyConstants.ATTRIBUTE_NAMESPACE + attributeSelectorDTO.
-                                                          getAttributeSelectorRequestContextPath());
+                    EntitlementPolicyConstants.ATTRIBUTE_NAMESPACE + attributeSelectorDTO.
+                            getAttributeSelectorRequestContextPath());
 
             if (attributeSelectorDTO.getAttributeSelectorDataType() != null &&
-                attributeSelectorDTO.getAttributeSelectorDataType().trim().length() > 0) {
+                    attributeSelectorDTO.getAttributeSelectorDataType().trim().length() > 0) {
                 attributeSelectorElement.setAttribute(EntitlementPolicyConstants.DATA_TYPE,
-                                                      attributeSelectorDTO.getAttributeSelectorDataType());
+                        attributeSelectorDTO.getAttributeSelectorDataType());
             } else {
                 attributeSelectorElement.setAttribute(EntitlementPolicyConstants.DATA_TYPE,
-                                                      EntitlementPolicyConstants.STRING_DATA_TYPE);
+                        EntitlementPolicyConstants.STRING_DATA_TYPE);
             }
 
             if (attributeSelectorDTO.getAttributeSelectorMustBePresent() != null &&
-                attributeSelectorDTO.getAttributeSelectorMustBePresent().trim().length() > 0) {
+                    attributeSelectorDTO.getAttributeSelectorMustBePresent().trim().length() > 0) {
                 attributeSelectorElement.setAttribute(EntitlementPolicyConstants.MUST_BE_PRESENT,
-                                                      attributeSelectorDTO.getAttributeSelectorMustBePresent());
+                        attributeSelectorDTO.getAttributeSelectorMustBePresent());
             }
 
         }
@@ -1517,8 +1598,8 @@ public class PolicyEditorUtil {
                 rowDTO.setCategory(holder.getCategoryUri(category));
 
                 if (rowDTO.getAttributeDataType() == null ||
-                    rowDTO.getAttributeDataType().trim().length() < 1 ||
-                    rowDTO.getAttributeDataType().trim().equals("null")) {
+                        rowDTO.getAttributeDataType().trim().length() < 1 ||
+                        rowDTO.getAttributeDataType().trim().equals("null")) {
 
                     if (holder.getDefaultDataType() != null) {
                         rowDTO.setAttributeDataType(holder.getDefaultDataType());
@@ -1533,7 +1614,7 @@ public class PolicyEditorUtil {
 
                 String attributeId = rowDTO.getAttributeId();
                 if (attributeId == null || attributeId.trim().length() < 1 ||
-                    attributeId.trim().equals("null")) {
+                        attributeId.trim().equals("null")) {
                     attributeId = holder.getCategoryDefaultAttributeId(category);
                 }
                 rowDTO.setAttributeId(holder.getAttributeIdUri(attributeId));
@@ -1556,13 +1637,13 @@ public class PolicyEditorUtil {
             for (ObligationDTO dto : obligationDTOs) {
                 createMetaDataFromObligation("obligation", dto, policyMetaDataList);
                 if (dto.getAttributeValueDataType() == null ||
-                    dto.getAttributeValueDataType().trim().length() == 0 ||
-                    dto.getAttributeValueDataType().trim().equals("null")) {
+                        dto.getAttributeValueDataType().trim().length() == 0 ||
+                        dto.getAttributeValueDataType().trim().equals("null")) {
                     dto.setAttributeValueDataType(PolicyEditorConstants.DataType.STRING);
                 }
                 if (dto.getResultAttributeId() == null ||
-                    dto.getResultAttributeId().trim().length() == 0 ||
-                    dto.getResultAttributeId().trim().equals("null")) {
+                        dto.getResultAttributeId().trim().length() == 0 ||
+                        dto.getResultAttributeId().trim().equals("null")) {
                     // setting obligation id
                     dto.setResultAttributeId(dto.getObligationId());
                 }
@@ -1630,8 +1711,8 @@ public class PolicyEditorUtil {
                 rowDTO.setCategory(holder.getCategoryUri(category));
 
                 if (rowDTO.getAttributeDataType() == null ||
-                    rowDTO.getAttributeDataType().trim().length() < 1 ||
-                    rowDTO.getAttributeDataType().trim().equals("null")) {
+                        rowDTO.getAttributeDataType().trim().length() < 1 ||
+                        rowDTO.getAttributeDataType().trim().equals("null")) {
 
                     if (holder.getDefaultDataType() != null) {
                         rowDTO.setAttributeDataType(holder.getDefaultDataType());
@@ -1646,7 +1727,7 @@ public class PolicyEditorUtil {
 
                 String attributeId = rowDTO.getAttributeId();
                 if (attributeId == null || attributeId.trim().length() < 1 ||
-                    attributeId.trim().equals("null")) {
+                        attributeId.trim().equals("null")) {
                     attributeId = holder.getCategoryDefaultAttributeId(category);
                 }
                 rowDTO.setAttributeId(holder.getAttributeIdUri(attributeId));
@@ -1677,8 +1758,8 @@ public class PolicyEditorUtil {
                     rowDTO.setCategory(holder.getCategoryUri(category));
 
                     if (rowDTO.getAttributeDataType() == null ||
-                        rowDTO.getAttributeDataType().trim().length() < 1 ||
-                        rowDTO.getAttributeDataType().trim().equals("null")) {
+                            rowDTO.getAttributeDataType().trim().length() < 1 ||
+                            rowDTO.getAttributeDataType().trim().equals("null")) {
 
                         if (holder.getDefaultDataType() != null) {
                             rowDTO.setAttributeDataType(holder.getDefaultDataType());
@@ -1693,7 +1774,7 @@ public class PolicyEditorUtil {
 
                     String attributeId = rowDTO.getAttributeId();
                     if (attributeId == null || attributeId.trim().length() < 1 ||
-                        attributeId.trim().equals("null")) {
+                            attributeId.trim().equals("null")) {
                         attributeId = holder.getCategoryDefaultAttributeId(category);
                     }
                     rowDTO.setAttributeId(holder.getAttributeIdUri(attributeId));
@@ -1727,8 +1808,8 @@ public class PolicyEditorUtil {
                     rowDTO.setCategory(holder.getCategoryUri(category));
 
                     if (rowDTO.getAttributeDataType() == null ||
-                        rowDTO.getAttributeDataType().trim().length() < 1 ||
-                        rowDTO.getAttributeDataType().trim().equals("null")) {
+                            rowDTO.getAttributeDataType().trim().length() < 1 ||
+                            rowDTO.getAttributeDataType().trim().equals("null")) {
 
                         if (holder.getDefaultDataType() != null) {
                             rowDTO.setAttributeDataType(holder.getDefaultDataType());
@@ -1743,7 +1824,7 @@ public class PolicyEditorUtil {
 
                     String attributeId = rowDTO.getAttributeId();
                     if (attributeId == null || attributeId.trim().length() < 1 ||
-                        attributeId.trim().equals("null")) {
+                            attributeId.trim().equals("null")) {
                         attributeId = holder.getCategoryDefaultAttributeId(category);
                     }
                     rowDTO.setAttributeId(holder.getAttributeIdUri(attributeId));
@@ -1759,15 +1840,15 @@ public class PolicyEditorUtil {
                 if (ruleObligationDTOs != null) {
                     for (ObligationDTO dto : ruleObligationDTOs) {
                         createMetaDataFromObligation("ruleObligation" + ruleDTO.getRuleId(),
-                                                     dto, policyMetaDataList);
+                                dto, policyMetaDataList);
                         if (dto.getAttributeValueDataType() == null ||
-                            dto.getAttributeValueDataType().trim().length() < 1 ||
-                            dto.getAttributeValueDataType().trim().equals("null")) {
+                                dto.getAttributeValueDataType().trim().length() < 1 ||
+                                dto.getAttributeValueDataType().trim().equals("null")) {
                             dto.setAttributeValueDataType(PolicyEditorConstants.DataType.STRING);
                         }
                         if (dto.getResultAttributeId() == null ||
-                            dto.getResultAttributeId().trim().length() == 0 ||
-                            dto.getResultAttributeId().trim().equals("null")) {
+                                dto.getResultAttributeId().trim().length() == 0 ||
+                                dto.getResultAttributeId().trim().equals("null")) {
                             // setting obligation id
                             dto.setResultAttributeId(dto.getObligationId());
                         }
@@ -1785,19 +1866,101 @@ public class PolicyEditorUtil {
             for (ObligationDTO dto : obligationDTOs) {
                 createMetaDataFromObligation("obligation", dto, policyMetaDataList);
                 if (dto.getAttributeValueDataType() == null ||
-                    dto.getAttributeValueDataType().trim().length() == 0 ||
-                    dto.getAttributeValueDataType().trim().equals("null")) {
+                        dto.getAttributeValueDataType().trim().length() == 0 ||
+                        dto.getAttributeValueDataType().trim().equals("null")) {
                     dto.setAttributeValueDataType(PolicyEditorConstants.DataType.STRING);
                 }
                 if (dto.getResultAttributeId() == null ||
-                    dto.getResultAttributeId().trim().length() == 0 ||
-                    dto.getResultAttributeId().trim().equals("null")) {
+                        dto.getResultAttributeId().trim().length() == 0 ||
+                        dto.getResultAttributeId().trim().equals("null")) {
                     // setting obligation id
                     dto.setResultAttributeId(dto.getObligationId());
                 }
             }
             policyDTO.setObligationDTOs(obligationDTOs);
         }
+
+//        for(ExtendAttributeDTO attributeDTO : ruleDTO.getAttributeDTOs()){
+//
+//            String id = attributeDTO.getId();
+//            String selector = attributeDTO.getSelector();
+//            String category = null;
+//            String function = null;
+//
+//            if(id == null){
+//                continue;
+//            }
+//
+//            if(PolicyEditorConstants.DYNAMIC_SELECTOR_FUNCTION.equals(selector)){
+//
+//                String attributeValue = attributeDTO.getAttributeValue();
+//                if(attributeValue == null || attributeValue.trim().length() < 1){
+//                    continue;
+//                }
+//                function = attributeDTO.getFunction();
+//                if(function != null){
+//                    function = function.replace("&gt;", ">");
+//                    function = function.replace("&lt;", "<");
+//
+//                    if(ruleFunctionMap.get(function) != null){// TODO
+//                        attributeDTO.setFunction(ruleFunctionMap.get(function));
+//                    }
+//                }
+//
+//                if(attributeDTO.getDataType() == null ||
+//                        attributeDTO.getDataType().trim().length() < 1 ||
+//                        attributeDTO.getDataType().trim().equals("null")) {
+//
+//                    if(category != null && defaultDataTypeMap.get(category) != null){
+//                        attributeDTO.setDataType((defaultDataTypeMap.
+//                                            get(category).iterator().next()));
+//                    } else {
+//                        attributeDTO.setDataType(PolicyEditorConstants.DataType.STRING);
+//                    }
+//                }
+//
+//            } else {
+//
+//                category = attributeDTO.getCategory();
+//
+//                if(category == null || category.trim().length() < 1){
+//                    continue;
+//                }
+//
+//                if(categoryMap.get(category) != null){
+//                    attributeDTO.setCategory(categoryMap.get(category));
+//                }
+//
+//                if(attributeDTO.getDataType() == null ||
+//                        attributeDTO.getDataType().trim().length() < 1 ||
+//                        attributeDTO.getDataType().trim().equals("null")) {
+//
+//                    if(defaultDataTypeMap.get(category) != null){
+//                        attributeDTO.setDataType((defaultDataTypeMap.
+//                                            get(category).iterator().next()));
+//                    } else {
+//                        attributeDTO.setDataType(PolicyEditorConstants.DataType.STRING);
+//                    }
+//                }
+//
+//                if(attributeDTO.getAttributeId() == null ||
+//                        attributeDTO.getAttributeId().trim().length() < 1 ||
+//                        attributeDTO.getAttributeId().trim().equals("null")) {
+//                    if(defaultAttributeIdMap.get(category) != null){
+//                        attributeDTO.setAttributeId((defaultAttributeIdMap.
+//                                            get(category).iterator().next()));
+//                    }
+//                }
+//            }
+//
+//
+//            ExtendAttributeDTO odlRowDTO = new ExtendAttributeDTO(attributeDTO);
+//            odlRowDTO.setCategory(category);
+//            odlRowDTO.setFunction(function);
+//            createMetaDataFromDynamicAttribute("targetRule" + odlRowDTO.getId(), odlRowDTO,
+//                                                policyMetaDataList);
+//            //newDynamicAttributeDTOs.add(attributeDTO);
+//        }
 
         return policyMetaDataList.toArray(new String[policyMetaDataList.size()]);
     }
@@ -2030,6 +2193,50 @@ public class PolicyEditorUtil {
     }
 
 
+///////////////////////////////// policy Set ///////////////////////////////////////////////////////
+
+//    public static PolicyElementDTO createPolicySetElementDTO(String policy)
+//            throws EntitlementPolicyCreationException {
+//
+//        PolicySetDTO policyElementDTO = new PolicySetDTO();
+//        OMElement omElement;
+//        try {
+//            omElement = AXIOMUtil.stringToOM(policy);
+//        } catch (XMLStreamException e) {
+//            throw new EntitlementPolicyCreationException("Policy can not be converted to OMElement");
+//        }
+//
+//        if (omElement != null) {
+//
+//            policyElementDTO.setPolicySetId(omElement.
+//                    getAttributeValue(new QName(EntitlementPolicyConstants.POLICY_SET_ID)));
+//
+//            String ruleCombiningAlgorithm = omElement.
+//                    getAttributeValue(new QName(EntitlementPolicyConstants.POLICY_ALGORITHM));
+//
+//            try{
+//                policyElementDTO.setRuleCombiningAlgorithms(ruleCombiningAlgorithm.
+//                        split(PolicyEditorConstants.RULE_ALGORITHM_IDENTIFIER_3)[1]);
+//            } catch (Exception ignore){
+//                policyElementDTO.setRuleCombiningAlgorithms(ruleCombiningAlgorithm.
+//                        split(PolicyEditorConstants.RULE_ALGORITHM_IDENTIFIER_1)[1]);
+//                // if this is also fails, can not edit the policy
+//            }
+//
+//            Iterator iterator = omElement.getChildrenWithLocalName(EntitlementPolicyConstants.
+//                    DESCRIPTION_ELEMENT);
+//
+//            if(iterator.hasNext()){
+//                OMElement descriptionElement = (OMElement) iterator.next();
+//                if(descriptionElement != null && descriptionElement.getText() != null){
+//                    policyElementDTO.setPolicyDescription(descriptionElement.getText().trim());
+//                }
+//            }
+//
+//        }
+//        return policyElementDTO;
+//    }
+
 //////////////////////////////// Standard policy editor/////////////////////////////////////////////////////
 
     public static PolicyElementDTO createPolicyElementDTO(String policy)
@@ -2061,7 +2268,7 @@ public class PolicyEditorUtil {
             }
 
             Iterator iterator = omElement.getChildrenWithLocalName(EntitlementPolicyConstants.
-                                                                           DESCRIPTION_ELEMENT);
+                    DESCRIPTION_ELEMENT);
 
             if (iterator.hasNext()) {
                 OMElement descriptionElement = (OMElement) iterator.next();
@@ -2087,7 +2294,7 @@ public class PolicyEditorUtil {
 
         if (omElement != null) {
             Iterator iterator2 = omElement.getChildrenWithLocalName(EntitlementPolicyConstants.
-                                                                            RULE_ELEMENT);
+                    RULE_ELEMENT);
             while (iterator2.hasNext()) {
                 OMElement ruleElement = (OMElement) iterator2.next();
                 ruleElementDTOs.add(createRuleDTO(ruleElement));
@@ -2361,7 +2568,7 @@ public class PolicyEditorUtil {
         String[] policyEditorData;
         if (basicRuleDTOs != null) {
             policyEditorData = new String[targetEditorDataConstant +
-                                          (basicRuleDTOs.size() * ruleEditorDataConstant)];
+                    (basicRuleDTOs.size() * ruleEditorDataConstant)];
         } else {
             policyEditorData = new String[targetEditorDataConstant];
         }

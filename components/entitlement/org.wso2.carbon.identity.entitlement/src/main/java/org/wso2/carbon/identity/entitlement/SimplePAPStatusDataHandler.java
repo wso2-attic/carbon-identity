@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * WSO2 Inc. licenses this file to you under the Apache License,
- * Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License.
- * You may obtain a copy of the License at
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -17,7 +17,6 @@
  */
 package org.wso2.carbon.identity.entitlement;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.CarbonContext;
@@ -30,34 +29,31 @@ import org.wso2.carbon.registry.core.RegistryConstants;
 import org.wso2.carbon.registry.core.Resource;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.UUID;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * TODO
+ */
 public class SimplePAPStatusDataHandler implements PAPStatusDataHandler {
 
     private static final String ENTITLEMENT_POLICY_STATUS = "/repository/identity/entitlement/status/policy/";
     private static final String ENTITLEMENT_PUBLISHER_STATUS = "/repository/identity/entitlement/status/publisher/";
-    private static final Log log = LogFactory.getLog(SimplePAPStatusDataHandler.class);
-    public static final String MAX_RECODES_TO_PERSIST = "maxRecodesToPersist";
-    private static final int DEFAULT_MAX_RECODES = 50;
+    private static final int SEARCH_BY_USER = 0;
+    private static final int SEARCH_BY_POLICY = 1;
+    private static Log log = LogFactory.getLog(SimplePAPStatusDataHandler.class);
+    private int DEFAULT_MAX_RECODES = 50;
     private int maxRecodes;
 
     @Override
     public void init(Properties properties) {
-        String maxRecodesString = (String) properties.get(MAX_RECODES_TO_PERSIST);
+        String maxRecodesString = (String) properties.get("maxRecodesToPersist");
         if (maxRecodesString != null) {
             try {
                 maxRecodes = Integer.parseInt(maxRecodesString);
             } catch (Exception e) {
-                if (log.isDebugEnabled()) {
-                    log.debug("Exception ignored. ", e);
-                }
+                //ignore
             }
         }
         if (maxRecodes == 0) {
@@ -157,6 +153,7 @@ public class SimplePAPStatusDataHandler implements PAPStatusDataHandler {
                 registry.delete(path);
             }
         } catch (RegistryException e) {
+            log.error(e);
             throw new EntitlementException("Error while persisting policy status", e);
         }
     }
@@ -164,8 +161,8 @@ public class SimplePAPStatusDataHandler implements PAPStatusDataHandler {
     private synchronized void persistStatus(String path, List<StatusHolder> statusHolders, boolean isNew)
             throws EntitlementException {
 
-        Resource resource;
-        Registry registry;
+        Resource resource = null;
+        Registry registry = null;
         int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
 
         try {
@@ -179,13 +176,11 @@ public class SimplePAPStatusDataHandler implements PAPStatusDataHandler {
                     for (String version : versions) {
                         long versionInt = 0;
                         String[] versionStrings = version.split(RegistryConstants.VERSION_SEPARATOR);
-                        if (versionStrings.length == 2) {
+                        if (versionStrings != null && versionStrings.length == 2) {
                             try {
                                 versionInt = Long.parseLong(versionStrings[1]);
                             } catch (Exception e) {
-                                if (log.isDebugEnabled()) {
-                                    log.debug("Exception ignored. ", e);
-                                }
+                                // ignore
                             }
                         }
                         if (versionInt != 0) {
@@ -197,12 +192,13 @@ public class SimplePAPStatusDataHandler implements PAPStatusDataHandler {
                 resource = registry.newResource();
             }
 
-            if (resource != null && CollectionUtils.isNotEmpty(statusHolders)) {
+            if (resource != null && statusHolders != null && statusHolders.size() > 0) {
                 resource.setVersionableChange(false);
                 populateStatusProperties(statusHolders.toArray(new StatusHolder[statusHolders.size()]), resource);
                 registry.put(path, resource);
             }
         } catch (RegistryException e) {
+            log.error(e);
             throw new EntitlementException("Error while persisting policy status", e);
         }
 
@@ -233,7 +229,7 @@ public class SimplePAPStatusDataHandler implements PAPStatusDataHandler {
                 Object value = entry.getValue();
                 if (value instanceof ArrayList) {
                     List list = (ArrayList) entry.getValue();
-                    if (CollectionUtils.isNotEmpty(list) && list.get(0) != null) {
+                    if (list != null && list.size() > 0 && list.get(0) != null) {
                         StatusHolder statusHolder = new StatusHolder(about);
                         if (list.size() > 0 && list.get(0) != null) {
                             statusHolder.setType((String) list.get(0));
@@ -272,7 +268,7 @@ public class SimplePAPStatusDataHandler implements PAPStatusDataHandler {
                 }
             }
         }
-        if (CollectionUtils.isNotEmpty(statusHolders)) {
+        if (statusHolders.size() > 0) {
             StatusHolder[] array = statusHolders.toArray(new StatusHolder[statusHolders.size()]);
             java.util.Arrays.sort(array, new StatusHolderComparator());
             if (statusHolders.size() > maxRecodes) {

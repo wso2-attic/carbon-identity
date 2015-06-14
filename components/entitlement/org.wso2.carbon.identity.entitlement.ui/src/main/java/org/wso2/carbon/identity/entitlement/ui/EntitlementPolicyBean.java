@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * WSO2 Inc. licenses this file to you under the Apache License,
- * Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License.
- * You may obtain a copy of the License at
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -22,22 +22,9 @@ import org.wso2.balana.utils.policy.dto.BasicRuleDTO;
 import org.wso2.balana.utils.policy.dto.BasicTargetDTO;
 import org.wso2.carbon.identity.entitlement.stub.dto.EntitlementFinderDataHolder;
 import org.wso2.carbon.identity.entitlement.stub.dto.EntitlementTreeNodeDTO;
-import org.wso2.carbon.identity.entitlement.ui.dto.ExtendAttributeDTO;
-import org.wso2.carbon.identity.entitlement.ui.dto.ObligationDTO;
-import org.wso2.carbon.identity.entitlement.ui.dto.PolicyRefIdDTO;
-import org.wso2.carbon.identity.entitlement.ui.dto.PolicySetDTO;
-import org.wso2.carbon.identity.entitlement.ui.dto.RuleDTO;
-import org.wso2.carbon.identity.entitlement.ui.dto.SimplePolicyEditorDTO;
-import org.wso2.carbon.identity.entitlement.ui.dto.TargetDTO;
+import org.wso2.carbon.identity.entitlement.ui.dto.*;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * This Bean is used to keep the user data temporary while travelling through

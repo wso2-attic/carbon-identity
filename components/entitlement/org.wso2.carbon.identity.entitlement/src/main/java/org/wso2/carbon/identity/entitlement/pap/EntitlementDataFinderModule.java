@@ -1,23 +1,22 @@
 /*
- * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
- *
- * WSO2 Inc. licenses this file to you under the Apache License,
- * Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
- */
+*  Copyright (c) WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*
+*  WSO2 Inc. licenses this file to you under the Apache License,
+*  Version 2.0 (the "License"); you may not use this file except
+*  in compliance with the License.
+*  You may obtain a copy of the License at
+*
+*    http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing,
+* software distributed under the License is distributed on an
+* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+* KIND, either express or implied.  See the License for the
+* specific language governing permissions and limitations
+* under the License.
+*/
 package org.wso2.carbon.identity.entitlement.pap;
 
-import org.wso2.carbon.identity.entitlement.EntitlementException;
 import org.wso2.carbon.identity.entitlement.dto.EntitlementTreeNodeDTO;
 
 import java.util.Properties;
@@ -37,9 +36,9 @@ public interface EntitlementDataFinderModule {
      *
      * @param properties properties, that need to initialize the module. These properties can be
      *                   defined in entitlement.properties file
-     * @throws EntitlementException throws when initialization is failed
+     * @throws Exception throws when initialization is failed
      */
-    public void init(Properties properties) throws EntitlementException;
+    public void init(Properties properties) throws Exception;
 
     /**
      * Gets name of this module
@@ -73,10 +72,10 @@ public interface EntitlementDataFinderModule {
      * @param limit    limit for filtered data
      * @return Set of entitlement data values that has been encapsulated
      * in to <code>EntitlementTreeNodeDTO</code>
-     * @throws EntitlementException throws, if fails
+     * @throws Exception throws, if fails
      */
     public EntitlementTreeNodeDTO getEntitlementData(String category, String regex,
-                                                     int limit) throws EntitlementException;
+                                                     int limit) throws Exception;
 
     /**
      * Finds entitlement data values for given category and for given hierarchical level
@@ -85,9 +84,9 @@ public interface EntitlementDataFinderModule {
      * @param level    hierarchical level that data must be retrieved. If root level, value must be 1
      * @return Set of entitlement data values that has been encapsulated
      * in to <code>EntitlementTreeNodeDTO</code>
-     * @throws EntitlementException throws, if fails
+     * @throws Exception throws, if fails
      */
-    public EntitlementTreeNodeDTO getEntitlementDataByLevel(String category, int level) throws EntitlementException;
+    public EntitlementTreeNodeDTO getEntitlementDataByLevel(String category, int level) throws Exception;
 
     /**
      * Returns supported hierarchical levels of that data must be retrieved. If levels are not supported

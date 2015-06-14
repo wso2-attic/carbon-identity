@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * WSO2 Inc. licenses this file to you under the Apache License,
- * Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License.
- * You may obtain a copy of the License at
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -30,7 +30,7 @@ import java.util.List;
  * Thrift based EntitlementService that is exposed by wrapping EntitlementService.
  */
 public class ThriftEntitlementServiceImpl implements EntitlementService.Iface {
-    private static final Log log = LogFactory.getLog(ThriftEntitlementServiceImpl.class);
+    private static Log log = LogFactory.getLog(ThriftEntitlementServiceImpl.class);
     /* Handler to ThriftAuthenticatorService which handles authentication to admin services. */
     private static ThriftAuthenticatorService thriftAuthenticatorService;
     /* Handler to actual entitlement service which is going to be wrapped by thrift interface */
@@ -57,9 +57,8 @@ public class ThriftEntitlementServiceImpl implements EntitlementService.Iface {
      * @throws EntitlementException
      * @throws TException
      */
-    @Override
     public String getDecision(String request, String sessionId) throws EntitlementException,
-                                                                       TException {
+            TException {
         try {
             if (thriftAuthenticatorService != null && entitlementService != null) {
                 /* Authenticate session from thrift based authentication service. */
@@ -80,7 +79,7 @@ public class ThriftEntitlementServiceImpl implements EntitlementService.Iface {
 
             } else {
                 String initErrorMsg = "Thrift Authenticator service or Entitlement "
-                                      + "service is not initialized.";
+                        + "service is not initialized.";
                 log.error(initErrorMsg);
                 throw new EntitlementException(initErrorMsg);
             }
@@ -91,17 +90,15 @@ public class ThriftEntitlementServiceImpl implements EntitlementService.Iface {
         }
     }
 
-    @Override
     public String getDecisionByAttributes(String subject, String resource, String action,
-                                          List<String> environment, String sessionID)
-            throws EntitlementException, TException {
+                                          List<String> environment, String sessionID) throws EntitlementException, TException {
         try {
             if (thriftAuthenticatorService != null && entitlementService != null) {
                 /* Authenticate session from thrift based authentication service. */
                 if (thriftAuthenticatorService.isAuthenticated(sessionID)) {
                     try {
                         return entitlementService.getDecisionByAttributes(subject, resource,
-                                                                          action, environment.toArray(new String[environment.size()]));
+                                action, environment.toArray(new String[environment.size()]));
                     } catch (Exception e) {
                         String error = "Error while evaluating XACML decision from thrift service";
                         log.error(error, e);
@@ -115,7 +112,7 @@ public class ThriftEntitlementServiceImpl implements EntitlementService.Iface {
 
             } else {
                 String initErrorMsg = "Thrift Authenticator service or Entitlement "
-                                      + "service is not initialized.";
+                        + "service is not initialized.";
                 log.error(initErrorMsg);
                 throw new EntitlementException(initErrorMsg);
             }
@@ -136,7 +133,7 @@ public class ThriftEntitlementServiceImpl implements EntitlementService.Iface {
                 if (thriftAuthenticatorService.isAuthenticated(sessionID)) {
                     try {
                         return entitlementService.getEntitledAttributes(subjectName, resourceName,
-                                                                        subjectId, action, enableChildSearch);
+                                subjectId, action, enableChildSearch);
                     } catch (Exception e) {
                         String error = "Error while evaluating XACML decision from thrift service";
                         log.error(error, e);
@@ -150,7 +147,7 @@ public class ThriftEntitlementServiceImpl implements EntitlementService.Iface {
 
             } else {
                 String initErrorMsg = "Thrift Authenticator service or Entitlement "
-                                      + "service is not initialized.";
+                        + "service is not initialized.";
                 log.error(initErrorMsg);
                 throw new EntitlementException(initErrorMsg);
             }
@@ -182,7 +179,7 @@ public class ThriftEntitlementServiceImpl implements EntitlementService.Iface {
 
             } else {
                 String initErrorMsg = "Thrift Authenticator service or Entitlement "
-                                      + "service is not initialized.";
+                        + "service is not initialized.";
                 log.error(initErrorMsg);
                 throw new EntitlementException(initErrorMsg);
             }

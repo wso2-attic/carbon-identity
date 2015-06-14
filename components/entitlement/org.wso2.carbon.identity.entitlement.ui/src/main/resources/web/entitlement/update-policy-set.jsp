@@ -1,31 +1,27 @@
-<%--
-  ~ Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-  ~
-  ~ WSO2 Inc. licenses this file to you under the Apache License,
-  ~ Version 2.0 (the "License"); you may not use this file except
-  ~ in compliance with the License.
-  ~ You may obtain a copy of the License at
-  ~
-  ~ http://www.apache.org/licenses/LICENSE-2.0
-  ~
-  ~ Unless required by applicable law or agreed to in writing,
-  ~ software distributed under the License is distributed on an
-  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-  ~ KIND, either express or implied.  See the License for the
-  ~ specific language governing permissions and limitations
-  ~ under the License.
-  --%>
-
-<%@ page import="org.wso2.carbon.identity.entitlement.ui.dto.ObligationDTO" %>
-<%@ page import="org.wso2.carbon.identity.entitlement.ui.dto.PolicyRefIdDTO" %>
-<%@ page import="org.wso2.carbon.identity.entitlement.ui.dto.RowDTO" %>
-<%@ page import="org.wso2.carbon.identity.entitlement.ui.dto.TargetDTO" %>
+<!--
+/*
+* Copyright (c) WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+-->
 <%@ page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
-<%@ page import="java.util.ArrayList" %>
+<%@ page import="org.wso2.carbon.identity.entitlement.ui.dto.*" %>
 <%@ page import="java.util.List" %>
+<%@ page import="java.util.ArrayList" %>
 <jsp:useBean id="entitlementPolicyBean" type="org.wso2.carbon.identity.entitlement.ui.EntitlementPolicyBean"
              class="org.wso2.carbon.identity.entitlement.ui.EntitlementPolicyBean" scope="session"/>
-<jsp:setProperty name="entitlementPolicyBean" property="*"/>
+<jsp:setProperty name="entitlementPolicyBean" property="*" />
 
 <%
     int rowNumber = 0;
@@ -45,12 +41,12 @@
     String delete = request.getParameter("delete");
     String policyRefId = request.getParameter("policyRefId");
     String policySearchString = request.getParameter("policySearchString");
-    if (policyRefId != null && policyRefId.trim().length() > 0) {
+    if(policyRefId != null && policyRefId.trim().length() > 0){
         PolicyRefIdDTO policyRefIdDTO = new PolicyRefIdDTO();
         policyRefIdDTO.setId(policyRefId);
         policyRefIdDTO.setReferenceOnly(true);
         String policyType = request.getParameter("policyType");
-        if ("PolicySet".equals(policyType)) {
+        if("PolicySet".equals(policyType)){
             policyRefIdDTO.setPolicySet(true);
         }
         entitlementPolicyBean.addPolicyRefId(policyRefIdDTO);
@@ -63,36 +59,36 @@
     String maxTargetRowsString = CharacterEncoder.getSafeText(request.getParameter("maxTargetRows"));
     String maxObligationRowsString = CharacterEncoder.getSafeText(request.getParameter("maxObligationRows"));
 
-    try {
-        if (maxTargetRowsString != null && maxTargetRowsString.trim().length() > 0) {
+    try{
+        if(maxTargetRowsString != null && maxTargetRowsString.trim().length() > 0){
             maxTargetRows = Integer.parseInt(maxTargetRowsString);
         }
-        if (maxObligationRowsString != null && maxObligationRowsString.trim().length() > 0) {
+        if(maxObligationRowsString != null && maxObligationRowsString.trim().length() > 0){
             maxObligationRows = Integer.parseInt(maxObligationRowsString);
         }
 
-        if (targetRowIndexString != null && targetRowIndexString.trim().length() > 0) {
+        if(targetRowIndexString != null && targetRowIndexString.trim().length() > 0){
             targetRowIndex = Integer.parseInt(targetRowIndexString);
         }
-        if (obligationRowIndexString != null && obligationRowIndexString.trim().length() > 0) {
+        if(obligationRowIndexString != null && obligationRowIndexString.trim().length() > 0){
             obligationRowIndex = Integer.parseInt(obligationRowIndexString);
         }
-    } catch (Exception e) {
+    } catch (Exception e){
         //if number format exceptions.. just ignore
     }
 
     String policyReferenceOrder = request.getParameter("policyReferenceOrder");
 
-    for (rowNumber = 0; rowNumber < maxTargetRows + 1; rowNumber++) {
+    for(rowNumber = 0; rowNumber < maxTargetRows + 1; rowNumber ++){
 
-        RowDTO rowDTO = new RowDTO();
+        RowDTO  rowDTO = new RowDTO();
         String targetCategory = CharacterEncoder.getSafeText(request.
                 getParameter("targetCategory_" + rowNumber));
-        if (targetRowIndex == rowNumber) {
+        if(targetRowIndex == rowNumber){
             categoryType = targetCategory;
             rowDTO.setNotCompleted(true);
         }
-        if (targetCategory != null && targetCategory.trim().length() > 0) {
+        if(targetCategory != null && targetCategory.trim().length() > 0){
             rowDTO.setCategory(targetCategory);
         } else {
             continue;
@@ -100,50 +96,50 @@
 
         String targetPreFunction = CharacterEncoder.getSafeText(request.
                 getParameter("targetPreFunction_" + rowNumber));
-        if (targetPreFunction != null) {
+        if(targetPreFunction != null){
             rowDTO.setPreFunction(targetPreFunction);
         }
 
         String targetFunction = CharacterEncoder.getSafeText(request.
                 getParameter("targetFunction_" + rowNumber));
-        if (targetFunction != null) {
+        if(targetFunction != null){
             rowDTO.setFunction(targetFunction);
         }
 
 
         String targetAttributeId = CharacterEncoder.getSafeText(request.
                 getParameter("targetAttributeId_" + rowNumber));
-        if (targetAttributeId != null) {
+        if(targetAttributeId != null){
             rowDTO.setAttributeId(targetAttributeId);
-            if (targetRowIndex == rowNumber) {
+            if(targetRowIndex == rowNumber){
                 selectedAttributeId = targetAttributeId;
             }
         }
 
         String targetAttributeType = CharacterEncoder.getSafeText(request.
                 getParameter("targetAttributeTypes_" + rowNumber));
-        if (targetAttributeType != null) {
+        if(targetAttributeType != null){
             rowDTO.setAttributeDataType(targetAttributeType);
-            if (targetRowIndex == rowNumber) {
+            if(targetRowIndex == rowNumber){
                 selectedAttributeDataType = targetAttributeType;
             }
         }
 
         String targetCombineFunction = CharacterEncoder.getSafeText(request.
                 getParameter("targetCombineFunctions_" + rowNumber));
-        if (targetCombineFunction != null) {
+        if(targetCombineFunction != null){
             rowDTO.setCombineFunction(targetCombineFunction);
         }
 
         String targetAttributeValue = CharacterEncoder.getSafeText(request.
                 getParameter("targetAttributeValue_" + rowNumber));
-        if (targetAttributeValue != null && targetAttributeValue.trim().length() > 0) {
+        if(targetAttributeValue != null && targetAttributeValue.trim().length() > 0){
             rowDTO.setAttributeValue(targetAttributeValue);
         } else {
-            if (targetAttributeValue != null && targetAttributeValue.trim().length() > 0) {
+            if(targetAttributeValue != null && targetAttributeValue.trim().length() > 0){
                 rowDTO.setAttributeValue(targetAttributeValue);
             } else {
-                if (targetRowIndex == rowNumber) {
+                if(targetRowIndex == rowNumber){
                     targetDTO.addRowDTO(rowDTO);
                 }
                 continue;
@@ -156,23 +152,23 @@
     entitlementPolicyBean.setTargetDTO(targetDTO);
 
     List<ObligationDTO> obligationDTOs = new ArrayList<ObligationDTO>();
-    for (rowNumber = 0; rowNumber < maxObligationRows + 1; rowNumber++) {
+    for(rowNumber = 0; rowNumber < maxObligationRows + 1; rowNumber ++){
 
         ObligationDTO dto = new ObligationDTO();
         String obligationType = CharacterEncoder.getSafeText(request.
                 getParameter("obligationType_" + rowNumber));
-        if (obligationRowIndex == rowNumber) {
+        if(obligationRowIndex == rowNumber){
             categoryType = null;          // TODO
             dto.setNotCompleted(true);
         }
-        if (obligationType != null) {
+        if(obligationType != null){
             dto.setType(obligationType);
-        } else {
+        } else{
             continue;
         }
         String obligationId = CharacterEncoder.getSafeText(request.
                 getParameter("obligationId_" + rowNumber));
-        if (obligationId != null && obligationId.trim().length() > 0) {
+        if(obligationId != null && obligationId.trim().length() > 0){
             dto.setObligationId(obligationId);
         } else {
             continue;
@@ -180,19 +176,19 @@
 
         String obligationAttributeValue = CharacterEncoder.getSafeText(request.
                 getParameter("obligationAttributeValue_" + rowNumber));
-        if (obligationAttributeValue != null) {
+        if(obligationAttributeValue != null){
             dto.setAttributeValue(obligationAttributeValue);
         }
 
         String obligationAttributeId = CharacterEncoder.getSafeText(request.
                 getParameter("obligationAttributeId_" + rowNumber));
-        if (obligationAttributeId != null) {
+        if(obligationAttributeId != null){
             dto.setResultAttributeId(obligationAttributeId);
         }
 
         String obligationEffect = CharacterEncoder.getSafeText(request.
                 getParameter("obligationEffect_" + rowNumber));
-        if (obligationEffect != null) {
+        if(obligationEffect != null){
             dto.setEffect(obligationEffect);
         }
         // Set obligations
@@ -201,28 +197,28 @@
     entitlementPolicyBean.setObligationDTOs(obligationDTOs);
 
     String forwardTo = nextPage + ".jsp";
-    if (policyReferenceOrder != null && policyReferenceOrder.trim().length() > 0) {
-        if (policyRefId != null && policyRefId.trim().length() > 0 && !"true".equals(delete)) {
+    if(policyReferenceOrder != null && policyReferenceOrder.trim().length() > 0){
+        if(policyRefId != null && policyRefId.trim().length() > 0 && !"true".equals(delete)){
             entitlementPolicyBean.setPolicyReferenceOrder(policyReferenceOrder + "," + policyRefId);
         } else {
             entitlementPolicyBean.setPolicyReferenceOrder(policyReferenceOrder);
         }
     }
 
-    if ("true".equals(delete)) {
+    if("true".equals(delete)){
         forwardTo = "delete-policy-entry.jsp";
-        if (policyRefId != null && policyRefId.trim().length() > 0) {
+        if(policyRefId != null && policyRefId.trim().length() > 0){
             forwardTo = forwardTo + "?policyRefId=" + policyRefId;
         }
-    } else if (categoryType != null && categoryType.trim().length() > 0) {
+    } else if(categoryType != null && categoryType.trim().length() > 0){
         forwardTo = forwardTo + "?category=" + categoryType + "&returnPage=create-policy-set";
-        if (selectedAttributeDataType != null && selectedAttributeDataType.trim().length() > 0) {
+        if(selectedAttributeDataType != null && selectedAttributeDataType.trim().length() > 0){
             forwardTo = forwardTo + "&selectedAttributeDataType=" + selectedAttributeDataType;
         }
-        if (selectedAttributeId != null && selectedAttributeId.trim().length() > 0) {
+        if(selectedAttributeId != null && selectedAttributeId.trim().length() > 0){
             forwardTo = forwardTo + "&selectedAttributeId=" + selectedAttributeId;
         }
-    } else if (policySearchString != null && policySearchString.trim().length() > 0) {
+    } else if(policySearchString != null && policySearchString.trim().length() > 0){
         forwardTo = forwardTo + "?policySearchString=" + policySearchString;
     }
 %>

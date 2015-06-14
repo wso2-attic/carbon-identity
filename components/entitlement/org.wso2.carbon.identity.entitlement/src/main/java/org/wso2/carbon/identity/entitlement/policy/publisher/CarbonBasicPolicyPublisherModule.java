@@ -1,20 +1,20 @@
 /*
- * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
- *
- * WSO2 Inc. licenses this file to you under the Apache License,
- * Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
- */
+*  Copyright (c)  WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*
+*  WSO2 Inc. licenses this file to you under the Apache License,
+*  Version 2.0 (the "License"); you may not use this file except
+*  in compliance with the License.
+*  You may obtain a copy of the License at
+*
+*    http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing,
+* software distributed under the License is distributed on an
+* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+* KIND, either express or implied.  See the License for the
+* specific language governing permissions and limitations
+* under the License.
+*/
 package org.wso2.carbon.identity.entitlement.policy.publisher;
 
 
@@ -47,10 +47,7 @@ import java.util.Properties;
 public class CarbonBasicPolicyPublisherModule extends AbstractPolicyPublisherModule {
 
     private static final String MODULE_NAME = "Carbon Basic Auth Policy Publisher Module";
-    private static final Log log = LogFactory.getLog(CarbonBasicPolicyPublisherModule.class);
-    public static final String SUBSCRIBER_URL = "subscriberURL";
-    public static final String SUBSCRIBER_USER_NAME = "subscriberUserName";
-    public static final String SUBSCRIBER_PASSWORD = "subscriberPassword";
+    private static Log log = LogFactory.getLog(CarbonBasicPolicyPublisherModule.class);
     private ConfigurationContext configCtx;
     private String serverUrl;
 
@@ -63,11 +60,11 @@ public class CarbonBasicPolicyPublisherModule extends AbstractPolicyPublisherMod
 
         PublisherPropertyDTO[] propertyDTOs = propertyHolder.getPropertyDTOs();
         for (PublisherPropertyDTO dto : propertyDTOs) {
-            if (SUBSCRIBER_URL.equals(dto.getId())) {
+            if ("subscriberURL".equals(dto.getId())) {
                 serverUrl = dto.getValue();
-            } else if (SUBSCRIBER_USER_NAME.equals(dto.getId())) {
+            } else if ("subscriberUserName".equals(dto.getId())) {
                 serverUserName = dto.getValue();
-            } else if (SUBSCRIBER_PASSWORD.equals(dto.getId())) {
+            } else if ("subscriberPassword".equals(dto.getId())) {
                 serverPassword = dto.getValue();
             }
         }
@@ -80,7 +77,6 @@ public class CarbonBasicPolicyPublisherModule extends AbstractPolicyPublisherMod
         }
     }
 
-    @Override
     public String getModuleName() {
         return MODULE_NAME;
     }
@@ -106,25 +102,24 @@ public class CarbonBasicPolicyPublisherModule extends AbstractPolicyPublisherMod
         dataMap3.put(AbstractPolicyPublisherModule.ORDER, "3");
         dataMap3.put(AbstractPolicyPublisherModule.SECRET, "true");
 
-        properties.put(SUBSCRIBER_URL, dataMap1);
-        properties.put(SUBSCRIBER_USER_NAME, dataMap2);
-        properties.put(SUBSCRIBER_PASSWORD, dataMap3);
+        properties.put("subscriberURL", dataMap1);
+        properties.put("subscriberUserName", dataMap2);
+        properties.put("subscriberPassword", dataMap3);
 
         return properties;
     }
 
-    @Override
     public void publishNew(PolicyDTO policyDTO) throws EntitlementException {
 
         String body = "<xsd:addPolicy xmlns:xsd=\"http://org.apache.axis2/xsd\" xmlns:xsd1=\"http://dto.entitlement.identity.carbon.wso2.org/xsd\">" +
-                      "  <xsd:policyDTO>" +
-                      "  <xsd1:active>" + Boolean.toString(policyDTO.isActive()) + "</xsd1:active>" +
-                      "  <xsd1:policy><![CDATA[" + policyDTO.getPolicy() + "]]>  </xsd1:policy>" +
-                      "  <xsd1:policyId>" + policyDTO.getPolicyId() + "</xsd1:policyId>" +
-                      "  <xsd1:policyOrder>" + policyDTO.getPolicyOrder() + "</xsd1:policyOrder>" +
-                      "  <xsd1:promote>true</xsd1:promote>" +
-                      "  </xsd:policyDTO>" +
-                      "  </xsd:addPolicy>";
+                "  <xsd:policyDTO>" +
+                "  <xsd1:active>" + Boolean.toString(policyDTO.isActive()) + "</xsd1:active>" +
+                "  <xsd1:policy><![CDATA[" + policyDTO.getPolicy() + "]]>  </xsd1:policy>" +
+                "  <xsd1:policyId>" + policyDTO.getPolicyId() + "</xsd1:policyId>" +
+                "  <xsd1:policyOrder>" + policyDTO.getPolicyOrder() + "</xsd1:policyOrder>" +
+                "  <xsd1:promote>true</xsd1:promote>" +
+                "  </xsd:policyDTO>" +
+                "  </xsd:addPolicy>";
         doSend(body);
     }
 
@@ -132,9 +127,9 @@ public class CarbonBasicPolicyPublisherModule extends AbstractPolicyPublisherMod
     public void order(PolicyDTO policyDTO) throws EntitlementException {
 
         String body = "<xsd:orderPolicy xmlns:xsd=\"http://org.apache.axis2/xsd\">" +
-                      "<xsd:policyId>" + policyDTO.getPolicyId() + "</xsd:policyId>" +
-                      "<xsd:newOrder>" + policyDTO.getPolicyOrder() + "</xsd:newOrder>" +
-                      "</xsd:orderPolicy>";
+                "<xsd:policyId>" + policyDTO.getPolicyId() + "</xsd:policyId>" +
+                "<xsd:newOrder>" + policyDTO.getPolicyOrder() + "</xsd:newOrder>" +
+                "</xsd:orderPolicy>";
         doSend(body);
     }
 
@@ -142,9 +137,9 @@ public class CarbonBasicPolicyPublisherModule extends AbstractPolicyPublisherMod
     public void disable(PolicyDTO policyDTO) throws EntitlementException {
 
         String body = "<xsd:enableDisablePolicy  xmlns:xsd=\"http://org.apache.axis2/xsd\">" +
-                      "<xsd:policyId>" + policyDTO.getPolicyId() + "</xsd:policyId>" +
-                      "<xsd:enable>false</xsd:enable>" +
-                      "</xsd:enableDisablePolicy>";
+                "<xsd:policyId>" + policyDTO.getPolicyId() + "</xsd:policyId>" +
+                "<xsd:enable>false</xsd:enable>" +
+                "</xsd:enableDisablePolicy>";
         doSend(body);
     }
 
@@ -152,9 +147,9 @@ public class CarbonBasicPolicyPublisherModule extends AbstractPolicyPublisherMod
     public void enable(PolicyDTO policyDTO) throws EntitlementException {
 
         String body = "<xsd:enableDisablePolicy  xmlns:xsd=\"http://org.apache.axis2/xsd\">" +
-                      "<xsd:policyId>" + policyDTO.getPolicyId() + "</xsd:policyId>" +
-                      "<xsd:enable>true</xsd:enable>" +
-                      "</xsd:enableDisablePolicy>";
+                "<xsd:policyId>" + policyDTO.getPolicyId() + "</xsd:policyId>" +
+                "<xsd:enable>true</xsd:enable>" +
+                "</xsd:enableDisablePolicy>";
         doSend(body);
     }
 
@@ -162,12 +157,12 @@ public class CarbonBasicPolicyPublisherModule extends AbstractPolicyPublisherMod
     public void update(PolicyDTO policyDTO) throws EntitlementException {
 
         String body = "<xsd:updatePolicy xmlns:xsd=\"http://org.apache.axis2/xsd\" xmlns:xsd1=\"http://dto.entitlement.identity.carbon.wso2.org/xsd\">" +
-                      "  <xsd:policyDTO>" +
-                      "  <xsd1:policy><![CDATA[" + policyDTO.getPolicy() + "]]>  </xsd1:policy>" +
-                      "  <xsd:policyId>" + policyDTO.getPolicyId() + "</xsd:policyId>" +
-                      "  <xsd1:promote>true</xsd1:promote>" +
-                      "  </xsd:policyDTO>" +
-                      "  </xsd:updatePolicy>";
+                "  <xsd:policyDTO>" +
+                "  <xsd1:policy><![CDATA[" + policyDTO.getPolicy() + "]]>  </xsd1:policy>" +
+                "  <xsd:policyId>" + policyDTO.getPolicyId() + "</xsd:policyId>" +
+                "  <xsd1:promote>true</xsd1:promote>" +
+                "  </xsd:policyDTO>" +
+                "  </xsd:updatePolicy>";
         doSend(body);
     }
 
@@ -175,8 +170,8 @@ public class CarbonBasicPolicyPublisherModule extends AbstractPolicyPublisherMod
     public void delete(PolicyDTO policyDTO) throws EntitlementException {
 
         String body = "<xsd:dePromotePolicy xmlns:xsd=\"http://org.apache.axis2/xsd\">" +
-                      "<xsd:policyId>" + policyDTO.getPolicyId() + "</xsd:policyId>" +
-                      "</xsd:dePromotePolicy>";
+                "<xsd:policyId>" + policyDTO.getPolicyId() + "</xsd:policyId>" +
+                "</xsd:dePromotePolicy>";
         doSend(body);
     }
 

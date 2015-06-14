@@ -1,20 +1,20 @@
 /*
- * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
- *
- * WSO2 Inc. licenses this file to you under the Apache License,
- * Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
- */
+*  Copyright (c)  WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*
+*  WSO2 Inc. licenses this file to you under the Apache License,
+*  Version 2.0 (the "License"); you may not use this file except
+*  in compliance with the License.
+*  You may obtain a copy of the License at
+*
+*    http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing,
+* software distributed under the License is distributed on an
+* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+* KIND, either express or implied.  See the License for the
+* specific language governing permissions and limitations
+* under the License.
+*/
 
 package org.wso2.carbon.identity.entitlement.policy.store;
 
@@ -35,15 +35,7 @@ import org.wso2.carbon.registry.core.Registry;
 import org.wso2.carbon.registry.core.Resource;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 
 /**
  *
@@ -53,10 +45,11 @@ public class RegistryPolicyStoreManageModule extends AbstractPolicyFinderModule
 
     private static final String MODULE_NAME = "Registry Policy Finder Module";
     private static final String PROPERTY_POLICY_STORE_PATH = "policyStorePath";
+    private static final String PROPERTY_ATTRIBUTE_SEPARATOR = "attributeValueSeparator";
     private static final String DEFAULT_POLICY_STORE_PATH = "/repository/identity/entitlement" +
-                                                            "/policy/pdp/";
+            "/policy/pdp/";
     private static final String KEY_VALUE_POLICY_META_DATA = "policyMetaData";
-    private static final Log log = LogFactory.getLog(RegistryPolicyStoreManageModule.class);
+    private static Log log = LogFactory.getLog(RegistryPolicyStoreManageModule.class);
     private String policyStorePath;
 
     @Override
@@ -142,9 +135,7 @@ public class RegistryPolicyStoreManageModule extends AbstractPolicyFinderModule
             policyPath = policyStorePath + policyId;
             return registry.resourceExists(policyPath);
         } catch (RegistryException e) {
-            if (log.isDebugEnabled()) {
-                log.debug("Exception ignored. ", e);
-            }
+            //ignore
             return false;
         }
     }
@@ -193,7 +184,7 @@ public class RegistryPolicyStoreManageModule extends AbstractPolicyFinderModule
             return dto.getPolicy();
         } catch (Exception e) {
             log.error("Policy with identifier " + policyId + " can not be retrieved " +
-                      "from registry policy finder module", e);
+                    "from registry policy finder module", e);
         }
         return null;
     }
@@ -294,7 +285,7 @@ public class RegistryPolicyStoreManageModule extends AbstractPolicyFinderModule
                 String[] policySetIdRef = policyDTO.getPolicySetIdReferences();
 
                 if (policyIdRef != null && policyIdRef.length > 0 || policySetIdRef != null &&
-                                                                     policySetIdRef.length > 0) {
+                        policySetIdRef.length > 0) {
                     for (PolicyDTO dto : policyDTOs) {
                         if (policyIdRef != null) {
                             for (String policyId : policyIdRef) {
@@ -358,10 +349,10 @@ public class RegistryPolicyStoreManageModule extends AbstractPolicyFinderModule
         if (attributeDTOs != null) {
             for (AttributeDTO attributeDTO : attributeDTOs) {
                 resource.setProperty(KEY_VALUE_POLICY_META_DATA + attributeElementNo,
-                                     attributeDTO.getCategory() + "," +
-                                     attributeDTO.getAttributeValue() + "," +
-                                     attributeDTO.getAttributeId() + "," +
-                                     attributeDTO.getAttributeDataType());
+                        attributeDTO.getCategory() + "," +
+                                attributeDTO.getAttributeValue() + "," +
+                                attributeDTO.getAttributeId() + "," +
+                                attributeDTO.getAttributeDataType());
                 attributeElementNo++;
             }
         }

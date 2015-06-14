@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * WSO2 Inc. licenses this file to you under the Apache License,
- * Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License.
- * You may obtain a copy of the License at
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -27,12 +27,7 @@ import org.wso2.balana.ParsingException;
 import org.wso2.balana.ctx.AbstractRequestCtx;
 import org.wso2.balana.ctx.RequestCtxFactory;
 import org.wso2.balana.ctx.ResponseCtx;
-import org.wso2.balana.finder.AttributeFinder;
-import org.wso2.balana.finder.AttributeFinderModule;
-import org.wso2.balana.finder.PolicyFinder;
-import org.wso2.balana.finder.PolicyFinderModule;
-import org.wso2.balana.finder.ResourceFinder;
-import org.wso2.balana.finder.ResourceFinderModule;
+import org.wso2.balana.finder.*;
 import org.wso2.balana.finder.impl.CurrentEnvModule;
 import org.wso2.balana.finder.impl.SelectorModule;
 import org.wso2.carbon.context.CarbonContext;
@@ -57,19 +52,12 @@ import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 
 public class EntitlementEngine {
 
     private static final Object lock = new Object();
-    private static final Log log = LogFactory.getLog(EntitlementEngine.class);
-    private static EntitlementEngineCache entitlementEngines = EntitlementEngineCache.getInstance();
-    private static volatile EntitlementEngine entitlementEngine;
+    private static Log log = LogFactory.getLog(EntitlementEngine.class);
     private PolicyFinder papPolicyFinder;
     private CarbonAttributeFinder carbonAttributeFinder;
     private CarbonResourceFinder carbonResourceFinder;
@@ -82,6 +70,8 @@ public class EntitlementEngine {
     private boolean pdpDecisionCacheEnable;
     private List<AttributeFinderModule> attributeModules = new ArrayList<AttributeFinderModule>();
     private List<ResourceFinderModule> resourceModules = new ArrayList<ResourceFinderModule>();
+    private static EntitlementEngineCache entitlementEngines = EntitlementEngineCache.getInstance();
+    private static EntitlementEngine entitlementEngine;
     private DecisionCache decisionCache = null;
     private SimpleDecisionCache simpleDecisionCache = null;
 
@@ -105,7 +95,7 @@ public class EntitlementEngine {
 
         if (balanaConfig) {
             System.setProperty("org.wso2.balana.PDPConfigFile", CarbonUtils.getCarbonConfigDirPath()
-                                                                + File.separator + "security" + File.separator + "balana-config.xml");
+                    + File.separator + "security" + File.separator + "balana-config.xml");
         }
 
         // if PDP config file is not configured, then balana instance is created from default configurations
@@ -126,10 +116,8 @@ public class EntitlementEngine {
             if (cacheInterval != null) {
                 try {
                     pdpDecisionCachingInterval = Integer.parseInt(cacheInterval.trim());
-                } catch (NumberFormatException e) {
-                    if(log.isDebugEnabled()){
-                        log.debug("Exception ignored. ", e);
-                    }
+                } catch (Exception e) {
+                    //ignore
                 }
             }
         }
@@ -147,8 +135,8 @@ public class EntitlementEngine {
             // Test PDP with all finders but policy finder is different
             PolicyFinder policyFinder = new PolicyFinder();
             Set<PolicyFinderModule> policyModules = new HashSet<PolicyFinderModule>();
-            PAPPolicyFinder tempPapPolicyFinder = new PAPPolicyFinder(new PAPPolicyStoreReader(new PAPPolicyStore()));
-            policyModules.add(tempPapPolicyFinder);
+            PAPPolicyFinder papPolicyFinder = new PAPPolicyFinder(new PAPPolicyStoreReader(new PAPPolicyStore()));
+            policyModules.add(papPolicyFinder);
             policyFinder.setModules(policyModules);
             this.papPolicyFinder = policyFinder;
             AttributeFinder attributeFinder = new AttributeFinder();
@@ -179,10 +167,10 @@ public class EntitlementEngine {
      */
     public static EntitlementEngine getInstance() {
         int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
-        if (tenantId == MultitenantConstants.SUPER_TENANT_ID) {
-            if (entitlementEngine == null) {
+        if(tenantId == MultitenantConstants.SUPER_TENANT_ID){
+            if(entitlementEngine == null){
                 synchronized (lock) {
-                    if (entitlementEngine == null) {
+                    if(entitlementEngine == null) {
                         entitlementEngine = new EntitlementEngine(tenantId);
                     }
                 }
@@ -307,7 +295,7 @@ public class EntitlementEngine {
         }
         String response;
         String request = (subject != null ? subject : "") + (resource != null ? resource : "") +
-                         (action != null ? action : "") + (environmentValue != null ? environmentValue : "");
+                (action != null ? action : "") + (environmentValue != null ? environmentValue : "");
 
         if ((response = getFromCache(request, true)) != null) {
             if (log.isDebugEnabled()) {
@@ -448,8 +436,8 @@ public class EntitlementEngine {
         attributeModules.add(carbonAttributeFinder);
         attributeModules.add(envAttributeModule);
         attributeModules.add(selectorAttributeModule);
-        for (AttributeFinderModule module : balana.getPdpConfig().getAttributeFinder().getModules()) {
-            if (module instanceof CurrentEnvModule || module instanceof SelectorModule) {
+        for(AttributeFinderModule module : balana.getPdpConfig().getAttributeFinder().getModules()){
+            if( module instanceof  CurrentEnvModule || module instanceof  SelectorModule){
                 continue;
             }
             attributeModules.add(module);
@@ -464,7 +452,7 @@ public class EntitlementEngine {
         carbonResourceFinder = new CarbonResourceFinder(tenantId);
         carbonResourceFinder.init();
         resourceModules.add(carbonResourceFinder);
-        for (ResourceFinderModule module : balana.getPdpConfig().getResourceFinder().getModules()) {
+        for(ResourceFinderModule module : balana.getPdpConfig().getResourceFinder().getModules()){
             resourceModules.add(module);
         }
     }

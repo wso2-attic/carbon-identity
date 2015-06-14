@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * WSO2 Inc. licenses this file to you under the Apache License,
- * Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License.
- * You may obtain a copy of the License at
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -19,13 +19,7 @@ package org.wso2.carbon.identity.entitlement.pap.store;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.balana.AbstractPolicy;
-import org.wso2.balana.MatchResult;
-import org.wso2.balana.Policy;
-import org.wso2.balana.PolicyMetaData;
-import org.wso2.balana.PolicyReference;
-import org.wso2.balana.PolicySet;
-import org.wso2.balana.VersionConstraints;
+import org.wso2.balana.*;
 import org.wso2.balana.combine.PolicyCombiningAlgorithm;
 import org.wso2.balana.combine.xacml2.OnlyOneApplicablePolicyAlg;
 import org.wso2.balana.ctx.EvaluationCtx;
@@ -44,7 +38,7 @@ import java.util.List;
 public class PAPPolicyFinder extends PolicyFinderModule {
 
     // the logger we'll use for all messages
-    private static final Log log = LogFactory.getLog(PAPPolicyFinder.class);
+    private static Log log = LogFactory.getLog(PAPPolicyFinder.class);
     // the list of policy URLs passed to the constructor
     private PAPPolicyStoreReader policyReader;
     // the map of policies
@@ -74,7 +68,6 @@ public class PAPPolicyFinder extends PolicyFinderModule {
      *
      * @return true
      */
-    @Override
     public boolean isIdReferenceSupported() {
         return true;
     }
@@ -84,7 +77,6 @@ public class PAPPolicyFinder extends PolicyFinderModule {
      *
      * @see org.wso2.balana.finder.PolicyFinderModule#isRequestSupported()
      */
-    @Override
     public boolean isRequestSupported() {
         return true;
     }
@@ -94,7 +86,6 @@ public class PAPPolicyFinder extends PolicyFinderModule {
      *
      * @see org.wso2.balana.finder.PolicyFinderModule#init(org.wso2.balana.finder.CarbonPolicyFinder)
      */
-    @Override
     public void init(PolicyFinder finder) {
 
         PolicyCombiningAlgorithm algorithm;
@@ -117,7 +108,6 @@ public class PAPPolicyFinder extends PolicyFinderModule {
      * @see org.wso2.balana.finder.PolicyFinderModule#findPolicy(java.net.URI, int,
      * org.wso2.balana.VersionConstraints, org.wso2.balana.PolicyMetaData)
      */
-    @Override
     public PolicyFinderResult findPolicy(URI idReference, int type, VersionConstraints constraints,
                                          PolicyMetaData parentMetaData) {
 
@@ -128,7 +118,7 @@ public class PAPPolicyFinder extends PolicyFinderModule {
 
         try {
             AbstractPolicy policyFromStore = policyReader.readPolicy(idReference.toString(),
-                                                                     this.policyFinder);
+                    this.policyFinder);
 
             if (policyFromStore != null) {
                 if (type == PolicyReference.POLICY_REFERENCE) {
@@ -160,13 +150,12 @@ public class PAPPolicyFinder extends PolicyFinderModule {
      *
      * @see org.wso2.balana.finder.PolicyFinderModule#findPolicy(org.wso2.balana.EvaluationCtx)
      */
-    @Override
     public PolicyFinderResult findPolicy(EvaluationCtx context) {
 
         // clear all current policies
         policies.getPolicies().clear();
 
-        List<AbstractPolicy> list = new ArrayList<AbstractPolicy>();
+        ArrayList<AbstractPolicy> list = new ArrayList<AbstractPolicy>();
 
         try {
             for (String policyId : policyIds) {
@@ -180,7 +169,7 @@ public class PAPPolicyFinder extends PolicyFinderModule {
                     policy = policyReader.readPolicy(policyId, this.policyFinder);
                 } catch (EntitlementException e) {
                     //log and ignore
-                    log.error("Error while reading policy. ", e);
+                    log.error(e);
                 }
                 if (policy == null) {
                     continue;
@@ -213,10 +202,7 @@ public class PAPPolicyFinder extends PolicyFinderModule {
                 return new PolicyFinderResult(policy);
             }
         } catch (EntitlementException e) {
-            if (log.isDebugEnabled()) {
-                log.debug("Ignored Exception. ", e);
-            }
-            List<String> code = new ArrayList<>();
+            ArrayList<String> code = new ArrayList<String>();
             code.add(Status.STATUS_PROCESSING_ERROR);
             Status status = new Status(code, e.getMessage());
             return new PolicyFinderResult(status);

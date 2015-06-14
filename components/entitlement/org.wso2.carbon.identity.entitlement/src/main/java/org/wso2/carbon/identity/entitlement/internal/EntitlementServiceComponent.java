@@ -1,20 +1,20 @@
 /*
- * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
- *
- * WSO2 Inc. licenses this file to you under the Apache License,
- * Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
- */
+*  Copyright (c) WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*
+*  WSO2 Inc. licenses this file to you under the Apache License,
+*  Version 2.0 (the "License"); you may not use this file except
+*  in compliance with the License.
+*  You may obtain a copy of the License at
+*
+*    http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing,
+* software distributed under the License is distributed on an
+* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+* KIND, either express or implied.  See the License for the
+* specific language governing permissions and limitations
+* under the License.
+*/
 package org.wso2.carbon.identity.entitlement.internal;
 
 import org.apache.commons.io.FileUtils;
@@ -28,7 +28,6 @@ import org.apache.thrift.transport.TTransportException;
 import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.base.ServerConfigurationException;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
-import org.wso2.carbon.identity.entitlement.EntitlementException;
 import org.wso2.carbon.identity.entitlement.EntitlementUtil;
 import org.wso2.carbon.identity.entitlement.PDPConstants;
 import org.wso2.carbon.identity.entitlement.dto.PolicyDTO;
@@ -136,12 +135,24 @@ public class EntitlementServiceComponent {
         try {
             return registryService.getGovernanceSystemRegistry(tenantId);
         } catch (RegistryException e) {
-            if (log.isDebugEnabled()) {
-                log.debug("Ignoring RegistryException. ", e);
-            }
+            // ignore
         }
         return null;
     }
+
+    /**
+     * @param httpService
+     */
+    /*protected void setHttpService(HttpService httpService) {
+        httpServiceInstance = httpService;
+    }
+
+    *//**
+     * @param httpService
+     *//*
+    protected void unsetHttpService(HttpService httpService) {
+        httpServiceInstance = null;
+    }*/
 
     public static NotificationSender getNotificationSender() {
         return EntitlementServiceComponent.notificationSender;
@@ -181,51 +192,53 @@ public class EntitlementServiceComponent {
             String startUpPolicyAdding = entitlementConfig.getEngineProperties().getProperty(
                     PDPConstants.START_UP_POLICY_ADDING);
 
-            if (startUpPolicyAdding != null && Boolean.parseBoolean(startUpPolicyAdding)
-                && (papPolicyStore.getAllPolicyIds() == null || papPolicyStore.getAllPolicyIds().length == 0)) {
-                File policyFolder = null;
-                String policyPathFromConfig = entitlementConfig.getEngineProperties().getProperty(
-                        PDPConstants.FILESYSTEM_POLICY_PATH);
+            if (startUpPolicyAdding != null && Boolean.parseBoolean(startUpPolicyAdding)) {
+                if (papPolicyStore.getAllPolicyIds() == null
+                        || papPolicyStore.getAllPolicyIds().length == 0) {
+                    File policyFolder = null;
+                    String policyPathFromConfig = entitlementConfig.getEngineProperties().getProperty(
+                            PDPConstants.FILESYSTEM_POLICY_PATH);
 
-                if (policyPathFromConfig != null && policyPathFromConfig.trim().length() > 0) {
-                    policyFolder = new File(policyPathFromConfig);
-                }
+                    if (policyPathFromConfig != null && policyPathFromConfig.trim().length() > 0) {
+                        policyFolder = new File(policyPathFromConfig);
+                    }
 
-                if (policyFolder != null && !policyFolder.exists()) {
-                    log.warn("Defined policy directory location is not exit. " +
-                             "Therefore using default policy location");
-                }
+                    if (policyFolder != null && !policyFolder.exists()) {
+                        log.warn("Defined policy directory location is not exit. " +
+                                "Therefore using default policy location");
+                    }
 
-                if (policyPathFromConfig == null || (policyFolder != null && !policyFolder.exists())) {
-                    policyFolder = new File(CarbonUtils.getCarbonHome() + File.separator
-                                            + "repository" + File.separator + "resources" + File.separator
-                                            + "security" + File.separator + "policies" + File.separator + "xacml");
+                    if (policyPathFromConfig == null || !policyFolder.exists()) {
+                        policyFolder = new File(CarbonUtils.getCarbonHome() + File.separator
+                                + "repository" + File.separator + "resources" + File.separator
+                                + "security" + File.separator + "policies" + File.separator + "xacml");
 
-                }
+                    }
 
-                boolean customPolicies = false;
+                    boolean customPolicies = false;
 
-                if (policyFolder != null && policyFolder.exists()) {
-                    for (File policyFile : policyFolder.listFiles()) {
-                        if (policyFile.isFile()) {
-                            PolicyDTO policyDTO = new PolicyDTO();
-                            policyDTO.setPolicy(FileUtils.readFileToString(policyFile));
-                            try {
-                                EntitlementUtil.addFilesystemPolicy(policyDTO,
-                                                                    registryService.getGovernanceSystemRegistry(), true);
-                            } catch (Exception e) {
-                                // log and ignore
-                                log.error("Error while adding XACML policies", e);
+                    if (policyFolder != null && policyFolder.exists()) {
+                        for (File policyFile : policyFolder.listFiles()) {
+                            if (policyFile.isFile()) {
+                                PolicyDTO policyDTO = new PolicyDTO();
+                                policyDTO.setPolicy(FileUtils.readFileToString(policyFile));
+                                try {
+                                    EntitlementUtil.addFilesystemPolicy(policyDTO,
+                                            registryService.getGovernanceSystemRegistry(), true);
+                                } catch (Exception e) {
+                                    // log and ignore
+                                    log.error("Error while adding XACML policies", e);
+                                }
+                                customPolicies = true;
+
                             }
-                            customPolicies = true;
-
                         }
                     }
-                }
 
-                if (!customPolicies) {
-                    // load default policies
-                    EntitlementUtil.addSamplePolicies(registryService.getGovernanceSystemRegistry());
+                    if (!customPolicies) {
+                        // load default policies
+                        EntitlementUtil.addSamplePolicies(registryService.getGovernanceSystemRegistry());
+                    }
                 }
             }
             // Cache clearing listener is always registered since cache clearing is a must when
@@ -316,7 +329,8 @@ public class EntitlementServiceComponent {
      *
      * @param authenticationService <code>ThriftAuthenticatorService</code>
      */
-    protected void unsetThriftAuthenticationService(ThriftAuthenticatorService authenticationService) {
+    protected void unsetThriftAuthenticationService(
+            ThriftAuthenticatorService authenticationService) {
         if (log.isDebugEnabled()) {
             log.debug("ThriftAuthenticatorService unset in Entitlement bundle");
         }
@@ -327,7 +341,7 @@ public class EntitlementServiceComponent {
         startThriftEntitlementService();
     }
 
-    private void startThriftEntitlementService() throws EntitlementException {
+    private void startThriftEntitlementService() throws Exception {
         try {
             //read identity.xml
             IdentityUtil.populateProperties();
@@ -347,14 +361,17 @@ public class EntitlementServiceComponent {
 
                 //set it in parameters
                 transportParam.setKeyStore(keystorePath, keystorePassword);
+                //int receivePort = 10395;
                 int receivePort = readThriftReceivePort();
+                //int clientTimeOut = 10000;
                 int clientTimeOut = Integer.parseInt(IdentityUtil.getProperty(
                         ThriftConfigConstants.PARAM_CLIENT_TIMEOUT));
+                //String ifAddress = "localhost";
                 TServerSocket serverTransport =
                         TSSLTransportFactory.getServerSocket(receivePort,
-                                                             clientTimeOut,
-                                                             getHostAddress(readThriftHostName()),
-                                                             transportParam);
+                                clientTimeOut,
+                                getHostAddress(readThriftHostName()),
+                                transportParam);
 
                 EntitlementService.Processor processor = new EntitlementService.Processor(
                         new ThriftEntitlementServiceImpl());
@@ -362,7 +379,10 @@ public class EntitlementServiceComponent {
                 //TODO: have to decide on the protocol.
                 TServer server = new TThreadPoolServer(new TThreadPoolServer.Args(serverTransport).
                         processor(processor));
-
+                //TServer server = new TThreadPoolServer(new TThreadPoolServer.Args())
+/*
+                TServer server = new TThreadPoolServer(processor, serverTransport,
+                                                   new TCompactProtocol.Factory());*/
                 Runnable serverThread = new ServerRunnable(server);
                 executor.submit(serverThread);
 
@@ -373,15 +393,15 @@ public class EntitlementServiceComponent {
         } catch (TTransportException e) {
             String transportErrorMsg = "Error in initializing thrift transport";
             log.error(transportErrorMsg, e);
-            throw new EntitlementException(transportErrorMsg);
+            throw new Exception(transportErrorMsg);
         } catch (UnknownHostException e) {
             String hostErrorMsg = "Error in obtaining host name";
             log.error(hostErrorMsg, e);
-            throw new EntitlementException(hostErrorMsg);
+            throw new Exception(hostErrorMsg);
         } catch (ServerConfigurationException e) {
             String configError = "Error in reading configuration.";
             log.error(configError, e);
-            throw new EntitlementException(configError);
+            throw new Exception(configError);
 
         }
 
@@ -425,7 +445,7 @@ public class EntitlementServiceComponent {
                 byte[] byteAddress = new byte[4];
                 for (int i = 0; i < splittedString.length; i++) {
                     if (Integer.parseInt(splittedString[i]) > 127) {
-                        byteAddress[i] = Integer.valueOf(Integer.parseInt(splittedString[i]) - 256).byteValue();
+                        byteAddress[i] = new Integer(Integer.parseInt(splittedString[i]) - 256).byteValue();
                     } else {
                         byteAddress[i] = Byte.parseByte(splittedString[i]);
                     }
@@ -444,7 +464,7 @@ public class EntitlementServiceComponent {
      * Read the thrift hostname from identity.xml which overrides the hostName from carbon.xml on facilitating
      * identifying the host for thrift server .
      */
-    private String readThriftHostName() throws EntitlementException {
+    private String readThriftHostName() throws SocketException {
 
         String thriftHostName = IdentityUtil.getProperty(ThriftConfigConstants.PARAM_HOST_NAME);
 
@@ -452,11 +472,7 @@ public class EntitlementServiceComponent {
         if (thriftHostName != null) {
             return thriftHostName;
         } else {
-            try {
-                return NetworkUtils.getLocalHostname();
-            } catch (SocketException e) {
-                throw new EntitlementException("Error while reading local host name. ", e);
-            }
+            return NetworkUtils.getLocalHostname();
         }
     }
 
@@ -477,7 +493,6 @@ public class EntitlementServiceComponent {
             this.server = server;
         }
 
-        @Override
         public void run() {
             server.serve();
         }

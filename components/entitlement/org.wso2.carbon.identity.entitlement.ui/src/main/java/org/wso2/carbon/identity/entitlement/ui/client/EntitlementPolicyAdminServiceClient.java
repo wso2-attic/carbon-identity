@@ -1,20 +1,20 @@
 /*
- * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
- *
- * WSO2 Inc. licenses this file to you under the Apache License,
- * Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
- */
+*  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*
+*  WSO2 Inc. licenses this file to you under the Apache License,
+*  Version 2.0 (the "License"); you may not use this file except
+*  in compliance with the License.
+*  You may obtain a copy of the License at
+*
+*    http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing,
+* software distributed under the License is distributed on an
+* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+* KIND, either express or implied.  See the License for the
+* specific language governing permissions and limitations
+* under the License.
+*/
 package org.wso2.carbon.identity.entitlement.ui.client;
 
 import org.apache.axis2.AxisFault;
@@ -30,18 +30,14 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.entitlement.stub.EntitlementPolicyAdminServiceEntitlementException;
 import org.wso2.carbon.identity.entitlement.stub.EntitlementPolicyAdminServiceStub;
-import org.wso2.carbon.identity.entitlement.stub.dto.EntitlementFinderDataHolder;
-import org.wso2.carbon.identity.entitlement.stub.dto.EntitlementTreeNodeDTO;
-import org.wso2.carbon.identity.entitlement.stub.dto.PaginatedPolicySetDTO;
-import org.wso2.carbon.identity.entitlement.stub.dto.PaginatedStatusHolder;
-import org.wso2.carbon.identity.entitlement.stub.dto.PolicyDTO;
-import org.wso2.carbon.identity.entitlement.stub.dto.PublisherDataHolder;
+import org.wso2.carbon.identity.entitlement.stub.dto.*;
 
 import java.util.List;
 
 
 public class EntitlementPolicyAdminServiceClient {
 
+    private static final Log log = LogFactory.getLog(EntitlementPolicyAdminServiceClient.class);
     private EntitlementPolicyAdminServiceStub stub;
 
     /**
@@ -77,6 +73,7 @@ public class EntitlementPolicyAdminServiceClient {
         try {
             return stub.getAllPolicies(policyTypeFilter, policySearchString, pageNumber, isPDPPolicy);
         } catch (Exception e) {
+            String message = "Error while loading all policies from backend service";
             handleException(e);
         }
         PaginatedPolicySetDTO paginatedPolicySetDTO = new PaginatedPolicySetDTO();
@@ -270,9 +267,20 @@ public class EntitlementPolicyAdminServiceClient {
         } catch (Exception e) {
             handleException(e);
         }
-        return new String[0];
+        return null;
     }
 
+
+    /**
+     * @param requestContext
+     * @return
+     * @throws FileUploadException
+     */
+    private List parseRequest(ServletRequestContext requestContext) throws FileUploadException {
+        FileItemFactory factory = new DiskFileItemFactory();
+        ServletFileUpload upload = new ServletFileUpload(factory);
+        return upload.parseRequest(requestContext);
+    }
 
     /**
      * Gets attribute value tree for given attribute type
@@ -308,7 +316,7 @@ public class EntitlementPolicyAdminServiceClient {
             handleException(e);
         }
 
-        return new EntitlementFinderDataHolder[0];
+        return null;
     }
 
     /**
@@ -326,7 +334,7 @@ public class EntitlementPolicyAdminServiceClient {
             handleException(e);
         }
 
-        return new String[0];
+        return null;
     }
 
     /**
