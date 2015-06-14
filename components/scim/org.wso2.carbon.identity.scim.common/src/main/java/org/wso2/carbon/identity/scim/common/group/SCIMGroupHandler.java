@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2010 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -27,7 +27,12 @@ import org.wso2.charon.core.objects.Group;
 import org.wso2.charon.core.schema.SCIMConstants;
 import org.wso2.charon.core.util.AttributeUtil;
 
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+
 
 /**
  * This is for managing SCIM specific attributes related to Group resource in Identity_SCIM_GROUP
@@ -56,7 +61,7 @@ public class SCIMGroupHandler {
      */
     public void addMandatoryAttributes(String groupName)
             throws IdentitySCIMException {
-        Map<String, String> attributes = new HashMap<String, String>();
+        Map<String, String> attributes = new HashMap<>();
         String id = UUID.randomUUID().toString();
         attributes.put(SCIMConstants.ID_URI, id);
 
@@ -98,7 +103,7 @@ public class SCIMGroupHandler {
      */
     public void createSCIMAttributes(Group group) throws IdentitySCIMException {
         try {
-            Map<String, String> attributes = new HashMap<String, String>();
+            Map<String, String> attributes = new HashMap<>();
             attributes.put(SCIMConstants.ID_URI, group.getId());
             attributes.put(SCIMConstants.META_CREATED_URI, AttributeUtil.formatDateTime(
                     group.getCreatedDate()));
@@ -108,7 +113,7 @@ public class SCIMGroupHandler {
             GroupDAO groupDAO = new GroupDAO();
             groupDAO.addSCIMGroupAttributes(tenantId, group.getDisplayName(), attributes);
         } catch (CharonException e) {
-            throw new IdentitySCIMException("Error getting group name from SCIM Group.");
+            throw new IdentitySCIMException("Error getting group name from SCIM Group.", e);
         }
     }
 
