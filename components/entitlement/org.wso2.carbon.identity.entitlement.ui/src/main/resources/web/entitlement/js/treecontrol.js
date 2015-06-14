@@ -1,21 +1,3 @@
-/*
- * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
- *
- * WSO2 Inc. licenses this file to you under the Apache License,
- * Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
- */
-
 function treeColapse(icon) {
     var parentNode = icon.parentNode;
     var allChildren = parentNode.childNodes;
@@ -27,7 +9,7 @@ function treeColapse(icon) {
 
             if (allChildren[i].style.display == "none") {
                 attributes = {
-                    opacity: {to: 1}
+                    opacity: { to: 1 }
                 };
                 var anim = new YAHOO.util.Anim(allChildren[i], attributes);
                 anim.animate();
@@ -41,7 +23,7 @@ function treeColapse(icon) {
             }
             else {
                 attributes = {
-                    opacity: {to: 0}
+                    opacity: { to: 0 }
                 };
                 anim = new YAHOO.util.Anim(allChildren[i], attributes);
                 anim.duration = 0.3;
@@ -58,61 +40,61 @@ function treeColapse(icon) {
         }
     }
 }
-function hideTreeItem(state, opts, item) {
-    item.style.display = "none";
+function hideTreeItem(state,opts,item){
+   item.style.display = "none"; 
 }
-function selectMe(obj) {
-    if (YAHOO.util.Dom.hasClass(obj, 'selected')) {
+function selectMe(obj){
+    if(YAHOO.util.Dom.hasClass(obj, 'selected')){
         YAHOO.util.Dom.removeClass(obj, 'selected');
     } else {
         YAHOO.util.Dom.addClass(obj, 'selected');
     }
 }
 var paths = new Array();
-function pickNames(fullPath) {
+function pickNames(fullPath){
     var nameLinks = YAHOO.util.Dom.getElementsByClassName('selected', 'a');
     var listView = document.getElementById('listView');
     var displayNodeValue;
-    for (var i = 0; i < nameLinks.length; i++) {
-        var path = getTreePathFromNode(nameLinks[i], nameLinks[i].innerHTML);
+    for(var i=0;i<nameLinks.length;i++){
+        var path = getTreePathFromNode(nameLinks[i],nameLinks[i].innerHTML);
         var newNode = document.createElement("DIV");
         newNode.className = "listViewItem";
         var isSelected = false;
-        for (var j in paths) {
-            if (path == paths[j].path) {
+        for(var j in paths){
+            if(path == paths[j].path){
                 isSelected = true;
             }
-        }
-        if (!isSelected) {
-            paths.push({path: path, name: nameLinks[i].innerHTML});
+        }               
+        if(!isSelected){
+            paths.push({path:path,name:nameLinks[i].innerHTML});
             newNode.title = path;
             newNode.id = nameLinks[i].innerHTML;
-            if (fullPath) {
+            if(fullPath){
                 displayNodeValue = path;
             } else {
                 displayNodeValue = nameLinks[i].innerHTML;
             }
             var delLink = '<a onclick="remvoeMe(this)" class="listViewItemDel"><img src="images/close.png" border="0" /></a><div style="clear:both"></div>';
-            newNode.innerHTML = '<div class="listViewItemContent">' + displayNodeValue + '</div>' + delLink;
+            newNode.innerHTML = '<div class="listViewItemContent">'+ displayNodeValue +'</div>' + delLink;
             listView.appendChild(newNode);
         }
 
     }
     return;
 }
-function getTreePathFromNode(node, path) {
+function getTreePathFromNode(node,path){
     var hasParent = false;
-    if (node.nodeName == "A") {
+    if(node.nodeName == "A"){
         var parentOnTree = node.parentNode.parentNode.parentNode;
-        if (parentOnTree.nodeName == "DIV") {
+        if(parentOnTree.nodeName == "DIV"){
             return path;
         }
         var allChildren = parentOnTree.childNodes;
         var nodeNumber = 0;
-        for (var i = 0; i < allChildren.length; i++) {
-            if (allChildren[i].nodeName != "#text" && allChildren[i].nodeName != "#comment" && allChildren[i].nodeName == "A") {
+        for(var i=0;i<allChildren.length;i++){
+            if(allChildren[i].nodeName != "#text" &&  allChildren[i].nodeName != "#comment" && allChildren[i].nodeName == "A"){
                 nodeNumber++;
-                if (nodeNumber == 2) {
+                if(nodeNumber == 2){
                     path = allChildren[i].innerHTML + "/" + path;
                     parentOnTree = allChildren[i];
                     hasParent = true;
@@ -123,16 +105,16 @@ function getTreePathFromNode(node, path) {
     }
 
 
-    if (hasParent) {
-        path = getTreePathFromNode(parentOnTree, path);
+    if(hasParent){
+       path = getTreePathFromNode(parentOnTree,path);
     }
     return path;
 }
-function remvoeMe(me) {
+function remvoeMe(me){
     me.parentNode.parentNode.removeChild(me.parentNode);
     var removeElement;
-    for (var i in paths) {
-        if (me.parentNode.title == paths[i].path) {
+    for(var i in paths){
+        if(me.parentNode.title == paths[i].path){
             removeElement = i;
             break;
         }

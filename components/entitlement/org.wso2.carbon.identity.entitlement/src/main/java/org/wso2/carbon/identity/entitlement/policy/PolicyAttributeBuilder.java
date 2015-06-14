@@ -1,20 +1,20 @@
 /*
- * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
- *
- * WSO2 Inc. licenses this file to you under the Apache License,
- * Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
- */
+*  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*
+*  WSO2 Inc. licenses this file to you under the Apache License,
+*  Version 2.0 (the "License"); you may not use this file except
+*  in compliance with the License.
+*  You may obtain a copy of the License at
+*
+*    http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing,
+* software distributed under the License is distributed on an
+* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+* KIND, either express or implied.  See the License for the
+* specific language governing permissions and limitations
+* under the License.
+*/
 
 package org.wso2.carbon.identity.entitlement.policy;
 
@@ -53,10 +53,10 @@ public class PolicyAttributeBuilder {
      */
     public PolicyAttributeBuilder(String policy) {
         this.policy = policy;
-        String tempVersion = EntitlementUtil.getPolicyVersion(policy);
-        if (XACMLConstants.XACML_1_0_IDENTIFIER.equals(tempVersion)) {
+        String version = EntitlementUtil.getPolicyVersion(policy);
+        if (XACMLConstants.XACML_1_0_IDENTIFIER.equals(version)) {
             this.version = XACMLConstants.XACML_VERSION_1_0;
-        } else if (XACMLConstants.XACML_2_0_IDENTIFIER.equals(tempVersion)) {
+        } else if (XACMLConstants.XACML_2_0_IDENTIFIER.equals(version)) {
             this.version = XACMLConstants.XACML_VERSION_2_0;
         } else {
             this.version = XACMLConstants.XACML_VERSION_3_0;
@@ -75,7 +75,7 @@ public class PolicyAttributeBuilder {
         try {
             attributeDTOs = createPolicyMetaData(policy, attributeDTOs);
         } catch (EntitlementException e) {
-            throw new EntitlementException("Can not create Policy MetaData for given policy. ", e);
+            throw new EntitlementException("Can not create Policy MetaData for given policy");
         }
 
         int attributeElementNo = 0;
@@ -84,10 +84,10 @@ public class PolicyAttributeBuilder {
         if (attributeDTOs != null) {
             for (AttributeDTO attributeDTO : attributeDTOs) {
                 properties.setProperty(PDPConstants.POLICY_META_DATA + attributeElementNo,
-                                       attributeDTO.getCategory() + PDPConstants.ATTRIBUTE_SEPARATOR +
-                                       attributeDTO.getAttributeValue() + PDPConstants.ATTRIBUTE_SEPARATOR +
-                                       attributeDTO.getAttributeId() + PDPConstants.ATTRIBUTE_SEPARATOR +
-                                       attributeDTO.getAttributeDataType());
+                        attributeDTO.getCategory() + PDPConstants.ATTRIBUTE_SEPARATOR +
+                                attributeDTO.getAttributeValue() + PDPConstants.ATTRIBUTE_SEPARATOR +
+                                attributeDTO.getAttributeId() + PDPConstants.ATTRIBUTE_SEPARATOR +
+                                attributeDTO.getAttributeDataType());
                 attributeElementNo++;
             }
         }
@@ -106,7 +106,7 @@ public class PolicyAttributeBuilder {
         if (properties != null && !properties.isEmpty()) {
             for (int attributeElementNo = 0; attributeElementNo < properties.size(); ) {
                 List attributeList = (ArrayList) properties.get(PDPConstants.POLICY_META_DATA +
-                                                                attributeElementNo);
+                        attributeElementNo);
                 if (attributeList != null && attributeList.get(0) != null) {
                     String[] attributeData = attributeList.get(0).toString().
                             split(PDPConstants.ATTRIBUTE_SEPARATOR);
@@ -142,12 +142,12 @@ public class PolicyAttributeBuilder {
         try {
             omElement = AXIOMUtil.stringToOM(policy);
         } catch (XMLStreamException e) {
-            throw new EntitlementException("Policy xml can not be converted to OMElement", e);
+            throw new EntitlementException("Policy xml can not be converted to OMElement");
         }
 
         if (omElement != null) {
             Iterator iterator1 = omElement.getChildrenWithLocalName(PDPConstants.
-                                                                            TARGET_ELEMENT);
+                    TARGET_ELEMENT);
             while (iterator1.hasNext()) {
                 OMElement targetElement = (OMElement) iterator1.next();
                 if (version == XACMLConstants.XACML_VERSION_3_0) {
@@ -158,14 +158,14 @@ public class PolicyAttributeBuilder {
             }
 
             Iterator iterator2 = omElement.getChildrenWithLocalName(PDPConstants.
-                                                                            RULE_ELEMENT);
+                    RULE_ELEMENT);
             while (iterator2.hasNext()) {
                 OMElement targetElement = (OMElement) iterator2.next();
                 createMetaDataFromRuleElement(targetElement, attributeDTOs);
             }
 
             Iterator iterator3 = omElement.getChildrenWithLocalName(PDPConstants.
-                                                                            POLICY_ELEMENT);
+                    POLICY_ELEMENT);
             while (iterator3.hasNext()) {
                 OMElement targetElement = (OMElement) iterator3.next();
                 createPolicyMetaData(targetElement.toString(), attributeDTOs);
@@ -200,13 +200,13 @@ public class PolicyAttributeBuilder {
 
                     Iterator iterator3 = resourceElement.
                             getChildrenWithLocalName(PDPConstants.RESOURCE_ELEMENT +
-                                                     PDPConstants.MATCH_ELEMENT);
+                                    PDPConstants.MATCH_ELEMENT);
 
                     while (iterator3.hasNext()) {
                         OMElement resourceMatch = (OMElement) iterator3.next();
                         List<AttributeDTO> attributeDTOList =
                                 createMetaDataFromMatchElement(resourceMatch,
-                                                               PDPConstants.RESOURCE_ELEMENT);
+                                        PDPConstants.RESOURCE_ELEMENT);
                         for (AttributeDTO attributeDTO : attributeDTOList) {
                             attributeDTOs.add(attributeDTO);
                         }
@@ -226,13 +226,13 @@ public class PolicyAttributeBuilder {
 
                     Iterator iterator3 = resourceElement.
                             getChildrenWithLocalName(PDPConstants.SUBJECT_ELEMENT +
-                                                     PDPConstants.MATCH_ELEMENT);
+                                    PDPConstants.MATCH_ELEMENT);
 
                     while (iterator3.hasNext()) {
                         OMElement resourceMatch = (OMElement) iterator3.next();
                         List<AttributeDTO> attributeDTOList =
                                 createMetaDataFromMatchElement(resourceMatch,
-                                                               PDPConstants.SUBJECT_ELEMENT);
+                                        PDPConstants.SUBJECT_ELEMENT);
                         for (AttributeDTO attributeDTO : attributeDTOList) {
                             attributeDTOs.add(attributeDTO);
                         }
@@ -254,13 +254,13 @@ public class PolicyAttributeBuilder {
 
                     Iterator iterator3 = resourceElement.
                             getChildrenWithLocalName(PDPConstants.ACTION_ELEMENT +
-                                                     PDPConstants.MATCH_ELEMENT);
+                                    PDPConstants.MATCH_ELEMENT);
 
                     while (iterator3.hasNext()) {
                         OMElement resourceMatch = (OMElement) iterator3.next();
                         List<AttributeDTO> attributeDTOList =
                                 createMetaDataFromMatchElement(resourceMatch,
-                                                               PDPConstants.ACTION_ELEMENT);
+                                        PDPConstants.ACTION_ELEMENT);
                         for (AttributeDTO attributeDTO : attributeDTOList) {
                             attributeDTOs.add(attributeDTO);
                         }
@@ -282,14 +282,14 @@ public class PolicyAttributeBuilder {
 
                     Iterator iterator3 = resourceElement.
                             getChildrenWithLocalName(PDPConstants.ENVIRONMENT_ELEMENT +
-                                                     PDPConstants.MATCH_ELEMENT);
+                                    PDPConstants.MATCH_ELEMENT);
 
                     while (iterator3.hasNext()) {
                         OMElement resourceMatch = (OMElement) iterator3.next();
 
                         List<AttributeDTO> attributeDTOList =
                                 createMetaDataFromMatchElement(resourceMatch,
-                                                               PDPConstants.ENVIRONMENT_ELEMENT);
+                                        PDPConstants.ENVIRONMENT_ELEMENT);
                         for (AttributeDTO attributeDTO : attributeDTOList) {
                             attributeDTOs.add(attributeDTO);
                         }
@@ -464,7 +464,7 @@ public class PolicyAttributeBuilder {
         if (omElement != null) {
             Iterator iterator1 = omElement.
                     getChildrenWithLocalName(PDPConstants.RESOURCE_ELEMENT +
-                                             PDPConstants.ATTRIBUTE_DESIGNATOR);
+                            PDPConstants.ATTRIBUTE_DESIGNATOR);
             while (iterator1.hasNext()) {
                 OMElement attributeDesignator = (OMElement) iterator1.next();
                 if (attributeDesignator != null) {
@@ -473,20 +473,20 @@ public class PolicyAttributeBuilder {
                     String dataType = attributeDesignator.
                             getAttributeValue(new QName(PDPConstants.DATA_TYPE));
                     List<String> attributeValues = searchAttributeValues(omElement,
-                                                                         new ArrayList<String>(), true);
+                            new ArrayList<String>(), true);
                     if (attributeValues == null) {
                         AttributeDTO attributeDTO = new AttributeDTO();
                         attributeDTO.setCategory(PDPConstants.UNKNOWN);
                         attributeDTO.setAttributeValue(PDPConstants.SEARCH_WARNING_MESSAGE1 +
-                                                       " for " + PDPConstants.RESOURCE_ELEMENT +
-                                                       " Designator Element ");
+                                " for " + PDPConstants.RESOURCE_ELEMENT +
+                                " Designator Element ");
                         attributeDTOs.add(attributeDTO);
                     } else if (attributeValues.isEmpty()) {
                         AttributeDTO attributeDTO = new AttributeDTO();
                         attributeDTO.setCategory(PDPConstants.UNKNOWN);
                         attributeDTO.setAttributeValue(PDPConstants.SEARCH_WARNING_MESSAGE2 +
-                                                       " for " + PDPConstants.RESOURCE_ELEMENT +
-                                                       " Designator Element ");
+                                " for " + PDPConstants.RESOURCE_ELEMENT +
+                                " Designator Element ");
 
                     } else {
                         for (String value : attributeValues) {
@@ -503,7 +503,7 @@ public class PolicyAttributeBuilder {
 
             Iterator iterator2 = omElement.
                     getChildrenWithLocalName(PDPConstants.SUBJECT_ELEMENT +
-                                             PDPConstants.ATTRIBUTE_DESIGNATOR);
+                            PDPConstants.ATTRIBUTE_DESIGNATOR);
             while (iterator2.hasNext()) {
                 OMElement attributeDesignator = (OMElement) iterator2.next();
                 if (attributeDesignator != null) {
@@ -512,21 +512,21 @@ public class PolicyAttributeBuilder {
                     String dataType = attributeDesignator.
                             getAttributeValue(new QName(PDPConstants.DATA_TYPE));
                     List<String> attributeValues = searchAttributeValues(omElement,
-                                                                         new ArrayList<String>(), true);
+                            new ArrayList<String>(), true);
                     if (attributeValues == null) {
                         AttributeDTO attributeDTO = new AttributeDTO();
                         attributeDTO.setCategory(PDPConstants.UNKNOWN);
                         attributeDTO.setAttributeValue(PDPConstants.SEARCH_WARNING_MESSAGE1 +
-                                                       " for " + PDPConstants.RESOURCE_ELEMENT +
-                                                       " Designator Element ");
+                                " for " + PDPConstants.RESOURCE_ELEMENT +
+                                " Designator Element ");
 
                         attributeDTOs.add(attributeDTO);
                     } else if (attributeValues.isEmpty()) {
                         AttributeDTO attributeDTO = new AttributeDTO();
                         attributeDTO.setCategory(PDPConstants.UNKNOWN);
                         attributeDTO.setAttributeValue(PDPConstants.SEARCH_WARNING_MESSAGE2 +
-                                                       " for " + PDPConstants.RESOURCE_ELEMENT +
-                                                       " Designator Element ");
+                                " for " + PDPConstants.RESOURCE_ELEMENT +
+                                " Designator Element ");
 
                     } else {
                         for (String value : attributeValues) {
@@ -543,7 +543,7 @@ public class PolicyAttributeBuilder {
 
             Iterator iterator3 = omElement.
                     getChildrenWithLocalName(PDPConstants.ACTION_ELEMENT +
-                                             PDPConstants.ATTRIBUTE_DESIGNATOR);
+                            PDPConstants.ATTRIBUTE_DESIGNATOR);
             while (iterator3.hasNext()) {
                 OMElement attributeDesignator = (OMElement) iterator3.next();
                 if (attributeDesignator != null) {
@@ -552,21 +552,21 @@ public class PolicyAttributeBuilder {
                     String dataType = attributeDesignator.
                             getAttributeValue(new QName(PDPConstants.DATA_TYPE));
                     List<String> attributeValues = searchAttributeValues(omElement,
-                                                                         new ArrayList<String>(), true);
+                            new ArrayList<String>(), true);
                     if (attributeValues == null) {
                         AttributeDTO attributeDTO = new AttributeDTO();
                         attributeDTO.setCategory(PDPConstants.UNKNOWN);
                         attributeDTO.setAttributeValue(PDPConstants.SEARCH_WARNING_MESSAGE1 +
-                                                       " for " + PDPConstants.RESOURCE_ELEMENT +
-                                                       " Designator Element ");
+                                " for " + PDPConstants.RESOURCE_ELEMENT +
+                                " Designator Element ");
 
                         attributeDTOs.add(attributeDTO);
                     } else if (attributeValues.isEmpty()) {
                         AttributeDTO attributeDTO = new AttributeDTO();
                         attributeDTO.setCategory(PDPConstants.UNKNOWN);
                         attributeDTO.setAttributeValue(PDPConstants.SEARCH_WARNING_MESSAGE2 +
-                                                       " for " + PDPConstants.RESOURCE_ELEMENT +
-                                                       " Designator Element ");
+                                " for " + PDPConstants.RESOURCE_ELEMENT +
+                                " Designator Element ");
 
                     } else {
                         for (String value : attributeValues) {
@@ -583,7 +583,7 @@ public class PolicyAttributeBuilder {
 
             Iterator iterator4 = omElement.
                     getChildrenWithLocalName(PDPConstants.ENVIRONMENT_ELEMENT +
-                                             PDPConstants.ATTRIBUTE_DESIGNATOR);
+                            PDPConstants.ATTRIBUTE_DESIGNATOR);
             while (iterator4.hasNext()) {
                 OMElement attributeDesignator = (OMElement) iterator4.next();
                 if (attributeDesignator != null) {
@@ -592,21 +592,21 @@ public class PolicyAttributeBuilder {
                     String dataType = attributeDesignator.
                             getAttributeValue(new QName(PDPConstants.DATA_TYPE));
                     List<String> attributeValues = searchAttributeValues(omElement,
-                                                                         new ArrayList<String>(), true);
+                            new ArrayList<String>(), true);
                     if (attributeValues == null) {
                         AttributeDTO attributeDTO = new AttributeDTO();
                         attributeDTO.setCategory(PDPConstants.UNKNOWN);
                         attributeDTO.setAttributeValue(PDPConstants.SEARCH_WARNING_MESSAGE1 +
-                                                       " for " + PDPConstants.RESOURCE_ELEMENT +
-                                                       " Designator Element ");
+                                " for " + PDPConstants.RESOURCE_ELEMENT +
+                                " Designator Element ");
 
                         attributeDTOs.add(attributeDTO);
                     } else if (attributeValues.isEmpty()) {
                         AttributeDTO attributeDTO = new AttributeDTO();
                         attributeDTO.setCategory(PDPConstants.UNKNOWN);
                         attributeDTO.setAttributeValue(PDPConstants.SEARCH_WARNING_MESSAGE2 +
-                                                       " for " + PDPConstants.RESOURCE_ELEMENT +
-                                                       " Designator Element ");
+                                " for " + PDPConstants.RESOURCE_ELEMENT +
+                                " Designator Element ");
 
                     } else {
                         for (String value : attributeValues) {
@@ -632,7 +632,7 @@ public class PolicyAttributeBuilder {
                     String dataType = attributeSelector.
                             getAttributeValue(new QName(PDPConstants.DATA_TYPE));
                     List<String> attributeValues = searchAttributeValues(omElement,
-                                                                         new ArrayList<String>(), true);
+                            new ArrayList<String>(), true);
                     if (attributeValues == null) {
                         AttributeDTO attributeDTO = new AttributeDTO();
                         attributeDTO.setCategory(PDPConstants.UNKNOWN);
@@ -668,15 +668,15 @@ public class PolicyAttributeBuilder {
                     AttributeDTO attributeDTO = new AttributeDTO();
                     attributeDTO.setCategory(PDPConstants.UNKNOWN);
                     attributeDTO.setAttributeValue(PDPConstants.SEARCH_WARNING_MESSAGE1 +
-                                                   " for " + PDPConstants.RESOURCE_ELEMENT +
-                                                   " Designator Element ");
+                            " for " + PDPConstants.RESOURCE_ELEMENT +
+                            " Designator Element ");
                     attributeDTOs.add(attributeDTO);
                 } else if (attributeValues.isEmpty()) {
                     AttributeDTO attributeDTO = new AttributeDTO();
                     attributeDTO.setCategory(PDPConstants.UNKNOWN);
                     attributeDTO.setAttributeValue(PDPConstants.SEARCH_WARNING_MESSAGE2 +
-                                                   " for " + PDPConstants.RESOURCE_ELEMENT +
-                                                   " Designator Element ");
+                            " for " + PDPConstants.RESOURCE_ELEMENT +
+                            " Designator Element ");
                 } else {
                     for (String values : attributeValues) {
                         AttributeDTO attributeDTO = new AttributeDTO();
@@ -692,7 +692,7 @@ public class PolicyAttributeBuilder {
                             }
                         }
                         if (attributeDTO.getCategory() != null ||
-                            "".equals(attributeDTO.getCategory())) {
+                                "".equals(attributeDTO.getCategory())) {
                             attributeDTOs.add(attributeDTO);
                         }
                     }
@@ -734,20 +734,20 @@ public class PolicyAttributeBuilder {
                     String dataType = attributeDesignator.
                             getAttributeValue(new QName(PDPConstants.DATA_TYPE));   //TODO
                     List<String> attributeValues = searchAttributeValues(omElement,
-                                                                         new ArrayList<String>(), true);
+                            new ArrayList<String>(), true);
                     if (attributeValues == null) {
                         AttributeDTO attributeDTO = new AttributeDTO();
                         attributeDTO.setCategory(PDPConstants.UNKNOWN);
                         attributeDTO.setAttributeValue(PDPConstants.SEARCH_WARNING_MESSAGE1 +
-                                                       " for " + PDPConstants.RESOURCE_ELEMENT +
-                                                       " Designator Element ");
+                                " for " + PDPConstants.RESOURCE_ELEMENT +
+                                " Designator Element ");
                         attributeDTOs.add(attributeDTO);
                     } else if (attributeValues.isEmpty()) {
                         AttributeDTO attributeDTO = new AttributeDTO();
                         attributeDTO.setCategory(PDPConstants.UNKNOWN);
                         attributeDTO.setAttributeValue(PDPConstants.SEARCH_WARNING_MESSAGE2 +
-                                                       " for " + PDPConstants.RESOURCE_ELEMENT +
-                                                       " Designator Element ");
+                                " for " + PDPConstants.RESOURCE_ELEMENT +
+                                " Designator Element ");
 
                     } else {
                         for (String value : attributeValues) {
@@ -771,15 +771,15 @@ public class PolicyAttributeBuilder {
                     AttributeDTO attributeDTO = new AttributeDTO();
                     attributeDTO.setCategory(PDPConstants.UNKNOWN);
                     attributeDTO.setAttributeValue(PDPConstants.SEARCH_WARNING_MESSAGE1 +
-                                                   " for " + PDPConstants.RESOURCE_ELEMENT +
-                                                   " Designator Element ");
+                            " for " + PDPConstants.RESOURCE_ELEMENT +
+                            " Designator Element ");
                     attributeDTOs.add(attributeDTO);
                 } else if (attributeValues.isEmpty()) {
                     AttributeDTO attributeDTO = new AttributeDTO();
                     attributeDTO.setCategory(PDPConstants.UNKNOWN);
                     attributeDTO.setAttributeValue(PDPConstants.SEARCH_WARNING_MESSAGE2 +
-                                                   " for " + PDPConstants.RESOURCE_ELEMENT +
-                                                   " Designator Element ");
+                            " for " + PDPConstants.RESOURCE_ELEMENT +
+                            " Designator Element ");
                 } else {
                     for (String values : attributeValues) {
                         AttributeDTO attributeDTO = new AttributeDTO();
@@ -791,7 +791,7 @@ public class PolicyAttributeBuilder {
                             searchXACML3Designator(applyElement, attributeDTO);
                         }
                         if (attributeDTO.getCategory() != null ||
-                            "".equals(attributeDTO.getCategory())) {
+                                "".equals(attributeDTO.getCategory())) {
                             attributeDTOs.add(attributeDTO);
                         }
                     }
@@ -846,7 +846,7 @@ public class PolicyAttributeBuilder {
                 }
             }
             if (attributeDTO.getCategory() != null || attributeDTO.getAttributeId() != null ||
-                attributeDTO.getAttributeDataType() != null) {
+                    attributeDTO.getAttributeDataType() != null) {
                 values = null;
             }
         }
@@ -868,7 +868,7 @@ public class PolicyAttributeBuilder {
 
         Iterator iterator1 = omElement.
                 getChildrenWithLocalName(PDPConstants.RESOURCE_ELEMENT +
-                                         PDPConstants.ATTRIBUTE_DESIGNATOR);
+                        PDPConstants.ATTRIBUTE_DESIGNATOR);
         while (iterator1.hasNext()) {
             OMElement attributeDesignator = (OMElement) iterator1.next();
             if (attributeDesignator != null) {
@@ -884,7 +884,7 @@ public class PolicyAttributeBuilder {
 
         Iterator iterator2 = omElement.
                 getChildrenWithLocalName(PDPConstants.SUBJECT_ELEMENT +
-                                         PDPConstants.ATTRIBUTE_DESIGNATOR);
+                        PDPConstants.ATTRIBUTE_DESIGNATOR);
         while (iterator2.hasNext()) {
             OMElement attributeDesignator = (OMElement) iterator2.next();
             if (attributeDesignator != null) {
@@ -900,7 +900,7 @@ public class PolicyAttributeBuilder {
 
         Iterator iterator3 = omElement.
                 getChildrenWithLocalName(PDPConstants.ACTION_ELEMENT +
-                                         PDPConstants.ATTRIBUTE_DESIGNATOR);
+                        PDPConstants.ATTRIBUTE_DESIGNATOR);
         while (iterator3.hasNext()) {
             OMElement attributeDesignator = (OMElement) iterator3.next();
             if (attributeDesignator != null) {
@@ -916,7 +916,7 @@ public class PolicyAttributeBuilder {
 
         Iterator iterator4 = omElement.
                 getChildrenWithLocalName(PDPConstants.ENVIRONMENT_ELEMENT +
-                                         PDPConstants.ATTRIBUTE_DESIGNATOR);
+                        PDPConstants.ATTRIBUTE_DESIGNATOR);
         while (iterator4.hasNext()) {
             OMElement attributeDesignator = (OMElement) iterator4.next();
             if (attributeDesignator != null) {
@@ -1023,7 +1023,7 @@ public class PolicyAttributeBuilder {
         if (omElement != null) {
 
             Iterator iterator1 = omElement.getChildrenWithLocalName(PDPConstants.
-                                                                            TARGET_ELEMENT);
+                    TARGET_ELEMENT);
             while (iterator1.hasNext()) {
                 OMElement targetElement = (OMElement) iterator1.next();
                 if (version == XACMLConstants.XACML_VERSION_3_0) {
@@ -1034,7 +1034,7 @@ public class PolicyAttributeBuilder {
             }
 
             Iterator iterator2 = omElement.getChildrenWithLocalName(PDPConstants.
-                                                                            CONDITION_ELEMENT);
+                    CONDITION_ELEMENT);
             while (iterator2.hasNext()) {
                 OMElement conditionElement = (OMElement) iterator2.next();
                 createMetaDataFromConditionElement(conditionElement, attributeDTOs);

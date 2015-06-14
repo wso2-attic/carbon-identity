@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * WSO2 Inc. licenses this file to you under the Apache License,
- * Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License.
- * You may obtain a copy of the License at
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -78,16 +78,16 @@ public class PDPConstants {
     public static final String ALL_OF = "AllOf";
 
     public static final String RESOURCE_CATEGORY_URI = "urn:oasis:names:tc:xacml:3.0:" +
-                                                       "attribute-category:resource";
+            "attribute-category:resource";
 
     public static final String SUBJECT_CATEGORY_URI = "urn:oasis:names:tc:xacml:1.0:" +
-                                                      "subject-category:access-subject";
+            "subject-category:access-subject";
 
     public static final String ACTION_CATEGORY_URI = "urn:oasis:names:tc:xacml:3.0:" +
-                                                     "attribute-category:action";
+            "attribute-category:action";
 
     public static final String ENVIRONMENT_CATEGORY_URI = "urn:oasis:names:tc:xacml:3.0:" +
-                                                          "attribute-category:environment";
+            "attribute-category:environment";
 
     public static final String TARGET_ELEMENT = "Target";
 
@@ -192,15 +192,15 @@ public class PDPConstants {
     public static final String SEARCH_WARNING_MESSAGE2 = "No Attributes are defined";
 
     public static final String SEARCH_WARNING_MESSAGE3 = "Attribute Selector Element is contained " +
-                                                         "with Xpath expression";
+            "with Xpath expression";
 
     public static final String SEARCH_WARNING_MESSAGE4 = "Apply Element is not contained within Condition Element";
 
     public static final String SEARCH_ERROR = "Search_Error";
 
     public static final String SEARCH_ERROR_MESSAGE = "Therefore Advance Search can not be proceeded. " +
-                                                      "Please de-active this policy, If policy is not" +
-                                                      " relevant for the search";
+            "Please de-active this policy, If policy is not" +
+            " relevant for the search";
 
     public static final String XACML_3_POLICY_XMLNS = "urn:oasis:names:tc:xacml:3.0:core:schema:wd-17";
 
@@ -271,7 +271,4 @@ public class PDPConstants {
     public static final String REGISTRY_MEDIA_TYPE = "application/xacml-policy+xml";
 
     public static final String ENTITLEMENT_ENGINE_CACHING_INTERVAL = "Entitlement.Engine.CachingInterval";
-
-    private PDPConstants() {
-    }
 }

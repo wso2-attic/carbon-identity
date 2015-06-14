@@ -1,27 +1,26 @@
-<%--
-  ~ Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-  ~
-  ~ WSO2 Inc. licenses this file to you under the Apache License,
-  ~ Version 2.0 (the "License"); you may not use this file except
-  ~ in compliance with the License.
-  ~ You may obtain a copy of the License at
-  ~
-  ~ http://www.apache.org/licenses/LICENSE-2.0
-  ~
-  ~ Unless required by applicable law or agreed to in writing,
-  ~ software distributed under the License is distributed on an
-  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-  ~ KIND, either express or implied.  See the License for the
-  ~ specific language governing permissions and limitations
-  ~ under the License.
-  --%>
-
+<!--
+/*
+* Copyright (c) 2008, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+-->
 <%@ page import="org.wso2.balana.utils.policy.dto.BasicRuleDTO" %>
 <%@ page import="org.wso2.balana.utils.policy.dto.BasicTargetDTO" %>
 
 <jsp:useBean id="entitlementPolicyBean" type="org.wso2.carbon.identity.entitlement.ui.EntitlementPolicyBean"
              class="org.wso2.carbon.identity.entitlement.ui.EntitlementPolicyBean" scope="session"/>
-<jsp:setProperty name="entitlementPolicyBean" property="*"/>
+<jsp:setProperty name="entitlementPolicyBean" property="*" />
 
 <%
     BasicRuleDTO basicRuleDTO = new BasicRuleDTO();
@@ -98,200 +97,200 @@
 //    String userAttributeValueTarget = request.getParameter("userAttributeValueTarget");
 
 
-    if (ruleId != null && ruleId.trim().length() > 0 && !ruleId.trim().equals("null") && editRule == null) {
+    if(ruleId != null && ruleId.trim().length() > 0 && !ruleId.trim().equals("null") && editRule == null ) {
 
         basicRuleDTO.setRuleId(ruleId);
         basicRuleDTO.setRuleEffect(ruleEffect);
 
-        if (ruleDescription != null && ruleDescription.trim().length() > 0) {
+        if(ruleDescription != null && ruleDescription.trim().length() > 0 ){
             basicRuleDTO.setRuleDescription(ruleDescription);
         }
 
-        if (resourceNames != null && !resourceNames.equals("")) {
+        if(resourceNames != null && !resourceNames.equals("")){
             basicRuleDTO.setResourceList(resourceNames);
         }
 
-        if (functionOnResources != null && !functionOnResources.equals("")) {
+        if(functionOnResources != null && !functionOnResources.equals("")){
             basicRuleDTO.setFunctionOnResources(functionOnResources);
         }
 
-        if (resourceDataType != null && resourceDataType.trim().length() > 0 &&
-            !resourceDataType.trim().equals("null")) {
+        if(resourceDataType != null && resourceDataType.trim().length() > 0 &&
+                                        !resourceDataType.trim().equals("null")){
             basicRuleDTO.setResourceDataType(resourceDataType);
         }
 
-        if (resourceId != null && resourceId.trim().length() > 0 && !resourceId.trim().equals("null")) {
+        if(resourceId != null && resourceId.trim().length() > 0 && !resourceId.trim().equals("null")){
             basicRuleDTO.setResourceId(resourceId);
         }
 
-        if (preFunctionOnResources != null && preFunctionOnResources.trim().length() > 0) {
+        if(preFunctionOnResources != null && preFunctionOnResources.trim().length() > 0){
             basicRuleDTO.setPreFunctionOnResources(preFunctionOnResources);
         }
 
-        if (subjectNames != null && !subjectNames.equals("")) {
+        if(subjectNames != null && !subjectNames.equals("")){
             basicRuleDTO.setSubjectList(subjectNames);
         }
 
-        if (subjectNames != null && !functionOnSubjects.equals("")) {
+        if(subjectNames != null && !functionOnSubjects.equals("")){
             basicRuleDTO.setFunctionOnSubjects(functionOnSubjects);
         }
 
-        if (subjectDataType != null && subjectDataType.trim().length() > 0 &&
-            !subjectDataType.trim().equals("null")) {
+        if(subjectDataType != null && subjectDataType.trim().length() > 0 &&
+                                                            !subjectDataType.trim().equals("null")) {
             basicRuleDTO.setSubjectDataType(subjectDataType);
         }
 
-        if (subjectId != null && subjectId.trim().length() > 0 && !subjectId.trim().equals("null")) {
+        if(subjectId != null && subjectId.trim().length() > 0 && !subjectId.trim().equals("null")){
             basicRuleDTO.setSubjectId(subjectId);
         }
 
-        if (preFunctionOnSubjects != null && preFunctionOnSubjects.trim().length() > 0) {
+        if(preFunctionOnSubjects != null && preFunctionOnSubjects.trim().length() > 0){
             basicRuleDTO.setPreFunctionOnSubjects(preFunctionOnSubjects);
         }
 
-        if (actionNames != null && !actionNames.equals("")) {
+        if(actionNames != null && !actionNames.equals("")){
             basicRuleDTO.setActionList(actionNames);
         }
 
-        if (functionOnActions != null && !functionOnActions.equals("")) {
+        if(functionOnActions != null && !functionOnActions.equals("")){
             basicRuleDTO.setFunctionOnActions(functionOnActions);
         }
 
-        if (actionDataType != null && actionDataType.trim().length() > 0 &&
-            !actionDataType.trim().equals("null")) {
+        if(actionDataType != null && actionDataType.trim().length() > 0 &&
+                                            !actionDataType.trim().equals("null")){
             basicRuleDTO.setActionDataType(actionDataType);
         }
 
-        if (actionId != null && actionId.trim().length() > 0 && !actionId.trim().equals("null")) {
+        if(actionId != null && actionId.trim().length() > 0 && !actionId.trim().equals("null")){
             basicRuleDTO.setActionId(actionId);
         }
 
-        if (preFunctionOnActions != null && preFunctionOnActions.trim().length() > 0) {
+        if(preFunctionOnActions != null && preFunctionOnActions.trim().length() > 0){
             basicRuleDTO.setPreFunctionOnActions(preFunctionOnActions);
         }
 
-        if (environmentNames != null && !environmentNames.equals("")) {
+        if(environmentNames != null && !environmentNames.equals("")){
             basicRuleDTO.setEnvironmentList(environmentNames);
         }
 
-        if (functionOnEnvironment != null && !functionOnEnvironment.equals("")) {
+        if(functionOnEnvironment != null && !functionOnEnvironment.equals("")){
             basicRuleDTO.setFunctionOnEnvironment(functionOnEnvironment);
         }
 
-        if (environmentDataType != null && environmentDataType.trim().length() > 0 &&
-            !environmentDataType.trim().equals("null")) {
+        if(environmentDataType != null && environmentDataType.trim().length() > 0 && 
+                                                !environmentDataType.trim().equals("null")){
             basicRuleDTO.setEnvironmentDataType(environmentDataType);
         }
 
-        if (environmentId != null && environmentId.trim().length() > 0 &&
-            !environmentId.trim().equals("null")) {
+        if(environmentId != null && environmentId.trim().length() > 0 &&
+                                                !environmentId.trim().equals("null")){
             basicRuleDTO.setEnvironmentId(environmentId);
         }
 
-        if (preFunctionOnEnvironment != null && preFunctionOnEnvironment.trim().length() > 0) {
+        if(preFunctionOnEnvironment != null && preFunctionOnEnvironment.trim().length() > 0){
             basicRuleDTO.setPreFunctionOnEnvironment(preFunctionOnEnvironment);
         }
 
-        if (completedRule != null && completedRule.equals("true")) {
+        if(completedRule != null && completedRule.equals("true")){
             basicRuleDTO.setCompletedRule(true);
         }
 
         entitlementPolicyBean.setBasicRuleElementDTOs(basicRuleDTO);
     }
 
-    if (resourceNamesTarget != null && !resourceNamesTarget.equals("")) {
+    if(resourceNamesTarget != null && !resourceNamesTarget.equals("")){
         basicTargetDTO.setResourceList(resourceNamesTarget);
     }
 
-    if (functionOnResourcesTarget != null && !functionOnResourcesTarget.equals("")) {
+    if(functionOnResourcesTarget != null && !functionOnResourcesTarget.equals("")){
         basicTargetDTO.setFunctionOnResources(functionOnResourcesTarget);
     }
 
-    if (resourceDataTypeTarget != null && resourceDataTypeTarget.trim().length() > 0 &&
-        !resourceDataTypeTarget.trim().equals("null")) {
+    if(resourceDataTypeTarget != null && resourceDataTypeTarget.trim().length() > 0 &&
+                                                    !resourceDataTypeTarget.trim().equals("null")){
         basicTargetDTO.setResourceDataType(resourceDataTypeTarget);
     }
 
-    if (resourceIdTarget != null && resourceIdTarget.trim().length() > 0 &&
-        !resourceIdTarget.trim().equals("null")) {
+    if(resourceIdTarget != null && resourceIdTarget.trim().length() > 0 &&
+                                            !resourceIdTarget.trim().equals("null")){
         basicTargetDTO.setResourceId(resourceIdTarget);
     }
 
-    if (subjectNamesTarget != null && !subjectNamesTarget.equals("")) {
+    if(subjectNamesTarget != null && !subjectNamesTarget.equals("")){
         basicTargetDTO.setSubjectList(subjectNamesTarget);
     }
 
-    if (functionOnSubjectsTarget != null && !functionOnSubjectsTarget.equals("")) {
+    if(functionOnSubjectsTarget != null && !functionOnSubjectsTarget.equals("")){
         basicTargetDTO.setFunctionOnSubjects(functionOnSubjectsTarget);
     }
 
-    if (subjectDataTypeTarget != null && subjectDataTypeTarget.trim().length() > 0 &&
-        !subjectDataTypeTarget.trim().equals("null")) {
+    if(subjectDataTypeTarget != null && subjectDataTypeTarget.trim().length() > 0 &&
+                                                    !subjectDataTypeTarget.trim().equals("null")){
         basicTargetDTO.setSubjectDataType(subjectDataTypeTarget);
     }
 
-    if (subjectIdTarget != null && subjectIdTarget.trim().length() > 0 &&
-        !subjectIdTarget.trim().equals("null")) {
+    if(subjectIdTarget != null && subjectIdTarget.trim().length() > 0 &&
+                                                    !subjectIdTarget.trim().equals("null")){
         basicTargetDTO.setSubjectId(subjectIdTarget);
     }
 
-    if (actionNamesTarget != null && !actionNamesTarget.equals("")) {
+    if(actionNamesTarget != null && !actionNamesTarget.equals("")){
         basicTargetDTO.setActionList(actionNamesTarget);
     }
 
-    if (functionOnActionsTarget != null && !functionOnActionsTarget.equals("")) {
+    if(functionOnActionsTarget != null && !functionOnActionsTarget.equals("")){
         basicTargetDTO.setFunctionOnActions(functionOnActionsTarget);
     }
 
-    if (actionDataTypeTarget != null && actionDataTypeTarget.trim().length() > 0 &&
-        !actionDataTypeTarget.trim().equals("null")) {
+    if(actionDataTypeTarget != null && actionDataTypeTarget.trim().length() > 0 &&
+                                                !actionDataTypeTarget.trim().equals("null")){
         basicTargetDTO.setActionDataType(actionDataTypeTarget);
     }
 
-    if (actionIdTarget != null && actionIdTarget.trim().length() > 0 &&
-        !actionIdTarget.trim().equals("null")) {
+    if(actionIdTarget != null && actionIdTarget.trim().length() > 0 &&
+                                                !actionIdTarget.trim().equals("null")){
         basicTargetDTO.setActionId(actionIdTarget);
     }
 
-    if (environmentNamesTarget != null && !environmentNamesTarget.equals("")) {
+    if(environmentNamesTarget != null && !environmentNamesTarget.equals("")){
         basicTargetDTO.setEnvironmentList(environmentNamesTarget);
     }
 
-    if (functionOnEnvironmentTarget != null && !functionOnEnvironmentTarget.equals("")) {
+    if(functionOnEnvironmentTarget != null && !functionOnEnvironmentTarget.equals("")){
         basicTargetDTO.setFunctionOnEnvironment(functionOnEnvironmentTarget);
     }
 
-    if (environmentDataTypeTarget != null && environmentDataTypeTarget.trim().length() > 0 &&
-        !environmentDataTypeTarget.trim().equals("null")) {
+    if(environmentDataTypeTarget != null && environmentDataTypeTarget.trim().length() > 0 &&
+                                               !environmentDataTypeTarget.trim().equals("null")){
         basicTargetDTO.setEnvironmentDataType(environmentDataTypeTarget);
     }
 
-    if (environmentIdTarget != null && environmentIdTarget.trim().length() > 0 &&
-        !environmentIdTarget.trim().equals("null")) {
+    if(environmentIdTarget != null && environmentIdTarget.trim().length() > 0 &&
+                                                !environmentIdTarget.trim().equals("null")){
         basicTargetDTO.setEnvironmentId(environmentIdTarget);
     }
 
     entitlementPolicyBean.setBasicTargetDTO(basicTargetDTO);
-
+    
     String forwardTo;
 
-    if (ruleElementOrder != null && ruleElementOrder.trim().length() > 0) {
-        if (basicRuleDTO.isCompletedRule() && !"true".equals(updateRule)) {
+    if(ruleElementOrder != null && ruleElementOrder.trim().length() > 0){
+        if(basicRuleDTO.isCompletedRule() && !"true".equals(updateRule)){
             entitlementPolicyBean.setRuleElementOrder(ruleElementOrder.trim() + ", " +
                                                       basicRuleDTO.getRuleId());
-        } else {
+        } else{
             entitlementPolicyBean.setRuleElementOrder(ruleElementOrder.trim());
         }
     }
 
-    if (completedRule != null && completedRule.equals("true")) {
+    if(completedRule != null && completedRule.equals("true")){
         forwardTo = nextPage + ".jsp?";
     } else {
         forwardTo = nextPage + ".jsp?ruleId=" + ruleId;
-        if (category != null && category.trim().length() > 0) {
+        if(category != null && category.trim().length() > 0){
             forwardTo = forwardTo + "&category=" + category;
         }
-        if (returnPage != null && returnPage.trim().length() > 0) {
+        if(returnPage != null && returnPage.trim().length() > 0){
             forwardTo = forwardTo + "&returnPage=" + returnPage;
         }
     }

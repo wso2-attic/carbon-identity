@@ -1,20 +1,20 @@
 /*
- * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
- *
- * WSO2 Inc. licenses this file to you under the Apache License,
- * Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
- */
+*  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*
+*  WSO2 Inc. licenses this file to you under the Apache License,
+*  Version 2.0 (the "License"); you may not use this file except
+*  in compliance with the License.
+*  You may obtain a copy of the License at
+*
+*    http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing,
+* software distributed under the License is distributed on an
+* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+* KIND, either express or implied.  See the License for the
+* specific language governing permissions and limitations
+* under the License.
+*/
 package org.wso2.carbon.identity.entitlement.ui.client;
 
 import org.wso2.carbon.CarbonConstants;
@@ -29,7 +29,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -53,14 +52,14 @@ public class EntitlementPolicyUploadExecutor extends AbstractFileUploadExecutor 
         String serverURL = (String) httpServletRequest.getAttribute(CarbonConstants.SERVER_URL);
         String cookie = (String) httpServletRequest.getAttribute(ServerConstants.ADMIN_SERVICE_COOKIE);
         errorRedirectionPage = getContextRoot(httpServletRequest) + "/" + webContext
-                               + "/entitlement/index.jsp";
+                + "/entitlement/index.jsp";
 
         Map<String, ArrayList<FileItemData>> fileItemsMap = getFileItemsMap();
         if (fileItemsMap == null || fileItemsMap.isEmpty()) {
             String msg = "File uploading failed. No files are specified";
             log.error(msg);
             CarbonUIMessage.sendCarbonUIMessage(msg, CarbonUIMessage.ERROR, httpServletRequest,
-                                                httpServletResponse, errorRedirectionPage);
+                    httpServletResponse, errorRedirectionPage);
             return false;
         }
 
@@ -75,29 +74,16 @@ public class EntitlementPolicyUploadExecutor extends AbstractFileUploadExecutor 
 
                 if (!filename.endsWith(".xml")) {
                     throw new CarbonException("File with extension " +
-                                              getFileName(fileItem.getFileItem().getName()) + " is not supported!");
+                            getFileName(fileItem.getFileItem().getName()) + " is not supported!");
                 } else {
-                    BufferedReader br = null;
-                    try {
-
-                        br = new BufferedReader(new InputStreamReader(fileItem.getDataHandler().getInputStream(),
-                                                                      StandardCharsets.UTF_8));
-                        String temp;
-                        String policyContent = "";
-                        while ((temp = br.readLine()) != null) {
-                            policyContent += temp;
-                        }
-                        if (!"".equals(policyContent)) {
-                            client.uploadPolicy(policyContent);
-                        }
-                    } finally {
-                        if (br != null) {
-                            try {
-                                br.close();
-                            } catch (IOException e) {
-                                log.error("Error while closing stream. ", e);
-                            }
-                        }
+                    BufferedReader br = new BufferedReader(new InputStreamReader(fileItem.getDataHandler().getInputStream()));
+                    String temp;
+                    String policyContent = "";
+                    while ((temp = br.readLine()) != null) {
+                        policyContent += temp;
+                    }
+                    if (!"".equals(policyContent)) {
+                        client.uploadPolicy(policyContent);
                     }
                 }
             }
@@ -105,14 +91,14 @@ public class EntitlementPolicyUploadExecutor extends AbstractFileUploadExecutor 
             httpServletResponse.setContentType("text/html; charset=utf-8");
             msg = "Policy have been uploaded successfully.";
             CarbonUIMessage.sendCarbonUIMessage(msg, CarbonUIMessage.INFO, httpServletRequest,
-                                                httpServletResponse, getContextRoot(httpServletRequest)
-                                                                     + "/" + webContext + "/entitlement/index.jsp");
+                    httpServletResponse, getContextRoot(httpServletRequest)
+                            + "/" + webContext + "/entitlement/index.jsp");
             return true;
         } catch (Exception e) {
             msg = "Policy uploading failed. " + e.getMessage();
-            log.error(msg, e);
+            log.error(msg);
             CarbonUIMessage.sendCarbonUIMessage(msg, CarbonUIMessage.ERROR, httpServletRequest,
-                                                httpServletResponse, errorRedirectionPage);
+                    httpServletResponse, errorRedirectionPage);
         }
         return false;
     }

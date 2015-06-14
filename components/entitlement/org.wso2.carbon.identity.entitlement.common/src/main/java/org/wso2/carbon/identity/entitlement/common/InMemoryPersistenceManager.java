@@ -1,24 +1,23 @@
 /*
- * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
- *
- * WSO2 Inc. licenses this file to you under the Apache License,
- * Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
- */
+*  Copyright (c)  WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*
+*  WSO2 Inc. licenses this file to you under the Apache License,
+*  Version 2.0 (the "License"); you may not use this file except
+*  in compliance with the License.
+*  You may obtain a copy of the License at
+*
+*    http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing,
+* software distributed under the License is distributed on an
+* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+* KIND, either express or implied.  See the License for the
+* specific language governing permissions and limitations
+* under the License.
+*/
 
 package org.wso2.carbon.identity.entitlement.common;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Document;
@@ -30,7 +29,6 @@ import org.wso2.carbon.identity.entitlement.common.dto.PolicyEditorDataHolder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -41,44 +39,14 @@ import java.util.Set;
  */
 public class InMemoryPersistenceManager implements DataPersistenceManager {
 
-    public static final String CATEGORIES = "categories";
-    public static final String DATA_TYPE = "dataType";
-    public static final String SUPPORTED_DATA_TYPES = "supportedDataTypes";
-    public static final String ATTRIBUTE_ID = "attributeId";
-    public static final String SUPPORTED_ATTRIBUTE_IDS = "supportedAttributeIds";
-    public static final String URI = "uri";
-    public static final String NAME = "name";
-    public static final String CATEGORY = "category";
-    public static final String ALGORITHMS = "algorithms";
-    public static final String ALGORITHM = "algorithm";
-    public static final String DISPLAY = "display";
-    public static final String DEFAULT_ALGORITHM = "defaultAlgorithm";
-    public static final String DEFAULT_DATA_TYPES = "defaultDataTypes";
-    public static final String FUNCTION = "function";
-    public static final String TARGET_FUNCTION = "targetFunction";
-    public static final String PRE_FUNCTION = "preFunction";
-    public static final String RULE_ID = "ruleId";
-    public static final String RULE_EFFECT = "ruleEffect";
-    public static final String DEFAULT_EFFECT = "defaultEffect";
-    public static final String EFFECT = "effect";
-    public static final String LAST_RULE = "lastRule";
-    public static final String ADD = "add";
-    public static final String RULE_COMBINING_ALGORITHM = "ruleCombiningAlgorithm";
-    public static final String POLICY_COMBINING_ALGORITHM = "policyCombiningAlgorithm";
-    public static final String ATTRIBUTE_IDS = "attributeIds";
-    public static final String DATA_TYPES = "dataTypes";
-    public static final String FUNCTIONS = "functions";
-    public static final String PRE_FUNCTIONS = "preFunctions";
-    public static final String RULE = "rule";
-    public static final String POLICY_DESCRIPTION = "policyDescription";
-    private static final Log log = LogFactory.getLog(InMemoryPersistenceManager.class);
-    private Map<String, String> xmlConfig = new HashMap<>();
+    private static Log log = LogFactory.getLog(InMemoryPersistenceManager.class);
+    private Map<String, String> xmlConfig = new HashMap<String, String>();
 
     @Override
     public Map<String, PolicyEditorDataHolder> buildDataHolder() throws PolicyEditorException {
         xmlConfig = this.getConfig();
-        Map<String, PolicyEditorDataHolder> holders = new HashMap<>();
-        for (String type : EntitlementConstants.PolicyEditor.getEditorTypes()) {
+        Map<String, PolicyEditorDataHolder> holders = new HashMap<String, PolicyEditorDataHolder>();
+        for (String type : EntitlementConstants.PolicyEditor.EDITOR_TYPES) {
             PolicyEditorDataHolder holder = buildDataHolder(type, xmlConfig.get(type));
             if (holder != null) {
                 holders.put(type, holder);
@@ -97,7 +65,7 @@ public class InMemoryPersistenceManager implements DataPersistenceManager {
         ByteArrayInputStream inputStream;
         Element root = null;
 
-        inputStream = new ByteArrayInputStream(xmlConfig.getBytes(StandardCharsets.UTF_8));
+        inputStream = new ByteArrayInputStream(xmlConfig.getBytes());
         DocumentBuilderFactory builder = DocumentBuilderFactory.newInstance();
         try {
             Document doc = builder.newDocumentBuilder().parse(inputStream);
@@ -108,7 +76,7 @@ public class InMemoryPersistenceManager implements DataPersistenceManager {
             try {
                 inputStream.close();
             } catch (IOException e) {
-                log.error("Error in closing input stream of XACML request", e);
+                log.error("Error in closing input stream of XACML request");
             }
         }
 
@@ -120,25 +88,26 @@ public class InMemoryPersistenceManager implements DataPersistenceManager {
 
         for (int i = 0; i < nodeList.getLength(); i++) {
             Node node = nodeList.item(i);
-            if (CATEGORIES.equals(node.getNodeName())) {
+            if (node.getNodeName().equals("categories")) {
                 parseCategories(type, node, holder);
-            } else if (RULE_COMBINING_ALGORITHM.equals(node.getNodeName())) {
+            } else if (node.getNodeName().equals("ruleCombiningAlgorithm")) {
                 parseAlgorithm(node, holder, false);
-            } else if (POLICY_COMBINING_ALGORITHM.equals(node.getNodeName())) {
+            } else if (node.getNodeName().equals("policyCombiningAlgorithm")) {
                 parseAlgorithm(node, holder, true);
-            } else if (ATTRIBUTE_IDS.equals(node.getNodeName())) {
+            } else if (node.getNodeName().equals("attributeIds")) {
                 parseAttributeIds(node, holder);
-            } else if (DATA_TYPES.equals(node.getNodeName())) {
+            } else if (node.getNodeName().equals("dataTypes")) {
                 parseDataTypes(node, holder);
-            } else if (FUNCTIONS.equals(node.getNodeName())) {
+            } else if (node.getNodeName().equals("functions")) {
                 parseFunctions(node, holder);
-            } else if (PRE_FUNCTIONS.equals(node.getNodeName())) {
+            } else if (node.getNodeName().equals("preFunctions")) {
                 parsePreFunctions(node, holder);
-            } else if (RULE.equals(node.getNodeName())) {
+            } else if (node.getNodeName().equals("rule")) {
                 parseRule(node, holder);
-            } else if (POLICY_DESCRIPTION.equals(node.getNodeName()) && Boolean.TRUE.toString().equals(
-                    node.getTextContent())) {
-                holder.setShowPolicyDescription(true);
+            } else if (node.getNodeName().equals("policyDescription")) {
+                if ("true".equals(node.getTextContent())) {
+                    holder.setShowPolicyDescription(true);
+                }
             }
         }
 
@@ -162,7 +131,7 @@ public class InMemoryPersistenceManager implements DataPersistenceManager {
         NodeList nodeList = root.getChildNodes();
         for (int i = 0; i < nodeList.getLength(); i++) {
             Node node = nodeList.item(i);
-            if (CATEGORY.equals(node.getNodeName())) {
+            if ("category".equals(node.getNodeName())) {
 
                 String name = null;
                 String uri = null;
@@ -172,36 +141,38 @@ public class InMemoryPersistenceManager implements DataPersistenceManager {
                 NodeList childList = node.getChildNodes();
                 for (int j = 0; j < childList.getLength(); j++) {
                     Node child = childList.item(j);
-                    if (NAME.equals(child.getNodeName())) {
+                    if ("name".equals(child.getNodeName())) {
                         name = child.getTextContent();
-                        if ((EntitlementConstants.PolicyEditor.BASIC.equals(type) ||
-                             (EntitlementConstants.PolicyEditor.RBAC.equals(type))) && !Utils.isValidCategory(name)) {
-                            throw new PolicyEditorException("Invalid Category : " + name
-                                                            + "  Basic policy editor supports only for Subject, " +
-                                                            "Resource, Action and Environment category names. " +
-                                                            "But you can change the URI of them");
+                        if (EntitlementConstants.PolicyEditor.BASIC.equals(type) ||
+                                (EntitlementConstants.PolicyEditor.RBAC.equals(type))) {
+                            if (!Utils.isValidCategory(name)) {
+                                throw new PolicyEditorException("Invalid Category : " + name
+                                        + "  Basic policy editor supports only for Subject, " +
+                                        "Resource, Action and Environment category names. " +
+                                        "But you can change the URI of them");
+                            }
                         }
-                    } else if (URI.equals(child.getNodeName())) {
+                    } else if ("uri".equals(child.getNodeName())) {
                         uri = child.getTextContent();
-                    } else if (SUPPORTED_ATTRIBUTE_IDS.equals(child.getNodeName())) {
+                    } else if ("supportedAttributeIds".equals(child.getNodeName())) {
                         attributeIds = new HashSet<String>();
                         NodeList list = child.getChildNodes();
                         for (int k = 0; k < list.getLength(); k++) {
                             Node nextChild = list.item(k);
-                            if (ATTRIBUTE_ID.equals(nextChild.getNodeName())) {
-                                if (CollectionUtils.isEmpty(attributeIds)) {
+                            if ("attributeId".equals(nextChild.getNodeName())) {
+                                if (attributeIds.size() == 0) {
                                     holder.getCategoryDefaultAttributeIdMap().
                                             put(name, nextChild.getTextContent());
                                 }
                                 attributeIds.add(nextChild.getTextContent());
                             }
                         }
-                    } else if (SUPPORTED_DATA_TYPES.equals(child.getNodeName())) {
+                    } else if ("supportedDataTypes".equals(child.getNodeName())) {
                         dataTypes = new HashSet<String>();
                         NodeList list = child.getChildNodes();
                         for (int k = 0; k < list.getLength(); k++) {
                             Node nextChild = list.item(k);
-                            if (DATA_TYPE.equals(nextChild.getNodeName())) {
+                            if ("dataType".equals(nextChild.getNodeName())) {
                                 dataTypes.add(nextChild.getTextContent());
                             }
                         }
@@ -228,19 +199,19 @@ public class InMemoryPersistenceManager implements DataPersistenceManager {
         NodeList nodeList = root.getChildNodes();
         for (int i = 0; i < nodeList.getLength(); i++) {
             Node node = nodeList.item(i);
-            if (ALGORITHMS.equals(node.getNodeName())) {
+            if ("algorithms".equals(node.getNodeName())) {
                 String name = null;
                 String uri = null;
                 NodeList childList = node.getChildNodes();
                 for (int j = 0; j < childList.getLength(); j++) {
                     Node child = childList.item(j);
-                    if (ALGORITHM.equals(child.getNodeName())) {
+                    if ("algorithm".equals(child.getNodeName())) {
                         NodeList list = child.getChildNodes();
                         for (int k = 0; k < list.getLength(); k++) {
                             Node nextChild = list.item(k);
-                            if (NAME.equals(nextChild.getNodeName())) {
+                            if ("name".equals(nextChild.getNodeName())) {
                                 name = nextChild.getTextContent();
-                            } else if (URI.equals(nextChild.getNodeName())) {
+                            } else if ("uri".equals(nextChild.getNodeName())) {
                                 uri = nextChild.getTextContent();
                             }
                             if (name != null && uri != null) {
@@ -256,15 +227,15 @@ public class InMemoryPersistenceManager implements DataPersistenceManager {
                         }
                     }
                 }
-            } else if (DISPLAY.equals(node.getNodeName())) {
-                if (Boolean.TRUE.toString().equals(node.getTextContent())) {
+            } else if ("display".equals(node.getNodeName())) {
+                if ("true".equals(node.getTextContent())) {
                     if (isPolicy) {
                         holder.setShowPolicyAlgorithms(true);
                     } else {
                         holder.setShowRuleAlgorithms(true);
                     }
                 }
-            } else if (DEFAULT_ALGORITHM.equals(node.getNodeName())) {
+            } else if ("defaultAlgorithm".equals(node.getNodeName())) {
                 if (isPolicy) {
                     holder.setDefaultPolicyAlgorithm(node.getTextContent());
                 } else {
@@ -279,7 +250,7 @@ public class InMemoryPersistenceManager implements DataPersistenceManager {
         NodeList nodeList = root.getChildNodes();
         for (int i = 0; i < nodeList.getLength(); i++) {
             Node node = nodeList.item(i);
-            if (ATTRIBUTE_ID.equals(node.getNodeName())) {
+            if ("attributeId".equals(node.getNodeName())) {
 
                 String name = null;
                 String uri = null;
@@ -288,11 +259,11 @@ public class InMemoryPersistenceManager implements DataPersistenceManager {
                 NodeList childList = node.getChildNodes();
                 for (int j = 0; j < childList.getLength(); j++) {
                     Node child = childList.item(j);
-                    if (NAME.equals(child.getNodeName())) {
+                    if ("name".equals(child.getNodeName())) {
                         name = child.getTextContent();
-                    } else if (URI.equals(child.getNodeName())) {
+                    } else if ("uri".equals(child.getNodeName())) {
                         uri = child.getTextContent();
-                    } else if (DATA_TYPE.equals(child.getNodeName())) {
+                    } else if ("dataType".equals(child.getNodeName())) {
                         dataType = child.getTextContent();
                     }
                 }
@@ -313,7 +284,7 @@ public class InMemoryPersistenceManager implements DataPersistenceManager {
         NodeList nodeList = root.getChildNodes();
         for (int i = 0; i < nodeList.getLength(); i++) {
             Node node = nodeList.item(i);
-            if (DATA_TYPE.equals(node.getNodeName())) {
+            if ("dataType".equals(node.getNodeName())) {
 
                 String name = null;
                 String uri = null;
@@ -321,9 +292,9 @@ public class InMemoryPersistenceManager implements DataPersistenceManager {
                 NodeList childList = node.getChildNodes();
                 for (int j = 0; j < childList.getLength(); j++) {
                     Node child = childList.item(j);
-                    if (NAME.equals(child.getNodeName())) {
+                    if ("name".equals(child.getNodeName())) {
                         name = child.getTextContent();
-                    } else if (URI.equals(child.getNodeName())) {
+                    } else if ("uri".equals(child.getNodeName())) {
                         uri = child.getTextContent();
                     }
                 }
@@ -334,7 +305,7 @@ public class InMemoryPersistenceManager implements DataPersistenceManager {
                     holder.getDataTypeMap().put(name, uri);
                 }
             }
-            if (DEFAULT_DATA_TYPES.equals(node.getNodeName())) {
+            if ("defaultDataTypes".equals(node.getNodeName())) {
                 holder.setDefaultDataType(node.getTextContent());
             }
         }
@@ -345,7 +316,7 @@ public class InMemoryPersistenceManager implements DataPersistenceManager {
         NodeList nodeList = root.getChildNodes();
         for (int i = 0; i < nodeList.getLength(); i++) {
             Node node = nodeList.item(i);
-            if (FUNCTION.equals(node.getNodeName())) {
+            if ("function".equals(node.getNodeName())) {
 
                 String name = null;
                 String uri = null;
@@ -354,11 +325,11 @@ public class InMemoryPersistenceManager implements DataPersistenceManager {
                 NodeList childList = node.getChildNodes();
                 for (int j = 0; j < childList.getLength(); j++) {
                     Node child = childList.item(j);
-                    if (NAME.equals(child.getNodeName())) {
+                    if ("name".equals(child.getNodeName())) {
                         name = child.getTextContent();
-                    } else if (URI.equals(child.getNodeName())) {
+                    } else if ("uri".equals(child.getNodeName())) {
                         uri = child.getTextContent();
-                    } else if (TARGET_FUNCTION.equals(child.getNodeName())) {
+                    } else if ("targetFunction".equals(child.getNodeName())) {
                         targetFunction = true;
                     }
                 }
@@ -381,7 +352,7 @@ public class InMemoryPersistenceManager implements DataPersistenceManager {
         NodeList nodeList = root.getChildNodes();
         for (int i = 0; i < nodeList.getLength(); i++) {
             Node node = nodeList.item(i);
-            if (PRE_FUNCTION.equals(node.getNodeName())) {
+            if ("preFunction".equals(node.getNodeName())) {
 
                 String name = null;
                 String uri = null;
@@ -389,9 +360,9 @@ public class InMemoryPersistenceManager implements DataPersistenceManager {
                 NodeList childList = node.getChildNodes();
                 for (int j = 0; j < childList.getLength(); j++) {
                     Node child = childList.item(j);
-                    if (NAME.equals(child.getNodeName())) {
+                    if ("name".equals(child.getNodeName())) {
                         name = child.getTextContent();
-                    } else if (URI.equals(child.getNodeName())) {
+                    } else if ("uri".equals(child.getNodeName())) {
                         uri = child.getTextContent();
                     }
                 }
@@ -410,19 +381,19 @@ public class InMemoryPersistenceManager implements DataPersistenceManager {
         NodeList nodeList = root.getChildNodes();
         for (int i = 0; i < nodeList.getLength(); i++) {
             Node node = nodeList.item(i);
-            if (RULE_ID.equals(node.getNodeName())) {
-                if (Boolean.TRUE.toString().equals(node.getTextContent())) {
+            if ("ruleId".equals(node.getNodeName())) {
+                if ("true".equals(node.getTextContent())) {
                     holder.setShowRuleId(true);
                 }
-            } else if (RULE_EFFECT.equals(node.getNodeName())) {
+            } else if ("ruleEffect".equals(node.getNodeName())) {
                 NodeList childList = node.getChildNodes();
                 for (int j = 0; j < childList.getLength(); j++) {
                     Node child = childList.item(j);
-                    if (DISPLAY.equals(child.getNodeName())) {
-                        if (Boolean.TRUE.toString().equals(child.getTextContent())) {
+                    if ("display".equals(child.getNodeName())) {
+                        if ("true".equals(child.getTextContent())) {
                             holder.setShowRuleEffect(true);
                         }
-                    } else if (DEFAULT_EFFECT.equals(child.getNodeName())) {
+                    } else if ("defaultEffect".equals(child.getNodeName())) {
                         if (child.getTextContent() != null) {
                             String uri = child.getTextContent();
                             if (!Utils.isValidEffect(uri)) {
@@ -430,18 +401,20 @@ public class InMemoryPersistenceManager implements DataPersistenceManager {
                             }
                             holder.setDefaultEffect(child.getTextContent());
                         }
-                    } else if (EFFECT.equals(child.getNodeName())) {
+                    } else if ("effect".equals(child.getNodeName())) {
                         NodeList childList1 = child.getChildNodes();
                         String name = null;
                         String uri = null;
                         for (int k = 0; k < childList1.getLength(); k++) {
                             Node child1 = childList1.item(k);
-                            if (NAME.equals(child1.getNodeName())) {
+                            if ("name".equals(child1.getNodeName())) {
                                 if (child1.getTextContent() != null) {
                                     name = child1.getTextContent();
                                 }
-                            } else if (URI.equals(child1.getNodeName()) && child1.getTextContent() != null) {
-                                uri = child1.getTextContent();
+                            } else if ("uri".equals(child1.getNodeName())) {
+                                if (child1.getTextContent() != null) {
+                                    uri = child1.getTextContent();
+                                }
                             }
                         }
 
@@ -457,20 +430,22 @@ public class InMemoryPersistenceManager implements DataPersistenceManager {
                         }
                     }
                 }
-            } else if (LAST_RULE.equals(node.getNodeName())) {
+            } else if ("lastRule".equals(node.getNodeName())) {
                 NodeList childList = node.getChildNodes();
                 for (int j = 0; j < childList.getLength(); j++) {
                     Node child = childList.item(j);
-                    if (ADD.equals(child.getNodeName())) {
-                        if (Boolean.TRUE.toString().equals(child.getTextContent())) {
+                    if ("add".equals(child.getNodeName())) {
+                        if ("true".equals(child.getTextContent())) {
                             holder.setAddLastRule(true);
                         }
-                    } else if (EFFECT.equals(child.getNodeName()) && child.getTextContent() != null) {
-                        String uri = child.getTextContent();
-                        if (!Utils.isValidEffect(uri)) {
-                            throw new PolicyEditorException("Invalid Rule Effect : " + uri);
+                    } else if ("effect".equals(child.getNodeName())) {
+                        if (child.getTextContent() != null) {
+                            String uri = child.getTextContent();
+                            if (!Utils.isValidEffect(uri)) {
+                                throw new PolicyEditorException("Invalid Rule Effect : " + uri);
+                            }
+                            holder.setLastRuleEffect(uri);
                         }
-                        holder.setLastRuleEffect(uri);
                     }
                 }
             }
@@ -479,700 +454,700 @@ public class InMemoryPersistenceManager implements DataPersistenceManager {
 
     protected String getSimpleConfig() {
         return "                                          <policyEditor>\n" +
-               "    <categories>\n" +
-               "        <category>\n" +
-               "            <name>Subject</name>\n" +
-               "            <uri>urn:oasis:names:tc:xacml:1.0:subject-category:access-subject</uri>\n" +
-               "            <supportedAttributeIds>\n" +
-               "                <attributeId>UserName</attributeId>\n" +
-               "                <attributeId>Email</attributeId>\n" +
-               "                <attributeId>Role</attributeId>\n" +
-               "                <attributeId>Age</attributeId>\n" +
-               "            </supportedAttributeIds>\n" +
-               "        </category>\n" +
-               "        <category>\n" +
-               "            <name>Resource</name>\n" +
-               "            <uri>urn:oasis:names:tc:xacml:3.0:attribute-category:resource</uri>\n" +
-               "            <supportedAttributeIds>\n" +
-               "                <attributeId>resource-id</attributeId>\n" +
-               "            </supportedAttributeIds>\n" +
-               "        </category>\n" +
-               "        <category>\n" +
-               "            <name>Action</name>\n" +
-               "            <uri>urn:oasis:names:tc:xacml:3.0:attribute-category:action</uri>\n" +
-               "            <supportedAttributeIds>\n" +
-               "                <attributeId>action-id</attributeId>\n" +
-               "            </supportedAttributeIds>\n" +
-               "        </category>\n" +
-               "        <category>\n" +
-               "            <name>Environment</name>\n" +
-               "            <uri>urn:oasis:names:tc:xacml:3.0:attribute-category:environment</uri>\n" +
-               "            <supportedAttributeIds>\n" +
-               "                <attributeId>Domain</attributeId>\n" +
-               "\t\t<attributeId>Date</attributeId>\n" +
-               "\t\t<attributeId>Time</attributeId>\n" +
-               "\t\t<attributeId>DateTime</attributeId>\n" +
-               "            </supportedAttributeIds>\n" +
-               "        </category>\n" +
-               "    </categories>\n" +
-               "    <attributeIds>\n" +
-               "        <attributeId>\n" +
-               "            <name>resource-id</name>\n" +
-               "            <uri>urn:oasis:names:tc:xacml:1.0:resource:resource-id</uri>\n" +
-               "        </attributeId>\n" +
-               "        <attributeId>\n" +
-               "            <name>action-id</name>\n" +
-               "            <uri>urn:oasis:names:tc:xacml:1.0:action:action-id</uri>\n" +
-               "        </attributeId>\n" +
-               "        <attributeId>\n" +
-               "            <name>UserName</name>\n" +
-               "            <uri>urn:oasis:names:tc:xacml:1.0:subject:subject-id</uri>\n" +
-               "        </attributeId>\n" +
-               "        <attributeId>\n" +
-               "            <name>Role</name>\n" +
-               "            <uri>http://wso2.org/claims/role</uri>\n" +
-               "        </attributeId>\n" +
-               "        <attributeId>\n" +
-               "            <name>Email</name>\n" +
-               "            <uri>http://wso2.org/claims/emailaddress</uri>\n" +
-               "        </attributeId>\n" +
-               "        <attributeId>\n" +
-               "            <name>Environment</name>\n" +
-               "            <uri>urn:oasis:names:tc:xacml:1.0:environment:environment-id</uri>\n" +
-               "        </attributeId>\n" +
-               "        <attributeId>\n" +
-               "            <name>Domain</name>\n" +
-               "            <uri>urn:oasis:names:tc:xacml:1.0:environment:environment-id</uri>\n" +
-               "        </attributeId>\n" +
-               "        <attributeId>\n" +
-               "            <name>Time</name>\n" +
-               "            <uri>urn:oasis:names:tc:xacml:1.0:environment:current-time</uri>\n" +
-               "            <dataType>http://www.w3.org/2001/XMLSchema#time</dataType>\n" +
-               "        </attributeId>\n" +
-               "        <attributeId>\n" +
-               "            <name>Date</name>\n" +
-               "            <uri>urn:oasis:names:tc:xacml:1.0:environment:current-date</uri>\n" +
-               "\t    <dataType>http://www.w3.org/2001/XMLSchema#date</dataType>\n" +
-               "        </attributeId>\n" +
-               "        <attributeId>\n" +
-               "            <name>DateTime</name>\n" +
-               "            <uri>urn:oasis:names:tc:xacml:1.0:environment:current-dateTime</uri>\n" +
-               "\t    <dataType>http://www.w3.org/2001/XMLSchema#dateTime</dataType>\n" +
-               "        </attributeId>\n" +
-               "        <attributeId>\n" +
-               "            <name>Age</name>\n" +
-               "            <uri>http://wso2.org/claims/age</uri>\n" +
-               "            <dataType>http://www.w3.org/2001/XMLSchema#integer</dataType>\n" +
-               "        </attributeId>\n" +
-               "    </attributeIds>\n" +
-               "    <dataTypes>    \n" +
-               "    </dataTypes>\n" +
-               "    <ruleCombiningAlgorithm>\n" +
-               "        <display>true</display>\n" +
-               "        <defaultAlgorithm>urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:first-applicable</defaultAlgorithm>\n" +
-               "        <algorithms>\n" +
-               "            <algorithm>\n" +
-               "                <name>Deny Overrides</name>\n" +
-               "                <uri>urn:oasis:names:tc:xacml:3.0:rule-combining-algorithm:deny-overrides</uri>\n" +
-               "            </algorithm>\n" +
-               "            <algorithm>\n" +
-               "                <name>First Applicable</name>\n" +
-               "                <uri>urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:first-applicable</uri>\n" +
-               "            </algorithm>\n" +
-               "            <algorithm>\n" +
-               "                <name>Permit Overrides</name>\n" +
-               "                <uri>urn:oasis:names:tc:xacml:3.0:rule-combining-algorithm:permit-overrides</uri>\n" +
-               "            </algorithm>\n" +
-               "            <algorithm>\n" +
-               "                <name>Deny Unless Permit</name>\n" +
-               "                <uri>urn:oasis:names:tc:xacml:3.0:rule-combining-algorithm:deny-unless-permit</uri>\n" +
-               "            </algorithm>\n" +
-               "            <algorithm>\n" +
-               "                <name>Permit Unless Deny</name>\n" +
-               "                <uri>urn:oasis:names:tc:xacml:3.0:rule-combining-algorithm:permit-unless-deny</uri>\n" +
-               "            </algorithm>\n" +
-               "        </algorithms>\n" +
-               "    </ruleCombiningAlgorithm>\n" +
-               "    <dataTypes>\n" +
-               "\t<dataType>\n" +
-               "\t\t<name>String</name>\n" +
-               "\t\t<uri>http://www.w3.org/2001/XMLSchema#string</uri>\n" +
-               "\t</dataType>\n" +
-               "\t<dataType>\n" +
-               "\t\t<name>Boolean</name>\n" +
-               "\t\t<uri>http://www.w3.org/2001/XMLSchema#boolean</uri>\n" +
-               "\t</dataType>\n" +
-               "\t<dataType>\n" +
-               "\t\t<name>Integer</name>\n" +
-               "\t\t<uri>http://www.w3.org/2001/XMLSchema#integer</uri>\n" +
-               "\t</dataType>\n" +
-               "\t<dataType>\n" +
-               "\t\t<name>Double</name>\n" +
-               "\t\t<uri>http://www.w3.org/2001/XMLSchema#double</uri>\n" +
-               "\t</dataType>\n" +
-               "\t<dataType>\n" +
-               "\t\t<name>Time</name>\n" +
-               "\t\t<uri>http://www.w3.org/2001/XMLSchema#time</uri>\n" +
-               "\t</dataType>\n" +
-               "\t<dataType>\n" +
-               "\t\t<name>Date</name>\n" +
-               "\t\t<uri>http://www.w3.org/2001/XMLSchema#date</uri>\n" +
-               "\t</dataType>\n" +
-               "\t<dataType>\n" +
-               "\t\t<name>Date Time</name>\n" +
-               "\t\t<uri>http://www.w3.org/2001/XMLSchema#dateTime</uri>\n" +
-               "\t</dataType>\n" +
-               "\t<dataType>\n" +
-               "\t\t<name>Day Time Duration</name>\n" +
-               "\t\t<uri>http://www.w3.org/2001/XMLSchema#dayTimeDuration</uri>\n" +
-               "\t</dataType>\n" +
-               "\t<dataType>\n" +
-               "\t\t<name>Day Time Duration</name>\n" +
-               "\t\t<uri>http://www.w3.org/2001/XMLSchema#dayTimeDuration</uri>\n" +
-               "\t</dataType>\n" +
-               "\t<dataType>\n" +
-               "\t\t<name>Day Time Duration</name>\n" +
-               "\t\t<uri>http://www.w3.org/2001/XMLSchema#dayTimeDuration</uri>\n" +
-               "\t</dataType>\n" +
-               "\t<dataType>\n" +
-               "\t\t<name>Year Month Duration</name>\n" +
-               "\t\t<uri>http://www.w3.org/2001/XMLSchema#yearMonthDuration</uri>\n" +
-               "\t</dataType>\n" +
-               "\t<dataType>\n" +
-               "\t\t<name>Any URI</name>\n" +
-               "\t\t<uri>http://www.w3.org/2001/XMLSchema#anyURI</uri>\n" +
-               "\t</dataType>\n" +
-               "\t<dataType>\n" +
-               "\t\t<name>Hex Binary</name>\n" +
-               "\t\t<uri>http://www.w3.org/2001/XMLSchema#hexBinary</uri>\n" +
-               "\t</dataType>\n" +
-               "\t<dataType>\n" +
-               "\t\t<name>Base64 Binary</name>\n" +
-               "\t\t<uri>http://www.w3.org/2001/XMLSchema#base64Binary</uri>\n" +
-               "\t</dataType> \n" +
-               "\t<dataType>\n" +
-               "\t\t<name>DNS Name</name>\n" +
-               "\t\t<uri>urn:oasis:names:tc:xacml:2.0:data-type:dnsName</uri>\n" +
-               "\t</dataType> \n" +
-               "\t<dataType>\n" +
-               "\t\t<name>IP Address</name>\n" +
-               "\t\t<uri>urn:oasis:names:tc:xacml:2.0:data-type:ipAddress</uri>\n" +
-               "\t</dataType> \n" +
-               "\t<dataType>\n" +
-               "\t\t<name>RFC822 Name</name>\n" +
-               "\t\t<uri>urn:oasis:names:tc:xacml:1.0:data-type:rfc822Name</uri>\n" +
-               "\t</dataType> \n" +
-               "\t<dataType>\n" +
-               "\t\t<name>XPath</name>\n" +
-               "\t\t<uri>urn:oasis:names:tc:xacml:3.0:data-type:xpathExpression</uri>\n" +
-               "\t</dataType>    \n" +
-               "\t<dataType>\n" +
-               "\t\t<name>X500 Name</name>\n" +
-               "\t\t<uri>urn:oasis:names:tc:xacml:1.0:data-type:x500Name</uri>\n" +
-               "\t</dataType>       \n" +
-               "    </dataTypes>\n" +
-               "</policyEditor>";
+                "    <categories>\n" +
+                "        <category>\n" +
+                "            <name>Subject</name>\n" +
+                "            <uri>urn:oasis:names:tc:xacml:1.0:subject-category:access-subject</uri>\n" +
+                "            <supportedAttributeIds>\n" +
+                "                <attributeId>UserName</attributeId>\n" +
+                "                <attributeId>Email</attributeId>\n" +
+                "                <attributeId>Role</attributeId>\n" +
+                "                <attributeId>Age</attributeId>\n" +
+                "            </supportedAttributeIds>\n" +
+                "        </category>\n" +
+                "        <category>\n" +
+                "            <name>Resource</name>\n" +
+                "            <uri>urn:oasis:names:tc:xacml:3.0:attribute-category:resource</uri>\n" +
+                "            <supportedAttributeIds>\n" +
+                "                <attributeId>resource-id</attributeId>\n" +
+                "            </supportedAttributeIds>\n" +
+                "        </category>\n" +
+                "        <category>\n" +
+                "            <name>Action</name>\n" +
+                "            <uri>urn:oasis:names:tc:xacml:3.0:attribute-category:action</uri>\n" +
+                "            <supportedAttributeIds>\n" +
+                "                <attributeId>action-id</attributeId>\n" +
+                "            </supportedAttributeIds>\n" +
+                "        </category>\n" +
+                "        <category>\n" +
+                "            <name>Environment</name>\n" +
+                "            <uri>urn:oasis:names:tc:xacml:3.0:attribute-category:environment</uri>\n" +
+                "            <supportedAttributeIds>\n" +
+                "                <attributeId>Domain</attributeId>\n" +
+                "\t\t<attributeId>Date</attributeId>\n" +
+                "\t\t<attributeId>Time</attributeId>\n" +
+                "\t\t<attributeId>DateTime</attributeId>\n" +
+                "            </supportedAttributeIds>\n" +
+                "        </category>\n" +
+                "    </categories>\n" +
+                "    <attributeIds>\n" +
+                "        <attributeId>\n" +
+                "            <name>resource-id</name>\n" +
+                "            <uri>urn:oasis:names:tc:xacml:1.0:resource:resource-id</uri>\n" +
+                "        </attributeId>\n" +
+                "        <attributeId>\n" +
+                "            <name>action-id</name>\n" +
+                "            <uri>urn:oasis:names:tc:xacml:1.0:action:action-id</uri>\n" +
+                "        </attributeId>\n" +
+                "        <attributeId>\n" +
+                "            <name>UserName</name>\n" +
+                "            <uri>urn:oasis:names:tc:xacml:1.0:subject:subject-id</uri>\n" +
+                "        </attributeId>\n" +
+                "        <attributeId>\n" +
+                "            <name>Role</name>\n" +
+                "            <uri>http://wso2.org/claims/role</uri>\n" +
+                "        </attributeId>\n" +
+                "        <attributeId>\n" +
+                "            <name>Email</name>\n" +
+                "            <uri>http://wso2.org/claims/emailaddress</uri>\n" +
+                "        </attributeId>\n" +
+                "        <attributeId>\n" +
+                "            <name>Environment</name>\n" +
+                "            <uri>urn:oasis:names:tc:xacml:1.0:environment:environment-id</uri>\n" +
+                "        </attributeId>\n" +
+                "        <attributeId>\n" +
+                "            <name>Domain</name>\n" +
+                "            <uri>urn:oasis:names:tc:xacml:1.0:environment:environment-id</uri>\n" +
+                "        </attributeId>\n" +
+                "        <attributeId>\n" +
+                "            <name>Time</name>\n" +
+                "            <uri>urn:oasis:names:tc:xacml:1.0:environment:current-time</uri>\n" +
+                "            <dataType>http://www.w3.org/2001/XMLSchema#time</dataType>\n" +
+                "        </attributeId>\n" +
+                "        <attributeId>\n" +
+                "            <name>Date</name>\n" +
+                "            <uri>urn:oasis:names:tc:xacml:1.0:environment:current-date</uri>\n" +
+                "\t    <dataType>http://www.w3.org/2001/XMLSchema#date</dataType>\n" +
+                "        </attributeId>\n" +
+                "        <attributeId>\n" +
+                "            <name>DateTime</name>\n" +
+                "            <uri>urn:oasis:names:tc:xacml:1.0:environment:current-dateTime</uri>\n" +
+                "\t    <dataType>http://www.w3.org/2001/XMLSchema#dateTime</dataType>\n" +
+                "        </attributeId>\n" +
+                "        <attributeId>\n" +
+                "            <name>Age</name>\n" +
+                "            <uri>http://wso2.org/claims/age</uri>\n" +
+                "            <dataType>http://www.w3.org/2001/XMLSchema#integer</dataType>\n" +
+                "        </attributeId>\n" +
+                "    </attributeIds>\n" +
+                "    <dataTypes>    \n" +
+                "    </dataTypes>\n" +
+                "    <ruleCombiningAlgorithm>\n" +
+                "        <display>true</display>\n" +
+                "        <defaultAlgorithm>urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:first-applicable</defaultAlgorithm>\n" +
+                "        <algorithms>\n" +
+                "            <algorithm>\n" +
+                "                <name>Deny Overrides</name>\n" +
+                "                <uri>urn:oasis:names:tc:xacml:3.0:rule-combining-algorithm:deny-overrides</uri>\n" +
+                "            </algorithm>\n" +
+                "            <algorithm>\n" +
+                "                <name>First Applicable</name>\n" +
+                "                <uri>urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:first-applicable</uri>\n" +
+                "            </algorithm>\n" +
+                "            <algorithm>\n" +
+                "                <name>Permit Overrides</name>\n" +
+                "                <uri>urn:oasis:names:tc:xacml:3.0:rule-combining-algorithm:permit-overrides</uri>\n" +
+                "            </algorithm>\n" +
+                "            <algorithm>\n" +
+                "                <name>Deny Unless Permit</name>\n" +
+                "                <uri>urn:oasis:names:tc:xacml:3.0:rule-combining-algorithm:deny-unless-permit</uri>\n" +
+                "            </algorithm>\n" +
+                "            <algorithm>\n" +
+                "                <name>Permit Unless Deny</name>\n" +
+                "                <uri>urn:oasis:names:tc:xacml:3.0:rule-combining-algorithm:permit-unless-deny</uri>\n" +
+                "            </algorithm>\n" +
+                "        </algorithms>\n" +
+                "    </ruleCombiningAlgorithm>\n" +
+                "    <dataTypes>\n" +
+                "\t<dataType>\n" +
+                "\t\t<name>String</name>\n" +
+                "\t\t<uri>http://www.w3.org/2001/XMLSchema#string</uri>\n" +
+                "\t</dataType>\n" +
+                "\t<dataType>\n" +
+                "\t\t<name>Boolean</name>\n" +
+                "\t\t<uri>http://www.w3.org/2001/XMLSchema#boolean</uri>\n" +
+                "\t</dataType>\n" +
+                "\t<dataType>\n" +
+                "\t\t<name>Integer</name>\n" +
+                "\t\t<uri>http://www.w3.org/2001/XMLSchema#integer</uri>\n" +
+                "\t</dataType>\n" +
+                "\t<dataType>\n" +
+                "\t\t<name>Double</name>\n" +
+                "\t\t<uri>http://www.w3.org/2001/XMLSchema#double</uri>\n" +
+                "\t</dataType>\n" +
+                "\t<dataType>\n" +
+                "\t\t<name>Time</name>\n" +
+                "\t\t<uri>http://www.w3.org/2001/XMLSchema#time</uri>\n" +
+                "\t</dataType>\n" +
+                "\t<dataType>\n" +
+                "\t\t<name>Date</name>\n" +
+                "\t\t<uri>http://www.w3.org/2001/XMLSchema#date</uri>\n" +
+                "\t</dataType>\n" +
+                "\t<dataType>\n" +
+                "\t\t<name>Date Time</name>\n" +
+                "\t\t<uri>http://www.w3.org/2001/XMLSchema#dateTime</uri>\n" +
+                "\t</dataType>\n" +
+                "\t<dataType>\n" +
+                "\t\t<name>Day Time Duration</name>\n" +
+                "\t\t<uri>http://www.w3.org/2001/XMLSchema#dayTimeDuration</uri>\n" +
+                "\t</dataType>\n" +
+                "\t<dataType>\n" +
+                "\t\t<name>Day Time Duration</name>\n" +
+                "\t\t<uri>http://www.w3.org/2001/XMLSchema#dayTimeDuration</uri>\n" +
+                "\t</dataType>\n" +
+                "\t<dataType>\n" +
+                "\t\t<name>Day Time Duration</name>\n" +
+                "\t\t<uri>http://www.w3.org/2001/XMLSchema#dayTimeDuration</uri>\n" +
+                "\t</dataType>\n" +
+                "\t<dataType>\n" +
+                "\t\t<name>Year Month Duration</name>\n" +
+                "\t\t<uri>http://www.w3.org/2001/XMLSchema#yearMonthDuration</uri>\n" +
+                "\t</dataType>\n" +
+                "\t<dataType>\n" +
+                "\t\t<name>Any URI</name>\n" +
+                "\t\t<uri>http://www.w3.org/2001/XMLSchema#anyURI</uri>\n" +
+                "\t</dataType>\n" +
+                "\t<dataType>\n" +
+                "\t\t<name>Hex Binary</name>\n" +
+                "\t\t<uri>http://www.w3.org/2001/XMLSchema#hexBinary</uri>\n" +
+                "\t</dataType>\n" +
+                "\t<dataType>\n" +
+                "\t\t<name>Base64 Binary</name>\n" +
+                "\t\t<uri>http://www.w3.org/2001/XMLSchema#base64Binary</uri>\n" +
+                "\t</dataType> \n" +
+                "\t<dataType>\n" +
+                "\t\t<name>DNS Name</name>\n" +
+                "\t\t<uri>urn:oasis:names:tc:xacml:2.0:data-type:dnsName</uri>\n" +
+                "\t</dataType> \n" +
+                "\t<dataType>\n" +
+                "\t\t<name>IP Address</name>\n" +
+                "\t\t<uri>urn:oasis:names:tc:xacml:2.0:data-type:ipAddress</uri>\n" +
+                "\t</dataType> \n" +
+                "\t<dataType>\n" +
+                "\t\t<name>RFC822 Name</name>\n" +
+                "\t\t<uri>urn:oasis:names:tc:xacml:1.0:data-type:rfc822Name</uri>\n" +
+                "\t</dataType> \n" +
+                "\t<dataType>\n" +
+                "\t\t<name>XPath</name>\n" +
+                "\t\t<uri>urn:oasis:names:tc:xacml:3.0:data-type:xpathExpression</uri>\n" +
+                "\t</dataType>    \n" +
+                "\t<dataType>\n" +
+                "\t\t<name>X500 Name</name>\n" +
+                "\t\t<uri>urn:oasis:names:tc:xacml:1.0:data-type:x500Name</uri>\n" +
+                "\t</dataType>       \n" +
+                "    </dataTypes>\n" +
+                "</policyEditor>";
     }
 
     protected String getDefaultConfig() {
 
         return "<policyEditor>\n" +
-               "    <categories>\n" +
-               "        <category>\n" +
-               "            <name>Subject</name>\n" +
-               "            <uri>urn:oasis:names:tc:xacml:1.0:subject-category:access-subject</uri>\n" +
-               "            <supportedAttributeIds>\n" +
-               "                <attributeId>UserName</attributeId>\n" +
-               "                <attributeId>Email</attributeId>\n" +
-               "                <attributeId>Role</attributeId>\n" +
-               "                <attributeId>Age</attributeId>\n" +
-               "            </supportedAttributeIds>\n" +
-               "        </category>\n" +
-               "        <category>\n" +
-               "            <name>Resource</name>\n" +
-               "            <uri>urn:oasis:names:tc:xacml:3.0:attribute-category:resource</uri>\n" +
-               "            <supportedAttributeIds>\n" +
-               "                <attributeId>resource-id</attributeId>\n" +
-               "            </supportedAttributeIds>\n" +
-               "        </category>\n" +
-               "        <category>\n" +
-               "            <name>Action</name>\n" +
-               "            <uri>urn:oasis:names:tc:xacml:3.0:attribute-category:action</uri>\n" +
-               "            <supportedAttributeIds>\n" +
-               "                <attributeId>action-id</attributeId>\n" +
-               "            </supportedAttributeIds>\n" +
-               "        </category>\n" +
-               "        <category>\n" +
-               "            <name>Environment</name>\n" +
-               "            <uri>urn:oasis:names:tc:xacml:3.0:attribute-category:environment</uri>\n" +
-               "            <supportedAttributeIds>\n" +
-               "                <attributeId>Domain</attributeId>\n" +
-               "\t\t<attributeId>Date</attributeId>\n" +
-               "\t\t<attributeId>Time</attributeId>\n" +
-               "\t\t<attributeId>DateTime</attributeId>\n" +
-               "            </supportedAttributeIds>\n" +
-               "        </category>\n" +
-               "    </categories>\n" +
-               "    <attributeIds>\n" +
-               "        <attributeId>\n" +
-               "            <name>resource-id</name>\n" +
-               "            <uri>urn:oasis:names:tc:xacml:1.0:resource:resource-id</uri>\n" +
-               "        </attributeId>\n" +
-               "        <attributeId>\n" +
-               "            <name>action-id</name>\n" +
-               "            <uri>urn:oasis:names:tc:xacml:1.0:action:action-id</uri>\n" +
-               "        </attributeId>\n" +
-               "        <attributeId>\n" +
-               "            <name>UserName</name>\n" +
-               "            <uri>urn:oasis:names:tc:xacml:1.0:subject:subject-id</uri>\n" +
-               "        </attributeId>\n" +
-               "        <attributeId>\n" +
-               "            <name>Role</name>\n" +
-               "            <uri>http://wso2.org/claims/role</uri>\n" +
-               "        </attributeId>\n" +
-               "        <attributeId>\n" +
-               "            <name>Email</name>\n" +
-               "            <uri>http://wso2.org/claims/emailaddress</uri>\n" +
-               "        </attributeId>\n" +
-               "        <attributeId>\n" +
-               "            <name>Environment</name>\n" +
-               "            <uri>urn:oasis:names:tc:xacml:1.0:environment:environment-id</uri>\n" +
-               "        </attributeId>\n" +
-               "        <attributeId>\n" +
-               "            <name>Domain</name>\n" +
-               "            <uri>urn:oasis:names:tc:xacml:1.0:environment:environment-id</uri>\n" +
-               "        </attributeId>\n" +
-               "        <attributeId>\n" +
-               "            <name>Time</name>\n" +
-               "            <uri>urn:oasis:names:tc:xacml:1.0:environment:current-time</uri>\n" +
-               "            <dataType>http://www.w3.org/2001/XMLSchema#time</dataType>\n" +
-               "        </attributeId>\n" +
-               "        <attributeId>\n" +
-               "            <name>Date</name>\n" +
-               "            <uri>urn:oasis:names:tc:xacml:1.0:environment:current-date</uri>\n" +
-               "\t    <dataType>http://www.w3.org/2001/XMLSchema#date</dataType>\n" +
-               "        </attributeId>\n" +
-               "        <attributeId>\n" +
-               "            <name>DateTime</name>\n" +
-               "            <uri>urn:oasis:names:tc:xacml:1.0:environment:current-dateTime</uri>\n" +
-               "\t    <dataType>http://www.w3.org/2001/XMLSchema#dateTime</dataType>\n" +
-               "        </attributeId>\n" +
-               "        <attributeId>\n" +
-               "            <name>Age</name>\n" +
-               "            <uri>http://wso2.org/claims/age</uri>\n" +
-               "            <dataType>http://www.w3.org/2001/XMLSchema#integer</dataType>\n" +
-               "        </attributeId>\n" +
-               "    </attributeIds>\n" +
-               "    <dataTypes>    \n" +
-               "    </dataTypes>\n" +
-               "    <ruleCombiningAlgorithm>\n" +
-               "        <display>true</display>\n" +
-               "        <defaultAlgorithm>urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:first-applicable</defaultAlgorithm>\n" +
-               "        <algorithms>\n" +
-               "            <algorithm>\n" +
-               "                <name>Deny Overrides</name>\n" +
-               "                <uri>urn:oasis:names:tc:xacml:3.0:rule-combining-algorithm:deny-overrides</uri>\n" +
-               "            </algorithm>\n" +
-               "            <algorithm>\n" +
-               "                <name>First Applicable</name>\n" +
-               "                <uri>urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:first-applicable</uri>\n" +
-               "            </algorithm>\n" +
-               "            <algorithm>\n" +
-               "                <name>Permit Overrides</name>\n" +
-               "                <uri>urn:oasis:names:tc:xacml:3.0:rule-combining-algorithm:permit-overrides</uri>\n" +
-               "            </algorithm>\n" +
-               "            <algorithm>\n" +
-               "                <name>Deny Unless Permit</name>\n" +
-               "                <uri>urn:oasis:names:tc:xacml:3.0:rule-combining-algorithm:deny-unless-permit</uri>\n" +
-               "            </algorithm>\n" +
-               "            <algorithm>\n" +
-               "                <name>Permit Unless Deny</name>\n" +
-               "                <uri>urn:oasis:names:tc:xacml:3.0:rule-combining-algorithm:permit-unless-deny</uri>\n" +
-               "            </algorithm>\n" +
-               "        </algorithms>\n" +
-               "    </ruleCombiningAlgorithm>\n" +
-               "    <dataTypes>\n" +
-               "\t<dataType>\n" +
-               "\t\t<name>String</name>\n" +
-               "\t\t<uri>http://www.w3.org/2001/XMLSchema#string</uri>\n" +
-               "\t</dataType>\n" +
-               "\t<dataType>\n" +
-               "\t\t<name>Boolean</name>\n" +
-               "\t\t<uri>http://www.w3.org/2001/XMLSchema#boolean</uri>\n" +
-               "\t</dataType>\n" +
-               "\t<dataType>\n" +
-               "\t\t<name>Integer</name>\n" +
-               "\t\t<uri>http://www.w3.org/2001/XMLSchema#integer</uri>\n" +
-               "\t</dataType>\n" +
-               "\t<dataType>\n" +
-               "\t\t<name>Double</name>\n" +
-               "\t\t<uri>http://www.w3.org/2001/XMLSchema#double</uri>\n" +
-               "\t</dataType>\n" +
-               "\t<dataType>\n" +
-               "\t\t<name>Time</name>\n" +
-               "\t\t<uri>http://www.w3.org/2001/XMLSchema#time</uri>\n" +
-               "\t</dataType>\n" +
-               "\t<dataType>\n" +
-               "\t\t<name>Date</name>\n" +
-               "\t\t<uri>http://www.w3.org/2001/XMLSchema#date</uri>\n" +
-               "\t</dataType>\n" +
-               "\t<dataType>\n" +
-               "\t\t<name>Date Time</name>\n" +
-               "\t\t<uri>http://www.w3.org/2001/XMLSchema#dateTime</uri>\n" +
-               "\t</dataType>\n" +
-               "\t<dataType>\n" +
-               "\t\t<name>Day Time Duration</name>\n" +
-               "\t\t<uri>http://www.w3.org/2001/XMLSchema#dayTimeDuration</uri>\n" +
-               "\t</dataType>\n" +
-               "\t<dataType>\n" +
-               "\t\t<name>Day Time Duration</name>\n" +
-               "\t\t<uri>http://www.w3.org/2001/XMLSchema#dayTimeDuration</uri>\n" +
-               "\t</dataType>\n" +
-               "\t<dataType>\n" +
-               "\t\t<name>Day Time Duration</name>\n" +
-               "\t\t<uri>http://www.w3.org/2001/XMLSchema#dayTimeDuration</uri>\n" +
-               "\t</dataType>\n" +
-               "\t<dataType>\n" +
-               "\t\t<name>Year Month Duration</name>\n" +
-               "\t\t<uri>http://www.w3.org/2001/XMLSchema#yearMonthDuration</uri>\n" +
-               "\t</dataType>\n" +
-               "\t<dataType>\n" +
-               "\t\t<name>Any URI</name>\n" +
-               "\t\t<uri>http://www.w3.org/2001/XMLSchema#anyURI</uri>\n" +
-               "\t</dataType>\n" +
-               "\t<dataType>\n" +
-               "\t\t<name>Hex Binary</name>\n" +
-               "\t\t<uri>http://www.w3.org/2001/XMLSchema#hexBinary</uri>\n" +
-               "\t</dataType>\n" +
-               "\t<dataType>\n" +
-               "\t\t<name>Base64 Binary</name>\n" +
-               "\t\t<uri>http://www.w3.org/2001/XMLSchema#base64Binary</uri>\n" +
-               "\t</dataType> \n" +
-               "\t<dataType>\n" +
-               "\t\t<name>DNS Name</name>\n" +
-               "\t\t<uri>urn:oasis:names:tc:xacml:2.0:data-type:dnsName</uri>\n" +
-               "\t</dataType> \n" +
-               "\t<dataType>\n" +
-               "\t\t<name>IP Address</name>\n" +
-               "\t\t<uri>urn:oasis:names:tc:xacml:2.0:data-type:ipAddress</uri>\n" +
-               "\t</dataType> \n" +
-               "\t<dataType>\n" +
-               "\t\t<name>RFC822 Name</name>\n" +
-               "\t\t<uri>urn:oasis:names:tc:xacml:1.0:data-type:rfc822Name</uri>\n" +
-               "\t</dataType> \n" +
-               "\t<dataType>\n" +
-               "\t\t<name>XPath</name>\n" +
-               "\t\t<uri>urn:oasis:names:tc:xacml:3.0:data-type:xpathExpression</uri>\n" +
-               "\t</dataType>    \n" +
-               "\t<dataType>\n" +
-               "\t\t<name>X500 Name</name>\n" +
-               "\t\t<uri>urn:oasis:names:tc:xacml:1.0:data-type:x500Name</uri>\n" +
-               "\t</dataType>       \n" +
-               "    </dataTypes>\n" +
-               "    <functions>\n" +
-               "        <function>\n" +
-               "            <name>equal</name>\n" +
-               "            <uri>equal</uri>\n" +
-               "            <targetFunction>true</targetFunction>\n" +
-               "        </function>\n" +
-               "        <function>\n" +
-               "            <name>equals-with-regexp-match</name>\n" +
-               "            <uri>regexp-match</uri>\n" +
-               "\t    <targetFunction>true</targetFunction>\n" +
-               "        </function>\n" +
-               "        <function>\n" +
-               "            <name>at-least-one-member-of</name>\n" +
-               "            <uri>at-least-one-member-of</uri>\n" +
-               "        </function>\n" +
-               "        <function>\n" +
-               "            <name>is-in</name>\n" +
-               "            <uri>is-in</uri>\n" +
-               "        </function>\n" +
-               "        <function>\n" +
-               "            <name>set-equals</name>\n" +
-               "            <uri>set-equals</uri>\n" +
-               "        </function>\n" +
-               "        <function>\n" +
-               "            <name>greater-than</name>\n" +
-               "            <uri>greater-than</uri>\n" +
-               "        </function>\n" +
-               "        <function>\n" +
-               "            <name>less-than</name>\n" +
-               "            <uri>less-than</uri>\n" +
-               "        </function>\n" +
-               "        <function>\n" +
-               "            <name>greater-than-and-less-than</name>\n" +
-               "            <uri>greater-than-and-less-than</uri>\n" +
-               "        </function>\n" +
-               "    </functions>\n" +
-               "    <preFunctions>\n" +
-               "        <preFunction>\n" +
-               "            <name>is/are</name>\n" +
-               "            <uri>is</uri>\n" +
-               "        </preFunction>\n" +
-               "        <preFunction>\n" +
-               "            <name>is not/are not</name>\n" +
-               "            <uri>not</uri>\n" +
-               "        </preFunction>\n" +
-               "    </preFunctions>\n" +
-               "    <policyDescription>\n" +
-               "        <display>true</display>\n" +
-               "    </policyDescription>\n" +
-               "    <rule>\n" +
-               "        <ruleId>true</ruleId>\n" +
-               "        <ruleEffect>\n" +
-               "            <display>true</display>\n" +
-               "            <defaultEffect>Permit</defaultEffect>\n" +
-               "\t    \t<effect>\n" +
-               "            \t\t<name>Permit</name>\n" +
-               "            \t\t<uri>Permit</uri>\n" +
-               "\t\t</effect>\n" +
-               "\t    \t<effect>\n" +
-               "            \t\t<name>Deny</name>\n" +
-               "            \t\t<uri>Deny</uri>\n" +
-               "\t\t</effect>\t\n" +
-               "        </ruleEffect>\n" +
-               "        <lastRule>\n" +
-               "            <add>false</add>\n" +
-               "            <effect>Deny</effect>\n" +
-               "        </lastRule>\n" +
-               "    </rule>\n" +
-               "</policyEditor>\n";
+                "    <categories>\n" +
+                "        <category>\n" +
+                "            <name>Subject</name>\n" +
+                "            <uri>urn:oasis:names:tc:xacml:1.0:subject-category:access-subject</uri>\n" +
+                "            <supportedAttributeIds>\n" +
+                "                <attributeId>UserName</attributeId>\n" +
+                "                <attributeId>Email</attributeId>\n" +
+                "                <attributeId>Role</attributeId>\n" +
+                "                <attributeId>Age</attributeId>\n" +
+                "            </supportedAttributeIds>\n" +
+                "        </category>\n" +
+                "        <category>\n" +
+                "            <name>Resource</name>\n" +
+                "            <uri>urn:oasis:names:tc:xacml:3.0:attribute-category:resource</uri>\n" +
+                "            <supportedAttributeIds>\n" +
+                "                <attributeId>resource-id</attributeId>\n" +
+                "            </supportedAttributeIds>\n" +
+                "        </category>\n" +
+                "        <category>\n" +
+                "            <name>Action</name>\n" +
+                "            <uri>urn:oasis:names:tc:xacml:3.0:attribute-category:action</uri>\n" +
+                "            <supportedAttributeIds>\n" +
+                "                <attributeId>action-id</attributeId>\n" +
+                "            </supportedAttributeIds>\n" +
+                "        </category>\n" +
+                "        <category>\n" +
+                "            <name>Environment</name>\n" +
+                "            <uri>urn:oasis:names:tc:xacml:3.0:attribute-category:environment</uri>\n" +
+                "            <supportedAttributeIds>\n" +
+                "                <attributeId>Domain</attributeId>\n" +
+                "\t\t<attributeId>Date</attributeId>\n" +
+                "\t\t<attributeId>Time</attributeId>\n" +
+                "\t\t<attributeId>DateTime</attributeId>\n" +
+                "            </supportedAttributeIds>\n" +
+                "        </category>\n" +
+                "    </categories>\n" +
+                "    <attributeIds>\n" +
+                "        <attributeId>\n" +
+                "            <name>resource-id</name>\n" +
+                "            <uri>urn:oasis:names:tc:xacml:1.0:resource:resource-id</uri>\n" +
+                "        </attributeId>\n" +
+                "        <attributeId>\n" +
+                "            <name>action-id</name>\n" +
+                "            <uri>urn:oasis:names:tc:xacml:1.0:action:action-id</uri>\n" +
+                "        </attributeId>\n" +
+                "        <attributeId>\n" +
+                "            <name>UserName</name>\n" +
+                "            <uri>urn:oasis:names:tc:xacml:1.0:subject:subject-id</uri>\n" +
+                "        </attributeId>\n" +
+                "        <attributeId>\n" +
+                "            <name>Role</name>\n" +
+                "            <uri>http://wso2.org/claims/role</uri>\n" +
+                "        </attributeId>\n" +
+                "        <attributeId>\n" +
+                "            <name>Email</name>\n" +
+                "            <uri>http://wso2.org/claims/emailaddress</uri>\n" +
+                "        </attributeId>\n" +
+                "        <attributeId>\n" +
+                "            <name>Environment</name>\n" +
+                "            <uri>urn:oasis:names:tc:xacml:1.0:environment:environment-id</uri>\n" +
+                "        </attributeId>\n" +
+                "        <attributeId>\n" +
+                "            <name>Domain</name>\n" +
+                "            <uri>urn:oasis:names:tc:xacml:1.0:environment:environment-id</uri>\n" +
+                "        </attributeId>\n" +
+                "        <attributeId>\n" +
+                "            <name>Time</name>\n" +
+                "            <uri>urn:oasis:names:tc:xacml:1.0:environment:current-time</uri>\n" +
+                "            <dataType>http://www.w3.org/2001/XMLSchema#time</dataType>\n" +
+                "        </attributeId>\n" +
+                "        <attributeId>\n" +
+                "            <name>Date</name>\n" +
+                "            <uri>urn:oasis:names:tc:xacml:1.0:environment:current-date</uri>\n" +
+                "\t    <dataType>http://www.w3.org/2001/XMLSchema#date</dataType>\n" +
+                "        </attributeId>\n" +
+                "        <attributeId>\n" +
+                "            <name>DateTime</name>\n" +
+                "            <uri>urn:oasis:names:tc:xacml:1.0:environment:current-dateTime</uri>\n" +
+                "\t    <dataType>http://www.w3.org/2001/XMLSchema#dateTime</dataType>\n" +
+                "        </attributeId>\n" +
+                "        <attributeId>\n" +
+                "            <name>Age</name>\n" +
+                "            <uri>http://wso2.org/claims/age</uri>\n" +
+                "            <dataType>http://www.w3.org/2001/XMLSchema#integer</dataType>\n" +
+                "        </attributeId>\n" +
+                "    </attributeIds>\n" +
+                "    <dataTypes>    \n" +
+                "    </dataTypes>\n" +
+                "    <ruleCombiningAlgorithm>\n" +
+                "        <display>true</display>\n" +
+                "        <defaultAlgorithm>urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:first-applicable</defaultAlgorithm>\n" +
+                "        <algorithms>\n" +
+                "            <algorithm>\n" +
+                "                <name>Deny Overrides</name>\n" +
+                "                <uri>urn:oasis:names:tc:xacml:3.0:rule-combining-algorithm:deny-overrides</uri>\n" +
+                "            </algorithm>\n" +
+                "            <algorithm>\n" +
+                "                <name>First Applicable</name>\n" +
+                "                <uri>urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:first-applicable</uri>\n" +
+                "            </algorithm>\n" +
+                "            <algorithm>\n" +
+                "                <name>Permit Overrides</name>\n" +
+                "                <uri>urn:oasis:names:tc:xacml:3.0:rule-combining-algorithm:permit-overrides</uri>\n" +
+                "            </algorithm>\n" +
+                "            <algorithm>\n" +
+                "                <name>Deny Unless Permit</name>\n" +
+                "                <uri>urn:oasis:names:tc:xacml:3.0:rule-combining-algorithm:deny-unless-permit</uri>\n" +
+                "            </algorithm>\n" +
+                "            <algorithm>\n" +
+                "                <name>Permit Unless Deny</name>\n" +
+                "                <uri>urn:oasis:names:tc:xacml:3.0:rule-combining-algorithm:permit-unless-deny</uri>\n" +
+                "            </algorithm>\n" +
+                "        </algorithms>\n" +
+                "    </ruleCombiningAlgorithm>\n" +
+                "    <dataTypes>\n" +
+                "\t<dataType>\n" +
+                "\t\t<name>String</name>\n" +
+                "\t\t<uri>http://www.w3.org/2001/XMLSchema#string</uri>\n" +
+                "\t</dataType>\n" +
+                "\t<dataType>\n" +
+                "\t\t<name>Boolean</name>\n" +
+                "\t\t<uri>http://www.w3.org/2001/XMLSchema#boolean</uri>\n" +
+                "\t</dataType>\n" +
+                "\t<dataType>\n" +
+                "\t\t<name>Integer</name>\n" +
+                "\t\t<uri>http://www.w3.org/2001/XMLSchema#integer</uri>\n" +
+                "\t</dataType>\n" +
+                "\t<dataType>\n" +
+                "\t\t<name>Double</name>\n" +
+                "\t\t<uri>http://www.w3.org/2001/XMLSchema#double</uri>\n" +
+                "\t</dataType>\n" +
+                "\t<dataType>\n" +
+                "\t\t<name>Time</name>\n" +
+                "\t\t<uri>http://www.w3.org/2001/XMLSchema#time</uri>\n" +
+                "\t</dataType>\n" +
+                "\t<dataType>\n" +
+                "\t\t<name>Date</name>\n" +
+                "\t\t<uri>http://www.w3.org/2001/XMLSchema#date</uri>\n" +
+                "\t</dataType>\n" +
+                "\t<dataType>\n" +
+                "\t\t<name>Date Time</name>\n" +
+                "\t\t<uri>http://www.w3.org/2001/XMLSchema#dateTime</uri>\n" +
+                "\t</dataType>\n" +
+                "\t<dataType>\n" +
+                "\t\t<name>Day Time Duration</name>\n" +
+                "\t\t<uri>http://www.w3.org/2001/XMLSchema#dayTimeDuration</uri>\n" +
+                "\t</dataType>\n" +
+                "\t<dataType>\n" +
+                "\t\t<name>Day Time Duration</name>\n" +
+                "\t\t<uri>http://www.w3.org/2001/XMLSchema#dayTimeDuration</uri>\n" +
+                "\t</dataType>\n" +
+                "\t<dataType>\n" +
+                "\t\t<name>Day Time Duration</name>\n" +
+                "\t\t<uri>http://www.w3.org/2001/XMLSchema#dayTimeDuration</uri>\n" +
+                "\t</dataType>\n" +
+                "\t<dataType>\n" +
+                "\t\t<name>Year Month Duration</name>\n" +
+                "\t\t<uri>http://www.w3.org/2001/XMLSchema#yearMonthDuration</uri>\n" +
+                "\t</dataType>\n" +
+                "\t<dataType>\n" +
+                "\t\t<name>Any URI</name>\n" +
+                "\t\t<uri>http://www.w3.org/2001/XMLSchema#anyURI</uri>\n" +
+                "\t</dataType>\n" +
+                "\t<dataType>\n" +
+                "\t\t<name>Hex Binary</name>\n" +
+                "\t\t<uri>http://www.w3.org/2001/XMLSchema#hexBinary</uri>\n" +
+                "\t</dataType>\n" +
+                "\t<dataType>\n" +
+                "\t\t<name>Base64 Binary</name>\n" +
+                "\t\t<uri>http://www.w3.org/2001/XMLSchema#base64Binary</uri>\n" +
+                "\t</dataType> \n" +
+                "\t<dataType>\n" +
+                "\t\t<name>DNS Name</name>\n" +
+                "\t\t<uri>urn:oasis:names:tc:xacml:2.0:data-type:dnsName</uri>\n" +
+                "\t</dataType> \n" +
+                "\t<dataType>\n" +
+                "\t\t<name>IP Address</name>\n" +
+                "\t\t<uri>urn:oasis:names:tc:xacml:2.0:data-type:ipAddress</uri>\n" +
+                "\t</dataType> \n" +
+                "\t<dataType>\n" +
+                "\t\t<name>RFC822 Name</name>\n" +
+                "\t\t<uri>urn:oasis:names:tc:xacml:1.0:data-type:rfc822Name</uri>\n" +
+                "\t</dataType> \n" +
+                "\t<dataType>\n" +
+                "\t\t<name>XPath</name>\n" +
+                "\t\t<uri>urn:oasis:names:tc:xacml:3.0:data-type:xpathExpression</uri>\n" +
+                "\t</dataType>    \n" +
+                "\t<dataType>\n" +
+                "\t\t<name>X500 Name</name>\n" +
+                "\t\t<uri>urn:oasis:names:tc:xacml:1.0:data-type:x500Name</uri>\n" +
+                "\t</dataType>       \n" +
+                "    </dataTypes>\n" +
+                "    <functions>\n" +
+                "        <function>\n" +
+                "            <name>equal</name>\n" +
+                "            <uri>equal</uri>\n" +
+                "            <targetFunction>true</targetFunction>\n" +
+                "        </function>\n" +
+                "        <function>\n" +
+                "            <name>equals-with-regexp-match</name>\n" +
+                "            <uri>regexp-match</uri>\n" +
+                "\t    <targetFunction>true</targetFunction>\n" +
+                "        </function>\n" +
+                "        <function>\n" +
+                "            <name>at-least-one-member-of</name>\n" +
+                "            <uri>at-least-one-member-of</uri>\n" +
+                "        </function>\n" +
+                "        <function>\n" +
+                "            <name>is-in</name>\n" +
+                "            <uri>is-in</uri>\n" +
+                "        </function>\n" +
+                "        <function>\n" +
+                "            <name>set-equals</name>\n" +
+                "            <uri>set-equals</uri>\n" +
+                "        </function>\n" +
+                "        <function>\n" +
+                "            <name>greater-than</name>\n" +
+                "            <uri>greater-than</uri>\n" +
+                "        </function>\n" +
+                "        <function>\n" +
+                "            <name>less-than</name>\n" +
+                "            <uri>less-than</uri>\n" +
+                "        </function>\n" +
+                "        <function>\n" +
+                "            <name>greater-than-and-less-than</name>\n" +
+                "            <uri>greater-than-and-less-than</uri>\n" +
+                "        </function>\n" +
+                "    </functions>\n" +
+                "    <preFunctions>\n" +
+                "        <preFunction>\n" +
+                "            <name>is/are</name>\n" +
+                "            <uri>is</uri>\n" +
+                "        </preFunction>\n" +
+                "        <preFunction>\n" +
+                "            <name>is not/are not</name>\n" +
+                "            <uri>not</uri>\n" +
+                "        </preFunction>\n" +
+                "    </preFunctions>\n" +
+                "    <policyDescription>\n" +
+                "        <display>true</display>\n" +
+                "    </policyDescription>\n" +
+                "    <rule>\n" +
+                "        <ruleId>true</ruleId>\n" +
+                "        <ruleEffect>\n" +
+                "            <display>true</display>\n" +
+                "            <defaultEffect>Permit</defaultEffect>\n" +
+                "\t    \t<effect>\n" +
+                "            \t\t<name>Permit</name>\n" +
+                "            \t\t<uri>Permit</uri>\n" +
+                "\t\t</effect>\n" +
+                "\t    \t<effect>\n" +
+                "            \t\t<name>Deny</name>\n" +
+                "            \t\t<uri>Deny</uri>\n" +
+                "\t\t</effect>\t\n" +
+                "        </ruleEffect>\n" +
+                "        <lastRule>\n" +
+                "            <add>false</add>\n" +
+                "            <effect>Deny</effect>\n" +
+                "        </lastRule>\n" +
+                "    </rule>\n" +
+                "</policyEditor>\n";
     }
 
 
     protected String getDefaultSetConfig() {
 
         return "<policyEditor>\n" +
-               "    <categories>\n" +
-               "        <category>\n" +
-               "            <name>Subject</name>\n" +
-               "            <uri>urn:oasis:names:tc:xacml:1.0:subject-category:access-subject</uri>\n" +
-               "            <supportedAttributeIds>\n" +
-               "                <attributeId>UserName</attributeId>\n" +
-               "                <attributeId>Email</attributeId>\n" +
-               "                <attributeId>Role</attributeId>\n" +
-               "                <attributeId>Age</attributeId>\n" +
-               "            </supportedAttributeIds>\n" +
-               "        </category>\n" +
-               "        <category>\n" +
-               "            <name>Resource</name>\n" +
-               "            <uri>urn:oasis:names:tc:xacml:3.0:attribute-category:resource</uri>\n" +
-               "            <supportedAttributeIds>\n" +
-               "                <attributeId>resource-id</attributeId>\n" +
-               "            </supportedAttributeIds>\n" +
-               "        </category>\n" +
-               "        <category>\n" +
-               "            <name>Action</name>\n" +
-               "            <uri>urn:oasis:names:tc:xacml:3.0:attribute-category:action</uri>\n" +
-               "            <supportedAttributeIds>\n" +
-               "                <attributeId>action-id</attributeId>\n" +
-               "            </supportedAttributeIds>\n" +
-               "        </category>\n" +
-               "        <category>\n" +
-               "            <name>Environment</name>\n" +
-               "            <uri>urn:oasis:names:tc:xacml:3.0:attribute-category:environment</uri>\n" +
-               "            <supportedAttributeIds>\n" +
-               "                <attributeId>Domain</attributeId>\n" +
-               "\t\t<attributeId>Date</attributeId>\n" +
-               "\t\t<attributeId>Time</attributeId>\n" +
-               "\t\t<attributeId>DateTime</attributeId>\n" +
-               "            </supportedAttributeIds>\n" +
-               "        </category>\n" +
-               "    </categories>\n" +
-               "    <attributeIds>\n" +
-               "        <attributeId>\n" +
-               "            <name>resource-id</name>\n" +
-               "            <uri>urn:oasis:names:tc:xacml:1.0:resource:resource-id</uri>\n" +
-               "        </attributeId>\n" +
-               "        <attributeId>\n" +
-               "            <name>action-id</name>\n" +
-               "            <uri>urn:oasis:names:tc:xacml:1.0:action:action-id</uri>\n" +
-               "        </attributeId>\n" +
-               "        <attributeId>\n" +
-               "            <name>UserName</name>\n" +
-               "            <uri>urn:oasis:names:tc:xacml:1.0:subject:subject-id</uri>\n" +
-               "        </attributeId>\n" +
-               "        <attributeId>\n" +
-               "            <name>Role</name>\n" +
-               "            <uri>http://wso2.org/claims/role</uri>\n" +
-               "        </attributeId>\n" +
-               "        <attributeId>\n" +
-               "            <name>Email</name>\n" +
-               "            <uri>http://wso2.org/claims/emailaddress</uri>\n" +
-               "        </attributeId>\n" +
-               "        <attributeId>\n" +
-               "            <name>Environment</name>\n" +
-               "            <uri>urn:oasis:names:tc:xacml:1.0:environment:environment-id</uri>\n" +
-               "        </attributeId>\n" +
-               "        <attributeId>\n" +
-               "            <name>Domain</name>\n" +
-               "            <uri>urn:oasis:names:tc:xacml:1.0:environment:environment-id</uri>\n" +
-               "        </attributeId>\n" +
-               "        <attributeId>\n" +
-               "            <name>Time</name>\n" +
-               "            <uri>urn:oasis:names:tc:xacml:1.0:environment:current-time</uri>\n" +
-               "            <dataType>http://www.w3.org/2001/XMLSchema#time</dataType>\n" +
-               "        </attributeId>\n" +
-               "        <attributeId>\n" +
-               "            <name>Date</name>\n" +
-               "            <uri>urn:oasis:names:tc:xacml:1.0:environment:current-date</uri>\n" +
-               "\t    <dataType>http://www.w3.org/2001/XMLSchema#date</dataType>\n" +
-               "        </attributeId>\n" +
-               "        <attributeId>\n" +
-               "            <name>DateTime</name>\n" +
-               "            <uri>urn:oasis:names:tc:xacml:1.0:environment:current-dateTime</uri>\n" +
-               "\t    <dataType>http://www.w3.org/2001/XMLSchema#dateTime</dataType>\n" +
-               "        </attributeId>\n" +
-               "        <attributeId>\n" +
-               "            <name>Age</name>\n" +
-               "            <uri>http://wso2.org/claims/age</uri>\n" +
-               "            <dataType>http://www.w3.org/2001/XMLSchema#integer</dataType>\n" +
-               "        </attributeId>\n" +
-               "    </attributeIds>\n" +
-               "    <dataTypes>    \n" +
-               "    </dataTypes>\n" +
-               "    <policyCombiningAlgorithm>\n" +
-               "        <display>true</display>\n" +
-               "        <defaultAlgorithm>urn:oasis:names:tc:xacml:3.0:policy-combining-algorithm:deny-overrides</defaultAlgorithm>\n" +
-               "        <algorithms>\n" +
-               "            <algorithm>\n" +
-               "                <name>Deny Overrides</name>\n" +
-               "                <uri>urn:oasis:names:tc:xacml:3.0:policy-combining-algorithm:deny-overrides</uri>\n" +
-               "            </algorithm>\n" +
-               "            <algorithm>\n" +
-               "                <name>First Applicable</name>\n" +
-               "                <uri>urn:oasis:names:tc:xacml:1.0:policy-combining-algorithm:first-applicable</uri>\n" +
-               "            </algorithm>\n" +
-               "            <algorithm>\n" +
-               "                <name>Permit Overrides</name>\n" +
-               "                <uri>urn:oasis:names:tc:xacml:3.0:policy-combining-algorithm:permit-overrides</uri>\n" +
-               "            </algorithm>\n" +
-               "            <algorithm>\n" +
-               "                <name>Deny Unless Permit</name>\n" +
-               "                <uri>urn:oasis:names:tc:xacml:3.0:policy-combining-algorithm:deny-unless-permit</uri>\n" +
-               "            </algorithm>\n" +
-               "            <algorithm>\n" +
-               "                <name>Permit Unless Deny</name>\n" +
-               "                <uri>urn:oasis:names:tc:xacml:3.0:policy-combining-algorithm:permit-unless-deny</uri>\n" +
-               "            </algorithm>\n" +
-               "            <algorithm>\n" +
-               "                <name>Only One Applicable</name>\n" +
-               "                <uri>urn:oasis:names:tc:xacml:1.0:policy-combining-algorithm:only-one-applicable</uri>\n" +
-               "            </algorithm>\n" +
-               "            <algorithm>\n" +
-               "                <name>Ordered Permit Overrides</name>\n" +
-               "                <uri>urn:oasis:names:tc:xacml:3.0:policy-combining-algorithm:ordered-permit-overrides</uri>\n" +
-               "            </algorithm>\n" +
-               "            <algorithm>\n" +
-               "                <name>Ordered Deny Overrides</name>\n" +
-               "                <uri>urn:oasis:names:tc:xacml:3.0:policy-combining-algorithm:ordered-deny-overrides</uri>\n" +
-               "            </algorithm>\n" +
-               "        </algorithms>\n" +
-               "    </policyCombiningAlgorithm>\n" +
-               "    <dataTypes>\n" +
-               "\t<dataType>\n" +
-               "\t\t<name>String</name>\n" +
-               "\t\t<uri>http://www.w3.org/2001/XMLSchema#string</uri>\n" +
-               "\t</dataType>\n" +
-               "\t<dataType>\n" +
-               "\t\t<name>Boolean</name>\n" +
-               "\t\t<uri>http://www.w3.org/2001/XMLSchema#boolean</uri>\n" +
-               "\t</dataType>\n" +
-               "\t<dataType>\n" +
-               "\t\t<name>Integer</name>\n" +
-               "\t\t<uri>http://www.w3.org/2001/XMLSchema#integer</uri>\n" +
-               "\t</dataType>\n" +
-               "\t<dataType>\n" +
-               "\t\t<name>Double</name>\n" +
-               "\t\t<uri>http://www.w3.org/2001/XMLSchema#double</uri>\n" +
-               "\t</dataType>\n" +
-               "\t<dataType>\n" +
-               "\t\t<name>Time</name>\n" +
-               "\t\t<uri>http://www.w3.org/2001/XMLSchema#time</uri>\n" +
-               "\t</dataType>\n" +
-               "\t<dataType>\n" +
-               "\t\t<name>Date</name>\n" +
-               "\t\t<uri>http://www.w3.org/2001/XMLSchema#date</uri>\n" +
-               "\t</dataType>\n" +
-               "\t<dataType>\n" +
-               "\t\t<name>Date Time</name>\n" +
-               "\t\t<uri>http://www.w3.org/2001/XMLSchema#dateTime</uri>\n" +
-               "\t</dataType>\n" +
-               "\t<dataType>\n" +
-               "\t\t<name>Day Time Duration</name>\n" +
-               "\t\t<uri>http://www.w3.org/2001/XMLSchema#dayTimeDuration</uri>\n" +
-               "\t</dataType>\n" +
-               "\t<dataType>\n" +
-               "\t\t<name>Year Month Duration</name>\n" +
-               "\t\t<uri>http://www.w3.org/2001/XMLSchema#yearMonthDuration</uri>\n" +
-               "\t</dataType>\n" +
-               "\t<dataType>\n" +
-               "\t\t<name>Any URI</name>\n" +
-               "\t\t<uri>http://www.w3.org/2001/XMLSchema#anyURI</uri>\n" +
-               "\t</dataType>\n" +
-               "\t<dataType>\n" +
-               "\t\t<name>Hex Binary</name>\n" +
-               "\t\t<uri>http://www.w3.org/2001/XMLSchema#hexBinary</uri>\n" +
-               "\t</dataType>\n" +
-               "\t<dataType>\n" +
-               "\t\t<name>Base64 Binary</name>\n" +
-               "\t\t<uri>http://www.w3.org/2001/XMLSchema#base64Binary</uri>\n" +
-               "\t</dataType> \n" +
-               "\t<dataType>\n" +
-               "\t\t<name>DNS Name</name>\n" +
-               "\t\t<uri>urn:oasis:names:tc:xacml:2.0:data-type:dnsName</uri>\n" +
-               "\t</dataType> \n" +
-               "\t<dataType>\n" +
-               "\t\t<name>IP Address</name>\n" +
-               "\t\t<uri>urn:oasis:names:tc:xacml:2.0:data-type:ipAddress</uri>\n" +
-               "\t</dataType> \n" +
-               "\t<dataType>\n" +
-               "\t\t<name>RFC822 Name</name>\n" +
-               "\t\t<uri>urn:oasis:names:tc:xacml:1.0:data-type:rfc822Name</uri>\n" +
-               "\t</dataType> \n" +
-               "\t<dataType>\n" +
-               "\t\t<name>XPath</name>\n" +
-               "\t\t<uri>urn:oasis:names:tc:xacml:3.0:data-type:xpathExpression</uri>\n" +
-               "\t</dataType>    \n" +
-               "\t<dataType>\n" +
-               "\t\t<name>X500 Name</name>\n" +
-               "\t\t<uri>urn:oasis:names:tc:xacml:1.0:data-type:x500Name</uri>\n" +
-               "\t</dataType>       \n" +
-               "    </dataTypes>\n" +
-               "    <functions>\n" +
-               "        <function>\n" +
-               "            <name>equal</name>\n" +
-               "            <uri>equal</uri>\n" +
-               "            <targetFunction>true</targetFunction>\n" +
-               "        </function>\n" +
-               "        <function>\n" +
-               "            <name>equals-with-regexp-match</name>\n" +
-               "            <uri>regexp-match</uri>\n" +
-               "\t    <targetFunction>true</targetFunction>\n" +
-               "        </function>\n" +
-               "        <function>\n" +
-               "            <name>at-least-one-member-of</name>\n" +
-               "            <uri>at-least-one-member-of</uri>\n" +
-               "        </function>\n" +
-               "        <function>\n" +
-               "            <name>set-equals</name>\n" +
-               "            <uri>set-equals</uri>\n" +
-               "        </function>\n" +
-               "    </functions>\n" +
-               "    <preFunctions>\n" +
-               "        <preFunction>\n" +
-               "            <name>is/are</name>\n" +
-               "            <uri>is</uri>\n" +
-               "        </preFunction>\n" +
-               "        <preFunction>\n" +
-               "            <name>is not/are not</name>\n" +
-               "            <uri>not</uri>\n" +
-               "        </preFunction>\n" +
-               "    </preFunctions>\n" +
-               "    <policyDescription>\n" +
-               "        <display>true</display>\n" +
-               "    </policyDescription>\n" +
-               "</policyEditor>\n";
+                "    <categories>\n" +
+                "        <category>\n" +
+                "            <name>Subject</name>\n" +
+                "            <uri>urn:oasis:names:tc:xacml:1.0:subject-category:access-subject</uri>\n" +
+                "            <supportedAttributeIds>\n" +
+                "                <attributeId>UserName</attributeId>\n" +
+                "                <attributeId>Email</attributeId>\n" +
+                "                <attributeId>Role</attributeId>\n" +
+                "                <attributeId>Age</attributeId>\n" +
+                "            </supportedAttributeIds>\n" +
+                "        </category>\n" +
+                "        <category>\n" +
+                "            <name>Resource</name>\n" +
+                "            <uri>urn:oasis:names:tc:xacml:3.0:attribute-category:resource</uri>\n" +
+                "            <supportedAttributeIds>\n" +
+                "                <attributeId>resource-id</attributeId>\n" +
+                "            </supportedAttributeIds>\n" +
+                "        </category>\n" +
+                "        <category>\n" +
+                "            <name>Action</name>\n" +
+                "            <uri>urn:oasis:names:tc:xacml:3.0:attribute-category:action</uri>\n" +
+                "            <supportedAttributeIds>\n" +
+                "                <attributeId>action-id</attributeId>\n" +
+                "            </supportedAttributeIds>\n" +
+                "        </category>\n" +
+                "        <category>\n" +
+                "            <name>Environment</name>\n" +
+                "            <uri>urn:oasis:names:tc:xacml:3.0:attribute-category:environment</uri>\n" +
+                "            <supportedAttributeIds>\n" +
+                "                <attributeId>Domain</attributeId>\n" +
+                "\t\t<attributeId>Date</attributeId>\n" +
+                "\t\t<attributeId>Time</attributeId>\n" +
+                "\t\t<attributeId>DateTime</attributeId>\n" +
+                "            </supportedAttributeIds>\n" +
+                "        </category>\n" +
+                "    </categories>\n" +
+                "    <attributeIds>\n" +
+                "        <attributeId>\n" +
+                "            <name>resource-id</name>\n" +
+                "            <uri>urn:oasis:names:tc:xacml:1.0:resource:resource-id</uri>\n" +
+                "        </attributeId>\n" +
+                "        <attributeId>\n" +
+                "            <name>action-id</name>\n" +
+                "            <uri>urn:oasis:names:tc:xacml:1.0:action:action-id</uri>\n" +
+                "        </attributeId>\n" +
+                "        <attributeId>\n" +
+                "            <name>UserName</name>\n" +
+                "            <uri>urn:oasis:names:tc:xacml:1.0:subject:subject-id</uri>\n" +
+                "        </attributeId>\n" +
+                "        <attributeId>\n" +
+                "            <name>Role</name>\n" +
+                "            <uri>http://wso2.org/claims/role</uri>\n" +
+                "        </attributeId>\n" +
+                "        <attributeId>\n" +
+                "            <name>Email</name>\n" +
+                "            <uri>http://wso2.org/claims/emailaddress</uri>\n" +
+                "        </attributeId>\n" +
+                "        <attributeId>\n" +
+                "            <name>Environment</name>\n" +
+                "            <uri>urn:oasis:names:tc:xacml:1.0:environment:environment-id</uri>\n" +
+                "        </attributeId>\n" +
+                "        <attributeId>\n" +
+                "            <name>Domain</name>\n" +
+                "            <uri>urn:oasis:names:tc:xacml:1.0:environment:environment-id</uri>\n" +
+                "        </attributeId>\n" +
+                "        <attributeId>\n" +
+                "            <name>Time</name>\n" +
+                "            <uri>urn:oasis:names:tc:xacml:1.0:environment:current-time</uri>\n" +
+                "            <dataType>http://www.w3.org/2001/XMLSchema#time</dataType>\n" +
+                "        </attributeId>\n" +
+                "        <attributeId>\n" +
+                "            <name>Date</name>\n" +
+                "            <uri>urn:oasis:names:tc:xacml:1.0:environment:current-date</uri>\n" +
+                "\t    <dataType>http://www.w3.org/2001/XMLSchema#date</dataType>\n" +
+                "        </attributeId>\n" +
+                "        <attributeId>\n" +
+                "            <name>DateTime</name>\n" +
+                "            <uri>urn:oasis:names:tc:xacml:1.0:environment:current-dateTime</uri>\n" +
+                "\t    <dataType>http://www.w3.org/2001/XMLSchema#dateTime</dataType>\n" +
+                "        </attributeId>\n" +
+                "        <attributeId>\n" +
+                "            <name>Age</name>\n" +
+                "            <uri>http://wso2.org/claims/age</uri>\n" +
+                "            <dataType>http://www.w3.org/2001/XMLSchema#integer</dataType>\n" +
+                "        </attributeId>\n" +
+                "    </attributeIds>\n" +
+                "    <dataTypes>    \n" +
+                "    </dataTypes>\n" +
+                "    <policyCombiningAlgorithm>\n" +
+                "        <display>true</display>\n" +
+                "        <defaultAlgorithm>urn:oasis:names:tc:xacml:3.0:policy-combining-algorithm:deny-overrides</defaultAlgorithm>\n" +
+                "        <algorithms>\n" +
+                "            <algorithm>\n" +
+                "                <name>Deny Overrides</name>\n" +
+                "                <uri>urn:oasis:names:tc:xacml:3.0:policy-combining-algorithm:deny-overrides</uri>\n" +
+                "            </algorithm>\n" +
+                "            <algorithm>\n" +
+                "                <name>First Applicable</name>\n" +
+                "                <uri>urn:oasis:names:tc:xacml:1.0:policy-combining-algorithm:first-applicable</uri>\n" +
+                "            </algorithm>\n" +
+                "            <algorithm>\n" +
+                "                <name>Permit Overrides</name>\n" +
+                "                <uri>urn:oasis:names:tc:xacml:3.0:policy-combining-algorithm:permit-overrides</uri>\n" +
+                "            </algorithm>\n" +
+                "            <algorithm>\n" +
+                "                <name>Deny Unless Permit</name>\n" +
+                "                <uri>urn:oasis:names:tc:xacml:3.0:policy-combining-algorithm:deny-unless-permit</uri>\n" +
+                "            </algorithm>\n" +
+                "            <algorithm>\n" +
+                "                <name>Permit Unless Deny</name>\n" +
+                "                <uri>urn:oasis:names:tc:xacml:3.0:policy-combining-algorithm:permit-unless-deny</uri>\n" +
+                "            </algorithm>\n" +
+                "            <algorithm>\n" +
+                "                <name>Only One Applicable</name>\n" +
+                "                <uri>urn:oasis:names:tc:xacml:1.0:policy-combining-algorithm:only-one-applicable</uri>\n" +
+                "            </algorithm>\n" +
+                "            <algorithm>\n" +
+                "                <name>Ordered Permit Overrides</name>\n" +
+                "                <uri>urn:oasis:names:tc:xacml:3.0:policy-combining-algorithm:ordered-permit-overrides</uri>\n" +
+                "            </algorithm>\n" +
+                "            <algorithm>\n" +
+                "                <name>Ordered Deny Overrides</name>\n" +
+                "                <uri>urn:oasis:names:tc:xacml:3.0:policy-combining-algorithm:ordered-deny-overrides</uri>\n" +
+                "            </algorithm>\n" +
+                "        </algorithms>\n" +
+                "    </policyCombiningAlgorithm>\n" +
+                "    <dataTypes>\n" +
+                "\t<dataType>\n" +
+                "\t\t<name>String</name>\n" +
+                "\t\t<uri>http://www.w3.org/2001/XMLSchema#string</uri>\n" +
+                "\t</dataType>\n" +
+                "\t<dataType>\n" +
+                "\t\t<name>Boolean</name>\n" +
+                "\t\t<uri>http://www.w3.org/2001/XMLSchema#boolean</uri>\n" +
+                "\t</dataType>\n" +
+                "\t<dataType>\n" +
+                "\t\t<name>Integer</name>\n" +
+                "\t\t<uri>http://www.w3.org/2001/XMLSchema#integer</uri>\n" +
+                "\t</dataType>\n" +
+                "\t<dataType>\n" +
+                "\t\t<name>Double</name>\n" +
+                "\t\t<uri>http://www.w3.org/2001/XMLSchema#double</uri>\n" +
+                "\t</dataType>\n" +
+                "\t<dataType>\n" +
+                "\t\t<name>Time</name>\n" +
+                "\t\t<uri>http://www.w3.org/2001/XMLSchema#time</uri>\n" +
+                "\t</dataType>\n" +
+                "\t<dataType>\n" +
+                "\t\t<name>Date</name>\n" +
+                "\t\t<uri>http://www.w3.org/2001/XMLSchema#date</uri>\n" +
+                "\t</dataType>\n" +
+                "\t<dataType>\n" +
+                "\t\t<name>Date Time</name>\n" +
+                "\t\t<uri>http://www.w3.org/2001/XMLSchema#dateTime</uri>\n" +
+                "\t</dataType>\n" +
+                "\t<dataType>\n" +
+                "\t\t<name>Day Time Duration</name>\n" +
+                "\t\t<uri>http://www.w3.org/2001/XMLSchema#dayTimeDuration</uri>\n" +
+                "\t</dataType>\n" +
+                "\t<dataType>\n" +
+                "\t\t<name>Year Month Duration</name>\n" +
+                "\t\t<uri>http://www.w3.org/2001/XMLSchema#yearMonthDuration</uri>\n" +
+                "\t</dataType>\n" +
+                "\t<dataType>\n" +
+                "\t\t<name>Any URI</name>\n" +
+                "\t\t<uri>http://www.w3.org/2001/XMLSchema#anyURI</uri>\n" +
+                "\t</dataType>\n" +
+                "\t<dataType>\n" +
+                "\t\t<name>Hex Binary</name>\n" +
+                "\t\t<uri>http://www.w3.org/2001/XMLSchema#hexBinary</uri>\n" +
+                "\t</dataType>\n" +
+                "\t<dataType>\n" +
+                "\t\t<name>Base64 Binary</name>\n" +
+                "\t\t<uri>http://www.w3.org/2001/XMLSchema#base64Binary</uri>\n" +
+                "\t</dataType> \n" +
+                "\t<dataType>\n" +
+                "\t\t<name>DNS Name</name>\n" +
+                "\t\t<uri>urn:oasis:names:tc:xacml:2.0:data-type:dnsName</uri>\n" +
+                "\t</dataType> \n" +
+                "\t<dataType>\n" +
+                "\t\t<name>IP Address</name>\n" +
+                "\t\t<uri>urn:oasis:names:tc:xacml:2.0:data-type:ipAddress</uri>\n" +
+                "\t</dataType> \n" +
+                "\t<dataType>\n" +
+                "\t\t<name>RFC822 Name</name>\n" +
+                "\t\t<uri>urn:oasis:names:tc:xacml:1.0:data-type:rfc822Name</uri>\n" +
+                "\t</dataType> \n" +
+                "\t<dataType>\n" +
+                "\t\t<name>XPath</name>\n" +
+                "\t\t<uri>urn:oasis:names:tc:xacml:3.0:data-type:xpathExpression</uri>\n" +
+                "\t</dataType>    \n" +
+                "\t<dataType>\n" +
+                "\t\t<name>X500 Name</name>\n" +
+                "\t\t<uri>urn:oasis:names:tc:xacml:1.0:data-type:x500Name</uri>\n" +
+                "\t</dataType>       \n" +
+                "    </dataTypes>\n" +
+                "    <functions>\n" +
+                "        <function>\n" +
+                "            <name>equal</name>\n" +
+                "            <uri>equal</uri>\n" +
+                "            <targetFunction>true</targetFunction>\n" +
+                "        </function>\n" +
+                "        <function>\n" +
+                "            <name>equals-with-regexp-match</name>\n" +
+                "            <uri>regexp-match</uri>\n" +
+                "\t    <targetFunction>true</targetFunction>\n" +
+                "        </function>\n" +
+                "        <function>\n" +
+                "            <name>at-least-one-member-of</name>\n" +
+                "            <uri>at-least-one-member-of</uri>\n" +
+                "        </function>\n" +
+                "        <function>\n" +
+                "            <name>set-equals</name>\n" +
+                "            <uri>set-equals</uri>\n" +
+                "        </function>\n" +
+                "    </functions>\n" +
+                "    <preFunctions>\n" +
+                "        <preFunction>\n" +
+                "            <name>is/are</name>\n" +
+                "            <uri>is</uri>\n" +
+                "        </preFunction>\n" +
+                "        <preFunction>\n" +
+                "            <name>is not/are not</name>\n" +
+                "            <uri>not</uri>\n" +
+                "        </preFunction>\n" +
+                "    </preFunctions>\n" +
+                "    <policyDescription>\n" +
+                "        <display>true</display>\n" +
+                "    </policyDescription>\n" +
+                "</policyEditor>\n";
     }
 }

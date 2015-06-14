@@ -1,24 +1,23 @@
 /*
- * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
- *
- * WSO2 Inc. licenses this file to you under the Apache License,
- * Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
- */
+*  Copyright (c)  WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*
+*  WSO2 Inc. licenses this file to you under the Apache License,
+*  Version 2.0 (the "License"); you may not use this file except
+*  in compliance with the License.
+*  You may obtain a copy of the License at
+*
+*    http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing,
+* software distributed under the License is distributed on an
+* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+* KIND, either express or implied.  See the License for the
+* specific language governing permissions and limitations
+* under the License.
+*/
 
 package org.wso2.carbon.identity.entitlement.policy.store;
 
-import org.apache.commons.collections.MapUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.entitlement.EntitlementException;
@@ -39,6 +38,7 @@ import java.util.Properties;
  */
 public class PolicyStoreManager {
 
+    private static Log log = LogFactory.getLog(PolicyStoreManager.class);
     private PolicyStoreManageModule policyStoreStore = null;
     private PolicyDataStore policyDataStore = null;
 
@@ -46,7 +46,7 @@ public class PolicyStoreManager {
         // get policy collection
         Map<PolicyStoreManageModule, Properties> policyCollections = EntitlementServiceComponent.
                 getEntitlementConfig().getPolicyStore();
-        if (MapUtils.isNotEmpty(policyCollections)) {
+        if (policyCollections != null && policyCollections.size() > 0) {
             policyStoreStore = policyCollections.entrySet().iterator().next().getKey();
         } else {
             policyStoreStore = new RegistryPolicyStoreManageModule();
@@ -77,7 +77,7 @@ public class PolicyStoreManager {
 
         if (!policyStoreStore.isPolicyExist(policyDTO.getPolicyId())) {
             throw new EntitlementException("Policy is not exist in the Policy Store : PolicyId " +
-                                           policyDTO.getPolicyId());
+                    policyDTO.getPolicyId());
         }
         PolicyStoreDTO dto = new PolicyStoreDTO();
         dto.setPolicyId(policyDTO.getPolicyId());
@@ -94,7 +94,7 @@ public class PolicyStoreManager {
 
         if (!policyStoreStore.isPolicyExist(policyDTO.getPolicyId())) {
             throw new EntitlementException("Policy is not exist in the Policy Store : PolicyId " +
-                                           policyDTO.getPolicyId());
+                    policyDTO.getPolicyId());
         }
 
         PolicyStoreDTO dto = new PolicyStoreDTO();
@@ -112,7 +112,7 @@ public class PolicyStoreManager {
 
         if (!policyStoreStore.isPolicyExist(policyDTO.getPolicyId())) {
             throw new EntitlementException("Policy is not exist in the Policy Store : PolicyId " +
-                                           policyDTO.getPolicyId());
+                    policyDTO.getPolicyId());
         }
 
         PolicyStoreDTO dto = new PolicyStoreDTO();
@@ -130,7 +130,7 @@ public class PolicyStoreManager {
     public void removePolicy(PolicyDTO policyDTO) throws EntitlementException {
         if (!policyStoreStore.isPolicyExist(policyDTO.getPolicyId())) {
             throw new EntitlementException("Policy is not exist in the Policy Store : PolicyId " +
-                                           policyDTO.getPolicyId());
+                    policyDTO.getPolicyId());
         }
         policyStoreStore.deletePolicy(policyDTO.getPolicyId());
         policyDataStore.removePolicyData(policyDTO.getPolicyId());
