@@ -20,8 +20,10 @@ package org.wso2.carbon.identity.user.profile.mgt.internal;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.identity.user.profile.mgt.util.ServiceHodler;
+import org.wso2.carbon.identity.user.store.configuration.listener.UserStoreConfigListener;
 import org.wso2.carbon.user.core.UserRealm;
 
 //@scr.reference name="user.realm.hybrid" interface="org.wso2.carbon.user.core.UserRealm" cardinality="1..1" policy="dynamic" target="(RealmGenre=Hybrid)" bind="setUserRealmHybrid" unbind="unsetUserRealmHybrid"
@@ -38,6 +40,16 @@ public class IdentityUserProfileServiceComponent {
         try {
             if (log.isDebugEnabled()) {
                 log.debug("User Profile Mgt bundle is activated ");
+            }
+
+            ServiceRegistration userStoreConfigEventSR = ctxt.getBundleContext().registerService(
+                    UserStoreConfigListener.class.getName(), new UserStoreConfigListenerImpl(), null);
+            if (userStoreConfigEventSR != null) {
+                if (log.isDebugEnabled()) {
+                    log.debug("User profile management - UserStoreConfigListener registered.");
+                }
+            } else {
+                log.error("User profile management - UserStoreConfigListener could not be registered.");
             }
         } catch (Throwable e) {
             log.error("Failed to activate ProfileMgt bundle ", e);
