@@ -82,9 +82,24 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
      * infinite loops.
      */
 
-    private static ThreadLocal<Boolean> isRenameOperation;
-    private static ThreadLocal<Boolean> isAddUserOperation;
-    private static ThreadLocal<String> newUserName;
+    private static ThreadLocal<Boolean> isRenameOperation = new ThreadLocal<Boolean>() {
+        @Override
+        protected synchronized Boolean initialValue() {
+            return false;
+        }
+    };
+    private static ThreadLocal<Boolean> isAddUserOperation = new ThreadLocal<Boolean>() {
+        @Override
+        protected synchronized Boolean initialValue() {
+            return false;
+        }
+    };
+    private static ThreadLocal<String> newUserName = new ThreadLocal<String>() {
+        @Override
+        protected synchronized String initialValue() {
+            return "";
+        }
+    };
     public static final ThreadLocal<HashMap<String, Object>> threadLocalProperties = new ThreadLocal<HashMap<String, Object>>() {
         @Override
         protected HashMap<String, Object> initialValue() {
@@ -107,25 +122,6 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
                         .getBootstrapRealmConfiguration()
                         .getAdminUserName();
 
-        newUserName = new ThreadLocal<String>() {
-            @Override
-            protected synchronized String initialValue() {
-                return "";
-            }
-        };
-
-        isRenameOperation = new ThreadLocal<Boolean>() {
-            @Override
-            protected synchronized Boolean initialValue() {
-                return new Boolean(false);
-            }
-        };
-        isAddUserOperation = new ThreadLocal<Boolean>() {
-            @Override
-            protected synchronized Boolean initialValue() {
-                return new Boolean(false);
-            }
-        };
 
         try {
             IdentityMgtConfig config = IdentityMgtConfig.getInstance();
@@ -418,7 +414,7 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
         if (!authenticated && config.isAuthPolicyAccountLockOnFailure()) {
             // reading the max allowed #of failure attempts
 
-            String domainName = userStoreManager.getRealmConfiguration().getUserStoreProperty (UserCoreConstants
+            String domainName = userStoreManager.getRealmConfiguration().getUserStoreProperty(UserCoreConstants
                     .RealmConfig.PROPERTY_DOMAIN_NAME);
             String usernameWithDomain = UserCoreUtil.addDomainToName(userName, domainName);
             boolean isUserExistInCurrentDomain = userStoreManager.isExistingUser(usernameWithDomain);
@@ -431,7 +427,7 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
                             "User account would be locked");
                     IdentityErrorMsgContext customErrorMessageContext = new IdentityErrorMsgContext
                             (UserCoreConstants.ErrorCode.USER_IS_LOCKED,
-                            userIdentityDTO.getFailAttempts(), config.getAuthPolicyMaxLoginAttempts());
+                                    userIdentityDTO.getFailAttempts(), config.getAuthPolicyMaxLoginAttempts());
                     IdentityUtil.setIdentityErrorMsg(customErrorMessageContext);
 
                     if (log.isDebugEnabled()) {
@@ -450,7 +446,7 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
                 } else {
                     IdentityErrorMsgContext customErrorMessageContext = new IdentityErrorMsgContext
                             (UserCoreConstants.ErrorCode.INVALID_CREDENTIAL,
-                            userIdentityDTO.getFailAttempts(), config.getAuthPolicyMaxLoginAttempts());
+                                    userIdentityDTO.getFailAttempts(), config.getAuthPolicyMaxLoginAttempts());
                     IdentityUtil.setIdentityErrorMsg(customErrorMessageContext);
 
                     if (log.isDebugEnabled()) {
@@ -1200,7 +1196,7 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
                 indbConn.close();
 
             } catch (IdentityException | SQLException | UserStoreException e) {
-                e.printStackTrace();//TODO ::
+                throw new UserStoreException("Error occurred while deleting user unique identifier", e);
             }
         }
 
