@@ -39,6 +39,7 @@ import org.wso2.carbon.identity.oauth2.OAuth2TokenValidationService;
 import org.wso2.carbon.identity.oauth2.model.OAuth2Parameters;
 import org.wso2.carbon.identity.oauth2.util.OAuth2Util;
 import org.wso2.carbon.ui.CarbonUIUtil;
+import org.wso2.carbon.ui.util.CharacterEncoder;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -328,23 +329,9 @@ public class EndpointUtil {
     public static String getScope(OAuth2Parameters params) {
         StringBuilder scopes = new StringBuilder();
         for (String scope : params.getScopes()) {
-            scopes.append(EndpointUtil.getSafeText(scope) + " ");
+            scopes.append(CharacterEncoder.getSafeText(scope) + " ");
         }
         return scopes.toString().trim();
-    }
-
-    public static String getSafeText(String text) {
-        if (text == null) {
-            return text;
-        }
-        text = text.trim();
-        if (text.indexOf('<') > -1) {
-            text = text.replace("<", "&lt;");
-        }
-        if (text.indexOf('>') > -1) {
-            text = text.replace(">", "&gt;");
-        }
-        return text;
     }
 
     public static String getRealmInfo() {
