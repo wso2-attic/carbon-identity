@@ -32,6 +32,7 @@
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="java.util.Collections" %>
+<%@ page import="java.util.List" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar"
            prefix="carbon" %>
@@ -406,7 +407,7 @@ function clearAll() {
     String serverURL;
     ConfigurationContext configContext;
     SAMLSSOConfigServiceClient spConfigClient = (SAMLSSOConfigServiceClient) session.getAttribute(SAMLSSOUIConstants.CONFIG_CLIENT);
-    ArrayList<String> aliasSet = null;
+    List<String> aliasSet = null;
     String[] claimUris = null;
     String configPath = null;
     CertData certData = null;
