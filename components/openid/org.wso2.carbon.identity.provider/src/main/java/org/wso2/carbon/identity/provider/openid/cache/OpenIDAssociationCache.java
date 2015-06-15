@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -30,9 +30,9 @@ import java.util.Date;
  */
 public class OpenIDAssociationCache extends OpenIDBaseCache<OpenIDIdentityCacheKey, OpenIDIdentityCacheEntry> {
 
-    private final static String OPENID_ASSOCIATION_CACHE = "OPENID_ASSOCIATION_CACHE";
+    private static final String OPENID_ASSOCIATION_CACHE = "OPENID_ASSOCIATION_CACHE";
     private static OpenIDAssociationCache associationCache = null;
-    private static Log log = LogFactory.getLog(OpenIDAssociationCache.class);
+    private static final Log log = LogFactory.getLog(OpenIDAssociationCache.class);
 
     /**
      * Private constructor
@@ -48,13 +48,12 @@ public class OpenIDAssociationCache extends OpenIDBaseCache<OpenIDIdentityCacheK
      *
      * @return
      */
-    public synchronized static OpenIDAssociationCache getCacheInstance() {
+    public static synchronized OpenIDAssociationCache getCacheInstance() {
         if (associationCache == null) {
             associationCache = new OpenIDAssociationCache();
         }
         return associationCache;
     }
-
 
     /**
      * Add the entry to the cache.
@@ -68,9 +67,8 @@ public class OpenIDAssociationCache extends OpenIDBaseCache<OpenIDIdentityCacheK
         if (association != null && association.getHandle() != null) {
             OpenIDIdentityCacheKey cacheKey = new OpenIDIdentityCacheKey(0, association.getHandle());
             OpenIDIdentityCacheEntry cacheEntry =
-                    new OpenIDIdentityCacheEntry(association.getType(),
-                            association.getMacKey(),
-                            association.getExpiry());
+                    new OpenIDIdentityCacheEntry(association.getType(), association.getMacKey(),
+                                                 association.getExpiry());
             associationCache.addToCache(cacheKey, cacheEntry);
             if (log.isDebugEnabled()) {
                 log.debug("New entry is added to cache  : " + association.getHandle());
@@ -92,8 +90,7 @@ public class OpenIDAssociationCache extends OpenIDBaseCache<OpenIDIdentityCacheK
         }
         if (handle != null) {
             OpenIDIdentityCacheKey cacheKey = new OpenIDIdentityCacheKey(0, handle);
-            OpenIDIdentityCacheEntry cacheEntry =
-                    (OpenIDIdentityCacheEntry) associationCache.getValueFromCache(cacheKey);
+            OpenIDIdentityCacheEntry cacheEntry = associationCache.getValueFromCache(cacheKey);
             if (cacheEntry != null) {
                 if (log.isDebugEnabled()) {
                     log.debug("Cache hit for handle : " + handle);
@@ -105,17 +102,17 @@ public class OpenIDAssociationCache extends OpenIDBaseCache<OpenIDIdentityCacheK
                 if (expiry != null && type != null && secretKey != null) {
                     return new Association(type, handle, (SecretKey) secretKey, expiry);
                     /*
-					 * We are not removing expired handles from the cache. If we
-					 * do, then at a lookup for a expired search, it will fall
-					 * back to a database lookup which costs a lot. JCache
-					 * should remove an entry if an entry was never called.
-					 * 
-					 * if(association.hasExpired()){
-					 * associationCache.removeCacheEntry(handle);
-					 * if(log.isDebugEnabled()){
-					 * log.debug("Expired entry in cache for handle : " +
-					 * handle); } } else { return association; }
-					 */
+                     * We are not removing expired handles from the cache. If we
+                     * do, then at a lookup for a expired search, it will fall
+                     * back to a database lookup which costs a lot. JCache
+                     * should remove an entry if an entry was never called.
+                     *
+                     * if(association.hasExpired()){
+                     * associationCache.removeCacheEntry(handle);
+                     * if(log.isDebugEnabled()){
+                     * log.debug("Expired entry in cache for handle : " +
+                     * handle); } } else { return association; }
+                     */
                 }
             } else {
                 if (log.isDebugEnabled()) {

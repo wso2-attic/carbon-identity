@@ -1,10 +1,10 @@
 /*
  * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * WSO2 Inc. licenses this file to you under the Apache License,
- * Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License.
- * You may obtain a copy of the License at
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
  *
  *    http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -28,7 +28,7 @@ import org.wso2.carbon.user.core.common.AbstractUserOperationEventListener;
 
 public class IdentityOpenIDUserEventListener extends AbstractUserOperationEventListener {
 
-    private static Log log = LogFactory.getLog(IdentityOpenIDUserEventListener.class);
+    private static final Log log = LogFactory.getLog(IdentityOpenIDUserEventListener.class);
 
     @Override
     public int getExecutionOrderId() {
@@ -36,8 +36,7 @@ public class IdentityOpenIDUserEventListener extends AbstractUserOperationEventL
     }
 
     @Override
-    public boolean doPreDeleteUser(String userName, UserStoreManager userStoreManager)
-            throws UserStoreException {
+    public boolean doPreDeleteUser(String userName, UserStoreManager userStoreManager) throws UserStoreException {
         if (log.isDebugEnabled()) {
             log.debug("Clearing OpenID related information of the user : " + userName);
         }
@@ -48,7 +47,6 @@ public class IdentityOpenIDUserEventListener extends AbstractUserOperationEventL
         }
         return true;
     }
-
 
     /**
      * Function to delete all RPs registered to the user in the database

@@ -18,11 +18,31 @@
 package org.wso2.carbon.identity.oauth2.token.handlers.grant.iwa.ntlm.util;
 
 
-import org.apache.catalina.*;
+import org.apache.catalina.AccessLog;
+import org.apache.catalina.Authenticator;
+import org.apache.catalina.Cluster;
+import org.apache.catalina.Container;
+import org.apache.catalina.ContainerListener;
+import org.apache.catalina.Context;
+import org.apache.catalina.LifecycleException;
+import org.apache.catalina.LifecycleListener;
+import org.apache.catalina.LifecycleState;
+import org.apache.catalina.Loader;
+import org.apache.catalina.Manager;
+import org.apache.catalina.Pipeline;
+import org.apache.catalina.Realm;
+import org.apache.catalina.Wrapper;
 import org.apache.catalina.connector.Request;
 import org.apache.catalina.connector.Response;
 import org.apache.catalina.core.ApplicationServletRegistration;
-import org.apache.catalina.deploy.*;
+import org.apache.catalina.deploy.ApplicationListener;
+import org.apache.catalina.deploy.ApplicationParameter;
+import org.apache.catalina.deploy.ErrorPage;
+import org.apache.catalina.deploy.FilterDef;
+import org.apache.catalina.deploy.FilterMap;
+import org.apache.catalina.deploy.LoginConfig;
+import org.apache.catalina.deploy.NamingResources;
+import org.apache.catalina.deploy.SecurityConstraint;
 import org.apache.catalina.util.CharsetMapper;
 import org.apache.juli.logging.Log;
 import org.apache.tomcat.InstanceManager;
@@ -31,11 +51,16 @@ import org.apache.tomcat.util.http.mapper.Mapper;
 
 import javax.management.ObjectName;
 import javax.naming.directory.DirContext;
-import javax.servlet.*;
+import javax.servlet.ServletContainerInitializer;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletSecurityElement;
 import javax.servlet.descriptor.JspConfigDescriptor;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Collections;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -48,111 +73,110 @@ public class SimpleContext implements Context {
 
     @Override
     public void addApplicationListener(String arg0) {
-
+        //this method is not implemented.
     }
 
     @Override
     public void addApplicationParameter(ApplicationParameter arg0) {
-
+        //this method is not implemented.
     }
 
     @Override
     public void addConstraint(SecurityConstraint arg0) {
-
+        //this method is not implemented.
     }
 
     @Override
     public void addErrorPage(ErrorPage arg0) {
-
+        //this method is not implemented.
     }
 
     @Override
     public void addFilterDef(FilterDef arg0) {
-
+        //this method is not implemented.
     }
 
     @Override
     public void addFilterMap(FilterMap arg0) {
-
+        //this method is not implemented.
     }
 
     @Override
     public void addFilterMapBefore(FilterMap filterMap) {
-        //To change body of implemented methods use File | Settings | File Templates.
+        //this method is not implemented.
     }
 
     @Override
     public void addInstanceListener(String arg0) {
-
+        //this method is not implemented.
     }
 
-    //@Override
     public void addJspMapping(String arg0) {
-
+        //this method is not implemented.
     }
 
     @Override
     public void addLocaleEncodingMappingParameter(String arg0, String arg1) {
-
+        //this method is not implemented.
     }
 
     @Override
     public void addMimeMapping(String arg0, String arg1) {
-
+        //this method is not implemented.
     }
 
     @Override
     public void addParameter(String arg0, String arg1) {
-
+        //this method is not implemented.
     }
 
     @Override
     public void addRoleMapping(String arg0, String arg1) {
-
+        //this method is not implemented.
     }
 
     @Override
     public void addSecurityRole(String arg0) {
-
+        //this method is not implemented.
     }
 
     @Override
     public void addServletMapping(String arg0, String arg1) {
-
+        //this method is not implemented.
     }
 
     @Override
     public void addServletMapping(String s, String s2, boolean b) {
-        //To change body of implemented methods use File | Settings | File Templates.
+        //this method is not implemented.
     }
 
-
     public void addTaglib(String arg0, String arg1) {
-
+        //this method is not implemented.
     }
 
     @Override
     public void addWatchedResource(String arg0) {
-
+        //this method is not implemented.
     }
 
     @Override
     public void addWelcomeFile(String arg0) {
-
+        //this method is not implemented.
     }
 
     @Override
     public void addWrapperLifecycle(String arg0) {
-
+        //this method is not implemented.
     }
 
     @Override
     public void addWrapperListener(String arg0) {
-
+        //this method is not implemented.
     }
 
     @Override
     public Wrapper createWrapper() {
+
         return null;
     }
 
@@ -261,12 +285,10 @@ public class SimpleContext implements Context {
         return new int[0];
     }
 
-    //@Override
     public String findTaglib(String arg0) {
         return null;
     }
 
-    // @Override
     public String[] findTaglibs() {
         return new String[0];
     }
@@ -298,12 +320,12 @@ public class SimpleContext implements Context {
 
     @Override
     public boolean fireRequestInitEvent(ServletRequest servletRequest) {
-        return false;  //To change body of implemented methods use File | Settings | File Templates.
+        return false;
     }
 
     @Override
     public boolean fireRequestDestroyEvent(ServletRequest servletRequest) {
-        return false;  //To change body of implemented methods use File | Settings | File Templates.
+        return false;
     }
 
     @Override
@@ -318,12 +340,12 @@ public class SimpleContext implements Context {
 
     @Override
     public boolean getAllowCasualMultipartParsing() {
-        return false;  //To change body of implemented methods use File | Settings | File Templates.
+        return false;
     }
 
     @Override
     public void setAllowCasualMultipartParsing(boolean b) {
-        //To change body of implemented methods use File | Settings | File Templates.
+        //this method is not implemented.
     }
 
     @Override
@@ -333,7 +355,7 @@ public class SimpleContext implements Context {
 
     @Override
     public void setApplicationEventListeners(Object[] arg0) {
-
+        //this method is not implemented.
     }
 
     @Override
@@ -343,7 +365,7 @@ public class SimpleContext implements Context {
 
     @Override
     public void setApplicationLifecycleListeners(Object[] arg0) {
-
+        //this method is not implemented.
     }
 
     @Override
@@ -351,9 +373,8 @@ public class SimpleContext implements Context {
         return false;
     }
 
-    //@Override
     public void setAvailable(boolean arg0) {
-
+        //this method is not implemented.
     }
 
     @Override
@@ -363,7 +384,7 @@ public class SimpleContext implements Context {
 
     @Override
     public void setCharsetMapper(CharsetMapper arg0) {
-
+        //this method is not implemented.
     }
 
     @Override
@@ -371,14 +392,13 @@ public class SimpleContext implements Context {
         return null;
     }
 
-    //@Override
     public void setConfigFile(String arg0) {
-
+        //this method is not implemented.
     }
 
     @Override
     public void setConfigFile(URL url) {
-        //To change body of implemented methods use File | Settings | File Templates.
+        //this method is not implemented.
     }
 
     @Override
@@ -388,7 +408,7 @@ public class SimpleContext implements Context {
 
     @Override
     public void setConfigured(boolean arg0) {
-
+        //this method is not implemented.
     }
 
     @Override
@@ -398,7 +418,7 @@ public class SimpleContext implements Context {
 
     @Override
     public void setCookies(boolean arg0) {
-
+        //this method is not implemented.
     }
 
     @Override
@@ -408,7 +428,7 @@ public class SimpleContext implements Context {
 
     @Override
     public void setCrossContext(boolean arg0) {
-
+        //this method is not implemented.
     }
 
     @Override
@@ -418,7 +438,7 @@ public class SimpleContext implements Context {
 
     @Override
     public void setDisplayName(String arg0) {
-
+        //this method is not implemented.
     }
 
     @Override
@@ -428,7 +448,7 @@ public class SimpleContext implements Context {
 
     @Override
     public void setDistributable(boolean arg0) {
-
+        //this method is not implemented.
     }
 
     @Override
@@ -438,7 +458,7 @@ public class SimpleContext implements Context {
 
     @Override
     public void setDocBase(String arg0) {
-
+        //this method is not implemented.
     }
 
     @Override
@@ -453,7 +473,7 @@ public class SimpleContext implements Context {
 
     @Override
     public void setIgnoreAnnotations(boolean arg0) {
-
+        //this method is not implemented.
     }
 
     @Override
@@ -463,7 +483,7 @@ public class SimpleContext implements Context {
 
     @Override
     public void setLoginConfig(LoginConfig arg0) {
-
+        //this method is not implemented.
     }
 
     @Override
@@ -478,7 +498,7 @@ public class SimpleContext implements Context {
 
     @Override
     public void setNamingResources(NamingResources arg0) {
-
+        //this method is not implemented.
     }
 
     @Override
@@ -488,7 +508,7 @@ public class SimpleContext implements Context {
 
     @Override
     public void setOverride(boolean arg0) {
-
+        //this method is not implemented.
     }
 
     @Override
@@ -498,7 +518,7 @@ public class SimpleContext implements Context {
 
     @Override
     public void setPath(String arg0) {
-
+        //this method is not implemented.
     }
 
     @Override
@@ -508,7 +528,7 @@ public class SimpleContext implements Context {
 
     @Override
     public void setPrivileged(boolean arg0) {
-
+        //this method is not implemented.
     }
 
     @Override
@@ -518,7 +538,7 @@ public class SimpleContext implements Context {
 
     @Override
     public void setPublicId(String arg0) {
-
+        //this method is not implemented.
     }
 
     @Override
@@ -528,7 +548,7 @@ public class SimpleContext implements Context {
 
     @Override
     public void setReloadable(boolean arg0) {
-
+        //this method is not implemented.
     }
 
     @Override
@@ -543,7 +563,7 @@ public class SimpleContext implements Context {
 
     @Override
     public void setSessionTimeout(int arg0) {
-
+        //this method is not implemented.
     }
 
     @Override
@@ -553,7 +573,7 @@ public class SimpleContext implements Context {
 
     @Override
     public void setSwallowOutput(boolean arg0) {
-
+        //this method is not implemented.
     }
 
     @Override
@@ -563,7 +583,7 @@ public class SimpleContext implements Context {
 
     @Override
     public void setTldNamespaceAware(boolean arg0) {
-
+        //this method is not implemented.
     }
 
     @Override
@@ -573,7 +593,7 @@ public class SimpleContext implements Context {
 
     @Override
     public void setTldValidation(boolean arg0) {
-
+        //this method is not implemented.
     }
 
     @Override
@@ -583,7 +603,7 @@ public class SimpleContext implements Context {
 
     @Override
     public void setUseHttpOnly(boolean arg0) {
-
+        //this method is not implemented.
     }
 
     @Override
@@ -593,7 +613,7 @@ public class SimpleContext implements Context {
 
     @Override
     public void setWrapperClass(String arg0) {
-
+        //this method is not implemented.
     }
 
     @Override
@@ -603,7 +623,7 @@ public class SimpleContext implements Context {
 
     @Override
     public void setXmlNamespaceAware(boolean arg0) {
-
+        //this method is not implemented.
     }
 
     @Override
@@ -613,212 +633,211 @@ public class SimpleContext implements Context {
 
     @Override
     public void setXmlValidation(boolean arg0) {
-
+        //this method is not implemented.
     }
 
     @Override
     public void reload() {
-
+        //this method is not implemented.
     }
 
     @Override
     public void removeApplicationListener(String arg0) {
-
+        //this method is not implemented.
     }
 
     @Override
     public void removeApplicationParameter(String arg0) {
-
+        //this method is not implemented.
     }
 
     @Override
     public void removeConstraint(SecurityConstraint arg0) {
-
+        //this method is not implemented.
     }
 
     @Override
     public void removeErrorPage(ErrorPage arg0) {
-
+        //this method is not implemented.
     }
 
     @Override
     public void removeFilterDef(FilterDef arg0) {
-
+        //this method is not implemented.
     }
 
     @Override
     public void removeFilterMap(FilterMap arg0) {
-
+        //this method is not implemented.
     }
 
     @Override
     public void removeInstanceListener(String arg0) {
-
+        //this method is not implemented.
     }
 
     @Override
     public void removeMimeMapping(String arg0) {
-
+        //this method is not implemented.
     }
 
     @Override
     public void removeParameter(String arg0) {
-
+        //this method is not implemented.
     }
 
     @Override
     public void removeRoleMapping(String arg0) {
-
+        //this method is not implemented.
     }
 
     @Override
     public void removeSecurityRole(String arg0) {
-
+        //this method is not implemented.
     }
 
     @Override
     public void removeServletMapping(String arg0) {
-
+        //this method is not implemented.
     }
 
-    //@Override
     public void removeTaglib(String arg0) {
-
+        //this method is not implemented.
     }
 
     @Override
     public void removeWatchedResource(String arg0) {
-
+        //this method is not implemented.
     }
 
     @Override
     public void removeWelcomeFile(String arg0) {
-
+        //this method is not implemented.
     }
 
     @Override
     public void removeWrapperLifecycle(String arg0) {
-
+        //this method is not implemented.
     }
 
     @Override
     public void removeWrapperListener(String arg0) {
-
+        //this method is not implemented.
     }
 
     @Override
     public String getRealPath(String s) {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return null;
     }
 
     @Override
     public int getEffectiveMajorVersion() {
-        return 0;  //To change body of implemented methods use File | Settings | File Templates.
+        return 0;
     }
 
     @Override
     public void setEffectiveMajorVersion(int i) {
-        //To change body of implemented methods use File | Settings | File Templates.
+        //this method is not implemented.
     }
 
     @Override
     public int getEffectiveMinorVersion() {
-        return 0;  //To change body of implemented methods use File | Settings | File Templates.
+        return 0;
     }
 
     @Override
     public void setEffectiveMinorVersion(int i) {
-        //To change body of implemented methods use File | Settings | File Templates.
+        //this method is not implemented.
     }
 
     @Override
     public JspConfigDescriptor getJspConfigDescriptor() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return null;
     }
 
     @Override
     public void addResourceJarUrl(URL url) {
-        //To change body of implemented methods use File | Settings | File Templates.
+        //this method is not implemented.
     }
 
     @Override
     public void addServletContainerInitializer(ServletContainerInitializer servletContainerInitializer, Set<Class<?>> classes) {
-        //To change body of implemented methods use File | Settings | File Templates.
+        //this method is not implemented.
     }
 
     @Override
     public boolean getPaused() {
-        return false;  //To change body of implemented methods use File | Settings | File Templates.
+        return false;
     }
 
     @Override
     public boolean isServlet22() {
-        return false;  //To change body of implemented methods use File | Settings | File Templates.
+        return false;
     }
 
     @Override
     public Set<String> addServletSecurity(ApplicationServletRegistration applicationServletRegistration, ServletSecurityElement servletSecurityElement) {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return null;
     }
 
     @Override
     public String getResourceOnlyServlets() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return null;
     }
 
     @Override
     public void setResourceOnlyServlets(String s) {
-        //To change body of implemented methods use File | Settings | File Templates.
+        //this method is not implemented.
     }
 
     @Override
     public boolean isResourceOnlyServlet(String s) {
-        return false;  //To change body of implemented methods use File | Settings | File Templates.
+        return false;
     }
 
     @Override
     public String getBaseName() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return null;
     }
 
     @Override
     public String getWebappVersion() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return null;
     }
 
     @Override
     public void setWebappVersion(String s) {
-        //To change body of implemented methods use File | Settings | File Templates.
+        //this method is not implemented.
     }
 
     @Override
     public boolean getFireRequestListenersOnForwards() {
-        return false;  //To change body of implemented methods use File | Settings | File Templates.
+        return false;
     }
 
     @Override
     public void setFireRequestListenersOnForwards(boolean b) {
-        //To change body of implemented methods use File | Settings | File Templates.
+        //this method is not implemented.
     }
 
     @Override
     public boolean getPreemptiveAuthentication() {
-        return false;  //To change body of implemented methods use File | Settings | File Templates.
+        return false;
     }
 
     @Override
     public void setPreemptiveAuthentication(boolean b) {
-        //To change body of implemented methods use File | Settings | File Templates.
+        //this method is not implemented.
     }
 
     @Override
     public boolean getSendRedirectBody() {
-        return false;  //To change body of implemented methods use File | Settings | File Templates.
+        return false;
     }
 
     @Override
     public void setSendRedirectBody(boolean b) {
-        //To change body of implemented methods use File | Settings | File Templates.
+        //this method is not implemented.
     }
 
     @Override
@@ -858,17 +877,17 @@ public class SimpleContext implements Context {
 
     @Override
     public String getCharset(Locale locale) {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return null;
     }
 
     @Override
     public boolean getSwallowAbortedUploads() {
-        return false;  //To change body of implemented methods use File | Settings | File Templates.
+        return false;
     }
 
     @Override
     public void setSwallowAbortedUploads(boolean b) {
-        //To change body of implemented methods use File | Settings | File Templates.
+        //this method is not implemented.
     }
 
     @Override
@@ -883,27 +902,27 @@ public class SimpleContext implements Context {
 
     @Override
     public JarScanner getJarScanner() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return null;
     }
 
     @Override
     public void setJarScanner(JarScanner jarScanner) {
-        //To change body of implemented methods use File | Settings | File Templates.
+        //this method is not implemented.
     }
 
     @Override
     public Authenticator getAuthenticator() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return null;
     }
 
     @Override
     public boolean getLogEffectiveWebXml() {
-        return false;  //To change body of implemented methods use File | Settings | File Templates.
+        return false;
     }
 
     @Override
     public void setLogEffectiveWebXml(boolean b) {
-        //To change body of implemented methods use File | Settings | File Templates.
+        //this method is not implemented.
     }
 
     @Override
@@ -913,7 +932,7 @@ public class SimpleContext implements Context {
 
     @Override
     public void setInstanceManager(InstanceManager instanceManager) {
-
+        //this method is not implemented.
     }
 
     @Override
@@ -923,32 +942,32 @@ public class SimpleContext implements Context {
 
     @Override
     public void setContainerSciFilter(String s) {
-
+        //this method is not implemented.
     }
 
     @Override
     public void addApplicationListener(ApplicationListener applicationListener) {
-
+        //this method is not implemented.
     }
 
     @Override
     public void addChild(Container arg0) {
-
+        //this method is not implemented.
     }
 
     @Override
     public void addContainerListener(ContainerListener arg0) {
-
+        //this method is not implemented.
     }
 
     @Override
     public void addPropertyChangeListener(PropertyChangeListener arg0) {
-
+        //this method is not implemented.
     }
 
     @Override
     public void backgroundProcess() {
-
+        //this method is not implemented.
     }
 
     @Override
@@ -973,7 +992,7 @@ public class SimpleContext implements Context {
 
     @Override
     public void setBackgroundProcessorDelay(int arg0) {
-
+        //this method is not implemented.
     }
 
     @Override
@@ -983,7 +1002,7 @@ public class SimpleContext implements Context {
 
     @Override
     public void setCluster(Cluster arg0) {
-
+        //this method is not implemented.
     }
 
     @Override
@@ -998,7 +1017,7 @@ public class SimpleContext implements Context {
 
     @Override
     public void setLoader(Loader arg0) {
-
+        //this method is not implemented.
     }
 
     @Override
@@ -1013,7 +1032,7 @@ public class SimpleContext implements Context {
 
     @Override
     public void setManager(Manager arg0) {
-
+        //this method is not implemented.
     }
 
     @Override
@@ -1028,7 +1047,7 @@ public class SimpleContext implements Context {
 
     @Override
     public void setName(String arg0) {
-
+        //this method is not implemented.
     }
 
     @Override
@@ -1043,7 +1062,7 @@ public class SimpleContext implements Context {
 
     @Override
     public void setParent(Container arg0) {
-
+        //this method is not implemented.
     }
 
     @Override
@@ -1053,7 +1072,7 @@ public class SimpleContext implements Context {
 
     @Override
     public void setParentClassLoader(ClassLoader arg0) {
-
+        //this method is not implemented.
     }
 
     @Override
@@ -1078,28 +1097,28 @@ public class SimpleContext implements Context {
 
     @Override
     public void setResources(DirContext arg0) {
-
+        //this method is not implemented.
     }
 
     @Override
     public void invoke(Request arg0, Response arg1) throws IOException,
             ServletException {
-
+        //this method is not implemented.
     }
 
     @Override
     public void removeChild(Container arg0) {
-
+        //this method is not implemented.
     }
 
     @Override
     public void removeContainerListener(ContainerListener arg0) {
-
+        //this method is not implemented.
     }
 
     @Override
     public void removePropertyChangeListener(PropertyChangeListener arg0) {
-
+        //this method is not implemented.
     }
 
     @Override
@@ -1114,7 +1133,7 @@ public class SimpleContext implements Context {
 
     @Override
     public void setSessionCookieDomain(String arg0) {
-
+        //this method is not implemented.
     }
 
     @Override
@@ -1124,7 +1143,7 @@ public class SimpleContext implements Context {
 
     @Override
     public void setSessionCookieName(String arg0) {
-
+        //this method is not implemented.
     }
 
     @Override
@@ -1134,17 +1153,17 @@ public class SimpleContext implements Context {
 
     @Override
     public void setSessionCookiePath(String arg0) {
-
+        //this method is not implemented.
     }
 
     @Override
     public boolean getSessionCookiePathUsesTrailingSlash() {
-        return false;  //To change body of implemented methods use File | Settings | File Templates.
+        return false;
     }
 
     @Override
     public void setSessionCookiePathUsesTrailingSlash(boolean b) {
-        //To change body of implemented methods use File | Settings | File Templates.
+        //this method is not implemented.
     }
 
     @Override
@@ -1154,12 +1173,12 @@ public class SimpleContext implements Context {
 
     @Override
     public int getStartStopThreads() {
-        return 0;  //To change body of implemented methods use File | Settings | File Templates.
+        return 0;
     }
 
     @Override
     public void setStartStopThreads(int i) {
-        //To change body of implemented methods use File | Settings | File Templates.
+        //this method is not implemented.
     }
 
     @Override
@@ -1167,68 +1186,66 @@ public class SimpleContext implements Context {
 
     }
 
-    //@Override
     public boolean isDisableURLRewriting() {
         return false;
     }
 
-    //@Override
     public void setDisableURLRewriting(boolean arg0) {
-
+        //this method is not implemented.
     }
 
     @Override
     public void addLifecycleListener(LifecycleListener lifecycleListener) {
-        //To change body of implemented methods use File | Settings | File Templates.
+        //this method is not implemented.
     }
 
     @Override
     public LifecycleListener[] findLifecycleListeners() {
-        return new LifecycleListener[0];  //To change body of implemented methods use File | Settings | File Templates.
+        return new LifecycleListener[0];
     }
 
     @Override
     public void removeLifecycleListener(LifecycleListener lifecycleListener) {
-        //To change body of implemented methods use File | Settings | File Templates.
+        //this method is not implemented.
     }
 
     @Override
     public void init() throws LifecycleException {
-        //To change body of implemented methods use File | Settings | File Templates.
+        //this method is not implemented.
     }
 
     @Override
     public void start() throws LifecycleException {
-        //To change body of implemented methods use File | Settings | File Templates.
+        //this method is not implemented.
     }
 
     @Override
     public void stop() throws LifecycleException {
-        //To change body of implemented methods use File | Settings | File Templates.
+        //this method is not implemented.
     }
 
     @Override
     public void destroy() throws LifecycleException {
-        //To change body of implemented methods use File | Settings | File Templates.
+        //this method is not implemented.
     }
 
     @Override
     public LifecycleState getState() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return null;
     }
 
     @Override
     public String getStateName() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return null;
     }
 
     @Override
     public Map<String, String> findPreDestroyMethods() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return Collections.emptyMap();
     }
 
     public Map<String, String> findPostConstructMethods(String clazz) {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return Collections.emptyMap();
     }
 
 }

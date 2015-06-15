@@ -1,19 +1,19 @@
 /*
- *Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2013, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- *WSO2 Inc. licenses this file to you under the Apache License,
- *Version 2.0 (the "License"); you may not use this file except
- *in compliance with the License.
- *You may obtain a copy of the License at
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *Unless required by applicable law or agreed to in writing,
- *software distributed under the License is distributed on an
- *"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *KIND, either express or implied.  See the License for the
- *specific language governing permissions and limitations
- *under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package org.wso2.carbon.identity.application.authentication.framework.model;
@@ -25,7 +25,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * This class is used as a wrapper to the incoming http request to authentication framework.
@@ -34,7 +39,7 @@ import java.util.*;
  */
 public class AuthenticationFrameworkWrapper extends HttpServletRequestWrapper {
 
-    private static Log log = LogFactory.getLog(AuthenticationFrameworkWrapper.class);
+    private static final Log log = LogFactory.getLog(AuthenticationFrameworkWrapper.class);
     // Map which keeps parameters from authentication request cache
     private final Map<String, String[]> modifiableParameters;
     // This map keeps headers which are appended from cache entry
@@ -70,6 +75,7 @@ public class AuthenticationFrameworkWrapper extends HttpServletRequestWrapper {
         return super.getParameter(name);
     }
 
+    @Override
     public String getHeader(String name) {
         String header = super.getHeader(name);
         return (header != null) ? header : modifiableHeaders.get(name);
@@ -79,6 +85,7 @@ public class AuthenticationFrameworkWrapper extends HttpServletRequestWrapper {
      * Will return header names which were in original request and will append
      * all the header names which were in authentication request cache entry
      */
+    @Override
     public Enumeration<String> getHeaderNames() {
         List<String> list = new ArrayList<String>();
         for (Enumeration<String> headerNames = super.getHeaderNames(); headerNames.

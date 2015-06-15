@@ -1,20 +1,20 @@
 /*
-*  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package org.wso2.carbon.identity.sso.saml.validators;
 
 import org.apache.commons.logging.Log;
@@ -35,13 +35,11 @@ public class IdPInitSSOAuthnRequestValidator {
     private static Log log = LogFactory.getLog(IdPInitSSOAuthnRequestValidator.class);
 
     private String spEntityID;
-    private String relayState;
 
 
     public IdPInitSSOAuthnRequestValidator(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse,
                                            String spEntityID, String relayState) throws IdentityException {
         this.spEntityID = spEntityID;
-        this.relayState = relayState;
     }
 
     /**
@@ -62,7 +60,7 @@ public class IdPInitSSOAuthnRequestValidator {
                 validationResponse.setValid(false);
                 String errorResp = SAMLSSOUtil.buildErrorResponse(
                         SAMLSSOConstants.StatusCodes.REQUESTOR_ERROR,
-                                "spEntityID parameter not found in request");
+                        "spEntityID parameter not found in request");
                 log.debug("spEntityID parameter not found in request");
                 validationResponse.setResponse(errorResp);
                 validationResponse.setValid(false);
@@ -75,25 +73,7 @@ public class IdPInitSSOAuthnRequestValidator {
             if (spDO != null) {
                 spAcsUrl = spDO.getAssertionConsumerUrl();
             }
-
-//            if (relayState != null && !relayState.equals("")) {
-//                validationResponse.setAssertionConsumerURL(relayState);
-//            } else {
-//                if(spAcsUrl != null){
-//                    log.debug("RelayState parameter not found in IdP Initiated SSO request. " +
-//                            "Using " + spAcsUrl + " as default Assertion Consumer URL for " + spEntityID);
             validationResponse.setAssertionConsumerURL(spAcsUrl);
-//                }
-//              else {
-//                    String errorMsg = "RelayState parameter not found in IdP Initiated SSO request and " +
-//                            "Assertion Consumer URL not found in service provider configuration for " + spEntityID + ". " +
-//                            "Cannot proceed with request";
-//                    log.debug(errorMsg);
-//                    String errorResp = buildErrorResponse(SAMLSSOConstants.StatusCodes.REQUESTOR_ERROR, errorMsg);
-//                    validationResponse.setResponse(errorResp);
-//                }
-//            }
-
             validationResponse.setValid(true);
 
             if (log.isDebugEnabled()) {

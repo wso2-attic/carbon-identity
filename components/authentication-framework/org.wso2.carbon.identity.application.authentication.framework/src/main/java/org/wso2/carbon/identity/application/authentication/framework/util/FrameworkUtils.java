@@ -1,19 +1,19 @@
 /*
- *Copyright (c) 2005-2013, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2013, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- *WSO2 Inc. licenses this file to you under the Apache License,
- *Version 2.0 (the "License"); you may not use this file except
- *in compliance with the License.
- *You may obtain a copy of the License at
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *Unless required by applicable law or agreed to in writing,
- *software distributed under the License is distributed on an
- *"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *KIND, either express or implied.  See the License for the
- *specific language governing permissions and limitations
- *under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package org.wso2.carbon.identity.application.authentication.framework.util;
@@ -21,10 +21,22 @@ package org.wso2.carbon.identity.application.authentication.framework.util;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
+import org.wso2.carbon.claim.mgt.ClaimManagementException;
 import org.wso2.carbon.claim.mgt.ClaimManagerHandler;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.application.authentication.framework.ApplicationAuthenticator;
-import org.wso2.carbon.identity.application.authentication.framework.cache.*;
+import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationContextCache;
+import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationContextCacheEntry;
+import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationContextCacheKey;
+import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationRequestCache;
+import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationRequestCacheEntry;
+import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationRequestCacheKey;
+import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationResultCache;
+import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationResultCacheEntry;
+import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationResultCacheKey;
+import org.wso2.carbon.identity.application.authentication.framework.cache.SessionContextCache;
+import org.wso2.carbon.identity.application.authentication.framework.cache.SessionContextCacheEntry;
+import org.wso2.carbon.identity.application.authentication.framework.cache.SessionContextCacheKey;
 import org.wso2.carbon.identity.application.authentication.framework.config.ConfigurationFacade;
 import org.wso2.carbon.identity.application.authentication.framework.config.builder.FileBasedConfigurationBuilder;
 import org.wso2.carbon.identity.application.authentication.framework.config.model.AuthenticatorConfig;
@@ -33,6 +45,7 @@ import org.wso2.carbon.identity.application.authentication.framework.config.mode
 import org.wso2.carbon.identity.application.authentication.framework.config.model.StepConfig;
 import org.wso2.carbon.identity.application.authentication.framework.context.AuthenticationContext;
 import org.wso2.carbon.identity.application.authentication.framework.context.SessionContext;
+import org.wso2.carbon.identity.application.authentication.framework.exception.FrameworkException;
 import org.wso2.carbon.identity.application.authentication.framework.handler.claims.ClaimHandler;
 import org.wso2.carbon.identity.application.authentication.framework.handler.claims.impl.DefaultClaimHandler;
 import org.wso2.carbon.identity.application.authentication.framework.handler.hrd.HomeRealmDiscoverer;
@@ -58,7 +71,11 @@ import org.wso2.carbon.identity.application.authentication.framework.model.Authe
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticationFrameworkWrapper;
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticationRequest;
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticationResult;
-import org.wso2.carbon.identity.application.common.model.*;
+import org.wso2.carbon.identity.application.common.model.Claim;
+import org.wso2.carbon.identity.application.common.model.ClaimMapping;
+import org.wso2.carbon.identity.application.common.model.FederatedAuthenticatorConfig;
+import org.wso2.carbon.identity.application.common.model.IdentityProvider;
+import org.wso2.carbon.identity.application.common.model.Property;
 import org.wso2.carbon.ui.CarbonUIUtil;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
@@ -70,14 +87,25 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
+import java.util.TreeMap;
 
 public class FrameworkUtils {
 
+    public static final String SESSION_DATA_KEY = "sessionDataKey";
+    public static final String UTF_8 = "UTF-8";
+    private static final Log log = LogFactory.getLog(FrameworkUtils.class);
     private static int maxInactiveInterval;
 
-    private static Log log = LogFactory.getLog(FrameworkUtils.class);
+    private FrameworkUtils() {
+    }
 
     /**
      * To add authentication request cache entry to cache, with timeout
@@ -160,24 +188,24 @@ public class FrameworkUtils {
             // Adding field variables to wrapper
             if (authenticationRequest.getType() != null) {
                 modifiableParameters.put(FrameworkConstants.RequestParams.TYPE,
-                        new String[]{authenticationRequest.getType()});
+                                         new String[]{authenticationRequest.getType()});
             }
             if (authenticationRequest.getCommonAuthCallerPath() != null) {
                 modifiableParameters.put(FrameworkConstants.RequestParams.CALLER_PATH,
-                        new String[]{authenticationRequest.getCommonAuthCallerPath()});
+                                         new String[]{authenticationRequest.getCommonAuthCallerPath()});
             }
             if (authenticationRequest.getRelyingParty() != null) {
                 modifiableParameters.put(FrameworkConstants.RequestParams.ISSUER,
-                        new String[]{authenticationRequest.getRelyingParty()});
+                                         new String[]{authenticationRequest.getRelyingParty()});
             }
             if (authenticationRequest.getTenantDomain() != null) {
                 modifiableParameters.put(FrameworkConstants.RequestParams.TENANT_DOMAIN,
-                        new String[]{authenticationRequest.getTenantDomain()});
+                                         new String[]{authenticationRequest.getTenantDomain()});
             }
             modifiableParameters.put(FrameworkConstants.RequestParams.FORCE_AUTHENTICATE,
-                    new String[]{String.valueOf(authenticationRequest.getForceAuth())});
+                                     new String[]{String.valueOf(authenticationRequest.getForceAuth())});
             modifiableParameters.put(FrameworkConstants.RequestParams.PASSIVE_AUTHENTICATION,
-                    new String[]{String.valueOf(authenticationRequest.getPassiveAuth())});
+                                     new String[]{String.valueOf(authenticationRequest.getPassiveAuth())});
 
             if (log.isDebugEnabled()) {
                 StringBuilder queryStringBuilder = new StringBuilder("");
@@ -200,7 +228,7 @@ public class FrameworkUtils {
             }
 
             return new AuthenticationFrameworkWrapper(request, modifiableParameters,
-                    authenticationRequest.getRequestHeaders());
+                                                      authenticationRequest.getRequestHeaders());
         }
         return request;
     }
@@ -211,7 +239,7 @@ public class FrameworkUtils {
      */
     public static ApplicationAuthenticator getAppAuthenticatorByName(String name) {
 
-        for (ApplicationAuthenticator authenticator : FrameworkServiceComponent.authenticators) {
+        for (ApplicationAuthenticator authenticator : FrameworkServiceComponent.getAuthenticators()) {
 
             if (name.equals(authenticator.getName())) {
                 return authenticator;
@@ -229,7 +257,7 @@ public class FrameworkUtils {
 
         AuthenticationContext context = null;
 
-        for (ApplicationAuthenticator authenticator : FrameworkServiceComponent.authenticators) {
+        for (ApplicationAuthenticator authenticator : FrameworkServiceComponent.getAuthenticators()) {
             try {
                 String contextIdentifier = authenticator.getContextIdentifier(request);
 
@@ -240,6 +268,9 @@ public class FrameworkUtils {
                     }
                 }
             } catch (UnsupportedOperationException e) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Ignore UnsupportedOperationException.", e);
+                }
                 continue;
             }
         }
@@ -611,10 +642,8 @@ public class FrameworkUtils {
             authnContext = ((AuthenticationContextCacheEntry) cacheEntryObj).getContext();
         }
 
-        if (log.isDebugEnabled()) {
-            if (authnContext == null) {
-                log.debug("Authentication Context is null");
-            }
+        if (log.isDebugEnabled() && authnContext == null) {
+            log.debug("Authentication Context is null");
         }
 
         return authnContext;
@@ -679,7 +708,7 @@ public class FrameworkUtils {
                 continue;
             }
             claimMap.put(ClaimMapping.build(entry.getKey(), entry.getKey(), null, false),
-                    entry.getValue());
+                         entry.getValue());
         }
 
         return claimMap;
@@ -828,7 +857,7 @@ public class FrameworkUtils {
                             .get(authenticatorIdp);
 
                     if (authenticatedIdPData != null
-                            && authenticatedIdPData.getIdpName().equals(authenticatorIdp)) {
+                        && authenticatedIdPData.getIdpName().equals(authenticatorIdp)) {
                         idpAuthenticatorMap.put(authenticatorIdp, authenticatorConfig);
                         break;
                     }
@@ -896,14 +925,14 @@ public class FrameworkUtils {
 
         if (configAvailable) {
             if (action != null
-                    && action.equals(FrameworkConstants.AUTH_ENDPOINT_QUERY_PARAMS_ACTION_EXCLUDE)) {
+                && action.equals(FrameworkConstants.AUTH_ENDPOINT_QUERY_PARAMS_ACTION_EXCLUDE)) {
                 if (reqParamMap != null) {
                     for (Map.Entry<String, String[]> entry : reqParamMap.entrySet()) {
                         String paramName = entry.getKey();
                         String paramValue = entry.getValue()[0];
 
                         //skip the sessionDataKey sent from the servlet.
-                        if (paramName.equals("sessionDataKey")) {
+                        if (SESSION_DATA_KEY.equals(paramName)) {
                             continue;
                         }
 
@@ -913,8 +942,8 @@ public class FrameworkUtils {
                             }
 
                             try {
-                                queryStrBuilder.append(URLEncoder.encode(paramName, "UTF-8")).append('=')
-                                        .append(URLEncoder.encode(paramValue, "UTF-8"));
+                                queryStrBuilder.append(URLEncoder.encode(paramName, UTF_8)).append('=')
+                                        .append(URLEncoder.encode(paramValue, UTF_8));
                             } catch (UnsupportedEncodingException e) {
                                 log.error(
                                         "Error while URL Encoding query param to be sent to the AuthenticationEndpoint",
@@ -932,8 +961,8 @@ public class FrameworkUtils {
                             queryStrBuilder.append('&');
                         }
                         try {
-                            queryStrBuilder.append(URLEncoder.encode(param, "UTF-8")).append('=')
-                                    .append(URLEncoder.encode(paramValue, "UTF-8"));
+                            queryStrBuilder.append(URLEncoder.encode(param, UTF_8)).append('=')
+                                    .append(URLEncoder.encode(paramValue, UTF_8));
                         } catch (UnsupportedEncodingException e) {
                             log.error(
                                     "Error while URL Encoding query param to be sent to the AuthenticationEndpoint",
@@ -949,7 +978,7 @@ public class FrameworkUtils {
                     String paramValue = entry.getValue()[0];
 
                     //skip the sessionDataKey sent from the servlet.
-                    if (paramName.equals("sessionDataKey")) {
+                    if (SESSION_DATA_KEY.equals(paramName)) {
                         continue;
                     }
 
@@ -958,8 +987,8 @@ public class FrameworkUtils {
                     }
 
                     try {
-                        queryStrBuilder.append(URLEncoder.encode(paramName, "UTF-8")).append('=')
-                                .append(URLEncoder.encode(paramValue, "UTF-8"));
+                        queryStrBuilder.append(URLEncoder.encode(paramName, UTF_8)).append('=')
+                                .append(URLEncoder.encode(paramValue, UTF_8));
                     } catch (UnsupportedEncodingException e) {
                         log.error(
                                 "Error while URL Encoding query param to be sent to the AuthenticationEndpoint",
@@ -984,18 +1013,18 @@ public class FrameworkUtils {
 
         if (authenticatedSubject == null || authenticatedSubject.trim().isEmpty()) {
             throw new IllegalArgumentException("Invalid argument. authenticatedSubject : "
-                    + authenticatedSubject);
+                                               + authenticatedSubject);
         }
-        if (authenticatedSubject.indexOf(CarbonConstants.DOMAIN_SEPARATOR) < 0) {
+        if (!authenticatedSubject.contains(CarbonConstants.DOMAIN_SEPARATOR)) {
             if (UserCoreUtil.getDomainFromThreadLocal() != null
-                    && !UserCoreUtil.getDomainFromThreadLocal().isEmpty()) {
+                && !UserCoreUtil.getDomainFromThreadLocal().isEmpty()) {
                 authenticatedSubject = UserCoreUtil.getDomainFromThreadLocal()
-                        + CarbonConstants.DOMAIN_SEPARATOR + authenticatedSubject;
+                                       + CarbonConstants.DOMAIN_SEPARATOR + authenticatedSubject;
             }
         } else if (authenticatedSubject.indexOf(CarbonConstants.DOMAIN_SEPARATOR) == 0) {
             throw new IllegalArgumentException("Invalid argument. authenticatedSubject : "
-                    + authenticatedSubject + " begins with \'" + CarbonConstants.DOMAIN_SEPARATOR
-                    + "\'");
+                                               + authenticatedSubject + " begins with \'" + CarbonConstants.DOMAIN_SEPARATOR
+                                               + "\'");
         }
         return authenticatedSubject;
     }
@@ -1012,14 +1041,14 @@ public class FrameworkUtils {
         claim.setClaimUri(userIdClaimURI);
         claimMapping.setRemoteClaim(claim);
         claimMapping.setLocalClaim(claim);
-        String value = claimMappings.get(claimMapping);
-        return value;
+        return claimMappings.get(claimMapping);
     }
 
     /*
      * Find the Subject identifier among federated claims
      */
-    public static String getFederatedSubjectFromClaims(AuthenticationContext context, String otherDialect) throws Exception {
+    public static String getFederatedSubjectFromClaims(AuthenticationContext context, String otherDialect)
+            throws FrameworkException {
         String value;
         boolean useLocalClaimDialect = context.getExternalIdP().useDefaultLocalIdpDialect();
         String userIdClaimURI = context.getExternalIdP().getUserIdClaimUri();
@@ -1027,8 +1056,13 @@ public class FrameworkUtils {
 
         if (useLocalClaimDialect) {
             Map<String, String> extAttributesValueMap = FrameworkUtils.getClaimMappings(claimMappings, false);
-            Map<String, String> mappedAttrs = ClaimManagerHandler.getInstance().getMappingsMapFromOtherDialectToCarbon(otherDialect,
-                    extAttributesValueMap.keySet(), context.getTenantDomain(), true);
+            Map<String, String> mappedAttrs = null;
+            try {
+                mappedAttrs = ClaimManagerHandler.getInstance().getMappingsMapFromOtherDialectToCarbon(otherDialect,
+                                                                                                       extAttributesValueMap.keySet(), context.getTenantDomain(), true);
+            } catch (ClaimManagementException e) {
+                throw new FrameworkException("Error while loading claim mappings.", e);
+            }
 
             String spUserIdClaimURI = mappedAttrs.get(userIdClaimURI);
             value = extAttributesValueMap.get(spUserIdClaimURI);
@@ -1047,14 +1081,14 @@ public class FrameworkUtils {
      *
      * @param tenantDomain tenant domain
      */
-    public static void startTenantFlow(String tenantDomain){
+    public static void startTenantFlow(String tenantDomain) {
         String tenantDomainParam = tenantDomain;
         int tenantId = MultitenantConstants.SUPER_TENANT_ID;
 
         if (tenantDomainParam != null && !tenantDomainParam.trim().isEmpty()) {
             try {
                 tenantId = FrameworkServiceComponent.getRealmService().getTenantManager()
-                                                    .getTenantId(tenantDomain);
+                        .getTenantId(tenantDomain);
             } catch (UserStoreException e) {
                 log.error("Error while getting tenantId from tenantDomain query param", e);
             }
@@ -1072,7 +1106,7 @@ public class FrameworkUtils {
     /**
      * Ends the tenant flow
      */
-    public static void endTenantFlow(){
+    public static void endTenantFlow() {
         PrivilegedCarbonContext.endTenantFlow();
     }
 }

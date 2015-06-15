@@ -1,20 +1,22 @@
 /*
-*  Copyright (c) WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ *
+ */
 
 package org.wso2.carbon.identity.sso.agent;
 
@@ -36,7 +38,7 @@ import java.util.logging.Logger;
 
 public class CarbonSSOAgentFilter extends SSOAgentFilter {
 
-    private static Logger LOGGER = Logger.getLogger(SSOAgentConstants.LOGGER_NAME);
+    private static final Logger LOGGER = Logger.getLogger(SSOAgentConstants.LOGGER_NAME);
 
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse,
@@ -60,7 +62,7 @@ public class CarbonSSOAgentFilter extends SSOAgentFilter {
         config.getSAML2().setSSOAgentX509Credential(
                 new SSOAgentCarbonX509Credential(tenantId, tenantDomain));
 
-        String htmlPayload = null;
+        String htmlPayload = "";
         String htmlFilePath = (String) request.getAttribute(
                 SSOAgentConstants.SSOAgentConfig.SAML2.POST_BINDING_REQUEST_HTML_FILE_PATH);
         if (htmlFilePath != null && !htmlFilePath.isEmpty()) {
@@ -70,16 +72,14 @@ public class CarbonSSOAgentFilter extends SSOAgentFilter {
                 try {
                     htmlPayload = new Scanner(htmlPayload).useDelimiter("\\Z").next();
                 } finally {
-                    if (scanner != null) {
+                    if (scanner != null && scanner.ioException() != null) {
                         IOException ioException = scanner.ioException();
-                        if (ioException != null) {
-                            LOGGER.log(Level.SEVERE,
-                                    "Error occurred while reading file " + htmlFilePath +
-                                            ". Will be using the default", ioException);
-                            htmlPayload = null;
-                        }
+                        LOGGER.log(Level.SEVERE,
+                                "Error occurred while reading file " + htmlFilePath +
+                                        ". Will be using the default", ioException);
+                        htmlPayload = null;
+                        scanner.close();
                     }
-                    scanner.close();
                 }
             } else {
                 LOGGER.log(Level.WARNING, "Cannot find file " + htmlFilePath +

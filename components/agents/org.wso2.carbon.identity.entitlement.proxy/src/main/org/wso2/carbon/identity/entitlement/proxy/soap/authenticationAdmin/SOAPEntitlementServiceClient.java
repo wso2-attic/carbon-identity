@@ -1,21 +1,23 @@
 /*
- *  Licensed to the Apache Software Foundation (ASF) under one
- *  or more contributor license agreements.  See the NOTICE file
- *  distributed with this work for additional information
- *  regarding copyright ownership.  The ASF licenses this file
- *  to you under the Apache License, Version 2.0 (the
- *  "License"); you may not use this file except in compliance
- *  with the License.  You may obtain a copy of the License at
+ * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *  Unless required by applicable law or agreed to in writing,
- *  software distributed under the License is distributed on an
- *   * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *  KIND, either express or implied.  See the License for the
- *  specific language governing permissions and limitations
- *  under the License.
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ *
  */
+
 package org.wso2.carbon.identity.entitlement.proxy.soap.authenticationAdmin;
 
 import org.apache.axis2.AxisFault;
@@ -35,13 +37,19 @@ import org.wso2.carbon.identity.entitlement.stub.dto.EntitledAttributesDTO;
 import org.wso2.carbon.identity.entitlement.stub.dto.EntitledResultSetDTO;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class SOAPEntitlementServiceClient extends AbstractEntitlementServiceClient {
 
+    public static final String ACCESS_SUBJECT = "urn:oasis:names:tc:xacml:1.0:subject-category:access-subject";
+    public static final String ACTION = "urn:oasis:names:tc:xacml:3.0:attribute-category:action";
+    public static final String ACTION_ID = "urn:oasis:names:tc:xacml:1.0:action:action-id";
+    public static final String RESOURCE = "urn:oasis:names:tc:xacml:3.0:attribute-category:resource";
+    public static final String RESOURCE_ID = "urn:oasis:names:tc:xacml:1.0:resource:resource-id";
+    public static final String CATEGORY_ENVIRONMENT = "urn:oasis:names:tc:xacml:3.0:attribute-category:environment";
+    public static final String ENVIRONMENT_ID = "urn:oasis:names:tc:xacml:1.0:environment:environment-id";
     private Map<String, EntitlementServiceStub> entitlementStub = new ConcurrentHashMap<String, EntitlementServiceStub>();
     private Map<String, EntitlementPolicyAdminServiceStub> policyAdminStub = new ConcurrentHashMap<String, EntitlementPolicyAdminServiceStub>();
     private Map<String, Authenticator> authenticators = new ConcurrentHashMap<String, Authenticator>();
@@ -71,17 +79,18 @@ public class SOAPEntitlementServiceClient extends AbstractEntitlementServiceClie
     public boolean subjectCanActOnResource(String subjectType, String alias, String actionId,
                                            String resourceId, String domainId, String appId) throws Exception {
 
-        Attribute subjectAttribute = new Attribute("urn:oasis:names:tc:xacml:1.0:subject-category:access-subject", subjectType, ProxyConstants.DEFAULT_DATA_TYPE, alias);
-        Attribute actionAttribute = new Attribute("urn:oasis:names:tc:xacml:3.0:attribute-category:action", "urn:oasis:names:tc:xacml:1.0:action:action-id", ProxyConstants.DEFAULT_DATA_TYPE, actionId);
-        Attribute resourceAttribute = new Attribute("urn:oasis:names:tc:xacml:3.0:attribute-category:resource", "urn:oasis:names:tc:xacml:1.0:resource:resource-id", ProxyConstants.DEFAULT_DATA_TYPE, resourceId);
-        Attribute environmentAttribute = new Attribute("urn:oasis:names:tc:xacml:3.0:attribute-category:environment", "urn:oasis:names:tc:xacml:1.0:environment:environment-id", ProxyConstants.DEFAULT_DATA_TYPE, domainId);
+        Attribute subjectAttribute = new Attribute(ACCESS_SUBJECT, subjectType, ProxyConstants.DEFAULT_DATA_TYPE, alias);
+        Attribute actionAttribute = new Attribute(ACTION, ACTION_ID, ProxyConstants.DEFAULT_DATA_TYPE, actionId);
+        Attribute resourceAttribute = new Attribute(RESOURCE, RESOURCE_ID, ProxyConstants.DEFAULT_DATA_TYPE, resourceId);
+        Attribute environmentAttribute = new Attribute(CATEGORY_ENVIRONMENT, ENVIRONMENT_ID, ProxyConstants
+                .DEFAULT_DATA_TYPE, domainId);
         Attribute[] tempArr = {subjectAttribute, actionAttribute, resourceAttribute, environmentAttribute};
         String xacmlRequest = XACMLRequetBuilder.buildXACML3Request(tempArr);
         EntitlementServiceStub stub = getEntitlementStub(serverUrl);
         Authenticator authenticator = getAuthenticator(serverUrl, userName, password);
         String result = getDecision(xacmlRequest, stub, authenticator);
         stub._getServiceClient().cleanupTransport();
-        return (result.contains("Permit"));
+        return result.contains("Permit");
     }
 
     @Override
@@ -90,20 +99,22 @@ public class SOAPEntitlementServiceClient extends AbstractEntitlementServiceClie
             throws Exception {
 
         Attribute[] attrs = new Attribute[attributes.length + 4];
-        attrs[0] = new Attribute("urn:oasis:names:tc:xacml:1.0:subject-category:access-subject", subjectType, ProxyConstants.DEFAULT_DATA_TYPE, alias);
+        attrs[0] = new Attribute(ACCESS_SUBJECT, subjectType, ProxyConstants.DEFAULT_DATA_TYPE, alias);
         for (int i = 0; i < attributes.length; i++) {
-            attrs[i + 1] = new Attribute("urn:oasis:names:tc:xacml:1.0:subject-category:access-subject", attributes[i].getType(),
+            attrs[i + 1] = new Attribute(ACCESS_SUBJECT, attributes[i].getType(),
                     attributes[i].getId(), attributes[i].getValue());
         }
-        attrs[attrs.length - 3] = new Attribute("urn:oasis:names:tc:xacml:3.0:attribute-category:action", "urn:oasis:names:tc:xacml:1.0:action:action-id", ProxyConstants.DEFAULT_DATA_TYPE, actionId);
-        attrs[attrs.length - 2] = new Attribute("urn:oasis:names:tc:xacml:3.0:attribute-category:resource", "urn:oasis:names:tc:xacml:1.0:resource:resource-id", ProxyConstants.DEFAULT_DATA_TYPE, resourceId);
-        attrs[attrs.length - 1] = new Attribute("urn:oasis:names:tc:xacml:3.0:attribute-category:environment", "urn:oasis:names:tc:xacml:1.0:environment:environment-id", ProxyConstants.DEFAULT_DATA_TYPE, domainId);
+        attrs[attrs.length - 3] = new Attribute(ACTION, ACTION_ID, ProxyConstants
+                .DEFAULT_DATA_TYPE, actionId);
+        attrs[attrs.length - 2] = new Attribute(RESOURCE, RESOURCE_ID,
+                ProxyConstants.DEFAULT_DATA_TYPE, resourceId);
+        attrs[attrs.length - 1] = new Attribute(CATEGORY_ENVIRONMENT, ENVIRONMENT_ID, ProxyConstants.DEFAULT_DATA_TYPE, domainId);
         String xacmlRequest = XACMLRequetBuilder.buildXACML3Request(attrs);
         EntitlementServiceStub stub = getEntitlementStub(serverUrl);
         Authenticator authenticator = getAuthenticator(serverUrl, userName, password);
         String result = getDecision(xacmlRequest, stub, authenticator);
         stub._getServiceClient().cleanupTransport();
-        return (result.contains("Permit"));
+        return result.contains("Permit");
     }
 
     @Override
@@ -156,10 +167,9 @@ public class SOAPEntitlementServiceClient extends AbstractEntitlementServiceClie
     private Authenticator getAuthenticator(String serverUrl, String userName, String password)
             throws Exception {
 
-        if (reuseSession) {
-            if (authenticators.containsKey(serverUrl)) {
-                return authenticators.get(serverUrl);
-            }
+        if (reuseSession && authenticators.containsKey(serverUrl)) {
+            return authenticators.get(serverUrl);
+
         }
         Authenticator authenticator = new Authenticator(userName, password, serverUrl + "AuthenticationAdmin");
         setAuthCookie(false, getEntitlementStub(serverUrl), authenticator);
@@ -175,7 +185,7 @@ public class SOAPEntitlementServiceClient extends AbstractEntitlementServiceClie
         }
         EntitlementServiceStub stub;
         ConfigurationContext configurationContext = ConfigurationContextFactory.createDefaultConfigurationContext();
-        HashMap<String, TransportOutDescription> transportsOut = configurationContext
+        Map<String, TransportOutDescription> transportsOut = configurationContext
                 .getAxisConfiguration().getTransportsOut();
         for (TransportOutDescription transportOutDescription : transportsOut.values()) {
             transportOutDescription.getSender().init(configurationContext, transportOutDescription);
@@ -193,7 +203,7 @@ public class SOAPEntitlementServiceClient extends AbstractEntitlementServiceClie
         }
         EntitlementPolicyAdminServiceStub stub;
         ConfigurationContext configurationContext = ConfigurationContextFactory.createDefaultConfigurationContext();
-        HashMap<String, TransportOutDescription> transportsOut = configurationContext
+        Map<String, TransportOutDescription> transportsOut = configurationContext
                 .getAxisConfiguration().getTransportsOut();
         for (TransportOutDescription transportOutDescription : transportsOut.values()) {
             transportOutDescription.getSender().init(configurationContext, transportOutDescription);

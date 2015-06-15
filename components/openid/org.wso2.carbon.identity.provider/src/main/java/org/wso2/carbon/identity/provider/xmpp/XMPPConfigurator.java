@@ -1,19 +1,20 @@
 /*
- * Copyright 2005-2007 WSO2, Inc. (http://wso2.com)
+ * Copyright (c) 2005-2007, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
-
 
 package org.wso2.carbon.identity.provider.xmpp;
 
@@ -26,7 +27,7 @@ import org.wso2.carbon.identity.provider.dto.XMPPSettingsDTO;
 
 public class XMPPConfigurator {
 
-    protected Log log = LogFactory.getLog(XMPPConfigurator.class);
+    private static final Log log = LogFactory.getLog(XMPPConfigurator.class);
 
     /**
      * To add XMPP Settings.
@@ -36,8 +37,9 @@ public class XMPPConfigurator {
     public void addXmppSettings(XMPPSettingsDTO dto) {
         try {
             IdentityPersistenceManager persistentManager = IdentityPersistenceManager.getPersistanceManager();
-            persistentManager.addXmppSettings(IdentityTenantUtil.getRegistry(), dto.getUserId(), dto.getXmppServer(), dto.getXmppUserName(),
-                    dto.getUserCode(), dto.isXmppEnabled(), dto.isPINEnabled());
+            persistentManager.addXmppSettings(IdentityTenantUtil.getRegistry(), dto.getUserId(), dto.getXmppServer(),
+                                              dto.getXmppUserName(),
+                                              dto.getUserCode(), dto.isXmppEnabled(), dto.isPINEnabled());
 
         } catch (Exception e) {
             log.error("Error when instantiating the Persistence Manager.", e);
@@ -53,7 +55,8 @@ public class XMPPConfigurator {
         try {
             IdentityPersistenceManager persistentManager = IdentityPersistenceManager.getPersistanceManager();
             persistentManager.updateXmppSettings(IdentityTenantUtil.getRegistry(), dto.getUserId(),
-                    dto.getXmppServer(), dto.getXmppUserName(), dto.getUserCode(), dto.isXmppEnabled(), dto.isPINEnabled());
+                                                 dto.getXmppServer(), dto.getXmppUserName(), dto.getUserCode(),
+                                                 dto.isXmppEnabled(), dto.isPINEnabled());
 
         } catch (Exception e) {
             log.error("Error when instantiating the Persistence Manager.", e);
@@ -70,7 +73,8 @@ public class XMPPConfigurator {
         XMPPSettingsDTO xmppSettingsDTO = null;
         try {
             IdentityPersistenceManager persistenceManager = IdentityPersistenceManager.getPersistanceManager();
-            XMPPSettingsDO xmppSettingsDO = persistenceManager.getXmppSettings(IdentityTenantUtil.getRegistry(), userId);
+            XMPPSettingsDO xmppSettingsDO =
+                    persistenceManager.getXmppSettings(IdentityTenantUtil.getRegistry(), userId);
             xmppSettingsDTO = new XMPPSettingsDTO();
             xmppSettingsDTO.setXmppServer(xmppSettingsDO.getXmppServer());
             xmppSettingsDTO.setXmppUserName(xmppSettingsDO.getXmppUserName());
@@ -93,22 +97,20 @@ public class XMPPConfigurator {
      */
     public boolean isXmppSettingsEnabled(String userId) {
         try {
-            IdentityPersistenceManager persistenceManager = IdentityPersistenceManager
-                    .getPersistanceManager();
+            IdentityPersistenceManager persistenceManager = IdentityPersistenceManager.getPersistanceManager();
             return persistenceManager.isXmppSettingsEnabled(IdentityTenantUtil.getRegistry(), userId);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Error when instantiating the Persistence Manager.", e);
         }
         return false;
     }
 
     public boolean hasXMPPSettings(String userId) {
         try {
-            IdentityPersistenceManager persistenceManager = IdentityPersistenceManager
-                    .getPersistanceManager();
+            IdentityPersistenceManager persistenceManager = IdentityPersistenceManager.getPersistanceManager();
             return persistenceManager.hasXMPPSettings(IdentityTenantUtil.getRegistry(), userId);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Error when instantiating the Persistence Manager.", e);
         }
         return false;
     }

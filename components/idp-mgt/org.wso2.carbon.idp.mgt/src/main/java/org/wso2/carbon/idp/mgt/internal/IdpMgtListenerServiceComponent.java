@@ -33,22 +33,22 @@ import java.util.List;
  */
 public class IdpMgtListenerServiceComponent {
 
-    private static List<IdentityProviderMgtLister> listners = new ArrayList<IdentityProviderMgtLister>();
+    private static List<IdentityProviderMgtLister> listeners = new ArrayList<>();
 
     public static void setIdentityProviderMgtListerService(
             IdentityProviderMgtLister identityProviderMgtListerService) {
 
-        listners.add(identityProviderMgtListerService);
+        listeners.add(identityProviderMgtListerService);
     }
 
     public static void unsetIdentityProviderMgtListerService(
             IdentityProviderMgtLister identityProviderMgtListerService) {
 
-        listners.remove(identityProviderMgtListerService);
+        listeners.remove(identityProviderMgtListerService);
     }
 
     public static List<IdentityProviderMgtLister> getListners() {
-        return listners;
+        return listeners;
     }
 
 }
