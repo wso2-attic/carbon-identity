@@ -64,6 +64,7 @@
                         </Import-Package>
                         <Export-Package>
                             // exported packages
+                            org.wso2.carbon.identity.uma; version="${carbon.identity.package.export.version}",
                         </Export-Package>
                         <DynamicImport-Package>*</DynamicImport-Package>
                     </instructions>
