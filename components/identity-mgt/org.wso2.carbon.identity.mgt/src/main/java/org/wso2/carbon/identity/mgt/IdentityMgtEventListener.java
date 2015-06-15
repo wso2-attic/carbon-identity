@@ -94,7 +94,8 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
     private static final Log log = LogFactory.getLog(IdentityMgtEventListener.class);
     private static final String EMPTY_PASSWORD_USED = "EmptyPasswordUsed";
     private static final String USER_IDENTITY_DO = "UserIdentityDO";
-    public static final String INSERT_STMT = "INSERT INTO IDN_UID_USER (IDN_UID, IDN_USERNAME, IDN_STORE_DOMAIN, IDN_TENANT ) VALUES (?,?,?,?);";
+    public static final String INSERT_STMT = "INSERT INTO IDN_UID_USER (IDN_UID, IDN_USERNAME, IDN_STORE_DOMAIN, " +
+            "IDN_TENANT ) VALUES (?,?,?,?);";
     PolicyRegistry policyRegistry = null;
     private UserIdentityDataStore module;
 
@@ -208,17 +209,20 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
             return true;
         }
 
-        String domainName = userStoreManager.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
+        String domainName = userStoreManager.getRealmConfiguration().getUserStoreProperty(UserCoreConstants
+                .RealmConfig.PROPERTY_DOMAIN_NAME);
         String usernameWithDomain = UserCoreUtil.addDomainToName(userName, domainName);
         boolean isUserExistInCurrentDomain = userStoreManager.isExistingUser(usernameWithDomain);
 
         if (!isUserExistInCurrentDomain) {
 
-            IdentityErrorMsgContext customErrorMessageContext = new IdentityErrorMsgContext(UserCoreConstants.ErrorCode.USER_DOES_NOT_EXIST);
+            IdentityErrorMsgContext customErrorMessageContext = new IdentityErrorMsgContext(UserCoreConstants
+                    .ErrorCode.USER_DOES_NOT_EXIST);
             IdentityUtil.setIdentityErrorMsg(customErrorMessageContext);
 
             if (log.isDebugEnabled()) {
-                log.debug("Username :" + userName + "does not exists in the system, ErrorCode :" + UserCoreConstants.ErrorCode.USER_DOES_NOT_EXIST);
+                log.debug("Username :" + userName + "does not exists in the system, ErrorCode :" + UserCoreConstants
+                        .ErrorCode.USER_DOES_NOT_EXIST);
             }
             if (config.isAuthPolicyAccountExistCheck()) {
                 throw new UserStoreException(UserCoreConstants.ErrorCode.USER_DOES_NOT_EXIST);
@@ -231,7 +235,8 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
             if (userIdentityDTO != null && userIdentityDTO.isAccountLocked()) {
 
                 // If unlock time is specified then unlock the account.
-                if ((userIdentityDTO.getUnlockTime() != 0) && (System.currentTimeMillis() >= userIdentityDTO.getUnlockTime())) {
+                if ((userIdentityDTO.getUnlockTime() != 0) && (System.currentTimeMillis() >= userIdentityDTO
+                        .getUnlockTime())) {
 
                     userIdentityDTO.setAccountLock(false);
                     userIdentityDTO.setUnlockTime(0);
@@ -379,7 +384,8 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
         }
 
         // Password expire check. Not for OTP enabled users.
-        if (authenticated && config.isAuthPolicyExpirePasswordCheck() && !userOTPEnabled && (!userStoreManager.isReadOnly())) {
+        if (authenticated && config.isAuthPolicyExpirePasswordCheck() && !userOTPEnabled && (!userStoreManager
+                .isReadOnly())) {
             // TODO - password expire impl
             // Refactor adduser and change password api to stamp the time
             // Check user's expire time in the claim
@@ -415,7 +421,8 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
         if (!authenticated && config.isAuthPolicyAccountLockOnFailure()) {
             // reading the max allowed #of failure attempts
 
-            String domainName = userStoreManager.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
+            String domainName = userStoreManager.getRealmConfiguration().getUserStoreProperty (UserCoreConstants
+                    .RealmConfig.PROPERTY_DOMAIN_NAME);
             String usernameWithDomain = UserCoreUtil.addDomainToName(userName, domainName);
             boolean isUserExistInCurrentDomain = userStoreManager.isExistingUser(usernameWithDomain);
 
@@ -425,12 +432,14 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
                 if (userIdentityDTO.getFailAttempts() >= config.getAuthPolicyMaxLoginAttempts()) {
                     log.info("User, " + userName + " has exceed the max failed login attempts. " +
                             "User account would be locked");
-                    IdentityErrorMsgContext customErrorMessageContext = new IdentityErrorMsgContext(UserCoreConstants.ErrorCode.USER_IS_LOCKED,
+                    IdentityErrorMsgContext customErrorMessageContext = new IdentityErrorMsgContext
+                            (UserCoreConstants.ErrorCode.USER_IS_LOCKED,
                             userIdentityDTO.getFailAttempts(), config.getAuthPolicyMaxLoginAttempts());
                     IdentityUtil.setIdentityErrorMsg(customErrorMessageContext);
 
                     if (log.isDebugEnabled()) {
-                        log.debug("Username :" + userName + "Exceeded the maximum login attempts. User locked, ErrorCode :" + UserCoreConstants.ErrorCode.USER_IS_LOCKED);
+                        log.debug("Username :" + userName + "Exceeded the maximum login attempts. User locked, " +
+                                "ErrorCode :" + UserCoreConstants.ErrorCode.USER_IS_LOCKED);
                     }
 
                     userIdentityDTO.setAccountLock(true);
@@ -442,12 +451,14 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
                                 (lockTime * 60 * 1000));
                     }
                 } else {
-                    IdentityErrorMsgContext customErrorMessageContext = new IdentityErrorMsgContext(UserCoreConstants.ErrorCode.INVALID_CREDENTIAL,
+                    IdentityErrorMsgContext customErrorMessageContext = new IdentityErrorMsgContext
+                            (UserCoreConstants.ErrorCode.INVALID_CREDENTIAL,
                             userIdentityDTO.getFailAttempts(), config.getAuthPolicyMaxLoginAttempts());
                     IdentityUtil.setIdentityErrorMsg(customErrorMessageContext);
 
                     if (log.isDebugEnabled()) {
-                        log.debug("Username :" + userName + "Invalid Credential, ErrorCode :" + UserCoreConstants.ErrorCode.INVALID_CREDENTIAL);
+                        log.debug("Username :" + userName + "Invalid Credential, ErrorCode :" + UserCoreConstants
+                                .ErrorCode.INVALID_CREDENTIAL);
                     }
 
                 }
@@ -467,7 +478,8 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
         } else {
             // if the account was locked due to account verification process,
             // the unlock the account and reset the number of failedAttempts
-            if (userIdentityDTO.isAccountLocked() || userIdentityDTO.getFailAttempts() > 0 || userIdentityDTO.getAccountLock()) {
+            if (userIdentityDTO.isAccountLocked() || userIdentityDTO.getFailAttempts() > 0 || userIdentityDTO
+                    .getAccountLock()) {
                 userIdentityDTO.setAccountLock(false);
                 userIdentityDTO.setFailAttempts(0);
                 userIdentityDTO.setUnlockTime(0);
@@ -567,7 +579,7 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
 
     }
 
-    private String CreateUID(String userName) {
+    private String createUID(String userName) {
 
         UUID uuid = UUID.randomUUID();
         Date today = new Date();
@@ -598,7 +610,8 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
             return true;
         }
         // reading the value from the thread local
-        UserIdentityClaimsDO userIdentityClaimsDO = (UserIdentityClaimsDO) threadLocalProperties.get().get(USER_IDENTITY_DO);
+        UserIdentityClaimsDO userIdentityClaimsDO = (UserIdentityClaimsDO) threadLocalProperties.get().get
+                (USER_IDENTITY_DO);
 
 
         if (config.isEnableUserAccountVerification()) {
@@ -727,7 +740,7 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
 
             PreparedStatement insertToDB = dbCon.prepareStatement(INSERT_STMT);
 
-            insertToDB.setString(1, CreateUID(userName));
+            insertToDB.setString(1, createUID(userName));
             insertToDB.setString(2, userName);
             insertToDB.setInt(3, domainID);
             insertToDB.setInt(4, userStoreManager.getTenantId());
@@ -748,7 +761,8 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
      * password.
      */
     public boolean doPreUpdateCredential(String userName, Object newCredential,
-                                         Object oldCredential, UserStoreManager userStoreManager) throws UserStoreException {
+                                         Object oldCredential, UserStoreManager userStoreManager) throws
+            UserStoreException {
 
         if (log.isDebugEnabled()) {
             log.debug("Pre update credential is called in IdentityMgtEventListener");
