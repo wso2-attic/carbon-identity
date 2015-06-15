@@ -18,11 +18,20 @@
 
 package org.wso2.carbon.um.ws.api;
 
-import org.wso2.carbon.um.ws.api.stub.*;
+import org.wso2.carbon.um.ws.api.stub.Claim;
+import org.wso2.carbon.um.ws.api.stub.ClaimDTO;
+import org.wso2.carbon.um.ws.api.stub.ClaimValue;
+import org.wso2.carbon.um.ws.api.stub.ProfileConfiguration;
+import org.wso2.carbon.um.ws.api.stub.RealmConfigurationDTO;
+import org.wso2.carbon.um.ws.api.stub.RealmPropertyDTO;
 import org.wso2.carbon.user.api.ClaimMapping;
 import org.wso2.carbon.user.api.RealmConfiguration;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Utility class used for conversions

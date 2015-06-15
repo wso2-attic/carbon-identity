@@ -27,7 +27,11 @@ import org.wso2.carbon.identity.provider.IdentityProviderException;
 import org.wso2.carbon.user.core.UserStoreManager;
 
 import java.io.UnsupportedEncodingException;
-import java.net.*;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLDecoder;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;

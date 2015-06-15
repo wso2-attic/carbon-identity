@@ -16,15 +16,14 @@
  ~ under the License.
  -->
 
-<%@ page import="org.wso2.carbon.identity.entitlement.ui.EntitlementPolicyCreator" %>
-<%@ page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
-<%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
-<%@ page import="java.util.ResourceBundle" %>
-<%@ page import="org.wso2.carbon.identity.entitlement.ui.dto.RowDTO" %>
 <%@ page import="org.wso2.carbon.identity.entitlement.ui.EntitlementPolicyConstants" %>
+<%@ page import="org.wso2.carbon.identity.entitlement.ui.EntitlementPolicyCreator" %>
+<%@ page import="org.wso2.carbon.identity.entitlement.ui.dto.RequestDTO" %>
+<%@ page import="org.wso2.carbon.identity.entitlement.ui.dto.RowDTO" %>
+<%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
+<%@ page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="java.util.List" %>
-<%@ page import="org.wso2.carbon.identity.entitlement.ui.dto.RequestDTO" %>
 
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar"

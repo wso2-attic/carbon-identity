@@ -33,7 +33,11 @@ import org.wso2.carbon.identity.provider.dto.OpenIDAuthRequestDTO;
 import org.wso2.carbon.identity.provider.dto.OpenIDClaimDTO;
 import org.wso2.carbon.identity.provider.openid.handlers.OpenIDAuthenticationRequest;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 /**

@@ -17,23 +17,22 @@
 -->
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar" prefix="carbon" %>
+<%@ page import="org.apache.axis2.context.ConfigurationContext" %>
 <%@ page import="org.apache.commons.fileupload.FileItem" %>
-<%@ page import="org.apache.commons.fileupload.disk.DiskFileItem" %>
 <%@ page
-        import="org.apache.commons.fileupload.servlet.ServletFileUpload" %>
+        import="org.apache.commons.fileupload.disk.DiskFileItem" %>
+<%@ page import="org.apache.commons.fileupload.servlet.ServletFileUpload" %>
 <%@ page import="org.apache.commons.fileupload.servlet.ServletRequestContext" %>
-<%@ page import="org.wso2.carbon.security.ui.client.KeyStoreAdminClient" %>
 <%@ page
-        import="org.wso2.carbon.security.ui.jsp.SecurityUIUtil" %>
-<%@ page import="java.util.List" %>
+        import="org.wso2.carbon.CarbonConstants" %>
+<%@ page import="org.wso2.carbon.security.ui.client.KeyStoreAdminClient" %>
 
-<%@page import="org.wso2.carbon.utils.ServerConstants" %>
+<%@page import="org.wso2.carbon.security.ui.jsp.SecurityUIUtil" %>
+<%@page import="org.wso2.carbon.ui.CarbonUIMessage" %>
 <%@page import="org.wso2.carbon.ui.CarbonUIUtil" %>
-<%@page import="org.apache.axis2.context.ConfigurationContext" %>
-<%@page import="org.wso2.carbon.CarbonConstants" %>
-<%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
+<%@page import="org.wso2.carbon.utils.ServerConstants" %>
+<%@ page import="java.util.List" %>
 <%@page import="java.util.ResourceBundle" %>
-<%@page import="java.text.MessageFormat" %>
 <script type="text/javascript" src="../securityconfig/extensions/js/vui.js"></script>
 <script type="text/javascript" src="../admin/js/main.js"></script>
 

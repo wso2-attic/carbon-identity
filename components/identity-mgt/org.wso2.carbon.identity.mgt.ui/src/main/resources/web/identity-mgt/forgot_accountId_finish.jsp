@@ -18,13 +18,13 @@
   ~
   -->
 
-<%@ page import="org.wso2.carbon.identity.mgt.stub.beans.UserMgtBean" %>
-<%@ page import="org.wso2.carbon.identity.mgt.stub.dto.UserEvidenceDTO" %>
-<%@ page import="org.wso2.carbon.utils.ServerConstants" %>
-<%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
 <%@ page import="org.apache.axis2.context.ConfigurationContext" %>
 <%@ page import="org.wso2.carbon.CarbonConstants" %>
+<%@ page import="org.wso2.carbon.identity.mgt.stub.beans.UserMgtBean" %>
+<%@ page import="org.wso2.carbon.identity.mgt.stub.dto.UserEvidenceDTO" %>
 <%@ page import="org.wso2.carbon.identity.mgt.ui.IdentityManagementClient" %>
+<%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
+<%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>

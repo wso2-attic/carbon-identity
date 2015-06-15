@@ -20,13 +20,13 @@
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar" prefix="carbon" %>
 <%@ page import="org.apache.axis2.context.ConfigurationContext" %>
 <%@ page import="org.wso2.carbon.CarbonConstants" %>
+<%@ page import="org.wso2.carbon.claim.mgt.ui.client.ClaimAdminClient" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
-<%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 
 
-<%@page import="java.lang.Exception"%>
-<%@page import="org.wso2.carbon.claim.mgt.ui.client.ClaimAdminClient"%>
+<%@page import="org.wso2.carbon.utils.ServerConstants"%>
+<%@page import="java.util.ResourceBundle"%>
 
 <%
     String serverURL = CarbonUIUtil.getServerURL(config.getServletContext(), session);
@@ -49,9 +49,9 @@
     }
 %>
 
-<%@page import="java.util.ResourceBundle"%><script type="text/javascript">
+<script type="text/javascript">
     function forward() {
-        location.href ="<%=forwardTo%>";
+        location.href = "<%=forwardTo%>";
     }
 </script>
 

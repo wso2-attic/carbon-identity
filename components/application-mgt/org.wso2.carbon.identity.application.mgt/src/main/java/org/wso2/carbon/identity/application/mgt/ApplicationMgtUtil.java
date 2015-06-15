@@ -39,10 +39,10 @@ import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.user.mgt.UserMgtConstants;
 
-import java.util.Arrays;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 public class ApplicationMgtUtil {
 

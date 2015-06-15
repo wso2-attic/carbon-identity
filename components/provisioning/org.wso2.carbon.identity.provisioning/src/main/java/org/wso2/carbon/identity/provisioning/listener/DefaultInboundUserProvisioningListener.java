@@ -28,7 +28,12 @@ import org.wso2.carbon.identity.application.common.model.ThreadLocalProvisioning
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
 import org.wso2.carbon.identity.application.mgt.ApplicationConstants;
 import org.wso2.carbon.identity.application.mgt.ApplicationInfoProvider;
-import org.wso2.carbon.identity.provisioning.*;
+import org.wso2.carbon.identity.provisioning.IdentityProvisioningConstants;
+import org.wso2.carbon.identity.provisioning.IdentityProvisioningException;
+import org.wso2.carbon.identity.provisioning.OutboundProvisioningManager;
+import org.wso2.carbon.identity.provisioning.ProvisioningEntity;
+import org.wso2.carbon.identity.provisioning.ProvisioningEntityType;
+import org.wso2.carbon.identity.provisioning.ProvisioningOperation;
 import org.wso2.carbon.user.api.Permission;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;

@@ -27,7 +27,12 @@ import org.wso2.balana.ParsingException;
 import org.wso2.balana.ctx.AbstractRequestCtx;
 import org.wso2.balana.ctx.RequestCtxFactory;
 import org.wso2.balana.ctx.ResponseCtx;
-import org.wso2.balana.finder.*;
+import org.wso2.balana.finder.AttributeFinder;
+import org.wso2.balana.finder.AttributeFinderModule;
+import org.wso2.balana.finder.PolicyFinder;
+import org.wso2.balana.finder.PolicyFinderModule;
+import org.wso2.balana.finder.ResourceFinder;
+import org.wso2.balana.finder.ResourceFinderModule;
 import org.wso2.balana.finder.impl.CurrentEnvModule;
 import org.wso2.balana.finder.impl.SelectorModule;
 import org.wso2.carbon.context.CarbonContext;
@@ -52,7 +57,12 @@ import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 
 public class EntitlementEngine {
 

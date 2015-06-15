@@ -22,7 +22,11 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.service.component.ComponentContext;
-import org.wso2.carbon.identity.notification.mgt.*;
+import org.wso2.carbon.identity.notification.mgt.NotificationManagementException;
+import org.wso2.carbon.identity.notification.mgt.NotificationMgtConfigBuilder;
+import org.wso2.carbon.identity.notification.mgt.NotificationMgtConstants;
+import org.wso2.carbon.identity.notification.mgt.NotificationSender;
+import org.wso2.carbon.identity.notification.mgt.NotificationSendingModule;
 import org.wso2.carbon.identity.notification.mgt.bean.ModuleConfiguration;
 
 import javax.mail.MessageRemovedException;

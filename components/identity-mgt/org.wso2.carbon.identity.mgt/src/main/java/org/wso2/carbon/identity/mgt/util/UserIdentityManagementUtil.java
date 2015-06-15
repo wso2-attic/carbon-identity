@@ -22,7 +22,6 @@ import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.mgt.IdentityMgtConfig;
 import org.wso2.carbon.identity.mgt.IdentityMgtServiceException;
-import org.wso2.carbon.identity.mgt.NotificationSender;
 import org.wso2.carbon.identity.mgt.beans.UserIdentityMgtBean;
 import org.wso2.carbon.identity.mgt.dto.UserIdentityClaimDTO;
 import org.wso2.carbon.identity.mgt.dto.UserIdentityClaimsDO;

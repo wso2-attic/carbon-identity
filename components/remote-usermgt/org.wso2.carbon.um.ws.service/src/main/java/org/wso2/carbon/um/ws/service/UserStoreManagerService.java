@@ -32,12 +32,12 @@ import org.wso2.carbon.user.core.claim.Claim;
 import org.wso2.carbon.user.core.tenant.Tenant;
 import org.wso2.carbon.user.mgt.common.ClaimValue;
 
-import java.util.Map;
-import java.util.HashMap;
-import java.util.List;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 
 public class UserStoreManagerService extends AbstractAdmin {

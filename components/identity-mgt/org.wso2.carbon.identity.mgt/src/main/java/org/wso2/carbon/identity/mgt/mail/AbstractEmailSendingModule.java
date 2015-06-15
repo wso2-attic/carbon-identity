@@ -20,13 +20,8 @@ package org.wso2.carbon.identity.mgt.mail;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.mgt.IdentityMgtServiceException;
 import org.wso2.carbon.identity.mgt.NotificationSendingModule;
-import org.wso2.carbon.identity.mgt.config.Config;
-import org.wso2.carbon.identity.mgt.config.ConfigBuilder;
-import org.wso2.carbon.identity.mgt.config.ConfigType;
-import org.wso2.carbon.identity.mgt.config.StorageType;
 import org.wso2.carbon.identity.mgt.util.Utils;
 
 import java.util.HashMap;

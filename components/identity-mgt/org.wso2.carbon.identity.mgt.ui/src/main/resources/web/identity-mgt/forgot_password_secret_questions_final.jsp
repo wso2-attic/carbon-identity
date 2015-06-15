@@ -18,12 +18,11 @@
   ~
   -->
 
-<%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
 <%@ page import="org.apache.axis2.context.ConfigurationContext" %>
 <%@ page import="org.wso2.carbon.CarbonConstants" %>
-<%@ page import="org.wso2.carbon.identity.mgt.ui.IdentityManagementClient" %>
-<%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
 <%@ page import="org.wso2.carbon.identity.mgt.stub.beans.VerificationBean" %>
+<%@ page import="org.wso2.carbon.identity.mgt.ui.IdentityManagementClient" %>
+<%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar" prefix="carbon" %>
 

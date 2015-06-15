@@ -20,18 +20,18 @@
 
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar" prefix="carbon" %>
-<%@page import="org.wso2.carbon.ui.util.CharacterEncoder"%>
+<%@page import="org.apache.axis2.context.ConfigurationContext"%>
 <jsp:include page="../dialog/display_messages.jsp"/>
-<%@page import="org.wso2.carbon.ui.CarbonUIMessage" %>
-<%@page import="org.wso2.carbon.ui.CarbonUIUtil" %>
-<%@ page import="org.wso2.carbon.utils.ServerConstants" %>
-<%@ page import="org.wso2.carbon.CarbonConstants" %>
-<%@ page import="org.apache.axis2.context.ConfigurationContext" %>
-<%@ page import="org.wso2.carbon.identity.mgt.stub.dto.ChallengeQuestionDTO" %>
-<%@ page import="java.util.ArrayList" %>
-<%@ page import="java.util.List" %>
-<%@ page import="java.util.Iterator" %>
+<%@page import="org.wso2.carbon.CarbonConstants" %>
+<%@page import="org.wso2.carbon.identity.mgt.stub.dto.ChallengeQuestionDTO" %>
 <%@ page import="org.wso2.carbon.identity.mgt.ui.IdentityManagementAdminClient" %>
+<%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
+<%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
+<%@ page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
+<%@ page import="org.wso2.carbon.utils.ServerConstants" %>
+<%@ page import="java.util.ArrayList" %>
+<%@ page import="java.util.Iterator" %>
+<%@ page import="java.util.List" %>
 <script type="text/javascript" src="extensions/js/vui.js"></script>
 <script type="text/javascript" src="../admin/js/main.js"></script>
 

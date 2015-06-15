@@ -19,9 +19,8 @@
 
 package org.wso2.carbon.apacheds.impl;
 
-import org.apache.commons.io.FileUtils;
-
 import junit.framework.TestCase;
+import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;

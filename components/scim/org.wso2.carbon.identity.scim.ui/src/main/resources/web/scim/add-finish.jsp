@@ -15,27 +15,25 @@
 ~ limitations under the License.
 -->
 
-<%@page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
+<%@page import="org.apache.axis2.context.ConfigurationContext" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar"
            prefix="carbon" %>
-<%@page import="org.wso2.carbon.utils.ServerConstants" %>
-<%@page import="org.wso2.carbon.ui.CarbonUIUtil" %>
-<%@page import="org.apache.axis2.context.ConfigurationContext" %>
 <%@page import="org.wso2.carbon.CarbonConstants" %>
-<%@page import="java.lang.Exception" %>
+<%@page import="org.wso2.carbon.identity.scim.common.stub.config.SCIMProviderDTO" %>
+<%@page import="org.wso2.carbon.identity.scim.ui.client.SCIMConfigAdminClient" %>
+<%@page import="org.wso2.carbon.identity.scim.ui.utils.SCIMUIUtils" %>
+<%@page import="org.wso2.carbon.ui.CarbonUIMessage" %>
 
-<%@page import="java.util.ResourceBundle" %>
+<%@page import="org.wso2.carbon.ui.CarbonUIUtil" %>
 ><script type="text/javascript" src="extensions/js/vui.js"></script>
 <script type="text/javascript" src="../extensions/core/js/vui.js"></script>
 <script type="text/javascript" src="../admin/js/main.js"></script>
 
 <jsp:include page="../dialog/display_messages.jsp"/>
-<%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
-<%@ page import="org.wso2.carbon.identity.scim.common.stub.config.SCIMProviderDTO" %>
-<%@ page import="org.wso2.carbon.identity.scim.ui.client.SCIMConfigAdminClient" %>
-<%@ page import="org.wso2.carbon.context.PrivilegedCarbonContext" %>
-<%@ page import="org.wso2.carbon.identity.scim.ui.utils.SCIMUIUtils" %>
+<%@ page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
+<%@ page import="org.wso2.carbon.utils.ServerConstants" %>
+<%@ page import="java.util.ResourceBundle" %>
 
 <%
     String providerId = CharacterEncoder.getSafeText(request.getParameter("providerId"));

@@ -18,8 +18,6 @@
 
 package org.wso2.carbon.identity.core.util;
 
-import org.wso2.carbon.identity.core.util.IdentityCoreInitializedEvent;
-
 /**
  * This empty service can be used to guarantee the order of activation ( No need to have empty service if
  * there is a valid service).

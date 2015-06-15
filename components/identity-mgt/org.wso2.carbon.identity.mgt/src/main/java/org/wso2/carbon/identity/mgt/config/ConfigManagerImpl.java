@@ -18,10 +18,10 @@
 
 package org.wso2.carbon.identity.mgt.config;
 
+import org.wso2.carbon.identity.mgt.IdentityMgtConfigException;
+
 import java.util.Properties;
 import java.util.Set;
-
-import org.wso2.carbon.identity.mgt.IdentityMgtConfigException;
 
 /**
  * Implementation of the Configuration Manager which used to

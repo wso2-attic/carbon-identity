@@ -18,9 +18,9 @@
 
 package org.wso2.carbon.identity.mgt.config;
 
-import java.util.Properties;
-
 import org.wso2.carbon.identity.mgt.IdentityMgtConfigException;
+
+import java.util.Properties;
 
 /**
  * This is used to read and configuration from a persistence store.
