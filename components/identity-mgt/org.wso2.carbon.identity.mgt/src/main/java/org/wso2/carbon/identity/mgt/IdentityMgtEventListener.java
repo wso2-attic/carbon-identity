@@ -340,10 +340,7 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
                     Config emailConfig = null;
                     ConfigBuilder configBuilder = ConfigBuilder.getInstance();
                     try {
-                        emailConfig =
-                                configBuilder.loadConfiguration(ConfigType.EMAIL,
-                                        StorageType.REGISTRY,
-                                        tenantId);
+                        emailConfig = configBuilder.loadConfiguration(ConfigType.EMAIL, StorageType.REGISTRY, tenantId);
                     } catch (Exception e1) {
                         throw new UserStoreException(
                                 "Could not load the email template configuration for user : "
