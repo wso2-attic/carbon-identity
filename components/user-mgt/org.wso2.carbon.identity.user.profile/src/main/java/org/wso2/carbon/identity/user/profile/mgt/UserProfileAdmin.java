@@ -333,6 +333,8 @@ public class UserProfileAdmin extends AbstractAdmin {
         String[] availableProfileConfigurations = new String[0];
         String profileConfig = null;
 
+        String storeDomainName = null;
+
         try {
 
             if (username == null || profileName == null) {
@@ -346,6 +348,11 @@ public class UserProfileAdmin extends AbstractAdmin {
             UserRealm realm = getUserRealm();
 
             UserStoreManager userStoreManager = realm.getUserStoreManager();
+
+            AbstractUserStoreManager abstractUserStoreManager = (AbstractUserStoreManager) userStoreManager;
+
+            storeDomainName = abstractUserStoreManager.getRealmConfiguration().getUserStoreProperty(UserCoreConstants
+                    .RealmConfig.PROPERTY_DOMAIN_NAME);
 
             boolean isReadOnly = userStoreManager.isReadOnly();
 
@@ -428,13 +435,18 @@ public class UserProfileAdmin extends AbstractAdmin {
                             .getUserClaimValues(username, claimUris, profileName);
             List<UserFieldDTO> userFields = new ArrayList<UserFieldDTO>();
 
+            String uuidClaimURI = "http://wso2.org/claims/uid";
             for (int j = 0; j < claims.length; j++) {
                 UserFieldDTO data = new UserFieldDTO();
                 Claim claim = claims[j];
                 String claimUri = claim.getClaimUri();
                 if (!UserCoreConstants.PROFILE_CONFIGURATION.equals(claimUri)) {
                     data.setClaimUri(claimUri);
-                    data.setFieldValue(valueMap.get(claimUri));
+                    if (uuidClaimURI.equalsIgnoreCase(claimUri)) {
+                        data.setFieldValue(getUUID(username, storeDomainName, userStoreManager.getTenantId()));
+                    } else {
+                        data.setFieldValue(valueMap.get(claimUri));
+                    }
                     data.setDisplayName(claim.getDisplayTag());
                     data.setRegEx(claim.getRegEx());
                     data.setRequired(claim.isRequired());
@@ -465,6 +477,64 @@ public class UserProfileAdmin extends AbstractAdmin {
             throw new UserProfileException(e.getMessage(), e);
         }
         return profile;
+    }
+
+
+    private int getDomainID(String domain, int tenantId) throws UserProfileException {
+
+        int domainId = 0;
+
+
+
+
+        String domainIdQuery = "SELECT UM_DOMAIN_ID FROM UM_DOMAIN WHERE UM_DOMAIN_NAME=? AND UM_TENANT_ID=?";
+
+        try {
+
+            Connection indbs = JDBCPersistenceManager.getInstance().getDBConnection();
+
+            PreparedStatement domainIdStatement = indbs.prepareStatement(domainIdQuery);
+
+            domainIdStatement.setString(1, domain);
+            domainIdStatement.setInt(2, tenantId);
+
+            ResultSet resultSet = domainIdStatement.executeQuery();
+
+            while (resultSet.next()) {
+                domainId = resultSet.getInt("UM_DOMAIN_ID");
+            }
+
+        } catch (IdentityException | SQLException e) {
+
+            throw new UserProfileException("Error while obtaining domain ID of the userstore", e);
+        }
+        return domainId;
+    }
+
+
+    private String getUUID(String username, String domain, int tenantId) throws UserProfileException {
+
+        try {
+            Connection indbs = JDBCPersistenceManager.getInstance().getDBConnection();
+
+            PreparedStatement statement = indbs.prepareStatement("SELECT IDN_UID FROM IDN_UID_USER WHERE " +
+                    "IDN_USERNAME=? AND IDN_STORE_DOMAIN=? AND IDN_TENANT=?");
+            statement.setString(1, username);
+            statement.setInt(2, getDomainID(domain, tenantId));
+            statement.setInt(3, tenantId);
+
+            ResultSet resultSet = statement.executeQuery();
+
+
+            while (resultSet.next()) {
+                return resultSet.getString("IDN_UID");
+            }
+
+        } catch (SQLException | UserProfileException | IdentityException e) {
+            throw new UserProfileException("Error while obtaining the UID of the user", e);
+        }
+
+        return null;
     }
 
     public boolean isAddProfileEnabled() throws UserProfileException {
@@ -576,7 +646,7 @@ public class UserProfileAdmin extends AbstractAdmin {
         String sql = null;
         int tenantID = CarbonContext.getThreadLocalCarbonContext().getTenantId();
         String tenantAwareUsername = MultitenantUtils.getTenantAwareUsername(CarbonContext.getThreadLocalCarbonContext()
-                                                                          .getUsername());
+                .getUsername());
         String domainName = getDomainName(tenantAwareUsername);
         tenantAwareUsername = getUsernameWithoutDomain(tenantAwareUsername);
 
@@ -584,6 +654,7 @@ public class UserProfileAdmin extends AbstractAdmin {
             connection = JDBCPersistenceManager.getInstance().getDBConnection();
             sql = "INSERT INTO IDN_ASSOCIATED_ID (TENANT_ID, IDP_ID, IDP_USER_ID, DOMAIN_NAME, USER_NAME) " +
                   "VALUES (? , (SELECT ID FROM IDP WHERE NAME = ? AND TENANT_ID = ? ), ? , ?, ?)";
+
 
             prepStmt = connection.prepareStatement(sql);
             prepStmt.setInt(1, tenantID);
@@ -623,6 +694,7 @@ public class UserProfileAdmin extends AbstractAdmin {
             sql = "SELECT DOMAIN_NAME, USER_NAME FROM IDN_ASSOCIATED_ID WHERE TENANT_ID = ? AND IDP_ID = (SELECT ID " +
                   "FROM IDP WHERE NAME = ? AND TENANT_ID = ?) AND IDP_USER_ID = ?";
 
+
             prepStmt = connection.prepareStatement(sql);
             prepStmt.setInt(1, tenantID);
             prepStmt.setString(2, idpID);
@@ -633,7 +705,7 @@ public class UserProfileAdmin extends AbstractAdmin {
             if (resultSet.next()) {
                 String domainName = resultSet.getString(1);
                 username = resultSet.getString(2);
-                if(!"PRIMARY".equals(domainName)) {
+                if (!"PRIMARY".equals(domainName)) {
                     username = domainName + CarbonConstants.DOMAIN_SEPARATOR + username;
                 }
                 return username;
@@ -657,7 +729,7 @@ public class UserProfileAdmin extends AbstractAdmin {
         ResultSet resultSet;
         String sql = null;
         String tenantAwareUsername = MultitenantUtils.getTenantAwareUsername(CarbonContext.getThreadLocalCarbonContext()
-                                                                          .getUsername());
+                .getUsername());
         String domainName = getDomainName(tenantAwareUsername);
         tenantAwareUsername = getUsernameWithoutDomain(tenantAwareUsername);
         List<AssociatedAccountDTO> associatedIDs = new ArrayList<AssociatedAccountDTO>();
@@ -667,6 +739,7 @@ public class UserProfileAdmin extends AbstractAdmin {
             connection = JDBCPersistenceManager.getInstance().getDBConnection();
             sql = "SELECT IDP.NAME, IDP_USER_ID FROM IDN_ASSOCIATED_ID JOIN IDP ON IDN_ASSOCIATED_ID.IDP_ID = IDP.ID " +
                   "WHERE IDN_ASSOCIATED_ID.TENANT_ID = ? AND USER_NAME = ? AND DOMAIN_NAME = ?";
+
             prepStmt = connection.prepareStatement(sql);
             prepStmt.setInt(1, tenantID);
             prepStmt.setString(2, tenantAwareUsername);
@@ -677,6 +750,7 @@ public class UserProfileAdmin extends AbstractAdmin {
                 associatedIDs.add(new AssociatedAccountDTO(resultSet.getString(1), resultSet.getString(2)));
             }
             if(!associatedIDs.isEmpty()) {
+
                 return associatedIDs.toArray(new AssociatedAccountDTO[associatedIDs.size()]);
             } else {
                 return new AssociatedAccountDTO[0];
@@ -699,7 +773,7 @@ public class UserProfileAdmin extends AbstractAdmin {
         String sql = null;
         int tenantID = CarbonContext.getThreadLocalCarbonContext().getTenantId();
         String tenantAwareUsername = MultitenantUtils.getTenantAwareUsername(CarbonContext.getThreadLocalCarbonContext()
-                                                                          .getUsername());
+                .getUsername());
         String domainName = getDomainName(tenantAwareUsername);
         tenantAwareUsername = getUsernameWithoutDomain(tenantAwareUsername);
 
@@ -708,6 +782,7 @@ public class UserProfileAdmin extends AbstractAdmin {
 
             sql = "DELETE FROM IDN_ASSOCIATED_ID WHERE TENANT_ID = ? AND IDP_ID = (SELECT ID FROM IDP WHERE NAME = ? " +
                   "AND TENANT_ID = ? ) AND IDP_USER_ID = ? AND USER_NAME = ? AND DOMAIN_NAME = ?";
+
             prepStmt = connection.prepareStatement(sql);
             prepStmt.setInt(1, tenantID);
             prepStmt.setString(2, idpID);
