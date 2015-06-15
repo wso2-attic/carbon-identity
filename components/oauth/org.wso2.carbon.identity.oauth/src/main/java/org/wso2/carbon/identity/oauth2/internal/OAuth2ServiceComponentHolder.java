@@ -19,7 +19,6 @@
 package org.wso2.carbon.identity.oauth2.internal;
 
 import org.wso2.carbon.identity.application.mgt.ApplicationManagementService;
-import org.wso2.carbon.identity.oauth.internal.OAuthComponentServiceHolder;
 
 /**
  * OAuth2 Service component data holder

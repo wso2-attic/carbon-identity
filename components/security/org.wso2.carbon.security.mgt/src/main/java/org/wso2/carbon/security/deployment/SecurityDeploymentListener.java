@@ -29,7 +29,6 @@ import org.wso2.carbon.registry.core.jdbc.utils.Transaction;
 import org.wso2.carbon.security.SecurityServiceHolder;
 import org.wso2.carbon.utils.AbstractAxis2ConfigurationContextObserver;
 
-import java.util.HashMap;
 import java.util.Map;
 
 public class SecurityDeploymentListener extends AbstractAxis2ConfigurationContextObserver {

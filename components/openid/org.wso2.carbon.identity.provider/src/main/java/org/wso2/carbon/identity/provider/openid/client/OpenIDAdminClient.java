@@ -26,7 +26,14 @@ import org.openid4java.message.ParameterList;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.provider.IdentityProviderException;
 import org.wso2.carbon.identity.provider.OpenIDProviderService;
-import org.wso2.carbon.identity.provider.dto.*;
+import org.wso2.carbon.identity.provider.dto.OpenIDAuthRequestDTO;
+import org.wso2.carbon.identity.provider.dto.OpenIDAuthResponseDTO;
+import org.wso2.carbon.identity.provider.dto.OpenIDClaimDTO;
+import org.wso2.carbon.identity.provider.dto.OpenIDParameterDTO;
+import org.wso2.carbon.identity.provider.dto.OpenIDProviderInfoDTO;
+import org.wso2.carbon.identity.provider.dto.OpenIDRememberMeDTO;
+import org.wso2.carbon.identity.provider.dto.OpenIDUserProfileDTO;
+import org.wso2.carbon.identity.provider.dto.OpenIDUserRPDTO;
 import org.wso2.carbon.identity.provider.openid.OpenIDConstants;
 
 import javax.servlet.http.Cookie;

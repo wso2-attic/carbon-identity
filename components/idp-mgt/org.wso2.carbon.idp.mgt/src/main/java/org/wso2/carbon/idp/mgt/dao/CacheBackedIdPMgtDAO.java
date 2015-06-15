@@ -23,7 +23,13 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
 import org.wso2.carbon.identity.application.common.model.IdentityProvider;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
-import org.wso2.carbon.idp.mgt.cache.*;
+import org.wso2.carbon.idp.mgt.cache.IdPAuthPropertyCacheKey;
+import org.wso2.carbon.idp.mgt.cache.IdPCacheByAuthProperty;
+import org.wso2.carbon.idp.mgt.cache.IdPCacheByHRI;
+import org.wso2.carbon.idp.mgt.cache.IdPCacheByName;
+import org.wso2.carbon.idp.mgt.cache.IdPCacheEntry;
+import org.wso2.carbon.idp.mgt.cache.IdPHomeRealmIdCacheKey;
+import org.wso2.carbon.idp.mgt.cache.IdPNameCacheKey;
 
 import java.sql.Connection;
 import java.util.List;

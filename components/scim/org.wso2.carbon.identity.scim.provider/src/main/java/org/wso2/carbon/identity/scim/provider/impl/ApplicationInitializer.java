@@ -20,7 +20,11 @@ package org.wso2.carbon.identity.scim.provider.impl;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.identity.scim.provider.auth.*;
+import org.wso2.carbon.identity.scim.provider.auth.BasicAuthHandler;
+import org.wso2.carbon.identity.scim.provider.auth.OAuthHandler;
+import org.wso2.carbon.identity.scim.provider.auth.SCIMAuthConfigReader;
+import org.wso2.carbon.identity.scim.provider.auth.SCIMAuthenticationHandler;
+import org.wso2.carbon.identity.scim.provider.auth.SCIMAuthenticatorRegistry;
 import org.wso2.charon.core.exceptions.CharonException;
 
 import javax.servlet.ServletContextEvent;

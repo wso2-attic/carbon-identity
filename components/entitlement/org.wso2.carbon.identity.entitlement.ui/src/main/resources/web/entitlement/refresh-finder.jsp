@@ -17,11 +17,11 @@
  -->
 <%@ page import="org.apache.axis2.context.ConfigurationContext"%>
 <%@ page import="org.wso2.carbon.CarbonConstants"%>
+<%@ page import="org.wso2.carbon.identity.entitlement.ui.client.EntitlementAdminServiceClient"%>
 <%@ page import="org.wso2.carbon.ui.CarbonUIMessage"%>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil"%>
 <%@ page import="org.wso2.carbon.utils.ServerConstants"%>
-<%@ page import="java.util.ResourceBundle"%>
-<%@ page import="org.wso2.carbon.identity.entitlement.ui.client.EntitlementAdminServiceClient" %>
+<%@ page import="java.util.ResourceBundle" %>
 <%
 
 	String forwardTo = null;

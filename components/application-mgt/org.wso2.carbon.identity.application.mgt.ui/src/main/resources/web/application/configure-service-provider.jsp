@@ -16,27 +16,26 @@
 ~ under the License.
 -->
 
-<%@page import="org.wso2.carbon.ui.util.CharacterEncoder"%>
-<%@ page import="org.apache.axis2.context.ConfigurationContext"%>
+<%@page import="org.apache.axis2.context.ConfigurationContext"%>
 <%@ page import="org.wso2.carbon.CarbonConstants"%>
 <%@ page import="org.wso2.carbon.identity.application.common.model.xsd.IdentityProvider"%>
 <%@ page import="org.wso2.carbon.identity.application.common.model.xsd.LocalAuthenticatorConfig"%>
 <%@ page import="org.wso2.carbon.identity.application.common.model.xsd.ProvisioningConnectorConfig"%>
+<%@ page import="org.wso2.carbon.identity.application.common.model.xsd.RequestPathAuthenticatorConfig"%>
 <%@ page
-	import="org.wso2.carbon.identity.application.common.model.xsd.RequestPathAuthenticatorConfig"%>
-<%@ page import="org.wso2.carbon.identity.application.mgt.ui.ApplicationBean"%>
-<%@page import="org.wso2.carbon.identity.application.mgt.ui.client.ApplicationManagementServiceClient"%>
+	import="org.wso2.carbon.identity.application.mgt.ui.ApplicationBean"%>
+<%@ page import="org.wso2.carbon.identity.application.mgt.ui.client.ApplicationManagementServiceClient"%>
+<%@page import="org.wso2.carbon.ui.CarbonUIMessage"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="carbon" uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar"%>
-<%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
+<%@ page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@page import="java.util.HashMap"%>
 <%@ page import="java.util.List" %>
 <%@ page import="java.util.Map" %>
-<%@ page import="org.wso2.carbon.identity.application.common.model.xsd.ProvisioningConnectorConfig" %>
 <link href="css/idpmgt.css" rel="stylesheet" type="text/css" media="all"/>
-<jsp:useBean id="appBean" class="org.wso2.carbon.identity.application.mgt.ui.ApplicationBean" scope="session"/>   
+<jsp:useBean id="appBean" class="org.wso2.carbon.identity.application.mgt.ui.ApplicationBean" scope="session"/>
 <carbon:breadcrumb label="breadcrumb.service.provider" resourceBundle="org.wso2.carbon.identity.application.mgt.ui.i18n.Resources"
                     topPage="true" request="<%=request%>" />
 <jsp:include page="../dialog/display_messages.jsp"/>

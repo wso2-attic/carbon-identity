@@ -31,7 +31,11 @@ import org.wso2.carbon.identity.entitlement.proxy.PEPProxy;
 import org.wso2.carbon.identity.entitlement.proxy.PEPProxyConfig;
 import org.wso2.carbon.identity.entitlement.proxy.exception.EntitlementProxyException;
 
-import javax.servlet.*;
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.xml.namespace.QName;
 import java.util.HashMap;

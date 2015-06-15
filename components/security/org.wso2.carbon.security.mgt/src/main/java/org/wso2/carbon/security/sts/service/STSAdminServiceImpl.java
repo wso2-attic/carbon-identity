@@ -40,8 +40,8 @@ import org.wso2.carbon.security.sts.service.util.TrustedServiceData;
 import org.wso2.carbon.utils.ServerConstants;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 

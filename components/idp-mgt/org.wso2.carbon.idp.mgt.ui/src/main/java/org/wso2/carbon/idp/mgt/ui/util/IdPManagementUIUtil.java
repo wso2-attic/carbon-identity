@@ -29,7 +29,17 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
-import org.wso2.carbon.identity.application.common.model.idp.xsd.*;
+import org.wso2.carbon.identity.application.common.model.idp.xsd.Claim;
+import org.wso2.carbon.identity.application.common.model.idp.xsd.ClaimConfig;
+import org.wso2.carbon.identity.application.common.model.idp.xsd.ClaimMapping;
+import org.wso2.carbon.identity.application.common.model.idp.xsd.FederatedAuthenticatorConfig;
+import org.wso2.carbon.identity.application.common.model.idp.xsd.IdentityProvider;
+import org.wso2.carbon.identity.application.common.model.idp.xsd.JustInTimeProvisioningConfig;
+import org.wso2.carbon.identity.application.common.model.idp.xsd.LocalRole;
+import org.wso2.carbon.identity.application.common.model.idp.xsd.PermissionsAndRoleConfig;
+import org.wso2.carbon.identity.application.common.model.idp.xsd.Property;
+import org.wso2.carbon.identity.application.common.model.idp.xsd.ProvisioningConnectorConfig;
+import org.wso2.carbon.identity.application.common.model.idp.xsd.RoleMapping;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
 import org.wso2.carbon.ui.CarbonUIUtil;
 

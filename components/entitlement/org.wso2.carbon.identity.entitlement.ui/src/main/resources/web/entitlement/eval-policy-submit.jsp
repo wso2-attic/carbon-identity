@@ -17,9 +17,9 @@
  -->
 <%@ page import="org.apache.axis2.context.ConfigurationContext"%>
 <%@ page import="org.wso2.carbon.CarbonConstants"%>
-<%@ page import="org.wso2.carbon.ui.CarbonUIMessage"%>
-<%@ page import="org.wso2.carbon.ui.CarbonUIUtil"%>
-<%@ page import="org.wso2.carbon.utils.ServerConstants"%>
+<%@ page import="org.wso2.carbon.identity.entitlement.ui.EntitlementPolicyConstants"%>
+<%@ page import="org.wso2.carbon.identity.entitlement.ui.EntitlementPolicyCreator"%>
+<%@ page import="org.wso2.carbon.identity.entitlement.ui.client.EntitlementAdminServiceClient"%>
 
 <%
     boolean evaluatedWithPDP = false;
@@ -157,16 +157,16 @@
 %>
 
 <%@page import="org.wso2.carbon.identity.entitlement.ui.client.EntitlementServiceClient"%>
-<%@page import="java.util.ResourceBundle"%>
-<%@page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
-<%@page import="org.wso2.carbon.identity.entitlement.ui.EntitlementPolicyCreator" %>
-<%@ page import="org.wso2.carbon.identity.entitlement.ui.dto.RowDTO" %>
-<%@ page import="org.wso2.carbon.identity.entitlement.ui.EntitlementPolicyConstants" %>
+<%@page import="org.wso2.carbon.identity.entitlement.ui.dto.RequestDTO"%>
+<%@page import="org.wso2.carbon.identity.entitlement.ui.dto.RowDTO" %>
+<%@page import="org.wso2.carbon.identity.entitlement.ui.util.ClientUtil" %>
+<%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
+<%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
+<%@ page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
+<%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="java.util.List" %>
-<%@ page import="org.wso2.carbon.identity.entitlement.ui.dto.RequestDTO" %>
-<%@ page import="org.wso2.carbon.identity.entitlement.ui.client.EntitlementAdminServiceClient" %>
-<%@ page import="org.wso2.carbon.identity.entitlement.ui.util.ClientUtil" %>
+<%@ page import="java.util.ResourceBundle" %>
 <script
 	type="text/javascript">
     function forward() {

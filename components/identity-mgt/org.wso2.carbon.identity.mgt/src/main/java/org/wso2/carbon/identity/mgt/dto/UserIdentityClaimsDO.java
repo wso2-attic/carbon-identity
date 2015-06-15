@@ -18,7 +18,6 @@
 
 package org.wso2.carbon.identity.mgt.dto;
 
-import org.apache.commons.collections.MapUtils;
 import org.wso2.carbon.identity.mgt.store.UserIdentityDataStore;
 import org.wso2.carbon.user.core.UserCoreConstants;
 

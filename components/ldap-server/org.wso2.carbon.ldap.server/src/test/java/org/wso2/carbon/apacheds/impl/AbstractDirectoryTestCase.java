@@ -19,6 +19,7 @@
 
 package org.wso2.carbon.apacheds.impl;
 
+import junit.framework.TestCase;
 import org.apache.commons.io.FileUtils;
 import org.wso2.carbon.apacheds.AdminGroupInfo;
 import org.wso2.carbon.apacheds.AdminInfo;
@@ -29,8 +30,6 @@ import org.wso2.carbon.apacheds.PartitionInfo;
 import org.wso2.carbon.apacheds.PartitionManager;
 import org.wso2.carbon.apacheds.PasswordAlgorithm;
 import org.wso2.carbon.ldap.server.exception.DirectoryServerException;
-
-import junit.framework.TestCase;
 
 import java.io.File;
 import java.io.IOException;
