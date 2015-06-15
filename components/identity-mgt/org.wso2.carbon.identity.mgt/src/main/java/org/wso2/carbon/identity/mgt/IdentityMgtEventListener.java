@@ -941,7 +941,7 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
         AbstractUserStoreManager ausm = (AbstractUserStoreManager) userStoreManager;
 
         String domainName = ausm.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig
-                .PROPERTY_DOMAIN_NAME);
+                .PROPERTY_DOMAIN_NAME).toUpperCase();
 
         String domainIdQuery = "SELECT UM_DOMAIN_ID FROM UM_DOMAIN WHERE UM_DOMAIN_NAME=? AND UM_TENANT_ID=?";
 
