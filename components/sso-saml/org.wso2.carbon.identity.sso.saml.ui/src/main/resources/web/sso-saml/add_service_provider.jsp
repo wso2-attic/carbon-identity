@@ -92,7 +92,7 @@ function doValidation() {
                 null);
         return false;
     }
-	
+
     var fld2 = document.getElementsByName("assrtConsumerURL")[0];
     var value = fld2.value;
     var regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/
@@ -411,7 +411,7 @@ function clearAll() {
     String[] claimUris = null;
     String configPath = null;
     CertData certData = null;
-    
+
     String applicationSPName = request.getParameter("spName");
     session.setAttribute("application-sp-name", applicationSPName);
 
@@ -479,9 +479,18 @@ function clearAll() {
                 if (issuer.equals(sp.getIssuer())) {
                     isEditSP = true;
                     provider = sp;
-                    claimTableStyle = provider.getRequestedClaims().length > 0 ? "" : "display:none";
-                    audienceTableStyle = provider.getRequestedAudiences().length > 0 ? "" : "display:none";
-                    recipientTableStyle = provider.getRequestedRecipients().length > 0 ? "" : "display:none";
+                    if (provider.getRequestedClaims() != null) {
+                        claimTableStyle = provider.getRequestedClaims().length > 0 ? "" : "display:none";
+                    }
+                    if (provider.getRequestedAudiences() != null) {
+                        audienceTableStyle = provider.getRequestedAudiences().length > 0 ? "" : "display:none";
+                    }
+                    if (provider.getRequestedRecipients() != null) {
+                        recipientTableStyle = provider.getRequestedRecipients().length > 0 ? "" : "display:none";
+                    }
+                    if (provider.getAttributeConsumingServiceIndex() != null) {
+                        attributeConsumingServiceIndex = provider.getAttributeConsumingServiceIndex();
+                    }
                     if(provider.getAttributeConsumingServiceIndex() != null){
                         attributeConsumingServiceIndex = provider.getAttributeConsumingServiceIndex();
                     }
@@ -718,7 +727,7 @@ function clearAll() {
 
 <!-- Certificate Alias -->
 
-<% if (isEditSP && 
+<% if (isEditSP &&
 		((provider.isDoEnableEncryptedAssertionSpecified() && provider.getDoEnableEncryptedAssertion())
 		||(provider.isDoValidateSignatureInRequestsSpecified() && provider.getDoValidateSignatureInRequests()))) {
 %>
@@ -816,10 +825,11 @@ function clearAll() {
 <% } %>
 
 <!-- EnableAttributeProfile -->
-<% 
+<%
 boolean show = false;
 if (applicationSPName == null || applicationSPName.isEmpty()) {
-	show = provider.getRequestedClaims().length > 0 && provider.getRequestedClaims()[0] != null;
+    show = provider.getRequestedClaims() != null && provider.getRequestedClaims().length > 0 &&
+           provider.getRequestedClaims()[0] != null;
 } else {
 	show = true;
 }
@@ -943,7 +953,7 @@ if (isEditSP && show) {
             <tbody id="claimTableTbody">
             <%
                 int i = 0;
-                if (isEditSP && provider.getRequestedClaims().length > 0) {
+                if (isEditSP && provider.getRequestedClaims() != null && provider.getRequestedClaims().length > 0) {
             %>
             <%
                 for (String claim : provider.getRequestedClaims()) {
@@ -977,7 +987,8 @@ if (isEditSP && show) {
 </tr>
 
 <!-- EnableAudienceRestriction -->
-<% if (isEditSP && provider.getRequestedAudiences().length > 0 && provider.getRequestedAudiences()[0] != null) {
+<% if (isEditSP && provider.getRequestedAudiences() != null && provider.getRequestedAudiences().length > 0 &&
+                                                    provider.getRequestedAudiences()[0] != null) {
 %>
 <tr>
     <td colspan="2"><input type="checkbox"
@@ -1028,7 +1039,8 @@ if (isEditSP && show) {
             <tbody id="audienceTableTbody">
             <%
                 int j = 0;
-                if (isEditSP && provider.getRequestedAudiences().length > 0) {
+                if (isEditSP && provider.getRequestedAudiences() != null && provider.getRequestedAudiences().length >
+                                                                           0) {
             %>
             <%
                 for (String audience : provider.getRequestedAudiences()) {
@@ -1062,7 +1074,8 @@ if (isEditSP && show) {
 </tr>
 
 <!-- EnableRecipientValidation -->
-<% if (isEditSP && provider.getRequestedRecipients().length > 0 && provider.getRequestedRecipients()[0] != null) {
+<% if (isEditSP && provider.getRequestedRecipients() != null && provider.getRequestedRecipients().length > 0 &&
+                                                     provider.getRequestedRecipients()[0] != null) {
 %>
 <tr>
     <td colspan="2"><input type="checkbox"
@@ -1113,7 +1126,8 @@ if (isEditSP && show) {
             <tbody id="recipientTableTbody">
             <%
                 int k = 0;
-                if (isEditSP && provider.getRequestedRecipients().length > 0) {
+                if (isEditSP && provider.getRequestedRecipients() != null && provider.getRequestedRecipients().length >
+                                                                          0) {
             %>
             <%
                 for (String recipient : provider.getRequestedRecipients()) {
