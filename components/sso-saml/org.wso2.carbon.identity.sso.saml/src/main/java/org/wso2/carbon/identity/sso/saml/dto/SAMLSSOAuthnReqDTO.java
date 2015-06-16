@@ -1,12 +1,12 @@
 /*
- *  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- *  WSO2 Inc. licenses this file to you under the Apache License,
+ * WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
- *  in compliance with the License.
- *  You may obtain a copy of the License at
+ * in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -234,27 +234,48 @@ public class SAMLSSOAuthnReqDTO implements Serializable {
     }
 
     public String[] getRequestedClaims() {
-        return requestedClaims;
+        if (requestedClaims == null) {
+            return new String[0];
+        }
+        return requestedClaims.clone();
     }
 
     public void setRequestedClaims(String[] requestedClaims) {
-        this.requestedClaims = requestedClaims;
+        if (requestedClaims == null) {
+            this.requestedClaims = new String[0];
+        } else {
+            this.requestedClaims = requestedClaims.clone();
+        }
     }
 
     public String[] getRequestedAudiences() {
-        return requestedAudiences;
+        if (requestedAudiences == null) {
+            return new String[0];
+        }
+        return requestedAudiences.clone();
     }
 
     public void setRequestedAudiences(String[] requestedAudiences) {
-        this.requestedAudiences = requestedAudiences;
+        if (requestedAudiences == null) {
+            this.requestedAudiences = new String[0];
+        } else {
+            this.requestedAudiences = requestedAudiences.clone();
+        }
     }
 
     public String[] getRequestedRecipients() {
-        return requestedRecipients;
+        if (requestedRecipients == null) {
+            return new String[0];
+        }
+        return requestedRecipients.clone();
     }
 
     public void setRequestedRecipients(String[] requestedRecipients) {
-        this.requestedRecipients = requestedRecipients;
+        if (requestedRecipients == null) {
+            this.requestedRecipients = new String[0];
+        } else {
+            this.requestedRecipients = requestedRecipients.clone();
+        }
     }
 
     public boolean isStratosDeployment() {

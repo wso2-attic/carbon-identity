@@ -17,12 +17,17 @@
  */
 package org.wso2.carbon.identity.openidconnect;
 
-import com.nimbusds.jose.*;
+import com.nimbusds.jose.Algorithm;
+import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jose.JWSHeader;
+import com.nimbusds.jose.JWSSigner;
 import com.nimbusds.jose.crypto.RSASSASigner;
 import com.nimbusds.jwt.PlainJWT;
 import com.nimbusds.jwt.SignedJWT;
 import org.apache.amber.oauth2.common.message.types.GrantType;
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.io.Charsets;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.oltu.openidconnect.as.messages.IDTokenBuilder;
@@ -34,7 +39,13 @@ import org.wso2.carbon.identity.application.common.model.ServiceProvider;
 import org.wso2.carbon.identity.application.mgt.ApplicationManagementService;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
-import org.wso2.carbon.identity.oauth.cache.*;
+import org.wso2.carbon.identity.oauth.cache.AuthorizationGrantCache;
+import org.wso2.carbon.identity.oauth.cache.AuthorizationGrantCacheEntry;
+import org.wso2.carbon.identity.oauth.cache.AuthorizationGrantCacheKey;
+import org.wso2.carbon.identity.oauth.cache.CacheEntry;
+import org.wso2.carbon.identity.oauth.cache.CacheKey;
+import org.wso2.carbon.identity.oauth.cache.OAuthCache;
+import org.wso2.carbon.identity.oauth.cache.OAuthCacheKey;
 import org.wso2.carbon.identity.oauth.common.OAuthConstants;
 import org.wso2.carbon.identity.oauth.config.OAuthServerConfiguration;
 import org.wso2.carbon.identity.oauth2.IdentityOAuth2Exception;
@@ -72,8 +83,8 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
     private static final String SHA512_WITH_EC = "SHA512withEC";
     private static final String AUTHORIZATION_CODE = "AuthorizationCode";
     private static final String INBOUND_AUTH2_TYPE = "oauth2";
-    private static Log log = LogFactory.getLog(DefaultIDTokenBuilder.class);
-    private static Map<Integer, Key> privateKeys = new ConcurrentHashMap<Integer, Key>();
+    private static final Log log = LogFactory.getLog(DefaultIDTokenBuilder.class);
+    private static Map<Integer, Key> privateKeys = new ConcurrentHashMap<>();
     private OAuthServerConfiguration config = null;
     private Algorithm signatureAlgorithm = null;
 
@@ -152,28 +163,19 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
         }
         // Get access token issued time
         long accessTokenIssuedTime = getAccessTokenIssuedTime(tokenRespDTO.getAccessToken(), request) / 1000;
-        String atHash = new String(Base64.encodeBase64(tokenRespDTO.getAccessToken().getBytes()));
+        String atHash = new String(Base64.encodeBase64(tokenRespDTO.getAccessToken().getBytes(Charsets.UTF_8)), Charsets.UTF_8);
 
         if (log.isDebugEnabled()) {
-            StringBuilder stringBuilder = (new StringBuilder()).
-                    append("Using issuer " + issuer).
-                    append("\n").
-
-                    append("Subject " + subject).
-                    append("\n").
-
-                    append("ID Token life time " + lifetime).
-                    append("\n").
-
-                    append("Current time " + curTime).
-                    append("\n").
-
-                    append("Nonce Value " + nonceValue).
-                    append("\n").
-
-                    append("Signature Algorithm " + signatureAlgorithm).
-                    append("\n");
-            log.debug(stringBuilder.toString());
+            StringBuilder stringBuilder = (new StringBuilder())
+                    .append("Using issuer ").append(issuer).append("\n")
+                    .append("Subject ").append(subject).append("\n")
+                    .append("ID Token life time ").append(lifetime).append("\n")
+                    .append("Current time ").append(curTime).append("\n")
+                    .append("Nonce Value ").append(nonceValue).append("\n")
+                    .append("Signature Algorithm ").append(signatureAlgorithm).append("\n");
+            if (log.isDebugEnabled()) {
+                log.debug(stringBuilder.toString());
+            }
         }
 
         IDTokenBuilder builder =

@@ -1,12 +1,12 @@
 /*
- *  Copyright (c) 2005-2013, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2013, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- *  WSO2 Inc. licenses this file to you under the Apache License,
- *  Version 2.0 (the "License"); you may not use this file except
- *  in compliance with the License.
- *  You may obtain a copy of the License at
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -18,6 +18,8 @@
 
 package org.wso2.carbon.identity.application.authentication.framework;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.identity.application.authentication.framework.config.builder.FileBasedConfigurationBuilder;
 import org.wso2.carbon.identity.application.authentication.framework.config.model.AuthenticatorConfig;
@@ -43,6 +45,7 @@ import java.util.Map;
 public abstract class AbstractApplicationAuthenticator implements ApplicationAuthenticator {
 
     private static final long serialVersionUID = -4406878411547612129L;
+    private static final Log log = LogFactory.getLog(AbstractApplicationAuthenticator.class);
 
     @Override
     public AuthenticatorFlowStatus process(HttpServletRequest request,
@@ -52,7 +55,7 @@ public abstract class AbstractApplicationAuthenticator implements ApplicationAut
         // if an authentication flow
         if (!context.isLogoutRequest()) {
             if (!canHandle(request)
-                    || (request.getAttribute(FrameworkConstants.REQ_ATTR_HANDLED) != null && ((Boolean) request
+                || (request.getAttribute(FrameworkConstants.REQ_ATTR_HANDLED) != null && ((Boolean) request
                     .getAttribute(FrameworkConstants.REQ_ATTR_HANDLED)))) {
                 initiateAuthenticationRequest(request, response, context);
                 context.setCurrentAuthenticator(getName());
@@ -96,6 +99,9 @@ public abstract class AbstractApplicationAuthenticator implements ApplicationAut
                     return AuthenticatorFlowStatus.SUCCESS_COMPLETED;
                 }
             } catch (UnsupportedOperationException e) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Ignoring UnsupportedOperationException.", e);
+                }
                 return AuthenticatorFlowStatus.SUCCESS_COMPLETED;
             }
         }
@@ -145,10 +151,9 @@ public abstract class AbstractApplicationAuthenticator implements ApplicationAut
     }
 
     protected String getUserStoreAppendedName(String userName) {
-        if (userName.indexOf(CarbonConstants.DOMAIN_SEPARATOR) < 0) {
-            if (UserCoreUtil.getDomainFromThreadLocal() != null && !UserCoreUtil.getDomainFromThreadLocal().equals("")) {
-                userName = UserCoreUtil.getDomainFromThreadLocal() + CarbonConstants.DOMAIN_SEPARATOR + userName;
-            }
+        if (!userName.contains(CarbonConstants.DOMAIN_SEPARATOR) && UserCoreUtil.getDomainFromThreadLocal() != null
+            && !"".equals(UserCoreUtil.getDomainFromThreadLocal())) {
+            userName = UserCoreUtil.getDomainFromThreadLocal() + CarbonConstants.DOMAIN_SEPARATOR + userName;
         }
         return userName;
     }

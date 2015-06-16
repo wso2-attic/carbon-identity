@@ -1,12 +1,13 @@
 /*
+ *
  * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
- * Version 2.0 (the "License"); you may not use this file except
+ *  Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -21,10 +22,10 @@ package org.wso2.carbon.identity.notification.mgt;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.notification.mgt.bean.PublisherEvent;
+import org.wso2.carbon.identity.notification.mgt.internal.NotificationManagementServiceDataHolder;
 
 import java.util.List;
 import java.util.concurrent.BlockingDeque;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingDeque;
 
@@ -35,10 +36,7 @@ import java.util.concurrent.LinkedBlockingDeque;
 public class EventDistributionTask implements Runnable {
 
     private static final Log log = LogFactory.getLog(NotificationSender.class);
-    /**
-     * Thread pool for executing event distribution
-     */
-    private static ExecutorService threadPool = null;
+
     /**
      * Queue used to add events by publishers.
      */
@@ -61,7 +59,7 @@ public class EventDistributionTask implements Runnable {
     public EventDistributionTask(List<NotificationSendingModule> notificationSendingModules, int threadPoolSize) {
         this.notificationSendingModules = notificationSendingModules;
         this.eventQueue = new LinkedBlockingDeque<PublisherEvent>();
-        threadPool = Executors.newFixedThreadPool(threadPoolSize);
+        NotificationManagementServiceDataHolder.getInstance().setThreadPool(Executors.newFixedThreadPool(threadPoolSize));
     }
 
     public void addEventToQueue(PublisherEvent publisherEvent) {
@@ -95,7 +93,7 @@ public class EventDistributionTask implements Runnable {
                                     }
                                 }
                             };
-                            threadPool.submit(msgSender);
+                            NotificationManagementServiceDataHolder.getInstance().getThreadPool().submit(msgSender);
                         }
                     } catch (NotificationManagementException e) {
                         log.error("Error while getting subscription status from notification module " + module.

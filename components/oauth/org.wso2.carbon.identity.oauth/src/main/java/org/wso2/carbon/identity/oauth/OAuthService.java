@@ -154,8 +154,8 @@ public class OAuthService {
                     .getRealm(domainName, params.getAuthorizedbyUserName()).getUserStoreManager()
                     .authenticate(tenantUser, params.getAuthorizedbyUserPassword());
         } catch (UserStoreException e) {
-            log.error(e);
-            throw new IdentityException(e.getMessage(), e);
+            log.error("Error while authenticating the user", e);
+            throw new IdentityException("Error while authenticating the user", e);
         }
         if (isAuthenticated) {
             OAuthConsumerDAO dao = new OAuthConsumerDAO();

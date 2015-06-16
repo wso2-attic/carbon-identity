@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -22,6 +22,7 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.model.OpenIDRememberMeDO;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
+import org.wso2.carbon.identity.provider.IdentityProviderException;
 
 import java.sql.Timestamp;
 import java.util.Date;
@@ -35,7 +36,7 @@ public class OpenIDRememberMeTokenCache extends OpenIDBaseCache<OpenIDIdentityCa
 
     private static final String OPENID_REMEMBER_ME_CACHE = "OPENID_REMEMBER_ME_CACHE";
     private static OpenIDRememberMeTokenCache rememberMeCache = null;
-    private static Log log = LogFactory.getLog(OpenIDRememberMeTokenCache.class);
+    private static final Log log = LogFactory.getLog(OpenIDRememberMeTokenCache.class);
 
     /**
      * Private constructor
@@ -62,15 +63,14 @@ public class OpenIDRememberMeTokenCache extends OpenIDBaseCache<OpenIDIdentityCa
      * Updates the OpenID RememberMe token in cache
      *
      * @param rememberMe
-     * @throws Exception
+     * @throws IdentityProviderException
      */
-    public synchronized void updateTokenData(OpenIDRememberMeDO rememberMe) throws Exception {
+    public synchronized void updateTokenData(OpenIDRememberMeDO rememberMe) throws IdentityProviderException {
         try {
             String username = rememberMe.getUserName();
             int tenantId = IdentityUtil.getTenantIdOFUser(rememberMe.getUserName());
             if (log.isDebugEnabled()) {
-                log.debug("Updating RememberMe token in cache for " + username +
-                        " with tenant ID " + tenantId);
+                log.debug("Updating RememberMe token in cache for " + username + " with tenant ID " + tenantId);
             }
             OpenIDIdentityCacheKey key = new OpenIDIdentityCacheKey(tenantId, username);
             // if the entry exist, remove it
@@ -89,8 +89,7 @@ public class OpenIDRememberMeTokenCache extends OpenIDBaseCache<OpenIDIdentityCa
             rememberMeCache.addToCache(key, entry);
 
         } catch (IdentityException e) {
-            log.error("Error while updating RememberMe cache ", e);
-            throw new Exception("Error while updating RememberMe cache");
+            throw new IdentityProviderException("Error while updating RememberMe cache", e);
         }
     }
 
@@ -99,18 +98,18 @@ public class OpenIDRememberMeTokenCache extends OpenIDBaseCache<OpenIDIdentityCa
      *
      * @param rememberMe
      * @return <code>OpenIDRememberMeDO</code>
-     * @throws Exception
+     * @throws IdentityProviderException
      */
-    public synchronized OpenIDRememberMeDO getTokenData(OpenIDRememberMeDO rememberMe) throws Exception {
+    public synchronized OpenIDRememberMeDO getTokenData(OpenIDRememberMeDO rememberMe)
+            throws IdentityProviderException {
         try {
             String username = rememberMe.getUserName();
             int tenantId = IdentityUtil.getTenantIdOFUser(rememberMe.getUserName());
             if (log.isDebugEnabled()) {
-                log.debug("Loading RememberMe token in cache for " + username + " with tenant ID " +
-                        tenantId);
+                log.debug("Loading RememberMe token in cache for " + username + " with tenant ID " + tenantId);
             }
             OpenIDIdentityCacheKey key = new OpenIDIdentityCacheKey(tenantId, username);
-            OpenIDIdentityCacheEntry entry = (OpenIDIdentityCacheEntry) rememberMeCache.getValueFromCache(key);
+            OpenIDIdentityCacheEntry entry = rememberMeCache.getValueFromCache(key);
             if (entry == null) {
                 return null;
             }
@@ -120,8 +119,7 @@ public class OpenIDRememberMeTokenCache extends OpenIDBaseCache<OpenIDIdentityCa
 
             return rememberMe;
         } catch (IdentityException e) {
-            log.error("Error while loading RememberMe token from cache ", e);
-            throw new Exception("Error while loading RememberMe token from cache");
+            throw new IdentityProviderException("Error while loading RememberMe token from cache", e);
         }
     }
 

@@ -1,17 +1,19 @@
 /*
- * Copyright 2005-2014 WSO2, Inc. (http://wso2.com)
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package org.wso2.carbon.security.pox;
@@ -31,6 +33,7 @@ import org.apache.axis2.description.Parameter;
 import org.apache.axis2.engine.Handler;
 import org.apache.axis2.transport.http.HTTPConstants;
 import org.apache.axis2.util.JavaUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.rampart.util.Axis2Util;
@@ -51,9 +54,9 @@ import javax.cache.CacheManager;
 import javax.cache.Caching;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -68,12 +71,15 @@ public class POXSecurityHandler implements Handler {
     private static String POX_SECURITY_MODULE = "POXSecurityModule";
     private HandlerDescription description;
 
+    @Override
     /**
      * @see org.apache.axis2.engine.Handler#cleanup()
      */
     public void cleanup() {
+        // Do Nothing
     }
 
+    @Override
     /**
      * @see org.apache.axis2.engine.Handler#init(org.apache.axis2.description.HandlerDescription)
      */
@@ -81,6 +87,7 @@ public class POXSecurityHandler implements Handler {
         this.description = description;
     }
 
+    @Override
     /**
      * @see org.apache.axis2.engine.Handler#invoke(org.apache.axis2.context.MessageContext)
      */
@@ -102,33 +109,26 @@ public class POXSecurityHandler implements Handler {
         // We do not add details of admin services to the registry, hence if a rest call comes to a
         // admin service that does not require authentication we simply skip it
         String isAdminService = (String) service.getParameterValue("adminService");
-        if (isAdminService != null) {
-            if (JavaUtils.isTrueExplicitly(isAdminService)) {
-                return InvocationResponse.CONTINUE;
-            }
+        if (isAdminService != null && JavaUtils.isTrueExplicitly(isAdminService)) {
+            return InvocationResponse.CONTINUE;
         }
 
         String isHiddenService = (String) service.getParameterValue("hiddenService");
-        if (isHiddenService != null) {
-            if (JavaUtils.isTrueExplicitly(isHiddenService)) {
-                return InvocationResponse.CONTINUE;
-            }
+        if (isHiddenService != null && JavaUtils.isTrueExplicitly(isHiddenService)) {
+            return InvocationResponse.CONTINUE;
         }
 
         String isReverseProxy = System.getProperty("reverseProxyMode");
-        if (isReverseProxy != null) {
-            if (JavaUtils.isTrueExplicitly(isReverseProxy)) {
-                return InvocationResponse.CONTINUE;
-            }
+        if (isReverseProxy != null && JavaUtils.isTrueExplicitly(isReverseProxy)) {
+            return InvocationResponse.CONTINUE;
         }
 
         String isPox = null;
         Cache<String, String> cache = this.getPOXCache();
-        if (cache != null) {
-            if (cache.get(service.getName()) != null) {
-                isPox = cache.get(service.getName());
-            }
+        if (cache != null && cache.get(service.getName()) != null) {
+            isPox = cache.get(service.getName());
         }
+
         if (isPox != null && JavaUtils.isFalseExplicitly(isPox)) {
             return InvocationResponse.CONTINUE;
         }
@@ -143,7 +143,7 @@ public class POXSecurityHandler implements Handler {
                     setAuthHeaders(msgCtx);
 
                     //If request is a REST then remove the soap fault tag contents to avoid it getting in client end
-                    if(msgCtx.isDoingREST()) {
+                    if (msgCtx.isDoingREST()) {
                         SOAPFault soapFault = msgCtx.getEnvelope().getBody().getFault();
                         if (soapFault != null) {
                             Iterator itr = soapFault.getChildren();
@@ -170,7 +170,7 @@ public class POXSecurityHandler implements Handler {
         }
 
         //return if transport is not https
-        if(!msgCtx.getIncomingTransportName().equals("https")) {
+        if (!StringUtils.equals("https", msgCtx.getIncomingTransportName())) {
             return InvocationResponse.CONTINUE;
         }
 
@@ -182,12 +182,12 @@ public class POXSecurityHandler implements Handler {
          * basic auth headers. This will make sure soap message without security headers giving soap fault
          * instead unauthorized header
          */
-        if (!msgCtx.isDoingREST() &&  soapWithoutSecHeader && basicAuthHeader == null) {
+        if (!msgCtx.isDoingREST() && soapWithoutSecHeader && basicAuthHeader == null) {
             return InvocationResponse.CONTINUE;
         }
 
         //return if incoming message is soap and has soap security headers
-        if(!msgCtx.isDoingREST() && !soapWithoutSecHeader) {
+        if (!msgCtx.isDoingREST() && !soapWithoutSecHeader) {
             return InvocationResponse.CONTINUE;
         }
 
@@ -221,7 +221,7 @@ public class POXSecurityHandler implements Handler {
 
                 if (i != -1) {
                     password = basicAuthHeader.substring(i + 1);
-                    if (password != null && password.equals("")) {
+                    if (StringUtils.equals("", password)) {
                         password = null;
                     }
                 }
@@ -239,8 +239,8 @@ public class POXSecurityHandler implements Handler {
             //If no soap header found in the request create new soap header
             Document doc = null;
             SOAPEnvelope soapEnvelop = msgCtx.getEnvelope();
-            if(msgCtx.getEnvelope().getHeader() == null){
-                SOAPFactory omFac = (SOAPFactory)soapEnvelop.getOMFactory();
+            if (msgCtx.getEnvelope().getHeader() == null) {
+                SOAPFactory omFac = (SOAPFactory) soapEnvelop.getOMFactory();
                 SOAPEnvelope newEnvelop = omFac.getDefaultEnvelope();
                 Iterator itr = soapEnvelop.getBody().getChildren();
                 while (itr.hasNext()) {
@@ -251,7 +251,7 @@ public class POXSecurityHandler implements Handler {
                     }
                 }
                 doc = Axis2Util.getDocumentFromSOAPEnvelope(newEnvelop, true);
-            }else{
+            } else {
                 doc = Axis2Util.getDocumentFromSOAPEnvelope(soapEnvelop, true);
             }
 
@@ -299,7 +299,7 @@ public class POXSecurityHandler implements Handler {
             // if not servlet transport assume it to be nhttp transport
             msgCtx.setProperty("NIO-ACK-Requested", "true");
             msgCtx.setProperty("HTTP_SC", HttpServletResponse.SC_UNAUTHORIZED);
-            Map<String, String> responseHeaders = new HashMap<String, String>();
+            Map<String, String> responseHeaders = new HashMap<>();
             responseHeaders.put("WWW-Authenticate",
                     "BASIC realm=\"" + serverName + "\"");
             msgCtx.setProperty(MessageContext.TRANSPORT_HEADERS, responseHeaders);
@@ -347,7 +347,7 @@ public class POXSecurityHandler implements Handler {
             return true; // no security header
         }
         //getting the set of secuirty headers
-        ArrayList headerBlocks = soapHeader.getHeaderBlocksWithNSURI(WSConstants.WSSE_NS);
+        List headerBlocks = soapHeader.getHeaderBlocksWithNSURI(WSConstants.WSSE_NS);
         // Issue is axiom - a returned collection must not be null
         if (headerBlocks != null) {
             Iterator headerBlocksIterator = headerBlocks.iterator();
@@ -383,9 +383,12 @@ public class POXSecurityHandler implements Handler {
         }
     }
 
+    @Override
     public void flowComplete(MessageContext msgContext) {
+        // Do Nothing
     }
 
+    @Override
     /**
      * @see org.apache.axis2.engine.Handler#getHandlerDesc()
      */
@@ -393,6 +396,7 @@ public class POXSecurityHandler implements Handler {
         return this.description;
     }
 
+    @Override
     /**
      * @see org.apache.axis2.engine.Handler#getName()
      */
@@ -400,6 +404,7 @@ public class POXSecurityHandler implements Handler {
         return "REST/POX Security handler";
     }
 
+    @Override
     /**
      * @see org.apache.axis2.engine.Handler#getParameter(java.lang.String)
      */

@@ -1,20 +1,20 @@
 /*
-*  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package org.wso2.carbon.identity.sso.saml.session;
 
 import org.wso2.carbon.identity.core.model.SAMLSSOServiceProviderDO;
@@ -27,11 +27,9 @@ public class SessionInfoData implements Serializable {
 
     private static final long serialVersionUID = -2997545986276529377L;
 
-    private Map<String, String> rpSessionList = new ConcurrentHashMap<String, String>();
-    private Map<String, SAMLSSOServiceProviderDO> serviceProviderList = new ConcurrentHashMap<String, SAMLSSOServiceProviderDO>();
-    private Map<String, String> issuerSubjectMap = new ConcurrentHashMap<String, String>();
-    /*private String authenticators;
-    private Map<ClaimMapping, String> attributes = new HashMap<ClaimMapping, String>();*/
+    private Map<String, String> rpSessionList = new ConcurrentHashMap<>();
+    private Map<String, SAMLSSOServiceProviderDO> serviceProviderList = new ConcurrentHashMap<>();
+    private Map<String, String> issuerSubjectMap = new ConcurrentHashMap<>();
 
     public Map<String, SAMLSSOServiceProviderDO> getServiceProviderList() {
         return serviceProviderList;
@@ -53,27 +51,11 @@ public class SessionInfoData implements Serializable {
         return rpSessionList;
     }
 
-	/*public String getAuthenticators() {
-        return authenticators;
-	}
-
-	public void setAuthenticators(String authenticators) {
-		this.authenticators = authenticators;
-	}
-	
-	public Map<ClaimMapping, String> getAttributes() {
-		return attributes;
-	}
-
-	public void setAttributes(Map<ClaimMapping, String> attributes) {
-		this.attributes = attributes;
-	}*/
-
-    public String getSubject(String issuer){
+    public String getSubject(String issuer) {
         return issuerSubjectMap.get(issuer);
     }
 
-    public void setSubject(String issuer, String subject){
+    public void setSubject(String issuer, String subject) {
         issuerSubjectMap.put(issuer, subject);
     }
 }

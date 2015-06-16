@@ -1,13 +1,13 @@
 /*
- * Copyright (c) 2005-2013, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
- * 
+ * Copyright (c) 2013, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -19,6 +19,8 @@ package org.wso2.carbon.identity.openidconnect;
 
 import net.minidev.json.JSONArray;
 import org.apache.amber.oauth2.common.exception.OAuthSystemException;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.oltu.openidconnect.as.messages.IDTokenBuilder;
@@ -70,11 +72,11 @@ public class SAMLAssertionClaimsCallback implements CustomClaimsCallbackHandler 
 
         if (assertion != null) {
             List<AttributeStatement> list = assertion.getAttributeStatements();
-            if (list.size() > 0) {
-                Iterator<Attribute> attribIterator = assertion.getAttributeStatements().get(0).getAttributes()
+            if (CollectionUtils.isNotEmpty(list)) {
+                Iterator<Attribute> attributeIterator = list.get(0).getAttributes()
                         .iterator();
-                while (attribIterator.hasNext()) {
-                    Attribute attribute = attribIterator.next();
+                while (attributeIterator.hasNext()) {
+                    Attribute attribute = attributeIterator.next();
                     String value = attribute.getAttributeValues().get(0).getDOM().getTextContent();
                     builder.setClaim(attribute.getName(), value);
                     if (log.isDebugEnabled()) {
@@ -133,7 +135,7 @@ public class SAMLAssertionClaimsCallback implements CustomClaimsCallbackHandler 
 
         Map<ClaimMapping, String> userAttributes =
                 getUserAttributesFromCache(requestMsgCtx.getProperty(OAuthConstants.ACCESS_TOKEN).toString());
-        Map<String, Object> claims = Collections.EMPTY_MAP;
+        Map<String, Object> claims = Collections.emptyMap();
 
         // If subject claim uri is null, we get the actual user name of the logged in user.
         if ((userAttributes == null || userAttributes.isEmpty()) && (getSubjectClaimUri(requestMsgCtx) == null)) {
@@ -160,10 +162,10 @@ public class SAMLAssertionClaimsCallback implements CustomClaimsCallbackHandler 
      */
     private Map<String, Object> getClaimsMap(Map<ClaimMapping, String> userAttributes) {
 
-        Map<String, Object> claims = new HashMap<String, Object>();
-        if (userAttributes != null && userAttributes.size() > 0) {
-            for (ClaimMapping claimMapping : userAttributes.keySet()) {
-                claims.put(claimMapping.getRemoteClaim().getClaimUri(), userAttributes.get(claimMapping));
+        Map<String, Object> claims = new HashMap();
+        if (MapUtils.isNotEmpty(userAttributes)) {
+            for (Map.Entry<ClaimMapping, String> entry : userAttributes.entrySet()) {
+                claims.put(entry.getKey().getRemoteClaim().getClaimUri(), entry.getValue());
             }
         }
         return claims;
@@ -199,7 +201,7 @@ public class SAMLAssertionClaimsCallback implements CustomClaimsCallbackHandler 
         if (realm == null) {
             log.warn("No valid tenant domain provider. Empty claim returned back for tenant " + tenantDomain
                      + " and user " + username);
-            return new HashMap<String, Object>();
+            return new HashMap<>();
         }
 
         Map<String, String> spToLocalClaimMappings;
@@ -229,8 +231,8 @@ public class SAMLAssertionClaimsCallback implements CustomClaimsCallbackHandler 
                 log.debug("Number of user claims retrieved from user store: " + userClaims.size());
             }
 
-            if (userClaims == null || userClaims.size() == 0) {
-                return new HashMap<String, Object>();
+            if (MapUtils.isEmpty(userClaims)) {
+                return new HashMap<>();
             }
 
             for (Iterator<Map.Entry<String, String>> iterator = spToLocalClaimMappings.entrySet().iterator(); iterator

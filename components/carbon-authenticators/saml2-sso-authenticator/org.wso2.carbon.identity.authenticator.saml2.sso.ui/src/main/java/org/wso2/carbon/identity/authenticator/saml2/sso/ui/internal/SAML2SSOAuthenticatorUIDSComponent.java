@@ -67,54 +67,50 @@ public class SAML2SSOAuthenticatorUIDSComponent {
     private static final Log log = LogFactory.getLog(SAML2SSOAuthenticatorUIDSComponent.class);
 
     protected void activate(ComponentContext ctxt) {
+        try {
+            if (Util.isAuthenticatorEnabled()) {
+                // initialize the SSO Config params during the start-up
+                boolean initSuccess = Util.initSSOConfigParams();
 
-        if (Util.isAuthenticatorEnabled()) {
-            // initialize the SSO Config params during the start-up
-            boolean initSuccess = Util.initSSOConfigParams();
+                if (initSuccess) {
+                    HttpServlet loginServlet = new HttpServlet() {
+                        @Override
+                        protected void doPost(HttpServletRequest req, HttpServletResponse resp)
+                                throws ServletException, IOException {
+                            throw new UnsupportedOperationException();
 
-            if (initSuccess) {
-                HttpServlet loginServlet = new HttpServlet() {
-                    @Override
-                    protected void doPost(HttpServletRequest req, HttpServletResponse resp)
-                            throws ServletException, IOException {
+                        }
+                    };
 
+                    Filter loginPageFilter = new LoginPageFilter();
+                    Dictionary loginPageFilterProps = new Hashtable(2);
+                    Dictionary redirectorParams = new Hashtable(3);
+
+                    redirectorParams.put("url-pattern", Util.getLoginPage());
+
+                    redirectorParams.put("associated-filter", loginPageFilter);
+                    redirectorParams.put("servlet-attributes", loginPageFilterProps);
+                    ctxt.getBundleContext().registerService(Servlet.class.getName(),
+                            loginServlet, redirectorParams);
+                    // register the UI authenticator
+                    SAML2SSOUIAuthenticator authenticator = new SAML2SSOUIAuthenticator();
+                    Hashtable<String, String> props = new Hashtable<String, String>();
+                    props.put(CarbonConstants.AUTHENTICATOR_TYPE, authenticator.getAuthenticatorName());
+                    ctxt.getBundleContext().registerService(CarbonUIAuthenticator.class.getName(),
+                            authenticator, props);
+                    if (log.isDebugEnabled()) {
+                        log.debug("SAML2 SSO Authenticator BE Bundle activated successfully.");
                     }
-                };
-
-                Filter loginPageFilter = new LoginPageFilter();
-                Dictionary loginPageFilterProps = new Hashtable(2);
-                Dictionary redirectorParams = new Hashtable(3);
-
-                redirectorParams.put("url-pattern", Util.getLoginPage());
-
-                redirectorParams.put("associated-filter", loginPageFilter);
-                redirectorParams.put("servlet-attributes", loginPageFilterProps);
-                ctxt.getBundleContext().registerService(Servlet.class.getName(),
-                        loginServlet, redirectorParams);
-
-                //Register the SSO Assertion Consumer Service Servlet
-//                HttpServlet acsServlet = new SSOAssertionConsumerService();
-//                Dictionary acsParams = new Hashtable(2);
-//                acsParams.put("url-pattern","/acs");
-//                acsParams.put("display-name", "SAML SSO Assertion Consumer Service");
-//                ctxt.getBundleContext().registerService(Servlet.class.getName(), acsServlet, acsParams);
-
-                // register the UI authenticator
-                SAML2SSOUIAuthenticator authenticator = new SAML2SSOUIAuthenticator();
-                Hashtable<String, String> props = new Hashtable<String, String>();
-                props.put(CarbonConstants.AUTHENTICATOR_TYPE, authenticator.getAuthenticatorName());
-                ctxt.getBundleContext().registerService(CarbonUIAuthenticator.class.getName(),
-                        authenticator, props);
-                if (log.isDebugEnabled()) {
-                    log.debug("SAML2 SSO Authenticator BE Bundle activated successfully.");
+                } else {
+                    log.warn("Initialization failed for SSO Authenticator. Starting with the default authenticator");
                 }
             } else {
-                log.warn("Initialization failed for SSO Authenticator. Starting with the default authenticator");
+                if (log.isDebugEnabled()) {
+                    log.debug("SAML2 SSO Authenticator is disabled");
+                }
             }
-        } else {
-            if (log.isDebugEnabled()) {
-                log.debug("SAML2 SSO Authenticator is disabled");
-            }
+        } catch (Throwable e) {
+            log.error("Saml Authentication Failed");
         }
     }
 

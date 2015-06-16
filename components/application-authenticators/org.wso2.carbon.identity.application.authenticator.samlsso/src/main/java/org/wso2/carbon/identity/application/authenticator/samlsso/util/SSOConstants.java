@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2014 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -28,13 +28,23 @@ public class SSOConstants {
     public static final String IDP_SESSION = "IdPSession";
 
     public static final String HTTP_POST = "POST";
+    public static final String POST = "POST";
+    public static final String REDIRECT = "REDIRECT";
 
     public class StatusCodes {
+        private StatusCodes() {
+
+        }
+
         public static final String IDENTITY_PROVIDER_ERROR = "urn:oasis:names:tc:SAML:2.0:status:Responder";
         public static final String NO_PASSIVE = "urn:oasis:names:tc:SAML:2.0:status:NoPassive";
     }
 
     public class ServerConfig {
+        private ServerConfig() {
+
+        }
+
         public static final String KEY_ALIAS = "Security.KeyStore.KeyAlias";
         public static final String KEY_PASSWORD = "Security.KeyStore.KeyPassword";
         public static final String SAML2_SSO_MANAGER = "SAML2SSOManager";
