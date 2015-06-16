@@ -44,7 +44,7 @@
             (ConfigurationContext) config.getServletContext()
                     .getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
     WorkflowAdminServiceClient client = new WorkflowAdminServiceClient(cookie, backendServerURL, configContext);
-    String forwardTo = "list-services.jsp";
+    String forwardTo = "list-workflows.jsp";
 
 
     if (WorkflowUIConstants.ACTION_VALUE_ADD.equals(action)) {

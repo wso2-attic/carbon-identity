@@ -24,13 +24,13 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.identity.workflow.mgt.bean.AssociationDTO;
 import org.wso2.carbon.identity.workflow.mgt.bean.BPSProfileBean;
-import org.wso2.carbon.identity.workflow.mgt.bean.EventBean;
 import org.wso2.carbon.identity.workflow.mgt.bean.Parameter;
 import org.wso2.carbon.identity.workflow.mgt.bean.TemplateBean;
 import org.wso2.carbon.identity.workflow.mgt.bean.TemplateDTO;
 import org.wso2.carbon.identity.workflow.mgt.bean.TemplateDeploymentDTO;
 import org.wso2.carbon.identity.workflow.mgt.bean.TemplateImplDTO;
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowBean;
+import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowEventDTO;
 import org.wso2.carbon.identity.workflow.mgt.exception.InternalWorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 
@@ -44,10 +44,10 @@ public class WorkflowAdminService {
 
     private WorkflowService service = new WorkflowService();
 
-    public EventBean[] listWorkflowEvents() {
+    public WorkflowEventDTO[] listWorkflowEvents() {
 
-        List<EventBean> events = service.listWorkflowEvents();
-        return events.toArray(new EventBean[events.size()]);
+        List<WorkflowEventDTO> events = service.listWorkflowEvents();
+        return events.toArray(new WorkflowEventDTO[events.size()]);
     }
 
     public TemplateBean[] listWorkflowTemplates() {
@@ -191,4 +191,8 @@ public class WorkflowAdminService {
         return associations.toArray(new AssociationDTO[associations.size()]);
     }
 
+    public WorkflowEventDTO getEvent(String eventId) {
+
+        return service.getEvent(eventId);
+    }
 }

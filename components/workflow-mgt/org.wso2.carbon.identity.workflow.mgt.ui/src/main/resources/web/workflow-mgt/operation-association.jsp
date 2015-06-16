@@ -19,9 +19,18 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar"
            prefix="carbon" %>
+<%@ page import="org.apache.axis2.context.ConfigurationContext" %>
+<%@ page import="org.wso2.carbon.CarbonConstants" %>
+<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.Parameter" %>
+<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.WorkflowEventDTO" %>
+<%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.WorkflowAdminServiceClient" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.WorkflowUIConstants" %>
+<%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
+<%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
 <%@ page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
+<%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@ page import="java.util.Map" %>
+<%@ page import="java.util.ResourceBundle" %>
 <script type="text/javascript" src="extensions/js/vui.js"></script>
 <script type="text/javascript" src="../extensions/core/js/vui.js"></script>
 <script type="text/javascript" src="../admin/js/main.js"></script>
@@ -31,6 +40,24 @@
     String workflowName = CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_WORKFLOW_NAME));
     String event =
             CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_ASSOCIATED_OPERATION));
+    String bundle = "org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources";
+    ResourceBundle resourceBundle = ResourceBundle.getBundle(bundle, request.getLocale());
+    WorkflowAdminServiceClient client;
+    String forwardTo = null;
+    WorkflowEventDTO eventDTO = null;
+    try {
+        String cookie = (String) session.getAttribute(ServerConstants.ADMIN_SERVICE_COOKIE);
+        String backendServerURL = CarbonUIUtil.getServerURL(config.getServletContext(), session);
+        ConfigurationContext configContext =
+                (ConfigurationContext) config.getServletContext()
+                        .getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
+        client = new WorkflowAdminServiceClient(cookie, backendServerURL, configContext);
+        eventDTO = client.getEvent(event);
+    } catch (Exception e) {
+        String message = resourceBundle.getString("workflow.error.when.listing.services");
+        CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
+        forwardTo = "../admin/error.jsp";
+    }
 %>
 
 <fmt:bundle basename="org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources">
@@ -44,13 +71,109 @@
     <script type="text/javascript" src="../carbon/admin/js/cookies.js"></script>
     <script type="text/javascript" src="../carbon/admin/js/main.js"></script>
     <script type="text/javascript">
+        var paramDefs = {};
+        var operations = {
+            "INTEGER": ["equals", "less than", "greater than"],
+            "DOUBLE": ["equals", "less than", "greater than"],
+            "STRING": ["equals", "contains"],
+            "STRING_LIST": ["has value"],
+            "STRING_STRING_MAP": ["contains key"]
+        };
+        <%
+        if (eventDTO != null) {
+            for (Parameter parameter : eventDTO.getParameters()) {
+            %>
+        paramDefs["<%=parameter.getParamName()%>"] = "<%=parameter.getParamValue()%>";
+        <%
+            }
+        }
+        %>
 
+        function updateParams() {
+            var paramDropDown = document.getElementById("paramSelect");
+            var headOption = document.createElement("option");
+            headOption.text = "--- Select ---";
+            headOption.value = "";
+            headOption.selected = true;
+            headOption.disabled = "disabled";
+            paramDropDown.options.add(headOption);
+            for (var key in paramDefs) {
+                if (paramDefs.hasOwnProperty(key)) {
+                    var opt = document.createElement("option");
+                    opt.text = key;
+                    opt.value = key;
+                    paramDropDown.options.add(opt);
+                }
+            }
+        }
+
+        function updateOperator() {
+            var paramDropDown = document.getElementById("paramSelect");
+            var operationDropdown = document.getElementById("operationSelect");
+            $("#operationSelect").empty();
+            var selectedParam = paramDropDown.options[paramDropDown.selectedIndex].value;
+            var operationsForParam = operations[paramDefs[selectedParam]];
+            var headOption = document.createElement("option");
+            headOption.text = "--- Select ---";
+            headOption.value = "";
+            headOption.selected = true;
+            headOption.disabled = "disabled";
+            operationDropdown.options.add(headOption);
+            for (var i = 0; i < operationsForParam.length; i++) {
+                var opt = document.createElement("option");
+                opt.text = operationsForParam[i];
+                opt.value = operationsForParam[i];
+                operationDropdown.options.add(opt);
+            }
+            operationDropdown.disabled = false;
+            var val1 = document.getElementById("val1");
+            val1.disabled = false;
+        }
+
+        function generateXpath() {
+            var paramDropDown = document.getElementById("paramSelect");
+            var operationDropdown = document.getElementById("operationSelect");
+            var selectedParam = paramDropDown.options[paramDropDown.selectedIndex].value;
+            var selectedOperation = operationDropdown.options[operationDropdown.selectedIndex].value;
+            var condition = "boolean(1)";
+            var val1 = document.getElementById("val1").value;
+            switch (selectedOperation) {
+                case "contains":
+                    var template =
+                            "boolean(//*[local-name()='parameter'][@name='{{paramName}}']/*[local-name()='value']/*[local-name()='itemValue'][contains(text(),'{{value}}')])";
+                    condition = template.replace("{{paramName}}", selectedParam).replace("{{value}}", val1);
+                    break;
+                case "less than":
+                    var template =
+                            "boolean(//*[local-name()='parameter'][@name='{{paramName}}']/*[local-name()='value']/*[local-name()='itemValue']/text()<{{value}})";
+                    condition = template.replace("{{paramName}}", selectedParam).replace("{{value}}", val1);
+                    break;
+                case "greater than":
+                    var template =
+                            "boolean(//*[local-name()='parameter'][@name='{{paramName}}']/*[local-name()='value']/*[local-name()='itemValue']/text()>{{value}})";
+                    condition = template.replace("{{paramName}}", selectedParam).replace("{{value}}", val1);
+                    break;
+                case "equals"://both equals and has value has same condition, but works differently because of string and list
+                case "has value":
+                    var template =
+                            "//*[local-name()='parameter'][@name='{{paramName}}']/*[local-name()='value']/*[local-name()='itemValue']/text()='{{value}}'";
+                    condition = template.replace("{{paramName}}", selectedParam).replace("{{value}}", val1);
+                    break;
+                case "contains key":
+                    var template =
+                            "boolean(//*[local-name()='parameter'][@name='{{paramName}}']/*[local-name()='value'][@itemName='{{value}}']/*[local-name()='itemValue'])";
+                    condition = template.replace("{{paramName}}", selectedParam).replace("{{value}}", val1);
+                    break;
+                default :
+                    CARBON.showErrorDialog('<fmt:message key="condition.error"/>', null, null);
+                    return false;
+            }
+            document.getElementsByName("<%=WorkflowUIConstants.PARAM_ASSOCIATION_CONDITION%>")[0].value = condition;
+            return true;
+        }
 
         function doValidation() {
-            if (isEmpty("<%=WorkflowUIConstants.PARAM_WORKFLOW_NAME%>")) {
-                CARBON.showWarningDialog("<fmt:message key="workflow.error.service.alias.empty"/>");
-                return false;
-            }
+
 //            todo:validate other params
         }
 
@@ -69,7 +192,7 @@
         <h2><fmt:message key='workflow.add'/></h2>
 
         <div id="workArea">
-            <form method="post" name="serviceAdd" onsubmit="return doValidation();" action="update-workflow-finish.jsp">
+            <form method="post" name="serviceAdd" onsubmit="return generateXpath();" action="update-workflow-finish.jsp">
                 <%
                     if (WorkflowUIConstants.ACTION_VALUE_ADD.equals(action)) {
                         String template = CharacterEncoder
@@ -118,6 +241,23 @@
                         <td class="formRow">
                             <table class="normal">
                                 <tr>
+                                    <td>
+                                        <select id="paramSelect" onchange="updateOperator()"></select>
+                                    </td>
+                                    <td>
+                                        <select id="operationSelect" disabled="disabled"></select>
+                                    </td>
+                                    <td>
+                                        <input id="val1" type="text" disabled="disabled"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr id="conditionXpath" style="display: none">
+                        <td class="formRow">
+                            <table class="normal">
+                                <tr>
                                     <td><fmt:message key='workflow.service.associate.condition'/></td>
                                     <td>
                                         <input type="text"
@@ -127,6 +267,7 @@
                             </table>
                         </td>
                     </tr>
+
                     <tr>
                         <td class="buttonRow">
                             <input class="button" value="<fmt:message key="next"/>" type="submit"/>
@@ -139,4 +280,8 @@
             </form>
         </div>
     </div>
+    <script type="text/javascript">
+        updateParams();
+        updateOperator();
+    </script>
 </fmt:bundle>

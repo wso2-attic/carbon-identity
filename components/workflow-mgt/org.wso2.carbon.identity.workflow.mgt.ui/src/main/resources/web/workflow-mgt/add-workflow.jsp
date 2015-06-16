@@ -22,8 +22,8 @@
 <%@ page import="org.apache.axis2.AxisFault" %>
 <%@ page import="org.apache.axis2.context.ConfigurationContext" %>
 <%@ page import="org.wso2.carbon.CarbonConstants" %>
-<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.EventBean" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.TemplateBean" %>
+<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.WorkflowEventDTO" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.WorkflowAdminServiceClient" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.WorkflowUIConstants" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
@@ -45,8 +45,8 @@
     ResourceBundle resourceBundle = ResourceBundle.getBundle(bundle, request.getLocale());
     String forwardTo = null;
     WorkflowAdminServiceClient client;
-    EventBean[] workflowEvents;
-    Map<String, List<EventBean>> events = new HashMap<String, List<EventBean>>();
+    WorkflowEventDTO[] workflowEvents;
+    Map<String, List<WorkflowEventDTO>> events = new HashMap<String, List<WorkflowEventDTO>>();
     TemplateBean[] templateList = null;
     try {
         String cookie = (String) session.getAttribute(ServerConstants.ADMIN_SERVICE_COOKIE);
@@ -56,10 +56,10 @@
                         .getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
         client = new WorkflowAdminServiceClient(cookie, backendServerURL, configContext);
         workflowEvents = client.listWorkflowEvents();
-        for (EventBean event : workflowEvents) {
-            String category = event.getCategory();
+        for (WorkflowEventDTO event : workflowEvents) {
+            String category = event.getEventCategory();
             if (!events.containsKey(category)) {
-                events.put(category, new ArrayList<EventBean>());
+                events.put(category, new ArrayList<WorkflowEventDTO>());
             }
             events.get(category).add(event);
         }
@@ -106,16 +106,16 @@
         var lastSelectedCategory = '';
 
         <%
-            for (Map.Entry<String,List<EventBean>> eventCategory : events.entrySet()) {
+            for (Map.Entry<String,List<WorkflowEventDTO>> eventCategory : events.entrySet()) {
             %>
         eventsObj["<%=eventCategory.getKey()%>"] = [];
         <%
-            for (EventBean event : eventCategory.getValue()) {
+            for (WorkflowEventDTO event : eventCategory.getValue()) {
                 %>
         var eventObj = {};
-        eventObj.displayName = "<%=event.getFriendlyName()%>";
-        eventObj.value = "<%=event.getId()%>";
-        eventObj.title = "<%=event.getDescription()!=null?event.getDescription():""%>";
+        eventObj.displayName = "<%=event.getEventFriendlyName()%>";
+        eventObj.value = "<%=event.getEventId()%>";
+        eventObj.title = "<%=event.getEventDescription()!=null?event.getEventDescription():""%>";
         eventsObj["<%=eventCategory.getKey()%>"].push(eventObj);
         <%
                     }

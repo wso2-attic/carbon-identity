@@ -23,13 +23,13 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.workflow.mgt.bean.AssociationDTO;
 import org.wso2.carbon.identity.workflow.mgt.bean.BPSProfileBean;
-import org.wso2.carbon.identity.workflow.mgt.bean.EventBean;
 import org.wso2.carbon.identity.workflow.mgt.bean.Parameter;
 import org.wso2.carbon.identity.workflow.mgt.bean.TemplateBean;
 import org.wso2.carbon.identity.workflow.mgt.bean.TemplateDTO;
 import org.wso2.carbon.identity.workflow.mgt.bean.TemplateImplDTO;
 import org.wso2.carbon.identity.workflow.mgt.bean.TemplateParameterDef;
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowBean;
+import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowEventDTO;
 import org.wso2.carbon.identity.workflow.mgt.dao.BPSProfileDAO;
 import org.wso2.carbon.identity.workflow.mgt.dao.WorkflowDAO;
 import org.wso2.carbon.identity.workflow.mgt.exception.InternalWorkflowException;
@@ -52,22 +52,49 @@ public class WorkflowService {
     WorkflowDAO workflowDAO = new WorkflowDAO();
     BPSProfileDAO bpsProfileDAO = new BPSProfileDAO();
 
-    public List<EventBean> listWorkflowEvents() {
+    public List<WorkflowEventDTO> listWorkflowEvents() {
 
         List<WorkflowRequestHandler> workflowRequestHandlers =
                 WorkflowServiceDataHolder.getInstance().listRequestHandlers();
-        List<EventBean> eventList = new ArrayList<>();
+        List<WorkflowEventDTO> eventList = new ArrayList<>();
         if (workflowRequestHandlers != null) {
             for (WorkflowRequestHandler requestHandler : workflowRequestHandlers) {
-                EventBean eventBean = new EventBean();
-                eventBean.setId(requestHandler.getEventId());
-                eventBean.setFriendlyName(requestHandler.getFriendlyName());
-                eventBean.setDescription(requestHandler.getDescription());
-                eventBean.setCategory(requestHandler.getCategory());
-                eventList.add(eventBean);
+                WorkflowEventDTO eventDTO = new WorkflowEventDTO();
+                eventDTO.setEventId(requestHandler.getEventId());
+                eventDTO.setEventFriendlyName(requestHandler.getFriendlyName());
+                eventDTO.setEventDescription(requestHandler.getDescription());
+                eventDTO.setEventCategory(requestHandler.getCategory());
+                //note: parameters are not set at here in list operation. It's set only at get operation
+                eventList.add(eventDTO);
             }
         }
         return eventList;
+    }
+
+    public WorkflowEventDTO getEvent(String id) {
+
+        WorkflowRequestHandler requestHandler = WorkflowServiceDataHolder.getInstance().getRequestHandler(id);
+        if (requestHandler != null) {
+            WorkflowEventDTO eventDTO = new WorkflowEventDTO();
+            eventDTO.setEventId(requestHandler.getEventId());
+            eventDTO.setEventFriendlyName(requestHandler.getFriendlyName());
+            eventDTO.setEventDescription(requestHandler.getDescription());
+            eventDTO.setEventCategory(requestHandler.getCategory());
+            if (requestHandler.getParamDefinitions() != null) {
+                Parameter[] parameters = new Parameter[requestHandler.getParamDefinitions().size()];
+                int i = 0;
+                for (Map.Entry<String, String> paramEntry : requestHandler.getParamDefinitions().entrySet()) {
+                    Parameter parameter = new Parameter();
+                    parameter.setParamName(paramEntry.getKey());
+                    parameter.setParamValue(paramEntry.getValue());
+                    parameters[i] = parameter;
+                    i++;
+                }
+                eventDTO.setParameters(parameters);
+            }
+            return eventDTO;
+        }
+        return null;
     }
 
     public List<TemplateBean> listWorkflowTemplates() {

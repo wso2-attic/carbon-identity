@@ -28,12 +28,12 @@ import org.wso2.carbon.identity.workflow.mgt.stub.WorkflowAdminServiceStub;
 import org.wso2.carbon.identity.workflow.mgt.stub.WorkflowAdminServiceWorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.stub.bean.AssociationDTO;
 import org.wso2.carbon.identity.workflow.mgt.stub.bean.BPSProfileBean;
-import org.wso2.carbon.identity.workflow.mgt.stub.bean.EventBean;
 import org.wso2.carbon.identity.workflow.mgt.stub.bean.TemplateBean;
 import org.wso2.carbon.identity.workflow.mgt.stub.bean.TemplateDTO;
 import org.wso2.carbon.identity.workflow.mgt.stub.bean.TemplateDeploymentDTO;
 import org.wso2.carbon.identity.workflow.mgt.stub.bean.TemplateImplDTO;
 import org.wso2.carbon.identity.workflow.mgt.stub.bean.WorkflowBean;
+import org.wso2.carbon.identity.workflow.mgt.stub.bean.WorkflowEventDTO;
 
 import java.rmi.RemoteException;
 
@@ -60,7 +60,7 @@ public class WorkflowAdminServiceClient {
         option.setProperty(org.apache.axis2.transport.http.HTTPConstants.COOKIE_STRING, cookie);
     }
 
-    public EventBean[] listWorkflowEvents() throws RemoteException {
+    public WorkflowEventDTO[] listWorkflowEvents() throws RemoteException {
 
         return stub.listWorkflowEvents();
     }
@@ -109,19 +109,29 @@ public class WorkflowAdminServiceClient {
     }
 
     public void deleteWorkflow(String workflowId) throws RemoteException, WorkflowAdminServiceWorkflowException {
+
         stub.removeWorkflow(workflowId);
     }
 
     public AssociationDTO[] listAssociationsForWorkflow(String workflowId)
             throws RemoteException, WorkflowAdminServiceWorkflowException {
+
         return stub.getAssociationsForWorkflow(workflowId);
     }
+
     public void deleteAssociation(String associationId) throws RemoteException, WorkflowAdminServiceWorkflowException {
+
         stub.removeAssociation(associationId);
     }
 
     public void addAssociation(String workflowId, String eventId, String condition)
             throws RemoteException, WorkflowAdminServiceWorkflowException {
+
         stub.addAssociation(workflowId, eventId, condition);
+    }
+
+    public WorkflowEventDTO getEvent(String id) throws RemoteException {
+
+        return stub.getEvent(id);
     }
 }
