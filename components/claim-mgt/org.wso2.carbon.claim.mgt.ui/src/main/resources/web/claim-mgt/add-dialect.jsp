@@ -202,14 +202,6 @@
                                         </select>
                                     </td>
                                 </tr>
-
-                                <%--<tr>--%>
-                                    <%--<td class="leftCol-small"><fmt:message key='mapped.attribute'/><font--%>
-                                            <%--color="red">*</font></td>--%>
-                                    <%--<td class="leftCol-big"><input type="text" name="attribute" id="attribute"--%>
-                                                                   <%--class="text-box-big"/></td>--%>
-                                <%--</tr>--%>
-
                                 <tr>
                                     <td class="leftCol-small"><fmt:message key='regular.expression'/></td>
                                     <td class="leftCol-big"><input type="text" name="regex" id="regex"
