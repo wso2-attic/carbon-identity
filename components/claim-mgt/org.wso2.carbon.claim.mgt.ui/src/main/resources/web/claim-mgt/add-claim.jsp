@@ -20,21 +20,103 @@
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar"
            prefix="carbon" %>
 <%@ page import="org.wso2.carbon.claim.mgt.stub.dto.ClaimDialectDTO" %>
-
+<%@ page import="org.wso2.carbon.user.mgt.stub.types.carbon.UserStoreInfo" %>
+<%@ page import="org.wso2.carbon.user.mgt.stub.types.carbon.UserRealmInfo" %>
+<%@ page import="org.wso2.carbon.ui.CarbonUIUtil"%>
+<%@ page import="org.apache.axis2.context.ConfigurationContext"%>
+<%@ page import="org.wso2.carbon.CarbonConstants"%>
+<%@ page import="org.wso2.carbon.utils.ServerConstants"%>
+<%@ page import="java.util.List" %>
+<%@ page import="java.util.ResourceBundle" %>
+<%@ page import="org.wso2.carbon.user.mgt.ui.UserAdminUIConstants" %>
+<%@page import="org.wso2.carbon.user.mgt.ui.UserAdminClient"%>
+<%@page import="org.wso2.carbon.claim.mgt.stub.dto.ClaimMappingDTO"%>
+<%@page import="org.wso2.carbon.claim.mgt.ui.client.ClaimAdminClient"%>
+<%@ page import="java.util.ArrayList" %>
+<%@ page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
 <script type="text/javascript" src="../admin/js/main.js"></script>
 <jsp:include page="../dialog/display_messages.jsp"/>
+<jsp:useBean id="userBean"
+             type="org.wso2.carbon.user.mgt.ui.UserBean"
+             class="org.wso2.carbon.user.mgt.ui.UserBean" scope="session"/>
+<jsp:setProperty name="userBean" property="*"/>
+<%
+    UserStoreInfo userStoreInfo = null;
+    UserRealmInfo userRealmInfo = null;
+    UserStoreInfo[] allUserStoreInfo = null;
+    StringBuilder domainNamesBuilder = new StringBuilder();
+    String hiddenDomainNames=null;
+    List<String> domainNames = null;
+    String selectedDomain  = null;
+
+    try{
+        userRealmInfo = (UserRealmInfo)session.getAttribute(UserAdminUIConstants.USER_STORE_INFO);
+        if(userRealmInfo == null){
+            String cookie = (String) session.getAttribute(ServerConstants.ADMIN_SERVICE_COOKIE);
+            String backendServerURL = CarbonUIUtil.getServerURL(config.getServletContext(), session);
+            ConfigurationContext configContext =
+                    (ConfigurationContext) config.getServletContext().getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
+            UserAdminClient client = new UserAdminClient(cookie, backendServerURL, configContext);
+            userRealmInfo = client.getUserRealmInfo();
+            session.setAttribute(UserAdminUIConstants.USER_STORE_INFO, userRealmInfo);
+        }
+        userStoreInfo = userRealmInfo.getPrimaryUserStoreInfo(); // TODO
+
+        // domain name preparations
+        String primaryDomainName = userRealmInfo.getPrimaryUserStoreInfo().getDomainName();
+
+        domainNames = new ArrayList<String>();
+        allUserStoreInfo = userRealmInfo.getUserStoresInfo();
+        if(allUserStoreInfo!=null && allUserStoreInfo.length>0){
+            for (int i =0; i<allUserStoreInfo.length;i++) {
+                if (allUserStoreInfo[i]!=null){
+                    if (allUserStoreInfo[i].getDomainName() != null && !allUserStoreInfo[i].getReadOnly()){
+                        domainNames.add(allUserStoreInfo[i].getDomainName());
+                        domainNamesBuilder.append(allUserStoreInfo[i].getDomainName());
+                        domainNamesBuilder.append(",");
+                    }
+                }
+            }
+        }
+        if(domainNames.size()>0){
+            if(primaryDomainName == null){
+                primaryDomainName = UserAdminUIConstants.PRIMARY_DOMAIN_NAME_NOT_DEFINED;
+                domainNames.add(primaryDomainName);
+                domainNamesBuilder.append(primaryDomainName);
+                domainNamesBuilder.append(",");
+            }
+        }
+
+        selectedDomain = CharacterEncoder.getSafeText(userBean.getDomain());
+        if(selectedDomain == null || selectedDomain.trim().length() == 0){
+            selectedDomain = primaryDomainName;
+        }
+        if(domainNamesBuilder != null && !domainNamesBuilder.toString().equals(""))
+        {
+            hiddenDomainNames= domainNamesBuilder.toString();
+        }
+    }
+    catch (Exception e){
+
+    }
+
+    String dialectUri = request.getParameter("dialect");
+    String serverURL = CarbonUIUtil.getServerURL(config.getServletContext(), session);
+    ConfigurationContext configContext =
+            (ConfigurationContext) config.getServletContext().getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
+    String cookie = (String) session.getAttribute(ServerConstants.ADMIN_SERVICE_COOKIE);
+    ClaimDialectDTO[] claimMappping = null;
+    String wso2DialectUri = "http://wso2.org/claims";
+    String BUNDLE = "org.wso2.carbon.claim.mgt.ui.i18n.Resources";
+    ClaimAdminClient client = new ClaimAdminClient(cookie, serverURL, configContext);
+    claimMappping = client.getAllClaimMappings();
+    session.setAttribute("claimMappping",claimMappping);
+%>
 <style>
     .sectionHelp {
         padding-left: 17px;
     }
 </style>
-
-<%
-    ClaimDialectDTO[] claimMappping = null;
-    String dialectUri = request.getParameter("dialect");
-%>
-
-
 <fmt:bundle basename="org.wso2.carbon.claim.mgt.ui.i18n.Resources">
     <carbon:breadcrumb label="claim.add"
                        resourceBundle="org.wso2.carbon.claim.mgt.ui.i18n.Resources"
@@ -92,6 +174,20 @@
                 }
 
                 function validate() {
+                    var mappedAttributes='';
+                    var mappedAttributeTableRowCount = $('#mappedAttributeTable tr').length;
+                    for(var i=0; i<mappedAttributeTableRowCount-1; i++){
+                        var mappedAttributeName= $('#mappedAttributeName_' + i).val();
+                        var domain=$('#domain_' + i).val();
+                        if(domain == "PRIMARY"){
+                            mappedAttributes = mappedAttributes + mappedAttributeName + ";" ;
+                        }
+                        else{
+                            mappedAttributes = mappedAttributes + domain + '/' + mappedAttributeName + ";" ;
+                        }
+
+                    }
+                    $('#localClaim').val(mappedAttributes);$
 
                     var value = document.getElementsByName("displayName")[0].value;
                     if (value == '') {
@@ -127,6 +223,15 @@
                     } else if (value.length > 300) {
                         CARBON.showWarningDialog('<fmt:message key="attr.id.is.too.long"/>');
                         return false;
+                    }
+
+                    $.urlParam = function(name){
+                        var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.href);
+                        if (results==null){
+                            return null;
+                        }else{
+                            return results[1] || 0;
+                        }
                     }
 
                     var value = document.getElementsByName("displayOrder")[0].value;
@@ -187,10 +292,39 @@
 
                     document.addclaim.submit();
                 }
+                jQuery(document).ready(function() {
+                    var mappedAttributeRowCount = 0;
+                    jQuery('#mappedAttributeAddLink').click(function () {
+                        mappedAttributeRowCount ++;
+                        var array = $('#hiddenDomainNames').val().split(",").slice(0,-1);
+                        var tr = jQuery('<tr></tr>');
+                        var tdDomain = jQuery('<td></td>');
+                        var tdMappedAttributeName = jQuery('<td><input id="mappedAttributeName_'+mappedAttributeRowCount+'" name="mappedAttributeName_'+mappedAttributeRowCount+'" type="text" value=""/></td>');
+                        var tdAction = jQuery('<td><a onclick="deleteClaimRow(this);return false;" href="#" class="icon-link" style="background-image: url(images/delete.gif)"> Delete</a></td>')
+                        tdDomain.append(getDropDownList(mappedAttributeRowCount,mappedAttributeRowCount,array));
+                        tr.append(tdDomain).append(tdMappedAttributeName).append(tdAction);
+                        jQuery('#mappedAttributeTable').append(tr);
+
+                    });
+                });
+
+                function getDropDownList(name, id, optionList) {
+                    var combo = $("<select></select>").attr("id", "domain_" + id).attr("name", "domain_" + name);
+
+                    $.each(optionList, function (i, el) {
+                        combo.append("<option>" + el + "</option>");
+                    });
+
+                    return combo;
+                }
+                function deleteClaimRow(obj) {
+                    $(obj).closest('tr').remove()
+                }
 
             </script>
 
             <form name="addclaim" action="add-claim-submit.jsp?dialect=<%=dialectUri%>" method="post">
+                <input type="hidden" id="hiddenDomainNames" value="<%=hiddenDomainNames%>">
                 <table style="width: 100%" class="styledLeft">
                     <thead>
                     <tr>
@@ -236,12 +370,66 @@
                                 <tr>
                                     <td class="leftCol-small"><fmt:message key='mapped.attribute'/><font
                                             color="red">*</font></td>
-                                    <td class="leftCol-big">
-                                        <input type="text" name="attribute" id="attribute" class="text-box-big"/>
+                                    <td>
+                                        <%if(dialectUri.equals(wso2DialectUri)){%>
 
-                                        <div class="sectionHelp" style="display: inline">
-                                            <fmt:message key='help.mapped.attribute'/>
-                                        </div>
+                                        <input type="hidden" name="localClaim" id="localClaim"/>
+                                        <a id="mappedAttributeAddLink" class="icon-link" style="background-image: url(images/add.gif); margin-top: 0px !important; margin-bottom: 5px !important; margin-left: 5px;"><fmt:message key='button.add.claim.mapped.attribute' /></a>
+                                        <table class="styledLeft" id="mappedAttributeTable" style="">
+                                            <thead>
+                                            <tr>
+                                                <th>
+                                                    User Store
+                                                </th>
+                                                <th>
+                                                    Attribute Name
+                                                </th>
+                                                <th>
+                                                    Action
+                                                </th>
+
+                                            </tr>
+                                            <tr>
+                                                <td><select id="domain_0" name="domain_0">
+                                                    <%
+                                                        for(String domainName : domainNames) {
+                                                            if(selectedDomain.equals(domainName)) {
+                                                    %>
+                                                    <option selected="selected" value="<%=domainName%>"><%=domainName%></option>
+                                                    <%
+                                                    } else {
+                                                    %>
+                                                    <option value="<%=domainName%>"><%=domainName%></option>
+                                                    <%
+                                                            }
+                                                        }
+                                                    %>
+                                                </select>
+                                                </td>
+                                                <td><input id="mappedAttributeName_0" name="mappedAttributeName_0" type="text" value=""/></td>
+                                                <td>
+                                                    <a onclick="deleteClaimRow(this);return false;"
+                                                       href="#"
+                                                       class="icon-link"
+                                                       style="background-image: url(images/delete.gif)">Delete
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                            </thead>
+                                        </table>
+                                        <%}else{
+                                        %>
+                                        <select name="localClaim" id="localClaim">
+                                            <%for (int i=0; i<claimMappping.length;i++ ){
+                                                if (claimMappping[i].getDialectURI().equals(wso2DialectUri)) {
+                                                    ClaimMappingDTO[] claims =  claimMappping[i].getClaimMappings();
+                                                    for (int j=0; j<claims.length;j++ ) {%>
+                                            <option value="<%=claims[j].getClaim().getClaimUri()%>"> <%=claims[j].getClaim().getClaimUri()%></option>
+                                            <% }
+                                            } }%>
+                                        </select>
+                                        <%
+                                            }%>
                                     </td>
                                 </tr>
 

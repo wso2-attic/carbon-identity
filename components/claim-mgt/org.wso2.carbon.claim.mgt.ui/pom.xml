@@ -26,7 +26,7 @@
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>org.wso2.carbon.claim.mgt.ui</artifactId>
+    <artifactId>org.wso2.carbon.claim.mgt.ui.new</artifactId>
     <packaging>bundle</packaging>
     <name>WSO2 Carbon - Claim Management UI</name>
     <description>Claim Management UI component for WSO2 Carbon</description>
@@ -48,6 +48,14 @@
         <dependency>
             <groupId>org.wso2.carbon.identity</groupId>
             <artifactId>org.wso2.carbon.claim.mgt.stub</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.commons</groupId>
+            <artifactId>org.wso2.carbon.user.mgt.stub</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.commons</groupId>
+            <artifactId>org.wso2.carbon.user.mgt.ui</artifactId>
         </dependency>
     </dependencies>
 

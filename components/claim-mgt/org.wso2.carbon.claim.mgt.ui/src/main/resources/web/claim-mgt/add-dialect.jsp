@@ -19,12 +19,34 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar"
            prefix="carbon" %>
+<%@ page import="org.apache.axis2.context.ConfigurationContext"%>
+<%@ page import="org.wso2.carbon.CarbonConstants"%>
+<%@ page import="org.wso2.carbon.ui.CarbonUIMessage"%>
+<%@ page import="org.wso2.carbon.ui.CarbonUIUtil"%>
+<%@ page import="org.wso2.carbon.utils.ServerConstants"%>
+
+
+<%@page import="java.lang.Exception"%>
+<%@page import="org.wso2.carbon.claim.mgt.ui.client.ClaimAdminClient"%>
+<%@page import="org.wso2.carbon.claim.mgt.stub.dto.ClaimMappingDTO"%>
+<%@page import="org.wso2.carbon.claim.mgt.stub.dto.ClaimDialectDTO"%>
+<%@page import="java.util.ResourceBundle"%>
+
 
 
 <%
     String extuser = request.getParameter("extuser");
+    String serverURL = CarbonUIUtil.getServerURL(config.getServletContext(), session);
+    ConfigurationContext configContext =
+            (ConfigurationContext) config.getServletContext().getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
+    String cookie = (String) session.getAttribute(ServerConstants.ADMIN_SERVICE_COOKIE);
+    ClaimDialectDTO[] claimMappping = null;
+    String wso2DialectUri = "http://wso2.org/claims";
+    String BUNDLE = "org.wso2.carbon.claim.mgt.ui.i18n.Resources";
+    ClaimAdminClient client = new ClaimAdminClient(cookie, serverURL, configContext);
+    claimMappping = client.getAllClaimMappings();
+    session.setAttribute("claimMappping",claimMappping);
 %>
-
 
 <fmt:bundle basename="org.wso2.carbon.claim.mgt.ui.i18n.Resources">
     <carbon:breadcrumb label="claim.add"
@@ -63,12 +85,9 @@
                         return false;
                     }
 
-                    var value = document.getElementsByName("attribute")[0].value;
-                    if (value == '') {
+                    var value = $('#localClaim').val();
+                    if (value == '--Select--') {
                         CARBON.showWarningDialog('<fmt:message key="attribute.is.required"/>');
-                        return false;
-                    } else if (value.length > 30) {
-                        CARBON.showWarningDialog('<fmt:message key="attr.id.is.too.long"/>');
                         return false;
                     }
 
@@ -169,13 +188,27 @@
                                     <td class="leftCol-big"><input type="text" name="claimUri" id="claimUri"
                                                                    class="text-box-big"/></td>
                                 </tr>
-
                                 <tr>
-                                    <td class="leftCol-small"><fmt:message key='mapped.attribute'/><font
-                                            color="red">*</font></td>
-                                    <td class="leftCol-big"><input type="text" name="attribute" id="attribute"
-                                                                   class="text-box-big"/></td>
+                                    <td class="leftCol-small"><fmt:message key='mapped.attribute'/><font color="red">*</font></td>
+                                    <td>
+                                        <select name="localClaim" id="localClaim">
+                                            <%for (int i=0; i<claimMappping.length;i++ ){
+                                                if (claimMappping[i].getDialectURI().equals(wso2DialectUri)) {
+                                                    ClaimMappingDTO[] claims =  claimMappping[i].getClaimMappings();
+                                                    for (int j=0; j<claims.length;j++ ) {%>
+                                            <option value="<%=claims[j].getClaim().getClaimUri()%>"> <%=claims[j].getClaim().getClaimUri()%></option>
+                                            <% }
+                                            } }%>
+                                        </select>
+                                    </td>
                                 </tr>
+
+                                <%--<tr>--%>
+                                    <%--<td class="leftCol-small"><fmt:message key='mapped.attribute'/><font--%>
+                                            <%--color="red">*</font></td>--%>
+                                    <%--<td class="leftCol-big"><input type="text" name="attribute" id="attribute"--%>
+                                                                   <%--class="text-box-big"/></td>--%>
+                                <%--</tr>--%>
 
                                 <tr>
                                     <td class="leftCol-small"><fmt:message key='regular.expression'/></td>
