@@ -8,12 +8,11 @@
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package org.wso2.carbon.identity.sso.saml;
@@ -31,6 +30,7 @@ import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.sso.saml.admin.SAMLSSOConfigAdmin;
 import org.wso2.carbon.identity.sso.saml.dto.SAMLSSOServiceProviderDTO;
 import org.wso2.carbon.identity.sso.saml.dto.SAMLSSOServiceProviderInfoDTO;
+import org.wso2.carbon.identity.sso.saml.exception.IdentitySAML2SSOException;
 import org.wso2.carbon.identity.sso.saml.util.SAMLSSOUtil;
 import org.wso2.carbon.security.SecurityConfigException;
 import org.wso2.carbon.security.keystore.KeyStoreAdmin;
@@ -44,15 +44,54 @@ public class SAMLSSOConfigService extends AbstractAdmin {
 
     private static Log log = LogFactory.getLog(SAMLSSOConfigService.class);
 
-
     /**
+     * add a new SAML SSO service provider
      * @param spDto
      * @return
      * @throws IdentityException
      */
-    public boolean addRPServiceProvider(SAMLSSOServiceProviderDTO spDto) throws IdentityException {
+    public boolean addRPServiceProvider(SAMLSSOServiceProviderDTO spDto) throws IdentitySAML2SSOException {
         SAMLSSOConfigAdmin configAdmin = new SAMLSSOConfigAdmin(getConfigSystemRegistry());
-        return configAdmin.addRelyingPartyServiceProvider(spDto);
+        try {
+            return configAdmin.addRelyingPartyServiceProvider(spDto);
+        } catch (IdentityException e) {
+            log.error("Error while adding service provider", e);
+            throw new IdentitySAML2SSOException("Error while adding service provider");
+        }
+    }
+
+    /**
+     * update an existing SAML SSO service provider
+     *
+     * @param spDto
+     * @return
+     * @throws IdentityException
+     */
+    public boolean updateRPServiceProvider(SAMLSSOServiceProviderDTO spDto) throws IdentitySAML2SSOException {
+        SAMLSSOConfigAdmin configAdmin = new SAMLSSOConfigAdmin(getConfigSystemRegistry());
+        try {
+            return configAdmin.updateRelyingPartyServiceProvider(spDto);
+        } catch (IdentityException e) {
+            log.error("Error while updating service provider", e);
+            throw new IdentitySAML2SSOException("Error while updating service provider");
+        }
+    }
+
+    /**
+     * upload SAML SSO service provider metadata directly
+     *
+     * @param metadata
+     * @return
+     * @throws IdentityException
+     */
+    public SAMLSSOServiceProviderDTO uploadRPServiceProvider(String metadata) throws IdentitySAML2SSOException {
+        SAMLSSOConfigAdmin configAdmin = new SAMLSSOConfigAdmin(getConfigUserRegistry());
+        try {
+            return configAdmin.uploadRelyingPartyServiceProvider(metadata);
+        } catch (IdentityException e) {
+            log.error("Error while uploading service provider", e);
+            throw new IdentitySAML2SSOException("Error while uploading service provider");
+        }
     }
 
     /**

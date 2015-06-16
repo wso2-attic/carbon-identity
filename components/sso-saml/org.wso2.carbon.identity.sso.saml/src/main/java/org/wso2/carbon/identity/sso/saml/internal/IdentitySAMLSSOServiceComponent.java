@@ -26,6 +26,7 @@ import org.osgi.service.http.HttpService;
 import org.wso2.carbon.identity.authenticator.saml2.sso.common.Util;
 import org.wso2.carbon.identity.base.IdentityConstants;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
+import org.wso2.carbon.identity.saml.metadata.SAMLSSOMetadataConfigService;
 import org.wso2.carbon.identity.sso.saml.SSOServiceProviderConfigManager;
 import org.wso2.carbon.identity.sso.saml.admin.FileBasedConfigManager;
 import org.wso2.carbon.identity.sso.saml.servlet.SAMLSSOProviderServlet;
@@ -211,5 +212,19 @@ public class IdentitySAMLSSOServiceComponent {
             log.debug("Tenant Registry Loader is unset in the SAML SSO bundle");
         }
         SAMLSSOUtil.setTenantRegistryLoader(null);
+    }
+
+    protected void setSAMLSSOMetadataConfigService(SAMLSSOMetadataConfigService samlssoMetadataConfigService){
+        if (log.isDebugEnabled()) {
+            log.debug("SAML SSO Metadata Config Service is set in the SAML SSO bundle");
+        }
+        SAMLSSOUtil.setSamlssoMetadataConfigService(samlssoMetadataConfigService);
+    }
+
+    protected void unsetSAMLSSOMetadataConfigService(SAMLSSOMetadataConfigService samlssoMetadataConfigService){
+        if (log.isDebugEnabled()) {
+            log.debug("SAML SSO Metadata Config Service is unset in the SAML SSO bundle");
+        }
+        SAMLSSOUtil.setSamlssoMetadataConfigService(null);
     }
 }
