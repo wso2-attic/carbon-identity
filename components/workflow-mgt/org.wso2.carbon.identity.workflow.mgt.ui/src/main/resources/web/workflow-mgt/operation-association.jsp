@@ -178,12 +178,34 @@
         }
 
         function doCancel() {
-            location.href = 'list-services.jsp';
+            location.href = 'list-workflows.jsp';
         }
 
         function updateTemplate(sel) {
             if (sel.options[sel.selectedIndex].value != null) {
                 $("#newBpelRadio").value = sel.options[sel.selectedIndex].value;
+            }
+        }
+
+        var previousRadioValue = "";
+
+        function handleRadioInput(radio) {
+            if (radio.value != previousRadioValue) {
+                switch (radio.value) {
+                    case "applyToAll":
+                        document.getElementById("conditionSelectRow").style.display = 'none';
+                        document.getElementById("conditionXpath").style.display = 'none';
+                        break;
+                    case "applyIf":
+                        document.getElementById("conditionSelectRow").style.display = 'block';
+                        document.getElementById("conditionXpath").style.display = 'none';
+                        break;
+                    case "advanced":
+                        document.getElementById("conditionSelectRow").style.display = 'none';
+                        document.getElementById("conditionXpath").style.display = 'block';
+                        break;
+                }
+                previousRadioValue = radio.value;
             }
         }
     </script>
@@ -192,7 +214,8 @@
         <h2><fmt:message key='workflow.add'/></h2>
 
         <div id="workArea">
-            <form method="post" name="serviceAdd" onsubmit="return generateXpath();" action="update-workflow-finish.jsp">
+            <form method="post" name="serviceAdd" onsubmit="return generateXpath();"
+                  action="update-workflow-finish.jsp">
                 <%
                     if (WorkflowUIConstants.ACTION_VALUE_ADD.equals(action)) {
                         String template = CharacterEncoder
@@ -226,7 +249,7 @@
                 <%
                     }
                 %>
-                <table class="styledLeft">
+                <table class="styledLeft noBorders">
                     <thead>
                     <tr>
                         <th>
@@ -238,8 +261,21 @@
                     </tr>
                     </thead>
                     <tr>
+                        <td>
+                            <input type="radio" name="conditionType" value="applyToAll"
+                                   onclick="handleRadioInput(this);">Apply to all
+                            Requests
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <input type="radio" name="conditionType" value="applyIf" onclick="handleRadioInput(this);">
+                            Apply if,
+                        </td>
+                    </tr>
+                    <tr id="conditionSelectRow" style="display: none">
                         <td class="formRow">
-                            <table class="normal">
+                            <table class="normal noBorders">
                                 <tr>
                                     <td>
                                         <select id="paramSelect" onchange="updateOperator()"></select>
@@ -254,9 +290,14 @@
                             </table>
                         </td>
                     </tr>
+                    <tr>
+                        <td><input type="radio" name="conditionType" value="advanced" onclick="handleRadioInput(this);">
+                            Advanced
+                        </td>
+                    </tr>
                     <tr id="conditionXpath" style="display: none">
                         <td class="formRow">
-                            <table class="normal">
+                            <table class="normal noBorders">
                                 <tr>
                                     <td><fmt:message key='workflow.service.associate.condition'/></td>
                                     <td>
@@ -282,6 +323,5 @@
     </div>
     <script type="text/javascript">
         updateParams();
-        updateOperator();
     </script>
 </fmt:bundle>

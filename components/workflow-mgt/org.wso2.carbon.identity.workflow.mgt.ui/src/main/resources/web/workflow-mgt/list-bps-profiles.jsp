@@ -160,7 +160,7 @@
             </table>
             <carbon:paginator pageNumber="<%=pageNumberInt%>"
                               numberOfPages="<%=numberOfPages%>"
-                              page="list-services.jsp"
+                              page="list-bps-profiles.jsp"
                               pageNumberParameterName="<%=WorkflowUIConstants.PARAM_PAGE_NUMBER%>"
                               resourceBundle="org.wso2.carbon.security.ui.i18n.Resources"
                               parameters="<%=paginationValue%>"

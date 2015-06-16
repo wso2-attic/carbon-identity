@@ -113,7 +113,7 @@
     <script type="text/javascript" src="../carbon/admin/js/main.js"></script>
     <script type="text/javascript">
         function doCancel() {
-            location.href = 'list-services.jsp';
+            location.href = 'list-workflows.jsp';
         }
         function removeWorkflow(id, name) {
             function doDelete() {
@@ -175,7 +175,7 @@
             </table>
             <carbon:paginator pageNumber="<%=pageNumberInt%>"
                               numberOfPages="<%=numberOfPages%>"
-                              page="list-services.jsp"
+                              page="list-workflows.jsp"
                               pageNumberParameterName="<%=WorkflowUIConstants.PARAM_PAGE_NUMBER%>"
                               resourceBundle="org.wso2.carbon.security.ui.i18n.Resources"
                               parameters="<%=paginationValue%>"

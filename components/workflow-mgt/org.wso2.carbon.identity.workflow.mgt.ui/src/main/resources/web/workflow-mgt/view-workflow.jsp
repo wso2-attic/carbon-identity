@@ -25,7 +25,7 @@
 <%@ page import="org.wso2.carbon.CarbonConstants" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.WorkflowAdminServiceWorkflowException" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.AssociationDTO" %>
-<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.EventBean" %>
+<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.WorkflowEventDTO" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.WorkflowAdminServiceClient" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.WorkflowUIConstants" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
@@ -56,8 +56,8 @@
     int pageNumberInt = 0;
     int numberOfPages = 0;
     String workflowId = StringUtils.EMPTY;
-    EventBean[] workflowEvents;
-    Map<String, List<EventBean>> events = new HashMap<String, List<EventBean>>();
+    WorkflowEventDTO[] workflowEvents;
+    Map<String, List<WorkflowEventDTO>> events = new HashMap<String, List<WorkflowEventDTO>>();
 
     if (pageNumber != null) {
         try {
@@ -88,10 +88,10 @@
         }
 
         workflowEvents = client.listWorkflowEvents();
-        for (EventBean event : workflowEvents) {
-            String category = event.getCategory();
+        for (WorkflowEventDTO event : workflowEvents) {
+            String category = event.getEventCategory();
             if (!events.containsKey(category)) {
-                events.put(category, new ArrayList<EventBean>());
+                events.put(category, new ArrayList<WorkflowEventDTO>());
             }
             events.get(category).add(event);
         }
@@ -132,7 +132,7 @@
     <script type="text/javascript" src="../carbon/admin/js/main.js"></script>
     <script type="text/javascript">
         function doCancel() {
-            location.href = 'list-services.jsp';
+            location.href = 'list-workflows.jsp';
         }
         function removeAssociation(id, event) {
             function doDelete() {
@@ -158,16 +158,16 @@
         var eventsObj = {};
         var lastSelectedCategory = '';
         <%
-            for (Map.Entry<String,List<EventBean>> eventCategory : events.entrySet()) {
+            for (Map.Entry<String,List<WorkflowEventDTO>> eventCategory : events.entrySet()) {
             %>
         eventsObj["<%=eventCategory.getKey()%>"] = [];
         <%
-            for (EventBean event : eventCategory.getValue()) {
+            for (WorkflowEventDTO event : eventCategory.getValue()) {
                 %>
         var eventObj = {};
-        eventObj.displayName = "<%=event.getFriendlyName()%>";
-        eventObj.value = "<%=event.getId()%>";
-        eventObj.title = "<%=event.getDescription()!=null?event.getDescription():""%>";
+        eventObj.displayName = "<%=event.getEventFriendlyName()%>";
+        eventObj.value = "<%=event.getEventId()%>";
+        eventObj.title = "<%=event.getEventDescription()!=null?event.getEventDescription():""%>";
         eventsObj["<%=eventCategory.getKey()%>"].push(eventObj);
         <%
                     }
@@ -282,7 +282,7 @@
             </table>
             <carbon:paginator pageNumber="<%=pageNumberInt%>"
                               numberOfPages="<%=numberOfPages%>"
-                              page="list-services.jsp"
+                              page="view-workflow.jsp"
                               pageNumberParameterName="<%=WorkflowUIConstants.PARAM_PAGE_NUMBER%>"
                               resourceBundle="org.wso2.carbon.security.ui.i18n.Resources"
                               parameters="<%=paginationValue%>"
