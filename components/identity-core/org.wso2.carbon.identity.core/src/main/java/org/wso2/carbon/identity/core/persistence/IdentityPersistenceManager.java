@@ -236,61 +236,61 @@ public class IdentityPersistenceManager {
      * @return
      * @throws IdentityException
      */
-    public boolean addServiceProvider(Registry registry, SAMLSSOServiceProviderDO serviceProviderDO)
-            throws IdentityException {
-        SAMLSSOServiceProviderDAO serviceProviderDAO = new SAMLSSOServiceProviderDAO(registry);
-        return serviceProviderDAO.addServiceProvider(serviceProviderDO);
-    }
-
-    /**
-     * update an existing SAML SSO service provider
-     *
-     * @param registry
-     * @param serviceProviderDO
-     * @return
-     * @throws IdentityException
-     */
-    public boolean updateServiceProvider(Registry registry, SAMLSSOServiceProviderDO serviceProviderDO)
-            throws IdentityException {
-        SAMLSSOServiceProviderDAO serviceProviderDAO = new SAMLSSOServiceProviderDAO(registry);
-        return serviceProviderDAO.updateServiceProvider(serviceProviderDO);
-    }
-
-    /**
-     * upload service provider metadata directly for SAML SSO
-     *
-     * @param registry
-     * @param metadata
-     * @return
-     * @throws IdentityException
-     */
-    public SAMLSSOServiceProviderDO uploadServiceProvider(Registry registry, String metadata) throws IdentityException {
-        SAMLSSOServiceProviderDAO serviceProviderDAO = new SAMLSSOServiceProviderDAO(registry);
-        return serviceProviderDAO.uploadServiceProvider(metadata);
-    }
-
-    /**
-     * Get all the relying party service providers
-     *
-     * @return
-     * @throws IdentityException
-     */
-    public SAMLSSOServiceProviderDO[] getServiceProviders(Registry registry)
-            throws IdentityException {
-        SAMLSSOServiceProviderDAO serviceProviderDOA = new SAMLSSOServiceProviderDAO(registry);
-        return serviceProviderDOA.getServiceProviders();
-    }
-
-    public boolean removeServiceProvider(Registry registry, String issuer) throws IdentityException {
-        SAMLSSOServiceProviderDAO serviceProviderDAO = new SAMLSSOServiceProviderDAO(registry);
-        return serviceProviderDAO.removeServiceProvider(issuer);
-    }
-
-    public SAMLSSOServiceProviderDO getServiceProvider(Registry registry, String issuer)
-            throws IdentityException {
-        SAMLSSOServiceProviderDAO serviceProviderDAO = new SAMLSSOServiceProviderDAO(registry);
-        return serviceProviderDAO.getServiceProvider(issuer);
-    }
+//    public boolean addServiceProvider(Registry registry, SAMLSSOServiceProviderDO serviceProviderDO)
+//            throws IdentityException {
+//        SAMLSSOServiceProviderDAO serviceProviderDAO = new SAMLSSOServiceProviderDAO(registry);
+//        return serviceProviderDAO.addServiceProvider(serviceProviderDO);
+//    }
+//
+//    /**
+//     * update an existing SAML SSO service provider
+//     *
+//     * @param registry
+//     * @param serviceProviderDO
+//     * @return
+//     * @throws IdentityException
+//     */
+//    public boolean updateServiceProvider(Registry registry, SAMLSSOServiceProviderDO serviceProviderDO)
+//            throws IdentityException {
+//        SAMLSSOServiceProviderDAO serviceProviderDAO = new SAMLSSOServiceProviderDAO(registry);
+//        return serviceProviderDAO.updateServiceProvider(serviceProviderDO);
+//    }
+//
+//    /**
+//     * upload service provider metadata directly for SAML SSO
+//     *
+//     * @param registry
+//     * @param metadata
+//     * @return
+//     * @throws IdentityException
+//     */
+//    public SAMLSSOServiceProviderDO uploadServiceProvider(Registry registry, String metadata) throws IdentityException {
+//        SAMLSSOServiceProviderDAO serviceProviderDAO = new SAMLSSOServiceProviderDAO(registry);
+//        return serviceProviderDAO.uploadServiceProvider(metadata);
+//    }
+//
+//    /**
+//     * Get all the relying party service providers
+//     *
+//     * @return
+//     * @throws IdentityException
+//     */
+//    public SAMLSSOServiceProviderDO[] getServiceProviders(Registry registry)
+//            throws IdentityException {
+//        SAMLSSOServiceProviderDAO serviceProviderDOA = new SAMLSSOServiceProviderDAO(registry);
+//        return serviceProviderDOA.getServiceProviders();
+//    }
+//
+//    public boolean removeServiceProvider(Registry registry, String issuer) throws IdentityException {
+//        SAMLSSOServiceProviderDAO serviceProviderDAO = new SAMLSSOServiceProviderDAO(registry);
+//        return serviceProviderDAO.removeServiceProvider(issuer);
+//    }
+//
+//    public SAMLSSOServiceProviderDO getServiceProvider(Registry registry, String issuer)
+//            throws IdentityException {
+//        SAMLSSOServiceProviderDAO serviceProviderDAO = new SAMLSSOServiceProviderDAO(registry);
+//        return serviceProviderDAO.getServiceProvider(issuer);
+//    }
 
     public void createOrUpdateOpenIDAdmin(Registry registry, OpenIDAdminDO opAdmin)
             throws IdentityException {

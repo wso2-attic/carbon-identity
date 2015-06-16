@@ -23,11 +23,13 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opensaml.saml1.core.NameIdentifier;
 import org.wso2.carbon.identity.base.IdentityException;
-import org.wso2.carbon.identity.core.model.SAMLSSOServiceProviderDO;
 import org.wso2.carbon.identity.core.persistence.IdentityPersistenceManager;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
+import org.wso2.carbon.identity.saml.metadata.SAMLSSOMetadataConfigService;
+import org.wso2.carbon.identity.saml.metadata.model.SAMLSSOServiceProviderDO;
 import org.wso2.carbon.identity.sso.saml.dto.SAMLSSOServiceProviderDTO;
 import org.wso2.carbon.identity.sso.saml.dto.SAMLSSOServiceProviderInfoDTO;
+import org.wso2.carbon.identity.sso.saml.util.SAMLSSOUtil;
 import org.wso2.carbon.registry.core.Registry;
 import org.wso2.carbon.registry.core.session.UserRegistry;
 
@@ -58,9 +60,9 @@ public class SAMLSSOConfigAdmin {
 
         SAMLSSOServiceProviderDO serviceProviderDO = createSAMLSSOServiceProviderDO(serviceProviderDTO);
 
-        IdentityPersistenceManager persistenceManager = IdentityPersistenceManager.getPersistanceManager();
+        SAMLSSOMetadataConfigService samlssoMetadataConfigService = SAMLSSOUtil.getSamlssoMetadataConfigService();
         try {
-            return persistenceManager.addServiceProvider(registry, serviceProviderDO);
+            return samlssoMetadataConfigService.addServiceProvider(registry, serviceProviderDO);
         } catch (IdentityException e) {
             throw new IdentityException("Error obtaining a registry for adding a new service provider", e);
         }
@@ -78,9 +80,9 @@ public class SAMLSSOConfigAdmin {
 
         SAMLSSOServiceProviderDO serviceProviderDO = createSAMLSSOServiceProviderDO(serviceProviderDTO);
 
-        IdentityPersistenceManager persistenceManager = IdentityPersistenceManager.getPersistanceManager();
+        SAMLSSOMetadataConfigService samlssoMetadataConfigService = SAMLSSOUtil.getSamlssoMetadataConfigService();
         try {
-            return persistenceManager.updateServiceProvider(registry, serviceProviderDO);
+            return samlssoMetadataConfigService.updateServiceProvider(registry, serviceProviderDO);
         } catch (IdentityException e) {
             throw new IdentityException("Error obtaining a registry for adding a new service provider", e);
         }
@@ -95,10 +97,10 @@ public class SAMLSSOConfigAdmin {
      */
     public SAMLSSOServiceProviderDTO uploadRelyingPartyServiceProvider(String metadata) throws IdentityException {
 
-        IdentityPersistenceManager persistenceManager = IdentityPersistenceManager.getPersistanceManager();
+        SAMLSSOMetadataConfigService samlssoMetadataConfigService = SAMLSSOUtil.getSamlssoMetadataConfigService();
 
         try {
-            SAMLSSOServiceProviderDO serviceProviderDO = persistenceManager.uploadServiceProvider(registry, metadata);
+            org.wso2.carbon.identity.saml.metadata.model.SAMLSSOServiceProviderDO serviceProviderDO = samlssoMetadataConfigService.uploadServiceProvider(registry, metadata);
 
             return createSAMLSSOServiceProviderDTO(serviceProviderDO);
         } catch (IdentityException e) {
@@ -106,7 +108,8 @@ public class SAMLSSOConfigAdmin {
         }
     }
 
-    private SAMLSSOServiceProviderDTO createSAMLSSOServiceProviderDTO(SAMLSSOServiceProviderDO serviceProviderDO)
+    private SAMLSSOServiceProviderDTO createSAMLSSOServiceProviderDTO(org.wso2.carbon.identity.saml.metadata.model
+                                                                              .SAMLSSOServiceProviderDO serviceProviderDO)
             throws IdentityException {
         SAMLSSOServiceProviderDTO serviceProviderDTO = new SAMLSSOServiceProviderDTO();
 
@@ -235,10 +238,8 @@ public class SAMLSSOConfigAdmin {
     public SAMLSSOServiceProviderInfoDTO getServiceProviders() throws IdentityException {
         SAMLSSOServiceProviderDTO[] serviceProviders = null;
         try {
-            IdentityPersistenceManager persistenceManager = IdentityPersistenceManager
-                    .getPersistanceManager();
-            SAMLSSOServiceProviderDO[] providersSet = persistenceManager.
-                    getServiceProviders(registry);
+            SAMLSSOMetadataConfigService samlssoMetadataConfigService = SAMLSSOUtil.getSamlssoMetadataConfigService();
+            SAMLSSOServiceProviderDO[] providersSet = samlssoMetadataConfigService.getServiceProviders(registry);
             serviceProviders = new SAMLSSOServiceProviderDTO[providersSet.length];
 
             for (int i = 0; i < providersSet.length; i++) {
@@ -306,8 +307,8 @@ public class SAMLSSOConfigAdmin {
      */
     public boolean removeServiceProvider(String issuer) throws IdentityException {
         try {
-            IdentityPersistenceManager persistenceManager = IdentityPersistenceManager.getPersistanceManager();
-            return persistenceManager.removeServiceProvider(registry, issuer);
+            SAMLSSOMetadataConfigService samlssoMetadataConfigService = SAMLSSOUtil.getSamlssoMetadataConfigService();
+            return samlssoMetadataConfigService.removeServiceProvider(registry, issuer);
         } catch (IdentityException e) {
             log.error("Error removing a Service Provider");
             throw new IdentityException("Error removing a Service Provider", e);

@@ -67,6 +67,7 @@ import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.model.SAMLSSOServiceProviderDO;
 import org.wso2.carbon.identity.core.persistence.IdentityPersistenceManager;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
+import org.wso2.carbon.identity.saml.metadata.SAMLSSOMetadataConfigService;
 import org.wso2.carbon.identity.sso.saml.SAMLSSOConstants;
 import org.wso2.carbon.identity.sso.saml.SSOServiceProviderConfigManager;
 import org.wso2.carbon.identity.sso.saml.builders.DefaultResponseBuilder;
@@ -165,6 +166,7 @@ public class SAMLSSOUtil {
     private static SSOSigner ssoSigner = null;
     private static SAML2HTTPRedirectSignatureValidator samlHTTPRedirectSignatureValidator = null;
     private static ThreadLocal tenantDomainInThreadLocal = new ThreadLocal();
+    private static SAMLSSOMetadataConfigService samlssoMetadataConfigService;
 
     private SAMLSSOUtil() {
     }
@@ -1266,4 +1268,11 @@ public class SAMLSSOUtil {
         }
     }
 
+    public static SAMLSSOMetadataConfigService getSamlssoMetadataConfigService() {
+        return samlssoMetadataConfigService;
+    }
+
+    public static void setSamlssoMetadataConfigService(SAMLSSOMetadataConfigService samlssoMetadataConfigService) {
+        SAMLSSOUtil.samlssoMetadataConfigService = samlssoMetadataConfigService;
+    }
 }
