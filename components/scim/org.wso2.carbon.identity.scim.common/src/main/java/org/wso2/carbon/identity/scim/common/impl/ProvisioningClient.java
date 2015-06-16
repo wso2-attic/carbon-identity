@@ -1,25 +1,31 @@
 /*
-*  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 package org.wso2.carbon.identity.scim.common.impl;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpException;
-import org.apache.commons.httpclient.methods.*;
+import org.apache.commons.httpclient.methods.DeleteMethod;
+import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.httpclient.methods.PutMethod;
+import org.apache.commons.httpclient.methods.RequestEntity;
+import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.scim.common.utils.BasicAuthUtil;
@@ -30,7 +36,11 @@ import org.wso2.charon.core.config.SCIMProvider;
 import org.wso2.charon.core.exceptions.AbstractCharonException;
 import org.wso2.charon.core.exceptions.BadRequestException;
 import org.wso2.charon.core.exceptions.CharonException;
-import org.wso2.charon.core.objects.*;
+import org.wso2.charon.core.objects.AbstractSCIMObject;
+import org.wso2.charon.core.objects.Group;
+import org.wso2.charon.core.objects.ListedResource;
+import org.wso2.charon.core.objects.SCIMObject;
+import org.wso2.charon.core.objects.User;
 import org.wso2.charon.core.schema.SCIMConstants;
 import org.wso2.charon.core.util.CopyUtil;
 
@@ -146,25 +156,11 @@ public class ProvisioningClient implements Runnable {
             }
 
         } catch (CharonException e) {
-            logger.error("Error in encoding the object to be provisioned.");
-            logger.error(e.getDescription());
-            e.printStackTrace();
+            logger.error("Error in encoding the object to be provisioned.", e);
         } catch (UnsupportedEncodingException e) {
-            logger.error("Error in creating request for provisioning");
-            logger.error(e.getMessage());
-            e.printStackTrace();
-        } catch (HttpException e) {
-            logger.error("Error in invoking provisioning operation for the user with id: " + userId);
-            logger.error(e.getMessage());
-            e.printStackTrace();
-        } catch (BadRequestException e) {
-            logger.error("Error in invoking provisioning operation for the user with id: " + userId);
-            logger.error(e.getDescription());
-            e.printStackTrace();
-        } catch (IOException e) {
-            logger.error("Error in invoking provisioning operation for the user with id: " + userId);
-            logger.error(e.getMessage());
-            e.printStackTrace();
+            logger.error("Error in creating request for provisioning", e);
+        } catch (IOException | BadRequestException e) {
+            logger.error("Error in invoking provisioning operation for the user with id: " + userId, e);
         }
     }
 
@@ -237,22 +233,8 @@ public class ProvisioningClient implements Runnable {
                                 response, SCIMConstants.identifyFormat(contentType));
                 logger.error(exception.getDescription());
             }
-        } catch (CharonException e) {
-            logger.error("Error in provisioning 'delete user' operation.");
-            logger.error(e.getDescription());
-            e.printStackTrace();
-        } catch (HttpException e) {
-            logger.error("Error in provisioning 'delete user' operation.");
-            logger.error(e.getMessage());
-            e.printStackTrace();
-        } catch (IOException e) {
-            logger.error("Error in provisioning 'delete user' operation.");
-            logger.error(e.getMessage());
-            e.printStackTrace();
-        } catch (BadRequestException e) {
-            logger.error("Error in provisioning 'delete user' operation.");
-            logger.error(e.getDescription());
-            e.printStackTrace();
+        } catch (CharonException | IOException | BadRequestException e) {
+            logger.error("Error in provisioning 'delete user' operation.", e);
         }
     }
 
@@ -335,24 +317,9 @@ public class ProvisioningClient implements Runnable {
                                 response, SCIMConstants.identifyFormat(contentType));
                 logger.error(exception.getDescription());
             }
-        } catch (CharonException e) {
-            logger.error("Error in provisioning 'update user' operation.");
-            logger.error(e.getDescription());
-            e.printStackTrace();
-        } catch (HttpException e) {
-            logger.error("Error in provisioning 'update user' operation.");
-            logger.error(e.getMessage());
-            e.printStackTrace();
-        } catch (IOException e) {
-            logger.error("Error in provisioning 'update user' operation.");
-            logger.error(e.getMessage());
-            e.printStackTrace();
-        } catch (BadRequestException e) {
-            logger.error("Error in provisioning 'update user' operation.");
-            logger.error(e.getDescription());
-            e.printStackTrace();
+        } catch (CharonException | IOException | BadRequestException e) {
+            logger.error("Error in provisioning 'update user' operation.", e);
         }
-
     }
 
     public void provisionCreateGroup() {
@@ -372,7 +339,8 @@ public class ProvisioningClient implements Runnable {
             List<String> users = ((Group) scimObject).getMembersWithDisplayName();
 
             Group copiedGroup = null;
-            if (users != null && users.size() != 0) {
+
+            if (CollectionUtils.isNotEmpty(users)) {
                 //create a deep copy of the group since we are going to update the member ids
                 copiedGroup = (Group) CopyUtil.deepCopy(scimObject);
                 //delete existing members in the group since we are going to update it with
@@ -459,26 +427,8 @@ public class ProvisioningClient implements Runnable {
                         scimClient.decodeSCIMException(postResponse, SCIMConstants.JSON);
                 logger.error(exception.getDescription());
             }
-        } catch (BadRequestException e) {
-            logger.error("Error in provisioning 'create group' operation.");
-            logger.error(e.getDescription());
-            e.printStackTrace();
-        } catch (HttpException e) {
-            logger.error("Error in provisioning 'create group' operation.");
-            logger.error(e.getMessage());
-            e.printStackTrace();
-        } catch (UnsupportedEncodingException e) {
-            logger.error("Error in provisioning 'create group' operation.");
-            logger.error(e.getMessage());
-            e.printStackTrace();
-        } catch (IOException e) {
-            logger.error("Error in provisioning 'create group' operation.");
-            logger.error(e.getMessage());
-            e.printStackTrace();
-        } catch (CharonException e) {
-            logger.error("Error in provisioning 'create group' operation.");
-            logger.error(e.getDescription());
-            e.printStackTrace();
+        } catch (BadRequestException | IOException | CharonException e) {
+            logger.error("Error in provisioning 'create group' operation.", e);
         }
     }
 
@@ -550,22 +500,8 @@ public class ProvisioningClient implements Runnable {
                                 response, SCIMConstants.identifyFormat(contentType));
                 logger.error(exception.getDescription());
             }
-        } catch (CharonException e) {
-            logger.error("Error in provisioning 'delete group' operation.");
-            logger.error(e.getDescription());
-            e.printStackTrace();
-        } catch (HttpException e) {
-            logger.error("Error in provisioning 'delete group' operation.");
-            logger.error(e.getMessage());
-            e.printStackTrace();
-        } catch (IOException e) {
-            logger.error("Error in provisioning 'delete group' operation.");
-            logger.error(e.getMessage());
-            e.printStackTrace();
-        } catch (BadRequestException e) {
-            logger.error("Error in provisioning 'delete group' operation.");
-            logger.error(e.getDescription());
-            e.printStackTrace();
+        } catch (CharonException | IOException | BadRequestException e) {
+            logger.error("Error in provisioning 'delete group' operation.", e);
         }
     }
 
@@ -629,7 +565,8 @@ public class ProvisioningClient implements Runnable {
                 List<String> users = ((Group) scimObject).getMembersWithDisplayName();
 
                 Group copiedGroup = null;
-                if (users != null && users.size() != 0) {
+
+                if (CollectionUtils.isNotEmpty(users)) {
                     //create a deep copy of the group since we are going to update the member ids
                     copiedGroup = (Group) CopyUtil.deepCopy(scimObject);
                     //delete existing members in the group since we are going to update it with
@@ -705,22 +642,8 @@ public class ProvisioningClient implements Runnable {
                                 response, SCIMConstants.identifyFormat(contentType));
                 logger.error(exception.getDescription());
             }
-        } catch (CharonException e) {
-            logger.error("Error in provisioning 'delete group' operation.");
-            logger.error(e.getDescription());
-            e.printStackTrace();
-        } catch (HttpException e) {
-            logger.error("Error in provisioning 'delete group' operation.");
-            logger.error(e.getMessage());
-            e.printStackTrace();
-        } catch (IOException e) {
-            logger.error("Error in provisioning 'delete group' operation.");
-            logger.error(e.getMessage());
-            e.printStackTrace();
-        } catch (BadRequestException e) {
-            logger.error("Error in provisioning 'delete group' operation.");
-            logger.error(e.getDescription());
-            e.printStackTrace();
+        } catch (CharonException | IOException | BadRequestException e) {
+            logger.error("Error in provisioning 'delete group' operation.", e);
         }
     }
 
@@ -735,6 +658,7 @@ public class ProvisioningClient implements Runnable {
      *
      * @see Thread#run()
      */
+    @Override
     public void run() {
         if (SCIMConstants.USER_INT == objectType) {
             switch (provisioningMethod) {
@@ -747,6 +671,8 @@ public class ProvisioningClient implements Runnable {
                 case SCIMConstants.PUT:
                     provisionUpdateUser();
                     break;
+                default:
+                    break;
             }
         } else if (SCIMConstants.GROUP_INT == objectType) {
             switch (provisioningMethod) {
@@ -758,6 +684,8 @@ public class ProvisioningClient implements Runnable {
                     break;
                 case SCIMConstants.PUT:
                     provisionUpdateGroup();
+                    break;
+                default:
                     break;
             }
         }

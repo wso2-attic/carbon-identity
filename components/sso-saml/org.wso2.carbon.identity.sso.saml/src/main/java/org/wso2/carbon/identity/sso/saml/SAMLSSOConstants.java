@@ -1,20 +1,20 @@
 /*
-*  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package org.wso2.carbon.identity.sso.saml;
 
 public class SAMLSSOConstants {
@@ -51,6 +51,11 @@ public class SAMLSSOConstants {
     public static final String SESSION_DATA_KEY = "sessionDataKey";
     public static final String AUTHENTICATION_RESULT = "AuthenticationResult";
     public static final String LOGIN_PAGE = "customLoginPage";
+    public static final String CLAIM_DIALECT_URL = "http://wso2.org/claims";
+
+    private SAMLSSOConstants() {
+    }
+
 
     public static class FileBasedSPConfig {
 
@@ -81,38 +86,56 @@ public class SAMLSSOConstants {
         public static final String RECIPIENT = "Recipient";
         public static final String CONSUMING_SERVICE_INDEX = "ConsumingServiceIndex";
         public static final String USE_AUTHENTICATED_USER_DOMAIN_CRYPTO = "SSOService.UseAuthenticatedUserDomainCrypto";
+
+        private FileBasedSPConfig() {
+        }
     }
 
-    public class StatusCodes {
+    public static class StatusCodes {
         public static final String SUCCESS_CODE = "urn:oasis:names:tc:SAML:2.0:status:Success";
         public static final String REQUESTOR_ERROR = "urn:oasis:names:tc:SAML:2.0:status:Requester";
         public static final String IDENTITY_PROVIDER_ERROR = "urn:oasis:names:tc:SAML:2.0:status:Responder";
         public static final String VERSION_MISMATCH = "urn:oasis:names:tc:SAML:2.0:status:VersionMismatch";
         public static final String AUTHN_FAILURE = "urn:oasis:names:tc:SAML:2.0:status:AuthnFailed";
         public static final String NO_PASSIVE = "urn:oasis:names:tc:SAML:2.0:status:NoPassive";
+
+        private StatusCodes() {
+        }
     }
 
-    public class SingleLogoutCodes {
+    public static class SingleLogoutCodes {
         public static final String LOGOUT_USER = "urn:oasis:names:tc:SAML:2.0:logout:user";
         public static final String LOGOUT_ADMIN = "urn:oasis:names:tc:SAML:2.0:logout:admin";
+
+        private SingleLogoutCodes() {
+        }
     }
 
-    public class AuthnModes {
+    public static class AuthnModes {
         public static final String USERNAME_PASSWORD = "usernamePasswordBasedAuthn";
         public static final String OPENID = "openIDBasedAuthn";
+
+        private AuthnModes() {
+        }
     }
 
-    public class Attribute {
+    public static class Attribute {
         public static final String ISSUER_FORMAT = "urn:oasis:names:tc:SAML:2.0:nameid-format:entity";
+
+        private Attribute() {
+        }
     }
 
-    public class Notification {
+    public static class Notification {
         public static final String EXCEPTION_STATUS = "Error when processing the authentication request!";
         public static final String EXCEPTION_MESSAGE = "Please try login again.";
         public static final String NORELAY_STATUS = "RealyState is not present in the request!";
         public static final String NORELAY_MESSAGE = "This request will not be processed further.";
         public static final String INVALID_MESSAGE_STATUS = "Not a valid SAML 2.0 Request Message!";
         public static final String INVALID_MESSAGE_MESSAGE = "The message was not recognized by the SAML 2.0 SSO Provider. Please check the logs for more details";
+
+        private Notification() {
+        }
     }
 
 }

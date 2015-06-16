@@ -1,18 +1,21 @@
 /*
- * Copyright (c) WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
+
 package org.wso2.carbon.identity.mgt.services;
 
 import org.apache.commons.logging.Log;
@@ -27,7 +30,12 @@ import org.wso2.carbon.identity.mgt.RecoveryProcessor;
 import org.wso2.carbon.identity.mgt.beans.UserIdentityMgtBean;
 import org.wso2.carbon.identity.mgt.beans.VerificationBean;
 import org.wso2.carbon.identity.mgt.constants.IdentityMgtConstants;
-import org.wso2.carbon.identity.mgt.dto.*;
+import org.wso2.carbon.identity.mgt.dto.NotificationDataDTO;
+import org.wso2.carbon.identity.mgt.dto.UserChallengesDTO;
+import org.wso2.carbon.identity.mgt.dto.UserDTO;
+import org.wso2.carbon.identity.mgt.dto.UserIdentityClaimDTO;
+import org.wso2.carbon.identity.mgt.dto.UserRecoveryDTO;
+import org.wso2.carbon.identity.mgt.dto.UserRecoveryDataDO;
 import org.wso2.carbon.identity.mgt.internal.IdentityMgtServiceComponent;
 import org.wso2.carbon.identity.mgt.util.UserIdentityManagementUtil;
 import org.wso2.carbon.identity.mgt.util.Utils;
@@ -232,7 +240,7 @@ public class UserAccountRecoveryService {
         try {
             IdentityMgtServiceComponent.getRecoveryProcessor().recoverWithNotification(dto);
         } catch (IdentityException e) {
-            throw new IdentityMgtServiceException("Error while password recovery");
+            throw new IdentityMgtServiceException("Error while password recovery", e);
         }
     }
 
@@ -262,7 +270,7 @@ public class UserAccountRecoveryService {
         try {
             return UserIdentityManagementUtil.getPrimaryQuestions(-1234);
         } catch (IdentityException e) {
-            throw new IdentityMgtServiceException("Error while reading security questions");
+            throw new IdentityMgtServiceException("Error while reading security questions", e);
         }
     }
 
@@ -297,7 +305,7 @@ public class UserAccountRecoveryService {
             try {
                 CaptchaUtil.processCaptchaInfoBean(captchaInfoBean);
             } catch (Exception e) {
-                log.error(e.getMessage());
+                log.error("Error in verify user.", e);
                 bean.setError(VerificationBean.ERROR_CODE_INVALID_CAPTCHA);
                 bean.setVerified(false);
                 return bean;
@@ -307,7 +315,7 @@ public class UserAccountRecoveryService {
         try {
             userDTO = Utils.processUserId(userName);
         } catch (IdentityException e) {
-            log.error(e.getMessage());
+            log.error("Error in verify user.", e);
             bean.setError(VerificationBean.ERROR_CODE_INVALID_USER);
             bean.setVerified(false);
             return bean;
@@ -331,7 +339,7 @@ public class UserAccountRecoveryService {
         try {
             userDTO = Utils.processUserId(userId);
         } catch (IdentityException e) {
-            throw new IdentityMgtServiceException("invalid user name");
+            throw new IdentityMgtServiceException("invalid user name", e);
         }
 
         RecoveryProcessor processor = IdentityMgtServiceComponent.getRecoveryProcessor();
@@ -350,7 +358,7 @@ public class UserAccountRecoveryService {
         try {
             dataDTO = processor.recoverWithNotification(dto);
         } catch (IdentityException e) {
-            throw new IdentityMgtServiceException("Error while password recovery");
+            throw new IdentityMgtServiceException("Error while password recovery", e);
         }
         return dataDTO.isNotificationSent();
     }
@@ -369,7 +377,7 @@ public class UserAccountRecoveryService {
         try {
             userDTO = Utils.processUserId(userName);
         } catch (IdentityException e) {
-            throw new IdentityMgtServiceException("invalid user name");
+            throw new IdentityMgtServiceException("invalid user name", e);
         }
 
         RecoveryProcessor processor = IdentityMgtServiceComponent.getRecoveryProcessor();
@@ -380,13 +388,13 @@ public class UserAccountRecoveryService {
             try {
                 processor.createConfirmationCode(userDTO, confirmation);
             } catch (IdentityException e) {
-                e.printStackTrace();
+                throw new IdentityMgtServiceException("Error in creating confirmation code.", e);
             }
             return processor.getQuestionProcessor().
                     getChallengeQuestionsOfUser(userDTO.getUserId(), userDTO.getTenantId(), false);
         }
 
-        return null;
+        return new UserChallengesDTO[0];
     }
 
 
@@ -413,7 +421,7 @@ public class UserAccountRecoveryService {
         try {
             userDTO = Utils.processUserId(userName);
         } catch (IdentityException e) {
-            throw new IdentityMgtServiceException("invalid user name");
+            throw new IdentityMgtServiceException("invalid user name", e);
         }
 
         if (recoveryProcessor.verifyConfirmationKey(confirmation).isVerified()) {
@@ -432,7 +440,7 @@ public class UserAccountRecoveryService {
             try {
                 recoveryProcessor.createConfirmationCode(userDTO, code);
             } catch (IdentityException e) {
-                e.printStackTrace();
+                log.error("Error in creating confirmation code", e);
             }
             bean = new VerificationBean(userName, code);
         }
@@ -455,6 +463,7 @@ public class UserAccountRecoveryService {
             try {
                 CaptchaUtil.processCaptchaInfoBean(captchaInfoBean);
             } catch (Exception e) {
+                log.error("Error in processing captcha info.", e);
                 return new VerificationBean(VerificationBean.ERROR_CODE_INVALID_CAPTCHA);
             }
         }
@@ -466,7 +475,6 @@ public class UserAccountRecoveryService {
                         " and tenant domain : " + userDTO.getTenantDomain());
                 return new VerificationBean(true);
             } else {
-                new VerificationBean(VerificationBean.ERROR_CODE_UN_EXPECTED);
                 log.warn("Invalid user tried to update credential with user Id : " + userDTO.getUserId() +
                         " and tenant domain : " + userDTO.getTenantDomain());
             }
@@ -474,7 +482,7 @@ public class UserAccountRecoveryService {
         } catch (Exception e) {
             log.error("Error while updating credential for user : " + userName, e);
         }
-        return new VerificationBean(VerificationBean.ERROR_CODE_UN_EXPECTED);
+        return new VerificationBean(VerificationBean.ERROR_CODE_UNEXPECTED);
     }
 
 }

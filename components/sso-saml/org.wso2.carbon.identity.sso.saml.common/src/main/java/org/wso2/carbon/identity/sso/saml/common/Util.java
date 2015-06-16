@@ -1,21 +1,26 @@
 /*
+ *
  * Copyright (c) 2011, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package org.wso2.carbon.identity.sso.saml.common;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.base.IdentityConstants;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
@@ -24,14 +29,20 @@ import org.wso2.carbon.ui.util.CharacterEncoder;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
-import java.net.*;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class Util {
 
     private static final Set<Character> UNRESERVED_CHARACTERS = new HashSet<Character>();
+    private static final Log log = LogFactory.getLog(Util.class);
     static {
         for (char c = 'a'; c <= 'z'; c++)
             UNRESERVED_CHARACTERS.add(Character.valueOf(c));
@@ -49,6 +60,9 @@ public class Util {
     }
     private static int singleLogoutRetryCount = 5;
     private static long singleLogoutRetryInterval = 60000;
+
+    private Util() {
+    }
 
     public static int getSingleLogoutRetryCount() {
         return singleLogoutRetryCount;
@@ -112,7 +126,7 @@ public class Util {
     public static SAMLSSOServiceProviderDTO[] doFilter(String filter,
                                                        SAMLSSOServiceProviderDTO[] serviceProviderSet) {
         String regPattern = filter.replace("*", ".*");
-        ArrayList<SAMLSSOServiceProviderDTO> list = new ArrayList<SAMLSSOServiceProviderDTO>();
+        List<SAMLSSOServiceProviderDTO> list = new ArrayList<SAMLSSOServiceProviderDTO>();
         for (SAMLSSOServiceProviderDTO serviceProvider : serviceProviderSet) {
             if (serviceProvider.getIssuer().toLowerCase().matches(regPattern.toLowerCase())) {
                 list.add(serviceProvider);
@@ -192,7 +206,7 @@ public class Util {
             return null;
 
         int len = text.length();
-        StringBuffer normalized = new StringBuffer(len);
+        StringBuilder normalized = new StringBuilder(len);
 
         for (int i = 0; i < len; i++) {
             char current = text.charAt(i);
@@ -206,6 +220,9 @@ public class Util {
                     else
                         normalized.append(percentCode);
                 } catch (UnsupportedEncodingException e) {
+                    if(log.isDebugEnabled()){
+                        log.debug("Url Encoding not supported.", e);
+                    }
                     normalized.append(percentCode);
                 }
                 i += 2;

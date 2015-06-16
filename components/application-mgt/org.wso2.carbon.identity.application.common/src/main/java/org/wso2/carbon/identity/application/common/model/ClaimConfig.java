@@ -1,28 +1,29 @@
 /*
- *Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- *WSO2 Inc. licenses this file to you under the Apache License,
- *Version 2.0 (the "License"); you may not use this file except
- *in compliance with the License.
- *You may obtain a copy of the License at
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *Unless required by applicable law or agreed to in writing,
- *software distributed under the License is distributed on an
- *"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *KIND, either express or implied.  See the License for the
- *specific language governing permissions and limitations
- *under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
-
 package org.wso2.carbon.identity.application.common.model;
 
 import org.apache.axiom.om.OMElement;
+import org.apache.commons.collections.CollectionUtils;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 public class ClaimConfig implements Serializable {
 
@@ -53,40 +54,39 @@ public class ClaimConfig implements Serializable {
             OMElement element = (OMElement) (iter.next());
             String elementName = element.getLocalName();
 
-            if (elementName.equals("RoleClaimURI")) {
+            if ("RoleClaimURI".equals(elementName)) {
                 claimConfig.setRoleClaimURI(element.getText());
-            } else if (elementName.equals("LocalClaimDialect")) {
+            } else if ("LocalClaimDialect".equals(elementName)) {
                 if (element.getText() != null) {
                     claimConfig.setLocalClaimDialect(Boolean.parseBoolean(element.getText()));
                 }
-            } else if (elementName.equals("UserClaimURI")) {
+            } else if ("UserClaimURI".equals(elementName)) {
                 claimConfig.setUserClaimURI(element.getText());
-            } else if (elementName.equals("AlwaysSendMappedLocalSubjectId")) {
-                if (element.getText() != null && "true".equals(element.getText())) {
+            } else if ("AlwaysSendMappedLocalSubjectId".equals(elementName)) {
+                if ("true".equals(element.getText())) {
                     claimConfig.setAlwaysSendMappedLocalSubjectId(true);
                 }
-            } else if (elementName.equals("IdpClaims")) {
+            } else if ("IdpClaims".equals(elementName)) {
                 Iterator<?> idpClaimsIter = element.getChildElements();
-                ArrayList<Claim> idpClaimsArrList = new ArrayList<Claim>();
+                List<Claim> idpClaimsArrList = new ArrayList<Claim>();
 
                 if (idpClaimsIter != null) {
                     while (idpClaimsIter.hasNext()) {
                         OMElement idpClaimsElement = (OMElement) (idpClaimsIter.next());
                         Claim claim = Claim.build(idpClaimsElement);
                         if (claim != null) {
-                            idpClaimsArrList.add(claim);
                         }
                     }
                 }
 
-                if (idpClaimsArrList.size() > 0) {
+                if (CollectionUtils.isNotEmpty(idpClaimsArrList)) {
                     Claim[] idpClaimsArr = idpClaimsArrList.toArray(new Claim[0]);
                     claimConfig.setIdpClaims(idpClaimsArr);
                 }
-            } else if (elementName.equals("ClaimMappings")) {
+            } else if ("ClaimMappings".equals(elementName)) {
 
                 Iterator<?> claimMappingsIter = element.getChildElements();
-                ArrayList<ClaimMapping> claimMappingsArrList = new ArrayList<ClaimMapping>();
+                List<ClaimMapping> claimMappingsArrList = new ArrayList<ClaimMapping>();
 
                 if (claimMappingsIter != null) {
                     while (claimMappingsIter.hasNext()) {
@@ -98,7 +98,7 @@ public class ClaimConfig implements Serializable {
                     }
                 }
 
-                if (claimMappingsArrList.size() > 0) {
+                if (CollectionUtils.isNotEmpty(claimMappingsArrList)) {
                     ClaimMapping[] claimMappingsArr = claimMappingsArrList
                             .toArray(new ClaimMapping[0]);
                     claimConfig.setClaimMappings(claimMappingsArr);

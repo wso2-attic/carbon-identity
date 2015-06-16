@@ -22,9 +22,22 @@ import org.wso2.balana.utils.policy.dto.BasicRuleDTO;
 import org.wso2.balana.utils.policy.dto.BasicTargetDTO;
 import org.wso2.carbon.identity.entitlement.stub.dto.EntitlementFinderDataHolder;
 import org.wso2.carbon.identity.entitlement.stub.dto.EntitlementTreeNodeDTO;
-import org.wso2.carbon.identity.entitlement.ui.dto.*;
+import org.wso2.carbon.identity.entitlement.ui.dto.ExtendAttributeDTO;
+import org.wso2.carbon.identity.entitlement.ui.dto.ObligationDTO;
+import org.wso2.carbon.identity.entitlement.ui.dto.PolicyRefIdDTO;
+import org.wso2.carbon.identity.entitlement.ui.dto.PolicySetDTO;
+import org.wso2.carbon.identity.entitlement.ui.dto.RuleDTO;
+import org.wso2.carbon.identity.entitlement.ui.dto.SimplePolicyEditorDTO;
+import org.wso2.carbon.identity.entitlement.ui.dto.TargetDTO;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * This Bean is used to keep the user data temporary while travelling through

@@ -2,7 +2,7 @@
  * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
- * Version 2.0 (the "License"); you may not use this file except
+ *  Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -15,7 +15,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package org.wso2.carbon.identity.sso.saml.ui.client;
 
 import org.apache.axis2.AxisFault;
@@ -36,6 +35,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
+import java.util.List;
 
 public class SAMLSSOConfigServiceClient {
 
@@ -142,8 +142,8 @@ public class SAMLSSOConfigServiceClient {
         }
     }
 
-    public ArrayList<String> getCertAlias() throws AxisFault {
-        ArrayList<String> certAliasList = new ArrayList<String>();
+    public List<String> getCertAlias() throws AxisFault {
+        List<String> certAliasList = new ArrayList<>();
         String[] certAliases;
         try {
             certAliases = stub.getCertAliasOfPrimaryKeyStore();

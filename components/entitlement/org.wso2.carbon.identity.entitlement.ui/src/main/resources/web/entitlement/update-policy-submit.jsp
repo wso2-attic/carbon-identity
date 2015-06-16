@@ -17,9 +17,9 @@
  -->
 <%@ page import="org.apache.axis2.context.ConfigurationContext"%>
 <%@ page import="org.wso2.carbon.CarbonConstants"%>
+<%@ page import="org.wso2.carbon.identity.entitlement.stub.dto.PolicyDTO"%>
+<%@ page import="org.wso2.carbon.identity.entitlement.ui.client.EntitlementPolicyAdminServiceClient"%>
 <%@ page import="org.wso2.carbon.ui.CarbonUIMessage"%>
-<%@ page import="org.wso2.carbon.ui.CarbonUIUtil"%>
-<%@ page import="org.wso2.carbon.utils.ServerConstants"%>
 
 <%
 	String serverURL = CarbonUIUtil.getServerURL(config
@@ -67,9 +67,9 @@
 %>
 
 <%@page
-	import="org.wso2.carbon.identity.entitlement.ui.client.EntitlementPolicyAdminServiceClient"%>
-<%@page import="java.util.ResourceBundle"%>
-<%@ page import="org.wso2.carbon.identity.entitlement.stub.dto.PolicyDTO" %>
+	import="org.wso2.carbon.ui.CarbonUIUtil"%>
+<%@page import="org.wso2.carbon.utils.ServerConstants"%>
+<%@ page import="java.util.ResourceBundle" %>
 <script
 	type="text/javascript">
     function forward() {

@@ -1,19 +1,19 @@
 /*
- *Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- *WSO2 Inc. licenses this file to you under the Apache License,
- *Version 2.0 (the "License"); you may not use this file except
- *in compliance with the License.
- *You may obtain a copy of the License at
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *Unless required by applicable law or agreed to in writing,
- *software distributed under the License is distributed on an
- *"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *KIND, either express or implied.  See the License for the
- *specific language governing permissions and limitations
- *under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package org.wso2.carbon.identity.application.common.cache;
@@ -22,7 +22,11 @@ import org.wso2.carbon.caching.impl.CacheImpl;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
-import javax.cache.*;
+import javax.cache.Cache;
+import javax.cache.CacheBuilder;
+import javax.cache.CacheConfiguration;
+import javax.cache.CacheManager;
+import javax.cache.Caching;
 import java.io.Serializable;
 import java.util.concurrent.TimeUnit;
 
@@ -80,29 +84,25 @@ public class BaseCache<K extends Serializable, V extends Serializable> {
             CacheManager cacheManager = Caching.getCacheManagerFactory()
                     .getCacheManager(APP_AUTH_FRAMEWORK_CACHE_MANAGER);
 
-            if (cacheTimeout > 0) {
-                if (stringCacheBuilder == null) {
-                    synchronized (cacheName.intern()) {
-                        if (stringCacheBuilder == null) {
-                            cacheManager.removeCache(cacheName);
-                            stringCacheBuilder = cacheManager.<String, V>createCacheBuilder(cacheName).
-                                    setExpiry(CacheConfiguration.ExpiryType.ACCESSED,
-                                            new CacheConfiguration
-                                                    .Duration(TimeUnit.SECONDS, cacheTimeout)).
-                                    setExpiry(CacheConfiguration.ExpiryType.MODIFIED,
-                                            new CacheConfiguration
-                                                    .Duration(TimeUnit.SECONDS, cacheTimeout)).
-                                    setStoreByValue(false);
-                            cache = stringCacheBuilder.build();
-                            if (capacity != 0) {
-                                ((CacheImpl) cache).setCapacity(capacity);
-                            }
-                        } else {
-                            cache = cacheManager.getCache(cacheName);
+            if (cacheTimeout > 0 && stringCacheBuilder == null) {
+                synchronized (cacheName.intern()) {
+                    if (stringCacheBuilder == null) {
+                        cacheManager.removeCache(cacheName);
+                        stringCacheBuilder = cacheManager.<String, V>createCacheBuilder(cacheName).
+                                setExpiry(CacheConfiguration.ExpiryType.ACCESSED,
+                                        new CacheConfiguration
+                                                .Duration(TimeUnit.SECONDS, cacheTimeout)).
+                                setExpiry(CacheConfiguration.ExpiryType.MODIFIED,
+                                        new CacheConfiguration
+                                                .Duration(TimeUnit.SECONDS, cacheTimeout)).
+                                setStoreByValue(false);
+                        cache = stringCacheBuilder.build();
+                        if (capacity != 0) {
+                            ((CacheImpl) cache).setCapacity(capacity);
                         }
+                    } else {
+                        cache = cacheManager.getCache(cacheName);
                     }
-                } else {
-                    cache = cacheManager.getCache(cacheName);
                 }
             } else {
                 cache = cacheManager.getCache(cacheName);
@@ -129,30 +129,27 @@ public class BaseCache<K extends Serializable, V extends Serializable> {
             CacheManager cacheManager = Caching.getCacheManagerFactory()
                     .getCacheManager(APP_AUTH_FRAMEWORK_CACHE_MANAGER);
 
-            if (cacheTimeout > 0) {
-                if (cacheBuilder == null) {
-                    synchronized (cacheName.intern()) {
-                        if (cacheBuilder == null) {
-                            cacheManager.removeCache(cacheName);
-                            cacheBuilder = cacheManager.<K, V>createCacheBuilder(cacheName).
-                                    setExpiry(CacheConfiguration.ExpiryType.ACCESSED,
-                                            new CacheConfiguration
-                                                    .Duration(TimeUnit.SECONDS, cacheTimeout)).
-                                    setExpiry(CacheConfiguration.ExpiryType.MODIFIED,
-                                            new CacheConfiguration
-                                                    .Duration(TimeUnit.SECONDS, cacheTimeout)).
-                                    setStoreByValue(false);
-                            cache = cacheBuilder.build();
-                            if (capacity != 0) {
-                                ((CacheImpl) cache).setCapacity(capacity);
-                            }
-                        } else {
-                            cache = cacheManager.getCache(cacheName);
+            if (cacheTimeout > 0 && cacheBuilder == null) {
+                synchronized (cacheName.intern()) {
+                    if (cacheBuilder == null) {
+                        cacheManager.removeCache(cacheName);
+                        cacheBuilder = cacheManager.<K, V>createCacheBuilder(cacheName).
+                                setExpiry(CacheConfiguration.ExpiryType.ACCESSED,
+                                        new CacheConfiguration
+                                                .Duration(TimeUnit.SECONDS, cacheTimeout)).
+                                setExpiry(CacheConfiguration.ExpiryType.MODIFIED,
+                                        new CacheConfiguration
+                                                .Duration(TimeUnit.SECONDS, cacheTimeout)).
+                                setStoreByValue(false);
+                        cache = cacheBuilder.build();
+                        if (capacity != 0) {
+                            ((CacheImpl) cache).setCapacity(capacity);
                         }
+                    } else {
+                        cache = cacheManager.getCache(cacheName);
                     }
-                } else {
-                    cache = cacheManager.getCache(cacheName);
                 }
+
             } else {
                 cache = cacheManager.getCache(cacheName);
 
@@ -178,7 +175,6 @@ public class BaseCache<K extends Serializable, V extends Serializable> {
             carbonContext.setTenantId(MultitenantConstants.SUPER_TENANT_ID);
             carbonContext.setTenantDomain(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
             // Element already in the cache. Remove it first
-            //clearCacheEntry(key);
             Cache<K, V> cache = getBaseCache();
             if (cache != null) {
                 cache.put(key, entry);
@@ -196,7 +192,6 @@ public class BaseCache<K extends Serializable, V extends Serializable> {
             carbonContext.setTenantId(MultitenantConstants.SUPER_TENANT_ID);
             carbonContext.setTenantDomain(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
             // Element already in the cache. Remove it first
-            //clearCacheEntry(key);
             Cache<String, V> cache = getBaseCacheWithStringKey();
             if (cache != null) {
                 cache.put(key, entry);

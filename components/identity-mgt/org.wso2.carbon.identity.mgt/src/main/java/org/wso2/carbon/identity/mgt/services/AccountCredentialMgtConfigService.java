@@ -1,28 +1,33 @@
 /*
- *  Copyright (c)  WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- *  WSO2 Inc. licenses this file to you under the Apache License,
+ * WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
- *  in compliance with the License.
- *  You may obtain a copy of the License at
+ * in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *  http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing,
- *  software distributed under the License is distributed on an
- *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *  KIND, either express or implied.  See the License for the
- *  specific language governing permissions and limitations
- *  under the License.
- *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
+
 package org.wso2.carbon.identity.mgt.services;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.mgt.IdentityMgtServiceException;
-import org.wso2.carbon.identity.mgt.config.*;
+import org.wso2.carbon.identity.mgt.config.Config;
+import org.wso2.carbon.identity.mgt.config.ConfigBuilder;
+import org.wso2.carbon.identity.mgt.config.ConfigType;
+import org.wso2.carbon.identity.mgt.config.EmailConfigTransformer;
+import org.wso2.carbon.identity.mgt.config.EmailNotificationConfig;
+import org.wso2.carbon.identity.mgt.config.StorageType;
 import org.wso2.carbon.identity.mgt.dto.EmailTemplateDTO;
 
 import java.util.Properties;
@@ -54,10 +59,10 @@ public class AccountCredentialMgtConfigService {
             emailConfig.setProperties(props);
 
             configBuilder.saveConfiguration(StorageType.REGISTRY, tenantId,
-                    emailConfig);
+                                            emailConfig);
         } catch (Exception e) {
-            throw new IdentityMgtServiceException(
-                    "Error occurred while saving email configuration", e);
+            log.error("Error occurred while saving email configuration", e);
+            throw new IdentityMgtServiceException("Error occurred while saving email configuration");
         }
     }
 
@@ -76,14 +81,14 @@ public class AccountCredentialMgtConfigService {
         ConfigBuilder configBuilder = ConfigBuilder.getInstance();
         try {
             emailConfig = configBuilder.loadConfiguration(ConfigType.EMAIL,
-                    StorageType.REGISTRY, tenantId);
+                                                          StorageType.REGISTRY, tenantId);
             if (emailConfig != null) {
 
                 templates = EmailConfigTransformer.transform(emailConfig.getProperties());
             }
         } catch (Exception e) {
-            throw new IdentityMgtServiceException(
-                    "Error occurred while loading email configuration", e);
+            log.error("Error occurred while loading email configuration", e);
+            throw new IdentityMgtServiceException("Error occurred while loading email configuration");
         }
 
         return templates;

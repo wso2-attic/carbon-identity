@@ -18,17 +18,17 @@
 <%@ page import="org.apache.axis2.context.ConfigurationContext" %>
 <%@ page import="org.apache.xml.serialize.OutputFormat" %>
 <%@ page import="org.apache.xml.serialize.XMLSerializer" %>
-<%@ page import="org.openid4java.message.ParameterList" %>
 <%@ page import="org.w3c.dom.Element" %>
 <%@ page import="org.wso2.carbon.CarbonConstants" %>
-
 <%@ page import="org.wso2.carbon.identity.provider.openid.client.OpenIDAdminClient" %>
+
+<%@ page import="org.wso2.carbon.identity.provider.openid.stub.dto.InfoCardDTO" %>
+<%@ page import="org.wso2.carbon.identity.provider.openid.stub.dto.InfoCardSignInDTO" %>
 <%@ page import="org.wso2.carbon.identity.provider.openid.util.TokenDecrypter" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
-<%@ page import="org.wso2.carbon.utils.ServerConstants" %>
+<%@ page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
 <%@ page import="java.io.StringWriter" %>
-<%@ page import="java.util.ArrayList" %>
 
 <%
     String openididentity = (String) session.getAttribute("openId");
@@ -75,9 +75,6 @@
 %>
 
 <%@page import="java.util.ResourceBundle"%>
-<%@ page import="org.wso2.carbon.identity.provider.openid.stub.dto.InfoCardDTO" %>
-<%@ page import="org.wso2.carbon.identity.provider.openid.stub.dto.InfoCardSignInDTO" %>
-<%@ page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
 <script type="text/javascript">
     forward();
 </script>

@@ -1,8 +1,8 @@
 /*
- * Copyright (c) 2007   , WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2007, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
- * Version 2.0 (the "License"); you may not use this file except
+ *  Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -44,6 +44,7 @@ import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 public class SAMLSSOConfigService extends AbstractAdmin {
 
     private static Log log = LogFactory.getLog(SAMLSSOConfigService.class);
+
 
     /**
      * add a new SAML SSO service provider
@@ -171,9 +172,9 @@ public class SAMLSSOConfigService extends AbstractAdmin {
             String claimDialect = IdentityUtil
                     .getProperty(IdentityConstants.ServerConfig.SSO_ATTRIB_CLAIM_DIALECT);
 
-            if (claimDialect == null || claimDialect.equals("")) {
+            if (claimDialect == null || "".equals(claimDialect)) {
                 // set default
-                claimDialect = "http://wso2.org/claims";
+                claimDialect = SAMLSSOConstants.CLAIM_DIALECT_URL;
             }
 
             ClaimMapping[] claims = realm.getClaimManager().getAllClaimMappings(claimDialect);

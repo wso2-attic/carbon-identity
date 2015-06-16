@@ -1,17 +1,19 @@
 /*
- * Copyright 2005-2008 WSO2, Inc. (http://wso2.com)
- * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright (c) 2005-2008, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package org.wso2.carbon.identity.provider.openid;
@@ -25,7 +27,11 @@ import org.wso2.carbon.identity.provider.IdentityProviderException;
 import org.wso2.carbon.user.core.UserStoreManager;
 
 import java.io.UnsupportedEncodingException;
-import java.net.*;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLDecoder;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -37,7 +43,7 @@ import java.util.Set;
 public class OpenIDUtil {
 
     private static final Set<Character> UNRESERVED_CHARACTERS = new HashSet<Character>();
-    private static Log log = LogFactory.getLog(OpenIDUtil.class);
+    private static final Log log = LogFactory.getLog(OpenIDUtil.class);
     private static Map<String, String> axMapping = new HashMap<String, String>();
 
     static {
@@ -56,6 +62,9 @@ public class OpenIDUtil {
         UNRESERVED_CHARACTERS.add(Character.valueOf('~'));
     }
 
+    private OpenIDUtil() {
+    }
+
     /**
      * Generate OpenID for a given user.
      *
@@ -70,13 +79,14 @@ public class OpenIDUtil {
         String openID = null;
         URI uri = null;
         URL url = null;
+        String encodedUser = null;
 
         serverConfig = ServerConfiguration.getInstance();
         openIDUserUrl = serverConfig.getFirstProperty(IdentityConstants.ServerConfig.OPENID_SERVER_URL);
 
-        user = normalizeUrlEncoding(user);
+        encodedUser = normalizeUrlEncoding(user);
 
-        openID = String.format(openIDUserUrl, user);
+        openID = String.format(openIDUserUrl, encodedUser);
 
         try {
             uri = new URI(openID);
@@ -111,11 +121,12 @@ public class OpenIDUtil {
      */
     private static String normalizeUrlEncoding(String text) {
 
-        if (text == null)
+        if (text == null) {
             return null;
+        }
 
         int len = text.length();
-        StringBuffer normalized = new StringBuffer(len);
+        StringBuilder normalized = new StringBuilder(len);
 
         for (int i = 0; i < len; i++) {
             char current = text.charAt(i);
@@ -124,10 +135,11 @@ public class OpenIDUtil {
                 try {
                     String str = URLDecoder.decode(percentCode, "ISO-8859-1");
                     char chr = str.charAt(0);
-                    if (UNRESERVED_CHARACTERS.contains(Character.valueOf(chr)))
+                    if (UNRESERVED_CHARACTERS.contains(Character.valueOf(chr))) {
                         normalized.append(chr);
-                    else
+                    } else {
                         normalized.append(percentCode);
+                    }
                 } catch (UnsupportedEncodingException e) {
                     normalized.append(percentCode);
                 }
@@ -170,19 +182,13 @@ public class OpenIDUtil {
      * @return
      * @throws Exception
      */
-    public static String getUserName(String openID) throws Exception {
-        // openIDPattern = https://openid:9443/openid/admin
+    public static String getUserName(String openID) throws MalformedURLException {
 
-        try {
-            openID = new URL(openID).getPath();
-        } catch (MalformedURLException e) {
-            throw new Exception("Invalid OpenID Identifier " + openID, e);
-        }
+        // openIDPattern = https://openid:9443/openid/admin
+        String openIDUrlPath = new URL(openID).getPath();
         String contextPath = "/openid";
-        String user =
-                openID.substring(openID.indexOf(contextPath) + contextPath.length() + 1,
-                        openID.length());
-        return user;
+        return openIDUrlPath.substring(openIDUrlPath.indexOf(contextPath) + contextPath.length() + 1,
+                                       openIDUrlPath.length());
     }
 
     /**
@@ -194,9 +200,7 @@ public class OpenIDUtil {
      */
     public static boolean doLogin(String username, String password) {
         try {
-            UserStoreManager userStore =
-                    IdentityTenantUtil.getRealm(null, username)
-                            .getUserStoreManager();
+            UserStoreManager userStore = IdentityTenantUtil.getRealm(null, username).getUserStoreManager();
             return userStore.authenticate(username, password);
         } catch (Exception e) {
             log.error("Error while authenticating user", e);

@@ -1,20 +1,20 @@
 /*
-*  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package org.wso2.carbon.claim.mgt;
 
 import org.wso2.carbon.claim.mgt.dto.ClaimAttributeDTO;
@@ -23,17 +23,21 @@ import org.wso2.carbon.claim.mgt.dto.ClaimDialectDTO;
 import org.wso2.carbon.claim.mgt.dto.ClaimMappingDTO;
 import org.wso2.carbon.user.api.Claim;
 import org.wso2.carbon.user.api.ClaimMapping;
-import org.wso2.carbon.user.core.UserStoreException;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 public class ClaimAdminService {
 
     /**
-     * @throws Exception
+     * @throws ClaimManagementException
      */
-    public ClaimDialectDTO[] getClaimMappings() throws Exception {
+    public ClaimDialectDTO[] getClaimMappings() throws ClaimManagementException {
 
         ClaimMapping[] claimMappings = null;
         List<ClaimMapping> mappingList = null;
@@ -47,14 +51,14 @@ public class ClaimAdminService {
             return new ClaimDialectDTO[0];
         }
 
-        claimMap = new HashMap<String, List<ClaimMapping>>();
-        claims = new ArrayList<ClaimDialect>();
+        claimMap = new HashMap<>();
+        claims = new ArrayList<>();
 
         for (int i = 0; i < claimMappings.length; i++) {
             String dialectUri = claimMappings[i].getClaim().getDialectURI();
 
             if (!claimMap.containsKey(dialectUri)) {
-                mappingList = new ArrayList<ClaimMapping>();
+                mappingList = new ArrayList<>();
                 mappingList.add(claimMappings[i]);
                 claimMap.put(dialectUri, mappingList);
             } else {
@@ -63,15 +67,13 @@ public class ClaimAdminService {
             }
         }
 
-        Iterator<Entry<String, List<ClaimMapping>>> iterator = claimMap.entrySet().iterator();
-
-        while (iterator.hasNext()) {
-            Entry<String, List<ClaimMapping>> entry = iterator.next();
+        for (Entry<String, List<ClaimMapping>> entry : claimMap.entrySet()) {
             mappingList = entry.getValue();
             dto = new ClaimDialect();
             ClaimMapping[] claimMappingArray = mappingList.toArray(new ClaimMapping[mappingList.size()]);
             // Sort the claims in the alphabetical order
             Arrays.sort(claimMappingArray, new Comparator<ClaimMapping>() {
+                @Override
                 public int compare(ClaimMapping o1, ClaimMapping o2) {
                     return o1.getClaim().getDescription().toLowerCase().compareTo(
                             o2.getClaim().getDescription().toLowerCase());
@@ -85,38 +87,38 @@ public class ClaimAdminService {
         /*convert the array of ClaimDialects in complex structure to an array of ClaimDialectDTO in
          simple structure for the purpose of exposing as a data structure by the web service method.
          That will make it easy for POJO to generate client side code and wsdl with out complexity*/
-        ClaimDialectDTO[] claimDialectDTOs = convertClaimDialectArrayToClaimDialectDTOArray(
-                claims.toArray(new ClaimDialect[claims.size()]));
 
-        return claimDialectDTOs;
-        //return claims.toArray(new ClaimDialect[claims.size()]);
+        return convertClaimDialectArrayToClaimDialectDTOArray(
+                claims.toArray(new ClaimDialect[claims.size()]));
     }
 
     /**
      * @param dialectUri
      * @return
-     * @throws Exception
+     * @throws ClaimManagementException
      */
-    public ClaimDialectDTO getClaimMappingByDialect(String dialectUri) throws Exception {
-        ClaimMapping[] claimMappings = null;
-        ClaimDialect claimDialect = null;
+    public ClaimDialectDTO getClaimMappingByDialect(String dialectUri) throws ClaimManagementException {
+        ClaimMapping[] claimMappings;
+        ClaimDialect claimDialect;
 
         claimMappings = ClaimManagerHandler.getInstance().getAllSupportedClaimMappings(dialectUri);
 
         class ClaimComparator implements Comparator<ClaimMapping> {
+            @Override
             public int compare(ClaimMapping o1, ClaimMapping o2) {
                 return o1.getClaim().getDisplayTag().compareTo(o2.getClaim().getDisplayTag());
             }
         }
         // Sort the claims in the alphabetical order
         Arrays.sort(claimMappings, new Comparator<ClaimMapping>() {
+            @Override
             public int compare(ClaimMapping o1, ClaimMapping o2) {
                 return o1.getClaim().getDescription().toLowerCase().compareTo(
                         o2.getClaim().getDescription().toLowerCase());
             }
         });
 
-        if (claimMappings == null || claimMappings.length == 0) {
+        if (claimMappings.length == 0) {
             return null;
         }
 
@@ -125,26 +127,25 @@ public class ClaimAdminService {
         claimDialect.setDialectUri(dialectUri);
         /*Convert the ClaimDialect type to ClaimDialectDTO type for simplicity of structure
         when exposing through the web service as a data structure.*/
-        ClaimDialectDTO claimDialectDTO = convertClaimDialectToClaimDialectDTO(claimDialect);
-        return claimDialectDTO;
+        return convertClaimDialectToClaimDialectDTO(claimDialect);
     }
 
     /**
      * @param
-     * @throws Exception
+     * @throws ClaimManagementException
      */
-    public void upateClaimMapping(ClaimMappingDTO claimMappingDTO) throws Exception {
+    public void upateClaimMapping(ClaimMappingDTO claimMappingDTO) throws ClaimManagementException {
         /*Convert the simple structure of ClaimMapping received, to the complex structure
         of ClaimMapping which is used in the back end. */
         ClaimMapping claimMapping = convertClaimMappingDTOToClaimMapping(claimMappingDTO);
-        ClaimManagerHandler.getInstance().upateClaimMapping(claimMapping);
+        ClaimManagerHandler.getInstance().updateClaimMapping(claimMapping);
     }
 
     /**
      * @param
-     * @throws Exception
+     * @throws ClaimManagementException
      */
-    public void addNewClaimMapping(ClaimMappingDTO claimMappingDTO) throws Exception {
+    public void addNewClaimMapping(ClaimMappingDTO claimMappingDTO) throws ClaimManagementException {
         /*Convert the simple structure of ClaimMapping received, to the complex structure
         of ClaimMapping which is used in the back end. */
         ClaimMapping claimMapping = convertClaimMappingDTOToClaimMapping(claimMappingDTO);
@@ -152,7 +153,7 @@ public class ClaimAdminService {
         ClaimMapping currentMapping = handler.getClaimMapping(
                 claimMapping.getClaim().getClaimUri());
         if (currentMapping != null) {
-            throw new UserStoreException(
+            throw new ClaimManagementException(
                     "Duplicate claim exist in the system. Please pick a different Claim Uri");
         }
         handler.addNewClaimMapping(claimMapping);
@@ -161,16 +162,16 @@ public class ClaimAdminService {
     /**
      * @param dialectUri
      * @param claimUri
-     * @throws Exception
+     * @throws ClaimManagementException
      */
-    public void removeClaimMapping(String dialectUri, String claimUri) throws Exception {
+    public void removeClaimMapping(String dialectUri, String claimUri) throws ClaimManagementException {
         ClaimManagerHandler.getInstance().removeClaimMapping(dialectUri, claimUri);
     }
 
     /**
      * @param
      */
-    public void addNewClaimDialect(ClaimDialectDTO claimDialectDTO) throws Exception {
+    public void addNewClaimDialect(ClaimDialectDTO claimDialectDTO) throws ClaimManagementException {
         /*Convert the simple structure of ClaimDialectDTO received, to the complex structure
         of ClaimDialect which is used in the back end. */
         ClaimDialect claimDialect = convertClaimDialectDTOToClaimDialect(claimDialectDTO);
@@ -180,18 +181,18 @@ public class ClaimAdminService {
     /**
      * @param
      */
-    public void removeClaimDialect(String dialectUri) throws Exception {
+    public void removeClaimDialect(String dialectUri) throws ClaimManagementException {
         ClaimManagerHandler.getInstance().removeClaimDialect(dialectUri);
     }
 
     private ClaimDialectDTO[] convertClaimDialectArrayToClaimDialectDTOArray(
             ClaimDialect[] claimDialects) {
-        List<ClaimDialectDTO> claimDialectDTOList = new ArrayList<ClaimDialectDTO>();
+        List<ClaimDialectDTO> claimDialectDTOList = new ArrayList<>();
         for (ClaimDialect claimDialect : claimDialects) {
             ClaimDialectDTO claimDialectDTO = convertClaimDialectToClaimDialectDTO(claimDialect);
             claimDialectDTOList.add(claimDialectDTO);
         }
-        return claimDialectDTOList.toArray(new ClaimDialectDTO[(claimDialectDTOList.size())]);
+        return claimDialectDTOList.toArray(new ClaimDialectDTO[claimDialectDTOList.size()]);
     }
 
     private ClaimDialectDTO convertClaimDialectToClaimDialectDTO(ClaimDialect claimDialect) {
@@ -252,21 +253,18 @@ public class ClaimAdminService {
         ClaimMapping claimMapping = new ClaimMapping(
                 convertClaimDTOToClaim(claimMappingDTO.getClaim()),
                 claimMappingDTO.getMappedAttribute());
-        // claimMapping.setClaim(convertClaimDTOToClaim(claimMappingDTO.getClaim()));
-        // claimMapping.setMappedAttribute(claimMappingDTO.getMappedAttribute());
 
         ClaimAttributeDTO[] attributes = claimMappingDTO.getMappedAttributes();
 
         if (attributes != null) {
-            for (int i = 0; i < attributes.length; i++) {
-                if (attributes[i].getDomainName() == null) {
-                    //claimMapping.setMappedAttribute(attributes[i].getAttributeName());
-                } else {
-                    claimMapping.setMappedAttribute(attributes[i].getDomainName(),
-                            attributes[i].getAttributeName());
+            for (ClaimAttributeDTO attribute : attributes) {
+                if (attribute.getDomainName() != null) {
+                    claimMapping.setMappedAttribute(attribute.getDomainName(),
+                                                    attribute.getAttributeName());
                 }
             }
         }
+
         return claimMapping;
     }
 

@@ -1,22 +1,26 @@
 /*
- * Copyright (c) WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
+
 package org.wso2.carbon.identity.mgt.mail;
 
 import org.apache.axiom.om.OMAbstractFactory;
 import org.apache.axiom.om.OMElement;
+import org.apache.axis2.AxisFault;
 import org.apache.axis2.Constants;
 import org.apache.axis2.addressing.EndpointReference;
 import org.apache.axis2.client.Options;
@@ -62,6 +66,7 @@ public class DefaultEmailSendingModule extends AbstractEmailSendingModule {
         return text;
     }
 
+    @Override
     public void sendEmail() {
 
         Map<String, String> headerMap = new HashMap<String, String>();
@@ -104,48 +109,34 @@ public class DefaultEmailSendingModule extends AbstractEmailSendingModule {
                 log.debug("Email content : " + this.notification.getBody());
             }
             log.info("User credentials configuration mail has been sent to " + this.notification.getSendTo());
-        } catch (Exception e) {
-            log.error("Failed Sending Email" + e);
+        } catch (AxisFault axisFault) {
+            log.error("Failed Sending Email", axisFault);
         } finally {
             PrivilegedCarbonContext.endTenantFlow();
         }
 
     }
 
-    /**
-     * @param userParameters
-     * @return
-     */
-//	private String getEmailMessage(Map<String, String> userParameters) {
-//		StringBuffer message = new StringBuffer();
-//		for (Map.Entry<String, String> entry : userParameters.entrySet()) {
-//			message.append("\n" + entry.getKey() + " : " + entry.getValue());
-//		}
-//		return message.toString();
-//	}
     public String getRequestMessage(EmailConfig emailConfig) {
 
-        String msg;
+        StringBuilder msg;
         String targetEpr = emailConfig.getTargetEpr();
         if (emailConfig.getEmailBody().length() == 0) {
-            msg = EmailConfig.DEFAULT_VALUE_MESSAGE + "\n";
+            msg = new StringBuilder(EmailConfig.DEFAULT_VALUE_MESSAGE);
+            msg.append("\n");
             if (notificationData.getNotificationCode() != null) {
-                msg =
-                        msg + targetEpr + "?" + CONF_STRING + "=" + notificationData.getNotificationCode() +
-                                "\n";
+
+                msg.append(targetEpr).append("?").append(CONF_STRING).append(notificationData
+                        .getNotificationCode()).append("\n");
             }
         } else {
-            msg = emailConfig.getEmailBody() + "\n";
-            if (notificationData.getNotificationCode() != null) {
-//				msg =
-//				      msg + targetEpr + "?" + CONF_STRING + "=" + notificationData.getNotificationCode() +
-//				              "\n";
-            }
+            msg = new StringBuilder(emailConfig.getEmailBody());
+            msg.append("\n");
         }
         if (emailConfig.getEmailFooter() != null) {
-            msg = msg + "\n" + emailConfig.getEmailFooter();
+            msg.append("\n").append(emailConfig.getEmailFooter());
         }
-        return msg;
+        return msg.toString();
     }
 
     @Override

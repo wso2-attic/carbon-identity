@@ -1,20 +1,20 @@
 /*
-*  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ * Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package org.wso2.carbon.identity.provider.openid.util;
 
 import org.apache.ws.security.WSConstants;
@@ -28,11 +28,18 @@ import org.wso2.carbon.base.ServerConfiguration;
 
 import javax.crypto.SecretKey;
 import javax.xml.parsers.DocumentBuilderFactory;
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.security.KeyStore;
 import java.security.PrivateKey;
 
 public class TokenDecrypter {
+
+    private TokenDecrypter() {
+    }
 
     public static Element decryptToken(String token) throws Exception {
 
@@ -71,17 +78,16 @@ public class TokenDecrypter {
 
         key = (PrivateKey) keyStore.getKey(privateKeyAlias, privateKeyPass.toCharArray());
 
-        Element kiElem = (Element) encryptedToken.getElementsByTagNameNS(WSConstants.SIG_NS,
-                "KeyInfo").item(0);
-        Element encrKeyElem = (Element) kiElem.getElementsByTagNameNS(WSConstants.ENC_NS,
-                EncryptionConstants._TAG_ENCRYPTEDKEY).item(0);
+        Element kiElem = (Element) encryptedToken.getElementsByTagNameNS(WSConstants.SIG_NS, "KeyInfo").item(0);
+        Element encrKeyElem =
+                (Element) kiElem.getElementsByTagNameNS(WSConstants.ENC_NS, EncryptionConstants._TAG_ENCRYPTEDKEY)
+                                .item(0);
 
         EncryptedKeyProcessor encrKeyProcessor = new EncryptedKeyProcessor();
         encrKeyProcessor.handleEncryptedKey(encrKeyElem, key);
 
         SecretKey secretKey = WSSecurityUtil.prepareSecretKey(
-                EncryptionConstants.ALGO_ID_BLOCKCIPHER_AES128, encrKeyProcessor
-                        .getDecryptedBytes());
+                EncryptionConstants.ALGO_ID_BLOCKCIPHER_AES128, encrKeyProcessor.getDecryptedBytes());
 
         XMLCipher cipher = XMLCipher.getInstance();
         cipher.init(XMLCipher.DECRYPT_MODE, secretKey);
@@ -105,7 +111,7 @@ public class TokenDecrypter {
             bytes = new byte[(int) length];
 
             while (offset < bytes.length
-                    && (numRead = inputStream.read(bytes, offset, bytes.length - offset)) >= 0) {
+                   && (numRead = inputStream.read(bytes, offset, bytes.length - offset)) >= 0) {
                 offset += numRead;
             }
         } finally {
