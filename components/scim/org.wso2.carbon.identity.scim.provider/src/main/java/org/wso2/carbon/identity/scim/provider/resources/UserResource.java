@@ -366,10 +366,10 @@ public class UserResource extends AbstractResource {
     @PATCH
     @Path("{id}")
     public Response updateUserPATCH(@PathParam(SCIMConstants.CommonSchemaConstants.ID) String id,
-                               @HeaderParam(SCIMConstants.CONTENT_TYPE_HEADER) String inputFormat,
-                               @HeaderParam(SCIMConstants.ACCEPT_HEADER) String outputFormat,
-                               @HeaderParam(SCIMConstants.AUTHORIZATION_HEADER) String authorization,
-                               String resourceString) {
+                                    @HeaderParam(SCIMConstants.CONTENT_TYPE_HEADER) String inputFormat,
+                                    @HeaderParam(SCIMConstants.ACCEPT_HEADER) String outputFormat,
+                                    @HeaderParam(SCIMConstants.AUTHORIZATION_HEADER) String authorization,
+                                    String resourceString) {
         Encoder encoder = null;
         try {
             // obtain default charon manager
@@ -389,13 +389,6 @@ public class UserResource extends AbstractResource {
             outputFormat = identifyOutputFormat(outputFormat);
             // obtain the encoder at this layer in case exceptions needs to be encoded.
             encoder = identitySCIMManager.getEncoder(SCIMConstants.identifyFormat(outputFormat));
-            // perform authentication
-            /*
-             * Map<String, String> headerMap = new HashMap<String, String>();
-             * headerMap.put(SCIMConstants.AUTHORIZATION_HEADER, authorization); //authenticate the
-             * request AuthenticationInfo authInfo =
-             * identitySCIMManager.handleAuthentication(headerMap);
-             */
 
             // obtain the user store manager
             UserManager userManager = IdentitySCIMManager.getInstance().getUserManager(
@@ -411,7 +404,7 @@ public class UserResource extends AbstractResource {
 
         } catch (CharonException e) {
             if (logger.isDebugEnabled()) {
-                logger.debug(e.getMessage(), e);
+                logger.debug("Charon Exception raised while executing PATCH request.", e);
             }
             // create SCIM response with code as the same of exception and message as error message
             // of the exception
@@ -422,7 +415,7 @@ public class UserResource extends AbstractResource {
                     .encodeSCIMException(encoder, e));
         } catch (FormatNotSupportedException e) {
             if (logger.isDebugEnabled()) {
-                logger.debug(e.getMessage(), e);
+                logger.debug("Request format is not supported.", e);
             }
             return new JAXRSResponseBuilder().buildResponse(AbstractResourceEndpoint
                     .encodeSCIMException(encoder, e));

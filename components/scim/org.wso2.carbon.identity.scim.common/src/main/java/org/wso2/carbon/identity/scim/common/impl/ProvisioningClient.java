@@ -19,7 +19,12 @@ package org.wso2.carbon.identity.scim.common.impl;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
-import org.apache.commons.httpclient.methods.*;
+import org.apache.commons.httpclient.methods.DeleteMethod;
+import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.httpclient.methods.PutMethod;
+import org.apache.commons.httpclient.methods.RequestEntity;
+import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.scim.common.utils.BasicAuthUtil;
@@ -351,6 +356,102 @@ public class ProvisioningClient implements Runnable {
             logger.error("Error in provisioning 'update user' operation.");
             logger.error(e.getDescription());
             e.printStackTrace();
+        }
+
+    }
+
+    public void provisionPatchUser() {
+        try {
+            //get provider details
+            String userEPURL = provider.getProperty(SCIMConfigConstants.ELEMENT_NAME_USER_ENDPOINT);
+            String userName = provider.getProperty(SCIMConfigConstants.ELEMENT_NAME_USERNAME);
+            String password = provider.getProperty(SCIMConfigConstants.ELEMENT_NAME_PASSWORD);
+            String contentType = provider.getProperty(SCIMConstants.CONTENT_TYPE_HEADER);
+
+            if (contentType == null) {
+                contentType = SCIMConstants.APPLICATION_JSON;
+            }
+
+            /*get the userId of the user being provisioned from the particular provider by filtering
+              with user name*/
+            GetMethod getMethod = new GetMethod(userEPURL);
+            //add filter query parameter
+            getMethod.setQueryString(USER_FILTER + ((User) scimObject).getUserName());
+            //add authorization headers
+            getMethod.addRequestHeader(SCIMConstants.AUTHORIZATION_HEADER,
+                    BasicAuthUtil.getBase64EncodedBasicAuthHeader(userName, password));
+
+            //create http client
+            HttpClient httpFilterClient = new HttpClient();
+            //send the request
+            int responseStatus = httpFilterClient.executeMethod(getMethod);
+
+            String response = getMethod.getResponseBodyAsString();
+            if (logger.isDebugEnabled()) {
+                logger.debug("SCIM - filter operation inside 'delete user' provisioning " +
+                        "returned with response code: " + responseStatus);
+                logger.debug("Filter User Response: " + response);
+            }
+            SCIMClient scimClient = new SCIMClient();
+            if (scimClient.evaluateResponseStatus(responseStatus)) {
+                //decode the response to extract the userId.
+                ListedResource listedResource = scimClient.decodeSCIMResponseWithListedResource(
+                        response, SCIMConstants.identifyFormat(contentType), objectType);
+                List<SCIMObject> users = listedResource.getScimObjects();
+                String userId = null;
+                //we expect only one user in the list
+                for (SCIMObject user : users) {
+                    userId = ((User) user).getId();
+                    if (userId == null) {
+                        logger.error("Trying to update a user entry which doesn't support SCIM. " +
+                                "Usually internal carbon User entries such as admin role doesn't support SCIM attributes.");
+                        return;
+                    }
+                }
+                String url = userEPURL + "/" + userId;
+                PostMethod patchMethod = new PostMethod(url) {
+                    @Override
+                    public String getName() {
+                        return "PATCH";
+                    }
+                };
+
+                patchMethod.addRequestHeader(
+                        SCIMConstants.AUTHORIZATION_HEADER,
+                        BasicAuthUtil.getBase64EncodedBasicAuthHeader(userName, password));
+                String encodedUser = scimClient.encodeSCIMObject(
+                        (AbstractSCIMObject) scimObject, SCIMConstants.identifyFormat(contentType));
+                RequestEntity putRequestEntity = new StringRequestEntity(
+                        encodedUser, contentType, null);
+                patchMethod.setRequestEntity(putRequestEntity);
+
+                HttpClient httpUpdateClient = new HttpClient();
+                int updateResponseStatus = httpUpdateClient.executeMethod(patchMethod);
+                String updateResponse = patchMethod.getResponseBodyAsString();
+                logger.info("SCIM - update user operation returned with response code: " +
+                        updateResponseStatus);
+                if (!scimClient.evaluateResponseStatus(updateResponseStatus)) {
+                    //decode scim exception and extract the specific error message.
+                    AbstractCharonException exception =
+                            scimClient.decodeSCIMException(
+                                    updateResponse, SCIMConstants.identifyFormat(contentType));
+                    logger.error(exception.getDescription());
+                }
+            } else {
+                //decode scim exception and extract the specific error message.
+                AbstractCharonException exception =
+                        scimClient.decodeSCIMException(
+                                response, SCIMConstants.identifyFormat(contentType));
+                logger.error(exception.getDescription());
+            }
+        } catch (CharonException e) {
+            logger.error("Error in provisioning 'update user' operation.", e);
+        } catch (HttpException e) {
+            logger.error("Error in provisioning 'update user' operation.", e);
+        } catch (IOException e) {
+            logger.error("Error in provisioning 'update user' operation.", e);
+        } catch (BadRequestException e) {
+            logger.error("Error in provisioning 'update user' operation.", e);
         }
 
     }

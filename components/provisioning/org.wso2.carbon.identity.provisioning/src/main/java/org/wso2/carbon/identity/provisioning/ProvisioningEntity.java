@@ -39,7 +39,7 @@ public class ProvisioningEntity implements Serializable {
     private Map<String, String> inboundAttributes;
 
     /**
-     * @param entityTpe
+     * @param entityType
      * @param method
      * @param attributes
      */

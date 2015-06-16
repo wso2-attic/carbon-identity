@@ -4,5 +4,5 @@ import java.io.Serializable;
 
 public enum ProvisioningOperation implements Serializable {
 
-    POST, PUT, DELETE
+    POST, PUT, DELETE, PATCH
 }
