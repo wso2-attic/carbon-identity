@@ -630,6 +630,8 @@ public class UserProfileAdmin extends AbstractAdmin {
             prepStmt.setString(4, associatedID);
 
             resultSet = prepStmt.executeQuery();
+            connection.commit();
+
             if (resultSet.next()) {
                 String domainName = resultSet.getString(1);
                 username = resultSet.getString(2);
@@ -673,6 +675,7 @@ public class UserProfileAdmin extends AbstractAdmin {
             prepStmt.setString(3, domainName);
 
             resultSet = prepStmt.executeQuery();
+            connection.commit();
             while (resultSet.next()) {
                 associatedIDs.add(new AssociatedAccountDTO(resultSet.getString(1), resultSet.getString(2)));
             }

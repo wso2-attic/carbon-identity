@@ -75,6 +75,7 @@ public class OAuthConsumerDAO {
             } else {
                 log.debug("Invalid Consumer Key : " + consumerKey);
             }
+            connection.commit();
         } catch (IdentityException e) {
             String errorMsg = "Error when getting an Identity Persistence Store instance.";
             log.error(errorMsg, e);
@@ -117,6 +118,7 @@ public class OAuthConsumerDAO {
             } else {
                 log.debug("Invalid client id : " + clientId + ", and consumer secret : " + clientSecret);
             }
+            connection.commit();
         } catch (IdentityException e) {
             String errorMsg = "Error when getting an Identity Persistence Store instance.";
             log.error(errorMsg, e);
@@ -160,6 +162,7 @@ public class OAuthConsumerDAO {
             prepStmt = connection.prepareStatement(sqlStmt);
             prepStmt.setString(1, token);
             resultSet = prepStmt.executeQuery();
+            connection.commit();
 
             if (resultSet.next()) {
                 tokenSecret = resultSet.getString(1);
@@ -298,7 +301,7 @@ public class OAuthConsumerDAO {
                 log.error("Invalid request token : " + oauthToken);
                 throw new IdentityException("Invalid request token. No such token issued.");
             }
-
+            connection.commit();
         } catch (IdentityException e) {
             String errorMsg = "Error when getting an Identity Persistence Store instance.";
             log.error(errorMsg, e);
@@ -381,6 +384,7 @@ public class OAuthConsumerDAO {
             } else {
                 throw new IdentityException("Invalid access token. No such token issued.");
             }
+            connection.commit();
         } catch (IdentityException e) {
             String errorMsg = "Error when getting an Identity Persistence Store instance.";
             log.error(errorMsg, e);
@@ -415,6 +419,7 @@ public class OAuthConsumerDAO {
             if (resultSet.next()) {
                 callbackURL = resultSet.getString(1);
             }
+            connection.commit();
         } catch (IdentityException e) {
             String errorMsg = "Error when getting an Identity Persistence Store instance.";
             log.error(errorMsg, e);
@@ -445,6 +450,7 @@ public class OAuthConsumerDAO {
             if (resultSet.next()) {
                 callbackURL = resultSet.getString(1);
             }
+            connection.commit();
         } catch (IdentityException e) {
             String errorMsg = "Error when getting an Identity Persistence Store instance.";
             log.error(errorMsg, e);

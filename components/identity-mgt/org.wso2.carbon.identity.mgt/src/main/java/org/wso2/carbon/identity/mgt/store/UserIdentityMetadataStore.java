@@ -112,7 +112,6 @@ public class UserIdentityMetadataStore {
             prepStmt.setString(4, metadata.getMetadata());
             prepStmt.setString(5, Boolean.toString(metadata.isValid()));
             prepStmt.execute();
-            connection.setAutoCommit(false);
             connection.commit();
         } catch (SQLException e) {
             throw new IdentityException("Error while storing user identity data", e);
@@ -177,7 +176,7 @@ public class UserIdentityMetadataStore {
             prepStmt.setString(3, metadataType);
             prepStmt.setString(4, metadata);
             results = prepStmt.executeQuery();
-
+            connection.commit();
             if (results.next()) {
                 return new IdentityMetadataDO(results.getString(1), results.getInt(2),
                         results.getString(3), results.getString(4),
@@ -220,6 +219,7 @@ public class UserIdentityMetadataStore {
                         Boolean.parseBoolean(results.getString(5))));
             }
             IdentityMetadataDO[] resultMetadata = new IdentityMetadataDO[metada.size()];
+            connection.commit();
             return metada.toArray(resultMetadata);
         } catch (SQLException e) {
             throw new IdentityException("Error while reading user identity data", e);
@@ -256,6 +256,7 @@ public class UserIdentityMetadataStore {
                         Boolean.parseBoolean(results.getString(5))));
             }
             IdentityMetadataDO[] resultMetadata = new IdentityMetadataDO[metada.size()];
+            connection.commit();
             return metada.toArray(resultMetadata);
         } catch (SQLException e) {
             throw new IdentityException("Error while reading user identity data", e);
