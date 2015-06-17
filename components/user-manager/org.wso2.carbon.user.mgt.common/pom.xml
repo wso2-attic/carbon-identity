@@ -59,7 +59,7 @@
                             org.apache.axis2; version="${axis2.osgi.version.range}"
                         </Import-Package>
                         <Export-Package>
-                            org.wso2.carbon.user.mgt.common.*
+                            org.wso2.carbon.user.mgt.common.*; version="${carbon.identity.package.export.version}"
                         </Export-Package>
                     </instructions>
                 </configuration>

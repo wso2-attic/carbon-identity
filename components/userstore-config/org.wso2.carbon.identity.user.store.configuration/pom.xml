@@ -112,7 +112,7 @@
                         </Import-Package>
                         <Export-Package>
                             !org.wso2.carbon.identity.user.store.configuration.internal,
-                            org.wso2.carbon.identity.user.store.configuration.*,
+                            org.wso2.carbon.identity.user.store.configuration.*; version="${carbon.identity.package.export.version}"
                         </Export-Package>
                     </instructions>
                 </configuration>

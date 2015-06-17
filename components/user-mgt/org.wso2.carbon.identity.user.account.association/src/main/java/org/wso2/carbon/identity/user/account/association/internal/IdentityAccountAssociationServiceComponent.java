@@ -25,6 +25,7 @@ import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.identity.user.account.association.UserAccountConnector;
 import org.wso2.carbon.identity.user.account.association.UserAccountConnectorImpl;
 import org.wso2.carbon.identity.user.account.association.exception.UserAccountAssociationException;
+import org.wso2.carbon.identity.user.store.configuration.listener.UserStoreConfigListener;
 import org.wso2.carbon.stratos.common.listeners.TenantMgtListener;
 import org.wso2.carbon.user.core.listener.UserOperationEventListener;
 import org.wso2.carbon.user.core.listener.UserStoreManagerListener;
@@ -35,7 +36,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 /**
- * @scr.component name="identity.user.account.association.component" immediate=true
+ * @scr.component name="identity.user.account.association.component" immediate="true"
  * @scr.reference name="user.realmservice.default"
  * interface="org.wso2.carbon.user.core.service.RealmService"
  * cardinality="1..1" policy="dynamic" bind="setRealmService"
@@ -49,7 +50,7 @@ import java.util.TreeMap;
  * interface="org.wso2.carbon.user.core.listener.UserOperationEventListener"
  * cardinality="0..n" policy="dynamic"
  * bind="setUserOperationEventListenerService"
- * unbind="unsetUserOperationEventListenerService" *
+ * unbind="unsetUserOperationEventListenerService"
  */
 public class IdentityAccountAssociationServiceComponent {
 
@@ -71,7 +72,7 @@ public class IdentityAccountAssociationServiceComponent {
             }
 
             ServiceRegistration UserOptEventListenerSR = IdentityAccountAssociationServiceDataHolder.getInstance().getBundleContext().registerService(
-                    UserOperationEventListener.class.getName(), new UserOptEventListener(), null);
+                    UserOperationEventListener.class.getName(), new UserOperationEventListenerImpl(), null);
             if (UserOptEventListenerSR != null) {
                 if (log.isDebugEnabled()) {
                     log.debug("Identity user account association - UserOperationEventListener registered.");
@@ -81,7 +82,7 @@ public class IdentityAccountAssociationServiceComponent {
             }
 
             ServiceRegistration tenantMgtListenerSR = IdentityAccountAssociationServiceDataHolder.getInstance().getBundleContext().registerService(
-                    TenantMgtListener.class.getName(), new TenantManagementListener(), null);
+                    TenantMgtListener.class.getName(), new TenantMgtListenerImpl(), null);
             if (tenantMgtListenerSR != null) {
                 if (log.isDebugEnabled()) {
                     log.debug("Identity user account association - TenantMgtListener registered.");
@@ -89,6 +90,17 @@ public class IdentityAccountAssociationServiceComponent {
             } else {
                 log.error("Identity user account association - TenantMgtListener could not be registered.");
             }
+
+            ServiceRegistration userStoreConfigEventSR = IdentityAccountAssociationServiceDataHolder.getInstance().getBundleContext().registerService(
+                    UserStoreConfigListener.class.getName(), new UserStoreConfigListenerImpl(), null);
+            if (userStoreConfigEventSR != null) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Identity user account association - UserStoreConfigListener registered.");
+                }
+            } else {
+                log.error("Identity user account association - UserStoreConfigListener could not be registered.");
+            }
+
 
         } catch (Exception e) {
             log.error("Failed to activate identity account connector service component ", e);

@@ -30,6 +30,8 @@ import org.wso2.carbon.identity.user.store.configuration.beans.RandomPasswordCon
 import org.wso2.carbon.identity.user.store.configuration.cache.RandomPasswordContainerCache;
 import org.wso2.carbon.identity.user.store.configuration.dto.PropertyDTO;
 import org.wso2.carbon.identity.user.store.configuration.dto.UserStoreDTO;
+import org.wso2.carbon.identity.user.store.configuration.internal.UserStoreConfigListenersHolder;
+import org.wso2.carbon.identity.user.store.configuration.listener.UserStoreConfigListener;
 import org.wso2.carbon.identity.user.store.configuration.utils.IdentityUserStoreMgtException;
 import org.wso2.carbon.identity.user.store.configuration.utils.SecondaryUserStoreConfigurationUtil;
 import org.wso2.carbon.identity.user.store.configuration.utils.UserStoreConfigurationConstant;
@@ -70,6 +72,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -307,6 +310,14 @@ public class UserStoreConfigAdminService extends AbstractAdmin {
             throw new UserStoreException(msg);
         }
 
+        // Run pre user-store name update listeners
+        List<UserStoreConfigListener> userStoreConfigListeners = UserStoreConfigListenersHolder.getInstance()
+                .getUserStoreConfigListeners();
+        for (UserStoreConfigListener userStoreConfigListener : userStoreConfigListeners) {
+            userStoreConfigListener.onUserStoreNamePreUpdate(CarbonContext.getThreadLocalCarbonContext().getTenantId
+                    (), previousDomainName, domainName);
+        }
+
         // Update persisted domain name
         AbstractUserStoreManager userStoreManager = (AbstractUserStoreManager) CarbonContext.getThreadLocalCarbonContext().getUserRealm().getUserStoreManager();
         userStoreManager.updatePersistedDomain(previousDomainName, domainName);
@@ -351,6 +362,15 @@ public class UserStoreConfigAdminService extends AbstractAdmin {
             if (isDebugEnabled) {
                 log.debug("Deleting, .... " + domainName + " domain.");
             }
+
+            // Run pre user-store name update listeners
+            List<UserStoreConfigListener> userStoreConfigListeners = UserStoreConfigListenersHolder.getInstance()
+                    .getUserStoreConfigListeners();
+            for (UserStoreConfigListener userStoreConfigListener : userStoreConfigListeners) {
+                userStoreConfigListener.onUserStorePreDelete(CarbonContext.getThreadLocalCarbonContext().getTenantId
+                        (), domainName);
+            }
+
             // Delete persisted domain name
             AbstractUserStoreManager userStoreManager = (AbstractUserStoreManager) CarbonContext.getThreadLocalCarbonContext().getUserRealm().getUserStoreManager();
             //userStoreManager.deletePersistedDomain(domainName);

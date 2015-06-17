@@ -21,6 +21,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.base.api.ServerConfigurationService;
+import org.wso2.carbon.identity.user.store.configuration.listener.UserStoreConfigListener;
 import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.core.service.RealmService;
 
@@ -34,6 +35,12 @@ import org.wso2.carbon.user.core.service.RealmService;
  * interface="org.wso2.carbon.base.api.ServerConfigurationService" cardinality="1..1"
  * policy="dynamic"  bind="setServerConfigurationService"
  * unbind="unsetServerConfigurationService"
+ * @scr.reference name="user.store.config.event.listener.service"
+ * interface="org.wso2.carbon.identity.user.store.configuration.listener.UserStoreConfigListener"
+ * cardinality="0..n" policy="dynamic"
+ * bind="setUserStoreConfigListenerService"
+ * unbind="unsetIdentityProviderMgtListerService"
+ *
  */
 public class UserStoreConfigComponent {
     private static Log log = LogFactory.getLog(UserStoreConfigComponent.class);
@@ -111,6 +118,16 @@ public class UserStoreConfigComponent {
             log.debug("Unset the ServerConfiguration Service");
         }
         UserStoreConfigComponent.serverConfigurationService = null;
+    }
+
+    protected void setUserStoreConfigListenerService(UserStoreConfigListener userStoreConfigListener) {
+
+        UserStoreConfigListenersHolder.getInstance().setUserStoreConfigListenerService(userStoreConfigListener);
+    }
+
+    protected static void unsetIdentityProviderMgtListerService(UserStoreConfigListener userStoreConfigListener) {
+
+        UserStoreConfigListenersHolder.getInstance().unsetUserStoreConfigListenerService(userStoreConfigListener);
     }
 
 }
