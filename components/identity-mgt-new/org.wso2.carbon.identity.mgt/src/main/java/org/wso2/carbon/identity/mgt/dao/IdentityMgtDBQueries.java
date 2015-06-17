@@ -40,5 +40,5 @@ public class IdentityMgtDBQueries {
 
     // UPDATE queries
     public static final String UPDATE_CONFIG_DATA =
-            "UPDATE IDN_RESIDENT_IDP SET PROP_VALUE= ? WHERE TENANT_ID = ? && PROP_NAME= ?";
+            "UPDATE IDN_RESIDENT_IDP SET PROP_VALUE= ? WHERE TENANT_ID = ? AND PROP_NAME= ?";
 }
