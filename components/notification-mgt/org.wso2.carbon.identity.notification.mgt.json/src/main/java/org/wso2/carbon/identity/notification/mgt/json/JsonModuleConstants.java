@@ -31,6 +31,9 @@ public class JsonModuleConstants {
     public static final String CONTENT_TYPE_LABEL = "Content-Type";
     public static final String CONTENT_TYPE_JSON_LABEL = "application/json";
 
+    private JsonModuleConstants() {
+    }
+
 
     public static class Config {
         public static final String JSON_CONTENT_QNAME = "jsonContentTemplate";
@@ -40,6 +43,9 @@ public class JsonModuleConstants {
         public static final String PASSWORD_QNAME = "password";
         public static final String AUTH_REQUIRED_QNAME = "AuthenticationRequired";
         public static final String SUBSCRIPTION_NS = MODULE_NAME + "." + NotificationMgtConstants.Configs.SUBSCRIPTION;
+
+        private Config() {
+        }
     }
 }
 

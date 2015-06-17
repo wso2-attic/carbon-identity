@@ -1,17 +1,19 @@
 /*
- * Copyright 2005-2007 WSO2, Inc. (http://wso2.com)
+ * Copyright (c) 2007, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package org.wso2.carbon.identity.sts.mgt.admin;
@@ -21,6 +23,7 @@ import org.apache.axis2.AxisFault;
 import org.apache.axis2.description.AxisService;
 import org.apache.axis2.description.Parameter;
 import org.apache.axis2.engine.AxisConfiguration;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.rahas.impl.SAMLTokenIssuerConfig;
@@ -32,6 +35,7 @@ import org.wso2.carbon.identity.provider.AttributeCallbackHandler;
 import org.wso2.carbon.identity.provider.IdentityProviderException;
 import org.wso2.carbon.identity.provider.IdentityProviderUtil;
 import org.wso2.carbon.identity.sts.mgt.IPPasswordCallbackHandler;
+import org.wso2.carbon.identity.sts.mgt.STSMgtConstants;
 import org.wso2.carbon.identity.sts.mgt.internal.IdentitySTSMgtServiceComponent;
 import org.wso2.carbon.registry.core.Registry;
 import org.wso2.carbon.security.config.SecurityConfigAdmin;
@@ -46,19 +50,24 @@ import javax.security.auth.callback.CallbackHandler;
  */
 public class STSConfigAdmin {
 
-    private final static Log log = LogFactory.getLog(STSConfigAdmin.class);
+    private static final Log log = LogFactory.getLog(STSConfigAdmin.class);
+
+    private STSConfigAdmin() {
+    }
 
     public static void configureService(String serviceName) throws IdentityProviderException {
         try {
             AxisConfiguration axisConfig = IdentitySTSMgtServiceComponent.getConfigurationContext()
-                    .getAxisConfiguration();
+                                                                         .getAxisConfiguration();
 
             SecurityConfigAdmin admin = new SecurityConfigAdmin(axisConfig,
-                    IdentitySTSMgtServiceComponent.getRegistryService().getConfigSystemRegistry(),
-                    new IPPasswordCallbackHandler());
+                                                                IdentitySTSMgtServiceComponent.getRegistryService()
+                                                                                              .getConfigSystemRegistry(),
+                                                                new IPPasswordCallbackHandler());
 
             ServerConfiguration serverConfig = ServerConfiguration.getInstance();
-            String ksName = serverConfig.getFirstProperty("Security.KeyStore.Location");
+            String ksName =
+                    serverConfig.getFirstProperty(STSMgtConstants.ServerConfigProperty.SECURITY_KEYSTORE_LOCATION);
             ksName = ksName.substring(ksName.lastIndexOf("/") + 1);
 
             if (log.isDebugEnabled()) {
@@ -68,23 +77,26 @@ public class STSConfigAdmin {
             if (IdentityProviderUtil.isIntial()) {
 
                 if (IdentityConstants.SERVICE_NAME_STS_UT.equals(serviceName)) {
-                    admin.applySecurity(IdentityConstants.SERVICE_NAME_STS_UT, "scenario19", null, null,
-                            null, null);
+                    admin.applySecurity(IdentityConstants.SERVICE_NAME_STS_UT, STSMgtConstants.Policy.POLICY_SCENARIO19,
+                                        null, null, null, null);
                 } else if (IdentityConstants.OpenId.SERVICE_NAME_STS_OPENID.equals(serviceName)) {
                     admin.applySecurity(IdentityConstants.OpenId.SERVICE_NAME_STS_OPENID,
-                            "scenario19", null, null, null, null);
+                                        STSMgtConstants.Policy.POLICY_SCENARIO19, null, null, null, null);
                 } else if (IdentityConstants.SERVICE_NAME_STS_IC.equals(serviceName)) {
-                    admin.applySecurity(IdentityConstants.SERVICE_NAME_STS_IC, "scenario18",
-                            null, new String[]{ksName}, ksName, null);
+                    admin.applySecurity(IdentityConstants.SERVICE_NAME_STS_IC, STSMgtConstants.Policy.POLICY_SCENARIO18,
+                                        null, new String[] { ksName }, ksName, null);
                 } else if (IdentityConstants.OpenId.SERVICE_NAME_STS_IC_OPENID.equals(serviceName)) {
                     admin.applySecurity(IdentityConstants.OpenId.SERVICE_NAME_STS_IC_OPENID,
-                            "scenario18", null, new String[]{ksName}, ksName, null);
+                                        STSMgtConstants.Policy.POLICY_SCENARIO18, null, new String[] { ksName }, ksName,
+                                        null);
                 } else if (IdentityConstants.SERVICE_NAME_STS_UT_SYMM.equals(serviceName)) {
-                    admin.applySecurity(IdentityConstants.SERVICE_NAME_STS_UT_SYMM, "scenario18",
-                            null, new String[]{ksName}, ksName, null);
+                    admin.applySecurity(IdentityConstants.SERVICE_NAME_STS_UT_SYMM,
+                                        STSMgtConstants.Policy.POLICY_SCENARIO18, null, new String[] { ksName }, ksName,
+                                        null);
                 } else if (IdentityConstants.SERVICE_NAME_STS_IC_SYMM.equals(serviceName)) {
-                    admin.applySecurity(IdentityConstants.SERVICE_NAME_STS_IC_SYMM, "scenario18",
-                            null, new String[]{ksName}, ksName, null);
+                    admin.applySecurity(IdentityConstants.SERVICE_NAME_STS_IC_SYMM,
+                                        STSMgtConstants.Policy.POLICY_SCENARIO18, null, new String[] { ksName }, ksName,
+                                        null);
                 }
             }
 
@@ -93,8 +105,7 @@ public class STSConfigAdmin {
             } else if (IdentityConstants.SERVICE_NAME_STS_UT_SYMM.equals(serviceName)) {
                 overrideCallbackHandler(axisConfig, IdentityConstants.SERVICE_NAME_STS_UT_SYMM);
             } else if (IdentityConstants.OpenId.SERVICE_NAME_STS_OPENID.equals(serviceName)) {
-                overrideCallbackHandler(axisConfig,
-                        IdentityConstants.OpenId.SERVICE_NAME_STS_OPENID);
+                overrideCallbackHandler(axisConfig, IdentityConstants.OpenId.SERVICE_NAME_STS_OPENID);
             } else if (IdentityConstants.SERVICE_NAME_STS_IC.equals(serviceName)) {
                 overrideCallbackHandler(axisConfig, IdentityConstants.SERVICE_NAME_STS_IC);
             }
@@ -113,8 +124,7 @@ public class STSConfigAdmin {
      * @throws IdentityProviderException
      */
     public static void configureGenericSTS() throws IdentityProviderException {
-        AxisConfiguration config = IdentitySTSMgtServiceComponent.getConfigurationContext()
-                .getAxisConfiguration();
+        AxisConfiguration config = IdentitySTSMgtServiceComponent.getConfigurationContext().getAxisConfiguration();
         configureGenericSTS(config);
     }
 
@@ -131,8 +141,7 @@ public class STSConfigAdmin {
             if (stsService == null) {
                 return;
             }
-            Parameter origParam = stsService.getParameter(SAMLTokenIssuerConfig.SAML_ISSUER_CONFIG
-                    .getLocalPart());
+            Parameter origParam = stsService.getParameter(SAMLTokenIssuerConfig.SAML_ISSUER_CONFIG.getLocalPart());
             if (origParam != null) {
                 OMElement samlConfigElem = origParam.getParameterElement().getFirstChildWithName(
                         SAMLTokenIssuerConfig.SAML_ISSUER_CONFIG);
@@ -140,15 +149,15 @@ public class STSConfigAdmin {
                 samlConfig.setCallbackHandlerName(AttributeCallbackHandler.class.getName());
                 if (log.isDebugEnabled()) {
                     log.debug("Configured the SAML callback handler: " + AttributeCallbackHandler.class.getName() +
-                            " in the service " + stsService.getName() + " for tenant " +
-                            PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain() +
-                            "[" + PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantId() + "]");
+                              " in the service " + stsService.getName() + " for tenant " +
+                              PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain() +
+                              "[" + PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantId() + "]");
                 }
 
                 ServerConfiguration serverConfig = ServerConfiguration.getInstance();
-                String ttl = serverConfig.getFirstProperty("STSTimeToLive");
+                String ttl = serverConfig.getFirstProperty(STSMgtConstants.ServerConfigProperty.STS_TIME_TO_LIVE);
 
-                if (ttl != null && ttl.length() > 0) {
+                if (StringUtils.isNotBlank(ttl)) {
                     try {
                         samlConfig.setTtl(Long.parseLong(ttl));
                         if (log.isDebugEnabled()) {
@@ -169,44 +178,46 @@ public class STSConfigAdmin {
 
     public static void configureService(AxisConfiguration config, Registry registry)
             throws IdentityProviderException {
-        AxisConfiguration axisConfig = IdentitySTSMgtServiceComponent.getConfigurationContext()
-                .getAxisConfiguration();
+        AxisConfiguration axisConfig = IdentitySTSMgtServiceComponent.getConfigurationContext().getAxisConfiguration();
 
         try {
             ServerConfiguration serverConfig = ServerConfiguration.getInstance();
-            String ksName = serverConfig.getFirstProperty("Security.KeyStore.Location");
+            String ksName =
+                    serverConfig.getFirstProperty(STSMgtConstants.ServerConfigProperty.SECURITY_KEYSTORE_LOCATION);
             ksName = ksName.substring(ksName.lastIndexOf("/") + 1);
 
-            SecurityConfigAdmin admin = new SecurityConfigAdmin(config, registry,
-                    new IPPasswordCallbackHandler());
+            SecurityConfigAdmin admin = new SecurityConfigAdmin(config, registry, new IPPasswordCallbackHandler());
             if (log.isDebugEnabled()) {
                 log.debug("Applying identity security policy for Identity STS services");
             }
 
             if (IdentityProviderUtil.isIntial()) {
                 if (axisConfig.getService(IdentityConstants.SERVICE_NAME_STS_UT) != null) {
-                    admin.applySecurity(IdentityConstants.SERVICE_NAME_STS_UT, "scenario19", null, null,
-                            null, null);
+                    admin.applySecurity(IdentityConstants.SERVICE_NAME_STS_UT, STSMgtConstants.Policy.POLICY_SCENARIO19,
+                                        null, null, null, null);
                 }
                 if (axisConfig.getService(IdentityConstants.OpenId.SERVICE_NAME_STS_OPENID) != null) {
                     admin.applySecurity(IdentityConstants.OpenId.SERVICE_NAME_STS_OPENID,
-                            "scenario19", null, null, null, null);
+                                        STSMgtConstants.Policy.POLICY_SCENARIO19, null, null, null, null);
                 }
                 if (axisConfig.getService(IdentityConstants.SERVICE_NAME_STS_IC) != null) {
-                    admin.applySecurity(IdentityConstants.SERVICE_NAME_STS_IC, "scenario18",
-                            null, new String[]{ksName}, ksName, null);
+                    admin.applySecurity(IdentityConstants.SERVICE_NAME_STS_IC, STSMgtConstants.Policy.POLICY_SCENARIO18,
+                                        null, new String[] { ksName }, ksName, null);
                 }
                 if (axisConfig.getService(IdentityConstants.OpenId.SERVICE_NAME_STS_IC_OPENID) != null) {
                     admin.applySecurity(IdentityConstants.OpenId.SERVICE_NAME_STS_IC_OPENID,
-                            "scenario18", null, new String[]{ksName}, ksName, null);
+                                        STSMgtConstants.Policy.POLICY_SCENARIO18, null, new String[] { ksName }, ksName,
+                                        null);
                 }
                 if (axisConfig.getService(IdentityConstants.SERVICE_NAME_STS_UT_SYMM) != null) {
-                    admin.applySecurity(IdentityConstants.SERVICE_NAME_STS_UT_SYMM, "scenario18",
-                            null, new String[]{ksName}, ksName, null);
+                    admin.applySecurity(IdentityConstants.SERVICE_NAME_STS_UT_SYMM,
+                                        STSMgtConstants.Policy.POLICY_SCENARIO18, null, new String[] { ksName }, ksName,
+                                        null);
                 }
                 if (axisConfig.getService(IdentityConstants.SERVICE_NAME_STS_IC_SYMM) != null) {
-                    admin.applySecurity(IdentityConstants.SERVICE_NAME_STS_IC_SYMM, "scenario18",
-                            null, new String[]{ksName}, ksName, null);
+                    admin.applySecurity(IdentityConstants.SERVICE_NAME_STS_IC_SYMM,
+                                        STSMgtConstants.Policy.POLICY_SCENARIO18, null, new String[] { ksName }, ksName,
+                                        null);
                 }
             }
 
@@ -217,8 +228,7 @@ public class STSConfigAdmin {
                 overrideCallbackHandler(axisConfig, IdentityConstants.SERVICE_NAME_STS_UT_SYMM);
             }
             if (axisConfig.getService(IdentityConstants.OpenId.SERVICE_NAME_STS_OPENID) != null) {
-                overrideCallbackHandler(axisConfig,
-                        IdentityConstants.OpenId.SERVICE_NAME_STS_OPENID);
+                overrideCallbackHandler(axisConfig, IdentityConstants.OpenId.SERVICE_NAME_STS_OPENID);
             }
             if (axisConfig.getService(IdentityConstants.SERVICE_NAME_STS_IC) != null) {
                 overrideCallbackHandler(axisConfig, IdentityConstants.SERVICE_NAME_STS_IC);
@@ -237,8 +247,7 @@ public class STSConfigAdmin {
      * @param axisConfig
      * @throws AxisFault
      */
-    public static void overrideCallbackHandler(AxisConfiguration axisConfig, String service)
-            throws AxisFault {
+    public static void overrideCallbackHandler(AxisConfiguration axisConfig, String service) throws AxisFault {
         AxisService sts = axisConfig.getService(service);
         Parameter cbHandlerParam = sts.getParameter(WSHandlerConstants.PW_CALLBACK_REF);
         if (cbHandlerParam != null) {
@@ -248,7 +257,7 @@ public class STSConfigAdmin {
             }
         }
 
-        Parameter param = getPasswordCallBackRefParameter(service);
+        Parameter param = getPasswordCallBackRefParameter();
 
         sts.addParameter(param);
 
@@ -286,7 +295,7 @@ public class STSConfigAdmin {
         }
     }
 
-    public static Parameter getPasswordCallBackRefParameter(String serviceId) throws AxisFault {
+    public static Parameter getPasswordCallBackRefParameter() throws AxisFault {
         Parameter param = new Parameter();
         param.setName(WSHandlerConstants.PW_CALLBACK_REF);
         try {
@@ -298,12 +307,13 @@ public class STSConfigAdmin {
         return param;
     }
 
-    private static void setSTSParameter(SAMLTokenIssuerConfig samlConfig, AxisConfiguration config) throws AxisFault, ServerException {
+    private static void setSTSParameter(SAMLTokenIssuerConfig samlConfig, AxisConfiguration config)
+            throws AxisFault, ServerException {
         try {
-            new SecurityServiceAdmin(config).setServiceParameterElement(ServerConstants.STS_NAME,
-                    samlConfig.getParameter());
+            new SecurityServiceAdmin(config)
+                    .setServiceParameterElement(ServerConstants.STS_NAME, samlConfig.getParameter());
         } catch (ServerException e) {
-            throw new AxisFault("Error configuring STS parameters.");
+            throw new AxisFault("Error configuring STS parameters.", e);
         }
 
     }

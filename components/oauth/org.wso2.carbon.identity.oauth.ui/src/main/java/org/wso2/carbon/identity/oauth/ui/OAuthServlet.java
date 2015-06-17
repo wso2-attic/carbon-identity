@@ -52,6 +52,7 @@ public class OAuthServlet extends HttpServlet {
      * @see javax.servlet.http.HttpServlet#service(javax.servlet.http.HttpServletRequest,
      * javax.servlet.http.HttpServletResponse)
      */
+    @Override
     protected void service(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
 
@@ -151,7 +152,7 @@ public class OAuthServlet extends HttpServlet {
             splitChar = "&";
         }
 
-        StringBuffer nonAuthParams = new StringBuffer();
+        StringBuilder nonAuthParams = new StringBuilder();
 
         if (authHeader != null) {
             if (authHeader.startsWith("OAuth ") || authHeader.startsWith("oauth ")) {

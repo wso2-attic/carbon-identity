@@ -1,23 +1,25 @@
 /*
-*Copyright (c) 2005-2013, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*WSO2 Inc. licenses this file to you under the Apache License,
-*Version 2.0 (the "License"); you may not use this file except
-*in compliance with the License.
-*You may obtain a copy of the License at
-*
-*http://www.apache.org/licenses/LICENSE-2.0
-*
-*Unless required by applicable law or agreed to in writing,
-*software distributed under the License is distributed on an
-*"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-*KIND, either express or implied.  See the License for the
-*specific language governing permissions and limitations
-*under the License.
-*/
+ * Copyright (c) 2013, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 
 package org.wso2.carbon.identity.application.authentication.framework.cache;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.application.authentication.framework.store.SessionDataStore;
 import org.wso2.carbon.identity.application.common.cache.BaseCache;
 import org.wso2.carbon.identity.application.common.cache.CacheEntry;
@@ -27,22 +29,10 @@ import org.wso2.carbon.identity.core.util.IdentityUtil;
 public class SessionContextCache extends BaseCache<CacheKey, CacheEntry> {
 
     private static final String SESSION_CONTEXT_CACHE_NAME = "AppAuthFrameworkSessionContextCache";
+    private static final Log log = LogFactory.getLog(SessionContextCache.class);
+
     private static volatile SessionContextCache instance;
     private boolean useCache = true;
-
-    private SessionContextCache(String cacheName) {
-        super(cacheName);
-    }
-
-    private SessionContextCache(String cacheName, int timeout) {
-        super(cacheName, timeout);
-        useCache = !Boolean.parseBoolean(IdentityUtil.getProperty(
-                "JDBCPersistenceManager.SessionDataPersist.Only"));
-        if (IdentityUtil.getProperty("SessionContextCache.Enable") != null) {
-            useCache = Boolean.parseBoolean(
-                    IdentityUtil.getProperty("SessionContextCache.Enable"));
-        }
-    }
 
     private SessionContextCache(String cacheName, int timeout, int capacity) {
         super(cacheName, timeout, capacity);
@@ -62,7 +52,9 @@ public class SessionContextCache extends BaseCache<CacheKey, CacheEntry> {
                         capacity = Integer.parseInt(
                                 IdentityUtil.getProperty("SessionContextCache.Capacity"));
                     } catch (Exception e) {
-                        //ignore
+                        if (log.isDebugEnabled()) {
+                            log.debug("Ignoring Exception.", e);
+                        }
                     }
                     instance = new SessionContextCache(SESSION_CONTEXT_CACHE_NAME, timeout, capacity);
                 }

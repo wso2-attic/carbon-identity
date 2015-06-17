@@ -1,27 +1,33 @@
 /*
-*  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package org.wso2.carbon.identity.authenticator.saml2.sso;
 
 import org.apache.axis2.context.MessageContext;
 import org.apache.axis2.transport.http.HTTPConstants;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.opensaml.saml2.core.*;
+import org.opensaml.saml2.core.Assertion;
+import org.opensaml.saml2.core.Attribute;
+import org.opensaml.saml2.core.AttributeStatement;
+import org.opensaml.saml2.core.Audience;
+import org.opensaml.saml2.core.AudienceRestriction;
+import org.opensaml.saml2.core.Conditions;
+import org.opensaml.saml2.core.Response;
 import org.opensaml.xml.XMLObject;
 import org.opensaml.xml.signature.Signature;
 import org.opensaml.xml.signature.SignatureValidator;
@@ -55,7 +61,14 @@ import javax.servlet.http.HttpSession;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 public class SAML2SSOAuthenticator implements CarbonServerAuthenticator {
 
@@ -76,7 +89,7 @@ public class SAML2SSOAuthenticator implements CarbonServerAuthenticator {
 
             username = org.wso2.carbon.identity.authenticator.saml2.sso.common.Util.getUsername(xmlObject);
 
-            if ((username == null) || username.trim().equals("")) {
+            if ((username == null) || "".equals(username.trim())) {
                 log.error("Authentication Request is rejected. " +
                         "SAMLResponse does not contain the username of the subject.");
                 CarbonAuthenticationUtil.onFailedAdminLogin(httpSession, username, -1,
@@ -386,7 +399,7 @@ public class SAML2SSOAuthenticator implements CarbonServerAuthenticator {
             String errorMsg = "Error when creating an X509CredentialImpl instance";
             log.error(errorMsg, e);
         } catch (ValidationException e) {
-            log.warn("Signature validation failed for a SAML2 Reposnse from domain : " + domainName);
+            log.warn("Signature validation failed for a SAML2 Reposnse from domain : " + domainName,e);
         }
         return isSignatureValid;
     }
@@ -628,12 +641,13 @@ public class SAML2SSOAuthenticator implements CarbonServerAuthenticator {
      * @return String array of roles
      */
     private String[] getRoles(XMLObject xmlObject) {
+        String[] arrRoles={};
         if (xmlObject instanceof Response) {
             return getRolesFromResponse((Response) xmlObject);
         } else if (xmlObject instanceof Assertion) {
             return getRolesFromAssertion((Assertion) xmlObject);
         } else {
-            return null;
+            return arrRoles;
         }
     }
 

@@ -1,17 +1,19 @@
 /*
- * Copyright 2004,2005 The Apache Software Foundation.
+ * Copyright (c) 2005, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package org.wso2.carbon.identity.sts.mgt.internal;
@@ -67,7 +69,7 @@ import java.util.Iterator;
  */
 public class IdentitySTSMgtServiceComponent {
 
-    private static Log log = LogFactory.getLog(IdentitySTSMgtServiceComponent.class);
+    private static final Log log = LogFactory.getLog(IdentitySTSMgtServiceComponent.class);
 
     private static RegistryService registryService;
 
@@ -76,7 +78,6 @@ public class IdentitySTSMgtServiceComponent {
     private static BundleContext bundleContext;
 
     private static RealmService realmService;
-
 
     public IdentitySTSMgtServiceComponent() {
     }
@@ -192,7 +193,6 @@ public class IdentitySTSMgtServiceComponent {
         this.realmService = null;
     }
 
-
     /**
      * @param securityConfig
      */
@@ -223,7 +223,7 @@ public class IdentitySTSMgtServiceComponent {
 
         loadSecurityScenarios();
         STSConfigAdmin.configureService(configContext.getAxisConfiguration(),
-                this.registryService.getConfigSystemRegistry());
+                                        this.registryService.getConfigSystemRegistry());
         STSConfigAdmin.configureGenericSTS();
         configContext.getAxisConfiguration().addObservers(new STSObserver());
     }
@@ -241,7 +241,7 @@ public class IdentitySTSMgtServiceComponent {
             // Scenarios are listed in resources/scenario-config.xml
             URL resource = bundleContext.getBundle().getResource("scenario-config.xml");
             XmlConfiguration xmlConfiguration = new XmlConfiguration(resource.openStream(),
-                    SecurityConstants.SECURITY_NAMESPACE);
+                                                                     SecurityConstants.SECURITY_NAMESPACE);
 
             OMElement[] elements = xmlConfiguration.getElements("//ns:Scenario");
 
@@ -252,29 +252,24 @@ public class IdentitySTSMgtServiceComponent {
 
             for (OMElement scenarioEle : elements) {
                 SecurityScenario scenario = new SecurityScenario();
-                String scenarioId = scenarioEle.getAttribute(SecurityConstants.ID_QN)
-                        .getAttributeValue();
+                String scenarioId = scenarioEle.getAttribute(SecurityConstants.ID_QN).getAttributeValue();
 
                 scenario.setScenarioId(scenarioId);
-                scenario.setSummary(scenarioEle.getFirstChildWithName(SecurityConstants.SUMMARY_QN)
-                        .getText());
-                scenario.setDescription(scenarioEle.getFirstChildWithName(
-                        SecurityConstants.DESCRIPTION_QN).getText());
-                scenario.setCategory(scenarioEle.getFirstChildWithName(SecurityConstants.CATEGORY_QN)
-                        .getText());
-                scenario.setWsuId(scenarioEle.getFirstChildWithName(SecurityConstants.WSUID_QN)
-                        .getText());
+                scenario.setSummary(scenarioEle.getFirstChildWithName(SecurityConstants.SUMMARY_QN).getText());
+                scenario.setDescription(scenarioEle.getFirstChildWithName(SecurityConstants.DESCRIPTION_QN).getText());
+                scenario.setCategory(scenarioEle.getFirstChildWithName(SecurityConstants.CATEGORY_QN).getText());
+                scenario.setWsuId(scenarioEle.getFirstChildWithName(SecurityConstants.WSUID_QN).getText());
                 scenario.setType(scenarioEle.getFirstChildWithName(SecurityConstants.TYPE_QN).getText());
 
                 OMElement genPolicyElem = scenarioEle.getFirstChildWithName(SecurityConstants.IS_GEN_POLICY_QN);
-                if (genPolicyElem != null && genPolicyElem.getText().equals("false")) {
+                if (genPolicyElem != null && "false".equals(genPolicyElem.getText())) {
                     scenario.setGeneralPolicy(false);
                 }
 
                 String resourceUri = SecurityConstants.SECURITY_POLICY + "/" + scenarioId;
 
                 for (Iterator modules = scenarioEle.getFirstChildWithName(SecurityConstants.MODULES_QN)
-                        .getChildElements(); modules.hasNext(); ) {
+                                                   .getChildElements(); modules.hasNext(); ) {
                     String module = ((OMElement) modules.next()).getText();
                     scenario.addModule(module);
                 }
@@ -284,7 +279,7 @@ public class IdentitySTSMgtServiceComponent {
 
                 // Store the scenario in the Registry
                 if (!scenarioId.equals(SecurityConstants.SCENARIO_DISABLE_SECURITY) &&
-                        !scenarioId.equals(SecurityConstants.POLICY_FROM_REG_SCENARIO)) {
+                    !scenarioId.equals(SecurityConstants.POLICY_FROM_REG_SCENARIO)) {
                     Resource scenarioResource = new ResourceImpl();
                     scenarioResource.setContentStream(
                             bundleContext.getBundle().getResource(scenarioId + "-policy.xml").openStream());
@@ -303,5 +298,4 @@ public class IdentitySTSMgtServiceComponent {
         }
     }
 
-
-}                                
+}

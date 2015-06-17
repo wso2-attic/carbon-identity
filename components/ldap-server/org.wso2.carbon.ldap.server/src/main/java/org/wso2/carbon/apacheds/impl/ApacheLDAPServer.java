@@ -1,20 +1,22 @@
 /*
-*  Copyright (c) WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ *
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 package org.wso2.carbon.apacheds.impl;
 
 
@@ -36,10 +38,12 @@ import org.apache.directory.server.ldap.handlers.extended.StartTlsHandler;
 import org.apache.directory.server.ldap.handlers.extended.StoredProcedureExtendedOperationHandler;
 import org.apache.directory.server.protocol.shared.transport.TcpTransport;
 import org.apache.directory.shared.ldap.constants.SupportedSaslMechanisms;
-import org.apache.directory.shared.ldap.entry.*;
+import org.apache.directory.shared.ldap.entry.DefaultServerAttribute;
+import org.apache.directory.shared.ldap.entry.EntryAttribute;
+import org.apache.directory.shared.ldap.entry.Modification;
+import org.apache.directory.shared.ldap.entry.ModificationOperation;
+import org.apache.directory.shared.ldap.entry.ServerModification;
 import org.apache.directory.shared.ldap.exception.LdapException;
-import org.apache.directory.shared.ldap.message.ModifyDnRequestImpl;
-import org.apache.directory.shared.ldap.message.internal.InternalModifyDnRequest;
 import org.apache.directory.shared.ldap.schema.AttributeType;
 import org.apache.directory.shared.ldap.schema.SchemaManager;
 import org.apache.directory.shared.ldap.schema.registries.AttributeTypeRegistry;
@@ -71,6 +75,7 @@ public class ApacheLDAPServer implements LDAPServer {
     private PartitionManager partitionManager;
     private LDAPConfiguration ldapConfigurations;
 
+    @Override
     public void init(LDAPConfiguration configurations)
             throws DirectoryServerException {
 
@@ -107,6 +112,7 @@ public class ApacheLDAPServer implements LDAPServer {
         this.service = service;
     }
 
+    @Override
     public void start()
             throws DirectoryServerException {
 
@@ -121,6 +127,7 @@ public class ApacheLDAPServer implements LDAPServer {
         }
     }
 
+    @Override
     public void stop()
             throws DirectoryServerException {
 
@@ -136,6 +143,7 @@ public class ApacheLDAPServer implements LDAPServer {
         }
     }
 
+    @Override
     public PartitionManager getPartitionManager()
             throws DirectoryServerException {
 
@@ -195,17 +203,7 @@ public class ApacheLDAPServer implements LDAPServer {
         }
     }
 
-    private void throwException(String message, Throwable e)
-            throws DirectoryServerException {
-        if (e == null) {
-            logger.error(message);
-            throw new DirectoryServerException(message);
-        } else {
-            logger.error(message, e);
-            throw new DirectoryServerException(message, e);
-        }
-    }
-
+    @Override
     public String getConnectionDomainName()
             throws DirectoryServerException {
 
@@ -249,6 +247,7 @@ public class ApacheLDAPServer implements LDAPServer {
 
     }
 
+    @Override
     public void changeConnectionUserPassword(String password)
             throws DirectoryServerException {
 
@@ -275,7 +274,7 @@ public class ApacheLDAPServer implements LDAPServer {
                     } catch (NoSuchAlgorithmException e) {
                         throw new DirectoryServerException(
                                 "Could not find digest algorithm - " +
-                                        ConfigurationConstants.ADMIN_PASSWORD_ALGORITHM);
+                                        ConfigurationConstants.ADMIN_PASSWORD_ALGORITHM, e);
                     }
                     messageDigest.update(password.getBytes());
                     byte[] bytes = messageDigest.digest();
@@ -283,8 +282,6 @@ public class ApacheLDAPServer implements LDAPServer {
                     passwordToStore = passwordToStore + hash;
 
                     adminPrincipal.setUserPassword(passwordToStore.getBytes());
-
-                    InternalModifyDnRequest request = new ModifyDnRequestImpl(0);
 
                     EntryAttribute passwordAttribute = new DefaultServerAttribute(
                             getAttributeType("userPassword"));

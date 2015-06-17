@@ -1,25 +1,25 @@
 /*
- *  Licensed to the Apache Software Foundation (ASF) under one
- *  or more contributor license agreements.  See the NOTICE file
- *  distributed with this work for additional information
- *  regarding copyright ownership.  The ASF licenses this file
- *  to you under the Apache License, Version 2.0 (the
- *  "License"); you may not use this file except in compliance
- *  with the License.  You may obtain a copy of the License at
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *  Unless required by applicable law or agreed to in writing,
- *  software distributed under the License is distributed on an
- *   * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *  KIND, either express or implied.  See the License for the
- *  specific language governing permissions and limitations
- *  under the License.
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ *
  */
+
 package org.wso2.carbon.identity.entitlement.proxy;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import javax.cache.Cache;
 import javax.cache.CacheManager;
@@ -30,19 +30,17 @@ import java.util.Map.Entry;
 
 class PEPProxyCache {
 
-    private static Log log = LogFactory.getLog(PEPProxyCache.class);
 
     private SimpleCache<String, EntitlementDecision> simpleCache;
     private boolean isCarbonCache = false;
     private int invalidationInterval = 0;
 
     PEPProxyCache(String enableCaching, int invalidationInterval, int maxEntries) {
-        if (enableCaching.equalsIgnoreCase("simple")) {
+        if ("simple".equalsIgnoreCase(enableCaching)) {
             simpleCache = new SimpleCache<String, EntitlementDecision>(maxEntries);
             this.invalidationInterval = invalidationInterval;
-        } else if (enableCaching.equalsIgnoreCase("carbon")) {
+        } else if ("carbon".equalsIgnoreCase(enableCaching)) {
             isCarbonCache = true;
-//            carbonCache = getCommonCache(ProxyConstants.DECISION_CACHE);
         }
     }
 
@@ -57,18 +55,9 @@ class PEPProxyCache {
 
         // We create a single cache for all tenants. It is not a good choice to create per-tenant
         // caches in this case. We qualify tenants by adding the tenant identifier in the cache key.
-//	    PrivilegedCarbonContext currentContext = PrivilegedCarbonContext.getCurrentContext();
-//	    PrivilegedCarbonContext.startTenantFlow();
-//		try {
-//			currentContext.setTenantId(MultitenantConstants.SUPER_TENANT_ID);
-//			return CacheManager.getInstance().getCache(name);
-//		} finally {
-//		    PrivilegedCarbonContext.endTenantFlow();
-//		}
 
         CacheManager manager = Caching.getCacheManagerFactory().getCacheManager(ProxyConstants.DECISION_CACHE);
-        Cache<IdentityCacheKey, IdentityCacheEntry> cache = manager.getCache(ProxyConstants.DECISION_CACHE);
-        return cache;
+        return manager.getCache(ProxyConstants.DECISION_CACHE);
     }
 
     void put(String key, String entry) {
@@ -78,7 +67,6 @@ class PEPProxyCache {
         } else if (isCarbonCache) {
             Cache<IdentityCacheKey, IdentityCacheEntry> carbonCache = getCommonCache();
             if (carbonCache != null) {
-                //int tenantId = CarbonContext.getCurrentContext().getTenantId();
                 IdentityCacheKey identityKey = new IdentityCacheKey(key);
                 IdentityCacheEntry identityEntry = new IdentityCacheEntry(entry);
                 carbonCache.put(identityKey, identityEntry);
@@ -97,7 +85,6 @@ class PEPProxyCache {
         } else if (isCarbonCache) {
             Cache<IdentityCacheKey, IdentityCacheEntry> carbonCache = getCommonCache();
             if (carbonCache != null) {
-                //int tenantId = CarbonContext.getCurrentContext().getTenantId();
                 IdentityCacheKey identityKey = new IdentityCacheKey(key);
                 IdentityCacheEntry identityCacheEntry = (IdentityCacheEntry) carbonCache.get(identityKey);
                 if (identityCacheEntry != null) {
@@ -110,7 +97,7 @@ class PEPProxyCache {
 
     void clear() {
         if (simpleCache != null) {
-            simpleCache = new SimpleCache<String, EntitlementDecision>(simpleCache.maxEntries);
+            simpleCache = new SimpleCache<>(simpleCache.maxEntries);
         } else if (isCarbonCache) {
             Cache<IdentityCacheKey, IdentityCacheEntry> carbonCache = getCommonCache();
             if (carbonCache != null) {

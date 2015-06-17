@@ -15,25 +15,22 @@
  ~ specific language governing permissions and limitations
  ~ under the License.
  -->
-<%@page import="org.wso2.carbon.ui.util.CharacterEncoder"%>
+<%@page import="org.apache.axis2.context.ConfigurationContext"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar"
 	prefix="carbon"%>
-<%@ page import="org.apache.axis2.context.ConfigurationContext" %>
-<%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
 <%@ page import="org.wso2.carbon.CarbonConstants" %>
-<%@ page import="org.wso2.carbon.utils.ServerConstants" %>
-<%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
-<%@ page import="java.util.ResourceBundle" %>
-<%@ page import="org.wso2.carbon.identity.entitlement.ui.PropertyDTOComparator" %>
-<%@ page import="org.wso2.carbon.identity.entitlement.ui.EntitlementPolicyConstants" %>
-<%@ page
-        import="org.wso2.carbon.identity.entitlement.ui.client.EntitlementPolicyAdminServiceClient" %>
-<%@ page import="org.wso2.carbon.identity.entitlement.ui.util.ClientUtil" %>
 <%@ page import="org.wso2.carbon.identity.entitlement.stub.dto.PublisherDataHolder" %>
 <%@ page import="org.wso2.carbon.identity.entitlement.stub.dto.PublisherPropertyDTO" %>
-<%@ page import="org.wso2.carbon.identity.entitlement.stub.dto.StatusHolder" %>
-<%@ page import="java.util.Date" %>
+<%@ page import="org.wso2.carbon.identity.entitlement.ui.EntitlementPolicyConstants" %>
+<%@ page import="org.wso2.carbon.identity.entitlement.ui.PropertyDTOComparator" %>
+<%@ page import="org.wso2.carbon.identity.entitlement.ui.client.EntitlementPolicyAdminServiceClient" %>
+<%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
+<%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
+<%@ page
+        import="org.wso2.carbon.ui.util.CharacterEncoder" %>
+<%@ page import="org.wso2.carbon.utils.ServerConstants" %>
+<%@ page import="java.util.ResourceBundle" %>
 
 <%
     String subscriberId;

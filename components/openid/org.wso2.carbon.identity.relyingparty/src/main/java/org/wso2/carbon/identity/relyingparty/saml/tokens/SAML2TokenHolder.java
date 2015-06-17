@@ -1,20 +1,20 @@
 /*
-*  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package org.wso2.carbon.identity.relyingparty.saml.tokens;
 
 import org.apache.commons.logging.Log;
@@ -37,9 +37,8 @@ import java.util.Map;
 
 public class SAML2TokenHolder implements TokenHolder {
 
-    private static Log log = LogFactory.getLog(SAML2TokenHolder.class);
+    private static final Log log = LogFactory.getLog(SAML2TokenHolder.class);
     private Assertion assertion = null;
-    private boolean isMultipleValues = false;
 
     public SAML2TokenHolder(Element element) throws UnmarshallingException {
         createToken(element);
@@ -51,6 +50,7 @@ public class SAML2TokenHolder implements TokenHolder {
      * @param elem
      * @throws UnmarshallingException If the token creation fails
      */
+    @Override
     public void createToken(Element elem) throws UnmarshallingException {
         UnmarshallerFactory unmarshallerFactory = Configuration.getUnmarshallerFactory();
         Unmarshaller unmarshaller = unmarshallerFactory.getUnmarshaller(elem);
@@ -60,6 +60,7 @@ public class SAML2TokenHolder implements TokenHolder {
     /**
      * @return the SAML signature.
      */
+    @Override
     public Signature getSAMLSignature() {
         return assertion.getSignature();
     }
@@ -69,6 +70,7 @@ public class SAML2TokenHolder implements TokenHolder {
      *
      * @return
      */
+    @Override
     public String getIssuerName() {
         return assertion.getIssuer().getValue();
     }
@@ -78,23 +80,23 @@ public class SAML2TokenHolder implements TokenHolder {
      *
      * @param attributeTable
      */
+    @Override
     public void populateAttributeTable(Map<String, String> attributeTable) {
         Iterator<AttributeStatement> statements = assertion.getAttributeStatements().iterator();
 
         while (statements.hasNext()) {
-            AttributeStatement statement = (AttributeStatement) statements.next();
+            AttributeStatement statement = statements.next();
             Iterator<Attribute> attrs = statement.getAttributes().iterator();
 
             while (attrs.hasNext()) {
-                Attribute attr = (Attribute) attrs.next();
+                Attribute attr = attrs.next();
                 String attrNamesapce = attr.getNameFormat();
                 String attrName = attr.getName();
                 String name = attrNamesapce + "/" + attrName;
 
                 List attributeValues = attr.getAttributeValues();
                 Iterator values = attributeValues.iterator();
-                int count = 0;
-                StringBuffer buff = new StringBuffer();
+                StringBuilder buff = new StringBuilder();
 
                 while (values.hasNext()) {
                     Object value = values.next();
@@ -104,15 +106,10 @@ public class SAML2TokenHolder implements TokenHolder {
                         buff.append(((XSAny) value).getTextContent());
                     }
                     buff.append(",");
-                    count++;
                 }
 
                 if (buff.length() > 1) {
                     buff.deleteCharAt(buff.length() - 1);
-                }
-
-                if (count > 1) {
-                    isMultipleValues = true;
                 }
 
                 attributeTable.put(name, buff.toString());

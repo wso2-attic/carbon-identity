@@ -22,8 +22,8 @@
 <jsp:include page="../highlighter/header.jsp"/>
 <jsp:include page="../dialog/display_messages.jsp"/>
 
-<%@ page import="org.wso2.carbon.identity.entitlement.common.PolicyEditorEngine" %>
 <%@ page import="org.wso2.carbon.identity.entitlement.common.EntitlementConstants" %>
+<%@ page import="org.wso2.carbon.identity.entitlement.common.PolicyEditorEngine" %>
 
 <%
     String type = request.getParameter("type");

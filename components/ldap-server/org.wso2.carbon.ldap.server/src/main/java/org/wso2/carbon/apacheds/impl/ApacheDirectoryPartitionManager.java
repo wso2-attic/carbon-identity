@@ -1,23 +1,26 @@
 /*
-*  Copyright (c) WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ *
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 package org.wso2.carbon.apacheds.impl;
 
 import org.apache.axiom.om.util.Base64;
+import org.apache.commons.lang.StringUtils;
 import org.apache.directory.server.core.CoreSession;
 import org.apache.directory.server.core.DirectoryService;
 import org.apache.directory.server.core.factory.JdbmPartitionFactory;
@@ -34,7 +37,11 @@ import org.apache.directory.shared.ldap.exception.LdapInvalidDnException;
 import org.apache.directory.shared.ldap.name.DN;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.apacheds.*;
+import org.wso2.carbon.apacheds.AdminGroupInfo;
+import org.wso2.carbon.apacheds.AdminInfo;
+import org.wso2.carbon.apacheds.PartitionInfo;
+import org.wso2.carbon.apacheds.PartitionManager;
+import org.wso2.carbon.apacheds.PasswordAlgorithm;
 import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.ldap.server.exception.DirectoryServerException;
 
@@ -90,6 +97,7 @@ class ApacheDirectoryPartitionManager implements PartitionManager {
     /**
      * @inheritDoc
      */
+    @Override
     public void addPartition(PartitionInfo partitionInformation)
             throws DirectoryServerException {
 
@@ -141,6 +149,7 @@ class ApacheDirectoryPartitionManager implements PartitionManager {
     /**
      * @inheritDoc
      */
+    @Override
     public boolean partitionDirectoryExists(String partitionID) throws DirectoryServerException {
         boolean partitionDirectoryExists = false;
         String partitionDirectoryName = this.workingDirectory + File.separator + partitionID;
@@ -160,6 +169,7 @@ class ApacheDirectoryPartitionManager implements PartitionManager {
     /**
      * @inheritDoc
      */
+    @Override
     public boolean partitionInitialized(String partitionId) {
         Set<? extends Partition> partitions = this.directoryService.getPartitions();
 
@@ -175,6 +185,7 @@ class ApacheDirectoryPartitionManager implements PartitionManager {
     /**
      * @inheritDoc
      */
+    @Override
     public int getNumberOfPartitions() {
         int numOfPartitions = 0; //if no partition is created
 
@@ -188,6 +199,7 @@ class ApacheDirectoryPartitionManager implements PartitionManager {
     /**
      * This method initializes a partition from existing partition directory.
      */
+    @Override
     public void initializeExistingPartition(PartitionInfo partitionInfo) throws
             DirectoryServerException {
 
@@ -205,7 +217,7 @@ class ApacheDirectoryPartitionManager implements PartitionManager {
 
         } catch (Exception e) {
             logger.error("Error in creating partition from existing partition directory.", e);
-            throw new RuntimeException(e);
+            throw new DirectoryServerException(e);
         }
         /**
          *Initialize the existing partition in the directory service.
@@ -231,6 +243,7 @@ class ApacheDirectoryPartitionManager implements PartitionManager {
     /**
      * @inheritDoc
      */
+    @Override
     public void removePartition(String partitionSuffix)
             throws DirectoryServerException {
 
@@ -253,11 +266,12 @@ class ApacheDirectoryPartitionManager implements PartitionManager {
         }
     }
 
+    @Override
     public void removeAllPartitions() throws DirectoryServerException {
         Set<? extends Partition> partitions = this.directoryService.getPartitions();
 
         for (Partition partition : partitions) {
-            if (!partition.getId().equalsIgnoreCase("schema")) {
+            if (!"schema".equalsIgnoreCase(partition.getId())) {
 
                 try {
 
@@ -280,6 +294,7 @@ class ApacheDirectoryPartitionManager implements PartitionManager {
     /**
      * @inheritDoc
      */
+    @Override
     public void synchronizePartitions()
             throws DirectoryServerException {
 
@@ -588,7 +603,7 @@ class ApacheDirectoryPartitionManager implements PartitionManager {
 
         AdminGroupInfo groupInfo = adminInfo.getGroupInformation();
 
-        if (groupInfo.getAdminRoleName().contains("/")) {
+        if (groupInfo != null && StringUtils.contains(groupInfo.getAdminRoleName(),"/")) {
             String adminRole = groupInfo.getAdminRoleName();
             adminRole = adminRole.substring(adminRole.indexOf("/") + 1);
             groupInfo.setAdminRoleName(adminRole);

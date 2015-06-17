@@ -1,12 +1,12 @@
 /*
- *  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- *  WSO2 Inc. licenses this file to you under the Apache License,
- *  Version 2.0 (the "License"); you may not use this file except
- *  in compliance with the License.
- *  You may obtain a copy of the License at
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -15,6 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.wso2.carbon.identity.scim.provider.auth;
 
 import org.apache.axiom.om.util.Base64;
@@ -36,6 +37,7 @@ import org.wso2.charon.core.exceptions.UnauthorizedException;
 import org.wso2.charon.core.schema.SCIMConstants;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -74,9 +76,9 @@ public class BasicAuthHandler implements SCIMAuthenticationHandler {
         // check the "Authorization" header and if "Basic" is there, can be handled.
 
         // get the map of protocol headers
-        TreeMap protocolHeaders = (TreeMap) message.get(Message.PROTOCOL_HEADERS);
+        Map protocolHeaders = (TreeMap) message.get(Message.PROTOCOL_HEADERS);
         // get the value for Authorization Header
-        ArrayList authzHeaders = (ArrayList) protocolHeaders
+        List authzHeaders = (ArrayList) protocolHeaders
                 .get(SCIMConstants.AUTHORIZATION_HEADER);
         if (authzHeaders != null) {
             // get the authorization header value, if provided
@@ -92,9 +94,9 @@ public class BasicAuthHandler implements SCIMAuthenticationHandler {
         // extract authorization header and authenticate.
 
         // get the map of protocol headers
-        TreeMap protocolHeaders = (TreeMap) message.get(Message.PROTOCOL_HEADERS);
+        Map protocolHeaders = (TreeMap) message.get(Message.PROTOCOL_HEADERS);
         // get the value for Authorization Header
-        ArrayList authzHeaders = (ArrayList) protocolHeaders
+        List authzHeaders = (ArrayList) protocolHeaders
                 .get(SCIMConstants.AUTHORIZATION_HEADER);
         if (authzHeaders != null) {
             // get the authorization header value, if provided
