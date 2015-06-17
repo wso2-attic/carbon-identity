@@ -445,13 +445,7 @@ public class ProvisioningClient implements Runnable {
                                 response, SCIMConstants.identifyFormat(contentType));
                 logger.error(exception.getDescription());
             }
-        } catch (CharonException e) {
-            logger.error("Error in provisioning 'update user' operation.", e);
-        } catch (HttpException e) {
-            logger.error("Error in provisioning 'update user' operation.", e);
-        } catch (IOException e) {
-            logger.error("Error in provisioning 'update user' operation.", e);
-        } catch (BadRequestException e) {
+        } catch (CharonException | IOException | BadRequestException e) {
             logger.error("Error in provisioning 'update user' operation.", e);
         }
 
