@@ -11,8 +11,6 @@
          */
         function ok() {
             var sessionDataKey = '<%=sessionDataKey%>';
-
-            alert(sessionDataKey);
             $.ajax({
                 url: '<%=url%>',
                 success: function (data) {
