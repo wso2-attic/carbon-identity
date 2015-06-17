@@ -26,12 +26,14 @@ import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.mgt.IdentityMgtConfig;
 import org.wso2.carbon.identity.mgt.RecoveryProcessor;
+import org.wso2.carbon.identity.mgt.UserRenameOperationEventListener;
 import org.wso2.carbon.identity.mgt.constants.IdentityMgtConstants;
 import org.wso2.carbon.identity.mgt.dto.ChallengeQuestionDTO;
 import org.wso2.carbon.registry.core.Collection;
 import org.wso2.carbon.registry.core.Registry;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
 import org.wso2.carbon.registry.core.service.RegistryService;
+import org.wso2.carbon.user.core.listener.UserOperationEventListener;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.ConfigurationContextService;
 
@@ -150,6 +152,8 @@ public class IdentityMgtServiceComponent {
         props.put(CarbonConstants.AXIS2_CONFIG_SERVICE, AxisObserver.class.getName());
         context.getBundleContext().registerService(AxisObserver.class.getName(),
                 new IdentityMgtDeploymentInterceptor(), props);
+        context.getBundleContext().registerService(UserOperationEventListener.class.getName(), new
+                UserRenameOperationEventListener(),null);
         init();
         if (IdentityMgtConfig.getInstance().isListenerEnable() && log.isDebugEnabled()) {
             log.debug("Identity Management Listener is enabled");
