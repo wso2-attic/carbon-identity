@@ -25,6 +25,7 @@ import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.PutMethod;
 import org.apache.commons.httpclient.methods.RequestEntity;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.scim.common.utils.BasicAuthUtil;
@@ -368,7 +369,7 @@ public class ProvisioningClient implements Runnable {
             String password = provider.getProperty(SCIMConfigConstants.ELEMENT_NAME_PASSWORD);
             String contentType = provider.getProperty(SCIMConstants.CONTENT_TYPE_HEADER);
 
-            if (contentType == null) {
+            if (StringUtils.isEmpty(contentType)) {
                 contentType = SCIMConstants.APPLICATION_JSON;
             }
 
@@ -402,7 +403,7 @@ public class ProvisioningClient implements Runnable {
                 //we expect only one user in the list
                 for (SCIMObject user : users) {
                     userId = ((User) user).getId();
-                    if (userId == null) {
+                    if (StringUtils.isEmpty(userId)) {
                         logger.error("Trying to update a user entry which doesn't support SCIM. " +
                                 "Usually internal carbon User entries such as admin role doesn't support SCIM attributes.");
                         return;

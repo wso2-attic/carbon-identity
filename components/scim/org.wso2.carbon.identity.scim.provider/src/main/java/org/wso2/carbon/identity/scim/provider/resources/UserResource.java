@@ -17,6 +17,7 @@
  */
 package org.wso2.carbon.identity.scim.provider.resources;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.jaxrs.designator.PATCH;
@@ -376,7 +377,7 @@ public class UserResource extends AbstractResource {
             IdentitySCIMManager identitySCIMManager = IdentitySCIMManager.getInstance();
 
             // content-type header is compulsory in post request.
-            if (inputFormat == null) {
+            if (StringUtils.isEmpty(inputFormat)) {
                 String error = SCIMConstants.CONTENT_TYPE_HEADER
                         + " not present in the request header";
                 throw new FormatNotSupportedException(error);
@@ -403,9 +404,7 @@ public class UserResource extends AbstractResource {
             return new JAXRSResponseBuilder().buildResponse(response);
 
         } catch (CharonException e) {
-            if (logger.isDebugEnabled()) {
-                logger.debug("Charon Exception raised while executing PATCH request.", e);
-            }
+            logger.error("Charon Exception raised while executing PATCH request.", e);
             // create SCIM response with code as the same of exception and message as error message
             // of the exception
             if (e.getCode() == -1) {
@@ -414,9 +413,7 @@ public class UserResource extends AbstractResource {
             return new JAXRSResponseBuilder().buildResponse(AbstractResourceEndpoint
                     .encodeSCIMException(encoder, e));
         } catch (FormatNotSupportedException e) {
-            if (logger.isDebugEnabled()) {
-                logger.debug("Request format is not supported.", e);
-            }
+            logger.debug("Request format is not supported.", e);
             return new JAXRSResponseBuilder().buildResponse(AbstractResourceEndpoint
                     .encodeSCIMException(encoder, e));
         }

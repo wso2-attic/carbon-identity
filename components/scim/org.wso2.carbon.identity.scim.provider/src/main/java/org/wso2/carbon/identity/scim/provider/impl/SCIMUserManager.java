@@ -17,6 +17,7 @@
 */
 package org.wso2.carbon.identity.scim.provider.impl;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
@@ -425,7 +426,7 @@ public class SCIMUserManager implements UserManager {
                 //set user claim values
                 carbonUM.setUserClaimValues(oldUser.getUserName(), claims, null);
                 //if password is updated, set it separately
-                if (newUser.getPassword() != null) {
+                if (StringUtils.isNotEmpty(newUser.getPassword())) {
                     carbonUM.updateCredentialByAdmin(newUser.getUserName(), newUser.getPassword());
                 }
                 log.info("User: " + newUser.getUserName() + " updated updated through SCIM.");
