@@ -18,41 +18,28 @@
 
 package org.wso2.carbon.identity.workflow.mgt.bean;
 
-public class WorkflowAssociation {
-    private String workflowId;
-    private String templateId;
-    private String implId;
+public class AddAssociationDO {
+
+    private String eventId;
     private String condition;
 
-    public String getWorkflowId() {
-        return workflowId;
+    public String getEventId() {
+
+        return eventId;
     }
 
-    public void setWorkflowId(String workflowId) {
-        this.workflowId = workflowId;
-    }
+    public void setEventId(String eventId) {
 
-    public String getTemplateId() {
-        return templateId;
-    }
-
-    public void setTemplateId(String templateId) {
-        this.templateId = templateId;
-    }
-
-    public String getImplId() {
-        return implId;
-    }
-
-    public void setImplId(String implId) {
-        this.implId = implId;
+        this.eventId = eventId;
     }
 
     public String getCondition() {
+
         return condition;
     }
 
     public void setCondition(String condition) {
+
         this.condition = condition;
     }
 }

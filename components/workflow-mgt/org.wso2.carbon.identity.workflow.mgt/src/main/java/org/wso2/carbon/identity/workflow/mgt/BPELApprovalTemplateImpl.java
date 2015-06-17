@@ -34,10 +34,6 @@ public class BPELApprovalTemplateImpl extends AbstractWorkflowTemplateImpl {
                         WorkflowTemplateParamType.BPS_PROFILE, "", true},
                 {WorkFlowConstants.TemplateConstants.PROCESS_NAME, "Process Name",
                         WorkflowTemplateParamType.STRING, "", true},
-                {WorkFlowConstants.TemplateConstants.CALLBACK_USER, "Username for callback",
-                        WorkflowTemplateParamType.STRING, "", true},
-                {WorkFlowConstants.TemplateConstants.CALLBACK_USER_PASSWORD, "Password for callback",
-                        WorkflowTemplateParamType.PASSWORD, "", true},
                 {WorkFlowConstants.TemplateConstants.HT_SUBJECT, "Approval Request Subject",
                         WorkflowTemplateParamType.STRING, "Approval required", true},
                 {WorkFlowConstants.TemplateConstants.HT_DESCRIPTION, "Approval Request Body",
@@ -69,7 +65,7 @@ public class BPELApprovalTemplateImpl extends AbstractWorkflowTemplateImpl {
         Map<String, Object> bpelProfileParams = workflowService.getBPSProfileParams(
                 (String) initParams.get(WorkFlowConstants.TemplateConstants.BPEL_IMPL_BPS_PROFILE));
         initParams.putAll(bpelProfileParams);
-        setInitializer(new ApprovalBPELDeployer());
+        setInitializer(new BPELApprovalDeployer());
         super.deploy(initParams);
     }
 

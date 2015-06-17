@@ -35,7 +35,8 @@ import java.util.Map;
 
 public class BPSProfileDAO {
 
-    public void addProfile(String profileName, String host, String user, String password, int tenantId)
+    public void addProfile(String profileName, String host, String user, String password, String
+            callBackUser, String callbackPassword, int tenantId)
             throws InternalWorkflowException {
 
         Connection connection = null;
@@ -48,7 +49,9 @@ public class BPSProfileDAO {
             prepStmt.setString(2, host);
             prepStmt.setString(3, user);
             prepStmt.setString(4, password);
-            prepStmt.setInt(5, tenantId);
+            prepStmt.setString(5, callBackUser);
+            prepStmt.setString(6, callbackPassword);
+            prepStmt.setInt(7, tenantId);
             prepStmt.executeUpdate();
             connection.commit();
         } catch (IdentityException e) {
@@ -76,9 +79,13 @@ public class BPSProfileDAO {
                 String hostName = rs.getString(SQLConstants.HOST_URL_COLUMN);
                 String user = rs.getString(SQLConstants.USERNAME_COLUMN);
                 String password = rs.getString(SQLConstants.PASSWORD_COLUMN);
+                String callbackUser = rs.getString(SQLConstants.CALLBACK_USER_COLUMN);
+                String callbackPassword = rs.getString(SQLConstants.CALLBACK_PASSWORD_COLUMN);
                 profileParams.put(WorkFlowConstants.TemplateConstants.HOST, hostName);
                 profileParams.put(WorkFlowConstants.TemplateConstants.AUTH_USER, user);
                 profileParams.put(WorkFlowConstants.TemplateConstants.AUTH_USER_PASSWORD, password);
+                profileParams.put(WorkFlowConstants.TemplateConstants.CALLBACK_USER, callbackUser);
+                profileParams.put(WorkFlowConstants.TemplateConstants.CALLBACK_USER_PASSWORD, callbackPassword);
             }
         } catch (IdentityException e) {
             throw new InternalWorkflowException("Error when connecting to the Identity Database.", e);

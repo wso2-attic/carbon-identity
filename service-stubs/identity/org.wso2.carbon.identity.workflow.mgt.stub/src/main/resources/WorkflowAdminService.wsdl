@@ -43,12 +43,6 @@
                     <xs:element minOccurs="0" name="username" nillable="true" type="xs:string"/>
                 </xs:sequence>
             </xs:complexType>
-            <xs:complexType name="Parameter">
-                <xs:sequence>
-                    <xs:element minOccurs="0" name="paramName" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="paramValue" nillable="true" type="xs:string"/>
-                </xs:sequence>
-            </xs:complexType>
             <xs:complexType name="WorkflowEventDTO">
                 <xs:sequence>
                     <xs:element minOccurs="0" name="eventCategory" nillable="true" type="xs:string"/>
@@ -57,6 +51,12 @@
                     <xs:element minOccurs="0" name="eventId" nillable="true" type="xs:string"/>
                     <xs:element maxOccurs="unbounded" minOccurs="0" name="parameters" nillable="true"
                                 type="ax2388:Parameter"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="Parameter">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="paramName" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="paramValue" nillable="true" type="xs:string"/>
                 </xs:sequence>
             </xs:complexType>
             <xs:complexType name="TemplateBean">
@@ -97,8 +97,8 @@
             </xs:complexType>
             <xs:complexType name="TemplateDeploymentDTO">
                 <xs:sequence>
-                    <xs:element minOccurs="0" name="associatedEvent" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="condition" nillable="true" type="xs:string"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="associations" nillable="true"
+                                type="ax2388:AddAssociationDO"/>
                     <xs:element maxOccurs="unbounded" minOccurs="0" name="parameters" nillable="true"
                                 type="ax2388:Parameter"/>
                     <xs:element minOccurs="0" name="templateImplName" nillable="true" type="xs:string"/>
@@ -107,6 +107,12 @@
                     <xs:element minOccurs="0" name="templateName" nillable="true" type="xs:string"/>
                     <xs:element minOccurs="0" name="workflowDescription" nillable="true" type="xs:string"/>
                     <xs:element minOccurs="0" name="workflowName" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="AddAssociationDO">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="condition" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="eventId" nillable="true" type="xs:string"/>
                 </xs:sequence>
             </xs:complexType>
             <xs:complexType name="WorkflowBean">
@@ -146,6 +152,8 @@
                         <xs:element minOccurs="0" name="host" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="user" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="password" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="callbackUser" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="callbackPassword" nillable="true" type="xs:string"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
@@ -166,21 +174,6 @@
                 <xs:complexType>
                     <xs:sequence>
                         <xs:element minOccurs="0" name="profileName" nillable="true" type="xs:string"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="addWorkflow">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="id" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="name" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="description" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="templateId" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="templateImpl" nillable="true" type="xs:string"/>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="templateParams" nillable="true"
-                                    type="ax2388:Parameter"/>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="implParams" nillable="true"
-                                    type="ax2388:Parameter"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
@@ -244,6 +237,21 @@
                     <xs:sequence>
                         <xs:element minOccurs="0" name="deploymentDTO" nillable="true"
                                     type="ax2388:TemplateDeploymentDTO"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="addWorkflow">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="id" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="name" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="description" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="templateId" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="templateImpl" nillable="true" type="xs:string"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="templateParams" nillable="true"
+                                    type="ax2388:Parameter"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="implParams" nillable="true"
+                                    type="ax2388:Parameter"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>

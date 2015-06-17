@@ -154,10 +154,11 @@ public class WorkflowService {
         return null;
     }
 
-    public void addBPSProfile(String profileName, String host, String user, String password, int tenantId)
+    public void addBPSProfile(String profileName, String host, String user, String password, String callBackUser,
+                              String callbackPassword, int tenantId)
             throws InternalWorkflowException {
 
-        bpsProfileDAO.addProfile(profileName, host, user, password, tenantId);
+        bpsProfileDAO.addProfile(profileName, host, user, password, callBackUser, callbackPassword, tenantId);
     }
 
     public List<BPSProfileBean> listBPSProfiles(int tenantId) throws WorkflowException {

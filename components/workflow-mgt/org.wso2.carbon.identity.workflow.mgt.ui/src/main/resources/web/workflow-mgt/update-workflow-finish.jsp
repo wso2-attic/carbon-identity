@@ -20,6 +20,7 @@
 <%@ page import="org.apache.commons.lang.StringUtils" %>
 <%@ page import="org.wso2.carbon.CarbonConstants" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.WorkflowAdminServiceWorkflowException" %>
+<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.AddAssociationDO" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.Parameter" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.TemplateDeploymentDTO" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.WorkflowAdminServiceClient" %>
@@ -86,8 +87,9 @@
                 templateParams.toArray(new Parameter[templateParams.size()]));
         deploymentDTO.setTemplateImplParameters(templateImplParams.toArray(new
                 Parameter[templateImplParams.size()]));
-        deploymentDTO.setCondition(condition);
-        deploymentDTO.setAssociatedEvent(operation);
+        AddAssociationDO association = new AddAssociationDO();
+        association.setCondition(condition);
+        association.setEventId(operation);
         try {
             client.deployTemplate(deploymentDTO);
         } catch (WorkflowAdminServiceWorkflowException e) {

@@ -24,7 +24,7 @@ import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
 import org.wso2.carbon.identity.workflow.mgt.AbstractWorkflowTemplate;
 import org.wso2.carbon.identity.workflow.mgt.AbstractWorkflowTemplateImpl;
 import org.wso2.carbon.identity.workflow.mgt.bean.AssociationDTO;
-import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowAssociation;
+import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowAssociationBean;
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowBean;
 import org.wso2.carbon.identity.workflow.mgt.exception.InternalWorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.internal.WorkflowServiceDataHolder;
@@ -237,13 +237,13 @@ public class WorkflowDAO {
         return workflowList;
     }
 
-    public List<WorkflowAssociation> getWorkflowsForRequest(String eventId, int tenantId)
+    public List<WorkflowAssociationBean> getWorkflowsForRequest(String eventId, int tenantId)
             throws InternalWorkflowException {
 
         Connection connection = null;
         PreparedStatement prepStmt = null;
         ResultSet rs;
-        List<WorkflowAssociation> associations = new ArrayList<>();
+        List<WorkflowAssociationBean> associations = new ArrayList<>();
         String query = SQLConstants.GET_WORKFLOWS_FOR_EVENT_QUERY;
         try {
             connection = IdentityDatabaseUtil.getDBConnection();
@@ -256,7 +256,7 @@ public class WorkflowDAO {
                 String workflowId = rs.getString(SQLConstants.WORKFLOW_ID_COLUMN);
                 String templateId = rs.getString(SQLConstants.TEMPLATE_ID_COLUMN);
                 String templateImplId = rs.getString(SQLConstants.TEMPLATE_IMPL_ID_COLUMN);
-                WorkflowAssociation association = new WorkflowAssociation();
+                WorkflowAssociationBean association = new WorkflowAssociationBean();
                 association.setWorkflowId(workflowId);
                 association.setCondition(condition);
                 association.setTemplateId(templateId);

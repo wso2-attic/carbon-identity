@@ -35,6 +35,10 @@
     String host = CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_BPS_HOST));
     String username = CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_BPS_AUTH_USER));
     String password = CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_BPS_AUTH_PASSWORD));
+    String callbackUser =
+            CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_CARBON_AUTH_USER));
+    String callbackPassword =
+            CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_CARBON_AUTH_PASSWORD));
     String forwardTo = "list-bps-profiles.jsp";
 //    todo:validate
 
@@ -45,7 +49,7 @@
                     .getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
     WorkflowAdminServiceClient client = new WorkflowAdminServiceClient(cookie, backendServerURL, configContext);
     try {
-        client.addBPSProfile(profileName, host, username, password);
+        client.addBPSProfile(profileName, host, username, password, callbackUser, callbackPassword);
     } catch (WorkflowAdminServiceWorkflowException e) {
         String message = resourceBundle.getString("workflow.error.bps.profile.add");
         CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);

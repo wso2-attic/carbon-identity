@@ -27,7 +27,7 @@ import org.jaxen.JaxenException;
 import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkFlowRequest;
-import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowAssociation;
+import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowAssociationBean;
 import org.wso2.carbon.identity.workflow.mgt.dao.WorkflowDAO;
 import org.wso2.carbon.identity.workflow.mgt.dao.WorkflowRequestDAO;
 import org.wso2.carbon.identity.workflow.mgt.exception.InternalWorkflowException;
@@ -60,7 +60,7 @@ public class WorkFlowExecutorManager {
         workFlowRequest.setUuid(UUID.randomUUID().toString());
         OMElement xmlRequest = WorkflowRequestBuilder.buildXMLRequest(workFlowRequest);
         WorkflowDAO workflowDAO = new WorkflowDAO();
-        List<WorkflowAssociation> associations =
+        List<WorkflowAssociationBean> associations =
                 workflowDAO.getWorkflowsForRequest(workFlowRequest.getEventType(),workFlowRequest.getTenantId());
         if (CollectionUtils.isEmpty(associations)) {
             handleCallback(workFlowRequest, WorkflowRequestStatus.SKIPPED.toString(), null);
@@ -68,7 +68,7 @@ public class WorkFlowExecutorManager {
         }
         WorkflowRequestDAO requestDAO = new WorkflowRequestDAO();
         requestDAO.addWorkflowEntry(workFlowRequest);
-        for (WorkflowAssociation association : associations) {
+        for (WorkflowAssociationBean association : associations) {
             try {
                 AXIOMXPath axiomxPath = new AXIOMXPath(association.getCondition());
                 if (axiomxPath.booleanValueOf(xmlRequest)) {

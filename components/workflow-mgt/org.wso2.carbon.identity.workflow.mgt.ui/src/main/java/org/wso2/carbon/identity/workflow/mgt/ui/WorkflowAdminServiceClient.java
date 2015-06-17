@@ -86,11 +86,12 @@ public class WorkflowAdminServiceClient {
         stub.deployTemplate(deploymentDTO);
     }
 
-    public void addBPSProfile(String profileName, String host, String user, String password)
+    public void addBPSProfile(String profileName, String host, String user, String password, String callbackUser,
+                              String callbackPassword)
             throws RemoteException, WorkflowAdminServiceWorkflowException {
 
 //        String[] splittedPw = password.split("(?!^)");
-        stub.addBPSProfile(profileName, host, user, password);
+        stub.addBPSProfile(profileName, host, user, password, callbackUser, callbackPassword);
     }
 
     public BPSProfileBean[] listBPSProfiles() throws RemoteException, WorkflowAdminServiceWorkflowException {

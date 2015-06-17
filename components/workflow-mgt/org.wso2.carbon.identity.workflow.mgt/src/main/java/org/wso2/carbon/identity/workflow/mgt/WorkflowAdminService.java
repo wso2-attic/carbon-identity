@@ -22,6 +22,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.CarbonContext;
+import org.wso2.carbon.identity.workflow.mgt.bean.AddAssociationDO;
 import org.wso2.carbon.identity.workflow.mgt.bean.AssociationDTO;
 import org.wso2.carbon.identity.workflow.mgt.bean.BPSProfileBean;
 import org.wso2.carbon.identity.workflow.mgt.bean.Parameter;
@@ -74,18 +75,21 @@ public class WorkflowAdminService {
             service.addWorkflow(uuid, deploymentDTO.getWorkflowName(), deploymentDTO.getWorkflowDescription(),
                     deploymentDTO.getTemplateName(), deploymentDTO.getTemplateImplName(), deploymentDTO.getParameters(),
                     deploymentDTO.getTemplateImplParameters(), tenantId);
-            service.addAssociation(uuid, deploymentDTO.getAssociatedEvent(), deploymentDTO.getCondition());
+            for (AddAssociationDO associationDO : deploymentDTO.getAssociations()) {
+                service.addAssociation(uuid, associationDO.getEventId(), associationDO.getCondition());
+            }
         } catch (InternalWorkflowException e) {
             log.error("Error occurred when deploying template " + deploymentDTO.getWorkflowName());
             throw new WorkflowException("Server error occurred when deploying the template");
         }
     }
 
-    public void addBPSProfile(String profileName, String host, String user, String password) throws WorkflowException {
+    public void addBPSProfile(String profileName, String host, String user, String password, String callbackUser,
+                              String callbackPassword) throws WorkflowException {
 
         try {
             int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
-            service.addBPSProfile(profileName, host, user, password, tenantId);
+            service.addBPSProfile(profileName, host, user, password, callbackUser, callbackPassword, tenantId);
         } catch (InternalWorkflowException e) {
             log.error("Server error when adding the profile " + profileName, e);
             throw new WorkflowException("Server error occurred when adding the BPS profile");

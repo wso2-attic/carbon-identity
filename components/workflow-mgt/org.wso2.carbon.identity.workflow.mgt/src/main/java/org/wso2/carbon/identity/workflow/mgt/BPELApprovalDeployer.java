@@ -45,9 +45,9 @@ import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-public class ApprovalBPELDeployer implements TemplateInitializer {
+public class BPELApprovalDeployer implements TemplateInitializer {
 
-    private static Log log = LogFactory.getLog(ApprovalBPELDeployer.class);
+    private static Log log = LogFactory.getLog(BPELApprovalDeployer.class);
 
     private String processName;
     private String bpsHost;

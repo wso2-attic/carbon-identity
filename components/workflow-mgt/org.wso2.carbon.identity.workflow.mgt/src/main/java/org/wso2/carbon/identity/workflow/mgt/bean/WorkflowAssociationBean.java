@@ -18,32 +18,41 @@
 
 package org.wso2.carbon.identity.workflow.mgt.bean;
 
-public class ServiceAssociationDTO {
-    private String serviceAlias;
-    private String event;
-    private int priority;
+public class WorkflowAssociationBean {
+    private String workflowId;
+    private String templateId;
+    private String implId;
+    private String condition;
 
-    public String getServiceAlias() {
-        return serviceAlias;
+    public String getWorkflowId() {
+        return workflowId;
     }
 
-    public void setServiceAlias(String serviceAlias) {
-        this.serviceAlias = serviceAlias;
+    public void setWorkflowId(String workflowId) {
+        this.workflowId = workflowId;
     }
 
-    public String getEvent() {
-        return event;
+    public String getTemplateId() {
+        return templateId;
     }
 
-    public void setEvent(String event) {
-        this.event = event;
+    public void setTemplateId(String templateId) {
+        this.templateId = templateId;
     }
 
-    public int getPriority() {
-        return priority;
+    public String getImplId() {
+        return implId;
     }
 
-    public void setPriority(int priority) {
-        this.priority = priority;
+    public void setImplId(String implId) {
+        this.implId = implId;
+    }
+
+    public String getCondition() {
+        return condition;
+    }
+
+    public void setCondition(String condition) {
+        this.condition = condition;
     }
 }

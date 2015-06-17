@@ -23,10 +23,9 @@ public class TemplateDeploymentDTO {
     private String workflowDescription;
     private String templateName;
     private String templateImplName;
-    private String associatedEvent;
     private Parameter[] parameters;
     private Parameter[] templateImplParameters;
-    private String condition;
+    private AddAssociationDO[] associations;
 
     public String getWorkflowName() {
         return workflowName;
@@ -78,19 +77,13 @@ public class TemplateDeploymentDTO {
         this.templateImplParameters = templateImplParameters;
     }
 
-    public String getCondition() {
-        return condition;
+    public AddAssociationDO[] getAssociations() {
+
+        return associations;
     }
 
-    public void setCondition(String condition) {
-        this.condition = condition;
-    }
+    public void setAssociations(AddAssociationDO[] associations) {
 
-    public String getAssociatedEvent() {
-        return associatedEvent;
-    }
-
-    public void setAssociatedEvent(String associatedEvent) {
-        this.associatedEvent = associatedEvent;
+        this.associations = associations;
     }
 }

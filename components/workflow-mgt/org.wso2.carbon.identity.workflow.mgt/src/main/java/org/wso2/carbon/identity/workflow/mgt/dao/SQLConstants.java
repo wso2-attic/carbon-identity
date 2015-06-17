@@ -35,6 +35,8 @@ public class SQLConstants {
     public static final String HOST_URL_COLUMN = "HOST_URL";
     public static final String USERNAME_COLUMN = "USERNAME";
     public static final String PASSWORD_COLUMN = "PASSWORD";
+    public static final String CALLBACK_USER_COLUMN = "CALLBACK_USERNAME";
+    public static final String CALLBACK_PASSWORD_COLUMN = "CALLBACK_PASSWORD";
 
     public static final String WORKFLOW_ID_COLUMN = "WORKFLOW_ID";
     public static final String EVENT_ID_COLUMN = "EVENT_ID";
@@ -77,10 +79,11 @@ public class SQLConstants {
 
     //queries for BPS profiles
     public static final String ADD_BPS_PROFILE_QUERY =
-            "INSERT INTO WF_BPS_PROFILE(PROFILE_NAME, HOST_URL, USERNAME, PASSWORD, TENANT_ID) VALUES (?, ?, ?, ?, ?)";
+            "INSERT INTO WF_BPS_PROFILE(PROFILE_NAME, HOST_URL, USERNAME, PASSWORD, CALLBACK_USERNAME," +
+                    " CALLBACK_PASSWORD, TENANT_ID) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
-    public static final String GET_BPS_PROFILE_QUERY = "SELECT HOST_URL, USERNAME, PASSWORD FROM " +
-            "WF_BPS_PROFILE WHERE PROFILE_NAME = ?";
+    public static final String GET_BPS_PROFILE_QUERY = "SELECT HOST_URL, USERNAME, PASSWORD, " +
+            "CALLBACK_USERNAME, CALLBACK_PASSWORD FROM WF_BPS_PROFILE WHERE PROFILE_NAME = ?";
 
     public static final String LIST_BPS_PROFILES_QUERY = "SELECT PROFILE_NAME, HOST_URL, USERNAME FROM WF_BPS_PROFILE" +
             " WHERE TENANT_ID = ?";
