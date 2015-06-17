@@ -165,4 +165,17 @@ public final class OAuthConstants {
     private OAuthConstants(){
 
     }
+    public static final String IDP_NAME="LOCAL";
+    public static final String RP_ORIGIN="http://localhost:8080";
+    public static final String OP_STATUS_LOGGED="true";
+    public static final String OP_STATUS_LOGOUT="false";
+    public static final String ID_TOKEN_HINT="&id_token_hint=";
+    public static final int STATUS_OK=200;
+    public static final String MSG="Invalid logout request";
+    public static final String RP_STATUS_LOGOUT="True";
+    public static final String RP_STATUS_LOGGED="False";
+    public static final String EMPTY_STRING="";
+    public static final String LOGOUT_HTML="<html><head><script>window.open(\"*\")</script></head><body></body></html>";
+    public static final String STATUSCOOKIE="statusCookie";
+    public static final String LOG_OUT_NOTIFICATION="T";
 }

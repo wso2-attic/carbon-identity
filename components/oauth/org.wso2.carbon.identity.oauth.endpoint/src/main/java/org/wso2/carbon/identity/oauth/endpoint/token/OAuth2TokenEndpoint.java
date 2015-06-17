@@ -53,6 +53,8 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import java.util.Enumeration;
 
+import org.wso2.carbon.identity.oauth.endpoint.session.OIDCSessionMgtEndpoint;
+
 @Path("/token")
 public class OAuth2TokenEndpoint {
 
@@ -147,6 +149,7 @@ public class OAuth2TokenEndpoint {
                     // OpenID Connect ID token
                     if (oauth2AccessTokenResp.getIDToken() != null) {
                         oAuthRespBuilder.setParam(OIDC.Response.ID_TOKEN, oauth2AccessTokenResp.getIDToken());
+                        OIDCSessionMgtEndpoint.setIdTokenHint(oauth2AccessTokenResp.getIDToken());
                     }
                     OAuthResponse response = oAuthRespBuilder.buildJSONMessage();
                     ResponseHeader[] headers = oauth2AccessTokenResp.getResponseHeaders();

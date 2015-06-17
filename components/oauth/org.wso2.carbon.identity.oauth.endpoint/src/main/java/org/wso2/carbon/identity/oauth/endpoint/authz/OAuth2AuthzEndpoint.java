@@ -60,14 +60,8 @@ import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Response;
+import javax.ws.rs.*;
+import javax.ws.rs.core.*;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -76,6 +70,9 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+
+import org.wso2.carbon.identity.oauth.endpoint.session.OIDCSessionMgtEndpoint;
+import org.wso2.carbon.identity.oauth.endpoint.session.LogoutEndpoint;
 
 @Path("/authorize")
 public class OAuth2AuthzEndpoint {
@@ -86,7 +83,8 @@ public class OAuth2AuthzEndpoint {
     @Path("/")
     @Consumes("application/x-www-form-urlencoded")
     @Produces("text/html")
-    public Response authorize(@Context HttpServletRequest request) throws URISyntaxException {
+    @CookieParam("statusCookie")
+    public Response authorize(@Context HttpServletRequest request,@CookieParam("statusCookie") Cookie cookie2) throws URISyntaxException {
 
         // Setting super-tenant carbon context
         PrivilegedCarbonContext.startTenantFlow();
@@ -182,8 +180,21 @@ public class OAuth2AuthzEndpoint {
                         sessionDataCacheEntry.setAuthenticatedIdPs(authnResult.getAuthenticatedIdPs());
                         SessionDataCache.getInstance().addToCache(cacheKey, sessionDataCacheEntry);
                         redirectURL = doUserAuthz(request, sessionDataKeyFromLogin, sessionDataCacheEntry);
+                        if(redirectURL.contains("oauth2_consent")){
                         return Response.status(HttpServletResponse.SC_FOUND).location(new URI(redirectURL)).build();
-
+                        }
+                        else{
+                            String sessionKey = UUIDGenerator.generateUUID();
+                            if(cookie2==null) {
+                                Cookie cookie=new Cookie(OAuthConstants.STATUSCOOKIE,sessionKey);
+                                return Response.status(HttpServletResponse.SC_FOUND).
+                                        cookie(new NewCookie(cookie)).location(new URI(redirectURL + "&session=" + cookie.getValue())).build();
+                            }
+                            else{
+                                return Response.status(HttpServletResponse.SC_FOUND).
+                                        cookie(new NewCookie(cookie2)).location(new URI(redirectURL + "&session=" +cookie2.getValue())).build();
+                            }
+                        }
                     } else {
 
                         OAuthProblemException oauthException = OAuthProblemException.error(
@@ -239,8 +250,16 @@ public class OAuth2AuthzEndpoint {
                             log.error("Error while encoding the url", e);
                         }
                     }
-
-                    return Response.status(HttpServletResponse.SC_FOUND).location(new URI(redirectURL)).build();
+                    String sessionKey = UUIDGenerator.generateUUID();
+                    if(cookie2==null) {
+                        Cookie cookie=new Cookie(OAuthConstants.STATUSCOOKIE,sessionKey);
+                        return Response.status(HttpServletResponse.SC_FOUND).
+                                cookie(new NewCookie(cookie)).location(new URI(redirectURL + "&session=" + cookie.getValue())).build();
+                    }
+                    else{
+                        return Response.status(HttpServletResponse.SC_FOUND).
+                                cookie(new NewCookie(cookie2)).location(new URI(redirectURL + "&session=" +cookie2.getValue())).build();
+                    }
                 } else {
                     String appName = sessionDataCacheEntry.getoAuth2Parameters().getApplicationName();
 
@@ -312,10 +331,10 @@ public class OAuth2AuthzEndpoint {
     @Path("/")
     @Consumes("application/x-www-form-urlencoded")
     @Produces("text/html")
-    public Response authorizePost(@Context HttpServletRequest request, MultivaluedMap paramMap)
+    public Response authorizePost(@Context HttpServletRequest request, MultivaluedMap paramMap,@CookieParam("statusCookie") Cookie cookie2)
             throws URISyntaxException {
         HttpServletRequestWrapper httpRequest = new OAuthRequestWrapper(request, paramMap);
-        return authorize(httpRequest);
+        return authorize(httpRequest,cookie2);
     }
 
     /**
@@ -547,6 +566,8 @@ public class OAuth2AuthzEndpoint {
             sessionDataCacheEntryNew.setParamMap(new ConcurrentHashMap<String, String[]>(req.getParameterMap()));
         }
         SessionDataCache.getInstance().addToCache(cacheKey, sessionDataCacheEntryNew);
+        LogoutEndpoint logoutEndpoint=new LogoutEndpoint();
+        logoutEndpoint.setSessionDataKey(sessionDataKey);
 
         try {
             return EndpointUtil.getLoginPageURL(clientId, sessionDataKey, forceAuthenticate,
@@ -646,6 +667,7 @@ public class OAuth2AuthzEndpoint {
         authzReqDTO.setScopes(oauth2Params.getScopes().toArray(new String[oauth2Params.getScopes().size()]));
         authzReqDTO.setUsername(sessionDataCacheEntry.getLoggedInUser().getAuthenticatedSubjectIdentifier());
         authzReqDTO.setACRValues(oauth2Params.getACRValues());
+        OIDCSessionMgtEndpoint.setCallBackUrl(authzReqDTO);
         return EndpointUtil.getOAuth2Service().authorize(authzReqDTO);
     }
 

@@ -342,4 +342,12 @@ public class EndpointUtil {
         return ServerConfiguration.getInstance().getFirstProperty("HostName");
     }
 
+    /**		
+    * Returns the RPInitiated Logout page url		
+    * @return		
+    */		
+   public static String getRpInitiatedLogoutUrl(){		
+	return CarbonUIUtil.getAdminConsoleURL("/")+"../authenticationendpoint/oauth2_logout.jsp?sessionDataKey=";		
+   }
+
 }
