@@ -1,20 +1,20 @@
 /*
-* Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-* WSO2 Inc. licenses this file to you under the Apache License,
-* Version 2.0 (the "License"); you may not use this file except
-* in compliance with the License.
-* You may obtain a copy of the License at
-*
-* http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied. See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 
 package org.wso2.carbon.identity.application.authentication.endpoint.util;
 
@@ -25,6 +25,7 @@ import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.wso2.carbon.identity.application.authentication.endpoint.AuthenticationException;
 import org.wso2.securevault.SecretResolver;
 import org.wso2.securevault.SecretResolverFactory;
 import org.xml.sax.InputSource;
@@ -35,9 +36,15 @@ import javax.xml.xpath.XPathFactory;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.StringReader;
 import java.io.InputStream;
-import java.util.*;
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
 public class TenantDataManager {
 
@@ -53,7 +60,6 @@ public class TenantDataManager {
     private static final String CLIENT_KEY_STORE_PASSWORD = "Carbon.Security.KeyStore.Password";
     private static final String CLIENT_TRUST_STORE_PASSWORD = "Carbon.Security.TrustStore.Password";
     private static final String HOSTNAME_VERIFICATION_ENABLED = "hostname.verification.enabled";
-    private static final String TENANT_CONFIG_PROPERTIES = "TenantConfig.properties";
     private static final String TENANT_LIST_ENABLED = "tenantListEnabled";
 
     // Service URL constants
@@ -78,6 +84,9 @@ public class TenantDataManager {
     private static List<String> tenantDomainList = new ArrayList<String>();
     private static boolean initialized = false;
     private static boolean initAttempted = false;
+
+    private TenantDataManager() {
+    }
 
     /**
      * Initialize Tenant data manager
@@ -111,7 +120,7 @@ public class TenantDataManager {
                 carbonLogin = getPropertyValue(USERNAME);
 
                 // Base64 encoded username
-                carbonLogin = new String(Base64.encode(carbonLogin.getBytes(CHARACTER_ENCODING)));
+                carbonLogin = Base64.encode(carbonLogin.getBytes(CHARACTER_ENCODING));
 
                 String clientKeyStorePath = buildFilePath(getPropertyValue(CLIENT_KEY_STORE));
                 String clientTrustStorePath = buildFilePath(getPropertyValue(CLIENT_TRUST_STORE));
@@ -126,12 +135,12 @@ public class TenantDataManager {
                 // Build the service URL of tenant management admin service
                 StringBuilder builder = new StringBuilder();
                 serviceURL = builder.append(HTTPS_URL).append(getPropertyValue(HOST)).append(COLON)
-                                    .append(getPropertyValue(PORT)).append(TENANT_MGT_ADMIN_SERVICE_URL).toString();
+                        .append(getPropertyValue(PORT)).append(TENANT_MGT_ADMIN_SERVICE_URL).toString();
 
                 initialized = true;
             }
 
-        } catch (Exception e) {
+        } catch (AuthenticationException | IOException e) {
             log.error("Initialization failed : ", e);
         } finally {
             if (inputStream != null) {
@@ -223,9 +232,7 @@ public class TenantDataManager {
                 // Remove all existing tenant domains from the list
                 tenantDomainList.clear();
 
-                for (String domain : domains) {
-                    tenantDomainList.add(domain);
-                }
+                Collections.addAll(tenantDomainList, domains);
                 // Sort the tenant domains list according to alphabetical order
                 Collections.sort(tenantDomainList);
             }
@@ -250,7 +257,7 @@ public class TenantDataManager {
 
                 InputSource inputSource = new InputSource(new StringReader(xmlString));
                 String xPathExpression = "/*[local-name() = '" + RETRIEVE_TENANTS_RESPONSE + "']/*[local-name() = '" +
-                        RETURN + "']";
+                                         RETURN + "']";
                 NodeList nodeList = null;
                 nodeList = (NodeList) xpath.evaluate(xPathExpression, inputSource, XPathConstants.NODESET);
 

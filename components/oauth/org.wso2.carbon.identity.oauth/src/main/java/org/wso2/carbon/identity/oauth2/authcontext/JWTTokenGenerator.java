@@ -1,19 +1,19 @@
 /*
- *Copyright (c) 2012, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2012, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- *WSO2 Inc. licenses this file to you under the Apache License,
- *Version 2.0 (the "License"); you may not use this file except
- *in compliance with the License.
- *You may obtain a copy of the License at
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *Unless required by applicable law or agreed to in writing,
- *software distributed under the License is distributed on an
- *"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *KIND, either express or implied.  See the License for the
- *specific language governing permissions and limitations
- *under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package org.wso2.carbon.identity.oauth2.authcontext;
@@ -29,6 +29,7 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.PlainJWT;
 import com.nimbusds.jwt.SignedJWT;
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.io.Charsets;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.base.MultitenantConstants;
@@ -65,6 +66,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.SortedMap;
 import java.util.StringTokenizer;
 import java.util.TreeSet;
@@ -100,8 +102,8 @@ public class JWTTokenGenerator implements AuthorizationContextTokenGenerator {
 
     private boolean enableSigning = true;
 
-    private static ConcurrentHashMap<Integer, Key> privateKeys = new ConcurrentHashMap<Integer, Key>();
-    private static ConcurrentHashMap<Integer, Certificate> publicCerts = new ConcurrentHashMap<Integer, Certificate>();
+    private static Map<Integer, Key> privateKeys = new ConcurrentHashMap<Integer, Key>();
+    private static Map<Integer, Certificate> publicCerts = new ConcurrentHashMap<Integer, Certificate>();
 
     private ClaimCache claimsLocalCache;
 
@@ -137,13 +139,13 @@ public class JWTTokenGenerator implements AuthorizationContextTokenGenerator {
                     claimsRetriever = (ClaimsRetriever)Class.forName(claimsRetrieverImplClass).newInstance();
                     claimsRetriever.init();
                 } catch (ClassNotFoundException e){
-                    log.error("Cannot find class: " + claimsRetrieverImplClass,e);
+                    log.error("Cannot find class: " + claimsRetrieverImplClass, e);
                 } catch (InstantiationException e) {
-                    log.error("Error instantiating " + claimsRetrieverImplClass);
+                    log.error("Error instantiating " + claimsRetrieverImplClass, e);
                 } catch (IllegalAccessException e) {
-                    log.error("Illegal access to " + claimsRetrieverImplClass);
+                    log.error("Illegal access to " + claimsRetrieverImplClass, e);
                 } catch (IdentityOAuth2Exception e){
-                    log.error("Error while initializing " + claimsRetrieverImplClass);
+                    log.error("Error while initializing " + claimsRetrieverImplClass, e);
                 }
             }
         }
@@ -176,7 +178,7 @@ public class JWTTokenGenerator implements AuthorizationContextTokenGenerator {
                             (authzUser));
                 }
             } catch (UserStoreException e) {
-                log.error("Error occurred while loading the realm service");
+                log.error("Error occurred while loading the realm service", e);
             }
         }
 
@@ -206,9 +208,9 @@ public class JWTTokenGenerator implements AuthorizationContextTokenGenerator {
         claimsSet.setSubject(authzUser);
         claimsSet.setIssueTime(new Date(issuedTime));
         claimsSet.setExpirationTime(new Date(expireIn));
-        claimsSet.setClaim("subscriber",subscriber);
-        claimsSet.setClaim("applicationname",applicationName);
-        claimsSet.setClaim("enduser",authzUser);
+        claimsSet.setClaim(API_GATEWAY_ID+"/subscriber",subscriber);
+        claimsSet.setClaim(API_GATEWAY_ID+"/applicationname",applicationName);
+        claimsSet.setClaim(API_GATEWAY_ID+"/enduser",authzUser);
 
         if(claimsRetriever != null){
 
@@ -420,7 +422,7 @@ public class JWTTokenGenerator implements AuthorizationContextTokenGenerator {
             byte[] digestInBytes = digestValue.digest();
 
             String publicCertThumbprint = hexify(digestInBytes);
-            String base64EncodedThumbPrint = new String(base64Url.encode(publicCertThumbprint.getBytes()));
+            String base64EncodedThumbPrint = new String(base64Url.encode(publicCertThumbprint.getBytes(Charsets.UTF_8)), Charsets.UTF_8);
             return base64EncodedThumbPrint;
 
         } catch (Exception e) {
@@ -515,7 +517,7 @@ public class JWTTokenGenerator implements AuthorizationContextTokenGenerator {
         char[] hexDigits = {'0', '1', '2', '3', '4', '5', '6', '7',
                 '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
 
-        StringBuffer buf = new StringBuffer(bytes.length * 2);
+        StringBuilder buf = new StringBuilder(bytes.length * 2);
 
         for (int i = 0; i < bytes.length; ++i) {
             buf.append(hexDigits[(bytes[i] & 0xf0) >> 4]);
@@ -533,13 +535,10 @@ public class JWTTokenGenerator implements AuthorizationContextTokenGenerator {
             RealmConfiguration realmConfiguration = null;
             RealmService realmService = OAuthComponentServiceHolder.getRealmService();
 
-            if (realmService != null) {
-                if (tenantId != -1) {
-                    UserStoreManager userStoreManager = (UserStoreManager) realmService.getTenantUserRealm(tenantId)
-                            .getUserStoreManager();
-                    realmConfiguration = userStoreManager.getSecondaryUserStoreManager(userDomain)
-                            .getRealmConfiguration();
-                }
+            if (realmService != null && tenantId != -1) {
+                UserStoreManager userStoreManager = (UserStoreManager) realmService.getTenantUserRealm(tenantId)
+                        .getUserStoreManager();
+                realmConfiguration = userStoreManager.getSecondaryUserStoreManager(userDomain).getRealmConfiguration();
             }
 
             if (realmConfiguration != null) {
@@ -550,7 +549,7 @@ public class JWTTokenGenerator implements AuthorizationContextTokenGenerator {
             }
         } catch (UserStoreException e) {
             log.error("Error occurred while getting the realm configuration, User store properties might not be " +
-                      "returned");
+                      "returned", e);
         }
         return null;
     }

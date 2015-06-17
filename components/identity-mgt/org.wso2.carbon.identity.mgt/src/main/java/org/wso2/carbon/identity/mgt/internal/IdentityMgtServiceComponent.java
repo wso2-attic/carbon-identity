@@ -1,29 +1,30 @@
 /*
- * Copyright (c)  WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
+
 package org.wso2.carbon.identity.mgt.internal;
 
 import org.apache.axis2.engine.AxisObserver;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.mgt.IdentityMgtConfig;
-import org.wso2.carbon.identity.mgt.IdentityMgtEventListener;
 import org.wso2.carbon.identity.mgt.RecoveryProcessor;
 import org.wso2.carbon.identity.mgt.constants.IdentityMgtConstants;
 import org.wso2.carbon.identity.mgt.dto.ChallengeQuestionDTO;
@@ -31,7 +32,6 @@ import org.wso2.carbon.registry.core.Collection;
 import org.wso2.carbon.registry.core.Registry;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
 import org.wso2.carbon.registry.core.service.RegistryService;
-import org.wso2.carbon.user.core.listener.UserOperationEventListener;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.ConfigurationContextService;
 
@@ -60,9 +60,7 @@ public class IdentityMgtServiceComponent {
     private static RegistryService registryService;
 
     private static ConfigurationContextService configurationContextService;
-    private static IdentityMgtEventListener listener = null;
     private static RecoveryProcessor recoveryProcessor;
-    private ServiceRegistration serviceRegistration = null;
 
     public static RealmService getRealmService() {
         return realmService;
@@ -112,7 +110,7 @@ public class IdentityMgtServiceComponent {
                 loadDefaultChallenges();
             }
         } catch (RegistryException e) {
-            log.error("Error while creating registry collection for org.wso2.carbon.identity.mgt component");
+            log.error("Error while creating registry collection for org.wso2.carbon.identity.mgt component", e);
         }
 
     }
@@ -121,7 +119,7 @@ public class IdentityMgtServiceComponent {
 
         List<ChallengeQuestionDTO> questionSetDTOs = new ArrayList<ChallengeQuestionDTO>();
 
-        for (String challenge : IdentityMgtConstants.SECRET_QUESTIONS_SET01) {
+        for (String challenge : IdentityMgtConstants.getSecretQuestionsSet01()) {
             ChallengeQuestionDTO dto = new ChallengeQuestionDTO();
             dto.setQuestion(challenge);
             dto.setPromoteQuestion(true);
@@ -129,7 +127,7 @@ public class IdentityMgtServiceComponent {
             questionSetDTOs.add(dto);
         }
 
-        for (String challenge : IdentityMgtConstants.SECRET_QUESTIONS_SET02) {
+        for (String challenge : IdentityMgtConstants.getSecretQuestionsSet02()) {
             ChallengeQuestionDTO dto = new ChallengeQuestionDTO();
             dto.setQuestion(challenge);
             dto.setPromoteQuestion(true);
@@ -153,33 +151,19 @@ public class IdentityMgtServiceComponent {
         context.getBundleContext().registerService(AxisObserver.class.getName(),
                 new IdentityMgtDeploymentInterceptor(), props);
         init();
-        if (IdentityMgtConfig.getInstance().isListenerEnable()) {
-            listener = new IdentityMgtEventListener();
-            serviceRegistration =
-                    context.getBundleContext().registerService(UserOperationEventListener.class.getName(),
-                            listener, null);
+        if (IdentityMgtConfig.getInstance().isListenerEnable() && log.isDebugEnabled()) {
             log.debug("Identity Management Listener is enabled");
-        } else {
+        } else if (log.isDebugEnabled()){
             log.debug("Identity Management Listener is disabled");
         }
-        log.debug("Identity Management bundle is activated");
+        if(log.isDebugEnabled()) {
+            log.debug("Identity Management bundle is activated");
+        }
     }
 
     protected void deactivate(ComponentContext context) {
         log.debug("Identity Management bundle is de-activated");
     }
-
-//    protected void setCacheInvalidator(CacheInvalidator invalidator) {
-//        cacheInvalidator = invalidator;
-//    }
-//
-//    protected void removeCacheInvalidator(CacheInvalidator invalidator) {
-//        cacheInvalidator = null;
-//    }
-//
-//    public static CacheInvalidator getCacheInvalidator() {
-//    	return cacheInvalidator;
-//    }
 
     protected void unsetRegistryService(RegistryService registryService) {
         log.debug("UnSetting the Registry Service");
@@ -195,21 +179,4 @@ public class IdentityMgtServiceComponent {
         log.debug("UnSetting the  ConfigurationContext Service");
         IdentityMgtServiceComponent.configurationContextService = null;
     }
-//
-//    private static void processLockUsers() {
-//
-//        try{
-//            UserStoreManager manager = realmService.getBootstrapRealm().getUserStoreManager();
-//            String[] users = manager.getUserList(UserCoreConstants.ClaimTypeURIs.ACCOUNT_STATUS,
-//                                                            UserCoreConstants.USER_LOCKED, null);
-//
-//            for(String user : users){
-//                String userName = MultitenantUtils.getTenantAwareUsername(user);
-//                String tenantDomain = MultitenantUtils.getTenantDomain(user);
-//                Utils.lockUserAccount(userName, Utils.getTenantId(tenantDomain));
-//            }
-//        } catch (Exception e) {
-//            log.error("Error while locking user account of locked users", e);
-//        }
-//    }
 }

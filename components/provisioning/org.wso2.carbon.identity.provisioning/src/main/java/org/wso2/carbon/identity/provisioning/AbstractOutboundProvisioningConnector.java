@@ -1,23 +1,24 @@
 /*
- *  Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- *  WSO2 Inc. licenses this file to you under the Apache License,
- *  Version 2.0 (the "License"); you may not use this file except
- *  in compliance with the License.
- *  You may obtain a copy of the License at
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *  http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing,
- *  software distributed under the License is distributed on an
- *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *  KIND, either express or implied.  See the License for the
- *  specific language governing permissions and limitations
- *  under the License.
- *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
+
 package org.wso2.carbon.identity.provisioning;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
@@ -98,7 +99,7 @@ public abstract class AbstractOutboundProvisioningConnector implements Serializa
         List<String> claimValue = ProvisioningUtil.getClaimValues(attributeMap,
                 IdentityProvisioningConstants.PASSWORD_CLAIM_URI, getUserStoreDomainName());
 
-        if (claimValue != null && claimValue.size() > 0 && claimValue.get(0) != null) {
+        if (CollectionUtils.isNotEmpty(claimValue) && claimValue.get(0) != null) {
             return claimValue.get(0);
         }
 
@@ -108,12 +109,11 @@ public abstract class AbstractOutboundProvisioningConnector implements Serializa
 
     /**
      * @param attributeMap
-     * @param claimUri
-     * @return
+     * @return claimValues
      */
     protected Map<String, String> getSingleValuedClaims(Map<ClaimMapping, List<String>> attributeMap) {
 
-        Map<String, String> claimValues = new HashMap<String, String>();
+        Map<String, String> claimValues = new HashMap<>();
 
         for (Map.Entry<ClaimMapping, List<String>> entry : attributeMap.entrySet()) {
             ClaimMapping mapping = entry.getKey();
@@ -147,7 +147,7 @@ public abstract class AbstractOutboundProvisioningConnector implements Serializa
     protected String buildUserId(ProvisioningEntity provisioningEntity, String provisioningPattern,
                                  String separator, String idpName) throws IdentityProvisioningException {
 
-        Map<String, String> provValues = new HashMap<String, String>();
+        Map<String, String> provValues = new HashMap<>();
         String tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
         String username = provisioningEntity.getEntityName();
         String userStoreDomain = getDomainFromUserName(username);
@@ -171,8 +171,8 @@ public abstract class AbstractOutboundProvisioningConnector implements Serializa
         String[] provisioningEntries = buildProvisioningEntries(provisioningPattern);
 
         for (int i = 0; i < provisioningEntries.length; i++) {
-            if (!StringUtils.isEmpty(provisioningEntries[i])) {
-                if (StringUtils.isEmpty(provIdentifier)) {
+            if (StringUtils.isNotBlank(provisioningEntries[i])) {
+                if (StringUtils.isBlank(provIdentifier)) {
                     provIdentifier = provValues.get(provisioningEntries[i].trim());
                 } else {
                     provIdentifier = provIdentifier.concat(separator).concat(provValues.get(provisioningEntries[i].trim()));

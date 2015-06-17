@@ -19,10 +19,9 @@
 package org.wso2.carbon.identity.user.account.association.dao;
 
 import org.wso2.carbon.context.CarbonContext;
-import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
+import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.persistence.JDBCPersistenceManager;
-import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
 import org.wso2.carbon.identity.user.account.association.dto.UserAccountAssociationDTO;
 import org.wso2.carbon.identity.user.account.association.exception.UserAccountAssociationException;
 import org.wso2.carbon.identity.user.account.association.exception.UserAccountAssociationServerException;
@@ -45,10 +44,6 @@ public class UserAccountAssociationDAO {
 
     }
 
-    private static class LazyHolder {
-        private static final UserAccountAssociationDAO INSTANCE = new UserAccountAssociationDAO();
-    }
-
     public static UserAccountAssociationDAO getInstance() {
         return LazyHolder.INSTANCE;
     }
@@ -66,9 +61,8 @@ public class UserAccountAssociationDAO {
 
             preparedStatement.setString(1, associationKey);
             preparedStatement.setInt(2, tenantId);
-            preparedStatement.setString(3, userName);
-            preparedStatement.setString(4, domainName);
-            preparedStatement.setInt(5, tenantId);
+            preparedStatement.setString(3, domainName);
+            preparedStatement.setString(4, userName);
             preparedStatement.executeUpdate();
 
             if (!dbConnection.getAutoCommit()) {
@@ -97,10 +91,9 @@ public class UserAccountAssociationDAO {
             preparedStatement = dbConnection.prepareStatement(UserAccountAssociationConstants
                                                                       .SQLQueries.DELETE_CONNECTION);
 
-            preparedStatement.setString(1, domainName);
-            preparedStatement.setInt(2, tenantId);
-            preparedStatement.setInt(3, tenantId);
-            preparedStatement.setString(4, userName);
+            preparedStatement.setInt(1, tenantId);
+            preparedStatement.setString(2, domainName);
+            preparedStatement.setString(3, userName);
             preparedStatement.executeUpdate();
 
             if (!dbConnection.getAutoCommit()) {
@@ -119,13 +112,14 @@ public class UserAccountAssociationDAO {
     }
 
     public List<UserAccountAssociationDTO> getAssociationsOfUser(String domainName, int tenantId,
-                                              String userName) throws UserAccountAssociationException {
+                                                                 String userName)
+            throws UserAccountAssociationException {
 
         Connection dbConnection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
-        List<UserAccountAssociationDTO> accountAssociations = new ArrayList<UserAccountAssociationDTO>();
-        RealmService realmService = null;
+        List<UserAccountAssociationDTO> accountAssociations = new ArrayList<>();
+        RealmService realmService;
         String associationKey = getAssociationKeyOfUser(domainName, tenantId, userName);
 
         if (associationKey != null) {
@@ -139,8 +133,8 @@ public class UserAccountAssociationDAO {
                 resultSet = preparedStatement.executeQuery();
 
                 while (resultSet.next()) {
-                    String conUserDomain = resultSet.getString(1);
-                    int conUserTenantId = resultSet.getInt(2);
+                    int conUserTenantId = resultSet.getInt(1);
+                    String conUserDomain = resultSet.getString(2);
                     String conUserName = resultSet.getString(3);
 
                     if (domainName.equals(conUserDomain) && (tenantId == conUserTenantId) && userName.equals
@@ -162,9 +156,6 @@ public class UserAccountAssociationDAO {
                 throw new UserAccountAssociationServerException(UserAccountAssociationConstants.ErrorMessages
                                                                         .ERROR_WHILE_GETTING_TENANT_NAME
                                                                         .getDescription(), e);
-            } catch (IdentityApplicationManagementException e) {
-                throw new UserAccountAssociationServerException(UserAccountAssociationConstants.ErrorMessages
-                                                                        .DB_CONN_ERROR.getDescription(), e);
             } catch (Exception e) {
                 throw new UserAccountAssociationServerException(UserAccountAssociationConstants.ErrorMessages
                                                                         .ERROR_WHILE_LOADING_REALM_SERVICE
@@ -192,10 +183,9 @@ public class UserAccountAssociationDAO {
             preparedStatement = dbConnection.prepareStatement(UserAccountAssociationConstants
                                                                       .SQLQueries.GET_ASSOCIATION_KEY_OF_USER);
 
-            preparedStatement.setString(1, domainName);
-            preparedStatement.setInt(2, tenantId);
-            preparedStatement.setInt(3, tenantId);
-            preparedStatement.setString(4, userName);
+            preparedStatement.setInt(1, tenantId);
+            preparedStatement.setString(2, domainName);
+            preparedStatement.setString(3, userName);
             resultSet = preparedStatement.executeQuery();
 
             if (resultSet.next()) {
@@ -260,16 +250,14 @@ public class UserAccountAssociationDAO {
             preparedStatement = dbConnection.prepareStatement(UserAccountAssociationConstants
                                                                       .SQLQueries.IS_VALID_ASSOCIATION);
 
-            preparedStatement.setString(1, domainName);
-            preparedStatement.setInt(2, tenantId);
-            preparedStatement.setInt(3, tenantId);
-            preparedStatement.setString(4, userName);
+            preparedStatement.setInt(1, tenantId);
+            preparedStatement.setString(2, domainName);
+            preparedStatement.setString(3, userName);
+            preparedStatement.setInt(4, CarbonContext.getThreadLocalCarbonContext().getTenantId());
             preparedStatement.setString(5, UserAccountAssociationUtil.getDomainName(CarbonContext
                                                                                             .getThreadLocalCarbonContext()
                                                                                             .getUsername()));
-            preparedStatement.setInt(6, CarbonContext.getThreadLocalCarbonContext().getTenantId());
-            preparedStatement.setInt(7, CarbonContext.getThreadLocalCarbonContext().getTenantId());
-            preparedStatement.setString(8, UserAccountAssociationUtil.getUsernameWithoutDomain(CarbonContext
+            preparedStatement.setString(6, UserAccountAssociationUtil.getUsernameWithoutDomain(CarbonContext
                                                                                                        .getThreadLocalCarbonContext().getUsername()));
             resultSet = preparedStatement.executeQuery();
 
@@ -318,6 +306,10 @@ public class UserAccountAssociationDAO {
             IdentityApplicationManagementUtil.closeStatement(preparedStatement);
             IdentityApplicationManagementUtil.closeConnection(dbConnection);
         }
+    }
+
+    private static class LazyHolder {
+        private static final UserAccountAssociationDAO INSTANCE = new UserAccountAssociationDAO();
     }
 
 }

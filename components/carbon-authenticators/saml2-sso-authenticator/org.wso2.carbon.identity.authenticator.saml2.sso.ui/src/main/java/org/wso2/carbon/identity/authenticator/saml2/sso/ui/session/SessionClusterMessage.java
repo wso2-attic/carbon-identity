@@ -39,7 +39,6 @@ public class SessionClusterMessage extends ClusteringMessage {
         this.messageId = messageId;
     }
 
-    @Override
     public String toString() {
         return "SSOSessionInvalidationClusterMessage{sessionIndex=" + sessionIndex + "}";
     }

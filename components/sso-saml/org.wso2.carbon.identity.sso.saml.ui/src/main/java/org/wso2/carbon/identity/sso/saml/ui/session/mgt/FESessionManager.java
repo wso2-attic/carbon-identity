@@ -1,43 +1,45 @@
 /*
-*  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package org.wso2.carbon.identity.sso.saml.ui.session.mgt;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * This class is used to maintain a session map at the SSO FE. This class is introduced
  * to get rid of the session usage to hold the meta information of a incoming authentication
  * request.  This class implements Singleton since there can be only one session manager.
  */
-public class FESessionManager {
+public enum FESessionManager {
 
-    private static FESessionManager sessionManager = new FESessionManager();
+    INSTANCE;
     private static SecureRandom secureRandomInstance;
     private static MessageDigest messageDigest;
     private static Log log = LogFactory.getLog(FESessionManager.class);
 
-    public ConcurrentHashMap<String, FESessionBean> sessionMap;
+    public ConcurrentMap<String, FESessionBean> sessionMap;
 
     static {
         initialize();
@@ -62,10 +64,8 @@ public class FESessionManager {
     }
 
     public static FESessionManager getInstance() {
-        if (sessionManager == null) {
-            sessionManager = new FESessionManager();
-        }
-        return sessionManager;
+
+        return INSTANCE;
     }
 
     /**
@@ -113,9 +113,9 @@ public class FESessionManager {
      */
     private String generateSessionId() {
         //generate the random number
-        String randomNum = new Integer(secureRandomInstance.nextInt()).toString();
+        String randomNum = Integer.toString(secureRandomInstance.nextInt());
         //get its digest
-        byte[] result = messageDigest.digest(randomNum.getBytes());
+        byte[] result = messageDigest.digest(randomNum.getBytes(StandardCharsets.UTF_8));
         return hexEncode(result);
     }
 

@@ -16,31 +16,29 @@
 ~ under the License.
 -->
 
-<%@page import="org.wso2.carbon.ui.util.CharacterEncoder"%>
-<%@page import="java.util.ArrayList"%>
-<%@page import="java.util.HashMap"%>
-<%@page import="java.util.Map"%>
 <%@page import="org.apache.axis2.context.ConfigurationContext"%>
 <%@page import="org.wso2.carbon.CarbonConstants"%>
+<%@page import="org.wso2.carbon.identity.application.common.model.CertData"%>
+<%@page import="org.wso2.carbon.identity.application.common.model.idp.xsd.Claim"%>
+<%@page import="org.wso2.carbon.identity.application.common.model.idp.xsd.ClaimMapping"%>
+<%@page import="org.wso2.carbon.identity.application.common.model.idp.xsd.FederatedAuthenticatorConfig"%>
 
-<%@page import="org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil"%>
+<%@page import="org.wso2.carbon.identity.application.common.model.idp.xsd.IdentityProvider"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="carbon" uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar"%>
+<%@ page import="org.wso2.carbon.identity.application.common.model.idp.xsd.Property" %>
+<%@ page import="org.wso2.carbon.identity.application.common.model.idp.xsd.ProvisioningConnectorConfig" %>
+<%@ page import="org.wso2.carbon.identity.application.common.model.idp.xsd.RoleMapping" %>
+<%@ page import="org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants" %>
+<%@ page import="org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil" %>
 <%@ page import="org.wso2.carbon.idp.mgt.ui.client.IdentityProviderMgtServiceClient" %>
 <%@ page import="org.wso2.carbon.idp.mgt.ui.util.IdPManagementUIUtil" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
+<%@ page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
+<%@ page import="java.util.HashMap" %>
 <%@ page import="java.util.List" %>
-<%@ page import="org.wso2.carbon.identity.application.common.model.idp.xsd.*" %>
-<%@ page import="org.wso2.carbon.identity.application.common.model.*" %>
-<%@ page import="org.wso2.carbon.identity.application.common.model.idp.xsd.Claim" %>
-<%@ page import="org.wso2.carbon.identity.application.common.model.idp.xsd.ClaimMapping" %>
-<%@ page import="org.wso2.carbon.identity.application.common.model.idp.xsd.RoleMapping" %>
-<%@ page import="org.wso2.carbon.identity.application.common.model.idp.xsd.FederatedAuthenticatorConfig" %>
-<%@ page import="org.wso2.carbon.identity.application.common.model.idp.xsd.IdentityProvider" %>
-<%@ page import="org.wso2.carbon.identity.application.common.model.idp.xsd.Property" %>
-<%@ page import="org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants" %>
-<%@ page import="org.wso2.carbon.identity.application.common.model.idp.xsd.ProvisioningConnectorConfig" %>
+<%@ page import="java.util.Map" %>
 <link href="css/idpmgt.css" rel="stylesheet" type="text/css" media="all"/>
 
 <carbon:breadcrumb label="identity.providers" resourceBundle="org.wso2.carbon.idp.mgt.ui.i18n.Resources"

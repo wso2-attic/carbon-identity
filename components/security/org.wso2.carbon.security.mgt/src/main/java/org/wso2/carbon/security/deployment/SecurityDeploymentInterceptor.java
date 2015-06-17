@@ -1,20 +1,21 @@
 /*
-*  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 package org.wso2.carbon.security.deployment;
 
 import org.apache.axiom.om.OMElement;
@@ -36,6 +37,7 @@ import org.apache.ws.security.handler.WSHandlerConstants;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.CarbonConstants;
+import org.wso2.carbon.CarbonException;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.context.RegistryType;
 import org.wso2.carbon.core.RegistryResources;
@@ -43,6 +45,7 @@ import org.wso2.carbon.registry.core.Collection;
 import org.wso2.carbon.registry.core.Registry;
 import org.wso2.carbon.registry.core.Resource;
 import org.wso2.carbon.registry.core.ResourceImpl;
+import org.wso2.carbon.registry.core.exceptions.RegistryException;
 import org.wso2.carbon.registry.core.jdbc.utils.Transaction;
 import org.wso2.carbon.registry.core.service.RegistryService;
 import org.wso2.carbon.registry.core.session.UserRegistry;
@@ -64,6 +67,7 @@ import org.wso2.carbon.utils.Axis2ConfigurationContextObserver;
 import org.wso2.carbon.utils.PreAxisConfigurationPopulationObserver;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Dictionary;
@@ -123,6 +127,7 @@ public class SecurityDeploymentInterceptor implements AxisObserver {
 
         PreAxisConfigurationPopulationObserver preAxisConfigObserver =
                 new PreAxisConfigurationPopulationObserver() {
+                    @Override
                     public void createdAxisConfiguration(AxisConfiguration axisConfiguration) {
                         init(axisConfiguration);
                         axisConfiguration.addObservers(SecurityDeploymentInterceptor.this);
@@ -139,18 +144,22 @@ public class SecurityDeploymentInterceptor implements AxisObserver {
                 new SecurityDeploymentListener(), properties);
     }
 
+    @Override
     public void init(AxisConfiguration axisConfig) {
-
+        // Do Nothing
     }
 
+    @Override
     public void moduleUpdate(AxisEvent event, AxisModule module) {
         // This method will not be used
     }
 
+    @Override
     public void serviceGroupUpdate(AxisEvent event, AxisServiceGroup serviceGroup) {
         // This method will not be used
     }
 
+    @Override
     public void serviceUpdate(AxisEvent axisEvent, AxisService axisService) {
 
         if (axisEvent.getEventType() == AxisEvent.SERVICE_DEPLOY) {
@@ -219,7 +228,7 @@ public class SecurityDeploymentInterceptor implements AxisObserver {
     }
 
     private void loadSecurityScenarios(Registry registry,
-                                       BundleContext bundleContext) throws Exception {
+                                       BundleContext bundleContext) throws CarbonException, IOException, RegistryException {
 
         // TODO: Load into all tenant DBs
         // Load security scenarios
@@ -286,7 +295,7 @@ public class SecurityDeploymentInterceptor implements AxisObserver {
         }
     }
 
-    private void addKeystores() throws Exception {
+    private void addKeystores() throws RegistryException {
         Registry registry = SecurityServiceHolder.getRegistryService().getGovernanceSystemRegistry();
         try {
             boolean transactionStarted = Transaction.isStarted();
@@ -414,7 +423,7 @@ public class SecurityDeploymentInterceptor implements AxisObserver {
             if (component instanceof XmlPrimtiveAssertion) {
                 OMElement value = ((XmlPrimtiveAssertion) component).getValue();
                 if (value != null &&
-                    SecurityConfigParamBuilder.SecurityConfigQName.equals(value.getQName())) {
+                    SecurityConfigParamBuilder.SECURITY_CONFIG_QNAME.equals(value.getQName())) {
                     if (log.isDebugEnabled()) {
                         log.debug("Carbon Security config found : " + value.toString());
                     }
@@ -425,29 +434,35 @@ public class SecurityDeploymentInterceptor implements AxisObserver {
         return null;
     }
 
+    @Override
     public void addParameter(Parameter param) throws AxisFault {
         // This method will not be used
     }
 
+    @Override
     public void deserializeParameters(OMElement parameterElement) throws AxisFault {
         // This method will not be used
     }
 
+    @Override
     public Parameter getParameter(String name) {
         // This method will not be used
         return null;
     }
 
+    @Override
     public ArrayList getParameters() {
         // This method will not be used
         return new ArrayList();
     }
 
+    @Override
     public boolean isParameterLocked(String parameterName) {
         // This method will not be used
         return false;
     }
 
+    @Override
     public void removeParameter(Parameter param) throws AxisFault {
         // This method will not be used
     }

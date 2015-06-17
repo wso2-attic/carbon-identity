@@ -1,24 +1,25 @@
 /*
-*  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 
 package org.wso2.carbon.directory.server.manager.internal;
 
 import org.apache.axiom.om.util.Base64;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.directory.server.manager.DirectoryServerManagerException;
@@ -32,7 +33,14 @@ import org.wso2.carbon.user.core.util.JNDIUtil;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.*;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.BasicAttributes;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -49,7 +57,7 @@ import java.util.regex.Pattern;
 @SuppressWarnings({"UnusedDeclaration"})
 public class LDAPServerStoreManager {
 
-    private static Log log = LogFactory.getLog(LDAPServerStoreManager.class);
+    private static final Log log = LogFactory.getLog(LDAPServerStoreManager.class);
 
     private LDAPConnectionContext connectionSource;
     private RealmConfiguration realmConfiguration;
@@ -90,8 +98,7 @@ public class LDAPServerStoreManager {
 
         log.info("Using service password format - " + regularExpression);
 
-        return password != null && password.length() >= 1 &&
-                isFormatCorrect(regularExpression, password);
+        return StringUtils.isNotEmpty(password) && isFormatCorrect(regularExpression, password);
 
     }
 
@@ -107,9 +114,9 @@ public class LDAPServerStoreManager {
             throws DirectoryServerManagerException {
 
         String[] components = serverName.split("/");
-        if (components == null || components.length != 2) {
+        if (components.length != 2) {
             throw new DirectoryServerManagerException("Invalid server name provided. " +
-                    "Could not retrieve service component.");
+                                                      "Could not retrieve service component.");
         }
 
         // Check whether there is a uid by that name
@@ -150,10 +157,10 @@ public class LDAPServerStoreManager {
 
         if (excludeServer) {
             return "(!(" + LDAPServerManagerConstants.SERVER_PRINCIPAL_ATTRIBUTE_NAME + "=" +
-                    LDAPServerManagerConstants.SERVER_PRINCIPAL_ATTRIBUTE_VALUE + "))";
+                   LDAPServerManagerConstants.SERVER_PRINCIPAL_ATTRIBUTE_VALUE + "))";
         } else {
             return "(" + LDAPServerManagerConstants.SERVER_PRINCIPAL_ATTRIBUTE_NAME + "=" +
-                    LDAPServerManagerConstants.SERVER_PRINCIPAL_ATTRIBUTE_VALUE + ")";
+                   LDAPServerManagerConstants.SERVER_PRINCIPAL_ATTRIBUTE_VALUE + ")";
         }
 
     }
@@ -235,20 +242,9 @@ public class LDAPServerStoreManager {
     public void addServicePrinciple(String serverName, String serverDescription, Object credentials)
             throws DirectoryServerManagerException {
 
-        /*if (!isServerNameValid(serverName)) {
-            throw new DirectoryServerManagerException("Invalid server name provided - " + serverName +
-                    ". Server name should take following form, ftp/wso2.example.com");
-        }*/
-
         if (!(credentials instanceof String)) {
             throw new DirectoryServerManagerException("Invalid credentials provided");
         }
-
-        /*String password = (String) credentials;
-
-        if (!isPasswordValid(password)) {
-            throw new DirectoryServerManagerException("Password does not meet password policy requirements.");
-        }*/
 
         DirContext dirContext;
         try {
@@ -269,13 +265,13 @@ public class LDAPServerStoreManager {
             String serverUid = getServiceName(serverName);
 
             constructBasicAttributes(basicAttributes, serverUid, serverName, credentials, serverDescription,
-                    LDAPServerManagerConstants.SERVER_PRINCIPAL_ATTRIBUTE_VALUE);
+                                     LDAPServerManagerConstants.SERVER_PRINCIPAL_ATTRIBUTE_VALUE);
 
             dirContext.bind(LDAPServerManagerConstants.LDAP_UID + "=" + serverUid, null, basicAttributes);
 
         } catch (NamingException e) {
             String message = "Can not access the directory context or user " +
-                    "already exists in the system";
+                             "already exists in the system";
             log.error(message, e);
             throw new DirectoryServerManagerException(message, e);
         } finally {
@@ -326,7 +322,7 @@ public class LDAPServerStoreManager {
         //Since we are using the KDC, we will always use plain text password.
         //KDC does not support other types of passwords
         String password = getPasswordToStore((String) credential,
-                LDAPServerManagerConstants.PASSWORD_HASH_METHOD_PLAIN_TEXT);
+                                             LDAPServerManagerConstants.PASSWORD_HASH_METHOD_PLAIN_TEXT);
 
         userPassword.add(password.getBytes());
         basicAttributes.put(userPassword);
@@ -342,10 +338,6 @@ public class LDAPServerStoreManager {
         BasicAttribute sn = new BasicAttribute(LDAPServerManagerConstants.SERVER_PRINCIPAL_ATTRIBUTE_NAME);
         sn.add(surName);
         basicAttributes.put(sn);
-
-        //BasicAttribute isChangePassword = new BasicAttribute("requirePasswordChange");
-        //isChangePassword.add(requirePasswordChange);
-
     }
 
     public ServerPrinciple[] listServicePrinciples(String filter)
@@ -353,8 +345,8 @@ public class LDAPServerStoreManager {
 
         ServerPrinciple[] serverNames = null;
 
-        int maxItemLimit = Integer.parseInt(this.realmConfiguration
-                .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_MAX_USER_LIST));
+        int maxItemLimit = Integer.parseInt(this.realmConfiguration.getUserStoreProperty(UserCoreConstants.RealmConfig
+                                                                                                 .PROPERTY_MAX_USER_LIST));
 
         SearchControls searchCtls = new SearchControls();
         searchCtls.setSearchScope(SearchControls.SUBTREE_SCOPE);
@@ -366,24 +358,23 @@ public class LDAPServerStoreManager {
                     "Invalid character sequence entered for service principle search. Please enter valid sequence.");
         }
 
-        StringBuffer searchFilter;
-        searchFilter = new StringBuffer(this.realmConfiguration.
-                getUserStoreProperty(LDAPConstants.USER_NAME_LIST_FILTER));
+        StringBuilder searchFilter;
+        searchFilter = new StringBuilder(this.realmConfiguration.getUserStoreProperty(LDAPConstants.USER_NAME_LIST_FILTER));
         String searchBase = this.realmConfiguration.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE);
 
-        StringBuffer buff = new StringBuffer();
+        StringBuilder buff = new StringBuilder();
         buff.append("(&").append(searchFilter).append("(")
                 .append(LDAPServerManagerConstants.KRB5_PRINCIPAL_NAME_ATTRIBUTE).append("=")
                 .append(filter).append(")").append(getServerPrincipleIncludeString()).append(")");
 
-        String returnedAtts[] = {LDAPServerManagerConstants.KRB5_PRINCIPAL_NAME_ATTRIBUTE,
-                LDAPServerManagerConstants.LDAP_COMMON_NAME};
+        String[] returnedAtts = {LDAPServerManagerConstants.KRB5_PRINCIPAL_NAME_ATTRIBUTE,
+                                 LDAPServerManagerConstants.LDAP_COMMON_NAME};
         searchCtls.setReturningAttributes(returnedAtts);
         DirContext dirContext = null;
         try {
             dirContext = connectionSource.getContext();
             NamingEnumeration<SearchResult> answer = dirContext.search(searchBase, buff.toString(),
-                    searchCtls);
+                                                                       searchCtls);
             List<ServerPrinciple> list = new ArrayList<ServerPrinciple>();
             int i = 0;
             while (answer.hasMoreElements() && i < maxItemLimit) {
@@ -411,7 +402,7 @@ public class LDAPServerStoreManager {
 
                         if (serverDescription != null) {
                             principle = new ServerPrinciple(serviceName,
-                                    (String) serverDescription.get());
+                                                            (String) serverDescription.get());
                         } else {
 
                             principle = new ServerPrinciple(serviceName);
@@ -462,7 +453,7 @@ public class LDAPServerStoreManager {
                 }
 
                 MessageDigest messageDigest = MessageDigest.getInstance(passwordHashMethod);
-                byte[] digestValue = messageDigest.digest(password.getBytes());
+                byte[] digestValue = messageDigest.digest(password.getBytes(StandardCharsets.UTF_8));
                 passwordToStore = "{" + passwordHashMethod + "}" + Base64.encode(digestValue);
 
             } catch (NoSuchAlgorithmException e) {
@@ -477,7 +468,7 @@ public class LDAPServerStoreManager {
 
         String serverNameInRealm = getFullyQualifiedPrincipalName(servicePrincipleName);
         return "(&(" + LDAPServerManagerConstants.KRB5_PRINCIPAL_NAME_ATTRIBUTE + "=" + serverNameInRealm + ")" +
-                getServerPrincipleIncludeString() + ")";
+               getServerPrincipleIncludeString() + ")";
     }
 
     private Attribute getChangePasswordAttribute(Attribute oldPasswordAttribute, Object oldCredential,
@@ -496,7 +487,7 @@ public class LDAPServerStoreManager {
 
                 if (passwords.hasMore()) {
                     byte[] byteArray = (byte[]) passwords.next();
-                    String password = new String(byteArray);
+                    String password = new String(byteArray, StandardCharsets.UTF_8);
 
                     if (password.startsWith("{")) {
                         passwordHashMethod = password.substring(password.indexOf("{") + 1, password.indexOf("}"));
@@ -507,7 +498,7 @@ public class LDAPServerStoreManager {
                     }
                 }
             } catch (NamingException e) {
-                log.error("Unable to retrieve old password details. ");
+                log.error("Unable to retrieve old password details.", e);
                 throw new DirectoryServerManagerException("Could not find old password details");
             }
         }
@@ -606,7 +597,7 @@ public class LDAPServerStoreManager {
                 String passwordHashMethod = null;
                 if (passwords.hasMore()) {
                     byte[] byteArray = (byte[]) passwords.next();
-                    String password = new String(byteArray);
+                    String password = new String(byteArray, StandardCharsets.UTF_8);
 
                     if (password.startsWith("{")) {
                         passwordHashMethod = password.substring(password.indexOf("{") + 1, password.indexOf("}"));
@@ -617,10 +608,9 @@ public class LDAPServerStoreManager {
             }
 
         } catch (NamingException e) {
-            log.error("Failed, validating password. " +
-                    "Can not access the directory service", e);
+            log.error("Failed, validating password. Can not access the directory service", e);
             throw new DirectoryServerManagerException("Failed, validating password. " +
-                    "Can not access the directory service", e);
+                                                      "Can not access the directory service", e);
         } finally {
             try {
                 JNDIUtil.closeContext(dirContext);
@@ -697,7 +687,7 @@ public class LDAPServerStoreManager {
 
         if (userId == null) {
             throw new DirectoryServerManagerException("Could not find user id for given server principle " +
-                    serverName);
+                                                      serverName);
         }
 
         try {
@@ -735,7 +725,6 @@ public class LDAPServerStoreManager {
 
         StringBuilder builder = new StringBuilder();
 
-        int i = 0;
         for (String dc : domainComponents) {
             if (!dc.contains("=")) {
                 String trimmedDc = dc.trim();

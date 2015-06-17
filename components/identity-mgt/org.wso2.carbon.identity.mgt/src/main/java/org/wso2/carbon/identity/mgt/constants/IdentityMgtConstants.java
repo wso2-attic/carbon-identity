@@ -1,21 +1,21 @@
 /*
- *  Copyright (c) WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- *  WSO2 Inc. licenses this file to you under the Apache License,
+ * WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
- *  in compliance with the License.
- *  You may obtain a copy of the License at
+ * in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *  http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing,
- *  software distributed under the License is distributed on an
- *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *  KIND, either express or implied.  See the License for the
- *  specific language governing permissions and limitations
- *  under the License.
- *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
+
 package org.wso2.carbon.identity.mgt.constants;
 
 /**
@@ -51,12 +51,13 @@ public class IdentityMgtConstants {
 
     public static final String DEFAULT_CHALLENGE_ANSWER_URI02 =
             "http://wso2.org/claims/challengeAnswer2";
+
     // TODO remove this
-    public static final String[] SECRET_QUESTIONS_SET01 = new String[]{"City where you were born ?",
+    private static final String[] SECRET_QUESTIONS_SET01 = new String[]{"City where you were born ?",
             "Father's middle name ?", "Favorite food ?", "Favorite vacation location ?"};
 
     // TODO remove this
-    public static final String[] SECRET_QUESTIONS_SET02 = new String[]{"Model of your first car ?",
+    private static final String[] SECRET_QUESTIONS_SET02 = new String[]{"Model of your first car ?",
             "Name of the hospital where you were born ?", "Name of your first pet ?", "Favorite sport ?"};
 
     public static final String EMAIL_ADDRESS = "email";
@@ -73,23 +74,11 @@ public class IdentityMgtConstants {
 
     public static final String VERIFIED_CHALLENGES = "verifiedChallenges";
 
-    public static final String TEMPORARY_PASSWORD = "temporaryPassword";
-
     public static final String EMAIL_CONFIG_TYPE = "emailConfigType";
 
     public static final String REDIRECT_PATH = "redirectPath";
 
     public static final String EXPIRE_TIME = "expireTime";
-
-//    public static  final String RECOVERY_TYPE_PASSWORD_RESET = "passwordReset";
-//
-//    public static  final String RECOVERY_TYPE_ACCOUNT_ID = "accountId";
-//
-//    public static  final String RECOVERY_TYPE_TEMPORARY_PASSWORD = "temporaryPassword";
-//
-//    public static  final String RECOVERY_TYPE_ACCOUNT_CONFORM= "accountConformation";
-
-//    public static  final String NOTIFY_ACCOUNT_UNLOCK= "notifyAccountUnlock";
 
     public static final String EMAIL_MANAGE_INTERNALLY = "emailSendingInternallyManaged";
 
@@ -97,18 +86,32 @@ public class IdentityMgtConstants {
 
     public static final String CAPTCHA_VERIFICATION_INTERNALLY = "captchaVerificationInternallyManaged";
 
-    public static final String TEMPORARY_PASSWORD_ARE_ALLOWED = "allowTemporaryPassword";
-
-    public static final String DEFAULT_PASSWORD = "defaultPassword";
-
     public static final String LINE_SEPARATOR = "!";
 
     public static final String DEFAULT_MAX_FAIL_LOGIN_ATTEMPTS = "10";
 
+    private IdentityMgtConstants() {
+    }
 
-    public class PropertyConfig {
+    public static String[] getSecretQuestionsSet01() {
+        if(SECRET_QUESTIONS_SET01 != null){
+            return SECRET_QUESTIONS_SET01.clone();
+        }
+        return new String[0];
+    }
+
+    public static String[] getSecretQuestionsSet02() {
+        if(SECRET_QUESTIONS_SET02 != null){
+            return SECRET_QUESTIONS_SET02.clone();
+        }
+        return new String[0];
+    }
+
+    public static class PropertyConfig {
 
         public static final String CONFIG_FILE_NAME = "identity-mgt.properties";
+
+        public static final String USER_INFO_RECOVERY_SAA_SENABLE = "UserInfoRecovery.SaaSEnable";
 
         public static final String NOTIFICATION_SEND_ENABLE = "Notification.Sending.Enable";
 
@@ -169,10 +172,13 @@ public class IdentityMgtConstants {
         public static final String PASSWORD_LENGTH_MIN = "Password.policy.min.length";
 
         public static final String PASSWORD_LENGTH_MAX = "Password.policy.max.length";
+
+        private PropertyConfig(){
+        }
     }
 
 
-    public class Notification {
+    public static class Notification {
 
         public static final String PASSWORD_RESET_RECOVERY = "passwordReset";
 
@@ -187,6 +193,9 @@ public class IdentityMgtConstants {
         public static final String OTP_PASSWORD = "otp";
 
         public static final String ASK_PASSWORD = "askPassword";
+
+        private Notification(){
+        }
 
     }
 }

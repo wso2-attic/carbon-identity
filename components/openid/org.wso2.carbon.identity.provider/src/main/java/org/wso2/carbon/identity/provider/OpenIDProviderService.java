@@ -1,30 +1,39 @@
 /*
  * Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
- * 
- * WSO2 Inc. licenses this file to you under the Apache License,
- * Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License.
- * You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the
+ * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
  * under the License.
  */
 package org.wso2.carbon.identity.provider;
 
 import net.minidev.json.JSONArray;
-import org.apache.axis2.AxisFault;
 import org.apache.axis2.context.MessageContext;
 import org.apache.axis2.transport.http.HTTPConstants;
 import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.openid4java.message.*;
+import org.openid4java.association.AssociationException;
+import org.openid4java.message.AuthFailure;
+import org.openid4java.message.AuthRequest;
+import org.openid4java.message.AuthSuccess;
+import org.openid4java.message.DirectError;
+import org.openid4java.message.Message;
+import org.openid4java.message.MessageException;
+import org.openid4java.message.MessageExtension;
+import org.openid4java.message.ParameterList;
+import org.openid4java.server.ServerException;
 import org.openid4java.server.ServerManager;
 import org.wso2.carbon.identity.base.IdentityConstants;
 import org.wso2.carbon.identity.base.IdentityConstants.ServerConfig;
@@ -36,7 +45,14 @@ import org.wso2.carbon.identity.core.model.XMPPSettingsDO;
 import org.wso2.carbon.identity.core.persistence.IdentityPersistenceManager;
 import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
-import org.wso2.carbon.identity.provider.dto.*;
+import org.wso2.carbon.identity.provider.dto.OpenIDAuthRequestDTO;
+import org.wso2.carbon.identity.provider.dto.OpenIDAuthResponseDTO;
+import org.wso2.carbon.identity.provider.dto.OpenIDClaimDTO;
+import org.wso2.carbon.identity.provider.dto.OpenIDParameterDTO;
+import org.wso2.carbon.identity.provider.dto.OpenIDProviderInfoDTO;
+import org.wso2.carbon.identity.provider.dto.OpenIDRememberMeDTO;
+import org.wso2.carbon.identity.provider.dto.OpenIDUserProfileDTO;
+import org.wso2.carbon.identity.provider.dto.OpenIDUserRPDTO;
 import org.wso2.carbon.identity.provider.openid.OpenIDProvider;
 import org.wso2.carbon.identity.provider.openid.OpenIDRememberMeTokenManager;
 import org.wso2.carbon.identity.provider.openid.OpenIDServerConstants;
@@ -55,7 +71,9 @@ import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import java.net.MalformedURLException;
 import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -69,14 +87,14 @@ import java.util.StringTokenizer;
  */
 public class OpenIDProviderService {
 
-    protected Log log = LogFactory.getLog(OpenIDProviderService.class);
+    private static final Log log = LogFactory.getLog(OpenIDProviderService.class);
     private static final String MULTI_ATTRIBUTE_SEPARATOR = "MultiAttributeSeparator";
     private String userAttributeSeparator = ",";
 
     public static int getOpenIDSessionTimeout() {
-        if (IdentityUtil.getProperty(IdentityConstants.ServerConfig.OPENID_SESSION_TIMEOUT).trim() != null &&
-                !IdentityUtil.getProperty(IdentityConstants.ServerConfig.OPENID_SESSION_TIMEOUT).trim().equals("")) {
-            return Integer.parseInt(IdentityUtil.getProperty(IdentityConstants.ServerConfig.OPENID_SESSION_TIMEOUT).trim());
+        if (StringUtils.isNotBlank(IdentityUtil.getProperty(IdentityConstants.ServerConfig.OPENID_SESSION_TIMEOUT))) {
+            return Integer
+                    .parseInt(IdentityUtil.getProperty(IdentityConstants.ServerConfig.OPENID_SESSION_TIMEOUT).trim());
         } else {
             return 36000;
         }
@@ -90,26 +108,34 @@ public class OpenIDProviderService {
      * @return
      * @throws Exception
      */
-    public boolean authenticateWithOpenID(String openID, String password) throws Exception {
+    public boolean authenticateWithOpenID(String openID, String password) throws IdentityProviderException {
 
-        String userName = OpenIDUtil.getUserName(openID);
+        String userName = null;
+        try {
+            userName = OpenIDUtil.getUserName(openID);
+        } catch (MalformedURLException e) {
+            throw new IdentityProviderException("Failed to get username from OpenID " + openID, e);
+        }
         String domainName = MultitenantUtils.getDomainNameFromOpenId(openID);
         String tenantUser = MultitenantUtils.getTenantAwareUsername(userName);
-        boolean isAutheticated =
-                IdentityTenantUtil.getRealm(domainName, userName)
-                        .getUserStoreManager()
-                        .authenticate(tenantUser, password);
-        boolean useMultiFactAuthn =
-                Boolean.parseBoolean(IdentityUtil.getProperty(IdentityConstants.ServerConfig.OPENID_USE_MULTIFACTOR_AUTHENTICATION));
-        boolean multiFactAuthnStatus = true;
 
-        if (useMultiFactAuthn) {
-            multiFactAuthnStatus =
-                    authenticateWithXMPP(tenantUser, tenantUser, tenantUser,
-                            isAutheticated);
-            if (log.isDebugEnabled() && multiFactAuthnStatus) {
-                log.debug("XMPP Multifactor Authentication was completed Successfully.");
+        boolean isAutheticated = false;
+        boolean multiFactAuthnStatus = false;
+        try {
+            isAutheticated = IdentityTenantUtil.getRealm(domainName, userName).getUserStoreManager().authenticate(
+                    tenantUser, password);
+            boolean useMultiFactAuthn =
+                    Boolean.parseBoolean(IdentityUtil.getProperty(ServerConfig.OPENID_USE_MULTIFACTOR_AUTHENTICATION));
+            multiFactAuthnStatus = true;
+
+            if (useMultiFactAuthn) {
+                multiFactAuthnStatus = authenticateWithXMPP(tenantUser, tenantUser, tenantUser, isAutheticated);
+                if (log.isDebugEnabled() && multiFactAuthnStatus) {
+                    log.debug("XMPP Multifactor Authentication was completed Successfully.");
+                }
             }
+        } catch (UserStoreException | IdentityException e) {
+            throw new IdentityProviderException("Error while authenticating with OpenID " + openID, e);
         }
 
         if (multiFactAuthnStatus && isAutheticated) {
@@ -188,13 +214,18 @@ public class OpenIDProviderService {
         OpenIDRememberMeTokenManager tokenManager = new OpenIDRememberMeTokenManager();
         String token = null;
 
-        if (ipaddress != null && cookie != null && !"null".equals(cookie)) {
-            hmac = IdentityUtil.getHMAC(ipaddress, cookie);
-            token = tokenManager.getToken(rememberMe);
-            // if the authentication failed and no valid rememberMe cookie found, then failed.
-            if (!isAutheticated && (token == null || !token.equals(hmac))) {
+        if (ipaddress != null) {
+            if (cookie != null && !"null".equals(cookie)) {
+                hmac = IdentityUtil.getHMAC(ipaddress, cookie);
+                token = tokenManager.getToken(rememberMe);
+                // if the authentication failed and no valid rememberMe cookie found, then failed.
+                if (!isAutheticated && (token == null || !token.equals(hmac))) {
+                    return dto;
+                }
+            } else if (!isAutheticated) {
                 return dto;
             }
+
             cookie = IdentityUtil.generateUUID();
             hmac = IdentityUtil.getHMAC(ipaddress, cookie);
             rememberMe.setToken(hmac);
@@ -217,32 +248,11 @@ public class OpenIDProviderService {
             return dto;
         }
 
-        if (ipaddress != null && (cookie == null || "null".equals(cookie)) && isAutheticated) {
-            cookie = IdentityUtil.generateUUID();
-            hmac = IdentityUtil.getHMAC(ipaddress, cookie);
-            rememberMe.setToken(hmac);
-            tokenManager.updateToken(rememberMe);
-            dto.setNewCookieValue(cookie);
-            dto.setAuthenticated(true);
-
-            MessageContext msgContext = MessageContext.getCurrentMessageContext();
-
-            if (msgContext != null) {
-                HttpServletRequest request =
-                        (HttpServletRequest) msgContext.getProperty(HTTPConstants.MC_HTTP_SERVLETREQUEST);
-                HttpSession httpSession = request.getSession(false);
-
-                if (httpSession != null) {
-                    httpSession.setAttribute(OpenIDServerConstants.OPENID_LOGGEDIN_USER, userName);
-                }
-            }
-
-            return dto;
-        }
         return dto;
     }
 
-    public OpenIDRememberMeDTO authenticateWithRememberMeCookie(String openID, String ipaddress, String cookie) throws Exception {
+    public OpenIDRememberMeDTO authenticateWithRememberMeCookie(String openID, String ipaddress, String cookie)
+            throws Exception {
         String userName = OpenIDUtil.getUserName(openID);
         boolean isAutheticated = false;
         String hmac = null;
@@ -331,10 +341,11 @@ public class OpenIDProviderService {
     /**
      * @param userName
      * @return
-     * @throws Exception
+     * @throws IdentityProviderException
      */
     public OpenIDProviderInfoDTO getOpenIDProviderInfo(String userName, String openid)
-            throws Exception {
+            throws IdentityProviderException {
+
         OpenIDProviderInfoDTO providerInfo = new OpenIDProviderInfoDTO();
         String domain = null;
         UserRealm realm = null;
@@ -342,19 +353,25 @@ public class OpenIDProviderService {
         try {
             domain = MultitenantUtils.getDomainNameFromOpenId(openid);
             realm = IdentityTenantUtil.getRealm(domain, userName);
-        } catch (Exception ignore) {
-            log.error(ignore);
+        } catch (IdentityException e) {
+            if (log.isDebugEnabled()) {
+                log.debug("Ignoring IdentityException", e);
+            }
         }
         if (realm == null) {
             return providerInfo;
         }
 
         providerInfo.setSubDomain(domain);
-        userName = MultitenantUtils.getTenantAwareUsername(userName);
-        providerInfo.setUserExist(realm.getUserStoreManager().isExistingUser(userName));
+        String tenantFreeUsername = MultitenantUtils.getTenantAwareUsername(userName);
+        try {
+            providerInfo.setUserExist(realm.getUserStoreManager().isExistingUser(tenantFreeUsername));
+        } catch (UserStoreException e) {
+            throw new IdentityProviderException("Error while checking if user exists", e);
+        }
+
         providerInfo.setOpenIDProviderServerUrl(IdentityUtil.getProperty(ServerConfig.OPENID_SERVER_URL));
-        providerInfo.setOpenID(IdentityUtil.getProperty(ServerConfig.OPENID_USER_PATTERN) +
-                userName);
+        providerInfo.setOpenID(IdentityUtil.getProperty(ServerConfig.OPENID_USER_PATTERN) + tenantFreeUsername);
         return providerInfo;
     }
 
@@ -363,24 +380,31 @@ public class OpenIDProviderService {
      * @param profileId
      * @param requredClaims
      * @return
-     * @throws IdentityException
+     * @throws IdentityProviderException
      */
     public OpenIDClaimDTO[] getClaimValues(String openId, String profileId,
-                                           OpenIDParameterDTO[] requredClaims) throws Exception {
+                                           OpenIDParameterDTO[] requredClaims) throws IdentityProviderException {
         List<String> claimList = null;
         ParameterList paramList = null;
         AuthRequest authReq = null;
 
         String message = "Invalid parameters provided to getClaimValues";
-        validateInputParameters(new String[]{openId, profileId}, message);
-        checkUserAuthorization(OpenIDUtil.getUserName(openId), "getClaimValues");
+        validateInputParameters(new String[] { openId, profileId }, message);
+        try {
+            checkUserAuthorization(OpenIDUtil.getUserName(openId), "getClaimValues");
+        } catch (MalformedURLException e) {
+            throw new IdentityProviderException("Failed to get username from OpenID " + openId, e);
+        }
 
         paramList = getParameterList(requredClaims);
-        authReq =
-                AuthRequest.createAuthRequest(paramList, OpenIDProvider.getInstance()
-                        .getManager()
-                        .getRealmVerifier());
-        claimList = getRequestedAttributes(authReq);
+        try {
+            authReq = AuthRequest
+                    .createAuthRequest(paramList, OpenIDProvider.getInstance().getManager().getRealmVerifier());
+            claimList = getRequestedAttributes(authReq);
+        } catch (MessageException | IdentityException e) {
+            throw new IdentityProviderException("Failed to get requested attribute set", e);
+        }
+
         return getOpenIDClaimValues(openId, profileId, claimList);
     }
 
@@ -389,7 +413,7 @@ public class OpenIDProviderService {
      * @return
      * @throws Exception
      */
-    public String getOpenIDAssociationResponse(OpenIDParameterDTO[] params) throws Exception {
+    public String getOpenIDAssociationResponse(OpenIDParameterDTO[] params) {
         Message message = null;
         ParameterList paramList = null;
 
@@ -406,12 +430,11 @@ public class OpenIDProviderService {
      * @return
      * @throws Exception
      */
-    public String verify(OpenIDParameterDTO[] params) throws Exception {
-        String disableDumbMode =
-                IdentityUtil.getProperty(IdentityConstants.ServerConfig.OPENID_DISABLE_DUMB_MODE);
+    public String verify(OpenIDParameterDTO[] params) throws IdentityProviderException {
+        String disableDumbMode = IdentityUtil.getProperty(IdentityConstants.ServerConfig.OPENID_DISABLE_DUMB_MODE);
 
         if ("true".equalsIgnoreCase(disableDumbMode)) {
-            throw new AxisFault("OpenID relying parties with dumb mode not supported");
+            throw new IdentityProviderException("OpenID relying parties with dumb mode not supported");
         }
 
         ParameterList paramList = getParameterList(params);
@@ -425,7 +448,7 @@ public class OpenIDProviderService {
      * @throws Exception
      */
     public OpenIDAuthResponseDTO getOpenIDAuthResponse(OpenIDAuthRequestDTO requestDTO)
-            throws Exception {
+            throws IdentityProviderException {
         ParameterList paramList = null;
         Message message = null;
         paramList = getParameterList(requestDTO.getParams());
@@ -436,11 +459,15 @@ public class OpenIDProviderService {
 
         response = new OpenIDAuthResponseDTO();
         manager = OpenIDProvider.getInstance().getManager();
-        authReq = AuthRequest.createAuthRequest(paramList, manager.getRealmVerifier());
+        try {
+            authReq = AuthRequest.createAuthRequest(paramList, manager.getRealmVerifier());
+        } catch (MessageException e) {
+            throw new IdentityProviderException("Error while creating authentication request", e);
+        }
         message =
                 manager.authResponse(paramList, requestDTO.getOpLocalId(),
-                        requestDTO.getUserSelectedClaimedId(),
-                        requestDTO.isAuthenticated());
+                                     requestDTO.getUserSelectedClaimedId(),
+                                     requestDTO.isAuthenticated());
 
         if (message instanceof DirectError || message instanceof AuthFailure) {
             // Validation fails - returns 'cancel'.
@@ -468,24 +495,27 @@ public class OpenIDProviderService {
             // OpenIDProvider is not aware of extensions - we simply delegate
             // the extension
             // processing logic to a subclass of OpenIDExtension.
-            for (Object alias : authReq.getExtensions()) {
-                req.setExtensionAlias((String) alias);
+            try {
+                for (Object alias : authReq.getExtensions()) {
+                    req.setExtensionAlias((String) alias);
 
-                // Get the corresponding OpenIDExtension instance from the
-                // OpenIDExtensionFactory.
-                extension = OpenIDExtensionFactory.getInstance().getExtension(req);
-                if (extension != null) {
-                    MessageExtension messageExtension = null;
-                    messageExtension =
-                            extension.getMessageExtension(requestDTO.getOpenID(),
-                                    requestDTO.getProfileName(), requestDTO);
-                    if (messageExtension != null) {
-                        message.addExtension(messageExtension);
-                        AuthSuccess authSuccess = (AuthSuccess) message;
-                        authSuccess.addSignExtension((String) alias);
-                        manager.sign(authSuccess);
+                    // Get the corresponding OpenIDExtension instance from the
+                    // OpenIDExtensionFactory.
+                    extension = OpenIDExtensionFactory.getInstance().getExtension(req);
+                    if (extension != null) {
+                        MessageExtension messageExtension = null;
+                        messageExtension = extension.getMessageExtension(requestDTO.getOpenID(),
+                                                                         requestDTO.getProfileName(), requestDTO);
+                        if (messageExtension != null) {
+                            message.addExtension(messageExtension);
+                            AuthSuccess authSuccess = (AuthSuccess) message;
+                            authSuccess.addSignExtension((String) alias);
+                            manager.sign(authSuccess);
+                        }
                     }
                 }
+            } catch (IdentityException | MessageException | ServerException | AssociationException e) {
+                throw new IdentityProviderException("Error while creating authentication request", e);
             }
 
             // We only have SReg extensions.
@@ -543,24 +573,24 @@ public class OpenIDProviderService {
      *
      * @param userId
      * @return
-     * @throws Exception
+     * @throws IdentityProviderException
      */
-    public boolean doXMPPBasedMultiFactorAuthForInfocard(String userId) throws Exception {
-        boolean authenticationStatus = true;
+    public boolean doXMPPBasedMultiFactorAuthForInfocard(String userId) throws IdentityProviderException {
 
-        IdentityPersistenceManager persistenceManager =
-                IdentityPersistenceManager.getPersistanceManager();
-        XMPPSettingsDO xmppSettingsDO =
-                persistenceManager.getXmppSettings(IdentityTenantUtil.getRegistry(null,
-                                userId),
-                        MultitenantUtils.getTenantAwareUsername(userId));
+        boolean authenticationStatus = true;
+        XMPPSettingsDO xmppSettingsDO = null;
+        try {
+            IdentityPersistenceManager persistenceManager = IdentityPersistenceManager.getPersistanceManager();
+            xmppSettingsDO = persistenceManager.getXmppSettings(IdentityTenantUtil.getRegistry(null, userId),
+                                                                MultitenantUtils.getTenantAwareUsername(userId));
+        } catch (IdentityException e) {
+            throw new IdentityProviderException("Error while retriving XMPP settings", e);
+        }
 
         // attempts to do multi-factor authentication, if the user has enabled
         // it.
         if (xmppSettingsDO != null && xmppSettingsDO.isXmppEnabled()) {
-            MPAuthenticationProvider mpAuthenticationProvider =
-                    new MPAuthenticationProvider(
-                            xmppSettingsDO);
+            MPAuthenticationProvider mpAuthenticationProvider = new MPAuthenticationProvider(xmppSettingsDO);
             authenticationStatus = mpAuthenticationProvider.authenticate();
         }
 
@@ -576,10 +606,10 @@ public class OpenIDProviderService {
      *
      * @param openId
      * @return
-     * @throws Exception
+     * @throws IdentityProviderException
      */
     public OpenIDUserProfileDTO[] getUserProfiles(String openId, OpenIDParameterDTO[] requredClaims)
-            throws Exception {
+            throws IdentityProviderException {
         String userName = null;
         UserRealm realm = null;
         UserStoreManager reader = null;
@@ -599,8 +629,8 @@ public class OpenIDProviderService {
             ParameterList paramList = getParameterList(requredClaims);
             AuthRequest authReq =
                     AuthRequest.createAuthRequest(paramList, OpenIDProvider.getInstance()
-                            .getManager()
-                            .getRealmVerifier());
+                                                                           .getManager()
+                                                                           .getRealmVerifier());
 
             claimList = getRequestedAttributes(authReq);
 
@@ -613,8 +643,8 @@ public class OpenIDProviderService {
                 profileDtoSet[i] = profileDTO;
             }
             return profileDtoSet;
-        } catch (UserStoreException e) {
-            throw new Exception(e.getMessage(), e);
+        } catch (MalformedURLException | UserStoreException | MessageException | IdentityException e) {
+            throw new IdentityProviderException("Error while retrieving user profiles", e);
         }
     }
 
@@ -622,12 +652,18 @@ public class OpenIDProviderService {
      * This method tracks RPs
      *
      * @param rpdto
-     * @throws Exception
+     * @throws IdentityProviderException
      */
-    public void updateOpenIDUserRPInfo(OpenIDUserRPDTO rpdto) throws Exception {
+    public void updateOpenIDUserRPInfo(OpenIDUserRPDTO rpdto) throws IdentityProviderException {
 
-        String userName = OpenIDUtil.getUserName(rpdto.getOpenID());
+        String userName = null;
+        try {
+            userName = OpenIDUtil.getUserName(rpdto.getOpenID());
+        } catch (MalformedURLException e) {
+            throw new IdentityProviderException("Failed to get username from OpenID " + rpdto.getOpenID(), e);
+        }
         String domainName = MultitenantUtils.getDomainNameFromOpenId(rpdto.getOpenID());
+
         OpenIDUserRPDO rpdo = new OpenIDUserRPDO();
         OpenIDUserRPDAO dao = new OpenIDUserRPDAO();
 
@@ -642,8 +678,8 @@ public class OpenIDProviderService {
             rpdo.setUuid(new String(Hex.encodeHex(digest)));
 
             dao.createOrUpdate(rpdo);
-        } catch (IdentityException e) {
-            throw new Exception("Error while using DAO for " + domainName, e);
+        } catch (IdentityException | NoSuchAlgorithmException e) {
+            throw new IdentityProviderException("Error while updating DAO for " + domainName, e);
         }
 
     }
@@ -653,23 +689,28 @@ public class OpenIDProviderService {
      *
      * @param openID
      * @return openIDUserDTOs
-     * @throws Exception
+     * @throws IdentityProviderException
      */
-    public OpenIDUserRPDTO[] getOpenIDUserRPs(String openID) throws Exception {
+    public OpenIDUserRPDTO[] getOpenIDUserRPs(String openID) throws IdentityProviderException {
 
-        String username = OpenIDUtil.getUserName(openID);
+        String username = null;
+        try {
+            username = OpenIDUtil.getUserName(openID);
+        } catch (MalformedURLException e) {
+            throw new IdentityProviderException("Error while getting username for OpenID " + username, e);
+        }
         String domainName = MultitenantUtils.getDomainNameFromOpenId(openID);
+
         OpenIDUserRPDO[] rpdos = null;
         OpenIDUserRPDAO dao;
-
         try {
             dao = new OpenIDUserRPDAO();
             rpdos = dao.getOpenIDUserRPs(username);
             if (rpdos == null) {
-                return null;
+                return new OpenIDUserRPDTO[0];
             }
         } catch (IdentityException e) {
-            throw new Exception("Error while using DAO for " + domainName, e);
+            throw new IdentityProviderException("Error while using DAO for " + domainName, e);
         }
 
         OpenIDUserRPDTO[] rpdto = new OpenIDUserRPDTO[rpdos.length];
@@ -687,15 +728,20 @@ public class OpenIDProviderService {
      * @param openID
      * @param rpUrl
      * @return openIDUserRPDTO
-     * @throws Exception
+     * @throws IdentityProviderException
      */
-    public OpenIDUserRPDTO getOpenIDUserRPInfo(String openID, String rpUrl) throws Exception {
+    public OpenIDUserRPDTO getOpenIDUserRPInfo(String openID, String rpUrl) throws IdentityProviderException {
 
-        String userName = OpenIDUtil.getUserName(openID);
+        String userName = null;
+        try {
+            userName = OpenIDUtil.getUserName(openID);
+        } catch (MalformedURLException e) {
+            throw new IdentityProviderException("Failed to get username from OpenID " + openID, e);
+        }
         String domainName = MultitenantUtils.getTenantDomain(userName);
+
         OpenIDUserRPDO rpdo = null;
         OpenIDUserRPDAO dao;
-
         try {
             dao = new OpenIDUserRPDAO();
             rpdo = dao.getOpenIDUserRP(userName, rpUrl);
@@ -703,7 +749,7 @@ public class OpenIDProviderService {
                 return null;
             }
         } catch (IdentityException e) {
-            throw new Exception("Error while using DAO for " + domainName, e);
+            throw new IdentityProviderException("Error while using DAO for " + domainName, e);
         }
         return new OpenIDUserRPDTO(rpdo);
     }
@@ -714,12 +760,7 @@ public class OpenIDProviderService {
      * @return boolean
      */
     public boolean isOpenIDUserApprovalBypassEnabled() {
-        String isEnabled =
-                IdentityUtil.getProperty(IdentityConstants.ServerConfig.OPENID_SKIP_USER_CONSENT);
-        if (isEnabled != null && isEnabled.equals("true")) {
-            return true;
-        }
-        return false;
+        return Boolean.parseBoolean(IdentityUtil.getProperty(IdentityConstants.ServerConfig.OPENID_SKIP_USER_CONSENT));
     }
 
     /**
@@ -727,10 +768,10 @@ public class OpenIDProviderService {
      * @param profileId
      * @param claimList
      * @return
-     * @throws Exception
+     * @throws IdentityProviderException
      */
     private OpenIDClaimDTO[] getOpenIDClaimValues(String openId, String profileId,
-                                                  List<String> claimList) throws Exception {
+                                                  List<String> claimList) throws IdentityProviderException {
         UserStoreManager userStore = null;
         Map<String, String> claimValues = null;
         OpenIDClaimDTO[] claims = null;
@@ -740,18 +781,26 @@ public class OpenIDProviderService {
         String[] claimArray = new String[claimList.size()];
         String userName = null;
         String domainName = null;
-        String tenatUser;
+        String tenantUser;
         UserRealm realm = null;
 
-        userName = OpenIDUtil.getUserName(openId);
+        try {
+            userName = OpenIDUtil.getUserName(openId);
+        } catch (MalformedURLException e) {
+            throw new IdentityProviderException("Failed to get username from OpenID " + openId, e);
+        }
         domainName = MultitenantUtils.getDomainNameFromOpenId(openId);
-        tenatUser = MultitenantUtils.getTenantAwareUsername(userName);
+        tenantUser = MultitenantUtils.getTenantAwareUsername(userName);
 
-        realm = IdentityTenantUtil.getRealm(domainName, userName);
-        userStore = realm.getUserStoreManager();
-        claimValues =
-                userStore.getUserClaimValues(tenatUser, claimList.toArray(claimArray),
-                        profileId);
+        try {
+            realm = IdentityTenantUtil.getRealm(domainName, userName);
+            userStore = realm.getUserStoreManager();
+            claimValues =
+                    userStore.getUserClaimValues(tenantUser, claimList.toArray(claimArray),
+                                                 profileId);
+        } catch (IdentityException | UserStoreException e) {
+            throw new IdentityProviderException("Failed to get claims of user " + tenantUser, e);
+        }
 
         String claimSeparator = claimValues.get(MULTI_ATTRIBUTE_SEPARATOR);
         if (claimSeparator != null) {
@@ -759,11 +808,16 @@ public class OpenIDProviderService {
             claimValues.remove(MULTI_ATTRIBUTE_SEPARATOR);
         }
 
-        claims = new OpenIDClaimDTO[claimValues.size()];
         int i = 0;
-        claimManager = IdentityClaimManager.getInstance();
-        claimData = claimManager.getAllSupportedClaims(realm);
         JSONArray values;
+        claims = new OpenIDClaimDTO[claimValues.size()];
+
+        try {
+            claimManager = IdentityClaimManager.getInstance();
+            claimData = claimManager.getAllSupportedClaims(realm);
+        } catch (IdentityException e) {
+            throw new IdentityProviderException("Failed load all supported claims", e);
+        }
 
         for (Claim element : claimData) {
             if (claimValues.containsKey(element.getClaimUri())) {
@@ -776,7 +830,7 @@ public class OpenIDProviderService {
                     StringTokenizer st = new StringTokenizer(value, userAttributeSeparator);
                     while (st.hasMoreElements()) {
                         String attValue = st.nextElement().toString();
-                        if (attValue != null && attValue.trim().length() > 0) {
+                        if (StringUtils.isNotBlank(attValue)) {
                             values.add(attValue);
                         }
                     }
@@ -797,22 +851,20 @@ public class OpenIDProviderService {
      * @param operation
      * @throws IdentityProviderException
      */
-    private void checkUserAuthorization(String username, String operation)
-            throws IdentityProviderException {
+    private void checkUserAuthorization(String username, String operation) throws IdentityProviderException {
         MessageContext msgContext = MessageContext.getCurrentMessageContext();
-        HttpServletRequest request =
-                (HttpServletRequest) msgContext.getProperty(HTTPConstants.MC_HTTP_SERVLETREQUEST);
+        HttpServletRequest request = (HttpServletRequest) msgContext.getProperty(HTTPConstants.MC_HTTP_SERVLETREQUEST);
         HttpSession httpSession = request.getSession(false);
         if (httpSession != null) {
             String userName = (String) httpSession.getAttribute(OpenIDServerConstants.OPENID_LOGGEDIN_USER);
             if (!username.equals(userName)) {
                 throw new IdentityProviderException("Unauthorised action by user " + username +
-                        " to access " + operation);
+                                                    " to access " + operation);
             }
             return;
         }
         throw new IdentityProviderException("Unauthorised action by user " + username +
-                " to access " + operation);
+                                            " to access " + operation);
     }
 
     /**

@@ -22,7 +22,17 @@ import org.apache.axis2.client.ServiceClient;
 import org.apache.axis2.context.ConfigurationContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.security.mgt.stub.config.*;
+import org.wso2.carbon.security.mgt.stub.config.ActivateUsernameTokenAuthentication;
+import org.wso2.carbon.security.mgt.stub.config.ApplyKerberosSecurityPolicy;
+import org.wso2.carbon.security.mgt.stub.config.ApplySecurity;
+import org.wso2.carbon.security.mgt.stub.config.DisableSecurityOnService;
+import org.wso2.carbon.security.mgt.stub.config.GetScenarios;
+import org.wso2.carbon.security.mgt.stub.config.GetScenariosResponse;
+import org.wso2.carbon.security.mgt.stub.config.GetSecurityConfigData;
+import org.wso2.carbon.security.mgt.stub.config.GetSecurityConfigDataResponse;
+import org.wso2.carbon.security.mgt.stub.config.GetSecurityScenario;
+import org.wso2.carbon.security.mgt.stub.config.GetSecurityScenarioResponse;
+import org.wso2.carbon.security.mgt.stub.config.SecurityAdminServiceStub;
 import org.wso2.carbon.security.mgt.stub.config.xsd.SecurityConfigData;
 import org.wso2.carbon.security.mgt.stub.config.xsd.SecurityScenarioData;
 import org.wso2.carbon.security.mgt.stub.config.xsd.SecurityScenarioDataWrapper;
@@ -43,7 +53,7 @@ public class SecurityAdminClient {
             option.setManageSession(true);
             option.setProperty(org.apache.axis2.transport.http.HTTPConstants.COOKIE_STRING, cookie);
         } catch (java.lang.Exception e) {
-            log.error(e);
+            log.error("Error in creating SecurityAdminClient", e);
             throw e;
         }
     }
@@ -56,7 +66,7 @@ public class SecurityAdminClient {
             request.setUserGroups(userGroups);
             stub.activateUsernameTokenAuthentication(request);
         } catch (java.lang.Exception e) {
-            log.error(e);
+            log.error("Error in activating username token authentication.", e);
             throw e;
         }
     }
@@ -67,7 +77,7 @@ public class SecurityAdminClient {
             request.setServiceName(serviceName);
             stub.disableSecurityOnService(request);
         } catch (java.lang.Exception e) {
-            log.error(e);
+            log.error("Error in disabling security on service", e);
             throw e;
         }
     }
@@ -83,7 +93,7 @@ public class SecurityAdminClient {
 
             stub.applyKerberosSecurityPolicy(request);
         } catch (java.lang.Exception e) {
-            log.error(e);
+            log.error("Error in applying kerberos security.", e);
             throw e;
         }
     }
@@ -101,7 +111,7 @@ public class SecurityAdminClient {
             request.setUserGroupNames(userGroups);
             stub.applySecurity(request);
         } catch (java.lang.Exception e) {
-            log.error(e);
+            log.error("Error in applying security.", e);
             throw e;
         }
     }
@@ -113,7 +123,7 @@ public class SecurityAdminClient {
             GetScenariosResponse response = stub.getScenarios(request);
             return response.get_return();
         } catch (java.lang.Exception e) {
-            log.error(e);
+            log.error("Error in getting scenarios", e);
             throw e;
         }
     }
@@ -125,7 +135,7 @@ public class SecurityAdminClient {
             GetSecurityScenarioResponse response = stub.getSecurityScenario(request);
             return response.get_return();
         } catch (java.lang.Exception e) {
-            log.error(e);
+            log.error("Error in getting security scenarios", e);
             throw e;
         }
     }
@@ -140,7 +150,7 @@ public class SecurityAdminClient {
             GetSecurityConfigDataResponse response = stub.getSecurityConfigData(request);
             return response.get_return();
         } catch (java.lang.Exception e) {
-            log.error(e);
+            log.error("Error in getting security config data", e);
             throw e;
         }
     }

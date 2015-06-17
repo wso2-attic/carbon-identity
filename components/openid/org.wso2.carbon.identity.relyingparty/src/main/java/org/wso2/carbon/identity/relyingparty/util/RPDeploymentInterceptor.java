@@ -1,20 +1,20 @@
 /*
-*  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package org.wso2.carbon.identity.relyingparty.util;
 
 import org.apache.axiom.om.OMElement;
@@ -34,7 +34,6 @@ import org.wso2.carbon.identity.relyingparty.RelyingPartyException;
 
 import java.util.ArrayList;
 
-
 public class RPDeploymentInterceptor implements AxisObserver {
 
     private static final String RP_SERVICE_NAME = "RelyingPartyService";
@@ -47,15 +46,19 @@ public class RPDeploymentInterceptor implements AxisObserver {
      * @param config AxisConfiguration
      * @throws Exception
      */
-    public static void populateRampartConfig(AxisConfiguration config) throws Exception {
+    public static void populateRampartConfig(AxisConfiguration config) throws RelyingPartyException {
 
         AxisService service;
 
         // Get the RelyingParty Service to update security policy with keystore information
-        service = config.getService(RP_SERVICE_NAME);
+        String msg = RP_SERVICE_NAME + " is not available in the Configuration Context";
+        try {
+            service = config.getService(RP_SERVICE_NAME);
+        } catch (AxisFault axisFault) {
+            throw new RelyingPartyException(msg, axisFault);
+        }
+
         if (service == null) {
-            String msg = RP_SERVICE_NAME + " is not available in the Configuration Context";
-            log.error(msg);
             throw new RelyingPartyException(msg);
         }
 
@@ -69,14 +72,13 @@ public class RPDeploymentInterceptor implements AxisObserver {
     /**
      * {@inheritDoc}
      */
+    @Override
     public void serviceUpdate(AxisEvent event, AxisService service) {
-        if (event.getEventType() == AxisEvent.SERVICE_DEPLOY
-                && RP_SERVICE_NAME.equals(service.getName())) {
+        if (event.getEventType() == AxisEvent.SERVICE_DEPLOY && RP_SERVICE_NAME.equals(service.getName())) {
             try {
                 populateRampartConfig(service.getAxisConfiguration());
             } catch (Exception e) {
-                log.error("Error while updating " + RP_SERVICE_NAME
-                        + " in RPDeploymentInterceptor", e);
+                log.error("Error while updating " + RP_SERVICE_NAME + " in RPDeploymentInterceptor", e);
                 throw new RuntimeException(e);
             }
         }
@@ -85,36 +87,47 @@ public class RPDeploymentInterceptor implements AxisObserver {
     /**
      * {@inheritDoc}
      */
+    @Override
     public void init(AxisConfiguration arg0) {
+        // Nothing to implement
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public void moduleUpdate(AxisEvent arg0, AxisModule arg1) {
+        // Nothing to implement
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public void serviceGroupUpdate(AxisEvent event, AxisServiceGroup group) {
+        // Nothing to implement
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public void addParameter(Parameter arg0) throws AxisFault {
+        // Nothing to implement
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public void deserializeParameters(OMElement arg0) throws AxisFault {
+        // Nothing to implement
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public Parameter getParameter(String arg0) {
         return null;
     }
@@ -122,6 +135,7 @@ public class RPDeploymentInterceptor implements AxisObserver {
     /**
      * {@inheritDoc}
      */
+    @Override
     public ArrayList getParameters() {
         return null;
     }
@@ -129,6 +143,7 @@ public class RPDeploymentInterceptor implements AxisObserver {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean isParameterLocked(String arg0) {
         return false;
     }
@@ -136,9 +151,9 @@ public class RPDeploymentInterceptor implements AxisObserver {
     /**
      * {@inheritDoc}
      */
+    @Override
     public void removeParameter(Parameter arg0) throws AxisFault {
-
+        // Nothing to implement
     }
-
 
 }

@@ -1,17 +1,19 @@
 /*
- * Copyright 2005-2008 WSO2, Inc. (http://wso2.com)
+ * Copyright (c) 2008, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package org.wso2.carbon.identity.relyingparty.saml;
@@ -50,8 +52,9 @@ import java.security.KeyStore;
 import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * A SAML token is sent to a web application in a CardSpace login attempt and this can be used for
@@ -59,9 +62,9 @@ import java.util.List;
  */
 public class SAMLTokenVerifier {
 
-    private static Log log = LogFactory.getLog(SAMLTokenVerifier.class);
-    private Hashtable<String, String> attributeTable = new Hashtable<String, String>();
-    private List<X509Certificate> certificates = new ArrayList<X509Certificate>();
+    private static final Log log = LogFactory.getLog(SAMLTokenVerifier.class);
+    private Map<String, String> attributeTable = new HashMap<>();
+    private List<X509Certificate> certificates = new ArrayList<>();
     private Element keyInfoElement = null;
     private String issuerName = null;
     private boolean isMultipleValues = false;
@@ -117,10 +120,9 @@ public class SAMLTokenVerifier {
      *
      * @param decryptedElem SAML token element
      * @return true if verification is successful and false if unsuccessful.
-     * @throws SAMLException
+     * @throws RelyingPartyException
      */
-    public boolean verifyDecryptedToken(Element decryptedElem, RelyingPartyData rpData)
-            throws RelyingPartyException {
+    public boolean verifyDecryptedToken(Element decryptedElem, RelyingPartyData rpData) throws RelyingPartyException {
 
         if (log.isDebugEnabled()) {
             log.debug("verifyingDecryptedToken");
@@ -144,8 +146,7 @@ public class SAMLTokenVerifier {
             String version = decryptedElem.getNamespaceURI();
             TokenHolder holder = null;
 
-            if (version.equals(IdentityConstants.SAML10_URL)
-                    || version.equals(IdentityConstants.SAML11_URL)) {
+            if (version.equals(IdentityConstants.SAML10_URL) || version.equals(IdentityConstants.SAML11_URL)) {
                 holder = new SAML1TokenHolder(decryptedElem);
             } else if (version.equals(IdentityConstants.SAML20_URL)) {
                 holder = new SAML2TokenHolder(decryptedElem);
@@ -162,8 +163,7 @@ public class SAMLTokenVerifier {
             X509CredentialImpl credential = null;
 
             if (issuerName.equals(IdentityConstants.SELF_ISSUED_ISSUER)) {
-                credential = (X509CredentialImpl) X509CredentialUtil
-                        .loadCredentialFromSignature(sig);
+                credential = (X509CredentialImpl) X509CredentialUtil.loadCredentialFromSignature(sig);
                 this.keyInfoElement = sig.getKeyInfo().getDOM();
             } else {
 
@@ -177,17 +177,17 @@ public class SAMLTokenVerifier {
                 KeyStore systemStore = rpData.getSystemStore();
 
                 if (trustStore != null && alias != null) {
-                    credential = (X509CredentialImpl) X509CredentialUtil
-                            .loadCredentialFromTrustStore(alias, trustStore);
+                    credential =
+                            (X509CredentialImpl) X509CredentialUtil.loadCredentialFromTrustStore(alias, trustStore);
                 }
 
                 boolean isLoadedFromMessage = false;
                 if (credential == null) {
-                    credential = (X509CredentialImpl) X509CredentialUtil
-                            .loadCredentialFromSignature(sig);
+                    credential = (X509CredentialImpl) X509CredentialUtil.loadCredentialFromSignature(sig);
 
-                    if (credential == null)
+                    if (credential == null) {
                         throw new RelyingPartyException("credentialIsNull");
+                    }
 
                     isLoadedFromMessage = true;
                 }
@@ -196,8 +196,9 @@ public class SAMLTokenVerifier {
 
                     this.signingCert = credential.getSigningCert();
 
-                    if (signingCert == null)
+                    if (signingCert == null) {
                         throw new RelyingPartyException("signingCertNull");
+                    }
 
 					/*
                      * do certificate validation for blacklist, whitelist and cert-validity
@@ -205,22 +206,18 @@ public class SAMLTokenVerifier {
 
                     signingCert.checkValidity();
 
-                    if (isLoadedFromMessage) {
-                        if (!IssuerCertificateUtil.checkSystemStore(signingCert, systemStore)
-                                && !IssuerCertificateUtil.checkSystemStore(signingCert, trustStore)) {
-                            return false;
-                        }
+                    if (isLoadedFromMessage && !IssuerCertificateUtil.checkSystemStore(signingCert, systemStore)
+                        && !IssuerCertificateUtil.checkSystemStore(signingCert, trustStore)) {
+                        return false;
                     }
 
                     if (validationPolicy.equals(TokenVerifierConstants.BLACK_LIST)) {
                         if (IssuerCertificateUtil.isBlackListed(rpData.getBlackList(), signingCert)) {
                             return false;
                         }
-                    } else if (validationPolicy.equals(TokenVerifierConstants.WHITE_LIST)) {
-                        if (!IssuerCertificateUtil
-                                .isWhiteListed(rpData.getWhiteList(), signingCert)) {
-                            return false;
-                        }
+                    } else if (validationPolicy.equals(TokenVerifierConstants.WHITE_LIST) && !IssuerCertificateUtil
+                            .isWhiteListed(rpData.getWhiteList(), signingCert)) {
+                        return false;
                     }
                 }
             }
@@ -255,16 +252,15 @@ public class SAMLTokenVerifier {
             log.debug("decryptingToken");
         }
 
-        kiElem = (Element) encryptedToken.getElementsByTagNameNS(WSConstants.SIG_NS, "KeyInfo")
-                .item(0);
-        encrKeyElem = (Element) kiElem.getElementsByTagNameNS(WSConstants.ENC_NS,
-                EncryptionConstants._TAG_ENCRYPTEDKEY).item(0);
+        kiElem = (Element) encryptedToken.getElementsByTagNameNS(WSConstants.SIG_NS, "KeyInfo").item(0);
+        encrKeyElem = (Element) kiElem.getElementsByTagNameNS(WSConstants.ENC_NS, EncryptionConstants._TAG_ENCRYPTEDKEY)
+                                      .item(0);
 
         encrKeyProcessor = new EncryptedKeyProcessor();
         encrKeyProcessor.handleEncryptedKey(encrKeyElem, privKey);
 
         secretKey = WSSecurityUtil.prepareSecretKey(EncryptionConstants.ALGO_ID_BLOCKCIPHER_AES128,
-                encrKeyProcessor.getDecryptedBytes());
+                                                    encrKeyProcessor.getDecryptedBytes());
 
         cipher = XMLCipher.getInstance();
         cipher.init(XMLCipher.DECRYPT_MODE, secretKey);
@@ -283,12 +279,13 @@ public class SAMLTokenVerifier {
     }
 
     /**
+     * getAttributeTable
      * Returns the list of attributes extracted from the SAMLAttributeStatements in the verified
      * SAML assertion.
      *
-     * @return List of attributes as a <code>java.util.Hashtable</code>
+     * @return List of attributes as a <code>java.util.HashMap</code>
      */
-    public Hashtable<String, String> getAttributeTable() {
+    public Map<String, String> getAttributeTable() {
         return attributeTable;
     }
 

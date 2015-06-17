@@ -1,21 +1,24 @@
 /*
- * Copyright (c) WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package org.wso2.carbon.identity.mgt;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.base.IdentityException;
@@ -50,7 +53,11 @@ import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.common.AbstractUserOperationEventListener;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 
-import java.util.*;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 
@@ -75,6 +82,7 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
     private static final Log log = LogFactory.getLog(IdentityMgtEventListener.class);
     private static final String EMPTY_PASSWORD_USED = "EmptyPasswordUsed";
     private static final String USER_IDENTITY_DO = "UserIdentityDO";
+    private static final String EMAIL_NOTIFICATION_TYPE = "EMAIL";
     PolicyRegistry policyRegistry = null;
     private UserIdentityDataStore module;
 
@@ -204,7 +212,7 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
         IdentityMgtConfig config = IdentityMgtConfig.getInstance();
 
         if (!config.isEnableAuthPolicy()) {
-            return authenticated;
+            return true;
         }
 
         UserIdentityClaimsDO userIdentityDTO = module.load(userName, userStoreManager);
@@ -216,91 +224,86 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
 
         // One time password check
         if (authenticated && config.isAuthPolicyOneTimePasswordCheck() &&
-                (!userStoreManager.isReadOnly())) {
+                (!userStoreManager.isReadOnly()) && userOTPEnabled ) {
 
             // reset password of the user and notify user of the new password
-            if (userOTPEnabled) {
 
-                String password = UserIdentityManagementUtil.generateTemporaryPassword().toString();
-                userStoreManager.updateCredentialByAdmin(userName, password);
+            String password = new String(UserIdentityManagementUtil.generateTemporaryPassword());
+            userStoreManager.updateCredentialByAdmin(userName, password);
 
-                // Get email user claim value
-                String email =
-                        userStoreManager.getUserClaimValue(userName,
-                                UserCoreConstants.ClaimTypeURIs.EMAIL_ADDRESS,
-                                null);
+            // Get email user claim value
+            String email = userStoreManager.getUserClaimValue(userName,UserCoreConstants.ClaimTypeURIs.EMAIL_ADDRESS,
+                    null);
 
-                if (email == null) {
-                    throw new UserStoreException("No user email provided for user : " + userName);
-                }
-
-                List<NotificationSendingModule> notificationModules =
-                        config.getNotificationSendingModules();
-
-                if (notificationModules != null) {
-
-                    NotificationDataDTO notificationData = new NotificationDataDTO();
-
-                    NotificationData emailNotificationData = new NotificationData();
-                    String emailTemplate = null;
-                    int tenantId = userStoreManager.getTenantId();
-                    String firstName = null;
-                    try {
-                        firstName =
-                                Utils.getClaimFromUserStoreManager(userName, tenantId,
-                                        "http://wso2.org/claims/givenname");
-                    } catch (IdentityException e2) {
-                        throw new UserStoreException("Could not load user given name");
-                    }
-                    emailNotificationData.setTagData("first-name", firstName);
-                    emailNotificationData.setTagData("user-name", userName);
-                    emailNotificationData.setTagData("otp-password", password);
-
-                    emailNotificationData.setSendTo(email);
-
-                    Config emailConfig = null;
-                    ConfigBuilder configBuilder = ConfigBuilder.getInstance();
-                    try {
-                    	emailConfig =
-                    	              configBuilder.loadConfiguration(ConfigType.EMAIL,
-                    	                                              StorageType.REGISTRY,
-                    	                                              tenantId);
-                    } catch (Exception e1) {
-                        throw new UserStoreException(
-                                "Could not load the email template configuration for user : "
-                                        + userName, e1);
-                    }
-
-                    emailTemplate = emailConfig.getProperty("otp");
-
-                    Notification emailNotification = null;
-                    try {
-                    	emailNotification =
-                    	                    NotificationBuilder.createNotification("EMAIL",
-                    	                                                           emailTemplate,
-                    	                                                           emailNotificationData);
-                    } catch (Exception e) {
-                        throw new UserStoreException(
-                                "Could not create the email notification for template: "
-                                        + emailTemplate, e);
-                    }
-                    NotificationSender sender = new NotificationSender();
-
-                    for (NotificationSendingModule notificationSendingModule : notificationModules) {
-
-                        if (IdentityMgtConfig.getInstance().isNotificationInternallyManaged()) {
-                            notificationSendingModule.setNotificationData(notificationData);
-                            notificationSendingModule.setNotification(emailNotification);
-                            sender.sendNotification(notificationSendingModule);
-                            notificationData.setNotificationSent(true);
-                        }
-                    }
-
-                } else {
-                    throw new UserStoreException("No notification modules configured");
-                }
-
+            if (StringUtils.isBlank(email)) {
+                throw new UserStoreException("No user email provided for user : " + userName);
             }
+
+            List<NotificationSendingModule> notificationModules =
+                    config.getNotificationSendingModules();
+
+            if (notificationModules != null) {
+
+                NotificationDataDTO notificationData = new NotificationDataDTO();
+
+                NotificationData emailNotificationData = new NotificationData();
+                String emailTemplate = null;
+                int tenantId = userStoreManager.getTenantId();
+                String firstName = null;
+                try {
+                    firstName =
+                            Utils.getClaimFromUserStoreManager(userName, tenantId,
+                                    "http://wso2.org/claims/givenname");
+                } catch (IdentityException e2) {
+                    throw new UserStoreException("Could not load user given name", e2);
+                }
+                emailNotificationData.setTagData("first-name", firstName);
+                emailNotificationData.setTagData("user-name", userName);
+                emailNotificationData.setTagData("otp-password", password);
+
+                emailNotificationData.setSendTo(email);
+
+                Config emailConfig = null;
+                ConfigBuilder configBuilder = ConfigBuilder.getInstance();
+                try {
+                    emailConfig =
+                            configBuilder.loadConfiguration(ConfigType.EMAIL,
+                                    StorageType.REGISTRY,
+                                    tenantId);
+                } catch (Exception e1) {
+                    throw new UserStoreException(
+                            "Could not load the email template configuration for user : "
+                                    + userName, e1);
+                }
+
+                emailTemplate = emailConfig.getProperty("otp");
+
+                Notification emailNotification = null;
+                try {
+                    emailNotification =
+                            NotificationBuilder.createNotification(EMAIL_NOTIFICATION_TYPE, emailTemplate,
+                                    emailNotificationData);
+                } catch (Exception e) {
+                    throw new UserStoreException(
+                            "Could not create the email notification for template: "
+                                    + emailTemplate, e);
+                }
+                NotificationSender sender = new NotificationSender();
+
+                for (NotificationSendingModule notificationSendingModule : notificationModules) {
+
+                    if (IdentityMgtConfig.getInstance().isNotificationInternallyManaged()) {
+                        notificationSendingModule.setNotificationData(notificationData);
+                        notificationSendingModule.setNotification(emailNotification);
+                        sender.sendNotification(notificationSendingModule);
+                        notificationData.setNotificationSent(true);
+                    }
+                }
+
+            } else {
+                throw new UserStoreException("No notification modules configured");
+            }
+
 
         }
 
@@ -311,30 +314,6 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
             // Check user's expire time in the claim
             // if expired redirect to change password
             // else pass through
-            /*
-			long timestamp = userIdentityDTO.getPasswordTimeStamp();
-			// Only allow behavior to users with this claim. Intent bypass for admin?
-			if (timestamp > 0) {
-				Calendar passwordExpireTime = Calendar.getInstance();
-				passwordExpireTime.setTimeInMillis(timestamp);
-
-				int expireDuration = config.getAuthPolicyPasswordExpireTime();
-				if (expireDuration > 0) {
-
-					passwordExpireTime.add(Calendar.DATE, expireDuration);
-
-					Calendar currentTime = Calendar.getInstance();
-
-					if (currentTime.compareTo(passwordExpireTime) > 0) {
-						// password expired
-						// set flag to redirect
-						log.error("Password is expired ...........");
-						// throw new UserStoreException("Password is expired");
-					}
-
-				}
-			}
-			*/
         }
 
 
@@ -365,7 +344,7 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
                     int lockTime = IdentityMgtConfig.getInstance().getAuthPolicyLockingTime();
                     if (lockTime != 0) {
                         userIdentityDTO.setUnlockTime(System.currentTimeMillis() +
-                                (lockTime * 60 * 1000));
+                                (lockTime * 60 * 1000L));
                     }
                 } else {
                     IdentityErrorMsgContext customErrorMessageContext = new IdentityErrorMsgContext(UserCoreConstants.ErrorCode.INVALID_CREDENTIAL,
@@ -513,108 +492,64 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
         UserIdentityClaimsDO userIdentityClaimsDO = (UserIdentityClaimsDO) threadLocalProperties.get().get(USER_IDENTITY_DO);
 
 
-        if (config.isEnableUserAccountVerification()) {
+        if (config.isEnableUserAccountVerification() && threadLocalProperties.get().containsKey(EMPTY_PASSWORD_USED)) {
 
             // empty password account creation
-            if (threadLocalProperties.get().containsKey(EMPTY_PASSWORD_USED)) {
+            String domainName = ((org.wso2.carbon.user.core.UserStoreManager) userStoreManager)
+                    .getRealmConfiguration().getUserStoreProperty(
+                            UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
+            if (!UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME.equals(domainName)) {
+                userName = domainName + UserCoreConstants.DOMAIN_SEPARATOR + userName;
+            }
 
-                String domainName = ((org.wso2.carbon.user.core.UserStoreManager) userStoreManager)
-                        .getRealmConfiguration().getUserStoreProperty(
-                                UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
-                if (!UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME.equals(domainName)) {
-                    userName = domainName + UserCoreConstants.DOMAIN_SEPARATOR + userName;
-                }
+            // store identity data
+            userIdentityClaimsDO.setAccountLock(false).setPasswordTimeStamp(System.currentTimeMillis());
+            try {
+                module.store(userIdentityClaimsDO, userStoreManager);
+            } catch (IdentityException e) {
+                throw new UserStoreException("Error while saving user store for user : "
+                        + userName, e);
+            }
+            // store identity metadata
+            UserRecoveryDataDO metadataDO = new UserRecoveryDataDO();
+            metadataDO.setUserName(userName).setTenantId(userStoreManager.getTenantId())
+                    .setCode((String) credential);
 
-                // store identity data
-                userIdentityClaimsDO.setAccountLock(false).setPasswordTimeStamp(System.currentTimeMillis());
-                try {
-                    module.store(userIdentityClaimsDO, userStoreManager);
-                } catch (IdentityException e) {
-                    throw new UserStoreException("Error while saving user store for user : "
-                            + userName, e);
-                }
-                // store identity metadata
-                UserRecoveryDataDO metadataDO = new UserRecoveryDataDO();
-                metadataDO.setUserName(userName).setTenantId(userStoreManager.getTenantId())
-                        .setCode((String) credential);
-//				try {
-//	                UserIdentityManagementUtil.storeUserIdentityMetadata(metadataDO);
-//                } catch (IdentityException e) {
-//                	throw new UserStoreException("Error while doPreAddUser", e);
-//                }
+            // set recovery data
+            RecoveryProcessor processor = new RecoveryProcessor();
+            VerificationBean verificationBean;
 
+            try {
+                verificationBean = processor.updateConfirmationCode(1, userName, userStoreManager.getTenantId());
+            } catch (IdentityException e) {
+                throw new UserStoreException(
+                        "Error while updating confirmation code for user : " + userName, e);
+            }
 
-                // set recovery data
-                RecoveryProcessor processor = new RecoveryProcessor();
-                VerificationBean verificationBean = new VerificationBean();
-                
-                try {
-                    verificationBean = processor.updateConfirmationCode(1, userName, userStoreManager.getTenantId());
-                } catch (IdentityException e) {
-                    throw new UserStoreException(
-                            "Error while updating confirmation code for user : " + userName, e);
-                }
-                
-                // preparing a bean to send the email
-                UserIdentityMgtBean bean = new UserIdentityMgtBean();
-                bean.setUserId(userName).setConfirmationCode(verificationBean.getKey())
+            // preparing a bean to send the email
+            UserIdentityMgtBean bean = new UserIdentityMgtBean();
+            bean.setUserId(userName).setConfirmationCode(verificationBean.getKey())
                     .setRecoveryType(IdentityMgtConstants.Notification.TEMPORARY_PASSWORD)
                     .setEmail(claims.get(config.getAccountRecoveryClaim()));
-                
-                UserRecoveryDTO recoveryDto = new UserRecoveryDTO(userName);
-                recoveryDto.setNotification(IdentityMgtConstants.Notification.ASK_PASSWORD);
-                recoveryDto.setNotificationType("EMAIL");
-                recoveryDto.setTenantId(userStoreManager.getTenantId());
-                recoveryDto.setConfirmationCode(verificationBean.getKey());
-                
-                NotificationDataDTO notificationDto = null;
-                
-                try {
-                    notificationDto = processor.recoverWithNotification(recoveryDto);
-                } catch (IdentityException e) {
-                    throw new UserStoreException("Error while sending notification for user : "
-                            + userName, e);
-                }
 
-                if(notificationDto != null && notificationDto.isNotificationSent()) {
-                    return true;
-                }else {
-                    return false;
-                }
-                
-                // sending email
-//				UserIdentityManagementUtil.notifyViaEmail(bean);
+            UserRecoveryDTO recoveryDto = new UserRecoveryDTO(userName);
+            recoveryDto.setNotification(IdentityMgtConstants.Notification.ASK_PASSWORD);
+            recoveryDto.setNotificationType("EMAIL");
+            recoveryDto.setTenantId(userStoreManager.getTenantId());
+            recoveryDto.setConfirmationCode(verificationBean.getKey());
 
-            } else {
-                // none-empty passwords. lock account and persist
-/*				This scenario needs to be validated.
- * 				userIdentityClaimsDO.setAccountLock(true)
-				                    .setPasswordTimeStamp(System.currentTimeMillis());
-				try {
-					UserIdentityManagementUtil.storeUserIdentityClaims(userIdentityClaimsDO, userStoreManager);
-				} catch (IdentityException e) {
-					throw new UserStoreException("Error while doPostAddUser", e);
-				}
-				String confirmationCode = UserIdentityManagementUtil.generateRandomConfirmationCode();
-				// store identity metadata
-				UserRecoveryDataDO metadataDO = new UserRecoveryDataDO();
-				metadataDO.setUserName(userName).setTenantId(userStoreManager.getTenantId())
-				          .setCode(confirmationCode);
-				try {
-	                UserIdentityManagementUtil.storeUserIdentityMetadata(metadataDO);
-                } catch (IdentityException e) {
-                	throw new UserStoreException("Error while doPostAddUser", e);
-                }
-				// sending a mail with the confirmation code
-				UserIdentityMgtBean bean = new UserIdentityMgtBean();
-				bean.setUserId(userName)
-				    .setRecoveryType(IdentityMgtConstants.Notification.ACCOUNT_CONFORM)
-				    .setConfirmationCode(confirmationCode);
-				UserIdentityManagementUtil.notifyViaEmail(bean);
-				return true; */
-			}
-		}
-		// No account recoveries are defined, no email will be sent. 
+            NotificationDataDTO notificationDto = null;
+
+            try {
+                notificationDto = processor.recoverWithNotification(recoveryDto);
+            } catch (IdentityException e) {
+                throw new UserStoreException("Error while sending notification for user : "
+                        + userName, e);
+            }
+
+            return notificationDto != null && notificationDto.isNotificationSent();
+        }
+        // No account recoveries are defined, no email will be sent.
         if (config.isAuthPolicyAccountLockOnCreation()) {
             // accounts are locked. Admin should unlock
             userIdentityClaimsDO.setAccountLock(true);
@@ -650,6 +585,7 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
 	 * password.
 	 * 
 	 */
+    @Override
 	public boolean doPreUpdateCredential(String userName, Object newCredential,
             Object oldCredential, UserStoreManager userStoreManager) throws UserStoreException {
 
@@ -755,20 +691,10 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
         if (!config.isListenerEnable()) {
             return true;
         }
-        UserIdentityDataStore identityDataStore = IdentityMgtConfig.getInstance()
-                .getIdentityDataStore();
-        UserIdentityClaimsDO identityDTO = null;
 
         // security questions and identity claims are updated at the identity store
         if (claimURI.contains(UserCoreConstants.ClaimTypeURIs.CHALLENGE_QUESTION_URI) ||
                 claimURI.contains(UserCoreConstants.ClaimTypeURIs.IDENTITY_CLAIM_URI)) {
-//            identityDTO = identityDataStore.load(userName, userStoreManager);
-//            if (identityDTO == null) { // no such user is added to the system
-//                return false;
-//            }
-//            modified - why is it adding claim in preSet method?
-//            identityDTO.setUserIdentityDataClaim(claimURI, claimValue);
-//            return false; // this will cause 
 //			  the whole listner to return and fail adding the cliam in doSetUserClaim
             return true;
         } else {
@@ -912,21 +838,6 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
                                            String profileName, UserStoreManager storeManager)
             throws UserStoreException {
 
-
-//		IdentityMgtConfig config = IdentityMgtConfig.getInstance();
-//		if (!config.isListenerEnable()) {
-//			return true;
-//		}
-//		UserIdentityDataStore identityDataStore =
-//		                                          IdentityMgtConfig.getInstance()
-//		                                                           .getIdentityDataStore();
-//		UserIdentityClaimsDO identityDTO = identityDataStore.load(userName, storeManager);
-//		// check if its a security question or identity claim 
-//		if (identityDTO.getUserDataMap().containsKey(claim)) {
-//			claimValue.add(identityDTO.getUserDataMap().get(claim));
-//			return false;
-//		} 
-
         return true;
     }
 
@@ -946,7 +857,6 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
 
         if (config.isAuthPolicyExpirePasswordCheck() && !userOTPEnabled && (!userStoreManager.isReadOnly())) {
 
-            Calendar currentTime = Calendar.getInstance();
             userIdentityDTO.setPasswordTimeStamp(Calendar.getInstance().getTimeInMillis());
 
             try {

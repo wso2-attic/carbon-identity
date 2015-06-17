@@ -20,20 +20,19 @@
            prefix="carbon"%>
 <%@ page import="org.apache.axis2.context.ConfigurationContext"%>
 <%@ page import="org.wso2.carbon.CarbonConstants"%>
-<%@ page import="org.wso2.carbon.ui.CarbonUIUtil"%>
-<%@ page import="org.wso2.carbon.utils.ServerConstants"%>
-
-<%@page import="java.util.ResourceBundle"%>
-<jsp:include page="../dialog/display_messages.jsp"/>
-<jsp:include page="../highlighter/header.jsp"/>
+<%@ page import="org.wso2.carbon.identity.entitlement.stub.dto.PolicyDTO"%>
+<%@ page import="org.wso2.carbon.identity.entitlement.ui.EntitlementPolicyConstants"%>
 
 <%@page import="org.wso2.carbon.identity.entitlement.ui.client.EntitlementPolicyAdminServiceClient"%>
 <jsp:include page="../dialog/display_messages.jsp"/>
-<%@ page import="java.lang.Exception"%>
-<%@ page import="org.wso2.carbon.identity.entitlement.stub.dto.PolicyDTO" %>
+<jsp:include page="../highlighter/header.jsp"/>
+
+<%@page import="org.wso2.carbon.ui.CarbonUIUtil"%>
+<jsp:include page="../dialog/display_messages.jsp"/>
+<%@ page import="org.wso2.carbon.utils.ServerConstants"%>
 <%@ page import="java.text.MessageFormat" %>
-<%@ page import="org.wso2.carbon.identity.entitlement.ui.EntitlementPolicyConstants" %>
 <%@ page import="java.util.Date" %>
+<%@ page import="java.util.ResourceBundle" %>
 <%
     String policy = "";
     String createdTime = "";

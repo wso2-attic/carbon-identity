@@ -1,22 +1,24 @@
 /*
-*  Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 package org.wso2.carbon.identity.mgt.services;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
@@ -25,10 +27,16 @@ import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.mgt.ChallengeQuestionProcessor;
 import org.wso2.carbon.identity.mgt.IdentityMgtServiceException;
 import org.wso2.carbon.identity.mgt.constants.IdentityMgtConstants;
-import org.wso2.carbon.identity.mgt.dto.*;
+import org.wso2.carbon.identity.mgt.dto.ChallengeQuestionDTO;
+import org.wso2.carbon.identity.mgt.dto.UserChallengesDTO;
+import org.wso2.carbon.identity.mgt.dto.UserChallengesSetDTO;
+import org.wso2.carbon.identity.mgt.dto.UserDTO;
+import org.wso2.carbon.identity.mgt.dto.UserIdentityClaimDTO;
+import org.wso2.carbon.identity.mgt.dto.UserRecoveryDTO;
 import org.wso2.carbon.identity.mgt.internal.IdentityMgtServiceComponent;
 import org.wso2.carbon.identity.mgt.util.UserIdentityManagementUtil;
 import org.wso2.carbon.identity.mgt.util.Utils;
+import org.wso2.carbon.user.api.AuthorizationManager;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.api.UserStoreManager;
 import org.wso2.carbon.user.core.UserCoreConstants;
@@ -56,78 +64,6 @@ public class UserIdentityManagementAdminService {
     private static Log log = LogFactory.getLog(UserIdentityManagementAdminService.class);
 
     // --------Operations require Admin permissions ---------//
-
-/*	*//**
-     * Admin adds a user to the system. The returning
-     * {@code UserRecoveryDTO} contains the temporary password or the
-     * account confirmation code to be sent to the user to complete the
-     * registration process.
-     *
-     * @param userName
-     * @param credential
-     * @param roleList
-     * @param claims
-     * @param profileName
-     * @return
-     * @throws IdentityMgtServiceException
-     *//*
-    public UserRecoveryDTO addUser(String userName, String credential, String[] roleList,
-	                                       UserIdentityClaimDTO[] claims, String profileName)
-	                                                                                         throws IdentityMgtServiceException {
-		int tenantId = Utils.getTenantId(MultitenantUtils.getTenantDomain(userName));
-		try {
-			UserStoreManager userStoreManager =
-			                                    IdentityMgtServiceComponent.getRealmService()
-			                                                               .getTenantUserRealm(tenantId)
-			                                                               .getUserStoreManager();
-			Map<String, String> claimsMap = new HashMap<String, String>();
-			for (UserIdentityClaimDTO claim : claims) {
-				// claims with "http://wso2.org/claims/identity" cannot be modified   
-				if (claim.getClaimUri().contains(UserCoreConstants.ClaimTypeURIs.IDENTITY_CLAIM_URI)) {
-					throw new IdentityMgtServiceException("Modification to the " + claim.getClaimUri() +
-					                                      " is not allowed");
-				}
-				claimsMap.put(claim.getClaimUri(), claim.getClaimValue());
-			}
-			userStoreManager.addUser(userName, credential, roleList, claimsMap, profileName);
-			return UserIdentityManagementUtil.getUserIdentityRecoveryData(userName, userStoreManager,
-			                                                              tenantId);
-		} catch (UserStoreException e) {
-			log.error("Error while adding user", e);
-			throw new IdentityMgtServiceException("Add user operation failed");
-		} catch (IdentityException e) {
-			log.error("Error while reading registration info", e);
-			throw new IdentityMgtServiceException("Unable to read registration info");
-		}
-	}*/
-
-    /**
-     * Admin can get the user account registration data if it was not read from
-     * {@code UserRecoveryDTO} contains the temporary password or the
-     * confirmation code.
-     *
-     * @param userName
-     * @return
-     * @throws IdentityMgtServiceException
-     */
-//	public UserRecoveryDTO getUserIdentityRegistrationData(String userName)
-//	                                                                               throws IdentityMgtServiceException {
-//		int tenantId = Utils.getTenantId(MultitenantUtils.getTenantDomain(userName));
-//		try {
-//			UserStoreManager userStoreManager =
-//			                                    IdentityMgtServiceComponent.getRealmService()
-//			                                                               .getTenantUserRealm(tenantId)
-//			                                                               .getUserStoreManager();
-//			return UserIdentityManagementUtil.getUserIdentityRecoveryData(userName, userStoreManager,
-//			                                                              tenantId);
-//		} catch (UserStoreException e) {
-//			log.error("Error while loading user store", e);
-//			throw new IdentityMgtServiceException("Unable to read registration info");
-//		} catch (IdentityException e) {
-//			log.error("Error while reading registration info", e);
-//			throw new IdentityMgtServiceException("Unable to read registration info");
-//		}
-//	}
 
     /**
      * Admin deletes a user from the system. This is an irreversible operation.
@@ -159,9 +95,9 @@ public class UserIdentityManagementAdminService {
 
         try {
             UserStoreManager userStoreManager = getUserStore(userName);
-            userName = UserCoreUtil.removeDomainFromName(userName);
-            UserIdentityManagementUtil.lockUserAccount(userName, userStoreManager);
-            log.info("User account " + userName + " locked");
+            String userNameWithoutDomain = UserCoreUtil.removeDomainFromName(userName);
+            UserIdentityManagementUtil.lockUserAccount(userNameWithoutDomain, userStoreManager);
+            log.info("User account " + userNameWithoutDomain + " locked");
         } catch (UserStoreException e) {
             log.error("Error while loading user store", e);
             throw new IdentityMgtServiceException("Unable to lock the account");
@@ -180,16 +116,16 @@ public class UserIdentityManagementAdminService {
     public void unlockUserAccount(String userName, String notificationType) throws IdentityMgtServiceException {
         try {
             UserStoreManager userStoreManager = getUserStore(userName);
-            userName = UserCoreUtil.removeDomainFromName(userName);
-            UserIdentityManagementUtil.unlockUserAccount(userName, userStoreManager);
+            String userNameWithoutDomain = UserCoreUtil.removeDomainFromName(userName);
+            UserIdentityManagementUtil.unlockUserAccount(userNameWithoutDomain, userStoreManager);
             int tenantID = userStoreManager.getTenantId();
             String tenantDomain = IdentityMgtServiceComponent.getRealmService().getTenantManager().getDomain(tenantID);
             if (notificationType != null) {
                 UserRecoveryDTO dto = null;
                 if (MultitenantConstants.SUPER_TENANT_DOMAIN_NAME.equals(tenantDomain)) {
-                    dto = new UserRecoveryDTO(userName);
+                    dto = new UserRecoveryDTO(userNameWithoutDomain);
                 } else {
-                    UserDTO userDTO = new UserDTO(UserCoreUtil.addTenantDomainToEntry(userName, tenantDomain));
+                    UserDTO userDTO = new UserDTO(UserCoreUtil.addTenantDomainToEntry(userNameWithoutDomain, tenantDomain));
                     userDTO.setTenantId(tenantID);
                     dto = new UserRecoveryDTO(userDTO);
                 }
@@ -223,8 +159,8 @@ public class UserIdentityManagementAdminService {
             throws IdentityMgtServiceException {
         try {
             UserStoreManager userStoreManager = getUserStore(userName);
-            userName = UserCoreUtil.removeDomainFromName(userName);
-            userStoreManager.updateCredentialByAdmin(userName, newPassword);
+            String userNameWithoutDomain = UserCoreUtil.removeDomainFromName(userName);
+            userStoreManager.updateCredentialByAdmin(userNameWithoutDomain, newPassword);
         } catch (UserStoreException e) {
             log.error("Error while resetting the password", e);
             throw new IdentityMgtServiceException("Unable reset the password");
@@ -241,11 +177,39 @@ public class UserIdentityManagementAdminService {
     public UserChallengesDTO[] getChallengeQuestionsOfUser(String userName)
             throws IdentityMgtServiceException {
 
+        int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
+        String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+        String loggedInName = CarbonContext.getThreadLocalCarbonContext().getUsername();
+
+        if(userName != null && !userName.equals(loggedInName)){
+            AuthorizationManager authzManager = null;
+            try {
+                authzManager = IdentityMgtServiceComponent.getRealmService().getTenantUserRealm(tenantId).
+                        getAuthorizationManager();
+            } catch (UserStoreException e) {
+                throw new IdentityMgtServiceException("Error occurred while retrieving AuthorizationManager for tenant " +
+                        tenantDomain, e);
+            }
+            boolean isAuthorized = false;
+            try {
+                isAuthorized = authzManager.isUserAuthorized(loggedInName, "/permission/admin/configure/security",
+                        CarbonConstants.UI_PERMISSION_ACTION);
+            } catch (UserStoreException e) {
+                    throw new IdentityMgtServiceException("Error occurred while checking access level for " +
+                            "user " + userName + " in tenant " + tenantDomain, e);
+            }
+            if(!isAuthorized){
+                throw new IdentityMgtServiceException("Unauthorized access!! Possible violation of confidentiality. " +
+                        "User " + loggedInName + " trying to get challenge questions for user " + userName);
+            }
+        } else if (userName == null){
+            userName = loggedInName;
+        }
+
         ChallengeQuestionProcessor processor = IdentityMgtServiceComponent.
                 getRecoveryProcessor().getQuestionProcessor();
 
-        return processor.getChallengeQuestionsOfUser(userName,
-                CarbonContext.getThreadLocalCarbonContext().getTenantId(), true);
+        return processor.getChallengeQuestionsOfUser(userName, tenantId, true);
     }
 
     /**
@@ -348,6 +312,35 @@ public class UserIdentityManagementAdminService {
             throw new IdentityMgtServiceException("no challenges provided by user");
         }
 
+        int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
+        String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+        String loggedInName = CarbonContext.getThreadLocalCarbonContext().getUsername();
+
+        if(userName != null && !userName.equals(loggedInName)){
+            AuthorizationManager authzManager = null;
+            try {
+                authzManager = IdentityMgtServiceComponent.getRealmService().getTenantUserRealm(tenantId).
+                        getAuthorizationManager();
+            } catch (UserStoreException e) {
+                throw new IdentityMgtServiceException("Error occurred while retrieving AuthorizationManager for tenant " +
+                        tenantDomain, e);
+            }
+            boolean isAuthorized = false;
+            try {
+                isAuthorized = authzManager.isUserAuthorized(loggedInName, "/permission/admin/configure/security",
+                        CarbonConstants.UI_PERMISSION_ACTION);
+            } catch (UserStoreException e) {
+                throw new IdentityMgtServiceException("Error occurred while checking access level for " +
+                        "user " + userName + " in tenant " + tenantDomain, e);
+            }
+            if(!isAuthorized){
+                throw new IdentityMgtServiceException("Unauthorized access!! Possible elevation of privilege attack. " +
+                        "User " + loggedInName + " trying to change challenge questions for user " + userName);
+            }
+        } else if (userName == null){
+            userName = loggedInName;
+        }
+
         validateSecurityQuestionDuplicate(challengesDTOs);
 
         ChallengeQuestionProcessor processor = IdentityMgtServiceComponent.
@@ -370,7 +363,7 @@ public class UserIdentityManagementAdminService {
                     throw new IdentityMgtServiceException(errMsg);
                 }
             }
-            processor.setChallengesOfUser(userName, CarbonContext.getThreadLocalCarbonContext().getTenantId(), challengesDTOs);
+            processor.setChallengesOfUser(userName, tenantId, challengesDTOs);
         } catch (IdentityException e) {
             String errorMessage = "Error while persisting user challenges for user : " + userName;
             log.error(errorMessage, e);
@@ -465,7 +458,7 @@ public class UserIdentityManagementAdminService {
 
         org.wso2.carbon.user.core.UserStoreManager userStoreManager = null;
 
-        if (tenantDomain == null || tenantDomain.equals("")) {
+        if (StringUtils.isEmpty(tenantDomain)) {
             tenantDomain = MultitenantConstants.SUPER_TENANT_DOMAIN_NAME;
         }
 
@@ -513,12 +506,13 @@ public class UserIdentityManagementAdminService {
     }
 
     private String getUserStoreDomainName(String userName) {
+        String userNameWithoutDomain = userName;
         int index;
         if ((index = userName.indexOf(CarbonConstants.DOMAIN_SEPARATOR)) >= 0) {
             // remove domain name if exist
-            userName = userName.substring(0, index);
+            userNameWithoutDomain = userName.substring(0, index);
         }
-        return userName;
+        return userNameWithoutDomain;
     }
 
     private void validateSecurityQuestionDuplicate(UserChallengesDTO[] challengesDTOs) throws IdentityMgtServiceException {
