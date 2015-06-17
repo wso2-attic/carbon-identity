@@ -74,6 +74,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class SCIMUserManager implements UserManager {
+    public static final String USER_NAME_STRING = "userName";
     private static Log log = LogFactory.getLog(SCIMUserManager.class);
     private UserStoreManager carbonUM = null;
     private ClaimManager carbonClaimManager = null;
@@ -1238,14 +1239,14 @@ public class SCIMUserManager implements UserManager {
                                 .getStringValue()}));
             }
 
-            if (provisioningObject.getAttribute("userName") != null) {
+            if (provisioningObject.getAttribute(USER_NAME_STRING) != null) {
                 outboundAttributes.put(org.wso2.carbon.identity.application.common.model.ClaimMapping.build(
                                 IdentityProvisioningConstants.USERNAME_CLAIM_URI, null, null, false),
-                        Arrays.asList(new String[]{((SimpleAttribute) provisioningObject.getAttribute("userName"))
+                        Arrays.asList(new String[]{((SimpleAttribute) provisioningObject.getAttribute(USER_NAME_STRING))
                                 .getStringValue()}));
             }
 
-            String domainAwareName = UserCoreUtil.addDomainToName(provisioningObject.getAttribute("userName").getName
+            String domainAwareName = UserCoreUtil.addDomainToName(provisioningObject.getAttribute(USER_NAME_STRING).getName
                     (), domainName);
             ProvisioningEntity provisioningEntity = new ProvisioningEntity(
                     ProvisioningEntityType.USER, domainAwareName, provisioningMethod,

@@ -425,8 +425,6 @@ public class ProvisioningClient implements Runnable {
             }
         } catch (CharonException | IOException | BadRequestException e) {
             logger.error("Error in provisioning 'update user' operation.", e);
-        } catch (CharonException | IOException | BadRequestException e) {
-            logger.error("Error in provisioning 'update user' operation.", e);
         }
     }
 
