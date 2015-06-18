@@ -1,17 +1,19 @@
 /*
- * Copyright 2005-2008 WSO2, Inc. (http://wso2.com)
+ * Copyright (c) 2008, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package org.wso2.carbon.identity.relyingparty.saml;
@@ -28,6 +30,8 @@ import java.net.URL;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.cert.Certificate;
+import java.security.cert.CertificateExpiredException;
+import java.security.cert.CertificateNotYetValidException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -35,25 +39,26 @@ import java.util.List;
 
 public class IssuerCertificateUtil {
 
-    private static Log log = LogFactory.getLog(IssuerCertificateUtil.class);
+    private static final Log log = LogFactory.getLog(IssuerCertificateUtil.class);
+
+    private IssuerCertificateUtil() {
+    }
 
     /**
      * This method checks whether the certificate is present in the certificate store
      */
     public static boolean checkSystemStore(X509Certificate signedCert, KeyStore systemStore)
-            throws Exception {
+            throws RelyingPartyException {
         if (signedCert == null || systemStore == null) {
             throw new RelyingPartyException("invalidInputParams");
         }
 
         // validity period
-        signedCert.checkValidity();
-
         try {
+            signedCert.checkValidity();
             return systemStore.containsAlias(signedCert.getIssuerDN().getName());
-        } catch (KeyStoreException e) {
-            log.error("The keystore has not been initialized", e);
-            throw new RelyingPartyException("errorLoadingTrustedKeystore", e);
+        } catch (CertificateExpiredException | CertificateNotYetValidException | KeyStoreException e) {
+            throw new RelyingPartyException("Error while loading trusted key store", e);
         }
     }
 
@@ -65,8 +70,7 @@ public class IssuerCertificateUtil {
      * @return
      * @throws RelyingPartyException
      */
-    public static boolean isBlackListed(List[] blackList, X509Certificate cert)
-            throws RelyingPartyException {
+    public static boolean isBlackListed(List[] blackList, X509Certificate cert) throws RelyingPartyException {
 
         if (cert == null) {
             throw new RelyingPartyException("noCertInToken");
@@ -92,8 +96,7 @@ public class IssuerCertificateUtil {
      * @return
      * @throws RelyingPartyException
      */
-    public static boolean isWhiteListed(List[] whiteList, X509Certificate cert)
-            throws RelyingPartyException {
+    public static boolean isWhiteListed(List[] whiteList, X509Certificate cert) throws RelyingPartyException {
 
         if (cert == null) {
             throw new RelyingPartyException("noCertInToken");
@@ -177,25 +180,18 @@ public class IssuerCertificateUtil {
         return false;
     }
 
-    private static boolean isInKeyStore(X509Certificate signedCert, KeyStore keyStore)
-            throws Exception {
+    private static boolean isInKeyStore(X509Certificate signedCert, KeyStore keyStore) throws RelyingPartyException {
 
         if (signedCert == null || keyStore == null) {
             throw new RelyingPartyException("invalidInputParams");
         }
 
         // validity period
-        signedCert.checkValidity();
-
         try {
-            if (keyStore.getCertificateAlias(signedCert) != null) {
-                return true;
-            } else {
-                return false;
-            }
-        } catch (KeyStoreException e) {
-            log.error("The keystore has not been initialized", e);
-            throw new RelyingPartyException("errorLoadingTrustedKeystore", e);
+            signedCert.checkValidity();
+            return keyStore.getCertificateAlias(signedCert) != null;
+        } catch (CertificateExpiredException | CertificateNotYetValidException | KeyStoreException e) {
+            throw new RelyingPartyException("Error while loading trusted key store", e);
         }
     }
 

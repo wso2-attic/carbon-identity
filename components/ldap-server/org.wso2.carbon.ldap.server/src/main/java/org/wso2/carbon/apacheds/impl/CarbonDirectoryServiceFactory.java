@@ -1,20 +1,21 @@
 /*
-*  Copyright (c) WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ *
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package org.wso2.carbon.apacheds.impl;
 
 import org.apache.directory.server.constants.ServerDNConstants;
@@ -44,16 +45,16 @@ import java.util.List;
 class CarbonDirectoryServiceFactory implements DirectoryServiceFactory {
 
     /**
-     * The default factory returns stock instances of a apacheds service with smart defaults
-     */
-    public static final DirectoryServiceFactory DEFAULT = new CarbonDirectoryServiceFactory();
-    /**
      * A logger for this class
      */
     private static final Logger LOG = LoggerFactory.getLogger(CarbonDirectoryServiceFactory.class);
     /*Partition cache size is expressed as number of entries*/
     private static final int PARTITION_CACHE_SIZE = 500;
     private static final int INDEX_CACHE_SIZE = 100;
+    /**
+     * The default factory returns stock instances of a apacheds service with smart defaults
+     */
+    public static final DirectoryServiceFactory DEFAULT = new CarbonDirectoryServiceFactory();
     /**
      * The apacheds service.
      */
@@ -99,6 +100,7 @@ class CarbonDirectoryServiceFactory implements DirectoryServiceFactory {
     /**
      * {@inheritDoc}
      */
+    @Override
     public void init(String name)
             throws Exception {
 
@@ -171,8 +173,8 @@ class CarbonDirectoryServiceFactory implements DirectoryServiceFactory {
 
         List<Throwable> errors = schemaManager.getErrors();
 
-        if (errors.size() != 0) {
-            throw new Exception(I18n.err(I18n.ERR_317, ExceptionUtils.printErrors(errors)));
+        if (!errors.isEmpty()) {
+            throw new DirectoryServerException(I18n.err(I18n.ERR_317, ExceptionUtils.printErrors(errors)));
         }
     }
 
@@ -221,6 +223,7 @@ class CarbonDirectoryServiceFactory implements DirectoryServiceFactory {
     /**
      * {@inheritDoc}
      */
+    @Override
     public DirectoryService getDirectoryService()
             throws Exception {
         return directoryService;
@@ -229,6 +232,7 @@ class CarbonDirectoryServiceFactory implements DirectoryServiceFactory {
     /**
      * {@inheritDoc}
      */
+    @Override
     public PartitionFactory getPartitionFactory()
             throws Exception {
         return partitionFactory;

@@ -1,17 +1,17 @@
 /*
  * Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
- * 
- * WSO2 Inc. licenses this file to you under the Apache License,
- * Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License.
- * You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the
+ * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
  * under the License.
  */
@@ -31,10 +31,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 public class OpenIDUserRPDAO {
 
-    protected Log log = LogFactory.getLog(OpenIDUserRPDAO.class);
+    private static final Log log = LogFactory.getLog(OpenIDUserRPDAO.class);
 
     /**
      * Creates a Relying Party and associates it with the User.
@@ -93,7 +94,7 @@ public class OpenIDUserRPDAO {
             }
         } catch (SQLException e) {
             log.error("Failed to store RP:  " + rpdo.getRpUrl() + " for user: " +
-                    rpdo.getUserName() + " Error while accessing the database", e);
+                      rpdo.getUserName() + " Error while accessing the database", e);
         } finally {
             IdentityDatabaseUtil.closeStatement(prepStmt);
             IdentityDatabaseUtil.closeConnection(connection);
@@ -132,11 +133,11 @@ public class OpenIDUserRPDAO {
             } else {
                 // we should create the entry
                 log.debug("Failed to update RP: " + rpdo.getRpUrl() + " for user: " +
-                        rpdo.getUserName() + " Entry does not exist in the databse.");
+                          rpdo.getUserName() + " Entry does not exist in the databse.");
             }
         } catch (SQLException e) {
             log.error("Failed to update RP:  " + rpdo.getRpUrl() + " for user: " +
-                    rpdo.getUserName() + " Error while accessing the database", e);
+                      rpdo.getUserName() + " Error while accessing the database", e);
         } finally {
             IdentityDatabaseUtil.closeStatement(prepStmt);
             IdentityDatabaseUtil.closeConnection(connection);
@@ -168,7 +169,7 @@ public class OpenIDUserRPDAO {
 
         } catch (SQLException e) {
             log.error("Failed to remove RP: " + opdo.getRpUrl() + " of user: " +
-                    opdo.getUserName() + ". Error while accessing the database.");
+                      opdo.getUserName() + ". Error while accessing the database.", e);
         } finally {
             IdentityDatabaseUtil.closeStatement(prepStmt);
             IdentityDatabaseUtil.closeConnection(connection);
@@ -200,13 +201,15 @@ public class OpenIDUserRPDAO {
                 prepStmt.setString(1, userName);
                 prepStmt.setInt(2, IdentityUtil.getTenantIdOFUser(userName));
                 prepStmt.setString(3, rpUrl);
-                return buildUserRPDO(prepStmt.executeQuery(), userName);
+                OpenIDUserRPDO openIDUserRPDO = buildUserRPDO(prepStmt.executeQuery(), userName);
+                connection.commit();
+                return openIDUserRPDO;
             } else {
                 log.debug("RP: " + rpUrl + " of user: " + userName + " not found in the database");
             }
         } catch (SQLException e) {
             log.error("Failed to load RP: " + rpUrl + " for user: " + userName +
-                    ". Error while accessing the database.", e);
+                      ". Error while accessing the database.", e);
         } finally {
             IdentityDatabaseUtil.closeStatement(prepStmt);
             IdentityDatabaseUtil.closeConnection(connection);
@@ -225,7 +228,7 @@ public class OpenIDUserRPDAO {
         PreparedStatement prepStmt = null;
         ResultSet results = null;
         OpenIDUserRPDO[] rpDOs = null;
-        ArrayList<OpenIDUserRPDO> rpdos = new ArrayList<OpenIDUserRPDO>();
+        List<OpenIDUserRPDO> rpdos = new ArrayList<>();
 
         try {
             connection = JDBCPersistenceManager.getInstance().getDBConnection();
@@ -245,7 +248,7 @@ public class OpenIDUserRPDAO {
 
             rpDOs = new OpenIDUserRPDO[rpdos.size()];
             rpDOs = rpdos.toArray(rpDOs);
-
+            connection.commit();
         } catch (SQLException e) {
             log.error("Error while accessing the database to load RPs.", e);
         } finally {
@@ -270,7 +273,7 @@ public class OpenIDUserRPDAO {
         PreparedStatement prepStmt = null;
         ResultSet results = null;
         OpenIDUserRPDO[] rpDOs = null;
-        ArrayList<OpenIDUserRPDO> rpdos = new ArrayList<OpenIDUserRPDO>();
+        List<OpenIDUserRPDO> rpdos = new ArrayList<>();
 
         try {
             connection = JDBCPersistenceManager.getInstance().getDBConnection();
@@ -337,7 +340,7 @@ public class OpenIDUserRPDAO {
             }
         } catch (SQLException e) {
             log.error("Failed to load RP: " + rpUrl + " for user: " + userName +
-                    ". Error while accessing the database.", e);
+                      ". Error while accessing the database.", e);
         } finally {
             IdentityDatabaseUtil.closeStatement(prepStmt);
             IdentityDatabaseUtil.closeConnection(connection);
@@ -374,7 +377,7 @@ public class OpenIDUserRPDAO {
 
         } catch (SQLException e) {
             log.error("Failed to load RP: " + rpDo.getRpUrl() + " for user: " + rpDo.getUserName() +
-                    ". Error while accessing the databse", e);
+                      ". Error while accessing the databse", e);
         } catch (RuntimeException e) {
             log.error("Error while trying to load RP : Username = " + rpDo.getUserName(), e);
         } finally {

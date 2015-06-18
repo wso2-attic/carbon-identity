@@ -1,17 +1,19 @@
 /*
- * Copyright 2004,2005 The Apache Software Foundation.
+ * Copyright (c) 2005, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package org.wso2.carbon.identity.sso.saml.internal;
@@ -49,7 +51,7 @@ import java.util.Scanner;
  * interface="org.wso2.carbon.utils.ConfigurationContextService" cardinality="1..1"
  * policy="dynamic" bind="setConfigurationContextService"
  * unbind="unsetConfigurationContextService"
- * + * @scr.reference name="registry.loader.default"
+ * @scr.reference name="registry.loader.default"
  * interface="org.wso2.carbon.registry.core.service.TenantRegistryLoader"
  * cardinality="1..1" policy="dynamic" bind="setTenantRegistryLoader"
  * unbind="unsetTenantRegistryLoader"
@@ -124,7 +126,7 @@ public class IdentitySAMLSSOServiceComponent {
             if (log.isDebugEnabled()) {
                 log.debug("Failed to load the single logout retry count and interval values." +
                         " Default values for retry count: " + defaultSingleLogoutRetryCount +
-                        " and interval: " + defaultSingleLogoutRetryInterval + " will be used.");
+                        " and interval: " + defaultSingleLogoutRetryInterval + " will be used.", e);
             }
         }
 
@@ -197,15 +199,15 @@ public class IdentitySAMLSSOServiceComponent {
         SAMLSSOUtil.setHttpService(null);
     }
 
-    protected void setTenantRegistryLoader(TenantRegistryLoader tenantRegistryLoader){
-        if(log.isDebugEnabled()){
+    protected void setTenantRegistryLoader(TenantRegistryLoader tenantRegistryLoader) {
+        if (log.isDebugEnabled()) {
             log.debug("Tenant Registry Loader is set in the SAML SSO bundle");
         }
         SAMLSSOUtil.setTenantRegistryLoader(tenantRegistryLoader);
     }
 
-    protected void unsetTenantRegistryLoader(TenantRegistryLoader tenantRegistryLoader){
-        if(log.isDebugEnabled()){
+    protected void unsetTenantRegistryLoader(TenantRegistryLoader tenantRegistryLoader) {
+        if (log.isDebugEnabled()) {
             log.debug("Tenant Registry Loader is unset in the SAML SSO bundle");
         }
         SAMLSSOUtil.setTenantRegistryLoader(null);

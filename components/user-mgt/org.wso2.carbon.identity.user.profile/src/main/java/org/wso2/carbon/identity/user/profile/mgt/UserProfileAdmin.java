@@ -1,20 +1,21 @@
 /*
-*  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 package org.wso2.carbon.identity.user.profile.mgt;
 
 import org.apache.axis2.context.MessageContext;
@@ -55,8 +56,11 @@ import java.util.Map;
 
 public class UserProfileAdmin extends AbstractAdmin {
 
-    private static Log log = LogFactory.getLog(UserProfileAdmin.class);
+    private static final Log log = LogFactory.getLog(UserProfileAdmin.class);
     private static UserProfileAdmin userProfileAdmin = new UserProfileAdmin();
+    private String authorizationFailureMessage = "You are not authorized to perform this action.";
+    String persistenceErrorMsg = "Error when getting an Identity Persistence Store instance.";
+    private String SQLErrorMsg="Error when executing the SQL : ";
 
     public static UserProfileAdmin getInstance() {
         return userProfileAdmin;
@@ -81,7 +85,7 @@ public class UserProfileAdmin extends AbstractAdmin {
         try {
 
             if (!this.isAuthorized(username)) {
-                throw new UserProfileException("You are not authorized to perform this action.");
+                throw new UserProfileException(authorizationFailureMessage);
             }
 
             int indexOne;
@@ -143,7 +147,7 @@ public class UserProfileAdmin extends AbstractAdmin {
         UserRealm realm = null;
         try {
             if (!this.isAuthorized(username)) {
-                throw new UserProfileException("You are not authorized to perform this action.");
+                throw new UserProfileException(authorizationFailureMessage);
             }
 
             if (UserCoreConstants.DEFAULT_PROFILE.equals(profileName)) {
@@ -176,7 +180,7 @@ public class UserProfileAdmin extends AbstractAdmin {
         String profileConfig = null;
         try {
             if (!this.isAuthorized(username)) {
-                throw new UserProfileException("You are not authorized to perform this action.");
+                throw new UserProfileException(authorizationFailureMessage);
             }
 
             UserRealm realm = getUserRealm();
@@ -233,7 +237,7 @@ public class UserProfileAdmin extends AbstractAdmin {
                 String profile = profileNames[i];
                 Map<String, String> valueMap =
                         userStoreManager.getUserClaimValues(username, claimUris, profile);
-                ArrayList<UserFieldDTO> userFields = new ArrayList<UserFieldDTO>();
+                List<UserFieldDTO> userFields = new ArrayList<UserFieldDTO>();
                 for (int j = 0; j < claims.length; j++) {
                     UserFieldDTO data = new UserFieldDTO();
                     Claim claim = claims[j];
@@ -332,11 +336,11 @@ public class UserProfileAdmin extends AbstractAdmin {
         try {
 
             if (username == null || profileName == null) {
-                throw new Exception("Invalid input parameters");
+                throw new UserProfileException("Invalid input parameters");
             }
 
             if (!this.isAuthorized(username)) {
-                throw new UserProfileException("You are not authorized to perform this action.");
+                throw new UserProfileException(authorizationFailureMessage);
             }
 
             UserRealm realm = getUserRealm();
@@ -422,7 +426,7 @@ public class UserProfileAdmin extends AbstractAdmin {
             Map<String, String> valueMap =
                     userStoreManager
                             .getUserClaimValues(username, claimUris, profileName);
-            ArrayList<UserFieldDTO> userFields = new ArrayList<UserFieldDTO>();
+            List<UserFieldDTO> userFields = new ArrayList<UserFieldDTO>();
 
             for (int j = 0; j < claims.length; j++) {
                 UserFieldDTO data = new UserFieldDTO();
@@ -530,15 +534,15 @@ public class UserProfileAdmin extends AbstractAdmin {
     private Claim[] getAllSupportedClaims(UserRealm realm, String dialectUri)
             throws org.wso2.carbon.user.api.UserStoreException {
         ClaimMapping[] claims = null;
-        ArrayList<Claim> reqClaims = null;
+        List<Claim> reqClaims = null;
 
         claims = realm.getClaimManager().getAllSupportClaimMappingsByDefault();
         reqClaims = new ArrayList<Claim>();
         for (int i = 0; i < claims.length; i++) {
-            if (dialectUri.equals(claims[i].getClaim().getDialectURI())) {
-                if (claims[i] != null && claims[i].getClaim().getDisplayTag() != null
-                        && !claims[i].getClaim().getClaimUri().equals(IdentityConstants.CLAIM_PPID))
-                    reqClaims.add((Claim) claims[i].getClaim());
+            if (dialectUri.equals(claims[i].getClaim().getDialectURI()) && (claims[i] != null && claims[i].getClaim().getDisplayTag() != null
+                    && !claims[i].getClaim().getClaimUri().equals(IdentityConstants.CLAIM_PPID))) {
+
+                reqClaims.add((Claim) claims[i].getClaim());
             }
         }
 
@@ -578,26 +582,26 @@ public class UserProfileAdmin extends AbstractAdmin {
 
         try {
             connection = JDBCPersistenceManager.getInstance().getDBConnection();
-            sql = "INSERT INTO IDN_ASSOCIATED_ID (TENANT_ID, IDP_ID, IDP_USER_ID, DOMAIN_ID, USER_NAME) SELECT ?, ?, " +
-                  "?, UM_DOMAIN_ID, ? FROM UM_DOMAIN WHERE UM_DOMAIN_NAME = ? AND UM_TENANT_ID = ?";
+            sql = "INSERT INTO IDN_ASSOCIATED_ID (TENANT_ID, IDP_ID, IDP_USER_ID, DOMAIN_NAME, USER_NAME) " +
+                  "VALUES (? , (SELECT ID FROM IDP WHERE NAME = ? AND TENANT_ID = ? ), ? , ?, ?)";
 
             prepStmt = connection.prepareStatement(sql);
             prepStmt.setInt(1, tenantID);
             prepStmt.setString(2, idpID);
-            prepStmt.setString(3, associatedID);
-            prepStmt.setString(4, tenantAwareUsername);
+            prepStmt.setInt(3, tenantID);
+            prepStmt.setString(4, associatedID);
             prepStmt.setString(5, domainName);
-            prepStmt.setInt(6, tenantID);
+            prepStmt.setString(6, tenantAwareUsername);
+
 
             prepStmt.execute();
             connection.commit();
         } catch (IdentityException e) {
-            String errorMsg = "Error when getting an Identity Persistence Store instance.";
-            log.error(errorMsg, e);
-            throw new UserProfileException(errorMsg, e);
+
+            log.error(persistenceErrorMsg, e);
+            throw new UserProfileException(persistenceErrorMsg, e);
         } catch (SQLException e) {
-            log.error("Error when executing the SQL : " + sql);
-            log.error(e.getMessage(), e);
+            log.error(SQLErrorMsg + sql, e);
             throw new UserProfileException("Error occurred while persisting the federated user ID");
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
@@ -616,15 +620,18 @@ public class UserProfileAdmin extends AbstractAdmin {
 
         try {
             connection = JDBCPersistenceManager.getInstance().getDBConnection();
-            sql = "SELECT UM_DOMAIN_NAME, USER_NAME FROM UM_DOMAIN JOIN IDN_ASSOCIATED_ID ON UM_DOMAIN.UM_DOMAIN_ID =" +
-                  " IDN_ASSOCIATED_ID.DOMAIN_ID WHERE IDN_ASSOCIATED_ID.TENANT_ID = ? AND IDN_ASSOCIATED_ID.IDP_ID = " +
-                  "? And IDN_ASSOCIATED_ID.IDP_USER_ID = ?";
+            sql = "SELECT DOMAIN_NAME, USER_NAME FROM IDN_ASSOCIATED_ID WHERE TENANT_ID = ? AND IDP_ID = (SELECT ID " +
+                  "FROM IDP WHERE NAME = ? AND TENANT_ID = ?) AND IDP_USER_ID = ?";
+
             prepStmt = connection.prepareStatement(sql);
             prepStmt.setInt(1, tenantID);
             prepStmt.setString(2, idpID);
-            prepStmt.setString(3, associatedID);
+            prepStmt.setInt(3, tenantID);
+            prepStmt.setString(4, associatedID);
 
             resultSet = prepStmt.executeQuery();
+            connection.commit();
+
             if (resultSet.next()) {
                 String domainName = resultSet.getString(1);
                 username = resultSet.getString(2);
@@ -635,11 +642,10 @@ public class UserProfileAdmin extends AbstractAdmin {
             }
 
         } catch (IdentityException e) {
-            String errorMsg = "Error when getting an Identity Persistence Store instance.";
-            log.error(errorMsg, e);
-            throw new UserProfileException(errorMsg, e);
+            log.error(persistenceErrorMsg, e);
+            throw new UserProfileException(persistenceErrorMsg, e);
         } catch (SQLException e) {
-            log.error("Error when executing the SQL : " + sql);
+            log.error(SQLErrorMsg + sql);
             log.error(e.getMessage(), e);
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
@@ -661,41 +667,38 @@ public class UserProfileAdmin extends AbstractAdmin {
 
         try {
             connection = JDBCPersistenceManager.getInstance().getDBConnection();
-            sql = "SELECT IDP_ID, IDP_USER_ID FROM IDN_ASSOCIATED_ID WHERE TENANT_ID = ? AND USER_NAME = ? AND " +
-                  "DOMAIN_ID = (SELECT UM_DOMAIN_ID FROM UM_DOMAIN WHERE UM_DOMAIN_NAME = ? AND UM_TENANT_ID= ?)";
+            sql = "SELECT IDP.NAME, IDP_USER_ID FROM IDN_ASSOCIATED_ID JOIN IDP ON IDN_ASSOCIATED_ID.IDP_ID = IDP.ID " +
+                  "WHERE IDN_ASSOCIATED_ID.TENANT_ID = ? AND USER_NAME = ? AND DOMAIN_NAME = ?";
             prepStmt = connection.prepareStatement(sql);
             prepStmt.setInt(1, tenantID);
             prepStmt.setString(2, tenantAwareUsername);
             prepStmt.setString(3, domainName);
-            prepStmt.setInt(4, tenantID);
 
             resultSet = prepStmt.executeQuery();
+            connection.commit();
             while (resultSet.next()) {
                 associatedIDs.add(new AssociatedAccountDTO(resultSet.getString(1), resultSet.getString(2)));
             }
-            if(associatedIDs.size() > 0) {
+            if(!associatedIDs.isEmpty()) {
                 return associatedIDs.toArray(new AssociatedAccountDTO[associatedIDs.size()]);
             } else {
                 return new AssociatedAccountDTO[0];
             }
         } catch (IdentityException e) {
-            String errorMsg = "Error when getting an Identity Persistence Store instance.";
-            log.error(errorMsg, e);
-            throw new UserProfileException(errorMsg, e);
+            log.error(persistenceErrorMsg, e);
+            throw new UserProfileException(persistenceErrorMsg, e);
         } catch (SQLException e) {
-            log.error("Error when executing the SQL : " + sql);
-            log.error(e.getMessage(), e);
+            log.error(SQLErrorMsg + sql, e);
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
         }
-        return null;
+        return new AssociatedAccountDTO[0];
     }
 
     public void removeAssociateID(String idpID, String associatedID) throws UserProfileException {
 
         Connection connection = null;
         PreparedStatement prepStmt = null;
-        ResultSet resultSet;
         String sql = null;
         int tenantID = CarbonContext.getThreadLocalCarbonContext().getTenantId();
         String tenantAwareUsername = MultitenantUtils.getTenantAwareUsername(CarbonContext.getThreadLocalCarbonContext()
@@ -706,25 +709,23 @@ public class UserProfileAdmin extends AbstractAdmin {
         try {
             connection = JDBCPersistenceManager.getInstance().getDBConnection();
 
-            sql = "DELETE FROM IDN_ASSOCIATED_ID  WHERE TENANT_ID = ? AND IDP_ID = ? AND IDP_USER_ID = ? AND " +
-                  "USER_NAME = ? AND DOMAIN_ID = (SELECT UM_DOMAIN_ID FROM UM_DOMAIN WHERE UM_DOMAIN_NAME = ? AND " +
-                  "UM_TENANT_ID= ?)";
+            sql = "DELETE FROM IDN_ASSOCIATED_ID WHERE TENANT_ID = ? AND IDP_ID = (SELECT ID FROM IDP WHERE NAME = ? " +
+                  "AND TENANT_ID = ? ) AND IDP_USER_ID = ? AND USER_NAME = ? AND DOMAIN_NAME = ?";
             prepStmt = connection.prepareStatement(sql);
             prepStmt.setInt(1, tenantID);
             prepStmt.setString(2, idpID);
-            prepStmt.setString(3, associatedID);
-            prepStmt.setString(4, tenantAwareUsername);
-            prepStmt.setString(5, domainName);
-            prepStmt.setInt(6, tenantID);
+            prepStmt.setInt(3, tenantID);
+            prepStmt.setString(4, associatedID);
+            prepStmt.setString(5, tenantAwareUsername);
+            prepStmt.setString(6, domainName);
 
             prepStmt.executeUpdate();
             connection.commit();
         } catch (IdentityException e) {
-            String errorMsg = "Error when getting an Identity Persistence Store instance.";
-            log.error(errorMsg, e);
-            throw new UserProfileException(errorMsg, e);
+            log.error(persistenceErrorMsg, e);
+            throw new UserProfileException(persistenceErrorMsg, e);
         } catch (SQLException e) {
-            log.error("Error when executing the SQL : " + sql);
+            log.error(SQLErrorMsg + sql);
             log.error(e.getMessage(), e);
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);

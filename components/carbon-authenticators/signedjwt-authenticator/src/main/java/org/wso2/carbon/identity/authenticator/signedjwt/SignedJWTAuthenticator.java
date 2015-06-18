@@ -1,22 +1,20 @@
 /*
- *  Copyright (c) WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- *  WSO2 Inc. licenses this file to you under the Apache License,
- *  Version 2.0 (the "License"); you may not use this file except
- *  in compliance with the License.
- *  You may obtain a copy of the License at
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *  http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing,
- *  software distributed under the License is distributed on an
- *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *  KIND, either express or implied.  See the License for the
- *  specific language governing permissions and limitations
- *  under the License.
- *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
-
 package org.wso2.carbon.identity.authenticator.signedjwt;
 
 import com.nimbusds.jose.JWSVerifier;
@@ -111,10 +109,10 @@ public class SignedJWTAuthenticator implements CarbonServerAuthenticator {
                         .getRealmService().getTenantManager();
                 int tenantId = tenantManager.getTenantId(tenantDomain);
 
-	            if(tenantId == -1){
-		            log.error("tenantDomain is not valid. username : " + userName + ", tenantDomain : " + tenantDomain);
-		            return false;
-	            }
+                if (tenantId == -1) {
+                    log.error("tenantDomain is not valid. username : " + userName + ", tenantDomain : " + tenantDomain);
+                    return false;
+                }
 
                 handleAuthenticationStarted(tenantId);
 
@@ -131,7 +129,8 @@ public class SignedJWTAuthenticator implements CarbonServerAuthenticator {
                     handleAuthenticationCompleted(tenantId, true);
                     return true;
                 } else {
-                    log.error("Authentication Request is rejected. User does not exists in UserStore");
+                    log.error("Authentication Request is rejected. User : " + userName
+                            + " does not exists in tenant : " + tenantDomain + " 's UserStore");
                     CarbonAuthenticationUtil
                             .onFailedAdminLogin(request.getSession(), userName, tenantId,
                                     "Signed JWT Authentication",
@@ -151,10 +150,8 @@ public class SignedJWTAuthenticator implements CarbonServerAuthenticator {
         HttpServletRequest request =
                 (HttpServletRequest) msgCxt.getProperty(HTTPConstants.MC_HTTP_SERVLETREQUEST);
         String authorizationHeader = request.getHeader(HTTPConstants.HEADER_AUTHORIZATION);
-        if (log.isDebugEnabled()) {
-            if (authorizationHeader != null) {
-                log.debug("Authorization header is not null");
-            }
+        if (log.isDebugEnabled() && (authorizationHeader != null)) {
+            log.debug("Authorization header found in the request");
         }
         if (authorizationHeader != null) {
             String authType = getAuthType(authorizationHeader);
@@ -183,6 +180,9 @@ public class SignedJWTAuthenticator implements CarbonServerAuthenticator {
             splitValues = authorizationHeader.trim().split(" ");
         }
         if (splitValues == null || splitValues.length == 0) {
+            if (log.isDebugEnabled()) {
+                log.debug("Authorization Type is not defined. Hence returning null");
+            }
             return null;
         }
         return splitValues[0].trim();
@@ -195,7 +195,7 @@ public class SignedJWTAuthenticator implements CarbonServerAuthenticator {
             return new String(decodedBytes);
         } else {
             if (log.isDebugEnabled()) {
-                log.debug("Error decoding authorization header. Could not retrieve user name and password.");
+                log.debug("Error decoding authorization header.");
             }
             return null;
         }

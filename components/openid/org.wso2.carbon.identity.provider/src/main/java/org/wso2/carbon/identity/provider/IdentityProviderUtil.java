@@ -1,24 +1,24 @@
-/*                                                                             
- * Copyright 2005,2006 WSO2, Inc. http://www.wso2.org
- *                                                                             
- * Licensed under the Apache License, Version 2.0 (the "License");             
- * you may not use this file except in compliance with the License.            
- * You may obtain a copy of the License at                                     
- *                                                                             
- *      http://www.apache.org/licenses/LICENSE-2.0                             
- *                                                                             
- * Unless required by applicable law or agreed to in writing, software         
- * distributed under the License is distributed on an "AS IS" BASIS,           
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.    
- * See the License for the specific language governing permissions and         
- * limitations under the License.                                              
+/*
+ * Copyright (c) 2005-2006, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 package org.wso2.carbon.identity.provider;
 
 import org.apache.axiom.om.OMElement;
 import org.apache.axis2.context.ConfigurationContext;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.rahas.RahasData;
 import org.w3c.dom.Element;
 import org.wso2.carbon.identity.base.IdentityConstants;
@@ -26,11 +26,14 @@ import org.wso2.carbon.utils.ServerConstants;
 import org.wso2.carbon.utils.WSO2Constants;
 
 import javax.xml.namespace.QName;
+import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -39,9 +42,10 @@ import java.util.Map;
 
 public class IdentityProviderUtil {
 
-    private static Log log = LogFactory.getLog(IdentityProviderUtil.class);
-
     private static boolean intial;
+
+    private IdentityProviderUtil() {
+    }
 
     public static boolean isIntial() {
         return intial;
@@ -51,35 +55,31 @@ public class IdentityProviderUtil {
         IdentityProviderUtil.intial = intial;
     }
 
-    public static OMElement createRequestedDisplayToken(OMElement parent,
-                                                        GenericIdentityProviderData data) {
+    public static OMElement createRequestedDisplayToken(OMElement parent, GenericIdentityProviderData data) {
 
         return createOMElement(parent, IdentityConstants.NS,
-                IdentityConstants.LocalNames.REQUESTED_DISPLAY_TOKEN, IdentityConstants.PREFIX);
+                               IdentityConstants.LocalNames.REQUESTED_DISPLAY_TOKEN, IdentityConstants.PREFIX);
     }
 
     public static OMElement createDisplayToken(OMElement parent, GenericIdentityProviderData data) {
 
-        OMElement displayElem = createOMElement(parent, IdentityConstants.NS,
-                IdentityConstants.LocalNames.DISPLAY_TOKEN, IdentityConstants.PREFIX);
-
-        return displayElem;
-
+        return createOMElement(parent, IdentityConstants.NS,
+                               IdentityConstants.LocalNames.DISPLAY_TOKEN, IdentityConstants.PREFIX);
     }
 
     public static OMElement createDisplayClaim(OMElement parent, String displayTag,
                                                String displayValue, String uri) {
         OMElement claimElem = createOMElement(parent, IdentityConstants.NS,
-                IdentityConstants.LocalNames.DISPLAY_CLAIM, IdentityConstants.PREFIX);
+                                              IdentityConstants.LocalNames.DISPLAY_CLAIM, IdentityConstants.PREFIX);
 
         claimElem.addAttribute("Uri", uri, null);
 
         OMElement tagElem = createOMElement(claimElem, IdentityConstants.NS,
-                IdentityConstants.LocalNames.DISPLAY_TAG, IdentityConstants.PREFIX);
+                                            IdentityConstants.LocalNames.DISPLAY_TAG, IdentityConstants.PREFIX);
         tagElem.setText(displayTag);
 
         OMElement valElem = createOMElement(claimElem, IdentityConstants.NS,
-                IdentityConstants.LocalNames.DISPLAY_VALUE, IdentityConstants.PREFIX);
+                                            IdentityConstants.LocalNames.DISPLAY_VALUE, IdentityConstants.PREFIX);
         valElem.setText(displayValue);
 
         return claimElem;
@@ -88,7 +88,7 @@ public class IdentityProviderUtil {
     public static OMElement createOpenIdToken(OMElement parent, GenericIdentityProviderData data) {
 
         return createOMElement(parent, IdentityConstants.OpenId.OPENID_URL,
-                IdentityConstants.LocalNames.OPEN_ID_TOKEN, IdentityConstants.OpenId.PREFIX);
+                               IdentityConstants.LocalNames.OPEN_ID_TOKEN, IdentityConstants.OpenId.PREFIX);
     }
 
     private static OMElement createOMElement(OMElement parent, String ns, String ln, String prefix) {
@@ -97,36 +97,29 @@ public class IdentityProviderUtil {
 
     }
 
-    public static String dumpInfoCard(ConfigurationContext configurationContext, Element content) {
+    public static String dumpInfoCard(ConfigurationContext configurationContext, Element content)
+            throws IdentityProviderException {
         Map fileResourcesMap = null;
         String workdir = null;
         String uuid = null;
-        File infoCard = null;
-        OutputStream outStream = null;
         String filePath = null;
 
         workdir = (String) configurationContext.getProperty(ServerConstants.WORK_DIR);
         uuid = String.valueOf(System.currentTimeMillis() + Math.random()) + ".crd";
-        infoCard = new File(workdir + File.separator + "dump_cards");
-
-        if (!infoCard.exists()) {
-            if (!infoCard.mkdirs()) {
-
-            }
-        }
 
         filePath = workdir + File.separator + "dump_cards" + File.separator + uuid;
 
-        try {
-            outStream = new FileOutputStream(filePath);
-            TransformerFactory.newInstance().newTransformer().transform(new DOMSource(content),
-                    new StreamResult(outStream));
-            outStream.flush();
-            outStream.close();
-        } catch (Exception e) {
-            // TODO:
-            e.printStackTrace();
-            return null;
+        try (OutputStream outStream = new FileOutputStream(filePath);) {
+            try {
+                TransformerFactory.newInstance().newTransformer().transform(new DOMSource(content),
+                                                                            new StreamResult(outStream));
+            } catch (TransformerException e) {
+                throw new IdentityProviderException("Failed to transform XML content.", e);
+            }
+        } catch (FileNotFoundException e) {
+            throw new IdentityProviderException("Invalid file path.", e);
+        } catch (IOException e) {
+            throw new IdentityProviderException("Failed to write to the file path.", e);
         }
 
         fileResourcesMap = (Map) configurationContext.getProperty(WSO2Constants.FILE_RESOURCE_MAP);

@@ -1,52 +1,51 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements. See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * 
+ * Copyright (c) 2013, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 package org.wso2.carbon.identity.oauth.endpoint.user.impl;
 
 import org.apache.amber.oauth2.common.exception.OAuthSystemException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.identity.oauth.endpoint.user.UserInfoAccessTokenValidator;
-import org.wso2.carbon.identity.oauth.endpoint.user.UserInfoClaimRetriever;
-import org.wso2.carbon.identity.oauth.endpoint.user.UserInfoRequestValidator;
-import org.wso2.carbon.identity.oauth.endpoint.user.UserInfoResponseBuilder;
 import org.wso2.carbon.identity.oauth.endpoint.util.EndpointUtil;
+import org.wso2.carbon.identity.oauth.user.UserInfoAccessTokenValidator;
+import org.wso2.carbon.identity.oauth.user.UserInfoClaimRetriever;
+import org.wso2.carbon.identity.oauth.user.UserInfoRequestValidator;
+import org.wso2.carbon.identity.oauth.user.UserInfoResponseBuilder;
 
 /**
- * A singleton object halding configurations
+ * A singleton object holding configurations
  */
 public class UserInfoEndpointConfig {
 
     private static Log log = LogFactory.getLog(UserInfoEndpointConfig.class);
     private static UserInfoEndpointConfig config = new UserInfoEndpointConfig();
-    private static UserInfoRequestValidator requestValidator = null;
-    private static UserInfoAccessTokenValidator accessTokenValidator = null;
-    private static UserInfoResponseBuilder responseBuilder = null;
-    private static UserInfoClaimRetriever claimRetriever = null;
+    private UserInfoRequestValidator requestValidator;
+    private UserInfoAccessTokenValidator accessTokenValidator;
+    private UserInfoResponseBuilder responseBuilder;
+    private UserInfoClaimRetriever claimRetriever;
 
     private UserInfoEndpointConfig() {
-        log.debug("Initializing the UserInfoEndpointConfig singlton");
-        initUserInfoEndpointConfig();
+        if (log.isDebugEnabled()){
+            log.debug("Initializing the UserInfoEndpointConfig singleton");
+        }
     }
 
     public static UserInfoEndpointConfig getInstance() {
         return config;
-    }
-
-    private void initUserInfoEndpointConfig() {
     }
 
     public UserInfoRequestValidator getUserInfoRequestValidator() throws OAuthSystemException {
@@ -59,11 +58,7 @@ public class UserInfoEndpointConfig {
                                 this.getClass().getClassLoader()
                                         .loadClass(requestValidatorClassName);
                         requestValidator = (UserInfoRequestValidator) requestValidatorClass.newInstance();
-                    } catch (ClassNotFoundException e) {
-                        log.error("Error while loading configuration", e);
-                    } catch (InstantiationException e) {
-                        log.error("Error while loading configuration", e);
-                    } catch (IllegalAccessException e) {
+                    } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
                         log.error("Error while loading configuration", e);
                     }
                 }
@@ -71,6 +66,7 @@ public class UserInfoEndpointConfig {
         }
         return requestValidator;
     }
+
 
     public UserInfoAccessTokenValidator getUserInfoAccessTokenValidator() {
         if (accessTokenValidator == null) {

@@ -1,20 +1,22 @@
 /*
-*  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+
 package org.wso2.carbon.um.ws.service.dao;
 
 import java.util.Date;
@@ -97,27 +99,45 @@ public class RealmConfigurationDTO {
     }
 
     public RealmPropertyDTO[] getUserStoreProperties() {
-        return userStoreProperties;
+
+        if (userStoreProperties != null) {
+            return userStoreProperties.clone();
+        }
+        return new RealmPropertyDTO[0];
     }
 
     public void setUserStoreProperties(RealmPropertyDTO[] userStoreProperties) {
-        this.userStoreProperties = userStoreProperties;
+        if (userStoreProperties != null) {
+            this.userStoreProperties = userStoreProperties.clone();
+
+        }
     }
 
     public RealmPropertyDTO[] getAuthzProperties() {
-        return authzProperties;
+        if (authzProperties != null) {
+            return authzProperties.clone();
+        }
+        return new RealmPropertyDTO[0];
     }
 
     public void setAuthzProperties(RealmPropertyDTO[] authzProperties) {
-        this.authzProperties = authzProperties;
+        if (authzProperties != null) {
+            this.authzProperties = authzProperties.clone();
+        }
     }
 
     public RealmPropertyDTO[] getRealmProperties() {
-        return realmProperties;
+        if (realmProperties != null) {
+            return realmProperties.clone();
+        }
+        return new RealmPropertyDTO[0];
     }
 
     public void setRealmProperties(RealmPropertyDTO[] realmProperties) {
-        this.realmProperties = realmProperties;
+        if (realmProperties != null) {
+            this.realmProperties = realmProperties.clone();
+        }
+
     }
 
     public boolean isReadOnly() {
@@ -137,11 +157,18 @@ public class RealmConfigurationDTO {
     }
 
     public Date getPersistedTimestamp() {
-        return persistedTimestamp;
+
+        if (persistedTimestamp != null) {
+            return new Date(persistedTimestamp.getTime());
+        }
+
+        return new Date();
     }
 
     public void setPersistedTimestamp(Date persistedTimestamp) {
-        this.persistedTimestamp = persistedTimestamp;
+        if (persistedTimestamp != null) {
+            this.persistedTimestamp = new Date(persistedTimestamp.getTime());
+        }
     }
 
     public int getMaxUserListLength() {

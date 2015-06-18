@@ -1,12 +1,12 @@
 /*
- *  Copyright (c) WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- *  WSO2 Inc. licenses this file to you under the Apache License,
- *  Version 2.0 (the "License"); you may not use this file except
- *  in compliance with the License.
- *  You may obtain a copy of the License at
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -14,7 +14,9 @@
  * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
  * under the License.
+ *
  */
+
 package org.wso2.carbon.identity.entitlement.filter;
 
 import org.apache.axiom.util.base64.Base64Utils;
@@ -28,6 +30,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.authenticator.stub.AuthenticationAdminStub;
 import org.wso2.carbon.authenticator.stub.LoginAuthenticationExceptionException;
+import org.wso2.carbon.identity.entitlement.filter.exception.EntitlementCacheUpdateServletDataHolder;
 import org.wso2.carbon.identity.entitlement.filter.exception.EntitlementCacheUpdateServletException;
 
 import javax.servlet.RequestDispatcher;
@@ -37,6 +40,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 
@@ -44,61 +48,69 @@ public class EntitlementCacheUpdateServlet extends HttpServlet {
 
     private static final Log log = LogFactory.getLog(EntitlementCacheUpdateServlet.class);
 
-    private String httpsPort;
-    private ConfigurationContext configCtx;
-    private String remoteServiceUserName;
-    private String remoteServicePassword;
-    private String remoteServiceUrl;
-    private String authCookie;
-    private ServletConfig servletConfig;
-    private String authentication;
-    private String authenticationPage;
-    private String authenticationPageURL;
 
+    private static final String USERNAME_STRING = "username";
+    private static final String PSWD_STRING = "password";
+    private static final String NULL_STRING = "null";
+    private static final String ADMIN = "AuthenticationAdmin";
+    private static final String UPDATE_CACHE = "/updateCacheAuth.do";
+    private static final String SUBJECT_SCOPE = "subjectScope";
+    private static final String UPDATE_CACHE_HTML = "/updateCache.html";
+
+    @Override
     public void init(ServletConfig config) throws EntitlementCacheUpdateServletException {
 
-        servletConfig = config;
+        EntitlementCacheUpdateServletDataHolder.getInstance().setServletConfig(config);
         try {
-            configCtx = ConfigurationContextFactory.createConfigurationContextFromFileSystem(null, null);
+            EntitlementCacheUpdateServletDataHolder.getInstance().setConfigCtx(ConfigurationContextFactory
+                    .createConfigurationContextFromFileSystem(null, null));
         } catch (AxisFault e) {
             log.error("Error while initializing Configuration Context", e);
             throw new EntitlementCacheUpdateServletException("Error while initializing Configuration Context", e);
 
         }
-        httpsPort = config.getInitParameter(EntitlementConstants.HTTPS_PORT);
-        authentication = config.getInitParameter(EntitlementConstants.AUTHENTICATION);
-        remoteServiceUrl = config.getServletContext().getInitParameter(EntitlementConstants.REMOTE_SERVICE_URL);
-        remoteServiceUserName = config.getServletContext().getInitParameter(EntitlementConstants.USERNAME);
-        remoteServicePassword = config.getServletContext().getInitParameter(EntitlementConstants.PASSWORD);
-        authenticationPage = config.getInitParameter(EntitlementConstants.AUTHENTICATION_PAGE);
-        authenticationPageURL = config.getInitParameter(EntitlementConstants.AUTHENTICATION_PAGE_URL);
+
+        EntitlementCacheUpdateServletDataHolder.getInstance().setHttpsPort(config.getInitParameter(EntitlementConstants.HTTPS_PORT));
+        EntitlementCacheUpdateServletDataHolder.getInstance().setAuthentication(config.getInitParameter(EntitlementConstants.AUTHENTICATION));
+        EntitlementCacheUpdateServletDataHolder.getInstance().setRemoteServiceUrl(config.getServletContext().getInitParameter(EntitlementConstants.REMOTE_SERVICE_URL));
+        EntitlementCacheUpdateServletDataHolder.getInstance().setRemoteServiceUserName(config.getServletContext().getInitParameter(EntitlementConstants.USERNAME));
+        EntitlementCacheUpdateServletDataHolder.getInstance().setRemoteServicePassword(config.getServletContext().getInitParameter(EntitlementConstants.PASSWORD));
+        EntitlementCacheUpdateServletDataHolder.getInstance().setAuthenticationPage(config.getInitParameter(EntitlementConstants.AUTHENTICATION_PAGE));
+        EntitlementCacheUpdateServletDataHolder.getInstance().setAuthenticationPageURL(config.getInitParameter(EntitlementConstants.AUTHENTICATION_PAGE_URL));
+
 
     }
 
-
+    @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws EntitlementCacheUpdateServletException {
         doPost(req, resp);
     }
 
+    @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws EntitlementCacheUpdateServletException {
 
         if (!req.isSecure()) {
             redirectToHTTPS(req, resp);
-        } else if (req.getParameter("username") != null && req.getParameter("password") != null
-                && !req.getParameter("username").equals("null") && !req.getParameter("password").equals("null")) {
+        } else if (req.getParameter(USERNAME_STRING) != null && req.getParameter(PSWD_STRING) != null
+                && !NULL_STRING.equals(req.getParameter(USERNAME_STRING)) && !NULL_STRING.equals(req.getParameter(PSWD_STRING)
+        )) {
             doAuthentication(req, resp);
         } else {
-            if (req.getParameter("username") == null) {
-                log.info("\'username\' parameter not available in request. Redirecting to " + authenticationPageURL);
+            if (req.getParameter(USERNAME_STRING) == null) {
+                log.info("\'username\' parameter not available in request. Redirecting to " +
+                        EntitlementCacheUpdateServletDataHolder.getInstance().getAuthenticationPageURL());
             }
-            if (req.getParameter("password") == null) {
-                log.info("\'password\' parameter not available in request. Redirecting to " + authenticationPageURL);
+            if (req.getParameter(PSWD_STRING) == null) {
+                log.info("\'password\' parameter not available in request. Redirecting to " +
+                        EntitlementCacheUpdateServletDataHolder.getInstance().getAuthenticationPageURL());
             }
-            if (req.getParameter("username") != null && req.getParameter("username").equals("null")) {
-                log.info("\'username\' is empty in request. Redirecting to " + authenticationPageURL);
+            if (req.getParameter(USERNAME_STRING) != null && NULL_STRING.equals(req.getParameter(USERNAME_STRING))) {
+                log.info("\'username\' is empty in request. Redirecting to " + EntitlementCacheUpdateServletDataHolder
+                        .getInstance().getAuthenticationPageURL());
             }
-            if (req.getParameter("password") != null && req.getParameter("password").equals("null")) {
-                log.info("\'password\' is empty in request. Redirecting to " + authenticationPageURL);
+            if (req.getParameter(PSWD_STRING) != null && NULL_STRING.equals(req.getParameter(PSWD_STRING))) {
+                log.info("\'password\' is empty in request. Redirecting to " +
+                        EntitlementCacheUpdateServletDataHolder.getInstance().getAuthenticationPageURL());
             }
             showAuthPage(req, resp);
         }
@@ -108,11 +120,17 @@ public class EntitlementCacheUpdateServlet extends HttpServlet {
             throws EntitlementCacheUpdateServletException {
 
         boolean isAuthenticated = false;
+        String authentication = EntitlementCacheUpdateServletDataHolder.getInstance().getAuthentication();
+        String remoteServiceUrl = EntitlementCacheUpdateServletDataHolder.getInstance().getRemoteServiceUrl();
+        ConfigurationContext configCtx = EntitlementCacheUpdateServletDataHolder.getInstance().getConfigCtx();
+        String authCookie = EntitlementCacheUpdateServletDataHolder.getInstance().getAuthCookie();
+        String remoteServiceUserName = EntitlementCacheUpdateServletDataHolder.getInstance().getRemoteServiceUserName();
+        String remoteServicePassword = EntitlementCacheUpdateServletDataHolder.getInstance().getRemoteServicePassword();
 
         if (authentication.equals(EntitlementConstants.WSO2_IS)) {
 
             AuthenticationAdminStub authStub;
-            String authenticationAdminServiceURL = remoteServiceUrl + "AuthenticationAdmin";
+            String authenticationAdminServiceURL = remoteServiceUrl + ADMIN;
             try {
                 authStub = new AuthenticationAdminStub(configCtx, authenticationAdminServiceURL);
                 ServiceClient client = authStub._getServiceClient();
@@ -120,10 +138,14 @@ public class EntitlementCacheUpdateServlet extends HttpServlet {
                 options.setManageSession(true);
                 options.setProperty(org.apache.axis2.transport.http.HTTPConstants.COOKIE_STRING, authCookie);
                 isAuthenticated = authStub.login(userName, password, remoteIp);
-                authCookie = (String) authStub._getServiceClient().getServiceContext()
-                        .getProperty(HTTPConstants.COOKIE_STRING);
+                EntitlementCacheUpdateServletDataHolder.getInstance().setAuthCookie((String) authStub._getServiceClient()
+                        .getServiceContext()
+                        .getProperty(HTTPConstants.COOKIE_STRING));
             } catch (LoginAuthenticationExceptionException e) {
                 log.info(userName + " not authenticated to perform entitlement query to perform cache update");
+                if (log.isDebugEnabled()) {
+                    log.debug("Login Authentication Exception Occurred  ", e);
+                }
             } catch (Exception e) {
                 throw new EntitlementCacheUpdateServletException("Error while trying to authenticate" +
                         " with AuthenticationAdmin", e);
@@ -149,6 +171,9 @@ public class EntitlementCacheUpdateServlet extends HttpServlet {
         try {
             return new Scanner(is).useDelimiter("\\A").next();
         } catch (NoSuchElementException e) {
+            if (log.isDebugEnabled()) {
+                log.debug("No such element: ", e);
+            }
             return "";
         }
     }
@@ -157,7 +182,8 @@ public class EntitlementCacheUpdateServlet extends HttpServlet {
         String serverName = req.getServerName();
         String contextPath = req.getContextPath();
         String servletPath = req.getServletPath();
-        String redirectURL = "https://" + serverName + ":" + httpsPort + contextPath
+        String redirectURL = "https://" + serverName + ":" + EntitlementCacheUpdateServletDataHolder.getInstance().getHttpsPort() +
+                contextPath
                 + servletPath;
         try {
             resp.sendRedirect(redirectURL);
@@ -168,19 +194,21 @@ public class EntitlementCacheUpdateServlet extends HttpServlet {
     }
 
     private void doAuthentication(HttpServletRequest req, HttpServletResponse resp) throws EntitlementCacheUpdateServletException {
-        String username = req.getParameter("username");
-        String password = req.getParameter("password");
+        String username = req.getParameter(USERNAME_STRING);
+        String password = req.getParameter(PSWD_STRING);
         String remoteIp = req.getServerName();
 
         if (authenticate(username, password, remoteIp)) {
 
-            RequestDispatcher requestDispatcher = req.getRequestDispatcher("/updateCacheAuth.do");
-            String subjectScope = servletConfig.getServletContext().getInitParameter("subjectScope");
-            String subjectAttributeName = servletConfig.getServletContext().getInitParameter("subjectAttributeName");
+            RequestDispatcher requestDispatcher = req.getRequestDispatcher(UPDATE_CACHE);
+            String subjectScope = EntitlementCacheUpdateServletDataHolder.getInstance().getServletConfig().getServletContext()
+                    .getInitParameter(SUBJECT_SCOPE);
+            String subjectAttributeName = EntitlementCacheUpdateServletDataHolder.getInstance().getServletConfig().getServletContext()
+                    .getInitParameter("subjectAttributeName");
 
             if (subjectScope.equals(EntitlementConstants.REQUEST_PARAM)) {
 
-                requestDispatcher = req.getRequestDispatcher("/updateCacheAuth.do?" + subjectAttributeName + "=" + username);
+                requestDispatcher = req.getRequestDispatcher(UPDATE_CACHE + "?" + subjectAttributeName + "=" + username);
 
             } else if (subjectScope.equals(EntitlementConstants.REQUEST_ATTIBUTE)) {
 
@@ -192,7 +220,7 @@ public class EntitlementCacheUpdateServlet extends HttpServlet {
 
             } else {
 
-                resp.setHeader("Authorization", Base64Utils.encode((username + ":" + password).getBytes()));
+                resp.setHeader("Authorization", Base64Utils.encode((username + ":" + password).getBytes(Charset.forName("UTF-8"))));
             }
 
             try {
@@ -208,9 +236,9 @@ public class EntitlementCacheUpdateServlet extends HttpServlet {
     }
 
     private void showAuthPage(HttpServletRequest req, HttpServletResponse resp) throws EntitlementCacheUpdateServletException {
-        if (authenticationPage.equals("default")) {
+        if ("default".equals(EntitlementCacheUpdateServletDataHolder.getInstance().getAuthenticationPage())) {
 
-            InputStream is = getClass().getResourceAsStream("/updateCache.html");
+            InputStream is = getClass().getResourceAsStream(UPDATE_CACHE_HTML);
             String updateCache = convertStreamToString(is);
             try {
                 resp.getWriter().print(updateCache);
@@ -219,19 +247,23 @@ public class EntitlementCacheUpdateServlet extends HttpServlet {
                 throw new EntitlementCacheUpdateServletException("Error occurred while writing"
                         + " /updateCache.html page to OutputStream" + e);
             }
-        } else if (authenticationPage.equals("custom")) {
+        } else if ("custom".equals(EntitlementCacheUpdateServletDataHolder.getInstance().getAuthenticationPage())) {
 
             try {
-                req.getRequestDispatcher(authenticationPageURL).forward(req, resp);
+                req.getRequestDispatcher(EntitlementCacheUpdateServletDataHolder.getInstance().getAuthenticationPageURL()).forward(req, resp);
             } catch (Exception e) {
-                log.error("Error occurred while dispatching request to " + authenticationPageURL, e);
+                log.error("Error occurred while dispatching request to " + EntitlementCacheUpdateServletDataHolder
+                                .getInstance().getAuthenticationPageURL(),
+                        e);
                 throw new EntitlementCacheUpdateServletException("Error occurred while dispatching"
-                        + " request to " + authenticationPageURL, e);
+                        + " request to " + EntitlementCacheUpdateServletDataHolder.getInstance().getAuthenticationPageURL(), e);
             }
 
         } else {
 
-            throw new EntitlementCacheUpdateServletException(authenticationPage + " is an invalid"
+            throw new EntitlementCacheUpdateServletException(EntitlementCacheUpdateServletDataHolder.getInstance().getAuthenticationPage()
+                    + " is an " +
+                    "invalid"
                     + " configuration for authenticationPage parameter in web.xml. Valid"
                     + " configurations are 'default' and 'custom'");
 

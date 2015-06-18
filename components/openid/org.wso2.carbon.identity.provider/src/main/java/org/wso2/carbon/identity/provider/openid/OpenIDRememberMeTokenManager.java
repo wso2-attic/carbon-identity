@@ -1,20 +1,20 @@
 /*
-*  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ * Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package org.wso2.carbon.identity.provider.openid;
 
 import org.apache.commons.logging.Log;
@@ -22,6 +22,7 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.base.IdentityConstants;
 import org.wso2.carbon.identity.core.model.OpenIDRememberMeDO;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
+import org.wso2.carbon.identity.provider.IdentityProviderException;
 import org.wso2.carbon.identity.provider.openid.cache.OpenIDRememberMeTokenCache;
 import org.wso2.carbon.identity.provider.openid.dao.OpenIDRememberMeTokenDAO;
 
@@ -35,7 +36,7 @@ import java.util.Date;
  */
 public class OpenIDRememberMeTokenManager {
 
-    private static Log log = LogFactory.getLog(OpenIDRememberMeTokenManager.class);
+    private static final Log log = LogFactory.getLog(OpenIDRememberMeTokenManager.class);
     private static OpenIDRememberMeTokenCache cache = OpenIDRememberMeTokenCache.getCacheInstance();
     private OpenIDRememberMeTokenDAO dao;
 
@@ -49,9 +50,9 @@ public class OpenIDRememberMeTokenManager {
      *
      * @param rememberMe
      * @return
-     * @throws Exception
+     * @throws IdentityProviderException
      */
-    public String getToken(OpenIDRememberMeDO rememberMe) throws Exception {
+    public String getToken(OpenIDRememberMeDO rememberMe) throws IdentityProviderException {
         OpenIDRememberMeDO storedDo = null;
         if ((storedDo = cache.getTokenData(rememberMe)) == null) {
             storedDo = dao.getTokenData(rememberMe);
@@ -93,15 +94,17 @@ public class OpenIDRememberMeTokenManager {
      * Updates the rememberMe token
      *
      * @param rememberMe
-     * @throws Exception
+     * @throws IdentityProviderException
      */
-    public void updateToken(final OpenIDRememberMeDO rememberMe) throws Exception {
+    public void updateToken(final OpenIDRememberMeDO rememberMe) throws IdentityProviderException {
         cache.updateTokenData(rememberMe);
         Thread thread = new Thread() {
+            @Override
             public void run() {
                 try {
                     dao.updateTokenData(rememberMe);
                 } catch (Exception e) {
+                    log.error("Failed to update RememberMe token.", e);
                 }
             }
         };

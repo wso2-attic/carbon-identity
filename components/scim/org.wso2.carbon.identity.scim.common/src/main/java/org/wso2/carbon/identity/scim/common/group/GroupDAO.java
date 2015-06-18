@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2010 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -56,7 +56,7 @@ public class GroupDAO {
         Connection connection = null;
         PreparedStatement prepStmt = null;
         ResultSet resultSet = null;
-        Set<String> groups = new HashSet<String>();
+        Set<String> groups = new HashSet<>();
 
         try {
             //retrieve groups from the DB
@@ -98,11 +98,12 @@ public class GroupDAO {
             if (rSet.next()) {
                 isExistingGroup = true;
             }
+            connection.commit();
         } catch (IdentityException e) {
             String errorMsg = "Error when getting an Identity Persistence Store instance.";
             throw new IdentitySCIMException(errorMsg, e);
         } catch (SQLException e) {
-            throw new IdentitySCIMException("Error when reading the group information from the persistence store.");
+            throw new IdentitySCIMException("Error when reading the group information from the persistence store.", e);
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, rSet, prepStmt);
         }
@@ -128,12 +129,13 @@ public class GroupDAO {
             if (rSet.next()) {
                 isExistingAttribute = true;
             }
+            connection.commit();
         } catch (IdentityException e) {
             String errorMsg = "Error when getting an Identity Persistence Store instance.";
             throw new IdentitySCIMException(errorMsg, e);
         } catch (SQLException e) {
             throw new IdentitySCIMException("Error when reading the group attribute information from " +
-                    "the persistence store.");
+                    "the persistence store.", e);
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, rSet, prepStmt);
         }
@@ -164,13 +166,13 @@ public class GroupDAO {
                                 + " An attribute with the same name already exists.");
                     }
                 }
-
+                connection.commit();
             } catch (IdentityException e) {
                 String errorMsg = "Error when getting an Identity Persistence Store instance.";
                 throw new IdentitySCIMException(errorMsg, e);
             } catch (SQLException e) {
                 throw new IdentitySCIMException("Error when adding SCIM attributes for the group: "
-                        + roleName);
+                        + roleName, e);
             } finally {
                 IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
             }
@@ -213,7 +215,7 @@ public class GroupDAO {
                 String errorMsg = "Error when getting an Identity Persistence Store instance.";
                 throw new IdentitySCIMException(errorMsg, e);
             } catch (SQLException e) {
-                throw new IdentitySCIMException("Error updating the SCIM Group Attributes.");
+                throw new IdentitySCIMException("Error updating the SCIM Group Attributes.", e);
             } finally {
                 IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
             }
@@ -221,14 +223,6 @@ public class GroupDAO {
             throw new IdentitySCIMException("Error when updating SCIM Attributes for the group: "
                     + roleName + " A Group with the same name doesn't exists.");
         }
-    }
-
-    private void updateSCIMGroupAttribute(Connection dbConnection, String statement, int tenantId,
-                                          String roleName, String attributeName,
-                                          String attributeValue) throws IdentityException {
-        //just for testing
-        //dbConnection = JDBCPersistenceManager.getInstance().getDBConnection();
-
     }
 
     public void removeSCIMGroup(int tenantId, String roleName) throws IdentitySCIMException {
@@ -249,7 +243,7 @@ public class GroupDAO {
             throw new IdentitySCIMException(errorMsg, e);
         } catch (SQLException e) {
             log.error("Error when executing the SQL : " + SQLQueries.DELETE_GROUP_SQL);
-            throw new IdentitySCIMException("Error deleting the SCIM Group.");
+            throw new IdentitySCIMException("Error deleting the SCIM Group.", e);
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
         }
@@ -260,7 +254,7 @@ public class GroupDAO {
         Connection connection = null;
         PreparedStatement prepStmt = null;
         ResultSet rSet = null;
-        Map<String, String> attributes = new HashMap<String, String>();
+        Map<String, String> attributes = new HashMap<>();
 
         try {
             connection = JDBCPersistenceManager.getInstance().getDBConnection();
@@ -270,17 +264,18 @@ public class GroupDAO {
 
             rSet = prepStmt.executeQuery();
             while (rSet.next()) {
-                if (rSet.getString(1) != null && rSet.getString(1).length() > 0) {
+                if (StringUtils.isNotEmpty(rSet.getString(1))) {
                     attributes.put(rSet.getString(1), rSet.getString(2));
                 }
             }
+            connection.commit();
         } catch (IdentityException e) {
             String errorMsg = "Error when getting an Identity Persistence Store instance.";
             throw new IdentitySCIMException(errorMsg, e);
         } catch (SQLException e) {
             log.error("Error when executing the SQL : " + SQLQueries.GET_ATTRIBUTES_SQL);
             throw new IdentitySCIMException("Error when reading the SCIM Group information from the " +
-                    "persistence store.");
+                    "persistence store.", e);
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, rSet, prepStmt);
         }
@@ -304,15 +299,16 @@ public class GroupDAO {
                 //we assume only one result since group id and tenant id is unique.
                 roleName = rSet.getString(1);
             }
+            connection.commit();
         } catch (IdentityException e) {
             String errorMsg = "Error when getting an Identity Persistence Store instance.";
             throw new IdentitySCIMException(errorMsg, e);
         } catch (SQLException e) {
-            throw new IdentitySCIMException("Error when reading the SCIM Group information from the persistence store.");
+            throw new IdentitySCIMException("Error when reading the SCIM Group information from the persistence store.", e);
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, rSet, prepStmt);
         }
-        if (roleName != null && roleName.length() > 0) {
+        if (StringUtils.isNotEmpty(roleName)) {
             return SCIMCommonUtils.getPrimaryFreeGroupName(roleName);
         }
         return null;
@@ -344,7 +340,7 @@ public class GroupDAO {
             } catch (SQLException e) {
                 log.error("Error when executing the SQL : " + SQLQueries.UPDATE_GROUP_NAME_SQL);
                 log.error(e.getMessage(), e);
-                throw new IdentitySCIMException("Error updating the SCIM Group Attributes.");
+                throw new IdentitySCIMException("Error updating the SCIM Group Attributes.", e);
             } finally {
                 IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
             }

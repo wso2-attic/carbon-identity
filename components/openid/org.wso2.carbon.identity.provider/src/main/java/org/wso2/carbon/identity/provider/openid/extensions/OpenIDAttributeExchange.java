@@ -1,21 +1,24 @@
 /*
- * Copyright 2005-2008 WSO2, Inc. (http://wso2.com)
+ * Copyright (c) 2005-2008, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package org.wso2.carbon.identity.provider.openid.extensions;
 
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openid4java.message.AuthRequest;
@@ -30,9 +33,12 @@ import org.wso2.carbon.identity.provider.dto.OpenIDAuthRequestDTO;
 import org.wso2.carbon.identity.provider.dto.OpenIDClaimDTO;
 import org.wso2.carbon.identity.provider.openid.handlers.OpenIDAuthenticationRequest;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
-
 
 /**
  * Functionality related to OpenID Attribute Exchange. OpenID Attribute Exchange is an OpenID
@@ -40,7 +46,7 @@ import java.util.Map.Entry;
  */
 public class OpenIDAttributeExchange extends OpenIDExtension {
 
-    private static Log log = LogFactory.getLog(OpenIDAttributeExchange.class);
+    private static final Log log = LogFactory.getLog(OpenIDAttributeExchange.class);
     private OpenIDAuthenticationRequest openidAuthnRequest;
 
     /**
@@ -49,8 +55,7 @@ public class OpenIDAttributeExchange extends OpenIDExtension {
     public OpenIDAttributeExchange(OpenIDAuthenticationRequest request) throws IdentityException {
         if (request == null) {
             log.debug("Request cannot be null while initializing OpenIDAttributeExchange");
-            throw new IdentityException(
-                    "Request cannot be null while initializing OpenIDAttributeExchange");
+            throw new IdentityException("Request cannot be null while initializing OpenIDAttributeExchange");
         }
         this.openidAuthnRequest = request;
     }
@@ -58,6 +63,7 @@ public class OpenIDAttributeExchange extends OpenIDExtension {
     /**
      * {@inheritDoc}
      */
+    @Override
     public void addRequiredAttributes(List<String> requiredAttributes) throws IdentityException {
         MessageExtension extensions = null;
         AuthRequest authRequest = null;
@@ -108,14 +114,14 @@ public class OpenIDAttributeExchange extends OpenIDExtension {
             }
         } catch (MessageException e) {
             log.error("Failed to add required attributes of Attribute Exchange", e);
-            throw new IdentityException("Failed to add required attributes of Attribute Exchange",
-                    e);
+            throw new IdentityException("Failed to add required attributes of Attribute Exchange", e);
         }
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public MessageExtension getMessageExtension(String userId, String profileName, OpenIDAuthRequestDTO requestDTO)
             throws IdentityException {
         MessageExtension extensions = null;
@@ -127,8 +133,7 @@ public class OpenIDAttributeExchange extends OpenIDExtension {
             if (authRequest.hasExtension(FetchRequest.OPENID_NS_AX)) {
                 extensions = authRequest.getExtension(FetchRequest.OPENID_NS_AX);
             } else if (authRequest.hasExtension(IdentityConstants.OpenId.ExchangeAttributes.NS_AX)) {
-                extensions = authRequest
-                        .getExtension(IdentityConstants.OpenId.ExchangeAttributes.NS_AX);
+                extensions = authRequest.getExtension(IdentityConstants.OpenId.ExchangeAttributes.NS_AX);
             }
 
             if (extensions instanceof FetchRequest) {
@@ -169,7 +174,7 @@ public class OpenIDAttributeExchange extends OpenIDExtension {
 
                 fetchResponse = FetchResponse.createFetchResponse(fetchRequest, new HashMap());
                 claimValues = populateAttributeValues(requiredAttributes, userId, profileName, requestDTO);
-                if (claimValues != null && claimValues.size() != 0) {
+                if (MapUtils.isNotEmpty(claimValues)) {
                     setAttributeExchangeValues(fetchResponse, claimValues);
                 }
             }
@@ -177,8 +182,7 @@ public class OpenIDAttributeExchange extends OpenIDExtension {
             return fetchResponse;
         } catch (MessageException e) {
             log.error("Failed to create message extension for Attribute Exchange", e);
-            throw new IdentityException(
-                    "Failed to create message extension for Attribute Exchange", e);
+            throw new IdentityException("Failed to create message extension for Attribute Exchange", e);
         }
     }
 
@@ -201,7 +205,7 @@ public class OpenIDAttributeExchange extends OpenIDExtension {
 
         while (iterator.hasNext()) {
             entry = iterator.next();
-            claim = (OpenIDClaimDTO) entry.getValue();
+            claim = entry.getValue();
             response.addAttribute(claim.getClaimUri(), claim.getClaimValue());
         }
     }

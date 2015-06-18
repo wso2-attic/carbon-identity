@@ -1,20 +1,20 @@
 /*
-*  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package org.wso2.carbon.identity.thrift.authentication.internal.util;
 
 import org.apache.axiom.om.OMElement;
@@ -29,8 +29,17 @@ import org.wso2.securevault.SecretResolverFactory;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
-import java.io.*;
-import java.util.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Stack;
 
 public class ThriftAuthenticationConfigParser {
 
@@ -140,13 +149,13 @@ public class ThriftAuthenticationConfigParser {
                 if (currentObject == null) {
                     configuration.put(key, value);
                 } else if (currentObject instanceof ArrayList) {
-                    ArrayList list = (ArrayList) currentObject;
+                    List list = (ArrayList) currentObject;
                     if (!list.contains(value)) {
                         list.add(value);
                     }
                 } else {
                     if (!value.equals(currentObject)) {
-                        ArrayList arrayList = new ArrayList(2);
+                        List arrayList = new ArrayList(2);
                         arrayList.add(currentObject);
                         arrayList.add(value);
                         configuration.put(key, arrayList);
@@ -159,7 +168,7 @@ public class ThriftAuthenticationConfigParser {
     }
 
     private String getKey(Stack<String> nameStack) {
-        StringBuffer key = new StringBuffer();
+        StringBuilder key = new StringBuilder();
         for (int i = 0; i < nameStack.size(); i++) {
             String name = nameStack.elementAt(i);
             key.append(name).append(".");
@@ -190,10 +199,8 @@ public class ThriftAuthenticationConfigParser {
                 text = text.substring(0, indexOfStartingChars) + propValue
                         + text.substring(indexOfClosingBrace + 1);
             }
-            if (sysProp.equals(ServerConstants.CARBON_HOME)) {
-                if (System.getProperty(ServerConstants.CARBON_HOME).equals(".")) {
-                    text = new File(".").getAbsolutePath() + File.separator + text;
-                }
+            if (sysProp.equals(ServerConstants.CARBON_HOME) &&  ".".equals(System.getProperty(ServerConstants.CARBON_HOME)) ) {
+                text = new File(".").getAbsolutePath() + File.separator + text;
             }
         }
         return text;

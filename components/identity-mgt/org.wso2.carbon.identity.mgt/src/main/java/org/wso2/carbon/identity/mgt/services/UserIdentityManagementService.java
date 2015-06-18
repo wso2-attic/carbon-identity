@@ -1,7 +1,26 @@
+/*
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 package org.wso2.carbon.identity.mgt.services;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.captcha.mgt.beans.CaptchaInfoBean;
 import org.wso2.carbon.captcha.mgt.util.CaptchaUtil;
 import org.wso2.carbon.identity.base.IdentityException;
@@ -12,7 +31,12 @@ import org.wso2.carbon.identity.mgt.RecoveryProcessor;
 import org.wso2.carbon.identity.mgt.beans.UserIdentityMgtBean;
 import org.wso2.carbon.identity.mgt.beans.VerificationBean;
 import org.wso2.carbon.identity.mgt.constants.IdentityMgtConstants;
-import org.wso2.carbon.identity.mgt.dto.*;
+import org.wso2.carbon.identity.mgt.dto.NotificationDataDTO;
+import org.wso2.carbon.identity.mgt.dto.UserChallengesDTO;
+import org.wso2.carbon.identity.mgt.dto.UserDTO;
+import org.wso2.carbon.identity.mgt.dto.UserIdentityClaimDTO;
+import org.wso2.carbon.identity.mgt.dto.UserRecoveryDTO;
+import org.wso2.carbon.identity.mgt.dto.UserRecoveryDataDO;
 import org.wso2.carbon.identity.mgt.internal.IdentityMgtServiceComponent;
 import org.wso2.carbon.identity.mgt.util.UserIdentityManagementUtil;
 import org.wso2.carbon.identity.mgt.util.Utils;
@@ -243,81 +267,6 @@ public class UserIdentityManagementService {
     }
 
     /**
-     * Users can register themselves
-     *
-     * @param userName
-     * @param credential
-     * @param roleList
-     * @param claims
-     * @param profileName
-     * @throws IdentityMgtServiceException
-     *//*
-    public void registerUser(String userName, Object credential, String[] roleList,
-	                         UserIdentityClaimDTO[] claims, String profileName)
-	                                                                           throws IdentityMgtServiceException {
-		try {
-			int tenantId = Utils.getTenantId(MultitenantUtils.getTenantDomain(userName));
-			UserStoreManager userStoreManager =
-			                                    IdentityMgtServiceComponent.getRealmService()
-			                                                               .getTenantUserRealm(tenantId)
-			                                                               .getUserStoreManager();
-			Map<String, String> claimsMap = new HashMap<String, String>();
-			for (UserIdentityClaimDTO claim : claims) {
-				if (claim.getClaimUri().contains(UserCoreConstants.ClaimTypeURIs.IDENTITY_CLAIM_URI)) {
-					log.warn("WARNING! Possible attack from user " + userName);
-					throw new IdentityMgtServiceException("Modification to the " + claim.getClaimUri() +
-					                                      " is not allowed");
-				}
-				claimsMap.put(claim.getClaimUri(), claim.getClaimValue());
-			}
-			userStoreManager.addUser(userName, credential, roleList, claimsMap, null);
-		} catch (UserStoreException e) {
-			log.error("Error while reading identity claims", e);
-			throw new IdentityMgtServiceException("Error while reading identity claims");
-		}
-	}*/
-
-    /**
-     * Returns if the user exist in the system
-     *
-     * @param userName
-     * @return
-     * @throws IdentityMgtServiceException
-     */
-//	public boolean verifyUserID(String userName) throws IdentityMgtServiceException {
-//		try {
-//			int tenantId = Utils.getTenantId(MultitenantUtils.getTenantDomain(userName));
-//			UserStoreManager userStoreManager =
-//			                                    IdentityMgtServiceComponent.getRealmService()
-//			                                                               .getTenantUserRealm(tenantId)
-//			                                                               .getUserStoreManager();
-//			return userStoreManager.isExistingUser(userName);
-//		} catch (UserStoreException e) {
-//			log.error("Error while reading identity claims", e);
-//			throw new IdentityMgtServiceException("Error while reading identity claims");
-//		} catch (IdentityException e) {
-//            log.error("Error while reading identity claims", e);
-//            throw new IdentityMgtServiceException("Error while reading identity claims");
-//        }
-//    }
-
-
-    /**
-     *
-     * @return
-     * @throws IdentityMgtServiceException
-     */
-//	public CaptchaInfoBean generateRandomCaptcha() throws IdentityMgtServiceException {
-//		try {
-//			CaptchaUtil.cleanOldCaptchas();
-//			return CaptchaUtil.generateCaptchaImage();
-//		} catch (Exception e) {
-//			log.error("Error while generating captcha", e);
-//			throw new IdentityMgtServiceException("Error while generating captcha", e);
-//		}
-//	}
-
-    /**
      * Returns an array of primary security questions. Primary security
      * questions are the security questions which were configured by the admin
      * and every user will have to answer selected set of questions from this.
@@ -327,9 +276,9 @@ public class UserIdentityManagementService {
      */
     public String[] getPrimarySecurityQuestions() throws IdentityMgtServiceException {
         try {
-            return UserIdentityManagementUtil.getPrimaryQuestions(-1234);
+            return UserIdentityManagementUtil.getPrimaryQuestions(MultitenantConstants.SUPER_TENANT_ID);
         } catch (IdentityException e) {
-            throw new IdentityMgtServiceException("Error while reading security questions");
+            throw new IdentityMgtServiceException("Error while reading security questions", e);
         }
     }
 
@@ -347,44 +296,6 @@ public class UserIdentityManagementService {
         return IdentityMgtServiceComponent.getRecoveryProcessor().verifyConfirmationKey(confirmationKey);
     }
 
-
-    /**
-     * verify given tenant domain and given user id of the user w.r.t the underline user store.
-     *
-     * @param userName user name with tenant domain
-     * @param captchaInfoBean  bean class that contains captcha information
-     * @return user key; secret for sub-sequence communication. If null, user and domain not verified.
-     */
-//    public VerificationBean verifyUser(String username, CaptchaInfoBean captchaInfoBean){
-//
-//        UserDTO userDTO;
-//        VerificationBean bean = new VerificationBean();
-//
-//        if(IdentityMgtConfig.getInstance().isCaptchaVerificationInternallyManaged()){
-//            try {
-//                CaptchaUtil.processCaptchaInfoBean(captchaInfoBean);
-//            } catch (Exception e) {
-//                log.error(e.getMessage());
-//                bean.setError(VerificationBean.ERROR_CODE_INVALID_CAPTCHA);
-//                bean.setVerified(false);
-//                return bean;
-//            }
-//        }
-//
-//        try {
-//            userDTO = Utils.processUserId(username);
-//        } catch (IdentityException e) {
-//            log.error(e.getMessage());
-//            bean.setError(VerificationBean.ERROR_CODE_INVALID_USER);
-//            bean.setVerified(false);
-//            return bean;
-//        }
-//
-//        RecoveryProcessor  processor = IdentityMgtServiceComponent.getRecoveryProcessor();
-//
-//        return processor.verifyUserForRecovery(userDTO);
-//    }
-
     /**
      * process password recovery for given user
      *
@@ -398,7 +309,7 @@ public class UserIdentityManagementService {
         try {
             userDTO = Utils.processUserId(userId);
         } catch (IdentityException e) {
-            throw new IdentityMgtServiceException("invalid user name");
+            throw new IdentityMgtServiceException("invalid user name", e);
         }
 
         RecoveryProcessor processor = IdentityMgtServiceComponent.getRecoveryProcessor();
@@ -417,7 +328,7 @@ public class UserIdentityManagementService {
         try {
             dataDTO = processor.recoverWithNotification(dto);
         } catch (IdentityException e) {
-            throw new IdentityMgtServiceException("Error while password recovery");
+            throw new IdentityMgtServiceException("Error while password recovery.", e);
         }
         return dataDTO.isNotificationSent();
     }
@@ -436,7 +347,7 @@ public class UserIdentityManagementService {
         try {
             userDTO = Utils.processUserId(userName);
         } catch (IdentityException e) {
-            throw new IdentityMgtServiceException("invalid user name");
+            throw new IdentityMgtServiceException("Invalid user name.", e);
         }
 
         RecoveryProcessor processor = IdentityMgtServiceComponent.getRecoveryProcessor();
@@ -447,13 +358,13 @@ public class UserIdentityManagementService {
             try {
                 processor.createConfirmationCode(userDTO, confirmation);
             } catch (IdentityException e) {
-                e.printStackTrace();
+                log.error("Error in creating confirmation code.", e);
             }
             return processor.getQuestionProcessor().
                     getChallengeQuestionsOfUser(userDTO.getUserId(), userDTO.getTenantId(), false);
         }
 
-        return null;
+        return new UserChallengesDTO[0];
     }
 
 
@@ -471,8 +382,8 @@ public class UserIdentityManagementService {
         RecoveryProcessor recoveryProcessor = IdentityMgtServiceComponent.getRecoveryProcessor();
 
         if (userChallengesDTOs == null || userChallengesDTOs.length < 1) {
-            log.error("no challenges provided by user for verifications");
-            bean.setError("no challenges provided by user for verifications");
+            log.error("no challenges provided by user for verifications.");
+            bean.setError("no challenges provided by user for verifications.");
             return bean;
         }
 
@@ -480,12 +391,12 @@ public class UserIdentityManagementService {
         try {
             userDTO = Utils.processUserId(userName);
         } catch (IdentityException e) {
-            throw new IdentityMgtServiceException("invalid user name");
+            throw new IdentityMgtServiceException("Invalid user name.", e);
         }
 
         if (recoveryProcessor.verifyConfirmationKey(confirmation).isVerified()) {
-            log.warn("Invalid user is trying to verify user challenges");
-            bean.setError("Invalid user is trying to verify user challenges");
+            log.warn("Invalid user is trying to verify user challenges.");
+            bean.setError("Invalid user is trying to verify user challenges.");
             return bean;
         }
 
@@ -499,7 +410,7 @@ public class UserIdentityManagementService {
             try {
                 recoveryProcessor.createConfirmationCode(userDTO, code);
             } catch (IdentityException e) {
-                e.printStackTrace();
+                log.error("Error while creating confirmation code.", e);
             }
             bean = new VerificationBean(userName, code);
         }
@@ -517,12 +428,12 @@ public class UserIdentityManagementService {
     public VerificationBean updateCredential(String userName, String confirmation,
                                              String password, CaptchaInfoBean captchaInfoBean) {
 
-        boolean success = false;
         RecoveryProcessor recoveryProcessor = IdentityMgtServiceComponent.getRecoveryProcessor();
         if (IdentityMgtConfig.getInstance().isCaptchaVerificationInternallyManaged()) {
             try {
                 CaptchaUtil.processCaptchaInfoBean(captchaInfoBean);
             } catch (Exception e) {
+                log.error("Error while processing captcha bean.", e);
                 return new VerificationBean(VerificationBean.ERROR_CODE_INVALID_CAPTCHA);
             }
         }
@@ -534,7 +445,6 @@ public class UserIdentityManagementService {
                         " and tenant domain : " + userDTO.getTenantDomain());
                 return new VerificationBean(true);
             } else {
-                new VerificationBean(VerificationBean.ERROR_CODE_UN_EXPECTED);
                 log.warn("Invalid user tried to update credential with user Id : " + userDTO.getUserId() +
                         " and tenant domain : " + userDTO.getTenantDomain());
             }
@@ -542,7 +452,7 @@ public class UserIdentityManagementService {
         } catch (Exception e) {
             log.error("Error while updating credential for user : " + userName, e);
         }
-        return new VerificationBean(VerificationBean.ERROR_CODE_UN_EXPECTED);
+        return new VerificationBean(VerificationBean.ERROR_CODE_UNEXPECTED);
     }
 
 }

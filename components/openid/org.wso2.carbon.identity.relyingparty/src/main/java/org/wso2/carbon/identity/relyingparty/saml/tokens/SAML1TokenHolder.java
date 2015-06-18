@@ -1,17 +1,19 @@
 /*
- * Copyright 2005-2008 WSO2, Inc. (http://wso2.com)
+ * Copyright (c) 2008, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package org.wso2.carbon.identity.relyingparty.saml.tokens;
@@ -36,9 +38,8 @@ import java.util.Map;
 
 public class SAML1TokenHolder implements TokenHolder {
 
-    private static Log log = LogFactory.getLog(SAML1TokenHolder.class);
+    private static final Log log = LogFactory.getLog(SAML1TokenHolder.class);
     private Assertion assertion = null;
-    private boolean isMultipleValues = false;
 
     public SAML1TokenHolder(Element element) throws UnmarshallingException {
         createToken(element);
@@ -50,6 +51,7 @@ public class SAML1TokenHolder implements TokenHolder {
      * @param elem
      * @throws UnmarshallingException If the token creation fails
      */
+    @Override
     public void createToken(Element elem) throws UnmarshallingException {
         UnmarshallerFactory unmarshallerFactory = Configuration.getUnmarshallerFactory();
         Unmarshaller unmarshaller = unmarshallerFactory.getUnmarshaller(elem);
@@ -59,6 +61,7 @@ public class SAML1TokenHolder implements TokenHolder {
     /**
      * @return the SAML signature.
      */
+    @Override
     public Signature getSAMLSignature() {
         return assertion.getSignature();
     }
@@ -68,6 +71,7 @@ public class SAML1TokenHolder implements TokenHolder {
      *
      * @return
      */
+    @Override
     public String getIssuerName() {
         return assertion.getIssuer();
     }
@@ -77,6 +81,7 @@ public class SAML1TokenHolder implements TokenHolder {
      *
      * @param attributeTable
      */
+    @Override
     public void populateAttributeTable(Map<String, String> attributeTable) {
         Iterator<AttributeStatement> statements = assertion.getAttributeStatements().iterator();
 
@@ -85,13 +90,12 @@ public class SAML1TokenHolder implements TokenHolder {
             Iterator<Attribute> attrs = statement.getAttributes().iterator();
 
             while (attrs.hasNext()) {
-                Attribute attr = (Attribute) attrs.next();
+                Attribute attr = attrs.next();
                 String name = attr.getAttributeNamespace() + "/" + attr.getAttributeName();
 
                 List attributeValues = attr.getAttributeValues();
                 Iterator values = attributeValues.iterator();
-                int count = 0;
-                StringBuffer buffer = new StringBuffer();
+                StringBuilder buffer = new StringBuilder();
 
                 while (values.hasNext()) {
                     Object value = values.next();
@@ -101,15 +105,10 @@ public class SAML1TokenHolder implements TokenHolder {
                         buffer.append(((XSAny) value).getTextContent());
                     }
                     buffer.append(",");
-                    count++;
                 }
 
                 if (buffer.length() > 1) {
                     buffer.deleteCharAt(buffer.length() - 1);
-                }
-
-                if (count > 1) {
-                    isMultipleValues = true;
                 }
 
                 attributeTable.put(name, buffer.toString());

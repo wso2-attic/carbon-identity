@@ -1,24 +1,22 @@
 /*
-*  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package org.wso2.carbon.identity.sts.mgt;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.base.IdentityConstants;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.model.ParameterDO;
@@ -29,16 +27,15 @@ import org.wso2.carbon.identity.sts.mgt.dto.CardIssuerTokenDTO;
 import org.wso2.carbon.registry.core.Registry;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class STSAdminService {
-
-    private final static Log log = LogFactory.getLog(STSAdminService.class);
 
     public CardIssuerDTO readCardIssuerConfiguration() throws Exception {
         CardIssuerDTO dto = null;
         IdentityPersistenceManager dbAmin = null;
         ParameterDO param = null;
-        ArrayList<CardIssuerTokenDTO> supportedTokens = null;
+        List<CardIssuerTokenDTO> supportedTokens = null;
         String[] tokens = null;
         Registry registry = null;
 
@@ -46,7 +43,7 @@ public class STSAdminService {
         dto = new CardIssuerDTO();
         registry = IdentityTenantUtil.getRegistry();
 
-        supportedTokens = new ArrayList<CardIssuerTokenDTO>();
+        supportedTokens = new ArrayList<>();
         param = dbAmin.getParameter(registry, IdentityConstants.PARAM_SUPPORTED_TOKEN_TYPES);
 
         if (param == null || param.getValue() == null) {
@@ -81,8 +78,7 @@ public class STSAdminService {
             }
         }
 
-        dto.setSupportedTokenTypes(supportedTokens.toArray(new CardIssuerTokenDTO[supportedTokens
-                .size()]));
+        dto.setSupportedTokenTypes(supportedTokens.toArray(new CardIssuerTokenDTO[supportedTokens.size()]));
 
         param = dbAmin.getParameter(registry, IdentityConstants.PARAM_CARD_NAME);
         if (param != null && param.getValue() != null) {
@@ -109,14 +105,14 @@ public class STSAdminService {
     public void updateCardIssueConfiguration(CardIssuerDTO issuer) throws Exception {
         IdentityPersistenceManager dbAmin = null;
         CardIssuerTokenDTO[] supportedTokens = null;
-        StringBuffer supportedBuffer = null;
-        StringBuffer notSupportedBuffer = null;
+        StringBuilder supportedBuffer = null;
+        StringBuilder notSupportedBuffer = null;
 
         dbAmin = IdentityPersistenceManager.getPersistanceManager();
 
         supportedTokens = issuer.getSupportedTokenTypes();
-        supportedBuffer = new StringBuffer();
-        notSupportedBuffer = new StringBuffer();
+        supportedBuffer = new StringBuilder();
+        notSupportedBuffer = new StringBuilder();
 
         for (int i = 0; i < supportedTokens.length; i++) {
             if (supportedTokens[i].isSupported()) {
@@ -130,11 +126,11 @@ public class STSAdminService {
         registry = IdentityTenantUtil.getRegistry();
 
         dbAmin.createOrUpdateParameter(registry, IdentityConstants.PARAM_SUPPORTED_TOKEN_TYPES,
-                supportedBuffer.toString());
+                                       supportedBuffer.toString());
         dbAmin.createOrUpdateParameter(IdentityTenantUtil.getRegistry(),
-                IdentityConstants.PARAM_NOT_SUPPORTED_TOKEN_TYPES, notSupportedBuffer.toString());
-        dbAmin.createOrUpdateParameter(registry, IdentityConstants.PARAM_CARD_NAME, issuer
-                .getCardName());
+                                       IdentityConstants.PARAM_NOT_SUPPORTED_TOKEN_TYPES,
+                                       notSupportedBuffer.toString());
+        dbAmin.createOrUpdateParameter(registry, IdentityConstants.PARAM_CARD_NAME, issuer.getCardName());
         dbAmin.createOrUpdateParameter(registry, IdentityConstants.PARAM_VALID_PERIOD, String
                 .valueOf(issuer.getValidPeriodInDays()));
         dbAmin.createOrUpdateParameter(registry, IdentityConstants.PARAM_USE_SYMM_BINDING, String
@@ -142,13 +138,13 @@ public class STSAdminService {
     }
 
     private String getUri(String tokenType) {
-        if (tokenType.equals("SAML10")) {
+        if (STSMgtConstants.TokenType.SAML10.equals(tokenType)) {
             return IdentityConstants.SAML10_URL + ",";
-        } else if (tokenType.equals("SAML11")) {
+        } else if (STSMgtConstants.TokenType.SAML11.equals(tokenType)) {
             return IdentityConstants.SAML11_URL + ",";
-        } else if (tokenType.equals("SAML20")) {
+        } else if (STSMgtConstants.TokenType.SAML20.equals(tokenType)) {
             return IdentityConstants.SAML20_URL + ",";
-        } else if (tokenType.equals("OpenID")) {
+        } else if (STSMgtConstants.TokenType.OpenID.equals(tokenType)) {
             return IdentityConstants.OpenId.OPENID_URL + ",";
         } else {
             return tokenType + ",";
@@ -157,13 +153,13 @@ public class STSAdminService {
 
     private String getTokenType(String uri) {
         if (uri.equals(IdentityConstants.SAML10_URL)) {
-            return "SAML10";
+            return STSMgtConstants.TokenType.SAML10;
         } else if (uri.equals(IdentityConstants.SAML11_URL)) {
-            return "SAML11";
+            return STSMgtConstants.TokenType.SAML11;
         } else if (uri.equals(IdentityConstants.SAML20_URL)) {
-            return "SAML20";
+            return STSMgtConstants.TokenType.SAML20;
         } else if (uri.equals(IdentityConstants.OpenId.OPENID_URL)) {
-            return "OpenID";
+            return STSMgtConstants.TokenType.OpenID;
         } else {
             return uri;
         }
@@ -173,12 +169,12 @@ public class STSAdminService {
         IdentityPersistenceManager admin = IdentityPersistenceManager.getPersistanceManager();
 
         admin.createOrUpdateParameter(registry, IdentityConstants.PARAM_SUPPORTED_TOKEN_TYPES,
-                IdentityConstants.SAML10_URL + "," + IdentityConstants.SAML11_URL + ","
-                        + IdentityConstants.SAML20_URL + "," + IdentityConstants.OpenId.OPENID_URL);
+                                      IdentityConstants.SAML10_URL + "," + IdentityConstants.SAML11_URL + ","
+                                      + IdentityConstants.SAML20_URL + "," + IdentityConstants.OpenId.OPENID_URL);
 
         admin.createOrUpdateParameter(registry, IdentityConstants.PARAM_CARD_NAME,
-                IdentityConstants.PARAM_VALUE_CARD_NAME);
+                                      IdentityConstants.PARAM_VALUE_CARD_NAME);
         admin.createOrUpdateParameter(registry, IdentityConstants.PARAM_VALID_PERIOD,
-                IdentityConstants.PARAM_VALUE_VALID_PERIOD);
+                                      IdentityConstants.PARAM_VALUE_VALID_PERIOD);
     }
 }

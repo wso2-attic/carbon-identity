@@ -99,6 +99,10 @@ public class EntitlementAdminServiceClient {
             if (request != null) {
                 request = request.trim().replaceAll("&lt;", "<"); //TODO should be properly fixed
                 request = request.trim().replaceAll("&gt;", ">");
+                request = request.trim().replaceAll("&quot;", "\"");
+                request = request.trim().replaceAll("&#x27;", "'");
+                request = request.trim().replaceAll("&amp;", "&");
+                request = request.trim().replaceAll("&#x2F;", "/");
             }
             return stub.doTestRequest(request);
         } catch (Exception e) {
@@ -120,6 +124,10 @@ public class EntitlementAdminServiceClient {
             if (request != null) {
                 request = request.trim().replaceAll("&lt;", "<"); //TODO should be properly fixed
                 request = request.trim().replaceAll("&gt;", ">");
+                request = request.trim().replaceAll("&quot;", "\"");
+                request = request.trim().replaceAll("&#x27;", "'");
+                request = request.trim().replaceAll("&amp;", "&");
+                request = request.trim().replaceAll("&#x2F;", "/");
             }
             return stub.doTestRequestForGivenPolicies(request, policies);
         } catch (Exception e) {

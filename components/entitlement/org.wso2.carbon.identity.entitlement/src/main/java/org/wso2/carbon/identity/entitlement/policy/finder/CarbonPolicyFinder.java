@@ -20,7 +20,12 @@ package org.wso2.carbon.identity.entitlement.policy.finder;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.balana.*;
+import org.wso2.balana.AbstractPolicy;
+import org.wso2.balana.Policy;
+import org.wso2.balana.PolicyMetaData;
+import org.wso2.balana.PolicyReference;
+import org.wso2.balana.PolicySet;
+import org.wso2.balana.VersionConstraints;
 import org.wso2.balana.combine.PolicyCombiningAlgorithm;
 import org.wso2.balana.ctx.EvaluationCtx;
 import org.wso2.balana.ctx.Status;
@@ -39,7 +44,12 @@ import org.wso2.carbon.identity.entitlement.policy.store.DefaultPolicyDataStore;
 import org.wso2.carbon.identity.entitlement.policy.store.PolicyDataStore;
 
 import java.net.URI;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
 /**
  * Policy finder of the WSO2 entitlement engine.  This an implementation of <code>PolicyFinderModule</code>

@@ -1,32 +1,40 @@
 /*
- *Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- *WSO2 Inc. licenses this file to you under the Apache License,
- *Version 2.0 (the "License"); you may not use this file except
- *in compliance with the License.
- *You may obtain a copy of the License at
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *Unless required by applicable law or agreed to in writing,
- *software distributed under the License is distributed on an
- *"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *KIND, either express or implied.  See the License for the
- *specific language governing permissions and limitations
- *under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
-
 package org.wso2.carbon.identity.application.common.util;
 
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.util.Base64;
 import org.apache.axiom.util.base64.Base64Utils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.claim.mgt.ClaimManagerHandler;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
-import org.wso2.carbon.identity.application.common.model.*;
-import org.wso2.carbon.identity.application.common.persistence.JDBCPersistenceManager;
+import org.wso2.carbon.identity.application.common.model.CertData;
+import org.wso2.carbon.identity.application.common.model.ClaimMapping;
+import org.wso2.carbon.identity.application.common.model.FederatedAuthenticatorConfig;
+import org.wso2.carbon.identity.application.common.model.InboundAuthenticationRequestConfig;
+import org.wso2.carbon.identity.application.common.model.Property;
+import org.wso2.carbon.identity.application.common.model.ProvisioningConnectorConfig;
+import org.wso2.carbon.identity.application.common.model.ServiceProvider;
+import org.wso2.carbon.identity.application.common.model.ThreadLocalProvisioningServiceProvider;
+import org.wso2.carbon.identity.base.IdentityException;
+import org.wso2.carbon.identity.core.persistence.JDBCPersistenceManager;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -38,17 +46,32 @@ import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
-import java.security.cert.*;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateEncodingException;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.Format;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Properties;
+import java.util.Set;
 
 public class IdentityApplicationManagementUtil {
+
+    private IdentityApplicationManagementUtil(){
+    }
 
     private static final Log log = LogFactory.getLog(IdentityApplicationManagementUtil.class);
     private static ThreadLocal<ThreadLocalProvisioningServiceProvider> threadLocalProvisioningServiceProvider = new ThreadLocal<ThreadLocalProvisioningServiceProvider>();
@@ -85,7 +108,7 @@ public class IdentityApplicationManagementUtil {
 
         if (uriString != null) {
             try {
-                new URL(uriString);
+                URL url = new URL(uriString);
             } catch (MalformedURLException e) {
                 log.debug(e.getMessage(), e);
                 return false;
@@ -266,7 +289,7 @@ public class IdentityApplicationManagementUtil {
         if (bytes != null) {
             char[] hexDigits = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c',
                     'd', 'e', 'f'};
-            StringBuffer buf = new StringBuffer(bytes.length * 2);
+            StringBuilder buf = new StringBuilder(bytes.length * 2);
             for (int i = 0; i < bytes.length; ++i) {
                 buf.append(hexDigits[(bytes[i] & 0xf0) >> 4]);
                 buf.append(hexDigits[bytes[i] & 0x0f]);
@@ -340,9 +363,9 @@ public class IdentityApplicationManagementUtil {
 
     /**
      * @return
-     * @throws IdentityApplicationManagementException
+     * @throws IdentityException
      */
-    public static Connection getDBConnection() throws IdentityApplicationManagementException {
+    public static Connection getDBConnection() throws IdentityException {
         return JDBCPersistenceManager.getInstance().getDBConnection();
     }
 
@@ -391,13 +414,12 @@ public class IdentityApplicationManagementUtil {
             // default values.since we do not know the out-bound claim mapping - whatever in the
             // in-bound claims will be mapped into the out-bound claim dialect.
 
-            if (inboundClaimValueMap == null || inboundClaimValueMap.size() == 0) {
+            if (MapUtils.isEmpty(inboundClaimValueMap)) {
                 // we do not have out-bound claim mapping - and a default values to worry about.
                 // just return what we got.
                 return outboundClaimValueMappings;
             }
 
-            // {in-bound-dialect-claim-uri, out-bound-dialect-claim-uri}
             Map<String, String> claimMap = null;
 
             // out-bound is not in wso2 carbon dialect. we need to find how it maps to wso2
@@ -500,18 +522,16 @@ public class IdentityApplicationManagementUtil {
 
         try {
 
-            if (inboundClaimValueMap == null || inboundClaimValueMap.size() == 0) {
+            if (MapUtils.isEmpty(inboundClaimValueMap)) {
                 return outboundClaimValueMappings;
             }
 
-            // {in-bound-dialect-claim-uri, out-bound-dialect-claim-uri}
             Map<String, String> claimMap = null;
 
             if (IdentityApplicationConstants.WSO2CARBON_CLAIM_DIALECT
                     .equals(inboundClaimMappingDialect)) {
                 // in-bound dialect is in default carbon dialect.
                 // otherDialectURI, carbonClaimURIs, tenantDomain, carbonDialectAsKey
-                // this will return back a claim map {carbon-claim-uri,out-bound-claim-uri}
                 // this map will have out-bound dialect as the key.
                 claimMap = ClaimManagerHandler.getInstance()
                         .getMappingsMapFromOtherDialectToCarbon(outboundClaimDialect, null,
@@ -606,7 +626,7 @@ public class IdentityApplicationManagementUtil {
                 outboundClaimValueMappings = new HashMap<ClaimMapping, List<String>>();
             }
 
-            if (inboundClaimValueMap == null || inboundClaimValueMap.size() == 0) {
+            if (MapUtils.isEmpty(inboundClaimValueMap)) {
                 // we do not have any values in the incoming provisioning request.
                 // we need to populate outboundClaimValueMappings map with the default values from
                 // the out-bound claim mapping.
@@ -627,7 +647,6 @@ public class IdentityApplicationManagementUtil {
                 return outboundClaimValueMappings;
             }
 
-            // {in-bound-dialect-claim-uri, out-bound-dialect-claim-uri}
             Map<String, String> claimMap = null;
 
             // out-bound is not in wso2 carbon dialect. we need to find how it maps to wso2
@@ -726,7 +745,7 @@ public class IdentityApplicationManagementUtil {
 
         try {
 
-            if (inboundClaimValueMap == null || inboundClaimValueMap.size() == 0) {
+            if (MapUtils.isEmpty(inboundClaimValueMap)) {
                 // we do not have any values in the incoming provisioning request.
                 // we need to populate outboundClaimValueMappings map with the default values from
                 // the out-bound claim mapping.
@@ -747,7 +766,6 @@ public class IdentityApplicationManagementUtil {
                 return outboundClaimValueMappings;
             }
 
-            // {in-bound-dialect-claim-uri, out-bound-dialect-claim-uri}
             Map<String, String> claimMap = null;
 
             // out-bound is not in wso2 carbon dialect. we need to find how it maps to wso2
@@ -761,7 +779,6 @@ public class IdentityApplicationManagementUtil {
                     .getMappingsMapFromOtherDialectToCarbon(inboundClaimMappingDialect,
                             inboundClaimValueMap.keySet(), tenantDomain, true);
 
-            // {in-bound claim dialect / out-bound claim dialect}
             claimMap = new HashMap<String, String>();
 
             Map<String, String> outboundClaimDefaultValues = new HashMap<String, String>();
@@ -908,7 +925,7 @@ public class IdentityApplicationManagementUtil {
                     .getInboundAuthenticationConfig().getInboundAuthenticationRequestConfigs();
 
             for (InboundAuthenticationRequestConfig authReqConfig : authReqConfigs) {
-                if (authReqConfig.getInboundAuthType().equals("oauth2")) {
+                if ("oauth2".equals(authReqConfig.getInboundAuthType())) {
                     if (authReqConfig.getProperties() != null) {
                         for (Property property : authReqConfig.getProperties()) {
                             if ("oauthConsumerSecret".equalsIgnoreCase(property.getName())) {
@@ -969,6 +986,9 @@ public class IdentityApplicationManagementUtil {
             byte[] rawHmac = mac.doFinal(value.getBytes());
             result = Base64Utils.encode(rawHmac);
         } catch (Exception e) {
+            if(log.isDebugEnabled()){
+                log.debug("Failed to create the HMAC Signature",e);
+            }
             throw new SignatureException("Failed to calculate HMAC : " + e.getMessage());
         }
         return result;

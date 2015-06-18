@@ -1,30 +1,27 @@
 /*
- * Copyright 2005-2007 WSO2, Inc. (http://wso2.com)
+ * Copyright (c) 2007, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package org.wso2.carbon.security.util;
 
-import org.apache.axiom.om.OMAttribute;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.rampart.policy.model.KerberosConfig;
 import org.apache.ws.security.WSPasswordCallback;
 import org.wso2.carbon.core.RegistryResources;
-import org.wso2.carbon.core.persistence.PersistenceException;
-import org.wso2.carbon.core.persistence.PersistenceFactory;
-import org.wso2.carbon.core.persistence.file.ServiceGroupFilePersistenceManager;
 import org.wso2.carbon.core.util.CryptoException;
 import org.wso2.carbon.core.util.CryptoUtil;
 import org.wso2.carbon.core.util.KeyStoreManager;
@@ -34,11 +31,13 @@ import org.wso2.carbon.registry.core.Resource;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
 import org.wso2.carbon.registry.core.session.UserRegistry;
 import org.wso2.carbon.security.SecurityConfigException;
+import org.wso2.carbon.security.SecurityConfigParams;
 import org.wso2.carbon.security.SecurityConstants;
 import org.wso2.carbon.security.SecurityServiceHolder;
 import org.wso2.carbon.security.UserCredentialRetriever;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserRealm;
+import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
@@ -58,26 +57,23 @@ public class ServicePasswordCallbackHandler implements CallbackHandler {
 
     private String serviceGroupId = null;
     private String serviceId = null;
-    //private Map<String, UserListData> users = new HashMap<String, UserListData>();
     private Registry registry = null;
     private UserRealm realm = null;
-    private String serviceXPath = null;
-    private String registryServicePath = null;
-    private PersistenceFactory persistenceFactory;
+    private SecurityConfigParams configParams;
 
     //todo there's a API change here. apparently only security component uses this. If not, change the invocations accordingly.
-    public ServicePasswordCallbackHandler(PersistenceFactory persistenceFactory, String serviceGroupId, String serviceId, String serviceXPath,
-                                          String registryServicePath, Registry registry, UserRealm realm)
+    public ServicePasswordCallbackHandler(SecurityConfigParams configParams, String serviceGroupId,
+                                          String serviceId,
+                                          Registry registry, UserRealm realm)
             throws RegistryException, SecurityConfigException {
         this.registry = registry;
         this.serviceId = serviceId;
         this.serviceGroupId = serviceGroupId;
         this.realm = realm;
-        this.serviceXPath = serviceXPath;
-        this.registryServicePath = registryServicePath;
-        this.persistenceFactory = persistenceFactory;
+        this.configParams = configParams;
     }
 
+    @Override
     public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
         try {
             for (int i = 0; i < callbacks.length; i++) {
@@ -183,54 +179,35 @@ public class ServicePasswordCallbackHandler implements CallbackHandler {
                     throw new UnsupportedCallbackException(callbacks[i], "Unrecognized Callback");
                 }
             }
-        } catch (UnsupportedCallbackException e) {
+        } catch (UnsupportedCallbackException | IOException e) {
             if (log.isDebugEnabled()) {
-                log.debug(e.getMessage(), e); //logging invlaid passwords and attempts
+                log.debug("Error in handling ServicePasswordCallbackHandler", e); //logging invlaid passwords and attempts
                 throw e;
             }
             throw e;
-        } catch (IOException e) {
-            log.error(e.getMessage(), e);
-            throw e;
+        } catch (UserStoreException | SecurityConfigException e) {
+            log.error("Error in handling ServicePasswordCallbackHandler", e);
+            throw new UnsupportedCallbackException(null, e.getMessage());
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            log.error("Error in handling ServicePasswordCallbackHandler", e);
             //can't build an unsupported exception.
             throw new UnsupportedCallbackException(null, e.getMessage());
         }
     }
 
-    private String getServicePrincipalPassword() throws PersistenceException, SecurityConfigException {
-        String kerberosPath = this.serviceXPath + "/" + RampartConfigUtil.KERBEROS_CONFIG_RESOURCE;
-        String servicePrincipalPasswordResource = kerberosPath + "/@" + KerberosConfig.SERVICE_PRINCIPLE_PASSWORD;
+    private String getServicePrincipalPassword()
+            throws SecurityConfigException {
 
-        ServiceGroupFilePersistenceManager sfpm = persistenceFactory.getServiceGroupFilePM();
-        if (!sfpm.elementExists(serviceGroupId, servicePrincipalPasswordResource)) {
-            String msg = "Unable to find service principle password registry resource in path "
-                    + servicePrincipalPasswordResource;
+        String password = configParams.getServerPrincipalPassword();
+        if (password != null) {
+            if (configParams.isServerPrincipalPasswordEncrypted()) {
+                password = getDecryptedPassword(password);
+            }
+            return password;
+        } else {
+            String msg = "Service principal password param not found";
             log.error(msg);
             throw new SecurityConfigException(msg);
-        }
-
-        OMAttribute principalPassword = sfpm.getAttribute(serviceGroupId,
-                servicePrincipalPasswordResource);
-        if (principalPassword != null) {
-            String password = principalPassword.getAttributeValue();
-            if (password != null) {
-                password = getDecryptedPassword(password);
-                return password;
-            } else {
-                StringBuilder msg = new StringBuilder("Retrieved principal password is null in registry path ")
-                        .append(servicePrincipalPasswordResource).append(" for property ")
-                        .append(KerberosConfig.SERVICE_PRINCIPLE_PASSWORD);
-                log.error(msg.toString());
-                throw new SecurityConfigException(msg.toString());
-            }
-        } else {
-            StringBuilder msg = new StringBuilder("Retrieved principal resource is null in service metafile")
-                    .append(servicePrincipalPasswordResource).append(" for property ")
-                    .append(KerberosConfig.SERVICE_PRINCIPLE_PASSWORD);
-            log.error(msg.toString());
-            throw new SecurityConfigException(msg.toString());
         }
     }
 
@@ -262,11 +239,6 @@ public class ServicePasswordCallbackHandler implements CallbackHandler {
         String tenantAwareUserName = MultitenantUtils.getTenantAwareUsername(user);
 
         try {
-
-//			UserRealm realm = AnonymousSessionUtil.getRealmByUserName(
-//					SecurityServiceHolder.getRegistryService(),
-//					SecurityServiceHolder.getRealmService(), user);
-
             isAuthenticated = realm.getUserStoreManager().authenticate(
                     tenantAwareUserName, password);
 
@@ -288,7 +260,7 @@ public class ServicePasswordCallbackHandler implements CallbackHandler {
 
             return isAuthorized;
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            log.error("Error in authenticating user.", e);
             throw e;
         }
     }
@@ -339,10 +311,10 @@ public class ServicePasswordCallbackHandler implements CallbackHandler {
                 }
             }
         } catch (IOException e) {
-            log.error(e.getMessage(), e);
+            log.error("Error when getting PrivateKeyPassword.", e);
             throw e;
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            log.error("Error when getting PrivateKeyPassword.", e);
             throw e;
         }
 

@@ -37,7 +37,11 @@ import org.wso2.carbon.identity.entitlement.policy.store.PolicyStoreManageModule
 import org.wso2.carbon.identity.entitlement.policy.version.PolicyVersionManager;
 import org.wso2.carbon.utils.CarbonUtils;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.Properties;
 
@@ -206,6 +210,7 @@ public class EntitlementExtensionBuilder {
         setProperty(properties, pdpProperties, PDPConstants.ENTITLEMENT_ITEMS_PER_PAGE);
         setProperty(properties, pdpProperties, PDPConstants.START_UP_POLICY_ADDING);
         setProperty(properties, pdpProperties, PDP_SCHEMA_VALIDATION);
+        setProperty(properties,pdpProperties, PDPConstants.ENTITLEMENT_ENGINE_CACHING_INTERVAL);
 
         holder.setEngineProperties(pdpProperties);
     }

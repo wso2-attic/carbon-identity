@@ -1,17 +1,17 @@
 /*
- * Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
- * 
+ * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
  * WSO2 Inc. licenses this file to you under the Apache License,
- * Version 2.0 (the "License"); you may not use this file except
+ *  Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the
+ * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
  * under the License.
  */
@@ -82,6 +82,9 @@ public class SAML2HTTPRedirectDeflateSignatureValidator implements SAML2HTTPRedi
             and get the Signature Algorithm */
             sigAlg = URLDecoder.decode(sigAlgQueryParam.split("=")[1], "UTF-8");
         } catch (UnsupportedEncodingException e) {
+            if (log.isDebugEnabled()) {
+                log.debug("Encoding not supported.", e);
+            }
             // JVM is required to support UTF-8
             return null;
         }
@@ -109,12 +112,15 @@ public class SAML2HTTPRedirectDeflateSignatureValidator implements SAML2HTTPRedi
         }
         String signature = null;
         try {
-		    /* Split 'Signature=<sig_value>' query param using '=' as the delimiter,
+            /* Split 'Signature=<sig_value>' query param using '=' as the delimiter,
 		      and get the Signature value */
             signature = URLDecoder.decode(signatureQueryParam.split("=")[1], "UTF-8");
         } catch (UnsupportedEncodingException e) {
+            if (log.isDebugEnabled()) {
+                log.debug("Encoding not supported.", e);
+            }
             // JVM is required to support UTF-8
-            return null;
+            return new byte[0];
         }
         return Base64.decode(signature);
     }
@@ -145,8 +151,11 @@ public class SAML2HTTPRedirectDeflateSignatureValidator implements SAML2HTTPRedi
         try {
             return constructed.getBytes("UTF-8");
         } catch (UnsupportedEncodingException e) {
+            if (log.isDebugEnabled()) {
+                log.debug("Encoding not supported.", e);
+            }
             // JVM is required to support UTF-8
-            return null;
+            return new byte[0];
         }
     }
 
@@ -162,11 +171,9 @@ public class SAML2HTTPRedirectDeflateSignatureValidator implements SAML2HTTPRedi
         StringBuilder builder = new StringBuilder();
 
         // One of these two is mandatory
-        if (!appendParameter(builder, queryString, "SAMLRequest")) {
-            if (!appendParameter(builder, queryString, "SAMLResponse")) {
-                throw new SecurityPolicyException(
-                        "Extract of SAMLRequest or SAMLResponse from query string failed");
-            }
+        if (!appendParameter(builder, queryString, "SAMLRequest") && !appendParameter(builder, queryString, "SAMLResponse")) {
+            throw new SecurityPolicyException(
+                    "Extract of SAMLRequest or SAMLResponse from query string failed");
         }
         // This is optional
         appendParameter(builder, queryString, "RelayState");
@@ -203,6 +210,7 @@ public class SAML2HTTPRedirectDeflateSignatureValidator implements SAML2HTTPRedi
 
     @Override
     public void init() throws IdentityException {
+        //overridden method, no need to implement here
     }
 
     /**
@@ -214,6 +222,7 @@ public class SAML2HTTPRedirectDeflateSignatureValidator implements SAML2HTTPRedi
      * @throws SecurityException
      * @throws IdentitySAML2SSOException
      */
+    @Override
     public boolean validateSignature(String queryString, String issuer, String alias,
                                      String domainName) throws SecurityException,
             IdentitySAML2SSOException {

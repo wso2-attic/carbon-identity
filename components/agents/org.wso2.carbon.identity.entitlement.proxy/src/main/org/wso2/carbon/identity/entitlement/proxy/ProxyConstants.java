@@ -1,21 +1,23 @@
 /*
- *  Licensed to the Apache Software Foundation (ASF) under one
- *  or more contributor license agreements.  See the NOTICE file
- *  distributed with this work for additional information
- *  regarding copyright ownership.  The ASF licenses this file
- *  to you under the Apache License, Version 2.0 (the
- *  "License"); you may not use this file except in compliance
- *  with the License.  You may obtain a copy of the License at
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *  Unless required by applicable law or agreed to in writing,
- *  software distributed under the License is distributed on an
- *   * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *  KIND, either express or implied.  See the License for the
- *  specific language governing permissions and limitations
- *  under the License.
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ *
  */
+
 package org.wso2.carbon.identity.entitlement.proxy;
 
 public final class ProxyConstants {
@@ -30,15 +32,19 @@ public final class ProxyConstants {
     public static final String DECISION_CACHE = "DECISION_CACHE";
     public static final int MAX_CACHE_SIZE = 10000;
 
-    public final static String SESSION_TIME_OUT = "50977";
+    public static final String SESSION_TIME_OUT = "50977";
 
     public static final String SUBJECT_ID = "urn:oasis:names:tc:xacml:1.0:subject:subject-id";
 
-    public final static String TRUST_STORE = "javax.net.ssl.trustStore";
-    public final static String TRUST_STORE_PASSWORD = "javax.net.ssl.trustStorePassword";
+    public static final String TRUST_STORE = "javax.net.ssl.trustStore";
+    public static final String TRUST_STORE_PASSWORD = "javax.net.ssl.trustStorePassword";
     public static final int THRIFT_TIME_OUT = 30000;
     public static final int DEFAULT_THRIFT_PORT = 10500;
 
     public static final String DEFAULT_DATA_TYPE = "string";
+
+    private ProxyConstants(){
+
+    }
 
 }

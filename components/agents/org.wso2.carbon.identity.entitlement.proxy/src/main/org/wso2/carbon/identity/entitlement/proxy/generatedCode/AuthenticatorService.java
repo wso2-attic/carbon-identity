@@ -8,7 +8,11 @@ package org.wso2.carbon.identity.entitlement.proxy.generatedCode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.EnumMap;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.Map;
 
 public class AuthenticatorService {
 

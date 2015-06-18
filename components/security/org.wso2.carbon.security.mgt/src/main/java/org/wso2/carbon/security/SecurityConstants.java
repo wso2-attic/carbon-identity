@@ -1,20 +1,21 @@
 /*
-*  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 package org.wso2.carbon.security;
 
 import org.wso2.carbon.core.RegistryResources;
@@ -22,7 +23,6 @@ import org.wso2.carbon.core.RegistryResources;
 import javax.xml.namespace.QName;
 
 public class SecurityConstants {
-
 
     public static final String SECURITY_NAMESPACE = "http://www.wso2.org/products/carbon/security";
     public static final QName SUMMARY_QN = new QName(SECURITY_NAMESPACE, "Summary");
@@ -49,13 +49,12 @@ public class SecurityConstants {
 
     public static final String CUSTOM_SECURITY_SCENARIO_SUMMARY = "Custom security policy";
 
-    public final static String PROP_USER_STORE = "service.userstore";
+    public static final String PROP_USER_STORE = "service.userstore";
 
     public static final String EMPTY_SERVICE_VERSION = "SNAPSHOT";
     public static final String EMPTY_MODULE_VERSION = "SNAPSHOT";
 
     public static final String RAMPART_MODULE_NAME = "rampart";
-    //    public static final String ASSOCIATION_UT_GROUP = "service-group-store";
     public static final String ASSOCIATION_TRUSTED_KEYSTORE = "trusted-keystore";
     public static final String ASSOCIATION_PRIVATE_KEYSTORE = RegistryResources.Associations.PRIVATE_KEYSTORE;
     public static final String ASSOCIATION_SERVICE_SECURING_POLICY = "service-secpolicy";
@@ -100,6 +99,12 @@ public class SecurityConstants {
     public static final int CACHING_PAGE_SIZE = 5;
     //AxisService parameter names
     public static final String SCENARIO_ID_PARAM_NAME = "ScenarioID";
-    public static String ROLE_ADMIN = RegistryResources.SecurityManagement.ADMIN_ROLE;
-    public static String ROLE_GENERAL = "General User";
+    public static final String ROLE_ADMIN = RegistryResources.SecurityManagement.ADMIN_ROLE;
+    public static final String ROLE_GENERAL = "General User";
+
+    public static final String TRUST_MODULE = "rahas";
+    public static final String ALLOWED_ROLES_PARAM_NAME = "org.wso2.carbon.security.allowedroles";
+
+    private SecurityConstants(){}
+
 }

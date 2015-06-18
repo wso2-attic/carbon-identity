@@ -1,17 +1,19 @@
 /*
- * Copyright 2005-2008 WSO2, Inc. (http://wso2.com)
+ * Copyright (c) 2008, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package org.wso2.carbon.identity.relyingparty.saml;
@@ -22,7 +24,14 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.xml.security.utils.Base64;
 import org.opensaml.xml.security.x509.X509Credential;
-import org.opensaml.xml.signature.*;
+import org.opensaml.xml.signature.Exponent;
+import org.opensaml.xml.signature.KeyInfo;
+import org.opensaml.xml.signature.KeyValue;
+import org.opensaml.xml.signature.Modulus;
+import org.opensaml.xml.signature.RSAKeyValue;
+import org.opensaml.xml.signature.Signature;
+import org.opensaml.xml.signature.X509Certificate;
+import org.opensaml.xml.signature.X509Data;
 import org.w3c.dom.Element;
 import org.wso2.carbon.identity.relyingparty.RelyingPartyException;
 
@@ -40,8 +49,10 @@ import java.util.List;
 public class X509CredentialUtil {
 
     public static final BigInteger DEFAULT_EXPONENET = new BigInteger("65537");
-    public static KeyStore systemKeyStore = null;
-    private static Log log = LogFactory.getLog(X509CredentialUtil.class);
+    private static final Log log = LogFactory.getLog(X509CredentialUtil.class);
+
+    private X509CredentialUtil() {
+    }
 
     /**
      * Creates the X509Credential from the TrustStore certificate.
@@ -66,8 +77,7 @@ public class X509CredentialUtil {
     /**
      * Creates the certificate from the KeyInfo element.
      */
-    public static X509Credential loadCredentialFromSignature(Signature signature)
-            throws RelyingPartyException {
+    public static X509Credential loadCredentialFromSignature(Signature signature) throws RelyingPartyException {
         X509Credential credential = null;
         KeyInfo kinfo = signature.getKeyInfo();
         List<X509Data> dataList = null;
@@ -81,7 +91,7 @@ public class X509CredentialUtil {
             dataList = kinfo.getX509Datas();
             keyValueList = kinfo.getKeyValues();
 
-            if (dataList.size() > 0) {
+            if (!dataList.isEmpty()) {
 
                 if (dataList.size() > 1) {
                     throw new RelyingPartyException("invalidKeyValueCount");
@@ -99,16 +109,15 @@ public class X509CredentialUtil {
                     CertificateFactory factory = null;
                     java.security.cert.X509Certificate x509Cert = null;
 
-                    certElem = (X509Certificate) certIterator.next();
+                    certElem = certIterator.next();
                     certValue = certElem.getValue();
                     certInBytes = Base64.decode(certValue);
                     inputStream = new ByteArrayInputStream(certInBytes);
                     factory = CertificateFactory.getInstance("X509");
-                    x509Cert = (java.security.cert.X509Certificate) factory
-                            .generateCertificate(inputStream);
+                    x509Cert = (java.security.cert.X509Certificate) factory.generateCertificate(inputStream);
                     credential = new X509CredentialImpl(x509Cert);
                 }
-            } else if (keyValueList.size() > 0) {
+            } else if (!keyValueList.isEmpty()) {
 
                 if (keyValueList.size() > 1) {
                     throw new RelyingPartyException("invalidKeyValueCount");
@@ -123,7 +132,7 @@ public class X509CredentialUtil {
                 BigInteger mod = null;
                 BigInteger exp = null;
 
-                val = (KeyValue) keyValueList.get(0);
+                val = keyValueList.get(0);
                 rsaKey = val.getRSAKeyValue();
                 elem = rsaKey.getDOM();
                 omElem = (OMElement) new OMDOMFactory().getDocument().importNode(elem, true);

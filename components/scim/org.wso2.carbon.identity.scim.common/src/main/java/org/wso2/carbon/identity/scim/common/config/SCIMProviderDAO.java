@@ -1,20 +1,21 @@
 /*
-*  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 package org.wso2.carbon.identity.scim.common.config;
 
 import org.apache.commons.logging.Log;
@@ -50,7 +51,7 @@ public class SCIMProviderDAO {
 
             rSet = prepStmt.executeQuery();
 
-            scimProviders = new ArrayList<SCIMProviderDTO>();
+            scimProviders = new ArrayList<>();
             while (rSet.next()) {
                 if (rSet.getString(1) != null && rSet.getString(1).length() > 0) {
                     SCIMProviderDTO providerDTO = new SCIMProviderDTO();
@@ -67,15 +68,15 @@ public class SCIMProviderDAO {
                     scimProviders.add(providerDTO);
                 }
             }
+            connection.commit();
         } catch (IdentityException e) {
             String errorMsg = "Error when getting an Identity Persistence Store instance.";
             log.error(errorMsg, e);
             throw new IdentitySCIMException(errorMsg, e);
         } catch (SQLException e) {
             log.error("Error when executing the SQL : " + SQLQueries.GET_ALL_PROVIDERS_SQL);
-            log.error(e.getMessage(), e);
             throw new IdentitySCIMException("Error when reading the SCIM Providers information from " +
-                    "the persistence store.");
+                    "the persistence store.", e);
         } catch (CryptoException e) {
             String errorMsg = "Error in decrypting the password.";
             log.error(errorMsg, e);
@@ -113,15 +114,15 @@ public class SCIMProviderDAO {
                     providerDTO.setBulkEPURL(rSet.getString(5));
                 }
             }
+            connection.commit();
         } catch (IdentityException e) {
             String errorMsg = "Error when getting an Identity Persistence Store instance.";
             log.error(errorMsg, e);
             throw new IdentitySCIMException(errorMsg, e);
         } catch (SQLException e) {
             log.error("Error when executing the SQL : " + SQLQueries.GET_PROVIDER_SQL);
-            log.error(e.getMessage(), e);
             throw new IdentitySCIMException("Error when reading the SCIM Provider information from " +
-                    "the persistence store.");
+                    "the persistence store.", e);
         } catch (CryptoException e) {
             String errorMsg = "Error in decrypting the password.";
             log.error(errorMsg, e);
@@ -165,8 +166,7 @@ public class SCIMProviderDAO {
                 throw new IdentitySCIMException(errorMsg, e);
             } catch (SQLException e) {
                 log.error("Error when executing the SQL : " + sqlStmt);
-                log.error(e.getMessage(), e);
-                throw new IdentitySCIMException("Error when adding a new SCIM Provider.");
+                throw new IdentitySCIMException("Error when adding a new SCIM Provider.", e);
             } catch (CryptoException e) {
                 String errorMsg = "Error when encrypting the password.";
                 log.error(errorMsg, e);
@@ -204,8 +204,7 @@ public class SCIMProviderDAO {
                 throw new IdentitySCIMException(errorMsg, e);
             } catch (SQLException e) {
                 log.error("Error when executing the SQL : " + SQLQueries.DELETE_GROUP_SQL);
-                log.error(e.getMessage(), e);
-                throw new IdentitySCIMException("Error deleting the SCIM Group.");
+                throw new IdentitySCIMException("Error deleting the SCIM Group.", e);
             } finally {
                 IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
             }
@@ -229,8 +228,7 @@ public class SCIMProviderDAO {
                 prepStmt = connection.prepareStatement(SQLQueries.UPDATE_PROVIDER_SQL);
 
                 prepStmt.setString(1, providerDTO.getUserName());
-                //encrypt the password before persisting
-                //encrypt the password before persisting
+                //encrypt the password before persistings
                 String plainTextPassword = providerDTO.getPassword();
                 String cipherTextPassword =
                         CryptoUtil.getDefaultCryptoUtil().encryptAndBase64Encode(
@@ -254,8 +252,7 @@ public class SCIMProviderDAO {
                 throw new IdentitySCIMException(errorMsg, e);
             } catch (SQLException e) {
                 log.error("Error when executing the SQL : " + SQLQueries.UPDATE_PROVIDER_SQL);
-                log.error(e.getMessage(), e);
-                throw new IdentitySCIMException("Error updating the SCIM Provider.");
+                throw new IdentitySCIMException("Error updating the SCIM Provider.", e);
             } catch (CryptoException e) {
                 String errorMsg = "Error when encrypting the password.";
                 log.error(errorMsg, e);
@@ -288,15 +285,15 @@ public class SCIMProviderDAO {
             if (rSet.next()) {
                 isExistingProvider = true;
             }
+            connection.commit();
         } catch (IdentityException e) {
             String errorMsg = "Error when getting an Identity Persistence Store instance.";
             log.error(errorMsg, e);
             throw new IdentitySCIMException(errorMsg, e);
         } catch (SQLException e) {
             log.error("Error when executing the SQL : " + SQLQueries.CHECK_EXISTING_PROVIDER_SQL);
-            log.error(e.getMessage(), e);
             throw new IdentitySCIMException("Error when reading provider information from " +
-                    "the persistence store.");
+                    "the persistence store.", e);
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, rSet, prepStmt);
         }
@@ -319,15 +316,15 @@ public class SCIMProviderDAO {
             if (rSet.next()) {
                 isExistingProvider = true;
             }
+            connection.commit();
         } catch (IdentityException e) {
             String errorMsg = "Error when getting an Identity Persistence Store instance.";
             log.error(errorMsg, e);
             throw new IdentitySCIMException(errorMsg, e);
         } catch (SQLException e) {
             log.error("Error when executing the SQL : " + SQLQueries.CHECK_EXISTING_CONSUMER_SQL);
-            log.error(e.getMessage(), e);
             throw new IdentitySCIMException("Error when reading provider information from " +
-                    "the persistence store.");
+                    "the persistence store.", e);
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, rSet, prepStmt);
         }
@@ -349,15 +346,15 @@ public class SCIMProviderDAO {
             if (rSet.next()) {
                 isFirstStartup = false;
             }
+            connection.commit();
         } catch (IdentityException e) {
             String errorMsg = "Error when getting an Identity Persistence Store instance.";
             log.error(errorMsg, e);
             throw new IdentitySCIMException(errorMsg, e);
         } catch (SQLException e) {
             log.error("Error when executing the SQL : " + SQLQueries.CHECK_FIRST_STARTUP_SQL);
-            log.error(e.getMessage(), e);
             throw new IdentitySCIMException("Error when reading provider information from " +
-                    "the persistence store.");
+                    "the persistence store.", e);
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, rSet, prepStmt);
         }
