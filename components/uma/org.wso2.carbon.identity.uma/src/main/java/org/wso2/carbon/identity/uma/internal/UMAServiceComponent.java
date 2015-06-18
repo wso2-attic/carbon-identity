@@ -26,11 +26,16 @@ import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.identity.uma.UMAService;
-import org.wso2.carbon.registry.api.RegistryService;
-import org.wso2.carbon.user.core.service.RealmService;
-
-/**
- * @scr.component immediate="true" activate="activate"
+import org.wso2.carbon.registry.core.service.RegistryService;
+import org.wso2.carbon.user.core.service.RealmService;/**
+ * @scr.component name="org.wso2.carbon.identity.uma.internal.UMAServiceComponent" immediate="true" activate="activate"
+ * @scr.reference name="registry.service"
+ * interface="org.wso2.carbon.registry.core.service.RegistryService"
+ * cardinality="1..1" policy="static" bind="setRegistryService"
+ * unbind="unsetRegistryService"
+ * @scr.reference name="user.realmservice.default"
+ * interface="org.wso2.carbon.user.core.service.RealmService" cardinality="1..1"
+ * policy="static" bind="setRealmService" unbind="unsetRealmService"
  */
 public class UMAServiceComponent {
     private static Log log = LogFactory.getLog(UMAServiceComponent.class);
