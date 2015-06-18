@@ -1,17 +1,17 @@
 <!--
-~ Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+~ Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 ~
 ~ WSO2 Inc. licenses this file to you under the Apache License,
 ~ Version 2.0 (the "License"); you may not use this file except
 ~ in compliance with the License.
 ~ You may obtain a copy of the License at
 ~
-~    http://www.apache.org/licenses/LICENSE-2.0
+~ http://www.apache.org/licenses/LICENSE-2.0
 ~
 ~ Unless required by applicable law or agreed to in writing,
 ~ software distributed under the License is distributed on an
 ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-~ KIND, either express or implied.  See the License for the
+~ KIND, either express or implied. See the License for the
 ~ specific language governing permissions and limitations
 ~ under the License.
 -->
@@ -25,9 +25,11 @@
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="java.util.List" %>
 <%@ page import="java.util.Map" %>
+<%@ page import="org.apache.log4j.Logger" %>
 
 
 <%
+
     String cookie = (String) session
             .getAttribute(ServerConstants.ADMIN_SERVICE_COOKIE);
     String backendServerURL = CarbonUIUtil.getServerURL(config.getServletContext(),
@@ -36,10 +38,10 @@
             .getServletContext()
             .getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
 
-    Map<String, String> configMap = new HashMap<>();
+    Map<String, String> configMap = new HashMap<String, String>();
     TenantIdentityMgtClient client =
             new TenantIdentityMgtClient(cookie, backendServerURL, configContext);
-    configMap = client.getConfiguration();
+    configMap = client.getAllConfigurations();
 
 %>
 
@@ -81,14 +83,12 @@
 <div id="workArea">
 <form id="addTenantConfigurationForm" name="addTenantConfigurationForm" action="add_config_ajaxprocessor.jsp"
       method="post">
-    <% Map<String, String> configurations = new HashMap<>();
+    <% Map<String, String> configurations = new HashMap<String, String>();
    int i=0;
     List<String> values = new ArrayList<String>() {{
         add("true");
         add("false");
     }};
-
-    List<String> updatedConfigList = new ArrayList<>();
 %>
 
 <h2 id="role_permission_config_head22" class="active trigger">
@@ -105,65 +105,55 @@
     %>
 
     <td><span>Account Lock Enable</span></td>
-    <td colspan="2">
-        <select name="Account.Lock.Enable"
-                id="Account.Lock.Enable" style="width:410px"
-                onchange=<%updatedConfigList.add("Account.Lock.Enable");%>>
-
-            <%
-                for (String value : values) {
-                    if (configurations.get("tenantConfiguration" + i).equals(value)) {
-            %>
-            <option selected="selected" value="<%=value%>"><%=value%>
-            </option>
-            <%
-            } else {
-            %>
-            <option value="<%=value%>"><%=value%>
-            </option>
-            <%
-                    }
+    <td colspan="2" name="Account.Lock.Enable" id="Account.Lock.Enable" style="width:410px">
+        <%
+            for (String value : values) {
+                if (configurations.get("tenantConfiguration" + i).equals(value)) {
+        %>
+        <input type="radio" name="Account.Lock.Enable"
+               value="<%=value%>" checked="checked"><%=value%>
+        <input type="hidden" name="Account.Lock.Enable.Original"
+               value="<%=value%>">
+        <%
+        } else {
+        %>
+        <input type="radio" name="Account.Lock.Enable"
+               value="<%=value%>"><%=value%>
+        <%
                 }
-            %>
-
-        </select>
-
+            }
+        %>
 
     </td>
 
-</tr>
 
+</tr>
 <tr>
     <%
         configurations.put("tenantConfiguration" + i, configMap.get("Account.Unlock.Enable"));
     %>
 
     <td><span>Account Unlock Enable</span></td>
-    <td colspan="2">
-        <select name="Account.Unlock.Enable"
-                id="Account.Unlock.Enable" style="width:410px">
-
-            <%
-                for (String value : values) {
-                    if (configurations.get("tenantConfiguration" + i).equals(value)) {
-            %>
-            <option selected="selected" value="<%=value%>"><%=value%>
-            </option>
-            <%
-            } else {
-            %>
-            <option value="<%=value%>"><%=value%>
-            </option>
-            <%
-                    }
+    <td colspan="2" name="Account.Unlock.Enable" id="Account.Unlock.Enable" style="width:410px">
+        <%
+            for (String value : values) {
+                if (configurations.get("tenantConfiguration" + i).equals(value)) {
+        %>
+        <input type="radio" name="Account.Unlock.Enable"
+               value="<%=value%>" checked="checked"><%=value%>
+        <input type="hidden" name="Account.Unlock.Enable.Original"
+               value="<%=value%>">
+        <%
+        } else {
+        %>
+        <input type="radio" name="Account.Unlock.Enable"
+               value="<%=value%>"><%=value%>
+        <%
                 }
-            %>
-
-        </select>
-
+            }
+        %>
 
     </td>
-
 </tr>
 
 <tr>
@@ -172,28 +162,24 @@
     %>
 
     <td><span>Account Max Attempt Enable</span></td>
-    <td colspan="2">
-        <select name="Account.Max.Attempt.Enable"
-                id="Account.Max.Attempt.Enable" style="width:410px">
-
-            <%
-                for (String value : values) {
-                    if (configurations.get("tenantConfiguration" + i).equals(value)) {
-            %>
-            <option selected="selected" value="<%=value%>"><%=value%>
-            </option>
-            <%
-            } else {
-            %>
-            <option value="<%=value%>"><%=value%>
-            </option>
-            <%
-                    }
+    <td colspan="2" name="Account.Max.Attempt.Enable" id="Account.Max.Attempt.Enable" style="width:410px">
+        <%
+            for (String value : values) {
+                if (configurations.get("tenantConfiguration" + i).equals(value)) {
+        %>
+        <input type="radio" name="Account.Max.Attempt.Enable"
+               value="<%=value%>" checked="checked"><%=value%>
+        <input type="hidden" name="Account.Max.Attempt.Enable.Original"
+               value="<%=value%>">
+        <%
+        } else {
+        %>
+        <input type="radio" name="Account.Max.Attempt.Enable"
+               value="<%=value%>"><%=value%>
+        <%
                 }
-            %>
-
-        </select>
-
+            }
+        %>
 
     </td>
 
@@ -201,38 +187,32 @@
 
 
 <tr>
-    <%
+        <%
         configurations.put("tenantConfiguration" + i, configMap.get("Account.OneTime.Password.Enable"));
     %>
 
     <td><span>Account Onetime Password Enable</span></td>
-    <td colspan="2">
-        <select name="Account.OneTime.Password.Enable"
-                id="Account.OneTime.Password.Enable" style="width:410px">
 
-            <%
-                for (String value : values) {
-                    if (configurations.get("tenantConfiguration" + i).equals(value)) {
-            %>
-            <option selected="selected" value="<%=value%>"><%=value%>
-            </option>
-            <%
-            } else {
-            %>
-            <option value="<%=value%>"><%=value%>
-            </option>
-            <%
-                    }
+    <td colspan="2" name="Account.OneTime.Password.Enable" id="Account.OneTime.Password.Enable" style="width:410px">
+        <%
+            for (String value : values) {
+                if (configurations.get("tenantConfiguration" + i).equals(value)) {
+        %>
+        <input type="radio" name="Account.OneTime.Password.Enable"
+               value="<%=value%>" checked="checked"><%=value%>
+        <input type="hidden" name="Account.OneTime.Password.Enable.Original"
+               value="<%=value%>">
+        <%
+        } else {
+        %>
+        <input type="radio" name="Account.OneTime.Password.Enable"
+               value="<%=value%>"><%=value%>
+        <%
                 }
-            %>
-
-        </select>
-
+            }
+        %>
 
     </td>
-
-</tr>
-
 
 <tr>
     <%
@@ -240,28 +220,26 @@
     %>
 
     <td><span>Account Password Reuse Enable</span></td>
-    <td colspan="2">
-        <select name="Account.Password.Reuse.Enable"
-                id="Account.Password.Reuse.Enable" style="width:410px">
 
-            <%
-                for (String value : values) {
-                    if (configurations.get("tenantConfiguration" + i).equals(value)) {
-            %>
-            <option selected="selected" value="<%=value%>"><%=value%>
-            </option>
-            <%
-            } else {
-            %>
-            <option value="<%=value%>"><%=value%>
-            </option>
-            <%
-                    }
+
+    <td colspan="2" name="Account.Password.Reuse.Enable" id="Account.Password.Reuse.Enable" style="width:410px">
+        <%
+            for (String value : values) {
+                if (configurations.get("tenantConfiguration" + i).equals(value)) {
+        %>
+        <input type="radio" name="Account.Password.Reuse.Enable"
+               value="<%=value%>" checked="checked"><%=value%>
+        <input type="hidden" name="Account.Password.Reuse.Enable.Original"
+               value="<%=value%>">
+        <%
+        } else {
+        %>
+        <input type="radio" name="Account.Password.Reuse.Enable"
+               value="<%=value%>"><%=value%>
+        <%
                 }
-            %>
-
-        </select>
-
+            }
+        %>
 
     </td>
 
@@ -274,28 +252,25 @@
     %>
 
     <td><span>Account Password Expire Enable</span></td>
-    <td colspan="2">
-        <select name="Account.Password.Expire.Enable"
-                id="Account.Password.Expire.Enable" style="width:410px">
 
-            <%
-                for (String value : values) {
-                    if (configurations.get("tenantConfiguration" + i).equals(value)) {
-            %>
-            <option selected="selected" value="<%=value%>"><%=value%>
-            </option>
-            <%
-            } else {
-            %>
-            <option value="<%=value%>"><%=value%>
-            </option>
-            <%
-                    }
+    <td colspan="2" name="Account.Password.Expire.Enable" id="Account.Password.Expire.Enable" style="width:410px">
+        <%
+            for (String value : values) {
+                if (configurations.get("tenantConfiguration" + i).equals(value)) {
+        %>
+        <input type="radio" name="Account.Password.Expire.Enable"
+               value="<%=value%>" checked="checked"><%=value%>
+        <input type="hidden" name="Account.Password.Expire.Enable.Original"
+               value="<%=value%>">
+        <%
+        } else {
+        %>
+        <input type="radio" name="Account.Password.Expire.Enable"
+               value="<%=value%>"><%=value%>
+        <%
                 }
-            %>
-
-        </select>
-
+            }
+        %>
 
     </td>
 
@@ -308,29 +283,28 @@
     %>
     <td>
         <span>Notification Sending Enable</span></td>
-    <td colspan="2">
-        <select name="Notification.Sending.Enable"
-                id="Notification.Sending.Enable" style="width:410px">
 
-            <%
-                for (String value : values) {
-                    if (configurations.get("tenantConfiguration" + i).equals(value)) {
-            %>
-            <option selected="selected" value="<%=value%>"><%=value%>
-            </option>
-            <%
-            } else {
-            %>
-            <option value="<%=value%>"><%=value%>
-            </option>
-            <%
-                    }
+    <td colspan="2" name="Notification.Sending.Enable" id="Notification.Sending.Enable" style="width:410px">
+        <%
+            for (String value : values) {
+                if (configurations.get("tenantConfiguration" + i).equals(value)) {
+        %>
+        <input type="radio" name="Notification.Sending.Enable"
+               value="<%=value%>" checked="checked"><%=value%>
+        <input type="hidden" name="Notification.Sending.Enable.Original"
+               value="<%=value%>">
+        <%
+        } else {
+        %>
+        <input type="radio" name="Notification.Sending.Enable"
+               value="<%=value%>"><%=value%>
+        <%
                 }
-            %>
-
-        </select>
+            }
+        %>
 
     </td>
+
 </tr>
 
 <tr>
@@ -342,7 +316,7 @@
     </td>
     <td colspan="2"><input type="text" name="Notification.Expire.Time"
                            id="Notification.Expire.Time" style="width:400px"
-                           value="<%=configurations.get("tenantConfiguration"+i)%>"/></td>
+                           value="<%=configurations.get("tenantConfiguration"+i)%>"/>
 </tr>
 
 <tr>
@@ -352,65 +326,61 @@
     <td>
         Notification Sending Internally Managed
     </td>
-    <td colspan="2">
-        <select name="Notification.Sending.Internally.Managed"
-                id="Notification.Sending.Internally.Managed" style="width:410px">
 
-            <%
-                for (String value : values) {
-                    if (configurations.get("tenantConfiguration" + i).equals(value)) {
-            %>
-            <option selected="selected" value="<%=value%>"><%=value%>
-            </option>
-            <%
-            } else {
-            %>
-            <option value="<%=value%>"><%=value%>
-            </option>
-            <%
-                    }
+
+    <td colspan="2" name="Notification.Sending.Internally.Managed" id="Notification.Sending.Internally.Managed"
+        style="width:410px">
+        <%
+            for (String value : values) {
+                if (configurations.get("tenantConfiguration" + i).equals(value)) {
+        %>
+        <input type="radio" name="Notification.Sending.Internally.Managed"
+               value="<%=value%>" checked="checked"><%=value%>
+        <input type="hidden" name="Notification.Sending.Internally.Managed.Original"
+               value="<%=value%>">
+        <%
+        } else {
+        %>
+        <input type="radio" name="Notification.Sending.Internally.Managed"
+               value="<%=value%>"><%=value%>
+        <%
                 }
-            %>
+            }
+        %>
 
-        </select>
     </td>
 </tr>
 
 
 <tr>
-    <%
+        <%
         configurations.put("tenantConfiguration" + i, configMap.get("Authentication.Policy.Enable"));
     %>
     <td>
         Authentication Policy Enable
     </td>
-    <td colspan="2">
 
-        <select name="Authentication.Policy.Enable"
-                id="Authentication.Policy.Enable" style="width:410px">
 
-            <%
-                for (String value : values) {
-                    if (configurations.get("tenantConfiguration" + i).equals(value)) {
-            %>
-            <option selected="selected" value="<%=value%>"><%=value%>
-            </option>
-            <%
-            } else {
-            %>
-            <option value="<%=value%>"><%=value%>
-            </option>
-            <%
-                    }
+    <td colspan="2" name="Authentication.Policy.Enable" id="Authentication.Policy.Enable" style="width:410px">
+        <%
+            for (String value : values) {
+                if (configurations.get("tenantConfiguration" + i).equals(value)) {
+        %>
+        <input type="radio" name="Authentication.Policy.Enable"
+               value="<%=value%>" checked="checked"><%=value%>
+        <input type="hidden" name="Authentication.Policy.Enable.Original"
+               value="<%=value%>">
+        <%
+        } else {
+        %>
+        <input type="radio" name="Authentication.Policy.Enable"
+               value="<%=value%>"><%=value%>
+        <%
                 }
+            }
+        %>
 
-                ++i;
-            %>
-
-        </select>
     </td>
-</tr>
-
 
 <tr>
     <%
@@ -419,30 +389,27 @@
     <td>
         Authentication Policy Check Account Exist
     </td>
-    <td colspan="2">
 
-        <select name="Authentication.Policy.Check.Account.Exist"
-                id="Authentication.Policy.Check.Account.Exist" style="width:410px">
 
-            <%
-                for (String value : values) {
-                    if (configurations.get("tenantConfiguration" + i).equals(value)) {
-            %>
-            <option selected="selected" value="<%=value%>"><%=value%>
-            </option>
-            <%
-            } else {
-            %>
-            <option value="<%=value%>"><%=value%>
-            </option>
-            <%
-                    }
+    <td colspan="2" name="Authentication.Policy.Check.Account.Exist" id="Authentication.Policy.Check.Account.Exist"
+        style="width:410px">
+        <%
+            for (String value : values) {
+                if (configurations.get("tenantConfiguration" + i).equals(value)) {
+        %>
+        <input type="radio" name="Authentication.Policy.Check.Account.Exist"
+               value="<%=value%>" checked="checked"><%=value%>
+        <input type="hidden" name="Authentication.Policy.Check.Account.Exist.Original"
+               value="<%=value%>">
+        <%
+        } else {
+        %>
+        <input type="radio" name="Authentication.Policy.Check.Account.Exist"
+               value="<%=value%>"><%=value%>
+        <%
                 }
-                ++i;
-            %>
-
-        </select>
-
+            }
+        %>
 
     </td>
 </tr>
@@ -454,29 +421,29 @@
     <td>
         Authentication Policy Check Password Expire
     </td>
-    <td colspan="2">
 
-        <select name="Authentication.Policy.Check.Password.Expire"
-                id="Authentication.Policy.Check.Password.Expire" style="width:410px">
-
-            <%
-                for (String value : values) {
-                    if (configurations.get("tenantConfiguration" + i).equals(value)) {
-            %>
-            <option selected="selected" value="<%=value%>"><%=value%>
-            </option>
-            <%
-            } else {
-            %>
-            <option value="<%=value%>"><%=value%>
-            </option>
-            <%
-                    }
+    <td colspan="2" name="Authentication.Policy.Check.Password.Expire" id="Authentication.Policy.Check.Password.Expire"
+        style="width:410px">
+        <%
+            for (String value : values) {
+                if (configurations.get("tenantConfiguration" + i).equals(value)) {
+        %>
+        <input type="radio" name="Authentication.Policy.Check.Password.Expire"
+               value="<%=value%>" checked="checked"><%=value%>
+        <input type="hidden" name="Authentication.Policy.Check.Password.Expire.Original"
+               value="<%=value%>">
+        <%
+        } else {
+        %>
+        <input type="radio" name="Authentication.Policy.Check.Password.Expire"
+               value="<%=value%>"><%=value%>
+        <%
                 }
-            %>
+            }
+        %>
 
-        </select>
     </td>
+
 </tr>
 
 <tr>
@@ -488,7 +455,8 @@
     </td>
     <td colspan="2"><input type="text" name="Authentication.Policy.Password.Expire.Time"
                            id="Authentication.Policy.Password.Expire.Time" style="width:400px"
-                           value="<%=configurations.get("tenantConfiguration"+i)%>"/></td>
+                           value="<%=configurations.get("tenantConfiguration"+i)%>"/>
+    </td>
 </tr>
 
 <tr>
@@ -500,7 +468,8 @@
     </td>
     <td colspan="2"><input type="text" name="Authentication.Policy.Account.Lock.Time"
                            id="Authentication.Policy.Account.Lock.Time" style="width:400px"
-                           value="<%=configurations.get("tenantConfiguration"+i)%>"/></td>
+                           value="<%=configurations.get("tenantConfiguration"+i)%>"/>
+    </td>
 </tr>
 
 <tr>
@@ -510,28 +479,27 @@
     <td>
         Authentication Policy Account Lock On Failure
     </td>
-    <td colspan="2">
 
-        <select name="Authentication.Policy.Account.Lock.On.Failure"
-                id="Authentication.Policy.Account.Lock.On.Failure" style="width:410px">
-
-            <%
-                for (String value : values) {
-                    if (configurations.get("tenantConfiguration" + i).equals(value)) {
-            %>
-            <option selected="selected" value="<%=value%>"><%=value%>
-            </option>
-            <%
-            } else {
-            %>
-            <option value="<%=value%>"><%=value%>
-            </option>
-            <%
-                    }
+    <td colspan="2" name="Authentication.Policy.Account.Lock.On.Failure"
+        id="Authentication.Policy.Account.Lock.On.Failure" style="width:410px">
+        <%
+            for (String value : values) {
+                if (configurations.get("tenantConfiguration" + i).equals(value)) {
+        %>
+        <input type="radio" name="Authentication.Policy.Account.Lock.On.Failure"
+               value="<%=value%>" checked="checked"><%=value%>
+        <input type="hidden" name="Authentication.Policy.Account.Lock.On.Failure.Original"
+               value="<%=value%>">
+        <%
+        } else {
+        %>
+        <input type="radio" name="Authentication.Policy.Account.Lock.On.Failure"
+               value="<%=value%>"><%=value%>
+        <%
                 }
-            %>
+            }
+        %>
 
-        </select>
     </td>
 </tr>
 
@@ -544,22 +512,9 @@
     </td>
     <td colspan="2"><input type="text" name="Authentication.Policy.Account.Lock.On.Failure.Max.Attempts"
                            id="Authentication.Policy.Account.Lock.On.Failure.Max.Attempts" style="width:400px"
-                           value="<%=configurations.get("tenantConfiguration"+i)%>"/></td>
-</tr>
-
-
-<%--<tr>
-    <%
-        configurations.put("tenantConfiguration" + i, configMap.get("Identity.Mgt.User.Recovery.Data.Store"));
-    %>
-    <td>
-        Identity Mgt User Recovery Data Store
-    </td>
-    <td colspan="2"><input type="text" name="Identity.Mgt.User.Recovery.Data.Store"
-                           id="Identity.Mgt.User.Recovery.Data.Store" style="width:400px"
                            value="<%=configurations.get("tenantConfiguration"+i)%>"/>
     </td>
-</tr>--%>
+</tr>
 
 
 <tr>
@@ -569,29 +524,29 @@
     <td>
         Authentication Policy Check Password Reuse
     </td>
-    <td colspan="2">
 
-        <select name="Authentication.Policy.Check.Password.Reuse"
-                id="Authentication.Policy.Check.Password.Reuse" style="width:410px">
-
-            <%
-                for (String value : values) {
-                    if (configurations.get("tenantConfiguration" + i).equals(value)) {
-            %>
-            <option selected="selected" value="<%=value%>"><%=value%>
-            </option>
-            <%
-            } else {
-            %>
-            <option value="<%=value%>"><%=value%>
-            </option>
-            <%
-                    }
+    <td colspan="2" name="Authentication.Policy.Check.Password.Reuse" id="Authentication.Policy.Check.Password.Reuse"
+        style="width:410px">
+        <%
+            for (String value : values) {
+                if (configurations.get("tenantConfiguration" + i).equals(value)) {
+        %>
+        <input type="radio" name="Authentication.Policy.Check.Password.Reuse"
+               value="<%=value%>" checked="checked"><%=value%>
+        <input type="hidden" name="Authentication.Policy.Check.Password.Reuse.Original"
+               value="<%=value%>">
+        <%
+        } else {
+        %>
+        <input type="radio" name="Authentication.Policy.Check.Password.Reuse"
+               value="<%=value%>"><%=value%>
+        <%
                 }
-            %>
+            }
+        %>
 
-        </select>
     </td>
+
 </tr>
 
 <tr>
@@ -641,28 +596,30 @@
             <td>
                 Captcha Verification Internally Managed
             </td>
-            <td colspan="2">
-                <select name="Captcha.Verification.Internally.Managed"
-                        id="Captcha.Verification.Internally.Managed" style="width:410px">
 
-                    <%
-                        for (String value : values) {
-                            if (configurations.get("tenantConfiguration" + i).equals(value)) {
-                    %>
-                    <option selected="selected" value="<%=value%>"><%=value%>
-                    </option>
-                    <%
-                    } else {
-                    %>
-                    <option value="<%=value%>"><%=value%>
-                    </option>
-                    <%
-                            }
+
+            <td colspan="2" name="Captcha.Verification.Internally.Managed" id="Captcha.Verification.Internally.Managed"
+                style="width:410px">
+                <%
+                    for (String value : values) {
+                        if (configurations.get("tenantConfiguration" + i).equals(value)) {
+                %>
+                <input type="radio" name="Captcha.Verification.Internally.Managed"
+                       value="<%=value%>" checked="checked"><%=value%>
+                <input type="hidden" name="Captcha.Verification.Internally.Managed.Original"
+                       value="<%=value%>">
+                <%
+                } else {
+                %>
+                <input type="radio" name="Captcha.Verification.Internally.Managed"
+                       value="<%=value%>"><%=value%>
+                <%
                         }
-                    %>
+                    }
+                %>
 
-                </select>
             </td>
+
         </tr>
 
 
@@ -685,30 +642,27 @@
             <td>
                 Authentication Policy Check Account Lock
             </td>
-            <td colspan="2">
 
-                <select name="Authentication.Policy.Check.Account.Lock"
-                        id="Authentication.Policy.Check.Account.Lock" style="width:410px">
-
-                    <%
-                        for (String value : values) {
-                            if (configurations.get("tenantConfiguration" + i).equals(value)) {
-                    %>
-                    <option selected="selected" value="<%=value%>"><%=value%>
-                    </option>
-                    <%
-                    } else {
-                    %>
-                    <option value="<%=value%>"><%=value%>
-                    </option>
-                    <%
-                            }
+            <td colspan="2" name="Authentication.Policy.Check.Account.Lock"
+                id="Authentication.Policy.Check.Account.Lock" style="width:410px">
+                <%
+                    for (String value : values) {
+                        if (configurations.get("tenantConfiguration" + i).equals(value)) {
+                %>
+                <input type="radio" name="Authentication.Policy.Check.Account.Lock"
+                       value="<%=value%>" checked="checked"><%=value%>
+                <input type="hidden" name="Authentication.Policy.Check.Account.Lock.Original"
+                       value="<%=value%>">
+                <%
+                } else {
+                %>
+                <input type="radio" name="Authentication.Policy.Check.Account.Lock"
+                       value="<%=value%>"><%=value%>
+                <%
                         }
+                    }
+                %>
 
-                        ++i;
-                    %>
-
-                </select>
             </td>
 
         </tr>
@@ -734,7 +688,9 @@
             </td>
             <td colspan="2"><input type="text" name="Password.policy.extensions.1.min.length"
                                    id="Password.policy.extensions.1.min.length" style="width:400px"
-                                   value="<%=configurations.get("tenantConfiguration"+i)%>"/></td>
+                                   value="<%=configurations.get("tenantConfiguration"+i)%>"/>
+
+            </td>
         </tr>
 
         <tr>
@@ -746,7 +702,8 @@
             </td>
             <td colspan="2"><input type="text" name="Password.policy.extensions.1.max.length"
                                    id="Password.policy.extensions.1.max.length" style="width:400px"
-                                   value="<%=configurations.get("tenantConfiguration"+i)%>"/></td>
+                                   value="<%=configurations.get("tenantConfiguration"+i)%>"/>
+            </td>
         </tr>
 
         <tr>
@@ -782,27 +739,30 @@
             <td>
                 Authentication Policy Check OneTime Password
             </td>
-            <td colspan="2">
-                <select name="Authentication.Policy.Check.OneTime.Password"
-                        id="Authentication.Policy.Check.OneTime.Password" style="width:410px">
 
-                    <%
-                        for (String value : values) {
-                            if (configurations.get("tenantConfiguration" + i).equals(value)) {
-                    %>
-                    <option selected="selected" value="<%=value%>"><%=value%>
-                    </option>
-                    <%
-                    } else {
-                    %>
-                    <option value="<%=value%>"><%=value%>
-                    </option>
-                    <%
-                            }
+
+            <td colspan="2" name="Authentication.Policy.Check.OneTime.Password"
+                id="Authentication.Policy.Check.OneTime.Password" style="width:410px">
+                <%
+                    for (String value : values) {
+                        if (configurations.get("tenantConfiguration" + i).equals(value)) {
+                %>
+                <input type="radio" name="Authentication.Policy.Check.OneTime.Password"
+                       value="<%=value%>" checked="checked"><%=value%>
+                <input type="hidden" name="Authentication.Policy.Check.OneTime.Password.Original"
+                       value="<%=value%>">
+                <%
+                } else {
+                %>
+                <input type="radio" name="Authentication.Policy.Check.OneTime.Password"
+                       value="<%=value%>"><%=value%>
+                <%
                         }
-                    %>
+                    }
+                %>
 
-                </select></td>
+            </td>
+
         </tr>
     </table>
 </div>
@@ -823,28 +783,27 @@
             <td>
                 UserAccount Verification Enable
             </td>
-            <td colspan="2">
 
-                <select name="UserAccount.Verification.Enable"
-                        id="UserAccount.Verification.Enable" style="width:410px">
-
-                    <%
-                        for (String value : values) {
-                            if (configurations.get("tenantConfiguration" + i).equals(value)) {
-                    %>
-                    <option selected="selected" value="<%=value%>"><%=value%>
-                    </option>
-                    <%
-                    } else {
-                    %>
-                    <option value="<%=value%>"><%=value%>
-                    </option>
-                    <%
-                            }
+            <td colspan="2" name="UserAccount.Verification.Enable" id="UserAccount.Verification.Enable"
+                style="width:410px">
+                <%
+                    for (String value : values) {
+                        if (configurations.get("tenantConfiguration" + i).equals(value)) {
+                %>
+                <input type="radio" name="UserAccount.Verification.Enable"
+                       value="<%=value%>" checked="checked"><%=value%>
+                <input type="hidden" name="UserAccount.Verification.Enable.Original"
+                       value="<%=value%>">
+                <%
+                } else {
+                %>
+                <input type="radio" name="UserAccount.Verification.Enable"
+                       value="<%=value%>"><%=value%>
+                <%
                         }
-                    %>
+                    }
+                %>
 
-                </select>
             </td>
         </tr>
 
@@ -855,30 +814,28 @@
             <td>
                 Temporary Password Enable
             </td>
-            <td colspan="2">
 
-                <select name="Temporary.Password.Enable"
-                        id="Temporary.Password.Enable" style="width:410px">
-
-                    <%
-                        for (String value : values) {
-                            if (configurations.get("tenantConfiguration" + i).equals(value)) {
-                    %>
-                    <option selected="selected" value="<%=value%>"><%=value%>
-                    </option>
-                    <%
-                    } else {
-                    %>
-                    <option value="<%=value%>"><%=value%>
-                    </option>
-                    <%
-                            }
+            <td colspan="2" name="Temporary.Password.Enable" id="Temporary.Password.Enable" style="width:410px">
+                <%
+                    for (String value : values) {
+                        if (configurations.get("tenantConfiguration" + i).equals(value)) {
+                %>
+                <input type="radio" name="Temporary.Password.Enable"
+                       value="<%=value%>" checked="checked"><%=value%>
+                <input type="hidden" name="Temporary.Password.Enable.Original"
+                       value="<%=value%>">
+                <%
+                } else {
+                %>
+                <input type="radio" name="Temporary.Password.Enable"
+                       value="<%=value%>"><%=value%>
+                <%
                         }
-                    %>
-
-                </select>
+                    }
+                %>
 
             </td>
+
         </tr>
 
 
@@ -891,7 +848,8 @@
             </td>
             <td colspan="2"><input type="text" name="Temporary.Password.Default.Value"
                                    id="Temporary.Password.Default.Value" style="width:400px"
-                                   value="<%=configurations.get("tenantConfiguration"+i)%>"/></td>
+                                   value="<%=configurations.get("tenantConfiguration"+i)%>"/>
+            </td>
         </tr>
 
         <tr>
@@ -901,35 +859,31 @@
             <td>
                 Authentication Policy Account Lock On Creation
             </td>
-            <td colspan="2">
-                <select name="Authentication.Policy.Account.Lock.On.Creation"
-                        id="Authentication.Policy.Account.Lock.On.Creation" style="width:410px">
 
-                    <%
-                        for (String value : values) {
-                            if (configurations.get("tenantConfiguration" + i).equals(value)) {
-                    %>
-                    <option selected="selected" value="<%=value%>"><%=value%>
-                    </option>
-                    <%
-                    } else {
-                    %>
-                    <option value="<%=value%>"><%=value%>
-                    </option>
-                    <%
-                            }
+            <td colspan="2" name="Authentication.Policy.Account.Lock.On.Creation"
+                id="Authentication.Policy.Account.Lock.On.Creation" style="width:410px">
+                <%
+                    for (String value : values) {
+                        if (configurations.get("tenantConfiguration" + i).equals(value)) {
+                %>
+                <input type="radio" name="Authentication.Policy.Account.Lock.On.Creation"
+                       value="<%=value%>" checked="checked"><%=value%>
+                <input type="hidden" name="Authentication.Policy.Account.Lock.On.Creation.Original"
+                       value="<%=value%>">
+                <%
+                } else {
+                %>
+                <input type="radio" name="Authentication.Policy.Account.Lock.On.Creation"
+                       value="<%=value%>"><%=value%>
+                <%
                         }
-                    %>
+                    }
+                %>
 
-                </select>
             </td>
         </tr>
     </table>
 </div>
-
-<%
-request.setAttribute("updatedConfigList", updatedConfigList);
-%>
 
 <tr id="buttonRow">
     <td class="buttonRow">
