@@ -142,6 +142,7 @@ public abstract class AbstractAuthorizationGrantHandler implements Authorization
                         }
                         tokenRespDTO = new OAuth2AccessTokenRespDTO();
                         tokenRespDTO.setAccessToken(accessTokenDO.getAccessToken());
+                        tokenRespDTO.setTokenId(accessTokenDO.getTokenId());
                         if (issueRefreshToken() &&
                                 OAuthServerConfiguration.getInstance().getSupportedGrantTypes().containsKey(
                                         GrantType.REFRESH_TOKEN.toString())) {
@@ -168,7 +169,7 @@ public abstract class AbstractAuthorizationGrantHandler implements Authorization
                         }
                         //Token is expired. Clear it from cache and mark it as expired on database
                         oauthCache.clearCacheEntry(cacheKey);
-                        tokenMgtDAO.setAccessTokenState(accessTokenDO.getAccessToken(),
+                        tokenMgtDAO.setAccessTokenState(accessTokenDO.getTokenId(),
                                 OAuthConstants.TokenStates.TOKEN_STATE_EXPIRED,
                                 UUID.randomUUID().toString(), userStoreDomain);
                         if (log.isDebugEnabled()) {
@@ -211,6 +212,7 @@ public abstract class AbstractAuthorizationGrantHandler implements Authorization
                     }
                     tokenRespDTO = new OAuth2AccessTokenRespDTO();
                     tokenRespDTO.setAccessToken(accessTokenDO.getAccessToken());
+                    tokenRespDTO.setTokenId(accessTokenDO.getTokenId());
                     if (issueRefreshToken() &&
                             OAuthServerConfiguration.getInstance().getSupportedGrantTypes().containsKey(
                                     GrantType.REFRESH_TOKEN.toString())) {
@@ -248,7 +250,7 @@ public abstract class AbstractAuthorizationGrantHandler implements Authorization
                             refreshTokenValidityPeriodInMillis = accessTokenDO.getRefreshTokenValidityPeriodInMillis();
                         }
                         //  Mark token as expired on database
-                        tokenMgtDAO.setAccessTokenState(accessTokenDO.getAccessToken(),
+                        tokenMgtDAO.setAccessTokenState(accessTokenDO.getTokenId(),
                                 OAuthConstants.TokenStates.TOKEN_STATE_EXPIRED,
                                 UUID.randomUUID().toString(), userStoreDomain);
                         if (log.isDebugEnabled()) {
