@@ -98,6 +98,7 @@ public class GroupDAO {
             if (rSet.next()) {
                 isExistingGroup = true;
             }
+            connection.commit();
         } catch (IdentityException e) {
             String errorMsg = "Error when getting an Identity Persistence Store instance.";
             throw new IdentitySCIMException(errorMsg, e);
@@ -128,6 +129,7 @@ public class GroupDAO {
             if (rSet.next()) {
                 isExistingAttribute = true;
             }
+            connection.commit();
         } catch (IdentityException e) {
             String errorMsg = "Error when getting an Identity Persistence Store instance.";
             throw new IdentitySCIMException(errorMsg, e);
@@ -164,7 +166,7 @@ public class GroupDAO {
                                 + " An attribute with the same name already exists.");
                     }
                 }
-
+                connection.commit();
             } catch (IdentityException e) {
                 String errorMsg = "Error when getting an Identity Persistence Store instance.";
                 throw new IdentitySCIMException(errorMsg, e);
@@ -266,6 +268,7 @@ public class GroupDAO {
                     attributes.put(rSet.getString(1), rSet.getString(2));
                 }
             }
+            connection.commit();
         } catch (IdentityException e) {
             String errorMsg = "Error when getting an Identity Persistence Store instance.";
             throw new IdentitySCIMException(errorMsg, e);
@@ -296,6 +299,7 @@ public class GroupDAO {
                 //we assume only one result since group id and tenant id is unique.
                 roleName = rSet.getString(1);
             }
+            connection.commit();
         } catch (IdentityException e) {
             String errorMsg = "Error when getting an Identity Persistence Store instance.";
             throw new IdentitySCIMException(errorMsg, e);

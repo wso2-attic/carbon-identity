@@ -201,7 +201,9 @@ public class OpenIDUserRPDAO {
                 prepStmt.setString(1, userName);
                 prepStmt.setInt(2, IdentityUtil.getTenantIdOFUser(userName));
                 prepStmt.setString(3, rpUrl);
-                return buildUserRPDO(prepStmt.executeQuery(), userName);
+                OpenIDUserRPDO openIDUserRPDO = buildUserRPDO(prepStmt.executeQuery(), userName);
+                connection.commit();
+                return openIDUserRPDO;
             } else {
                 log.debug("RP: " + rpUrl + " of user: " + userName + " not found in the database");
             }
@@ -246,7 +248,7 @@ public class OpenIDUserRPDAO {
 
             rpDOs = new OpenIDUserRPDO[rpdos.size()];
             rpDOs = rpdos.toArray(rpDOs);
-
+            connection.commit();
         } catch (SQLException e) {
             log.error("Error while accessing the database to load RPs.", e);
         } finally {

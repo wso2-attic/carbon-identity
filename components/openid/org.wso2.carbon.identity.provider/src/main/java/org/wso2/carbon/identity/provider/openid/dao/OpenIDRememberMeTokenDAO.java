@@ -72,13 +72,9 @@ public class OpenIDRememberMeTokenDAO {
                 log.debug("RememberMe token of " + rememberMe.getUserName() + " successfully stored in the database.");
             }
 
-        } catch (SQLException e) {
+        } catch (SQLException | IdentityException e) {
             log.error("Unable to update the token for " + rememberMe.getUserName() +
-                      " Error while accessing the database", e);
-            throw new IdentityProviderException("Error while accessing the database");
-        } catch (IdentityException e) {
-            log.error("Unable to update the token for " + rememberMe.getUserName() +
-                      " Error while accessing the database", e);
+                    " Error while accessing the database", e);
             throw new IdentityProviderException("Error while accessing the database");
         } finally {
             IdentityDatabaseUtil.closeStatement(prepStmt);
@@ -103,8 +99,10 @@ public class OpenIDRememberMeTokenDAO {
             prepStmt.setString(1, rememberMe.getUserName());
             prepStmt.setInt(2, IdentityUtil.getTenantIdOFUser(rememberMe.getUserName()));
 
-            return buildRememberMeDO(prepStmt.executeQuery(), rememberMe.getUserName());
-
+            OpenIDRememberMeDO openIDRememberMeDO = buildRememberMeDO(prepStmt.executeQuery()
+                    , rememberMe.getUserName());
+            connection.commit();
+            return openIDRememberMeDO;
         } catch (SQLException | IdentityException e) {
             log.error("Unable to load RememberMe token for " + rememberMe.getUserName() +
                       " Error while accessing the database", e);

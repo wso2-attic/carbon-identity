@@ -167,6 +167,7 @@ public class OAuthAppDAO {
                 }
             }
             oauthAppsOfUser = oauthApps.toArray(new OAuthAppDO[oauthApps.size()]);
+            connection.commit();
         } catch (IdentityException e) {
             throw new IdentityOAuthAdminException("Error when getting an Identity Persistence Store instance.", e);
         } catch (SQLException e) {
@@ -223,6 +224,7 @@ public class OAuthAppDAO {
 
                 throw new InvalidOAuthClientException("Cannot find an application associated with the given consumer key : " + consumerKey);
             }
+            connection.commit();
         } catch (IdentityException e) {
             throw new IdentityOAuth2Exception("Error while retrieving database connection" ,e);
         } catch (SQLException e) {
@@ -280,6 +282,7 @@ public class OAuthAppDAO {
                 log.debug(message);
                 throw new InvalidOAuthClientException(message);
             }
+            connection.commit();
         } catch (IdentityException e) {
             throw new IdentityOAuth2Exception("Error while retrieving database connection", e);
         } catch (SQLException e) {
@@ -357,6 +360,7 @@ public class OAuthAppDAO {
             if (rSet.next()) {
                 isDuplicateApp = true;
             }
+            connection.commit();
         } catch (IdentityException e) {
             throw new IdentityOAuthAdminException("Error when getting an Identity Persistence Store instance.", e);
         } catch (SQLException e) {
@@ -383,6 +387,7 @@ public class OAuthAppDAO {
             if (rSet.next()) {
                 isDuplicateConsumer = true;
             }
+            connection.commit();
         } catch (IdentityException e) {
             throw new IdentityOAuthAdminException("Error when getting an Identity Persistence Store instance.", e);
         } catch (SQLException e) {
