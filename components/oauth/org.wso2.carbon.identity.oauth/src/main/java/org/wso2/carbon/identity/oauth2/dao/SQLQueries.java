@@ -31,7 +31,8 @@ public class SQLQueries {
                                                                  "TOKEN_ID=? WHERE AUTHORIZATION_CODE=?";
 
     public static final String GET_ACCESS_TOKEN_BY_AUTHZ_CODE = "SELECT AUTHORIZATION_CODE FROM " +
-                                                                "IDN_OAUTH2_AUTHORIZATION_CODE WHERE TOKEN_ID=?";
+                                                                "IDN_OAUTH2_AUTHORIZATION_CODE WHERE " +
+                                                                "TOKEN_ID=?";
 
     public static final String UPDATE_NEW_TOKEN_AGAINST_AUTHZ_CODE = "UPDATE IDN_OAUTH2_AUTHORIZATION_CODE SET " +
                                                                  "TOKEN_ID=? WHERE AUTHORIZATION_CODE= (SELECT " +
@@ -86,8 +87,11 @@ public class SQLQueries {
     public static final String UPDATE_TOKE_STATE = "UPDATE IDN_OAUTH2_ACCESS_TOKEN SET TOKEN_STATE=?, " +
             "TOKEN_STATE_ID=? WHERE TOKEN_ID=?";
 
+    public static final String REVOKE_ACCESS_TOKEN_BY_TOKEN_ID = "UPDATE IDN_OAUTH2_ACCESS_TOKEN SET TOKEN_STATE=?, " +
+            "TOKEN_STATE_ID=? WHERE TOKEN_ID=?";
+
     public static final String REVOKE_ACCESS_TOKEN = "UPDATE IDN_OAUTH2_ACCESS_TOKEN SET TOKEN_STATE=?, " +
-            "TOKEN_STATE_ID=? WHERE ACCESS_TOKEN=?";
+                                                     "TOKEN_STATE_ID=? WHERE ACCESS_TOKEN=?";
 
     public static final String REVOKE_REFRESH_TOKEN = "UPDATE IDN_OAUTH2_ACCESS_TOKEN SET TOKEN_STATE=?, " +
             "TOKEN_STATE_ID=? WHERE REFRESH_TOKEN=?";
