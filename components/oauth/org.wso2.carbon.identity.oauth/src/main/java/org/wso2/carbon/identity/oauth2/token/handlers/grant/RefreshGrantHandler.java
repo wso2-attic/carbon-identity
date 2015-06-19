@@ -135,6 +135,7 @@ public class RefreshGrantHandler extends AbstractAuthorizationGrantHandler {
         OAuth2AccessTokenReqDTO oauth2AccessTokenReqDTO = tokReqMsgCtx.getOauth2AccessTokenReqDTO();
         String scope = OAuth2Util.buildScopeString(tokReqMsgCtx.getScope());
 
+        String tokenId;
         String accessToken;
         String refreshToken;
         String userStoreDomain = null;
@@ -143,6 +144,7 @@ public class RefreshGrantHandler extends AbstractAuthorizationGrantHandler {
         long refreshTokenValidityPeriodInMillis = 0;
 
         try {
+            tokenId = UUID.randomUUID().toString();
             accessToken = oauthIssuerImpl.accessToken();
             refreshToken = oauthIssuerImpl.refreshToken();
 
@@ -230,6 +232,7 @@ public class RefreshGrantHandler extends AbstractAuthorizationGrantHandler {
 
         accessTokenDO.setTokenState(OAuthConstants.TokenStates.TOKEN_STATE_ACTIVE);
         accessTokenDO.setRefreshToken(refreshToken);
+        accessTokenDO.setTokenId(tokenId);
         accessTokenDO.setAccessToken(accessToken);
 
         RefreshTokenValidationDataDO oldAccessToken =

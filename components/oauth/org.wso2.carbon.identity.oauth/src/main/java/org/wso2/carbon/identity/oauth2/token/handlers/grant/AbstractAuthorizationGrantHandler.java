@@ -340,6 +340,7 @@ public abstract class AbstractAuthorizationGrantHandler implements Authorization
             accessTokenDO.setRefreshToken(refreshToken);
             accessTokenDO.setTokenState(OAuthConstants.TokenStates.TOKEN_STATE_ACTIVE);
             accessTokenDO.setTenantID(tokReqMsgCtx.getTenantID());
+            accessTokenDO.setTokenId(UUID.randomUUID().toString());
 
             // Persist the access token in database
             try {
@@ -371,6 +372,7 @@ public abstract class AbstractAuthorizationGrantHandler implements Authorization
 
             tokenRespDTO = new OAuth2AccessTokenRespDTO();
             tokenRespDTO.setAccessToken(accessToken);
+            tokenRespDTO.setTokenId(accessTokenDO.getTokenId());
             if (issueRefreshToken() &&
                     OAuthServerConfiguration.getInstance().getSupportedGrantTypes().containsKey(
                             GrantType.REFRESH_TOKEN.toString())) {
