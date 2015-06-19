@@ -216,8 +216,9 @@ public class TokenMgtDAO {
             prepStmt.setString(11, accessTokenDO.getTokenType());
             prepStmt.execute();
             rs = prepStmt.getGeneratedKeys();
+            int accessTokenId = -1;
             if (rs.next()) {
-                int accessTokenId = rs.getInt(1);
+                accessTokenId = rs.getInt(1);
                 prepStmt = connection.prepareStatement(sqlAddScopes);
                 for (String scope : accessTokenDO.getScope()){
                     prepStmt.setInt(1,accessTokenId);
@@ -226,9 +227,7 @@ public class TokenMgtDAO {
                 }
             }
             connection.commit();
-            if (results.next()) {
-                return results.getInt(1);
-            }
+            return accessTokenId;
         } catch (SQLIntegrityConstraintViolationException e) {
             String errorMsg = "Access Token for consumer key : " + consumerKey + ", user : " +
                               accessTokenDO.getAuthzUser().toLowerCase() + " and scope : " +
@@ -242,7 +241,7 @@ public class TokenMgtDAO {
         } finally {
             IdentityDatabaseUtil.closeAllConnections(null, null, prepStmt);
         }
-        return -1;
+
     }
 
     public void storeAccessToken(String accessToken, String consumerKey,
@@ -423,6 +422,7 @@ public class TokenMgtDAO {
                     long validityPeriodInMillis = resultSet.getLong(6);
                     long refreshTokenValidityPeriodMillis = resultSet.getLong(7);
                     String tokenType = resultSet.getString(8);
+                    int tokenId = resultSet.getInt(9);
 
                     AccessTokenDO dataDO = new AccessTokenDO(consumerKey, userName, scope, issuedTime,
                             refreshTokenIssuedTime, validityPeriodInMillis,
