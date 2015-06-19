@@ -188,8 +188,6 @@ public class TokenMgtDAO {
             accessTokenStoreTable = accessTokenStoreTable + "_" + userStoreDomain;
         }
 
-        ResultSet rs = null;
-
         String sql = "INSERT INTO " +
                      accessTokenStoreTable +
                      " (ACCESS_TOKEN, REFRESH_TOKEN, CONSUMER_KEY, AUTHZ_USER, TIME_CREATED, REFRESH_TOKEN_TIME_CREATED, " +
@@ -216,19 +214,15 @@ public class TokenMgtDAO {
             prepStmt.setString(11, accessTokenDO.getTokenType());
             prepStmt.setString(12, accessTokenDO.getTokenId());
             prepStmt.execute();
-            rs = prepStmt.getGeneratedKeys();
-            int accessTokenId = -1;
-            if (rs.next()) {
-                accessTokenId = rs.getInt(1);
-                prepStmt = connection.prepareStatement(sqlAddScopes);
-                for (String scope : accessTokenDO.getScope()){
-                    prepStmt.setInt(1,accessTokenId);
-                    prepStmt.setString(2, scope);
-                    prepStmt.execute();
-                }
+            String accessTokenId = accessTokenDO.getTokenId();
+            prepStmt = connection.prepareStatement(sqlAddScopes);
+            for (String scope : accessTokenDO.getScope()){
+                prepStmt.setString(1,accessTokenId);
+                prepStmt.setString(2, scope);
+                prepStmt.execute();
             }
+
             connection.commit();
-            return accessTokenId;
         } catch (SQLIntegrityConstraintViolationException e) {
             String errorMsg = "Access Token for consumer key : " + consumerKey + ", user : " +
                               accessTokenDO.getAuthzUser().toLowerCase() + " and scope : " +
