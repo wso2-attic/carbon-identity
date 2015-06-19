@@ -37,7 +37,7 @@ public class AccessTokenDO extends CacheEntry {
 
     private String refreshToken;
 
-    private int tokenId;
+    private String tokenId;
 
     private String accessToken;
 
@@ -183,11 +183,11 @@ public class AccessTokenDO extends CacheEntry {
         this.tokenType = tokenType;
     }
 
-    public int getTokenId() {
+    public String getTokenId() {
         return tokenId;
     }
 
-    public void setTokenId(int tokenId) {
+    public void setTokenId(String tokenId) {
         this.tokenId = tokenId;
     }
 }

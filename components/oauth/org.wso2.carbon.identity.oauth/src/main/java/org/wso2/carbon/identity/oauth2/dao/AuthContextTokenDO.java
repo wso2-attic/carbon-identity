@@ -33,7 +33,7 @@ public class AuthContextTokenDO {
 
     private AuthzCodeDO authzCodeDO;
 
-    private int tokenId;
+    private String tokenId;
 
     public AuthContextTokenDO(String authzCode, String consumerKey, String callbackUrl, AuthzCodeDO authzCodeDO) {
         this.authzCode = authzCode;
@@ -46,12 +46,12 @@ public class AuthContextTokenDO {
         this.authzCode = authzCode;
     }
 
-    public AuthContextTokenDO(String authzCode, int tokenId) {
+    public AuthContextTokenDO(String authzCode, String tokenId) {
         this.authzCode = authzCode;
         this.tokenId = tokenId;
     }
 
-    public int getTokenId() {
+    public String getTokenId() {
         return tokenId;
     }
 

@@ -23,7 +23,7 @@ import org.wso2.carbon.identity.oauth2.ResponseHeader;
 public class OAuth2AccessTokenRespDTO {
     String tokenType;
     String accessToken;
-    int tokenId;
+    String tokenId;
     String refreshToken;
     String callbackURI;
     boolean error;
@@ -140,11 +140,11 @@ public class OAuth2AccessTokenRespDTO {
         this.authorizedScopes = authorizedScopes;
     }
 
-    public int getTokenId() {
+    public String getTokenId() {
         return tokenId;
     }
 
-    public void setTokenId(int tokenId) {
+    public void setTokenId(String tokenId) {
         this.tokenId = tokenId;
     }
 }

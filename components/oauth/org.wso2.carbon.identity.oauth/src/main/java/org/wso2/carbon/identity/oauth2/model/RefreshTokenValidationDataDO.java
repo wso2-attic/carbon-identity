@@ -25,7 +25,7 @@ import java.sql.Timestamp;
  */
 public class RefreshTokenValidationDataDO {
 
-    private int tokenId;
+    private String tokenId;
 
     private String accessToken;
 
@@ -87,11 +87,11 @@ public class RefreshTokenValidationDataDO {
         this.issuedTime = issuedTime;
     }
 
-    public int getTokenId() {
+    public String getTokenId() {
         return tokenId;
     }
 
-    public void setTokenId(int tokenId) {
+    public void setTokenId(String tokenId) {
         this.tokenId = tokenId;
     }
 }
