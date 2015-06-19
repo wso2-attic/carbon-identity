@@ -278,9 +278,7 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
     protected void processAuthenticationResponse(HttpServletRequest request,
                                                  HttpServletResponse response, AuthenticationContext context)
             throws AuthenticationFailedException {
-
         try {
-
             Map<String, String> authenticatorProperties = context.getAuthenticatorProperties();
             String clientId = authenticatorProperties.get(OIDCAuthenticatorConstants.CLIENT_ID);
             String clientSecret = authenticatorProperties.get(OIDCAuthenticatorConstants.CLIENT_SECRET);
@@ -290,11 +288,8 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
             } else {
                 tokenEndPoint = authenticatorProperties.get(OIDCAuthenticatorConstants.OAUTH2_TOKEN_URL);
             }
-
             String callBackUrl = authenticatorProperties.get(GoogleOAuth2AuthenticationConstant.CALLBACK_URL);
-
             log.debug("callBackUrl : " + callBackUrl);
-
             if (callBackUrl == null) {
                 callBackUrl = CarbonUIUtil.getAdminConsoleURL(request);
                 callBackUrl = callBackUrl.replace("commonauth/carbon/", "commonauth");
@@ -317,7 +312,7 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
             // create OAuth client that uses custom http client under the hood
             OAuthClient oAuthClient = new OAuthClient(new URLConnectionClient());
             OAuthClientResponse oAuthResponse = null;
-            oAuthResponse = getOAuthResponse(accessRequest,oAuthClient, oAuthResponse);
+            oAuthResponse = getOAuthResponse(accessRequest, oAuthClient, oAuthResponse);
             // TODO : return access token and id token to framework
             String accessToken = "";
             String idToken = "";
@@ -374,7 +369,7 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
         }
     }
 
-    private OAuthClientResponse getOAuthResponse(OAuthClientRequest accessRequest,OAuthClient oAuthClient, OAuthClientResponse oAuthResponse) throws AuthenticationFailedException {
+    private OAuthClientResponse getOAuthResponse(OAuthClientRequest accessRequest, OAuthClient oAuthClient, OAuthClientResponse oAuthResponse) throws AuthenticationFailedException {
         OAuthClientResponse oAuthClientResponse = oAuthResponse;
         try {
             oAuthClientResponse = oAuthClient.accessToken(accessRequest);
