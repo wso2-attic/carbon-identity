@@ -172,15 +172,17 @@ public class TokenMgtDAO {
         }
     }
 
-    public void storeAccessToken(String accessToken, String consumerKey,
+    public int storeAccessToken(String accessToken, String consumerKey,
                                  AccessTokenDO accessTokenDO, Connection connection,
                                  String userStoreDomain) throws IdentityOAuth2Exception {
 
         if (!enablePersist) {
-            return;
+            return -1;
         }
 
         PreparedStatement prepStmt = null;
+        ResultSet results = null;
+
         String accessTokenStoreTable = "IDN_OAUTH2_ACCESS_TOKEN";
         if (userStoreDomain != null) {
             accessTokenStoreTable = accessTokenStoreTable + "_" + userStoreDomain;
@@ -224,6 +226,9 @@ public class TokenMgtDAO {
                 }
             }
             connection.commit();
+            if (results.next()) {
+                return results.getInt(1);
+            }
         } catch (SQLIntegrityConstraintViolationException e) {
             String errorMsg = "Access Token for consumer key : " + consumerKey + ", user : " +
                               accessTokenDO.getAuthzUser().toLowerCase() + " and scope : " +
@@ -237,6 +242,7 @@ public class TokenMgtDAO {
         } finally {
             IdentityDatabaseUtil.closeAllConnections(null, null, prepStmt);
         }
+        return -1;
     }
 
     public void storeAccessToken(String accessToken, String consumerKey,
@@ -351,6 +357,7 @@ public class TokenMgtDAO {
                     long refreshTokenValidityPeriodInMillis = resultSet.getLong(6);
 
                     String userType = resultSet.getString(8);
+                    int tokenId = resultSet.getInt(9);
                     // data loss at dividing the validity period but can be neglected
                     AccessTokenDO accessTokenDO = new AccessTokenDO(consumerKey, userName, OAuth2Util.buildScopeArray
                             (scope), new Timestamp(issuedTime), new Timestamp(refreshTokenIssuedTime)
@@ -358,6 +365,7 @@ public class TokenMgtDAO {
                     accessTokenDO.setAccessToken(accessToken);
                     accessTokenDO.setRefreshToken(refreshToken);
                     accessTokenDO.setTokenState(tokenState);
+                    accessTokenDO.setTokenId(tokenId);
                     return accessTokenDO;
                 }
             }
@@ -402,11 +410,9 @@ public class TokenMgtDAO {
             prepStmt.setString(2, userName);
             ResultSet resultSet = prepStmt.executeQuery();
 
-
             while (resultSet.next()) {
                 String accessToken = persistenceProcessor.
                         getPreprocessedAccessTokenIdentifier(resultSet.getString(1));
-
                 if(accessTokenDOMap.get(accessToken) == null) {
                     String refreshToken = persistenceProcessor.
                             getPreprocessedRefreshToken(resultSet.getString(2));
@@ -423,7 +429,7 @@ public class TokenMgtDAO {
                             refreshTokenValidityPeriodMillis, tokenType);
                     dataDO.setAccessToken(accessToken);
                     dataDO.setRefreshToken(refreshToken);
-
+                    dataDO.setTokenId(tokenId);
                     accessTokenDOMap.put(accessToken, dataDO);
                 } else {
                     String scope = resultSet.getString(3).trim();
@@ -464,16 +470,21 @@ public class TokenMgtDAO {
             resultSet = prepStmt.executeQuery();
 
             if (resultSet.next()) {
-                String authorizedUser = resultSet.getString(1);
-                String scopeString = resultSet.getString(2);
-                String callbackUrl = resultSet.getString(3);
-                Timestamp issuedTime = resultSet.getTimestamp(4,
-                        Calendar.getInstance(TimeZone.getTimeZone("UTC")));
-                long validityPeriod = resultSet.getLong(5);
+                if (resultSet.getString(6).equals(OAuthConstants.AuthorizationCodeState.ACTIVE)) {
+                    String authorizedUser = resultSet.getString(1);
+                    String scopeString = resultSet.getString(2);
+                    String callbackUrl = resultSet.getString(3);
+                    Timestamp issuedTime = resultSet.getTimestamp(4,
+                                                                  Calendar.getInstance(TimeZone.getTimeZone("UTC")));
+                    long validityPeriod = resultSet.getLong(5);
 
-                return new AuthzCodeDO(authorizedUser,
-                        OAuth2Util.buildScopeArray(scopeString),
-                        issuedTime, validityPeriod, callbackUrl);
+                    return new AuthzCodeDO(authorizedUser,
+                                           OAuth2Util.buildScopeArray(scopeString),
+                                           issuedTime, validityPeriod, callbackUrl);
+                } else {
+                    revokeToken(persistenceProcessor.getPreprocessedAccessTokenIdentifier(resultSet.getString(7)));
+                    cleanUpAuthzCode(persistenceProcessor.getPreprocessedAuthzCode(resultSet.getString(8)));
+                }
             }
             connection.commit();
         } catch (IdentityException e) {
@@ -493,9 +504,17 @@ public class TokenMgtDAO {
 
     public void cleanUpAuthzCode(String authzCode) throws IdentityOAuth2Exception {
         if (maxPoolSize > 0) {
-            authContextTokenQueue.push(new AuthContextTokenDO(authzCode, null, null, null));
+            authContextTokenQueue.push(new AuthContextTokenDO(authzCode));
         } else {
             removeAuthzCode(authzCode);
+        }
+    }
+
+    public void expireAuthorizationCode(String authzCode, int tokenId) throws IdentityOAuth2Exception {
+        if (maxPoolSize > 0) {
+            authContextTokenQueue.push(new AuthContextTokenDO(authzCode, tokenId));
+        } else {
+            doExpireAuthorizationCode(authzCode, tokenId);
         }
     }
 
@@ -518,6 +537,29 @@ public class TokenMgtDAO {
             log.error("Error when executing the SQL : " + SQLQueries.REMOVE_AUTHZ_CODE);
             log.error(e.getMessage(), e);
             throw new IdentityOAuth2Exception("Error when cleaning up an authorization code", e);
+        } finally {
+            IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
+        }
+    }
+
+    public void doExpireAuthorizationCode(String authzCode, int tokenId) throws IdentityOAuth2Exception {
+        Connection connection = null;
+        PreparedStatement prepStmt = null;
+
+        try {
+            connection = JDBCPersistenceManager.getInstance().getDBConnection();
+            prepStmt = connection.prepareStatement(SQLQueries.EXPIRE_AUTHZ_CODE_AND_INSERT_CURRENT_TOKEN);
+            prepStmt.setInt(1, tokenId);
+            prepStmt.setString(2, persistenceProcessor.getPreprocessedAuthzCode(authzCode));
+            prepStmt.execute();
+            connection.commit();
+        } catch (IdentityException e) {
+            String errorMsg = "Error when getting an Identity Persistence Store instance.";
+            log.error(errorMsg, e);
+            throw new IdentityOAuth2Exception(errorMsg, e);
+        } catch (SQLException e) {
+            log.error("Error when executing the SQL : " + SQLQueries.EXPIRE_AUTHZ_CODE_AND_INSERT_CURRENT_TOKEN, e);
+            throw new IdentityOAuth2Exception("Error when expiring authorization code", e);
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
         }
@@ -548,24 +590,24 @@ public class TokenMgtDAO {
                 accessTokenStoreTable = accessTokenStoreTable + "_" + userStoreDomain;
             }
             mySqlQuery = "SELECT ACCESS_TOKEN, AUTHZ_USER, " +
-                         "TOKEN_SCOPE, TOKEN_STATE, REFRESH_TOKEN_TIME_CREATED, REFRESH_TOKEN_VALIDITY_PERIOD FROM "
-                         + accessTokenStoreTable +
+                         "TOKEN_SCOPE, TOKEN_STATE, REFRESH_TOKEN_TIME_CREATED, REFRESH_TOKEN_VALIDITY_PERIOD, " +
+                         "TOKEN_ID FROM " + accessTokenStoreTable +
                          " WHERE CONSUMER_KEY = ? AND REFRESH_TOKEN = ? ORDER BY TIME_CREATED " +
                          "DESC LIMIT 1";
 
             oracleQuery = "SELECT * FROM (SELECT ACCESS_TOKEN, AUTHZ_USER, " +
-                          "TOKEN_SCOPE, TOKEN_STATE, REFRESH_TOKEN_TIME_CREATED, REFRESH_TOKEN_VALIDITY_PERIOD FROM "
-                          + accessTokenStoreTable +
+                          "TOKEN_SCOPE, TOKEN_STATE, REFRESH_TOKEN_TIME_CREATED, REFRESH_TOKEN_VALIDITY_PERIOD, " +
+                          "TOKEN_ID FROM " + accessTokenStoreTable +
                           " WHERE CONSUMER_KEY = ? AND REFRESH_TOKEN = ? ORDER BY TIME_CREATED " +
                           "DESC) WHERE ROWNUM < 2 ";
 
             msSqlQuery = "SELECT TOP 1 ACCESS_TOKEN, AUTHZ_USER, " +
-                         "TOKEN_SCOPE, TOKEN_STATE, REFRESH_TOKEN_TIME_CREATED FROM, REFRESH_TOKEN_VALIDITY_PERIOD "
-                         + accessTokenStoreTable +
+                         "TOKEN_SCOPE, TOKEN_STATE, REFRESH_TOKEN_TIME_CREATED, TOKEN_ID FROM, " +
+                         "REFRESH_TOKEN_VALIDITY_PERIOD, TOKEN_ID " + accessTokenStoreTable +
                          " WHERE CONSUMER_KEY = ? AND REFRESH_TOKEN = ? ORDER BY TIME_CREATED DESC";
 
             postgreSqlQuery = "SELECT * FROM (SELECT ACCESS_TOKEN, AUTHZ_USER, TOKEN_SCOPE, TOKEN_STATE, " +
-                              "REFRESH_TOKEN_TIME_CREATED, REFRESH_TOKEN_VALIDITY_PERIOD FROM " +
+                              "REFRESH_TOKEN_TIME_CREATED, REFRESH_TOKEN_VALIDITY_PERIOD, TOKEN_ID FROM " +
                               accessTokenStoreTable + " WHERE CONSUMER_KEY = ?" +
                               " AND REFRESH_TOKEN = ? AND ORDER BY TIME_CREATED DESC) AS TOKEN LIMIT " +
                               "1 ";
@@ -604,6 +646,7 @@ public class TokenMgtDAO {
                 validationDataDO.setIssuedTime(resultSet.getTimestamp(5, Calendar.getInstance(TimeZone.getTimeZone
                         ("UTC"))));
                 validationDataDO.setValidityPeriodInMillis(resultSet.getLong(6));
+                validationDataDO.setTokenId(resultSet.getInt(7));
             }
             connection.commit();
         } catch (IdentityException e) {
@@ -710,10 +753,12 @@ public class TokenMgtDAO {
                     long refreshTokenValidityPeriodMillis = resultSet.getLong(7);
                     String tokenType = resultSet.getString(8);
                     String refreshToken = resultSet.getString(9);
+                    int tokenId = resultSet.getInt(10);
                     dataDO = new AccessTokenDO(consumerKey, authorizedUser, scope, issuedTime, refreshTokenIssuedTime,
                             validityPeriodInMillis, refreshTokenValidityPeriodMillis, tokenType);
                     dataDO.setAccessToken(accessTokenIdentifier);
                     dataDO.setRefreshToken(refreshToken);
+                    dataDO.setTokenId(tokenId);
                 }else{
                     scopes.add(resultSet.getString(3));
                 }
@@ -740,11 +785,11 @@ public class TokenMgtDAO {
     /**
      * Sets state of access token
      *
-     * @param accessToken
+     * @param tokenId
      * @param tokenState
      * @throws IdentityOAuth2Exception
      */
-    public void setAccessTokenState(String accessToken, String tokenState, String tokenStateId,
+    public void setAccessTokenState(int tokenId, String tokenState, String tokenStateId,
                                     String userStoreDomain) throws IdentityOAuth2Exception {
 
 	    Connection connection = null;
@@ -756,12 +801,12 @@ public class TokenMgtDAO {
 
         }
 	    try {
-		    setAccessTokenState(connection, accessToken, tokenState, tokenStateId, userStoreDomain);
-		    connection.commit();
+            setAccessTokenState(connection, tokenId, tokenState, tokenStateId, userStoreDomain);
+            connection.commit();
 	    } catch (SQLException e) {
-		    throw new IdentityOAuth2Exception("Error while updating Access Token : " +
-		                                      accessToken + " to Token State : " + tokenState, e);
-	    } finally {
+            throw new IdentityOAuth2Exception("Error while updating Access Token with ID : " +
+                                              tokenId + " to Token State : " + tokenState, e);
+        } finally {
 		    IdentityDatabaseUtil.closeConnection(connection);
 	    }
     }
@@ -769,14 +814,14 @@ public class TokenMgtDAO {
 	/**
 	 *
 	 * @param connection database connection
-	 * @param accessToken accesstoken
-	 * @param tokenState    state of the token need to be updated.
+     * @param tokenId accesstoken
+     * @param tokenState    state of the token need to be updated.
 	 * @param tokenStateId  token state id.
 	 * @param userStoreDomain   user store domain.
 	 * @throws IdentityOAuth2Exception
 	 */
-	public void setAccessTokenState(Connection connection, String accessToken, String tokenState,
-	                                String tokenStateId, String userStoreDomain)
+    public void setAccessTokenState(Connection connection, int tokenId, String tokenState,
+                                    String tokenStateId, String userStoreDomain)
 			throws IdentityOAuth2Exception {
 		PreparedStatement prepStmt = null;
 		try {
@@ -789,12 +834,12 @@ public class TokenMgtDAO {
 			prepStmt = connection.prepareStatement(sql);
 			prepStmt.setString(1, tokenState);
 			prepStmt.setString(2, tokenStateId);
-            prepStmt.setString(3, persistenceProcessor.getProcessedAccessTokenIdentifier(accessToken));
-			prepStmt.executeUpdate();
+            prepStmt.setInt(3, tokenId);
+            prepStmt.executeUpdate();
 		} catch (SQLException e) {
-			throw new IdentityOAuth2Exception("Error while updating Access Token : " +
-			                                  accessToken + " to Token State : " + tokenState, e);
-		} finally {
+            throw new IdentityOAuth2Exception("Error while updating Access Token with ID : " +
+                                              Integer.toString(tokenId) + " to Token State : " + tokenState, e);
+        } finally {
 			IdentityDatabaseUtil.closeStatement(prepStmt);
 		}
 	}
@@ -924,16 +969,16 @@ public class TokenMgtDAO {
 	/**
 	 * This method is used invalidate the existing token and generate a new toke within one DB transaction.
 	 *
-	 * @param oldAccessToken     access token need to be updated.
-	 * @param tokenState      token state before generating new token.
+     * @param oldAccessTokenId     access token need to be updated.
+     * @param tokenState      token state before generating new token.
 	 * @param consumerKey     consumer key of the existing token
 	 * @param tokenStateId    new token state id to be updated
 	 * @param accessTokenDO   new access token details
 	 * @param userStoreDomain user store domain which is related to this consumer
 	 * @throws IdentityOAuth2Exception
 	 */
-	public void invalidateAndCreateNewToken(String oldAccessToken, String tokenState,
-	                                        String consumerKey, String tokenStateId,
+    public void invalidateAndCreateNewToken(int oldAccessTokenId, String tokenState,
+                                            String consumerKey, String tokenStateId,
 	                                        AccessTokenDO accessTokenDO, String userStoreDomain)
 			throws IdentityOAuth2Exception {
 		Connection connection = null;
@@ -943,10 +988,14 @@ public class TokenMgtDAO {
 			connection.setAutoCommit(false);
 
 			// update existing token as inactive
-			setAccessTokenState(connection, oldAccessToken, tokenState, tokenStateId, userStoreDomain);
+            setAccessTokenState(connection, oldAccessTokenId, tokenState, tokenStateId, userStoreDomain);
 
-			// store new token in the DB
-			storeAccessToken(accessTokenDO.getAccessToken(), consumerKey, accessTokenDO, connection, userStoreDomain);
+            String newAccessToken = accessTokenDO.getAccessToken();
+            // store new token in the DB
+            int newAccessTokenId = storeAccessToken(newAccessToken, consumerKey, accessTokenDO, connection, userStoreDomain);
+
+            // update new access token against authorization code if token obtained via authorization code grant type
+            updateTokenIdIfAutzCodeGrantType(oldAccessTokenId, newAccessTokenId, connection);
 
 			// commit both transactions
 			connection.commit();
@@ -962,5 +1011,32 @@ public class TokenMgtDAO {
 			IdentityDatabaseUtil.closeConnection(connection);
 		}
 	}
+
+    private void updateTokenIdIfAutzCodeGrantType(int oldAccessTokenId, int newAccessTokenId, Connection
+            connection) throws IdentityOAuth2Exception {
+        PreparedStatement prepStmt = null;
+        ResultSet resultSet = null;
+        String authorizationCode = null;
+        try {
+            prepStmt = connection.prepareStatement(SQLQueries.GET_ACCESS_TOKEN_BY_AUTHZ_CODE);
+            prepStmt.setInt(1, oldAccessTokenId);
+            resultSet = prepStmt.executeQuery();
+            if (resultSet.next()) {
+                authorizationCode = resultSet.getString("AUTHORIZATION_CODE");
+            }
+
+            if (authorizationCode != null) {
+                prepStmt = connection.prepareStatement(SQLQueries.UPDATE_TOKEN_AGAINST_AUTHZ_CODE);
+                prepStmt.setInt(1, newAccessTokenId);
+                prepStmt.setString(2, persistenceProcessor.getPreprocessedAuthzCode(authorizationCode));
+                prepStmt.executeUpdate();
+            }
+        } catch (SQLException e) {
+            throw new IdentityOAuth2Exception("Error while updating Access Token against authorization code for " +
+                                              "access token with ID : " + oldAccessTokenId, e);
+        } finally {
+            IdentityDatabaseUtil.closeAllConnections(null, resultSet, prepStmt);
+        }
+    }
 
 }

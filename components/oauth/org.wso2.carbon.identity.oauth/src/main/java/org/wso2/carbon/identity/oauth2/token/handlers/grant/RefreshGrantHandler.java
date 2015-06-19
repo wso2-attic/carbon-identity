@@ -160,7 +160,7 @@ public class RefreshGrantHandler extends AbstractAuthorizationGrantHandler {
 
             if (issuedTime + refreshValidity - (System.currentTimeMillis() + skew) > 1000) {
                 if (!renew) {
-                    //if refresh token renewal enabled we issue a new refresh token, if not we use existing one
+                    //if refresh token renewal not enabled, we use existing one else we issue a new refresh token
                     refreshToken = oauth2AccessTokenReqDTO.getRefreshToken();
                     refreshTokenIssuedTime = refreshTokenValidationDataDO.getIssuedTime();
                     refreshTokenValidityPeriodInMillis = refreshTokenValidationDataDO.getValidityPeriodInMillis();
@@ -237,7 +237,7 @@ public class RefreshGrantHandler extends AbstractAuthorizationGrantHandler {
 
         String authorizedUser = tokReqMsgCtx.getAuthorizedUser();
 	    // set the previous access token state to "INACTIVE" and store new access token in single db connection
-	    tokenMgtDAO.invalidateAndCreateNewToken(oldAccessToken.getAccessToken(), "INACTIVE", clientId,
+	    tokenMgtDAO.invalidateAndCreateNewToken(oldAccessToken.getTokenId(), "INACTIVE", clientId,
 	                                            UUID.randomUUID().toString(), accessTokenDO,
 	                                            userStoreDomain);
 

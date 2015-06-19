@@ -186,8 +186,8 @@ public class AuthorizationCodeGrantHandler extends AbstractAuthorizationGrantHan
                 log.debug("Cache was cleared for authorization code info for client id : " + clientId);
             }
         }
-        // remove the authz code from the database
-        tokenMgtDAO.cleanUpAuthzCode(authzCode);
+        // expire authz code and insert issued access token against authz code
+        tokenMgtDAO.expireAuthorizationCode(authzCode, tokenRespDTO.getTokenId());
 
         if (log.isDebugEnabled()) {
             log.debug("Authorization Code clean up completed for request from the Client, " +
