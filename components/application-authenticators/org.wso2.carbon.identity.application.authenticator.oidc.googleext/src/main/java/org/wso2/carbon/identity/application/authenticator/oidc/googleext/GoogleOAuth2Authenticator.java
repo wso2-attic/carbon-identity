@@ -317,7 +317,7 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
             // create OAuth client that uses custom http client under the hood
             OAuthClient oAuthClient = new OAuthClient(new URLConnectionClient());
             OAuthClientResponse oAuthResponse = null;
-            oAuthResponse = getOAuthResponse(oAuthClient, oAuthResponse);
+            oAuthResponse = getOAuthResponse(accessRequest,oAuthClient, oAuthResponse);
             // TODO : return access token and id token to framework
             String accessToken = "";
             String idToken = "";
@@ -374,9 +374,8 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
         }
     }
 
-    private OAuthClientResponse getOAuthResponse(OAuthClient oAuthClient, OAuthClientResponse oAuthResponse) throws AuthenticationFailedException {
+    private OAuthClientResponse getOAuthResponse(OAuthClientRequest accessRequest,OAuthClient oAuthClient, OAuthClientResponse oAuthResponse) throws AuthenticationFailedException {
         OAuthClientResponse oAuthClientResponse = oAuthResponse;
-        OAuthClientRequest accessRequest = null;
         try {
             oAuthClientResponse = oAuthClient.accessToken(accessRequest);
         } catch (OAuthSystemException e) {
@@ -395,15 +394,15 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
     private OAuthClientRequest getAccessRequest(String tokenEndPoint, String clientId, String clientSecret
             , String callBackUrl, String code)
             throws AuthenticationFailedException {
-        OAuthClientRequest oAuthClientRequest = null;
+        OAuthClientRequest accessRequest = null;
         try {
-            oAuthClientRequest = OAuthClientRequest.tokenLocation(tokenEndPoint)
+            accessRequest = OAuthClientRequest.tokenLocation(tokenEndPoint)
                     .setGrantType(GrantType.AUTHORIZATION_CODE).setClientId(clientId).setClientSecret(clientSecret)
                     .setRedirectURI(callBackUrl).setCode(code).buildBodyMessage();
         } catch (OAuthSystemException e) {
             throw new AuthenticationFailedException("Exception while building request for request access token", e);
         }
-        return oAuthClientRequest;
+        return accessRequest;
     }
 
     /**
