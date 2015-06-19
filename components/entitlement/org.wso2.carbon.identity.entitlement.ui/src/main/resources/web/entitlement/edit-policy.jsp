@@ -16,9 +16,9 @@
  ~ under the License.
  -->
 <%@ page import="org.apache.axis2.context.ConfigurationContext"%>
+<%@ page import="org.wso2.balana.utils.policy.dto.BasicPolicyDTO"%>
+<%@ page import="org.wso2.balana.utils.policy.dto.PolicyElementDTO"%>
 <%@ page import="org.wso2.carbon.CarbonConstants"%>
-<%@ page import="org.wso2.carbon.ui.CarbonUIUtil"%>
-<%@ page import="org.wso2.carbon.utils.ServerConstants"%>
 <jsp:useBean id="entitlementPolicyBean" type="org.wso2.carbon.identity.entitlement.ui.EntitlementPolicyBean"
              class="org.wso2.carbon.identity.entitlement.ui.EntitlementPolicyBean" scope="session"/>
 <jsp:setProperty name="entitlementPolicyBean" property="*" />
@@ -107,16 +107,19 @@
     }
 %>
 
-<%@page import="org.wso2.carbon.identity.entitlement.ui.client.EntitlementPolicyAdminServiceClient"%>
-<%@ page import="java.util.List" %>
+<%@page import="org.wso2.carbon.identity.entitlement.common.EntitlementConstants"%>
 <%@ page import="org.wso2.carbon.identity.entitlement.stub.dto.PolicyDTO" %>
-<%@ page import="org.wso2.carbon.identity.entitlement.ui.dto.*" %>
-<%@ page import="java.util.ArrayList" %>
+<%@ page import="org.wso2.carbon.identity.entitlement.ui.client.EntitlementPolicyAdminServiceClient" %>
+<%@ page import="org.wso2.carbon.identity.entitlement.ui.dto.ObligationDTO" %>
+<%@ page import="org.wso2.carbon.identity.entitlement.ui.dto.PolicyRefIdDTO" %>
+<%@ page import="org.wso2.carbon.identity.entitlement.ui.dto.RuleDTO" %>
+<%@ page import="org.wso2.carbon.identity.entitlement.ui.dto.SimplePolicyEditorDTO" %>
+<%@ page import="org.wso2.carbon.identity.entitlement.ui.dto.TargetDTO" %>
 <%@ page import="org.wso2.carbon.identity.entitlement.ui.util.PolicyEditorUtil" %>
-<%@ page import="org.wso2.balana.utils.policy.dto.BasicPolicyDTO" %>
-<%@ page import="org.wso2.balana.utils.policy.dto.PolicyElementDTO" %>
-<%@ page import="org.wso2.balana.utils.policy.dto.RuleElementDTO" %>
-<%@ page import="org.wso2.carbon.identity.entitlement.common.EntitlementConstants" %>
+<%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
+<%@ page import="org.wso2.carbon.utils.ServerConstants" %>
+<%@ page import="java.util.ArrayList" %>
+<%@ page import="java.util.List" %>
 
 <script
 	type="text/javascript">

@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.wso2.carbon.identity</groupId>
         <artifactId>xacml-feature</artifactId>
-        <version>4.5.2-SNAPSHOT</version>
+        <version>4.5.6-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -42,8 +42,16 @@
             <artifactId>org.wso2.balana</artifactId>
         </dependency>
         <dependency>
+            <groupId>libthrift.wso2</groupId>
+            <artifactId>libthrift</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.identity</groupId>
+            <artifactId>org.wso2.carbon.identity.thrift.authentication</artifactId>
         </dependency>
     </dependencies>
 
@@ -96,14 +104,17 @@
                                 </properties>
                             </adviceFile>
                             <bundles>
+                                <bundleDef>libthrift.wso2:libthrift</bundleDef>
                                 <bundleDef>org.slf4j:slf4j-api</bundleDef>
-                                <bundleDef>org.wso2.carbon.identity:org.wso2.carbon.identity.entitlement</bundleDef>
+                                <bundleDef>org.wso2.carbon.identity:org.wso2.carbon.identity.thrift.authentication
+                                </bundleDef>
+                                <bundleDef>org.wso2.carbon.identity:org.wso2.carbon.identity.entitlement
+                                </bundleDef>
                                 <bundleDef>org.wso2.balana:org.wso2.balana</bundleDef>
                             </bundles>
                             <importFeatures>
                                 <importFeatureDef>org.wso2.carbon.core:${carbon.kernel.version}</importFeatureDef>
                                 <importFeatureDef>org.wso2.carbon.identity.core:${carbon.identity.version}</importFeatureDef>
-                                <importFeatureDef>org.wso2.carbon.identity.thrift.authentication:${carbon.identity.version}</importFeatureDef>
                                 <importFeatureDef>org.wso2.carbon.security.mgt.server:${carbon.identity.version}</importFeatureDef>
                                 <importFeatureDef>org.wso2.carbon.identity.notification.mgt.server:${carbon.identity.version}</importFeatureDef>
                             </importFeatures>

@@ -1,5 +1,5 @@
 /*
- *Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *WSO2 Inc. licenses this file to you under the Apache License,
  *Version 2.0 (the "License"); you may not use this file except
@@ -28,7 +28,14 @@ import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.core.RegistryResources;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
-import org.wso2.carbon.identity.application.common.model.*;
+import org.wso2.carbon.identity.application.common.model.ApplicationBasicInfo;
+import org.wso2.carbon.identity.application.common.model.ApplicationPermission;
+import org.wso2.carbon.identity.application.common.model.IdentityProvider;
+import org.wso2.carbon.identity.application.common.model.InboundAuthenticationRequestConfig;
+import org.wso2.carbon.identity.application.common.model.LocalAuthenticatorConfig;
+import org.wso2.carbon.identity.application.common.model.PermissionsAndRoleConfig;
+import org.wso2.carbon.identity.application.common.model.RequestPathAuthenticatorConfig;
+import org.wso2.carbon.identity.application.common.model.ServiceProvider;
 import org.wso2.carbon.identity.application.mgt.cache.IdentityServiceProviderCache;
 import org.wso2.carbon.identity.application.mgt.cache.IdentityServiceProviderCacheKey;
 import org.wso2.carbon.identity.application.mgt.dao.ApplicationDAO;
@@ -286,9 +293,8 @@ public class ApplicationManagementOSGIService {
                     } else if ("wstrust".equalsIgnoreCase(config.getInboundAuthType())
                             && config.getInboundAuthKey() != null) {
                         try {
-                           /* AxisService stsService = getAxisConfig().getService(
-                                    ServerConstants.STS_NAME);*/
-                            AxisService stsService = ApplicationManagementServiceComponentHolder.getConfigContextService().getServerConfigContext().getAxisConfiguration().getService(
+                            AxisService stsService = ApplicationManagementServiceComponentHolder.getInstance()
+                                    .getConfigContextService().getServerConfigContext().getAxisConfiguration().getService(
                                     ServerConstants.STS_NAME);
                             Parameter origParam = stsService
                                     .getParameter(SAMLTokenIssuerConfig.SAML_ISSUER_CONFIG
@@ -355,7 +361,7 @@ public class ApplicationManagementOSGIService {
             if (fedIdpList != null) {
                 return fedIdpList.toArray(new IdentityProvider[fedIdpList.size()]);
             }
-            return null;
+            return new IdentityProvider[0];
         } catch (Exception e) {
             log.error("Error occurred while deleting the application", e);
             throw new IdentityApplicationManagementException(
@@ -377,7 +383,7 @@ public class ApplicationManagementOSGIService {
                 return localAuthenticators.toArray(new LocalAuthenticatorConfig[localAuthenticators
                         .size()]);
             }
-            return null;
+            return new LocalAuthenticatorConfig[0];
         } catch (Exception e) {
             log.error("Error occurred while deleting the application", e);
             throw new IdentityApplicationManagementException(
@@ -400,7 +406,7 @@ public class ApplicationManagementOSGIService {
                 return reqPathAuthenticators
                         .toArray(new RequestPathAuthenticatorConfig[reqPathAuthenticators.size()]);
             }
-            return null;
+            return new RequestPathAuthenticatorConfig[0];
         } catch (Exception e) {
             log.error("Error occurred while deleting the application", e);
             throw new IdentityApplicationManagementException(
@@ -432,8 +438,10 @@ public class ApplicationManagementOSGIService {
     private void setSTSParameter(SAMLTokenIssuerConfig samlConfig) throws IdentityApplicationManagementException {
         Registry registry;
         try {
-            registry = (Registry) ApplicationManagementServiceComponentHolder.getRegistryService().getConfigSystemRegistry(getTenantId());
-            new SecurityServiceAdmin(ApplicationManagementServiceComponentHolder.getConfigContextService().getServerConfigContext().getAxisConfiguration(), registry)
+            registry = (Registry) ApplicationManagementServiceComponentHolder.getInstance().getRegistryService().
+                    getConfigSystemRegistry(getTenantId());
+            new SecurityServiceAdmin(ApplicationManagementServiceComponentHolder.getInstance()
+                    .getConfigContextService().getServerConfigContext().getAxisConfiguration(), registry)
                     .setServiceParameterElement(ServerConstants.STS_NAME, samlConfig.getParameter());
         } catch (Exception ex) {
             throw new IdentityApplicationManagementException(ex);
@@ -449,8 +457,8 @@ public class ApplicationManagementOSGIService {
         try {
             resourcePath = RegistryResources.SERVICE_GROUPS + groupName
                     + RegistryResources.SERVICES + serviceName + "/trustedServices";
-            //registry = getConfigSystemRegistry();
-            registry = (Registry) ApplicationManagementServiceComponentHolder.getRegistryService().getConfigSystemRegistry(getTenantId());
+            registry = (Registry) ApplicationManagementServiceComponentHolder.getInstance().getRegistryService()
+                    .getConfigSystemRegistry(getTenantId());
             if (registry != null) {
                 if (registry.resourceExists(resourcePath)) {
                     resource = registry.get(resourcePath);

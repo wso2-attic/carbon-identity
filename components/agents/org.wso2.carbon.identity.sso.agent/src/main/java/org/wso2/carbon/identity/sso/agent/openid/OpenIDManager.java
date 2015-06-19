@@ -1,3 +1,23 @@
+/*
+ * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ *
+ */
+
 package org.wso2.carbon.identity.sso.agent.openid;
 
 import org.openid4java.association.AssociationException;
@@ -20,6 +40,7 @@ import org.openid4java.message.ax.FetchResponse;
 import org.openid4java.server.RealmVerifierFactory;
 import org.openid4java.util.HttpFetcherFactory;
 import org.wso2.carbon.identity.sso.agent.SSOAgentConstants;
+import org.wso2.carbon.identity.sso.agent.SSOAgentDataHolder;
 import org.wso2.carbon.identity.sso.agent.SSOAgentException;
 import org.wso2.carbon.identity.sso.agent.bean.LoggedInSessionBean;
 import org.wso2.carbon.identity.sso.agent.bean.SSOAgentConfig;
@@ -35,12 +56,11 @@ import java.util.Map;
 public class OpenIDManager {
 
     // Smart OpenID Consumer Manager
-    private static ConsumerManager consumerManager = null;
     AttributesRequestor attributesRequestor = null;
     private SSOAgentConfig ssoAgentConfig = null;
 
     public OpenIDManager(SSOAgentConfig ssoAgentConfig) throws SSOAgentException {
-        consumerManager = getConsumerManagerInstance();
+        SSOAgentDataHolder.getInstance().setConsumerManager(getConsumerManagerInstance());
         this.ssoAgentConfig = ssoAgentConfig;
     }
 
@@ -59,20 +79,21 @@ public class OpenIDManager {
 
     public String doOpenIDLogin(HttpServletRequest request, HttpServletResponse response) throws SSOAgentException {
 
-        String claimed_id = ssoAgentConfig.getOpenId().getClaimedId();
+        String claimedId = ssoAgentConfig.getOpenId().getClaimedId();
 
         try {
+            ConsumerManager manager = SSOAgentDataHolder.getInstance().getConsumerManager();
 
             if (ssoAgentConfig.getOpenId().isDumbModeEnabled()) {
                 // Switch the consumer manager to dumb mode
-                consumerManager.setMaxAssocAttempts(0);
+                manager.setMaxAssocAttempts(0);
             }
 
             // Discovery on the user supplied ID
-            List discoveries = consumerManager.discover(claimed_id);
+            List discoveries = manager.discover(claimedId);
 
             // Associate with the OP and share a secret
-            DiscoveryInformation discovered = consumerManager.associate(discoveries);
+            DiscoveryInformation discovered = manager.associate(discoveries);
 
             // Keeping necessary parameters to verify the AuthResponse
             LoggedInSessionBean sessionBean = new LoggedInSessionBean();
@@ -80,8 +101,8 @@ public class OpenIDManager {
             sessionBean.getOpenId().setDiscoveryInformation(discovered); // set the discovery information
             request.getSession().setAttribute(SSOAgentConstants.SESSION_BEAN_NAME, sessionBean);
 
-            consumerManager.setImmediateAuth(true);
-            AuthRequest authReq = consumerManager.authenticate(discovered,
+            manager.setImmediateAuth(true);
+            AuthRequest authReq = manager.authenticate(discovered,
                     ssoAgentConfig.getOpenId().getReturnToURL());
 
 
@@ -92,16 +113,16 @@ public class OpenIDManager {
                 attributesRequestor = ssoAgentConfig.getOpenId().getAttributesRequestor();
                 attributesRequestor.init();
 
-                String[] requestedAttributes = attributesRequestor.getRequestedAttributes(claimed_id);
+                String[] requestedAttributes = attributesRequestor.getRequestedAttributes(claimedId);
 
                 // Getting required attributes using FetchRequest
                 FetchRequest fetchRequest = FetchRequest.createFetchRequest();
 
                 for (String requestedAttribute : requestedAttributes) {
                     fetchRequest.addAttribute(requestedAttribute,
-                            attributesRequestor.getTypeURI(claimed_id, requestedAttribute),
-                            attributesRequestor.isRequired(claimed_id, requestedAttribute),
-                            attributesRequestor.getCount(claimed_id, requestedAttribute));
+                            attributesRequestor.getTypeURI(claimedId, requestedAttribute),
+                            attributesRequestor.isRequired(claimedId, requestedAttribute),
+                            attributesRequestor.getCount(claimedId, requestedAttribute));
                 }
 
                 // Adding the AX extension to the AuthRequest message
@@ -109,6 +130,8 @@ public class OpenIDManager {
             }
 
             // Returning OP Url
+            SSOAgentDataHolder.getInstance().setConsumerManager(manager);
+
             return authReq.getDestinationUrl(true);
 
         } catch (YadisException e) {
@@ -144,7 +167,7 @@ public class OpenIDManager {
 
             // Verify return-to, discoveries, nonce & signature
             // Signature will be verified using the shared secret
-            VerificationResult verificationResult = consumerManager.verify(
+            VerificationResult verificationResult = SSOAgentDataHolder.getInstance().getConsumerManager().verify(
                     ssoAgentConfig.getOpenId().getReturnToURL(), authResponseParams, discovered);
 
             Identifier verified = verificationResult.getVerifiedId();
@@ -193,28 +216,6 @@ public class OpenIDManager {
 
     }
 
-//    protected SSLContext loadSSLContext() throws SSOAgentException {
-//
-//        KeyStore trustStore = null;
-//        try {
-//
-//            trustStore = SSOAgentConfig.getKeyStore();
-//
-//            TrustManagerFactory tmf = TrustManagerFactory
-//                    .getInstance(TrustManagerFactory.getDefaultAlgorithm());
-//
-//            tmf.init(trustStore);
-//
-//            SSLContext sslContext = SSLContext.getInstance("TLS");
-//            sslContext.init(null, tmf.getTrustManagers(), null);
-//            return sslContext;
-//        } catch (NoSuchAlgorithmException e) {
-//            throw new SSOAgentException("Error when reading keystore", e);
-//        } catch (KeyManagementException e) {
-//            throw new SSOAgentException("Error when reading keystore", e);
-//        } catch (KeyStoreException e) {
-//            throw new SSOAgentException("Error when reading keystore", e);
-//        }
-//    }
+
 
 }

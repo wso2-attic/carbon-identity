@@ -1,22 +1,23 @@
 /*
-*  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package org.wso2.carbon.identity.sso.saml.processors;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opensaml.saml2.core.Response;
@@ -66,12 +67,10 @@ public class IdPInitSSOAuthnRequestProcessor {
                         SAMLSSOConstants.StatusCodes.REQUESTOR_ERROR, msg);
             }
 
-            if (serviceProviderConfigs.isEnableAttributesByDefault()) {
-                if (serviceProviderConfigs.getAttributeConsumingServiceIndex() != null) {
-                    authnReqDTO.setAttributeConsumingServiceIndex(Integer
-                            .parseInt(serviceProviderConfigs
-                                    .getAttributeConsumingServiceIndex()));
-                }
+            if (serviceProviderConfigs.isEnableAttributesByDefault() && serviceProviderConfigs.getAttributeConsumingServiceIndex() != null) {
+                authnReqDTO.setAttributeConsumingServiceIndex(Integer
+                        .parseInt(serviceProviderConfigs
+                                .getAttributeConsumingServiceIndex()));
             }
 
             // reading the service provider configs
@@ -83,7 +82,7 @@ public class IdPInitSSOAuthnRequestProcessor {
                 String authenticatedSubjectIdentifier =
                         authnReqDTO.getUser().getAuthenticatedSubjectIdentifier();
                 if (authenticatedSubjectIdentifier != null &&
-                    !authenticatedSubjectIdentifier.equals(authnReqDTO.getSubject())) {
+                        !authenticatedSubjectIdentifier.equals(authnReqDTO.getSubject())) {
                     String msg = "Provided username does not match with the requested subject";
                     log.warn(msg);
                     return buildErrorResponse(authnReqDTO.getId(),
@@ -181,7 +180,7 @@ public class IdPInitSSOAuthnRequestProcessor {
             }
             return ssoIdpConfigs;
         } catch (Exception e) {
-            throw new IdentityException("Error while reading Service Provider configurations");
+            throw new IdentityException("Error while reading Service Provider configurations", e);
         }
     }
 
@@ -196,7 +195,7 @@ public class IdPInitSSOAuthnRequestProcessor {
                                                 SAMLSSOAuthnReqDTO authnReqDTO)
             throws IdentityException {
 
-        if (authnReqDTO.getAssertionConsumerURL() == null || authnReqDTO.getAssertionConsumerURL().equals("")) {
+        if (StringUtils.isBlank(authnReqDTO.getAssertionConsumerURL())) {
             authnReqDTO.setAssertionConsumerURL(ssoIdpConfigs.getAssertionConsumerUrl());
         }
         authnReqDTO.setLoginPageURL(ssoIdpConfigs.getLoginPageURL());
@@ -208,9 +207,9 @@ public class IdPInitSSOAuthnRequestProcessor {
         authnReqDTO.setLogoutURL(ssoIdpConfigs.getLogoutURL());
         authnReqDTO.setDoSignResponse(ssoIdpConfigs.isDoSignResponse());
         authnReqDTO.setDoSignAssertions(ssoIdpConfigs.isDoSignAssertions());
-        authnReqDTO.setRequestedClaims((ssoIdpConfigs.getRequestedClaims()));
-        authnReqDTO.setRequestedAudiences((ssoIdpConfigs.getRequestedAudiences()));
-        authnReqDTO.setRequestedRecipients((ssoIdpConfigs.getRequestedRecipients()));
+        authnReqDTO.setRequestedClaims(ssoIdpConfigs.getRequestedClaims());
+        authnReqDTO.setRequestedAudiences(ssoIdpConfigs.getRequestedAudiences());
+        authnReqDTO.setRequestedRecipients(ssoIdpConfigs.getRequestedRecipients());
         authnReqDTO.setDoEnableEncryptedAssertion(ssoIdpConfigs.isDoEnableEncryptedAssertion());
     }
 

@@ -16,21 +16,21 @@
  ~ under the License.
  -->
 <%@ page import="org.apache.axis2.context.ConfigurationContext"%>
+<%@ page import="org.wso2.balana.utils.policy.dto.BasicPolicyDTO"%>
+<%@ page import="org.wso2.balana.utils.policy.dto.BasicRuleDTO"%>
+<%@ page import="org.wso2.balana.utils.policy.dto.BasicTargetDTO"%>
 <%@ page import="org.wso2.carbon.CarbonConstants"%>
-<%@ page import="org.wso2.carbon.ui.CarbonUIMessage"%>
-<%@ page import="org.wso2.carbon.ui.CarbonUIUtil"%>
-<%@ page import="org.wso2.carbon.utils.ServerConstants"%>
-<%@ page import="org.wso2.carbon.identity.entitlement.ui.client.EntitlementPolicyAdminServiceClient"%>
-<%@ page import="java.util.ResourceBundle"%>
-<%@ page import="java.util.List" %>
-<%@ page import="org.wso2.carbon.identity.entitlement.ui.EntitlementPolicyCreator" %>
+<%@ page import="org.wso2.carbon.identity.entitlement.common.EntitlementConstants"%>
+<%@ page import="org.wso2.carbon.identity.entitlement.common.PolicyEditorException"%>
 <%@ page import="org.wso2.carbon.identity.entitlement.stub.dto.PolicyDTO" %>
-<%@ page import="org.wso2.carbon.identity.entitlement.common.PolicyEditorException" %>
-<%@ page import="org.wso2.balana.utils.policy.dto.BasicPolicyDTO" %>
-<%@ page import="org.wso2.balana.utils.policy.dto.BasicRuleDTO" %>
-<%@ page import="org.wso2.balana.utils.policy.dto.BasicTargetDTO" %>
+<%@ page import="org.wso2.carbon.identity.entitlement.ui.EntitlementPolicyCreator" %>
+<%@ page import="org.wso2.carbon.identity.entitlement.ui.client.EntitlementPolicyAdminServiceClient" %>
 <%@ page import="org.wso2.carbon.identity.entitlement.ui.util.PolicyEditorUtil" %>
-<%@ page import="org.wso2.carbon.identity.entitlement.common.EntitlementConstants" %>
+<%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
+<%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
+<%@ page import="org.wso2.carbon.utils.ServerConstants" %>
+<%@ page import="java.util.List" %>
+<%@ page import="java.util.ResourceBundle" %>
 <jsp:useBean id="entitlementPolicyBean" type="org.wso2.carbon.identity.entitlement.ui.EntitlementPolicyBean"
              class="org.wso2.carbon.identity.entitlement.ui.EntitlementPolicyBean" scope="session"/>
 <jsp:setProperty name="entitlementPolicyBean" property="*" />

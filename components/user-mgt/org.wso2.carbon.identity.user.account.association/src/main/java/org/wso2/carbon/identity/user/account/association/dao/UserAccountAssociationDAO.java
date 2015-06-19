@@ -19,10 +19,9 @@
 package org.wso2.carbon.identity.user.account.association.dao;
 
 import org.wso2.carbon.context.CarbonContext;
-import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
+import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.persistence.JDBCPersistenceManager;
-import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
 import org.wso2.carbon.identity.user.account.association.dto.UserAccountAssociationDTO;
 import org.wso2.carbon.identity.user.account.association.exception.UserAccountAssociationException;
 import org.wso2.carbon.identity.user.account.association.exception.UserAccountAssociationServerException;
@@ -43,10 +42,6 @@ public class UserAccountAssociationDAO {
 
     private UserAccountAssociationDAO() {
 
-    }
-
-    private static class LazyHolder {
-        private static final UserAccountAssociationDAO INSTANCE = new UserAccountAssociationDAO();
     }
 
     public static UserAccountAssociationDAO getInstance() {
@@ -117,13 +112,14 @@ public class UserAccountAssociationDAO {
     }
 
     public List<UserAccountAssociationDTO> getAssociationsOfUser(String domainName, int tenantId,
-                                              String userName) throws UserAccountAssociationException {
+                                                                 String userName)
+            throws UserAccountAssociationException {
 
         Connection dbConnection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
-        List<UserAccountAssociationDTO> accountAssociations = new ArrayList<UserAccountAssociationDTO>();
-        RealmService realmService = null;
+        List<UserAccountAssociationDTO> accountAssociations = new ArrayList<>();
+        RealmService realmService;
         String associationKey = getAssociationKeyOfUser(domainName, tenantId, userName);
 
         if (associationKey != null) {
@@ -152,6 +148,7 @@ public class UserAccountAssociationDAO {
                     associationDTO.setTenantDomain(realmService.getTenantManager().getDomain(conUserTenantId));
                     accountAssociations.add(associationDTO);
                 }
+                dbConnection.commit();
             } catch (SQLException e) {
                 throw new UserAccountAssociationServerException(UserAccountAssociationConstants.ErrorMessages
                                                                         .CONN_DELETE_DB_ERROR.getDescription(), e);
@@ -159,9 +156,6 @@ public class UserAccountAssociationDAO {
                 throw new UserAccountAssociationServerException(UserAccountAssociationConstants.ErrorMessages
                                                                         .ERROR_WHILE_GETTING_TENANT_NAME
                                                                         .getDescription(), e);
-            } catch (IdentityApplicationManagementException e) {
-                throw new UserAccountAssociationServerException(UserAccountAssociationConstants.ErrorMessages
-                                                                        .DB_CONN_ERROR.getDescription(), e);
             } catch (Exception e) {
                 throw new UserAccountAssociationServerException(UserAccountAssociationConstants.ErrorMessages
                                                                         .ERROR_WHILE_LOADING_REALM_SERVICE
@@ -197,6 +191,7 @@ public class UserAccountAssociationDAO {
             if (resultSet.next()) {
                 associationKey = resultSet.getString(1);
             }
+            dbConnection.commit();
         } catch (SQLException e) {
             throw new UserAccountAssociationServerException(UserAccountAssociationConstants.ErrorMessages
                                                                     .ERROR_WHILE_RETRIEVING_ASSOC_KEY.getDescription
@@ -269,6 +264,7 @@ public class UserAccountAssociationDAO {
             if (resultSet.next()) {
                 valid = resultSet.getInt(1) > 0;
             }
+            dbConnection.commit();
         } catch (SQLException e) {
             throw new UserAccountAssociationServerException(UserAccountAssociationConstants.ErrorMessages
                                                                     .CHECK_ASSOCIATION_DB_ERROR.getDescription(), e);
@@ -310,6 +306,10 @@ public class UserAccountAssociationDAO {
             IdentityApplicationManagementUtil.closeStatement(preparedStatement);
             IdentityApplicationManagementUtil.closeConnection(dbConnection);
         }
+    }
+
+    private static class LazyHolder {
+        private static final UserAccountAssociationDAO INSTANCE = new UserAccountAssociationDAO();
     }
 
 }

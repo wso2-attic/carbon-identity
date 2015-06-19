@@ -1,20 +1,21 @@
 /*
-*  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 package org.wso2.carbon.identity.sso.saml.admin;
 
 import org.apache.commons.logging.Log;
@@ -31,6 +32,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This class reads the Service Providers info from sso-idp-config.xml and add them to the
@@ -87,7 +89,7 @@ public class FileBasedConfigManager {
             if (!isFileExisting(configFilePath)) {
                 log.warn("sso-idp-config.xml does not exist in the 'conf' directory. The system may" +
                         "depend on the service providers added through the UI.");
-                return null;
+                return new SAMLSSOServiceProviderDO[0];
             }
 
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -95,7 +97,7 @@ public class FileBasedConfigManager {
             document = builder.parse(configFilePath);
         } catch (Exception e) {
             log.error("Error reading Service Providers from sso-idp-config.xml", e);
-            return null;
+            return new SAMLSSOServiceProviderDO[0];
         }
 
         Element element = document.getDocumentElement();
@@ -124,15 +126,15 @@ public class FileBasedConfigManager {
             if ((getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.SIGN_ASSERTION)) != null) {
                 signAssertion = Boolean.valueOf(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.SIGN_ASSERTION));
             }
-            if((getTextValue(elem , SAMLSSOConstants.FileBasedSPConfig.SIG_VALIDATION)) != null){
-                validateSignature = Boolean.valueOf(getTextValue(elem , SAMLSSOConstants.FileBasedSPConfig.SIG_VALIDATION));
+            if ((getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.SIG_VALIDATION)) != null) {
+                validateSignature = Boolean.valueOf(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.SIG_VALIDATION));
             }
             if ((getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.ENCRYPT_ASSERTION)) != null) {
                 encryptAssertion = Boolean.valueOf(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.ENCRYPT_ASSERTION));
             }
-            if(validateSignature || encryptAssertion){
+            if (validateSignature || encryptAssertion) {
                 certAlias = getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.CERT_ALIAS);
-                if(certAlias == null){
+                if (certAlias == null) {
                     log.warn("Certificate alias for Signature verification or Assertion encryption not specified. " +
                             "Defaulting to \'wso2carbon\'");
                     certAlias = "wso2carbon";
@@ -144,15 +146,11 @@ public class FileBasedConfigManager {
                 }
                 spDO.setEnableAttributesByDefault(Boolean.valueOf(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.INCLUDE_ATTRIBUTE)));
             }
-            if (Boolean.valueOf(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.AUDIENCE_RESTRICTION))) {
-                if (elem.getElementsByTagName(SAMLSSOConstants.FileBasedSPConfig.AUDIENCE_LIST) != null) {
-                    spDO.setRequestedAudiences(getTextValueList(elem, SAMLSSOConstants.FileBasedSPConfig.AUDIENCE));
-                }
+            if (Boolean.valueOf(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.AUDIENCE_RESTRICTION)) && elem.getElementsByTagName(SAMLSSOConstants.FileBasedSPConfig.AUDIENCE_LIST) != null) {
+                spDO.setRequestedAudiences(getTextValueList(elem, SAMLSSOConstants.FileBasedSPConfig.AUDIENCE));
             }
-            if (Boolean.valueOf(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.RECIPIENT_VALIDATION))) {
-                if (elem.getElementsByTagName(SAMLSSOConstants.FileBasedSPConfig.RECIPIENT_LIST) != null) {
-                    spDO.setRequestedRecipients(getTextValueList(elem, SAMLSSOConstants.FileBasedSPConfig.RECIPIENT));
-                }
+            if (Boolean.valueOf(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.RECIPIENT_VALIDATION)) && elem.getElementsByTagName(SAMLSSOConstants.FileBasedSPConfig.RECIPIENT_LIST) != null) {
+                spDO.setRequestedRecipients(getTextValueList(elem, SAMLSSOConstants.FileBasedSPConfig.RECIPIENT));
             }
 
             spDO.setUseFullyQualifiedUsername(fullQualifyUserName);
@@ -191,8 +189,8 @@ public class FileBasedConfigManager {
         return textVal;
     }
 
-    private ArrayList<String> getTextValueList(Element element, String tagName) {
-        ArrayList<String> textValList = new ArrayList<String>();
+    private List<String> getTextValueList(Element element, String tagName) {
+        List<String> textValList = new ArrayList<>();
         NodeList nl = element.getElementsByTagName(tagName);
         if (nl != null && nl.getLength() > 0) {
             for (int i = 0; i < nl.getLength(); i++) {

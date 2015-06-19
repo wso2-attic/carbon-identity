@@ -1,16 +1,57 @@
+/*
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 package org.wso2.carbon.identity.provisioning.connector.spml;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openspml.v2.client.Spml2Client;
-import org.openspml.v2.msg.spml.*;
+import org.openspml.v2.msg.spml.AddRequest;
+import org.openspml.v2.msg.spml.AddResponse;
+import org.openspml.v2.msg.spml.DeleteRequest;
+import org.openspml.v2.msg.spml.DeleteResponse;
+import org.openspml.v2.msg.spml.Extensible;
+import org.openspml.v2.msg.spml.Modification;
+import org.openspml.v2.msg.spml.ModifyRequest;
+import org.openspml.v2.msg.spml.ModifyResponse;
+import org.openspml.v2.msg.spml.PSO;
+import org.openspml.v2.msg.spml.PSOIdentifier;
+import org.openspml.v2.msg.spml.ReturnData;
+import org.openspml.v2.msg.spml.StatusCode;
 import org.openspml.v2.profiles.dsml.DSMLAttr;
 import org.openspml.v2.util.Spml2Exception;
 import org.openspml.v2.util.xml.ReflectiveXMLMarshaller;
 import org.wso2.carbon.identity.application.common.model.Property;
-import org.wso2.carbon.identity.provisioning.*;
+import org.wso2.carbon.identity.provisioning.AbstractOutboundProvisioningConnector;
+import org.wso2.carbon.identity.provisioning.IdentityProvisioningConstants;
+import org.wso2.carbon.identity.provisioning.IdentityProvisioningException;
+import org.wso2.carbon.identity.provisioning.ProvisionedIdentifier;
+import org.wso2.carbon.identity.provisioning.ProvisioningEntity;
+import org.wso2.carbon.identity.provisioning.ProvisioningEntityType;
+import org.wso2.carbon.identity.provisioning.ProvisioningOperation;
 
-import java.util.*;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.UUID;
+
 
 public class SPMLProvisioningConnector extends AbstractOutboundProvisioningConnector {
 
@@ -20,9 +61,6 @@ public class SPMLProvisioningConnector extends AbstractOutboundProvisioningConne
     private SPMLProvisioningConnectorConfig configHolder;
 
     @Override
-    /**
-     *
-     */
     public void init(Property[] provisioningProperties) throws IdentityProvisioningException {
 
         Properties configs = new Properties();
@@ -32,10 +70,8 @@ public class SPMLProvisioningConnector extends AbstractOutboundProvisioningConne
                 configs.put(property.getName(), property.getValue());
 
                 if (IdentityProvisioningConstants.JIT_PROVISIONING_ENABLED.equals(property
-                        .getName())) {
-                    if ("1".equals(property.getValue())) {
-                        jitProvisioningEnabled = true;
-                    }
+                        .getName()) && "1".equals(property.getValue())){
+                    jitProvisioningEnabled = true;
                 }
             }
 
@@ -45,9 +81,6 @@ public class SPMLProvisioningConnector extends AbstractOutboundProvisioningConne
     }
 
     @Override
-    /**
-     *
-     */
     public ProvisionedIdentifier provision(ProvisioningEntity provisioningEntity)
             throws IdentityProvisioningException {
 
@@ -154,7 +187,7 @@ public class SPMLProvisioningConnector extends AbstractOutboundProvisioningConne
         List<String> userNames = getUserNames(provisioningEntity.getAttributes());
         String userName = null;
 
-        if (userNames != null && userNames.size() > 0) {
+        if (CollectionUtils.isNotEmpty(userNames)) {
             // first element must be the user name.
             userName = userNames.get(0);
         }
@@ -175,7 +208,7 @@ public class SPMLProvisioningConnector extends AbstractOutboundProvisioningConne
             attrs.addOpenContentElement(new DSMLAttr("accountId", userName));
             attrs.addOpenContentElement(new DSMLAttr("credentials", UUID.randomUUID().toString()));
 
-            ArrayList<String> extractAttributes = configHolder.extractAttributes();
+            List<String> extractAttributes = configHolder.extractAttributes();
 
             // get user attributes.
             Map<String, String> claims = getSingleValuedClaims(provisioningEntity.getAttributes());

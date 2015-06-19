@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.wso2.carbon.identity</groupId>
         <artifactId>identity-thrift-feature</artifactId>
-        <version>4.5.2-SNAPSHOT</version>
+        <version>4.5.6-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -40,10 +40,6 @@
         <dependency>
             <groupId>libthrift.wso2</groupId>
             <artifactId>libthrift</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon.identity</groupId>
-            <artifactId>org.wso2.carbon.identity.base</artifactId>
         </dependency>
     </dependencies>
 
@@ -98,10 +94,10 @@
                             <bundles>
                                 <bundleDef>libthrift.wso2:libthrift</bundleDef>
                                 <bundleDef>org.wso2.carbon.identity:org.wso2.carbon.identity.thrift.authentication</bundleDef>
-                                <bundleDef>org.wso2.carbon.identity:org.wso2.carbon.identity.base</bundleDef>
                             </bundles>
                             <importFeatures>
                                 <importFeatureDef>org.wso2.carbon.core:${carbon.kernel.version}</importFeatureDef>
+                                <importFeatureDef>org.wso2.carbon.identity.core:${carbon.identity.version}</importFeatureDef>
                             </importFeatures>
                         </configuration>
                     </execution>

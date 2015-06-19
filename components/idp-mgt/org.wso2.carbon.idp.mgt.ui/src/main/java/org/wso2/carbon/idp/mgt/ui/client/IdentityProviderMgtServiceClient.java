@@ -1,17 +1,19 @@
 /*
- * Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2014 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package org.wso2.carbon.idp.mgt.ui.client;
@@ -29,11 +31,15 @@ import org.wso2.carbon.idp.mgt.stub.IdentityProviderMgtServiceStub;
 import org.wso2.carbon.user.mgt.stub.UserAdminStub;
 import org.wso2.carbon.user.mgt.stub.types.carbon.UserStoreInfo;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class IdentityProviderMgtServiceClient {
 
-    private static Log log = LogFactory.getLog(IdentityProviderMgtServiceClient.class);
+    private static final Log log = LogFactory.getLog(IdentityProviderMgtServiceClient.class);
 
     private IdentityProviderMgtServiceStub idPMgtStub;
 
@@ -81,7 +87,7 @@ public class IdentityProviderMgtServiceClient {
         try {
             return idPMgtStub.getResidentIdP();
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            log.error("Error in retrieving list of Identity Providers ", e);
             throw new Exception("Error occurred while retrieving list of Identity Providers");
         }
     }
@@ -96,7 +102,7 @@ public class IdentityProviderMgtServiceClient {
         try {
             idPMgtStub.updateResidentIdP(identityProvider);
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            log.error("Error in retrieving the list of Resident Identity Providers", e);
             throw new Exception("Error occurred while retrieving list of Identity Providers");
         }
     }
@@ -117,7 +123,7 @@ public class IdentityProviderMgtServiceClient {
                 return new ArrayList<IdentityProvider>();
             }
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            log.error("Error in retrieving the list of Identity Providers for a given tenant", e);
             throw new Exception("Error occurred while retrieving list of Identity Providers");
         }
     }
@@ -138,7 +144,7 @@ public class IdentityProviderMgtServiceClient {
                 return new ArrayList<IdentityProvider>();
             }
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            log.error("Error in retrieving the list of enabled registered Identity Providers for a given tenant", e);
             throw new Exception(
                     "Error occurred while retrieving list of Enabled Identity Providers");
         }
@@ -155,7 +161,7 @@ public class IdentityProviderMgtServiceClient {
         try {
             return idPMgtStub.getIdPByName(idPName);
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            log.error("Error in retrieving the information about Identity provider for a given tenant", e);
             throw new Exception("Error occurred while retrieving information about " + idPName);
         }
     }
@@ -172,8 +178,8 @@ public class IdentityProviderMgtServiceClient {
         try {
             idPMgtStub.addIdP(identityProvider);
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            throw e;
+            log.error("Error in adding a Identity Provider for a given tenant", e);
+            throw new Exception("Error in adding the Identity Provider");
         }
     }
 
@@ -187,7 +193,8 @@ public class IdentityProviderMgtServiceClient {
         try {
             idPMgtStub.deleteIdP(idPName);
         } catch (Exception e) {
-            throw e;
+            log.error("Error in deleting the Identity Provider for a given tenant", e);
+            throw new Exception("Error in deleting the Identity Provider");
         }
     }
 
@@ -202,8 +209,8 @@ public class IdentityProviderMgtServiceClient {
         try {
             idPMgtStub.updateIdP(oldIdPName, identityProvider);
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            throw e;
+            log.error("Error in updating the Identity Provider for a given tenant", e);
+            throw new Exception("Error in updating the Identity Provider");
         }
     }
 
@@ -222,17 +229,17 @@ public class IdentityProviderMgtServiceClient {
 
             if (fedAuthConfigs != null && fedAuthConfigs.length > 0) {
                 for (FederatedAuthenticatorConfig config : fedAuthConfigs) {
-                    if (!(config.getDisplayName().equals("facebook")
-                            || config.getDisplayName().equals("openid")
-                            || config.getDisplayName().equals("openidconnect")
-                            || config.getDisplayName().equals("samlsso") || config.getDisplayName()
-                            .equals("passovests")))
+                    if (!(("facebook").equals(config.getDisplayName())
+                            || ("openid").equals(config.getDisplayName())
+                            || ("openidconnect").equals(config.getDisplayName())
+                            || ("samlsso").equals(config.getDisplayName()) || ("passivests").
+                            equals(config.getDisplayName())))
                         configMap.put(config.getName(), config);
                 }
             }
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            throw new Exception("Error occurred while retrieving all local claim URIs");
+            log.error("Error in retrieving Federated Authenticators", e);
+            throw new Exception("Error occurred while retrieving all Federated Authenticators");
         }
 
         return configMap;
@@ -251,15 +258,15 @@ public class IdentityProviderMgtServiceClient {
             if (provisioningConnectorConfigs != null && provisioningConnectorConfigs.length > 0
                     && provisioningConnectorConfigs[0] != null) {
                 for (ProvisioningConnectorConfig config : provisioningConnectorConfigs) {
-                    if (!(config.getName().equals("spml") || config.getName().equals("scim")
-                            || config.getName().equals("salesforce") || config.getName().equals(
-                            "googleapps")))
+                    if (!(("spml").equals(config.getName()) || ("scim").equals(config.getName())
+                            || ("salesforce").equals(config.getName()) ||
+                            ("googleapps").equals(config.getName())))
                         provisioningConnectors.put(config.getName(), config);
 
                 }
             }
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            log.error("Error in retrieving Provisioning Connector", e);
             throw new Exception("Error occurred while retrieving all Provisioning Connectors");
         }
         return provisioningConnectors;
@@ -274,7 +281,7 @@ public class IdentityProviderMgtServiceClient {
         try {
             return idPMgtStub.getAllLocalClaimUris();
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            log.error("Error in retrieving localClaim Uris", e);
             throw new Exception("Error occurred while retrieving all local claim URIs");
         }
     }
@@ -295,7 +302,7 @@ public class IdentityProviderMgtServiceClient {
             }
             return readWriteDomainNames.toArray(new String[readWriteDomainNames.size()]);
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            log.error("Error in retrieving User Store Domain IDs", e);
             throw new Exception(
                     "Error occurred while retrieving Read-Write User Store Domain IDs for logged-in user's tenant realm");
         }

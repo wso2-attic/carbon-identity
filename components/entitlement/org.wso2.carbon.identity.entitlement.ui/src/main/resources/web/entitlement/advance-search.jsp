@@ -20,17 +20,16 @@
 	prefix="carbon"%>
 <%@ page import="org.apache.axis2.context.ConfigurationContext"%>
 <%@ page import="org.wso2.carbon.CarbonConstants"%>
-<%@ page import="org.wso2.carbon.ui.CarbonUIMessage"%>
-<%@ page import="org.wso2.carbon.utils.ServerConstants"%>
-<%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
-<%@ page import="java.util.ResourceBundle" %>
-<%@ page import="java.lang.Exception"%>
+<%@ page import="org.wso2.carbon.identity.entitlement.stub.dto.EntitledAttributesDTO"%>
+<%@ page import="org.wso2.carbon.identity.entitlement.stub.dto.EntitledResultSetDTO"%>
 <%@ page import="org.wso2.carbon.identity.entitlement.ui.EntitlementPolicyConstants" %>
-<%@ page import="org.wso2.carbon.identity.entitlement.stub.dto.EntitledResultSetDTO" %>
-<%@ page import="org.wso2.carbon.identity.entitlement.stub.dto.EntitledAttributesDTO" %>
-<%@ page import="java.util.Set" %>
-<%@ page import="java.util.HashSet" %>
 <%@ page import="org.wso2.carbon.identity.entitlement.ui.client.EntitlementServiceClient" %>
+<%@ page import="org.wso2.carbon.ui.CarbonUIMessage"%>
+<%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
+<%@ page import="org.wso2.carbon.utils.ServerConstants" %>
+<%@ page import="java.util.HashSet" %>
+<%@ page import="java.util.ResourceBundle" %>
+<%@ page import="java.util.Set" %>
 <%
     String subjectType = "";
     String action = "";

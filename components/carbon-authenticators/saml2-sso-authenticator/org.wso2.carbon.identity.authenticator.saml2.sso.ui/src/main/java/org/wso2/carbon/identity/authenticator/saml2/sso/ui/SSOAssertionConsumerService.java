@@ -20,10 +20,19 @@ package org.wso2.carbon.identity.authenticator.saml2.sso.ui;
 import org.apache.axis2.context.ConfigurationContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.opensaml.saml2.core.*;
+import org.opensaml.saml2.core.Assertion;
+import org.opensaml.saml2.core.LogoutRequest;
+import org.opensaml.saml2.core.LogoutResponse;
+import org.opensaml.saml2.core.Response;
+import org.opensaml.saml2.core.SessionIndex;
+import org.opensaml.saml2.core.Subject;
 import org.opensaml.xml.XMLObject;
 import org.wso2.carbon.CarbonConstants;
-import org.wso2.carbon.identity.authenticator.saml2.sso.common.*;
+import org.wso2.carbon.identity.authenticator.saml2.sso.common.FederatedSSOToken;
+import org.wso2.carbon.identity.authenticator.saml2.sso.common.SAML2SSOAuthenticatorConstants;
+import org.wso2.carbon.identity.authenticator.saml2.sso.common.SAML2SSOUIAuthenticatorException;
+import org.wso2.carbon.identity.authenticator.saml2.sso.common.SAMLConstants;
+import org.wso2.carbon.identity.authenticator.saml2.sso.common.Util;
 import org.wso2.carbon.identity.authenticator.saml2.sso.ui.authenticator.SAML2SSOUIAuthenticator;
 import org.wso2.carbon.identity.authenticator.saml2.sso.ui.client.SAMLSSOServiceClient;
 import org.wso2.carbon.identity.authenticator.saml2.sso.ui.session.SSOSessionManager;
@@ -36,7 +45,11 @@ import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
-import javax.servlet.http.*;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.Enumeration;
@@ -181,7 +194,6 @@ public class SSOAssertionConsumerService extends HttpServlet {
             if (federatedSSOToken != null) {
                 isFederated = true;
                 HttpServletRequest fedRequest = federatedSSOToken.getHttpServletRequest();
-                HttpServletResponse fedResponse = federatedSSOToken.getHttpServletResponse();
 
                 String samlRequest = fedRequest.getParameter("SAMLRequest");
                 String authMode = SAMLConstants.AuthnModes.USERNAME_PASSWORD;
@@ -397,7 +409,7 @@ public class SSOAssertionConsumerService extends HttpServlet {
         Cookie[] cookies = req.getCookies();
         if (cookies != null) {
             for (Cookie cookie : cookies) {
-                if (cookie.getName().equals("ssoTokenId")) {
+                if ("ssoTokenId".equals(cookie.getName())) {
                     return cookie;
                 }
             }

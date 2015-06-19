@@ -5,7 +5,11 @@
  */
 package org.wso2.carbon.identity.entitlement.thrift;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.EnumMap;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.Map;
 
 public class EntitlementException extends Exception implements org.apache.thrift.TBase<EntitlementException, EntitlementException._Fields>, java.io.Serializable, Cloneable {
     public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
