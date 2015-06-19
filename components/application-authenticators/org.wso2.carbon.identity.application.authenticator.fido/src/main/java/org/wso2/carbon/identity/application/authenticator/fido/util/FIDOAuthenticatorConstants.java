@@ -6,12 +6,12 @@
  * in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
+ * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
  */
@@ -44,6 +44,8 @@ public class FIDOAuthenticatorConstants {
                 " USER_NAME, KEY_HANDLE, DEVICE_DATA ) SELECT ?, UM_DOMAIN_ID, ?,?,? FROM UM_DOMAIN WHERE UM_DOMAIN_NAME = ? " +
                 "AND UM_TENANT_ID = ?";
         public static final String GET_DEVICE_REGISTRATION_QUERY = "SELECT * FROM FIDO_DEVICE_STORE WHERE DOMAIN_ID = (SELECT " +
+                "UM_DOMAIN_ID FROM UM_DOMAIN WHERE UM_DOMAIN_NAME = ? AND UM_TENANT_ID= ?)  AND TENANT_ID = ? AND USER_NAME = ?";
+        public static final String REMOVE_REGISTRATION_QUERY = "DELETE FROM FIDO_DEVICE_STORE WHERE DOMAIN_ID = (SELECT " +
                 "UM_DOMAIN_ID FROM UM_DOMAIN WHERE UM_DOMAIN_NAME = ? AND UM_TENANT_ID= ?)  AND TENANT_ID = ? AND USER_NAME = ?";
     }
 }
