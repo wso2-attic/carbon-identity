@@ -75,5 +75,6 @@ public class UmaAuthorizationEndpoint {
 
         StringBuilder builder = new StringBuilder();
 
+
     }
 }

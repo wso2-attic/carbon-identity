@@ -13,7 +13,7 @@
 
     <artifactId>org.wso2.carbon.identity.tomcat-valve</artifactId>
     <packaging>bundle</packaging>
-    <name>WSO2 Carbon - Rest API OAuth Protection Valve </name>
+    <name>WSO2 Carbon - REST API OAuth Protection Valve </name>
     <description>Tomcat Valve to do access token validation of OAuth protected REST EndPoints</description>
     <url>http://wso2.org</url>
 
@@ -40,6 +40,11 @@
                 </exclusion>
             </exclusions>
             <version>7.0.59.wso2v1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.identity</groupId>
+            <artifactId>org.wso2.carbon.identity.oauth</artifactId>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 
