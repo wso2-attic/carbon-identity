@@ -20,7 +20,6 @@
 
 package org.wso2.carbon.identity.uma.endpoint.beans;
 
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 
 /**
@@ -39,7 +38,7 @@ public class UmaRptRequestPayloadBean {
     private String rpt;
 
     // claim tokens pushed by a claims aware client
-    private ArrayList<ClaimTokenBean> claimTokens;
+    private ArrayList<ClaimTokenBean> claim_tokens;
 
     public UmaRptRequestPayloadBean() {
     }
@@ -60,11 +59,11 @@ public class UmaRptRequestPayloadBean {
         this.rpt = rpt;
     }
 
-    public ArrayList<ClaimTokenBean> getClaimTokens() {
-        return claimTokens;
+    public ArrayList<ClaimTokenBean> getClaim_tokens() {
+        return claim_tokens;
     }
 
-    public void setClaimTokens(ArrayList<ClaimTokenBean> claimTokens) {
-        this.claimTokens = claimTokens;
+    public void setClaim_tokens(ArrayList<ClaimTokenBean> claim_tokens) {
+        this.claim_tokens = claim_tokens;
     }
 }
