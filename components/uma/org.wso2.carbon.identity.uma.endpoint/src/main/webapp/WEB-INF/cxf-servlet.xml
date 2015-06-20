@@ -30,8 +30,13 @@
     <jaxrs:serviceBeans>
         <ref bean="authorizationEndpointBean"/>
     </jaxrs:serviceBeans>
+    <jaxrs:extensionMappings>
+      <entry key="json" value="application/json" />
+    </jaxrs:extensionMappings>
+    <jaxrs:providers>
+      <bean class="org.codehaus.jackson.jaxrs.JacksonJsonProvider" />
+    </jaxrs:providers>
   </jaxrs:server>
 
   <bean id="authorizationEndpointBean" class="org.wso2.carbon.identity.uma.endpoint.authorization.UmaAuthorizationEndpoint"/>
-
 </beans>

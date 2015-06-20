@@ -11,7 +11,7 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>tomcat-valve</artifactId>
+    <artifactId>org.wso2.carbon.identity.tomcat-valve</artifactId>
     <packaging>bundle</packaging>
     <name>WSO2 Carbon - Rest API OAuth Protection Valve </name>
     <description>Tomcat Valve to do access token validation of OAuth protected REST EndPoints</description>

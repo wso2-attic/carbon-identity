@@ -64,6 +64,11 @@
             <artifactId>org.wso2.carbon.identity.uma</artifactId>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>org.codehaus.jackson</groupId>
+            <artifactId>jackson-jaxrs</artifactId>
+            <version>1.9.0</version>
+        </dependency>
 
     </dependencies>
 

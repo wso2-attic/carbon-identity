@@ -24,9 +24,11 @@ package org.wso2.carbon.identity.uma.endpoint.authorization;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.cxf.jaxrs.ext.multipart.Multipart;
+import org.apache.cxf.jaxrs.impl.MetadataMap;
 import org.apache.cxf.jaxrs.impl.ResponseImpl;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.uma.endpoint.UmaRequestWrapper;
+import org.wso2.carbon.identity.uma.endpoint.beans.UmaRptRequestPayloadBean;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 import javax.servlet.http.HttpServletRequest;
@@ -36,6 +38,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 
@@ -48,16 +51,16 @@ public class UmaAuthorizationEndpoint {
     @Path("/")
     @Consumes("application/json")
     @Produces("application/json")
-    public Response issueRPT(@Context HttpServletRequest request,@Multipart(value = "application/json") String jsonPayload){
+    public Response issueRPT(@Context HttpServletRequest request,UmaRptRequestPayloadBean payloadBean){
 
         PrivilegedCarbonContext.startTenantFlow();
         PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
         carbonContext.setTenantId(MultitenantConstants.SUPER_TENANT_ID);
         carbonContext.setTenantDomain(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
 
-        String jsonPayLoad = jsonPayload;
-        System.out.println();
-        HttpServletRequestWrapper httpServletRequestWrapper = new UmaRequestWrapper(request,null);
+
+        HttpServletRequestWrapper httpServletRequestWrapper =
+                new UmaRequestWrapper(request,new MetadataMap<String,String>());
 
         // log the RPT Token Request
         if(log.isDebugEnabled()){
