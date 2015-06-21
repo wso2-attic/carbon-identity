@@ -466,7 +466,7 @@ public class FrameworkUtils {
         // TODO read the URL from framework config file rather than carbon.xml
         String redirectURL = CarbonUIUtil.getAdminConsoleURL(request);
         redirectURL = redirectURL.replace("commonauth/carbon/", "authenticationendpoint/retry.do");
-        response.sendRedirect("https://localhost:9443/carbon/");
+        response.sendRedirect(redirectURL);
     }
 
     /**

@@ -247,7 +247,7 @@ public class SAMLSSOProviderServlet extends HttpServlet {
                                   String acUrl, HttpServletRequest req,
                                   HttpServletResponse resp) throws ServletException, IOException {
         String redirectURL = CarbonUIUtil.getAdminConsoleURL(req);
-        redirectURL.replace("samlsso/carbon/",
+        redirectURL = redirectURL.replace("samlsso/carbon/",
                 "authenticationendpoint/samlsso_notification.do");
 
         //TODO Send status codes rather than full messages in the GET request

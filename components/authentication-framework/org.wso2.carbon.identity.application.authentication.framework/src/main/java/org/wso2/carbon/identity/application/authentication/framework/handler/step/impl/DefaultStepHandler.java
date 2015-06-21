@@ -450,7 +450,6 @@ public class DefaultStepHandler implements StepHandler {
         } catch (AuthenticationFailedException e) {
             log.error(e.getMessage(), e);
             context.setRequestAuthenticated(false);
-
         } catch (LogoutFailedException e) {
             throw new FrameworkException(e.getMessage(), e);
         }

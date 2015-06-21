@@ -278,7 +278,9 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
     protected void processAuthenticationResponse(HttpServletRequest request,
                                                  HttpServletResponse response, AuthenticationContext context)
             throws AuthenticationFailedException {
+
         try {
+
             Map<String, String> authenticatorProperties = context.getAuthenticatorProperties();
             String clientId = authenticatorProperties.get(OIDCAuthenticatorConstants.CLIENT_ID);
             String clientSecret = authenticatorProperties.get(OIDCAuthenticatorConstants.CLIENT_SECRET);
@@ -288,8 +290,11 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
             } else {
                 tokenEndPoint = authenticatorProperties.get(OIDCAuthenticatorConstants.OAUTH2_TOKEN_URL);
             }
+
             String callBackUrl = authenticatorProperties.get(GoogleOAuth2AuthenticationConstant.CALLBACK_URL);
+
             log.debug("callBackUrl : " + callBackUrl);
+
             if (callBackUrl == null) {
                 callBackUrl = CarbonUIUtil.getAdminConsoleURL(request);
                 callBackUrl = callBackUrl.replace("commonauth/carbon/", "commonauth");
