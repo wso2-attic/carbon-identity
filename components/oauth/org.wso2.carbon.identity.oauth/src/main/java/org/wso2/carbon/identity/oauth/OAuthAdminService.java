@@ -317,7 +317,6 @@ public class OAuthAdminService extends AbstractAdmin {
         String tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
         String tenantAwareUserName = PrivilegedCarbonContext.getThreadLocalCarbonContext().getUsername();
         String username = tenantAwareUserName + "@" + tenantDomain;
-        username = username.toLowerCase();
 
         String userStoreDomain = null;
         if (OAuth2Util.checkAccessTokenPartitioningEnabled() && OAuth2Util.checkUserNameAssertionEnabled()) {
@@ -406,7 +405,6 @@ public class OAuthAdminService extends AbstractAdmin {
             String tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
             String tenantAwareUserName = PrivilegedCarbonContext.getThreadLocalCarbonContext().getUsername();
             String userName = tenantAwareUserName + "@" + tenantDomain;
-            userName = userName.toLowerCase();
 
             String userStoreDomain = null;
             if (OAuth2Util.checkAccessTokenPartitioningEnabled() &&

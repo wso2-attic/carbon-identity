@@ -74,7 +74,7 @@ public class OAuthAppDAO {
                 prepStmt = connection.prepareStatement(SQLQueries.OAuthAppDAOSQLQueries.ADD_OAUTH_APP);
                 prepStmt.setString(1, persistenceProcessor.getProcessedClientId(consumerAppDO.getOauthConsumerKey()));
                 prepStmt.setString(2, persistenceProcessor.getProcessedClientSecret(consumerAppDO.getOauthConsumerSecret()));
-                prepStmt.setString(3, consumerAppDO.getUserName().toLowerCase());
+                prepStmt.setString(3, consumerAppDO.getUserName());
                 prepStmt.setInt(4, consumerAppDO.getTenantId());
                 prepStmt.setString(5, consumerAppDO.getApplicationName());
                 prepStmt.setString(6, consumerAppDO.getOauthVersion());
@@ -115,7 +115,7 @@ public class OAuthAppDAO {
             prepStmt = connection.prepareStatement(sqlStmt);
             prepStmt.setString(1, consumerKey);
             prepStmt.setString(2, consumerSecret);
-            prepStmt.setString(3, username.toLowerCase());
+            prepStmt.setString(3, username);
             prepStmt.setInt(4, tenantId);
             // it is assumed that the OAuth version is 1.0a because this is required with OAuth 1.0a
             prepStmt.setString(5, OAuthConstants.OAuthVersions.VERSION_1A);
@@ -155,7 +155,7 @@ public class OAuthAppDAO {
             while (rSet.next()) {
                 if (rSet.getString(3) != null && rSet.getString(3).length() > 0) {
                     OAuthAppDO oauthApp = new OAuthAppDO();
-                    oauthApp.setUserName(username.toLowerCase());
+                    oauthApp.setUserName(username);
                     oauthApp.setTenantId(tenantId);
                     oauthApp.setOauthConsumerKey(persistenceProcessor.getPreprocessedClientId(rSet.getString(1)));
                     oauthApp.setOauthConsumerSecret(persistenceProcessor.getPreprocessedClientSecret(rSet.getString(2)));
@@ -352,7 +352,7 @@ public class OAuthAppDAO {
         try {
             connection = JDBCPersistenceManager.getInstance().getDBConnection();
             prepStmt = connection.prepareStatement(SQLQueries.OAuthAppDAOSQLQueries.CHECK_EXISTING_APPLICATION);
-            prepStmt.setString(1, username.toLowerCase());
+            prepStmt.setString(1, username);
             prepStmt.setInt(2, tenantId);
             prepStmt.setString(3, consumerAppDTO.getApplicationName());
 

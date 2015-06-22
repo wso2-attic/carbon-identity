@@ -147,7 +147,7 @@ public class TokenMgtDAO {
             prepStmt.setString(2, persistenceProcessor.getProcessedClientId(consumerKey));
             prepStmt.setString(3, callbackUrl);
             prepStmt.setString(4, OAuth2Util.buildScopeString(authzCodeDO.getScope()));
-            prepStmt.setString(5, authzCodeDO.getAuthorizedUser().toLowerCase());
+            prepStmt.setString(5, authzCodeDO.getAuthorizedUser());
             prepStmt.setTimestamp(6, authzCodeDO.getIssuedTime(),
                                   Calendar.getInstance(TimeZone.getTimeZone("UTC")));
             prepStmt.setLong(7, authzCodeDO.getValidityPeriod());
@@ -194,7 +194,7 @@ public class TokenMgtDAO {
                 prepStmt.setString(2, accessTokenDO.getRefreshToken());
             }
             prepStmt.setString(3, persistenceProcessor.getProcessedClientId(consumerKey));
-            prepStmt.setString(4, accessTokenDO.getAuthzUser().toLowerCase());
+            prepStmt.setString(4, accessTokenDO.getAuthzUser());
             prepStmt.setTimestamp(5, accessTokenDO.getIssuedTime(), Calendar.getInstance(TimeZone.getTimeZone("UTC")));
             prepStmt.setTimestamp(6, accessTokenDO.getRefreshTokenIssuedTime(), Calendar.getInstance(TimeZone.getTimeZone("UTC")));
             prepStmt.setLong(7, accessTokenDO.getValidityPeriodInMillis());
@@ -206,7 +206,7 @@ public class TokenMgtDAO {
             connection.commit();
         } catch (SQLIntegrityConstraintViolationException e) {
             String errorMsg = "Access Token for consumer key : " + consumerKey + ", user : " +
-                              accessTokenDO.getAuthzUser().toLowerCase() + " and scope : " +
+                              accessTokenDO.getAuthzUser() + " and scope : " +
                               OAuth2Util.buildScopeString(accessTokenDO.getScope()) + "already exists";
             throw new IdentityOAuth2Exception(errorMsg, e);
         } catch (DataTruncation e) {
@@ -296,7 +296,7 @@ public class TokenMgtDAO {
 
             prepStmt = connection.prepareStatement(sql);
             prepStmt.setString(1, persistenceProcessor.getProcessedClientId(consumerKey));
-            prepStmt.setString(2, userName.toLowerCase());
+            prepStmt.setString(2, userName);
             if (StringUtils.isNotEmpty(scope)) {
                 prepStmt.setString(3, scope);
             }
@@ -828,7 +828,7 @@ public class TokenMgtDAO {
             String sqlQuery = SQLQueries.GET_DISTINCT_APPS_AUTHORIZED_BY_USER_ALL_TIME.replace(
                     IDN_OAUTH2_ACCESS_TOKEN, accessTokenStoreTable);
             ps = connection.prepareStatement(sqlQuery);
-            ps.setString(1, authzUser.toLowerCase());
+            ps.setString(1, authzUser);
             rs = ps.executeQuery();
             while (rs.next()) {
                 String consumerKey = persistenceProcessor.getPreprocessedClientId(rs.getString(1));

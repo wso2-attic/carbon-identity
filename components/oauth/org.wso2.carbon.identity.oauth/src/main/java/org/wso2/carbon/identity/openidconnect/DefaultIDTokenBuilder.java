@@ -288,7 +288,7 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
 
         OAuthCache oauthCache = OAuthCache.getInstance();
         CacheKey cacheKey = new OAuthCacheKey(
-                request.getOauth2AccessTokenReqDTO().getClientId() + ":" + request.getAuthorizedUser().toLowerCase() +
+                request.getOauth2AccessTokenReqDTO().getClientId() + ":" + request.getAuthorizedUser() +
                         ":" + OAuth2Util.buildScopeString(request.getScope()));
         CacheEntry result = oauthCache.getValueFromCache(cacheKey);
 
