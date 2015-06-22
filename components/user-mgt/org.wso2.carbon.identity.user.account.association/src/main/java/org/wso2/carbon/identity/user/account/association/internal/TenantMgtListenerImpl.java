@@ -80,8 +80,7 @@ public class TenantMgtListenerImpl implements TenantMgtListener {
             UserAccountAssociationDAO.getInstance().deleteUserAssociationsFromTenantId(i);
         } catch (UserAccountAssociationException e) {
             throw new StratosException(String.format(UserAccountAssociationConstants.ErrorMessages
-                    .CONN_DELETE_FROM_TENANT_ID_ERROR
-                                                             .getDescription(), i), e);
+                    .CONN_DELETE_FROM_TENANT_ID_ERROR.getDescription(), i), e);
         }
     }
 }
