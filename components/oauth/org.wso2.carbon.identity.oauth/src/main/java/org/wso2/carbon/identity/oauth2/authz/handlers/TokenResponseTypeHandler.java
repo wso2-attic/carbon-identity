@@ -269,6 +269,7 @@ public class TokenResponseTypeHandler extends AbstractResponseTypeHandler {
             accessTokenDO.setAccessToken(accessToken);
             accessTokenDO.setRefreshToken(refreshToken);
             accessTokenDO.setTokenState(OAuthConstants.TokenStates.TOKEN_STATE_ACTIVE);
+            accessTokenDO.setTokenId(UUID.randomUUID().toString());
 
             // Persist the access token in database
             try {
