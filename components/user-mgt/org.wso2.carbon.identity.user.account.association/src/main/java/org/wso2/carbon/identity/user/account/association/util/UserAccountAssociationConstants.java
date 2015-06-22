@@ -62,7 +62,15 @@ public class UserAccountAssociationConstants {
         ERROR_RETRIEVE_REMOTE_ADDRESS(8530, "Error occurred while retrieving remote address from the request"),
         ACCOUNT_SWITCHING_ERROR(8531, "Error occurred while switching the user account"),
         CONN_SWITCH_DB_ERROR(8532, "Database error occurred while switching the user account"),
-        SAME_ACCOUNT_CONNECTING_ERROR(8533, "User can not associate logged in user account to itself");
+        SAME_ACCOUNT_CONNECTING_ERROR(8533, "User can not associate logged in user account to itself"),
+        ERROR_UPDATE_DOMAIN_NAME(8534, "Database error occurred while updating user domain '%s' in the tenant " +
+                                             "'%s'"),
+        ERROR_DELETE_ASSOC_FROM_DOMAIN_NAME(8535, "Database error occurred while deleting user association from " +
+                                                  "domain '%s' in the tenant '%s'"),
+        ERROR_WHILE_UPDATING_ASSOC_DOMAIN(8536, "Error occurred while updating user domain of account associations" +
+                                                " with domain '%s'"),
+        ERROR_WHILE_DELETING_ASSOC_FROM_DOMAIN(8537, "Error occurred while deleting user account associations with " +
+                                                     "domain '%s'");
 
         private final int code;
         private final String description;
@@ -115,6 +123,12 @@ public class UserAccountAssociationConstants {
                                                           "ASSOCIATION_KEY = (SELECT ASSOCIATION_KEY FROM " +
                                                           "IDN_USER_ACCOUNT_ASSOCIATION WHERE TENANT_ID = ? AND " +
                                                           "DOMAIN_NAME = ? AND USER_NAME = ?)";
+
+        public static final String UPDATE_USER_DOMAIN_NAME = "UPDATE IDN_USER_ACCOUNT_ASSOCIATION SET DOMAIN_NAME = ?" +
+                                                             " WHERE DOMAIN_NAME = ? AND TENANT_ID = ?";
+
+        public static final String DELETE_USER_ASSOCIATION_FROM_DOMAIN = "DELETE FROM IDN_USER_ACCOUNT_ASSOCIATION " +
+                                                                         "WHERE TENANT_ID = ? AND DOMAIN_NAME = ?";
 
     }
 

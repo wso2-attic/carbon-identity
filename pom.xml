@@ -39,6 +39,8 @@
 
     <modules>
         <module>service-stubs/identity</module>
+        <module>components/userstore-config</module>
+        <module>components/user-manager</module>
         <module>components/agents</module>
         <module>components/application-authenticators</module>
         <module>components/authentication-framework</module>
@@ -93,6 +95,7 @@
         <module>features/ldap-server-manager</module>
         <module>features/sts</module>
         <module>features/captcha-mgt</module>
+        <module>features/user-manager</module>
     </modules>
 
     <repositories>
@@ -371,14 +374,41 @@
             </dependency>
 
             <dependency>
-                <groupId>org.wso2.carbon.commons</groupId>
-                <artifactId>org.wso2.carbon.user.mgt</artifactId>
-                <version>${carbon.commons.version}</version>
+                <groupId>org.wso2.carbon.identity</groupId>
+                <artifactId>org.wso2.carbon.user.mgt.common</artifactId>
+                <version>${carbon.identity.version}</version>
             </dependency>
+
             <dependency>
-                <groupId>org.wso2.carbon.commons</groupId>
+                <groupId>org.wso2.carbon.identity</groupId>
+                <artifactId>org.wso2.carbon.user.mgt</artifactId>
+                <version>${carbon.identity.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.wso2.carbon.identity</groupId>
+                <artifactId>org.wso2.carbon.user.mgt.stub</artifactId>
+                <version>${carbon.identity.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.user.mgt.ui</artifactId>
-                <version>${carbon.commons.version}</version>
+                <version>${carbon.identity.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.wso2.carbon.identity</groupId>
+                <artifactId>org.wso2.carbon.user.mgt.server.feature</artifactId>
+                <version>${carbon.identity.version}</version>
+                <type>zip</type>
+            </dependency>
+
+            <dependency>
+                <groupId>org.wso2.carbon.identity</groupId>
+                <artifactId>org.wso2.carbon.user.mgt.ui.feature</artifactId>
+                <version>${carbon.identity.version}</version>
+                <type>zip</type>
             </dependency>
 
             <dependency>
@@ -519,12 +549,6 @@
                 <artifactId>org.wso2.carbon.security.mgt.stub</artifactId>
                 <version>${carbon.identity.version}</version>
             </dependency>
-            <dependency>
-                <groupId>org.wso2.carbon.commons</groupId>
-                <artifactId>org.wso2.carbon.user.mgt.common</artifactId>
-                <version>${carbon.commons.version}</version>
-            </dependency>
-
             <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
@@ -1666,13 +1690,6 @@
                 <artifactId>org.wso2.carbon.identity.user.store.configuration.deployer</artifactId>
                 <version>${carbon.identity.version}</version>
             </dependency>
-
-            <dependency>
-                <groupId>org.wso2.carbon.commons</groupId>
-                <artifactId>org.wso2.carbon.user.mgt.stub</artifactId>
-                <version>${carbon.commons.version}</version>
-            </dependency>
-
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.identity.user.store.configuration.ui</artifactId>
@@ -1697,18 +1714,6 @@
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.identity.user.account.association.ui.feature</artifactId>
-                <version>${carbon.identity.version}</version>
-                <type>zip</type>
-            </dependency>
-            <dependency>
-                <groupId>org.wso2.carbon.commons</groupId>
-                <artifactId>org.wso2.carbon.user.mgt.server.feature</artifactId>
-                <version>${carbon.identity.version}</version>
-                <type>zip</type>
-            </dependency>
-            <dependency>
-                <groupId>org.wso2.carbon.commons</groupId>
-                <artifactId>org.wso2.carbon.user.mgt.ui.feature</artifactId>
                 <version>${carbon.identity.version}</version>
                 <type>zip</type>
             </dependency>
@@ -1766,6 +1771,11 @@
                 <artifactId>apacheds-core-annotations</artifactId>
                 <groupId>org.apache.directory.server</groupId>
                 <version>${apacheds.core.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.ndatasource.common</artifactId>
+                <version>${carbon.kernel.version}</version>
             </dependency>
         </dependencies>
 
@@ -1989,6 +1999,7 @@
         <cxf-bundle.wso2.version>2.6.1.wso2v2</cxf-bundle.wso2.version>
         <opencsv.wso2.version>1.8.wso2v1</opencsv.wso2.version>
         <apache.poi.wso2.version>3.9.0.wso2v1</apache.poi.wso2.version>
+        <javax.activation.import.pkg.version>[0.0.0, 0.1.0)</javax.activation.import.pkg.version>
 
         <project.scm.id>my-scm-server</project.scm.id>
     </properties>
