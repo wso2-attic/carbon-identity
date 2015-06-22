@@ -411,13 +411,13 @@ public class TokenMgtDAO {
                 if(accessTokenDOMap.get(accessToken) == null) {
                     String refreshToken = persistenceProcessor.
                             getPreprocessedRefreshToken(resultSet.getString(2));
-                    String[] scope = OAuth2Util.buildScopeArray(resultSet.getString(3));
-                    Timestamp issuedTime = resultSet.getTimestamp(4, Calendar.getInstance(TimeZone.getTimeZone("UTC")));
-                    Timestamp refreshTokenIssuedTime = resultSet.getTimestamp(5, Calendar.getInstance(TimeZone
+                    Timestamp issuedTime = resultSet.getTimestamp(3, Calendar.getInstance(TimeZone.getTimeZone("UTC")));
+                    Timestamp refreshTokenIssuedTime = resultSet.getTimestamp(4, Calendar.getInstance(TimeZone
                             .getTimeZone("UTC")));
-                    long validityPeriodInMillis = resultSet.getLong(6);
-                    long refreshTokenValidityPeriodMillis = resultSet.getLong(7);
-                    String tokenType = resultSet.getString(8);
+                    long validityPeriodInMillis = resultSet.getLong(5);
+                    long refreshTokenValidityPeriodMillis = resultSet.getLong(6);
+                    String tokenType = resultSet.getString(7);
+                    String[] scope = OAuth2Util.buildScopeArray(resultSet.getString(8));
                     String tokenId = resultSet.getString(9);
 
                     AccessTokenDO dataDO = new AccessTokenDO(consumerKey, userName, scope, issuedTime,
