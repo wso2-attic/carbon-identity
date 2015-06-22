@@ -52,6 +52,7 @@ public final class SAML2SSOAuthenticatorConstants {
     public static final String LOGIN_PAGE = "LoginPage";
     public static final String LANDING_PAGE = "LandingPage";
     public static final String EXTERNAL_LOGOUT_PAGE = "ExternalLogoutPage";
+    public static final String LOGOUT_SUPPORTED_IDP = "LogoutSupportedIDP";
     public static final String ASSERTION_CONSUMER_SERVICE_URL = "AssertionConsumerServiceURL";
     public static final String ASSERTION_CONSUMER_URL = "AssertionConsumerServiceURL";
     public static final String FEDERATION_CONFIG = "FederationConfig";
