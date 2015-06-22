@@ -190,9 +190,9 @@ public class TokenMgtDAO {
 
         String sql = "INSERT INTO " +
                      accessTokenStoreTable +
-                     " (ACCESS_TOKEN, REFRESH_TOKEN, CONSUMER_KEY, AUTHZ_USER, TIME_CREATED, REFRESH_TOKEN_TIME_CREATED, " +
-                     "VALIDITY_PERIOD, REFRESH_TOKEN_VALIDITY_PERIOD, TOKEN_SCOPE_HASH, TOKEN_STATE, USER_TYPE, TOKEN_ID) " +
-                     "VALUES (?,?,?,?,?,?,?,?,?,?,?,?)";
+                " (ACCESS_TOKEN, REFRESH_TOKEN, CONSUMER_KEY, AUTHZ_USER, TIME_CREATED, REFRESH_TOKEN_TIME_CREATED, " +
+                "VALIDITY_PERIOD, REFRESH_TOKEN_VALIDITY_PERIOD, TOKEN_SCOPE_HASH, TOKEN_STATE, USER_TYPE, TOKEN_ID) " +
+                "VALUES (?,?,?,?,?,?,?,?,?,?,?,?)";
         String sqlAddScopes = "INSERT INTO IDN_OAUTH2_ACCESS_TOKEN_SCOPE_ASSOCIATION (TOKEN_ID, TOKEN_SCOPE) " +
                 "VALUES (?,?)";
         try {
@@ -206,7 +206,8 @@ public class TokenMgtDAO {
             prepStmt.setString(3, persistenceProcessor.getProcessedClientId(consumerKey));
             prepStmt.setString(4, accessTokenDO.getAuthzUser().toLowerCase());
             prepStmt.setTimestamp(5, accessTokenDO.getIssuedTime(), Calendar.getInstance(TimeZone.getTimeZone("UTC")));
-            prepStmt.setTimestamp(6, accessTokenDO.getRefreshTokenIssuedTime(), Calendar.getInstance(TimeZone.getTimeZone("UTC")));
+            prepStmt.setTimestamp(6, accessTokenDO.getRefreshTokenIssuedTime(), Calendar.getInstance(TimeZone
+                    .getTimeZone("UTC")));
             prepStmt.setLong(7, accessTokenDO.getValidityPeriodInMillis());
             prepStmt.setLong(8, accessTokenDO.getRefreshTokenValidityPeriodInMillis());
             prepStmt.setString(9, OAuth2Util.hashScopes(accessTokenDO.getScope()));
@@ -343,8 +344,8 @@ public class TokenMgtDAO {
                     if (resultSet.getString(2) != null) {
                         refreshToken = persistenceProcessor.getPreprocessedRefreshToken(resultSet.getString(2));
                     }
-                    long issuedTime = resultSet.getTimestamp(3,
-                                                             Calendar.getInstance(TimeZone.getTimeZone("UTC"))).getTime();
+                    long issuedTime = resultSet.getTimestamp(3, Calendar.getInstance(TimeZone.getTimeZone("UTC")))
+                            .getTime();
                     long refreshTokenIssuedTime = resultSet.getTimestamp(4, Calendar.getInstance(TimeZone.getTimeZone
                             ("UTC"))).getTime();
                     long validityPeriodInMillis = resultSet.getLong(5);
