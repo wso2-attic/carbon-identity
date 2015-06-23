@@ -37,6 +37,8 @@ public class AccessTokenDO extends CacheEntry {
 
     private String refreshToken;
 
+    private String tokenId;
+
     private String accessToken;
 
     private Timestamp issuedTime;
@@ -181,4 +183,11 @@ public class AccessTokenDO extends CacheEntry {
         this.tokenType = tokenType;
     }
 
+    public String getTokenId() {
+        return tokenId;
+    }
+
+    public void setTokenId(String tokenId) {
+        this.tokenId = tokenId;
+    }
 }
