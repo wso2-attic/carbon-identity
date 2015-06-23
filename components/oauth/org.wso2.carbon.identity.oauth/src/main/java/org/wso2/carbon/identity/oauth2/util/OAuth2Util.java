@@ -23,6 +23,7 @@ import org.apache.commons.io.Charsets;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.core.model.OAuthAppDO;
 import org.wso2.carbon.identity.oauth.IdentityOAuthAdminException;
 import org.wso2.carbon.identity.oauth.cache.CacheEntry;
@@ -497,6 +498,20 @@ public class OAuth2Util {
 
         String domainName = MultitenantUtils.getTenantDomain(username);
         return getTenantId(domainName);
+    }
+
+    public static boolean isUsernameCaseSensitive(){
+        boolean isUsernameCaseSensitive = false;
+        try {
+            String caseInsensitiveUsername = PrivilegedCarbonContext.getThreadLocalCarbonContext().getUserRealm()
+                    .getRealmConfiguration().getUserStoreProperty("CaseInsensitiveUsername");
+            if (caseInsensitiveUsername != null){
+                isUsernameCaseSensitive = !Boolean.parseBoolean(caseInsensitiveUsername);
+            }
+        } catch (UserStoreException e) {
+            e.printStackTrace();
+        }
+        return isUsernameCaseSensitive;
     }
 
 }

@@ -58,6 +58,8 @@ import java.util.concurrent.LinkedBlockingDeque;
  */
 public class TokenMgtDAO {
 
+    public static final String AUTHZ_USER = "AUTHZ_USER";
+    public static final String LOWER_AUTHZ_USER = "LOWER(AUTHZ_USER)";
     private static TokenPersistenceProcessor persistenceProcessor;
 
     private static int maxPoolSize = 100;
@@ -267,6 +269,8 @@ public class TokenMgtDAO {
                                               "store connection", e);
         }
 
+        boolean isUsernameCaseSensitive = OAuth2Util.isUsernameCaseSensitive();
+
         PreparedStatement prepStmt = null;
         ResultSet resultSet = null;
         try {
@@ -293,10 +297,17 @@ public class TokenMgtDAO {
                 //logic to store access token into different tables when multiple user stores are configured.
                 sql = sql.replace(IDN_OAUTH2_ACCESS_TOKEN, IDN_OAUTH2_ACCESS_TOKEN + "_" + userStoreDomain);
             }
+            if (!isUsernameCaseSensitive){
+                sql.replace(AUTHZ_USER, LOWER_AUTHZ_USER);
+            }
 
             prepStmt = connection.prepareStatement(sql);
             prepStmt.setString(1, persistenceProcessor.getProcessedClientId(consumerKey));
-            prepStmt.setString(2, userName);
+            if (isUsernameCaseSensitive) {
+                prepStmt.setString(2, userName);
+            }else{
+                prepStmt.setString(2, userName.toLowerCase());
+            }
             if (StringUtils.isNotEmpty(scope)) {
                 prepStmt.setString(3, scope);
             }
@@ -369,6 +380,8 @@ public class TokenMgtDAO {
                     "store connection", e);
         }
 
+        boolean isUsernameCaseSensitive = OAuth2Util.isUsernameCaseSensitive();
+
         PreparedStatement prepStmt = null;
         try {
             String sql = SQLQueries.RETRIEVE_ACTIVE_ACCESS_TOKEN_BY_CLIENT_ID_USER;
@@ -378,9 +391,17 @@ public class TokenMgtDAO {
             if (StringUtils.isNotEmpty(userStoreDomain)) {
                 sql = sql.replace(IDN_OAUTH2_ACCESS_TOKEN, IDN_OAUTH2_ACCESS_TOKEN + "_" + userStoreDomain);
             }
+            if (!isUsernameCaseSensitive){
+                sql.replace(AUTHZ_USER, LOWER_AUTHZ_USER);
+            }
+
             prepStmt = connection.prepareStatement(sql);
             prepStmt.setString(1, persistenceProcessor.getProcessedClientId(consumerKey));
-            prepStmt.setString(2, userName);
+            if (isUsernameCaseSensitive) {
+                prepStmt.setString(2, userName);
+            }else{
+                prepStmt.setString(2, userName.toLowerCase());
+            }
             ResultSet resultSet = prepStmt.executeQuery();
 
             while (resultSet.next()) {
@@ -814,6 +835,7 @@ public class TokenMgtDAO {
         Connection connection = null;
         ResultSet rs = null;
         Set<String> distinctConsumerKeys = new HashSet<String>();
+        boolean isUsernameCaseSensitive = OAuth2Util.isUsernameCaseSensitive();
         try {
             try {
                 connection = IdentityDatabaseUtil.getDBConnection();
@@ -827,8 +849,15 @@ public class TokenMgtDAO {
             }
             String sqlQuery = SQLQueries.GET_DISTINCT_APPS_AUTHORIZED_BY_USER_ALL_TIME.replace(
                     IDN_OAUTH2_ACCESS_TOKEN, accessTokenStoreTable);
+            if (!isUsernameCaseSensitive){
+                sqlQuery.replace(AUTHZ_USER, LOWER_AUTHZ_USER);
+            }
             ps = connection.prepareStatement(sqlQuery);
-            ps.setString(1, authzUser);
+            if (isUsernameCaseSensitive) {
+                ps.setString(1, authzUser);
+            }else{
+                ps.setString(1, authzUser.toLowerCase());
+            }
             rs = ps.executeQuery();
             while (rs.next()) {
                 String consumerKey = persistenceProcessor.getPreprocessedClientId(rs.getString(1));
@@ -924,5 +953,4 @@ public class TokenMgtDAO {
 			IdentityDatabaseUtil.closeConnection(connection);
 		}
 	}
-
 }
