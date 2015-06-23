@@ -42,35 +42,60 @@
 
         <div id="workArea">
             <form method="post" name="serviceAdd" action="add-bps-profile-finish.jsp">
-                <table class="styledLeft">
+                <table class="styledLeft noBorders">
                     <thead>
                     <tr>
-                        <th><fmt:message key="workflow.bps.profile"/></th>
+                        <th colspan="2"><fmt:message key="workflow.bps.profile"/></th>
                     </tr>
                     </thead>
+                    <tbody>
                     <tr>
-                        <td class="formRow">
-                            <table class="normal">
-                                <tr>
-                                    <td><fmt:message key='workflow.bps.profile.name'/></td>
-                                    <td><input type="text" name="<%=WorkflowUIConstants.PARAM_BPS_PROFILE_NAME%>"/></td>
-                                </tr>
-                                <tr>
-                                    <td><fmt:message key='workflow.bps.profile.host'/></td>
-                                    <td><input type="text" name="<%=WorkflowUIConstants.PARAM_BPS_HOST%>"/></td>
-                                </tr>
-                                <tr>
-                                    <td><fmt:message key='workflow.bps.profile.auth.user'/></td>
-                                    <td><input type="text" name="<%=WorkflowUIConstants.PARAM_BPS_AUTH_USER%>"/></td>
-                                </tr>
-                                <tr>
-                                    <td><fmt:message key='workflow.bps.profile.auth.password'/></td>
-                                    <td><input type="password" name="<%=WorkflowUIConstants.PARAM_BPS_AUTH_PASSWORD%>"/>
-                                    </td>
-                                </tr>
-                            </table>
+                        <td><fmt:message key='workflow.bps.profile.name'/></td>
+                        <td><input type="text" name="<%=WorkflowUIConstants.PARAM_BPS_PROFILE_NAME%>"/></td>
+                    </tr>
+                    </tbody>
+                </table>
+                <table class="styledLeft noBorders">
+                    <thead>
+                    <tr>
+                        <th colspan="2"><fmt:message key="workflow.bps.profile.connection.details"/></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td><fmt:message key='workflow.bps.profile.host'/></td>
+                        <td><input type="text" name="<%=WorkflowUIConstants.PARAM_BPS_HOST%>"/></td>
+                    </tr>
+                    <tr>
+                        <td><fmt:message key='workflow.bps.profile.auth.user'/></td>
+                        <td><input type="text" name="<%=WorkflowUIConstants.PARAM_BPS_AUTH_USER%>"/></td>
+                    </tr>
+                    <tr>
+                        <td><fmt:message key='workflow.bps.profile.auth.password'/></td>
+                        <td><input type="password" name="<%=WorkflowUIConstants.PARAM_BPS_AUTH_PASSWORD%>"/>
                         </td>
                     </tr>
+                    </tbody>
+                </table>
+                <table class="styledLeft noBorders">
+                    <thead>
+                    <tr>
+                        <th colspan="2"><fmt:message key="workflow.bps.profile.callback.details"/></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td><fmt:message key='workflow.bps.profile.callback.auth.user'/></td>
+                        <td><input type="text" name="<%=WorkflowUIConstants.PARAM_CARBON_AUTH_USER%>"/></td>
+                    </tr>
+                    <tr>
+                        <td><fmt:message key='workflow.bps.profile.callback.auth.password'/></td>
+                        <td><input type="password" name="<%=WorkflowUIConstants.PARAM_CARBON_AUTH_PASSWORD%>"/>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+                <table>
                     <tr>
                         <td class="buttonRow">
                             <input class="button" value="<fmt:message key="add"/>" type="submit"/>

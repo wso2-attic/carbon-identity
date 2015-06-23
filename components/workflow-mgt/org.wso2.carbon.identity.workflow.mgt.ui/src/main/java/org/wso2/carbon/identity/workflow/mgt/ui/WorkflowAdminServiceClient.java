@@ -117,7 +117,11 @@ public class WorkflowAdminServiceClient {
     public AssociationDTO[] listAssociationsForWorkflow(String workflowId)
             throws RemoteException, WorkflowAdminServiceWorkflowException {
 
-        return stub.getAssociationsForWorkflow(workflowId);
+        return stub.listAssociationsForWorkflow(workflowId);
+    }
+
+    public AssociationDTO[] listAllAssociations() throws RemoteException, WorkflowAdminServiceWorkflowException {
+        return stub.listAllAssociations();
     }
 
     public void deleteAssociation(String associationId) throws RemoteException, WorkflowAdminServiceWorkflowException {
@@ -125,10 +129,10 @@ public class WorkflowAdminServiceClient {
         stub.removeAssociation(associationId);
     }
 
-    public void addAssociation(String workflowId, String eventId, String condition)
+    public void addAssociation(String workflowId, String associationName, String eventId, String condition)
             throws RemoteException, WorkflowAdminServiceWorkflowException {
 
-        stub.addAssociation(workflowId, eventId, condition);
+        stub.addAssociation(associationName, workflowId, eventId, condition);
     }
 
     public WorkflowEventDTO getEvent(String id) throws RemoteException {

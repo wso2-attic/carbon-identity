@@ -22,6 +22,7 @@ public class BPSProfileBean {
     private String profileName;
     private String host;
     private String username;
+    private String callbackUser;
 
     public String getProfileName() {
         return profileName;
@@ -45,5 +46,15 @@ public class BPSProfileBean {
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    public String getCallbackUser() {
+
+        return callbackUser;
+    }
+
+    public void setCallbackUser(String callbackUser) {
+
+        this.callbackUser = callbackUser;
     }
 }

@@ -34,11 +34,12 @@ public class WorkflowUIConstants {
     public static final String PARAM_WORKFLOW_NAME = "workflowName";
     public static final String PARAM_WORKFLOW_ID = "workflowId";
     public static final String PARAM_ASSOCIATION_ID = "associationId";
+    public static final String PARAM_ASSOCIATION_NAME = "associationName";
     public static final String PARAM_WORKFLOW_DESCRIPTION = "workflowDescription";
     public static final String PARAM_TEMPLATE_IMPL = "templateImpl";
     public static final String PARAM_WORKFLOW_TEMPLATE = "workflowTemplate";
     public static final String VALUE_EXISTING_SERVICE = "EXISTING";
-    public static final String PARAM_ASSOCIATED_OPERATION = "operation";
+    public static final String PARAM_OPERATION = "operation";
 
     public static final String PARAM_BPS_PROFILE_NAME = "bpsProfileName";
     public static final String PARAM_BPS_HOST = "bpsHost";

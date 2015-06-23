@@ -113,10 +113,12 @@ public class BPSProfileDAO {
                 String name = rs.getString(SQLConstants.PROFILE_NAME_COLUMN);
                 String hostName = rs.getString(SQLConstants.HOST_URL_COLUMN);
                 String user = rs.getString(SQLConstants.USERNAME_COLUMN);
+                String callbackUser = rs.getString(SQLConstants.CALLBACK_USER_COLUMN);
                 BPSProfileBean profileBean = new BPSProfileBean();
                 profileBean.setHost(hostName);
                 profileBean.setProfileName(name);
                 profileBean.setUsername(user);
+                profileBean.setCallbackUser(callbackUser);
                 profiles.add(profileBean);
             }
         } catch (IdentityException e) {
