@@ -18,16 +18,26 @@
 
 package org.wso2.carbon.identity.scim.provider.impl;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
+import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
 import org.wso2.carbon.identity.application.common.model.ProvisioningServiceProviderType;
 import org.wso2.carbon.identity.application.common.model.ServiceProvider;
 import org.wso2.carbon.identity.application.common.model.ThreadLocalProvisioningServiceProvider;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
+import org.wso2.carbon.identity.application.mgt.ApplicationConstants;
 import org.wso2.carbon.identity.application.mgt.ApplicationInfoProvider;
+import org.wso2.carbon.identity.provisioning.IdentityProvisioningConstants;
+import org.wso2.carbon.identity.provisioning.IdentityProvisioningException;
+import org.wso2.carbon.identity.provisioning.OutboundProvisioningManager;
+import org.wso2.carbon.identity.provisioning.ProvisioningEntity;
+import org.wso2.carbon.identity.provisioning.ProvisioningEntityType;
+import org.wso2.carbon.identity.provisioning.ProvisioningOperation;
+import org.wso2.carbon.identity.provisioning.listener.DefaultInboundUserProvisioningListener;
 import org.wso2.carbon.identity.scim.common.config.SCIMProvisioningConfigManager;
 import org.wso2.carbon.identity.scim.common.group.SCIMGroupHandler;
 import org.wso2.carbon.identity.scim.common.utils.AttributeMapper;
@@ -41,10 +51,12 @@ import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.claim.ClaimManager;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.charon.core.attributes.Attribute;
+import org.wso2.charon.core.attributes.SimpleAttribute;
 import org.wso2.charon.core.exceptions.CharonException;
 import org.wso2.charon.core.exceptions.DuplicateResourceException;
 import org.wso2.charon.core.exceptions.NotFoundException;
 import org.wso2.charon.core.extensions.UserManager;
+import org.wso2.charon.core.objects.AbstractSCIMObject;
 import org.wso2.charon.core.objects.Group;
 import org.wso2.charon.core.objects.SCIMObject;
 import org.wso2.charon.core.objects.User;
@@ -62,6 +74,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class SCIMUserManager implements UserManager {
+    public static final String USER_NAME_STRING = "userName";
     private static Log log = LogFactory.getLog(SCIMUserManager.class);
     private UserStoreManager carbonUM = null;
     private ClaimManager carbonClaimManager = null;
@@ -384,6 +397,67 @@ public class SCIMUserManager implements UserManager {
     }
 
     @Override
+    public User patchUser(User newUser, User oldUser, String[] attributesToDelete) throws CharonException {
+
+        SCIMProvisioningConfigManager provisioningConfigManager =
+                SCIMProvisioningConfigManager.getInstance();
+        //if operating in dumb mode, do not persist the operation, only provision to providers
+        if (provisioningConfigManager.isDumbMode()) {
+
+            if (log.isDebugEnabled()) {
+                log.debug("This instance is operating in dumb mode. " +
+                        "Hence, operation is not persisted, it will only be provisioned.");
+            }
+
+            this.provision(ProvisioningOperation.PATCH, newUser);
+            return newUser;
+
+        } else {
+            if (log.isDebugEnabled()) {
+                log.debug("Updating user: " + newUser.getUserName());
+            }
+            try {
+                /*set thread local property to signal the downstream SCIMUserOperationListener
+                about the provisioning route.*/
+                SCIMCommonUtils.setThreadLocalIsManagedThroughSCIMEP(true);
+                //get user claim values
+                Map<String, String> claims = AttributeMapper.getClaimsMap(newUser);
+
+                //check if username of the updating user existing in the userStore.
+                if (!carbonUM.isExistingUser(newUser.getUserName())) {
+                    throw new CharonException("User name is immutable in carbon user store.");
+                }
+
+                /*skip groups attribute since we map groups attribute to actual groups in ldap.
+                and do not update it as an attribute in user schema*/
+                if (claims.containsKey(SCIMConstants.GROUPS_URI)) {
+                    claims.remove(SCIMConstants.GROUPS_URI);
+                }
+
+                if (claims.containsKey(SCIMConstants.USER_NAME_URI)) {
+                    claims.remove(SCIMConstants.USER_NAME_URI);
+                }
+
+                for (int i = 0; i < attributesToDelete.length; i++) {
+                    attributesToDelete[i] = SCIMConstants.CORE_SCHEMA_URI + ":" + attributesToDelete[i];
+                }
+                carbonUM.deleteUserClaimValues(oldUser.getUserName(), attributesToDelete, null);
+
+                //set user claim values
+                carbonUM.setUserClaimValues(oldUser.getUserName(), claims, null);
+                //if password is updated, set it separately
+                if (StringUtils.isNotEmpty(newUser.getPassword())) {
+                    carbonUM.updateCredentialByAdmin(newUser.getUserName(), newUser.getPassword());
+                }
+                log.info("User: " + newUser.getUserName() + " updated updated through SCIM.");
+            } catch (org.wso2.carbon.user.core.UserStoreException e) {
+                throw new CharonException("Error while updating attributes of user: " + newUser.getUserName(), e);
+            }
+
+            return newUser;
+        }
+    }
+
     public User updateUser(List<Attribute> attributes) {
         return null;
     }
@@ -1148,6 +1222,75 @@ public class SCIMUserManager implements UserManager {
             }
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
             throw new CharonException("Error in initializing provisioning handler", e);
+        }
+    }
+
+    private void provision(ProvisioningOperation provisioningMethod, SCIMObject provisioningObject) throws CharonException {
+
+        String domainName = UserCoreUtil.getDomainName(carbonUM.getRealmConfiguration());
+        try {
+
+            Map<org.wso2.carbon.identity.application.common.model.ClaimMapping, List<String>> outboundAttributes = new HashMap<org.wso2.carbon.identity.application.common.model.ClaimMapping, List<String>>();
+
+            if (provisioningObject.getAttribute("password") != null) {
+                outboundAttributes.put(org.wso2.carbon.identity.application.common.model.ClaimMapping.build(
+                                IdentityProvisioningConstants.PASSWORD_CLAIM_URI, null, null, false),
+                        Arrays.asList(new String[]{((SimpleAttribute) provisioningObject.getAttribute("password"))
+                                .getStringValue()}));
+            }
+
+            if (provisioningObject.getAttribute(USER_NAME_STRING) != null) {
+                outboundAttributes.put(org.wso2.carbon.identity.application.common.model.ClaimMapping.build(
+                                IdentityProvisioningConstants.USERNAME_CLAIM_URI, null, null, false),
+                        Arrays.asList(new String[]{((SimpleAttribute) provisioningObject.getAttribute(USER_NAME_STRING))
+                                .getStringValue()}));
+            }
+
+            String domainAwareName = UserCoreUtil.addDomainToName(provisioningObject.getAttribute(USER_NAME_STRING).getName
+                    (), domainName);
+            ProvisioningEntity provisioningEntity = new ProvisioningEntity(
+                    ProvisioningEntityType.USER, domainAwareName, provisioningMethod,
+                    outboundAttributes);
+            Map<String, String> inboundAttributes = AttributeMapper.getClaimsMap((AbstractSCIMObject) provisioningObject);
+
+            provisioningEntity.setInboundAttributes(inboundAttributes);
+            String tenantDomainName = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+
+            ThreadLocalProvisioningServiceProvider threadLocalServiceProvider;
+            threadLocalServiceProvider = IdentityApplicationManagementUtil
+                    .getThreadLocalProvisioningServiceProvider();
+
+            if (threadLocalServiceProvider != null) {
+
+                String serviceProvider = threadLocalServiceProvider.getServiceProviderName();
+                tenantDomainName = threadLocalServiceProvider.getTenantDomain();
+                if (threadLocalServiceProvider.getServiceProviderType() == ProvisioningServiceProviderType.OAUTH) {
+                    try {
+                        serviceProvider = ApplicationInfoProvider.getInstance()
+                                .getServiceProviderNameByClientId(
+                                        threadLocalServiceProvider.getServiceProviderName(),
+                                        "oauth2", tenantDomainName);
+                    } catch (IdentityApplicationManagementException e) {
+                        log.error("Error while provisioning", e);
+                        return;
+                    }
+                }
+
+                // call framework method to provision the user.
+                OutboundProvisioningManager.getInstance().provision(provisioningEntity,
+                        serviceProvider, threadLocalServiceProvider.getClaimDialect(),
+                        tenantDomainName, threadLocalServiceProvider.isJustInTimeProvisioning());
+            } else {
+                // call framework method to provision the user.
+                OutboundProvisioningManager.getInstance()
+                        .provision(provisioningEntity, ApplicationConstants.LOCAL_SP,
+                                DefaultInboundUserProvisioningListener.WSO2_CARBON_DIALECT, tenantDomainName, false);
+            }
+
+        } catch (NotFoundException e) {
+            throw new CharonException("Failed to find resource in external user store.", e);
+        } catch (IdentityProvisioningException e) {
+            throw new CharonException("Error while provisioning to externaluser store in dumb mode.", e);
         }
     }
 }
