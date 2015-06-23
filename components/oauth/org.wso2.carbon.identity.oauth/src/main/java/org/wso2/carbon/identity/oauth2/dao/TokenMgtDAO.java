@@ -206,7 +206,6 @@ public class TokenMgtDAO {
             prepStmt.setString(11, accessTokenDO.getTokenType());
             prepStmt.setString(12, accessTokenDO.getTokenId());
             prepStmt.execute();
-            connection.commit();
         } catch (SQLIntegrityConstraintViolationException e) {
             String errorMsg = "Access Token for consumer key : " + consumerKey + ", user : " +
                               accessTokenDO.getAuthzUser().toLowerCase() + " and scope : " +
@@ -247,9 +246,17 @@ public class TokenMgtDAO {
         Connection connection = null;
         try {
             connection = JDBCPersistenceManager.getInstance().getDBConnection();
-            storeAccessToken(accessToken, consumerKey, accessTokenDO, connection, userStoreDomain);
+            if(accessTokenDO.getAuthorizationCode() != null) {
+                storeAccessToken(accessToken, consumerKey, accessTokenDO, connection, userStoreDomain);
+                // expire authz code and insert issued access token against authz code
+                expireAuthorizationCode(accessTokenDO.getAuthorizationCode(), accessTokenDO.getTokenId());
+                connection.commit();
+            } else {
+                storeAccessToken(accessToken, consumerKey, accessTokenDO, connection, userStoreDomain);
+                connection.commit();
+            }
             return true;
-        } catch (IdentityException e) {
+        } catch (IdentityException | SQLException e) {
             throw new IdentityOAuth2Exception(
                     "Error occurred while getting a connection to Identity Data Persistent Storage", e);
         } finally {
@@ -484,14 +491,6 @@ public class TokenMgtDAO {
         }
     }
 
-    public void expireAuthorizationCode(String authzCode, String tokenId) throws IdentityOAuth2Exception {
-        if (maxPoolSize > 0) {
-            authContextTokenQueue.push(new AuthContextTokenDO(authzCode, tokenId));
-        } else {
-            doExpireAuthorizationCode(authzCode, tokenId);
-        }
-    }
-
     public void removeAuthzCode(String authzCode) throws IdentityOAuth2Exception {
         Connection connection = null;
         PreparedStatement prepStmt = null;
@@ -516,7 +515,7 @@ public class TokenMgtDAO {
         }
     }
 
-    public void doExpireAuthorizationCode(String authzCode, String tokenId) throws IdentityOAuth2Exception {
+    public void expireAuthorizationCode(String authzCode, String tokenId) throws IdentityOAuth2Exception {
         Connection connection = null;
         PreparedStatement prepStmt = null;
 

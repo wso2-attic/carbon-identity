@@ -343,13 +343,7 @@ public abstract class AbstractAuthorizationGrantHandler implements Authorization
             accessTokenDO.setTokenId(UUID.randomUUID().toString());
 
             // Persist the access token in database
-            try {
-                tokenMgtDAO.storeAccessToken(accessToken, oAuth2AccessTokenReqDTO.getClientId(),
-                        accessTokenDO, userStoreDomain);
-            } catch (IdentityException e) {
-                throw new IdentityOAuth2Exception(
-                        "Error occurred while storing new access token : " + accessToken, e);
-            }
+            storeAccessToken(oAuth2AccessTokenReqDTO, userStoreDomain, accessTokenDO, accessToken);
 
             if (log.isDebugEnabled()) {
                 log.debug("Persisted Access Token : " + accessToken + " for " +
@@ -387,6 +381,17 @@ public abstract class AbstractAuthorizationGrantHandler implements Authorization
             }
             tokenRespDTO.setAuthorizedScopes(scope);
             return tokenRespDTO;
+        }
+    }
+
+    protected void storeAccessToken(OAuth2AccessTokenReqDTO oAuth2AccessTokenReqDTO, String userStoreDomain,
+                                    AccessTokenDO accessTokenDO, String accessToken) throws IdentityOAuth2Exception {
+        try {
+            tokenMgtDAO.storeAccessToken(accessToken, oAuth2AccessTokenReqDTO.getClientId(),
+                    accessTokenDO, userStoreDomain);
+        } catch (IdentityException e) {
+            throw new IdentityOAuth2Exception(
+                    "Error occurred while storing new access token : " + accessToken, e);
         }
     }
 
