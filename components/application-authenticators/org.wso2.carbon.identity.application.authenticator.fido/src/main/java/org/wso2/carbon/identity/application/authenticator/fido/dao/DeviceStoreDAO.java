@@ -42,6 +42,20 @@ public class DeviceStoreDAO {
 
     private static Log log = LogFactory.getLog(DeviceStoreDAO.class);
 
+    private DeviceStoreDAO(){
+
+    }
+
+    public static DeviceStoreDAO getInstance() {
+        return LazyHolder.INSTANCE;
+    }
+
+
+
+    private static class LazyHolder {
+        private static final DeviceStoreDAO INSTANCE = new DeviceStoreDAO();
+    }
+
 
     /**
      * Add Device Registration to store.
@@ -64,11 +78,10 @@ public class DeviceStoreDAO {
         try {
             preparedStatement = connection.prepareStatement(FIDOAuthenticatorConstants.SQLQueries.ADD_DEVICE_REGISTRATION_QUERY);
             preparedStatement.setInt(1, tenantID);
-            preparedStatement.setString(2, username);
-            preparedStatement.setString(3, registration.getKeyHandle());
-            preparedStatement.setString(4, registration.toJson());
-            preparedStatement.setString(5, userStoreDomain);
-            preparedStatement.setInt(6, tenantID);
+            preparedStatement.setString(2, userStoreDomain);
+            preparedStatement.setString(3, username);
+            preparedStatement.setString(4, registration.getKeyHandle());
+            preparedStatement.setString(5, registration.toJson());
             preparedStatement.executeUpdate();
             if (!connection.getAutoCommit()) {
                 connection.commit();
@@ -102,10 +115,9 @@ public class DeviceStoreDAO {
 
         try {
             preparedStatement = connection.prepareStatement(FIDOAuthenticatorConstants.SQLQueries.GET_DEVICE_REGISTRATION_QUERY);
-            preparedStatement.setString(1, userStoreDomain);
-            preparedStatement.setInt(2, tenantID);
-            preparedStatement.setInt(3, tenantID);
-            preparedStatement.setString(4, username);
+            preparedStatement.setInt(1, tenantID);
+            preparedStatement.setString(2, userStoreDomain);
+            preparedStatement.setString(3, username);
             resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
                 String keyHandle = resultSet.getString(FIDOAuthenticatorConstants.U2F_KEY_HANDLE);
@@ -127,6 +139,14 @@ public class DeviceStoreDAO {
         return devices.values();
     }
 
+    /**
+     * Remove registered device from store.
+     *
+     * @param username
+     * @param tenantID
+     * @param userStoreDomain
+     * @throws FIDOAuthenticatorServerException
+     */
     public void removeRegistration(String username, int tenantID, String userStoreDomain)
             throws FIDOAuthenticatorServerException {
 
@@ -138,10 +158,9 @@ public class DeviceStoreDAO {
 
         try {
             preparedStatement = connection.prepareStatement(FIDOAuthenticatorConstants.SQLQueries.REMOVE_REGISTRATION_QUERY);
-            preparedStatement.setString(1, userStoreDomain);
-            preparedStatement.setInt(2, tenantID);
-            preparedStatement.setInt(3, tenantID);
-            preparedStatement.setString(4, username);
+            preparedStatement.setInt(1, tenantID);
+            preparedStatement.setString(2, userStoreDomain);
+            preparedStatement.setString(3, username);
             preparedStatement.executeUpdate();
 
             if (!connection.getAutoCommit()) {
@@ -150,11 +169,82 @@ public class DeviceStoreDAO {
         } catch (SQLException e) {
             throw new FIDOAuthenticatorServerException(
                     "Error executing remove registrations SQL : " +
-                    FIDOAuthenticatorConstants.SQLQueries.GET_DEVICE_REGISTRATION_QUERY, e
+                    FIDOAuthenticatorConstants.SQLQueries.REMOVE_REGISTRATION_QUERY, e
             );
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, null, preparedStatement);
         }
+    }
+
+    /**
+     * Update registration entry once domain name changed.
+     *
+     * @param tenantId
+     * @param currentUserStoreName
+     * @param newUserStoreName
+     * @throws FIDOAuthenticatorServerException
+     */
+    public void updateDomainNameOfRegistration(int tenantId, String currentUserStoreName,
+                                               String newUserStoreName)  throws FIDOAuthenticatorServerException{
+        if (log.isDebugEnabled()) {
+            log.debug("updateDomainNameOfRegistration inputs {tenantId: " + tenantId + ", currentUserStoreName: " +
+                      currentUserStoreName +", newUserStoreName: " + newUserStoreName + "}");
+        }
+        Connection connection = getDBConnection();
+        PreparedStatement preparedStatement = null;
+
+        try {
+            preparedStatement = connection.prepareStatement(FIDOAuthenticatorConstants.SQLQueries.UPDATE_USER_DOMAIN_NAME);
+            preparedStatement.setString(1, newUserStoreName.toUpperCase());
+            preparedStatement.setString(2, currentUserStoreName.toUpperCase());
+            preparedStatement.setInt(3, tenantId);
+            preparedStatement.executeUpdate();
+            if (!connection.getAutoCommit()) {
+                connection.commit();
+            }
+
+        } catch (SQLException e) {
+            throw new FIDOAuthenticatorServerException("Error when executing FIDO update domain name SQL : " +
+                                                       FIDOAuthenticatorConstants.SQLQueries.UPDATE_USER_DOMAIN_NAME, e);
+        } finally {
+            IdentityDatabaseUtil.closeAllConnections(connection, null, preparedStatement);
+        }
+
+    }
+
+    /**
+     * Remove registration entry once user store domain deleted.
+     *
+     * @param tenantId
+     * @param userStoreName
+     * @throws FIDOAuthenticatorServerException
+     */
+    public void deleteRegistrationFromDomain(int tenantId, String userStoreName) throws FIDOAuthenticatorServerException{
+
+        if (log.isDebugEnabled()) {
+            log.debug("deleteRegistrationFromDomain inputs {tenantId: " + tenantId + ", userStoreName: " + userStoreName +"}");
+        }
+        Connection connection = getDBConnection();
+        PreparedStatement preparedStatement = null;
+
+        try {
+            preparedStatement = connection.prepareStatement(FIDOAuthenticatorConstants.SQLQueries.DELETE_DEVICE_REGISTRATION_FROM_DOMAIN);
+            preparedStatement.setInt(1, tenantId);
+            preparedStatement.setString(2, userStoreName.toUpperCase());
+            preparedStatement.executeUpdate();
+
+            if (!connection.getAutoCommit()) {
+                connection.commit();
+            }
+        } catch (SQLException e) {
+            throw new FIDOAuthenticatorServerException(
+                    "Error executing remove registrations SQL on domain delete: " +
+                    FIDOAuthenticatorConstants.SQLQueries.DELETE_DEVICE_REGISTRATION_FROM_DOMAIN, e
+            );
+        } finally {
+            IdentityDatabaseUtil.closeAllConnections(connection, null, preparedStatement);
+        }
+
     }
 
     private Connection getDBConnection() throws FIDOAuthenticatorServerException {
