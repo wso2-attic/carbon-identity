@@ -21,10 +21,12 @@ package org.wso2.carbon.identity.mgt.internal;
 import org.apache.axis2.engine.AxisObserver;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.mgt.IdentityMgtConfig;
+import org.wso2.carbon.identity.mgt.IdentityMgtEventListener;
 import org.wso2.carbon.identity.mgt.RecoveryProcessor;
 import org.wso2.carbon.identity.mgt.constants.IdentityMgtConstants;
 import org.wso2.carbon.identity.mgt.dto.ChallengeQuestionDTO;
@@ -32,6 +34,7 @@ import org.wso2.carbon.registry.core.Collection;
 import org.wso2.carbon.registry.core.Registry;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
 import org.wso2.carbon.registry.core.service.RegistryService;
+import org.wso2.carbon.user.core.listener.UserOperationEventListener;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.ConfigurationContextService;
 
@@ -151,11 +154,25 @@ public class IdentityMgtServiceComponent {
         context.getBundleContext().registerService(AxisObserver.class.getName(),
                 new IdentityMgtDeploymentInterceptor(), props);
         init();
-        if (IdentityMgtConfig.getInstance().isListenerEnable() && log.isDebugEnabled()) {
-            log.debug("Identity Management Listener is enabled");
+        if (IdentityMgtConfig.getInstance().isListenerEnable()) {
+
+            if(log.isDebugEnabled()) {
+                log.debug("Identity Management Listener is enabled");
+            }
+
+            ServiceRegistration serviceRegistration = context.getBundleContext().registerService
+                    (UserOperationEventListener.class.getName(), new IdentityMgtEventListener(), null);
+            if (serviceRegistration != null) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Identity Management - UserOperationEventListener registered.");
+                }
+            } else {
+                log.error("Identity Management - UserOperationEventListener could not be registered.");
+            }
         } else if (log.isDebugEnabled()){
             log.debug("Identity Management Listener is disabled");
         }
+
         if(log.isDebugEnabled()) {
             log.debug("Identity Management bundle is activated");
         }
