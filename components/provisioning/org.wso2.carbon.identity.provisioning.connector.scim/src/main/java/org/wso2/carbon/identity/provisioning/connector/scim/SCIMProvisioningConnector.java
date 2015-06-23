@@ -97,9 +97,7 @@ public class SCIMProvisioningConnector extends AbstractOutboundProvisioningConne
                 } else if (provisioningEntity.getOperation() == ProvisioningOperation.POST) {
                     createUser(provisioningEntity);
                 } else if (provisioningEntity.getOperation() == ProvisioningOperation.PUT) {
-                    updateUser(provisioningEntity, ProvisioningOperation.PUT);
-                } else if (provisioningEntity.getOperation() == ProvisioningOperation.PATCH) {
-                    updateUser(provisioningEntity, ProvisioningOperation.PATCH);
+                    updateUser(provisioningEntity);
                 } else {
                     log.warn("Unsupported provisioning opertaion.");
                 }
@@ -112,10 +110,10 @@ public class SCIMProvisioningConnector extends AbstractOutboundProvisioningConne
                 } else if (provisioningEntity.getOperation() == ProvisioningOperation.PUT) {
                     updateGroup(provisioningEntity);
                 } else {
-                    log.warn("Unsupported provisioning operation.");
+                    log.warn("Unsupported provisioning entity.");
                 }
             } else {
-                log.warn("Unsupported provisioning entity.");
+                log.warn("Unsupported provisioning opertaion.");
             }
         }
 
@@ -127,8 +125,7 @@ public class SCIMProvisioningConnector extends AbstractOutboundProvisioningConne
      * @param userEntity
      * @throws IdentityProvisioningException
      */
-    private void updateUser(ProvisioningEntity userEntity, ProvisioningOperation provisioningOperation) throws
-            IdentityProvisioningException {
+    private void updateUser(ProvisioningEntity userEntity) throws IdentityProvisioningException {
 
         try {
 
@@ -158,11 +155,6 @@ public class SCIMProvisioningConnector extends AbstractOutboundProvisioningConne
 
             ProvisioningClient scimProvsioningClient = new ProvisioningClient(scimProvider, user,
                     httpMethod, null);
-            if (provisioningOperation.equals(ProvisioningOperation.PUT)) {
-                scimProvsioningClient.provisionUpdateUser();
-            } else if (provisioningOperation.equals(ProvisioningOperation.PATCH)) {
-                scimProvsioningClient.provisionPatchUser();
-            }
             scimProvsioningClient.provisionUpdateUser();
 
         } catch (Exception e) {

@@ -48,8 +48,6 @@ import java.util.Map;
 
 public class DefaultInboundUserProvisioningListener extends AbstractUserOperationEventListener {
 
-    public static final String WSO2_CARBON_DIALECT = "http://wso2.org/claims";
-
     private static final Log log = LogFactory.getLog(DefaultInboundUserProvisioningListener.class);
 
     public DefaultInboundUserProvisioningListener() throws IdentityProvisioningException {

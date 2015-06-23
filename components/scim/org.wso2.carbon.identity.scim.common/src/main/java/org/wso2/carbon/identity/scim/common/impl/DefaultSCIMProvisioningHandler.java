@@ -49,10 +49,6 @@ public class DefaultSCIMProvisioningHandler implements ProvisioningHandler {
     private int provisioningMethod;
     private Map<String, Object> additionalProvisioningInformation;
 
-    public DefaultSCIMProvisioningHandler() {
-        initConfigManager();
-    }
-
     public DefaultSCIMProvisioningHandler(String consumerId, User user, int httpMethod,
                                           Map<String, Object> additionalInformation) {
         initConfigManager();
