@@ -22,5 +22,5 @@ import java.io.Serializable;
 
 public enum ProvisioningOperation implements Serializable {
 
-    POST, PUT, DELETE, PATCH
+    POST, PUT, DELETE
 }

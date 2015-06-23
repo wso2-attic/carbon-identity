@@ -18,10 +18,8 @@
 
 package org.wso2.carbon.identity.scim.provider.resources;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.identity.jaxrs.designator.PATCH;
 import org.wso2.carbon.identity.scim.provider.impl.IdentitySCIMManager;
 import org.wso2.carbon.identity.scim.provider.util.JAXRSResponseBuilder;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
@@ -332,61 +330,6 @@ public class UserResource extends AbstractResource {
             if (logger.isDebugEnabled()) {
                 logger.debug(e.getMessage(), e);
             }
-            return new JAXRSResponseBuilder().buildResponse(AbstractResourceEndpoint
-                    .encodeSCIMException(encoder, e));
-        }
-    }
-
-    @PATCH
-    @Path("{id}")
-    public Response updateUserPATCH(@PathParam(SCIMConstants.CommonSchemaConstants.ID) String id,
-                                    @HeaderParam(SCIMConstants.CONTENT_TYPE_HEADER) String inputFormat,
-                                    @HeaderParam(SCIMConstants.ACCEPT_HEADER) String outputFormat,
-                                    @HeaderParam(SCIMConstants.AUTHORIZATION_HEADER) String authorization,
-                                    String resourceString) {
-        Encoder encoder = null;
-        try {
-            // obtain default charon manager
-            IdentitySCIMManager identitySCIMManager = IdentitySCIMManager.getInstance();
-
-            // content-type header is compulsory in post request.
-            if (StringUtils.isEmpty(inputFormat)) {
-                String error = SCIMConstants.CONTENT_TYPE_HEADER
-                        + " not present in the request header";
-                throw new FormatNotSupportedException(error);
-            }
-            // identify input format
-            inputFormat = identifyInputFormat(inputFormat);
-            // set the format in which the response should be encoded, if not specified in the
-            // request,
-            // defaults to application/json.
-            outputFormat = identifyOutputFormat(outputFormat);
-            // obtain the encoder at this layer in case exceptions needs to be encoded.
-            encoder = identitySCIMManager.getEncoder(SCIMConstants.identifyFormat(outputFormat));
-
-            // obtain the user store manager
-            UserManager userManager = IdentitySCIMManager.getInstance().getUserManager(
-                    authorization);
-
-            // create charon-SCIM user endpoint and hand-over the request.
-            UserResourceEndpoint userResourceEndpoint = new UserResourceEndpoint();
-
-            SCIMResponse response = userResourceEndpoint.updateWithPATCH(id, resourceString,
-                    inputFormat, outputFormat, userManager);
-
-            return new JAXRSResponseBuilder().buildResponse(response);
-
-        } catch (CharonException e) {
-            logger.error("Charon Exception raised while executing PATCH request.", e);
-            // create SCIM response with code as the same of exception and message as error message
-            // of the exception
-            if (e.getCode() == -1) {
-                e.setCode(ResponseCodeConstants.CODE_INTERNAL_SERVER_ERROR);
-            }
-            return new JAXRSResponseBuilder().buildResponse(AbstractResourceEndpoint
-                    .encodeSCIMException(encoder, e));
-        } catch (FormatNotSupportedException e) {
-            logger.debug("Request format is not supported.", e);
             return new JAXRSResponseBuilder().buildResponse(AbstractResourceEndpoint
                     .encodeSCIMException(encoder, e));
         }
