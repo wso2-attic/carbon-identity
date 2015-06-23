@@ -127,7 +127,7 @@ public class WorkflowDAO {
     /**
      * Stores the association of workflow executor service to a event type with the condition.
      */
-    public void addAssociation(String workflowId, String eventId, String condition)
+    public void addAssociation(String associationName, String workflowId, String eventId, String condition)
             throws InternalWorkflowException {
 
         Connection connection = null;
@@ -138,8 +138,9 @@ public class WorkflowDAO {
             connection = IdentityDatabaseUtil.getDBConnection();
             prepStmt = connection.prepareStatement(query);
             prepStmt.setString(1, eventId);
-            prepStmt.setString(2, condition);
-            prepStmt.setString(3, workflowId);
+            prepStmt.setString(2, associationName);
+            prepStmt.setString(3, condition);
+            prepStmt.setString(4, workflowId);
             prepStmt.executeUpdate();
             connection.commit();
         } catch (IdentityException e) {
@@ -244,7 +245,7 @@ public class WorkflowDAO {
         PreparedStatement prepStmt = null;
         ResultSet rs;
         List<WorkflowAssociationBean> associations = new ArrayList<>();
-        String query = SQLConstants.GET_WORKFLOWS_FOR_EVENT_QUERY;
+        String query = SQLConstants.GET_ASSOCIATIONS_FOR_EVENT_QUERY;
         try {
             connection = IdentityDatabaseUtil.getDBConnection();
             prepStmt = connection.prepareStatement(query);
@@ -273,7 +274,7 @@ public class WorkflowDAO {
         return associations;
     }
 
-    public List<AssociationDTO> getAssociationsForWorkflow(String workflowId)
+    public List<AssociationDTO> listAssociationsForWorkflow(String workflowId)
             throws InternalWorkflowException {
 
         Connection connection = null;
@@ -290,10 +291,49 @@ public class WorkflowDAO {
                 String condition = rs.getString(SQLConstants.CONDITION_COLUMN);
                 String eventId = rs.getString(SQLConstants.EVENT_ID_COLUMN);
                 String associationId = String.valueOf(rs.getInt(SQLConstants.ID_COLUMN));
+                String associationName = rs.getString(SQLConstants.ASSOCIATION_NAME_COLUMN);
+                String workflowName = rs.getString(SQLConstants.WF_NAME_COLUMN);
                 AssociationDTO associationDTO = new AssociationDTO();
                 associationDTO.setCondition(condition);
                 associationDTO.setAssociationId(associationId);
                 associationDTO.setEventId(eventId);
+                associationDTO.setAssociationName(associationName);
+                associationDTO.setWorkflowName(workflowName);
+                associations.add(associationDTO);
+            }
+        } catch (IdentityException e) {
+            throw new InternalWorkflowException("Error when connecting to the Identity Database.", e);
+        } catch (SQLException e) {
+            throw new InternalWorkflowException("Error when executing the sql.", e);
+        } finally {
+            IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
+        }
+        return associations;
+    }
+
+    public List<AssociationDTO> listAssociations() throws InternalWorkflowException {
+
+        Connection connection = null;
+        PreparedStatement prepStmt = null;
+        ResultSet rs;
+        List<AssociationDTO> associations = new ArrayList<>();
+        String query = SQLConstants.GET_ALL_ASSOCIATIONS_QUERY;
+        try {
+            connection = IdentityDatabaseUtil.getDBConnection();
+            prepStmt = connection.prepareStatement(query);
+            rs = prepStmt.executeQuery();
+            while (rs.next()) {
+                String condition = rs.getString(SQLConstants.CONDITION_COLUMN);
+                String eventId = rs.getString(SQLConstants.EVENT_ID_COLUMN);
+                String associationId = String.valueOf(rs.getInt(SQLConstants.ID_COLUMN));
+                String associationName = rs.getString(SQLConstants.ASSOCIATION_NAME_COLUMN);
+                String workflowName = rs.getString(SQLConstants.WF_NAME_COLUMN);
+                AssociationDTO associationDTO = new AssociationDTO();
+                associationDTO.setCondition(condition);
+                associationDTO.setAssociationId(associationId);
+                associationDTO.setEventId(eventId);
+                associationDTO.setAssociationName(associationName);
+                associationDTO.setWorkflowName(workflowName);
                 associations.add(associationDTO);
             }
         } catch (IdentityException e) {

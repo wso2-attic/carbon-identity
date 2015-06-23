@@ -19,71 +19,74 @@
 package org.wso2.carbon.identity.workflow.mgt.bean;
 
 public class TemplateDeploymentDTO {
+
     private String workflowName;
     private String workflowDescription;
     private String templateName;
     private String templateImplName;
     private Parameter[] parameters;
     private Parameter[] templateImplParameters;
-    private AddAssociationDO[] associations;
 
     public String getWorkflowName() {
+
         return workflowName;
     }
 
     public void setWorkflowName(String workflowName) {
+
         this.workflowName = workflowName;
     }
 
     public String getWorkflowDescription() {
+
         return workflowDescription;
     }
 
     public void setWorkflowDescription(String workflowDescription) {
+
         this.workflowDescription = workflowDescription;
     }
 
     public String getTemplateName() {
+
         return templateName;
     }
 
     public void setTemplateName(String templateName) {
+
         this.templateName = templateName;
     }
 
     public String getTemplateImplName() {
+
         return templateImplName;
     }
 
     public void setTemplateImplName(String templateImplName) {
+
         this.templateImplName = templateImplName;
     }
 
     public Parameter[] getParameters() {
+
         return parameters;
     }
 
     public void setParameters(
             Parameter[] parameters) {
+
         this.parameters = parameters;
     }
 
     public Parameter[] getTemplateImplParameters() {
+
         return templateImplParameters;
     }
 
     public void setTemplateImplParameters(
             Parameter[] templateImplParameters) {
+
         this.templateImplParameters = templateImplParameters;
     }
 
-    public AddAssociationDO[] getAssociations() {
-
-        return associations;
-    }
-
-    public void setAssociations(AddAssociationDO[] associations) {
-
-        this.associations = associations;
-    }
 }

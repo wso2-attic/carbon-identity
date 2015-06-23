@@ -65,6 +65,18 @@ public class WorkflowService {
                 eventDTO.setEventDescription(requestHandler.getDescription());
                 eventDTO.setEventCategory(requestHandler.getCategory());
                 //note: parameters are not set at here in list operation. It's set only at get operation
+                if (requestHandler.getParamDefinitions() != null) {
+                    Parameter[] parameters = new Parameter[requestHandler.getParamDefinitions().size()];
+                    int i = 0;
+                    for (Map.Entry<String, String> paramEntry : requestHandler.getParamDefinitions().entrySet()) {
+                        Parameter parameter = new Parameter();
+                        parameter.setParamName(paramEntry.getKey());
+                        parameter.setParamValue(paramEntry.getValue());
+                        parameters[i] = parameter;
+                        i++;
+                    }
+                    eventDTO.setParameters(parameters);
+                }
                 eventList.add(eventDTO);
             }
         }
@@ -193,7 +205,8 @@ public class WorkflowService {
         templateImplementation.deploy(paramMap);
     }
 
-    public void addAssociation(String workflowId, String eventId, String condition) throws WorkflowException {
+    public void addAssociation(String associationName, String workflowId, String eventId, String condition) throws
+            WorkflowException {
 
         if (StringUtils.isBlank(workflowId)) {
             log.error("Null or empty string given as workflow id to be associated to event.");
@@ -215,7 +228,7 @@ public class WorkflowService {
         XPath xpath = factory.newXPath();
         try {
             xpath.compile(condition);
-            workflowDAO.addAssociation(workflowId, eventId, condition);
+            workflowDAO.addAssociation(associationName, workflowId, eventId, condition);
         } catch (XPathExpressionException e) {
             log.error("The condition:" + condition + " is not an valid xpath expression.", e);
             throw new WorkflowException("The condition:" + condition + " is not an valid xpath expression.");
@@ -244,7 +257,23 @@ public class WorkflowService {
 
     public List<AssociationDTO> getAssociationsForWorkflow(String workflowId) throws WorkflowException {
 
-        List<AssociationDTO> associations = workflowDAO.getAssociationsForWorkflow(workflowId);
+        List<AssociationDTO> associations = workflowDAO.listAssociationsForWorkflow(workflowId);
+        for (Iterator<AssociationDTO> iterator = associations.iterator(); iterator.hasNext(); ) {
+            AssociationDTO association = iterator.next();
+            WorkflowRequestHandler requestHandler =
+                    WorkflowServiceDataHolder.getInstance().getRequestHandler(association.getEventId());
+            if (requestHandler != null) {
+                association.setEventName(requestHandler.getFriendlyName());
+            } else {
+                //invalid reference, probably event id is renamed or removed
+                iterator.remove();
+            }
+        }
+        return associations;
+    }
+
+    public List<AssociationDTO> listAllAssociations() throws WorkflowException {
+        List<AssociationDTO> associations = workflowDAO.listAssociations();
         for (Iterator<AssociationDTO> iterator = associations.iterator(); iterator.hasNext(); ) {
             AssociationDTO association = iterator.next();
             WorkflowRequestHandler requestHandler =

@@ -22,7 +22,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.CarbonContext;
-import org.wso2.carbon.identity.workflow.mgt.bean.AddAssociationDO;
 import org.wso2.carbon.identity.workflow.mgt.bean.AssociationDTO;
 import org.wso2.carbon.identity.workflow.mgt.bean.BPSProfileBean;
 import org.wso2.carbon.identity.workflow.mgt.bean.Parameter;
@@ -75,9 +74,6 @@ public class WorkflowAdminService {
             service.addWorkflow(uuid, deploymentDTO.getWorkflowName(), deploymentDTO.getWorkflowDescription(),
                     deploymentDTO.getTemplateName(), deploymentDTO.getTemplateImplName(), deploymentDTO.getParameters(),
                     deploymentDTO.getTemplateImplParameters(), tenantId);
-            for (AddAssociationDO associationDO : deploymentDTO.getAssociations()) {
-                service.addAssociation(uuid, associationDO.getEventId(), associationDO.getCondition());
-            }
         } catch (InternalWorkflowException e) {
             log.error("Error occurred when deploying template " + deploymentDTO.getWorkflowName());
             throw new WorkflowException("Server error occurred when deploying the template");
@@ -134,10 +130,11 @@ public class WorkflowAdminService {
         }
     }
 
-    public void addAssociation(String workflowId, String eventId, String condition) throws WorkflowException {
+    public void addAssociation(String associationName, String workflowId, String eventId, String condition) throws
+            WorkflowException {
 
         try {
-            service.addAssociation(workflowId, eventId, condition);
+            service.addAssociation(associationName, workflowId, eventId, condition);
         } catch (InternalWorkflowException e) {
             log.error("Server error when adding association of workflow " + workflowId + " with " + eventId, e);
             throw new WorkflowException("Server error occurred when associating the workflow with the event");
@@ -180,13 +177,27 @@ public class WorkflowAdminService {
         }
     }
 
-    public AssociationDTO[] getAssociationsForWorkflow(String workflowId) throws WorkflowException {
+    public AssociationDTO[] listAssociationsForWorkflow(String workflowId) throws WorkflowException {
 
         List<AssociationDTO> associations;
         try {
             associations = service.getAssociationsForWorkflow(workflowId);
         } catch (InternalWorkflowException e) {
             log.error("Server error when listing associations for workflow id:" + workflowId, e);
+            throw new WorkflowException("Server error when listing associations");
+        }
+        if (CollectionUtils.isEmpty(associations)) {
+            return new AssociationDTO[0];
+        }
+        return associations.toArray(new AssociationDTO[associations.size()]);
+    }
+
+    public AssociationDTO[] listAllAssociations() throws WorkflowException {
+        List<AssociationDTO> associations;
+        try {
+            associations = service.listAllAssociations();
+        } catch (InternalWorkflowException e) {
+            log.error("Server error when listing all associations", e);
             throw new WorkflowException("Server error when listing associations");
         }
         if (CollectionUtils.isEmpty(associations)) {

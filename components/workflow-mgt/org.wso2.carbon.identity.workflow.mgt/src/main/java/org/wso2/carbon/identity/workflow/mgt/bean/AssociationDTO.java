@@ -21,6 +21,8 @@ package org.wso2.carbon.identity.workflow.mgt.bean;
 public class AssociationDTO {
 
     private String associationId;
+    private String associationName;
+    private String workflowName;
     private String eventName;
     private String eventId;
     private String condition;
@@ -33,6 +35,16 @@ public class AssociationDTO {
     public void setAssociationId(String associationId) {
 
         this.associationId = associationId;
+    }
+
+    public String getAssociationName() {
+
+        return associationName;
+    }
+
+    public void setAssociationName(String associationName) {
+
+        this.associationName = associationName;
     }
 
     public String getEventName() {
@@ -63,5 +75,15 @@ public class AssociationDTO {
     public void setCondition(String condition) {
 
         this.condition = condition;
+    }
+
+    public String getWorkflowName() {
+
+        return workflowName;
+    }
+
+    public void setWorkflowName(String workflowName) {
+
+        this.workflowName = workflowName;
     }
 }
