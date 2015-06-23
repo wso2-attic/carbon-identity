@@ -30,10 +30,8 @@
             <!--<icon>../tools-saml/images/lock_blue.png</icon>-->
             <require-permission>/permission/admin/configure/security</require-permission>
         </menu>
-
-        <!--Workflow management menu-->
         <menu>
-            <id>configure_workflow_menu</id>
+            <id>configure_association_menu</id>
             <i18n-key>workflow.mgt</i18n-key>
             <i18n-bundle>org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources</i18n-bundle>
             <parent-menu>workflow_mgt_menu</parent-menu>
@@ -41,6 +39,49 @@
             <icon>../workflow-mgt/images/workflow.gif</icon>
             <region>region1</region>
             <order>1</order>
+            <style-class>manage</style-class>
+            <!--<icon>../tools-saml/images/lock_blue.png</icon>-->
+            <require-permission>/permission/admin/configure/security</require-permission>
+        </menu>
+        <menu>
+            <id>association_add_menu</id>
+            <i18n-key>add</i18n-key>
+            <i18n-bundle>org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources</i18n-bundle>
+            <parent-menu>configure_association_menu</parent-menu>
+            <link>../workflow-mgt/add-association.jsp</link>
+            <icon>../workflow-mgt/images/add.png</icon>
+            <region>region1</region>
+            <order>1</order>
+            <style-class>manage</style-class>
+            <!--TODO change icon-->
+            <!--<icon>../workflow-mgt/images/claimmgt.gif</icon>-->
+            <require-permission>/permission/admin/configure/security</require-permission>
+        </menu>
+        <menu>
+            <id>association_list_menu</id>
+            <i18n-key>list</i18n-key>
+            <i18n-bundle>org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources</i18n-bundle>
+            <parent-menu>configure_association_menu</parent-menu>
+            <link>../workflow-mgt/list-associations.jsp</link>
+            <icon>../workflow-mgt/images/list.png</icon>
+            <region>region1</region>
+            <order>2</order>
+            <style-class>manage</style-class>
+            <!--TODO change icon-->
+            <!--<icon>../workflow-mgt/images/claimmgt.gif</icon>-->
+            <require-permission>/permission/admin/configure/security</require-permission>
+        </menu>
+
+        <!--Workflow management menu-->
+        <menu>
+            <id>configure_workflow_menu</id>
+            <i18n-key>workflow.mgt</i18n-key>
+            <i18n-bundle>org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources</i18n-bundle>
+            <parent-menu>configure_menu</parent-menu>
+            <link>#</link>
+            <icon>../workflow-mgt/images/workflow.gif</icon>
+            <region>region1</region>
+            <order>50</order>
             <style-class>manage</style-class>
             <!--<icon>../tools-saml/images/lock_blue.png</icon>-->
             <require-permission>/permission/admin/configure/security</require-permission>
@@ -83,7 +124,7 @@
             <link>#</link>
             <icon>../workflow-mgt/images/workflow.gif</icon>
             <region>region1</region>
-            <order>60</order>
+            <order>55</order>
             <style-class>manage</style-class>
             <!--<icon>../tools-saml/images/lock_blue.png</icon>-->
             <require-permission>/permission/admin/configure/security</require-permission>
