@@ -139,6 +139,10 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
 
         IdentityMgtConfig config = IdentityMgtConfig.getInstance();
 
+        if (!config.isListenerEnable()) {
+            return true;
+        }
+
         if (!config.isEnableAuthPolicy()) {
             return true;
         }
@@ -210,6 +214,10 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
         }
 
         IdentityMgtConfig config = IdentityMgtConfig.getInstance();
+
+        if (!config.isListenerEnable()) {
+            return true;
+        }
 
         if (!config.isEnableAuthPolicy()) {
             return true;
@@ -405,6 +413,10 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
         }
         IdentityMgtConfig config = IdentityMgtConfig.getInstance();
         if (!config.isListenerEnable()) {
+            if (credential == null || StringUtils.isBlank(credential.toString())) {
+                log.error("Identity Management listener is disabled");
+                throw new UserStoreException("Ask Password Feature is disabled");
+            }
             return true;
         }
 
@@ -425,8 +437,8 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
                 (credential instanceof StringBuffer && (credential.toString().trim().length() < 1))) {
 
             if (!config.isEnableTemporaryPassword()) {
-                log.error("Empty passwords are not allowed");
-                return false;
+                log.error("Temporary password property is disabled");
+                throw new UserStoreException("Ask Password Feature is disabled");
             }
             if (log.isDebugEnabled()) {
                 log.debug("Credentials are null. Using a temporary password as credentials");
@@ -845,6 +857,9 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
     public boolean doPostUpdateCredential(String userName, Object credential, UserStoreManager userStoreManager) throws UserStoreException {
 
         IdentityMgtConfig config = IdentityMgtConfig.getInstance();
+        if (!config.isListenerEnable()) {
+            return true;
+        }
 
         UserIdentityClaimsDO userIdentityDTO = module.load(userName, userStoreManager);
 
