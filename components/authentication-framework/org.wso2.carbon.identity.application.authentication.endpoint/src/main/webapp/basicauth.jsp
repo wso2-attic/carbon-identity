@@ -54,7 +54,8 @@
 
         <div class="controls">
             <input type="password" id='password' name="password" class="input-xlarge"/>
-            <input type="hidden" name="sessionDataKey" value='<%=CharacterEncoder.getSafeText(request.getParameter("sessionDataKey"))%>'/>
+            <input type="hidden" name="sessionDataKey"
+                   value='<%=CharacterEncoder.getSafeText(request.getParameter("sessionDataKey"))%>'/>
             <label class="checkbox" style="margin-top:10px"><input type="checkbox" id="chkRemember"
                                                                    name="chkRemember"><fmt:message
                     key='remember.me'/></label>
@@ -65,10 +66,10 @@
         <input type="submit" value='<fmt:message key='login'/>' class="btn btn-primary">
     </div>
 
-        <script type="text/javascript">
-            document.getElementById('username').style.height="20px";
-            document.getElementById('password').style.height="20px";
-        </script>
+    <script type="text/javascript">
+        document.getElementById('username').style.height = "20px";
+        document.getElementById('password').style.height = "20px";
+    </script>
 
 </div>
 
