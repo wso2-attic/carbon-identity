@@ -20,12 +20,14 @@ package org.wso2.carbon.identity.oauth2.token.handlers.grant;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.oauth.cache.CacheKey;
 import org.wso2.carbon.identity.oauth.cache.OAuthCacheKey;
 import org.wso2.carbon.identity.oauth.config.OAuthServerConfiguration;
 import org.wso2.carbon.identity.oauth2.IdentityOAuth2Exception;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2AccessTokenReqDTO;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2AccessTokenRespDTO;
+import org.wso2.carbon.identity.oauth2.model.AccessTokenDO;
 import org.wso2.carbon.identity.oauth2.model.AuthzCodeDO;
 import org.wso2.carbon.identity.oauth2.token.OAuthTokenReqMessageContext;
 import org.wso2.carbon.identity.oauth2.util.OAuth2Util;
@@ -125,7 +127,7 @@ public class AuthorizationCodeGrantHandler extends AbstractAuthorizationGrantHan
             }
 
             // remove the authorization code from the database.
-            tokenMgtDAO.cleanUpAuthzCode(authorizationCode);
+            tokenMgtDAO.expireAuthzCode(authorizationCode);
             if (log.isDebugEnabled()) {
                 log.debug("Expired Authorization code : " + authorizationCode +
                         " issued for client " + clientId +
@@ -186,8 +188,6 @@ public class AuthorizationCodeGrantHandler extends AbstractAuthorizationGrantHan
                 log.debug("Cache was cleared for authorization code info for client id : " + clientId);
             }
         }
-        // expire authz code and insert issued access token against authz code
-        tokenMgtDAO.expireAuthorizationCode(authzCode, tokenRespDTO.getTokenId());
 
         if (log.isDebugEnabled()) {
             log.debug("Authorization Code clean up completed for request from the Client, " +
@@ -202,6 +202,19 @@ public class AuthorizationCodeGrantHandler extends AbstractAuthorizationGrantHan
             throws IdentityOAuth2Exception {
         // authorization is handled when the authorization code was issued.
         return true;
+    }
+
+    @Override
+    protected void storeAccessToken(OAuth2AccessTokenReqDTO oAuth2AccessTokenReqDTO, String userStoreDomain,
+                                    AccessTokenDO accessTokenDO, String accessToken) throws IdentityOAuth2Exception {
+        try {
+            accessTokenDO.setAuthorizationCode(oAuth2AccessTokenReqDTO.getAuthorizationCode());
+            tokenMgtDAO.storeAccessToken(accessToken, oAuth2AccessTokenReqDTO.getClientId(),
+                                         accessTokenDO, userStoreDomain);
+        } catch (IdentityException e) {
+            throw new IdentityOAuth2Exception(
+                    "Error occurred while storing new access token : " + accessToken, e);
+        }
     }
 
 }

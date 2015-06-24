@@ -206,7 +206,6 @@ public class TokenMgtDAO {
             prepStmt.setString(11, accessTokenDO.getTokenType());
             prepStmt.setString(12, accessTokenDO.getTokenId());
             prepStmt.execute();
-            connection.commit();
         } catch (SQLIntegrityConstraintViolationException e) {
             String errorMsg = "Access Token for consumer key : " + consumerKey + ", user : " +
                               accessTokenDO.getAuthzUser().toLowerCase() + " and scope : " +
@@ -247,9 +246,17 @@ public class TokenMgtDAO {
         Connection connection = null;
         try {
             connection = JDBCPersistenceManager.getInstance().getDBConnection();
-            storeAccessToken(accessToken, consumerKey, accessTokenDO, connection, userStoreDomain);
+            if(accessTokenDO.getAuthorizationCode() != null) {
+                storeAccessToken(accessToken, consumerKey, accessTokenDO, connection, userStoreDomain);
+                // expire authz code and insert issued access token against authz code
+                deactivateAuthorizationCode(accessTokenDO.getAuthorizationCode(), accessTokenDO.getTokenId());
+                connection.commit();
+            } else {
+                storeAccessToken(accessToken, consumerKey, accessTokenDO, connection, userStoreDomain);
+                connection.commit();
+            }
             return true;
-        } catch (IdentityException e) {
+        } catch (IdentityException | SQLException e) {
             throw new IdentityOAuth2Exception(
                     "Error occurred while getting a connection to Identity Data Persistent Storage", e);
         } finally {
@@ -476,31 +483,22 @@ public class TokenMgtDAO {
         return null;
     }
 
-    public void cleanUpAuthzCode(String authzCode) throws IdentityOAuth2Exception {
+    public void expireAuthzCode(String authzCode) throws IdentityOAuth2Exception {
         if (maxPoolSize > 0) {
             authContextTokenQueue.push(new AuthContextTokenDO(authzCode));
         } else {
-            removeAuthzCode(authzCode);
+            doExpireAuthzCode(authzCode);
         }
     }
 
-    public void expireAuthorizationCode(String authzCode, String tokenId) throws IdentityOAuth2Exception {
-        if (maxPoolSize > 0) {
-            authContextTokenQueue.push(new AuthContextTokenDO(authzCode, tokenId));
-        } else {
-            doExpireAuthorizationCode(authzCode, tokenId);
-        }
-    }
-
-    public void removeAuthzCode(String authzCode) throws IdentityOAuth2Exception {
+    public void doExpireAuthzCode(String authzCode) throws IdentityOAuth2Exception {
         Connection connection = null;
         PreparedStatement prepStmt = null;
 
         try {
             connection = JDBCPersistenceManager.getInstance().getDBConnection();
-            prepStmt = connection.prepareStatement(SQLQueries.REMOVE_AUTHZ_CODE);
+            prepStmt = connection.prepareStatement(SQLQueries.EXPIRE_AUTHZ_CODE);
             prepStmt.setString(1, persistenceProcessor.getPreprocessedAuthzCode(authzCode));
-
             prepStmt.execute();
             connection.commit();
         } catch (IdentityException e) {
@@ -508,7 +506,7 @@ public class TokenMgtDAO {
             log.error(errorMsg, e);
             throw new IdentityOAuth2Exception(errorMsg, e);
         } catch (SQLException e) {
-            log.error("Error when executing the SQL : " + SQLQueries.REMOVE_AUTHZ_CODE);
+            log.error("Error when executing the SQL : " + SQLQueries.EXPIRE_AUTHZ_CODE);
             log.error(e.getMessage(), e);
             throw new IdentityOAuth2Exception("Error when cleaning up an authorization code", e);
         } finally {
@@ -516,13 +514,13 @@ public class TokenMgtDAO {
         }
     }
 
-    public void doExpireAuthorizationCode(String authzCode, String tokenId) throws IdentityOAuth2Exception {
+    public void deactivateAuthorizationCode(String authzCode, String tokenId) throws IdentityOAuth2Exception {
         Connection connection = null;
         PreparedStatement prepStmt = null;
 
         try {
             connection = JDBCPersistenceManager.getInstance().getDBConnection();
-            prepStmt = connection.prepareStatement(SQLQueries.EXPIRE_AUTHZ_CODE_AND_INSERT_CURRENT_TOKEN);
+            prepStmt = connection.prepareStatement(SQLQueries.DEACTIVATE_AUTHZ_CODE_AND_INSERT_CURRENT_TOKEN);
             prepStmt.setString(1, tokenId);
             prepStmt.setString(2, persistenceProcessor.getPreprocessedAuthzCode(authzCode));
             prepStmt.execute();
@@ -532,7 +530,7 @@ public class TokenMgtDAO {
             log.error(errorMsg, e);
             throw new IdentityOAuth2Exception(errorMsg, e);
         } catch (SQLException e) {
-            log.error("Error when executing the SQL : " + SQLQueries.EXPIRE_AUTHZ_CODE_AND_INSERT_CURRENT_TOKEN, e);
+            log.error("Error when executing the SQL : " + SQLQueries.DEACTIVATE_AUTHZ_CODE_AND_INSERT_CURRENT_TOKEN, e);
             throw new IdentityOAuth2Exception("Error when expiring authorization code", e);
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);

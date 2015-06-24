@@ -48,7 +48,7 @@ public class AuthPersistenceTask implements Runnable {
                     if (authContextTokenDO.getAuthzCodeDO() == null) {
                         log.debug("Auth Token Data removing Task is started to run");
                         TokenMgtDAO tokenMgtDAO = new TokenMgtDAO();
-                        tokenMgtDAO.doExpireAuthorizationCode(authContextTokenDO.getAuthzCode(), authContextTokenDO
+                        tokenMgtDAO.deactivateAuthorizationCode(authContextTokenDO.getAuthzCode(), authContextTokenDO
                                 .getTokenId());
                     } else {
                         log.debug("Auth Token Data persisting Task is started to run");
