@@ -178,7 +178,9 @@ public class SAML2SSOUIAuthenticator extends AbstractCarbonUIAuthenticator {
             request.setAttribute(SAML2SSOAuthenticatorConstants.LOGGED_IN_USER, session.getAttribute(
                     "logged-user"));
 
-            request.setAttribute(SAML2SSOAuthenticatorConstants.EXTERNAL_LOGOUT_PAGE, Util.getExternalLogoutPage());
+            if(!Util.isLogoutSupportedIDP()) {
+                request.setAttribute(SAML2SSOAuthenticatorConstants.EXTERNAL_LOGOUT_PAGE, Util.getExternalLogoutPage());
+            }
         }
     }
 
