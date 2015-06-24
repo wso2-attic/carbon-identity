@@ -308,7 +308,7 @@ public class TokenMgtDAO {
             prepStmt.setString(1, persistenceProcessor.getProcessedClientId(consumerKey));
             if (isUsernameCaseSensitive) {
                 prepStmt.setString(2, userName);
-            }else{
+            } else {
                 prepStmt.setString(2, userName.toLowerCase());
             }
             if (StringUtils.isNotEmpty(scope)) {
@@ -404,7 +404,7 @@ public class TokenMgtDAO {
             prepStmt.setString(1, persistenceProcessor.getProcessedClientId(consumerKey));
             if (isUsernameCaseSensitive) {
                 prepStmt.setString(2, userName);
-            }else{
+            } else {
                 prepStmt.setString(2, userName.toLowerCase());
             }
             ResultSet resultSet = prepStmt.executeQuery();
@@ -940,7 +940,7 @@ public class TokenMgtDAO {
             ps = connection.prepareStatement(sqlQuery);
             if (isUsernameCaseSensitive) {
                 ps.setString(1, authzUser);
-            }else{
+            } else {
                 ps.setString(1, authzUser.toLowerCase());
             }
             rs = ps.executeQuery();

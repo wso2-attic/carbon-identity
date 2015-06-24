@@ -56,7 +56,7 @@ public class TokenResponseTypeHandler extends AbstractResponseTypeHandler {
         boolean isUsernameCaseSensitive = OAuth2Util.isUsernameCaseSensitive(authorizedUser);
         if (isUsernameCaseSensitive) {
             oAuthCacheKeyString = consumerKey + ":" + authorizedUser + ":" + scope;
-        }else{
+        } else {
             oAuthCacheKeyString = consumerKey + ":" + authorizedUser.toLowerCase() + ":" + scope;
         }
         OAuthCacheKey cacheKey = new OAuthCacheKey(oAuthCacheKeyString);
