@@ -37,7 +37,11 @@ public class AccessTokenDO extends CacheEntry {
 
     private String refreshToken;
 
+    private String tokenId;
+
     private String accessToken;
+
+    private String authorizationCode;
 
     private Timestamp issuedTime;
 
@@ -56,7 +60,8 @@ public class AccessTokenDO extends CacheEntry {
     private String tokenType;
 
     public AccessTokenDO(String consumerKey, String authzUser, String[] scope, Timestamp issuedTime, Timestamp
-            refreshTokenIssuedTime, long validityPeriodInMillis, long refreshTokenValidityPeriodInMillis, String tokenType) {
+            refreshTokenIssuedTime, long validityPeriodInMillis, long refreshTokenValidityPeriodInMillis, String
+                                 tokenType) {
         this.consumerKey = consumerKey;
         this.authzUser = authzUser;
         this.scope = scope;
@@ -67,6 +72,14 @@ public class AccessTokenDO extends CacheEntry {
         this.refreshTokenValidityPeriod = refreshTokenValidityPeriodInMillis / 1000;
         this.refreshTokenValidityPeriodInMillis = refreshTokenValidityPeriodInMillis;
         this.tokenType = tokenType;
+    }
+
+    public AccessTokenDO(String consumerKey, String authzUser, String[] scope, Timestamp issuedTime, Timestamp
+            refreshTokenIssuedTime, long validityPeriodInMillis, long refreshTokenValidityPeriodInMillis, String
+                                 tokenType, String authorizationCode) {
+        this(consumerKey, authzUser, scope, issuedTime, refreshTokenIssuedTime, validityPeriodInMillis,
+             refreshTokenValidityPeriodInMillis, tokenType);
+        this.authorizationCode = authorizationCode;
     }
 
     public int getTenantID() {
@@ -181,4 +194,19 @@ public class AccessTokenDO extends CacheEntry {
         this.tokenType = tokenType;
     }
 
+    public String getTokenId() {
+        return tokenId;
+    }
+
+    public void setTokenId(String tokenId) {
+        this.tokenId = tokenId;
+    }
+
+    public String getAuthorizationCode() {
+        return authorizationCode;
+    }
+
+    public void setAuthorizationCode(String authorizationCode) {
+        this.authorizationCode = authorizationCode;
+    }
 }
