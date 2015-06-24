@@ -605,28 +605,37 @@ public class TokenMgtDAO {
             if (userStoreDomain != null) {
                 accessTokenStoreTable = accessTokenStoreTable + "_" + userStoreDomain;
             }
-            mySqlQuery = "SELECT ACCESS_TOKEN, AUTHZ_USER, " +
-                         "TOKEN_SCOPE, TOKEN_STATE, REFRESH_TOKEN_TIME_CREATED, REFRESH_TOKEN_VALIDITY_PERIOD, " +
-                         "TOKEN_ID FROM " + accessTokenStoreTable +
-                         " WHERE CONSUMER_KEY = ? AND REFRESH_TOKEN = ? ORDER BY TIME_CREATED " +
-                         "DESC LIMIT 1";
+            mySqlQuery = "SELECT ACCESS_TOKEN, AUTHZ_USER, TOKEN_SCOPE, TOKEN_STATE, REFRESH_TOKEN_TIME_CREATED, " +
+                    "REFRESH_TOKEN_VALIDITY_PERIOD, IDN_OAUTH2_ACCESS_TOKEN_SELECTED.TOKEN_ID FROM ( SELECT " +
+                    "ACCESS_TOKEN, AUTHZ_USER, TOKEN_STATE, REFRESH_TOKEN_TIME_CREATED, " +
+                    "REFRESH_TOKEN_VALIDITY_PERIOD, TOKEN_ID FROM " + accessTokenStoreTable + " WHERE CONSUMER_KEY = " +
+                    "? AND REFRESH_TOKEN = ? ORDER BY TIME_CREATED DESC LIMIT 1) AS IDN_OAUTH2_ACCESS_TOKEN_SELECTED " +
+                    "JOIN IDN_OAUTH2_ACCESS_TOKEN_SCOPE_ASSOCIATION WHERE IDN_OAUTH2_ACCESS_TOKEN_SELECTED.TOKEN_ID =" +
+                    " IDN_OAUTH2_ACCESS_TOKEN_SCOPE_ASSOCIATION.TOKEN_ID";
 
-            oracleQuery = "SELECT * FROM (SELECT ACCESS_TOKEN, AUTHZ_USER, " +
-                          "TOKEN_SCOPE, TOKEN_STATE, REFRESH_TOKEN_TIME_CREATED, REFRESH_TOKEN_VALIDITY_PERIOD, " +
-                          "TOKEN_ID FROM " + accessTokenStoreTable +
-                          " WHERE CONSUMER_KEY = ? AND REFRESH_TOKEN = ? ORDER BY TIME_CREATED " +
-                          "DESC) WHERE ROWNUM < 2 ";
+            oracleQuery = "SELECT ACCESS_TOKEN, AUTHZ_USER, TOKEN_SCOPE, TOKEN_STATE, REFRESH_TOKEN_TIME_CREATED, " +
+                    "REFRESH_TOKEN_VALIDITY_PERIOD, IDN_OAUTH2_ACCESS_TOKEN_SELECTED.TOKEN_ID FROM ( SELECT * FROM " +
+                    "(SELECT ACCESS_TOKEN, AUTHZ_USER, TOKEN_STATE, REFRESH_TOKEN_TIME_CREATED, " +
+                    "REFRESH_TOKEN_VALIDITY_PERIOD, TOKEN_ID FROM " + accessTokenStoreTable + " WHERE CONSUMER_KEY = " +
+                    "? AND REFRESH_TOKEN = ? ORDER BY TIME_CREATED DESC) WHERE ROWNUM < 2 )  AS " +
+                    "IDN_OAUTH2_ACCESS_TOKEN_SELECTED JOIN IDN_OAUTH2_ACCESS_TOKEN_SCOPE_ASSOCIATION WHERE " +
+                    "IDN_OAUTH2_ACCESS_TOKEN_SELECTED.TOKEN_ID = IDN_OAUTH2_ACCESS_TOKEN_SCOPE_ASSOCIATION.TOKEN_ID";
 
-            msSqlQuery = "SELECT TOP 1 ACCESS_TOKEN, AUTHZ_USER, " +
-                         "TOKEN_SCOPE, TOKEN_STATE, REFRESH_TOKEN_TIME_CREATED, TOKEN_ID FROM, " +
-                         "REFRESH_TOKEN_VALIDITY_PERIOD, TOKEN_ID " + accessTokenStoreTable +
-                         " WHERE CONSUMER_KEY = ? AND REFRESH_TOKEN = ? ORDER BY TIME_CREATED DESC";
+            msSqlQuery = "SELECT ACCESS_TOKEN, AUTHZ_USER, TOKEN_SCOPE, TOKEN_STATE, REFRESH_TOKEN_TIME_CREATED, " +
+                    "REFRESH_TOKEN_VALIDITY_PERIOD, IDN_OAUTH2_ACCESS_TOKEN_SELECTED.TOKEN_ID FROM (SELECT TOP 1 ACCESS_TOKEN, " +
+                    "AUTHZ_USER, TOKEN_SCOPE, TOKEN_STATE, REFRESH_TOKEN_TIME_CREATED, TOKEN_ID FROM, " +
+                    "REFRESH_TOKEN_VALIDITY_PERIOD, TOKEN_ID " + accessTokenStoreTable + " WHERE CONSUMER_KEY = ? AND" +
+                    " REFRESH_TOKEN = ? ORDER BY TIME_CREATED DESC) AS IDN_OAUTH2_ACCESS_TOKEN_SELECTED JOIN " +
+                    "IDN_OAUTH2_ACCESS_TOKEN_SCOPE_ASSOCIATION WHERE IDN_OAUTH2_ACCESS_TOKEN_SELECTED.TOKEN_ID = " +
+                    "IDN_OAUTH2_ACCESS_TOKEN_SCOPE_ASSOCIATION.TOKEN_ID";
 
-            postgreSqlQuery = "SELECT * FROM (SELECT ACCESS_TOKEN, AUTHZ_USER, TOKEN_SCOPE, TOKEN_STATE, " +
-                              "REFRESH_TOKEN_TIME_CREATED, REFRESH_TOKEN_VALIDITY_PERIOD, TOKEN_ID FROM " +
-                              accessTokenStoreTable + " WHERE CONSUMER_KEY = ?" +
-                              " AND REFRESH_TOKEN = ? AND ORDER BY TIME_CREATED DESC) AS TOKEN LIMIT " +
-                              "1 ";
+            postgreSqlQuery = "SELECT ACCESS_TOKEN, AUTHZ_USER, TOKEN_SCOPE, TOKEN_STATE, REFRESH_TOKEN_TIME_CREATED," +
+                    " REFRESH_TOKEN_VALIDITY_PERIOD, IDN_OAUTH2_ACCESS_TOKEN_SELECTED.TOKEN_ID FROM (SELECT " +
+                    "ACCESS_TOKEN, AUTHZ_USER, TOKEN_STATE, REFRESH_TOKEN_TIME_CREATED, " +
+                    "REFRESH_TOKEN_VALIDITY_PERIOD, TOKEN_ID FROM " + accessTokenStoreTable + " WHERE CONSUMER_KEY = " +
+                    "? AND REFRESH_TOKEN = ? ORDER BY TIME_CREATED DESC LIMIT 1) AS IDN_OAUTH2_ACCESS_TOKEN_SELECTED " +
+                    "JOIN IDN_OAUTH2_ACCESS_TOKEN_SCOPE_ASSOCIATION ON IDN_OAUTH2_ACCESS_TOKEN_SELECTED.TOKEN_ID = " +
+                    "IDN_OAUTH2_ACCESS_TOKEN_SCOPE_ASSOCIATION.TOKEN_ID";
 
             if (connection.getMetaData().getDriverName().contains("MySQL")
                     || connection.getMetaData().getDriverName().contains("H2")) {
@@ -653,16 +662,26 @@ public class TokenMgtDAO {
             }
             resultSet = prepStmt.executeQuery();
 
-            if (resultSet.next()) {
-                validationDataDO.setAccessToken(persistenceProcessor.getPreprocessedAccessTokenIdentifier(
-                        resultSet.getString(1)));
-                validationDataDO.setAuthorizedUser(resultSet.getString(2));
-                validationDataDO.setScope(OAuth2Util.buildScopeArray(resultSet.getString(3)));
-                validationDataDO.setRefreshTokenState(resultSet.getString(4));
-                validationDataDO.setIssuedTime(resultSet.getTimestamp(5, Calendar.getInstance(TimeZone.getTimeZone
-                        ("UTC"))));
-                validationDataDO.setValidityPeriodInMillis(resultSet.getLong(6));
-                validationDataDO.setTokenId(resultSet.getString(7));
+            int iterateId = 0;
+            List<String> scopes = new ArrayList<>();
+            while (resultSet.next()) {
+                if (iterateId == 0) {
+                    validationDataDO.setAccessToken(persistenceProcessor.getPreprocessedAccessTokenIdentifier(
+                            resultSet.getString(1)));
+                    validationDataDO.setAuthorizedUser(resultSet.getString(2));
+                    validationDataDO.setScope(OAuth2Util.buildScopeArray(resultSet.getString(3)));
+                    validationDataDO.setRefreshTokenState(resultSet.getString(4));
+                    validationDataDO.setIssuedTime(resultSet.getTimestamp(5, Calendar.getInstance(TimeZone.getTimeZone
+                            ("UTC"))));
+                    validationDataDO.setValidityPeriodInMillis(resultSet.getLong(6));
+                    validationDataDO.setTokenId(resultSet.getString(7));
+                } else {
+                    scopes.add(resultSet.getString(3));
+                }
+                iterateId++;
+            }
+            if (scopes.size() > 0){
+                validationDataDO.setScope((String[])ArrayUtils.addAll(validationDataDO.getScope(), scopes.toArray()));
             }
             connection.commit();
         } catch (IdentityException e) {
@@ -778,11 +797,10 @@ public class TokenMgtDAO {
                 }else{
                     scopes.add(resultSet.getString(3));
                 }
-
-                if (scopes.size() > 0){
-                    dataDO.setScope((String[])ArrayUtils.add(scopes.toArray(), dataDO.getScope()));
-                }
-
+                iterateId++;
+            }
+            if (scopes.size() > 0){
+                dataDO.setScope((String[])ArrayUtils.add(dataDO.getScope(), scopes.toArray()));
             }
             connection.commit();
         } catch (IdentityException e) {
