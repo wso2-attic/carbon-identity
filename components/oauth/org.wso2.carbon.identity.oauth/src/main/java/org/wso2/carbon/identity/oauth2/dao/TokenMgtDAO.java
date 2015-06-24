@@ -269,7 +269,7 @@ public class TokenMgtDAO {
                                               "store connection", e);
         }
 
-        boolean isUsernameCaseSensitive = OAuth2Util.isUsernameCaseSensitive();
+        boolean isUsernameCaseSensitive = OAuth2Util.isUsernameCaseSensitive(userName);
 
         PreparedStatement prepStmt = null;
         ResultSet resultSet = null;
@@ -380,7 +380,7 @@ public class TokenMgtDAO {
                     "store connection", e);
         }
 
-        boolean isUsernameCaseSensitive = OAuth2Util.isUsernameCaseSensitive();
+        boolean isUsernameCaseSensitive = OAuth2Util.isUsernameCaseSensitive(userName);
 
         PreparedStatement prepStmt = null;
         try {
@@ -835,7 +835,7 @@ public class TokenMgtDAO {
         Connection connection = null;
         ResultSet rs = null;
         Set<String> distinctConsumerKeys = new HashSet<String>();
-        boolean isUsernameCaseSensitive = OAuth2Util.isUsernameCaseSensitive();
+        boolean isUsernameCaseSensitive = OAuth2Util.isUsernameCaseSensitive(authzUser);
         try {
             try {
                 connection = IdentityDatabaseUtil.getDBConnection();

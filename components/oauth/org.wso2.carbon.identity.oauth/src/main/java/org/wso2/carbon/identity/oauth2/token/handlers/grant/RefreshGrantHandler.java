@@ -245,7 +245,15 @@ public class RefreshGrantHandler extends AbstractAuthorizationGrantHandler {
         // if it's enabled.
         if (cacheEnabled) {
             // Remove the old access token from the OAuthCache
-            CacheKey oauthCacheKey = new OAuthCacheKey(clientId + ":" + authorizedUser + ":" + scope);
+            boolean isUsernameCaseSensitive = OAuth2Util.isUsernameCaseSensitive(authorizedUser);
+            String cacheKeyString;
+            if (isUsernameCaseSensitive){
+                cacheKeyString = clientId + ":" + authorizedUser + ":" + scope;
+            }else {
+                cacheKeyString = clientId + ":" + authorizedUser.toLowerCase() + ":" + scope;
+            }
+
+            CacheKey oauthCacheKey = new OAuthCacheKey(cacheKeyString);
             oauthCache.clearCacheEntry(oauthCacheKey);
 
             // Remove the old access token from the AccessTokenCache

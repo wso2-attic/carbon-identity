@@ -34,6 +34,7 @@ import org.wso2.carbon.identity.oauth.internal.OAuthComponentServiceHolder;
 import org.wso2.carbon.identity.oauth.tokenprocessor.PlainTextPersistenceProcessor;
 import org.wso2.carbon.identity.oauth.tokenprocessor.TokenPersistenceProcessor;
 import org.wso2.carbon.identity.oauth2.IdentityOAuth2Exception;
+import org.wso2.carbon.identity.oauth2.util.OAuth2Util;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
@@ -138,16 +139,28 @@ public class OAuthAppDAO {
         PreparedStatement prepStmt = null;
         ResultSet rSet = null;
         OAuthAppDO[] oauthAppsOfUser;
+
         try {
             RealmService realmService = OAuthComponentServiceHolder.getRealmService();
             String tenantDomain = realmService.getTenantManager().getDomain(tenantId);
             String tenantAwareUserName = MultitenantUtils.getTenantAwareUsername(username);
             String tenantUnawareUserName = tenantAwareUserName + "@" + tenantDomain;
+            boolean isUsernameCaseSensitive = OAuth2Util.isUsernameCaseSensitive(tenantUnawareUserName);
 
             connection = JDBCPersistenceManager.getInstance().getDBConnection();
-            prepStmt = connection.prepareStatement(SQLQueries.OAuthAppDAOSQLQueries.GET_APPS_OF_USER_WITH_TENANTAWARE_OR_TENANTUNAWARE_USERNAME);
-            prepStmt.setString(1, tenantAwareUserName);
-            prepStmt.setString(2, tenantUnawareUserName);
+            String sql = SQLQueries.OAuthAppDAOSQLQueries.GET_APPS_OF_USER_WITH_TENANTAWARE_OR_TENANTUNAWARE_USERNAME;
+            if (!isUsernameCaseSensitive){
+                sql.replace("USERNAME", "LOWER(USERNAME)");
+            }
+            prepStmt = connection.prepareStatement(sql);
+            if (isUsernameCaseSensitive){
+                prepStmt.setString(1, tenantAwareUserName);
+                prepStmt.setString(2, tenantUnawareUserName);
+            }else {
+                prepStmt.setString(1, tenantAwareUserName.toLowerCase());
+                prepStmt.setString(2, tenantUnawareUserName.toLowerCase());
+            }
+
             prepStmt.setInt(3, tenantId);
 
             rSet = prepStmt.executeQuery();
@@ -348,11 +361,20 @@ public class OAuthAppDAO {
         ResultSet rSet = null;
 
         boolean isDuplicateApp = false;
+        boolean isUsernameCaseSensitive = OAuth2Util.isUsernameCaseSensitive(username);
 
         try {
             connection = JDBCPersistenceManager.getInstance().getDBConnection();
-            prepStmt = connection.prepareStatement(SQLQueries.OAuthAppDAOSQLQueries.CHECK_EXISTING_APPLICATION);
-            prepStmt.setString(1, username);
+            String sql = SQLQueries.OAuthAppDAOSQLQueries.CHECK_EXISTING_APPLICATION;
+            if (!isUsernameCaseSensitive){
+                sql.replace("USERNAME", "LOWER(USERNAME)");
+            }
+            prepStmt = connection.prepareStatement(sql);
+            if (isUsernameCaseSensitive){
+                prepStmt.setString(1, username);
+            }else {
+                prepStmt.setString(1, username.toLowerCase());
+            }
             prepStmt.setInt(2, tenantId);
             prepStmt.setString(3, consumerAppDTO.getApplicationName());
 

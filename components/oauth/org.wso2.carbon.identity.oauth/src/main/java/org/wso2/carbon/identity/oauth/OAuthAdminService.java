@@ -431,11 +431,17 @@ public class OAuthAdminService extends AbstractAdmin {
                             log.error(errorMsg, e);
                             throw new IdentityOAuthAdminException(errorMsg, e);
                         }
+                        String authzUser;
                         for (AccessTokenDO accessTokenDO : accessTokenDOs) {
                             //Clear cache with AccessTokenDO
-                            OAuthUtil.clearOAuthCache(accessTokenDO.getConsumerKey(), accessTokenDO.getAuthzUser(),
+                            authzUser = accessTokenDO.getAuthzUser();
+                            boolean isUsernameCaseSensitive = OAuth2Util.isUsernameCaseSensitive(authzUser);
+                            if (!isUsernameCaseSensitive){
+                                authzUser = authzUser.toLowerCase();
+                            }
+                            OAuthUtil.clearOAuthCache(accessTokenDO.getConsumerKey(), authzUser,
                                     OAuth2Util.buildScopeString(accessTokenDO.getScope()));
-                            OAuthUtil.clearOAuthCache(accessTokenDO.getConsumerKey(), accessTokenDO.getAuthzUser());
+                            OAuthUtil.clearOAuthCache(accessTokenDO.getConsumerKey(), authzUser);
                             OAuthUtil.clearOAuthCache(accessTokenDO.getAccessToken());
                             AccessTokenDO scopedToken = null;
                             try {
