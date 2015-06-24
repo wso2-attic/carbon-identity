@@ -43,7 +43,6 @@ import java.util.Random;
 public class Util {
 
     private static final String SHA_1_PRNG = "SHA1PRNG";
-    protected static Random secureRandom;
     private static final Log log = LogFactory.getLog(Util.class);
     private static RealmConfiguration realmConfig;
     private static Serializer<String> stringSerializer = StringSerializer.get();
@@ -115,7 +114,8 @@ public class Util {
         String saltValue = null;
         if ("true".equals(realmConfig.getUserStoreProperties().get(JDBCRealmConstants.STORE_SALTED_PASSWORDS))) {
             try {
-                secureRandom = SecureRandom.getInstance(SHA_1_PRNG);
+
+                SecureRandom secureRandom = SecureRandom.getInstance(SHA_1_PRNG);
                 byte[] bytes = new byte[16];
                 //secureRandom is automatically seeded by calling nextBytes
                 secureRandom.nextBytes(bytes);
