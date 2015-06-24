@@ -28,32 +28,57 @@
 <%@ page import="java.util.ResourceBundle" %>
 
 <%
-    String bundle = "org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources";
-    ResourceBundle resourceBundle = ResourceBundle.getBundle(bundle, request.getLocale());
-
     String action = CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_ACTION));
+
+    WorkflowAdminServiceClient client = null;
+
     String cookie = (String) session.getAttribute(ServerConstants.ADMIN_SERVICE_COOKIE);
     String backendServerURL = CarbonUIUtil.getServerURL(config.getServletContext(), session);
     ConfigurationContext configContext =
             (ConfigurationContext) config.getServletContext()
                     .getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
-    WorkflowAdminServiceClient client = new WorkflowAdminServiceClient(cookie, backendServerURL, configContext);
-    String forwardTo = "list-associations.jsp";
+    client = new WorkflowAdminServiceClient(cookie, backendServerURL, configContext);
+
+    String bundle = "org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources";
+    ResourceBundle resourceBundle = ResourceBundle.getBundle(bundle, request.getLocale());
+    String forwardTo = null;
 
     if (WorkflowUIConstants.ACTION_VALUE_ADD.equals(action)) {
-        String workflowId = CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_WORKFLOW_ID));
-        String name = CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_ASSOCIATION_NAME));
-        String operation = CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_OPERATION));
-        String condition =
-                CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_ASSOCIATION_CONDITION));
+        String profileName =
+                CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_BPS_PROFILE_NAME));
+        String host = CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_BPS_HOST));
+        String username = CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_BPS_AUTH_USER));
+        String password =
+                CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_BPS_AUTH_PASSWORD));
+        String callbackUser =
+                CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_CARBON_AUTH_USER));
+        String callbackPassword =
+                CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_CARBON_AUTH_PASSWORD));
         try {
-            client.addAssociation(workflowId, name, operation, condition);
+            client.addBPSProfile(profileName, host, username, password, callbackUser, callbackPassword);
+
         } catch (WorkflowAdminServiceWorkflowException e) {
             String message = resourceBundle.getString("workflow.error.bps.profile.add");
             CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
             forwardTo = "../admin/error.jsp";
         }
+    } else if (WorkflowUIConstants.ACTION_VALUE_DELETE.equals(action)) {
+        String profileName =
+                CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_BPS_PROFILE_NAME));
+        try {
+            client.deleteBPSProfile(profileName);
+            forwardTo = "list-bps-profiles.jsp";
+        } catch (Exception e) {
+            String message = resourceBundle.getString("workflow.error.bps.profile.delete");
+            CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
+            forwardTo = "../admin/error.jsp";
+        }
     }
+
+
+%>
+<%
+    if (forwardTo != null) {
 %>
 <script type="text/javascript">
     function forward() {
@@ -64,3 +89,7 @@
 <script type="text/javascript">
     forward();
 </script>
+<%
+        return;
+    }
+%>

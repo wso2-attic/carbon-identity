@@ -41,7 +41,9 @@
         <h2><fmt:message key='workflow.bps.profile.add'/></h2>
 
         <div id="workArea">
-            <form method="post" name="serviceAdd" action="add-bps-profile-finish.jsp">
+            <form method="post" name="serviceAdd" action="update-bps-profile-finish.jsp">
+                <input type="hidden" name="<%=WorkflowUIConstants.PARAM_ACTION%>"
+                       value="<%=WorkflowUIConstants.ACTION_VALUE_ADD%>">
                 <table class="styledLeft noBorders">
                     <thead>
                     <tr>

@@ -21,6 +21,7 @@
            prefix="carbon" %>
 <%@ page import="org.apache.axis2.AxisFault" %>
 <%@ page import="org.apache.axis2.context.ConfigurationContext" %>
+<%@ page import="org.apache.commons.lang.StringUtils" %>
 <%@ page import="org.wso2.carbon.CarbonConstants" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.Parameter" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.WorkflowBean" %>
@@ -48,21 +49,11 @@
     ResourceBundle resourceBundle = ResourceBundle.getBundle(bundle, request.getLocale());
     WorkflowAdminServiceClient client = null;
     String forwardTo = null;
-    String paginationValue = "region=region1";
 
-    String pageNumber = CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_PAGE_NUMBER));
-    int pageNumberInt = 0;
-    int numberOfPages = 0;
+    String workflowId = CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_WORKFLOW_ID));
     WorkflowEventDTO[] workflowEvents = null;
     Map<String, List<WorkflowEventDTO>> events = new HashMap<String, List<WorkflowEventDTO>>();
 
-    if (pageNumber != null) {
-        try {
-            pageNumberInt = Integer.parseInt(pageNumber);
-        } catch (NumberFormatException ignored) {
-            //not needed here since it's defaulted to 0
-        }
-    }
     try {
         String cookie = (String) session.getAttribute(ServerConstants.ADMIN_SERVICE_COOKIE);
         String backendServerURL = CarbonUIUtil.getServerURL(config.getServletContext(), session);
@@ -110,20 +101,6 @@
     <script type="text/javascript" src="../carbon/admin/js/breadcrumbs.js"></script>
     <script type="text/javascript" src="../carbon/admin/js/cookies.js"></script>
     <script type="text/javascript" src="../carbon/admin/js/main.js"></script>
-    <script type="text/javascript">
-        function doCancel() {
-            location.href = 'list-workflows.jsp';
-        }
-
-        function addAssociation() {
-            updateActions();
-            document.getElementById('addNew').style.display = 'block';
-        }
-
-        function doCancel() {
-            document.getElementById('addNew').style.display = 'none';
-        }
-    </script>
     <script type="text/javascript">
         var eventsObj = {};
         var lastSelectedCategory = '';
@@ -248,12 +225,13 @@
         function generateXpath() {
             var paramDropDown = document.getElementById("paramSelect");
             var operationDropdown = document.getElementById("operationSelect");
-            var selectedParam = paramDropDown.options[paramDropDown.selectedIndex].value;
-            var selectedOperation = operationDropdown.options[operationDropdown.selectedIndex].value;
             var condition = "boolean(1)";
-            var val1 = document.getElementById("val1").value;
 
             if (selectionType == "applyIf" && selectedOperation != null) {
+                var selectedParam = paramDropDown.options[paramDropDown.selectedIndex].value;
+                var selectedOperation = operationDropdown.options[operationDropdown.selectedIndex].value;
+                var val1 = document.getElementById("val1").value;
+
                 switch (selectedOperation) {
                     case "contains":
                         var template =
@@ -300,7 +278,7 @@
         }
 
         function doCancel() {
-//            location.href = 'list-workflows.jsp';             //todo
+            location.href = 'list-associations.jsp';
         }
 
         function handleRadioInput(radio) {
@@ -330,7 +308,7 @@
 
         <div id="workArea">
             <div id="addNew">
-                <form action="add-association-finish.jsp" method="post" onsubmit="return generateXpath();">
+                <form action="update-association-finish.jsp" method="post" onsubmit="return generateXpath();">
                     <input type="hidden" name="<%=WorkflowUIConstants.PARAM_ACTION%>"
                            value="<%=WorkflowUIConstants.ACTION_VALUE_ADD%>">
 
@@ -390,13 +368,17 @@
                             </td>
                             <td>
                                 <select name="<%=WorkflowUIConstants.PARAM_WORKFLOW_ID%>">
-                                    <option disabled selected value="">--- Select ---</option>
+                                    <option disabled value="">--- Select ---</option>
 
                                     <%
                                         for (WorkflowBean workflowBean : client.listWorkflows()) {
                                             if (workflowBean != null) {
+                                                boolean select = false;
+                                                if (StringUtils.equals(workflowId, workflowBean.getWorkflowId())) {
+                                                    select = true;
+                                                }
                                     %>
-                                    <option value="<%=workflowBean.getWorkflowId()%>"
+                                    <option value="<%=workflowBean.getWorkflowId()%>" <%=select ? "selected" : ""%>
                                             title="<%=workflowBean.getWorkflowDescription()%>">
                                         <%=workflowBean.getWorkflowName()%>
                                     </option>

@@ -33,8 +33,8 @@
 <%
     String workflowName = CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_WORKFLOW_NAME));
     String template = CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_WORKFLOW_TEMPLATE));
-    String operation =
-            CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_ASSOCIATED_OPERATION));
+    String description =
+            CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_WORKFLOW_DESCRIPTION));
     WorkflowAdminServiceClient client;
     String bundle = "org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources";
     ResourceBundle resourceBundle = ResourceBundle.getBundle(bundle, request.getLocale());
@@ -95,7 +95,7 @@
             <form method="post" name="serviceAdd" action="template-impl-params.jsp">
                 <input type="hidden" name="<%=WorkflowUIConstants.PARAM_WORKFLOW_TEMPLATE%>" value="<%=template%>">
                 <input type="hidden" name="<%=WorkflowUIConstants.PARAM_WORKFLOW_NAME%>" value="<%=workflowName%>">
-                <input type="hidden" name="<%=WorkflowUIConstants.PARAM_ASSOCIATED_OPERATION%>" value="<%=operation%>">
+                <input type="hidden" name="<%=WorkflowUIConstants.PARAM_WORKFLOW_DESCRIPTION%>" value="<%=description%>">
                 <table class="styledLeft">
                     <thead>
                     <tr>

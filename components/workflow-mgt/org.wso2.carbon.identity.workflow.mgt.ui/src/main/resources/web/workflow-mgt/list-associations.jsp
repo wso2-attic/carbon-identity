@@ -107,17 +107,19 @@
     <script type="text/javascript" src="../carbon/admin/js/cookies.js"></script>
     <script type="text/javascript" src="../carbon/admin/js/main.js"></script>
     <script type="text/javascript">
-        function doCancel() {
-            location.href = 'list-workflows.jsp';
-        }
         function removeAssociation(id, name) {
-            <%--function doDelete() {--%>
-            <%--location.href = 'update-workflow-finish.jsp?<%=WorkflowUIConstants.PARAM_ACTION%>=' +--%>
-            <%--'<%=WorkflowUIConstants.ACTION_VALUE_DELETE%>&<%=WorkflowUIConstants.PARAM_WORKFLOW_ID%>=' + id;--%>
-            <%--}--%>
+            function doDelete() {
+                location.href = 'update-association-finish.jsp?<%=WorkflowUIConstants.PARAM_ACTION%>=' +
+                '<%=WorkflowUIConstants.ACTION_VALUE_DELETE%>&<%=WorkflowUIConstants.PARAM_ASSOCIATION_ID%>=' + id;
+            }
+
             //todo
-            CARBON.showConfirmationDialog('<fmt:message key="confirmation.workflow.delete"/> ' + name + '?',
+            CARBON.showConfirmationDialog('<fmt:message key="confirmation.association.delete"/> ' + name + '?',
                     doDelete, null);
+        }
+
+        function addAssociation() {
+            window.location = "add-association.jsp";
         }
     </script>
 
@@ -125,7 +127,9 @@
         <h2><fmt:message key='workflow.list'/></h2>
 
         <div id="workArea">
-
+            <a title="<fmt:message key='workflow.service.association.add'/>"
+               href="#" style="background-image: url(images/add.png);" onclick="addAssociation();return false;"
+               class="icon-link"><fmt:message key='workflow.service.association.add'/></a>
             <table class="styledLeft" id="servicesTable">
                 <thead>
                 <tr>

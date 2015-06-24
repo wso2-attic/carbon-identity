@@ -20,6 +20,7 @@
 <%@ taglib prefix="carbon" uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar" %>
 <%@ page import="org.apache.axis2.AxisFault" %>
 <%@ page import="org.apache.axis2.context.ConfigurationContext" %>
+<%@ page import="org.apache.commons.lang.StringUtils" %>
 <%@ page import="org.wso2.carbon.CarbonConstants" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.BPSProfileBean" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.TemplateImplDTO" %>
@@ -37,8 +38,6 @@
     String workflowName = CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_WORKFLOW_NAME));
     String template = CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_WORKFLOW_TEMPLATE));
     String templateImpl = CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_TEMPLATE_IMPL));
-    String operation =
-            CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_ASSOCIATED_OPERATION));
     WorkflowAdminServiceClient client;
     String bundle = "org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources";
     ResourceBundle resourceBundle = ResourceBundle.getBundle(bundle, request.getLocale());
@@ -96,18 +95,17 @@
         <h2><fmt:message key='workflow.add'/></h2>
 
         <div id="workArea">
-            <form method="post" name="serviceAdd" action="operation-association.jsp">
+            <form method="post" name="serviceAdd" action="update-workflow-finish.jsp">
                 <input type="hidden" name="<%=WorkflowUIConstants.PARAM_ACTION%>"
                        value="<%=WorkflowUIConstants.ACTION_VALUE_ADD%>">
                 <input type="hidden" name="<%=WorkflowUIConstants.PARAM_WORKFLOW_TEMPLATE%>" value="<%=template%>">
                 <input type="hidden" name="<%=WorkflowUIConstants.PARAM_TEMPLATE_IMPL%>" value="<%=templateImpl%>">
                 <input type="hidden" name="<%=WorkflowUIConstants.PARAM_WORKFLOW_NAME%>" value="<%=workflowName%>">
-                <input type="hidden" name="<%=WorkflowUIConstants.PARAM_ASSOCIATED_OPERATION%>" value="<%=operation%>">
                 <%
                     Map<String, String[]> parameterMap = request.getParameterMap();
                     for (Map.Entry<String, String[]> paramEntry : parameterMap.entrySet()) {
-                        if (paramEntry.getKey() != null && paramEntry.getKey().startsWith("p-") && paramEntry.getValue()
-                                != null && paramEntry.getValue().length > 0) {
+                        if (StringUtils.startsWith(paramEntry.getKey(), "p-") &&
+                                paramEntry.getValue() != null && paramEntry.getValue().length > 0) {
                             String paramValue = CharacterEncoder.getSafeText(paramEntry.getValue()[0]);
                 %>
                     <%--The params will only have one value, hence using 0th element--%>

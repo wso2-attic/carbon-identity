@@ -23,16 +23,11 @@
 <%@ page import="org.apache.axis2.context.ConfigurationContext" %>
 <%@ page import="org.wso2.carbon.CarbonConstants" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.TemplateBean" %>
-<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.WorkflowEventDTO" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.WorkflowAdminServiceClient" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.WorkflowUIConstants" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
-<%@ page import="java.util.ArrayList" %>
-<%@ page import="java.util.HashMap" %>
-<%@ page import="java.util.List" %>
-<%@ page import="java.util.Map" %>
 <%@ page import="java.util.ResourceBundle" %>
 <script type="text/javascript" src="extensions/js/vui.js"></script>
 <script type="text/javascript" src="../extensions/core/js/vui.js"></script>
@@ -45,8 +40,6 @@
     ResourceBundle resourceBundle = ResourceBundle.getBundle(bundle, request.getLocale());
     String forwardTo = null;
     WorkflowAdminServiceClient client;
-    WorkflowEventDTO[] workflowEvents;
-    Map<String, List<WorkflowEventDTO>> events = new HashMap<String, List<WorkflowEventDTO>>();
     TemplateBean[] templateList = null;
     try {
         String cookie = (String) session.getAttribute(ServerConstants.ADMIN_SERVICE_COOKIE);
@@ -55,14 +48,6 @@
                 (ConfigurationContext) config.getServletContext()
                         .getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
         client = new WorkflowAdminServiceClient(cookie, backendServerURL, configContext);
-        workflowEvents = client.listWorkflowEvents();
-        for (WorkflowEventDTO event : workflowEvents) {
-            String category = event.getEventCategory();
-            if (!events.containsKey(category)) {
-                events.put(category, new ArrayList<WorkflowEventDTO>());
-            }
-            events.get(category).add(event);
-        }
         templateList = client.listTemplates();
         if (templateList == null) {
             templateList = new TemplateBean[0];
@@ -95,49 +80,14 @@
     <carbon:breadcrumb
             label="workflow.mgt"
             resourceBundle="org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources"
-            topPage="true"
+            topPage="false"
             request="<%=request%>"/>
 
     <script type="text/javascript" src="../carbon/admin/js/breadcrumbs.js"></script>
     <script type="text/javascript" src="../carbon/admin/js/cookies.js"></script>
     <script type="text/javascript" src="../carbon/admin/js/main.js"></script>
     <script type="text/javascript">
-        var eventsObj = {};
-        var lastSelectedCategory = '';
 
-        <%
-            for (Map.Entry<String,List<WorkflowEventDTO>> eventCategory : events.entrySet()) {
-            %>
-        eventsObj["<%=eventCategory.getKey()%>"] = [];
-        <%
-            for (WorkflowEventDTO event : eventCategory.getValue()) {
-                %>
-        var eventObj = {};
-        eventObj.displayName = "<%=event.getEventFriendlyName()%>";
-        eventObj.value = "<%=event.getEventId()%>";
-        eventObj.title = "<%=event.getEventDescription()!=null?event.getEventDescription():""%>";
-        eventsObj["<%=eventCategory.getKey()%>"].push(eventObj);
-        <%
-                    }
-            }
-        %>
-
-        function updateActions() {
-            var categoryDropdown = document.getElementById("categoryDropdown");
-            var actionDropdown = document.getElementById("actionDropdown");
-            var selectedCategory = categoryDropdown.options[categoryDropdown.selectedIndex].value;
-            if (selectedCategory != lastSelectedCategory) {
-                var eventsOfCategory = eventsObj[selectedCategory];
-                for (var i = 0; i < eventsOfCategory.length; i++) {
-                    var opt = document.createElement("option");
-                    opt.text = eventsOfCategory[i].displayName;
-                    opt.value = eventsOfCategory[i].value;
-                    opt.title = eventsOfCategory[i].title;
-                    actionDropdown.options.add(opt);
-                }
-                lastSelectedCategory = selectedCategory;
-            }
-        }
     </script>
 
     <div id="middle">
@@ -179,27 +129,6 @@
                                         </select>
                                     </td>
                                 </tr>
-                                <tr>
-                                    <td><fmt:message key='workflow.operation.category'/></td>
-                                    <td>
-                                        <select id="categoryDropdown" onchange="updateActions();">
-                                            <%
-                                                for (String key : events.keySet()) {
-                                            %>
-                                            <option value="<%=key%>"><%=key%>
-                                            </option>
-                                            <%
-                                                }
-                                            %>
-                                        </select>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td><fmt:message key='workflow.operation.name'/></td>
-                                    <td><select id="actionDropdown"
-                                                name="<%=WorkflowUIConstants.PARAM_ASSOCIATED_OPERATION%>"></select>
-                                    </td>
-                                </tr>
                             </table>
                         </td>
                     </tr>
@@ -215,7 +144,4 @@
             </form>
         </div>
     </div>
-    <script type="text/javascript">
-        updateActions();
-    </script>
 </fmt:bundle>

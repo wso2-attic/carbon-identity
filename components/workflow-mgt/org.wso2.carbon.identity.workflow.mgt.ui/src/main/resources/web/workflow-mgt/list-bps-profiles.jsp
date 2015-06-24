@@ -106,9 +106,9 @@
     <script type="text/javascript" src="../carbon/admin/js/main.js"></script>
     <script type="text/javascript">
 
-        function removeAssociation(profileName) {
+        function removeProfile(profileName) {
             function doDelete() {
-                location.href = 'edit-bps-profile.jsp?<%=WorkflowUIConstants.PARAM_ACTION%>=' +
+                location.href = 'update-bps-profile-finish.jsp?<%=WorkflowUIConstants.PARAM_ACTION%>=' +
                 '<%=WorkflowUIConstants.ACTION_VALUE_DELETE%>&<%=WorkflowUIConstants.PARAM_BPS_PROFILE_NAME%>=' +
                 profileName;
             }

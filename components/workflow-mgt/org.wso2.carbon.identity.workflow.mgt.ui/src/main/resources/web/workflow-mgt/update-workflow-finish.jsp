@@ -20,7 +20,6 @@
 <%@ page import="org.apache.commons.lang.StringUtils" %>
 <%@ page import="org.wso2.carbon.CarbonConstants" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.WorkflowAdminServiceWorkflowException" %>
-<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.AddAssociationDO" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.Parameter" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.TemplateDeploymentDTO" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.WorkflowAdminServiceClient" %>
@@ -51,14 +50,10 @@
     if (WorkflowUIConstants.ACTION_VALUE_ADD.equals(action)) {
         String workflowName =
                 CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_WORKFLOW_NAME));
-        String operation =
-                CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_ASSOCIATED_OPERATION));
         String templateName =
                 CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_WORKFLOW_TEMPLATE));
         String templateImplName =
                 CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_TEMPLATE_IMPL));
-        String condition =
-                CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_ASSOCIATION_CONDITION));
         Map<String, String[]> parameterMap = request.getParameterMap();
         List<Parameter> templateParams = new ArrayList<Parameter>();
         List<Parameter> templateImplParams = new ArrayList<Parameter>();
@@ -78,7 +73,7 @@
                     templateImplParams.add(parameter);
                 }
             }
-        }
+        }       //todo from here
         TemplateDeploymentDTO deploymentDTO = new TemplateDeploymentDTO();
         deploymentDTO.setWorkflowName(workflowName);
         deploymentDTO.setTemplateName(templateName);
@@ -87,9 +82,6 @@
                 templateParams.toArray(new Parameter[templateParams.size()]));
         deploymentDTO.setTemplateImplParameters(templateImplParams.toArray(new
                 Parameter[templateImplParams.size()]));
-        AddAssociationDO association = new AddAssociationDO();
-        association.setCondition(condition);
-        association.setEventId(operation);
         try {
             client.deployTemplate(deploymentDTO);
         } catch (WorkflowAdminServiceWorkflowException e) {
@@ -115,21 +107,6 @@
         String workflowId = CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_WORKFLOW_ID));
         try {
             client.deleteAssociation(associationId);
-            forwardTo = "view-workflow.jsp?" + WorkflowUIConstants.PARAM_WORKFLOW_ID + "=" + workflowId;
-        } catch (WorkflowAdminServiceWorkflowException e) {
-            String message = resourceBundle.getString("workflow.error.when.deleting.association");
-            CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
-            forwardTo = "../admin/error.jsp";
-        }
-    } else if (WorkflowUIConstants.ACTION_VALUE_ADD_ASSOCIATION.equals(action)) {
-        String workflowId =
-                CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_WORKFLOW_ID));
-        String operation =
-                CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_ASSOCIATED_OPERATION));
-        String condition =
-                CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_ASSOCIATION_CONDITION));
-        try {
-            client.addAssociation(workflowId, operation, condition);
             forwardTo = "view-workflow.jsp?" + WorkflowUIConstants.PARAM_WORKFLOW_ID + "=" + workflowId;
         } catch (WorkflowAdminServiceWorkflowException e) {
             String message = resourceBundle.getString("workflow.error.when.deleting.association");

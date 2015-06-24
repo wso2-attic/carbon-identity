@@ -77,6 +77,10 @@
 
         AssociationDTO[] associations = client.listAssociationsForWorkflow(workflowId);
 
+        if (associations == null) {
+            associations = new AssociationDTO[0];
+        }
+
         numberOfPages = (int) Math.ceil((double) associations.length / WorkflowUIConstants.RESULTS_PER_PAGE);
 
         int startIndex = pageNumberInt * WorkflowUIConstants.RESULTS_PER_PAGE;
@@ -146,8 +150,7 @@
                     doDelete, null);
         }
         function addAssociation() {
-            updateActions();
-            document.getElementById('addNew').style.display = 'block';
+            window.location = "add-association.jsp?<%=WorkflowUIConstants.PARAM_WORKFLOW_ID%>=<%=workflowId%>";
         }
 
         function doCancel() {
@@ -201,56 +204,6 @@
                onclick="addAssociation();return false;"
                href="#" style="background-image: url(images/add.png);" class="icon-link">
                 <fmt:message key='workflow.service.association.add'/></a>
-
-            <div id="addNew" style="display: none; clear: left">
-                <form action="operation-association.jsp" method="post">
-                    <input type="hidden" name="<%=WorkflowUIConstants.PARAM_WORKFLOW_ID%>" value="<%=workflowId%>">
-                    <input type="hidden" name="<%=WorkflowUIConstants.PARAM_ACTION%>"
-                           value="<%=WorkflowUIConstants.ACTION_VALUE_ADD_ASSOCIATION%>">
-                    <table class="styledLeft">
-                        <thead>
-                        <tr>
-                            <th><fmt:message key="workflow.details"/></th>
-                        </tr>
-                        </thead>
-                        <tr>
-                            <td class="formRow">
-                                <table class="normal">
-
-                                    <tr>
-                                        <td><fmt:message key='workflow.operation.category'/></td>
-                                        <td>
-                                            <select id="categoryDropdown" onchange="updateActions();">
-                                                <%
-                                                    for (String key : events.keySet()) {
-                                                %>
-                                                <option value="<%=key%>"><%=key%>
-                                                </option>
-                                                <%
-                                                    }
-                                                %>
-                                            </select>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td><fmt:message key='workflow.operation.name'/></td>
-                                        <td><select id="actionDropdown"
-                                                    name="<%=WorkflowUIConstants.PARAM_ASSOCIATED_OPERATION%>"></select>
-                                        </td>
-                                    </tr>
-                                </table>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="buttonRow">
-                                <input class="button" value="<fmt:message key="add"/>" type="submit"/>
-                                <input class="button" value="<fmt:message key="cancel"/>" type="button"
-                                       onclick="doCancel();"/>
-                            </td>
-                        </tr>
-                    </table>
-                </form>
-            </div>
             <table class="styledLeft" id="servicesTable">
                 <thead>
                 <tr>
