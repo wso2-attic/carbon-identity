@@ -57,7 +57,7 @@ public class IdentityOathEventListener extends AbstractUserOperationEventListene
         TokenMgtDAO tokenMgtDAO = new TokenMgtDAO();
 
         String tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-        username = (username + "@" + tenantDomain).toLowerCase();
+        username = (username + "@" + tenantDomain);
 
         String userStoreDomain = null;
         if (OAuth2Util.checkAccessTokenPartitioningEnabled() && OAuth2Util.checkUserNameAssertionEnabled()) {

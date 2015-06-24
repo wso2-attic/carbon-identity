@@ -287,8 +287,14 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
         TokenMgtDAO tokenMgtDAO = new TokenMgtDAO();
 
         OAuthCache oauthCache = OAuthCache.getInstance();
+        String authorizedUser = request.getAuthorizedUser();
+        boolean isUsernameCaseSensitive = OAuth2Util.isUsernameCaseSensitive(authorizedUser);
+        if (!isUsernameCaseSensitive){
+            authorizedUser = authorizedUser.toLowerCase();
+        }
+
         CacheKey cacheKey = new OAuthCacheKey(
-                request.getOauth2AccessTokenReqDTO().getClientId() + ":" + request.getAuthorizedUser().toLowerCase() +
+                request.getOauth2AccessTokenReqDTO().getClientId() + ":" + authorizedUser +
                         ":" + OAuth2Util.buildScopeString(request.getScope()));
         CacheEntry result = oauthCache.getValueFromCache(cacheKey);
 

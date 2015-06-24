@@ -94,7 +94,14 @@ public abstract class AbstractAuthorizationGrantHandler implements Authorization
 
         String consumerKey = tokReqMsgCtx.getOauth2AccessTokenReqDTO().getClientId();
         String authorizedUser = tokReqMsgCtx.getAuthorizedUser();
-        OAuthCacheKey cacheKey = new OAuthCacheKey(consumerKey + ":" + authorizedUser.toLowerCase() + ":" + scope);
+        boolean isUsernameCaseSensitive = OAuth2Util.isUsernameCaseSensitive(authorizedUser);
+        String cacheKeyString;
+        if (isUsernameCaseSensitive){
+            cacheKeyString = consumerKey + ":" + authorizedUser + ":" + scope;
+        }else {
+            cacheKeyString = consumerKey + ":" + authorizedUser.toLowerCase() + ":" + scope;
+        }
+        OAuthCacheKey cacheKey = new OAuthCacheKey(cacheKeyString);
         String userStoreDomain = null;
 
         //select the user store domain when multiple user stores are configured.
@@ -343,13 +350,7 @@ public abstract class AbstractAuthorizationGrantHandler implements Authorization
             accessTokenDO.setTokenId(UUID.randomUUID().toString());
 
             // Persist the access token in database
-            try {
-                tokenMgtDAO.storeAccessToken(accessToken, oAuth2AccessTokenReqDTO.getClientId(),
-                        accessTokenDO, userStoreDomain);
-            } catch (IdentityException e) {
-                throw new IdentityOAuth2Exception(
-                        "Error occurred while storing new access token : " + accessToken, e);
-            }
+            storeAccessToken(oAuth2AccessTokenReqDTO, userStoreDomain, accessTokenDO, accessToken);
 
             if (log.isDebugEnabled()) {
                 log.debug("Persisted Access Token : " + accessToken + " for " +
@@ -387,6 +388,17 @@ public abstract class AbstractAuthorizationGrantHandler implements Authorization
             }
             tokenRespDTO.setAuthorizedScopes(scope);
             return tokenRespDTO;
+        }
+    }
+
+    protected void storeAccessToken(OAuth2AccessTokenReqDTO oAuth2AccessTokenReqDTO, String userStoreDomain,
+                                    AccessTokenDO accessTokenDO, String accessToken) throws IdentityOAuth2Exception {
+        try {
+            tokenMgtDAO.storeAccessToken(accessToken, oAuth2AccessTokenReqDTO.getClientId(),
+                    accessTokenDO, userStoreDomain);
+        } catch (IdentityException e) {
+            throw new IdentityOAuth2Exception(
+                    "Error occurred while storing new access token : " + accessToken, e);
         }
     }
 

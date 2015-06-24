@@ -39,11 +39,11 @@ public class SQLQueries {
                                                                      "AUTHORIZATION_CODE FROM " +
                                                                      "IDN_OAUTH2_AUTHORIZATION_CODE WHERE TOKEN_ID=? )";
 
-    public static final String REMOVE_AUTHZ_CODE = "DELETE FROM IDN_OAUTH2_AUTHORIZATION_CODE WHERE " +
-            "AUTHORIZATION_CODE = ?";
+    public static final String EXPIRE_AUTHZ_CODE = "UPDATE IDN_OAUTH2_AUTHORIZATION_CODE SET " +
+                                                   "STATE='EXPIRED' WHERE AUTHORIZATION_CODE= ?";
 
-    public static final String EXPIRE_AUTHZ_CODE_AND_INSERT_CURRENT_TOKEN = "UPDATE IDN_OAUTH2_AUTHORIZATION_CODE SET " +
-                                                                           "STATE='EXPIRED', TOKEN_ID=?" +
+    public static final String DEACTIVATE_AUTHZ_CODE_AND_INSERT_CURRENT_TOKEN = "UPDATE IDN_OAUTH2_AUTHORIZATION_CODE SET " +
+                                                                           "STATE='INACTIVE', TOKEN_ID=?" +
                                                                             " WHERE AUTHORIZATION_CODE= ?";
 
     public static final String RETRIEVE_LATEST_ACCESS_TOKEN_BY_CLIENT_ID_USER_SCOPE_ORACLE = "SELECT * FROM (SELECT " +
