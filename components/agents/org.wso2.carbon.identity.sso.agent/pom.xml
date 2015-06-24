@@ -23,7 +23,7 @@
     <parent>
         <groupId>org.wso2.carbon.identity</groupId>
         <artifactId>agents</artifactId>
-        <version>4.5.1-SNAPSHOT</version>
+        <version>4.5.6-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -92,10 +92,10 @@
                             javax.xml.parsers,
                             com.google.gson;version="${com.google.code.gson.osgi.version.range}",
                             org.apache.http.conn.ssl; version="${httpcomponents-httpclient.imp.pkg.version.range}",
-                            org.apache.xerces.util,
+                            org.apache.xerces.util;resolution:=optional,
                             org.apache.xml.security.*; version="${wss4j.xml.security.imp.pkg.version.range}",
                             org.joda.time;version="${opensaml2.wso2.osgi.version.range}",
-                            org.openid4java.*;version="${openid4java.wso2.osgi.version.range}",
+                            org.openid4java.*;version="${openid4java.wso2.osgi.version.range}";resolution:=optional,
                             org.opensaml.*; version="${opensaml2.wso2.osgi.version.range}",
                             org.w3c.dom.*,
                             org.xml.sax,

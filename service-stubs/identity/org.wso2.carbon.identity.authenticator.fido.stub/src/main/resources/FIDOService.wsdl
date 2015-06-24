@@ -1,0 +1,240 @@
+<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:ns1="http://org.apache.axis2/xsd" xmlns:ax2114="http://exception.fido.authenticator.application.identity.carbon.wso2.org/xsd" xmlns:ns="http://service.fido.authenticator.application.identity.carbon.wso2.org" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://service.fido.authenticator.application.identity.carbon.wso2.org">
+    <wsdl:documentation>FIDOService</wsdl:documentation>
+    <wsdl:types>
+        <xs:schema xmlns:ax2115="http://exception.fido.authenticator.application.identity.carbon.wso2.org/xsd" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://service.fido.authenticator.application.identity.carbon.wso2.org">
+            <xs:import namespace="http://exception.fido.authenticator.application.identity.carbon.wso2.org/xsd"/>
+            <xs:element name="FIDOServiceFIDOAuthenticatorClientException">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="FIDOAuthenticatorClientException" nillable="true" type="ax2115:FIDOAuthenticatorClientException"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="startRegistration">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="appID" nillable="true" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="startRegistrationResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="finishRegistration">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="response" nillable="true" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="isDeviceRegistered">
+                <xs:complexType>
+                    <xs:sequence/>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="isDeviceRegisteredResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" type="xs:boolean"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="removeRegistration">
+                <xs:complexType>
+                    <xs:sequence/>
+                </xs:complexType>
+            </xs:element>
+        </xs:schema>
+        <xs:schema attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://exception.fido.authenticator.application.identity.carbon.wso2.org/xsd">
+            <xs:complexType name="FIDOAuthenticatorException">
+                <xs:sequence/>
+            </xs:complexType>
+            <xs:complexType name="FIDOAuthenticatorClientException">
+                <xs:complexContent>
+                    <xs:extension base="ax2114:FIDOAuthenticatorException">
+                        <xs:sequence/>
+                    </xs:extension>
+                </xs:complexContent>
+            </xs:complexType>
+        </xs:schema>
+    </wsdl:types>
+    <wsdl:message name="startRegistrationRequest">
+        <wsdl:part name="parameters" element="ns:startRegistration"/>
+    </wsdl:message>
+    <wsdl:message name="startRegistrationResponse">
+        <wsdl:part name="parameters" element="ns:startRegistrationResponse"/>
+    </wsdl:message>
+    <wsdl:message name="FIDOServiceFIDOAuthenticatorClientException">
+        <wsdl:part name="parameters" element="ns:FIDOServiceFIDOAuthenticatorClientException"/>
+    </wsdl:message>
+    <wsdl:message name="removeRegistrationRequest">
+        <wsdl:part name="parameters" element="ns:removeRegistration"/>
+    </wsdl:message>
+    <wsdl:message name="isDeviceRegisteredRequest">
+        <wsdl:part name="parameters" element="ns:isDeviceRegistered"/>
+    </wsdl:message>
+    <wsdl:message name="isDeviceRegisteredResponse">
+        <wsdl:part name="parameters" element="ns:isDeviceRegisteredResponse"/>
+    </wsdl:message>
+    <wsdl:message name="finishRegistrationRequest">
+        <wsdl:part name="parameters" element="ns:finishRegistration"/>
+    </wsdl:message>
+    <wsdl:portType name="FIDOServicePortType">
+        <wsdl:operation name="startRegistration">
+            <wsdl:input message="ns:startRegistrationRequest" wsaw:Action="urn:startRegistration"/>
+            <wsdl:output message="ns:startRegistrationResponse" wsaw:Action="urn:startRegistrationResponse"/>
+            <wsdl:fault message="ns:FIDOServiceFIDOAuthenticatorClientException" name="FIDOServiceFIDOAuthenticatorClientException" wsaw:Action="urn:startRegistrationFIDOServiceFIDOAuthenticatorClientException"/>
+        </wsdl:operation>
+        <wsdl:operation name="removeRegistration">
+            <wsdl:input message="ns:removeRegistrationRequest" wsaw:Action="urn:removeRegistration"/>
+            <wsdl:fault message="ns:FIDOServiceFIDOAuthenticatorClientException" name="FIDOServiceFIDOAuthenticatorClientException" wsaw:Action="urn:removeRegistrationFIDOServiceFIDOAuthenticatorClientException"/>
+        </wsdl:operation>
+        <wsdl:operation name="isDeviceRegistered">
+            <wsdl:input message="ns:isDeviceRegisteredRequest" wsaw:Action="urn:isDeviceRegistered"/>
+            <wsdl:output message="ns:isDeviceRegisteredResponse" wsaw:Action="urn:isDeviceRegisteredResponse"/>
+            <wsdl:fault message="ns:FIDOServiceFIDOAuthenticatorClientException" name="FIDOServiceFIDOAuthenticatorClientException" wsaw:Action="urn:isDeviceRegisteredFIDOServiceFIDOAuthenticatorClientException"/>
+        </wsdl:operation>
+        <wsdl:operation name="finishRegistration">
+            <wsdl:input message="ns:finishRegistrationRequest" wsaw:Action="urn:finishRegistration"/>
+            <wsdl:fault message="ns:FIDOServiceFIDOAuthenticatorClientException" name="FIDOServiceFIDOAuthenticatorClientException" wsaw:Action="urn:finishRegistrationFIDOServiceFIDOAuthenticatorClientException"/>
+        </wsdl:operation>
+    </wsdl:portType>
+    <wsdl:binding name="FIDOServiceSoap11Binding" type="ns:FIDOServicePortType">
+        <soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
+        <wsdl:operation name="startRegistration">
+            <soap:operation soapAction="urn:startRegistration" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="FIDOServiceFIDOAuthenticatorClientException">
+                <soap:fault use="literal" name="FIDOServiceFIDOAuthenticatorClientException"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="removeRegistration">
+            <soap:operation soapAction="urn:removeRegistration" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:fault name="FIDOServiceFIDOAuthenticatorClientException">
+                <soap:fault use="literal" name="FIDOServiceFIDOAuthenticatorClientException"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="finishRegistration">
+            <soap:operation soapAction="urn:finishRegistration" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:fault name="FIDOServiceFIDOAuthenticatorClientException">
+                <soap:fault use="literal" name="FIDOServiceFIDOAuthenticatorClientException"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="isDeviceRegistered">
+            <soap:operation soapAction="urn:isDeviceRegistered" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="FIDOServiceFIDOAuthenticatorClientException">
+                <soap:fault use="literal" name="FIDOServiceFIDOAuthenticatorClientException"/>
+            </wsdl:fault>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:binding name="FIDOServiceSoap12Binding" type="ns:FIDOServicePortType">
+        <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
+        <wsdl:operation name="startRegistration">
+            <soap12:operation soapAction="urn:startRegistration" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="FIDOServiceFIDOAuthenticatorClientException">
+                <soap12:fault use="literal" name="FIDOServiceFIDOAuthenticatorClientException"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="removeRegistration">
+            <soap12:operation soapAction="urn:removeRegistration" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:fault name="FIDOServiceFIDOAuthenticatorClientException">
+                <soap12:fault use="literal" name="FIDOServiceFIDOAuthenticatorClientException"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="finishRegistration">
+            <soap12:operation soapAction="urn:finishRegistration" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:fault name="FIDOServiceFIDOAuthenticatorClientException">
+                <soap12:fault use="literal" name="FIDOServiceFIDOAuthenticatorClientException"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="isDeviceRegistered">
+            <soap12:operation soapAction="urn:isDeviceRegistered" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="FIDOServiceFIDOAuthenticatorClientException">
+                <soap12:fault use="literal" name="FIDOServiceFIDOAuthenticatorClientException"/>
+            </wsdl:fault>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:binding name="FIDOServiceHttpBinding" type="ns:FIDOServicePortType">
+        <http:binding verb="POST"/>
+        <wsdl:operation name="startRegistration">
+            <http:operation location="startRegistration"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="removeRegistration">
+            <http:operation location="removeRegistration"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:input>
+        </wsdl:operation>
+        <wsdl:operation name="finishRegistration">
+            <http:operation location="finishRegistration"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:input>
+        </wsdl:operation>
+        <wsdl:operation name="isDeviceRegistered">
+            <http:operation location="isDeviceRegistered"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:output>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:service name="FIDOService">
+        <wsdl:port name="FIDOServiceHttpsSoap11Endpoint" binding="ns:FIDOServiceSoap11Binding">
+            <soap:address location="https://localhost:9443/services/FIDOService.FIDOServiceHttpsSoap11Endpoint/"/>
+        </wsdl:port>
+        <wsdl:port name="FIDOServiceHttpsSoap12Endpoint" binding="ns:FIDOServiceSoap12Binding">
+            <soap12:address location="https://localhost:9443/services/FIDOService.FIDOServiceHttpsSoap12Endpoint/"/>
+        </wsdl:port>
+        <wsdl:port name="FIDOServiceHttpsEndpoint" binding="ns:FIDOServiceHttpBinding">
+            <http:address location="https://localhost:9443/services/FIDOService.FIDOServiceHttpsEndpoint/"/>
+        </wsdl:port>
+    </wsdl:service>
+</wsdl:definitions>

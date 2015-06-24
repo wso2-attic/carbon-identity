@@ -28,7 +28,13 @@ import org.wso2.carbon.identity.sso.agent.openid.AttributesRequestor;
 import org.wso2.carbon.identity.sso.agent.saml.SSOAgentCarbonX509Credential;
 import org.wso2.carbon.identity.sso.agent.saml.SSOAgentX509Credential;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 

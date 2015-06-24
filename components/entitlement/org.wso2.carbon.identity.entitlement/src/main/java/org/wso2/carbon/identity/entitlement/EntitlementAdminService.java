@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * WSO2 Inc. licenses this file to you under the Apache License,
- * Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License.
- * You may obtain a copy of the License at
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -48,7 +48,7 @@ import java.util.Set;
  */
 public class EntitlementAdminService {
 
-    private static final Log log = LogFactory.getLog(EntitlementAdminService.class);
+    private static Log log = LogFactory.getLog(EntitlementAdminService.class);
 
     /**
      * Clears the decision cache.
@@ -88,7 +88,7 @@ public class EntitlementAdminService {
             clearDecisionCache();
         } else {
             throw new EntitlementException("Can not clear all attribute caches - Carbon Attribute Finder "
-                                           + "is not initialized");
+                    + "is not initialized");
         }
 
         Map<PIPAttributeFinder, Properties> designators = EntitlementServiceComponent.getEntitlementConfig()
@@ -116,7 +116,7 @@ public class EntitlementAdminService {
             clearDecisionCache();
         } else {
             throw new EntitlementException("Can not clear attribute cache - Carbon Attribute Finder "
-                                           + "is not initialized");
+                    + "is not initialized");
         }
 
         Map<PIPAttributeFinder, Properties> designators = EntitlementServiceComponent.getEntitlementConfig()
@@ -143,10 +143,11 @@ public class EntitlementAdminService {
         if (designators != null && !designators.isEmpty()) {
             Set<PIPAttributeFinder> pipAttributeFinders = designators.keySet();
             for (PIPAttributeFinder pipAttributeFinder : pipAttributeFinders) {
-                if (pipAttributeFinder instanceof AbstractPIPAttributeFinder && pipAttributeFinder.getClass()
-                        .getCanonicalName().equals(attributeFinder)) {
-                    pipAttributeFinder.clearCache();
-                    break;
+                if (pipAttributeFinder instanceof AbstractPIPAttributeFinder) {
+                    if (pipAttributeFinder.getClass().getCanonicalName().equals(attributeFinder)) {
+                        pipAttributeFinder.clearCache();
+                        break;
+                    }
                 }
             }
         }
@@ -187,7 +188,7 @@ public class EntitlementAdminService {
             clearDecisionCache();
         } else {
             throw new EntitlementException("Can not clear attribute cache - Carbon Attribute Finder "
-                                           + "is not initialized");
+                    + "is not initialized");
         }
     }
 
@@ -204,7 +205,7 @@ public class EntitlementAdminService {
             clearDecisionCache();
         } else {
             throw new EntitlementException("Can not clear attribute cache - Carbon Attribute Finder "
-                                           + "is not initialized");
+                    + "is not initialized");
         }
 
         Map<PIPResourceFinder, Properties> resourceConfigs = EntitlementServiceComponent.getEntitlementConfig()
@@ -252,7 +253,7 @@ public class EntitlementAdminService {
             Set<Map.Entry<PIPAttributeFinder, Properties>> pipAttributeFinders = designators.entrySet();
             for (Map.Entry<PIPAttributeFinder, Properties> entry : pipAttributeFinders) {
                 if (attributeFinder.equals(entry.getKey().getClass().getName()) ||
-                    attributeFinder.equals(entry.getKey().getModuleName())) {
+                        attributeFinder.equals(entry.getKey().getModuleName())) {
                     try {
                         entry.getKey().init(entry.getValue());
                         entry.getKey().clearCache();
@@ -261,7 +262,7 @@ public class EntitlementAdminService {
                         carbonAttributeFinder.init();
                     } catch (Exception e) {
                         throw new EntitlementException("Error while refreshing attribute finder - " +
-                                                       attributeFinder, e);
+                                attributeFinder);
                     }
                     break;
                 }
@@ -282,7 +283,7 @@ public class EntitlementAdminService {
         if (resourceFinder != null && resourceFinders != null && !resourceFinders.isEmpty()) {
             for (Map.Entry<PIPResourceFinder, Properties> entry : resourceFinders.entrySet()) {
                 if (resourceFinder.equals(entry.getKey().getClass().getName()) ||
-                    resourceFinder.equals(entry.getKey().getModuleName())) {
+                        resourceFinder.equals(entry.getKey().getModuleName())) {
                     try {
                         entry.getKey().init(entry.getValue());
                         entry.getKey().clearCache();
@@ -291,7 +292,7 @@ public class EntitlementAdminService {
                         carbonAttributeFinder.init();
                     } catch (Exception e) {
                         throw new EntitlementException("Error while refreshing attribute finder - " +
-                                                       resourceFinder, e);
+                                resourceFinder);
                     }
                     break;
                 }
@@ -312,7 +313,7 @@ public class EntitlementAdminService {
         if (policyFinder != null && policyFinders != null && !policyFinders.isEmpty()) {
             for (Map.Entry<PolicyFinderModule, Properties> entry : policyFinders.entrySet()) {
                 if (policyFinder.equals(entry.getKey().getClass().getName()) ||
-                    policyFinder.equals(entry.getKey().getModuleName())) {
+                        policyFinder.equals(entry.getKey().getModuleName())) {
                     try {
                         entry.getKey().init(entry.getValue());
                         EntitlementEngine.getInstance().getCarbonPolicyFinder().init();
@@ -322,7 +323,7 @@ public class EntitlementAdminService {
                         EntitlementPolicyInvalidationCache.getInstance().invalidateCache();
                     } catch (Exception e) {
                         throw new EntitlementException("Error while refreshing attribute finder - " +
-                                                       policyFinder, e);
+                                policyFinder);
                     }
                     break;
                 }
@@ -441,7 +442,7 @@ public class EntitlementAdminService {
         for (Map.Entry<PolicyFinderModule, Properties> entry : finderModules.entrySet()) {
             PolicyFinderModule module = entry.getKey();
             if (module != null && (finder.equals(module.getModuleName()) ||
-                                   finder.equals(module.getClass().getName()))) {
+                    finder.equals(module.getClass().getName()))) {
                 holder = new PolicyFinderDataHolder();
                 if (module.getModuleName() != null) {
                     holder.setModuleName(module.getModuleName());
@@ -474,7 +475,7 @@ public class EntitlementAdminService {
         for (Map.Entry<PIPAttributeFinder, Properties> entry : attributeModules.entrySet()) {
             PIPAttributeFinder module = entry.getKey();
             if (module != null && (finder.equals(module.getModuleName()) ||
-                                   finder.equals(module.getClass().getName()))) {
+                    finder.equals(module.getClass().getName()))) {
                 holder = new PIPFinderDataHolder();
                 if (module.getModuleName() != null) {
                     holder.setModuleName(module.getModuleName());

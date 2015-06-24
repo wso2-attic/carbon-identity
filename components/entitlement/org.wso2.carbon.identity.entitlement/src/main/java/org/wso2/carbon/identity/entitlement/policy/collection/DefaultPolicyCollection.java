@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * WSO2 Inc. licenses this file to you under the Apache License,
- * Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License.
- * You may obtain a copy of the License at
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -17,7 +17,6 @@
  */
 package org.wso2.carbon.identity.entitlement.policy.collection;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.balana.AbstractPolicy;
@@ -39,15 +38,11 @@ import org.wso2.carbon.identity.entitlement.EntitlementLRUCache;
 
 import java.io.Serializable;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.TreeSet;
 
@@ -55,28 +50,29 @@ public class DefaultPolicyCollection implements PolicyCollection {
 
     // default target that matches anything, used in wrapping policies
     private static final AbstractTarget target;
-    private static final Log log = LogFactory.getLog(DefaultPolicyCollection.class);
-
+    private static Log log = LogFactory.getLog(DefaultPolicyCollection.class);
     /**
      * This static initializer just sets up the default target, which is used by all wrapping policy
      * sets.
      */
     static {
-        target = new Target(new TargetSection(null, TargetMatch.SUBJECT, XACMLConstants.XACML_VERSION_2_0)
-                , new TargetSection(null, TargetMatch.RESOURCE, XACMLConstants.XACML_VERSION_2_0)
-                , new TargetSection(null, TargetMatch.ACTION
-                , XACMLConstants.XACML_VERSION_2_0), new TargetSection(null, TargetMatch.ENVIRONMENT
-                , XACMLConstants.XACML_VERSION_2_0));
+        target = new Target(new TargetSection(null, TargetMatch.SUBJECT,
+                XACMLConstants.XACML_VERSION_2_0), new TargetSection(null, TargetMatch.RESOURCE,
+                XACMLConstants.XACML_VERSION_2_0), new TargetSection(null, TargetMatch.ACTION,
+                XACMLConstants.XACML_VERSION_2_0), new TargetSection(null, TargetMatch.ENVIRONMENT,
+                XACMLConstants.XACML_VERSION_2_0));
     }
-
     // the actual collection of policies
-    private Map<String, TreeSet<AbstractPolicy>> policies;
+    private LinkedHashMap<String, TreeSet<AbstractPolicy>> policies;
     // the single instance of the comparator we'll use for managing versions
     private VersionComparator versionComparator = new VersionComparator();
     // the optional combining algorithm used when wrapping multiple policies
     private PolicyCombiningAlgorithm combiningAlg;
     // the optional policy id used when wrapping multiple policies
     private URI parentId;
+    private int maxInMemoryPolicies;
+
+    ;
 
     /**
      * Creates a new <code>DefaultPolicyCollection</code> that will return errors when multiple policies
@@ -86,7 +82,8 @@ public class DefaultPolicyCollection implements PolicyCollection {
      * @param maxInMemoryPolicies maximum no of policies that keeps in memory
      */
     public DefaultPolicyCollection(PolicyCombiningAlgorithm combiningAlg, int maxInMemoryPolicies) {
-        policies = new EntitlementLRUCache<>(maxInMemoryPolicies);
+        policies = new EntitlementLRUCache<String, TreeSet<AbstractPolicy>>(maxInMemoryPolicies);
+        this.maxInMemoryPolicies = maxInMemoryPolicies;
         this.combiningAlg = combiningAlg;
     }
 
@@ -97,7 +94,7 @@ public class DefaultPolicyCollection implements PolicyCollection {
      * @param combiningAlg Policy combining Algorithm
      */
     public DefaultPolicyCollection(PolicyCombiningAlgorithm combiningAlg) {
-        policies = new LinkedHashMap<>();
+        policies = new LinkedHashMap<String, TreeSet<AbstractPolicy>>();
         this.combiningAlg = combiningAlg;
     }
 
@@ -115,14 +112,10 @@ public class DefaultPolicyCollection implements PolicyCollection {
     }
 
     @Override
-    public void init(Properties properties) throws EntitlementException {
+    public void init(Properties properties) throws Exception {
         String parentIdProperty = properties.getProperty("parentId");
         if (parentIdProperty != null) {
-            try {
-                parentId = new URI(parentIdProperty);
-            } catch (URISyntaxException e) {
-                throw new EntitlementException("URISyntaxException occured while reading parentId. ", e);
-            }
+            parentId = new URI(parentIdProperty);
         }
     }
 
@@ -134,7 +127,6 @@ public class DefaultPolicyCollection implements PolicyCollection {
      * @param policy the policy to add
      * @return true if the policy was added, false otherwise
      */
-    @Override
     public boolean addPolicy(AbstractPolicy policy) {
         return addPolicy(policy, policy.getId().toString());
     }
@@ -174,15 +166,15 @@ public class DefaultPolicyCollection implements PolicyCollection {
      * @return
      * @throws EntitlementException
      */
-    @Override
     public AbstractPolicy getEffectivePolicy(EvaluationCtx context) throws EntitlementException {
         // setup a list of matching policies
-        List<AbstractPolicy> list = new ArrayList<>();
+        ArrayList<AbstractPolicy> list = new ArrayList<AbstractPolicy>();
         // get an iterator over all the identifiers
+        Iterator<TreeSet<AbstractPolicy>> it = policies.values().iterator();
 
-        for (TreeSet<AbstractPolicy> abstractPolicies : policies.values()) {
+        while (it.hasNext()) {
             // for each identifier, get only the most recent policy
-            AbstractPolicy policy = abstractPolicies.first();
+            AbstractPolicy policy = it.next().first();
 
             // see if we match
             MatchResult match = policy.match(context);
@@ -203,6 +195,13 @@ public class DefaultPolicyCollection implements PolicyCollection {
                     log.debug("Matching XACML policy found " + policy.getId().toString());
                 }
 
+                if ((combiningAlg == null) && (list.size() > 0)) {
+                    ArrayList<String> code = new ArrayList<String>();
+                    code.add(Status.STATUS_PROCESSING_ERROR);
+                    Status status = new Status(code, "too many applicable top-level policies");
+                    //throw new EntitlementException(status);     // TODO
+                }
+
                 list.add(policy);
             }
         }
@@ -216,7 +215,7 @@ public class DefaultPolicyCollection implements PolicyCollection {
                 }
                 return null;
             case 1:
-                return list.get(0);
+                return ((AbstractPolicy) (list.get(0)));
             default:
                 return new PolicySet(parentId, combiningAlg, null, list);
         }
@@ -228,7 +227,6 @@ public class DefaultPolicyCollection implements PolicyCollection {
      * @param policyId policyId as a URI
      * @return AbstractPolicy
      */
-    @Override
     public AbstractPolicy getPolicy(URI policyId) {
         if (policies.containsKey(policyId.toString())) {
             return policies.get(policyId.toString()).first();
@@ -254,7 +252,7 @@ public class DefaultPolicyCollection implements PolicyCollection {
      *
      * @return LinkedHashMap of policies
      */
-    public Map<String, TreeSet<AbstractPolicy>> getPolicies() {
+    public LinkedHashMap<String, TreeSet<AbstractPolicy>> getPolicies() {
         return policies;
     }
 
@@ -265,9 +263,9 @@ public class DefaultPolicyCollection implements PolicyCollection {
      * @return Policy or Policy Set as AbstractPolicy
      * @throws EntitlementException throws if no policy combiningAlg is defined
      */
-    public AbstractPolicy getEffectivePolicy(List<AbstractPolicy> policies) throws EntitlementException {
+    public AbstractPolicy getEffectivePolicy(ArrayList<AbstractPolicy> policies) throws EntitlementException {
 
-        if ((combiningAlg == null) && CollectionUtils.isNotEmpty(policies)) {
+        if ((combiningAlg == null) && (policies.size() > 0)) {
             log.error("Too many applicable top-level policies");
             throw new EntitlementException("Too many applicable top-level policies");
         }
@@ -279,7 +277,7 @@ public class DefaultPolicyCollection implements PolicyCollection {
                 }
                 return null;
             case 1:
-                return policies.get(0);
+                return ((AbstractPolicy) (policies.get(0)));
             default:
                 return new PolicySet(parentId, combiningAlg, target, policies);
         }
@@ -296,31 +294,28 @@ public class DefaultPolicyCollection implements PolicyCollection {
      * @param constraints
      * @return
      */
-    @Override
     public AbstractPolicy getPolicy(URI identifier, int type, VersionConstraints constraints) {
 
-        Set<AbstractPolicy> set = policies.get(identifier.toString());
+        TreeSet<AbstractPolicy> set = policies.get(identifier.toString());
 
         // if we don't know about this identifier then there's nothing to do
-        if (set == null) {
+        if (set == null)
             return null;
-        }
 
         // walk through the set starting with the most recent version, looking
         // for a match until we exhaust all known versions
-        for (AbstractPolicy aSet : set) {
-            AbstractPolicy policy = aSet;
+        Iterator<AbstractPolicy> it = set.iterator();
+        while (it.hasNext()) {
+            AbstractPolicy policy = (AbstractPolicy) (it.next());
             if (constraints.meetsConstraint(policy.getVersion())) {
                 // we found a valid version, so see if it's the right kind,
                 // and if it is then we return it
                 if (type == PolicyReference.POLICY_REFERENCE) {
-                    if (policy instanceof Policy) {
+                    if (policy instanceof Policy)
                         return policy;
-                    }
                 } else {
-                    if (policy instanceof PolicySet) {
+                    if (policy instanceof PolicySet)
                         return policy;
-                    }
                 }
             }
         }
@@ -331,7 +326,7 @@ public class DefaultPolicyCollection implements PolicyCollection {
 
     @Override
     public void setPolicyCombiningAlgorithm(PolicyCombiningAlgorithm algorithm) {
-        /* method not implemented */
+
     }
 
     @Override
@@ -340,21 +335,6 @@ public class DefaultPolicyCollection implements PolicyCollection {
         hash = 31 * hash + (null == this.policies ? 0 : this.policies.hashCode());
         hash = 31 * hash + (null == this.combiningAlg ? 0 : this.combiningAlg.hashCode());
         return hash;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
-        DefaultPolicyCollection that = (DefaultPolicyCollection) o;
-
-        return policies.equals(that.policies) && combiningAlg.equals(that.combiningAlg);
-
     }
 
     /**
@@ -367,19 +347,16 @@ public class DefaultPolicyCollection implements PolicyCollection {
      * additions or fetches.
      */
     static class VersionComparator implements Serializable, Comparator<AbstractPolicy> {
-
-        @Override
         public int compare(AbstractPolicy o1, AbstractPolicy o2) {
             // we swap the parameters so that sorting goes largest to smallest
-            String v1 = o2.getVersion();
-            String v2 = o1.getVersion();
+            String v1 = ((AbstractPolicy) o2).getVersion();
+            String v2 = ((AbstractPolicy) o1).getVersion();
 
             // do a quick check to see if the strings are equal (note that
             // even if the strings aren't equal, the versions can still
             // be equal)
-            if (v1.equals(v2)) {
+            if (v1.equals(v2))
                 return 0;
-            }
 
             // setup tokenizers, and walk through both strings one set of
             // numeric values at a time
@@ -388,9 +365,8 @@ public class DefaultPolicyCollection implements PolicyCollection {
 
             while (tok1.hasMoreTokens()) {
                 // if there's nothing left in tok2, then v1 is bigger
-                if (!tok2.hasMoreTokens()) {
+                if (!tok2.hasMoreTokens())
                     return 1;
-                }
 
                 // get the next elements in the version, convert to numbers,
                 // and compare them (continuing with the loop only if the
@@ -398,19 +374,16 @@ public class DefaultPolicyCollection implements PolicyCollection {
                 int num1 = Integer.parseInt(tok1.nextToken());
                 int num2 = Integer.parseInt(tok2.nextToken());
 
-                if (num1 > num2) {
+                if (num1 > num2)
                     return 1;
-                }
 
-                if (num1 < num2) {
+                if (num1 < num2)
                     return -1;
-                }
             }
 
             // if there's still something left in tok2, then it's bigger
-            if (tok2.hasMoreTokens()) {
+            if (tok2.hasMoreTokens())
                 return -1;
-            }
 
             // if we got here it means both versions had the same number of
             // elements and all the elements were equal, so the versions

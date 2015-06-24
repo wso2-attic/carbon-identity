@@ -33,10 +33,10 @@ import org.wso2.carbon.identity.application.common.model.PermissionsAndRoleConfi
 import org.wso2.carbon.identity.application.common.model.Property;
 import org.wso2.carbon.identity.application.common.model.ProvisioningConnectorConfig;
 import org.wso2.carbon.identity.application.common.model.RoleMapping;
-import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.application.common.util.CharacterEncoder;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
+import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
 import org.wso2.carbon.idp.mgt.util.IdPManagementConstants;
 import org.wso2.carbon.utils.DBUtils;
@@ -124,6 +124,7 @@ public class IdPManagementDAO {
                     idps.add(identityProvider);
                 }
             }
+            dbConnection.commit();
             return idps;
         } catch (SQLException | IdentityException e) {
             log.error(e.getMessage(), e);
@@ -807,7 +808,7 @@ public class IdPManagementDAO {
                         String sqlStmt = IdPManagementConstants.SQLQueries.GET_IDP_PROVISIONING_PROPERTY_SQL;
                         prepStmt = dbConnection.prepareStatement(sqlStmt);
 
-                        int configId = rs1.getInt("TENANT_ID");
+                        int configId = rs1.getInt("ID");
                         prepStmt.setInt(1, tenantId);
                         prepStmt.setInt(2, configId);
 
@@ -821,7 +822,7 @@ public class IdPManagementDAO {
                             String blobValue = getBlobValue(rs2.getBinaryStream("PROPERTY_BLOB_VALUE"));
 
                             String propertyType = rs2.getString("PROPERTY_TYPE");
-                            String isSecret = rs2.getString("IS_SECRET FROM IDP_PROV_CONFIG_PROPERTY");
+                            String isSecret = rs2.getString("IS_SECRET");
 
                             Property.setName(name);
                             if (propertyType != null && IdentityApplicationConstants.ConfigElements.
@@ -1020,6 +1021,7 @@ public class IdPManagementDAO {
                         dbConnection, idPName, idpId, tenantId));
 
             }
+            dbConnection.commit();
             return federatedIdp;
         } catch (SQLException | IdentityException e) {
             IdentityApplicationManagementUtil.rollBack(dbConnection);
@@ -1169,6 +1171,7 @@ public class IdPManagementDAO {
                         dbConnection, idPName, idpId, tenantId));
 
             }
+            dbConnection.commit();
             return federatedIdp;
         } catch (SQLException | IdentityException e) {
             IdentityApplicationManagementUtil.rollBack(dbConnection);
@@ -1213,6 +1216,7 @@ public class IdPManagementDAO {
             IdentityApplicationManagementUtil.closeStatement(prepStmt);
             IdentityApplicationManagementUtil.closeResultSet(rs);
 
+            dbConnection.commit();
             return getIdPByName(dbConnection, idPName, tenantId, tenantDomain);
         } catch (SQLException | IdentityException e) {
             throw new IdentityApplicationManagementException(
@@ -1602,6 +1606,7 @@ public class IdPManagementDAO {
                     isReffered = rsProvIdp.getInt(1) > 0;
                 }
             }
+            dbConnection.commit();
         } catch (SQLException | IdentityException e) {
             log.error(e.getMessage(), e);
             String msg = "Error occurred while searching for IDP references in SP ";
@@ -1681,6 +1686,7 @@ public class IdPManagementDAO {
             prepStmt.setInt(1, tenantId);
             prepStmt.setString(2, "1");
             ResultSet rs = prepStmt.executeQuery();
+            dbConnection.commit();
             if (rs.next()) {
                 IdentityProvider identityProviderDO = new IdentityProvider();
                 identityProviderDO.setIdentityProviderName(rs.getString(1));
@@ -2384,6 +2390,7 @@ public class IdPManagementDAO {
             prepStmt.setInt(2, MultitenantConstants.SUPER_TENANT_ID);
             prepStmt.setString(3, CharacterEncoder.getSafeText(idpName));
             rs = prepStmt.executeQuery();
+            dbConnection.commit();
             if (rs.next()) {
                 return rs.getInt(1);
             }
@@ -2489,6 +2496,7 @@ public class IdPManagementDAO {
             if (rs.next()) {
                 isAvailable = rs.getInt(1) > 0;
             }
+            dbConnection.commit();
         } catch (SQLException | IdentityException e) {
             log.error(e.getMessage(), e);
             String msg = "Error occurred while searching for similar IdP EntityIds";

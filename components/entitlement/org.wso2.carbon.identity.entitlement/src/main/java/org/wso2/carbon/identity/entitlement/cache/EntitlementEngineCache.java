@@ -1,20 +1,20 @@
 /*
- * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
- *
- * WSO2 Inc. licenses this file to you under the Apache License,
- * Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
- */
+*  Copyright (c) WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*
+*  WSO2 Inc. licenses this file to you under the Apache License,
+*  Version 2.0 (the "License"); you may not use this file except
+*  in compliance with the License.
+*  You may obtain a copy of the License at
+*
+*    http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing,
+* software distributed under the License is distributed on an
+* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+* KIND, either express or implied.  See the License for the
+* specific language governing permissions and limitations
+* under the License.
+*/
 
 package org.wso2.carbon.identity.entitlement.cache;
 
@@ -45,9 +45,9 @@ public class EntitlementEngineCache {
             CachingConstants.LOCAL_CACHE_PREFIX + "ENTITLEMENT_ENGINE_CACHE";
     private static final EntitlementEngineCache instance = new EntitlementEngineCache();
     private static CacheBuilder<Integer, EntitlementEngine> cacheBuilder;
-    private static final Log log = LogFactory.getLog(EntitlementEngineCache.class);
+    private static Log log = LogFactory.getLog(EntitlementEngineCache.class);
 
-    private EntitlementEngineCache() {
+    private EntitlementEngineCache(){
 
     }
 
@@ -66,28 +66,28 @@ public class EntitlementEngineCache {
         CacheManager cacheManager = Caching.getCacheManagerFactory().
                 getCacheManager(ENTITLEMENT_ENGINE_CACHE_MANAGER);
         if (cacheManager != null) {
-            if (cacheBuilder == null) {
+            if (cacheBuilder == null){
                 Properties properties = EntitlementServiceComponent.getEntitlementConfig().getEngineProperties();
                 String engineCachingInterval = properties.getProperty(PDPConstants.ENTITLEMENT_ENGINE_CACHING_INTERVAL);
                 long entitlementEngineCachingInterval = 900;
-                if (engineCachingInterval != null) {
-                    try {
+                if (engineCachingInterval != null){
+                    try{
                         entitlementEngineCachingInterval = Long.parseLong(engineCachingInterval);
-                    } catch (NumberFormatException e) {
+                    }catch (NumberFormatException e){
                         //Do nothing. value will remain as original
                     }
                 } else {
-                    if (log.isDebugEnabled()) {
+                    if (log.isDebugEnabled()){
                         log.debug("Entitlement.Engine.CachingInterval not set. Using default value " +
-                                  entitlementEngineCachingInterval);
+                                entitlementEngineCachingInterval);
                     }
                 }
                 cacheManager.removeCache(ENTITLEMENT_ENGINE_CACHE);
                 cacheBuilder = cacheManager.<Integer, EntitlementEngine>createCacheBuilder(ENTITLEMENT_ENGINE_CACHE).
                         setExpiry(CacheConfiguration.ExpiryType.ACCESSED,
-                                  new CacheConfiguration.Duration(TimeUnit.SECONDS, entitlementEngineCachingInterval)).
+                                new CacheConfiguration.Duration(TimeUnit.SECONDS, entitlementEngineCachingInterval)).
                         setExpiry(CacheConfiguration.ExpiryType.MODIFIED,
-                                  new CacheConfiguration.Duration(TimeUnit.SECONDS, entitlementEngineCachingInterval));
+                                new CacheConfiguration.Duration(TimeUnit.SECONDS, entitlementEngineCachingInterval));
                 cache = cacheBuilder.build();
             } else {
                 cache = cacheManager.getCache(ENTITLEMENT_ENGINE_CACHE);
@@ -111,12 +111,12 @@ public class EntitlementEngineCache {
             if (entitlementEngine != null) {
                 if (log.isDebugEnabled()) {
                     log.debug("Cache : " + ENTITLEMENT_ENGINE_CACHE + "  is HIT " +
-                              "for tenantId : " + key);
+                            "for tenantId : " + key);
                 }
             } else {
                 if (log.isDebugEnabled()) {
                     log.debug("Cache : " + ENTITLEMENT_ENGINE_CACHE + "  is MISSED " +
-                              "for tenantId : " + key);
+                            "for tenantId : " + key);
                 }
             }
             return entitlementEngine;
@@ -134,7 +134,7 @@ public class EntitlementEngineCache {
             getEntitlementCache().put(key, engine);
             if (log.isDebugEnabled()) {
                 log.debug("Cache : " + ENTITLEMENT_ENGINE_CACHE + " is populated with new entry " +
-                          "with tenantId : " + key);
+                        "with tenantId : " + key);
             }
         } finally {
             PrivilegedCarbonContext.endTenantFlow();
@@ -151,12 +151,12 @@ public class EntitlementEngineCache {
             if (contain) {
                 if (log.isDebugEnabled()) {
                     log.debug("Cache : " + ENTITLEMENT_ENGINE_CACHE + "  is HIT " +
-                              "for tenantId : " + key);
+                            "for tenantId : " + key);
                 }
             } else {
                 if (log.isDebugEnabled()) {
                     log.debug("Cache : " + ENTITLEMENT_ENGINE_CACHE + "  is MISSED " +
-                              "for tenantId : " + key);
+                            "for tenantId : " + key);
                 }
             }
             return contain;

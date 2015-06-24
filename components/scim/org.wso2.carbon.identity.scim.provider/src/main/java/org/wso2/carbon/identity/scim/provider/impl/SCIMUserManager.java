@@ -292,11 +292,10 @@ public class SCIMUserManager implements UserManager {
                 }
                 for (String userName : userNames) {
 
-                    if (CarbonConstants.REGISTRY_ANONNYMOUS_USERNAME.equals(userName) ||
-                            //if SCIM-ID is not present in the attributes, skip
-                            scimUser.getId() == null) {
+                    if (CarbonConstants.REGISTRY_ANONNYMOUS_USERNAME.equals(userName)) {
                         continue;
                     }
+
                     scimUser = this.getSCIMMetaUser(userName);
                     //if SCIM-ID is not present in the attributes, skip
                     if (scimUser.getId() == null) {

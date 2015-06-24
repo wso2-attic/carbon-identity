@@ -24,10 +24,10 @@ import org.wso2.carbon.identity.sso.agent.SSOAgentConstants;
 import org.wso2.carbon.identity.sso.agent.bean.LoggedInSessionBean;
 
 import javax.servlet.http.HttpSession;
-import java.util.Set;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.HashMap;
+import java.util.Set;
 
 
 public class SSOAgentSessionManager {

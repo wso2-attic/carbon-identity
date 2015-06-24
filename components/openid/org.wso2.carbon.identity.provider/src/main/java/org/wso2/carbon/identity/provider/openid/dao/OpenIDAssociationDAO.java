@@ -80,11 +80,8 @@ public class OpenIDAssociationDAO {
             } else {
                 log.debug("Association " + association.getHandle() + " already exist in the databse.");
             }
-
-        } catch (SQLException e) {
-            log.error("Failed to store the association " + association.getHandle() +
-                      ". Error while accessing the database. ", e);
-        } catch (IdentityException e) {
+            connection.commit();
+        } catch (SQLException | IdentityException e) {
             log.error("Failed to store the association " + association.getHandle() +
                       ". Error while accessing the database. ", e);
         } finally {
@@ -115,11 +112,10 @@ public class OpenIDAssociationDAO {
                 log.debug("Loading association " + handle);
                 return buildAssociationObject(results);
             }
-
-        } catch (SQLException e) {
-            log.error("Failed to load the association " + handle + ". Error while accessing the database. ", e);
-        } catch (IdentityException e) {
-            log.error("Failed to load the association " + handle + ". Error while accessing the database. ", e);
+            connection.commit();
+        } catch (SQLException | IdentityException e) {
+            log.error("Failed to load the association " + handle +
+                    ". Error while accessing the database. ", e);
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, results, prepStmt);
         }

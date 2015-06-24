@@ -29,6 +29,7 @@ import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
 import org.wso2.carbon.identity.application.common.model.IdentityProvider;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
+import org.wso2.carbon.identity.core.util.IdentityCoreInitializedEvent;
 import org.wso2.carbon.idp.mgt.IdentityProviderManager;
 import org.wso2.carbon.idp.mgt.util.IdPManagementConstants;
 import org.wso2.carbon.stratos.common.listeners.TenantMgtListener;
@@ -36,7 +37,6 @@ import org.wso2.carbon.user.core.listener.UserOperationEventListener;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.utils.ConfigurationContextService;
-import org.wso2.carbon.identity.core.util.IdentityCoreInitializedEvent;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -249,8 +249,14 @@ public class IdPManagementServiceComponent {
         configurationContextService = null;
     }
 
-    protected void unsetIdentityCoreInitializedEventService(IdentityCoreInitializedEvent identityCoreInitializedEvent){}
+    protected void unsetIdentityCoreInitializedEventService(IdentityCoreInitializedEvent identityCoreInitializedEvent) {
+        /* reference IdentityCoreInitializedEvent service to guarantee that this component will wait until identity core
+         is started */
+    }
 
-    protected void setIdentityCoreInitializedEventService(IdentityCoreInitializedEvent identityCoreInitializedEvent){}
+    protected void setIdentityCoreInitializedEventService(IdentityCoreInitializedEvent identityCoreInitializedEvent) {
+        /* reference IdentityCoreInitializedEvent service to guarantee that this component will wait until identity core
+         is started */
+    }
 
 }

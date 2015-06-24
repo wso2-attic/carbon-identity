@@ -17,7 +17,11 @@
  */
 package org.wso2.carbon.identity.openidconnect;
 
-import com.nimbusds.jose.*;
+import com.nimbusds.jose.Algorithm;
+import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jose.JWSHeader;
+import com.nimbusds.jose.JWSSigner;
 import com.nimbusds.jose.crypto.RSASSASigner;
 import com.nimbusds.jwt.PlainJWT;
 import com.nimbusds.jwt.SignedJWT;
@@ -35,7 +39,13 @@ import org.wso2.carbon.identity.application.common.model.ServiceProvider;
 import org.wso2.carbon.identity.application.mgt.ApplicationManagementService;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
-import org.wso2.carbon.identity.oauth.cache.*;
+import org.wso2.carbon.identity.oauth.cache.AuthorizationGrantCache;
+import org.wso2.carbon.identity.oauth.cache.AuthorizationGrantCacheEntry;
+import org.wso2.carbon.identity.oauth.cache.AuthorizationGrantCacheKey;
+import org.wso2.carbon.identity.oauth.cache.CacheEntry;
+import org.wso2.carbon.identity.oauth.cache.CacheKey;
+import org.wso2.carbon.identity.oauth.cache.OAuthCache;
+import org.wso2.carbon.identity.oauth.cache.OAuthCacheKey;
 import org.wso2.carbon.identity.oauth.common.OAuthConstants;
 import org.wso2.carbon.identity.oauth.config.OAuthServerConfiguration;
 import org.wso2.carbon.identity.oauth2.IdentityOAuth2Exception;

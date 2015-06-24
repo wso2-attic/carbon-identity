@@ -18,17 +18,15 @@
  */
 package org.wso2.carbon.directory.configuration;
 
+import junit.framework.TestCase;
 import org.wso2.carbon.apacheds.KdcConfiguration;
 import org.wso2.carbon.apacheds.LDAPConfiguration;
 import org.wso2.carbon.apacheds.PartitionInfo;
-import org.wso2.carbon.ldap.server.exception.DirectoryServerException;
-
-import junit.framework.TestCase;
 import org.wso2.carbon.ldap.server.configuration.LDAPConfigurationBuilder;
+import org.wso2.carbon.ldap.server.exception.DirectoryServerException;
 import org.wso2.carbon.ldap.server.util.EmbeddingLDAPException;
 
 import javax.xml.stream.XMLStreamException;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 

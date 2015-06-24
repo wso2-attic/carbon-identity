@@ -48,7 +48,16 @@ import org.wso2.carbon.utils.CarbonUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.xml.namespace.QName;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 
 /**
  * Runtime representation of the OAuth Configuration as configured through

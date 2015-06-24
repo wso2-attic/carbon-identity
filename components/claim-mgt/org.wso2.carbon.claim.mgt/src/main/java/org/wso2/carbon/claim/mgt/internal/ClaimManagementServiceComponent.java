@@ -1,20 +1,20 @@
 /*
-*  Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 
 package org.wso2.carbon.claim.mgt.internal;
 
@@ -38,42 +38,43 @@ import org.wso2.carbon.user.core.service.RealmService;
 
 public class ClaimManagementServiceComponent {
 
-    private static Log log = LogFactory.getLog(ClaimManagementServiceComponent.class);
-
-    private static BundleContext bundleContext = null;
-
-    private static RealmService realmService = null;
-
-    private static RegistryService registryService = null;
+    private static final Log log = LogFactory.getLog(ClaimManagementServiceComponent.class);
 
     public ClaimManagementServiceComponent() {
-
     }
 
     public static BundleContext getBundleContext() {
-        return bundleContext;
+        return ClaimManagementServiceDataHolder.getInstance().getBundleContext();
     }
 
     public static RealmService getRealmService() {
-        return realmService;
+        return ClaimManagementServiceDataHolder.getInstance().getRealmService();
     }
 
     /**
      * @param realmService
      */
     protected void setRealmService(RealmService realmService) {
-        ClaimManagementServiceComponent.realmService = realmService;
+        try {
+            ClaimManagementServiceDataHolder.getInstance().setRealmService(realmService);
+        } catch (Throwable e) {
+            log.error("Failed to get a reference to the Realm Service.", e);
+        }
         if (log.isDebugEnabled()) {
             log.debug("RealmService set in Claim Management bundle");
         }
     }
 
     public static RegistryService getRegistryService() {
-        return registryService;
+        return ClaimManagementServiceDataHolder.getInstance().getRegistryService();
     }
 
     protected void setRegistryService(RegistryService registryService) {
-        ClaimManagementServiceComponent.registryService = registryService;
+        try {
+            ClaimManagementServiceDataHolder.getInstance().setRegistryService(registryService);
+        } catch (Throwable e) {
+            log.error("Failed to get a reference to the Registry Service.", e);
+        }
         if (log.isDebugEnabled()) {
             log.debug("RegistryService set in Claim Management bundle");
         }
@@ -84,7 +85,7 @@ public class ClaimManagementServiceComponent {
      */
     protected void activate(ComponentContext ctxt) {
         try {
-            bundleContext = ctxt.getBundleContext();
+            ClaimManagementServiceDataHolder.getInstance().setBundleContext(ctxt.getBundleContext());
         } catch (Throwable e) {
             log.error("Error occurred while activating Claim Management Service Component", e);
         }
@@ -103,7 +104,7 @@ public class ClaimManagementServiceComponent {
     }
 
     protected void unsetRegistryService(RegistryService registryService) {
-        ClaimManagementServiceComponent.registryService = null;
+        ClaimManagementServiceDataHolder.getInstance().setRegistryService(null);
         if (log.isDebugEnabled()) {
             log.debug("RegistryService unset in Claim Management bundle");
         }
@@ -113,7 +114,7 @@ public class ClaimManagementServiceComponent {
      * @param realmService
      */
     protected void unsetRealmService(RealmService realmService) {
-        ClaimManagementServiceComponent.realmService = null;
+        ClaimManagementServiceDataHolder.getInstance().setRealmService(null);
         if (log.isDebugEnabled()) {
             log.debug("RealmService unset in Claim Management bundle");
         }

@@ -17,7 +17,6 @@
  */
 package org.wso2.carbon.identity.sso.saml.util;
 
-import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -26,12 +25,18 @@ import org.apache.xerces.util.SecurityManager;
 import org.joda.time.DateTime;
 import org.opensaml.Configuration;
 import org.opensaml.DefaultBootstrap;
-import org.opensaml.saml2.core.*;
+import org.opensaml.saml2.core.Assertion;
+import org.opensaml.saml2.core.EncryptedAssertion;
+import org.opensaml.saml2.core.Issuer;
+import org.opensaml.saml2.core.LogoutRequest;
+import org.opensaml.saml2.core.LogoutResponse;
+import org.opensaml.saml2.core.RequestAbstractType;
+import org.opensaml.saml2.core.Response;
+import org.opensaml.saml2.core.StatusResponseType;
 import org.opensaml.saml2.core.impl.AuthnRequestImpl;
 import org.opensaml.saml2.core.impl.IssuerBuilder;
 import org.opensaml.xml.ConfigurationException;
 import org.opensaml.xml.XMLObject;
-import org.opensaml.xml.XMLObjectBuilder;
 import org.opensaml.xml.io.Marshaller;
 import org.opensaml.xml.io.MarshallerFactory;
 import org.opensaml.xml.io.Unmarshaller;
@@ -87,7 +92,6 @@ import org.wso2.carbon.utils.ConfigurationContextService;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 import javax.xml.XMLConstants;
-import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.ByteArrayInputStream;

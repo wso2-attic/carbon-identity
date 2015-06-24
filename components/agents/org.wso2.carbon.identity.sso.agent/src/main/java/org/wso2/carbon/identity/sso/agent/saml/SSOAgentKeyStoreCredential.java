@@ -23,7 +23,12 @@ package org.wso2.carbon.identity.sso.agent.saml;
 import org.wso2.carbon.identity.sso.agent.exception.SSOAgentException;
 import org.wso2.carbon.identity.sso.agent.util.SSOAgentConfigs;
 
-import java.security.*;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.UnrecoverableKeyException;
 import java.security.cert.X509Certificate;
 
 public class SSOAgentKeyStoreCredential implements SSOAgentCredential {

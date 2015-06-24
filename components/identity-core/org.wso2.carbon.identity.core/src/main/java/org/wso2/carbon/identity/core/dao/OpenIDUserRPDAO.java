@@ -22,7 +22,11 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.IdentityRegistryResources;
 import org.wso2.carbon.identity.core.model.OpenIDUserRPDO;
-import org.wso2.carbon.registry.core.*;
+import org.wso2.carbon.registry.core.Association;
+import org.wso2.carbon.registry.core.Collection;
+import org.wso2.carbon.registry.core.Registry;
+import org.wso2.carbon.registry.core.RegistryConstants;
+import org.wso2.carbon.registry.core.Resource;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
 import org.wso2.carbon.registry.core.jdbc.utils.Transaction;
 

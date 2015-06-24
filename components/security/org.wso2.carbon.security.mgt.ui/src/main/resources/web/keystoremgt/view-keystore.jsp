@@ -22,11 +22,11 @@
 <%@ page import="org.wso2.carbon.security.mgt.stub.keystore.xsd.CertData" %>
 <%@ page import="org.wso2.carbon.security.mgt.stub.keystore.xsd.PaginatedCertData" %>
 <%@page import="org.wso2.carbon.security.mgt.stub.keystore.xsd.PaginatedKeyStoreData" %>
+<%@page import="org.wso2.carbon.security.ui.SecurityUIConstants" %>
+<%@page import="org.wso2.carbon.security.ui.Util" %>
 <%@page import="org.wso2.carbon.security.ui.client.KeyStoreAdminClient" %>
 <%@page import="org.wso2.carbon.ui.CarbonUIUtil" %>
-<%@page import="org.wso2.carbon.security.ui.Util" %>
-<%@page import="org.wso2.carbon.utils.ServerConstants" %>
-<%@ page import="org.wso2.carbon.security.ui.SecurityUIConstants" %>
+<%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 <script type="text/javascript" src="../extensions/core/js/vui.js"></script>
 <script type="text/javascript" src="../admin/js/main.js"></script>
 

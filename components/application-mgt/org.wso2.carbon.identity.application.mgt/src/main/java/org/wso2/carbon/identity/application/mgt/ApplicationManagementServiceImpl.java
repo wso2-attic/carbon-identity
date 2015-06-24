@@ -23,11 +23,13 @@ import org.apache.axis2.AxisFault;
 import org.apache.axis2.description.AxisService;
 import org.apache.axis2.description.Parameter;
 import org.apache.axis2.engine.AxisConfiguration;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.rahas.impl.SAMLTokenIssuerConfig;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
+import org.wso2.carbon.context.RegistryType;
 import org.wso2.carbon.core.RegistryResources;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
 import org.wso2.carbon.identity.application.common.model.ApplicationBasicInfo;
@@ -50,6 +52,7 @@ import org.wso2.carbon.identity.application.mgt.internal.ApplicationMgtListenerS
 import org.wso2.carbon.identity.application.mgt.listener.ApplicationMgtListener;
 import org.wso2.carbon.registry.api.RegistryException;
 import org.wso2.carbon.registry.core.Registry;
+import org.wso2.carbon.registry.core.RegistryConstants;
 import org.wso2.carbon.registry.core.Resource;
 import org.wso2.carbon.security.SecurityConfigException;
 import org.wso2.carbon.security.config.SecurityServiceAdmin;
@@ -103,8 +106,6 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
      * @return applicationId
      * @throws org.wso2.carbon.identity.application.common.IdentityApplicationManagementException
      */
-
-    @Override
     public int createApplication(ServiceProvider serviceProvider)
             throws IdentityApplicationManagementException {
         try {
@@ -123,12 +124,12 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
             ApplicationMgtUtil.createAppRole(serviceProvider.getApplicationName());
             ApplicationDAO appDAO = ApplicationMgtSystemConfig.getInstance().getApplicationDAO();
             ApplicationMgtUtil.storePermission(serviceProvider.getApplicationName(),
-                    serviceProvider.getPermissionAndRoleConfig());
+                                               serviceProvider.getPermissionAndRoleConfig());
             return appDAO.createApplication(serviceProvider, tenantDomain);
         } catch (Exception e) {
             String error =
                     "Error occurred while creating the application, " +
-                            serviceProvider.getApplicationName();
+                    serviceProvider.getApplicationName();
             log.error(error, e);
             throw new IdentityApplicationManagementException(error, e);
 
@@ -142,8 +143,6 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
      * @return Service provider
      * @throws org.wso2.carbon.identity.application.common.IdentityApplicationManagementException
      */
-
-    @Override
     public ServiceProvider getApplication(String applicationName)
             throws IdentityApplicationManagementException {
 
@@ -161,8 +160,7 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
                 } else {
                     permissionAndRoleConfig = serviceProvider.getPermissionAndRoleConfig();
                 }
-                permissionAndRoleConfig.setPermissions(permissionList.toArray(
-                        new ApplicationPermission[permissionList.size()]));
+                permissionAndRoleConfig.setPermissions(permissionList.toArray(new ApplicationPermission[permissionList.size()]));
                 serviceProvider.setPermissionAndRoleConfig(permissionAndRoleConfig);
             }
             return serviceProvider;
@@ -179,7 +177,6 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
      * @return Application basic information array
      * @throws org.wso2.carbon.identity.application.common.IdentityApplicationManagementException
      */
-    @Override
     public ApplicationBasicInfo[] getAllApplicationBasicInfo()
             throws IdentityApplicationManagementException {
         try {
@@ -198,8 +195,6 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
      * @param serviceProvider Service providers
      * @throws org.wso2.carbon.identity.application.common.IdentityApplicationManagementException
      */
-
-    @Override
     public void updateApplication(ServiceProvider serviceProvider)
             throws IdentityApplicationManagementException {
         try {
@@ -245,12 +240,12 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
 
             // check whether use is authorized to update the application.
             if (!ApplicationConstants.LOCAL_SP.equals(serviceProvider.getApplicationName()) &&
-                    !ApplicationMgtUtil.isUserAuthorized(serviceProvider.getApplicationName(),
-                            serviceProvider.getApplicationID())) {
+                !ApplicationMgtUtil.isUserAuthorized(serviceProvider.getApplicationName(),
+                                                     serviceProvider.getApplicationID())) {
                 log.warn("Illegal Access! User " +
-                        CarbonContext.getThreadLocalCarbonContext().getUsername() +
-                        " does not have access to the application " +
-                        serviceProvider.getApplicationName());
+                         CarbonContext.getThreadLocalCarbonContext().getUsername() +
+                         " does not have access to the application " +
+                         serviceProvider.getApplicationName());
                 throw new IdentityApplicationManagementException("User not authorized");
             }
 
@@ -260,12 +255,19 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
             ApplicationPermission[] permissions =
                     serviceProvider.getPermissionAndRoleConfig()
                             .getPermissions();
-            if (!storedAppName.equals(serviceProvider.getApplicationName())) {
+            String applicationNode = ApplicationMgtUtil.getApplicationPermissionPath() + RegistryConstants
+                    .PATH_SEPARATOR +storedAppName;
+            org.wso2.carbon.registry.api.Registry tenantGovReg = CarbonContext.getThreadLocalCarbonContext()
+                    .getRegistry(RegistryType.USER_GOVERNANCE);
+
+            boolean exist = tenantGovReg.resourceExists(applicationNode);
+            if (exist && !storedAppName.equals(serviceProvider.getApplicationName())) {
                 ApplicationMgtUtil.renameAppPermissionPathNode(storedAppName, serviceProvider.getApplicationName());
             }
-            if (permissions != null) {
+
+            if (ArrayUtils.isNotEmpty(permissions)) {
                 ApplicationMgtUtil.updatePermissions(serviceProvider.getApplicationName(),
-                        permissions);
+                                                     permissions);
             }
         } catch (Exception e) {
             String error = "Error occurred while updating the application";
@@ -294,25 +296,25 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
 
             if (!ApplicationMgtUtil.isUserAuthorized(applicationName)) {
                 log.warn("Illegal Access! User " +
-                        CarbonContext.getThreadLocalCarbonContext().getUsername() +
-                        " does not have access to the application " + applicationName);
+                         CarbonContext.getThreadLocalCarbonContext().getUsername() +
+                         " does not have access to the application " + applicationName);
                 throw new IdentityApplicationManagementException("User not authorized");
             }
 
             ApplicationDAO appDAO = ApplicationMgtSystemConfig.getInstance().getApplicationDAO();
             ServiceProvider serviceProvider =
                     appDAO.getApplication(applicationName,
-                            CarbonContext.getThreadLocalCarbonContext()
-                                    .getTenantDomain());
+                                          CarbonContext.getThreadLocalCarbonContext()
+                                                  .getTenantDomain());
             appDAO.deleteApplication(applicationName);
 
             ApplicationMgtUtil.deleteAppRole(applicationName);
             ApplicationMgtUtil.deletePermissions(applicationName);
 
             if (serviceProvider != null &&
-                    serviceProvider.getInboundAuthenticationConfig() != null &&
-                    serviceProvider.getInboundAuthenticationConfig()
-                            .getInboundAuthenticationRequestConfigs() != null) {
+                serviceProvider.getInboundAuthenticationConfig() != null &&
+                serviceProvider.getInboundAuthenticationConfig()
+                        .getInboundAuthenticationRequestConfigs() != null) {
 
                 InboundAuthenticationRequestConfig[] configs =
                         serviceProvider.getInboundAuthenticationConfig()
@@ -328,7 +330,7 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
                         samlDAO.removeServiceProviderConfiguration(config.getInboundAuthKey());
 
                     } else if (IdentityApplicationConstants.OAuth2.NAME.equalsIgnoreCase(config.getInboundAuthType()) &&
-                            config.getInboundAuthKey() != null) {
+                               config.getInboundAuthKey() != null) {
                         OAuthApplicationDAO oathDAO =
                                 ApplicationMgtSystemConfig.getInstance()
                                         .getOAuthOIDCClientDAO();
@@ -351,12 +353,12 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
                                 samlConfig.getTrustedServices().remove(config.getInboundAuthKey());
                                 setSTSParameter(samlConfig);
                                 removeTrustedService(ServerConstants.STS_NAME,
-                                        ServerConstants.STS_NAME,
-                                        config.getInboundAuthKey());
+                                                     ServerConstants.STS_NAME,
+                                                     config.getInboundAuthKey());
                             } else {
                                 throw new IdentityApplicationManagementException(
                                         "missing parameter : " +
-                                                SAMLTokenIssuerConfig.SAML_ISSUER_CONFIG.getLocalPart());
+                                        SAMLTokenIssuerConfig.SAML_ISSUER_CONFIG.getLocalPart());
                             }
                         } catch (Exception e) {
                             String error = "Error while removing a trusted service";
@@ -524,7 +526,7 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
         } catch (Exception e) {
             String error =
                     "Error occurred while retrieving the service provider for client id :  " +
-                            clientId;
+                    clientId;
             log.error(error, e);
             throw new IdentityApplicationManagementException(error, e);
         }
@@ -538,10 +540,10 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
      * @throws org.wso2.carbon.registry.api.RegistryException
      */
     private void setSTSParameter(SAMLTokenIssuerConfig samlConfig) throws AxisFault,
-            RegistryException {
+                                                                          RegistryException {
         new SecurityServiceAdmin(getAxisConfig(), getConfigSystemRegistry()).
                 setServiceParameterElement(ServerConstants.STS_NAME,
-                samlConfig.getParameter());
+                                                                                                        samlConfig.getParameter());
     }
 
     /**
@@ -560,7 +562,7 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
         try {
             resourcePath =
                     RegistryResources.SERVICE_GROUPS + groupName +
-                            RegistryResources.SERVICES + serviceName + "/trustedServices";
+                    RegistryResources.SERVICES + serviceName + "/trustedServices";
             registry = getConfigSystemRegistry();
             if (registry != null) {
                 if (registry.resourceExists(resourcePath)) {

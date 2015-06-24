@@ -34,7 +34,6 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
-
 import java.util.Hashtable;
 
 public class MyUser implements DirContext {

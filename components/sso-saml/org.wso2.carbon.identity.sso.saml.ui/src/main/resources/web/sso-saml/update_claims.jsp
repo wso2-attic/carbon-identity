@@ -15,15 +15,8 @@
  ~ specific language governing permissions and limitations
  ~ under the License.
  -->
-<%@page import="org.apache.axis2.context.ConfigurationContext"%>
-<%@page import="org.wso2.carbon.CarbonConstants"%>
-<%@page import="org.wso2.carbon.identity.sso.saml.ui.client.SAMLSSOConfigServiceClient"%>
 <%@page import="org.wso2.carbon.ui.CarbonUIMessage"%>
-<%@page import="org.wso2.carbon.ui.CarbonUIUtil"%>
-<%@page import="org.wso2.carbon.utils.ServerConstants"%>
-<%@page import="java.util.ArrayList"%>
 <%@page import="java.util.ResourceBundle"%>
-<%@page import="org.wso2.carbon.identity.sso.saml.stub.types.SAMLSSOServiceProviderDTO"%>
 
 <jsp:useBean id="samlSsoServuceProviderConfigBean"
 	type="org.wso2.carbon.identity.sso.saml.ui.SAMLSSOProviderConfigBean"

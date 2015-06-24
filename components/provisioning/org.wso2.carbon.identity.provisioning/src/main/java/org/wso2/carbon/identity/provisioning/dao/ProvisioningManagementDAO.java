@@ -22,9 +22,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
 import org.wso2.carbon.identity.application.common.model.IdentityProvider;
+import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.persistence.JDBCPersistenceManager;
-import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
 import org.wso2.carbon.identity.provisioning.IdentityProvisioningConstants;
 import org.wso2.carbon.identity.provisioning.ProvisionedIdentifier;
 import org.wso2.carbon.identity.provisioning.ProvisioningEntity;
@@ -177,6 +177,7 @@ public class ProvisioningManagementDAO {
 
 
             ResultSet rs = prepStmt.executeQuery();
+            dbConnection.commit();
             if (rs.next()) {
                 String entityId = rs.getString(1);
                 ProvisionedIdentifier provisionedIdentifier = new ProvisionedIdentifier();
@@ -364,6 +365,7 @@ public class ProvisioningManagementDAO {
             prepStmt.setInt(1, tenantId);
             prepStmt.setString(2, idpName);
             rs = prepStmt.executeQuery();
+            dbConnection.commit();
             if (rs.next()) {
                 return rs.getInt(1);
             }

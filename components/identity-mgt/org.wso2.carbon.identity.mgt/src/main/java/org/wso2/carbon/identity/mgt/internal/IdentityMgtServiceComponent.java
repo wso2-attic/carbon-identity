@@ -154,11 +154,25 @@ public class IdentityMgtServiceComponent {
         context.getBundleContext().registerService(AxisObserver.class.getName(),
                 new IdentityMgtDeploymentInterceptor(), props);
         init();
-        if (IdentityMgtConfig.getInstance().isListenerEnable() && log.isDebugEnabled()) {
-            log.debug("Identity Management Listener is enabled");
+        if (IdentityMgtConfig.getInstance().isListenerEnable()) {
+
+            if(log.isDebugEnabled()) {
+                log.debug("Identity Management Listener is enabled");
+            }
+
+            ServiceRegistration serviceRegistration = context.getBundleContext().registerService
+                    (UserOperationEventListener.class.getName(), new IdentityMgtEventListener(), null);
+            if (serviceRegistration != null) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Identity Management - UserOperationEventListener registered.");
+                }
+            } else {
+                log.error("Identity Management - UserOperationEventListener could not be registered.");
+            }
         } else if (log.isDebugEnabled()){
             log.debug("Identity Management Listener is disabled");
         }
+
         if(log.isDebugEnabled()) {
             log.debug("Identity Management bundle is activated");
         }

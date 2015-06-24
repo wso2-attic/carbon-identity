@@ -18,8 +18,6 @@
 
 package org.wso2.carbon.identity.provisioning;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
 import org.wso2.carbon.identity.provisioning.dao.CacheBackedProvisioningMgtDAO;

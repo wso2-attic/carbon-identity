@@ -15,18 +15,9 @@
  ~ specific language governing permissions and limitations
  ~ under the License.
  -->
-<%@page import="org.wso2.carbon.utils.multitenancy.MultitenantConstants"%>
+<%@page import="org.wso2.carbon.identity.authenticator.saml2.sso.common.SAMLConstants"%>
 <%@page import="org.wso2.carbon.utils.multitenancy.MultitenantUtils"%>
 <%@page import="java.net.URLDecoder" %>
-<%@page import="java.net.URLEncoder" %>
-<%@page import="java.net.URL" %>
-<%@page import="java.net.HttpURLConnection" %>
-<%@page import="org.wso2.carbon.identity.authenticator.saml2.sso.common.SAMLConstants" %>
-<%@page import="java.util.List" %>
-<%@page import="java.util.Enumeration" %>
-<%@page import="org.apache.commons.codec.binary.Base64" %>
-<%@page import="org.wso2.carbon.identity.sso.saml.stub.types.SAMLSSOReqValidationResponseDTO" %>
-<%@page import="org.wso2.carbon.identity.sso.saml.stub.types.SAMLSSORespDTO" %>
 <html>
 <head></head>
 <body>

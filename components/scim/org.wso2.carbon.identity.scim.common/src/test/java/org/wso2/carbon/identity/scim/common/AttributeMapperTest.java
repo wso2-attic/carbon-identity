@@ -25,7 +25,6 @@ import org.wso2.charon.core.objects.User;
 import org.wso2.charon.core.schema.SCIMConstants;
 import org.wso2.charon.core.util.AttributeUtil;
 
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 

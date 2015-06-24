@@ -20,7 +20,11 @@ package org.wso2.carbon.identity.oauth2.token.handlers.grant.iwa.ntlm.util;
 
 import org.apache.catalina.connector.Response;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author dblock[at]dblock[dot]org

@@ -1,25 +1,23 @@
 /*
- * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
- *
- * WSO2 Inc. licenses this file to you under the Apache License,
- * Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
- */
+*  Copyright (c)  WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*
+*  WSO2 Inc. licenses this file to you under the Apache License,
+*  Version 2.0 (the "License"); you may not use this file except
+*  in compliance with the License.
+*  You may obtain a copy of the License at
+*
+*    http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing,
+* software distributed under the License is distributed on an
+* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+* KIND, either express or implied.  See the License for the
+* specific language governing permissions and limitations
+* under the License.
+*/
 
 package org.wso2.carbon.identity.entitlement.policy.finder;
 
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.MapUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.balana.AbstractPolicy;
@@ -59,8 +57,8 @@ import java.util.Properties;
  */
 public class CarbonPolicyFinder extends org.wso2.balana.finder.PolicyFinderModule {
 
-    private static final Log log = LogFactory.getLog(CarbonPolicyFinder.class);
-    private PolicyReader policyReader;
+    private static Log log = LogFactory.getLog(CarbonPolicyFinder.class);
+    public PolicyReader policyReader;
     private List<PolicyFinderModule> finderModules = null;
     private PolicyCollection policyCollection;
     private PolicyFinder finder;
@@ -69,7 +67,7 @@ public class CarbonPolicyFinder extends org.wso2.balana.finder.PolicyFinderModul
      */
     private volatile boolean initFinish;
     private EntitlementPolicyInvalidationCache policyInvalidationCache = EntitlementPolicyInvalidationCache.getInstance();
-    private Map<URI, AbstractPolicy> policyReferenceCache = null;
+    private LinkedHashMap<URI, AbstractPolicy> policyReferenceCache = null;
     private int maxReferenceCacheEntries = PDPConstants.MAX_NO_OF_IN_MEMORY_POLICIES;
 
     @Override
@@ -94,10 +92,8 @@ public class CarbonPolicyFinder extends org.wso2.balana.finder.PolicyFinderModul
         if (maxEntries != null) {
             try {
                 maxReferenceCacheEntries = Integer.parseInt(maxEntries.trim());
-            } catch (NumberFormatException e) {
-                if (log.isDebugEnabled()) {
-                    log.debug("Exception ignored. ", e);
-                }
+            } catch (Exception e) {
+                //ignore
             }
         }
 
@@ -113,11 +109,11 @@ public class CarbonPolicyFinder extends org.wso2.balana.finder.PolicyFinderModul
 
         PolicyCombiningAlgorithm policyCombiningAlgorithm = null;
         // get registered finder modules
-        Map<PolicyFinderModule, Properties> policyFinderModules = EntitlementServiceComponent.
+        Map<PolicyFinderModule, Properties> finderModules = EntitlementServiceComponent.
                 getEntitlementConfig().getPolicyFinderModules();
 
-        if (policyFinderModules != null) {
-            this.finderModules = new ArrayList<>(policyFinderModules.keySet());
+        if (finderModules != null) {
+            this.finderModules = new ArrayList<PolicyFinderModule>(finderModules.keySet());
         }
 
         PolicyCollection tempPolicyCollection = null;
@@ -125,7 +121,7 @@ public class CarbonPolicyFinder extends org.wso2.balana.finder.PolicyFinderModul
         // get policy collection
         Map<PolicyCollection, Properties> policyCollections = EntitlementServiceComponent.
                 getEntitlementConfig().getPolicyCollections();
-        if (MapUtils.isNotEmpty(policyCollections)) {
+        if (policyCollections != null && policyCollections.size() > 0) {
             tempPolicyCollection = policyCollections.entrySet().iterator().next().getKey();
         } else {
             tempPolicyCollection = new SimplePolicyCollection();
@@ -134,7 +130,7 @@ public class CarbonPolicyFinder extends org.wso2.balana.finder.PolicyFinderModul
         // get policy reader
         policyReader = PolicyReader.getInstance(finder);
 
-        if (CollectionUtils.isNotEmpty(finderModules)) {
+        if (this.finderModules != null && this.finderModules.size() > 0) {
             // find policy combining algorithm.
 
             // here we can get policy data store by using EntitlementAdminEngine. But we are not
@@ -142,7 +138,7 @@ public class CarbonPolicyFinder extends org.wso2.balana.finder.PolicyFinderModul
             PolicyDataStore policyDataStore;
             Map<PolicyDataStore, Properties> dataStoreModules = EntitlementServiceComponent.
                     getEntitlementConfig().getPolicyDataStore();
-            if (MapUtils.isNotEmpty(dataStoreModules)) {
+            if (dataStoreModules != null && dataStoreModules.size() > 0) {
                 policyDataStore = dataStoreModules.entrySet().iterator().next().getKey();
             } else {
                 policyDataStore = new DefaultPolicyDataStore();
@@ -173,6 +169,11 @@ public class CarbonPolicyFinder extends org.wso2.balana.finder.PolicyFinderModul
     }
 
     @Override
+    public String getIdentifier() {
+        return super.getIdentifier();
+    }
+
+    @Override
     public boolean isRequestSupported() {
         return true;
     }
@@ -192,8 +193,8 @@ public class CarbonPolicyFinder extends org.wso2.balana.finder.PolicyFinderModul
             if (log.isDebugEnabled()) {
                 int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
                 log.debug("Invalidation cache message is received. " +
-                          "Re-initialized policy finder module of current node and invalidate decision " +
-                          "caching for tenantId : " + tenantId);
+                        "Re-initialized policy finder module of current node and invalidate decision " +
+                        "caching for tenantId : " + tenantId);
             }
         }
 
@@ -205,10 +206,7 @@ public class CarbonPolicyFinder extends org.wso2.balana.finder.PolicyFinderModul
                 return new PolicyFinderResult(policy);
             }
         } catch (EntitlementException e) {
-            if (log.isDebugEnabled()) {
-                log.debug("Exception ignored. ", e);
-            }
-            List<String> code = new ArrayList<String>();
+            ArrayList<String> code = new ArrayList<String>();
             code.add(Status.STATUS_PROCESSING_ERROR);
             Status status = new Status(code, e.getMessage());
             return new PolicyFinderResult(status);
@@ -221,14 +219,16 @@ public class CarbonPolicyFinder extends org.wso2.balana.finder.PolicyFinderModul
 
         AbstractPolicy policy = policyReferenceCache.get(idReference);
 
-        if (policy == null && this.finderModules != null) {
-            for (PolicyFinderModule finderModule : this.finderModules) {
-                String policyString = finderModule.getReferencedPolicy(idReference.toString());
-                if (policyString != null) {
-                    policy = policyReader.getPolicy(policyString);
-                    if (policy != null) {
-                        policyReferenceCache.put(idReference, policy);
-                        break;
+        if (policy == null) {
+            if (this.finderModules != null) {
+                for (PolicyFinderModule finderModule : this.finderModules) {
+                    String policyString = finderModule.getReferencedPolicy(idReference.toString());
+                    if (policyString != null) {
+                        policy = policyReader.getPolicy(policyString);
+                        if (policy != null) {
+                            policyReferenceCache.put(idReference, policy);
+                            break;
+                        }
                     }
                 }
             }
@@ -238,13 +238,11 @@ public class CarbonPolicyFinder extends org.wso2.balana.finder.PolicyFinderModul
             // we found a valid version, so see if it's the right kind,
             // and if it is then we return it
             if (type == PolicyReference.POLICY_REFERENCE) {
-                if (policy instanceof Policy) {
+                if (policy instanceof Policy)
                     return new PolicyFinderResult(policy);
-                }
             } else {
-                if (policy instanceof PolicySet) {
+                if (policy instanceof PolicySet)
                     return new PolicyFinderResult(policy);
-                }
             }
         }
 

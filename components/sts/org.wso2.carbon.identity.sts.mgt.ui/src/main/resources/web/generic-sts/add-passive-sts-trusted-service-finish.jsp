@@ -30,9 +30,8 @@
         for (String claim : claims) {
             claimsString = claimsString + claim + ",";
         }
-        ConfigurationContext configContext = (ConfigurationContext) session.getServletContext()
-                                                                           .getAttribute(
-                                                                                   CarbonConstants.CONFIGURATION_CONTEXT);
+        ConfigurationContext configContext = (ConfigurationContext) session.getServletContext().getAttribute(
+                CarbonConstants.CONFIGURATION_CONTEXT);
         String backendURL = CarbonUIUtil.getServerURL(session.getServletContext(), session);
         try {
             IdentityPassiveSTSClient passiveSTSClient = new IdentityPassiveSTSClient(backendURL, configContext);

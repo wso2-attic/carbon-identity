@@ -105,7 +105,7 @@ public class PassiveSTS extends HttpServlet {
 
         if (authenticatedIdPs != null && !authenticatedIdPs.isEmpty()) {
             out.println("<input type='hidden' name='AuthenticatedIdPs' value='"
-                        + URLEncoder.encode(authenticatedIdPs, "UTF-8") + "'>");
+                        + URLEncoder.encode(authenticatedIdPs, StandardCharsets.UTF_8.name()) + "'>");
         }
 
         out.println("<button type='submit'>POST</button>");

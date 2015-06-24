@@ -1,7 +1,4 @@
-<%@ page import="org.wso2.carbon.utils.xml.XMLPrettyPrinter" %>
-<%@ page import="java.io.ByteArrayInputStream" %>
-<%@ page import="java.io.InputStream" %>
-<%
+<%@ page import="org.wso2.carbon.utils.xml.XMLPrettyPrinter" %><%@ page import="java.io.ByteArrayInputStream" %><%@ page import="java.io.InputStream" %><%
 
     String rawXML = request.getParameter("xmlString");
     rawXML = rawXML.replaceAll("\n|\\r|\\f|\\t", "");

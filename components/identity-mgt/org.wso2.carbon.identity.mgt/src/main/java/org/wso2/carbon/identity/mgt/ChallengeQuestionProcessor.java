@@ -19,7 +19,6 @@
 package org.wso2.carbon.identity.mgt;
 
 
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -35,15 +34,9 @@ import org.wso2.carbon.registry.core.Registry;
 import org.wso2.carbon.registry.core.RegistryConstants;
 import org.wso2.carbon.registry.core.Resource;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
-import org.wso2.carbon.user.core.UserCoreConstants;
-import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.user.core.UserStoreException;
-import org.wso2.carbon.user.core.claim.Claim;
-import org.wso2.carbon.user.core.claim.ClaimMapping;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -122,24 +115,9 @@ public class ChallengeQuestionProcessor {
                     registry.put(IdentityMgtConstants.IDENTITY_MANAGEMENT_QUESTIONS +
                             RegistryConstants.PATH_SEPARATOR + "question" + i +
                             RegistryConstants.PATH_SEPARATOR, resource);
-                    if (questionDTOs[i].getQuestionSetId() != null) {
-                        String setId = questionDTOs[i].getQuestionSetId().trim();
-                        UserRealm realm = IdentityMgtServiceComponent.getRealmService().getBootstrapRealm();
-                        String[] claimUris = realm.getClaimManager().getAllClaimUris();
-                        if(!ArrayUtils.contains(claimUris, setId)){
-                            ClaimMapping mapping = new ClaimMapping();
-                            Claim claim = new Claim();
-                            claim.setClaimUri(setId);
-                            claim.setDisplayTag(setId);
-                            claim.setDescription(setId);
-                            claim.setDialectURI(UserCoreConstants.DEFAULT_CARBON_DIALECT);
-                            mapping.setClaim(claim);
-                            realm.getClaimManager().addNewClaimMapping(mapping);
-                        }
-                    }
                 }
             }
-        } catch (RegistryException | org.wso2.carbon.user.api.UserStoreException e) {
+        } catch (RegistryException e) {
             throw new IdentityException("Error while setting challenge question.", e);
         }
 

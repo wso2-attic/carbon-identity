@@ -16,10 +16,10 @@
 
 package org.wso2.carbon.identity.mgt.policy.password;
 
+import junit.framework.TestCase;
+
 import java.util.HashMap;
 import java.util.Map;
-
-import junit.framework.TestCase;
 
 public class DefaultPasswordPatternPolicyTest extends TestCase {
 

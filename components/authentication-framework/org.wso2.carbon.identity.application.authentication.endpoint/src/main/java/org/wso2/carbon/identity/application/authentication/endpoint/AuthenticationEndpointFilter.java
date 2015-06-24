@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- *  WSO2 Inc. licenses this file to you under the Apache License,
- *  Version 2.0 (the "License"); you may not use this file except
- *  in compliance with the License.
- *  You may obtain a copy of the License at
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -18,12 +18,19 @@
 
 package org.wso2.carbon.identity.application.authentication.endpoint;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.application.authentication.endpoint.util.AuthenticationEndpointUtil;
 import org.wso2.carbon.identity.application.authentication.endpoint.util.CharacterEncoder;
 
-import javax.servlet.*;
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -61,10 +68,12 @@ public class AuthenticationEndpointFilter implements Filter {
 
     private ServletContext context = null;
 
+    @Override
     public void init(FilterConfig filterConfig) throws ServletException {
         context = filterConfig.getServletContext();
     }
 
+    @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
             throws IOException, ServletException {
 
@@ -76,7 +85,7 @@ public class AuthenticationEndpointFilter implements Filter {
                                             servletRequest.getParameter(REQUEST_PARAM_APPLICATION) : null;
         String relativePath = ((HttpServletRequest) servletRequest).getRequestURI().substring(
                 ((HttpServletRequest) servletRequest).getContextPath().length());
-        if (serviceProviderName != null && !serviceProviderName.isEmpty()){
+        if (StringUtils.isNotBlank(serviceProviderName)) {
             appSpecificCustomPageConfigKey = AuthenticationEndpointUtil.getApplicationSpecificCustomPageConfigKey
                     (CharacterEncoder.getSafeText(serviceProviderName), relativePath);
         }
@@ -105,7 +114,7 @@ public class AuthenticationEndpointFilter implements Filter {
             return;
         }
 
-        if (((HttpServletRequest)servletRequest).getRequestURI().contains(URI_LOGIN)) {
+        if (((HttpServletRequest) servletRequest).getRequestURI().contains(URI_LOGIN)) {
             String hrdParam = CharacterEncoder.getSafeText(servletRequest.getParameter(REQUEST_PARAM_HRD));
             if (hrdParam != null && "true".equalsIgnoreCase(hrdParam)) {
                 servletRequest.getRequestDispatcher("domain.jsp").forward(servletRequest, servletResponse);
@@ -151,11 +160,12 @@ public class AuthenticationEndpointFilter implements Filter {
                 loadPage = "login.jsp";
             }
             servletRequest.getRequestDispatcher(loadPage).forward(servletRequest, servletResponse);
-        } else{
+        } else {
             filterChain.doFilter(servletRequest, servletResponse);
         }
     }
 
+    @Override
     public void destroy() {
         // Nothing to implement
     }

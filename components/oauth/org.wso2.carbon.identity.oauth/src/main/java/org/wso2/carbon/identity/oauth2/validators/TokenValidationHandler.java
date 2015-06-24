@@ -36,7 +36,6 @@ import org.wso2.carbon.identity.oauth2.model.AccessTokenDO;
 import org.wso2.carbon.identity.oauth2.util.OAuth2Util;
 
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.Map;
 
 /**

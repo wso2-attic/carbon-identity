@@ -1,20 +1,20 @@
 /*
- * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
- *
- * WSO2 Inc. licenses this file to you under the Apache License,
- * Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
- */
+*  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*
+*  WSO2 Inc. licenses this file to you under the Apache License,
+*  Version 2.0 (the "License"); you may not use this file except
+*  in compliance with the License.
+*  You may obtain a copy of the License at
+*
+*    http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing,
+* software distributed under the License is distributed on an
+* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+* KIND, either express or implied.  See the License for the
+* specific language governing permissions and limitations
+* under the License.
+*/
 
 package org.wso2.carbon.identity.entitlement.pip;
 
@@ -29,7 +29,6 @@ import org.wso2.balana.attr.StringAttribute;
 import org.wso2.balana.cond.EvaluationResult;
 import org.wso2.balana.ctx.EvaluationCtx;
 import org.wso2.carbon.context.CarbonContext;
-import org.wso2.carbon.identity.entitlement.EntitlementException;
 import org.wso2.carbon.identity.entitlement.EntitlementUtil;
 import org.wso2.carbon.identity.entitlement.PDPConstants;
 import org.wso2.carbon.identity.entitlement.cache.EntitlementBaseCache;
@@ -38,9 +37,7 @@ import org.wso2.carbon.identity.entitlement.cache.IdentityCacheKey;
 import org.wso2.carbon.identity.entitlement.internal.EntitlementServiceComponent;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
@@ -50,9 +47,10 @@ import java.util.Set;
  */
 public abstract class AbstractPIPResourceFinder implements PIPResourceFinder {
 
-    private static final Log log = LogFactory.getLog(CarbonAttributeFinder.class);
+    private static Log log = LogFactory.getLog(CarbonAttributeFinder.class);
     private EntitlementBaseCache<IdentityCacheKey, IdentityCacheEntry> abstractResourceCache = null;
     private boolean isAbstractResourceCacheEnabled = false;
+    private int tenantId;
 
     /**
      * This is the overloaded simplify version of the findDescendantResources() method. Any one who extends the
@@ -63,14 +61,14 @@ public abstract class AbstractPIPResourceFinder implements PIPResourceFinder {
      * @param parentResourceId parent resource value
      * @param environmentId    environment name
      * @return Returns a <code>Set</code> of <code>String</code>s that represent the descendant resources
-     * @throws EntitlementException throws if any failure is occurred
+     * @throws Exception throws if any failure is occurred
      */
     public abstract Set<String> findDescendantResources(String parentResourceId, String environmentId)
-            throws EntitlementException;
+            throws Exception;
 
     @Override
     public Set<String> findDescendantResources(String parentResourceId, EvaluationCtx context)
-            throws EntitlementException {
+            throws Exception {
 
         EvaluationResult environment;
         String environmentId = null;
@@ -79,19 +77,18 @@ public abstract class AbstractPIPResourceFinder implements PIPResourceFinder {
         NodeList children = context.getRequestRoot().getChildNodes();
         for (int i = 0; i < children.getLength(); i++) {
             Node child = children.item(i);
-            if (child != null && PDPConstants.ENVIRONMENT_ELEMENT.equals(child.getLocalName())
-                && child.getChildNodes() != null && child.getChildNodes().getLength() > 0) {
-                try {
-                    environment = context.getAttribute(new URI(StringAttribute.identifier),
-                                                       new URI(PDPConstants.ENVIRONMENT_ID_DEFAULT), null,
-                                                       new URI(XACMLConstants.ENT_CATEGORY));
-                } catch (URISyntaxException e) {
-                    throw new EntitlementException("Exception while tyring to get environment attribute. ", e);
-                }
-                if (environment != null && environment.getAttributeValue() != null &&
-                    environment.getAttributeValue().isBag()) {
-                    BagAttribute attr = (BagAttribute) environment.getAttributeValue();
-                    environmentId = ((AttributeValue) attr.iterator().next()).encode();
+            if (child != null) {
+                if (PDPConstants.ENVIRONMENT_ELEMENT.equals(child.getLocalName())) {
+                    if (child.getChildNodes() != null && child.getChildNodes().getLength() > 0) {
+                        environment = context.getAttribute(new URI(StringAttribute.identifier),
+                                new URI(PDPConstants.ENVIRONMENT_ID_DEFAULT), null,
+                                new URI(XACMLConstants.ENT_CATEGORY));
+                        if (environment != null && environment.getAttributeValue() != null &&
+                                environment.getAttributeValue().isBag()) {
+                            BagAttribute attr = (BagAttribute) environment.getAttributeValue();
+                            environmentId = ((AttributeValue) attr.iterator().next()).encode();
+                        }
+                    }
                 }
             }
         }
@@ -99,13 +96,13 @@ public abstract class AbstractPIPResourceFinder implements PIPResourceFinder {
         if (isAbstractResourceCacheEnabled) {
             IdentityCacheKey cacheKey;
             String key = PDPConstants.RESOURCE_DESCENDANTS + parentResourceId +
-                         (environmentId != null ? environmentId : "");
-            int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
+                    (environmentId != null ? environmentId : "");
+            tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
             cacheKey = new IdentityCacheKey(tenantId, key);
-            IdentityCacheEntry cacheEntry = abstractResourceCache.getValueFromCache(cacheKey);
+            IdentityCacheEntry cacheEntry = (IdentityCacheEntry) abstractResourceCache.getValueFromCache(cacheKey);
             if (cacheEntry != null) {
                 String[] values = cacheEntry.getCacheEntryArray();
-                resourceNames = new HashSet<>(Arrays.asList(values));
+                resourceNames = new HashSet<String>(Arrays.asList(values));
                 if (log.isDebugEnabled()) {
                     log.debug("Carbon Resource Cache Hit");
                 }
@@ -150,7 +147,7 @@ public abstract class AbstractPIPResourceFinder implements PIPResourceFinder {
 
     @Override
     public Set<String> findChildResources(String parentResourceId, EvaluationCtx context)
-            throws EntitlementException {
-        return Collections.emptySet();
+            throws Exception {
+        return null;
     }
 }

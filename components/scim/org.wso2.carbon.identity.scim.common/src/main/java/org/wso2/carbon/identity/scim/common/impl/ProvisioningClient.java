@@ -20,8 +20,12 @@ package org.wso2.carbon.identity.scim.common.impl;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpException;
-import org.apache.commons.httpclient.methods.*;
+import org.apache.commons.httpclient.methods.DeleteMethod;
+import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.httpclient.methods.PutMethod;
+import org.apache.commons.httpclient.methods.RequestEntity;
+import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.scim.common.utils.BasicAuthUtil;
@@ -32,7 +36,11 @@ import org.wso2.charon.core.config.SCIMProvider;
 import org.wso2.charon.core.exceptions.AbstractCharonException;
 import org.wso2.charon.core.exceptions.BadRequestException;
 import org.wso2.charon.core.exceptions.CharonException;
-import org.wso2.charon.core.objects.*;
+import org.wso2.charon.core.objects.AbstractSCIMObject;
+import org.wso2.charon.core.objects.Group;
+import org.wso2.charon.core.objects.ListedResource;
+import org.wso2.charon.core.objects.SCIMObject;
+import org.wso2.charon.core.objects.User;
 import org.wso2.charon.core.schema.SCIMConstants;
 import org.wso2.charon.core.util.CopyUtil;
 

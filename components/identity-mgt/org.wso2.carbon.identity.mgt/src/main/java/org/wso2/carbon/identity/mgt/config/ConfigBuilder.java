@@ -24,7 +24,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.mgt.IdentityMgtConfigException;
 import org.wso2.carbon.identity.mgt.constants.IdentityMgtConstants;
-import org.wso2.carbon.identity.mgt.mail.EmailConfig;
 import org.wso2.carbon.utils.CarbonUtils;
 
 import javax.xml.namespace.QName;

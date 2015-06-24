@@ -1,33 +1,31 @@
 /*
- * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
- *
- * WSO2 Inc. licenses this file to you under the Apache License,
- * Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
- */
+*  Copyright (c) WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*
+*  WSO2 Inc. licenses this file to you under the Apache License,
+*  Version 2.0 (the "License"); you may not use this file except
+*  in compliance with the License.
+*  You may obtain a copy of the License at
+*
+*    http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing,
+* software distributed under the License is distributed on an
+* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+* KIND, either express or implied.  See the License for the
+* specific language governing permissions and limitations
+* under the License.
+*/
 
 package org.wso2.carbon.identity.entitlement.pap;
 
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.context.CarbonContext;
-import org.wso2.carbon.identity.entitlement.EntitlementException;
 import org.wso2.carbon.identity.entitlement.dto.EntitlementTreeNodeDTO;
 import org.wso2.carbon.identity.entitlement.internal.EntitlementServiceComponent;
 import org.wso2.carbon.registry.api.Resource;
 import org.wso2.carbon.registry.core.Collection;
 import org.wso2.carbon.registry.core.Registry;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
-import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.api.UserStoreManager;
 import org.wso2.carbon.user.core.common.AbstractUserStoreManager;
 
@@ -54,7 +52,7 @@ public class CarbonEntitlementDataFinder implements EntitlementDataFinderModule 
     private String[] defaultActions = new String[]{"read", "write", "delete", "edit"};
 
     @Override
-    public void init(Properties properties) throws EntitlementException {
+    public void init(Properties properties) throws Exception {
 
     }
 
@@ -79,14 +77,10 @@ public class CarbonEntitlementDataFinder implements EntitlementDataFinderModule 
 
     @Override
     public EntitlementTreeNodeDTO getEntitlementData(String category, String regex,
-                                                     int limit) throws EntitlementException {
+                                                     int limit) throws Exception {
 
-        try {
-            registry = EntitlementServiceComponent.getRegistryService().getSystemRegistry(CarbonContext.
-                    getThreadLocalCarbonContext().getTenantId());
-        } catch (RegistryException e) {
-            throw new EntitlementException("Error while loading Registry Service. ", e);
-        }
+        registry = EntitlementServiceComponent.getRegistryService().getSystemRegistry(CarbonContext.
+                getThreadLocalCarbonContext().getTenantId());
         if (RESOURCE_CATEGORY.equalsIgnoreCase(category)) {
             EntitlementTreeNodeDTO nodeDTO = new EntitlementTreeNodeDTO("/");
             getChildResources(nodeDTO, "_system");
@@ -101,29 +95,19 @@ public class CarbonEntitlementDataFinder implements EntitlementDataFinderModule 
         } else if (SUBJECT_CATEGORY.equalsIgnoreCase(category)) {
             EntitlementTreeNodeDTO nodeDTO = new EntitlementTreeNodeDTO("");
             int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
-            UserStoreManager userStoreManager = null;
+            UserStoreManager userStoreManager = EntitlementServiceComponent.getRealmservice().
+                    getTenantUserRealm(tenantId).getUserStoreManager();
 
-            try {
+            String[] roleNames = ((AbstractUserStoreManager) userStoreManager).
+                    getRoleNames(regex, limit, false, true, true);
 
-                userStoreManager = EntitlementServiceComponent.getRealmservice().
-                        getTenantUserRealm(tenantId).getUserStoreManager();
-
-                String[] roleNames = ((AbstractUserStoreManager) userStoreManager).
-                        getRoleNames(regex, limit, false, true, true);
-
-                for (String roleName : roleNames) {
-                    if (CarbonConstants.REGISTRY_ANONNYMOUS_ROLE_NAME.equals(roleName)) {
-                        continue;
-                    }
-                    EntitlementTreeNodeDTO childNode = new EntitlementTreeNodeDTO(roleName);
-                    nodeDTO.addChildNode(childNode);
+            for (String roleName : roleNames) {
+                if (CarbonConstants.REGISTRY_ANONNYMOUS_ROLE_NAME.equals(roleName)) {
+                    continue;
                 }
-
-            } catch (UserStoreException e) {
-                throw new EntitlementException("Exception while retrieving role names. ", e);
+                EntitlementTreeNodeDTO childNode = new EntitlementTreeNodeDTO(roleName);
+                nodeDTO.addChildNode(childNode);
             }
-
-
             return nodeDTO;
         }
 
@@ -131,7 +115,7 @@ public class CarbonEntitlementDataFinder implements EntitlementDataFinderModule 
     }
 
     @Override
-    public EntitlementTreeNodeDTO getEntitlementDataByLevel(String category, int level) throws EntitlementException {
+    public EntitlementTreeNodeDTO getEntitlementDataByLevel(String category, int level) throws Exception {
         return null;
     }
 
@@ -169,25 +153,21 @@ public class CarbonEntitlementDataFinder implements EntitlementDataFinderModule 
      * @throws RegistryException throws
      */
     private EntitlementTreeNodeDTO getChildResources(EntitlementTreeNodeDTO node,
-                                                     String parentResource) throws EntitlementException {
+                                                     String parentResource) throws RegistryException {
 
-        try {
-            if (registry.resourceExists(parentResource)) {
-                String[] resourcePath = parentResource.split("/");
-                EntitlementTreeNodeDTO childNode =
-                        new EntitlementTreeNodeDTO(resourcePath[resourcePath.length - 1]);
-                node.addChildNode(childNode);
-                Resource root = registry.get(parentResource);
-                if (root instanceof Collection) {
-                    Collection collection = (Collection) root;
-                    String[] resources = collection.getChildren();
-                    for (String resource : resources) {
-                        getChildResources(childNode, resource);
-                    }
+        if (registry.resourceExists(parentResource)) {
+            String[] resourcePath = parentResource.split("/");
+            EntitlementTreeNodeDTO childNode =
+                    new EntitlementTreeNodeDTO(resourcePath[resourcePath.length - 1]);
+            node.addChildNode(childNode);
+            Resource root = registry.get(parentResource);
+            if (root instanceof Collection) {
+                Collection collection = (Collection) root;
+                String[] resources = collection.getChildren();
+                for (String resource : resources) {
+                    getChildResources(childNode, resource);
                 }
             }
-        } catch (RegistryException e) {
-            throw new EntitlementException("Exception while retrieving child resources. ");
         }
         return node;
     }

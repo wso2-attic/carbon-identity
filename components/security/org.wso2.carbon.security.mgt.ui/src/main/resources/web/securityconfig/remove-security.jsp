@@ -15,11 +15,11 @@
 ~ specific language governing permissions and limitations
 ~ under the License.
 -->
-<%@page import="org.wso2.carbon.CarbonConstants"%>
 <%@page import="org.apache.axis2.context.ConfigurationContext"%>
-<%@page import="org.wso2.carbon.ui.CarbonUIUtil"%>
-<%@page import="org.wso2.carbon.utils.ServerConstants"%>
-<%@ page import="org.wso2.carbon.security.ui.client.SecurityAdminClient" %>
+<%@page import="org.wso2.carbon.CarbonConstants"%>
+<%@page import="org.wso2.carbon.security.ui.client.SecurityAdminClient"%>
+<%@page import="org.wso2.carbon.ui.CarbonUIMessage"%>
+<%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
 <%
     String forwardTo = null;
     String serviceName = (String) session.getAttribute("serviceName");
@@ -46,9 +46,9 @@
     }
 %>
 
-<%@page import="java.util.ResourceBundle"%>
+<%@page import="org.wso2.carbon.utils.ServerConstants"%>
 <%@page import="java.text.MessageFormat"%>
-<%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
+<%@ page import="java.util.ResourceBundle" %>
 <script type="text/javascript">
     function forward() {
         location.href = "<%=forwardTo%>";

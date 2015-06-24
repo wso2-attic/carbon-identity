@@ -50,7 +50,12 @@ import org.wso2.charon.core.util.AttributeUtil;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -358,6 +363,10 @@ public class SCIMUserOperationListener implements UserOperationEventListener {
                 return true;
             }
 
+            String newUserName = claims.get("urn:scim:schemas:core:1.0:userName");
+            if(newUserName != null && !newUserName.isEmpty()){
+                userName = newUserName;
+            }
 
             //check if it is specified to skip this listner.
             if ((SCIMCommonUtils.getThreadLocalToSkipSetUserClaimsListeners() != null &&

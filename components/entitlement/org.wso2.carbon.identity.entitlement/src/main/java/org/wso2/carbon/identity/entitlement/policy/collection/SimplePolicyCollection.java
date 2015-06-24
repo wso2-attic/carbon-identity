@@ -1,24 +1,23 @@
 /*
- * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
- *
- * WSO2 Inc. licenses this file to you under the Apache License,
- * Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
- */
+*  Copyright (c)  WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*
+*  WSO2 Inc. licenses this file to you under the Apache License,
+*  Version 2.0 (the "License"); you may not use this file except
+*  in compliance with the License.
+*  You may obtain a copy of the License at
+*
+*    http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing,
+* software distributed under the License is distributed on an
+* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+* KIND, either express or implied.  See the License for the
+* specific language governing permissions and limitations
+* under the License.
+*/
 
 package org.wso2.carbon.identity.entitlement.policy.collection;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.balana.AbstractPolicy;
@@ -32,10 +31,8 @@ import org.wso2.balana.ctx.EvaluationCtx;
 import org.wso2.carbon.identity.entitlement.EntitlementException;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -45,13 +42,13 @@ import java.util.Properties;
  */
 public class SimplePolicyCollection implements PolicyCollection {
 
-    private static final Log log = LogFactory.getLog(SimplePolicyCollection.class);
+    private static Log log = LogFactory.getLog(SimplePolicyCollection.class);
     /**
      * the actual collection of policies
      * to maintain the order of the policies, <code>LinkedHashMap</code> has been used.
      * Map with  policy identifier policy as <code>AbstractPolicy</code> object
      */
-    private Map<URI, AbstractPolicy> policyCollection = new LinkedHashMap<URI, AbstractPolicy>();
+    private LinkedHashMap<URI, AbstractPolicy> policyCollection = new LinkedHashMap<URI, AbstractPolicy>();
     /**
      * the optional combining algorithm used when wrapping multiple policies
      * if no algorithm is defined, only one applicable algorithm is used
@@ -63,14 +60,10 @@ public class SimplePolicyCollection implements PolicyCollection {
     private URI parentId;
 
     @Override
-    public void init(Properties properties) throws EntitlementException {
+    public void init(Properties properties) throws Exception {
         String parentIdProperty = properties.getProperty("parentId");
         if (parentIdProperty != null) {
-            try {
-                parentId = new URI(parentIdProperty);
-            } catch (URISyntaxException e) {
-                throw new EntitlementException("Error while trying to read parentId property. ", e);
-            }
+            parentId = new URI(parentIdProperty);
         }
     }
 
@@ -83,7 +76,7 @@ public class SimplePolicyCollection implements PolicyCollection {
     public AbstractPolicy getEffectivePolicy(EvaluationCtx context) throws EntitlementException {
 
         // setup a list of matching policies
-        List<AbstractPolicy> list = new ArrayList<AbstractPolicy>();
+        ArrayList<AbstractPolicy> list = new ArrayList<AbstractPolicy>();
 
         for (Map.Entry<URI, AbstractPolicy> entry : policyCollection.entrySet()) {
 
@@ -108,7 +101,7 @@ public class SimplePolicyCollection implements PolicyCollection {
                     log.debug("Matching XACML policy found " + policy.getId().toString());
                 }
 
-                if ((combiningAlg == null) && CollectionUtils.isNotEmpty(list)) {
+                if ((combiningAlg == null) && (list.size() > 0)) {
                     log.error("Too many applicable top-level policies");
                     throw new EntitlementException("Too many applicable top-level policies");
                 }
@@ -126,7 +119,7 @@ public class SimplePolicyCollection implements PolicyCollection {
                 }
                 return null;
             case 1:
-                return list.get(0);
+                return ((AbstractPolicy) (list.get(0)));
             default:
                 return new PolicySet(parentId, combiningAlg, null, list);
         }
@@ -147,13 +140,11 @@ public class SimplePolicyCollection implements PolicyCollection {
             // we found a valid version, so see if it's the right kind,
             // and if it is then we return it
             if (type == PolicyReference.POLICY_REFERENCE) {
-                if (policy instanceof Policy) {
+                if (policy instanceof Policy)
                     return policy;
-                }
             } else {
-                if (policy instanceof PolicySet) {
+                if (policy instanceof PolicySet)
                     return policy;
-                }
             }
         }
 

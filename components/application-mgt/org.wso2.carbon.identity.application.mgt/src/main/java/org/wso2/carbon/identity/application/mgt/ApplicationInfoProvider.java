@@ -70,8 +70,8 @@ public class ApplicationInfoProvider {
                 serviceProviderName, tenantDomain);
 
         if (claimMap == null
-                || claimMap.isEmpty()
-                && ApplicationManagementServiceComponent.getFileBasedSPs().containsKey(
+            || claimMap.isEmpty()
+               && ApplicationManagementServiceComponent.getFileBasedSPs().containsKey(
                 serviceProviderName)) {
             return new FileBasedApplicationDAO().getServiceProviderToLocalIdPClaimMapping(
                     serviceProviderName, tenantDomain);
@@ -97,8 +97,8 @@ public class ApplicationInfoProvider {
                 serviceProviderName, tenantDomain);
 
         if (claimMap == null
-                || claimMap.isEmpty()
-                && ApplicationManagementServiceComponent.getFileBasedSPs().containsKey(
+            || claimMap.isEmpty()
+               && ApplicationManagementServiceComponent.getFileBasedSPs().containsKey(
                 serviceProviderName)) {
             return new FileBasedApplicationDAO().getLocalIdPToServiceProviderClaimMapping(
                     serviceProviderName, tenantDomain);
@@ -122,11 +122,11 @@ public class ApplicationInfoProvider {
 
         ApplicationDAO appDAO = ApplicationMgtSystemConfig.getInstance().getApplicationDAO();
         List<String> reqClaims = appDAO.getAllRequestedClaimsByServiceProvider(serviceProviderName,
-                tenantDomain);
+                                                                               tenantDomain);
 
         if (reqClaims == null
-                || reqClaims.isEmpty()
-                && ApplicationManagementServiceComponent.getFileBasedSPs().containsKey(
+            || reqClaims.isEmpty()
+               && ApplicationManagementServiceComponent.getFileBasedSPs().containsKey(
                 serviceProviderName)) {
             return new FileBasedApplicationDAO().getAllRequestedClaimsByServiceProvider(
                     serviceProviderName, tenantDomain);
@@ -152,7 +152,7 @@ public class ApplicationInfoProvider {
 
         if (name == null) {
             name = new FileBasedApplicationDAO().getServiceProviderNameByClientId(clientId,
-                    clientType, tenantDomain);
+                                                                                  clientType, tenantDomain);
         }
 
         if (name == null) {
@@ -177,8 +177,8 @@ public class ApplicationInfoProvider {
         ApplicationDAO appDAO = ApplicationMgtSystemConfig.getInstance().getApplicationDAO();
         ServiceProvider serviceProvider = appDAO.getApplication(serviceProviderName, tenantDomain);
 
-        if (serviceProvider != null
-                && ApplicationManagementServiceComponent.getFileBasedSPs().containsKey(
+        if (serviceProvider == null
+            && ApplicationManagementServiceComponent.getFileBasedSPs().containsKey(
                 serviceProviderName)) {
             serviceProvider = ApplicationManagementServiceComponent.getFileBasedSPs().get(
                     serviceProviderName);
@@ -194,21 +194,18 @@ public class ApplicationInfoProvider {
      * @return
      * @throws IdentityApplicationManagementException
      */
-    public ServiceProvider getServiceProviderByClienId(String clientId, String clientType,
-                                                       String tenantDomain) throws IdentityApplicationManagementException
-    {
-
-        String clientKey = null;
+    public ServiceProvider getServiceProviderByClienId(String clientId, String clientType, String tenantDomain)
+            throws IdentityApplicationManagementException {
 
         // client id can contain the @ to identify the tenant domain.
         if (clientId != null && clientId.contains("@")) {
-            clientKey = clientId.split("@")[0];
+            clientId = clientId.split("@")[0];
         }
 
         String serviceProviderName = null;
         ServiceProvider serviceProvider = null;
 
-        serviceProviderName = getServiceProviderNameByClientId(clientKey, clientType, tenantDomain);
+        serviceProviderName = getServiceProviderNameByClientId(clientId, clientType, tenantDomain);
 
         String tenantDomainName = null;
         int tenantId = -1234;
@@ -265,8 +262,8 @@ public class ApplicationInfoProvider {
         }
 
         if (serviceProvider == null
-                && serviceProviderName != null
-                && ApplicationManagementServiceComponent.getFileBasedSPs().containsKey(
+            && serviceProviderName != null
+            && ApplicationManagementServiceComponent.getFileBasedSPs().containsKey(
                 serviceProviderName)) {
             serviceProvider = ApplicationManagementServiceComponent.getFileBasedSPs().get(
                     serviceProviderName);

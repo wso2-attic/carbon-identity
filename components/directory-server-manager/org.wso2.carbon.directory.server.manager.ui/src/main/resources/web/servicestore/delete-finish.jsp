@@ -19,12 +19,12 @@
 <%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@page import="org.apache.axis2.context.ConfigurationContext" %>
 <%@page import="org.wso2.carbon.CarbonConstants" %>
+<%@page import="org.wso2.carbon.directory.server.manager.ui.DirectoryServerManagerClient" %>
 <%@page import="org.wso2.carbon.ui.CarbonUIMessage" %>
 <%@page import="org.wso2.carbon.ui.CarbonUIUtil" %>
+<%@page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
 <%@page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@page import="java.text.MessageFormat" %>
-<%@page import="org.wso2.carbon.directory.server.manager.ui.DirectoryServerManagerClient" %>
-<%@page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
 
 <%
     String servicePrincipleName = request.getParameter("spnName");

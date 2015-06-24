@@ -39,14 +39,18 @@ import org.wso2.charon.core.encoder.json.JSONEncoder;
 import org.wso2.charon.core.exceptions.CharonException;
 import org.wso2.charon.core.exceptions.FormatNotSupportedException;
 import org.wso2.charon.core.exceptions.UnauthorizedException;
-import org.wso2.charon.core.extensions.*;
+import org.wso2.charon.core.extensions.AuthenticationHandler;
+import org.wso2.charon.core.extensions.AuthenticationInfo;
+import org.wso2.charon.core.extensions.CharonManager;
+import org.wso2.charon.core.extensions.TenantDTO;
+import org.wso2.charon.core.extensions.TenantManager;
+import org.wso2.charon.core.extensions.UserManager;
 import org.wso2.charon.core.protocol.ResponseCodeConstants;
 import org.wso2.charon.core.protocol.endpoints.AbstractResourceEndpoint;
 import org.wso2.charon.core.schema.SCIMConstants;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class IdentitySCIMManager implements CharonManager {
     private static final String INSTANCE = "instance";
@@ -289,7 +293,10 @@ public class IdentitySCIMManager implements CharonManager {
                 }
             }
         } catch (CharonException e) {
-            throw new UnauthorizedException("Error in handling authentication", e);
+            if (log.isDebugEnabled()) {
+                log.debug("CharonException in handle authentication. ", e);
+            }
+            throw new UnauthorizedException("Error in handling authentication");
         }
         throw new UnauthorizedException();
     }

@@ -20,8 +20,6 @@ package org.wso2.carbon.um.ws.api;
 
 
 import org.apache.axis2.context.ConfigurationContext;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.config.RealmConfiguration;

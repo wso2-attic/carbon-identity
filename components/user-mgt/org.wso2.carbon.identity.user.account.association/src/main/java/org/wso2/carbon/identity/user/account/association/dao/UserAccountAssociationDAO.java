@@ -1,20 +1,20 @@
 /*
- * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
- *
- * WSO2 Inc. licenses this file to you under the Apache License,
- * Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the
- * specific language governing permissions and limitations
- * under the License.
- */
+*  Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*
+*  WSO2 Inc. licenses this file to you under the Apache License,
+*  Version 2.0 (the "License"); you may not use this file except
+*  in compliance with the License.
+*  You may obtain a copy of the License at
+*
+*    http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing,
+* software distributed under the License is distributed on an
+* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+* KIND, either express or implied.  See the License for the
+* specific language governing permissions and limitations
+* under the License.
+*/
 
 package org.wso2.carbon.identity.user.account.association.dao;
 
@@ -41,10 +41,7 @@ import java.util.List;
 public class UserAccountAssociationDAO {
 
     private UserAccountAssociationDAO() {
-    }
 
-    private static class LazyHolder {
-        private static final UserAccountAssociationDAO INSTANCE = new UserAccountAssociationDAO();
     }
 
     public static UserAccountAssociationDAO getInstance() {
@@ -60,13 +57,12 @@ public class UserAccountAssociationDAO {
         try {
             dbConnection = JDBCPersistenceManager.getInstance().getDBConnection();
             preparedStatement = dbConnection.prepareStatement(UserAccountAssociationConstants
-                    .SQLQueries.ADD_USER_ACCOUNT_ASSOCIATION);
+                                                                      .SQLQueries.ADD_USER_ACCOUNT_ASSOCIATION);
 
             preparedStatement.setString(1, associationKey);
             preparedStatement.setInt(2, tenantId);
-            preparedStatement.setString(3, userName);
-            preparedStatement.setString(4, domainName);
-            preparedStatement.setInt(5, tenantId);
+            preparedStatement.setString(3, domainName);
+            preparedStatement.setString(4, userName);
             preparedStatement.executeUpdate();
 
             if (!dbConnection.getAutoCommit()) {
@@ -74,10 +70,10 @@ public class UserAccountAssociationDAO {
             }
         } catch (SQLException e) {
             throw new UserAccountAssociationServerException(UserAccountAssociationConstants.ErrorMessages
-                    .CONN_CREATE_DB_ERROR.getDescription(), e);
+                                                                    .CONN_CREATE_DB_ERROR.getDescription(), e);
         } catch (IdentityException e) {
             throw new UserAccountAssociationServerException(UserAccountAssociationConstants.ErrorMessages
-                    .DB_CONN_ERROR.getDescription(), e);
+                                                                    .DB_CONN_ERROR.getDescription(), e);
         } finally {
             IdentityApplicationManagementUtil.closeStatement(preparedStatement);
             IdentityApplicationManagementUtil.closeConnection(dbConnection);
@@ -93,12 +89,11 @@ public class UserAccountAssociationDAO {
         try {
             dbConnection = JDBCPersistenceManager.getInstance().getDBConnection();
             preparedStatement = dbConnection.prepareStatement(UserAccountAssociationConstants
-                    .SQLQueries.DELETE_CONNECTION);
+                                                                      .SQLQueries.DELETE_CONNECTION);
 
-            preparedStatement.setString(1, domainName);
-            preparedStatement.setInt(2, tenantId);
-            preparedStatement.setInt(3, tenantId);
-            preparedStatement.setString(4, userName);
+            preparedStatement.setInt(1, tenantId);
+            preparedStatement.setString(2, domainName);
+            preparedStatement.setString(3, userName);
             preparedStatement.executeUpdate();
 
             if (!dbConnection.getAutoCommit()) {
@@ -106,10 +101,10 @@ public class UserAccountAssociationDAO {
             }
         } catch (SQLException e) {
             throw new UserAccountAssociationServerException(UserAccountAssociationConstants.ErrorMessages
-                    .CONN_DELETE_DB_ERROR.getDescription(), e);
+                                                                    .CONN_DELETE_DB_ERROR.getDescription(), e);
         } catch (IdentityException e) {
             throw new UserAccountAssociationServerException(UserAccountAssociationConstants.ErrorMessages
-                    .DB_CONN_ERROR.getDescription(), e);
+                                                                    .DB_CONN_ERROR.getDescription(), e);
         } finally {
             IdentityApplicationManagementUtil.closeStatement(preparedStatement);
             IdentityApplicationManagementUtil.closeConnection(dbConnection);
@@ -117,13 +112,14 @@ public class UserAccountAssociationDAO {
     }
 
     public List<UserAccountAssociationDTO> getAssociationsOfUser(String domainName, int tenantId,
-                                                                 String userName) throws UserAccountAssociationException {
+                                                                 String userName)
+            throws UserAccountAssociationException {
 
         Connection dbConnection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
         List<UserAccountAssociationDTO> accountAssociations = new ArrayList<>();
-        RealmService realmService = null;
+        RealmService realmService;
         String associationKey = getAssociationKeyOfUser(domainName, tenantId, userName);
 
         if (associationKey != null) {
@@ -132,13 +128,13 @@ public class UserAccountAssociationDAO {
 
                 dbConnection = JDBCPersistenceManager.getInstance().getDBConnection();
                 preparedStatement = dbConnection.prepareStatement(UserAccountAssociationConstants
-                        .SQLQueries.LIST_USER_ACCOUNT_ASSOCIATIONS);
+                                                                          .SQLQueries.LIST_USER_ACCOUNT_ASSOCIATIONS);
                 preparedStatement.setString(1, associationKey);
                 resultSet = preparedStatement.executeQuery();
 
                 while (resultSet.next()) {
-                    String conUserDomain = resultSet.getString(1);
-                    int conUserTenantId = resultSet.getInt(2);
+                    int conUserTenantId = resultSet.getInt(1);
+                    String conUserDomain = resultSet.getString(2);
                     String conUserName = resultSet.getString(3);
 
                     if (domainName.equals(conUserDomain) && (tenantId == conUserTenantId) && userName.equals
@@ -152,17 +148,18 @@ public class UserAccountAssociationDAO {
                     associationDTO.setTenantDomain(realmService.getTenantManager().getDomain(conUserTenantId));
                     accountAssociations.add(associationDTO);
                 }
+                dbConnection.commit();
             } catch (SQLException e) {
                 throw new UserAccountAssociationServerException(UserAccountAssociationConstants.ErrorMessages
-                        .CONN_DELETE_DB_ERROR.getDescription(), e);
+                                                                        .CONN_DELETE_DB_ERROR.getDescription(), e);
             } catch (UserStoreException e) {
                 throw new UserAccountAssociationServerException(UserAccountAssociationConstants.ErrorMessages
-                        .ERROR_WHILE_GETTING_TENANT_NAME
-                        .getDescription(), e);
+                                                                        .ERROR_WHILE_GETTING_TENANT_NAME
+                                                                        .getDescription(), e);
             } catch (Exception e) {
                 throw new UserAccountAssociationServerException(UserAccountAssociationConstants.ErrorMessages
-                        .ERROR_WHILE_LOADING_REALM_SERVICE
-                        .getDescription(), e);
+                                                                        .ERROR_WHILE_LOADING_REALM_SERVICE
+                                                                        .getDescription(), e);
             } finally {
                 IdentityApplicationManagementUtil.closeResultSet(resultSet);
                 IdentityApplicationManagementUtil.closeStatement(preparedStatement);
@@ -184,24 +181,24 @@ public class UserAccountAssociationDAO {
         try {
             dbConnection = JDBCPersistenceManager.getInstance().getDBConnection();
             preparedStatement = dbConnection.prepareStatement(UserAccountAssociationConstants
-                    .SQLQueries.GET_ASSOCIATION_KEY_OF_USER);
+                                                                      .SQLQueries.GET_ASSOCIATION_KEY_OF_USER);
 
-            preparedStatement.setString(1, domainName);
-            preparedStatement.setInt(2, tenantId);
-            preparedStatement.setInt(3, tenantId);
-            preparedStatement.setString(4, userName);
+            preparedStatement.setInt(1, tenantId);
+            preparedStatement.setString(2, domainName);
+            preparedStatement.setString(3, userName);
             resultSet = preparedStatement.executeQuery();
 
             if (resultSet.next()) {
                 associationKey = resultSet.getString(1);
             }
+            dbConnection.commit();
         } catch (SQLException e) {
             throw new UserAccountAssociationServerException(UserAccountAssociationConstants.ErrorMessages
-                    .ERROR_WHILE_RETRIEVING_ASSOC_KEY.getDescription
+                                                                    .ERROR_WHILE_RETRIEVING_ASSOC_KEY.getDescription
                             (), e);
         } catch (IdentityException e) {
             throw new UserAccountAssociationServerException(UserAccountAssociationConstants.ErrorMessages
-                    .DB_CONN_ERROR.getDescription(), e);
+                                                                    .DB_CONN_ERROR.getDescription(), e);
         } finally {
             IdentityApplicationManagementUtil.closeResultSet(resultSet);
             IdentityApplicationManagementUtil.closeStatement(preparedStatement);
@@ -211,7 +208,7 @@ public class UserAccountAssociationDAO {
     }
 
     public void updateUserAssociationKey(String oldAssociationKey, String newAssociationKey) throws
-            UserAccountAssociationException {
+                                                                                             UserAccountAssociationException {
 
         Connection dbConnection = null;
         PreparedStatement preparedStatement = null;
@@ -219,7 +216,7 @@ public class UserAccountAssociationDAO {
         try {
             dbConnection = JDBCPersistenceManager.getInstance().getDBConnection();
             preparedStatement = dbConnection.prepareStatement(UserAccountAssociationConstants
-                    .SQLQueries.UPDATE_ASSOCIATION_KEY);
+                                                                      .SQLQueries.UPDATE_ASSOCIATION_KEY);
 
             preparedStatement.setString(1, newAssociationKey);
             preparedStatement.setString(2, oldAssociationKey);
@@ -230,10 +227,10 @@ public class UserAccountAssociationDAO {
             }
         } catch (SQLException e) {
             throw new UserAccountAssociationServerException(UserAccountAssociationConstants.ErrorMessages
-                    .CONN_UPDATE_DB_ERROR.getDescription(), e);
+                                                                    .CONN_UPDATE_DB_ERROR.getDescription(), e);
         } catch (IdentityException e) {
             throw new UserAccountAssociationServerException(UserAccountAssociationConstants.ErrorMessages
-                    .DB_CONN_ERROR.getDescription(), e);
+                                                                    .DB_CONN_ERROR.getDescription(), e);
         } finally {
             IdentityApplicationManagementUtil.closeStatement(preparedStatement);
             IdentityApplicationManagementUtil.closeConnection(dbConnection);
@@ -251,30 +248,29 @@ public class UserAccountAssociationDAO {
         try {
             dbConnection = JDBCPersistenceManager.getInstance().getDBConnection();
             preparedStatement = dbConnection.prepareStatement(UserAccountAssociationConstants
-                    .SQLQueries.IS_VALID_ASSOCIATION);
+                                                                      .SQLQueries.IS_VALID_ASSOCIATION);
 
-            preparedStatement.setString(1, domainName);
-            preparedStatement.setInt(2, tenantId);
-            preparedStatement.setInt(3, tenantId);
-            preparedStatement.setString(4, userName);
+            preparedStatement.setInt(1, tenantId);
+            preparedStatement.setString(2, domainName);
+            preparedStatement.setString(3, userName);
+            preparedStatement.setInt(4, CarbonContext.getThreadLocalCarbonContext().getTenantId());
             preparedStatement.setString(5, UserAccountAssociationUtil.getDomainName(CarbonContext
-                    .getThreadLocalCarbonContext()
-                    .getUsername()));
-            preparedStatement.setInt(6, CarbonContext.getThreadLocalCarbonContext().getTenantId());
-            preparedStatement.setInt(7, CarbonContext.getThreadLocalCarbonContext().getTenantId());
-            preparedStatement.setString(8, UserAccountAssociationUtil.getUsernameWithoutDomain(CarbonContext
-                    .getThreadLocalCarbonContext().getUsername()));
+                                                                                            .getThreadLocalCarbonContext()
+                                                                                            .getUsername()));
+            preparedStatement.setString(6, UserAccountAssociationUtil.getUsernameWithoutDomain(CarbonContext
+                                                                                                       .getThreadLocalCarbonContext().getUsername()));
             resultSet = preparedStatement.executeQuery();
 
             if (resultSet.next()) {
                 valid = resultSet.getInt(1) > 0;
             }
+            dbConnection.commit();
         } catch (SQLException e) {
             throw new UserAccountAssociationServerException(UserAccountAssociationConstants.ErrorMessages
-                    .CHECK_ASSOCIATION_DB_ERROR.getDescription(), e);
+                                                                    .CHECK_ASSOCIATION_DB_ERROR.getDescription(), e);
         } catch (IdentityException e) {
             throw new UserAccountAssociationServerException(UserAccountAssociationConstants.ErrorMessages
-                    .DB_CONN_ERROR.getDescription(), e);
+                                                                    .DB_CONN_ERROR.getDescription(), e);
         } finally {
             IdentityApplicationManagementUtil.closeResultSet(resultSet);
             IdentityApplicationManagementUtil.closeStatement(preparedStatement);
@@ -292,7 +288,7 @@ public class UserAccountAssociationDAO {
         try {
             dbConnection = JDBCPersistenceManager.getInstance().getDBConnection();
             preparedStatement = dbConnection.prepareStatement(UserAccountAssociationConstants
-                    .SQLQueries.DELETE_CONNECTION_FROM_TENANT_ID);
+                                                                      .SQLQueries.DELETE_CONNECTION_FROM_TENANT_ID);
 
             preparedStatement.setInt(1, tenantId);
             preparedStatement.executeUpdate();
@@ -302,14 +298,81 @@ public class UserAccountAssociationDAO {
             }
         } catch (SQLException e) {
             throw new UserAccountAssociationServerException(UserAccountAssociationConstants.ErrorMessages
-                    .ASSOCIATIONS_DELETE_DB_ERROR.getDescription(), e);
+                                                                    .ASSOCIATIONS_DELETE_DB_ERROR.getDescription(), e);
         } catch (IdentityException e) {
             throw new UserAccountAssociationServerException(UserAccountAssociationConstants.ErrorMessages
-                    .DB_CONN_ERROR.getDescription(), e);
+                                                                    .DB_CONN_ERROR.getDescription(), e);
         } finally {
             IdentityApplicationManagementUtil.closeStatement(preparedStatement);
             IdentityApplicationManagementUtil.closeConnection(dbConnection);
         }
+    }
+
+    public void updateDomainNameOfAssociations(int tenantId, String currentDomainName, String newDomainName) throws
+                                                                                                             UserAccountAssociationException {
+
+        Connection dbConnection = null;
+        PreparedStatement preparedStatement = null;
+
+        try {
+            dbConnection = JDBCPersistenceManager.getInstance().getDBConnection();
+            preparedStatement = dbConnection.prepareStatement(UserAccountAssociationConstants
+                                                                      .SQLQueries.UPDATE_USER_DOMAIN_NAME);
+
+            preparedStatement.setString(1, newDomainName);
+            preparedStatement.setString(2, currentDomainName);
+            preparedStatement.setInt(3, tenantId);
+            preparedStatement.executeUpdate();
+
+            if (!dbConnection.getAutoCommit()) {
+                dbConnection.commit();
+            }
+        } catch (SQLException e) {
+            throw new UserAccountAssociationServerException(String.format(UserAccountAssociationConstants.ErrorMessages
+                                                                                  .ERROR_UPDATE_DOMAIN_NAME.getDescription(),
+                                                                          currentDomainName, tenantId), e);
+        } catch (IdentityException e) {
+            throw new UserAccountAssociationServerException(UserAccountAssociationConstants.ErrorMessages
+                                                                    .DB_CONN_ERROR.getDescription(), e);
+        } finally {
+            IdentityApplicationManagementUtil.closeStatement(preparedStatement);
+            IdentityApplicationManagementUtil.closeConnection(dbConnection);
+        }
+    }
+
+    public void deleteAssociationsFromDomain(int tenantId, String domainName) throws
+                                                                              UserAccountAssociationException {
+
+        Connection dbConnection = null;
+        PreparedStatement preparedStatement = null;
+
+        try {
+            dbConnection = JDBCPersistenceManager.getInstance().getDBConnection();
+            preparedStatement = dbConnection.prepareStatement(UserAccountAssociationConstants
+                                                                      .SQLQueries.DELETE_USER_ASSOCIATION_FROM_DOMAIN);
+            preparedStatement.setInt(1, tenantId);
+            preparedStatement.setString(2, domainName);
+            preparedStatement.executeUpdate();
+
+            if (!dbConnection.getAutoCommit()) {
+                dbConnection.commit();
+            }
+        } catch (SQLException e) {
+            throw new UserAccountAssociationServerException(String.format(UserAccountAssociationConstants.ErrorMessages
+                                                                                  .ERROR_DELETE_ASSOC_FROM_DOMAIN_NAME
+                                                                                  .getDescription(),  domainName,
+                                                                          tenantId), e);
+        } catch (IdentityException e) {
+            throw new UserAccountAssociationServerException(UserAccountAssociationConstants.ErrorMessages
+                                                                    .DB_CONN_ERROR.getDescription(), e);
+        } finally {
+            IdentityApplicationManagementUtil.closeStatement(preparedStatement);
+            IdentityApplicationManagementUtil.closeConnection(dbConnection);
+        }
+    }
+
+    private static class LazyHolder {
+        private static final UserAccountAssociationDAO INSTANCE = new UserAccountAssociationDAO();
     }
 
 }

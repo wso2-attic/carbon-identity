@@ -1,33 +1,31 @@
 /*
- * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
- *
- * WSO2 Inc. licenses this file to you under the Apache License,
- * Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
- */
+*  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*
+*  WSO2 Inc. licenses this file to you under the Apache License,
+*  Version 2.0 (the "License"); you may not use this file except
+*  in compliance with the License.
+*  You may obtain a copy of the License at
+*
+*    http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing,
+* software distributed under the License is distributed on an
+* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+* KIND, either express or implied.  See the License for the
+* specific language governing permissions and limitations
+* under the License.
+*/
 
 package org.wso2.carbon.identity.entitlement.pip;
 
 import org.wso2.balana.ctx.EvaluationCtx;
 import org.wso2.carbon.context.CarbonContext;
-import org.wso2.carbon.identity.entitlement.EntitlementException;
 import org.wso2.carbon.identity.entitlement.internal.EntitlementServiceComponent;
 import org.wso2.carbon.registry.api.Resource;
 import org.wso2.carbon.registry.core.Collection;
 import org.wso2.carbon.registry.core.Registry;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
 
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
@@ -41,8 +39,8 @@ public class DefaultResourceFinder implements PIPResourceFinder {
     private Registry registry;
 
     @Override
-    public void init(Properties properties) throws EntitlementException {
-       /* not implemented */
+    public void init(Properties properties) throws Exception {
+
     }
 
     @Override
@@ -51,34 +49,29 @@ public class DefaultResourceFinder implements PIPResourceFinder {
     }
 
     @Override
-    public Set<String> findDescendantResources(String parentResourceId, EvaluationCtx context) throws
-                                                                                                EntitlementException {
+    public Set<String> findDescendantResources(String parentResourceId, EvaluationCtx context) throws Exception {
         Set<String> resourceSet = new HashSet<String>();
-        try {
-            registry = EntitlementServiceComponent.getRegistryService().getSystemRegistry(CarbonContext.
-                    getThreadLocalCarbonContext().getTenantId());
-            if (registry.resourceExists(parentResourceId)) {
-                Resource resource = registry.get(parentResourceId);
-                if (resource instanceof Collection) {
-                    Collection collection = (Collection) resource;
-                    String[] resources = collection.getChildren();
-                    for (String res : resources) {
-                        resourceSet.add(res);
-                        getChildResources(res, resourceSet);
-                    }
-                } else {
-                    return Collections.emptySet();
+        registry = EntitlementServiceComponent.getRegistryService().getSystemRegistry(CarbonContext.
+                getThreadLocalCarbonContext().getTenantId());
+        if (registry.resourceExists(parentResourceId)) {
+            Resource resource = registry.get(parentResourceId);
+            if (resource instanceof Collection) {
+                Collection collection = (Collection) resource;
+                String[] resources = collection.getChildren();
+                for (String res : resources) {
+                    resourceSet.add(res);
+                    getChildResources(res, resourceSet);
                 }
+            } else {
+                return null;
             }
-        } catch (RegistryException e) {
-            throw new EntitlementException("Error while finding decendant resources. ", e);
         }
         return resourceSet;
     }
 
     @Override
-    public Set<String> findChildResources(String parentResourceId, EvaluationCtx context) throws EntitlementException {
-        return Collections.emptySet();
+    public Set<String> findChildResources(String parentResourceId, EvaluationCtx context) throws Exception {
+        return null;
     }
 
     @Override
@@ -88,7 +81,7 @@ public class DefaultResourceFinder implements PIPResourceFinder {
 
     @Override
     public void clearCache() {
-        /* method not implemented */
+
     }
 
     /**
