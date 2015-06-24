@@ -1,17 +1,19 @@
 /*
- * Copyright 2005-2007 WSO2, Inc. (http://wso2.com)
+ * Copyright (c) 2007 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *  http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
  */
 
 package org.wso2.carbon.user.mgt.internal;
@@ -39,7 +41,7 @@ import java.util.Map;
  */
 public class UserMgtInitializer {
 
-    private static Log log = LogFactory.getLog(UserMgtInitializer.class);
+    private static final Log log = LogFactory.getLog(UserMgtInitializer.class);
 
     public void start(BundleContext bc, RegistryService registryService) throws Exception {
         PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
@@ -65,11 +67,13 @@ public class UserMgtInitializer {
             map.put(UserMgtConstants.UI_ADMIN_PERMISSION_ROOT + "configure/security", "Security");
             map.put(UserMgtConstants.UI_ADMIN_PERMISSION_ROOT + "configure/security/usermgt", "Identity Management");
             map.put(UserMgtConstants.UI_ADMIN_PERMISSION_ROOT + "configure/security/usermgt/users", "User Management");
-            map.put(UserMgtConstants.UI_ADMIN_PERMISSION_ROOT + "configure/security/usermgt/passwords", "Password Management");
-            map.put(UserMgtConstants.UI_ADMIN_PERMISSION_ROOT + "configure/security/usermgt/profiles", "Profile Management");
+            map.put(UserMgtConstants.UI_ADMIN_PERMISSION_ROOT + "configure/security/usermgt/passwords",
+                    "Password Management");
+            map.put(UserMgtConstants.UI_ADMIN_PERMISSION_ROOT + "configure/security/usermgt/profiles",
+                    "Profile Management");
             map.put(UserMgtConstants.UI_ADMIN_PERMISSION_ROOT + "login", "Login");
 
-            for (Iterator<Map.Entry<String, String>> ite = map.entrySet().iterator(); ite.hasNext();) {
+            for (Iterator<Map.Entry<String, String>> ite = map.entrySet().iterator(); ite.hasNext(); ) {
                 Map.Entry<String, String> entry = ite.next();
                 String resourcePath = entry.getKey();
                 String displayName = entry.getValue();
