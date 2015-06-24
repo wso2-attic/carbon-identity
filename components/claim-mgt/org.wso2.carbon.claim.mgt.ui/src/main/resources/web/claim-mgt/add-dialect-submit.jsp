@@ -48,7 +48,7 @@
     String description = request.getParameter("description");
     String claimUri = request.getParameter("claimUri");
     String dialect = request.getParameter("dialect");
-    String attribute = request.getParameter("attribute");
+    String attribute = request.getParameter("localClaim");
     String regex = request.getParameter("regex");
     String supported = request.getParameter("supportedhidden");
     String required = request.getParameter("requiredhidden");
