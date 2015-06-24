@@ -38,7 +38,6 @@ import java.nio.charset.Charset;
 import java.security.SecureRandom;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Random;
 
 public class Util {
 
