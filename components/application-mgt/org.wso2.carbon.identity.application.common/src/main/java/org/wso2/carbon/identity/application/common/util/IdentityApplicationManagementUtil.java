@@ -993,7 +993,4 @@ public class IdentityApplicationManagementUtil {
         }
         return result;
     }
-
-
-
 }
