@@ -501,12 +501,12 @@ public class OAuth2Util {
     }
 
     public static String hashScopes(String[] scope){
-        return DigestUtils.sha512Hex(OAuth2Util.buildScopeString(scope));
+        return DigestUtils.md5Hex(OAuth2Util.buildScopeString(scope));
     }
 
     public static String hashScopes(String scope){
         //first converted to an array to sort the scopes
-        return DigestUtils.sha512Hex(OAuth2Util.buildScopeString(buildScopeArray(scope)));
+        return DigestUtils.md5Hex(OAuth2Util.buildScopeString(buildScopeArray(scope)));
     }
 
 }
