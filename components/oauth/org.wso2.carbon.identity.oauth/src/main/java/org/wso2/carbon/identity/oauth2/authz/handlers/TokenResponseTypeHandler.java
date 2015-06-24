@@ -52,7 +52,14 @@ public class TokenResponseTypeHandler extends AbstractResponseTypeHandler {
         respDTO.setCallbackURI(authorizationReqDTO.getCallbackUrl());
         String consumerKey = authorizationReqDTO.getConsumerKey();
         String authorizedUser = authorizationReqDTO.getUsername();
-        OAuthCacheKey cacheKey = new OAuthCacheKey(consumerKey + ":" + authorizedUser + ":" + scope);
+        String oAuthCacheKeyString;
+        boolean isUsernameCaseSensitive = OAuth2Util.isUsernameCaseSensitive(authorizedUser);
+        if (isUsernameCaseSensitive) {
+            oAuthCacheKeyString = consumerKey + ":" + authorizedUser + ":" + scope;
+        } else {
+            oAuthCacheKeyString = consumerKey + ":" + authorizedUser.toLowerCase() + ":" + scope;
+        }
+        OAuthCacheKey cacheKey = new OAuthCacheKey(oAuthCacheKeyString);
         String userStoreDomain = null;
 
         //select the user store domain when multiple user stores are configured.

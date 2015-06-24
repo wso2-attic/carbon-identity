@@ -317,7 +317,6 @@ public class OAuthAdminService extends AbstractAdmin {
         String tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
         String tenantAwareUserName = PrivilegedCarbonContext.getThreadLocalCarbonContext().getUsername();
         String username = tenantAwareUserName + "@" + tenantDomain;
-        username = username.toLowerCase();
 
         String userStoreDomain = null;
         if (OAuth2Util.checkAccessTokenPartitioningEnabled() && OAuth2Util.checkUserNameAssertionEnabled()) {
@@ -406,7 +405,6 @@ public class OAuthAdminService extends AbstractAdmin {
             String tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
             String tenantAwareUserName = PrivilegedCarbonContext.getThreadLocalCarbonContext().getUsername();
             String userName = tenantAwareUserName + "@" + tenantDomain;
-            userName = userName.toLowerCase();
 
             String userStoreDomain = null;
             if (OAuth2Util.checkAccessTokenPartitioningEnabled() &&
@@ -433,11 +431,17 @@ public class OAuthAdminService extends AbstractAdmin {
                             log.error(errorMsg, e);
                             throw new IdentityOAuthAdminException(errorMsg, e);
                         }
+                        String authzUser;
                         for (AccessTokenDO accessTokenDO : accessTokenDOs) {
                             //Clear cache with AccessTokenDO
-                            OAuthUtil.clearOAuthCache(accessTokenDO.getConsumerKey(), accessTokenDO.getAuthzUser(),
+                            authzUser = accessTokenDO.getAuthzUser();
+                            boolean isUsernameCaseSensitive = OAuth2Util.isUsernameCaseSensitive(authzUser);
+                            if (!isUsernameCaseSensitive){
+                                authzUser = authzUser.toLowerCase();
+                            }
+                            OAuthUtil.clearOAuthCache(accessTokenDO.getConsumerKey(), authzUser,
                                     OAuth2Util.buildScopeString(accessTokenDO.getScope()));
-                            OAuthUtil.clearOAuthCache(accessTokenDO.getConsumerKey(), accessTokenDO.getAuthzUser());
+                            OAuthUtil.clearOAuthCache(accessTokenDO.getConsumerKey(), authzUser);
                             OAuthUtil.clearOAuthCache(accessTokenDO.getAccessToken());
                             AccessTokenDO scopedToken = null;
                             try {

@@ -230,7 +230,7 @@ public class OAuth2TokenEndpoint {
         if (GrantType.AUTHORIZATION_CODE.toString().equals(grantType)) {
             tokenReqDTO.setAuthorizationCode(oauthRequest.getCode());
         } else if (GrantType.PASSWORD.toString().equals(grantType)) {
-            tokenReqDTO.setResourceOwnerUsername(oauthRequest.getUsername().toLowerCase());
+            tokenReqDTO.setResourceOwnerUsername(oauthRequest.getUsername());
             tokenReqDTO.setResourceOwnerPassword(oauthRequest.getPassword());
         } else if (GrantType.REFRESH_TOKEN.toString().equals(grantType)) {
             tokenReqDTO.setRefreshToken(oauthRequest.getRefreshToken());
