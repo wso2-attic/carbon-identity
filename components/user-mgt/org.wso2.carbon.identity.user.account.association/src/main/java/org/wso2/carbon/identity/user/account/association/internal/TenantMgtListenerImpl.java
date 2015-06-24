@@ -24,7 +24,7 @@ import org.wso2.carbon.stratos.common.beans.TenantInfoBean;
 import org.wso2.carbon.stratos.common.exception.StratosException;
 import org.wso2.carbon.stratos.common.listeners.TenantMgtListener;
 
-public class TenantManagementListener implements TenantMgtListener {
+public class TenantMgtListenerImpl implements TenantMgtListener {
 
 
     private static final int EXEC_ORDER = 20;
@@ -80,8 +80,7 @@ public class TenantManagementListener implements TenantMgtListener {
             UserAccountAssociationDAO.getInstance().deleteUserAssociationsFromTenantId(i);
         } catch (UserAccountAssociationException e) {
             throw new StratosException(String.format(UserAccountAssociationConstants.ErrorMessages
-                    .CONN_DELETE_FROM_TENANT_ID_ERROR
-                                                             .getDescription(), i), e);
+                    .CONN_DELETE_FROM_TENANT_ID_ERROR.getDescription(), i), e);
         }
     }
 }

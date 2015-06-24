@@ -177,7 +177,7 @@ public class ApplicationInfoProvider {
         ApplicationDAO appDAO = ApplicationMgtSystemConfig.getInstance().getApplicationDAO();
         ServiceProvider serviceProvider = appDAO.getApplication(serviceProviderName, tenantDomain);
 
-        if (serviceProvider != null
+        if (serviceProvider == null
             && ApplicationManagementServiceComponent.getFileBasedSPs().containsKey(
                 serviceProviderName)) {
             serviceProvider = ApplicationManagementServiceComponent.getFileBasedSPs().get(

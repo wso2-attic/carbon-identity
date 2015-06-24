@@ -32,9 +32,9 @@ import org.wso2.carbon.user.core.util.UserCoreUtil;
 
 import java.util.Map;
 
-public class UserOptEventListener implements UserOperationEventListener {
+public class UserOperationEventListenerImpl implements UserOperationEventListener {
 
-    private static final Log log = LogFactory.getLog(UserOptEventListener.class);
+    private static final Log log = LogFactory.getLog(UserOperationEventListenerImpl.class);
 
     private static final int EXEC_ORDER = 22;
 

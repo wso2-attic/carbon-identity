@@ -308,6 +308,69 @@ public class UserAccountAssociationDAO {
         }
     }
 
+    public void updateDomainNameOfAssociations(int tenantId, String currentDomainName, String newDomainName) throws
+                                                                                                             UserAccountAssociationException {
+
+        Connection dbConnection = null;
+        PreparedStatement preparedStatement = null;
+
+        try {
+            dbConnection = JDBCPersistenceManager.getInstance().getDBConnection();
+            preparedStatement = dbConnection.prepareStatement(UserAccountAssociationConstants
+                                                                      .SQLQueries.UPDATE_USER_DOMAIN_NAME);
+
+            preparedStatement.setString(1, newDomainName);
+            preparedStatement.setString(2, currentDomainName);
+            preparedStatement.setInt(3, tenantId);
+            preparedStatement.executeUpdate();
+
+            if (!dbConnection.getAutoCommit()) {
+                dbConnection.commit();
+            }
+        } catch (SQLException e) {
+            throw new UserAccountAssociationServerException(String.format(UserAccountAssociationConstants.ErrorMessages
+                                                                                  .ERROR_UPDATE_DOMAIN_NAME.getDescription(),
+                                                                          currentDomainName, tenantId), e);
+        } catch (IdentityException e) {
+            throw new UserAccountAssociationServerException(UserAccountAssociationConstants.ErrorMessages
+                                                                    .DB_CONN_ERROR.getDescription(), e);
+        } finally {
+            IdentityApplicationManagementUtil.closeStatement(preparedStatement);
+            IdentityApplicationManagementUtil.closeConnection(dbConnection);
+        }
+    }
+
+    public void deleteAssociationsFromDomain(int tenantId, String domainName) throws
+                                                                              UserAccountAssociationException {
+
+        Connection dbConnection = null;
+        PreparedStatement preparedStatement = null;
+
+        try {
+            dbConnection = JDBCPersistenceManager.getInstance().getDBConnection();
+            preparedStatement = dbConnection.prepareStatement(UserAccountAssociationConstants
+                                                                      .SQLQueries.DELETE_USER_ASSOCIATION_FROM_DOMAIN);
+            preparedStatement.setInt(1, tenantId);
+            preparedStatement.setString(2, domainName);
+            preparedStatement.executeUpdate();
+
+            if (!dbConnection.getAutoCommit()) {
+                dbConnection.commit();
+            }
+        } catch (SQLException e) {
+            throw new UserAccountAssociationServerException(String.format(UserAccountAssociationConstants.ErrorMessages
+                                                                                  .ERROR_DELETE_ASSOC_FROM_DOMAIN_NAME
+                                                                                  .getDescription(),  domainName,
+                                                                          tenantId), e);
+        } catch (IdentityException e) {
+            throw new UserAccountAssociationServerException(UserAccountAssociationConstants.ErrorMessages
+                                                                    .DB_CONN_ERROR.getDescription(), e);
+        } finally {
+            IdentityApplicationManagementUtil.closeStatement(preparedStatement);
+            IdentityApplicationManagementUtil.closeConnection(dbConnection);
+        }
+    }
+
     private static class LazyHolder {
         private static final UserAccountAssociationDAO INSTANCE = new UserAccountAssociationDAO();
     }
