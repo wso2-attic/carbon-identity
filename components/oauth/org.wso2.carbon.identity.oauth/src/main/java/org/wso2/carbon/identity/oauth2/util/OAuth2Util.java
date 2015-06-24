@@ -523,9 +523,9 @@ public class OAuth2Util {
 
             UserStoreManager userStoreManager = (UserStoreManager) OAuthComponentServiceHolder.getRealmService()
                     .getTenantUserRealm(tenantId).getUserStoreManager();
-            UserStoreManager secondary = userStoreManager.getSecondaryUserStoreManager
+            UserStoreManager UserAvailableUserStoreManager = userStoreManager.getSecondaryUserStoreManager
                     (OAuth2Util.getDomainFromName(username));
-            String caseInsensitiveUsername = secondary.getRealmConfiguration().getUserStoreProperty("CaseInsensitiveUsername");
+            String caseInsensitiveUsername = UserAvailableUserStoreManager.getRealmConfiguration().getUserStoreProperty("CaseInsensitiveUsername");
             if (caseInsensitiveUsername != null) {
                 isUsernameCaseSensitive = !Boolean.parseBoolean(caseInsensitiveUsername);
             }
