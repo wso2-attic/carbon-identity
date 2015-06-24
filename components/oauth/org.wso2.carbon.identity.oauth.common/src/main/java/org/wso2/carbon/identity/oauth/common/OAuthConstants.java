@@ -151,6 +151,7 @@ public final class OAuthConstants {
     public static class AuthorizationCodeState {
         public static final String ACTIVE = "ACTIVE";
         public static final String EXPIRED = "EXPIRED";
+        public static final String INACTIVE = "INACTIVE";
 
         private AuthorizationCodeState(){
 
