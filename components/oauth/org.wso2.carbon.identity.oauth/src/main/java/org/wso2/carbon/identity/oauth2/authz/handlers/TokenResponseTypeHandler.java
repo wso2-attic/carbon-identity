@@ -118,7 +118,7 @@ public class TokenResponseTypeHandler extends AbstractResponseTypeHandler {
                         }
                         //Token is expired. Clear it from cache and mark it as expired on database
                         oauthCache.clearCacheEntry(cacheKey);
-                        tokenMgtDAO.setAccessTokenState(accessTokenDO.getAccessToken(),
+                        tokenMgtDAO.setAccessTokenState(accessTokenDO.getTokenId(),
                                 OAuthConstants.TokenStates.TOKEN_STATE_EXPIRED,
                                 UUID.randomUUID().toString(), userStoreDomain);
                         if (log.isDebugEnabled()) {
@@ -197,7 +197,7 @@ public class TokenResponseTypeHandler extends AbstractResponseTypeHandler {
                         }
                         //  Mark token as expired on database
 
-                        tokenMgtDAO.setAccessTokenState(accessTokenDO.getAccessToken(),
+                        tokenMgtDAO.setAccessTokenState(accessTokenDO.getTokenId(),
                                 OAuthConstants.TokenStates.TOKEN_STATE_EXPIRED,
                                 UUID.randomUUID().toString(), userStoreDomain);
 

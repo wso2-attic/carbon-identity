@@ -72,8 +72,8 @@ public class AuthorizationCodeGrantHandler extends AbstractAuthorizationGrantHan
 
         // authz Code is not available in cache. check the database
         if (authzCodeDO == null) {
-            authzCodeDO = tokenMgtDAO.validateAuthorizationCode(clientId,
-                    authorizationCode);
+            String userId = tokReqMsgCtx.getAuthorizedUser();
+            authzCodeDO = tokenMgtDAO.validateAuthorizationCode(clientId, authorizationCode, userId);
         }
 
         //Check whether it is a valid grant
@@ -186,8 +186,8 @@ public class AuthorizationCodeGrantHandler extends AbstractAuthorizationGrantHan
                 log.debug("Cache was cleared for authorization code info for client id : " + clientId);
             }
         }
-        // remove the authz code from the database
-        tokenMgtDAO.cleanUpAuthzCode(authzCode);
+        // expire authz code and insert issued access token against authz code
+        tokenMgtDAO.expireAuthorizationCode(authzCode, tokenRespDTO.getTokenId());
 
         if (log.isDebugEnabled()) {
             log.debug("Authorization Code clean up completed for request from the Client, " +
