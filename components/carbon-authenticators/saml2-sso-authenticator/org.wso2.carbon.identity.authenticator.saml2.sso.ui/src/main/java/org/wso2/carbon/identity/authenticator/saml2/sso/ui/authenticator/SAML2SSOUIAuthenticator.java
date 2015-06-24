@@ -152,17 +152,22 @@ public class SAML2SSOUIAuthenticator extends AbstractCarbonUIAuthenticator {
                     session);
             authClient.logout(session);
             result = SAML2SSOAuthenticatorConstants.AUDIT_SUCCESS;
-            log.info(username + "@" + PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain() + " successfully logged out");
+            if(username != null) {
+                log.info(username + "@" + PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain()
+                        + " successfully logged out");
+            }
         } catch (Exception ignored) {
             String msg = "Configuration context is null.";
             log.error(msg);
             throw new Exception(msg);
         } finally {
             if (AUDIT_LOG.isInfoEnabled()) {
-                String tenantAwareUsername = MultitenantUtils.getTenantAwareUsername(username);
-                String tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-                AUDIT_LOG.info(String.format(SAML2SSOAuthenticatorConstants.AUDIT_MESSAGE, tenantAwareUsername + "@" + tenantDomain, "Logout", "SAML2SSOUIAuthenticator",
-                        "", result));
+                if(username != null) {
+                    String tenantAwareUsername = MultitenantUtils.getTenantAwareUsername(username);
+                    String tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+                    AUDIT_LOG.info(String.format(SAML2SSOAuthenticatorConstants.AUDIT_MESSAGE,
+                            tenantAwareUsername + "@" + tenantDomain, "Logout", "SAML2SSOUIAuthenticator", "", result));
+                }
             }
         }
 
