@@ -94,7 +94,14 @@ public abstract class AbstractAuthorizationGrantHandler implements Authorization
 
         String consumerKey = tokReqMsgCtx.getOauth2AccessTokenReqDTO().getClientId();
         String authorizedUser = tokReqMsgCtx.getAuthorizedUser();
-        OAuthCacheKey cacheKey = new OAuthCacheKey(consumerKey + ":" + authorizedUser + ":" + scope);
+        boolean isUsernameCaseSensitive = OAuth2Util.isUsernameCaseSensitive(authorizedUser);
+        String cacheKeyString;
+        if (isUsernameCaseSensitive){
+            cacheKeyString = consumerKey + ":" + authorizedUser + ":" + scope;
+        }else {
+            cacheKeyString = consumerKey + ":" + authorizedUser.toLowerCase() + ":" + scope;
+        }
+        OAuthCacheKey cacheKey = new OAuthCacheKey(cacheKeyString);
         String userStoreDomain = null;
 
         //select the user store domain when multiple user stores are configured.

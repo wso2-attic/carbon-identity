@@ -264,8 +264,7 @@ public class OAuth2Util {
                 if (isUsernameCaseSensitive){
                     cache.addToCache(new OAuthCacheKey(clientId + ":" + username), new ClientCredentialDO(username));
                 }else {
-                    cache.addToCache(new OAuthCacheKey(clientId + ":" + username), new ClientCredentialDO(username
-                            .toLowerCase()));
+                    cache.addToCache(new OAuthCacheKey(clientId + ":" + username.toLowerCase()), new ClientCredentialDO(username));
                 }
                 if (log.isDebugEnabled()){
                     log.debug("Caching username : " + username);
