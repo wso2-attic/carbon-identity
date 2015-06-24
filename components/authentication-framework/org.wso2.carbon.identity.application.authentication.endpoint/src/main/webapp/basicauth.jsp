@@ -37,7 +37,7 @@
         <label class="control-label" for="username"><fmt:message key='username'/>:</label>
 
         <div class="controls">
-            <input class="input-xlarge" type="text" id='username' name="username" size='30'/>
+            <input class="input-xlarge" type="text" id='username' name="username"/>
         </div>
     </div>
 
@@ -53,7 +53,7 @@
         <label class="control-label" for="password"><fmt:message key='password'/>:</label>
 
         <div class="controls">
-            <input type="password" id='password' name="password" class="input-xlarge" size='30'/>
+            <input type="password" id='password' name="password" class="input-xlarge"/>
             <input type="hidden" name="sessionDataKey" value='<%=CharacterEncoder.getSafeText(request.getParameter("sessionDataKey"))%>'/>
             <label class="checkbox" style="margin-top:10px"><input type="checkbox" id="chkRemember"
                                                                    name="chkRemember"><fmt:message
@@ -64,6 +64,11 @@
     <div class="form-actions">
         <input type="submit" value='<fmt:message key='login'/>' class="btn btn-primary">
     </div>
+
+        <script type="text/javascript">
+            document.getElementById('username').style.height="20px";
+            document.getElementById('password').style.height="20px";
+        </script>
 
 </div>
 
