@@ -64,7 +64,7 @@ public class OpenIDServerAssociationStore extends InMemoryServerAssociationStore
             // Ignore Exception.
             // Tha SHA_1_PRNG algorithm is provided.
             if (log.isDebugEnabled()) {
-                log.debug(e.getMessage(), e);
+                log.debug("Ignoring NoSuchAlgorithmException. Tha SHA1PRNG algorithm is provided.", e);
             }
         }
         timestamp = Long.toString(new Date().getTime());
