@@ -23,6 +23,7 @@ import org.apache.commons.collections.MapUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
+import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationRequestCacheEntry;
 import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationResultCache;
 import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationResultCacheEntry;
@@ -40,6 +41,7 @@ import org.wso2.carbon.identity.sts.passive.ui.cache.SessionDataCacheEntry;
 import org.wso2.carbon.identity.sts.passive.ui.cache.SessionDataCacheKey;
 import org.wso2.carbon.identity.sts.passive.ui.client.IdentityPassiveSTSClient;
 import org.wso2.carbon.identity.sts.passive.ui.dto.SessionDTO;
+import org.wso2.carbon.idp.mgt.util.IdPManagementUtil;
 import org.wso2.carbon.registry.core.utils.UUIDGenerator;
 import org.wso2.carbon.ui.CarbonUIUtil;
 
@@ -337,7 +339,8 @@ public class PassiveSTS extends HttpServlet {
         sessionDTO.setReqQueryString(request.getQueryString());
 
         String sessionDataKey = UUIDGenerator.generateUUID();
-        addSessionDataToCache(sessionDataKey, sessionDTO, request.getSession().getMaxInactiveInterval());
+        addSessionDataToCache(sessionDataKey, sessionDTO, IdPManagementUtil.getIdleSessionTimeOut
+                                                    (CarbonContext.getThreadLocalCarbonContext().getTenantDomain()));
 
         sendToAuthenticationFramework(request, response, sessionDataKey, sessionDTO);
     }

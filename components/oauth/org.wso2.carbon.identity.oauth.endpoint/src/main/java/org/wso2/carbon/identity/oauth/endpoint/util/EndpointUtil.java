@@ -204,7 +204,7 @@ public class EndpointUtil {
             throws UnsupportedEncodingException {
 
         try {
-            SessionDataCacheEntry entry = (SessionDataCacheEntry) SessionDataCache.getInstance()
+            SessionDataCacheEntry entry = (SessionDataCacheEntry) SessionDataCache.getInstance(0)
                     .getValueFromCache(new SessionDataCacheKey(sessionDataKey));
 
             return getLoginPageURL(clientId, sessionDataKey, forceAuthenticate,
@@ -290,7 +290,7 @@ public class EndpointUtil {
                 log.debug("Received OAuth2 params are Null for UserConsentURL");
             }
         }
-        SessionDataCacheEntry entry = (SessionDataCacheEntry) SessionDataCache.getInstance()
+        SessionDataCacheEntry entry = (SessionDataCacheEntry) SessionDataCache.getInstance(0)
                 .getValueFromCache(new SessionDataCacheKey(sessionDataKey));
         String consentPage = null;
         try {

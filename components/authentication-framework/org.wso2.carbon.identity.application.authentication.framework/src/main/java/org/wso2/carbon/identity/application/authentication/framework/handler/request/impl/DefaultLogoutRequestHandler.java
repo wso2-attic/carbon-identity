@@ -35,6 +35,7 @@ import org.wso2.carbon.identity.application.authentication.framework.handler.req
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticationResult;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkConstants;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkUtils;
+import org.wso2.carbon.idp.mgt.util.IdPManagementUtil;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -115,8 +116,8 @@ public class DefaultLogoutRequestHandler implements LogoutRequestHandler {
                         continue;
                     }
                     // sends the logout request to the external IdP
-                    FrameworkUtils.addAuthenticationContextToCache(context.getContextIdentifier(),
-                                                                   context, FrameworkUtils.getMaxInactiveInterval());
+                    FrameworkUtils.addAuthenticationContextToCache(context.getContextIdentifier(),context
+                            , IdPManagementUtil.getIdleSessionTimeOut(context.getTenantDomain()));
                     return;
                 } catch (AuthenticationFailedException | LogoutFailedException e) {
                     throw new FrameworkException(e.getMessage(), e);
@@ -157,7 +158,7 @@ public class DefaultLogoutRequestHandler implements LogoutRequestHandler {
 
         // Put the result in the
         FrameworkUtils.addAuthenticationResultToCache(context.getCallerSessionKey(), authenticationResult,
-                                                      FrameworkUtils.getMaxInactiveInterval());
+                                                    IdPManagementUtil.getIdleSessionTimeOut(context.getTenantDomain()));
         
         /*
          * TODO Cache retaining is a temporary fix. Remove after Google fixes

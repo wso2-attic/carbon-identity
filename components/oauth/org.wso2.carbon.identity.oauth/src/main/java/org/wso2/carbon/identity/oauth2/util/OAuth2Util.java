@@ -54,7 +54,7 @@ public class OAuth2Util {
     public static final String IMPLICIT = "implicit";
     private static Log log = LogFactory.getLog(OAuth2Util.class);
     private static boolean cacheEnabled = OAuthServerConfiguration.getInstance().isCacheEnabled();
-    private static OAuthCache cache = OAuthCache.getInstance();
+    private static OAuthCache cache = OAuthCache.getInstance(OAuthServerConfiguration.getInstance().getOAuthCacheTimeout());
     private static long timestampSkew = OAuthServerConfiguration.getInstance().getTimeStampSkewInSeconds() * 1000;
     private static ThreadLocal<Integer> clientTenatId = new ThreadLocal<>();
 
