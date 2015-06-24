@@ -127,7 +127,7 @@ public class AuthorizationCodeGrantHandler extends AbstractAuthorizationGrantHan
             }
 
             // remove the authorization code from the database.
-            tokenMgtDAO.cleanUpAuthzCode(authorizationCode);
+            tokenMgtDAO.expireAuthzCode(authorizationCode);
             if (log.isDebugEnabled()) {
                 log.debug("Expired Authorization code : " + authorizationCode +
                         " issued for client " + clientId +
