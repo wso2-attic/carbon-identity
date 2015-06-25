@@ -66,7 +66,7 @@ public abstract class AbstractAuthorizationGrantHandler implements Authorization
         // Set the cache instance if caching is enabled.
         if (OAuthServerConfiguration.getInstance().isCacheEnabled()) {
             cacheEnabled = true;
-            oauthCache = OAuthCache.getInstance();
+            oauthCache = OAuthCache.getInstance(OAuthServerConfiguration.getInstance().getOAuthCacheTimeout());
         }
     }
 
@@ -462,7 +462,8 @@ public abstract class AbstractAuthorizationGrantHandler implements Authorization
         String grantType = tokenReqDTO.getGrantType();
 
         // Load application data from the cache
-        AppInfoCache appInfoCache = AppInfoCache.getInstance();
+        AppInfoCache appInfoCache = AppInfoCache.getInstance(OAuthServerConfiguration.getInstance().
+                                                                                        getAppInfoCacheTimeout());
         OAuthAppDO oAuthAppDO = appInfoCache.getValueFromCache(tokenReqDTO.getClientId());
         if (oAuthAppDO == null) {
             try {

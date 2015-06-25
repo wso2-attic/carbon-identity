@@ -18,13 +18,28 @@
 
 package org.wso2.carbon.identity.sts.passive.ui.cache;
 
-public class SessionDataCache extends BaseCache<CacheKey, CacheEntry> {
+import org.wso2.carbon.identity.application.authentication.framework.store.SessionDataStore;
+import org.wso2.carbon.identity.application.common.cache.BaseCache;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
+
+public class SessionDataCache extends BaseCache<String, CacheEntry> {
 
     private static final String SESSION_DATA_CACHE_NAME = "PassiveSTSSessionDataCache";
     private static volatile SessionDataCache instance;
+    private boolean enableRequestScopeCache = false;
+
+    private SessionDataCache(String cacheName) {
+        super(cacheName);
+        if (IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.Temporary") != null) {
+            enableRequestScopeCache = Boolean.parseBoolean(IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.Temporary"));
+        }
+    }
 
     private SessionDataCache(String cacheName, int timeout) {
         super(cacheName, timeout);
+        if (IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.Temporary") != null) {
+            enableRequestScopeCache = Boolean.parseBoolean(IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.Temporary"));
+        }
     }
 
     public static SessionDataCache getInstance(int timeout) {
@@ -37,5 +52,31 @@ public class SessionDataCache extends BaseCache<CacheKey, CacheEntry> {
             }
         }
         return instance;
+    }
+
+    public void addToCache(CacheKey key, CacheEntry entry){
+        String keyValue = ((SessionDataCacheKey)key).getSessionDataKey();
+        super.addToCache(keyValue ,entry);
+        SessionDataStore.getInstance().storeSessionData(keyValue,SESSION_DATA_CACHE_NAME,entry);
+        if (enableRequestScopeCache) {
+            SessionDataStore.getInstance().storeSessionData(keyValue, SESSION_DATA_CACHE_NAME, entry);
+        }
+    }
+
+    public void clearCacheEntry(CacheKey key){
+        String keyValue = ((SessionDataCacheKey)key).getSessionDataKey();
+        super.clearCacheEntry(keyValue);
+        if (enableRequestScopeCache) {
+            SessionDataStore.getInstance().clearSessionData(keyValue, SESSION_DATA_CACHE_NAME);
+        }
+    }
+
+    public CacheEntry getValueFromCache(CacheKey key) {
+        String keyValue = ((SessionDataCacheKey)key).getSessionDataKey();
+        CacheEntry cacheEntry = super.getValueFromCache(keyValue);
+        if(cacheEntry == null){
+            cacheEntry = (CacheEntry) SessionDataStore.getInstance().getSessionData(keyValue,SESSION_DATA_CACHE_NAME);
+        }
+        return cacheEntry;
     }
 }
