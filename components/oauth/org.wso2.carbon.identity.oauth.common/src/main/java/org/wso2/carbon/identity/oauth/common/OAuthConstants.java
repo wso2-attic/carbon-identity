@@ -148,6 +148,16 @@ public final class OAuthConstants {
         }
     }
 
+    public static class AuthorizationCodeState {
+        public static final String ACTIVE = "ACTIVE";
+        public static final String EXPIRED = "EXPIRED";
+        public static final String INACTIVE = "INACTIVE";
+
+        private AuthorizationCodeState(){
+
+        }
+    }
+
     public static class OAuthError {
         public static class TokenResponse {
             public static final String UNSUPPORTED_CLIENT_AUTHENTICATION_METHOD = "unsupported_client_authentication_method";

@@ -94,7 +94,14 @@ public abstract class AbstractAuthorizationGrantHandler implements Authorization
 
         String consumerKey = tokReqMsgCtx.getOauth2AccessTokenReqDTO().getClientId();
         String authorizedUser = tokReqMsgCtx.getAuthorizedUser();
-        OAuthCacheKey cacheKey = new OAuthCacheKey(consumerKey + ":" + authorizedUser.toLowerCase() + ":" + scope);
+        boolean isUsernameCaseSensitive = OAuth2Util.isUsernameCaseSensitive(authorizedUser);
+        String cacheKeyString;
+        if (isUsernameCaseSensitive){
+            cacheKeyString = consumerKey + ":" + authorizedUser + ":" + scope;
+        }else {
+            cacheKeyString = consumerKey + ":" + authorizedUser.toLowerCase() + ":" + scope;
+        }
+        OAuthCacheKey cacheKey = new OAuthCacheKey(cacheKeyString);
         String userStoreDomain = null;
 
         //select the user store domain when multiple user stores are configured.
@@ -142,6 +149,7 @@ public abstract class AbstractAuthorizationGrantHandler implements Authorization
                         }
                         tokenRespDTO = new OAuth2AccessTokenRespDTO();
                         tokenRespDTO.setAccessToken(accessTokenDO.getAccessToken());
+                        tokenRespDTO.setTokenId(accessTokenDO.getTokenId());
                         if (issueRefreshToken() &&
                                 OAuthServerConfiguration.getInstance().getSupportedGrantTypes().containsKey(
                                         GrantType.REFRESH_TOKEN.toString())) {
@@ -168,7 +176,7 @@ public abstract class AbstractAuthorizationGrantHandler implements Authorization
                         }
                         //Token is expired. Clear it from cache and mark it as expired on database
                         oauthCache.clearCacheEntry(cacheKey);
-                        tokenMgtDAO.setAccessTokenState(accessTokenDO.getAccessToken(),
+                        tokenMgtDAO.setAccessTokenState(accessTokenDO.getTokenId(),
                                 OAuthConstants.TokenStates.TOKEN_STATE_EXPIRED,
                                 UUID.randomUUID().toString(), userStoreDomain);
                         if (log.isDebugEnabled()) {
@@ -211,6 +219,7 @@ public abstract class AbstractAuthorizationGrantHandler implements Authorization
                     }
                     tokenRespDTO = new OAuth2AccessTokenRespDTO();
                     tokenRespDTO.setAccessToken(accessTokenDO.getAccessToken());
+                    tokenRespDTO.setTokenId(accessTokenDO.getTokenId());
                     if (issueRefreshToken() &&
                             OAuthServerConfiguration.getInstance().getSupportedGrantTypes().containsKey(
                                     GrantType.REFRESH_TOKEN.toString())) {
@@ -248,7 +257,7 @@ public abstract class AbstractAuthorizationGrantHandler implements Authorization
                             refreshTokenValidityPeriodInMillis = accessTokenDO.getRefreshTokenValidityPeriodInMillis();
                         }
                         //  Mark token as expired on database
-                        tokenMgtDAO.setAccessTokenState(accessTokenDO.getAccessToken(),
+                        tokenMgtDAO.setAccessTokenState(accessTokenDO.getTokenId(),
                                 OAuthConstants.TokenStates.TOKEN_STATE_EXPIRED,
                                 UUID.randomUUID().toString(), userStoreDomain);
                         if (log.isDebugEnabled()) {
@@ -338,15 +347,10 @@ public abstract class AbstractAuthorizationGrantHandler implements Authorization
             accessTokenDO.setRefreshToken(refreshToken);
             accessTokenDO.setTokenState(OAuthConstants.TokenStates.TOKEN_STATE_ACTIVE);
             accessTokenDO.setTenantID(tokReqMsgCtx.getTenantID());
+            accessTokenDO.setTokenId(UUID.randomUUID().toString());
 
             // Persist the access token in database
-            try {
-                tokenMgtDAO.storeAccessToken(accessToken, oAuth2AccessTokenReqDTO.getClientId(),
-                        accessTokenDO, userStoreDomain);
-            } catch (IdentityException e) {
-                throw new IdentityOAuth2Exception(
-                        "Error occurred while storing new access token : " + accessToken, e);
-            }
+            storeAccessToken(oAuth2AccessTokenReqDTO, userStoreDomain, accessTokenDO, accessToken);
 
             if (log.isDebugEnabled()) {
                 log.debug("Persisted Access Token : " + accessToken + " for " +
@@ -369,6 +373,7 @@ public abstract class AbstractAuthorizationGrantHandler implements Authorization
 
             tokenRespDTO = new OAuth2AccessTokenRespDTO();
             tokenRespDTO.setAccessToken(accessToken);
+            tokenRespDTO.setTokenId(accessTokenDO.getTokenId());
             if (issueRefreshToken() &&
                     OAuthServerConfiguration.getInstance().getSupportedGrantTypes().containsKey(
                             GrantType.REFRESH_TOKEN.toString())) {
@@ -383,6 +388,17 @@ public abstract class AbstractAuthorizationGrantHandler implements Authorization
             }
             tokenRespDTO.setAuthorizedScopes(scope);
             return tokenRespDTO;
+        }
+    }
+
+    protected void storeAccessToken(OAuth2AccessTokenReqDTO oAuth2AccessTokenReqDTO, String userStoreDomain,
+                                    AccessTokenDO accessTokenDO, String accessToken) throws IdentityOAuth2Exception {
+        try {
+            tokenMgtDAO.storeAccessToken(accessToken, oAuth2AccessTokenReqDTO.getClientId(),
+                    accessTokenDO, userStoreDomain);
+        } catch (IdentityException e) {
+            throw new IdentityOAuth2Exception(
+                    "Error occurred while storing new access token : " + accessToken, e);
         }
     }
 

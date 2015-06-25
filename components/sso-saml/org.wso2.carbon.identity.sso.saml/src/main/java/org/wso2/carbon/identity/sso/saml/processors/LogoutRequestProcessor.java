@@ -100,7 +100,14 @@ public class LogoutRequestProcessor {
                     return buildErrorResponse(logoutRequest.getID(),
                             SAMLSSOConstants.StatusCodes.REQUESTOR_ERROR, message);
                 }
+
                 issuer = logoutRequest.getIssuer().getValue();
+
+                String[] splitIssuer = issuer.split("@");
+                if (splitIssuer.length == 2 && !splitIssuer[0].trim().isEmpty() && !splitIssuer[1].trim().isEmpty()) {
+                    issuer = splitIssuer[0];
+                }
+
                 subject = sessionInfoData.getSubject(issuer);
 
                 SAMLSSOUtil.setTenantDomainInThreadLocal(

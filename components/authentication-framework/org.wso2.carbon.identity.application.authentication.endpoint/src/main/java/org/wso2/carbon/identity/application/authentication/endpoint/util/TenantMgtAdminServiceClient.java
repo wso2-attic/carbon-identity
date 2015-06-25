@@ -72,11 +72,11 @@ public class TenantMgtAdminServiceClient {
     /**
      * Default keymanager type of the client
      */
-    private static String keyManagerType = "SunX509";
+    private static String keyManagerType = "SunX509"; //Default Key Manager Type
     /**
      * Default trustmanager type of the client
      */
-    private static String trustManagerType = "SunX509";
+    private static String trustManagerType = "SunX509"; //Default Trust Manager Type
     /**
      * Default ssl protocol for client
      */
@@ -316,7 +316,7 @@ public class TenantMgtAdminServiceClient {
         return trustManagerType;
     }
 
-    public static void getTrustManagerType(String trustManagerType) {
+    public static void setTrustManagerType(String trustManagerType) {
         TenantMgtAdminServiceClient.trustManagerType = trustManagerType;
     }
 

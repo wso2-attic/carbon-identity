@@ -52,7 +52,14 @@ public class TokenResponseTypeHandler extends AbstractResponseTypeHandler {
         respDTO.setCallbackURI(authorizationReqDTO.getCallbackUrl());
         String consumerKey = authorizationReqDTO.getConsumerKey();
         String authorizedUser = authorizationReqDTO.getUsername();
-        OAuthCacheKey cacheKey = new OAuthCacheKey(consumerKey + ":" + authorizedUser + ":" + scope);
+        String oAuthCacheKeyString;
+        boolean isUsernameCaseSensitive = OAuth2Util.isUsernameCaseSensitive(authorizedUser);
+        if (isUsernameCaseSensitive) {
+            oAuthCacheKeyString = consumerKey + ":" + authorizedUser + ":" + scope;
+        } else {
+            oAuthCacheKeyString = consumerKey + ":" + authorizedUser.toLowerCase() + ":" + scope;
+        }
+        OAuthCacheKey cacheKey = new OAuthCacheKey(oAuthCacheKeyString);
         String userStoreDomain = null;
 
         //select the user store domain when multiple user stores are configured.
@@ -111,7 +118,7 @@ public class TokenResponseTypeHandler extends AbstractResponseTypeHandler {
                         }
                         //Token is expired. Clear it from cache and mark it as expired on database
                         oauthCache.clearCacheEntry(cacheKey);
-                        tokenMgtDAO.setAccessTokenState(accessTokenDO.getAccessToken(),
+                        tokenMgtDAO.setAccessTokenState(accessTokenDO.getTokenId(),
                                 OAuthConstants.TokenStates.TOKEN_STATE_EXPIRED,
                                 UUID.randomUUID().toString(), userStoreDomain);
                         if (log.isDebugEnabled()) {
@@ -190,7 +197,7 @@ public class TokenResponseTypeHandler extends AbstractResponseTypeHandler {
                         }
                         //  Mark token as expired on database
 
-                        tokenMgtDAO.setAccessTokenState(accessTokenDO.getAccessToken(),
+                        tokenMgtDAO.setAccessTokenState(accessTokenDO.getTokenId(),
                                 OAuthConstants.TokenStates.TOKEN_STATE_EXPIRED,
                                 UUID.randomUUID().toString(), userStoreDomain);
 
@@ -269,6 +276,7 @@ public class TokenResponseTypeHandler extends AbstractResponseTypeHandler {
             accessTokenDO.setAccessToken(accessToken);
             accessTokenDO.setRefreshToken(refreshToken);
             accessTokenDO.setTokenState(OAuthConstants.TokenStates.TOKEN_STATE_ACTIVE);
+            accessTokenDO.setTokenId(UUID.randomUUID().toString());
 
             // Persist the access token in database
             try {

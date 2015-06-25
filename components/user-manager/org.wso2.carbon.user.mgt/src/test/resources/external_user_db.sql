@@ -1,4 +1,5 @@
-connect 'jdbc:derby:/home/muthulee/test/employee;user=tintin;password=snowy;create=true'; 
+
+connect 'jdbc:derby:/home/muthulee/test/employee;user=tintin;password=snowy;create=true';
 create table employees (id integer generated always as identity, employee_name varchar(255) not null, email varchar(255) not null, postal varchar(255) not null, profile_name varchar(255) not null, primary key (id)); 
 create table roles (id integer generated always as identity, role_name varchar(255) not null, role_description varchar(255) not null, primary key (id)); 
 create table employee_roles (id integer generated always as identity, role_id integer not null, emp_id integer not null, 
