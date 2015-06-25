@@ -96,7 +96,7 @@ public class DefaultRequestCoordinator implements RequestCoordinator {
                         log.debug("Session data key is null in the request");
                     }
 
-                    log.error("Context does not exist. Probably due to invalidated cache");
+                    log.error("Session data key is missing in the request.");
                     FrameworkUtils.sendToRetryPage(request, response);
                 }
 
