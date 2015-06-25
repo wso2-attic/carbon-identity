@@ -18,7 +18,7 @@
  * /
  */
 
-package org.wso2.carbon.identity.uma.endpoint.beans;
+package org.wso2.carbon.identity.uma.beans;
 
 import java.util.ArrayList;
 

@@ -47,16 +47,15 @@ public class UMAServiceComponent {
         bundleContext = context.getBundleContext();
         bundleContext.registerService(UMAService.class.getName(),new UMAService(),null);
 
-        // expose the UMA Server Configuration as an OSGIService
 
         if (log.isDebugEnabled()){
-            log.debug("Identity UMA bundle activated");
+            log.debug("Identity User Managed Access bundle activated");
         }
     }
 
     protected void deactivate(ComponentContext context){
         if (log.isDebugEnabled()){
-            log.debug("Identity UMA bundle deactivated");
+            log.debug("Identity User Managed Access bundle deactivated");
         }
     }
 

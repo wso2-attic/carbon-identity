@@ -23,12 +23,10 @@ package org.wso2.carbon.identity.uma.endpoint.authorization;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.cxf.jaxrs.ext.multipart.Multipart;
 import org.apache.cxf.jaxrs.impl.MetadataMap;
-import org.apache.cxf.jaxrs.impl.ResponseImpl;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.uma.endpoint.UmaRequestWrapper;
-import org.wso2.carbon.identity.uma.endpoint.beans.UmaRptRequestPayloadBean;
+import org.wso2.carbon.identity.uma.beans.UmaRptRequestPayloadBean;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 import javax.servlet.http.HttpServletRequest;
@@ -38,8 +36,6 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 
 @Path("/rpt")
@@ -62,6 +58,10 @@ public class UmaAuthorizationEndpoint {
         HttpServletRequestWrapper httpServletRequestWrapper =
                 new UmaRequestWrapper(request,new MetadataMap<String,String>());
 
+        // create the carbon UMA RPT request
+
+
+
         // log the RPT Token Request
         if(log.isDebugEnabled()){
             logRptRequest(httpServletRequestWrapper);
@@ -70,11 +70,19 @@ public class UmaAuthorizationEndpoint {
         return null;
     }
 
-
+    /**
+     * Log the received token request
+     * @param httpServletRequest
+     */
     private void logRptRequest(HttpServletRequest httpServletRequest){
 
         StringBuilder builder = new StringBuilder();
 
+
+    }
+
+
+    private void getRequestPartyToken(){
 
     }
 }

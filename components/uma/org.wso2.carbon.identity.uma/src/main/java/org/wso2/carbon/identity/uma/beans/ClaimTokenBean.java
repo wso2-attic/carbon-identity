@@ -18,7 +18,7 @@
  * /
  */
 
-package org.wso2.carbon.identity.uma.endpoint.beans;
+package org.wso2.carbon.identity.uma.beans;
 
 /**
  *  Bean object class to parse the claim tokens within the json payload of the RPT Request that are pushed
