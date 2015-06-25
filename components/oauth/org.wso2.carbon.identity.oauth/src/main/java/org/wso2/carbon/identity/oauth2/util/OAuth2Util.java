@@ -101,8 +101,8 @@ public class OAuth2Util {
      * @return Comma separated list of scopes
      */
     public static String buildScopeString(String[] scopes) {
-        StringBuilder scopeString = new StringBuilder("");
         if (scopes != null) {
+            StringBuilder scopeString = new StringBuilder("");
             Arrays.sort(scopes);
             for (int i = 0; i < scopes.length; i++) {
                 scopeString.append(scopes[i].trim());
@@ -110,8 +110,9 @@ public class OAuth2Util {
                     scopeString.append(" ");
                 }
             }
+            return scopeString.toString();
         }
-        return scopeString.toString();
+        return null;
     }
 
     /**
@@ -517,12 +518,21 @@ public class OAuth2Util {
     }
 
     public static String hashScopes(String[] scope){
-        return DigestUtils.md5Hex(OAuth2Util.buildScopeString(scope));
+        if (scope.length > 0){
+            return DigestUtils.md5Hex(OAuth2Util.buildScopeString(scope));
+        } else {
+            return null;
+        }
+
     }
 
     public static String hashScopes(String scope){
-        //first converted to an array to sort the scopes
-        return DigestUtils.md5Hex(OAuth2Util.buildScopeString(buildScopeArray(scope)));
+        if (StringUtils.isNotBlank(scope)) {
+            //first converted to an array to sort the scopes
+            return DigestUtils.md5Hex(OAuth2Util.buildScopeString(buildScopeArray(scope)));
+        } else {
+           return null;
+        }
     }
 
     public static boolean isUsernameCaseSensitive(String username) {
