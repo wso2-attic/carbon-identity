@@ -32,7 +32,6 @@ import javax.activation.DataSource;
 import javax.activation.FileDataSource;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -299,22 +298,31 @@ public class BPELApprovalDeployer implements TemplateInitializer {
         }
     }
 
-    private void addToZipFile(String fileName, ZipOutputStream zos) throws FileNotFoundException, IOException {
+    private void addToZipFile(String fileName, ZipOutputStream zos) throws IOException {
 
         File zipRootPath = new File(System.getProperty(Constants.TEMP_DIR_PROPERTY));
         File file = new File(fileName);
         String relativePath = zipRootPath.toURI().relativize(file.toURI()).getPath();
-        FileInputStream fis = new FileInputStream(fileName);
         ZipEntry zipEntry = new ZipEntry(relativePath);
         zos.putNextEntry(zipEntry);
-
-        byte[] bytes = new byte[1024];
-        int length;
-        while ((length = fis.read(bytes)) >= 0) {
-            zos.write(bytes, 0, length);
+        FileInputStream fis = null;
+        try {
+            fis = new FileInputStream(fileName);
+            byte[] bytes = new byte[1024];
+            int length;
+            while ((length = fis.read(bytes)) >= 0) {
+                zos.write(bytes, 0, length);
+            }
+        } finally {
+            zos.closeEntry();
+            if(fis!=null){
+                try {
+                    fis.close();
+                } catch (IOException e) {
+                    log.error("Error when closing the file input stream for "+fileName);
+                }
+            }
         }
-        zos.closeEntry();
-        fis.close();
     }
 
     private static class Constants {

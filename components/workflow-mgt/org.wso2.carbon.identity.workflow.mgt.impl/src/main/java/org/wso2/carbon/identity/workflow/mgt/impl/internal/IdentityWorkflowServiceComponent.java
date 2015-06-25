@@ -50,29 +50,20 @@ import org.wso2.carbon.utils.ConfigurationContextService;
  * unbind="unsetConfigurationContextService"
  */
 public class IdentityWorkflowServiceComponent {
-    private static RealmService realmService;
-    private static ConfigurationContextService configurationContextService;
-
-    private static BundleContext bundleContext;
-
-    public static RealmService getRealmService() {
-        return realmService;
-    }
 
     protected void setRealmService(RealmService realmService) {
-        IdentityWorkflowServiceComponent.realmService = realmService;
-    }
 
-    public static ConfigurationContextService getConfigurationContextService() {
-        return configurationContextService;
+        IdentityWorkflowDataHolder.getInstance().setRealmService(realmService);
     }
 
     protected void setConfigurationContextService(ConfigurationContextService contextService) {
-        IdentityWorkflowServiceComponent.configurationContextService = contextService;
+
+        IdentityWorkflowDataHolder.getInstance().setConfigurationContextService(contextService);
     }
 
     protected void activate(ComponentContext context) {
-        bundleContext = context.getBundleContext();
+
+        BundleContext bundleContext = context.getBundleContext();
         bundleContext.registerService(UserOperationEventListener.class.getName(), new UserStoreActionListener(), null);
         bundleContext.registerService(WorkflowRequestHandler.class.getName(), new AddUserWFRequestHandler(), null);
         bundleContext.registerService(WorkflowRequestHandler.class.getName(), new AddRoleWFRequestHandler(), null);
@@ -92,13 +83,16 @@ public class IdentityWorkflowServiceComponent {
                 , null);
         bundleContext.registerService(WorkflowRequestHandler.class.getName(), new UpdateRoleNameWFRequestHandler()
                 , null);
+        IdentityWorkflowDataHolder.getInstance().setBundleContext(bundleContext);
     }
 
     protected void unsetRealmService(RealmService realmService) {
-        IdentityWorkflowServiceComponent.realmService = null;
+
+        IdentityWorkflowDataHolder.getInstance().setRealmService(null);
     }
 
     protected void unsetConfigurationContextService(ConfigurationContextService contextService) {
-        IdentityWorkflowServiceComponent.configurationContextService = null;
+
+        IdentityWorkflowDataHolder.getInstance().setConfigurationContextService(null);
     }
 }

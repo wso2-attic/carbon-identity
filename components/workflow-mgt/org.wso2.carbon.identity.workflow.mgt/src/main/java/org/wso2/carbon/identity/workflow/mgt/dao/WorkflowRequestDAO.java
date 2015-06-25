@@ -105,7 +105,6 @@ public class WorkflowRequestDAO {
 
         String query = SQLConstants.GET_WORKFLOW_REQUEST_QUERY;
         try {
-            Timestamp createdDateStamp = new Timestamp(System.currentTimeMillis());
             connection = IdentityDatabaseUtil.getDBConnection();
             prepStmt = connection.prepareStatement(query);
             prepStmt.setString(1, uuid);

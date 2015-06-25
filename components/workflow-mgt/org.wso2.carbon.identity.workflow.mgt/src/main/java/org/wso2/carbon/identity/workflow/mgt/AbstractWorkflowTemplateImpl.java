@@ -32,38 +32,46 @@ public abstract class AbstractWorkflowTemplateImpl {
 
 
     public TemplateInitializer getInitializer() {
+
         return initializer;
     }
 
     public void setInitializer(TemplateInitializer initializer) {
+
         this.initializer = initializer;
     }
 
     public WorkFlowExecutor getExecutor() {
+
         return executor;
     }
 
     public void setExecutor(WorkFlowExecutor executor) {
+
         this.executor = executor;
     }
 
     public void activate(Map<String, Object> initParams) throws WorkflowException {
+
         if (initializer.initNeededAtStartUp()) {
             deploy(initParams);
         }
     }
 
     public void initializeExecutor(Map<String, Object> initParams) throws WorkflowException {
+
         executor.initialize(initParams);
     }
 
     public void deploy(Map<String, Object> initParams) throws WorkflowException {
+
         if (initializer != null) {
             initializer.initialize(initParams);
         }
     }
 
     public void execute(WorkFlowRequest workFlowRequest) throws WorkflowException {
+
         executor.execute(workFlowRequest);
     }
 
@@ -81,12 +89,13 @@ public abstract class AbstractWorkflowTemplateImpl {
         if (this == o) {
             return true;
         }
-        if (o == null) {
+        if (o == null || !(o instanceof AbstractWorkflowTemplate)) {
             return false;
         }
         AbstractWorkflowTemplateImpl that = (AbstractWorkflowTemplateImpl) o;
-        return StringUtils.equals(getTemplateId(),that.getTemplateId()) && StringUtils.equals(getImplementationId(),that
-                .getImplementationId());
+        return StringUtils.equals(getTemplateId(), that.getTemplateId()) &&
+                StringUtils.equals(getImplementationId(), that
+                        .getImplementationId());
 
     }
 
