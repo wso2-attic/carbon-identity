@@ -158,7 +158,7 @@ public class RegistryRecoveryDataStore implements UserRecoveryDataStore {
                         if (resource.contains("___" + userName + "___")) {
                             registry.delete(resource);
                         }
-                    } else if (splittedResource != null && splittedResource.length == 2) {
+                    } else if (splittedResource.length == 2) {
                         //SECONDARY USER STORE. Resource is a collection.
                         deleteOldResourcesIfFound(registry, userName, resource);
                     }
