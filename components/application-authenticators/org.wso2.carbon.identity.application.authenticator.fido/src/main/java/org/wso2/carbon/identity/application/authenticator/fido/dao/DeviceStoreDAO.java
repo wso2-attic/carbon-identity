@@ -23,6 +23,7 @@ import com.google.common.collect.Multimap;
 import com.yubico.u2f.data.DeviceRegistration;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.identity.application.authenticator.fido.exception.FIDOAuthenticatorServerException;
 import org.wso2.carbon.identity.application.authenticator.fido.util.FIDOAuthenticatorConstants;
 import org.wso2.carbon.identity.application.authenticator.fido.util.FIDOUtil;
 import org.wso2.carbon.identity.base.IdentityException;
@@ -51,18 +52,16 @@ public class DeviceStoreDAO {
      */
     public void addDeviceRegistration(String username, DeviceRegistration registration,
                                       int tenantID, String userStoreDomain)
-            throws IdentityException {
+            throws FIDOAuthenticatorServerException {
 
-        FIDOUtil.logTrace("Executing {addDeviceRegistration} method", log);
         if (log.isDebugEnabled()) {
             log.debug("addDeviceRegistration inputs {username: " + username + ", registration :" +
                       registration.toJsonWithAttestationCert() + "}");
         }
-        Connection connection = null;
+        Connection connection = getDBConnection();
         PreparedStatement preparedStatement = null;
 
         try {
-            connection = IdentityDatabaseUtil.getDBConnection();
             preparedStatement = connection.prepareStatement(FIDOAuthenticatorConstants.SQLQueries.ADD_DEVICE_REGISTRATION_QUERY);
             preparedStatement.setInt(1, tenantID);
             preparedStatement.setString(2, username);
@@ -71,20 +70,16 @@ public class DeviceStoreDAO {
             preparedStatement.setString(5, userStoreDomain);
             preparedStatement.setInt(6, tenantID);
             preparedStatement.executeUpdate();
-            connection.commit();
+            if (!connection.getAutoCommit()) {
+                connection.commit();
+            }
 
         } catch (SQLException e) {
-            try {
-                connection.rollback();
-            } catch (SQLException e1) {
-                log.error("Error rolling back the transaction to FIDO registration", e1);
-            }
-            throw new IdentityException("Error when executing FIDO registration SQL : " +
-                                        FIDOAuthenticatorConstants.SQLQueries.ADD_DEVICE_REGISTRATION_QUERY, e);
+            throw new FIDOAuthenticatorServerException("Error when executing FIDO registration SQL : " +
+                                                       FIDOAuthenticatorConstants.SQLQueries.ADD_DEVICE_REGISTRATION_QUERY, e);
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, null, preparedStatement);
         }
-        FIDOUtil.logTrace("Completed {addDeviceRegistration} method", log);
     }
 
     /**
@@ -95,19 +90,17 @@ public class DeviceStoreDAO {
      * @throws IdentityException when SQL statement can not be executed.
      */
     public Collection getDeviceRegistration(String username, int tenantID, String userStoreDomain)
-            throws IdentityException {
+            throws FIDOAuthenticatorServerException {
 
-        FIDOUtil.logTrace("Executing {getDeviceRegistration} method", log);
         if (log.isDebugEnabled()) {
             log.debug("getDeviceRegistration inputs {username:" + username + "}");
         }
-        Connection connection = null;
+        Connection connection = getDBConnection();
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
         Multimap<String, String> devices = ArrayListMultimap.create();
 
         try {
-            connection = IdentityDatabaseUtil.getDBConnection();
             preparedStatement = connection.prepareStatement(FIDOAuthenticatorConstants.SQLQueries.GET_DEVICE_REGISTRATION_QUERY);
             preparedStatement.setString(1, userStoreDomain);
             preparedStatement.setInt(2, tenantID);
@@ -124,13 +117,51 @@ public class DeviceStoreDAO {
                 log.debug("getDeviceRegistration result length {" + devices.size() + "}");
             }
         } catch (SQLException e) {
-            throw new IdentityException(
+            throw new FIDOAuthenticatorServerException(
                     "Error executing get device registration SQL : " +
-                    FIDOAuthenticatorConstants.SQLQueries.GET_DEVICE_REGISTRATION_QUERY, e);
+                    FIDOAuthenticatorConstants.SQLQueries.GET_DEVICE_REGISTRATION_QUERY, e
+            );
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, resultSet, preparedStatement);
         }
-        FIDOUtil.logTrace("Completed {getDeviceRegistration} method, returns devices of size :" + devices.size(), log);
         return devices.values();
+    }
+
+    public void removeRegistration(String username, int tenantID, String userStoreDomain)
+            throws FIDOAuthenticatorServerException {
+
+        if (log.isDebugEnabled()) {
+            log.debug("removeRegistration inputs {username:" + username + "}");
+        }
+        Connection connection = getDBConnection();
+        PreparedStatement preparedStatement = null;
+
+        try {
+            preparedStatement = connection.prepareStatement(FIDOAuthenticatorConstants.SQLQueries.REMOVE_REGISTRATION_QUERY);
+            preparedStatement.setString(1, userStoreDomain);
+            preparedStatement.setInt(2, tenantID);
+            preparedStatement.setInt(3, tenantID);
+            preparedStatement.setString(4, username);
+            preparedStatement.executeUpdate();
+
+            if (!connection.getAutoCommit()) {
+                connection.commit();
+            }
+        } catch (SQLException e) {
+            throw new FIDOAuthenticatorServerException(
+                    "Error executing remove registrations SQL : " +
+                    FIDOAuthenticatorConstants.SQLQueries.GET_DEVICE_REGISTRATION_QUERY, e
+            );
+        } finally {
+            IdentityDatabaseUtil.closeAllConnections(connection, null, preparedStatement);
+        }
+    }
+
+    private Connection getDBConnection() throws FIDOAuthenticatorServerException {
+        try {
+            return IdentityDatabaseUtil.getDBConnection();
+        } catch (IdentityException e) {
+            throw new FIDOAuthenticatorServerException("Error while getting database connection ", e);
+        }
     }
 }

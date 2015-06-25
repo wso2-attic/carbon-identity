@@ -18,25 +18,23 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar"
     prefix="carbon"%>
-<%@page import="org.wso2.carbon.utils.ServerConstants"%>
-<%@page import="org.wso2.carbon.ui.CarbonUIUtil"%>
 <%@page import="org.apache.axis2.context.ConfigurationContext"%>
 <%@page import="org.wso2.carbon.CarbonConstants"%>
+<%@page import="org.wso2.carbon.identity.user.profile.stub.types.UserFieldDTO"%>
+<%@page import="org.wso2.carbon.identity.user.profile.stub.types.UserProfileDTO"%>
 <%@page import="org.wso2.carbon.identity.user.profile.ui.client.UserProfileCient"%>
-<%@page import="java.util.Map"%>
-<%@page import="java.util.Iterator"%>
-<%@page import="java.lang.Exception"%>
-<%@page import="java.util.ResourceBundle"%>
-<%@page import="org.wso2.carbon.ui.util.CharacterEncoder"%><script type="text/javascript" src="extensions/js/vui.js"></script>
+<%@page import="org.wso2.carbon.ui.CarbonUIMessage"%>
+<%@page import="org.wso2.carbon.ui.CarbonUIUtil"%>
+<%@page import="org.wso2.carbon.ui.util.CharacterEncoder"%>
+<%@page import="org.wso2.carbon.user.mgt.ui.Util"%>
+<%@ page import="org.wso2.carbon.utils.ServerConstants" %>
+<%@page import="java.net.URLEncoder"%><script type="text/javascript" src="extensions/js/vui.js"></script>
 <script type="text/javascript" src="../extensions/core/js/vui.js"></script>
 <script type="text/javascript" src="../admin/js/main.js"></script>
 
 <jsp:include page="../dialog/display_messages.jsp" />
-<%@ page import="org.wso2.carbon.ui.CarbonUIMessage"%>
-<%@ page import="org.wso2.carbon.identity.user.profile.stub.types.UserFieldDTO" %>
-<%@ page import="org.wso2.carbon.identity.user.profile.stub.types.UserProfileDTO" %>
-<%@ page import="java.text.MessageFormat" %>
-<%@page import="java.net.URLEncoder" %>
+<%@ page import="java.text.MessageFormat"%>
+<%@ page import="java.util.ResourceBundle" %>
 
 <%
 	String profile = CharacterEncoder.getSafeText(request.getParameter("profile"));
@@ -79,7 +77,7 @@
         userprofile.setProfileName(profile);
         userprofile.setFieldValues(fieldDTOs);      
         userprofile.setProfileConifuration(profileConfiguration);
-        client.setUserProfile(username, userprofile);
+        client.setUserProfile(Util.decodeHTMLCharacters(username), userprofile);
         String message = resourceBundle.getString("user.profile.updated.successfully");
         CarbonUIMessage.sendCarbonUIMessage(message,CarbonUIMessage.INFO, request);
         if ("true".equals(fromUserMgt)) {
@@ -95,9 +93,9 @@
 
     } catch (Exception e) {
         String message = MessageFormat.format(resourceBundle.getString(
-                "error.while.updating.user.profile"), username, e.getMessage());
+                "error.while.updating.user.profile"), Util.decodeHTMLCharacters(username), e.getMessage());
     	CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
-        forwardTo = "edit.jsp?username=" + username + "&profile=" + profile + "&fromUserMgt=true&noOfProfiles=" + noOfProfiles;
+        forwardTo = "edit.jsp?username=" + URLEncoder.encode(username) + "&profile=" + profile + "&fromUserMgt=true&noOfProfiles=" + noOfProfiles;
     }
 %>
 

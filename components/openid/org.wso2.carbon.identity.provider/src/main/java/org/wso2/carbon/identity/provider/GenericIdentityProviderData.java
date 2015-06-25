@@ -1,30 +1,30 @@
 /*
-*  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ * Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package org.wso2.carbon.identity.provider;
 
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.impl.builder.StAXOMBuilder;
 import org.apache.axiom.om.impl.dom.factory.OMDOMFactory;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.rahas.RahasData;
 import org.apache.ws.security.WSConstants;
-import org.apache.ws.security.components.crypto.X509NameTokenizer;
 import org.apache.xml.security.utils.Constants;
 import org.w3c.dom.Element;
 import org.wso2.carbon.identity.base.IdentityConstants;
@@ -38,17 +38,18 @@ import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
 import java.io.ByteArrayInputStream;
-import java.security.KeyStore;
 import java.security.cert.X509Certificate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 public class GenericIdentityProviderData {
 
     public static final String USERMAN_SERVICE = "UserManServiceURL";
     public static final String USER_CLASS = "UserClass";
-    private static Log log = LogFactory.getLog(GenericIdentityProviderData.class);
-    private static KeyStore cacerts;
-    public String userClass = null;
+    private static final Log log = LogFactory.getLog(GenericIdentityProviderData.class);
     protected String cardID = null;
     protected Map<String, RequestedClaimData> requestedClaims = new HashMap<String, RequestedClaimData>();
     protected Map<String, Claim> supportedClaims = new HashMap<String, Claim>();
@@ -65,8 +66,7 @@ public class GenericIdentityProviderData {
      * @throws IdentityProviderException
      * @throws ClassNotFoundException
      */
-    public GenericIdentityProviderData(RahasData data) throws IdentityProviderException,
-            ClassNotFoundException {
+    public GenericIdentityProviderData(RahasData data) throws IdentityProviderException, ClassNotFoundException {
         OMElement rstElem = null;
         OMElement claimElem = null;
 
@@ -87,10 +87,11 @@ public class GenericIdentityProviderData {
     }
 
     public void setRequiredTokenType(String requiredTokenType) {
-        if (requiredTokenType == null || requiredTokenType.trim().length() == 0) {
-            requiredTokenType = getDefautTokenType();
+        if (StringUtils.isBlank(requiredTokenType)) {
+            this.requiredTokenType = getDefautTokenType();
+        } else {
+            this.requiredTokenType = requiredTokenType;
         }
-        this.requiredTokenType = requiredTokenType;
     }
 
     /**
@@ -121,7 +122,7 @@ public class GenericIdentityProviderData {
         return null;
     }
 
-    public String getDisplayName(String URI) {
+    public String getDisplayName(String uri) {
         return null;
     }
 
@@ -166,8 +167,7 @@ public class GenericIdentityProviderData {
      * @param claims
      * @throws IdentityProviderException
      */
-    protected void processClaimData(RahasData rahasData, OMElement claims)
-            throws IdentityProviderException {
+    protected void processClaimData(RahasData rahasData, OMElement claims) throws IdentityProviderException {
 
         if (claims == null) {
             return;
@@ -178,8 +178,8 @@ public class GenericIdentityProviderData {
         }
 
         Iterator iterator = null;
-        iterator = claims.getChildrenWithName(new QName(IdentityConstants.NS,
-                IdentityConstants.LocalNames.IDENTITY_CLAIM_TYPE));
+        iterator = claims.getChildrenWithName(
+                new QName(IdentityConstants.NS, IdentityConstants.LocalNames.IDENTITY_CLAIM_TYPE));
 
         while (iterator.hasNext()) {
             OMElement omElem = null;
@@ -198,8 +198,8 @@ public class GenericIdentityProviderData {
             }
             claim.setUri(uriClaim);
             optional = (omElem.getAttributeValue(new QName(null, "Optional")));
-            if (optional != null) {
-                claim.setBOptional((optional.equals("true")) ? true : false);
+            if (StringUtils.isNotBlank(optional)) {
+                claim.setBOptional("true".equals(optional));
             } else {
                 claim.setBOptional(true);
             }
@@ -230,7 +230,7 @@ public class GenericIdentityProviderData {
      * @param data Information in the RST extracted by Rahas.
      */
     protected void extracAndValidatetRPCert(RahasData data) throws IdentityProviderException {
-
+        // In the generic case we have nothing to do here.
     }
 
     /**
@@ -268,9 +268,9 @@ public class GenericIdentityProviderData {
         List<String> claimList = new ArrayList<String>();
 
         while (ite.hasNext()) {
-            RequestedClaimData claim = (RequestedClaimData) ite.next();
-            if (claim != null && !claim.getUri().equals(IdentityConstants.CLAIM_PPID)
-                    && !claim.getUri().equals(IdentityConstants.CLAIM_TENANT_DOMAIN)) {
+            RequestedClaimData claim = ite.next();
+            if (claim != null && !claim.getUri().equals(IdentityConstants.CLAIM_PPID) &&
+                !claim.getUri().equals(IdentityConstants.CLAIM_TENANT_DOMAIN)) {
                 claimList.add(claim.getUri());
             }
         }
@@ -307,57 +307,50 @@ public class GenericIdentityProviderData {
      * @param keyInfo    The incoming ds:KeyInfo element as a <code>org.w3c.dom.Element</code>.
      * @return true if the information matches, otherwise false.
      */
-    protected boolean validateKeyInfo(String issuerInfo, Element keyInfo)
-            throws IdentityProviderException {
+    protected boolean validateKeyInfo(String issuerInfo, Element keyInfo) throws IdentityProviderException {
 
         if (log.isDebugEnabled()) {
             log.debug("Validating key info");
         }
 
         try {
-            OMElement elem = new StAXOMBuilder(new ByteArrayInputStream(issuerInfo.getBytes()))
-                    .getDocumentElement();
+            OMElement elem = new StAXOMBuilder(new ByteArrayInputStream(issuerInfo.getBytes())).getDocumentElement();
 
             OMElement keyValueElem = elem.getFirstElement();
-            if (keyValueElem != null
-                    && keyValueElem.getQName().equals(
-                    new QName(WSConstants.SIG_NS, Constants._TAG_KEYVALUE))) {
+            if (keyValueElem != null &&
+                keyValueElem.getQName().equals(new QName(WSConstants.SIG_NS, Constants._TAG_KEYVALUE))) {
                 // KeyValue structure : expect an RSAKeyValue
                 OMElement rsaKeyValueElem = keyValueElem.getFirstElement();
-                if (rsaKeyValueElem != null
-                        && rsaKeyValueElem.getQName().equals(
-                        new QName(WSConstants.SIG_NS, Constants._TAG_RSAKEYVALUE))) {
-                    String modulus = rsaKeyValueElem.getFirstChildWithName(
-                            new QName(WSConstants.SIG_NS, Constants._TAG_MODULUS)).getText().trim();
-                    String exponent = rsaKeyValueElem.getFirstChildWithName(
-                            new QName(WSConstants.SIG_NS, Constants._TAG_EXPONENT)).getText()
+                if (rsaKeyValueElem != null &&
+                    rsaKeyValueElem.getQName().equals(new QName(WSConstants.SIG_NS, Constants._TAG_RSAKEYVALUE))) {
+                    String modulus =
+                            rsaKeyValueElem.getFirstChildWithName(new QName(WSConstants.SIG_NS, Constants._TAG_MODULUS))
+                                           .getText().trim();
+                    String exponent = rsaKeyValueElem
+                            .getFirstChildWithName(new QName(WSConstants.SIG_NS, Constants._TAG_EXPONENT)).getText()
                             .trim();
 
                     // Now process the incoming element to check for ds:RSAKeyValue
 
-                    OMElement receivedKeyInfoElem = (OMElement) new OMDOMFactory().getDocument()
-                            .importNode(keyInfo, true);
+                    OMElement receivedKeyInfoElem = (OMElement) new OMDOMFactory().getDocument().importNode(keyInfo,
+                                                                                                            true);
 
                     OMElement receivedKeyValueElem = receivedKeyInfoElem.getFirstElement();
-                    if (receivedKeyValueElem != null
-                            && receivedKeyValueElem.getQName().equals(
-                            new QName(WSConstants.SIG_NS, Constants._TAG_KEYVALUE))) {
-                        OMElement receivedRsaKeyValueElem = receivedKeyValueElem
-                                .getFirstChildWithName(new QName(WSConstants.SIG_NS,
-                                        Constants._TAG_RSAKEYVALUE));
+                    if (receivedKeyValueElem != null && receivedKeyValueElem.getQName()
+                                                                            .equals(new QName(WSConstants.SIG_NS,
+                                                                                              Constants._TAG_KEYVALUE))) {
+                        OMElement receivedRsaKeyValueElem = receivedKeyValueElem.getFirstChildWithName(
+                                new QName(WSConstants.SIG_NS, Constants._TAG_RSAKEYVALUE));
                         if (receivedRsaKeyValueElem != null) {
                             // Obtain incoming mod and exp
-                            String receivedModulus = receivedRsaKeyValueElem.getFirstChildWithName(
-                                    new QName(WSConstants.SIG_NS, Constants._TAG_MODULUS))
+                            String receivedModulus = receivedRsaKeyValueElem
+                                    .getFirstChildWithName(new QName(WSConstants.SIG_NS, Constants._TAG_MODULUS))
                                     .getText().trim();
-                            String receivedExponent = receivedRsaKeyValueElem
-                                    .getFirstChildWithName(
-                                            new QName(WSConstants.SIG_NS, Constants._TAG_EXPONENT))
-                                    .getText().trim();
+                            String receivedExponent = receivedRsaKeyValueElem.getFirstChildWithName(
+                                    new QName(WSConstants.SIG_NS, Constants._TAG_EXPONENT)).getText().trim();
 
                             // Compare
-                            return modulus.equals(receivedModulus)
-                                    && exponent.equals(receivedExponent);
+                            return modulus.equals(receivedModulus) && exponent.equals(receivedExponent);
                         } else {
                             log.error("Unknown received KeyInfo type");
                             throw new IdentityProviderException("Unknown received KeyInfo type");
@@ -376,7 +369,7 @@ public class GenericIdentityProviderData {
                 throw new IdentityProviderException("Unknown stored KeyInfo type");
             }
         } catch (XMLStreamException e) {
-            log.error("Error parsing stored KeyInfo");
+            log.error("Error parsing stored KeyInfo", e);
             throw new IdentityProviderException("Error parsing stored KeyInfo");
         }
     }
@@ -401,21 +394,6 @@ public class GenericIdentityProviderData {
 
     protected RequestedClaimData getRequestedClaim() {
         return new RequestedClaimData();
-    }
-
-    private Vector splitAndTrim(String inString) {
-        X509NameTokenizer nmTokens = new X509NameTokenizer(inString);
-        Vector vr = new Vector();
-
-        if (log.isDebugEnabled()) {
-            log.debug("");
-        }
-
-        while (nmTokens.hasMoreTokens()) {
-            vr.add(nmTokens.nextToken());
-        }
-        java.util.Collections.sort(vr);
-        return vr;
     }
 
 }

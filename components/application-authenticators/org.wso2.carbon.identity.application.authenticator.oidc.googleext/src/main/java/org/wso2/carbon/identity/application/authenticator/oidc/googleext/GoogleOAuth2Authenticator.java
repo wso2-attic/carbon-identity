@@ -1,19 +1,19 @@
 /*
- *Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- *WSO2 Inc. licenses this file to you under the Apache License,
- *Version 2.0 (the "License"); you may not use this file except
- *in compliance with the License.
- *You may obtain a copy of the License at
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
- *Unless required by applicable law or agreed to in writing,
- *software distributed under the License is distributed on an
- *"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *KIND, either express or implied.  See the License for the
- *specific language governing permissions and limitations
- *under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 package org.wso2.carbon.identity.application.authenticator.oidc.googleext;
 
@@ -46,6 +46,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -102,9 +103,10 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
                     .getAuthenticatorProperties();
             if (authenticatorProperties != null) {
                 String clientId = authenticatorProperties.get(OIDCAuthenticatorConstants.CLIENT_ID);
-                String authorizationEP = getAuthorizationServerEndpoint(authenticatorProperties);
-
-                if (authorizationEP == null) {
+                String authorizationEP;
+                if (getAuthorizationServerEndpoint(authenticatorProperties) != null) {
+                    authorizationEP = getAuthorizationServerEndpoint(authenticatorProperties);
+                } else {
                     authorizationEP = authenticatorProperties.get(OIDCAuthenticatorConstants.OAUTH2_AUTHZ_URL);
                 }
 
@@ -174,6 +176,7 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
      * @param authenticatorProperties
      * @return
      */
+    @Override
     protected String getScope(String scope,
                               Map<String, String> authenticatorProperties) {
         return OIDCAuthenticatorConstants.OAUTH_OIDC_SCOPE;
@@ -204,18 +207,18 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
 
         try {
             String json = sendRequest(GoogleOAuth2AuthenticationConstant.GOOGLE_USERINFO_ENDPOINT,
-                                      token.getParam(OIDCAuthenticatorConstants.ACCESS_TOKEN));
+                    token.getParam(OIDCAuthenticatorConstants.ACCESS_TOKEN));
 
             Map<String, Object> jsonObject = JSONUtils.parseJSON(json);
 
             if (jsonObject != null) {
                 for (Map.Entry<String, Object> entry : jsonObject.entrySet()) {
                     claims.put(ClaimMapping.build(entry.getKey(),
-                                                  entry.getKey(), null, false), entry.getValue()
-                                       .toString());
+                            entry.getKey(), null, false), entry.getValue()
+                            .toString());
                     if (log.isDebugEnabled()) {
                         log.debug("Adding claim from end-point data mapping : " + entry.getKey() + " - " +
-                                  entry.getValue());
+                                entry.getValue());
                     }
 
                 }
@@ -281,9 +284,10 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
             Map<String, String> authenticatorProperties = context.getAuthenticatorProperties();
             String clientId = authenticatorProperties.get(OIDCAuthenticatorConstants.CLIENT_ID);
             String clientSecret = authenticatorProperties.get(OIDCAuthenticatorConstants.CLIENT_SECRET);
-            String tokenEndPoint = getTokenEndpoint(authenticatorProperties);
-
-            if (tokenEndPoint == null) {
+            String tokenEndPoint;
+            if (getTokenEndpoint(authenticatorProperties) != null) {
+                tokenEndPoint = getTokenEndpoint(authenticatorProperties);
+            } else {
                 tokenEndPoint = authenticatorProperties.get(OIDCAuthenticatorConstants.OAUTH2_TOKEN_URL);
             }
 
@@ -300,38 +304,27 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
             Map<String, String> paramValueMap = (Map<String, String>) context.getProperty("oidc:param.map");
 
             if (paramValueMap != null
-                && paramValueMap.containsKey("redirect_uri")) {
+                    && paramValueMap.containsKey("redirect_uri")) {
                 callBackUrl = paramValueMap.get("redirect_uri");
             }
 
             OAuthAuthzResponse authzResponse = OAuthAuthzResponse.oauthCodeAuthzResponse(request);
             String code = authzResponse.getCode();
 
-            OAuthClientRequest accessRequest;
-            try {
-                accessRequest = OAuthClientRequest.tokenLocation(tokenEndPoint)
-                        .setGrantType(GrantType.AUTHORIZATION_CODE).setClientId(clientId).setClientSecret(clientSecret)
-                        .setRedirectURI(callBackUrl).setCode(code).buildBodyMessage();
-
-            } catch (OAuthSystemException e) {
-                throw new AuthenticationFailedException("Exception while building request for request access token", e);
-            }
+            OAuthClientRequest accessRequest = null;
+            accessRequest = getAccessRequest(tokenEndPoint, clientId, clientSecret, callBackUrl, code);
 
             // create OAuth client that uses custom http client under the hood
             OAuthClient oAuthClient = new OAuthClient(new URLConnectionClient());
-            OAuthClientResponse oAuthResponse;
-            try {
-                oAuthResponse = oAuthClient.accessToken(accessRequest);
-            } catch (OAuthSystemException e) {
-                if (log.isDebugEnabled()) {
-                    log.debug("Exception while requesting access token", e);
-                }
-                throw new AuthenticationFailedException("Exception while requesting access token", e);
-            }
-
+            OAuthClientResponse oAuthResponse = null;
+            oAuthResponse = getOAuthResponse(accessRequest, oAuthClient, oAuthResponse);
             // TODO : return access token and id token to framework
-            String accessToken = oAuthResponse.getParam(OIDCAuthenticatorConstants.ACCESS_TOKEN);
-            String idToken = oAuthResponse.getParam(OIDCAuthenticatorConstants.ID_TOKEN);
+            String accessToken = "";
+            String idToken = "";
+            if (oAuthResponse != null) {
+                accessToken = oAuthResponse.getParam(OIDCAuthenticatorConstants.ACCESS_TOKEN);
+                idToken = oAuthResponse.getParam(OIDCAuthenticatorConstants.ID_TOKEN);
+            }
 
             if (accessToken != null && (idToken != null || !requiredIDToken(authenticatorProperties))) {
 
@@ -342,7 +335,7 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
 
                     String base64Body = idToken.split("\\.")[1];
                     byte[] decoded = Base64.decodeBase64(base64Body.getBytes());
-                    String json = new String(decoded);
+                    String json = new String(decoded, Charset.forName("utf-8"));
 
                     if (log.isDebugEnabled()) {
                         log.debug("Id token json string : " + json);
@@ -379,6 +372,37 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
         } catch (JSONException e) {
             throw new AuthenticationFailedException("Error occurred while parsing json object", e);
         }
+    }
+
+    private OAuthClientResponse getOAuthResponse(OAuthClientRequest accessRequest, OAuthClient oAuthClient, OAuthClientResponse oAuthResponse) throws AuthenticationFailedException {
+        OAuthClientResponse oAuthClientResponse = oAuthResponse;
+        try {
+            oAuthClientResponse = oAuthClient.accessToken(accessRequest);
+        } catch (OAuthSystemException e) {
+            if (log.isDebugEnabled()) {
+                log.debug("Exception while requesting access token", e);
+            }
+            throw new AuthenticationFailedException("Exception while requesting access token", e);
+        } catch (OAuthProblemException e) {
+            if (log.isDebugEnabled()) {
+                log.debug("Exception while requesting access token", e);
+            }
+        }
+        return oAuthClientResponse;
+    }
+
+    private OAuthClientRequest getAccessRequest(String tokenEndPoint, String clientId, String clientSecret
+            , String callBackUrl, String code)
+            throws AuthenticationFailedException {
+        OAuthClientRequest accessRequest = null;
+        try {
+            accessRequest = OAuthClientRequest.tokenLocation(tokenEndPoint)
+                    .setGrantType(GrantType.AUTHORIZATION_CODE).setClientId(clientId).setClientSecret(clientSecret)
+                    .setRedirectURI(callBackUrl).setCode(code).buildBodyMessage();
+        } catch (OAuthSystemException e) {
+            throw new AuthenticationFailedException("Exception while building request for request access token", e);
+        }
+        return accessRequest;
     }
 
     /**

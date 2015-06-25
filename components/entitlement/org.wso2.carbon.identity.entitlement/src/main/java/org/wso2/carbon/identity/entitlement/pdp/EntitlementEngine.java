@@ -27,7 +27,12 @@ import org.wso2.balana.ParsingException;
 import org.wso2.balana.ctx.AbstractRequestCtx;
 import org.wso2.balana.ctx.RequestCtxFactory;
 import org.wso2.balana.ctx.ResponseCtx;
-import org.wso2.balana.finder.*;
+import org.wso2.balana.finder.AttributeFinder;
+import org.wso2.balana.finder.AttributeFinderModule;
+import org.wso2.balana.finder.PolicyFinder;
+import org.wso2.balana.finder.PolicyFinderModule;
+import org.wso2.balana.finder.ResourceFinder;
+import org.wso2.balana.finder.ResourceFinderModule;
 import org.wso2.balana.finder.impl.CurrentEnvModule;
 import org.wso2.balana.finder.impl.SelectorModule;
 import org.wso2.carbon.context.CarbonContext;
@@ -49,14 +54,19 @@ import org.wso2.carbon.identity.entitlement.policy.PolicyRequestBuilder;
 import org.wso2.carbon.identity.entitlement.policy.finder.CarbonPolicyFinder;
 import org.wso2.carbon.identity.entitlement.policy.search.PolicySearch;
 import org.wso2.carbon.utils.CarbonUtils;
+import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 
 public class EntitlementEngine {
 
     private static final Object lock = new Object();
-    private static EntitlementEngineCache entitlementEngines = EntitlementEngineCache.getInstance();
     private static Log log = LogFactory.getLog(EntitlementEngine.class);
     private PolicyFinder papPolicyFinder;
     private CarbonAttributeFinder carbonAttributeFinder;
@@ -68,6 +78,10 @@ public class EntitlementEngine {
     private Balana balana;
     private int tenantId;
     private boolean pdpDecisionCacheEnable;
+    private List<AttributeFinderModule> attributeModules = new ArrayList<AttributeFinderModule>();
+    private List<ResourceFinderModule> resourceModules = new ArrayList<ResourceFinderModule>();
+    private static EntitlementEngineCache entitlementEngines = EntitlementEngineCache.getInstance();
+    private static EntitlementEngine entitlementEngine;
     private DecisionCache decisionCache = null;
     private SimpleDecisionCache simpleDecisionCache = null;
 
@@ -135,26 +149,23 @@ public class EntitlementEngine {
             policyModules.add(papPolicyFinder);
             policyFinder.setModules(policyModules);
             this.papPolicyFinder = policyFinder;
-            PDPConfig pdpConfig = new PDPConfig(balana.getPdpConfig().getAttributeFinder(),
-                    policyFinder, balana.getPdpConfig().getResourceFinder(), true);
+            AttributeFinder attributeFinder = new AttributeFinder();
+            attributeFinder.setModules(attributeModules);
+            ResourceFinder resourceFinder = new ResourceFinder();
+            resourceFinder.setModules(resourceModules);
+            PDPConfig pdpConfig = new PDPConfig(attributeFinder, policyFinder, resourceFinder, true);
             pdpTest = new PDP(pdpConfig);
         }
 
         if (isPDP) {
             // Actual PDP with all finders but policy finder is different
             AttributeFinder attributeFinder = new AttributeFinder();
-            List<AttributeFinderModule> attributeFinderModules = new ArrayList<AttributeFinderModule>();
-            attributeFinderModules.add(carbonAttributeFinder);
-            attributeFinder.setModules(attributeFinderModules);
+            attributeFinder.setModules(attributeModules);
 
             ResourceFinder resourceFinder = new ResourceFinder();
-            List<ResourceFinderModule> resourceFinderModules = new ArrayList<ResourceFinderModule>();
-            resourceFinderModules.add(carbonResourceFinder);
-            resourceFinder.setModules(resourceFinderModules);
+            resourceFinder.setModules(resourceModules);
             PDPConfig pdpConfig = new PDPConfig(attributeFinder, carbonPolicyFinder, resourceFinder, pdpMultipleDecision);
             pdp = new PDP(pdpConfig);
-
-
         }
     }
 
@@ -166,6 +177,16 @@ public class EntitlementEngine {
      */
     public static EntitlementEngine getInstance() {
         int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
+        if(tenantId == MultitenantConstants.SUPER_TENANT_ID){
+            if(entitlementEngine == null){
+                synchronized (lock) {
+                    if(entitlementEngine == null) {
+                        entitlementEngine = new EntitlementEngine(tenantId);
+                    }
+                }
+            }
+            return entitlementEngine;
+        }
         if (!entitlementEngines.contains(tenantId)) {
             synchronized (lock) {
                 if (!entitlementEngines.contains(tenantId)) {
@@ -412,8 +433,6 @@ public class EntitlementEngine {
      */
     private void setUpAttributeFinders() {
 
-        List<AttributeFinderModule> attributeModules = new ArrayList<AttributeFinderModule>();
-
         // Creates carbon attribute finder instance  and init it
         carbonAttributeFinder = new CarbonAttributeFinder(tenantId);
         carbonAttributeFinder.init();
@@ -427,7 +446,12 @@ public class EntitlementEngine {
         attributeModules.add(carbonAttributeFinder);
         attributeModules.add(envAttributeModule);
         attributeModules.add(selectorAttributeModule);
-        balana.getPdpConfig().getAttributeFinder().setModules(attributeModules);
+        for(AttributeFinderModule module : balana.getPdpConfig().getAttributeFinder().getModules()){
+            if( module instanceof  CurrentEnvModule || module instanceof  SelectorModule){
+                continue;
+            }
+            attributeModules.add(module);
+        }
     }
 
     /**
@@ -435,11 +459,12 @@ public class EntitlementEngine {
      */
     private void setUpResourceFinders() {
 
-        List<ResourceFinderModule> resourceModuleList = new ArrayList<ResourceFinderModule>();
         carbonResourceFinder = new CarbonResourceFinder(tenantId);
         carbonResourceFinder.init();
-        resourceModuleList.add(carbonResourceFinder);
-        balana.getPdpConfig().getResourceFinder().setModules(resourceModuleList);
+        resourceModules.add(carbonResourceFinder);
+        for(ResourceFinderModule module : balana.getPdpConfig().getResourceFinder().getModules()){
+            resourceModules.add(module);
+        }
     }
 
     /**

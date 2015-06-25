@@ -1,20 +1,20 @@
 /*
-*  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package org.wso2.carbon.identity.sso.saml.builders.signature;
 
 import org.apache.xml.security.c14n.Canonicalizer;
@@ -26,7 +26,12 @@ import org.opensaml.xml.XMLObjectBuilder;
 import org.opensaml.xml.io.Marshaller;
 import org.opensaml.xml.io.MarshallerFactory;
 import org.opensaml.xml.security.x509.X509Credential;
-import org.opensaml.xml.signature.*;
+import org.opensaml.xml.signature.KeyInfo;
+import org.opensaml.xml.signature.Signature;
+import org.opensaml.xml.signature.SignatureValidator;
+import org.opensaml.xml.signature.Signer;
+import org.opensaml.xml.signature.X509Certificate;
+import org.opensaml.xml.signature.X509Data;
 import org.opensaml.xml.validation.ValidationException;
 import org.wso2.carbon.identity.base.IdentityException;
 
@@ -57,6 +62,7 @@ public class DefaultSSOSigner implements SSOSigner {
 
     @Override
     public void init() throws IdentityException {
+        //Overridden method, no need to implement the body
     }
 
     @Override
@@ -71,7 +77,8 @@ public class DefaultSSOSigner implements SSOSigner {
                 isSignatureValid = true;
 
             } catch (ValidationException e) {
-                throw new IdentityException("Signature Validation Failed for the SAML Assertion : Signature is invalid.");
+                throw new IdentityException("Signature Validation Failed for the SAML Assertion : Signature is " +
+                        "invalid.", e);
             }
         }
         return isSignatureValid;
@@ -96,7 +103,7 @@ public class DefaultSSOSigner implements SSOSigner {
                 keyInfo.getX509Datas().add(data);
                 signature.setKeyInfo(keyInfo);
             } catch (CertificateEncodingException e) {
-                throw new IdentityException("errorGettingCert");
+                throw new IdentityException("Error getting Cert.", e);
             }
 
             assertion.setSignature(signature);
@@ -140,7 +147,7 @@ public class DefaultSSOSigner implements SSOSigner {
                 keyInfo.getX509Datas().add(data);
                 signature.setKeyInfo(keyInfo);
             } catch (CertificateEncodingException e) {
-                throw new IdentityException("errorGettingCert");
+                throw new IdentityException("Error getting Cert.", e);
             }
 
             response.setSignature(signature);

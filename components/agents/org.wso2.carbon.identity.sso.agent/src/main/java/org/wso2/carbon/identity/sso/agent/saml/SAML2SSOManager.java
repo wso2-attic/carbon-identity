@@ -6,7 +6,7 @@
  * in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -14,27 +14,55 @@
  * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
  * under the License.
+ *
+ *
  */
 
 package org.wso2.carbon.identity.sso.agent.saml;
 
-import org.apache.xerces.impl.Constants;
-import org.apache.xerces.util.SecurityManager;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.xml.security.signature.XMLSignature;
 import org.joda.time.DateTime;
 import org.opensaml.Configuration;
-import org.opensaml.DefaultBootstrap;
 import org.opensaml.common.SAMLVersion;
 import org.opensaml.common.xml.SAMLConstants;
 import org.opensaml.saml2.common.Extensions;
-import org.opensaml.saml2.core.*;
-import org.opensaml.saml2.core.impl.*;
+import org.opensaml.saml2.core.Assertion;
+import org.opensaml.saml2.core.Attribute;
+import org.opensaml.saml2.core.AttributeStatement;
+import org.opensaml.saml2.core.Audience;
+import org.opensaml.saml2.core.AudienceRestriction;
+import org.opensaml.saml2.core.AuthnContextClassRef;
+import org.opensaml.saml2.core.AuthnContextComparisonTypeEnumeration;
+import org.opensaml.saml2.core.AuthnRequest;
+import org.opensaml.saml2.core.Conditions;
+import org.opensaml.saml2.core.EncryptedAssertion;
+import org.opensaml.saml2.core.Issuer;
+import org.opensaml.saml2.core.LogoutRequest;
+import org.opensaml.saml2.core.LogoutResponse;
+import org.opensaml.saml2.core.NameID;
+import org.opensaml.saml2.core.NameIDPolicy;
+import org.opensaml.saml2.core.RequestAbstractType;
+import org.opensaml.saml2.core.RequestedAuthnContext;
+import org.opensaml.saml2.core.Response;
+import org.opensaml.saml2.core.SessionIndex;
+import org.opensaml.saml2.core.StatusCode;
+import org.opensaml.saml2.core.impl.AuthnContextClassRefBuilder;
+import org.opensaml.saml2.core.impl.AuthnRequestBuilder;
+import org.opensaml.saml2.core.impl.IssuerBuilder;
+import org.opensaml.saml2.core.impl.LogoutRequestBuilder;
+import org.opensaml.saml2.core.impl.NameIDBuilder;
+import org.opensaml.saml2.core.impl.NameIDPolicyBuilder;
+import org.opensaml.saml2.core.impl.RequestedAuthnContextBuilder;
+import org.opensaml.saml2.core.impl.SessionIndexBuilder;
 import org.opensaml.saml2.ecp.RelayState;
 import org.opensaml.saml2.encryption.Decrypter;
-import org.opensaml.xml.ConfigurationException;
 import org.opensaml.xml.XMLObject;
 import org.opensaml.xml.encryption.EncryptedKey;
-import org.opensaml.xml.io.*;
+import org.opensaml.xml.io.Marshaller;
+import org.opensaml.xml.io.MarshallerFactory;
+import org.opensaml.xml.io.MarshallingException;
 import org.opensaml.xml.security.SecurityHelper;
 import org.opensaml.xml.security.credential.Credential;
 import org.opensaml.xml.security.keyinfo.KeyInfoCredentialResolver;
@@ -43,31 +71,29 @@ import org.opensaml.xml.signature.SignatureValidator;
 import org.opensaml.xml.util.Base64;
 import org.opensaml.xml.util.XMLHelper;
 import org.opensaml.xml.validation.ValidationException;
-import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.bootstrap.DOMImplementationRegistry;
 import org.w3c.dom.ls.DOMImplementationLS;
 import org.w3c.dom.ls.LSOutput;
 import org.w3c.dom.ls.LSSerializer;
 import org.wso2.carbon.identity.sso.agent.SSOAgentConstants;
+import org.wso2.carbon.identity.sso.agent.SSOAgentDataHolder;
 import org.wso2.carbon.identity.sso.agent.SSOAgentException;
 import org.wso2.carbon.identity.sso.agent.bean.LoggedInSessionBean;
 import org.wso2.carbon.identity.sso.agent.bean.SSOAgentConfig;
-import org.wso2.carbon.identity.sso.agent.util.CarbonEntityResolver;
 import org.wso2.carbon.identity.sso.agent.util.SAMLSignatureValidator;
 import org.wso2.carbon.identity.sso.agent.util.SSOAgentUtils;
-import org.xml.sax.SAXException;
 
 import javax.crypto.SecretKey;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import javax.xml.XMLConstants;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -83,13 +109,11 @@ import java.util.zip.DeflaterOutputStream;
  */
 public class SAML2SSOManager {
 
-    private static final String SECURITY_MANAGER_PROPERTY = Constants.XERCES_PROPERTY_PREFIX +
-            Constants.SECURITY_MANAGER_PROPERTY;
-    private static final int ENTITY_EXPANSION_LIMIT = 0;
-    private static Logger LOGGER = Logger.getLogger(SSOAgentConstants.LOGGER_NAME);
-    private static volatile boolean bootStrapped = false;
+    private static final Log log = LogFactory.getLog(SAML2SSOManager.class);
+
+
+    private static final Logger LOGGER = Logger.getLogger(SSOAgentConstants.LOGGER_NAME);
     private SSOAgentConfig ssoAgentConfig = null;
-    private static Object signatureValidator = null;
 
     public SAML2SSOManager(SSOAgentConfig ssoAgentConfig) throws SSOAgentException {
 
@@ -99,7 +123,7 @@ public class SAML2SSOManager {
         String signerClassName = ssoAgentConfig.getSAML2().getSignatureValidatorImplClass();
         try {
             if (signerClassName != null) {
-                signatureValidator = Class.forName(signerClassName).newInstance();
+                SSOAgentDataHolder.getInstance().setSignatureValidator(Class.forName(signerClassName).newInstance());
             }
         } catch (ClassNotFoundException e) {
             throw new SSOAgentException("Error loading custom signature validator class", e);
@@ -108,18 +132,7 @@ public class SAML2SSOManager {
         } catch (InstantiationException e) {
             throw new SSOAgentException("Error loading custom signature validator class", e);
         }
-        try {
-            if (!bootStrapped) {
-                synchronized (this) {
-                    if (!bootStrapped) {
-                        DefaultBootstrap.bootstrap();
-                        bootStrapped = true;
-                    }
-                }
-            }
-        } catch (ConfigurationException e) {
-            throw new SSOAgentException("Error while bootstrapping OpenSAML library", e);
-        }
+        SSOAgentUtils.doBootstrap();
     }
 
     /**
@@ -279,8 +292,8 @@ public class SAML2SSOManager {
         String saml2SSOResponse = request.getParameter(SSOAgentConstants.SAML2SSO.HTTP_POST_PARAM_SAML2_RESP);
 
         if (saml2SSOResponse != null) {
-            String decodedResponse = new String(Base64.decode(saml2SSOResponse));
-            XMLObject samlObject = unmarshall(decodedResponse);
+            String decodedResponse = new String(Base64.decode(saml2SSOResponse), Charset.forName("UTF-8"));
+            XMLObject samlObject = SSOAgentUtils.unmarshall(decodedResponse);
             if (samlObject instanceof LogoutResponse) {
                 //This is a SAML response for a single logout request from the SP
                 doSLO(request);
@@ -288,11 +301,12 @@ public class SAML2SSOManager {
                 processSSOResponse(request);
             }
             String relayState = request.getParameter(RelayState.DEFAULT_ELEMENT_LOCAL_NAME);
-            if (relayState != null) {
-                if (!relayState.isEmpty() && !"null".equalsIgnoreCase(relayState)) { //additional checks for incompetent IdPs
-                    ssoAgentConfig.getSAML2().setRelayState(relayState);
-                }
+
+            if (relayState != null && !relayState.isEmpty() && !"null".equalsIgnoreCase(relayState)) { //additional
+                // checks for incompetent IdPs
+                ssoAgentConfig.getSAML2().setRelayState(relayState);
             }
+
         } else {
             throw new SSOAgentException("Invalid SAML2 Response. SAML2 Response can not be null.");
         }
@@ -310,12 +324,12 @@ public class SAML2SSOManager {
 
         XMLObject saml2Object = null;
         if (request.getParameter(SSOAgentConstants.SAML2SSO.HTTP_POST_PARAM_SAML2_AUTH_REQ) != null) {
-            saml2Object = unmarshall(new String(Base64.decode(request.getParameter(
-                    SSOAgentConstants.SAML2SSO.HTTP_POST_PARAM_SAML2_AUTH_REQ))));
+            saml2Object = SSOAgentUtils.unmarshall(new String(Base64.decode(request.getParameter(
+                    SSOAgentConstants.SAML2SSO.HTTP_POST_PARAM_SAML2_AUTH_REQ)), Charset.forName("UTF-8")));
         }
         if (saml2Object == null) {
-            saml2Object = unmarshall(new String(Base64.decode(request.getParameter(
-                    SSOAgentConstants.SAML2SSO.HTTP_POST_PARAM_SAML2_RESP))));
+            saml2Object = SSOAgentUtils.unmarshall(new String(Base64.decode(request.getParameter(
+                    SSOAgentConstants.SAML2SSO.HTTP_POST_PARAM_SAML2_RESP)), Charset.forName("UTF-8")));
         }
         if (saml2Object instanceof LogoutRequest) {
             LogoutRequest logoutRequest = (LogoutRequest) saml2Object;
@@ -334,7 +348,16 @@ public class SAML2SSOManager {
                 Set<HttpSession> sessions =
                         SSOAgentSessionManager.invalidateAllSessions(request.getSession(false));
                 for (HttpSession session : sessions) {
-                    session.invalidate();
+                    try {
+                        session.invalidate();
+                    } catch (IllegalStateException ignore) {
+
+                        if (log.isDebugEnabled()) {
+                            log.debug("Ignoring exception : ", ignore);
+                        }
+                        //ignore
+                        //session is already invalidated
+                    }
                 }
             }
         } else {
@@ -349,8 +372,8 @@ public class SAML2SSOManager {
 
         String saml2ResponseString =
                 new String(Base64.decode(request.getParameter(
-                        SSOAgentConstants.SAML2SSO.HTTP_POST_PARAM_SAML2_RESP)));
-        Response saml2Response = (Response) unmarshall(saml2ResponseString);
+                        SSOAgentConstants.SAML2SSO.HTTP_POST_PARAM_SAML2_RESP)), Charset.forName("UTF-8"));
+        Response saml2Response = (Response) SSOAgentUtils.unmarshall(saml2ResponseString);
         sessionBean.getSAML2SSO().setResponseString(saml2ResponseString);
         sessionBean.getSAML2SSO().setSAMLResponse(saml2Response);
 
@@ -358,17 +381,20 @@ public class SAML2SSOManager {
         if (ssoAgentConfig.getSAML2().isAssertionEncrypted()) {
             List<EncryptedAssertion> encryptedAssertions = saml2Response.getEncryptedAssertions();
             EncryptedAssertion encryptedAssertion = null;
-            if (encryptedAssertions != null && encryptedAssertions.size() > 0) {
+            if (!org.apache.commons.collections.CollectionUtils.isEmpty(encryptedAssertions)) {
                 encryptedAssertion = encryptedAssertions.get(0);
                 try {
                     assertion = getDecryptedAssertion(encryptedAssertion);
                 } catch (Exception e) {
+                    if (log.isDebugEnabled()) {
+                        log.debug("Assertion decryption failure : ", e);
+                    }
                     throw new SSOAgentException("Unable to decrypt the SAML2 Assertion");
                 }
             }
         } else {
             List<Assertion> assertions = saml2Response.getAssertions();
-            if (assertions != null && assertions.size() > 0) {
+            if (assertions != null && !assertions.isEmpty()) {
                 assertion = assertions.get(0);
             }
         }
@@ -539,7 +565,7 @@ public class SAML2SSOManager {
                 ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
                 DeflaterOutputStream deflaterOutputStream = new DeflaterOutputStream
                         (byteArrayOutputStream, deflater);
-                deflaterOutputStream.write(rspWrt.toString().getBytes());
+                deflaterOutputStream.write(rspWrt.toString().getBytes(Charset.forName("UTF-8")));
                 deflaterOutputStream.close();
                 String encodedRequestMessage = Base64.encodeBytes(byteArrayOutputStream
                         .toByteArray(), Base64.DONT_BREAK_LINES);
@@ -562,45 +588,6 @@ public class SAML2SSOManager {
         }
     }
 
-    protected XMLObject unmarshall(String saml2SSOString) throws SSOAgentException {
-
-        try {
-            String decodedString = decodeHTMLCharacters(saml2SSOString);
-            DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-            documentBuilderFactory.setNamespaceAware(true);
-
-            documentBuilderFactory.setExpandEntityReferences(false);
-            documentBuilderFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
-            SecurityManager securityManager = new SecurityManager();
-            securityManager.setEntityExpansionLimit(ENTITY_EXPANSION_LIMIT);
-            documentBuilderFactory.setAttribute(SECURITY_MANAGER_PROPERTY, securityManager);
-
-            DocumentBuilder docBuilder = documentBuilderFactory.newDocumentBuilder();
-            docBuilder.setEntityResolver(new CarbonEntityResolver());
-            ByteArrayInputStream is = new ByteArrayInputStream(decodedString.getBytes());
-            Document document = docBuilder.parse(is);
-            Element element = document.getDocumentElement();
-            UnmarshallerFactory unmarshallerFactory = Configuration.getUnmarshallerFactory();
-            Unmarshaller unmarshaller = unmarshallerFactory.getUnmarshaller(element);
-            return unmarshaller.unmarshall(element);
-        } catch (ParserConfigurationException e) {
-            throw new SSOAgentException("Error in unmarshalling SAML2SSO Request from the encoded String", e);
-        } catch (UnmarshallingException e) {
-            throw new SSOAgentException("Error in unmarshalling SAML2SSO Request from the encoded String", e);
-        } catch (SAXException e) {
-            throw new SSOAgentException("Error in unmarshalling SAML2SSO Request from the encoded String", e);
-        } catch (IOException e) {
-            throw new SSOAgentException("Error in unmarshalling SAML2SSO Request from the encoded String", e);
-        }
-
-    }
-
-    private String decodeHTMLCharacters(String encodedStr) {
-
-        return encodedStr.replaceAll("&amp;", "&").replaceAll("&lt;", "<").replaceAll("&gt;", ">")
-                .replaceAll("&quot;", "\"").replaceAll("&apos;", "'");
-
-    }
 
     /*
      * Process the response and returns the results
@@ -609,20 +596,20 @@ public class SAML2SSOManager {
 
         Map<String, String> results = new HashMap<String, String>();
 
-        if (assertion != null) {
+        if (assertion != null && assertion.getAttributeStatements() != null) {
 
             List<AttributeStatement> attributeStatementList = assertion.getAttributeStatements();
 
-            if (attributeStatementList != null) {
-                for (AttributeStatement statement : attributeStatementList) {
-                    List<Attribute> attributesList = statement.getAttributes();
-                    for (Attribute attribute : attributesList) {
-                        Element value = attribute.getAttributeValues().get(0).getDOM();
-                        String attributeValue = value.getTextContent();
-                        results.put(attribute.getName(), attributeValue);
-                    }
+
+            for (AttributeStatement statement : attributeStatementList) {
+                List<Attribute> attributesList = statement.getAttributes();
+                for (Attribute attribute : attributesList) {
+                    Element value = attribute.getAttributeValues().get(0).getDOM();
+                    String attributeValue = value.getTextContent();
+                    results.put(attribute.getName(), attributeValue);
                 }
             }
+
         }
         return results;
     }
@@ -642,7 +629,8 @@ public class SAML2SSOManager {
                 if (audienceRestrictions != null && !audienceRestrictions.isEmpty()) {
                     boolean audienceFound = false;
                     for (AudienceRestriction audienceRestriction : audienceRestrictions) {
-                        if (audienceRestriction.getAudiences() != null && audienceRestriction.getAudiences().size() > 0) {
+                        if (audienceRestriction.getAudiences() != null && !audienceRestriction.getAudiences().isEmpty()
+                                ) {
                             for (Audience audience : audienceRestriction.getAudiences()) {
                                 if (ssoAgentConfig.getSAML2().getSPEntityId().equals(audience.getAudienceURI())) {
                                     audienceFound = true;
@@ -675,9 +663,10 @@ public class SAML2SSOManager {
      */
     protected void validateSignature(Response response, Assertion assertion) throws SSOAgentException {
 
-        if (signatureValidator != null) {
+        if (SSOAgentDataHolder.getInstance().getSignatureValidator() != null) {
             //Custom implemetation of signature validation
-            SAMLSignatureValidator signatureValidatorUtility = (SAMLSignatureValidator) signatureValidator;
+            SAMLSignatureValidator signatureValidatorUtility = (SAMLSignatureValidator) SSOAgentDataHolder
+                    .getInstance().getSignatureValidator();
             signatureValidatorUtility.validateSignature(response, assertion, ssoAgentConfig);
         } else {
             //If custom implementation not found, Execute the default implementation
@@ -690,6 +679,9 @@ public class SAML2SSOManager {
                                 new X509CredentialImpl(ssoAgentConfig.getSAML2().getSSOAgentX509Credential()));
                         validator.validate(response.getSignature());
                     } catch (ValidationException e) {
+                        if (log.isDebugEnabled()) {
+                            log.debug("Validation exception : ", e);
+                        }
                         throw new SSOAgentException("Signature validation failed for SAML2 Response");
                     }
                 }
@@ -703,6 +695,9 @@ public class SAML2SSOManager {
                                 new X509CredentialImpl(ssoAgentConfig.getSAML2().getSSOAgentX509Credential()));
                         validator.validate(assertion.getSignature());
                     } catch (ValidationException e) {
+                        if (log.isDebugEnabled()) {
+                            log.debug("Validation exception : ", e);
+                        }
                         throw new SSOAgentException("Signature validation failed for SAML2 Assertion");
                     }
                 }
@@ -732,7 +727,7 @@ public class SAML2SSOManager {
             LSOutput output = impl.createLSOutput();
             output.setByteStream(byteArrayOutputStrm);
             writer.write(element, output);
-            return byteArrayOutputStrm.toString();
+            return new String(byteArrayOutputStrm.toByteArray(), Charset.forName("UTF-8"));
         } catch (ClassNotFoundException e) {
             throw new SSOAgentException("Error in marshalling SAML2 Assertion", e);
         } catch (InstantiationException e) {
@@ -751,19 +746,25 @@ public class SAML2SSOManager {
      * @return
      * @throws Exception
      */
-    protected Assertion getDecryptedAssertion(EncryptedAssertion encryptedAssertion) throws Exception {
+    protected Assertion getDecryptedAssertion(EncryptedAssertion encryptedAssertion) throws SSOAgentException {
 
-        KeyInfoCredentialResolver keyResolver = new StaticKeyInfoCredentialResolver(
-                new X509CredentialImpl(ssoAgentConfig.getSAML2().getSSOAgentX509Credential()));
-        EncryptedKey key = encryptedAssertion.getEncryptedData().
-                getKeyInfo().getEncryptedKeys().get(0);
-        Decrypter decrypter = new Decrypter(null, keyResolver, null);
-        SecretKey dkey = (SecretKey) decrypter.decryptKey(key, encryptedAssertion.getEncryptedData().
-                getEncryptionMethod().getAlgorithm());
-        Credential shared = SecurityHelper.getSimpleCredential(dkey);
-        decrypter = new Decrypter(new StaticKeyInfoCredentialResolver(shared), null, null);
-        decrypter.setRootInNewDocument(true);
-        return decrypter.decrypt(encryptedAssertion);
+        try {
+            KeyInfoCredentialResolver keyResolver = new StaticKeyInfoCredentialResolver(
+                    new X509CredentialImpl(ssoAgentConfig.getSAML2().getSSOAgentX509Credential()));
+
+            EncryptedKey key = encryptedAssertion.getEncryptedData().
+                    getKeyInfo().getEncryptedKeys().get(0);
+            Decrypter decrypter = new Decrypter(null, keyResolver, null);
+            SecretKey dkey = (SecretKey) decrypter.decryptKey(key, encryptedAssertion.getEncryptedData().
+                    getEncryptionMethod().getAlgorithm());
+            Credential shared = SecurityHelper.getSimpleCredential(dkey);
+            decrypter = new Decrypter(new StaticKeyInfoCredentialResolver(shared), null, null);
+            decrypter.setRootInNewDocument(true);
+            return decrypter.decrypt(encryptedAssertion);
+        } catch (Exception e) {
+            throw new SSOAgentException("Decrypted assertion error", e);
+
+        }
     }
 
     protected boolean isNoPassive(Response response) {

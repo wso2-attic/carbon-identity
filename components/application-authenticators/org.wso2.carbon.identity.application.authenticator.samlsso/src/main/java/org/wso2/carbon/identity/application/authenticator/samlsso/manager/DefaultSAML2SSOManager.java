@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2014 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.identity.application.authenticator.samlsso.manager;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.xerces.impl.Constants;
@@ -30,13 +31,42 @@ import org.opensaml.common.SAMLVersion;
 import org.opensaml.common.xml.SAMLConstants;
 import org.opensaml.saml2.common.Extensions;
 import org.opensaml.saml2.common.impl.ExtensionsBuilder;
-import org.opensaml.saml2.core.*;
-import org.opensaml.saml2.core.impl.*;
+import org.opensaml.saml2.core.Assertion;
+import org.opensaml.saml2.core.Attribute;
+import org.opensaml.saml2.core.AttributeStatement;
+import org.opensaml.saml2.core.Audience;
+import org.opensaml.saml2.core.AudienceRestriction;
+import org.opensaml.saml2.core.AuthnContextClassRef;
+import org.opensaml.saml2.core.AuthnContextComparisonTypeEnumeration;
+import org.opensaml.saml2.core.AuthnRequest;
+import org.opensaml.saml2.core.Conditions;
+import org.opensaml.saml2.core.EncryptedAssertion;
+import org.opensaml.saml2.core.Issuer;
+import org.opensaml.saml2.core.LogoutRequest;
+import org.opensaml.saml2.core.LogoutResponse;
+import org.opensaml.saml2.core.NameID;
+import org.opensaml.saml2.core.NameIDPolicy;
+import org.opensaml.saml2.core.RequestAbstractType;
+import org.opensaml.saml2.core.RequestedAuthnContext;
+import org.opensaml.saml2.core.Response;
+import org.opensaml.saml2.core.SessionIndex;
+import org.opensaml.saml2.core.impl.AuthnContextClassRefBuilder;
+import org.opensaml.saml2.core.impl.AuthnRequestBuilder;
+import org.opensaml.saml2.core.impl.IssuerBuilder;
+import org.opensaml.saml2.core.impl.LogoutRequestBuilder;
+import org.opensaml.saml2.core.impl.NameIDBuilder;
+import org.opensaml.saml2.core.impl.NameIDPolicyBuilder;
+import org.opensaml.saml2.core.impl.RequestedAuthnContextBuilder;
+import org.opensaml.saml2.core.impl.SessionIndexBuilder;
 import org.opensaml.saml2.encryption.Decrypter;
 import org.opensaml.xml.ConfigurationException;
 import org.opensaml.xml.XMLObject;
 import org.opensaml.xml.encryption.EncryptedKey;
-import org.opensaml.xml.io.*;
+import org.opensaml.xml.io.Marshaller;
+import org.opensaml.xml.io.MarshallingException;
+import org.opensaml.xml.io.Unmarshaller;
+import org.opensaml.xml.io.UnmarshallerFactory;
+import org.opensaml.xml.io.UnmarshallingException;
 import org.opensaml.xml.security.SecurityHelper;
 import org.opensaml.xml.security.credential.Credential;
 import org.opensaml.xml.security.keyinfo.KeyInfoCredentialResolver;
@@ -65,7 +95,11 @@ import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.List;
@@ -98,6 +132,7 @@ public class DefaultSAML2SSOManager implements SAML2SSOManager {
         }
     }
 
+    @Override
     public void init(String tenantDomain, Map<String, String> properties, IdentityProvider idp)
             throws SAMLSSOException {
 
@@ -113,6 +148,7 @@ public class DefaultSAML2SSOManager implements SAML2SSOManager {
      * @param request SAML 2 request
      * @return redirectionUrl
      */
+    @Override
     public String buildRequest(HttpServletRequest request, boolean isLogout, boolean isPassive,
                                String loginPage, AuthenticationContext context)
             throws SAMLSSOException {
@@ -127,12 +163,10 @@ public class DefaultSAML2SSOManager implements SAML2SSOManager {
                 String[] params = queryParam.split("&");
                 for (String param : params) {
                     String[] values = param.split("=");
-                    if (values.length == 2) {
-                        if (SSOConstants.HTTP_POST_PARAM_SAML2_AUTH_REQ.equals(values[0])) {
+                    if (values.length == 2 && SSOConstants.HTTP_POST_PARAM_SAML2_AUTH_REQ.equals(values[0])) {
                             request.setAttribute(SSOConstants.HTTP_POST_PARAM_SAML2_AUTH_REQ, values[1]);
                             break;
                         }
-                    }
                 }
             }
         }
@@ -205,7 +239,7 @@ public class DefaultSAML2SSOManager implements SAML2SSOManager {
         return SSOUtils.encode(SSOUtils.marshall(requestMessage));
     }
 
-
+    @Override
     public void processResponse(HttpServletRequest request) throws SAMLSSOException {
 
         doBootstrap();
@@ -295,7 +329,7 @@ public class DefaultSAML2SSOManager implements SAML2SSOManager {
         if (SSOUtils.isAssertionEncryptionEnabled(properties)) {
             List<EncryptedAssertion> encryptedAssertions = samlResponse.getEncryptedAssertions();
             EncryptedAssertion encryptedAssertion = null;
-            if (encryptedAssertions != null && encryptedAssertions.size() > 0) {
+            if (CollectionUtils.isNotEmpty(encryptedAssertions)) {
                 encryptedAssertion = encryptedAssertions.get(0);
                 try {
                     assertion = getDecryptedAssertion(encryptedAssertion);
@@ -305,7 +339,7 @@ public class DefaultSAML2SSOManager implements SAML2SSOManager {
             }
         } else {
             List<Assertion> assertions = samlResponse.getAssertions();
-            if (assertions != null && assertions.size() > 0) {
+            if (CollectionUtils.isNotEmpty(assertions)) {
                 assertion = assertions.get(0);
             }
         }
@@ -380,7 +414,7 @@ public class DefaultSAML2SSOManager implements SAML2SSOManager {
         logoutReq.setIssuer(issuer);
 
         NameID nameId = new NameIDBuilder().buildObject();
-        nameId.setFormat("urn:oasis:names:tc:SAML:2.0:nameid-format:entity");
+        nameId.setFormat("urn:oasis:names:tc:SAML:2.0:nameid-format:unspecified");
         nameId.setValue(user);
         logoutReq.setNameID(nameId);
 
@@ -416,7 +450,6 @@ public class DefaultSAML2SSOManager implements SAML2SSOManager {
         NameIDPolicyBuilder nameIdPolicyBuilder = new NameIDPolicyBuilder();
         NameIDPolicy nameIdPolicy = nameIdPolicyBuilder.buildObject();
         nameIdPolicy.setFormat("urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified");
-        //nameIdPolicy.setSPNameQualifier("Issuer");
         nameIdPolicy.setAllowCreate(true);
 
 		/* AuthnContextClass */
@@ -531,12 +564,6 @@ public class DefaultSAML2SSOManager implements SAML2SSOManager {
 
     }
 
-    private String decodeHTMLCharacters(String encodedStr) {
-        return encodedStr.replaceAll("&amp;", "&").replaceAll("&lt;", "<").replaceAll("&gt;", ">")
-                .replaceAll("&quot;", "\"").replaceAll("&apos;", "'");
-
-    }
-
     /*
      * Process the response and returns the results
      */
@@ -578,7 +605,7 @@ public class DefaultSAML2SSOManager implements SAML2SSOManager {
                 List<AudienceRestriction> audienceRestrictions = conditions.getAudienceRestrictions();
                 if (audienceRestrictions != null && !audienceRestrictions.isEmpty()) {
                     for (AudienceRestriction audienceRestriction : audienceRestrictions) {
-                        if (audienceRestriction.getAudiences() != null && audienceRestriction.getAudiences().size() > 0) {
+                        if (CollectionUtils.isEmpty(audienceRestriction.getAudiences())) {
                             boolean audienceFound = false;
                             for (Audience audience : audienceRestriction.getAudiences()) {
                                 if (properties.get(IdentityApplicationConstants.Authenticator.SAML2SSO.SP_ENTITY_ID)

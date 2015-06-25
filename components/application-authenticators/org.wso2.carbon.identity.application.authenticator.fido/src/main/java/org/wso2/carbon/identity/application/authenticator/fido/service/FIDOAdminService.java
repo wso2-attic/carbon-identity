@@ -19,14 +19,19 @@
 package org.wso2.carbon.identity.application.authenticator.fido.service;
 
 import com.yubico.u2f.data.messages.RegisterResponse;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.application.authenticator.fido.dto.FIDOUser;
+import org.wso2.carbon.identity.application.authenticator.fido.exception.FIDOAuthenticatorClientException;
+import org.wso2.carbon.identity.application.authenticator.fido.exception.FIDOAuthenticatorServerException;
 import org.wso2.carbon.identity.application.authenticator.fido.u2f.U2FService;
 import org.wso2.carbon.identity.application.authenticator.fido.util.FIDOAuthenticatorConstants;
 import org.wso2.carbon.identity.application.authenticator.fido.util.FIDOUtil;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
+import org.wso2.carbon.user.api.UserStoreException;
 
 /**
  * FIDO service class for FIDO registration.
@@ -34,21 +39,25 @@ import org.wso2.carbon.identity.core.util.IdentityUtil;
 public class FIDOAdminService {
 
     private U2FService u2FService = U2FService.getInstance();
+    private static Log log = LogFactory.getLog(U2FService.class);
 
     /**
      * Initiate FIDO registration.
      *
-     * @param username username.
-     * @param appID    Application ID.
+     * @param appID Application ID.
      * @return RegisterRequestData.
      * @throws IdentityException when U2F can not generate challenge.
      */
-    @SuppressWarnings(FIDOAuthenticatorConstants.UNUSED)
-    public String startRegistration(String username, String appID) throws IdentityException {
+    public String startRegistration(String appID) throws FIDOAuthenticatorClientException {
 
         FIDOUser user = getUser();
         user.setAppID(appID);
-        return u2FService.startRegistration(user).toJson();
+        try {
+            return u2FService.startRegistration(user).toJson();
+        } catch (FIDOAuthenticatorServerException e) {
+          log.error("Error occurred while initiating device registration for User : " + user.getUsername(), e);
+            throw new FIDOAuthenticatorClientException("Error occurred while initiating device registration");
+        }
 
     }
 
@@ -56,17 +65,57 @@ public class FIDOAdminService {
      * Complete FIDO registration.
      *
      * @param response response from client.
-     * @param username username associated with initiate request.
      * @throws IdentityException when U2F validation fails.
      */
-    @SuppressWarnings(FIDOAuthenticatorConstants.UNUSED)
-    public void finishRegistration(String response, String username) throws IdentityException {
+    public void finishRegistration(String response) throws FIDOAuthenticatorClientException {
 
         FIDOUser user = getUser();
         user.setRegisterResponse(RegisterResponse.fromJson(response));
-        u2FService.finishRegistration(user);
+        try {
+            u2FService.finishRegistration(user);
+        } catch (FIDOAuthenticatorServerException e) {
+            log.error("Error occurred while finishing device registration for User : " + user.getUsername(), e);
+            throw new FIDOAuthenticatorClientException("Error occurred while finishing device registration");
+        }
     }
 
+    /**
+     * Remove registrations for logged in user
+     *
+     * @throws UserStoreException
+     * @throws IdentityException
+     */
+    public void removeRegistration() throws FIDOAuthenticatorClientException {
+        FIDOUser user = getUser();
+        try {
+            u2FService.removeRegistration(user);
+        } catch (FIDOAuthenticatorServerException e) {
+            log.error("Error occurred while deleting registered device for User : " + user.getUsername(), e);
+            throw new FIDOAuthenticatorClientException("Error occurred while finishing device registration");
+        }
+    }
+
+    /**
+     * Check device registrations for logged in user
+     *
+     * @return
+     * @throws UserStoreException
+     * @throws IdentityException
+     */
+    public boolean isDeviceRegistered() throws FIDOAuthenticatorClientException {
+        FIDOUser user = getUser();
+        try {
+            return u2FService.isDeviceRegistered(user);
+        } catch (FIDOAuthenticatorServerException e) {
+            log.error("Error occurred while getting device registration status for User : " + user.getUsername(), e);
+            throw new FIDOAuthenticatorClientException("Error occurred while getting device registration status");
+        }
+    }
+
+    /**
+     * Get logged in user details
+     * @return
+     */
     private FIDOUser getUser() {
         String loggedInUser = CarbonContext.getThreadLocalCarbonContext().getUsername();
         String loggedInDomain = FIDOUtil.getDomainName(loggedInUser);

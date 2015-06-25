@@ -1,13 +1,13 @@
 /*
- * Copyright (c) 2005-2013, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
- * 
+ * Copyright (c) 2013, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -27,8 +27,8 @@ public class UserInfoEndpointException extends Exception {
      *
      */
     private static final long serialVersionUID = -4449780649560053452L;
-    private String errorCode = null;
-    private String errorMessage = null;
+    private final String errorCode;
+    private final String errorMessage;
 
     public UserInfoEndpointException(String errorCode, String errorMessage) {
         super(errorMessage);
@@ -38,6 +38,7 @@ public class UserInfoEndpointException extends Exception {
 
     public UserInfoEndpointException(String errorMessage) {
         super(errorMessage);
+        this.errorCode = null;
         this.errorMessage = errorMessage;
     }
 

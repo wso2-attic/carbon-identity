@@ -1,20 +1,21 @@
 /*
- * Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
- * 
+ * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
  * WSO2 Inc. licenses this file to you under the Apache License,
- * Version 2.0 (the "License"); you may not use this file except
+ *  Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the
+ * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.wso2.carbon.identity.mgt.store;
 
 import org.wso2.carbon.identity.base.IdentityException;
@@ -45,6 +46,7 @@ public class JDBCUserRecoveryDataStore implements UserRecoveryDataStore {
      * @param recoveryDataDO
      * @throws IdentityException
      */
+    @Override
     public void invalidate(UserRecoveryDataDO recoveryDataDO) throws IdentityException {
         Connection connection = JDBCPersistenceManager.getInstance().getDBConnection();
         PreparedStatement prepStmt = null;
@@ -54,7 +56,6 @@ public class JDBCUserRecoveryDataStore implements UserRecoveryDataStore {
             prepStmt.setInt(2, recoveryDataDO.getTenantId());
             prepStmt.setString(3, recoveryDataDO.getCode());
             prepStmt.execute();
-            connection.setAutoCommit(false);
             connection.commit();
         } catch (SQLException e) {
             throw new IdentityException("Error while storing user identity data", e);
@@ -69,6 +70,7 @@ public class JDBCUserRecoveryDataStore implements UserRecoveryDataStore {
      * @param tenant
      * @throws IdentityException
      */
+    @Override
     public void invalidate(String userId, int tenant) throws IdentityException {
         Connection connection = JDBCPersistenceManager.getInstance().getDBConnection();
         PreparedStatement prepStmt = null;
@@ -76,7 +78,6 @@ public class JDBCUserRecoveryDataStore implements UserRecoveryDataStore {
             prepStmt = connection.prepareStatement(SQLQuery.INVALIDATE_METADATA);
             prepStmt.setString(1, userId);
             prepStmt.setInt(2, tenant);
-            connection.setAutoCommit(false);
             connection.commit();
         } catch (SQLException e) {
             throw new IdentityException("Error while invalidating user identity data", e);
@@ -92,6 +93,7 @@ public class JDBCUserRecoveryDataStore implements UserRecoveryDataStore {
      *
      * @throws IdentityException
      */
+    @Override
     public void store(UserRecoveryDataDO recoveryDataDO) throws IdentityException {
         Connection connection = JDBCPersistenceManager.getInstance().getDBConnection();
         PreparedStatement prepStmt = null;
@@ -117,6 +119,7 @@ public class JDBCUserRecoveryDataStore implements UserRecoveryDataStore {
      *
      * @throws IdentityException
      */
+    @Override
     public void store(UserRecoveryDataDO[] recoveryDataDOs) throws IdentityException {
         Connection connection = JDBCPersistenceManager.getInstance().getDBConnection();
         PreparedStatement prepStmt = null;
@@ -157,6 +160,7 @@ public class JDBCUserRecoveryDataStore implements UserRecoveryDataStore {
      * @return
      * @throws IdentityException
      */
+    @Override
     public UserRecoveryDataDO[] load(String userName, int tenantId) throws IdentityException {
         Connection connection = JDBCPersistenceManager.getInstance().getDBConnection();
         PreparedStatement prepStmt = null;
@@ -173,6 +177,7 @@ public class JDBCUserRecoveryDataStore implements UserRecoveryDataStore {
                         results.getString(3), results.getString(4)));
             }
             UserRecoveryDataDO[] resultMetadata = new UserRecoveryDataDO[metada.size()];
+            connection.commit();
             return metada.toArray(resultMetadata);
         } catch (SQLException e) {
             throw new IdentityException("Error while reading user identity data", e);
@@ -187,42 +192,6 @@ public class JDBCUserRecoveryDataStore implements UserRecoveryDataStore {
     public UserRecoveryDataDO load(String code) throws IdentityException {
         return null;
     }
-
-    //	/**
-//	 * Can be used to return primary security questions etc
-//	 *
-//	 * @param userName
-//	 * @param tenantId
-//	 * @param metadataType
-//	 * @return
-//	 * @throws IdentityException
-//	 */
-//	public UserRecoveryDataDO[] load(String userName, int tenantId, String metadataType)
-//                                                                            throws IdentityException {
-//		Connection connection = JDBCPersistenceManager.getInstance().getDBConnection();
-//		PreparedStatement prepStmt = null;
-//		ResultSet results = null;
-//		try {
-//			prepStmt = connection.prepareStatement(SQLQuery.LOAD_TENANT_METADATA);
-//			prepStmt.setInt(1, tenantId);
-//			prepStmt.setString(2, metadataType);
-//			results = prepStmt.executeQuery();
-//			List<UserRecoveryDataDO> metada = new ArrayList<UserRecoveryDataDO>();
-//			while (results.next()) {
-//				metada.add(new UserRecoveryDataDO(results.getString(1), results.getInt(2),
-//				                                      results.getString(3), results.getString(4),
-//				                                      Boolean.parseBoolean(results.getString(5))));
-//			}
-//			UserRecoveryDataDO[] resultMetadata = new UserRecoveryDataDO[metada.size()];
-//			return metada.toArray(resultMetadata);
-//		} catch (SQLException e) {
-//			throw new IdentityException("Error while reading user identity data", e);
-//		} finally {
-//			IdentityDatabaseUtil.closeResultSet(results);
-//			IdentityDatabaseUtil.closeStatement(prepStmt);
-//			IdentityDatabaseUtil.closeConnection(connection);
-//		}
-//	}
 
     /**
      * This class contains the SQL queries.
@@ -267,6 +236,9 @@ public class JDBCUserRecoveryDataStore implements UserRecoveryDataStore {
                         + "IDN_IDENTITY_META_DATA "
                         + "SET VALID = 'false' "
                         + "WHERE USER_NAME = ? AND TENANT_ID = ? AND METADATA_TYPE = ? AND METADATA = ?";
+
+        private SQLQuery() {
+        }
     }
 
 }

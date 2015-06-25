@@ -26,8 +26,10 @@ import com.yubico.u2f.data.messages.RegisterRequestData;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.application.authentication.framework.exception.AuthenticationFailedException;
+import org.wso2.carbon.identity.application.authenticator.fido.FIDOAuthenticator;
 import org.wso2.carbon.identity.application.authenticator.fido.dao.DeviceStoreDAO;
 import org.wso2.carbon.identity.application.authenticator.fido.dto.FIDOUser;
+import org.wso2.carbon.identity.application.authenticator.fido.exception.FIDOAuthenticatorServerException;
 import org.wso2.carbon.identity.application.authenticator.fido.util.FIDOUtil;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.user.api.UserStoreException;
@@ -43,12 +45,35 @@ public class U2FService {
     private static Map<String, String> requestStorage = new HashMap<String, String>();
     private DeviceStoreDAO deviceStoreDAO = new DeviceStoreDAO();
 
+    /**
+     * Gets a U2FService instance.
+     * @return a U2FService.
+     */
+    public static U2FService getInstance() {
+
+        if (u2FService == null) {
+            synchronized (U2FService.class) {
+                if (u2FService == null) {
+                    u2FService = new U2FService();
+                    return u2FService;
+                } else {
+                    return u2FService;
+                }
+            }
+        } else {
+            return u2FService;
+        }
+    }
+
+    private U2FService() {
+
+    }
+
     private Iterable<DeviceRegistration> getRegistrations(final FIDOUser user)
-            throws IdentityException, UserStoreException {
+            throws FIDOAuthenticatorServerException {
 
         int tenantID = FIDOUtil.getTenantID(user.getTenantDomain());
 
-        FIDOUtil.logTrace("Executing {getRegistrations} method.", log);
         Collection<String> serializedRegistrations = null;
         serializedRegistrations = deviceStoreDAO.getDeviceRegistration(user.getUsername(), tenantID, user.getUserStoreDomain());
 
@@ -57,7 +82,6 @@ public class U2FService {
             registrations.add(DeviceRegistration.fromJson(serialized));
         }
 
-        FIDOUtil.logTrace("Completed {getRegistrations} method.", log);
         return registrations;
     }
 
@@ -70,7 +94,6 @@ public class U2FService {
      */
     public AuthenticateRequestData startAuthentication(final FIDOUser user)
             throws AuthenticationFailedException {
-        FIDOUtil.logTrace("Executing {startAuthentication} method", log);
         AuthenticateRequestData authenticateRequestData = null;
         int numberOfRegistereddevice = 0;
 
@@ -92,7 +115,6 @@ public class U2FService {
             }
 
             requestStorage.put(authenticateRequestData.getRequestId(), authenticateRequestData.toJson());
-            FIDOUtil.logTrace("Completed {startAuthentication} method", log);
         }
         return authenticateRequestData;
     }
@@ -104,8 +126,6 @@ public class U2FService {
      * @throws AuthenticationFailedException when validation fails.
      */
     public void finishAuthentication(final FIDOUser user) throws AuthenticationFailedException {
-        FIDOUtil.logTrace("Executing {finishAuthentication} method", log);
-        //AuthenticateResponse authenticateResponse = AuthenticateResponse.fromJson(response);
 
         AuthenticateRequestData authenticateRequest;
         try {
@@ -113,12 +133,11 @@ public class U2FService {
                     .fromJson(requestStorage.remove(user.getAuthenticateResponse().getRequestId()));
 
             u2f.finishAuthentication(authenticateRequest, user.getAuthenticateResponse(),
-                                     getRegistrations(user));
+                    getRegistrations(user));
 
         } catch (Exception e) {
             throw new AuthenticationFailedException("Could not complete FIDO authentication", e);
         }
-        FIDOUtil.logTrace("Completed {finishAuthentication} method", log);
     }
 
     /**
@@ -127,18 +146,11 @@ public class U2FService {
      * @param user the FIDO user.
      * @throws IdentityException when U2F can not generate the challenge.
      */
-    public RegisterRequestData startRegistration(final FIDOUser user) throws IdentityException {
-        FIDOUtil.logTrace("Executing {startRegistration} method", log);
+    public RegisterRequestData startRegistration(final FIDOUser user)
+            throws FIDOAuthenticatorServerException {
 
-        RegisterRequestData registerRequestData = null;
-        try {
-            registerRequestData = u2f.startRegistration(user.getAppID(), getRegistrations(user));
-        } catch (UserStoreException e) {
-            throw new IdentityException(e.getMessage(), e);
-        }
+        RegisterRequestData registerRequestData = u2f.startRegistration(user.getAppID(), getRegistrations(user));
         requestStorage.put(registerRequestData.getRequestId(), registerRequestData.toJson());
-
-        FIDOUtil.logTrace("Completed {startRegistration} method", log);
         return registerRequestData;
     }
 
@@ -149,50 +161,33 @@ public class U2FService {
      * @return success or failure.
      * @throws IdentityException when validation fails.
      */
-    public void finishRegistration(final FIDOUser user) throws IdentityException {
-        FIDOUtil.logTrace("Executing {finishRegistration} method", log);
-        try {
+    public void finishRegistration(final FIDOUser user) throws FIDOAuthenticatorServerException {
 
-            RegisterRequestData registerRequestData = RegisterRequestData
-                    .fromJson(requestStorage.remove(user.getRegisterResponse().getRequestId()));
+        RegisterRequestData registerRequestData = RegisterRequestData
+                .fromJson(requestStorage.remove(user.getRegisterResponse().getRequestId()));
 
-            user.setDeviceRegistration(u2f.finishRegistration(registerRequestData, user.getRegisterResponse()));
-
-            addRegistration(user);
-
-        } catch (UserStoreException e) {
-            throw new IdentityException("Could not complete FIDO registration", e);
-        }
-        FIDOUtil.logTrace("Completed {finishRegistration} method", log);
+        user.setDeviceRegistration(u2f.finishRegistration(registerRequestData, user.getRegisterResponse()));
+        addRegistration(user);
     }
 
-    private void addRegistration(FIDOUser user) throws IdentityException, UserStoreException {
+    private void addRegistration(FIDOUser user) throws FIDOAuthenticatorServerException {
         int tenantID = FIDOUtil.getTenantID(user.getTenantDomain());
         deviceStoreDAO.addDeviceRegistration(user.getUsername(), user.getDeviceRegistration(), tenantID, user.getUserStoreDomain());
     }
 
-    /**
-     * Gets a U2FService instance.
-     *
-     * @return a U2FService.
-     */
-    public static U2FService getInstance() {
-
-        if (u2FService == null) {
-            synchronized (U2FService.class) {
-                if (u2FService == null) {
-                    u2FService = new U2FService();
-                    return u2FService;
-                } else {
-                    return u2FService;
-                }
-            }
+    public boolean isDeviceRegistered(FIDOUser user) throws FIDOAuthenticatorServerException {
+        int tenantID = FIDOUtil.getTenantID(user.getTenantDomain());
+        Collection<String> registrations = deviceStoreDAO.getDeviceRegistration(user.getUsername(), tenantID, user.getUserStoreDomain());
+        if (!registrations.isEmpty()) {
+            return true;
         } else {
-            return u2FService;
+            return false;
         }
+
     }
 
-    private U2FService() {
-
+    public void removeRegistration(FIDOUser user) throws FIDOAuthenticatorServerException {
+        int tenantID = FIDOUtil.getTenantID(user.getTenantDomain());
+        deviceStoreDAO.removeRegistration(user.getUsername(), tenantID, user.getUserStoreDomain());
     }
 }

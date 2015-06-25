@@ -6,7 +6,3 @@ org.eclipse.equinox.p2.touchpoint.natives.copy(source:${installFolder}/../featur
 org.eclipse.equinox.p2.touchpoint.natives.copy(source:${installFolder}/../features/org.wso2.carbon.identity.sso.saml.server_${feature.version}/authenticationendpoint.war,target:${installFolder}/../../deployment/server/webapps/authenticationendpoint.war,overwrite:true);\
 org.eclipse.equinox.p2.touchpoint.natives.copy(source:${installFolder}/../features/org.wso2.carbon.identity.sso.saml.server_${feature.version}/sso_redirect.html,target:${installFolder}/../../resources/security/sso_redirect.html,overwrite:true); \
 org.eclipse.equinox.p2.touchpoint.natives.copy(source:${installFolder}/../features/org.wso2.carbon.identity.sso.saml.server_${feature.version}/sso-idp-config.xml,target:${installFolder}/../../conf/security/sso-idp-config.xml,overwrite:true); \
-org.eclipse.equinox.p2.touchpoint.natives.remove(path:${installFolder}/../features/org.wso2.carbon.identity.sso.saml.server_${feature.version}/saml2.federation.properties);\
-org.eclipse.equinox.p2.touchpoint.natives.remove(path:${installFolder}/../features/org.wso2.carbon.identity.sso.saml.server_${feature.version}/authenticationendpoint.war);\
-org.eclipse.equinox.p2.touchpoint.natives.remove(path:${installFolder}/../features/org.wso2.carbon.identity.sso.saml.server_${feature.version}/sso_redirect.html);\
-org.eclipse.equinox.p2.touchpoint.natives.remove(path:${installFolder}/../features/org.wso2.carbon.identity.sso.saml.server_${feature.version}/sso-idp-config.xml);\

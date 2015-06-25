@@ -1,28 +1,30 @@
 /*
- *Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- *WSO2 Inc. licenses this file to you under the Apache License,
- *Version 2.0 (the "License"); you may not use this file except
- *in compliance with the License.
- *You may obtain a copy of the License at
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *Unless required by applicable law or agreed to in writing,
- *software distributed under the License is distributed on an
- *"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *KIND, either express or implied.  See the License for the
- *specific language governing permissions and limitations
- *under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package org.wso2.carbon.identity.application.common.model;
 
 import org.apache.axiom.om.OMElement;
+import org.apache.commons.collections.CollectionUtils;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 public class PermissionsAndRoleConfig implements Serializable {
 
@@ -53,9 +55,9 @@ public class PermissionsAndRoleConfig implements Serializable {
             OMElement element = (OMElement) (iter.next());
             String elementName = element.getLocalName();
 
-            if (elementName.equals("Permissions")) {
+            if ("Permissions".equals(elementName)) {
                 Iterator<?> permissionsIter = element.getChildElements();
-                ArrayList<ApplicationPermission> permissionsArrList = new ArrayList<ApplicationPermission>();
+                List<ApplicationPermission> permissionsArrList = new ArrayList<ApplicationPermission>();
 
                 if (permissionsIter != null) {
                     while (permissionsIter.hasNext()) {
@@ -68,14 +70,14 @@ public class PermissionsAndRoleConfig implements Serializable {
                     }
                 }
 
-                if (permissionsArrList.size() > 0) {
+                if (CollectionUtils.isNotEmpty(permissionsArrList)) {
                     ApplicationPermission[] permissionsArr = permissionsArrList
                             .toArray(new ApplicationPermission[0]);
                     permissionsAndRoleConfig.setPermissions(permissionsArr);
                 }
             }
 
-            if (elementName.equals("RoleMappings")) {
+            if ("RoleMappings".equals(elementName)) {
                 Iterator<?> roleMappingsIter = element.getChildElements();
                 ArrayList<RoleMapping> roleMappingsArrList = new ArrayList<RoleMapping>();
 
@@ -89,16 +91,16 @@ public class PermissionsAndRoleConfig implements Serializable {
                     }
                 }
 
-                if (roleMappingsArrList.size() > 0) {
+                if (CollectionUtils.isNotEmpty(roleMappingsArrList)) {
                     RoleMapping[] roleMappingsArr = roleMappingsArrList.toArray(new RoleMapping[0]);
                     permissionsAndRoleConfig.setRoleMappings(roleMappingsArr);
                 }
 
             }
 
-            if (elementName.equals("IdpRoles")) {
+            if ("IdpRoles".equals(elementName)) {
                 Iterator<?> idpRolesIter = element.getChildElements();
-                ArrayList<String> roleMappingsArrList = new ArrayList<String>();
+                List<String> roleMappingsArrList = new ArrayList<String>();
 
                 while (idpRolesIter.hasNext()) {
                     OMElement idpRolesElement = (OMElement) (idpRolesIter.next());
@@ -107,7 +109,7 @@ public class PermissionsAndRoleConfig implements Serializable {
                     }
                 }
 
-                if (roleMappingsArrList != null) {
+                if (CollectionUtils.isNotEmpty(roleMappingsArrList)) {
                     String[] idpRolesArr = roleMappingsArrList.toArray(new String[0]);
                     permissionsAndRoleConfig.setIdpRoles(idpRolesArr);
                 }

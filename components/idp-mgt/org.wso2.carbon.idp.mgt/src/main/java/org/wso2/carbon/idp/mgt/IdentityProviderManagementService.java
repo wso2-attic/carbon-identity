@@ -37,10 +37,11 @@ import java.util.List;
 
 public class IdentityProviderManagementService extends AbstractAdmin {
 
-    private static Log log = LogFactory.getLog(IdentityProviderManager.class);
+    private static final Log log = LogFactory.getLog(IdentityProviderManager.class);
     private static String LOCAL_DEFAULT_CLAIM_DIALECT = "http://wso2.org/claims";
 
-    /**f
+    /**
+     *
      * Retrieves resident Identity provider for the logged-in tenant
      *
      * @return <code>IdentityProvider</code>
@@ -191,6 +192,7 @@ public class IdentityProviderManagementService extends AbstractAdmin {
             return claimUris.toArray(new String[claimUris.size()]);
         } catch (Exception e) {
             String message = "Error while reading system claims";
+            log.error(message, e);
             throw new IdentityApplicationManagementException(message);
         }
     }

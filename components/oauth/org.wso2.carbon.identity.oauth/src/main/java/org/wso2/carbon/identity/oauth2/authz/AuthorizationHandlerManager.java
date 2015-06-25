@@ -1,20 +1,20 @@
 /*
-*Copyright (c) 2005-2013, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*WSO2 Inc. licenses this file to you under the Apache License,
-*Version 2.0 (the "License"); you may not use this file except
-*in compliance with the License.
-*You may obtain a copy of the License at
-*
-*http://www.apache.org/licenses/LICENSE-2.0
-*
-*Unless required by applicable law or agreed to in writing,
-*software distributed under the License is distributed on an
-*"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-*KIND, either express or implied.  See the License for the
-*specific language governing permissions and limitations
-*under the License.
-*/
+ * Copyright (c) 2013, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 
 package org.wso2.carbon.identity.oauth2.authz;
 
@@ -36,22 +36,25 @@ import org.wso2.carbon.identity.oauth2.dto.OAuth2AuthorizeRespDTO;
 import org.wso2.carbon.identity.oauth2.util.OAuth2Util;
 import org.wso2.carbon.utils.CarbonUtils;
 
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.Map;
 
 public class AuthorizationHandlerManager {
 
+    public static final String CODE = "code";
+    public static final String TOKEN = "token";
+    public static final String IMPLICIT = "implicit";
     private static Log log = LogFactory.getLog(AuthorizationHandlerManager.class);
 
     private static AuthorizationHandlerManager instance;
 
-    private Map<String, ResponseTypeHandler> responseHandlers = new Hashtable<String, ResponseTypeHandler>();
+    private Map<String, ResponseTypeHandler> responseHandlers = new HashMap<>();
 
     private AppInfoCache appInfoCache;
 
     private AuthorizationHandlerManager() throws IdentityOAuth2Exception {
         responseHandlers = OAuthServerConfiguration.getInstance().getSupportedResponseTypes();
-        appInfoCache = AppInfoCache.getInstance();
+        appInfoCache = AppInfoCache.getInstance(OAuthServerConfiguration.getInstance().getAppInfoCacheTimeout());
         if (appInfoCache != null) {
             if (log.isDebugEnabled()) {
                 log.debug("Successfully created AppInfoCache under " + OAuthConstants.OAUTH_CACHE_MANAGER);
@@ -93,7 +96,7 @@ public class AuthorizationHandlerManager {
         OAuthAppDO oAuthAppDO = getAppInformation(authzReqDTO);
         // If the application has defined a limited set of grant types, then check the grant
         if (oAuthAppDO.getGrantTypes() != null) {
-            if (responseType.equals("code")) {
+            if (CODE.equals(responseType)) {
                 //Do not change this log format as these logs use by external applications
                 if (!oAuthAppDO.getGrantTypes().contains("authorization_code")) {
                     log.debug("Unsupported Response Type : " + responseType +
@@ -102,15 +105,13 @@ public class AuthorizationHandlerManager {
                             "Unsupported Response Type!");
                     return authorizeRespDTO;
                 }
-            } else if (responseType.equals("token")) {
-                if (!oAuthAppDO.getGrantTypes().contains("implicit")) {
-                    //Do not change this log format as these logs use by external applications
-                    log.debug("Unsupported Response Type : " + responseType +
-                            " for client id : " + authzReqDTO.getConsumerKey());
-                    handleErrorRequest(authorizeRespDTO, OAuthError.TokenResponse.UNSUPPORTED_GRANT_TYPE,
-                            "Unsupported Response Type!");
-                    return authorizeRespDTO;
-                }
+            } else if (TOKEN.equals(responseType) && !oAuthAppDO.getGrantTypes().contains(IMPLICIT)) {
+                //Do not change this log format as these logs use by external applications
+                log.debug("Unsupported Response Type : " + responseType + " for client id : " + authzReqDTO
+                        .getConsumerKey());
+                handleErrorRequest(authorizeRespDTO, OAuthError.TokenResponse.UNSUPPORTED_GRANT_TYPE,
+                        "Unsupported Response Type!");
+                return authorizeRespDTO;
             }
         }
 

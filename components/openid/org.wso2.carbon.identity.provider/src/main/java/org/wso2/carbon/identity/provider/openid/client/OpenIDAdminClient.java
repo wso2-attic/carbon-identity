@@ -1,17 +1,17 @@
 /*
  * Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
- * 
- * WSO2 Inc. licenses this file to you under the Apache License,
- * Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License.
- * You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the
+ * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
  * under the License.
  */
@@ -24,8 +24,16 @@ import org.apache.commons.logging.LogFactory;
 import org.openid4java.message.Parameter;
 import org.openid4java.message.ParameterList;
 import org.wso2.carbon.identity.base.IdentityException;
+import org.wso2.carbon.identity.provider.IdentityProviderException;
 import org.wso2.carbon.identity.provider.OpenIDProviderService;
-import org.wso2.carbon.identity.provider.dto.*;
+import org.wso2.carbon.identity.provider.dto.OpenIDAuthRequestDTO;
+import org.wso2.carbon.identity.provider.dto.OpenIDAuthResponseDTO;
+import org.wso2.carbon.identity.provider.dto.OpenIDClaimDTO;
+import org.wso2.carbon.identity.provider.dto.OpenIDParameterDTO;
+import org.wso2.carbon.identity.provider.dto.OpenIDProviderInfoDTO;
+import org.wso2.carbon.identity.provider.dto.OpenIDRememberMeDTO;
+import org.wso2.carbon.identity.provider.dto.OpenIDUserProfileDTO;
+import org.wso2.carbon.identity.provider.dto.OpenIDUserRPDTO;
 import org.wso2.carbon.identity.provider.openid.OpenIDConstants;
 
 import javax.servlet.http.Cookie;
@@ -40,10 +48,10 @@ import java.util.Map;
 
 public class OpenIDAdminClient {
 
-    public final static String OPENID_ADMIN_COOKIE = "OPENID_ADMIN_COOKIE";
-    public final static String OPENID_PROVIDER_SERVICE = "OpenIDProviderService";
+    public static final String OPENID_ADMIN_COOKIE = "OPENID_ADMIN_COOKIE";
+    public static final String OPENID_PROVIDER_SERVICE = "OpenIDProviderService";
     private static Integer sessionTimeout = null;
-    private static Log log = LogFactory.getLog(OpenIDAdminClient.class);
+    private static final Log log = LogFactory.getLog(OpenIDAdminClient.class);
     private String newCookieValue;
     private boolean isUserApprovalBypassEnabled;
     private OpenIDProviderService openIDProviderService;
@@ -73,13 +81,12 @@ public class OpenIDAdminClient {
      * @param userName
      * @param openID
      * @return
-     * @throws Exception
+     * @throws IdentityProviderException
      */
     public OpenIDProviderInfoDTO getOpenIDProviderInfo(String userName, String openID)
-            throws Exception {
+            throws IdentityProviderException {
         return openIDProviderService.getOpenIDProviderInfo(userName, openID);
     }
-
 
     /**
      * Authenticates the OpenID User with the password
@@ -114,9 +121,8 @@ public class OpenIDAdminClient {
             }
 
             if ((token != null && !"null".equals(token)) || useRememberMe) {
-                dto =
-                        openIDProviderService.authenticateWithOpenIDRememberMe(openId.trim(), password,
-                                request.getRemoteAddr(), token);
+                dto = openIDProviderService
+                        .authenticateWithOpenIDRememberMe(openId.trim(), password, request.getRemoteAddr(), token);
                 if (dto != null && dto.isAuthenticated()) {
                     newCookieValue = dto.getNewCookieValue();
                 }
@@ -126,39 +132,33 @@ public class OpenIDAdminClient {
             }
 
         } catch (Exception e) {
+            log.error("Failed to authenticate with Open ID " + openId, e);
             return false;
         }
         return isAuthenticated;
     }
 
-    public Map<String, OpenIDClaimDTO> getClaimValues(String openId, String profileId,
-                                                      ParameterList requredClaims) throws Exception {
-        Map<String, OpenIDClaimDTO> map = null;
-        map = new HashMap<String, OpenIDClaimDTO>();
-        OpenIDClaimDTO[] claims = null;
-        OpenIDParameterDTO[] params = null;
-        List list = null;
+    public Map<String, OpenIDClaimDTO> getClaimValues(String openId, String profileId, ParameterList requiredClaims)
+            throws IdentityProviderException {
 
-        try {
-            list = requredClaims.getParameters();
-            params = new OpenIDParameterDTO[list.size()];
-            int i = 0;
-            for (Object object : list) {
-                Parameter param = (Parameter) object;
-                OpenIDParameterDTO openIDParameterDTO = new OpenIDParameterDTO();
-                openIDParameterDTO.setName(param.getKey());
-                openIDParameterDTO.setValue(param.getValue());
-                params[i++] = openIDParameterDTO;
-            }
-            claims = openIDProviderService.getClaimValues(openId.trim(), profileId, params);
-        } catch (Exception e) {
-            e.printStackTrace();
+        List list = requiredClaims.getParameters();
+        OpenIDParameterDTO[] params = new OpenIDParameterDTO[list.size()];
+        int i = 0;
+        for (Object object : list) {
+            Parameter param = (Parameter) object;
+            OpenIDParameterDTO openIDParameterDTO = new OpenIDParameterDTO();
+            openIDParameterDTO.setName(param.getKey());
+            openIDParameterDTO.setValue(param.getValue());
+            params[i++] = openIDParameterDTO;
         }
 
+        OpenIDClaimDTO[] claims = openIDProviderService.getClaimValues(openId.trim(), profileId, params);
+
+        Map<String, OpenIDClaimDTO> map = new HashMap<String, OpenIDClaimDTO>();
         if (claims != null) {
-            for (int i = 0; i < claims.length; i++) {
-                if (claims[i] != null) {
-                    map.put(claims[i].getClaimUri(), claims[i]);
+            for (int j = 0; j < claims.length; j++) {
+                if (claims[j] != null) {
+                    map.put(claims[j].getClaimUri(), claims[j]);
                 }
             }
         }
@@ -167,7 +167,7 @@ public class OpenIDAdminClient {
     }
 
     public OpenIDAuthResponseDTO getOpenIDAuthResponse(OpenIDAuthRequestDTO authRequest)
-            throws Exception {
+            throws IdentityProviderException {
         return openIDProviderService.getOpenIDAuthResponse(authRequest);
     }
 
@@ -176,9 +176,8 @@ public class OpenIDAdminClient {
      *
      * @param params
      * @return
-     * @throws Exception
      */
-    public String getOpenIDAssociationResponse(OpenIDParameterDTO[] params) throws Exception {
+    public String getOpenIDAssociationResponse(OpenIDParameterDTO[] params) {
         return openIDProviderService.getOpenIDAssociationResponse(params);
     }
 
@@ -187,26 +186,11 @@ public class OpenIDAdminClient {
      *
      * @param params
      * @return
-     * @throws Exception
+     * @throws IdentityProviderException
      */
-    public String verify(OpenIDParameterDTO[] params) throws Exception {
+    public String verify(OpenIDParameterDTO[] params) throws IdentityProviderException {
         return openIDProviderService.verify(params);
     }
-
-	/*public InfoCardSignInDTO signInWithInfoCard(InfoCardDTO inforCard) throws Exception {
-        return openIDProviderService.signInWithInfoCard(inforCard);
-	}*/
-
-    /**
-     * Get PAPE Info for a particular user
-     *
-     * @param reqDTO
-     * @return
-     * @throws Exception
-     */
-	/*public PapeInfoResponseDTO getPapeInfo(PapeInfoRequestDTO reqDTO) throws Exception {
-		return openIDProviderService.retrievePapeInfo(reqDTO);
-	}*/
 
     /**
      * Do multi-factor authentication for an user
@@ -215,17 +199,17 @@ public class OpenIDAdminClient {
      * @return
      * @throws Exception
      */
-    public boolean doxmppBasedMultiFactorAuthForInfoCards(String userId) throws Exception {
+    public boolean doxmppBasedMultiFactorAuthForInfoCards(String userId) throws IdentityProviderException {
         return openIDProviderService.doXMPPBasedMultiFactorAuthForInfocard(userId);
     }
 
     /**
      * @param openid
      * @return
-     * @throws Exception
+     * @throws IdentityProviderException
      */
     public OpenIDUserProfileDTO[] getUserProfiles(String openid, ParameterList requredClaims)
-            throws Exception {
+            throws IdentityProviderException {
         OpenIDParameterDTO[] params = null;
         List list = null;
         list = requredClaims.getParameters();
@@ -252,7 +236,7 @@ public class OpenIDAdminClient {
      * @throws Exception
      */
     public void updateOpenIDUserRPInfo(String rpUrl, boolean isTrustedAlways,
-                                       String defaultProfileName, String openID) throws Exception {
+                                       String defaultProfileName, String openID) throws IdentityProviderException {
 
         if (isUserApprovalBypassEnabled) {
             return;
@@ -278,7 +262,7 @@ public class OpenIDAdminClient {
      * @return openIDUserRPDTOs
      * @throws Exception
      */
-    public OpenIDUserRPDTO[] getOpenIDUserRPs(String openID) throws Exception {
+    public OpenIDUserRPDTO[] getOpenIDUserRPs(String openID) throws IdentityProviderException {
 
         if (log.isDebugEnabled()) {
             log.debug("Getting OpenID User RP DTOs for " + openID);
@@ -293,9 +277,9 @@ public class OpenIDAdminClient {
      * @param openID
      * @param rpUrl
      * @return openIDUserRPDTO
-     * @throws Exception
+     * @throws IdentityProviderException
      */
-    public OpenIDUserRPDTO getOpenIDUserRPDTO(String openID, String rpUrl) throws Exception {
+    public OpenIDUserRPDTO getOpenIDUserRPDTO(String openID, String rpUrl) throws IdentityProviderException {
 
         if (log.isDebugEnabled()) {
             log.debug("Getting OpenID User RP DTO for " + openID + "for RP " + rpUrl);
@@ -311,9 +295,9 @@ public class OpenIDAdminClient {
      * @param openID
      * @param rpUrl
      * @return rpInfo[]to.getDefaultProfileName())
-     * @throws Exception
+     * @throws IdentityProviderException
      */
-    public String[] getOpenIDUserRPInfo(String openID, String rpUrl) throws Exception {
+    public String[] getOpenIDUserRPInfo(String openID, String rpUrl) throws IdentityProviderException {
 
         OpenIDUserRPDTO rpdto = null;
         String[] rpInfo = new String[7];
@@ -324,7 +308,7 @@ public class OpenIDAdminClient {
 
         if (rpdto != null) {
             // do not change the order
-            rpInfo[0] = new Boolean(rpdto.isTrustedAlways()).toString();
+            rpInfo[0] = Boolean.toString(rpdto.isTrustedAlways());
             rpInfo[1] = rpdto.getDefaultProfileName();
             rpInfo[2] = rpdto.getOpenID();
             rpInfo[3] = rpdto.getRpUrl();
@@ -347,9 +331,8 @@ public class OpenIDAdminClient {
      * Check if the user approval bypass setting has made in the identity.xml
      *
      * @return
-     * @throws Exception
      */
-    public boolean isOpenIDUserApprovalBypassEnabled() throws Exception {
+    public boolean isOpenIDUserApprovalBypassEnabled() {
         return isUserApprovalBypassEnabled;
     }
 

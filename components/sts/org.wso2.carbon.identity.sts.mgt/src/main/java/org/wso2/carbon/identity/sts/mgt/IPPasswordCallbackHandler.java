@@ -1,17 +1,19 @@
-/*                                                                             
- * Copyright 2005,2006 WSO2, Inc. http://www.wso2.org
- *                                                                             
- * Licensed under the Apache License, Version 2.0 (the "License");             
- * you may not use this file except in compliance with the License.            
- * You may obtain a copy of the License at                                     
- *                                                                             
- *      http://www.apache.org/licenses/LICENSE-2.0                             
- *                                                                             
- * Unless required by applicable law or agreed to in writing, software         
- * distributed under the License is distributed on an "AS IS" BASIS,           
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.    
- * See the License for the specific language governing permissions and         
- * limitations under the License.                                              
+/*
+ * Copyright (c) 2006, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 package org.wso2.carbon.identity.sts.mgt;
 
@@ -34,15 +36,15 @@ import java.io.IOException;
 
 public class IPPasswordCallbackHandler implements CallbackHandler {
 
-    private static Log log = LogFactory.getLog(IPPasswordCallbackHandler.class);
+    private static final Log log = LogFactory.getLog(IPPasswordCallbackHandler.class);
 
     public IPPasswordCallbackHandler() {
 
     }
 
+    @Override
     public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
         try {
-            RealmService realmService = IdentitySTSMgtServiceComponent.getRealmService();
             for (int i = 0; i < callbacks.length; i++) {
 
                 if (callbacks[i] instanceof WSPasswordCallback) {
@@ -51,10 +53,7 @@ public class IPPasswordCallbackHandler implements CallbackHandler {
                     int value = pwcb.getUsage();
                     String receivedPasswd = pwcb.getPassword();
                     if (WSPasswordCallback.USERNAME_TOKEN_UNKNOWN == value) {
-                        if (receivedPasswd != null
-                                && this.authenticateUser(username, receivedPasswd)) {
-                            // do nothing things are fine
-                        } else {
+                        if (receivedPasswd == null || !this.authenticateUser(username, receivedPasswd)) {
                             throw new UnsupportedCallbackException(callbacks[i], "check failed");
                         }
                     }
@@ -69,14 +68,13 @@ public class IPPasswordCallbackHandler implements CallbackHandler {
     }
 
     public boolean authenticateUser(String userName, String password) throws CarbonException,
-            UserStoreException {
+                                                                             UserStoreException {
         RealmService realmService = IdentitySTSMgtServiceComponent.getRealmService();
         RegistryService registryService = IdentitySTSMgtServiceComponent.getRegistryService();
         boolean isAuthenticated = false;
-        UserRealm realm = AnonymousSessionUtil.getRealmByUserName(registryService, realmService,
-                userName);
-        userName = MultitenantUtils.getTenantAwareUsername(userName);
-        isAuthenticated = realm.getUserStoreManager().authenticate(userName, password);
+        UserRealm realm = AnonymousSessionUtil.getRealmByUserName(registryService, realmService, userName);
+        String tenantFreeUsername = MultitenantUtils.getTenantAwareUsername(userName);
+        isAuthenticated = realm.getUserStoreManager().authenticate(tenantFreeUsername, password);
         return isAuthenticated;
     }
 

@@ -1,23 +1,24 @@
 /*
-*Copyright (c) 2005-2013, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*WSO2 Inc. licenses this file to you under the Apache License,
-*Version 2.0 (the "License"); you may not use this file except
-*in compliance with the License.
-*You may obtain a copy of the License at
-*
-*http://www.apache.org/licenses/LICENSE-2.0
-*
-*Unless required by applicable law or agreed to in writing,
-*software distributed under the License is distributed on an
-*"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-*KIND, either express or implied.  See the License for the
-*specific language governing permissions and limitations
-*under the License.
-*/
+ * Copyright (c) 2013, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 
 package org.wso2.carbon.identity.oauth2.model;
 
+import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.identity.oauth.cache.CacheEntry;
 
 import java.sql.Timestamp;
@@ -36,25 +37,49 @@ public class AccessTokenDO extends CacheEntry {
 
     private String refreshToken;
 
+    private String tokenId;
+
     private String accessToken;
+
+    private String authorizationCode;
 
     private Timestamp issuedTime;
 
-    private long validityPeriodInMillis;
+    private Timestamp refreshTokenIssuedTime;
 
-    private int tenantID;
-
-    private String tokenType;
     private long validityPeriod;
 
-    public AccessTokenDO(String consumerKey, String authzUser, String[] scope, Timestamp issuedTime, long validityPeriod, String tokenType) {
+    private long validityPeriodInMillis;
+
+    private long refreshTokenValidityPeriod;
+
+    private long refreshTokenValidityPeriodInMillis;
+
+    private int tenantID = MultitenantConstants.SUPER_TENANT_ID;
+
+    private String tokenType;
+
+    public AccessTokenDO(String consumerKey, String authzUser, String[] scope, Timestamp issuedTime, Timestamp
+            refreshTokenIssuedTime, long validityPeriodInMillis, long refreshTokenValidityPeriodInMillis, String
+                                 tokenType) {
         this.consumerKey = consumerKey;
         this.authzUser = authzUser;
         this.scope = scope;
         this.issuedTime = issuedTime;
-        this.validityPeriod = validityPeriod;
-        this.validityPeriodInMillis = validityPeriod * 1000;
+        this.refreshTokenIssuedTime = refreshTokenIssuedTime;
+        this.validityPeriod = validityPeriodInMillis / 1000;
+        this.validityPeriodInMillis = validityPeriodInMillis;
+        this.refreshTokenValidityPeriod = refreshTokenValidityPeriodInMillis / 1000;
+        this.refreshTokenValidityPeriodInMillis = refreshTokenValidityPeriodInMillis;
         this.tokenType = tokenType;
+    }
+
+    public AccessTokenDO(String consumerKey, String authzUser, String[] scope, Timestamp issuedTime, Timestamp
+            refreshTokenIssuedTime, long validityPeriodInMillis, long refreshTokenValidityPeriodInMillis, String
+                                 tokenType, String authorizationCode) {
+        this(consumerKey, authzUser, scope, issuedTime, refreshTokenIssuedTime, validityPeriodInMillis,
+             refreshTokenValidityPeriodInMillis, tokenType);
+        this.authorizationCode = authorizationCode;
     }
 
     public int getTenantID() {
@@ -93,12 +118,21 @@ public class AccessTokenDO extends CacheEntry {
         this.issuedTime = issuedTime;
     }
 
+    public Timestamp getRefreshTokenIssuedTime() {
+        return refreshTokenIssuedTime;
+    }
+
+    public void setRefreshTokenIssuedTime(Timestamp refreshTokenIssuedTime) {
+        this.refreshTokenIssuedTime = refreshTokenIssuedTime;
+    }
+
     public long getValidityPeriod() {
         return validityPeriod;
     }
 
     public void setValidityPeriod(long validityPeriod) {
         this.validityPeriod = validityPeriod;
+        this.validityPeriodInMillis = validityPeriod * 1000;
     }
 
     public String getTokenState() {
@@ -131,6 +165,25 @@ public class AccessTokenDO extends CacheEntry {
 
     public void setValidityPeriodInMillis(long validityPeriodInMillis) {
         this.validityPeriodInMillis = validityPeriodInMillis;
+        this.validityPeriod = validityPeriodInMillis / 1000;
+    }
+
+//    public long getRefreshTokenValidityPeriod() {
+//        return refreshTokenValidityPeriod;
+//    }
+
+    public void setRefreshTokenValidityPeriod(long refreshTokenValidityPeriod) {
+        this.refreshTokenValidityPeriod = refreshTokenValidityPeriod;
+        this.refreshTokenValidityPeriodInMillis = refreshTokenValidityPeriod * 1000;
+    }
+
+    public long getRefreshTokenValidityPeriodInMillis() {
+        return refreshTokenValidityPeriodInMillis;
+    }
+
+    public void setRefreshTokenValidityPeriodInMillis(long refreshTokenValidityPeriodInMillis) {
+        this.refreshTokenValidityPeriodInMillis = refreshTokenValidityPeriodInMillis;
+        this.refreshTokenValidityPeriod = refreshTokenValidityPeriodInMillis / 1000;
     }
 
     public String getTokenType() {
@@ -139,5 +192,21 @@ public class AccessTokenDO extends CacheEntry {
 
     public void setTokenType(String tokenType) {
         this.tokenType = tokenType;
+    }
+
+    public String getTokenId() {
+        return tokenId;
+    }
+
+    public void setTokenId(String tokenId) {
+        this.tokenId = tokenId;
+    }
+
+    public String getAuthorizationCode() {
+        return authorizationCode;
+    }
+
+    public void setAuthorizationCode(String authorizationCode) {
+        this.authorizationCode = authorizationCode;
     }
 }

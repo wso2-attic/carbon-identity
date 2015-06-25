@@ -170,6 +170,12 @@
 				<AttributeID>cn</AttributeID>
 				<Description>Full Name</Description>
 		    </Claim>
+            <Claim>
+                <ClaimURI>http://wso2.org/claims/uid</ClaimURI>
+                <DisplayName>User Id</DisplayName>
+                <AttributeID>uid</AttributeID>
+                <Description>User Id</Description>
+            </Claim>
 
 
 		    <Claim>
@@ -237,6 +243,12 @@
 				<AttributeID>localityName</AttributeID>
 				<Description>Challenge Question2</Description>
 			</Claim>
+            <Claim>
+                <ClaimURI>http://wso2.org/claims/displayName</ClaimURI>
+                <DisplayName>Display Name</DisplayName>
+                <AttributeID>initials</AttributeID>
+                <Description>Display Name</Description>
+            </Claim>
 
 		</Dialect>
 

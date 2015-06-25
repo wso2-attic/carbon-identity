@@ -11,16 +11,7 @@
 
 <ApplicationAuthentication xmlns="http://wso2.org/projects/carbon/application-authentication.xml">
 
-	<JDBCPersistenceManager>
-		<DataSource>
-			<!-- Include a data source name (jndiConfigName) from the set of data 
-				sources defined in master-datasources.xml -->
-			<!--Name>jdbc/WSO2_IDP_DB</Name-->
-			<Name>jdbc/WSO2CarbonDB</Name>
-		</DataSource>
-	</JDBCPersistenceManager>
-	
-	<!-- 
+	<!--
 		ProxyMode allows framework to operate in either 'smart' mode 
 		or 'dumb' mode.
 		smart = both local and federated authentication is supported
@@ -134,10 +125,11 @@
         	'sessionDataKey', 'type', 'relyingParty', 'sp' and 'authenticators' 
         	parameters will be always sent. They should not be specified here.  
     	-->
-    	<!--AuthenticationEndpointQueryParams action="exclude"-->
-        	<!--AuthenticationEndpointQueryParam name="username"/-->
-        	<!--AuthenticationEndpointQueryParam name="password"/-->
-    	<!--/AuthenticationEndpointQueryParams-->
+    	<AuthenticationEndpointQueryParams action="exclude">
+        	<AuthenticationEndpointQueryParam name="username"/>
+        	<AuthenticationEndpointQueryParam name="password"/>
+            <AuthenticationEndpointQueryParam name="SAMLRequest"/>
+        </AuthenticationEndpointQueryParams>
 	
 	    <!--TenantDomainDropDownEnabled>true</TenantDomainDropDownEnabled>
 	    <TenantDataListenerURLs>

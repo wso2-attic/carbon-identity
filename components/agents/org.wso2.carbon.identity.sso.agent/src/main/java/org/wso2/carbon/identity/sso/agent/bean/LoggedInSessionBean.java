@@ -1,20 +1,22 @@
 /*
-*  Copyright (c) WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ *
+ */
 
 package org.wso2.carbon.identity.sso.agent.bean;
 
@@ -22,11 +24,15 @@ import com.google.gson.Gson;
 import org.openid4java.discovery.DiscoveryInformation;
 import org.opensaml.saml2.core.Assertion;
 import org.opensaml.saml2.core.Response;
+import org.wso2.carbon.identity.sso.agent.SSOAgentException;
+import org.wso2.carbon.identity.sso.agent.util.SSOAgentUtils;
 
+import java.io.IOException;
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
-public class LoggedInSessionBean {
+public class LoggedInSessionBean implements Serializable{
 
     private OpenID openId;
 
@@ -48,7 +54,7 @@ public class LoggedInSessionBean {
         this.openId = openId;
     }
 
-    public static class AccessTokenResponseBean {
+    public static class AccessTokenResponseBean implements Serializable{
 
         private String accessToken;
 
@@ -90,13 +96,19 @@ public class LoggedInSessionBean {
             this.expiresIn = expiresIn;
         }
 
+        @Override
         public String toString() {
             Gson gson = new Gson();
             return gson.toJson(this);
         }
+
+        public AccessTokenResponseBean deSerialize(String accessTokenResponseBeanString) {
+            Gson gson = new Gson();
+            return gson.fromJson(accessTokenResponseBeanString, AccessTokenResponseBean.class);
+        }
     }
 
-    public class OpenID {
+    public class OpenID implements Serializable {
 
         private DiscoveryInformation discoveryInformation;
 
@@ -129,8 +141,9 @@ public class LoggedInSessionBean {
         }
     }
 
-    public class SAML2SSO {
+    public class SAML2SSO implements Serializable{
 
+        public static final String EMPTY_STRING = "";
         private String subjectId;
 
         private Response response;
@@ -146,6 +159,49 @@ public class LoggedInSessionBean {
         private String sessionIndex;
 
         private Map<String, String> subjectAttributes;
+
+        private void writeObject(java.io.ObjectOutputStream stream)
+                throws IOException {
+
+            stream.writeObject(subjectId);
+
+            stream.writeObject(responseString);
+
+            stream.writeObject(assertionString);
+
+            stream.writeObject(sessionIndex);
+            if (accessTokenResponseBean != null) {
+                stream.writeObject(accessTokenResponseBean.toString());
+            } else {
+                stream.writeObject(EMPTY_STRING);
+            }
+            stream.writeObject(subjectAttributes);
+        }
+
+        private void readObject(java.io.ObjectInputStream stream)
+                throws IOException, ClassNotFoundException, SSOAgentException {
+
+            subjectId = (String) stream.readObject();
+
+            responseString = (String) stream.readObject();
+            if (responseString != null && !EMPTY_STRING.equals(responseString)) {
+                response = (Response) SSOAgentUtils.unmarshall(responseString);
+            }
+
+            assertionString = (String) stream.readObject();
+            if (responseString != null && !EMPTY_STRING.equals(assertionString)) {
+                assertion = (Assertion) SSOAgentUtils.unmarshall(assertionString);
+            }
+
+            sessionIndex = (String) stream.readObject();
+            String accessTokenResponseBeanString = (String) stream.readObject();
+            if (!EMPTY_STRING.equals(accessTokenResponseBeanString)) {
+                accessTokenResponseBean = accessTokenResponseBean.deSerialize(accessTokenResponseBeanString);
+            } else {
+                accessTokenResponseBean = null;
+            }
+            subjectAttributes = (Map) stream.readObject();
+        }
 
         public String getSubjectId() {
             return subjectId;

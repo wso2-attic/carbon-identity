@@ -1,17 +1,19 @@
 /*
- * Copyright 2005-2008 WSO2, Inc. (http://wso2.com)
+ * Copyright (c) 2008, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package org.wso2.carbon.identity.relyingparty.saml;
@@ -44,7 +46,7 @@ import java.util.Map.Entry;
 
 public class SAMLTokenConsumer {
 
-    private static Log log = LogFactory.getLog(SAMLTokenConsumer.class);
+    private static final Log log = LogFactory.getLog(SAMLTokenConsumer.class);
 
     // Guaranteed to be thread safe
     private static SAMLTokenConsumer consumer = new SAMLTokenConsumer();
@@ -86,13 +88,11 @@ public class SAMLTokenConsumer {
         Element plainTokenElem = verifier.decryptToken(xmlToken, data.getPrivateKey());
         boolean isAllSuccess = false;
 
-        if (verifier.verifyDecryptedToken(plainTokenElem, data)) {
-            if (validateIssuerInfoPolicy(verifier, data)) {
-                isAllSuccess = true;
-            }
+        if (verifier.verifyDecryptedToken(plainTokenElem, data) && validateIssuerInfoPolicy(verifier, data)) {
+            isAllSuccess = true;
         }
 
-        if (isAllSuccess == false) {
+        if (!isAllSuccess) {
             injectDataToRequestOnFailure(verifier, request);
         } else {
             injectDataToRequestOnSuccess(verifier, request);
@@ -113,17 +113,10 @@ public class SAMLTokenConsumer {
 
         try {
             if (IdentityConstants.SELF_ISSUED_ISSUER.equals(issuerName)) {
-                if (issuerPolicy == null || issuerPolicy.equals(TokenVerifierConstants.SELF_ONLY)
-                        || issuerPolicy.equals(TokenVerifierConstants.SELF_AND_MANGED)) {
-                    return true;
-                } else {
-                    return false;
-                }
-            } else if (issuerPolicy.equals(TokenVerifierConstants.SELF_ONLY)) {
-                // not a self issued card when self only
-                return false;
+                return issuerPolicy == null || issuerPolicy.equals(TokenVerifierConstants.SELF_ONLY)
+                       || issuerPolicy.equals(TokenVerifierConstants.SELF_AND_MANGED);
             } else {
-                return true;
+                return !issuerPolicy.equals(TokenVerifierConstants.SELF_ONLY);
             }
         } catch (Exception e) {
             log.error("Error in issuer policy validation", e);
@@ -138,8 +131,7 @@ public class SAMLTokenConsumer {
      * @param request
      */
     protected void injectDataToRequestOnFailure(SAMLTokenVerifier verifier, ServletRequest request) {
-        request.setAttribute(TokenVerifierConstants.SERVLET_ATTR_STATE,
-                TokenVerifierConstants.STATE_FAILURE);
+        request.setAttribute(TokenVerifierConstants.SERVLET_ATTR_STATE, TokenVerifierConstants.STATE_FAILURE);
     }
 
     /**
@@ -167,8 +159,7 @@ public class SAMLTokenConsumer {
             request.setAttribute(key, value);
         }
 
-        request.setAttribute(TokenVerifierConstants.SERVLET_ATTR_STATE,
-                TokenVerifierConstants.STATE_SUCCESS);
+        request.setAttribute(TokenVerifierConstants.SERVLET_ATTR_STATE, TokenVerifierConstants.STATE_SUCCESS);
     }
 
     /**
@@ -189,8 +180,7 @@ public class SAMLTokenConsumer {
 
         try {
             factory = OMAbstractFactory.getOMFactory();
-            namespace = factory.createOMNamespace(TokenVerifierConstants.NS,
-                    TokenVerifierConstants.PREFIX);
+            namespace = factory.createOMNamespace(TokenVerifierConstants.NS, TokenVerifierConstants.PREFIX);
             keyInfo = verifier.getKeyInfoElement();
             certIterator = verifier.getCertificates().iterator();
 
@@ -200,14 +190,12 @@ public class SAMLTokenConsumer {
                 String base64Encoded = Base64.encode(encodedCert);
 
                 if (certificates == null) {
-                    certificates = factory.createOMElement(TokenVerifierConstants.LN_CERTIFICATES,
-                            namespace);
+                    certificates = factory.createOMElement(TokenVerifierConstants.LN_CERTIFICATES, namespace);
                 }
 
-                certElem = factory
-                        .createOMElement(TokenVerifierConstants.LN_CERTIFICATE, namespace);
+                certElem = factory.createOMElement(TokenVerifierConstants.LN_CERTIFICATE, namespace);
 
-                if (siginingSet == false) {
+                if (!siginingSet) {
                     certElem.addAttribute(TokenVerifierConstants.LN_SIGNING_CERT, "true", null);
                     siginingSet = true;
                 }
@@ -217,8 +205,7 @@ public class SAMLTokenConsumer {
 
             if (keyInfo != null) {
                 String value = IdentityUtil.nodeToString(keyInfo);
-                XMLStreamReader parser = XMLInputFactory.newInstance().createXMLStreamReader(
-                        new StringReader(value));
+                XMLStreamReader parser = XMLInputFactory.newInstance().createXMLStreamReader(new StringReader(value));
                 StAXOMBuilder builder = new StAXOMBuilder(parser);
                 omKeyInfo = builder.getDocumentElement();
             }

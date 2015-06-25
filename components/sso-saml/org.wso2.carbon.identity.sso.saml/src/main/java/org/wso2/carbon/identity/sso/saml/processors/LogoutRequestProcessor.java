@@ -1,12 +1,12 @@
 /*
- *  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- *  WSO2 Inc. licenses this file to you under the Apache License,
+ * WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
- *  in compliance with the License.
- *  You may obtain a copy of the License at
+ * in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -17,6 +17,7 @@
  */
 package org.wso2.carbon.identity.sso.saml.processors;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opensaml.saml2.core.LogoutRequest;
@@ -99,7 +100,14 @@ public class LogoutRequestProcessor {
                     return buildErrorResponse(logoutRequest.getID(),
                             SAMLSSOConstants.StatusCodes.REQUESTOR_ERROR, message);
                 }
+
                 issuer = logoutRequest.getIssuer().getValue();
+
+                String[] splitIssuer = issuer.split("@");
+                if (splitIssuer.length == 2 && !splitIssuer[0].trim().isEmpty() && !splitIssuer[1].trim().isEmpty()) {
+                    issuer = splitIssuer[0];
+                }
+
                 subject = sessionInfoData.getSubject(issuer);
 
                 SAMLSSOUtil.setTenantDomainInThreadLocal(
@@ -161,14 +169,14 @@ public class LogoutRequestProcessor {
                 LogoutRequest logoutReq = logoutMsgBuilder.buildLogoutRequest(subject, sessionIndex,
                         SAMLSSOConstants.SingleLogoutCodes.LOGOUT_USER);
                 int index = 0;
-                for (String key : sessionsList.keySet()) {
+                for (Map.Entry<String, SAMLSSOServiceProviderDO> entry : sessionsList.entrySet()) {
+                    String key = entry.getKey();
+                    SAMLSSOServiceProviderDO value = entry.getValue();
                     if (!key.equals(issuer)) {
                         SingleLogoutRequestDTO logoutReqDTO = new SingleLogoutRequestDTO();
-                        logoutReqDTO.setAssertionConsumerURL(sessionsList.get(key).getLogoutURL());
-                        if (sessionsList.get(key).getLogoutURL() == null
-                                || sessionsList.get(key).getLogoutURL().length() == 0) {
-                            logoutReqDTO.setAssertionConsumerURL(sessionsList.get(key)
-                                    .getAssertionConsumerUrl());
+                        logoutReqDTO.setAssertionConsumerURL(value.getLogoutURL());
+                        if (StringUtils.isBlank(value.getLogoutURL())) {
+                            logoutReqDTO.setAssertionConsumerURL(value.getAssertionConsumerUrl());
                         }
                         logoutReq.setIssuer(SAMLSSOUtil.getIssuer());
                         String logoutReqString = SAMLSSOUtil.encode(SAMLSSOUtil.marshall(logoutReq));
@@ -177,13 +185,10 @@ public class LogoutRequestProcessor {
                         singleLogoutReqDTOs[index] = logoutReqDTO;
                         index++;
                     } else {
-                        reqValidationResponseDTO.setIssuer(sessionsList.get(key).getIssuer());
-                        reqValidationResponseDTO.setAssertionConsumerURL(sessionsList.get(key)
-                                .getAssertionConsumerUrl());
-                        if (sessionsList.get(key).getLogoutURL() != null
-                                && sessionsList.get(key).getLogoutURL().length() > 0) {
-                            reqValidationResponseDTO.setAssertionConsumerURL(sessionsList.get(key)
-                                    .getLogoutURL());
+                        reqValidationResponseDTO.setIssuer(value.getIssuer());
+                        reqValidationResponseDTO.setAssertionConsumerURL(value.getAssertionConsumerUrl());
+                        if (!StringUtils.isBlank(value.getLogoutURL())) {
+                            reqValidationResponseDTO.setAssertionConsumerURL(value.getLogoutURL());
                         }
                     }
                 }
@@ -193,26 +198,26 @@ public class LogoutRequestProcessor {
                         logoutRequest.getID(), SAMLSSOConstants.StatusCodes.SUCCESS_CODE, null,
                         sessionInfoData, logoutReqIssuer.isDoSignResponse(),
                         reqValidationResponseDTO.getAssertionConsumerURL());
-				reqValidationResponseDTO.setLogoutResponse(SAMLSSOUtil.encode(SAMLSSOUtil
-						.marshall(logoutResponse)));
-				reqValidationResponseDTO.setValid(true);
-			}
-			
-			return reqValidationResponseDTO;
-		} catch (Exception e) {
-			log.error("Error Processing the Logout Request", e);
-			throw new IdentityException("Error Processing the Logout Request", e);
-		}
-	}
-	
-	private SAMLSSOReqValidationResponseDTO buildErrorResponse(String id, String status,
-			String statMsg) throws Exception {
-		SAMLSSOReqValidationResponseDTO reqValidationResponseDTO = new SAMLSSOReqValidationResponseDTO();
-		LogoutResponse logoutResp = new SingleLogoutMessageBuilder().buildLogoutResponse(id,
-				 status, statMsg, null, false);
-		reqValidationResponseDTO.setLogOutReq(true);
-		reqValidationResponseDTO.setValid(false);
-		reqValidationResponseDTO.setResponse(SAMLSSOUtil.compressResponse(SAMLSSOUtil.marshall(logoutResp)));
-		return reqValidationResponseDTO;
-	}
+                reqValidationResponseDTO.setLogoutResponse(SAMLSSOUtil.encode(SAMLSSOUtil
+                        .marshall(logoutResponse)));
+                reqValidationResponseDTO.setValid(true);
+            }
+
+            return reqValidationResponseDTO;
+        } catch (Exception e) {
+            log.error("Error Processing the Logout Request", e);
+            throw new IdentityException("Error Processing the Logout Request", e);
+        }
+    }
+
+    private SAMLSSOReqValidationResponseDTO buildErrorResponse(String id, String status,
+                                                               String statMsg) throws Exception {
+        SAMLSSOReqValidationResponseDTO reqValidationResponseDTO = new SAMLSSOReqValidationResponseDTO();
+        LogoutResponse logoutResp = new SingleLogoutMessageBuilder().buildLogoutResponse(id,
+                status, statMsg, null, false);
+        reqValidationResponseDTO.setLogOutReq(true);
+        reqValidationResponseDTO.setValid(false);
+        reqValidationResponseDTO.setResponse(SAMLSSOUtil.compressResponse(SAMLSSOUtil.marshall(logoutResp)));
+        return reqValidationResponseDTO;
+    }
 }

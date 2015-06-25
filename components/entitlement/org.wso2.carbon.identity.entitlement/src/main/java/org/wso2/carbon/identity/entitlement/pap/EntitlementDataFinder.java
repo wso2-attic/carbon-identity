@@ -25,7 +25,12 @@ import org.wso2.carbon.identity.entitlement.dto.EntitlementFinderDataHolder;
 import org.wso2.carbon.identity.entitlement.dto.EntitlementTreeNodeDTO;
 import org.wso2.carbon.identity.entitlement.internal.EntitlementServiceComponent;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 
 /**
  * When creating XACML policies from WSO2 Identity server, We can define set of pre-defined attribute

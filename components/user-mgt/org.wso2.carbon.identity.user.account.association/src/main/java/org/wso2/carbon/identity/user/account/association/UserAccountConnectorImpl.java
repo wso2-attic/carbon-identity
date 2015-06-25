@@ -1,20 +1,21 @@
 /*
-*  Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 package org.wso2.carbon.identity.user.account.association;
 
 import org.apache.axis2.context.MessageContext;
@@ -53,8 +54,8 @@ import java.util.List;
 
 public class UserAccountConnectorImpl implements UserAccountConnector {
 
-    private static Log log = LogFactory.getLog(UserAccountConnectorImpl.class);
-    private static Log audit = CarbonConstants.AUDIT_LOG;
+    private static final Log log = LogFactory.getLog(UserAccountConnectorImpl.class);
+    private static final Log audit = CarbonConstants.AUDIT_LOG;
 
     private UserAccountConnectorImpl() {
 
@@ -280,7 +281,7 @@ public class UserAccountConnectorImpl implements UserAccountConnector {
                 CarbonContext.getThreadLocalCarbonContext().getTenantId(), UserAccountAssociationUtil
                         .getUsernameWithoutDomain(CarbonContext.getThreadLocalCarbonContext().getUsername()));
 
-        if (userAccountAssociations.size() > 0) {
+        if (!userAccountAssociations.isEmpty()) {
             return userAccountAssociations.toArray(new UserAccountAssociationDTO[userAccountAssociations.size()]);
         }
         return new UserAccountAssociationDTO[0];
