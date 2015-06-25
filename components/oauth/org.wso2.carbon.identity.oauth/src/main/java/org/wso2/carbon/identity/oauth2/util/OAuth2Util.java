@@ -19,6 +19,7 @@
 package org.wso2.carbon.identity.oauth2.util;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.Charsets;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -513,6 +514,15 @@ public class OAuth2Util {
 
         String domainName = MultitenantUtils.getTenantDomain(username);
         return getTenantId(domainName);
+    }
+
+    public static String hashScopes(String[] scope){
+        return DigestUtils.md5Hex(OAuth2Util.buildScopeString(scope));
+    }
+
+    public static String hashScopes(String scope){
+        //first converted to an array to sort the scopes
+        return DigestUtils.md5Hex(OAuth2Util.buildScopeString(buildScopeArray(scope)));
     }
 
     public static boolean isUsernameCaseSensitive(String username) {
