@@ -775,7 +775,7 @@ public class TokenMgtDAO {
 
             int iterateId = 0;
             List<String> scopes = new ArrayList<>();
-            if (resultSet.next()) {
+            while (resultSet.next()) {
                 if (iterateId == 0) {
                     String consumerKey = persistenceProcessor.getPreprocessedClientId(resultSet.getString(1));
                     String authorizedUser = resultSet.getString(2);
