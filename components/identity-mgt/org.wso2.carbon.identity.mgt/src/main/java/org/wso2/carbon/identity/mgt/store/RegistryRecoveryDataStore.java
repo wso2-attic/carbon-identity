@@ -153,7 +153,7 @@ public class RegistryRecoveryDataStore implements UserRecoveryDataStore {
                 String[] resources = collection.getChildren();
                 for (String resource : resources) {
                     String[] splittedResource = resource.split("___");
-                    if (splittedResource != null && splittedResource.length == 3) {
+                    if (splittedResource.length == 3) {
                         //PRIMARY USER STORE
                         if (resource.contains("___" + userName + "___")) {
                             registry.delete(resource);
