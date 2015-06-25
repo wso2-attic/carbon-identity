@@ -33,6 +33,7 @@ import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowEventDTO;
 import org.wso2.carbon.identity.workflow.mgt.dao.BPSProfileDAO;
 import org.wso2.carbon.identity.workflow.mgt.dao.WorkflowDAO;
 import org.wso2.carbon.identity.workflow.mgt.exception.InternalWorkflowException;
+import org.wso2.carbon.identity.workflow.mgt.exception.RuntimeWorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.internal.WorkflowServiceDataHolder;
 
@@ -231,7 +232,7 @@ public class WorkflowService {
             workflowDAO.addAssociation(associationName, workflowId, eventId, condition);
         } catch (XPathExpressionException e) {
             log.error("The condition:" + condition + " is not an valid xpath expression.", e);
-            throw new WorkflowException("The condition:" + condition + " is not an valid xpath expression.");
+            throw new RuntimeWorkflowException("The condition is not a valid xpath expression.");
         }
     }
 

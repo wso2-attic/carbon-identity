@@ -27,11 +27,11 @@ import org.wso2.carbon.identity.workflow.mgt.bean.BPSProfileBean;
 import org.wso2.carbon.identity.workflow.mgt.bean.Parameter;
 import org.wso2.carbon.identity.workflow.mgt.bean.TemplateBean;
 import org.wso2.carbon.identity.workflow.mgt.bean.TemplateDTO;
-import org.wso2.carbon.identity.workflow.mgt.bean.TemplateDeploymentDTO;
 import org.wso2.carbon.identity.workflow.mgt.bean.TemplateImplDTO;
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowBean;
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowEventDTO;
 import org.wso2.carbon.identity.workflow.mgt.exception.InternalWorkflowException;
+import org.wso2.carbon.identity.workflow.mgt.exception.RuntimeWorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 
 import java.util.List;
@@ -66,27 +66,13 @@ public class WorkflowAdminService {
         return service.getTemplateImplDTO(template, implName);
     }
 
-    public void deployTemplate(TemplateDeploymentDTO deploymentDTO) throws WorkflowException {
-
-        String uuid = UUID.randomUUID().toString();
-        int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
-        try {
-            service.addWorkflow(uuid, deploymentDTO.getWorkflowName(), deploymentDTO.getWorkflowDescription(),
-                    deploymentDTO.getTemplateName(), deploymentDTO.getTemplateImplName(), deploymentDTO.getParameters(),
-                    deploymentDTO.getTemplateImplParameters(), tenantId);
-        } catch (InternalWorkflowException e) {
-            log.error("Error occurred when deploying template " + deploymentDTO.getWorkflowName());
-            throw new WorkflowException("Server error occurred when deploying the template");
-        }
-    }
-
     public void addBPSProfile(String profileName, String host, String user, String password, String callbackUser,
                               String callbackPassword) throws WorkflowException {
 
         try {
             int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
             service.addBPSProfile(profileName, host, user, password, callbackUser, callbackPassword, tenantId);
-        } catch (InternalWorkflowException e) {
+        } catch (WorkflowException e) {
             log.error("Server error when adding the profile " + profileName, e);
             throw new WorkflowException("Server error occurred when adding the BPS profile");
         }
@@ -98,7 +84,7 @@ public class WorkflowAdminService {
         int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
         try {
             bpsProfiles = service.listBPSProfiles(tenantId);
-        } catch (InternalWorkflowException e) {
+        } catch (WorkflowException e) {
             log.error("Server error when listing BPS profiles", e);
             throw new WorkflowException("Server error occurred when listing BPS profiles");
         }
@@ -112,18 +98,25 @@ public class WorkflowAdminService {
 
         try {
             service.removeBPSProfile(profileName);
+        } catch (RuntimeWorkflowException e) {
+            log.error("Error when removing workflow " + profileName, e);
+            throw new WorkflowException(e.getMessage());
         } catch (InternalWorkflowException e) {
             log.error("Server error when removing the profile " + profileName, e);
             throw new WorkflowException("Server error occurred when removing the BPS profile");
         }
     }
 
-    public void addWorkflow(String id, String name, String description, String templateId, String templateImpl,
+    public void addWorkflow(String name, String description, String templateId, String templateImpl,
                             Parameter[] templateParams, Parameter[] implParams) throws WorkflowException {
 
+        String id = UUID.randomUUID().toString();
         int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
         try {
             service.addWorkflow(id, name, description, templateId, templateImpl, templateParams, implParams, tenantId);
+        } catch (RuntimeWorkflowException e) {
+            log.error("Error when adding workflow " + name, e);
+            throw new WorkflowException(e.getMessage());
         } catch (WorkflowException e) {
             log.error("Server error when adding workflow " + name, e);
             throw new WorkflowException("Server error occurred when adding the workflow");
@@ -135,7 +128,10 @@ public class WorkflowAdminService {
 
         try {
             service.addAssociation(associationName, workflowId, eventId, condition);
-        } catch (InternalWorkflowException e) {
+        } catch (RuntimeWorkflowException e) {
+            log.error("Error when adding association " + associationName, e);
+            throw new WorkflowException(e.getMessage());
+        } catch (WorkflowException e) {
             log.error("Server error when adding association of workflow " + workflowId + " with " + eventId, e);
             throw new WorkflowException("Server error occurred when associating the workflow with the event");
         }
@@ -193,6 +189,7 @@ public class WorkflowAdminService {
     }
 
     public AssociationDTO[] listAllAssociations() throws WorkflowException {
+
         List<AssociationDTO> associations;
         try {
             associations = service.listAllAssociations();

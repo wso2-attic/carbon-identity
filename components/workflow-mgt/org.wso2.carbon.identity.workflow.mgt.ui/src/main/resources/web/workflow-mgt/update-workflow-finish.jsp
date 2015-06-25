@@ -50,6 +50,8 @@
     if (WorkflowUIConstants.ACTION_VALUE_ADD.equals(action)) {
         String workflowName =
                 CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_WORKFLOW_NAME));
+        String description =
+                CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_WORKFLOW_DESCRIPTION));
         String templateName =
                 CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_WORKFLOW_TEMPLATE));
         String templateImplName =
@@ -73,17 +75,12 @@
                     templateImplParams.add(parameter);
                 }
             }
-        }       //todo from here
-        TemplateDeploymentDTO deploymentDTO = new TemplateDeploymentDTO();
-        deploymentDTO.setWorkflowName(workflowName);
-        deploymentDTO.setTemplateName(templateName);
-        deploymentDTO.setTemplateImplName(templateImplName);
-        deploymentDTO.setParameters(
-                templateParams.toArray(new Parameter[templateParams.size()]));
-        deploymentDTO.setTemplateImplParameters(templateImplParams.toArray(new
-                Parameter[templateImplParams.size()]));
+        }
+
         try {
-            client.deployTemplate(deploymentDTO);
+
+            client.addWorkflow(workflowName, description, templateName, templateImplName, templateParams,
+                    templateImplParams);
         } catch (WorkflowAdminServiceWorkflowException e) {
             String message = resourceBundle.getString("workflow.error.when.adding.workflow");
             CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);

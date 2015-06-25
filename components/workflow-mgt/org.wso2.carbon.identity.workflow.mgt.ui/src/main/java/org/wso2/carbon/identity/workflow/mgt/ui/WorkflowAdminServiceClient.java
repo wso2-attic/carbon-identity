@@ -28,14 +28,15 @@ import org.wso2.carbon.identity.workflow.mgt.stub.WorkflowAdminServiceStub;
 import org.wso2.carbon.identity.workflow.mgt.stub.WorkflowAdminServiceWorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.stub.bean.AssociationDTO;
 import org.wso2.carbon.identity.workflow.mgt.stub.bean.BPSProfileBean;
+import org.wso2.carbon.identity.workflow.mgt.stub.bean.Parameter;
 import org.wso2.carbon.identity.workflow.mgt.stub.bean.TemplateBean;
 import org.wso2.carbon.identity.workflow.mgt.stub.bean.TemplateDTO;
-import org.wso2.carbon.identity.workflow.mgt.stub.bean.TemplateDeploymentDTO;
 import org.wso2.carbon.identity.workflow.mgt.stub.bean.TemplateImplDTO;
 import org.wso2.carbon.identity.workflow.mgt.stub.bean.WorkflowBean;
 import org.wso2.carbon.identity.workflow.mgt.stub.bean.WorkflowEventDTO;
 
 import java.rmi.RemoteException;
+import java.util.List;
 
 public class WorkflowAdminServiceClient {
 
@@ -80,10 +81,14 @@ public class WorkflowAdminServiceClient {
         return stub.getTemplateImplDTO(template, implName);
     }
 
-    public void deployTemplate(TemplateDeploymentDTO deploymentDTO)
+    public void addWorkflow(String workflowName, String description, String templateName, String templateImplName,
+                            List<Parameter> templateParams, List<Parameter> templateImplParams)
             throws RemoteException, WorkflowAdminServiceWorkflowException {
 
-        stub.deployTemplate(deploymentDTO);
+        stub.addWorkflow(workflowName, description, templateName, templateImplName, templateParams.toArray(new
+                Parameter[templateParams.size()]),
+                templateImplParams.toArray(new Parameter[templateImplParams.size()]));
+
     }
 
     public void addBPSProfile(String profileName, String host, String user, String password, String callbackUser,
@@ -121,6 +126,7 @@ public class WorkflowAdminServiceClient {
     }
 
     public AssociationDTO[] listAllAssociations() throws RemoteException, WorkflowAdminServiceWorkflowException {
+
         return stub.listAllAssociations();
     }
 
@@ -139,4 +145,5 @@ public class WorkflowAdminServiceClient {
 
         return stub.getEvent(id);
     }
+
 }

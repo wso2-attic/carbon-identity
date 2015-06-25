@@ -18,13 +18,20 @@
 
 package org.wso2.carbon.identity.workflow.mgt.exception;
 
-public class WorkflowException extends Exception{
+public class WorkflowException extends Exception {
 
-    public WorkflowException(String message){
+    public WorkflowException(String message) {
+
         super(message);
     }
 
-    public WorkflowException(String message, Throwable e){
+    public WorkflowException(String message, Throwable e) {
+
         super(message, e);
+    }
+
+    public WorkflowException(Throwable e) {
+
+        super(e);
     }
 }

@@ -23,6 +23,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.bpel.stub.upload.types.UploadedFileItem;
+import org.wso2.carbon.identity.workflow.mgt.exception.InternalWorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.exception.RuntimeWorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 
@@ -94,15 +95,19 @@ public class BPELApprovalDeployer implements TemplateInitializer {
     }
 
 
-    public void generateAndDeployArtifacts() {
+    public void generateAndDeployArtifacts() throws WorkflowException {
 
         try {
             generateProcessArtifact();
             generateHTArtifact();
-            deployArtifacts();
-            //todo:deploy
         } catch (IOException e) {
-            log.error("Error when generating artifacts.", e);
+            throw new InternalWorkflowException("Error when generating process artifacts");
+        }
+
+        try {
+            deployArtifacts();
+        } catch (RemoteException e) {
+            throw new RuntimeWorkflowException("Error occurred when deploying the BPEL");
         }
     }
 
