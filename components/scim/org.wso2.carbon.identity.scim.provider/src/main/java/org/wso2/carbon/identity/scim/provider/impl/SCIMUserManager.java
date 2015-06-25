@@ -782,19 +782,21 @@ public class SCIMUserManager implements UserManager {
                 String userStoreDomainForGroup = UserCoreUtil.extractDomainFromName(groupName);
                 /* compare user store domain of group and user store domain of user name , if there is a mismatch do not
                  update the group */
-                for (String userDisplayName : userDisplayNames) {
-                    String userStoreDomainForUser =
-                            UserCoreUtil.extractDomainFromName(userDisplayName);
-                    if (!(UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME.equals(userStoreDomainForGroup)) &&
-                            (UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME.equals(userStoreDomainForUser))) {
-                        throw new IdentitySCIMException(
-                                "User store domain is not indicated for user :" + userDisplayName);
-                    }
-                    if (!userStoreDomainForGroup.equalsIgnoreCase(userStoreDomainForUser)) {
-                        throw new IdentitySCIMException(
-                                userDisplayName + " does not " + "belongs to user store " + userStoreDomainForGroup);
-                    }
+                if (userDisplayNames != null && userDisplayNames.size() > 0) {
+                    for (String userDisplayName : userDisplayNames) {
+                        String userStoreDomainForUser =
+                                UserCoreUtil.extractDomainFromName(userDisplayName);
+                        if (!(UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME.equals(userStoreDomainForGroup)) &&
+                                (UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME.equals(userStoreDomainForUser))) {
+                            throw new IdentitySCIMException(
+                                    "User store domain is not indicated for user :" + userDisplayName);
+                        }
+                        if (!userStoreDomainForGroup.equalsIgnoreCase(userStoreDomainForUser)) {
+                            throw new IdentitySCIMException(
+                                    userDisplayName + " does not " + "belongs to user store " + userStoreDomainForGroup);
+                        }
 
+                    }
                 }
 
                 if (CollectionUtils.isNotEmpty(userIds)) {

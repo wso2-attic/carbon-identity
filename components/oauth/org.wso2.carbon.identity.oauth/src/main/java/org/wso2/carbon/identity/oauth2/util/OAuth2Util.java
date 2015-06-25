@@ -19,12 +19,15 @@
 package org.wso2.carbon.identity.oauth2.util;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.Charsets;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.core.model.OAuthAppDO;
 import org.wso2.carbon.identity.oauth.IdentityOAuthAdminException;
+import org.wso2.carbon.identity.oauth.OAuthUtil;
 import org.wso2.carbon.identity.oauth.cache.CacheEntry;
 import org.wso2.carbon.identity.oauth.cache.OAuthCache;
 import org.wso2.carbon.identity.oauth.cache.OAuthCacheKey;
@@ -38,7 +41,11 @@ import org.wso2.carbon.identity.oauth2.IdentityOAuth2Exception;
 import org.wso2.carbon.identity.oauth2.model.AccessTokenDO;
 import org.wso2.carbon.identity.oauth2.model.ClientCredentialDO;
 import org.wso2.carbon.user.api.UserStoreException;
+import org.wso2.carbon.user.core.UserCoreConstants;
+import org.wso2.carbon.user.core.UserStoreManager;
+import org.wso2.carbon.user.core.common.AbstractUserStoreManager;
 import org.wso2.carbon.user.core.service.RealmService;
+import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import java.sql.Timestamp;
@@ -222,6 +229,7 @@ public class OAuth2Util {
 
         boolean cacheHit = false;
         String username = null;
+        boolean isUsernameCaseSensitive = OAuth2Util.isUsernameCaseSensitive(username);
 
         if (OAuth2Util.authenticateClient(clientId, clientSecretProvided)) {
             // check cache
@@ -242,7 +250,9 @@ public class OAuth2Util {
                 // Cache miss
                 OAuthConsumerDAO oAuthConsumerDAO = new OAuthConsumerDAO();
                 username = oAuthConsumerDAO.getAuthenticatedUsername(clientId, clientSecretProvided);
-                log.debug("Username fetch from the database");
+                if (log.isDebugEnabled()) {
+                    log.debug("Username fetch from the database");
+                }
             }
 
             if (username != null && cacheEnabled && !cacheHit) {
@@ -252,8 +262,15 @@ public class OAuth2Util {
                  * own cache key and cache entry class every time we need to put something to it? Ideal solution is
                  * to have a generalized way of caching a key:value pair
                  */
-                cache.addToCache(new OAuthCacheKey(clientId + ":" + username), new ClientCredentialDO(username));
-                log.debug("Caching username : " + username);
+                if (isUsernameCaseSensitive){
+                    cache.addToCache(new OAuthCacheKey(clientId + ":" + username), new ClientCredentialDO(username));
+                }else {
+                    cache.addToCache(new OAuthCacheKey(clientId + ":" + username.toLowerCase()), new ClientCredentialDO(username));
+                }
+                if (log.isDebugEnabled()){
+                    log.debug("Caching username : " + username);
+                }
+
             }
         }
         return username;
@@ -497,6 +514,46 @@ public class OAuth2Util {
 
         String domainName = MultitenantUtils.getTenantDomain(username);
         return getTenantId(domainName);
+    }
+
+    public static String hashScopes(String[] scope){
+        return DigestUtils.md5Hex(OAuth2Util.buildScopeString(scope));
+    }
+
+    public static String hashScopes(String scope){
+        //first converted to an array to sort the scopes
+        return DigestUtils.md5Hex(OAuth2Util.buildScopeString(buildScopeArray(scope)));
+    }
+
+    public static boolean isUsernameCaseSensitive(String username) {
+        boolean isUsernameCaseSensitive = false;
+        try {
+            String tenantDomain = MultitenantUtils.getTenantDomain(username);
+            int tenantId = OAuthComponentServiceHolder.getRealmService().getTenantManager().getTenantId(tenantDomain);
+
+            UserStoreManager userStoreManager = (UserStoreManager) OAuthComponentServiceHolder.getRealmService()
+                    .getTenantUserRealm(tenantId).getUserStoreManager();
+            UserStoreManager UserAvailableUserStoreManager = userStoreManager.getSecondaryUserStoreManager
+                    (OAuth2Util.getDomainFromName(username));
+            String caseInsensitiveUsername = UserAvailableUserStoreManager.getRealmConfiguration().getUserStoreProperty("CaseInsensitiveUsername");
+            if (caseInsensitiveUsername != null) {
+                isUsernameCaseSensitive = !Boolean.parseBoolean(caseInsensitiveUsername);
+            }
+        } catch (UserStoreException e) {
+            if (log.isDebugEnabled()){
+                log.debug("Error while reading user store property CaseInsensitiveUsername. Considering as false.");
+            }
+        }
+        return isUsernameCaseSensitive;
+    }
+
+    private static String getDomainFromName(String name) {
+        int index;
+        if ((index = name.indexOf("/")) > 0) {
+            String domain = name.substring(0, index);
+            return domain;
+        }
+        return UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME;
     }
 
 }

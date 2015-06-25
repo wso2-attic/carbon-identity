@@ -1,20 +1,20 @@
 /*
-*  Copyright (c) WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ * Copyright (c) 2014 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
 package org.wso2.carbon.user.mgt.common;
 
 import org.wso2.carbon.CarbonConstants;
@@ -32,7 +32,7 @@ public class UserRealmInfo {
 
     private boolean isBulkImportSupported;
 
-    private boolean isMultipleUserStore;    
+    private boolean isMultipleUserStore;
 
     private String[] requiredUserClaims;
 
@@ -46,7 +46,7 @@ public class UserRealmInfo {
 
     private boolean enableUIPageCache;
 
-    private UserStoreInfo primaryUserStoreInfo;        
+    private UserStoreInfo primaryUserStoreInfo;
 
     private UserStoreInfo[] userStoresInfo;
 
@@ -92,27 +92,43 @@ public class UserRealmInfo {
     }
 
     public String[] getRequiredUserClaims() {
-        return requiredUserClaims;
+        if (requiredUserClaims != null) {
+            return requiredUserClaims.clone();
+        } else return new String[0];
     }
 
     public void setRequiredUserClaims(String[] requiredUserClaims) {
-        this.requiredUserClaims = requiredUserClaims;
+        if (requiredUserClaims != null) {
+            this.requiredUserClaims = requiredUserClaims.clone();
+        }
     }
 
     public String[] getUserClaims() {
-        return userClaims;
+        if (userClaims != null) {
+            return userClaims.clone();
+        }
+
+        return new String[0];
+
     }
 
     public void setUserClaims(String[] userClaims) {
-        this.userClaims = userClaims;
+        if (userClaims != null) {
+            this.userClaims = userClaims.clone();
+        }
     }
 
     public String[] getDomainNames() {
-        return domainNames;
+        if (domainNames != null) {
+            return domainNames.clone();
+        }
+        return new String[0];
     }
 
     public void setDomainNames(String[] domainNames) {
-        this.domainNames = domainNames;
+        if (domainNames != null) {
+            this.domainNames = domainNames.clone();
+        }
     }
 
     public int getMaxUIPagesInCache() {
@@ -148,17 +164,23 @@ public class UserRealmInfo {
     }
 
     public UserStoreInfo[] getUserStoresInfo() {
-        return userStoresInfo;
+        if (userStoresInfo != null) {
+            return userStoresInfo.clone();
+        }
+
+        return new UserStoreInfo[0];
     }
 
     public void setUserStoresInfo(UserStoreInfo[] userStoresInfo) {
-        this.userStoresInfo = userStoresInfo;
+        if (userStoresInfo != null) {
+            this.userStoresInfo = userStoresInfo.clone();
+        }
     }
 
     public UserStoreInfo getUserStoreInfo(String domainName) {
-        
-        for(UserStoreInfo info : userStoresInfo){
-            if(domainName != null && domainName.equalsIgnoreCase(info.getDomainName())){
+
+        for (UserStoreInfo info : userStoresInfo) {
+            if (domainName != null && domainName.equalsIgnoreCase(info.getDomainName())) {
                 return info;
             }
         }
@@ -168,10 +190,10 @@ public class UserRealmInfo {
 
     public UserStoreInfo getUserStoreInfoForUser(String userName) {
 
-        if(userName.contains(CarbonConstants.DOMAIN_SEPARATOR)){
+        if (userName.contains(CarbonConstants.DOMAIN_SEPARATOR)) {
             String domainName = userName.substring(0, userName.indexOf(CarbonConstants.DOMAIN_SEPARATOR));
-            for(UserStoreInfo info : userStoresInfo){
-                if(domainName != null && domainName.equalsIgnoreCase(info.getDomainName())){
+            for (UserStoreInfo info : userStoresInfo) {
+                if (domainName != null && domainName.equalsIgnoreCase(info.getDomainName())) {
                     return info;
                 }
             }

@@ -42,7 +42,7 @@ public class DefaultPasswordPatternPolicy extends AbstractPasswordPolicyEnforcer
                 return true;
             } else {
                 if (errorMessage == null) {
-                    errorMessage = "Password pattern policy violated. policy :"+ pattern;
+                    errorMessage = "Password pattern policy violated. Policy :"+ pattern;
                 }
                 return false;
             }
