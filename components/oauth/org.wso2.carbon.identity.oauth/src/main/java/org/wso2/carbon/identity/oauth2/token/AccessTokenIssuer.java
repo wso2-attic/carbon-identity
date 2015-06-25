@@ -62,7 +62,7 @@ public class AccessTokenIssuer {
 
         authzGrantHandlers = OAuthServerConfiguration.getInstance().getSupportedGrantTypes();
         clientAuthenticationHandlers = OAuthServerConfiguration.getInstance().getSupportedClientAuthHandlers();
-        appInfoCache = AppInfoCache.getInstance();
+        appInfoCache = AppInfoCache.getInstance(OAuthServerConfiguration.getInstance().getAppInfoCacheTimeout());
         if (appInfoCache != null) {
             if (log.isDebugEnabled()) {
                 log.debug("Successfully created AppInfoCache under " + OAuthConstants.OAUTH_CACHE_MANAGER);
@@ -227,11 +227,13 @@ public class AccessTokenIssuer {
         AuthorizationGrantCacheKey oldCacheKey = new AuthorizationGrantCacheKey(tokenReqDTO.getAuthorizationCode());
         //checking getUserAttributesId vale of cacheKey before retrieve entry from cache as it causes to NPE
         if (oldCacheKey.getUserAttributesId() != null) {
-            CacheEntry authorizationGrantCacheEntry = AuthorizationGrantCache.getInstance()
+            CacheEntry authorizationGrantCacheEntry = AuthorizationGrantCache.getInstance(OAuthServerConfiguration.
+                    getInstance().getAuthorizationGrantCacheTimeout())
                     .getValueFromCache(oldCacheKey);
             AuthorizationGrantCacheKey newCacheKey = new AuthorizationGrantCacheKey(tokenRespDTO.getAccessToken());
-            AuthorizationGrantCache.getInstance().addToCache(newCacheKey, authorizationGrantCacheEntry);
-            AuthorizationGrantCache.getInstance().clearCacheEntry(oldCacheKey);
+            int authorizationGrantCacheTimeout = OAuthServerConfiguration.getInstance().getAuthorizationGrantCacheTimeout();
+            AuthorizationGrantCache.getInstance(authorizationGrantCacheTimeout).addToCache(newCacheKey, authorizationGrantCacheEntry);
+            AuthorizationGrantCache.getInstance(authorizationGrantCacheTimeout).clearCacheEntry(oldCacheKey);
         }
     }
 

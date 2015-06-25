@@ -60,6 +60,8 @@ public class TenantDataManager {
     private static final String CLIENT_KEY_STORE_PASSWORD = "Carbon.Security.KeyStore.Password";
     private static final String CLIENT_TRUST_STORE_PASSWORD = "Carbon.Security.TrustStore.Password";
     private static final String HOSTNAME_VERIFICATION_ENABLED = "hostname.verification.enabled";
+    private static final String KEY_MANAGER_TYPE = "key.manager.type";
+    private static final String TRUST_MANAGER_TYPE = "trust.manager.type";
     private static final String TENANT_LIST_ENABLED = "tenantListEnabled";
 
     // Service URL constants
@@ -124,6 +126,13 @@ public class TenantDataManager {
 
                 String clientKeyStorePath = buildFilePath(getPropertyValue(CLIENT_KEY_STORE));
                 String clientTrustStorePath = buildFilePath(getPropertyValue(CLIENT_TRUST_STORE));
+
+                if (StringUtils.isNotEmpty(getPropertyValue(KEY_MANAGER_TYPE))) {
+                    TenantMgtAdminServiceClient.setKeyManagerType(getPropertyValue(KEY_MANAGER_TYPE));
+                }
+                if (StringUtils.isNotEmpty(getPropertyValue(TRUST_MANAGER_TYPE))) {
+                    TenantMgtAdminServiceClient.setTrustManagerType(getPropertyValue(TRUST_MANAGER_TYPE));
+                }
 
                 TenantMgtAdminServiceClient
                         .loadKeyStore(clientKeyStorePath, getPropertyValue(CLIENT_KEY_STORE_PASSWORD));

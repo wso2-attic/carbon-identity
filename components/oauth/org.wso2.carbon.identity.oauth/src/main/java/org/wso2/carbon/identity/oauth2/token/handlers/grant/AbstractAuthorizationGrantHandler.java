@@ -66,7 +66,7 @@ public abstract class AbstractAuthorizationGrantHandler implements Authorization
         // Set the cache instance if caching is enabled.
         if (OAuthServerConfiguration.getInstance().isCacheEnabled()) {
             cacheEnabled = true;
-            oauthCache = OAuthCache.getInstance();
+            oauthCache = OAuthCache.getInstance(OAuthServerConfiguration.getInstance().getOAuthCacheTimeout());
         }
     }
 
@@ -94,7 +94,14 @@ public abstract class AbstractAuthorizationGrantHandler implements Authorization
 
         String consumerKey = tokReqMsgCtx.getOauth2AccessTokenReqDTO().getClientId();
         String authorizedUser = tokReqMsgCtx.getAuthorizedUser();
-        OAuthCacheKey cacheKey = new OAuthCacheKey(consumerKey + ":" + authorizedUser.toLowerCase() + ":" + scope);
+        boolean isUsernameCaseSensitive = OAuth2Util.isUsernameCaseSensitive(authorizedUser);
+        String cacheKeyString;
+        if (isUsernameCaseSensitive){
+            cacheKeyString = consumerKey + ":" + authorizedUser + ":" + scope;
+        }else {
+            cacheKeyString = consumerKey + ":" + authorizedUser.toLowerCase() + ":" + scope;
+        }
+        OAuthCacheKey cacheKey = new OAuthCacheKey(cacheKeyString);
         String userStoreDomain = null;
 
         //select the user store domain when multiple user stores are configured.
@@ -455,7 +462,8 @@ public abstract class AbstractAuthorizationGrantHandler implements Authorization
         String grantType = tokenReqDTO.getGrantType();
 
         // Load application data from the cache
-        AppInfoCache appInfoCache = AppInfoCache.getInstance();
+        AppInfoCache appInfoCache = AppInfoCache.getInstance(OAuthServerConfiguration.getInstance().
+                                                                                        getAppInfoCacheTimeout());
         OAuthAppDO oAuthAppDO = appInfoCache.getValueFromCache(tokenReqDTO.getClientId());
         if (oAuthAppDO == null) {
             try {

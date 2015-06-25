@@ -34,6 +34,7 @@ import org.wso2.carbon.identity.application.authentication.framework.model.Authe
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkConstants;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkUtils;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
+import org.wso2.carbon.idp.mgt.util.IdPManagementUtil;
 import org.wso2.carbon.registry.core.utils.UUIDGenerator;
 
 import javax.servlet.ServletException;
@@ -116,7 +117,7 @@ public class DefaultAuthenticationRequestHandler implements AuthenticationReques
             concludeFlow(request, response, context);
         } else { // redirecting outside
             FrameworkUtils.addAuthenticationContextToCache(context.getContextIdentifier(), context,
-                                                           FrameworkUtils.getMaxInactiveInterval());
+                    IdPManagementUtil.getIdleSessionTimeOut(context.getTenantDomain()));
         }
     }
 
@@ -269,7 +270,7 @@ public class DefaultAuthenticationRequestHandler implements AuthenticationReques
                 // TODO add to cache?
                 // store again. when replicate  cache is used. this may be needed.
                 FrameworkUtils.addSessionContextToCache(commonAuthCookie, sessionContext,
-                                                        FrameworkUtils.getMaxInactiveInterval());
+                        IdPManagementUtil.getIdleSessionTimeOut(authenticatedUserTenantDomain));
             } else {
                 sessionContext = new SessionContext();
                 sessionContext.getAuthenticatedSequences().put(appConfig.getApplicationName(),
@@ -278,9 +279,9 @@ public class DefaultAuthenticationRequestHandler implements AuthenticationReques
                 sessionContext.setRememberMe(context.isRememberMe());
                 String sessionKey = UUIDGenerator.generateUUID();
                 FrameworkUtils.addSessionContextToCache(sessionKey, sessionContext,
-                                                        FrameworkUtils.getMaxInactiveInterval());
+                        IdPManagementUtil.getIdleSessionTimeOut(authenticatedUserTenantDomain));
 
-                setAuthCookie(request, response, context, sessionKey);
+                setAuthCookie(request, response, context, sessionKey, authenticatedUserTenantDomain);
             }
 
             if (authenticatedUserTenantDomain == null) {
@@ -307,7 +308,7 @@ public class DefaultAuthenticationRequestHandler implements AuthenticationReques
         // the redirect is done to that servlet, it will retrieve the result from the cache using
         // that key.
         FrameworkUtils.addAuthenticationResultToCache(context.getCallerSessionKey(),
-                                                      authenticationResult, FrameworkUtils.getMaxInactiveInterval());
+                authenticationResult, IdPManagementUtil.getIdleSessionTimeOut(authenticatedUserTenantDomain));
 
         /*
          * TODO Cache retaining is a temporary fix. Remove after Google fixes
@@ -323,24 +324,11 @@ public class DefaultAuthenticationRequestHandler implements AuthenticationReques
     }
 
     private void setAuthCookie(HttpServletRequest request, HttpServletResponse response, AuthenticationContext context,
-                               String sessionKey) throws FrameworkException {
+                               String sessionKey, String tenantDomain) throws FrameworkException {
         Integer authCookieAge = null;
 
         if (context.isRememberMe()) {
-            String rememberMePeriod = IdentityUtil
-                    .getProperty("JDBCPersistenceManager.SessionDataPersist.RememberMePeriod");
-
-            if (rememberMePeriod == null || rememberMePeriod.trim().length() == 0) {
-                // set default value to 2 weeks
-                rememberMePeriod = "20160";
-            }
-
-            try {
-                authCookieAge = Integer.valueOf(rememberMePeriod);
-            } catch (NumberFormatException e) {
-                throw new FrameworkException(
-                        "RememberMePeriod in identity.xml must be a numeric value", e);
-            }
+            authCookieAge = IdPManagementUtil.getRememberMeTimeout(tenantDomain);
         }
 
         FrameworkUtils.storeAuthCookie(request, response, sessionKey, authCookieAge);

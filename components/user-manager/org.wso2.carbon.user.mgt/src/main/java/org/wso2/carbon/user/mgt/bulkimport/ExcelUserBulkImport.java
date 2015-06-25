@@ -1,17 +1,19 @@
 /*
- * Copyright 2005-2007 WSO2, Inc. (http://wso2.com)
+ * Copyright (c) 2007 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *  http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
  */
 
 package org.wso2.carbon.user.mgt.bulkimport;
@@ -32,8 +34,8 @@ import java.io.InputStream;
 
 public class ExcelUserBulkImport {
 
-    private static Log log = LogFactory.getLog(ExcelUserBulkImport.class);
-    
+    private static final Log log = LogFactory.getLog(ExcelUserBulkImport.class);
+
     private BulkImportConfig config;
 
     public ExcelUserBulkImport(BulkImportConfig config) {
@@ -46,7 +48,7 @@ public class ExcelUserBulkImport {
             Workbook wb = this.createWorkbook();
             Sheet sheet = wb.getSheet(wb.getSheetName(0));
             String password = config.getDefaultPassword();
-           
+
             if (sheet == null || sheet.getLastRowNum() == -1) {
                 throw new UserAdminException("The first sheet is empty");
             }
@@ -55,20 +57,20 @@ public class ExcelUserBulkImport {
             boolean fail = false;
             boolean success = false;
             String lastError = "UNKNOWN";
-            for (int i = 1; i < limit+1; i++) {
+            for (int i = 1; i < limit + 1; i++) {
                 Row row = sheet.getRow(i);
                 Cell cell = row.getCell(0);
                 String userName = cell.getStringCellValue();
-                if(userName != null && userName.trim().length() > 0){
-                    try{
+                if (userName != null && userName.trim().length() > 0) {
+                    try {
                         if (!userStore.isExistingUser(userName)) {
                             userStore.addUser(userName, password, null, null, null, true);
                             success = true;
                         } else {
                             isDuplicate = true;
                         }
-                    } catch (Exception e){
-                        if(log.isDebugEnabled()) {
+                    } catch (Exception e) {
+                        if (log.isDebugEnabled()) {
                             log.debug(e);
                         }
                         lastError = e.getMessage();
@@ -76,29 +78,26 @@ public class ExcelUserBulkImport {
                     }
                 }
             }
-            
+
             if (fail && success) {
                 throw new UserAdminException("Error occurs while importing user names. " +
                         "Some user names were successfully imported. Some were not. Last error was : " + lastError);
             }
 
-            if(fail && !success){
+            if (fail && !success) {
                 throw new UserAdminException("Error occurs while importing user names. " +
                         "All user names were not imported. Last error was : " + lastError);
             }
             if (isDuplicate) {
                 throw new UserAdminException("Detected duplicate user names. " +
                         "Failed to import duplicate users. Non-duplicate user names were successfully imported.");
-            }            
+            }
         } catch (UserAdminException e) {
             throw e;
-        } catch (Throwable e) {
-            log.error(e.getMessage(), e);
-            throw new UserAdminException(e.getMessage(), e);
         }
     }
 
-    public Workbook createWorkbook() throws Throwable {
+    public Workbook createWorkbook() throws UserAdminException {
         String filename = config.getFileName();
         InputStream ins = config.getInStream();
         Workbook wb = null;
