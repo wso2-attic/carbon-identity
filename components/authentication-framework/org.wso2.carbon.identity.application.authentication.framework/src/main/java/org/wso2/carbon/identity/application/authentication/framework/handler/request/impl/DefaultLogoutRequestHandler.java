@@ -147,17 +147,26 @@ public class DefaultLogoutRequestHandler implements LogoutRequestHandler {
         // Set values to be returned to the calling servlet as request
         // attributes
         request.setAttribute(FrameworkConstants.ResponseParams.LOGGED_OUT, isLoggedOut);
-        request.setAttribute(FrameworkConstants.SESSION_DATA_KEY, context.getCallerSessionKey());
 
-        AuthenticationResult authenticationResult = new AuthenticationResult();
-        authenticationResult.setLoggedOut(true);
+        String redirectURL;
 
-        SequenceConfig sequenceConfig = context.getSequenceConfig();
-        authenticationResult.setSaaSApp(sequenceConfig.getApplicationConfig().isSaaSApp());
+        if(context.getCallerSessionKey() != null) {
+            request.setAttribute(FrameworkConstants.SESSION_DATA_KEY, context.getCallerSessionKey());
 
-        // Put the result in the
-        FrameworkUtils.addAuthenticationResultToCache(context.getCallerSessionKey(), authenticationResult,
-                                                      FrameworkUtils.getMaxInactiveInterval());
+            AuthenticationResult authenticationResult = new AuthenticationResult();
+            authenticationResult.setLoggedOut(true);
+
+            SequenceConfig sequenceConfig = context.getSequenceConfig();
+            authenticationResult.setSaaSApp(sequenceConfig.getApplicationConfig().isSaaSApp());
+
+            // Put the result in the
+            FrameworkUtils.addAuthenticationResultToCache(context.getCallerSessionKey(), authenticationResult,
+                                                          FrameworkUtils.getMaxInactiveInterval());
+
+            redirectURL = context.getCallerPath() + "?sessionDataKey=" + context.getCallerSessionKey();
+        } else {
+            redirectURL = context.getCallerPath();
+        }
         
         /*
          * TODO Cache retaining is a temporary fix. Remove after Google fixes
@@ -176,7 +185,6 @@ public class DefaultLogoutRequestHandler implements LogoutRequestHandler {
         }
 
         // redirect to the caller
-        String redirectURL = context.getCallerPath() + "?sessionDataKey=" + context.getCallerSessionKey();
         response.sendRedirect(redirectURL);
     }
 }
