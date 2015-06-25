@@ -93,10 +93,9 @@ public class DefaultRequestCoordinator implements RequestCoordinator {
 
                     // sessionDataKey is null and not a logout request
                     if (log.isDebugEnabled()) {
-                        log.debug("Session data key is null in the request");
+                        log.debug("Session data key is null in the request and not a logout request.");
                     }
 
-                    log.error("Session data key is missing in the request.");
                     FrameworkUtils.sendToRetryPage(request, response);
                 }
 
