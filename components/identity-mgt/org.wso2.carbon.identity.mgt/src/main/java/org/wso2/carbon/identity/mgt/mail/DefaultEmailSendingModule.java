@@ -73,7 +73,8 @@ public class DefaultEmailSendingModule extends AbstractEmailSendingModule {
 
         try {
             if (this.notification == null) {
-                throw new NullPointerException("Notification not set. Please set the notification before sending messages");
+                throw new IllegalStateException("Notification not set. " +
+                        "Please set the notification before sending messages");
             }
             PrivilegedCarbonContext.startTenantFlow();
             if (notificationData != null) {
@@ -81,6 +82,10 @@ public class DefaultEmailSendingModule extends AbstractEmailSendingModule {
                 PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
                 carbonContext.setTenantDomain(tenantDomain);
                 carbonContext.getTenantId(true);
+            } else {
+                if (log.isDebugEnabled()) {
+                    log.debug("notification data not found. Tenant might not be loaded correctly");
+                }
             }
 
             headerMap.put(MailConstants.MAIL_HEADER_SUBJECT, this.notification.getSubject());
