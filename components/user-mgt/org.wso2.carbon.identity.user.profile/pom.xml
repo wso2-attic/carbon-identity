@@ -117,7 +117,8 @@
                             org.wso2.carbon.identity.base; version="${carbon.identity.package.import.version.range}",
                             org.wso2.carbon.identity.core.*; version="${carbon.identity.package.import.version.range}",
                             org.wso2.carbon.identity.user.store.configuration.*;
-                            version="${carbon.identity.package.import.version.range}"
+                            version="${carbon.identity.package.import.version.range}",
+                            org.apache.commons.lang; version="${commons-lang.wso2.osgi.version.range}
                         </Import-Package>
                         <Export-Package>
                             !org.wso2.carbon.identity.user.profile.mgt.internal,
