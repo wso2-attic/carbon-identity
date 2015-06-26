@@ -127,6 +127,7 @@ public class OAuthServerConfiguration {
 		public static final String CONSUMER_DIALECT_URI = "ConsumerDialectURI";
 		public static final String SIGNATURE_ALGORITHM = "SignatureAlgorithm";
 		public static final String SECURITY_CONTEXT_TTL = "AuthorizationContextTTL";
+        public static final String ENABLE_ARRAY_BASED_MULTI_VALUE_ATTRIBUTES = "EnableArrayBasedMultiValueAttributes";
 
 		public static final String ENABLE_ASSERTIONS = "EnableAssertions";
 		public static final String ENABLE_ASSERTIONS_USERNAME = "UserName";
@@ -136,6 +137,7 @@ public class OAuthServerConfiguration {
 		// OpenIDConnect configurations
 		public static final String OPENID_CONNECT = "OpenIDConnect";
 		public static final String OPENID_CONNECT_IDTOKEN_BUILDER = "IDTokenBuilder";
+        public static final String OPENID_CONNECT_IDTOKEN_EXP_IN_SEC = "IDTokenExpiryInSeconds";
 		public static final String OPENID_CONNECT_IDTOKEN_SUB_CLAIM = "IDTokenSubjectClaim";
 		public static final String OPENID_CONNECT_IDTOKEN_ISSUER_ID = "IDTokenIssuerID";
 		public static final String OPENID_CONNECT_IDTOKEN_EXPIRATION = "IDTokenExpiration";
@@ -215,8 +217,13 @@ public class OAuthServerConfiguration {
 
 	private String authContextTTL = "15L";
 
+    private boolean isArrayBasedMultiValueAttributesEnabled = false;
+
 	// OpenID Connect configurations
 	private String openIDConnectIDTokenBuilderClassName = "org.wso2.carbon.identity.openidconnect.DefaultIDTokenBuilder";
+
+    // OpenID Connect configurations
+    private String openIDConnectIDTokenExpInSec = "false";
 	
 	private String openIDConnectIDTokenCustomClaimsHanlderClassName = "org.wso2.carbon.identity.openidconnect.SAMLAssertionClaimsCallback";
 	
@@ -564,6 +571,10 @@ public class OAuthServerConfiguration {
 	public String getAuthorizationContextTTL() {
 		return authContextTTL;
 	}
+
+    public boolean isArrayBasedMultiValueAttributesEnabled(){
+        return isArrayBasedMultiValueAttributesEnabled;
+    }
 	
 	public TokenPersistenceProcessor getPersistenceProcessor() throws IdentityOAuth2Exception {
         if(persistenceProcessor == null){
@@ -618,7 +629,15 @@ public class OAuthServerConfiguration {
 		}
 		return openIDConnectIDTokenBuilder;
 	}
-	
+
+    /**
+     * Is IDToken expiry set in seconds
+     * @return
+     */
+    public boolean isOIDCIDTokenExpInSecs() {
+        return Boolean.parseBoolean(openIDConnectIDTokenExpInSec);
+    }
+
 	/**
 	 * Returns the custom claims builder for the IDToken
 	 * @return
@@ -1163,7 +1182,18 @@ public class OAuthServerConfiguration {
 						                 authContextTokGenConfigElem.getFirstChildWithName(getQNameWithIdentityNS(ConfigElements.SECURITY_CONTEXT_TTL))
 						                                            .getText().trim();
 					}
-				}
+                    if (authContextTokGenConfigElem.getFirstChildWithName(
+                            getQNameWithIdentityNS(ConfigElements.ENABLE_ARRAY_BASED_MULTI_VALUE_ATTRIBUTES)) != null) {
+                        String enableArrayBasedMultiValueAttributes = authContextTokGenConfigElem
+                                .getFirstChildWithName(getQNameWithIdentityNS(
+                                        ConfigElements.ENABLE_ARRAY_BASED_MULTI_VALUE_ATTRIBUTES))
+                                .getText().trim();
+                        if (enableArrayBasedMultiValueAttributes != null &&
+                            JavaUtils.isTrueExplicitly(enableArrayBasedMultiValueAttributes)) {
+                            isArrayBasedMultiValueAttributesEnabled = true;
+                        }
+                    }
+                }
 			}
 		}
 		if (log.isDebugEnabled()) {
@@ -1186,6 +1216,11 @@ public class OAuthServerConfiguration {
 				                             openIDConnectConfigElem.getFirstChildWithName(getQNameWithIdentityNS(ConfigElements.OPENID_CONNECT_IDTOKEN_BUILDER))
 				                                                    .getText().trim();
 			}
+            if (openIDConnectConfigElem.getFirstChildWithName(getQNameWithIdentityNS(ConfigElements.OPENID_CONNECT_IDTOKEN_EXP_IN_SEC)) != null) {
+                openIDConnectIDTokenExpInSec =
+                        openIDConnectConfigElem.getFirstChildWithName(getQNameWithIdentityNS(ConfigElements.OPENID_CONNECT_IDTOKEN_EXP_IN_SEC))
+                                .getText().trim();
+            }
 			if (openIDConnectConfigElem.getFirstChildWithName(getQNameWithIdentityNS(ConfigElements.OPENID_CONNECT_IDTOKEN_CUSTOM_CLAIM_CALLBACK_HANDLER)) != null) {
 				openIDConnectIDTokenCustomClaimsHanlderClassName =
 				                             openIDConnectConfigElem.getFirstChildWithName(getQNameWithIdentityNS(ConfigElements.OPENID_CONNECT_IDTOKEN_CUSTOM_CLAIM_CALLBACK_HANDLER))

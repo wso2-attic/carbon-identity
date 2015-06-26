@@ -71,13 +71,13 @@ public class OAuthRevocationEndpoint {
             if (log.isDebugEnabled()) {
                 logAccessTokenRevocationRequest(httpRequest);
             }
-            String token = httpRequest.getParameter("token");
+            String token = EndpointUtil.getSafeText(httpRequest.getParameter("token"));
             if (token == null || token.equals("")) {
                 if (paramMap.get("token") != null && !paramMap.isEmpty()) {
                     token = paramMap.get("token").get(0);
                 }
             }
-            String token_type = httpRequest.getParameter("token_type_hint");
+            String token_type = EndpointUtil.getSafeText(httpRequest.getParameter("token_type_hint"));
             if (token_type == null || token_type.equals("")) {
                 if (paramMap.get("token_type_hint") != null
                         && !paramMap.get("token_type_hint").isEmpty()) {
@@ -93,25 +93,20 @@ public class OAuthRevocationEndpoint {
 
             // extract the basic auth credentials if present in the request and use for
             // authentication.
-            boolean basicAuthUsed = false;
             if (request.getHeader(OAuthConstants.HTTP_REQ_HEADER_AUTHZ) != null) {
                 try {
-                    // If the client has included client credentials in any in any other format except Basic Auth headers,
-                    // then it is not recommended as per the specification. sending invalid_client error back.
-                    String[] clientCredentials = EndpointUtil
-                            .extractCredentialsFromAuthzHeader(request
-                                                                       .getHeader(OAuthConstants.HTTP_REQ_HEADER_AUTHZ));
-
-                    // The client MUST NOT use more than one authentication method in each request
-                    if (paramMap.containsKey(OAuth.OAUTH_CLIENT_ID)
-                            && paramMap.containsKey(OAuth.OAUTH_CLIENT_SECRET)) {
-                        return handleBasicAuthFailure(callback);
+                    String[] clientCredentials = EndpointUtil.extractCredentialsFromAuthzHeader(
+                            request.getHeader(OAuthConstants.HTTP_REQ_HEADER_AUTHZ));
+                    if(clientCredentials != null && clientCredentials.length == 2){
+                        // The client MUST NOT use more than one authentication method in each request
+                        if (paramMap.containsKey(OAuth.OAUTH_CLIENT_ID)
+                                && paramMap.containsKey(OAuth.OAUTH_CLIENT_SECRET)) {
+                            return handleBasicAuthFailure(callback);
+                        }
+                        // add the credentials available in Authorization to the parameter map
+                        paramMap.add(OAuth.OAUTH_CLIENT_ID, clientCredentials[0]);
+                        paramMap.add(OAuth.OAUTH_CLIENT_SECRET, clientCredentials[1]);
                     }
-
-                    // add the credentials available in Authorization to the parameter map
-                    paramMap.add(OAuth.OAUTH_CLIENT_ID, clientCredentials[0]);
-                    paramMap.add(OAuth.OAUTH_CLIENT_SECRET, clientCredentials[1]);
-
                 } catch (OAuthClientException e) {
                     // malformed credential string is considered as an auth failure.
                     return handleBasicAuthFailure(callback);
@@ -120,8 +115,12 @@ public class OAuthRevocationEndpoint {
 
             try {
                 OAuthRevocationRequestDTO revokeRequest = new OAuthRevocationRequestDTO();
-                revokeRequest.setConsumerKey(paramMap.get(OAuth.OAUTH_CLIENT_ID).get(0));
-                revokeRequest.setConsumerSecret(paramMap.get(OAuth.OAUTH_CLIENT_SECRET).get(0));
+                if(paramMap.get(OAuth.OAUTH_CLIENT_ID) != null) {
+                    revokeRequest.setConsumerKey(paramMap.get(OAuth.OAUTH_CLIENT_ID).get(0));
+                }
+                if(paramMap.get(OAuth.OAUTH_CLIENT_SECRET) != null) {
+                    revokeRequest.setConsumerSecret(paramMap.get(OAuth.OAUTH_CLIENT_SECRET).get(0));
+                }
                 if (token != null && !token.equals("")) {
                     revokeRequest.setToken(token);
                 } else {

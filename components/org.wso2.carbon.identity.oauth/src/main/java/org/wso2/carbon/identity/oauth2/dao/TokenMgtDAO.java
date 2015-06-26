@@ -250,7 +250,8 @@ public class TokenMgtDAO {
 
             String sql = null;
             if (connection.getMetaData().getDriverName().contains("MySQL")
-                    || connection.getMetaData().getDriverName().contains("H2")) {
+                    || connection.getMetaData().getDriverName().contains("H2")
+                    || connection.getMetaData().getDatabaseProductName().contains("DB2")) {
                 sql = SQLQueries.RETRIEVE_LATEST_ACCESS_TOKEN_BY_CLIENT_ID_USER_SCOPE_MYSQL;
             }
             else if(connection.getMetaData().getDriverName().contains("MS SQL")){
@@ -502,7 +503,8 @@ public class TokenMgtDAO {
                     " AND REFRESH_TOKEN = ? ORDER BY TIME_CREATED DESC) AS TOKEN LIMIT 1 ";
 
             if (connection.getMetaData().getDriverName().contains("MySQL")
-                    || connection.getMetaData().getDriverName().contains("H2")) {
+                    || connection.getMetaData().getDriverName().contains("H2")
+                    || connection.getMetaData().getDatabaseProductName().contains("DB2")) {
                 sql = mySqlQuery;
             } else if (connection.getMetaData().getDriverName().contains("MS SQL")) {
                 sql = msSqlQuery;
@@ -634,6 +636,7 @@ public class TokenMgtDAO {
                 String tokenType = resultSet.getString(6);
                 String refreshToken = resultSet.getString(7);
                 dataDO = new AccessTokenDO(consumerKey, authorizedUser, scope, timestamp, validityPeriod / 1000, tokenType);
+                dataDO.setAccessToken(accessTokenIdentifier);
                 dataDO.setRefreshToken(refreshToken);
             }
 

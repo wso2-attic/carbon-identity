@@ -19,6 +19,7 @@
 package org.wso2.carbon.identity.oauth2.token.handlers.clientauth;
 
 import org.wso2.carbon.identity.oauth.IdentityOAuthAdminException;
+import org.wso2.carbon.identity.oauth.common.exception.InvalidOAuthClientException;
 import org.wso2.carbon.identity.oauth2.IdentityOAuth2Exception;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2AccessTokenReqDTO;
 import org.wso2.carbon.identity.oauth2.token.OAuthTokenReqMessageContext;
@@ -50,6 +51,8 @@ public class BasicAuthClientAuthHandler implements ClientAuthenticationHandler {
                     oAuth2AccessTokenReqDTO.getClientSecret());
         } catch (IdentityOAuthAdminException e) {
             throw new IdentityOAuth2Exception(e.getMessage(), e);
+        } catch (InvalidOAuthClientException e) {
+            throw new IdentityOAuth2Exception("Invalid Client : " + oAuth2AccessTokenReqDTO.getClientId(), e);
         }
     }
 }

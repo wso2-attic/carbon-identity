@@ -23,7 +23,9 @@ import org.apache.amber.oauth2.common.message.types.GrantType;
 import org.apache.axiom.util.base64.Base64Utils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.base.IdentityException;
+import org.wso2.carbon.identity.oauth.IdentityOAuthAdminException;
 import org.wso2.carbon.identity.oauth.cache.CacheKey;
 import org.wso2.carbon.identity.oauth.cache.OAuthCacheKey;
 import org.wso2.carbon.identity.oauth.common.OAuthConstants;
@@ -54,7 +56,9 @@ public class RefreshGrantHandler extends AbstractAuthorizationGrantHandler {
     public boolean validateGrant(OAuthTokenReqMessageContext tokReqMsgCtx)
             throws IdentityOAuth2Exception {
 
-        super.validateGrant(tokReqMsgCtx);
+        if(!super.validateGrant(tokReqMsgCtx)){
+            return false;
+        }
 
         OAuth2AccessTokenReqDTO tokenReqDTO = tokReqMsgCtx.getOauth2AccessTokenReqDTO();
 
@@ -74,9 +78,34 @@ public class RefreshGrantHandler extends AbstractAuthorizationGrantHandler {
                 validationDataDO.getRefreshTokenState()) &&
                 !OAuthConstants.TokenStates.TOKEN_STATE_EXPIRED.equals(
                         validationDataDO.getRefreshTokenState())) {
-            log.debug("Refresh Token is not in 'ACTIVE' or 'EXPIRED' state for Client with " +
+            log.debug("Access Token is not in 'ACTIVE' or 'EXPIRED' state for Client with " +
                     "Client Id : " + tokenReqDTO.getClientId() + " " +
                     "Refresh Token: " + tokenReqDTO.getRefreshToken());
+            return false;
+        }
+
+        String userStoreDomain = null;
+        if (OAuth2Util.checkAccessTokenPartitioningEnabled() && OAuth2Util.checkUserNameAssertionEnabled()) {
+            try {
+                userStoreDomain = OAuth2Util.getUserStoreDomainFromUserId(validationDataDO.getAuthorizedUser());
+            } catch (IdentityOAuth2Exception e) {
+                String errorMsg = "Error occurred while getting user store domain for User ID : " + validationDataDO.getAuthorizedUser();
+                log.error(errorMsg, e);
+                throw new IdentityOAuth2Exception(errorMsg, e);
+            }
+        }
+
+        AccessTokenDO accessTokenDO = tokenMgtDAO.retrieveLatestAccessToken(tokenReqDTO.getClientId(),
+                validationDataDO.getAuthorizedUser(),
+                userStoreDomain, OAuth2Util.buildScopeString(validationDataDO.getScope()), true);
+
+        if(accessTokenDO == null || !refreshToken.equals(accessTokenDO.getRefreshToken())){
+            String message = "Refresh token : " + refreshToken + " is not the latest. Latest refresh token is : " +
+                    accessTokenDO.getRefreshToken();
+            if(log.isDebugEnabled()){
+                log.debug(message);
+
+            }
             return false;
         }
 
@@ -117,6 +146,10 @@ public class RefreshGrantHandler extends AbstractAuthorizationGrantHandler {
                     oauth2AccessTokenReqDTO.getRefreshToken());
                 if(OAuthConstants.TokenStates.TOKEN_STATE_ACTIVE.equals(
                     refreshTokenValidationDataDO.getRefreshTokenState())){
+                    // We don't check for EXPIRED state here because latest token can never be in EXPIRED state since
+                    // tokens are expired only in TokenResponseTypeHandler, AbstractAuthorizationGrantHandler and
+                    // RefreshGrantHandler. In all the cases as soon as the token is expired the new ACTIVE is stored
+                    // Latest tokens can only be EXPIRED if we expire them during token validation which we don't do
                     long issuedAt = refreshTokenValidationDataDO.getIssuedAt();
                     long refreshValidity =
                     OAuthServerConfiguration.getInstance().getRefreshTokenValidityPeriodInSeconds() * 1000;
@@ -239,7 +272,7 @@ public class RefreshGrantHandler extends AbstractAuthorizationGrantHandler {
         header.setValue(oldAccessToken.getAccessToken());
         respHeaders.add(header);
 
-        tokReqMsgCtx.addProperty("RESPONSE_HEADERS", respHeaders.toArray(
+        tokReqMsgCtx.addProperty("RESPONSE_HEADERS_PROPERTY", respHeaders.toArray(
                 new ResponseHeader[respHeaders.size()]));
 
         return tokenRespDTO;

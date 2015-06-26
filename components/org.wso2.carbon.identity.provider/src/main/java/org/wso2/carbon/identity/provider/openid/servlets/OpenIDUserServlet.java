@@ -36,6 +36,7 @@ import org.wso2.carbon.identity.provider.openid.handlers.OpenIDHandler;
 import org.wso2.carbon.identity.provider.openid.util.OpenIDUtil;
 import org.wso2.carbon.ui.CarbonUIUtil;
 import org.wso2.carbon.registry.core.RegistryConstants;
+import org.wso2.carbon.ui.util.CharacterEncoder;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 public class OpenIDUserServlet extends HttpServlet {
@@ -92,6 +93,7 @@ public class OpenIDUserServlet extends HttpServlet {
         String errorBack = "";
         try {
 			user = OpenIDUtil.getUserName(req.getRequestURL().toString());
+			user = CharacterEncoder.getSafeText(user);
 			if (log.isDebugEnabled()) {
 				log.debug("OpenID url hit for the user " + user);
 			}
