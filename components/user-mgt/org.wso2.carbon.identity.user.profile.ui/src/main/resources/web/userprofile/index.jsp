@@ -37,6 +37,7 @@
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@ page import="java.net.URLEncoder" %>
 <%@ page import="java.util.ResourceBundle" %>
+<%@ page import="org.apache.commons.lang.StringUtils" %>
 
 <%
     boolean readOnlyUserStore = false;
@@ -78,9 +79,11 @@
 
         //read the domain of the user
         String userDomain = UserProfileCient.extractDomainFromName(Util.decodeHTMLCharacters(username));
-        if (userDomain != null) {
-            //i.e primary
+        if (StringUtils.isNotBlank(userDomain)) {
             multipleProfilesEnabled = client.isAddProfileEnabledForDomain(userDomain);
+        } else {
+            multipleProfilesEnabled = client.isAddProfileEnabledForDomain("");
+
         }
 
         //get user store manager config
