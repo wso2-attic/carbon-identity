@@ -76,6 +76,12 @@ public class DefaultEmailSendingModule extends AbstractEmailSendingModule {
                 throw new NullPointerException("Notification not set. Please set the notification before sending messages");
             }
             PrivilegedCarbonContext.startTenantFlow();
+            if (notificationData != null) {
+                String tenantDomain = notificationData.getDomainName();
+                PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
+                carbonContext.setTenantDomain(tenantDomain);
+                carbonContext.getTenantId(true);
+            }
 
             headerMap.put(MailConstants.MAIL_HEADER_SUBJECT, this.notification.getSubject());
 
