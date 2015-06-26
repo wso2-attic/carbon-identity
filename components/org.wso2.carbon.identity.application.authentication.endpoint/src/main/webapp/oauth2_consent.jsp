@@ -16,11 +16,11 @@
 ~ specific language governing permissions and limitations
 ~ under the License.
 -->
-<%@page import="org.wso2.carbon.identity.application.authentication.endpoint.oauth2.OAuth2Login"%>
+<%@ page import="org.wso2.carbon.identity.application.authentication.endpoint.util.CharacterEncoder"%>
 <%@ page import="org.wso2.carbon.identity.application.authentication.endpoint.Constants" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%
-	String app = OAuth2Login.getSafeText(request.getParameter("application"));
+	String app = CharacterEncoder.getSafeText(request.getParameter("application"));
 %>
 <html lang="en">
 <head>
@@ -99,7 +99,8 @@
 								value="Deny" onclick="javascript: deny(); return false;" /> 
 								
 					<input type="hidden" name="<%=Constants.SESSION_DATA_KEY_CONSENT%>"
-								value="<%=request.getParameter(Constants.SESSION_DATA_KEY_CONSENT)%>" />
+								value="<%=CharacterEncoder.getSafeText(request.getParameter
+								(Constants.SESSION_DATA_KEY_CONSENT))%>" />
 					<input type="hidden" name="consent" id="consent"
 								value="deny" />											
 						  

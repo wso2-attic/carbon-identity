@@ -43,8 +43,8 @@ public class DefaultOAuth2TokenValidator implements OAuth2TokenValidator {
 
         OAuth2ScopeValidator scopeValidator = OAuthServerConfiguration.getInstance().getoAuth2ScopeValidator();
 
-        //If a scope validator is engaged through the configuration and there are resource params to check
-        if (scopeValidator instanceof OAuth2ScopeValidator && messageContext.getRequestDTO().getContext() != null) {
+        //If a scope validator is engaged through the configuration
+        if(scopeValidator instanceof OAuth2ScopeValidator){
             String resource = null;
 
             //Iterate the array of context params to find the 'resource' context param.

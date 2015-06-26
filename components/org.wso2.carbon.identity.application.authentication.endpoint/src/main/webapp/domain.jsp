@@ -17,16 +17,17 @@
  ~ under the License.
  -->
 
-
+<%@ page import="org.wso2.carbon.identity.application.authentication.endpoint.util.CharacterEncoder"%>
 <%
     String errorMessage = "Authentication Failed";
     boolean loginFailed = false;
     
-    if (request.getParameter("authFailure") != null && "true".equals(request.getParameter("authFailure"))) {
+    if (CharacterEncoder.getSafeText(request.getParameter("authFailure")) != null && "true"
+    .equals(CharacterEncoder.getSafeText(request.getParameter("authFailure")))) {
 	    loginFailed = true;
 	    
-	    if(request.getParameter("authFailureMsg") != null){
-	        errorMessage = (String) request.getParameter("authFailureMsg");
+	    if(CharacterEncoder.getSafeText(request.getParameter("authFailureMsg")) != null){
+	        errorMessage = CharacterEncoder.getSafeText(request.getParameter("authFailureMsg"));
 	        
 	        if (errorMessage.equalsIgnoreCase("domain.unknown")) {
 	        	errorMessage = "Domain cannot be identified! Please retry.";
@@ -112,7 +113,7 @@
 
 						<div class="controls">
 							<input class="input-large" type="text" id="fidp" name="fidp" size="15"/>
-							<input type="hidden" name="sessionDataKey" value='<%=request.getParameter("sessionDataKey")%>'/>
+							<input type="hidden" name="sessionDataKey" value='<%=CharacterEncoder.getSafeText(request.getParameter("sessionDataKey"))%>'/>
 						</div>
 					</div>
 

@@ -111,7 +111,7 @@ public class OAuth2Service extends AbstractAdmin {
         try {
             OAuthAppDAO oAuthAppDAO = new OAuthAppDAO();
             OAuthAppDO appDO = oAuthAppDAO.getAppInformation(clientId);
-            
+
             OAuth2Util.setClientTenatId(appDO.getTenantId());
 
             // Valid Client, No callback has provided. Use the callback provided during the registration.
@@ -299,6 +299,12 @@ public class OAuth2Service extends AbstractAdmin {
             revokeRespDTO.setError(true);
             revokeRespDTO.setErrorCode(OAuth2ErrorCodes.SERVER_ERROR);
             revokeRespDTO.setErrorMsg("Error occurred while revoking authorization grant for applications");
+            return revokeRespDTO;
+        } catch (InvalidOAuthClientException e) {
+            OAuthRevocationResponseDTO revokeRespDTO = new OAuthRevocationResponseDTO();
+            revokeRespDTO.setError(true);
+            revokeRespDTO.setErrorCode(OAuth2ErrorCodes.UNAUTHORIZED_CLIENT);
+            revokeRespDTO.setErrorMsg("Unauthorized Client");
             return revokeRespDTO;
         }
     }

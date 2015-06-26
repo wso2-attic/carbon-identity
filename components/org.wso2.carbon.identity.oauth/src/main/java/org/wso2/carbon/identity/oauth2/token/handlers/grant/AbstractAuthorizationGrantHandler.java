@@ -224,7 +224,6 @@ public abstract class AbstractAuthorizationGrantHandler implements Authorization
                                     cacheKey.getCacheKeyString());
                         }
                     }
-
                     return tokenRespDTO;
                 } else {
                     if(log.isDebugEnabled()) {
@@ -261,27 +260,13 @@ public abstract class AbstractAuthorizationGrantHandler implements Authorization
             }
             String accessToken;
             String refreshToken;
-
             try {
                 accessToken = oauthIssuerImpl.accessToken();
                 refreshToken = oauthIssuerImpl.refreshToken();
-
-                if (OAuth2Util.checkUserNameAssertionEnabled()) {
-                    String userName = tokReqMsgCtx.getAuthorizedUser();
-                    //use ':' for token & userStoreDomain separation
-                    String accessTokenStrToEncode = accessToken + ":" + userName;
-                    accessToken = Base64Utils.encode(accessTokenStrToEncode.getBytes());
-
-                    String refreshTokenStrToEncode = refreshToken + ":" + userName;
-                    refreshToken = Base64Utils.encode(refreshTokenStrToEncode.getBytes());
-                }
-
-
             } catch (OAuthSystemException e) {
                 throw new IdentityOAuth2Exception(
                         "Error occurred while generating access token and refresh token", e);
             }
-
             accessTokenDO = tokenMgtDAO.retrieveLatestAccessToken(
                     consumerKey, authorizedUser, userStoreDomain, scope, true);
             if(accessTokenDO != null){
@@ -297,6 +282,16 @@ public abstract class AbstractAuthorizationGrantHandler implements Authorization
                         createdTime + refreshValidity - (currentTime + skew) > 1000){
                     refreshToken = accessTokenDO.getRefreshToken();
                 }
+            }
+
+            if (OAuth2Util.checkUserNameAssertionEnabled()) {
+                String userName = tokReqMsgCtx.getAuthorizedUser();
+                //use ':' for token & userStoreDomain separation
+                String accessTokenStrToEncode = accessToken + ":" + userName;
+                accessToken = Base64Utils.encode(accessTokenStrToEncode.getBytes());
+
+                String refreshTokenStrToEncode = refreshToken + ":" + userName;
+                refreshToken = Base64Utils.encode(refreshTokenStrToEncode.getBytes());
             }
 
             Timestamp timestamp = new Timestamp(new Date().getTime());
@@ -437,11 +432,11 @@ public abstract class AbstractAuthorizationGrantHandler implements Authorization
 
             // If the application has defined a limited set of grant types, then check the grant
             if (oAuthAppDO.getGrantTypes() != null &&
-                    !oAuthAppDO.getGrantTypes().contains(grantType)) {
+                !oAuthAppDO.getGrantTypes().contains(grantType)) {
                 if (log.isDebugEnabled()) {
                     //Do not change this log format as these logs use by external applications
                     log.debug("Unsupported Grant Type : " + grantType +
-                            " for client id : " + tokenReqDTO.getClientId());
+                              " for client id : " + tokenReqDTO.getClientId());
                 }
                 return false;
             }

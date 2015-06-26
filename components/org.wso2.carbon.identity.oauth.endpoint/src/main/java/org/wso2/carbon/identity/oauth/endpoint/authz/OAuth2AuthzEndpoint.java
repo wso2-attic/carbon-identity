@@ -84,7 +84,7 @@ public class OAuth2AuthzEndpoint {
         carbonContext.setTenantId(MultitenantConstants.SUPER_TENANT_ID);
         carbonContext.setTenantDomain(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
 
-        String clientId = request.getParameter(EndpointUtil.getSafeText("client_id"));
+        String clientId = EndpointUtil.getSafeText(request.getParameter("client_id"));
 
         String sessionDataKeyFromLogin = EndpointUtil.getSafeText(request.getParameter(
                 OAuthConstants.SESSION_DATA_KEY));
@@ -353,7 +353,7 @@ public class OAuth2AuthzEndpoint {
                 addUserAttributesToCache(sessionDataCacheEntry, code);
             } else if (ResponseType.TOKEN.toString().equals(oauth2Params.getResponseType())) {
                 builder.setAccessToken(authzRespDTO.getAccessToken());
-                builder.setExpiresIn(String.valueOf(60 * 60));
+                builder.setExpiresIn(String.valueOf(authzRespDTO.getValidityPeriod()));
             }
             builder.setParam("state", oauth2Params.getState());
             String redirectURL = authzRespDTO.getCallbackURI();

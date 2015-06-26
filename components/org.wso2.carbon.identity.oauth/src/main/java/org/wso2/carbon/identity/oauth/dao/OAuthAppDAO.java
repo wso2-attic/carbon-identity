@@ -152,7 +152,7 @@ public class OAuthAppDAO {
 			String tenantUnawareUserName = tenantAwareUserName + "@" + tenantDomain;
 			
             connection = JDBCPersistenceManager.getInstance().getDBConnection();
-            prepStmt = connection.prepareStatement(SQLQueries.OAuthAppDAOSQLQueries.GET_APPS_OF_USER_WITH_TENANTAWARE_OR_TENANTUNAWARE_USERNAME);
+			prepStmt = connection.prepareStatement(SQLQueries.OAuthAppDAOSQLQueries.GET_APPS_OF_USER_WITH_TENANTAWARE_OR_TENANTUNAWARE_USERNAME);
             prepStmt.setString(1, tenantAwareUserName);
             prepStmt.setString(2, tenantUnawareUserName);
             prepStmt.setInt(3, tenantId);
@@ -183,7 +183,7 @@ public class OAuthAppDAO {
             log.error(e.getMessage(), e);
             throw new IdentityOAuthAdminException("Error when reading the application information from the persistence store.");
         } catch (UserStoreException e) {
-        	log.error("Error while retrieving Tenant Domain for tenant ID : " + tenantId);
+			log.error("Error while retrieving Tenant Domain for tenant ID : " + tenantId);
 			log.error(e.getMessage(), e);
 			throw new IdentityOAuthAdminException(
 			                                      "Error while retrieving Tenant Domain for tenant ID : " +
@@ -256,6 +256,7 @@ public class OAuthAppDAO {
         PreparedStatement prepStmt = null;
         ResultSet rSet = null;
         OAuthAppDO oauthApp = null;
+
         try {
             int tenantID = CarbonContext.getThreadLocalCarbonContext().getTenantId();
             connection = JDBCPersistenceManager.getInstance().getDBConnection();
