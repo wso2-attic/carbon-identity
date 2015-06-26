@@ -34,18 +34,22 @@ public class FIDOAuthenticatorConstants {
 
     public static final String U2F_KEY_HANDLE = "KEY_HANDLE";
     public static final String U2F_DEVICE_DATA = "DEVICE_DATA";
+    public static final String U2F_DEVICE_METADATA = "TIME_REGISTERED";
     public static final String UTF_8 = "UTF-8";
+    public static final String UTC = "UTC";
 
     public static class SQLQueries {
         private SQLQueries() {
         }
 
         public static final String ADD_DEVICE_REGISTRATION_QUERY = "INSERT INTO FIDO_DEVICE_STORE (TENANT_ID, DOMAIN_NAME," +
-                                                                   " USER_NAME, KEY_HANDLE, DEVICE_DATA ) VALUES (?, ?, ?, ?, ?)";
+                                                                   " USER_NAME, TIME_REGISTERED, KEY_HANDLE, DEVICE_DATA ) VALUES (?, ?, ?, ?, ?, ?)";
         public static final String GET_DEVICE_REGISTRATION_QUERY = "SELECT * FROM FIDO_DEVICE_STORE WHERE TENANT_ID = ? " +
                                                                    "AND DOMAIN_NAME = ? AND USER_NAME = ?";
-        public static final String REMOVE_REGISTRATION_QUERY = "DELETE FROM FIDO_DEVICE_STORE WHERE TENANT_ID = ? " +
+        public static final String REMOVE_ALL_REGISTRATION_QUERY = "DELETE FROM FIDO_DEVICE_STORE WHERE TENANT_ID = ? " +
                                                                "AND DOMAIN_NAME = ? AND USER_NAME = ?";
+        public static final String REMOVE_REGISTRATION_QUERY = "DELETE FROM FIDO_DEVICE_STORE WHERE TENANT_ID = ? " +
+                                                                   "AND DOMAIN_NAME = ? AND USER_NAME = ? AND TIME_REGISTERED = ?";
         public static final String UPDATE_USER_DOMAIN_NAME = "UPDATE FIDO_DEVICE_STORE SET DOMAIN_NAME = ?" +
                                                              " WHERE DOMAIN_NAME = ? AND TENANT_ID = ?";
 
