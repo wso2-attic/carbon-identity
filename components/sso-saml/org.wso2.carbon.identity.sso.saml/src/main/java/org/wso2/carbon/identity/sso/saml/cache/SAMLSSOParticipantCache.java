@@ -19,9 +19,10 @@
 package org.wso2.carbon.identity.sso.saml.cache;
 
 import org.wso2.carbon.identity.application.authentication.framework.store.SessionDataStore;
+import org.wso2.carbon.identity.application.common.cache.BaseCache;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 
-public class SAMLSSOParticipantCache extends BaseCache<CacheKey, CacheEntry> {
+public class SAMLSSOParticipantCache extends BaseCache<String, CacheEntry> {
 
     private static final String CACHE_NAME = "SAMLSSOParticipantCache";
     private static volatile SAMLSSOParticipantCache instance;
@@ -43,20 +44,18 @@ public class SAMLSSOParticipantCache extends BaseCache<CacheKey, CacheEntry> {
         return instance;
     }
 
-    @Override
     public void addToCache(CacheKey key, CacheEntry entry) {
         if (useCache) {
-            super.addToCache(key, entry);
+            super.addToCache(((SAMLSSOParticipantCacheKey) key).getSessionIndex(), entry);
         }
         String keyValue = ((SAMLSSOParticipantCacheKey) key).getSessionIndex();
         SessionDataStore.getInstance().storeSessionData(keyValue, CACHE_NAME, entry);
     }
 
-    @Override
     public CacheEntry getValueFromCache(CacheKey key) {
         CacheEntry cacheEntry = null;
         if (useCache) {
-            cacheEntry = super.getValueFromCache(key);
+            cacheEntry = super.getValueFromCache(((SAMLSSOParticipantCacheKey) key).getSessionIndex());
         }
         if (cacheEntry == null) {
             String keyValue = ((SAMLSSOParticipantCacheKey) key).getSessionIndex();
@@ -66,10 +65,9 @@ public class SAMLSSOParticipantCache extends BaseCache<CacheKey, CacheEntry> {
         return cacheEntry;
     }
 
-    @Override
     public void clearCacheEntry(CacheKey key) {
         if (useCache) {
-            super.clearCacheEntry(key);
+            super.clearCacheEntry(((SAMLSSOParticipantCacheKey) key).getSessionIndex());
         }
         String keyValue = ((SAMLSSOParticipantCacheKey) key).getSessionIndex();
         SessionDataStore.getInstance().clearSessionData(keyValue, CACHE_NAME);
