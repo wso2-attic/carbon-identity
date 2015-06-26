@@ -80,6 +80,7 @@ public class ServerCrypto implements Crypto {
     public final static String PROP_ID_TENANT_ID = "org.wso2.stratos.tenant.id";
     public final static String PROP_ID_XKMS_SERVICE_URL = "org.wso2.carbon.security.crypto.xkms.url";
     private static final String SKI_OID = "2.5.29.14";
+    private static final String SHA_512 = "SHA-512";
     private static Log log = LogFactory.getLog(ServerCrypto.class);
     private static CertificateFactory certFact = null;
     private Properties properties = null;
@@ -493,7 +494,7 @@ public class ServerCrypto implements Crypto {
             System.arraycopy(encoded, 22, value, 0, value.length);
             MessageDigest sha;
             try {
-                sha = MessageDigest.getInstance("SHA-1");
+                sha = MessageDigest.getInstance(SHA_512);
             } catch (NoSuchAlgorithmException ex) {
                 throw new WSSecurityException(1, "noSKIHandling",
                         new Object[]{"Wrong certificate version (<3) and no "
@@ -522,7 +523,7 @@ public class ServerCrypto implements Crypto {
         Certificate cert;
         MessageDigest sha;
         try {
-            sha = MessageDigest.getInstance("SHA-1");
+            sha = MessageDigest.getInstance(SHA_512);
         } catch (NoSuchAlgorithmException e1) {
             throw new WSSecurityException(0, "noSHA1availabe");
         }

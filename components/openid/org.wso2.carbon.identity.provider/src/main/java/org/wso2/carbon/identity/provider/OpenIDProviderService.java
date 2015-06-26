@@ -89,6 +89,7 @@ public class OpenIDProviderService {
 
     private static final Log log = LogFactory.getLog(OpenIDProviderService.class);
     private static final String MULTI_ATTRIBUTE_SEPARATOR = "MultiAttributeSeparator";
+    private static final String SHA_512 = "SHA-512";
     private String userAttributeSeparator = ",";
 
     public static int getOpenIDSessionTimeout() {
@@ -673,7 +674,7 @@ public class OpenIDProviderService {
             rpdo.setTrustedAlways(rpdto.isTrustedAlways());
             rpdo.setDefaultProfileName(rpdto.getDefaultProfileName());
 
-            MessageDigest sha = MessageDigest.getInstance("SHA-1");
+            MessageDigest sha = MessageDigest.getInstance(SHA_512);
             byte[] digest = sha.digest((userName + ":" + rpdto.getRpUrl()).getBytes());
             rpdo.setUuid(new String(Hex.encodeHex(digest)));
 

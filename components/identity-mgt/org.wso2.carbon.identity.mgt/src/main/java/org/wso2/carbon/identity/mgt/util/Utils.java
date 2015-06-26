@@ -273,8 +273,8 @@ public class Utils {
      */
     public static String doHash(String value) throws UserStoreException {
         try {
-            String digsestFunction = "SHA-256";
-            MessageDigest dgst = MessageDigest.getInstance(digsestFunction);
+            String digestFunction = "SHA-512";
+            MessageDigest dgst = MessageDigest.getInstance(digestFunction);
             byte[] byteValue = dgst.digest(value.getBytes());
             return Base64.encode(byteValue);
         } catch (NoSuchAlgorithmException e) {

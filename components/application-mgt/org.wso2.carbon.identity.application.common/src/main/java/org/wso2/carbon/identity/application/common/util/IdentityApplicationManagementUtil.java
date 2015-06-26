@@ -70,6 +70,8 @@ import java.util.Set;
 
 public class IdentityApplicationManagementUtil {
 
+    private static final String SHA_512 = "SHA-512";
+
     private IdentityApplicationManagementUtil(){
     }
 
@@ -242,8 +244,7 @@ public class IdentityApplicationManagementUtil {
     public static String generateThumbPrint(String encodedCert) throws NoSuchAlgorithmException {
 
         if (encodedCert != null) {
-            MessageDigest digestValue = null;
-            digestValue = MessageDigest.getInstance("SHA-1");
+            MessageDigest digestValue = MessageDigest.getInstance(SHA_512);
             byte[] der = Base64.decode(encodedCert);
             digestValue.update(der);
             byte[] digestInBytes = digestValue.digest();

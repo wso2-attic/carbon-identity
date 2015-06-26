@@ -45,6 +45,7 @@ import java.util.Map;
 public class IdentityUtil {
 
     private static final String HMAC_SHA1_ALGORITHM = "HmacSHA1";
+    private static final String SHA_512 = "SHA512";
     private final static char[] ppidDisplayCharMap = new char[]{'Q', 'L', '2', '3', '4', '5',
             '6', '7', '8', '9', 'A', 'B', 'C',
             'D', 'E', 'F', 'G', 'H', 'J', 'K',
@@ -102,7 +103,7 @@ public class IdentityUtil {
     public static String getPPIDDisplayValue(String value) throws Exception {
         log.info("Generating display value of PPID : " + value);
         byte[] rawPpid = Base64.decode(value);
-        MessageDigest sha1 = MessageDigest.getInstance("SHA1");
+        MessageDigest sha1 = MessageDigest.getInstance(SHA_512);
         sha1.update(rawPpid);
         byte[] hashId = sha1.digest();
         char[] returnChars = new char[10];
@@ -163,7 +164,7 @@ public class IdentityUtil {
 
             // random number
             String randomNum = Integer.toString(prng.nextInt());
-            MessageDigest sha = MessageDigest.getInstance("SHA-1");
+            MessageDigest sha = MessageDigest.getInstance(SHA_512);
             byte[] digest = sha.digest(randomNum.getBytes());
 
             // Hexadecimal encoding

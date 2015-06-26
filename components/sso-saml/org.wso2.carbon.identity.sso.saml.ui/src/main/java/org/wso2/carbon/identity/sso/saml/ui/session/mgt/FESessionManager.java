@@ -35,6 +35,8 @@ import java.util.concurrent.ConcurrentMap;
 public enum FESessionManager {
 
     INSTANCE;
+    private static final String SHA_1_PRNG = "SHA1PRNG";
+    private static final String SHA_512 = "SHA-512";
     private static SecureRandom secureRandomInstance;
     private static MessageDigest messageDigest;
     private static Log log = LogFactory.getLog(FESessionManager.class);
@@ -55,8 +57,8 @@ public enum FESessionManager {
      */
     private static void initialize() {
         try {
-            secureRandomInstance = SecureRandom.getInstance("SHA1PRNG");
-            messageDigest = MessageDigest.getInstance("SHA-1");
+            secureRandomInstance = SecureRandom.getInstance(SHA_1_PRNG);
+            messageDigest = MessageDigest.getInstance(SHA_512);
         } catch (NoSuchAlgorithmException e) {
             log.error("Error when initializing the SAML2 SSO FESessionManager.", e);
             throw new RuntimeException(e);

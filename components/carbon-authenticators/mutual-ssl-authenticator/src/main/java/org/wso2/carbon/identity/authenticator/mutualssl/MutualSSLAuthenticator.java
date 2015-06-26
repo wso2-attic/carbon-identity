@@ -84,6 +84,7 @@ public class MutualSSLAuthenticator implements CarbonServerAuthenticator {
      * Logger for the class
      */
     private static final Log log = LogFactory.getLog(MutualSSLAuthenticator.class);
+    private static final String SHA_512 = "SHA-512";
 
     private static String usernameHeaderName = "UserName";
     private static String[] whiteList;
@@ -391,7 +392,7 @@ public class MutualSSLAuthenticator implements CarbonServerAuthenticator {
      * @throws CertificateEncodingException
      */
     private String getThumbPrint(X509Certificate cert) throws NoSuchAlgorithmException, CertificateEncodingException {
-        MessageDigest md = MessageDigest.getInstance("SHA-1");
+        MessageDigest md = MessageDigest.getInstance(SHA_512);
         byte[] certEncoded = cert.getEncoded();
         md.update(certEncoded);
         return hexify(md.digest());
