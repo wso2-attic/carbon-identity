@@ -312,7 +312,7 @@ public class Utils {
             if (userStoreManager != null) {
                 String oldValue = userStoreManager.getUserClaimValue(userName, claim, null);
                 if (oldValue == null || !oldValue.equals(value)) {
-                    Map<String,String> claimMap = new HashMap<String,String>();
+                    Map<String, String> claimMap = new HashMap<String, String>();
                     claimMap.put(claim, value);
                     userStoreManager.setUserClaimValues(userName, claimMap, UserCoreConstants.DEFAULT_PROFILE);
                 }
@@ -337,7 +337,7 @@ public class Utils {
         return userDomain;
     }
 
-    
+
     public static String[] getChallengeUris() {
         //TODO
         return new String[]{IdentityMgtConstants.DEFAULT_CHALLENGE_QUESTION_URI01,
