@@ -20,6 +20,7 @@ package org.wso2.carbon.identity.application.authentication.framework.handler.re
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.identity.application.authentication.framework.ApplicationAuthenticator;
 import org.wso2.carbon.identity.application.authentication.framework.AuthenticatorFlowStatus;
 import org.wso2.carbon.identity.application.authentication.framework.config.ConfigurationFacade;
@@ -117,7 +118,8 @@ public class DefaultLogoutRequestHandler implements LogoutRequestHandler {
                     }
                     // sends the logout request to the external IdP
                     FrameworkUtils.addAuthenticationContextToCache(context.getContextIdentifier(),context
-                            , IdPManagementUtil.getIdleSessionTimeOut(context.getTenantDomain()));
+                            , IdPManagementUtil.getIdleSessionTimeOut(CarbonContext.
+                                                  getThreadLocalCarbonContext().getTenantDomain()));
                     return;
                 } catch (AuthenticationFailedException | LogoutFailedException e) {
                     throw new FrameworkException(e.getMessage(), e);
