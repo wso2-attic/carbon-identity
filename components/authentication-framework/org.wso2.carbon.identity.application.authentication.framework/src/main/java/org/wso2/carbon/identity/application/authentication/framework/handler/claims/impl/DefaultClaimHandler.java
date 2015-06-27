@@ -322,7 +322,7 @@ public class DefaultClaimHandler implements ClaimHandler {
 
         ClaimManager claimManager = getClaimManager(tenantDomain, realm);
 
-        UserStoreManager userStore = getUserStoreManager(tenantDomain, realm);
+        UserStoreManager userStore = getUserStoreManager(tenantDomain, realm, authenticatedUser.getUserStoreDomain());
 
         // key:value -> carbon_dialect:claim_value
         Map<String, String> allLocalClaims;
@@ -464,10 +464,11 @@ public class DefaultClaimHandler implements ClaimHandler {
         return allLocalClaims;
     }
 
-    private UserStoreManager getUserStoreManager(String tenantDomain, UserRealm realm) throws FrameworkException {
+    private UserStoreManager getUserStoreManager(String tenantDomain, UserRealm realm, String userDomain) throws
+            FrameworkException {
         UserStoreManager userStore = null;
         try {
-            userStore = realm.getUserStoreManager();
+            userStore = realm.getUserStoreManager().getSecondaryUserStoreManager(userDomain);
         } catch (UserStoreException e) {
             throw new FrameworkException("Error occurred while retrieving the UserStoreManager " +
                                          "from Realm for " + tenantDomain + " to handle local claims", e);
