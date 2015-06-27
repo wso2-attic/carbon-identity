@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.identity.application.authentication.framework.store;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.CarbonContext;
@@ -81,10 +82,16 @@ public class SessionDataStore {
     static {
 
         try {
-            maxPoolSize =
-                    Integer.parseInt(IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.PoolSize"));
-        } catch (Exception ignored) {
-            log.debug("Exception ignored : ", ignored);
+            String maxPoolSizeConfigValue = IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist" +
+                                                                     ".PoolSize");
+            if (StringUtils.isNotBlank(maxPoolSizeConfigValue)) {
+                maxPoolSize = Integer.parseInt(maxPoolSizeConfigValue);
+            }
+        } catch (NumberFormatException e) {
+            if(log.isDebugEnabled()) {
+                log.debug("Exception ignored : ", e);
+            }
+            log.warn("Session data persistence pool size is not configured. Using default value.");
         }
 
         if (maxPoolSize > 0) {
