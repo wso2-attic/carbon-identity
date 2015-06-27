@@ -18,8 +18,8 @@
 
 package org.wso2.carbon.identity.scim.provider.impl;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
@@ -30,7 +30,7 @@ import org.wso2.carbon.identity.application.common.model.ServiceProvider;
 import org.wso2.carbon.identity.application.common.model.ThreadLocalProvisioningServiceProvider;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
 import org.wso2.carbon.identity.application.mgt.ApplicationConstants;
-import org.wso2.carbon.identity.application.mgt.ApplicationInfoProvider;
+import org.wso2.carbon.identity.application.mgt.ApplicationManagementService;
 import org.wso2.carbon.identity.provisioning.IdentityProvisioningConstants;
 import org.wso2.carbon.identity.provisioning.IdentityProvisioningException;
 import org.wso2.carbon.identity.provisioning.OutboundProvisioningManager;
@@ -108,12 +108,12 @@ public class SCIMUserManager implements UserManager {
 
             ServiceProvider serviceProvider = null;
             if (threadLocalSP.getServiceProviderType() == ProvisioningServiceProviderType.OAUTH) {
-                serviceProvider = ApplicationInfoProvider.getInstance()
+                serviceProvider = ApplicationManagementService.getInstance()
                         .getServiceProviderByClienId(
                                 threadLocalSP.getServiceProviderName(),
                                 "oauth2", threadLocalSP.getTenantDomain());
             } else {
-                serviceProvider = ApplicationInfoProvider.getInstance().getServiceProvider(
+                serviceProvider = ApplicationManagementService.getInstance().getServiceProvider(
                         threadLocalSP.getServiceProviderName(), threadLocalSP.getTenantDomain());
             }
 
@@ -1268,7 +1268,7 @@ public class SCIMUserManager implements UserManager {
                 tenantDomainName = threadLocalServiceProvider.getTenantDomain();
                 if (threadLocalServiceProvider.getServiceProviderType() == ProvisioningServiceProviderType.OAUTH) {
                     try {
-                        serviceProvider = ApplicationInfoProvider.getInstance()
+                        serviceProvider = ApplicationManagementService.getInstance()
                                 .getServiceProviderNameByClientId(
                                         threadLocalServiceProvider.getServiceProviderName(),
                                         "oauth2", tenantDomainName);
