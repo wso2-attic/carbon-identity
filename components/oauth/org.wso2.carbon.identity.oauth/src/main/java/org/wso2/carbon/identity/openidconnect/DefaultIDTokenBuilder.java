@@ -33,6 +33,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.oltu.openidconnect.as.messages.IDTokenBuilder;
 import org.apache.oltu.openidconnect.as.messages.IDTokenException;
 import org.wso2.carbon.base.MultitenantConstants;
+import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.core.util.KeyStoreManager;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
 import org.wso2.carbon.identity.application.common.model.ServiceProvider;
@@ -114,11 +115,12 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
             ServiceProvider serviceProvider = null;
 
             try {
+                String tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
                 String spName =
                         applicationMgtService.getServiceProviderNameByClientId(request.getOauth2AccessTokenReqDTO()
                                                                                        .getClientId(),
-                                                                               INBOUND_AUTH2_TYPE);
-                serviceProvider = applicationMgtService.getApplication(spName);
+                                                                               INBOUND_AUTH2_TYPE, tenantDomain);
+                serviceProvider = applicationMgtService.getApplicationExcludingFileBasedSPs(spName, tenantDomain);
             } catch (IdentityApplicationManagementException ex) {
                 log.error("Error while getting service provider information.", ex);
                 throw new IdentityOAuth2Exception("Error while getting service provider information.",

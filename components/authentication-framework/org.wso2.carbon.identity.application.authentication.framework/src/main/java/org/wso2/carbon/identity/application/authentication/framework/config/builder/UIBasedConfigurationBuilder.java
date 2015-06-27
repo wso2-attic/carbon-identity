@@ -33,7 +33,7 @@ import org.wso2.carbon.identity.application.common.model.IdentityProvider;
 import org.wso2.carbon.identity.application.common.model.LocalAuthenticatorConfig;
 import org.wso2.carbon.identity.application.common.model.RequestPathAuthenticatorConfig;
 import org.wso2.carbon.identity.application.common.model.ServiceProvider;
-import org.wso2.carbon.identity.application.mgt.ApplicationInfoProvider;
+import org.wso2.carbon.identity.application.mgt.ApplicationManagementService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -58,7 +58,7 @@ public class UIBasedConfigurationBuilder {
             throws FrameworkException {
 
         SequenceConfig sequenceConfig = null;
-        ApplicationInfoProvider appInfo = ApplicationInfoProvider.getInstance();
+        ApplicationManagementService appInfo = ApplicationManagementService.getInstance();
 
         // special case for OpenID Connect, these clients are stored as OAuth2 clients
         if ("oidc".equals(reqType)) {
