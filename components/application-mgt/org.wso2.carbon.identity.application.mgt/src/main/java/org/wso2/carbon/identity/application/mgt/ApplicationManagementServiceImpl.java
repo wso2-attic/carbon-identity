@@ -141,19 +141,7 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
 
             ApplicationDAO appDAO = ApplicationMgtSystemConfig.getInstance().getApplicationDAO();
             ServiceProvider serviceProvider = appDAO.getApplication(applicationName, tenantDomain);
-            List<ApplicationPermission> permissionList = ApplicationMgtUtil.loadPermissions(applicationName);
-
-            if (permissionList != null) {
-                PermissionsAndRoleConfig permissionAndRoleConfig;
-                if (serviceProvider.getPermissionAndRoleConfig() == null) {
-                    permissionAndRoleConfig = new PermissionsAndRoleConfig();
-                } else {
-                    permissionAndRoleConfig = serviceProvider.getPermissionAndRoleConfig();
-                }
-                permissionAndRoleConfig.setPermissions(permissionList.toArray(
-                        new ApplicationPermission[permissionList.size()]));
-                serviceProvider.setPermissionAndRoleConfig(permissionAndRoleConfig);
-            }
+            loadApplicationPermissions(applicationName, serviceProvider);
             return serviceProvider;
         } catch (Exception e) {
             String error = "Error occurred while retrieving the application, " + applicationName;
@@ -564,6 +552,10 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
         ApplicationDAO appDAO = ApplicationMgtSystemConfig.getInstance().getApplicationDAO();
         ServiceProvider serviceProvider = appDAO.getApplication(serviceProviderName, tenantDomain);
 
+        if (serviceProvider != null) {
+            loadApplicationPermissions(serviceProviderName, serviceProvider);
+        }
+
         if (serviceProvider == null
             && ApplicationManagementServiceComponent.getFileBasedSPs().containsKey(
                 serviceProviderName)) {
@@ -636,6 +628,8 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
                 AuthenticationStep[] authenticationSteps = serviceProvider
                         .getLocalAndOutBoundAuthenticationConfig().getAuthenticationSteps();
 
+                loadApplicationPermissions(serviceProviderName, serviceProvider);
+
                 if (authenticationSteps == null || authenticationSteps.length == 0) {
                     ServiceProvider defaultSP = ApplicationManagementServiceComponent
                             .getFileBasedSPs().get(IdentityApplicationConstants.DEFAULT_SP_CONFIG);
@@ -678,6 +672,23 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
             }
         }
         return serviceProvider;
+    }
+
+    protected void loadApplicationPermissions(String serviceProviderName, ServiceProvider serviceProvider)
+            throws IdentityApplicationManagementException {
+        List<ApplicationPermission> permissionList = ApplicationMgtUtil.loadPermissions(serviceProviderName);
+
+        if (permissionList != null) {
+            PermissionsAndRoleConfig permissionAndRoleConfig;
+            if (serviceProvider.getPermissionAndRoleConfig() == null) {
+                permissionAndRoleConfig = new PermissionsAndRoleConfig();
+            } else {
+                permissionAndRoleConfig = serviceProvider.getPermissionAndRoleConfig();
+            }
+            permissionAndRoleConfig.setPermissions(permissionList.toArray(
+                    new ApplicationPermission[permissionList.size()]));
+            serviceProvider.setPermissionAndRoleConfig(permissionAndRoleConfig);
+        }
     }
 
     /**
