@@ -177,6 +177,7 @@ public class ProvisioningManagementDAO {
 
 
             ResultSet rs = prepStmt.executeQuery();
+            dbConnection.commit();
             if (rs.next()) {
                 String entityId = rs.getString(1);
                 ProvisionedIdentifier provisionedIdentifier = new ProvisionedIdentifier();
@@ -364,6 +365,7 @@ public class ProvisioningManagementDAO {
             prepStmt.setInt(1, tenantId);
             prepStmt.setString(2, idpName);
             rs = prepStmt.executeQuery();
+            dbConnection.commit();
             if (rs.next()) {
                 return rs.getInt(1);
             }

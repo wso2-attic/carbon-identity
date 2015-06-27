@@ -68,6 +68,7 @@ public class SCIMProviderDAO {
                     scimProviders.add(providerDTO);
                 }
             }
+            connection.commit();
         } catch (IdentityException e) {
             String errorMsg = "Error when getting an Identity Persistence Store instance.";
             log.error(errorMsg, e);
@@ -113,6 +114,7 @@ public class SCIMProviderDAO {
                     providerDTO.setBulkEPURL(rSet.getString(5));
                 }
             }
+            connection.commit();
         } catch (IdentityException e) {
             String errorMsg = "Error when getting an Identity Persistence Store instance.";
             log.error(errorMsg, e);
@@ -283,6 +285,7 @@ public class SCIMProviderDAO {
             if (rSet.next()) {
                 isExistingProvider = true;
             }
+            connection.commit();
         } catch (IdentityException e) {
             String errorMsg = "Error when getting an Identity Persistence Store instance.";
             log.error(errorMsg, e);
@@ -313,6 +316,7 @@ public class SCIMProviderDAO {
             if (rSet.next()) {
                 isExistingProvider = true;
             }
+            connection.commit();
         } catch (IdentityException e) {
             String errorMsg = "Error when getting an Identity Persistence Store instance.";
             log.error(errorMsg, e);
@@ -342,6 +346,7 @@ public class SCIMProviderDAO {
             if (rSet.next()) {
                 isFirstStartup = false;
             }
+            connection.commit();
         } catch (IdentityException e) {
             String errorMsg = "Error when getting an Identity Persistence Store instance.";
             log.error(errorMsg, e);

@@ -19,9 +19,10 @@
 package org.wso2.carbon.identity.sso.saml.cache;
 
 import org.wso2.carbon.identity.application.authentication.framework.store.SessionDataStore;
+import org.wso2.carbon.identity.application.common.cache.BaseCache;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 
-public class SAMLSSOSessionIndexCache extends BaseCache<CacheKey, CacheEntry> {
+public class SAMLSSOSessionIndexCache extends BaseCache<String, CacheEntry> {
 
     private static final String CACHE_NAME = "SAMLSSOSessionIndexCache";
     private static volatile SAMLSSOSessionIndexCache instance;
@@ -43,21 +44,18 @@ public class SAMLSSOSessionIndexCache extends BaseCache<CacheKey, CacheEntry> {
         return instance;
     }
 
-
-    @Override
     public void addToCache(CacheKey key, CacheEntry entry) {
         if (useCache) {
-            super.addToCache(key, entry);
+            super.addToCache(((SAMLSSOSessionIndexCacheKey) key).getTokenId(), entry);
         }
         String keyValue = ((SAMLSSOSessionIndexCacheKey) key).getTokenId();
         SessionDataStore.getInstance().storeSessionData(keyValue, CACHE_NAME, entry);
     }
 
-    @Override
     public CacheEntry getValueFromCache(CacheKey key) {
         CacheEntry cacheEntry = null;
         if (useCache) {
-            cacheEntry = super.getValueFromCache(key);
+            cacheEntry = super.getValueFromCache(((SAMLSSOSessionIndexCacheKey) key).getTokenId());
         }
         if (cacheEntry == null) {
             String keyValue = ((SAMLSSOSessionIndexCacheKey) key).getTokenId();
@@ -67,10 +65,9 @@ public class SAMLSSOSessionIndexCache extends BaseCache<CacheKey, CacheEntry> {
         return cacheEntry;
     }
 
-    @Override
     public void clearCacheEntry(CacheKey key) {
         if (useCache) {
-            super.clearCacheEntry(key);
+            super.clearCacheEntry(((SAMLSSOSessionIndexCacheKey) key).getTokenId());
         }
         String keyValue = ((SAMLSSOSessionIndexCacheKey) key).getTokenId();
         SessionDataStore.getInstance().clearSessionData(keyValue, CACHE_NAME);

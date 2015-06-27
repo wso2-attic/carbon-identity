@@ -275,8 +275,9 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
         AuthorizationGrantCacheKey authorizationGrantCacheKey = new AuthorizationGrantCacheKey(authorizationCode);
 
         AuthorizationGrantCacheEntry authorizationGrantCacheEntry =
-                (AuthorizationGrantCacheEntry) AuthorizationGrantCache.getInstance().
-                        getValueFromCache(authorizationGrantCacheKey);
+                (AuthorizationGrantCacheEntry) AuthorizationGrantCache.getInstance(OAuthServerConfiguration.
+                                                                    getInstance().getAuthorizationGrantCacheTimeout()).
+                                                                        getValueFromCache(authorizationGrantCacheKey);
         return authorizationGrantCacheEntry;
     }
 
@@ -286,9 +287,15 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
         AccessTokenDO accessTokenDO = null;
         TokenMgtDAO tokenMgtDAO = new TokenMgtDAO();
 
-        OAuthCache oauthCache = OAuthCache.getInstance();
+        OAuthCache oauthCache = OAuthCache.getInstance(OAuthServerConfiguration.getInstance().getOAuthCacheTimeout());
+        String authorizedUser = request.getAuthorizedUser();
+        boolean isUsernameCaseSensitive = OAuth2Util.isUsernameCaseSensitive(authorizedUser);
+        if (!isUsernameCaseSensitive){
+            authorizedUser = authorizedUser.toLowerCase();
+        }
+
         CacheKey cacheKey = new OAuthCacheKey(
-                request.getOauth2AccessTokenReqDTO().getClientId() + ":" + request.getAuthorizedUser().toLowerCase() +
+                request.getOauth2AccessTokenReqDTO().getClientId() + ":" + authorizedUser +
                         ":" + OAuth2Util.buildScopeString(request.getScope()));
         CacheEntry result = oauthCache.getValueFromCache(cacheKey);
 

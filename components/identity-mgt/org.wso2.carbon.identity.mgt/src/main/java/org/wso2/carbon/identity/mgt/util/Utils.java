@@ -66,7 +66,6 @@ public class Utils {
         }
 
         UserDTO userDTO = new UserDTO(userId);
-        validateTenant(userDTO);
         if (!IdentityMgtConfig.getInstance().isSaasEnabled()) {
             validateTenant(userDTO);
         }

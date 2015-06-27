@@ -20,6 +20,7 @@ package org.wso2.carbon.identity.user.profile.mgt;
 
 import org.apache.axis2.context.MessageContext;
 import org.apache.axis2.transport.http.HTTPConstants;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
@@ -488,7 +489,11 @@ public class UserProfileAdmin extends AbstractAdmin {
         boolean isAddProfileEnabled = false;
 
         try {
-            userStoreManager = realm.getUserStoreManager().getSecondaryUserStoreManager(domain);
+            if (StringUtils.isBlank(domain) || StringUtils.equals(domain, UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME)) {
+                userStoreManager = realm.getUserStoreManager();
+            } else {
+                userStoreManager = realm.getUserStoreManager().getSecondaryUserStoreManager(domain);
+            }
 
         } catch (UserStoreException e) {
             String errorMessage = "Error in obtaining SecondaryUserStoreManager.";
@@ -630,6 +635,8 @@ public class UserProfileAdmin extends AbstractAdmin {
             prepStmt.setString(4, associatedID);
 
             resultSet = prepStmt.executeQuery();
+            connection.commit();
+
             if (resultSet.next()) {
                 String domainName = resultSet.getString(1);
                 username = resultSet.getString(2);
@@ -673,6 +680,7 @@ public class UserProfileAdmin extends AbstractAdmin {
             prepStmt.setString(3, domainName);
 
             resultSet = prepStmt.executeQuery();
+            connection.commit();
             while (resultSet.next()) {
                 associatedIDs.add(new AssociatedAccountDTO(resultSet.getString(1), resultSet.getString(2)));
             }

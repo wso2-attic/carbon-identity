@@ -148,6 +148,7 @@ public class UserAccountAssociationDAO {
                     associationDTO.setTenantDomain(realmService.getTenantManager().getDomain(conUserTenantId));
                     accountAssociations.add(associationDTO);
                 }
+                dbConnection.commit();
             } catch (SQLException e) {
                 throw new UserAccountAssociationServerException(UserAccountAssociationConstants.ErrorMessages
                                                                         .CONN_DELETE_DB_ERROR.getDescription(), e);
@@ -190,6 +191,7 @@ public class UserAccountAssociationDAO {
             if (resultSet.next()) {
                 associationKey = resultSet.getString(1);
             }
+            dbConnection.commit();
         } catch (SQLException e) {
             throw new UserAccountAssociationServerException(UserAccountAssociationConstants.ErrorMessages
                                                                     .ERROR_WHILE_RETRIEVING_ASSOC_KEY.getDescription
@@ -262,6 +264,7 @@ public class UserAccountAssociationDAO {
             if (resultSet.next()) {
                 valid = resultSet.getInt(1) > 0;
             }
+            dbConnection.commit();
         } catch (SQLException e) {
             throw new UserAccountAssociationServerException(UserAccountAssociationConstants.ErrorMessages
                                                                     .CHECK_ASSOCIATION_DB_ERROR.getDescription(), e);
@@ -296,6 +299,69 @@ public class UserAccountAssociationDAO {
         } catch (SQLException e) {
             throw new UserAccountAssociationServerException(UserAccountAssociationConstants.ErrorMessages
                                                                     .ASSOCIATIONS_DELETE_DB_ERROR.getDescription(), e);
+        } catch (IdentityException e) {
+            throw new UserAccountAssociationServerException(UserAccountAssociationConstants.ErrorMessages
+                                                                    .DB_CONN_ERROR.getDescription(), e);
+        } finally {
+            IdentityApplicationManagementUtil.closeStatement(preparedStatement);
+            IdentityApplicationManagementUtil.closeConnection(dbConnection);
+        }
+    }
+
+    public void updateDomainNameOfAssociations(int tenantId, String currentDomainName, String newDomainName) throws
+                                                                                                             UserAccountAssociationException {
+
+        Connection dbConnection = null;
+        PreparedStatement preparedStatement = null;
+
+        try {
+            dbConnection = JDBCPersistenceManager.getInstance().getDBConnection();
+            preparedStatement = dbConnection.prepareStatement(UserAccountAssociationConstants
+                                                                      .SQLQueries.UPDATE_USER_DOMAIN_NAME);
+
+            preparedStatement.setString(1, newDomainName);
+            preparedStatement.setString(2, currentDomainName);
+            preparedStatement.setInt(3, tenantId);
+            preparedStatement.executeUpdate();
+
+            if (!dbConnection.getAutoCommit()) {
+                dbConnection.commit();
+            }
+        } catch (SQLException e) {
+            throw new UserAccountAssociationServerException(String.format(UserAccountAssociationConstants.ErrorMessages
+                                                                                  .ERROR_UPDATE_DOMAIN_NAME.getDescription(),
+                                                                          currentDomainName, tenantId), e);
+        } catch (IdentityException e) {
+            throw new UserAccountAssociationServerException(UserAccountAssociationConstants.ErrorMessages
+                                                                    .DB_CONN_ERROR.getDescription(), e);
+        } finally {
+            IdentityApplicationManagementUtil.closeStatement(preparedStatement);
+            IdentityApplicationManagementUtil.closeConnection(dbConnection);
+        }
+    }
+
+    public void deleteAssociationsFromDomain(int tenantId, String domainName) throws
+                                                                              UserAccountAssociationException {
+
+        Connection dbConnection = null;
+        PreparedStatement preparedStatement = null;
+
+        try {
+            dbConnection = JDBCPersistenceManager.getInstance().getDBConnection();
+            preparedStatement = dbConnection.prepareStatement(UserAccountAssociationConstants
+                                                                      .SQLQueries.DELETE_USER_ASSOCIATION_FROM_DOMAIN);
+            preparedStatement.setInt(1, tenantId);
+            preparedStatement.setString(2, domainName);
+            preparedStatement.executeUpdate();
+
+            if (!dbConnection.getAutoCommit()) {
+                dbConnection.commit();
+            }
+        } catch (SQLException e) {
+            throw new UserAccountAssociationServerException(String.format(UserAccountAssociationConstants.ErrorMessages
+                                                                                  .ERROR_DELETE_ASSOC_FROM_DOMAIN_NAME
+                                                                                  .getDescription(),  domainName,
+                                                                          tenantId), e);
         } catch (IdentityException e) {
             throw new UserAccountAssociationServerException(UserAccountAssociationConstants.ErrorMessages
                                                                     .DB_CONN_ERROR.getDescription(), e);

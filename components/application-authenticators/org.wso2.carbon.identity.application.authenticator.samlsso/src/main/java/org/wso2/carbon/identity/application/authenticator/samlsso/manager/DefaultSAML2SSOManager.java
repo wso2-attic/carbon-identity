@@ -414,7 +414,7 @@ public class DefaultSAML2SSOManager implements SAML2SSOManager {
         logoutReq.setIssuer(issuer);
 
         NameID nameId = new NameIDBuilder().buildObject();
-        nameId.setFormat("urn:oasis:names:tc:SAML:2.0:nameid-format:entity");
+        nameId.setFormat("urn:oasis:names:tc:SAML:2.0:nameid-format:unspecified");
         nameId.setValue(user);
         logoutReq.setNameID(nameId);
 

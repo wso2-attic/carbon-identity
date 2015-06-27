@@ -92,6 +92,7 @@ function validateTextForIllegal(fld,fldName) {
 
 
 <%@page import="java.util.ResourceBundle" %>
+<%@ page import="java.net.URLEncoder" %>
 <fmt:bundle
         basename="org.wso2.carbon.identity.user.profile.ui.i18n.Resources">
     <carbon:breadcrumb label="add.profile"
@@ -247,7 +248,7 @@ function validateTextForIllegal(fld,fldName) {
                             <input name="addprofile" type="button" class="button" value="<fmt:message key='add'/>" onclick="validate();"/>
                             <input type="button" class="button"
                                   <%if ("true".equals(fromUserMgt)) {%>
-                                   onclick="javascript:location.href='index.jsp?username=<%=URLEncoder.encode(username)%>&fromUserMgt=true'"
+                                   onclick="javascript:location.href='index.jsp?username=<%=URLEncoder.encode(username, "UTF-8")%>&fromUserMgt=true'"
                                   <%}else{%>
                                    onclick="javascript:location.href='index.jsp?region=region5&item=userprofiles_menu&ordinal=0'"
                                   <%}%>
