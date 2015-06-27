@@ -23,6 +23,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
+import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
 import org.wso2.carbon.identity.application.common.model.ProvisioningServiceProviderType;
@@ -50,6 +51,7 @@ import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.claim.ClaimManager;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
+import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 import org.wso2.charon.core.attributes.Attribute;
 import org.wso2.charon.core.attributes.SimpleAttribute;
 import org.wso2.charon.core.exceptions.CharonException;
@@ -65,6 +67,10 @@ import org.wso2.charon.core.schema.SCIMConstants;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -143,34 +149,40 @@ public class SCIMUserManager implements UserManager {
 
         SCIMProvisioningConfigManager provisioningConfigManager =
                 SCIMProvisioningConfigManager.getInstance();
-        //if operating in dumb mode, do not persist the operation, only provision to providers
-        if (provisioningConfigManager.isDumbMode()) {
 
-            if (log.isDebugEnabled()) {
-                log.debug("This instance is operating in dumb mode. " +
-                        "Hence, operation is not persisted, it will only be provisioned.");
-            }
-            this.provisionSCIMOperation(SCIMConstants.POST, user, SCIMConstants.USER_INT, null);
-            return user;
+        try {
+            //TODO: Start tenant flow at the scim authentication point
+            PrivilegedCarbonContext.startTenantFlow();
+            PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
+            carbonContext.setTenantDomain(MultitenantUtils.getTenantDomain(consumerName));
+            carbonContext.getTenantId(true);
 
-        } else {
-            //else, persist in carbon user store
-            if (log.isDebugEnabled()) {
-                log.debug("Creating user: " + user.getUserName());
-            }
-            /*set thread local property to signal the downstream SCIMUserOperationListener
-            about the provisioning route.*/
-            SCIMCommonUtils.setThreadLocalIsManagedThroughSCIMEP(true);
-            Map<String, String> claimsMap = AttributeMapper.getClaimsMap(user);
+            //if operating in dumb mode, do not persist the operation, only provision to providers
+            if (provisioningConfigManager.isDumbMode()) {
 
-            /*skip groups attribute since we map groups attribute to actual groups in ldap.
-            and do not update it as an attribute in user schema*/
-            if (claimsMap.containsKey(SCIMConstants.GROUPS_URI)) {
-                claimsMap.remove(SCIMConstants.GROUPS_URI);
-            }
+                if (log.isDebugEnabled()) {
+                    log.debug("This instance is operating in dumb mode. " +
+                              "Hence, operation is not persisted, it will only be provisioned.");
+                }
+                this.provisionSCIMOperation(SCIMConstants.POST, user, SCIMConstants.USER_INT, null);
 
-            //TODO: Do not accept the roles list - it is read only.
-            try {
+            } else {
+                //else, persist in carbon user store
+                if (log.isDebugEnabled()) {
+                    log.debug("Creating user: " + user.getUserName());
+                }
+                /*set thread local property to signal the downstream SCIMUserOperationListener
+                about the provisioning route.*/
+                SCIMCommonUtils.setThreadLocalIsManagedThroughSCIMEP(true);
+                Map<String, String> claimsMap = AttributeMapper.getClaimsMap(user);
+
+                /*skip groups attribute since we map groups attribute to actual groups in ldap.
+                and do not update it as an attribute in user schema*/
+                if (claimsMap.containsKey(SCIMConstants.GROUPS_URI)) {
+                    claimsMap.remove(SCIMConstants.GROUPS_URI);
+                }
+
+                //TODO: Do not accept the roles list - it is read only.
                 if (carbonUM.isExistingUser(user.getUserName())) {
                     String error = "User with the name: " + user.getUserName() + " already exists in the system.";
                     throw new DuplicateResourceException(error);
@@ -181,11 +193,17 @@ public class SCIMUserManager implements UserManager {
                 carbonUM.addUser(user.getUserName(), user.getPassword(), null, claimsMap, null);
                 log.info("User: " + user.getUserName() + " is created through SCIM.");
 
-            } catch (UserStoreException e) {
-                throw new CharonException("Error in adding the user: " + user.getUserName() + " to the user store", e);
             }
-            return user;
+        } catch (UserStoreException e) {
+            String errMsg = e.getMessage()+ " ";
+            errMsg += "Error in adding the user: " + user.getUserName() +
+                    " to the user store..";
+            throw new CharonException(errMsg,e);
+        } finally {
+            PrivilegedCarbonContext.endTenantFlow();
         }
+        return user;
+
     }
 
     @Override

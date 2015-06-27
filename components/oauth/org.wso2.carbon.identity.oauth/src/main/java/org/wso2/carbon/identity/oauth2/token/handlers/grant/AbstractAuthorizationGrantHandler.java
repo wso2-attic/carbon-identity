@@ -287,26 +287,28 @@ public abstract class AbstractAuthorizationGrantHandler implements Authorization
             String accessToken;
 
             try {
+                String userName = tokReqMsgCtx.getAuthorizedUser();
+
                 accessToken = oauthIssuerImpl.accessToken();
+                if (OAuth2Util.checkUserNameAssertionEnabled()) {
+                    //use ':' for token & userStoreDomain separation
+                    String accessTokenStrToEncode = accessToken + ":" + userName;
+                    accessToken = Base64Utils.encode(accessTokenStrToEncode.getBytes(Charsets.UTF_8));
+                }
 
                 // regenerate only if refresh token is null
                 if (refreshToken == null) {
                     refreshToken = oauthIssuerImpl.refreshToken();
+                    if (OAuth2Util.checkUserNameAssertionEnabled()) {
+                        //use ':' for token & userStoreDomain separation
+                        String refreshTokenStrToEncode = refreshToken + ":" + userName;
+                        refreshToken = Base64Utils.encode(refreshTokenStrToEncode.getBytes(Charsets.UTF_8));
+                    }
                 }
 
             } catch (OAuthSystemException e) {
                 throw new IdentityOAuth2Exception(
                         "Error occurred while generating access token and refresh token", e);
-            }
-
-            if (OAuth2Util.checkUserNameAssertionEnabled()) {
-                String userName = tokReqMsgCtx.getAuthorizedUser();
-                //use ':' for token & userStoreDomain separation
-                String accessTokenStrToEncode = accessToken + ":" + userName;
-                accessToken = Base64Utils.encode(accessTokenStrToEncode.getBytes(Charsets.UTF_8));
-
-                String refreshTokenStrToEncode = refreshToken + ":" + userName;
-                refreshToken = Base64Utils.encode(refreshTokenStrToEncode.getBytes(Charsets.UTF_8));
             }
 
             Timestamp timestamp = new Timestamp(new Date().getTime());

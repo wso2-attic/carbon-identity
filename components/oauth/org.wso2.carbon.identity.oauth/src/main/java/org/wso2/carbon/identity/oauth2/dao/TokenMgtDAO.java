@@ -318,16 +318,12 @@ public class TokenMgtDAO {
                 sql = SQLQueries.RETRIEVE_LATEST_ACCESS_TOKEN_BY_CLIENT_ID_USER_SCOPE_ORACLE;
             }
 
-            if (StringUtils.isEmpty(scope)) {
-                sql = sql.replace("TOKEN_SCOPE_HASH=?", "(TOKEN_SCOPE_HASH='' OR TOKEN_SCOPE_HASH IS NULL)");
-            }
-
             if (StringUtils.isNotEmpty(userStoreDomain)) {
                 //logic to store access token into different tables when multiple user stores are configured.
                 sql = sql.replace(IDN_OAUTH2_ACCESS_TOKEN, IDN_OAUTH2_ACCESS_TOKEN + "_" + userStoreDomain);
             }
             if (!isUsernameCaseSensitive){
-                sql.replace(AUTHZ_USER, LOWER_AUTHZ_USER);
+                sql = sql.replace(AUTHZ_USER, LOWER_AUTHZ_USER);
             }
 
             prepStmt = connection.prepareStatement(sql);
@@ -337,9 +333,8 @@ public class TokenMgtDAO {
             } else {
                 prepStmt.setString(2, userName.toLowerCase());
             }
-            if (StringUtils.isNotEmpty(scope)) {
-                prepStmt.setString(3, OAuth2Util.hashScopes(scope));
-            }
+            prepStmt.setString(3, OAuth2Util.hashScopes(scope));
+
             resultSet = prepStmt.executeQuery();
             connection.commit();
             
@@ -422,7 +417,7 @@ public class TokenMgtDAO {
                 sql = sql.replace(IDN_OAUTH2_ACCESS_TOKEN, IDN_OAUTH2_ACCESS_TOKEN + "_" + userStoreDomain);
             }
             if (!isUsernameCaseSensitive){
-                sql.replace(AUTHZ_USER, LOWER_AUTHZ_USER);
+                sql = sql.replace(AUTHZ_USER, LOWER_AUTHZ_USER);
             }
 
             prepStmt = connection.prepareStatement(sql);
@@ -985,7 +980,7 @@ public class TokenMgtDAO {
             String sqlQuery = SQLQueries.GET_DISTINCT_APPS_AUTHORIZED_BY_USER_ALL_TIME.replace(
                     IDN_OAUTH2_ACCESS_TOKEN, accessTokenStoreTable);
             if (!isUsernameCaseSensitive){
-                sqlQuery.replace(AUTHZ_USER, LOWER_AUTHZ_USER);
+                sqlQuery = sqlQuery.replace(AUTHZ_USER, LOWER_AUTHZ_USER);
             }
             ps = connection.prepareStatement(sqlQuery);
             if (isUsernameCaseSensitive) {

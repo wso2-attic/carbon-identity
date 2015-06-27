@@ -150,7 +150,7 @@ public class OAuthAppDAO {
             connection = JDBCPersistenceManager.getInstance().getDBConnection();
             String sql = SQLQueries.OAuthAppDAOSQLQueries.GET_APPS_OF_USER_WITH_TENANTAWARE_OR_TENANTUNAWARE_USERNAME;
             if (!isUsernameCaseSensitive){
-                sql.replace("USERNAME", "LOWER(USERNAME)");
+                sql = sql.replace("USERNAME", "LOWER(USERNAME)");
             }
             prepStmt = connection.prepareStatement(sql);
             if (isUsernameCaseSensitive){
@@ -367,7 +367,7 @@ public class OAuthAppDAO {
             connection = JDBCPersistenceManager.getInstance().getDBConnection();
             String sql = SQLQueries.OAuthAppDAOSQLQueries.CHECK_EXISTING_APPLICATION;
             if (!isUsernameCaseSensitive){
-                sql.replace("USERNAME", "LOWER(USERNAME)");
+                sql = sql.replace("USERNAME", "LOWER(USERNAME)");
             }
             prepStmt = connection.prepareStatement(sql);
             if (isUsernameCaseSensitive){
