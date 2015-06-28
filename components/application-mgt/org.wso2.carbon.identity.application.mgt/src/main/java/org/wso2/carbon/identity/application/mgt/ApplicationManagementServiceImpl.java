@@ -182,10 +182,7 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
 
             } finally {
                 PrivilegedCarbonContext.endTenantFlow();
-
-                if (tenantDomain != null) {
-                    setTenantDomainInThreadLocalCarbonContext(tenantDomain);
-                }
+                setTenantDomainInThreadLocalCarbonContext(tenantDomain);
             }
 
             // invoking the listeners
@@ -418,7 +415,6 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
             tenantDomain)
             throws IdentityApplicationManagementException {
         try {
-            setTenantDomainInThreadLocalCarbonContext(tenantDomain);
             ApplicationDAO appDAO = ApplicationMgtSystemConfig.getInstance().getApplicationDAO();
             return appDAO.getServiceProviderNameByClientId(clientId, type, tenantDomain);
 
@@ -589,7 +585,7 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
             clientId = clientId.split("@")[0];
         }
 
-        String serviceProviderName = null;
+        String serviceProviderName;
         ServiceProvider serviceProvider = null;
 
         serviceProviderName = getServiceProviderNameByClientId(clientId, clientType, tenantDomain);
