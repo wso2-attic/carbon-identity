@@ -84,8 +84,11 @@ public class TokenMgtDAO {
         final Log log = LogFactory.getLog(TokenMgtDAO.class);
 
         try {
-            maxPoolSize =
-                    Integer.parseInt(IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.PoolSize"));
+            String maxPoolSizeConfigValue = IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist" +
+                                                                     ".PoolSize");
+            if (StringUtils.isNotBlank(maxPoolSizeConfigValue)) {
+                maxPoolSize = Integer.parseInt(maxPoolSizeConfigValue);
+            }
         } catch (NumberFormatException e) {
             if(log.isDebugEnabled()){
                 log.debug("Error while parsing the integer", e);
