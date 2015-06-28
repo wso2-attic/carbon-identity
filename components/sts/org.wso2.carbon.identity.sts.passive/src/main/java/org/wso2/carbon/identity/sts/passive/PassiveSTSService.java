@@ -213,7 +213,7 @@ public class PassiveSTSService {
                 log.debug("Retrieving wreply url for : " + realm + " in tenant : " + tenantDomain);
             }
             sp = ApplicationManagementService.getInstance().
-                    getServiceProviderByClienId(realm, "passivests", tenantDomain);
+                    getServiceProviderByClientId(realm, "passivests", tenantDomain);
         } catch (IdentityApplicationManagementException e) {
             log.error("Error while retrieving Service Provider corresponding to Realm : " + realm +
                     ". Skip setting ReplyTo URL from Realm (Service Provider config)", e);

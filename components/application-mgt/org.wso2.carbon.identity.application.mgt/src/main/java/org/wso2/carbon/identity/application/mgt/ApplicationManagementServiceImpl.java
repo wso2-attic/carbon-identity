@@ -230,9 +230,15 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
         }
     }
 
-    private void setTenantDomainInThreadLocalCarbonContext(String tenantDomain) throws UserStoreException {
-        int tenantId = ApplicationManagementServiceComponentHolder.getInstance().getRealmService()
-                .getTenantManager().getTenantId(tenantDomain);
+    private void setTenantDomainInThreadLocalCarbonContext(String tenantDomain)
+            throws IdentityApplicationManagementException {
+        int tenantId = 0;
+        try {
+            tenantId = ApplicationManagementServiceComponentHolder.getInstance().getRealmService()
+                    .getTenantManager().getTenantId(tenantDomain);
+        } catch (UserStoreException e) {
+            throw new IdentityApplicationManagementException("Error when setting tenant domain. ", e);
+        }
         PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
         PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantId(tenantId);
     }
@@ -549,6 +555,7 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
     public ServiceProvider getServiceProvider(String serviceProviderName, String tenantDomain)
             throws IdentityApplicationManagementException {
 
+        setTenantDomainInThreadLocalCarbonContext(tenantDomain);
         ApplicationDAO appDAO = ApplicationMgtSystemConfig.getInstance().getApplicationDAO();
         ServiceProvider serviceProvider = appDAO.getApplication(serviceProviderName, tenantDomain);
 
@@ -574,7 +581,7 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
      * @throws IdentityApplicationManagementException
      */
     @Override
-    public ServiceProvider getServiceProviderByClienId(String clientId, String clientType, String tenantDomain)
+    public ServiceProvider getServiceProviderByClientId(String clientId, String clientType, String tenantDomain)
             throws IdentityApplicationManagementException {
 
         // client id can contain the @ to identify the tenant domain.
@@ -586,12 +593,6 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
         ServiceProvider serviceProvider = null;
 
         serviceProviderName = getServiceProviderNameByClientId(clientId, clientType, tenantDomain);
-
-        String tenantDomainName = null;
-        int tenantId = -1234;
-
-        tenantDomainName = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-        tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
 
         try {
             PrivilegedCarbonContext.startTenantFlow();
@@ -611,12 +612,7 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
 
         } finally {
             PrivilegedCarbonContext.endTenantFlow();
-
-            if (tenantDomainName != null) {
-                PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantDomain(
-                        tenantDomainName);
-                PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantId(tenantId);
-            }
+            setTenantDomainInThreadLocalCarbonContext(tenantDomain);
         }
 
         if (serviceProviderName != null) {
@@ -664,17 +660,11 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
             IdentityServiceProviderCache.getInstance().addToCache(cacheKey, entry);
         } finally {
             PrivilegedCarbonContext.endTenantFlow();
-
-            if (tenantDomain != null) {
-                PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantDomain(
-                        tenantDomainName);
-                PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantId(tenantId);
-            }
         }
         return serviceProvider;
     }
 
-    protected void loadApplicationPermissions(String serviceProviderName, ServiceProvider serviceProvider)
+    private void loadApplicationPermissions(String serviceProviderName, ServiceProvider serviceProvider)
             throws IdentityApplicationManagementException {
         List<ApplicationPermission> permissionList = ApplicationMgtUtil.loadPermissions(serviceProviderName);
 
