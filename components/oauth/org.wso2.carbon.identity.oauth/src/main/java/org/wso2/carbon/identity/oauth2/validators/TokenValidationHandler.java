@@ -236,6 +236,8 @@ public class TokenValidationHandler {
             responseDTO.setExpiryTime(Long.MAX_VALUE);
         } else if(expiryTime > 0){
             responseDTO.setExpiryTime(expiryTime / 1000);
+        } else if (expiryTime < 0) {
+            responseDTO.setExpiryTime(Long.MAX_VALUE);
         }
 
         // Adding the AccessTokenDO as a context property for further use
