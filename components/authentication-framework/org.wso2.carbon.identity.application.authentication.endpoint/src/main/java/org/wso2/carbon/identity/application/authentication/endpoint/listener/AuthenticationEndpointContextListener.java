@@ -41,7 +41,9 @@ public class AuthenticationEndpointContextListener implements ServletContextList
     public void contextInitialized(ServletContextEvent servletContextEvent) {
 
         // Initialize TenantDataManager for tenant domains dropdown feature in SSO login page
-        log.info("Initializing TenantDataManager for tenant domains dropdown");
+        if (log.isDebugEnabled()) {
+            log.debug("Initializing TenantDataManager for tenant domains dropdown");
+        }
         TenantDataManager.init();
     }
 

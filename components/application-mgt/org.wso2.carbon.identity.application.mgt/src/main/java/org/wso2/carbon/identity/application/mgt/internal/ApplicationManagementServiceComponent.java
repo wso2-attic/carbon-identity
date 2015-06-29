@@ -73,7 +73,9 @@ public class ApplicationManagementServiceComponent {
             ApplicationMgtSystemConfig.getInstance();
             buildFileBasedSPList();
 
-            log.info("Identity ApplicationManagementComponent bundle is activated");
+            if (log.isDebugEnabled()) {
+                log.debug("Identity ApplicationManagementComponent bundle is activated");
+            }
         } catch (Exception e) {
             log.error("Error while activating ApplicationManagementComponent bundle", e);
         }

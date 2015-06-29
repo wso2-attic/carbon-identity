@@ -96,7 +96,9 @@ public class TCPThriftAuthenticationService {
         authenticationServer = new TThreadPoolServer(
                 new TThreadPoolServer.Args(serverTransport).processor(processor));
         Thread thread = new Thread(new ServerRunnable(authenticationServer));
-        log.info("Thrift Authentication Service started at ssl://" + hostName + ":" + port);
+        if (log.isDebugEnabled()) {
+            log.debug("Thrift Authentication Service started at ssl://" + hostName + ":" + port);
+        }
         thread.start();
     }
 

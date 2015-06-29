@@ -66,7 +66,6 @@
         <module>components/remote-usermgt</module>
         <module>components/security</module>
         <module>components/sts</module>
-        <module>components/captcha-mgt</module>
         <module>features/security-mgt</module>
         <module>features/authenticators</module>
         <module>features/claim-management</module>
@@ -94,7 +93,6 @@
         <module>features/remote-usermgt</module>
         <module>features/ldap-server-manager</module>
         <module>features/sts</module>
-        <module>features/captcha-mgt</module>
         <module>features/user-manager</module>
     </modules>
 
@@ -674,11 +672,6 @@
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
-                <artifactId>org.wso2.carbon.captcha.mgt</artifactId>
-                <version>${carbon.identity.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.identity.notification.mgt</artifactId>
                 <version>${carbon.identity.version}</version>
             </dependency>
@@ -932,12 +925,6 @@
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
-                <artifactId>org.wso2.carbon.captcha.mgt.server.feature</artifactId>
-                <version>${carbon.identity.version}</version>
-                <type>zip</type>
-            </dependency>
-            <dependency>
-                <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.identity.mgt.stub</artifactId>
                 <version>${carbon.identity.version}</version>
             </dependency>
@@ -1117,7 +1104,7 @@
             </dependency>
 
             <dependency>
-                <groupId>org.wso2.carbon</groupId>
+                <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.captcha.mgt</artifactId>
                 <version>${carbon.captcha.mgt.version}</version>
             </dependency>
@@ -1807,8 +1794,8 @@
         <carbon.user.api.imp.pkg.version.range>[1.0.1, 1.1.0)</carbon.user.api.imp.pkg.version.range>
         <carbon.base.imp.pkg.version.range>[1.0.0, 1.1.0)</carbon.base.imp.pkg.version.range>
         <carbon.logging.imp.pkg.version.range>[1.2.17, 1.3.0)</carbon.logging.imp.pkg.version.range>
-        <carbon.captcha.mgt.version>4.2.0</carbon.captcha.mgt.version>
-        <carbon.captcha.mgt.imp.pkg.version.range>[4.2.0,4.3.0)</carbon.captcha.mgt.imp.pkg.version.range>
+        <carbon.captcha.mgt.version>4.5.2</carbon.captcha.mgt.version>
+        <carbon.captcha.mgt.imp.pkg.version.range>[4.5.0,4.6.0)</carbon.captcha.mgt.imp.pkg.version.range>
 
         <!-- Axis2 Version -->
         <axis2.wso2.version>1.6.1.wso2v12</axis2.wso2.version>

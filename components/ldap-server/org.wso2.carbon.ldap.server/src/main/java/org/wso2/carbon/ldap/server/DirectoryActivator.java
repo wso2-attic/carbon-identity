@@ -40,7 +40,7 @@ import java.io.FileNotFoundException;
 
 public class DirectoryActivator implements BundleActivator {
 
-    private final Logger logger = Logger.getLogger(DirectoryActivator.class);
+    private final Logger log = Logger.getLogger(DirectoryActivator.class);
 
     private LDAPServer ldapServer;
     private KDCServer kdcServer;
@@ -111,17 +111,17 @@ public class DirectoryActivator implements BundleActivator {
                         getPartitionManager());
                 bundleContext.registerService(LDAPTenantManager.class.getName(), ldapTenantManager,
                         null);
-                if (logger.isDebugEnabled()) {
-                    logger.debug("apacheds-server component started.");
+                if (log.isDebugEnabled()) {
+                    log.debug("apacheds-server component started.");
                 }
 
             } else if (!embeddedLDAPEnabled) {
                 //if needed, create a dummy tenant manager service and register it.
-                logger.info("Embedded LDAP is disabled.");
+                log.info("Embedded LDAP is disabled.");
             }
 
         } catch (FileNotFoundException | EmbeddingLDAPException | DirectoryServerException e) {
-            logger.error("Could not start the embedded-ldap. ", e);
+            log.error("Could not start the embedded-ldap. ", e);
         }
 
     }
@@ -139,7 +139,7 @@ public class DirectoryActivator implements BundleActivator {
         String carbonHome = System.getProperty("carbon.home");
         if (carbonHome == null) {
             String msg = "carbon.home property not set. Cannot find carbon home directory.";
-            logger.error(msg);
+            log.error(msg);
             throw new EmbeddingLDAPException(msg);
         }
 
@@ -160,7 +160,7 @@ public class DirectoryActivator implements BundleActivator {
             File dataDir = new File(getCarbonHome(), "repository/data");
             if (!dataDir.exists() && !dataDir.mkdir()) {
                 String msg = "Unable to create data directory at " + dataDir.getAbsolutePath();
-                logger.error(msg);
+                log.error(msg);
                 throw new EmbeddingLDAPException(msg);
             }
 
@@ -168,7 +168,7 @@ public class DirectoryActivator implements BundleActivator {
             if (!bundleDataDir.exists() && !bundleDataDir.mkdirs()) {
                 String msg = "Unable to create schema data directory at " + bundleDataDir.
                         getAbsolutePath();
-                logger.error(msg);
+                log.error(msg);
                 throw new EmbeddingLDAPException(msg);
 
 
@@ -184,8 +184,10 @@ public class DirectoryActivator implements BundleActivator {
         this.ldapServer = DirectoryServiceFactory.createLDAPServer(DirectoryServiceFactory.
                 LDAPServerType.APACHE_DIRECTORY_SERVICE);
 
-        logger.info("Initializing Directory Server with working directory " + ldapConfiguration.
-                getWorkingDirectory() + " and port " + ldapConfiguration.getLdapPort());
+        if (log.isDebugEnabled()) {
+            log.debug("Initializing Directory Server with working directory " + ldapConfiguration.
+                    getWorkingDirectory() + " and port " + ldapConfiguration.getLdapPort());
+        }
 
         this.ldapServer.init(ldapConfiguration);
 

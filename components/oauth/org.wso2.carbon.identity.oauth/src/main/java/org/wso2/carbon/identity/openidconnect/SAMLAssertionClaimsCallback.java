@@ -28,6 +28,7 @@ import org.opensaml.saml2.core.Assertion;
 import org.opensaml.saml2.core.Attribute;
 import org.opensaml.saml2.core.AttributeStatement;
 import org.wso2.carbon.claim.mgt.ClaimManagerHandler;
+import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
 import org.wso2.carbon.identity.application.common.model.ClaimMapping;
 import org.wso2.carbon.identity.application.common.model.ServiceProvider;
@@ -192,8 +193,9 @@ public class SAMLAssertionClaimsCallback implements CustomClaimsCallbackHandler 
         ApplicationManagementService applicationMgtService = OAuth2ServiceComponentHolder.getApplicationMgtService();
         String spName = applicationMgtService
                 .getServiceProviderNameByClientId(requestMsgCtx.getOauth2AccessTokenReqDTO().getClientId(),
-                                                  INBOUND_AUTH2_TYPE);
-        ServiceProvider serviceProvider = applicationMgtService.getApplication(spName);
+                                                  INBOUND_AUTH2_TYPE, tenantDomain);
+        ServiceProvider serviceProvider = applicationMgtService.getApplicationExcludingFileBasedSPs(spName,
+                                                                                                    tenantDomain);
         if (serviceProvider == null) {
             return mappedAppClaims;
         }
@@ -283,9 +285,11 @@ public class SAMLAssertionClaimsCallback implements CustomClaimsCallbackHandler 
                 .getApplicationMgtService();
         ServiceProvider serviceProvider = null;
         try {
+            String tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
             String spName = applicationMgtService.getServiceProviderNameByClientId(request.getOauth2AccessTokenReqDTO()
-                                                                                           .getClientId(), INBOUND_AUTH2_TYPE);
-            serviceProvider = applicationMgtService.getApplication(spName);
+                                                                                           .getClientId(),
+                                                                                   INBOUND_AUTH2_TYPE, tenantDomain);
+            serviceProvider = applicationMgtService.getApplicationExcludingFileBasedSPs(spName, tenantDomain);
             if (serviceProvider != null) {
                 return serviceProvider.getLocalAndOutBoundAuthenticationConfig().getSubjectClaimUri();
             }

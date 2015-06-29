@@ -27,7 +27,7 @@ import org.wso2.carbon.identity.application.common.model.ProvisioningServiceProv
 import org.wso2.carbon.identity.application.common.model.ThreadLocalProvisioningServiceProvider;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
 import org.wso2.carbon.identity.application.mgt.ApplicationConstants;
-import org.wso2.carbon.identity.application.mgt.ApplicationInfoProvider;
+import org.wso2.carbon.identity.application.mgt.ApplicationManagementService;
 import org.wso2.carbon.identity.provisioning.IdentityProvisioningConstants;
 import org.wso2.carbon.identity.provisioning.IdentityProvisioningException;
 import org.wso2.carbon.identity.provisioning.OutboundProvisioningManager;
@@ -116,7 +116,7 @@ public class DefaultInboundUserProvisioningListener extends AbstractUserOperatio
                 tenantDomainName = threadLocalServiceProvider.getTenantDomain();
                 if (threadLocalServiceProvider.getServiceProviderType() == ProvisioningServiceProviderType.OAUTH) {
                     try {
-                        serviceProvider = ApplicationInfoProvider.getInstance()
+                        serviceProvider = ApplicationManagementService.getInstance()
                                 .getServiceProviderNameByClientId(
                                         threadLocalServiceProvider.getServiceProviderName(),
                                         "oauth2", tenantDomainName);
@@ -190,7 +190,7 @@ public class DefaultInboundUserProvisioningListener extends AbstractUserOperatio
                 tenantDomainName = threadLocalServiceProvider.getTenantDomain();
                 if (threadLocalServiceProvider.getServiceProviderType() == ProvisioningServiceProviderType.OAUTH) {
                     try {
-                        serviceProvider = ApplicationInfoProvider.getInstance()
+                        serviceProvider = ApplicationManagementService.getInstance()
                                 .getServiceProviderNameByClientId(
                                         threadLocalServiceProvider.getServiceProviderName(),
                                         "oauth2", tenantDomainName);
@@ -252,7 +252,7 @@ public class DefaultInboundUserProvisioningListener extends AbstractUserOperatio
                 tenantDomainName = threadLocalServiceProvider.getTenantDomain();
                 if (threadLocalServiceProvider.getServiceProviderType() == ProvisioningServiceProviderType.OAUTH) {
                     try {
-                        serviceProvider = ApplicationInfoProvider.getInstance()
+                        serviceProvider = ApplicationManagementService.getInstance()
                                 .getServiceProviderNameByClientId(
                                         threadLocalServiceProvider.getServiceProviderName(),
                                         "oauth2", tenantDomainName);
@@ -326,7 +326,7 @@ public class DefaultInboundUserProvisioningListener extends AbstractUserOperatio
                 tenantDomainName = threadLocalServiceProvider.getTenantDomain();
                 if (threadLocalServiceProvider.getServiceProviderType() == ProvisioningServiceProviderType.OAUTH) {
                     try {
-                        serviceProvider = ApplicationInfoProvider.getInstance()
+                        serviceProvider = ApplicationManagementService.getInstance()
                                 .getServiceProviderNameByClientId(
                                         threadLocalServiceProvider.getServiceProviderName(),
                                         "oauth2", tenantDomainName);
@@ -420,7 +420,7 @@ public class DefaultInboundUserProvisioningListener extends AbstractUserOperatio
                 tenantDomainName = threadLocalServiceProvider.getTenantDomain();
                 if (threadLocalServiceProvider.getServiceProviderType() == ProvisioningServiceProviderType.OAUTH) {
                     try {
-                        serviceProvider = ApplicationInfoProvider.getInstance()
+                        serviceProvider = ApplicationManagementService.getInstance()
                                 .getServiceProviderNameByClientId(
                                         threadLocalServiceProvider.getServiceProviderName(),
                                         "oauth2", tenantDomainName);
@@ -490,7 +490,7 @@ public class DefaultInboundUserProvisioningListener extends AbstractUserOperatio
                 tenantDomainName = threadLocalServiceProvider.getTenantDomain();
                 if (threadLocalServiceProvider.getServiceProviderType() == ProvisioningServiceProviderType.OAUTH) {
                     try {
-                        serviceProvider = ApplicationInfoProvider.getInstance()
+                        serviceProvider = ApplicationManagementService.getInstance()
                                 .getServiceProviderNameByClientId(
                                         threadLocalServiceProvider.getServiceProviderName(),
                                         "oauth2", tenantDomainName);
@@ -555,7 +555,7 @@ public class DefaultInboundUserProvisioningListener extends AbstractUserOperatio
                 tenantDomainName = threadLocalServiceProvider.getTenantDomain();
                 if (threadLocalServiceProvider.getServiceProviderType() == ProvisioningServiceProviderType.OAUTH) {
                     try {
-                        serviceProvider = ApplicationInfoProvider.getInstance()
+                        serviceProvider = ApplicationManagementService.getInstance()
                                 .getServiceProviderNameByClientId(
                                         threadLocalServiceProvider.getServiceProviderName(),
                                         "oauth2", tenantDomainName);
