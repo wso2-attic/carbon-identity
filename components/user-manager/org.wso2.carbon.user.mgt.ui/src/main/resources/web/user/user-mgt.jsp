@@ -545,9 +545,7 @@
                     </td>
                 </tr>
 
-                <%
-                    if ( userRealmInfo.getBulkImportSupported()) {
-                %>
+
                 <tr>
                     <td class="addNewSecurity">
                         <a href="bulk-import.jsp" class="icon-link"
@@ -556,9 +554,6 @@
                     </td>
                 </tr>
 
-                <%
-                    }
-                %>
 
             </table>
 
