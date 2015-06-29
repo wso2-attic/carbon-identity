@@ -147,12 +147,20 @@ public class IdentityDBInitializer {
                 log.fatal(msg, e);
                 throw new Exception(msg, e);
             } finally {
-                try {
-                    if (conn != null) {
+                if (conn != null) {
+                    try {
                         conn.close();
+                    } catch (SQLException e) {
+                        log.error("Failed to close database connection.", e);
                     }
-                } catch (SQLException e) {
-                    log.error("Failed to close database connection.", e);
+                }
+
+                if (statement != null) {
+                    try {
+                        statement.close();
+                    } catch (SQLException e) {
+                        log.error("Failed to close database connection.", e);
+                    }
                 }
             }
         } else {
