@@ -42,6 +42,7 @@ import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.api.UserStoreManager;
 import org.wso2.carbon.user.core.UserRealm;
+import org.wso2.carbon.user.core.UserStoreConfigConstants;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -468,7 +469,9 @@ public class DefaultClaimHandler implements ClaimHandler {
             FrameworkException {
         UserStoreManager userStore = null;
         try {
-            userStore = realm.getUserStoreManager().getSecondaryUserStoreManager(userDomain);
+            userStore = realm.getUserStoreManager().getSecondaryUserStoreManager(StringUtils.isNotBlank(userDomain) ?
+                                                                                 userDomain :
+                                                                                 UserStoreConfigConstants.PRIMARY);
         } catch (UserStoreException e) {
             throw new FrameworkException("Error occurred while retrieving the UserStoreManager " +
                                          "from Realm for " + tenantDomain + " to handle local claims", e);
