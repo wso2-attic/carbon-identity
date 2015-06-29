@@ -35,21 +35,29 @@ public class ApplicationMgtUIServiceComponent {
     private static final Log log = LogFactory.getLog(ApplicationMgtUIServiceComponent.class);
 
     protected void activate(ComponentContext context) {
-        log.info("Application Management UI bundle acticated!");
+        if (log.isDebugEnabled()) {
+            log.debug("Application Management UI bundle acticated!");
+        }
     }
 
     protected void deactivate(ComponentContext context) {
-        log.info("Application Management UI bundle is deactivated");
+        if (log.isDebugEnabled()) {
+            log.debug("Application Management UI bundle is deactivated");
+        }
     }
 
     protected void setConfigurationContextService(ConfigurationContextService configurationContextService) {
         ApplicationMgtServiceComponentHolder.getInstance().setConfigurationContextService(configurationContextService);
-        log.debug("ConfigurationContextService Instance was set.");
+        if (log.isDebugEnabled()) {
+            log.debug("ConfigurationContextService Instance was set.");
+        }
     }
 
     protected void unsetConfigurationContextService(ConfigurationContextService configurationContextService) {
         ApplicationMgtServiceComponentHolder.getInstance().setConfigurationContextService(null);
-        log.debug("ConfigurationContextService Instance was unset.");
+        if (log.isDebugEnabled()) {
+            log.debug("ConfigurationContextService Instance was unset.");
+        }
     }
 
 }
