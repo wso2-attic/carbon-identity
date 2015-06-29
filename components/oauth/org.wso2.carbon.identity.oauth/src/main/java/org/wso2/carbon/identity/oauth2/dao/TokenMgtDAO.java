@@ -1091,6 +1091,53 @@ public class TokenMgtDAO {
 		}
 	}
 
+    /**
+     * Revoke the OAuth Consent which is recorded in the IDN_OPENID_USER_RPS table against the user for a particular
+     * Application
+     *
+     * @param username        - Username of the Consent owner
+     * @param applicationName - Name of the OAuth App
+     * @throws org.wso2.carbon.identity.oauth2.IdentityOAuth2Exception - If an unexpected error occurs.
+     */
+    public void revokeOAuthConsentByApplicationAndUser(String username, String applicationName)
+            throws IdentityOAuth2Exception {
+
+        if (username == null || applicationName == null) {
+            log.error("Could not remove consent of user " + username + " for application " + applicationName);
+            return;
+        }
+
+        Connection connection = null;
+        PreparedStatement ps;
+
+        try {
+            connection = JDBCPersistenceManager.getInstance().getDBConnection();
+            connection.setAutoCommit(false);
+
+            String sql = "DELETE FROM IDN_OPENID_USER_RPS " +
+                         "WHERE USER_NAME = ? " +
+                         "AND RP_URL = ?";
+
+            ps = connection.prepareStatement(sql);
+            ps.setString(1, username);
+            ps.setString(2, applicationName);
+            ps.execute();
+            connection.commit();
+
+        } catch (IdentityException e) {
+            String errorMsg = "Error when getting an Identity Persistence Store instance.";
+            log.error(errorMsg, e);
+            throw new IdentityOAuth2Exception(errorMsg, e);
+        } catch (SQLException e) {
+            String errorMsg = "Error deleting OAuth consent of Application " + applicationName + " and User " + username
+                              + e.getMessage();
+            log.error(errorMsg, e);
+            throw new IdentityOAuth2Exception(errorMsg, e);
+        } finally {
+            IdentityDatabaseUtil.closeAllConnections(connection, null, null);
+        }
+    }
+
     private void updateTokenIdIfAutzCodeGrantType(String oldAccessTokenId, String newAccessTokenId, Connection
             connection) throws IdentityOAuth2Exception {
         PreparedStatement prepStmt = null;
