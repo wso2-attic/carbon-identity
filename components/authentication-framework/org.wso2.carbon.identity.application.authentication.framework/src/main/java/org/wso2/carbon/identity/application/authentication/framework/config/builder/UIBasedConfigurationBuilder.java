@@ -68,7 +68,7 @@ public class UIBasedConfigurationBuilder {
         ServiceProvider serviceProvider;
 
         try {
-            serviceProvider = appInfo.getServiceProviderByClienId(clientId, reqType, tenantDomain);
+            serviceProvider = appInfo.getServiceProviderByClientId(clientId, reqType, tenantDomain);
         } catch (IdentityApplicationManagementException e) {
             throw new FrameworkException(e.getMessage(), e);
         }

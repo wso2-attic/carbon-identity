@@ -141,19 +141,7 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
 
             ApplicationDAO appDAO = ApplicationMgtSystemConfig.getInstance().getApplicationDAO();
             ServiceProvider serviceProvider = appDAO.getApplication(applicationName, tenantDomain);
-            List<ApplicationPermission> permissionList = ApplicationMgtUtil.loadPermissions(applicationName);
-
-            if (permissionList != null) {
-                PermissionsAndRoleConfig permissionAndRoleConfig;
-                if (serviceProvider.getPermissionAndRoleConfig() == null) {
-                    permissionAndRoleConfig = new PermissionsAndRoleConfig();
-                } else {
-                    permissionAndRoleConfig = serviceProvider.getPermissionAndRoleConfig();
-                }
-                permissionAndRoleConfig.setPermissions(permissionList.toArray(
-                        new ApplicationPermission[permissionList.size()]));
-                serviceProvider.setPermissionAndRoleConfig(permissionAndRoleConfig);
-            }
+            loadApplicationPermissions(applicationName, serviceProvider);
             return serviceProvider;
         } catch (Exception e) {
             String error = "Error occurred while retrieving the application, " + applicationName;
@@ -194,10 +182,7 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
 
             } finally {
                 PrivilegedCarbonContext.endTenantFlow();
-
-                if (tenantDomain != null) {
-                    setTenantDomainInThreadLocalCarbonContext(tenantDomain);
-                }
+                setTenantDomainInThreadLocalCarbonContext(tenantDomain);
             }
 
             // invoking the listeners
@@ -242,9 +227,15 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
         }
     }
 
-    private void setTenantDomainInThreadLocalCarbonContext(String tenantDomain) throws UserStoreException {
-        int tenantId = ApplicationManagementServiceComponentHolder.getInstance().getRealmService()
-                .getTenantManager().getTenantId(tenantDomain);
+    private void setTenantDomainInThreadLocalCarbonContext(String tenantDomain)
+            throws IdentityApplicationManagementException {
+        int tenantId = 0;
+        try {
+            tenantId = ApplicationManagementServiceComponentHolder.getInstance().getRealmService()
+                    .getTenantManager().getTenantId(tenantDomain);
+        } catch (UserStoreException e) {
+            throw new IdentityApplicationManagementException("Error when setting tenant domain. ", e);
+        }
         PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
         PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantId(tenantId);
     }
@@ -424,7 +415,6 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
             tenantDomain)
             throws IdentityApplicationManagementException {
         try {
-            setTenantDomainInThreadLocalCarbonContext(tenantDomain);
             ApplicationDAO appDAO = ApplicationMgtSystemConfig.getInstance().getApplicationDAO();
             return appDAO.getServiceProviderNameByClientId(clientId, type, tenantDomain);
 
@@ -561,8 +551,13 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
     public ServiceProvider getServiceProvider(String serviceProviderName, String tenantDomain)
             throws IdentityApplicationManagementException {
 
+        setTenantDomainInThreadLocalCarbonContext(tenantDomain);
         ApplicationDAO appDAO = ApplicationMgtSystemConfig.getInstance().getApplicationDAO();
         ServiceProvider serviceProvider = appDAO.getApplication(serviceProviderName, tenantDomain);
+
+        if (serviceProvider != null) {
+            loadApplicationPermissions(serviceProviderName, serviceProvider);
+        }
 
         if (serviceProvider == null
             && ApplicationManagementServiceComponent.getFileBasedSPs().containsKey(
@@ -582,7 +577,7 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
      * @throws IdentityApplicationManagementException
      */
     @Override
-    public ServiceProvider getServiceProviderByClienId(String clientId, String clientType, String tenantDomain)
+    public ServiceProvider getServiceProviderByClientId(String clientId, String clientType, String tenantDomain)
             throws IdentityApplicationManagementException {
 
         // client id can contain the @ to identify the tenant domain.
@@ -590,16 +585,10 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
             clientId = clientId.split("@")[0];
         }
 
-        String serviceProviderName = null;
+        String serviceProviderName;
         ServiceProvider serviceProvider = null;
 
         serviceProviderName = getServiceProviderNameByClientId(clientId, clientType, tenantDomain);
-
-        String tenantDomainName = null;
-        int tenantId = -1234;
-
-        tenantDomainName = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-        tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
 
         try {
             PrivilegedCarbonContext.startTenantFlow();
@@ -619,12 +608,7 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
 
         } finally {
             PrivilegedCarbonContext.endTenantFlow();
-
-            if (tenantDomainName != null) {
-                PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantDomain(
-                        tenantDomainName);
-                PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantId(tenantId);
-            }
+            setTenantDomainInThreadLocalCarbonContext(tenantDomain);
         }
 
         if (serviceProviderName != null) {
@@ -635,6 +619,8 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
                 // if "Authentication Type" is "Default" we must get the steps from the default SP
                 AuthenticationStep[] authenticationSteps = serviceProvider
                         .getLocalAndOutBoundAuthenticationConfig().getAuthenticationSteps();
+
+                loadApplicationPermissions(serviceProviderName, serviceProvider);
 
                 if (authenticationSteps == null || authenticationSteps.length == 0) {
                     ServiceProvider defaultSP = ApplicationManagementServiceComponent
@@ -670,14 +656,25 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
             IdentityServiceProviderCache.getInstance().addToCache(cacheKey, entry);
         } finally {
             PrivilegedCarbonContext.endTenantFlow();
-
-            if (tenantDomain != null) {
-                PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantDomain(
-                        tenantDomainName);
-                PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantId(tenantId);
-            }
         }
         return serviceProvider;
+    }
+
+    private void loadApplicationPermissions(String serviceProviderName, ServiceProvider serviceProvider)
+            throws IdentityApplicationManagementException {
+        List<ApplicationPermission> permissionList = ApplicationMgtUtil.loadPermissions(serviceProviderName);
+
+        if (permissionList != null) {
+            PermissionsAndRoleConfig permissionAndRoleConfig;
+            if (serviceProvider.getPermissionAndRoleConfig() == null) {
+                permissionAndRoleConfig = new PermissionsAndRoleConfig();
+            } else {
+                permissionAndRoleConfig = serviceProvider.getPermissionAndRoleConfig();
+            }
+            permissionAndRoleConfig.setPermissions(permissionList.toArray(
+                    new ApplicationPermission[permissionList.size()]));
+            serviceProvider.setPermissionAndRoleConfig(permissionAndRoleConfig);
+        }
     }
 
     /**

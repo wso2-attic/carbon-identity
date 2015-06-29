@@ -110,7 +110,7 @@ public class ApplicationConfig implements Serializable {
 
             for (int i = 0; i < permissionList.length; i++) {
                 ApplicationPermission permission = permissionList[i];
-                permissions[i++] = permission.getValue();
+                permissions[i] = permission.getValue();
             }
 
             RoleMapping[] tempRoleMappings = permissionRoleConfiguration.getRoleMappings();

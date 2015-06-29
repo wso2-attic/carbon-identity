@@ -177,6 +177,7 @@ public abstract class ApplicationManagementService {
     public abstract ServiceProvider getServiceProvider(String serviceProviderName, String tenantDomain)
             throws IdentityApplicationManagementException;
 
-    public abstract ServiceProvider getServiceProviderByClienId(String clientId, String clientType, String tenantDomain)
+    public abstract ServiceProvider getServiceProviderByClientId(String clientId, String clientType,
+                                                                 String tenantDomain)
             throws IdentityApplicationManagementException;
 }
