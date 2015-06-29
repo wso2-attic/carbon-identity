@@ -22,7 +22,9 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.identity.workflow.mgt.AbstractWorkflowTemplate;
 import org.wso2.carbon.identity.workflow.mgt.AbstractWorkflowTemplateImpl;
+import org.wso2.carbon.identity.workflow.mgt.AlwaysDenyTemplate;
 import org.wso2.carbon.identity.workflow.mgt.BPELApprovalTemplateImpl;
+import org.wso2.carbon.identity.workflow.mgt.DefaultImmediateDenyImpl;
 import org.wso2.carbon.identity.workflow.mgt.SimpleApprovalTemplate;
 import org.wso2.carbon.identity.workflow.mgt.WorkflowRequestHandler;
 import org.wso2.carbon.identity.workflow.mgt.WorkflowService;
@@ -37,13 +39,18 @@ import org.wso2.carbon.utils.ConfigurationContextService;
  * @scr.reference name="workflow.request.handler.service"
  * interface="org.wso2.carbon.identity.workflow.mgt.WorkflowRequestHandler"
  * cardinality="0..n" policy="dynamic"
- * bind="setWorkflowRequestHandlerService"
- * unbind="unsetWorkflowRequestHandlerService"
+ * bind="setWorkflowRequestHandler"
+ * unbind="unsetWorkflowRequestHandler"
  * @scr.reference name="workflow.template.service"
  * interface="org.wso2.carbon.identity.workflow.mgt.AbstractWorkflowTemplate"
  * cardinality="0..n" policy="dynamic"
- * bind="setAbstractWorkflowTemplateService"
- * unbind="unsetAbstractWorkflowTemplateService"
+ * bind="setWorkflowTemplate"
+ * unbind="unsetWorkflowTemplate"
+ * @scr.reference name="workflow.template.impl.service"
+ * interface="org.wso2.carbon.identity.workflow.mgt.AbstractWorkflowTemplateImpl"
+ * cardinality="0..n" policy="dynamic"
+ * bind="setTemplateImplementation"
+ * unbind="unsetTemplateImplementation"
  * @scr.reference name="config.context.service"
  * interface="org.wso2.carbon.utils.ConfigurationContextService"
  * cardinality="1..1" policy="dynamic"  bind="setConfigurationContextService"
@@ -67,8 +74,10 @@ public class WorkflowMgtServiceComponent {
         WorkflowService workflowService = new WorkflowService();
         bundleContext.registerService(WorkflowService.class, workflowService, null);
         WorkflowServiceDataHolder.getInstance().setBundleContext(bundleContext);
-        setAbstractWorkflowTemplateService(new SimpleApprovalTemplate());
-        setTemplateImplService(new BPELApprovalTemplateImpl());
+        setWorkflowTemplate(new SimpleApprovalTemplate());
+        setTemplateImplementation(new BPELApprovalTemplateImpl());
+        setWorkflowTemplate(new AlwaysDenyTemplate());
+        setTemplateImplementation(new DefaultImmediateDenyImpl());
     }
 
     protected void unsetRealmService(RealmService realmService) {
@@ -81,32 +90,32 @@ public class WorkflowMgtServiceComponent {
         WorkflowServiceDataHolder.getInstance().setConfigurationContextService(null);
     }
 
-    protected void setWorkflowRequestHandlerService(WorkflowRequestHandler workflowRequestHandler) {
+    protected void setWorkflowRequestHandler(WorkflowRequestHandler workflowRequestHandler) {
 
         WorkflowServiceDataHolder.getInstance().addWorkflowRequestHandler(workflowRequestHandler);
     }
 
-    protected void unsetWorkflowRequestHandlerService(WorkflowRequestHandler workflowRequestHandler) {
+    protected void unsetWorkflowRequestHandler(WorkflowRequestHandler workflowRequestHandler) {
 
         WorkflowServiceDataHolder.getInstance().removeWorkflowRequestHandler(workflowRequestHandler);
     }
 
-    protected void setAbstractWorkflowTemplateService(AbstractWorkflowTemplate template) {
+    protected void setWorkflowTemplate(AbstractWorkflowTemplate template) {
 
         WorkflowServiceDataHolder.getInstance().addTemplate(template);
     }
 
-    protected void unsetAbstractWorkflowTemplateService(AbstractWorkflowTemplate template) {
+    protected void unsetWorkflowTemplate(AbstractWorkflowTemplate template) {
 
         WorkflowServiceDataHolder.getInstance().removeTemplate(template);
     }
 
-    protected void setTemplateImplService(AbstractWorkflowTemplateImpl templateImpl) {
+    protected void setTemplateImplementation(AbstractWorkflowTemplateImpl templateImpl) {
 
         WorkflowServiceDataHolder.getInstance().addTemplateImpl(templateImpl);
     }
 
-    protected void unsetTemplateImplService(AbstractWorkflowTemplateImpl templateImpl) {
+    protected void unsetTemplateImplementation(AbstractWorkflowTemplateImpl templateImpl) {
 
         WorkflowServiceDataHolder.getInstance().removeTemplateImpl(templateImpl);
     }

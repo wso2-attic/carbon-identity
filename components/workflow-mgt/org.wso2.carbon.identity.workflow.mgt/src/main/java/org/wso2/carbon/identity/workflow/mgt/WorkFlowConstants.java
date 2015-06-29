@@ -42,6 +42,10 @@ public class WorkFlowConstants {
 
         public static final String APPROVAL_TEMPLATE_ID = "SimpleApproval";
         public static final String SIMPLE_APPROVAL_ROLE_NAME = "RoleName";
+        public static final String SIMPLE_APPROVAL_ROLE_DISPLAY_NAME = "Role to Authorize the Request";
+
+        public static final String IMMEDIATE_DENY_TEMPLATE_ID = "ImmediateDeny";
+
         public static final String BPEL_IMPL_BPS_PROFILE = "BPELEngineProfile";
 
         public static final String HOST = "Host";

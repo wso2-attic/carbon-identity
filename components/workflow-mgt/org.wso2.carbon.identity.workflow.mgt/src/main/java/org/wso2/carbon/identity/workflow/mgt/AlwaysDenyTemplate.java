@@ -20,38 +20,27 @@ package org.wso2.carbon.identity.workflow.mgt;
 
 import org.wso2.carbon.identity.workflow.mgt.bean.TemplateParameterDef;
 
-public class SimpleApprovalTemplate extends AbstractWorkflowTemplate {
+public class AlwaysDenyTemplate extends AbstractWorkflowTemplate {
 
-    private static final TemplateParameterDef[] PARAMETER_DEFINITIONS;
-    private static final String DESCRIPTION = "The operation should be approved by an authorized person with given " +
-            "role, to complete.";
-    private static final String APPROVAL_TEMPLATE_NAME = "Simple Approval";
-
-    static {
-        TemplateParameterDef roleDef = new TemplateParameterDef();
-        roleDef.setParamName(WorkFlowConstants.TemplateConstants.SIMPLE_APPROVAL_ROLE_NAME);
-        roleDef.setParamType(WorkflowTemplateParamType.USER_ROLE);
-        roleDef.setDisplayName(WorkFlowConstants.TemplateConstants.SIMPLE_APPROVAL_ROLE_DISPLAY_NAME);
-        roleDef.setMandatory(true);
-        PARAMETER_DEFINITIONS = new TemplateParameterDef[]{roleDef};
-    }
+    private static final String DESCRIPTION = "The operation will denied immediately";
+    private static final String TEMPLATE_FRIENDLY_NAME = "Deny Immediately";
 
     @Override
     public TemplateParameterDef[] getParamDefinitions() {
 
-        return PARAMETER_DEFINITIONS;
+        return new TemplateParameterDef[0];
     }
 
     @Override
     public String getTemplateId() {
 
-        return WorkFlowConstants.TemplateConstants.APPROVAL_TEMPLATE_ID;
+        return WorkFlowConstants.TemplateConstants.IMMEDIATE_DENY_TEMPLATE_ID;
     }
 
     @Override
     public String getFriendlyName() {
 
-        return APPROVAL_TEMPLATE_NAME;
+        return TEMPLATE_FRIENDLY_NAME;
     }
 
     @Override
