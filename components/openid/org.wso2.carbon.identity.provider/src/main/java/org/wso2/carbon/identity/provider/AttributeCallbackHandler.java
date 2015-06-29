@@ -104,14 +104,18 @@ public class AttributeCallbackHandler implements SAMLCallbackHandler {
                 }
             }
 
-            if (attrCallback.getSAML2Attributes() == null || attrCallback.getSAML2Attributes().length == 0) {
-                if (RahasConstants.TOK_TYPE_SAML_20.equals(data.getTokenType())) {
+            if (RahasConstants.TOK_TYPE_SAML_20.equals(data.getTokenType())) {
+                if (attrCallback.getSAML2Attributes() == null
+                        || attrCallback.getSAML2Attributes().length == 0) {
                     attrCallback.addAttributes(getSAML2Attribute("Name", "Colombo",
-                                                                 "https://rahas.apache.org/saml/attrns"));
-                } else {
+                            "https://rahas.apache.org/saml/attrns"));
+                }
+            } else {
+                if (attrCallback.getAttributes() == null
+                        || attrCallback.getAttributes().length == 0) {
                     SAMLAttribute attribute = new SAMLAttribute("Name",
-                                                                "https://rahas.apache.org/saml/attrns", null, -1,
-                                                                Arrays.asList(new String[]{"Colombo/Rahas"}));
+                            "https://rahas.apache.org/saml/attrns", null, -1, Arrays
+                            .asList(new String[]{"Colombo/Rahas"}));
                     attrCallback.addAttributes(attribute);
                 }
             }
