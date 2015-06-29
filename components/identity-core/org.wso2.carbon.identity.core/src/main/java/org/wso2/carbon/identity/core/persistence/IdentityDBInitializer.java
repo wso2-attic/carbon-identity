@@ -159,7 +159,7 @@ public class IdentityDBInitializer {
                     try {
                         statement.close();
                     } catch (SQLException e) {
-                        log.error("Failed to close database connection.", e);
+                        log.error("Failed to close statement.", e);
                     }
                 }
             }
