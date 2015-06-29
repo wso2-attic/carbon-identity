@@ -546,7 +546,7 @@
                 </tr>
 
                 <%
-                    if (!multipleUserStores && userRealmInfo.getBulkImportSupported()) {
+                    if ( userRealmInfo.getBulkImportSupported()) {
                 %>
                 <tr>
                     <td class="addNewSecurity">

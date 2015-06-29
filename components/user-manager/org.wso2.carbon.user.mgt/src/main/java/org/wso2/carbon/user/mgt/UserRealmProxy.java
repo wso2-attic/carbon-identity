@@ -2058,14 +2058,32 @@ public class UserRealmProxy {
         }
     }
 
+
+    private String getDomainFromUserName(String username) {
+        int index;
+        if ((index = username.indexOf("/")) > 0) {
+            String domain = username.substring(0, index);
+            return domain;
+        }
+        return UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME;
+    }
+
     public void bulkImportUsers(String fileName, InputStream inStream, String defaultPassword)
             throws UserAdminException {
+
+        String domainName = getDomainFromUserName(fileName);
+
+        fileName = UserCoreUtil.removeDomainFromName(fileName);
+
         try {
             BulkImportConfig config = new BulkImportConfig(inStream, fileName);
             if (defaultPassword != null && defaultPassword.trim().length() > 0) {
                 config.setDefaultPassword(defaultPassword.trim());
             }
             UserStoreManager userStore = this.realm.getUserStoreManager();
+
+            userStore = userStore.getSecondaryUserStoreManager(domainName);
+
             if (fileName.endsWith("csv")) {
                 CSVUserBulkImport csvAdder = new CSVUserBulkImport(config);
                 csvAdder.addUserList(userStore);

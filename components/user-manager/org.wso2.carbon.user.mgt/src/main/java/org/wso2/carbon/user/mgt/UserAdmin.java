@@ -538,9 +538,13 @@ public class UserAdmin {
      */
     public void bulkImportUsers(String fileName, DataHandler handler, String defaultPassword)
             throws UserAdminException {
+
+
+
         if (fileName == null || handler == null || defaultPassword == null) {
             throw new UserAdminException("Required data not provided");
         }
+
         try {
             InputStream inStream = handler.getInputStream();
             getUserAdminProxy().bulkImportUsers(fileName, inStream, defaultPassword);

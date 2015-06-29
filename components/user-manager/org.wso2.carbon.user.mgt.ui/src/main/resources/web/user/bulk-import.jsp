@@ -27,10 +27,11 @@
 <%@ page import="org.wso2.carbon.user.mgt.stub.types.carbon.UserStoreInfo" %>
 <%@ page import="org.wso2.carbon.user.mgt.ui.UserAdminUIConstants" %>
 <%@ page import="org.wso2.carbon.user.mgt.stub.types.carbon.UserRealmInfo" %>
+<%@ page import="org.wso2.carbon.user.api.UserStoreManager" %>
 
 <script type="text/javascript" src="extensions/core/js/vui.js"></script>
 <script type="text/javascript" src="../admin/js/main.js"></script>
-<jsp:include page="../dialog/display_messages.jsp"/>
+<!--jsp:include page="../dialog/display_messages.jsp"/-->
 
 <fmt:bundle basename="org.wso2.carbon.userstore.ui.i18n.Resources">
 
@@ -59,7 +60,7 @@
             CarbonUIMessage uiMsg = new CarbonUIMessage(e.getMessage(), CarbonUIMessage.ERROR, e);
             session.setAttribute(CarbonUIMessage.ID, uiMsg);
     %>
-    <jsp:include page="../admin/error.jsp"/>
+    <!--jsp:include page="../admin/error.jsp"/-->
     <%
             return;
         }
@@ -144,6 +145,31 @@
                                         <input type="password" name="password" style="width:150px"/>
                                         <font color="red">This password expires after 24
                                                           hours</font>
+                                    </td>
+
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <select id="domain" name="domain">
+                                        <%
+                                            String[] domainNames = userRealmInfo.getDomainNames();
+
+                                                    String selectedDomain = "PRIMARY";
+                                            for(String domainName : domainNames) {
+
+
+                                                if(selectedDomain.equals(domainName)) {
+                                        %>
+                                        <option selected="selected" value="<%=domainName%>"><%=domainName%></option>
+                                        <%
+                                        } else {
+                                        %>
+                                        <option value="<%=domainName%>"><%=domainName%></option>
+                                        <%
+                                                }
+                                            }
+                                        %>
+                                        </select>
                                     </td>
                                 </tr>
                             </table>

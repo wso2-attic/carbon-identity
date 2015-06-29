@@ -33,6 +33,8 @@
 <%@page import="org.wso2.carbon.user.mgt.ui.Util"%>
 <%@page import="org.wso2.carbon.utils.ServerConstants"%>
 <%@page import="java.util.List"%>
+<%@ page import="org.wso2.carbon.base.CarbonBaseUtils" %>
+<%@ page import="org.wso2.carbon.user.core.util.UserCoreUtil" %>
 
 <script type="text/javascript" src="../admin/js/main.js"></script>
 
@@ -48,6 +50,7 @@
                 byte[] content = null;
                 String fileName = null;
                 String password = null;
+                String domainName = null;
                 for (Object item : items) {
                     DiskFileItem diskFileItem = (DiskFileItem) item;
                     String name = diskFileItem.getFieldName();
@@ -59,7 +62,10 @@
                         content = fileItem.get();
                     } else if (name.equals("password")) {
                         password = new String(diskFileItem.get());
+                    }else if(name.equals("domain")){
+                        domainName= new String (diskFileItem.get());
                     }
+
                 }
 
                 String cookie = (String) session.getAttribute(ServerConstants.ADMIN_SERVICE_COOKIE);
@@ -67,7 +73,9 @@
                 ConfigurationContext configContext =
                         (ConfigurationContext) config.getServletContext().getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);                
                 UserAdminClient client = new UserAdminClient(cookie, backendServerURL, configContext);
-                client.bulkImportUsers(fileName, Util.buildDataHandler(content), password);
+
+                String domainAwareFileName = UserCoreUtil.addDomainToName(fileName,domainName);
+                client.bulkImportUsers(domainAwareFileName, Util.buildDataHandler(content), password);
                 forwardTo = "user-mgt.jsp?ordinal=1";
             } else {
                 throw new Exception("unexpected.data");
