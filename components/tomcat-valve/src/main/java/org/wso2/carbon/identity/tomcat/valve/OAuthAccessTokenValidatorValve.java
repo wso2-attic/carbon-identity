@@ -103,7 +103,7 @@ public class OAuthAccessTokenValidatorValve extends ValveBase{
             }else{
                 if (log.isDebugEnabled()){
                     log.debug("Requested Endpoint "+request.getHost().getName()+request.getRequestURI()
-                            +"is not protected, Passing on to the next valve");
+                            +" is not protected, Passing on to the next valve");
                 }
             }
         }catch (Exception ex){
@@ -122,7 +122,7 @@ public class OAuthAccessTokenValidatorValve extends ValveBase{
 
 
     private boolean checkEndPointIsProtected(String requestedURI){
-        // substring to remove the preceding file path delimiters
+        // substring to remove the preceding file path separators
         String stringToCompare = requestedURI.substring(1);
 
         return protectedEndpoints.contains(stringToCompare);

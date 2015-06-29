@@ -66,4 +66,9 @@ public class UmaRptRequestPayloadBean {
     public void setClaim_tokens(ArrayList<ClaimTokenBean> claim_tokens) {
         this.claim_tokens = claim_tokens;
     }
+
+    @Override
+    public String toString() {
+        return super.toString();
+    }
 }

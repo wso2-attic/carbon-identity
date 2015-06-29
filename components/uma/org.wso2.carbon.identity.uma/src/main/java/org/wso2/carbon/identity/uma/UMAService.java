@@ -20,7 +20,25 @@
 
 package org.wso2.carbon.identity.uma;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.identity.uma.model.UmaRptRequest;
+import org.wso2.carbon.identity.uma.model.UmaRptResponse;
+
 public class UMAService {
 
+    private static final Log log = LogFactory.getLog(UMAService.class);
+
     // method to issue the RPT after validating the claims
+    public UmaRptResponse issueRPT(UmaRptRequest rptRequest){
+
+        if (log.isDebugEnabled()){
+            log.debug("Request Processed by the UMAService");
+        }
+
+        UmaRptResponse umaRptResponse = new UmaRptResponse();
+        umaRptResponse.setRPT("kdjfsdfhdfshjgsasdisdfyuwey83475y43undf4387437");
+
+        return umaRptResponse;
+    }
 }

@@ -18,8 +18,30 @@
  * /
  */
 
-package org.wso2.carbon.identity.uma.userconsent.handlers;
+package org.wso2.carbon.identity.uma.util;
 
-public abstract class AbstractUserConsentHandler implements UserConsentHandler{
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.context.PrivilegedCarbonContext;
+import org.wso2.carbon.identity.uma.UMAService;
+
+public class EndpointUtil {
+
+    private static final Log log = LogFactory.getLog(EndpointUtil.class);
+
+    private EndpointUtil() {
+
+    }
+
+    /**
+     * Returns the {@code UMAService} instance
+     *
+     * @return UMAService instance
+     */
+    public static UMAService getUMAService(){
+
+        return (UMAService)PrivilegedCarbonContext.getThreadLocalCarbonContext()
+                .getOSGiService(UMAService.class, null);
+    }
 
 }

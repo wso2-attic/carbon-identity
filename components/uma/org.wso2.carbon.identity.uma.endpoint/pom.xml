@@ -65,15 +65,16 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
+            <groupId>org.wso2.carbon.identity</groupId>
+            <artifactId>org.wso2.carbon.identity.oauth</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>org.codehaus.jackson</groupId>
             <artifactId>jackson-jaxrs</artifactId>
             <version>1.9.0</version>
         </dependency>
-        <dependency>
-            <artifactId>org.wso2.carbon.identity.uma</artifactId>
-            <groupId>org.wso2.carbon.identity</groupId>
-            <scope>provided</scope>
-        </dependency>
+
 
     </dependencies>
 
