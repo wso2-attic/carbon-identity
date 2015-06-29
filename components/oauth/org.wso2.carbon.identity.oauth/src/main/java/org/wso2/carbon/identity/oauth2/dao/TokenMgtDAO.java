@@ -228,7 +228,6 @@ public class TokenMgtDAO {
                 prepStmt.execute();
             }
 
-            connection.commit();
         } catch (SQLIntegrityConstraintViolationException e) {
             String errorMsg = "Access Token for consumer key : " + consumerKey + ", user : " +
                               accessTokenDO.getAuthzUser() + " and scope : " +
