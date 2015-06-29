@@ -19,20 +19,6 @@
 package org.wso2.carbon.user.mgt;
 
 
-
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-
 import org.apache.axis2.context.MessageContext;
 import org.apache.axis2.transport.http.HTTPConstants;
 import org.apache.commons.logging.Log;
@@ -47,27 +33,25 @@ import org.wso2.carbon.registry.core.RegistryConstants;
 import org.wso2.carbon.user.api.Claim;
 import org.wso2.carbon.user.api.ClaimMapping;
 import org.wso2.carbon.user.api.RealmConfiguration;
-import org.wso2.carbon.user.core.AuthorizationManager;
-import org.wso2.carbon.user.core.UserCoreConstants;
-import org.wso2.carbon.user.core.UserRealm;
-import org.wso2.carbon.user.core.UserStoreException;
-import org.wso2.carbon.user.core.UserStoreManager;
+import org.wso2.carbon.user.core.*;
 import org.wso2.carbon.user.core.common.AbstractUserStoreManager;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.user.mgt.bulkimport.BulkImportConfig;
 import org.wso2.carbon.user.mgt.bulkimport.CSVUserBulkImport;
 import org.wso2.carbon.user.mgt.bulkimport.ExcelUserBulkImport;
-import org.wso2.carbon.user.mgt.common.ClaimValue;
-import org.wso2.carbon.user.mgt.common.FlaggedName;
-import org.wso2.carbon.user.mgt.common.UIPermissionNode;
-import org.wso2.carbon.user.mgt.common.UserAdminException;
-import org.wso2.carbon.user.mgt.common.UserRealmInfo;
-import org.wso2.carbon.user.mgt.common.UserStoreInfo;
+import org.wso2.carbon.user.mgt.common.*;
 import org.wso2.carbon.user.mgt.internal.UserMgtDSComponent;
 import org.wso2.carbon.user.mgt.permission.ManagementPermissionUtil;
 import org.wso2.carbon.utils.ServerConstants;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import java.io.InputStream;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class UserRealmProxy {
 
@@ -2084,14 +2068,18 @@ public class UserRealmProxy {
 
             userStore = userStore.getSecondaryUserStoreManager(domainName);
 
-            if (fileName.endsWith("csv")) {
-                CSVUserBulkImport csvAdder = new CSVUserBulkImport(config);
-                csvAdder.addUserList(userStore);
-            } else if (fileName.endsWith("xls") || fileName.endsWith("xlsx")) {
-                ExcelUserBulkImport excelAdder = new ExcelUserBulkImport(config);
-                excelAdder.addUserList(userStore);
+            if (userStore.isBulkImportSupported()) {
+                if (fileName.endsWith("csv")) {
+                    CSVUserBulkImport csvAdder = new CSVUserBulkImport(config);
+                    csvAdder.addUserList(userStore);
+                } else if (fileName.endsWith("xls") || fileName.endsWith("xlsx")) {
+                    ExcelUserBulkImport excelAdder = new ExcelUserBulkImport(config);
+                    excelAdder.addUserList(userStore);
+                } else {
+                    throw new UserAdminException("Unsupported format");
+                }
             } else {
-                throw new UserAdminException("Unsupported format");
+                throw new UserAdminException("Userstore does not support bulk import");
             }
         } catch (UserStoreException e) {
             // previously logged so logging not needed
