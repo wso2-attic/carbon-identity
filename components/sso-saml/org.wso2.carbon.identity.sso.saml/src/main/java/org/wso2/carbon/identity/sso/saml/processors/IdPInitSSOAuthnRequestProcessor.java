@@ -97,7 +97,7 @@ public class IdPInitSSOAuthnRequestProcessor {
             String sessionIndexId = null;
 
             if (isAuthenticated) {
-                if (sessionPersistenceManager.isExistingTokenId(sessionId)) {
+                if (sessionId != null && sessionPersistenceManager.isExistingTokenId(sessionId)) {
                     sessionIndexId = sessionPersistenceManager.getSessionIndexFromTokenId(sessionId);
                 } else {
                     sessionIndexId = UUIDGenerator.generateUUID();
