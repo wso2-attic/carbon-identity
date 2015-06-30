@@ -247,7 +247,7 @@
 			<Enable>true</Enable>
 		</AttributeCaching>
 		<ThirftBasedEntitlementConfig>
-			<EnableThriftService>true</EnableThriftService>
+            		<EnableThriftService>false</EnableThriftService>
 			<ReceivePort>${Ports.ThriftEntitlementReceivePort}</ReceivePort>
 			<ClientTimeout>10000</ClientTimeout>
 			<KeyStore>
