@@ -664,7 +664,7 @@ public class SAMLSSOProviderServlet extends HttpServlet {
 
             startTenantFlow(authnReqDTO.getTenantDomain());
 
-            if (sessionId == null && !sessionDTO.isPassiveAuth()) {
+            if (sessionId == null) {
                 sessionId = UUIDGenerator.generateUUID();
             }
 
