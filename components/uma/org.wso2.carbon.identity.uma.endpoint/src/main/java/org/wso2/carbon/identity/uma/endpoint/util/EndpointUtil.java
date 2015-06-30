@@ -18,7 +18,7 @@
  * /
  */
 
-package org.wso2.carbon.identity.uma.util;
+package org.wso2.carbon.identity.uma.endpoint.util;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

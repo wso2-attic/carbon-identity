@@ -31,7 +31,7 @@ import org.wso2.carbon.identity.oauth2.dto.OAuth2TokenValidationResponseDTO;
 import org.wso2.carbon.identity.uma.beans.UmaRptRequestPayloadBean;
 import org.wso2.carbon.identity.uma.model.UmaRptRequest;
 import org.wso2.carbon.identity.uma.model.UmaRptResponse;
-import org.wso2.carbon.identity.uma.util.EndpointUtil;
+import org.wso2.carbon.identity.uma.endpoint.util.EndpointUtil;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 import javax.servlet.http.HttpServletRequest;

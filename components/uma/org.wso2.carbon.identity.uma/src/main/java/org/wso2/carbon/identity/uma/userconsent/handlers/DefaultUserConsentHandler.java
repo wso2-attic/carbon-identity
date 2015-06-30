@@ -20,5 +20,37 @@
 
 package org.wso2.carbon.identity.uma.userconsent.handlers;
 
+import org.wso2.carbon.identity.uma.userconsent.UmaReqMessageContext;
+
 public class DefaultUserConsentHandler extends AbstractUserConsentHandler {
+
+    @Override
+    public void init() {
+
+    }
+
+    @Override
+    public boolean canHandleUserConsentType(UmaReqMessageContext umaReqMessageContext) {
+        return true;
+    }
+
+    @Override
+    public void issueRPT(UmaReqMessageContext umaReqMessageContext) {
+
+    }
+
+    @Override
+    public void validateScope(UmaReqMessageContext umaReqMessageContext) {
+
+    }
+
+    @Override
+    public boolean requestStepUpAuthentication(UmaReqMessageContext umaReqMessageContext) {
+        return false;
+    }
+
+    @Override
+    public boolean requireClaims(UmaReqMessageContext umaReqMessageContext) {
+        return false;
+    }
 }

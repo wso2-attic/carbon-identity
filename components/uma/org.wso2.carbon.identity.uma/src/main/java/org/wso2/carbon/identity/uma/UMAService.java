@@ -36,9 +36,26 @@ public class UMAService {
             log.debug("Request Processed by the UMAService");
         }
 
+        // validate the permission ticket
+
+
+        // retrieve the permission sets associated with the ticket ( resourceID, scopes, user consent type)
+
+
+        // create the message context for the handlers to engage
+
+
+        // select the handlers to handle the user consent type
+        // if more than one select one with higher priority
+
+
+
+        // get the response from the handlers and send to back
         UmaRptResponse umaRptResponse = new UmaRptResponse();
         umaRptResponse.setRPT("kdjfsdfhdfshjgsasdisdfyuwey83475y43undf4387437");
 
         return umaRptResponse;
     }
+
+
 }

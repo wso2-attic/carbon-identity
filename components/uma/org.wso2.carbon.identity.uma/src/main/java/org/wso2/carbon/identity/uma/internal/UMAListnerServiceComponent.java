@@ -20,6 +20,8 @@
 
 package org.wso2.carbon.identity.uma.internal;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.uma.claims.handlers.ClaimsTokenHandler;
 import org.wso2.carbon.identity.uma.claims.token.ClaimsToken;
 import org.wso2.carbon.identity.uma.rpt.issuer.RptIssuer;
@@ -43,6 +45,8 @@ import java.util.TreeMap;
  * unbind="unsetUserConsentHandler"
  */
 public class UMAListnerServiceComponent {
+
+    private static Log log = LogFactory.getLog(UMAListnerServiceComponent.class);
 
     private static Map<Integer, ClaimsTokenHandler> claimsTokenHandlers;
     private static Map<Integer, UserConsentHandler> userConsentHandlers;

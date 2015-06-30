@@ -24,9 +24,18 @@ import org.wso2.carbon.identity.uma.userconsent.UmaReqMessageContext;
 
 public interface UserConsentHandler {
 
+    /**
+     *  initialization logic for the handler
+     */
     public void init();
 
-    public int getPriority();
+    /**
+     * Calculate the priority for the handler based on contents of the Request Message context
+     * @param umaReqMessageContext
+     * @return int priority (default value is 1)
+     */
+    public int getPriority(UmaReqMessageContext umaReqMessageContext);
+
 
     public boolean canHandleUserConsentType(UmaReqMessageContext umaReqMessageContext);
 
