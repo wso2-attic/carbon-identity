@@ -263,7 +263,10 @@ public class EntitlementUtil {
             DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
             InputStream stream = new ByteArrayInputStream(policy.getBytes());
             Document doc = documentBuilder.parse(stream);
+/*
 
+
+ */
             //get policy version
             Element policyElement = doc.getDocumentElement();
             return policyElement.getNamespaceURI();
