@@ -39,8 +39,8 @@ public class DeleteRoleWFRequestHandler extends AbstractWorkflowRequestHandler {
     private static final String FRIENDLY_NAME = "Delete Role";
     private static final String FRIENDLY_DESCRIPTION = "Triggered when a user deletes a role.";
 
-    private static final String ROLENAME = "roleName";
-    private static final String USER_STORE_DOMAIN = "userStoreDomain";
+    private static final String ROLENAME = "Role Name";
+    private static final String USER_STORE_DOMAIN = "User Store Domain";
 
     private static final Map<String, String> PARAM_DEFINITION;
     private static Log log = LogFactory.getLog(DeleteRoleWFRequestHandler.class);

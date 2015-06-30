@@ -39,10 +39,10 @@ public class ChangeCredentialWFRequestHandler extends AbstractWorkflowRequestHan
     private static final String FRIENDLY_NAME = "Update user credentials";
     private static final String FRIENDLY_DESCRIPTION = "Triggered when a user update his/her credential";
 
-    private static final String USERNAME = "username";
-    private static final String USER_STORE_DOMAIN = "userStoreDomain";
-    private static final String OLD_CREDENTIAL = "oldCredential";
-    private static final String NEW_CREDENTIAL = "newCredential";
+    private static final String USERNAME = "Username";
+    private static final String USER_STORE_DOMAIN = "User Store Domain";
+    private static final String OLD_CREDENTIAL = "Old Credential";
+    private static final String NEW_CREDENTIAL = "New Credential";
 
     private static final Map<String, String> PARAM_DEFINITION;
     private static Log log = LogFactory.getLog(ChangeCredentialWFRequestHandler.class);

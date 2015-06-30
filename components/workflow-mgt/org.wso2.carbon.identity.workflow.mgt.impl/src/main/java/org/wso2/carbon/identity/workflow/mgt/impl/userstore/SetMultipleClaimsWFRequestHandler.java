@@ -23,10 +23,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.workflow.mgt.AbstractWorkflowRequestHandler;
 import org.wso2.carbon.identity.workflow.mgt.WorkflowDataType;
-import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.WorkflowRequestStatus;
+import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.impl.internal.IdentityWorkflowDataHolder;
-import org.wso2.carbon.identity.workflow.mgt.impl.internal.IdentityWorkflowServiceComponent;
 import org.wso2.carbon.user.api.UserRealm;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.service.RealmService;
@@ -39,11 +38,10 @@ public class SetMultipleClaimsWFRequestHandler extends AbstractWorkflowRequestHa
     private static final String FRIENDLY_NAME = "Update User Claims";
     private static final String FRIENDLY_DESCRIPTION = "Triggered when a user updates his claims";
 
-    private static final String USERNAME = "username";
-    private static final String USER_STORE_DOMAIN = "userStoreDomain";
-    private static final String CLAIMS = "claims";
-    private static final String CLAIM_VALUE = "claimValue";
-    private static final String PROFILE_NAME = "profileName";
+    private static final String USERNAME = "Username";
+    private static final String USER_STORE_DOMAIN = "User Store Domain";
+    private static final String CLAIMS = "Claims";
+    private static final String PROFILE_NAME = "Profile";
 
     private static final Map<String, String> PARAM_DEFINITION;
     private static Log log = LogFactory.getLog(SetMultipleClaimsWFRequestHandler.class);
@@ -53,7 +51,6 @@ public class SetMultipleClaimsWFRequestHandler extends AbstractWorkflowRequestHa
         PARAM_DEFINITION.put(USERNAME, WorkflowDataType.STRING_TYPE);
         PARAM_DEFINITION.put(USER_STORE_DOMAIN, WorkflowDataType.STRING_TYPE);
         PARAM_DEFINITION.put(CLAIMS, WorkflowDataType.STRING_STRING_MAP_TYPE);
-        PARAM_DEFINITION.put(CLAIM_VALUE, WorkflowDataType.STRING_TYPE);
         PARAM_DEFINITION.put(PROFILE_NAME, WorkflowDataType.STRING_TYPE);
     }
 

@@ -43,10 +43,10 @@ public class AddRoleWFRequestHandler extends AbstractWorkflowRequestHandler {
     private static final String FRIENDLY_NAME = "Add Role";
     private static final String FRIENDLY_DESCRIPTION = "Triggered when a user create a new role.";
 
-    private static final String ROLENAME = "username";
-    private static final String USER_STORE_DOMAIN = "userStoreDomain";
-    private static final String PERMISSIONS = "permissions";
-    private static final String USER_LIST = "userList";
+    private static final String ROLENAME = "Role Name";
+    private static final String USER_STORE_DOMAIN = "User Store Domain";
+    private static final String PERMISSIONS = "Permissions";
+    private static final String USER_LIST = "Users";
 
     private static final String SEPARATOR = "->";
 

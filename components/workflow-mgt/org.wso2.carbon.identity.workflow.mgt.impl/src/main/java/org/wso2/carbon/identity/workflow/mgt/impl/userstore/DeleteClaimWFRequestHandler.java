@@ -39,10 +39,10 @@ public class DeleteClaimWFRequestHandler extends AbstractWorkflowRequestHandler 
     private static final String FRIENDLY_NAME = "Delete User Claim";
     private static final String FRIENDLY_DESCRIPTION = "Triggered when a user's claim is deleted";
 
-    private static final String USERNAME = "username";
-    private static final String USER_STORE_DOMAIN = "userStoreDomain";
-    private static final String CLAIM_URI = "claimURI";
-    private static final String PROFILE_NAME = "profileName";
+    private static final String USERNAME = "Username";
+    private static final String USER_STORE_DOMAIN = "User Store Domain";
+    private static final String CLAIM_URI = "Claim URI";
+    private static final String PROFILE_NAME = "Profile";
 
     private static final Map<String, String> PARAM_DEFINITION;
     private static Log log = LogFactory.getLog(AddUserWFRequestHandler.class);

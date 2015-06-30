@@ -41,12 +41,12 @@ public class AddUserWFRequestHandler extends AbstractWorkflowRequestHandler {
     private static final String FRIENDLY_NAME = "Add User";
     private static final String FRIENDLY_DESCRIPTION = "Triggered when a new user is created.";
 
-    private static final String USERNAME = "username";
-    private static final String USER_STORE_DOMAIN = "userStoreDomain";
-    private static final String CREDENTIAL = "credential";
-    private static final String ROLE_LIST = "roleList";
-    private static final String CLAIM_LIST = "claimList";
-    private static final String PROFILE = "profile";
+    private static final String USERNAME = "Username";
+    private static final String USER_STORE_DOMAIN = "User Store Domain";
+    private static final String CREDENTIAL = "Credential";
+    private static final String ROLE_LIST = "Roles";
+    private static final String CLAIM_LIST = "Claims";
+    private static final String PROFILE = "Profile";
 
     private static final Map<String, String> PARAM_DEFINITION;
     private static Log log = LogFactory.getLog(AddUserWFRequestHandler.class);

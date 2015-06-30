@@ -39,11 +39,11 @@ public class SetUserClaimWFRequestHandler extends AbstractWorkflowRequestHandler
     private static final String FRIENDLY_NAME = "Update User Claim";
     private static final String FRIENDLY_DESCRIPTION = "Triggered when a user update one of his/her claim.";
 
-    private static final String USERNAME = "username";
-    private static final String USER_STORE_DOMAIN = "userStoreDomain";
-    private static final String CLAIM_URI = "claimURI";
-    private static final String CLAIM_VALUE = "claimValue";
-    private static final String PROFILE_NAME = "profileName";
+    private static final String USERNAME = "Username";
+    private static final String USER_STORE_DOMAIN = "User Store Domain";
+    private static final String CLAIM_URI = "Claim URI";
+    private static final String CLAIM_VALUE = "Claim Value";
+    private static final String PROFILE_NAME = "Profile";
 
     private static final Map<String, String> PARAM_DEFINITION;
     private static Log log = LogFactory.getLog(AddUserWFRequestHandler.class);

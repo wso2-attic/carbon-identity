@@ -41,11 +41,10 @@ public class DeleteMultipleClaimsWFRequestHandler extends AbstractWorkflowReques
     private static final String FRIENDLY_NAME = "Delete User Claims";
     private static final String FRIENDLY_DESCRIPTION = "Triggered when a user create a new role.";
 
-    private static final String USERNAME = "username";
-    private static final String USER_STORE_DOMAIN = "userStoreDomain";
-    private static final String CLAIMS = "claims";
-    private static final String CLAIM_VALUE = "claimValue";
-    private static final String PROFILE_NAME = "profileName";
+    private static final String USERNAME = "Username";
+    private static final String USER_STORE_DOMAIN = "User Store Domain";
+    private static final String CLAIMS = "Claims to Delete";
+    private static final String PROFILE_NAME = "Profile Name";
 
     private static final Map<String, String> PARAM_DEFINITION;
     private static Log log = LogFactory.getLog(SetMultipleClaimsWFRequestHandler.class);
@@ -55,7 +54,6 @@ public class DeleteMultipleClaimsWFRequestHandler extends AbstractWorkflowReques
         PARAM_DEFINITION.put(USERNAME, WorkflowDataType.STRING_TYPE);
         PARAM_DEFINITION.put(USER_STORE_DOMAIN, WorkflowDataType.STRING_TYPE);
         PARAM_DEFINITION.put(CLAIMS, WorkflowDataType.STRING_STRING_MAP_TYPE);
-        PARAM_DEFINITION.put(CLAIM_VALUE, WorkflowDataType.STRING_TYPE);
         PARAM_DEFINITION.put(PROFILE_NAME, WorkflowDataType.STRING_TYPE);
     }
 

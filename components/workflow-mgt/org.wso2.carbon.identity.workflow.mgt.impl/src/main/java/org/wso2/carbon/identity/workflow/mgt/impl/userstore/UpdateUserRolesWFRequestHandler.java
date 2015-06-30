@@ -41,10 +41,10 @@ public class UpdateUserRolesWFRequestHandler extends AbstractWorkflowRequestHand
     private static final String FRIENDLY_NAME = "Update User Roles";
     private static final String FRIENDLY_DESCRIPTION = "Triggered when roles are assigned to/removed from a user";
 
-    private static final String USERNAME = "username";
-    private static final String USER_STORE_DOMAIN = "userStoreDomain";
-    private static final String DELETED_ROLE_LIST = "deletedRoleList";
-    private static final String NEW_ROLE_LIST = "newRoleList";
+    private static final String USERNAME = "Username";
+    private static final String USER_STORE_DOMAIN = "User Store Domain";
+    private static final String DELETED_ROLE_LIST = "Roles to Remove";
+    private static final String NEW_ROLE_LIST = "Roles to Assign";
 
     private static final Map<String, String> PARAM_DEFINITION;
     private static Log log = LogFactory.getLog(AddUserWFRequestHandler.class);
