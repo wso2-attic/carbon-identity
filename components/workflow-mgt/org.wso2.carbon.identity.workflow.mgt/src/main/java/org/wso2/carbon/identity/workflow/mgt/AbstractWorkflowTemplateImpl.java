@@ -27,52 +27,40 @@ import java.util.Map;
 
 public abstract class AbstractWorkflowTemplateImpl {
 
-    private TemplateInitializer initializer;
-    private WorkFlowExecutor executor;
+    protected abstract TemplateInitializer getInitializer();
 
-
-    public TemplateInitializer getInitializer() {
-
-        return initializer;
-    }
-
-    public void setInitializer(TemplateInitializer initializer) {
-
-        this.initializer = initializer;
-    }
-
-    public WorkFlowExecutor getExecutor() {
-
-        return executor;
-    }
-
-    public void setExecutor(WorkFlowExecutor executor) {
-
-        this.executor = executor;
-    }
+    protected abstract WorkFlowExecutor getExecutor();
 
     public void activate(Map<String, Object> initParams) throws WorkflowException {
 
-        if (initializer.initNeededAtStartUp()) {
+        TemplateInitializer initializer = getInitializer();
+        if (initializer != null && initializer.initNeededAtStartUp()) {
             deploy(initParams);
         }
     }
 
     public void initializeExecutor(Map<String, Object> initParams) throws WorkflowException {
 
-        executor.initialize(initParams);
+        WorkFlowExecutor executor = getExecutor();
+        if (executor != null) {
+            executor.initialize(initParams);
+        }
     }
 
     public void deploy(Map<String, Object> initParams) throws WorkflowException {
 
-        if (initializer != null) {
+        TemplateInitializer initializer = getInitializer();
+        if (initializer != null && initializer.initNeededAtStartUp()) {
             initializer.initialize(initParams);
         }
     }
 
     public void execute(WorkFlowRequest workFlowRequest) throws WorkflowException {
 
-        executor.execute(workFlowRequest);
+        WorkFlowExecutor executor = getExecutor();
+        if (executor != null) {
+            executor.execute(workFlowRequest);
+        }
     }
 
     public abstract String getTemplateId();

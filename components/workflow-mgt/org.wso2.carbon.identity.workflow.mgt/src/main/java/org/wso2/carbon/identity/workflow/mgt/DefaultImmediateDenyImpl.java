@@ -23,6 +23,23 @@ import org.wso2.carbon.identity.workflow.mgt.bean.TemplateParameterDef;
 public class DefaultImmediateDenyImpl extends AbstractWorkflowTemplateImpl {
 
     private static final String IMPL_NAME = "Default";
+    private WorkFlowExecutor executor;
+
+    public DefaultImmediateDenyImpl() {
+        executor = new ImmediateDenyExecutor();
+    }
+
+    @Override
+    protected TemplateInitializer getInitializer() {
+
+        return null;    //no initializer needed for this
+    }
+
+    @Override
+    protected WorkFlowExecutor getExecutor() {
+
+        return executor;
+    }
 
     @Override
     public String getTemplateId() {

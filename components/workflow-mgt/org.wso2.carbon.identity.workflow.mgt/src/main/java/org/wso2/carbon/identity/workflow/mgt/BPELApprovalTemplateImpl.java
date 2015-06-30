@@ -28,6 +28,9 @@ public class BPELApprovalTemplateImpl extends AbstractWorkflowTemplateImpl {
     private static final String TEMPLATE_IMPL_NAME = "BPEL";
     private static final TemplateParameterDef[] PARAMETER_DEFINITIONS;
 
+    private TemplateInitializer initializer;
+    private WorkFlowExecutor executor;
+
     static {
         Object[][] paramDef = {
                 {WorkFlowConstants.TemplateConstants.BPEL_IMPL_BPS_PROFILE, "BPEL Engine profile",
@@ -67,6 +70,28 @@ public class BPELApprovalTemplateImpl extends AbstractWorkflowTemplateImpl {
         initParams.putAll(bpelProfileParams);
         setInitializer(new BPELApprovalDeployer());
         super.deploy(initParams);
+    }
+
+    @Override
+    protected TemplateInitializer getInitializer() {
+
+        return initializer;
+    }
+
+    protected void setInitializer(TemplateInitializer initializer) {
+
+        this.initializer = initializer;
+    }
+
+    @Override
+    protected WorkFlowExecutor getExecutor() {
+
+        return executor;
+    }
+
+    protected void setExecutor(WorkFlowExecutor executor) {
+
+        this.executor = executor;
     }
 
     @Override
