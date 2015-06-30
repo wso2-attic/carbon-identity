@@ -20,6 +20,8 @@ package org.wso2.carbon.identity.entitlement;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.xerces.impl.Constants;
+import org.apache.xerces.util.SecurityManager;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.wso2.balana.AbstractPolicy;
@@ -66,6 +68,7 @@ import org.wso2.carbon.registry.core.Registry;
 import org.wso2.carbon.registry.core.Resource;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
 import org.wso2.carbon.utils.CarbonUtils;
+import org.wso2.carbon.identity.entitlement.util.CarbonEntityResolver;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -75,6 +78,7 @@ import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.Validator;
+import javax.xml.XMLConstants;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -95,6 +99,9 @@ import java.util.Set;
 public class EntitlementUtil {
 
     private static Log log = LogFactory.getLog(EntitlementUtil.class);
+    private static final String SECURITY_MANAGER_PROPERTY = Constants.XERCES_PROPERTY_PREFIX +
+            Constants.SECURITY_MANAGER_PROPERTY;
+    private static final int ENTITY_EXPANSION_LIMIT = 0;
 
 
     /**
@@ -226,9 +233,7 @@ public class EntitlementUtil {
 
             if (schema != null) {
                 //build XML document
-                DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-                documentBuilderFactory.setNamespaceAware(true);
-                DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
+                DocumentBuilder documentBuilder = getSecuredDocumentBuilder(false);
                 InputStream stream = new ByteArrayInputStream(policy.getPolicy().getBytes());
                 Document doc = documentBuilder.parse(stream);
                 //Do the DOM validation
@@ -236,6 +241,9 @@ public class EntitlementUtil {
                 DOMResult domResult = new DOMResult();
                 Validator validator = schema.newValidator();
                 validator.validate(domSource, domResult);
+                /*
+
+*/
                 if (log.isDebugEnabled()) {
                     log.debug("XACML Policy validation succeeded with the Schema");
                 }
@@ -258,15 +266,12 @@ public class EntitlementUtil {
 
         try {
             //build XML document
-            DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-            documentBuilderFactory.setNamespaceAware(true);
-            DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
+            DocumentBuilder documentBuilder = getSecuredDocumentBuilder(false);
             InputStream stream = new ByteArrayInputStream(policy.getBytes());
             Document doc = documentBuilder.parse(stream);
-/*
 
 
- */
+
             //get policy version
             Element policyElement = doc.getDocumentElement();
             return policyElement.getNamespaceURI();
@@ -474,14 +479,11 @@ public class EntitlementUtil {
 
     public static AbstractPolicy getPolicy(String policy) {
 
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        factory.setIgnoringComments(true);
-        factory.setNamespaceAware(true);
         DocumentBuilder builder;
         InputStream stream = null;
         // now use the factory to create the document builder
         try {
-            builder = factory.newDocumentBuilder();
+            builder = getSecuredDocumentBuilder(true);
             stream = new ByteArrayInputStream(policy.getBytes("UTF-8"));
             Document doc = builder.parse(stream);
             Element root = doc.getDocumentElement();
@@ -600,5 +602,28 @@ public class EntitlementUtil {
                 attributeElementNo++;
             }
         }
+    }
+
+    /**
+     * * This method provides a secured document builder which will secure XXE attacks.
+     * @param setIgnoreComments whether to set setIgnoringComments in DocumentBuilderFactory.
+     *
+     * @return DocumentBuilder
+     * @throws ParserConfigurationException
+     */
+    private static DocumentBuilder getSecuredDocumentBuilder(boolean setIgnoreComments) throws ParserConfigurationException{
+
+        DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+        documentBuilderFactory.setIgnoringComments(setIgnoreComments);
+        documentBuilderFactory.setNamespaceAware(true);
+        documentBuilderFactory.setExpandEntityReferences(false);
+        documentBuilderFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+        SecurityManager securityManager = new SecurityManager();
+        securityManager.setEntityExpansionLimit(ENTITY_EXPANSION_LIMIT);
+        documentBuilderFactory.setAttribute(SECURITY_MANAGER_PROPERTY, securityManager);
+        DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
+        documentBuilder.setEntityResolver(new CarbonEntityResolver());
+        return documentBuilder;
+
     }
 }
