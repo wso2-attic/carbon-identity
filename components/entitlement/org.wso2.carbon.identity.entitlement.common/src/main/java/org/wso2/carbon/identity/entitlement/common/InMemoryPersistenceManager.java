@@ -50,6 +50,7 @@ public class InMemoryPersistenceManager implements DataPersistenceManager {
     private static final String SECURITY_MANAGER_PROPERTY = Constants.XERCES_PROPERTY_PREFIX +
             Constants.SECURITY_MANAGER_PROPERTY;
     private static final int ENTITY_EXPANSION_LIMIT = 0;
+
     @Override
     public Map<String, PolicyEditorDataHolder> buildDataHolder() throws PolicyEditorException {
         xmlConfig = this.getConfig();
@@ -121,14 +122,15 @@ public class InMemoryPersistenceManager implements DataPersistenceManager {
 
         return holder;
     }
+
     /**
      * * This method provides a secured document builder which will secure XXE attacks.
-     * @param setIgnoreComments whether to set setIgnoringComments in DocumentBuilderdactory.
      *
+     * @param setIgnoreComments whether to set setIgnoringComments in DocumentBuilderdactory.
      * @return DocumentBuilder
      * @throws ParserConfigurationException
      */
-    private  DocumentBuilder getSecuredDocumentBuilder(boolean setIgnoreComments) throws ParserConfigurationException{
+    private DocumentBuilder getSecuredDocumentBuilder(boolean setIgnoreComments) throws ParserConfigurationException {
 
         DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
         documentBuilderFactory.setIgnoringComments(setIgnoreComments);
@@ -142,6 +144,7 @@ public class InMemoryPersistenceManager implements DataPersistenceManager {
         documentBuilder.setEntityResolver(new CarbonEntityResolver());
         return documentBuilder;
     }
+
     @Override
     public void persistConfig(String policyEditorType, String xmlConfig) throws PolicyEditorException {
         // to verify

@@ -241,9 +241,6 @@ public class EntitlementUtil {
                 DOMResult domResult = new DOMResult();
                 Validator validator = schema.newValidator();
                 validator.validate(domSource, domResult);
-                /*
-
-*/
                 if (log.isDebugEnabled()) {
                     log.debug("XACML Policy validation succeeded with the Schema");
                 }
@@ -269,7 +266,6 @@ public class EntitlementUtil {
             DocumentBuilder documentBuilder = getSecuredDocumentBuilder(false);
             InputStream stream = new ByteArrayInputStream(policy.getBytes());
             Document doc = documentBuilder.parse(stream);
-
 
 
             //get policy version
@@ -606,12 +602,12 @@ public class EntitlementUtil {
 
     /**
      * * This method provides a secured document builder which will secure XXE attacks.
-     * @param setIgnoreComments whether to set setIgnoringComments in DocumentBuilderFactory.
      *
+     * @param setIgnoreComments whether to set setIgnoringComments in DocumentBuilderFactory.
      * @return DocumentBuilder
      * @throws ParserConfigurationException
      */
-    private static DocumentBuilder getSecuredDocumentBuilder(boolean setIgnoreComments) throws ParserConfigurationException{
+    private static DocumentBuilder getSecuredDocumentBuilder(boolean setIgnoreComments) throws ParserConfigurationException {
 
         DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
         documentBuilderFactory.setIgnoringComments(setIgnoreComments);

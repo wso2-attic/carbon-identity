@@ -83,7 +83,7 @@ public class PAPPolicyReader implements ErrorHandler {
 
         // now use the factory to create the document builder
         try {
-            documentBuilderFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING,true);
+            documentBuilderFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
             documentBuilder = documentBuilderFactory.newDocumentBuilder();
             documentBuilder.setEntityResolver(new CarbonEntityResolver());
             documentBuilder.setErrorHandler(this);

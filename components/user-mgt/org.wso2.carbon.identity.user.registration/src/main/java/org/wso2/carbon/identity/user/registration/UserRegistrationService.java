@@ -72,6 +72,7 @@ public class UserRegistrationService {
     private static final String SECURITY_MANAGER_PROPERTY = Constants.XERCES_PROPERTY_PREFIX +
             Constants.SECURITY_MANAGER_PROPERTY;
     private static final int ENTITY_EXPANSION_LIMIT = 0;
+
     /**
      * This service method will return back all available password validation regular expressions
      * against the corresponding domain names.
@@ -254,7 +255,7 @@ public class UserRegistrationService {
 
             for (int i = 0; i < identityRoleNames.length; i++) {
                 // if this is the first time a user signs up, needs to create role
-                doAddUser(i,admin, identityRoleNames,userName,permission);
+                doAddUser(i, admin, identityRoleNames, userName, permission);
             }
 
         } catch (UserStoreException e) {
@@ -262,7 +263,7 @@ public class UserRegistrationService {
         }
     }
 
-    private void doAddUser(int i, UserStoreManager admin, String[] identityRoleNames, String userName,Permission
+    private void doAddUser(int i, UserStoreManager admin, String[] identityRoleNames, String userName, Permission
             permission) throws IdentityException, UserStoreException {
         try {
             if (!admin.isExistingRole(identityRoleNames[i], false)) {
@@ -388,14 +389,15 @@ public class UserRegistrationService {
 
         return null;
     }
+
     /**
      * * This method provides a secured document builder which will secure XXE attacks.
-     * @param setIgnoreComments whether to set setIgnoringComments in DocumentBuilderFactory.
      *
+     * @param setIgnoreComments whether to set setIgnoringComments in DocumentBuilderFactory.
      * @return DocumentBuilder
      * @throws ParserConfigurationException
      */
-    private DocumentBuilder getSecuredDocumentBuilder() throws ParserConfigurationException{
+    private DocumentBuilder getSecuredDocumentBuilder() throws ParserConfigurationException {
 
         DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
         documentBuilderFactory.setNamespaceAware(true);

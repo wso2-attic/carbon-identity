@@ -43,6 +43,7 @@ public class PolicyRequestBuilder {
     private static final String SECURITY_MANAGER_PROPERTY = Constants.XERCES_PROPERTY_PREFIX +
             Constants.SECURITY_MANAGER_PROPERTY;
     private static final int ENTITY_EXPANSION_LIMIT = 0;
+
     /**
      * creates DOM representation of the XACML request
      *
