@@ -288,6 +288,7 @@ public class PassiveSTS extends HttpServlet {
         reqToken.setPolicy(sessionDTO.getPolicy());
         reqToken.setPseudo(session.getId());
         reqToken.setUserName(authnResult.getSubject().getAuthenticatedSubjectIdentifier());
+        reqToken.setTenantDomain(sessionDTO.getTenantDomain());
 
         String serverURL = CarbonUIUtil.getServerURL(session.getServletContext(), session);
         ConfigurationContext configContext =
@@ -337,6 +338,7 @@ public class PassiveSTS extends HttpServlet {
         sessionDTO.setRequestPointer(getAttribute(paramMap, PassiveRequestorConstants.REQUEST_POINTER));
         sessionDTO.setPolicy(getAttribute(paramMap, PassiveRequestorConstants.POLCY));
         sessionDTO.setReqQueryString(request.getQueryString());
+        sessionDTO.setTenantDomain((getAttribute(paramMap, PassiveRequestorConstants.TENANT_DOMAIN)));
 
         String sessionDataKey = UUIDGenerator.generateUUID();
         addSessionDataToCache(sessionDataKey, sessionDTO, IdPManagementUtil.getIdleSessionTimeOut
