@@ -59,8 +59,6 @@ public class PassiveRequestorConstants {
 
     public static final String PASSIVE_REQ_ATTR_MAP = "passiveReqAttrMap";
 
-    public static final String TENANT_DOMAIN = "tenantDomain";
-
     private PassiveRequestorConstants() {
     }
 }
