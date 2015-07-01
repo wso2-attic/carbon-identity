@@ -1,4 +1,4 @@
-<!--
+<%--
 ~ Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 ~
 ~  WSO2 Inc. licenses this file to you under the Apache License,
@@ -14,7 +14,7 @@
 ~  KIND, either express or implied.  See the License for the
 ~  specific language governing permissions and limitations
 ~  under the License.
--->
+--%>
 
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page import="org.wso2.carbon.identity.application.authentication.endpoint.util.CharacterEncoder"%>
@@ -24,12 +24,13 @@
 <head>
     <title></title>
     <%
-        String authRequest = (String) request.getParameter("data");
+//        String authRequest = CharacterEncoder.getSafeText(request.getParameter("data"));
+        String authRequest = request.getParameter("data");
 
     %>
 
-    <%--<script type="text/javascript" src="js/u2f-api.js"></script>--%>
-    <script type="text/javascript" src="chrome-extension://pfboblefjcgdjicmnffhdgionmgcdmne/u2f-api.js"></script>
+    <script type="text/javascript" src="js/u2f-api.js"></script>
+    <%--<script type="text/javascript" src="chrome-extension://pfboblefjcgdjicmnffhdgionmgcdmne/u2f-api.js"></script>--%>
 
     <script type="text/javascript">
         function talkToDevice(){
@@ -40,7 +41,7 @@
                         function(data) {
                             var form = document.getElementById('form');
                             var reg = document.getElementById('tokenResponse');
-                            reg.value=JSON.stringify(data);
+                            reg.value = JSON.stringify(data);
                             form.submit();
                         });
             }, 1000);

@@ -43,7 +43,11 @@ import org.wso2.carbon.identity.notification.mgt.bean.Subscription;
 import org.wso2.carbon.identity.notification.mgt.email.bean.EmailEndpointInfo;
 import org.wso2.carbon.identity.notification.mgt.email.bean.EmailSubscription;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
 
 /**
@@ -170,7 +174,7 @@ public class EmailSendingModule extends AbstractNotificationSendingModule {
      */
     @Override
     public boolean isSubscribed(PublisherEvent publisherEvent) throws NotificationManagementException {
-        return (publisherEvent != null && subscriptionMap.containsKey(publisherEvent.getEventName()));
+        return publisherEvent != null && subscriptionMap.containsKey(publisherEvent.getEventName());
     }
 
     /**

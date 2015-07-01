@@ -1,22 +1,24 @@
 /*
-*  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 package org.wso2.carbon.identity.scim.provider.impl;
 
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
@@ -37,19 +39,21 @@ import org.wso2.charon.core.encoder.json.JSONEncoder;
 import org.wso2.charon.core.exceptions.CharonException;
 import org.wso2.charon.core.exceptions.FormatNotSupportedException;
 import org.wso2.charon.core.exceptions.UnauthorizedException;
-import org.wso2.charon.core.extensions.*;
+import org.wso2.charon.core.extensions.AuthenticationHandler;
+import org.wso2.charon.core.extensions.AuthenticationInfo;
+import org.wso2.charon.core.extensions.CharonManager;
+import org.wso2.charon.core.extensions.TenantDTO;
+import org.wso2.charon.core.extensions.TenantManager;
+import org.wso2.charon.core.extensions.UserManager;
 import org.wso2.charon.core.protocol.ResponseCodeConstants;
 import org.wso2.charon.core.protocol.endpoints.AbstractResourceEndpoint;
 import org.wso2.charon.core.schema.SCIMConstants;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class IdentitySCIMManager implements CharonManager {
     private static final String INSTANCE = "instance";
-    /*private static AuthenticationHandler authenticationHandler;
-    private static AuthenticationInfo authenticationInfo;*/
     //private TenantManager tenantManager;
     private static Log log = LogFactory.getLog(IdentitySCIMManager.class);
     private static volatile IdentitySCIMManager identitySCIMManager;
@@ -57,7 +61,6 @@ public class IdentitySCIMManager implements CharonManager {
     private static Map<String, Decoder> decoderMap = new HashMap<String, Decoder>();
     private static Map<String, Map> authenticators = new HashMap<String, Map>();
     private static Map<String, String> endpointURLs = new HashMap<String, String>();
-    private static Map<Integer, UserManager> userManagers = new ConcurrentHashMap<Integer, UserManager>();
 
     private IdentitySCIMManager() throws CharonException {
         init();
@@ -105,6 +108,7 @@ public class IdentitySCIMManager implements CharonManager {
         registerEndpointURLs();
     }
 
+    @Override
     public Encoder getEncoder(String format) throws FormatNotSupportedException {
         if (!encoderMap.containsKey(format)) {
             //Error is logged by the caller.
@@ -114,6 +118,7 @@ public class IdentitySCIMManager implements CharonManager {
         return encoderMap.get(format);
     }
 
+    @Override
     public Decoder getDecoder(String format) throws FormatNotSupportedException {
         if (!decoderMap.containsKey(format)) {
             //Error is logged by the caller.
@@ -125,11 +130,12 @@ public class IdentitySCIMManager implements CharonManager {
     }
 
     /*This method is no longer used.*/
+    @Override
     public AuthenticationHandler getAuthenticationHandler(String authMechanism)
             throws CharonException {
-        if (authenticators.size() != 0) {
+        if (MapUtils.isNotEmpty(authenticators)) {
             Map authenticatorProperties = authenticators.get(authMechanism);
-            if (authenticatorProperties != null && authenticatorProperties.size() != 0) {
+            if (MapUtils.isNotEmpty(authenticatorProperties)) {
                 return (AuthenticationHandler) authenticatorProperties.get(INSTANCE);
             }
         }
@@ -137,6 +143,7 @@ public class IdentitySCIMManager implements CharonManager {
         throw new CharonException(error);
     }
 
+    @Override
     public UserManager getUserManager(String userName) throws CharonException {
         SCIMUserManager scimUserManager = null;
         String tenantDomain = MultitenantUtils.getTenantDomain(userName);
@@ -191,7 +198,7 @@ public class IdentitySCIMManager implements CharonManager {
             //get user store manager
         } catch (UserStoreException e) {
             String error = "Error obtaining user realm for the user: " + userName;
-            throw new CharonException(error);
+            throw new CharonException(error, e);
         }
         return scimUserManager;
     }
@@ -250,27 +257,30 @@ public class IdentitySCIMManager implements CharonManager {
             //get user store manager
         } catch (UserStoreException e) {
             String error = "Error obtaining user realm for the user: " + userName;
-            throw new CharonException(error);
+            throw new CharonException(error, e);
         }
         return scimUserManager;
     }
 
+    @Override
     public TenantManager getTenantManager() {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
+    @Override
     public AuthenticationInfo registerTenant(TenantDTO tenantDTO) throws CharonException {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
+    @Override
     public boolean isAuthenticationSupported(String s) {
         return false;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     /*This method is no longer used..*/
+    @Override
     public AuthenticationInfo handleAuthentication(Map<String, String> authHeaderMap)
             throws UnauthorizedException {
-        AuthenticationInfo authInfo = null;
         try {
             String authType = identifyAuthType(authHeaderMap);
             Map authPropertyMap = authenticators.get(authType);
@@ -283,7 +293,10 @@ public class IdentitySCIMManager implements CharonManager {
                 }
             }
         } catch (CharonException e) {
-            throw new UnauthorizedException();
+            if (log.isDebugEnabled()) {
+                log.debug("CharonException in handle authentication. ", e);
+            }
+            throw new UnauthorizedException("Error in handling authentication");
         }
         throw new UnauthorizedException();
     }
@@ -306,7 +319,7 @@ public class IdentitySCIMManager implements CharonManager {
     }
 
     private void registerEndpointURLs() {
-        if (endpointURLs != null && endpointURLs.size() != 0) {
+        if (MapUtils.isNotEmpty(endpointURLs)) {
             AbstractResourceEndpoint.registerResourceEndpointURLs(endpointURLs);
         }
     }

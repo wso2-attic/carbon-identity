@@ -1,30 +1,31 @@
 /*
- *Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- *WSO2 Inc. licenses this file to you under the Apache License,
- *Version 2.0 (the "License"); you may not use this file except
- *in compliance with the License.
- *You may obtain a copy of the License at
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *Unless required by applicable law or agreed to in writing,
- *software distributed under the License is distributed on an
- *"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *KIND, either express or implied.  See the License for the
- *specific language governing permissions and limitations
- *under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
-
 package org.wso2.carbon.identity.application.common.model;
 
 import org.apache.axiom.om.OMElement;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 public class ServiceProvider implements Serializable {
 
@@ -72,38 +73,38 @@ public class ServiceProvider implements Serializable {
             OMElement element = (OMElement) (iter.next());
             String elementName = element.getLocalName();
 
-            if (elementName.equals("ApplicationID")) {
+            if ("ApplicationID".equals(elementName)) {
                 if (element.getText() != null) {
                     serviceProvider.setApplicationID(Integer.parseInt(element.getText()));
                 }
-            } else if (elementName.equals("ApplicationName")) {
+            } else if ("ApplicationName".equals(elementName)) {
                 if (element.getText() != null) {
                     serviceProvider.setApplicationName(element.getText());
                 } else {
                     log.error("Service provider not loaded from the file. Application Name is null.");
                     return null;
                 }
-            } else if (elementName.equals("Description")) {
+            } else if ("Description".equals(elementName)) {
                 serviceProvider.setDescription(element.getText());
-            } else if (elementName.equals("IsSaaSApp")) {
+            } else if ("IsSaaSApp".equals(elementName)) {
                 if (element.getText() != null && "true".equals(element.getText())) {
                     serviceProvider.setSaasApp(true);
                 } else {
                     serviceProvider.setSaasApp(false);
                 }
-            } else if (elementName.equals("Owner")) {
+            } else if ("Owner".equals(elementName)) {
                 // build service provider owner.
                 serviceProvider.setOwner(User.build(element));
-            } else if (elementName.equals("InboundAuthenticationConfig")) {
+            } else if ("InboundAuthenticationConfig".equals(elementName)) {
                 // build in-bound authentication configuration.
                 serviceProvider.setInboundAuthenticationConfig(InboundAuthenticationConfig
                         .build(element));
-            } else if (elementName.equals("LocalAndOutBoundAuthenticationConfig")) {
+            } else if ("LocalAndOutBoundAuthenticationConfig".equals(elementName)) {
                 // build local and out-bound authentication configuration.
                 serviceProvider
                         .setLocalAndOutBoundAuthenticationConfig(LocalAndOutboundAuthenticationConfig
                                 .build(element));
-            } else if (elementName.equals("RequestPathAuthenticatorConfigs")) {
+            } else if ("RequestPathAuthenticatorConfigs".equals(elementName)) {
                 // build request-path authentication configurations.
                 Iterator<?> requestPathAuthenticatorConfigsIter = element.getChildElements();
 
@@ -111,7 +112,7 @@ public class ServiceProvider implements Serializable {
                     continue;
                 }
 
-                ArrayList<RequestPathAuthenticatorConfig> requestPathAuthenticatorConfigsArrList;
+                List<RequestPathAuthenticatorConfig> requestPathAuthenticatorConfigsArrList;
                 requestPathAuthenticatorConfigsArrList = new ArrayList<RequestPathAuthenticatorConfig>();
 
                 while (requestPathAuthenticatorConfigsIter.hasNext()) {
@@ -126,7 +127,7 @@ public class ServiceProvider implements Serializable {
                     }
                 }
 
-                if (requestPathAuthenticatorConfigsArrList.size() > 0) {
+                if (CollectionUtils.isNotEmpty(requestPathAuthenticatorConfigsArrList)) {
                     // add to the service provider, only if we have any.
                     RequestPathAuthenticatorConfig[] requestPathAuthenticatorConfigsArr;
                     requestPathAuthenticatorConfigsArr = requestPathAuthenticatorConfigsArrList
@@ -135,18 +136,18 @@ public class ServiceProvider implements Serializable {
                             .setRequestPathAuthenticatorConfigs(requestPathAuthenticatorConfigsArr);
                 }
 
-            } else if (elementName.equals("InboundProvisioningConfig")) {
+            } else if ("InboundProvisioningConfig".equals(elementName)) {
                 // build in-bound provisioning configuration.
                 serviceProvider.setInboundProvisioningConfig(InboundProvisioningConfig
                         .build(element));
-            } else if (elementName.equals("OutboundProvisioningConfig")) {
+            } else if ("OutboundProvisioningConfig".equals(elementName)) {
                 // build out-bound provisioning configuration.
                 serviceProvider.setOutboundProvisioningConfig(OutboundProvisioningConfig
                         .build(element));
-            } else if (elementName.equals("ClaimConfig")) {
+            } else if ("ClaimConfig".equals(elementName)) {
                 // build claim configuration.
                 serviceProvider.setClaimConfig(ClaimConfig.build(element));
-            } else if (elementName.equals("PermissionAndRoleConfig")) {
+            } else if ("PermissionAndRoleConfig".equals(elementName)) {
                 // build permission and role configuration.
                 serviceProvider.setPermissionAndRoleConfig(PermissionsAndRoleConfig.build(element));
             }

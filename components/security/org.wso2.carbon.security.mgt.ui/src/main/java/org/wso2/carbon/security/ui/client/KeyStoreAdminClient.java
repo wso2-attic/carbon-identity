@@ -1,20 +1,21 @@
 /*
-*  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 package org.wso2.carbon.security.ui.client;
 
 import org.apache.axiom.om.util.Base64;
@@ -23,11 +24,26 @@ import org.apache.axis2.client.ServiceClient;
 import org.apache.axis2.context.ConfigurationContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.security.mgt.stub.keystore.*;
+import org.wso2.carbon.security.mgt.stub.keystore.AddKeyStore;
+import org.wso2.carbon.security.mgt.stub.keystore.DeleteStore;
+import org.wso2.carbon.security.mgt.stub.keystore.GetKeyStoresResponse;
+import org.wso2.carbon.security.mgt.stub.keystore.GetKeystoreInfo;
+import org.wso2.carbon.security.mgt.stub.keystore.GetKeystoreInfoResponse;
+import org.wso2.carbon.security.mgt.stub.keystore.GetPaginatedKeystoreInfo;
+import org.wso2.carbon.security.mgt.stub.keystore.GetPaginatedKeystoreInfoResponse;
+import org.wso2.carbon.security.mgt.stub.keystore.GetStoreEntries;
+import org.wso2.carbon.security.mgt.stub.keystore.GetStoreEntriesResponse;
+import org.wso2.carbon.security.mgt.stub.keystore.ImportCertToStore;
+import org.wso2.carbon.security.mgt.stub.keystore.KeyStoreAdminServiceStub;
+import org.wso2.carbon.security.mgt.stub.keystore.RemoveCertFromStore;
 import org.wso2.carbon.security.mgt.stub.keystore.xsd.KeyStoreData;
 import org.wso2.carbon.security.mgt.stub.keystore.xsd.PaginatedKeyStoreData;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.security.KeyStore;
 import java.util.Enumeration;
 
@@ -47,7 +63,7 @@ public class KeyStoreAdminClient {
             option.setManageSession(true);
             option.setProperty(org.apache.axis2.transport.http.HTTPConstants.COOKIE_STRING, cookie);
         } catch (java.lang.Exception e) {
-            log.error(e);
+            log.error("Error in creating KeyStoreAdminClient", e);
             throw e;
         }
 
@@ -58,7 +74,7 @@ public class KeyStoreAdminClient {
             GetKeyStoresResponse response = stub.getKeyStores();
             return response.get_return();
         } catch (java.lang.Exception e) {
-            log.error(e);
+            log.error("Error in getting keystore data", e);
             throw e;
         }
     }
@@ -76,7 +92,7 @@ public class KeyStoreAdminClient {
             request.setPvtkeyPass(pvtkspass);
             stub.addKeyStore(request);
         } catch (java.lang.Exception e) {
-            log.error(e);
+            log.error("Error in adding keystore", e);
             throw e;
         }
     }
@@ -87,7 +103,7 @@ public class KeyStoreAdminClient {
             request.setKeyStoreName(keyStoreName);
             stub.deleteStore(request);
         } catch (java.lang.Exception e) {
-            log.error(e);
+            log.error("Error in deleting keystore", e);
             throw e;
         }
     }
@@ -102,7 +118,7 @@ public class KeyStoreAdminClient {
             request.setKeyStoreName(keyStoreName);
             stub.importCertToStore(request);
         } catch (java.lang.Exception e) {
-            log.error(e);
+            log.error("Error in importing cert to store.", e);
             throw e;
         }
     }
@@ -114,7 +130,7 @@ public class KeyStoreAdminClient {
             GetStoreEntriesResponse response = stub.getStoreEntries(request);
             return response.get_return();
         } catch (java.lang.Exception e) {
-            log.error(e);
+            log.error("Error in getting store entries.", e);
             throw e;
         }
     }
@@ -148,7 +164,7 @@ public class KeyStoreAdminClient {
             is.close();
             return bytes;
         } catch (java.lang.Exception e) {
-            log.error(e);
+            log.error("Error in getting bytes from file.", e);
             throw e;
         }
     }
@@ -170,7 +186,7 @@ public class KeyStoreAdminClient {
             }
             return isPrivateStore;
         } catch (java.lang.Exception e) {
-            log.error(e);
+            log.error("Error in checking private key store.", e);
             throw e;
         }
     }
@@ -182,7 +198,7 @@ public class KeyStoreAdminClient {
             GetKeystoreInfoResponse response = stub.getKeystoreInfo(request);
             return response.get_return();
         } catch (java.lang.Exception e) {
-            log.error(e);
+            log.error("Error in getting keystore info.", e);
             throw e;
         }
     }
@@ -194,7 +210,7 @@ public class KeyStoreAdminClient {
         try {
             stub.removeCertFromStore(request);
         } catch (java.lang.Exception e) {
-            log.error(e);
+            log.error("Error in removing certificate from keystore.", e);
             throw e;
         }
     }
@@ -208,7 +224,7 @@ public class KeyStoreAdminClient {
             GetPaginatedKeystoreInfoResponse response = stub.getPaginatedKeystoreInfo(request);
             return response.get_return();
         } catch (java.lang.Exception e) {
-            log.error(e);
+            log.error("Error in getting paginated keystore info.", e);
             throw e;
         }
     }

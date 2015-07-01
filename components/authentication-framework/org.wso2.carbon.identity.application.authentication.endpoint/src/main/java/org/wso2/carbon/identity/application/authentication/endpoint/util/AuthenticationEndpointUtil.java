@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- *  WSO2 Inc. licenses this file to you under the Apache License,
- *  Version 2.0 (the "License"); you may not use this file except
- *  in compliance with the License.
- *  You may obtain a copy of the License at
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -33,11 +33,11 @@ public class AuthenticationEndpointUtil {
      * Returns the application specific custom page configuration servlet context parameter key given the service
      * provider name and the relative URL path.
      *
-     * @param serviceProviderName   name of the service provider configured at IdP
-     * @param relativePath          relative URL path
-     * @return                      the possible servlet context parameter key configured for the given application
+     * @param serviceProviderName name of the service provider configured at IdP
+     * @param relativePath        relative URL path
+     * @return the possible servlet context parameter key configured for the given application
      */
-    public static String getApplicationSpecificCustomPageConfigKey(String serviceProviderName, String relativePath){
+    public static String getApplicationSpecificCustomPageConfigKey(String serviceProviderName, String relativePath) {
         return serviceProviderName + CUSTOM_PAGE_APP_SPECIFIC_CONFIG_KEY_SEPARATOR + relativePath;
     }
 
@@ -47,9 +47,9 @@ public class AuthenticationEndpointUtil {
      *
      * @param customPageConfigValue configured custom page url value as a servlet context param
      * @param queryString           query string of the incoming request
-     * @return                      redirect url of the custom page configuration
+     * @return redirect url of the custom page configuration
      */
-    public static String getCustomPageRedirectUrl(String customPageConfigValue, String queryString){
+    public static String getCustomPageRedirectUrl(String customPageConfigValue, String queryString) {
 
         String redirectUrl = customPageConfigValue;
         if (customPageConfigValue != null && queryString != null && !queryString.isEmpty()) {

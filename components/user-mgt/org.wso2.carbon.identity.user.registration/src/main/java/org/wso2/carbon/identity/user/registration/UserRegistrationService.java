@@ -1,20 +1,21 @@
 /*
- *  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- *  WSO2 Inc. licenses this file to you under the Apache License,
- *  Version 2.0 (the "License"); you may not use this file except
- *  in compliance with the License.
- *  You may obtain a copy of the License at
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
+ * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.wso2.carbon.identity.user.registration;
 
 import org.apache.commons.logging.Log;
@@ -38,7 +39,11 @@ import org.wso2.carbon.identity.user.registration.dto.UserFieldDTO;
 import org.wso2.carbon.registry.core.Registry;
 import org.wso2.carbon.registry.core.Resource;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
-import org.wso2.carbon.user.core.*;
+import org.wso2.carbon.user.core.Permission;
+import org.wso2.carbon.user.core.UserCoreConstants;
+import org.wso2.carbon.user.core.UserRealm;
+import org.wso2.carbon.user.core.UserStoreException;
+import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.claim.Claim;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.user.mgt.UserMgtConstants;
@@ -51,11 +56,15 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class UserRegistrationService {
 
-    private static Log log = LogFactory.getLog(UserRegistrationService.class);
+    private static final Log log = LogFactory.getLog(UserRegistrationService.class);
 
     /**
      * This service method will return back all available password validation regular expressions
@@ -204,7 +213,7 @@ public class UserRegistrationService {
             // get config from tenant registry
             TenantRegistrationConfig tenantConfig = getTenantSignUpConfig(realm.getUserStoreManager().getTenantId());
             // set tenant config specific sign up domain
-            if (tenantConfig != null && tenantConfig.getSignUpDomain() != "") {
+            if (tenantConfig != null && !"".equals(tenantConfig.getSignUpDomain())) {
                 int index = userName.indexOf(UserCoreConstants.DOMAIN_SEPARATOR);
                 if (index > 0) {
                     userName = tenantConfig.getSignUpDomain().toUpperCase() + UserCoreConstants.DOMAIN_SEPARATOR + userName.substring(index + 1);
@@ -214,17 +223,14 @@ public class UserRegistrationService {
             }
 
             // add user to the relevant user store
-            if (realm != null) {
-                admin = realm.getUserStoreManager();
-                if (!isUserNameWithAllowedDomainName(userName, realm)) {
-                    throw new IdentityException("Domain does not permit self registration");
-                }
-                // add user
-                admin.addUser(userName, password, null, claimList, profileName);
 
-            } else {
-                throw new IdentityException("Domain is inactive.");
+            admin = realm.getUserStoreManager();
+            if (!isUserNameWithAllowedDomainName(userName, realm)) {
+                throw new IdentityException("Domain does not permit self registration");
             }
+            // add user
+            admin.addUser(userName, password, null, claimList, profileName);
+
 
             // after adding the user, assign specif roles
             List<String> roleNamesArr = getRoleName(userName, tenantConfig);
@@ -242,22 +248,29 @@ public class UserRegistrationService {
 
             for (int i = 0; i < identityRoleNames.length; i++) {
                 // if this is the first time a user signs up, needs to create role
-                try {
-                    if (!admin.isExistingRole(identityRoleNames[i], false)) {
-                        permission = new Permission("/permission/admin/login", UserMgtConstants.EXECUTE_ACTION);
-                        admin.addRole(identityRoleNames[i], new String[]{userName}, new Permission[]{permission}, false);
-                    } else {
-                        // if role already exists, just add user to role
-                        admin.updateUserListOfRole(identityRoleNames[i], new String[]{}, new String[]{userName});
-                    }
-                } catch (org.wso2.carbon.user.api.UserStoreException e) {
-                    // If something goes wrong here - then remove the already added user.
-                    admin.deleteUser(userName);
-                    throw new IdentityException("Error occurred while adding user : " + userName, e);
-                }
+                doAddUser(i,admin, identityRoleNames,userName,permission);
             }
+
         } catch (UserStoreException e) {
-            throw new IdentityException("Error occurred while adding user : " + userName, e);
+            throw new IdentityException("Error occurred while adding user : " + userName + ". " + e.getMessage(), e);
+        }
+    }
+
+    private void doAddUser(int i, UserStoreManager admin, String[] identityRoleNames, String userName,Permission
+            permission) throws IdentityException, UserStoreException {
+        try {
+            if (!admin.isExistingRole(identityRoleNames[i], false)) {
+                permission = new Permission("/permission/admin/login", UserMgtConstants.EXECUTE_ACTION);
+                admin.addRole(identityRoleNames[i], new String[]{userName}, new Permission[]{permission}, false);
+            } else {
+                // if role already exists, just add user to role
+                admin.updateUserListOfRole(identityRoleNames[i], new String[]{}, new String[]{userName});
+            }
+        } catch (org.wso2.carbon.user.api.UserStoreException e) {
+            // If something goes wrong here - then remove the already added user.
+            admin.deleteUser(userName);
+            throw new IdentityException("Error occurred while adding user : " + userName + ". " +
+                    e.getMessage(), e);
         }
     }
 
@@ -283,7 +296,7 @@ public class UserRegistrationService {
     private List<String> getRoleName(String userName, TenantRegistrationConfig tenantConfig) {
         // check for tenant config, if available return roles specified in tenant config
         if (tenantConfig != null) {
-            ArrayList<String> roleNamesArr = new ArrayList<String>();
+            List<String> roleNamesArr = new ArrayList<String>();
             Map<String, Boolean> roles = tenantConfig.getRoles();
             for (Map.Entry<String, Boolean> entry : roles.entrySet()) {
                 String roleName;
@@ -313,7 +326,6 @@ public class UserRegistrationService {
         }
 
         if (domainName != null && domainName.trim().length() > 0) {
-            //roleName = UserCoreUtil.addDomainToName(roleName, domainName);
             roleName = domainName.toUpperCase() + CarbonConstants.DOMAIN_SEPARATOR + roleName;
         }
 
@@ -336,7 +348,6 @@ public class UserRegistrationService {
                 String configXml = new String((byte[]) resource.getContent());
                 InputSource configInputSource = new InputSource();
                 configInputSource.setCharacterStream(new StringReader(configXml.trim()));
-                //ByteArrayInputStream configInput = new ByteArrayInputStream(configXml.getBytes("utf-8"));
                 Document doc = builder.parse(configInputSource);
                 nodes = doc.getElementsByTagName(SelfRegistrationConstants.SELF_SIGN_UP_ELEMENT);
                 if (nodes.getLength() > 0) {

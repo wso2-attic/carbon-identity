@@ -1,19 +1,19 @@
 /*
- *Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- *WSO2 Inc. licenses this file to you under the Apache License,
- *Version 2.0 (the "License"); you may not use this file except
- *in compliance with the License.
- *You may obtain a copy of the License at
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *Unless required by applicable law or agreed to in writing,
- *software distributed under the License is distributed on an
- *"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *KIND, either express or implied.  See the License for the
- *specific language governing permissions and limitations
- *under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package org.wso2.carbon.identity.application.mgt;
@@ -38,19 +38,23 @@ import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.user.mgt.UserMgtConstants;
-import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class ApplicationMgtUtil {
 
     public static final String APPLICATION_ROOT_PERMISSION = "applications";
     public static final String PATH_CONSTANT = RegistryConstants.PATH_SEPARATOR;
-    private static final ArrayList<String> paths = new ArrayList<String>();
+    private static final List<String> paths = new ArrayList<String>();
     private static String applicationNode;
 
     private static Log log = LogFactory.getLog(ApplicationMgtUtil.class);
+
+    private ApplicationMgtUtil() {
+    }
 
     public static org.wso2.carbon.user.api.Permission[] buildPermissions(String applicationName,
                                                                          String[] permissions) {
@@ -92,6 +96,11 @@ public class ApplicationMgtUtil {
         String applicationRoleName = UserCoreUtil.addInternalDomainName(applicationName);
 
         try {
+            if (log.isDebugEnabled()) {
+                log.debug("Checking whether user has role : " + applicationRoleName + " by retrieving role list of " +
+                        "user " +
+                        ": " + user);
+            }
             String[] userRoles = CarbonContext.getThreadLocalCarbonContext().getUserRealm()
                     .getUserStoreManager().getRoleListOfUser(user);
             for (String userRole : userRoles) {
@@ -132,10 +141,13 @@ public class ApplicationMgtUtil {
     public static void createAppRole(String applicationName) throws IdentityApplicationManagementException {
         String roleName = UserCoreUtil.addInternalDomainName(applicationName);
         String qualifiedUsername = CarbonContext.getThreadLocalCarbonContext().getUsername();
-        String[] user = {MultitenantUtils.getTenantAwareUsername(qualifiedUsername)};
+        String[] user = {qualifiedUsername};
 
         try {
             // create a role for the application and assign the user to that role.
+            if (log.isDebugEnabled()) {
+                log.debug("Creating application role : " + roleName + " and assign the user : " + Arrays.toString(user) + " to that role");
+            }
             CarbonContext.getThreadLocalCarbonContext().getUserRealm().getUserStoreManager()
                     .addRole(roleName, user, null);
         } catch (UserStoreException e) {
@@ -154,6 +166,9 @@ public class ApplicationMgtUtil {
         String roleName = UserCoreUtil.addInternalDomainName(applicationName);
 
         try {
+            if (log.isDebugEnabled()) {
+                log.debug("Deleting application role : " + roleName);
+            }
             CarbonContext.getThreadLocalCarbonContext().getUserRealm().getUserStoreManager()
                     .deleteRole(roleName);
         } catch (UserStoreException e) {
@@ -168,6 +183,10 @@ public class ApplicationMgtUtil {
      */
     public static void renameRole(String oldName, String newName) throws UserStoreException {
 
+        if (log.isDebugEnabled()) {
+            log.debug("Renaming application role : " + UserCoreUtil.addInternalDomainName(oldName)
+                    + " to new role : " + UserCoreUtil.addInternalDomainName(newName));
+        }
         CarbonContext
                 .getThreadLocalCarbonContext()
                 .getUserRealm()
@@ -175,6 +194,38 @@ public class ApplicationMgtUtil {
                 .updateRoleName(UserCoreUtil.addInternalDomainName(oldName),
                         UserCoreUtil.addInternalDomainName(newName));
 
+    }
+
+    /**
+     * Rename the registry path node name for a deleted Service provider role.
+     *
+     * @param oldName
+     * @param newName
+     * @throws IdentityApplicationManagementException
+     */
+    public static void renameAppPermissionPathNode(String oldName, String newName)
+            throws IdentityApplicationManagementException {
+
+        List<ApplicationPermission> loadPermissions = loadPermissions(oldName);
+        String newApplicationNode = ApplicationMgtUtil.getApplicationPermissionPath() + PATH_CONSTANT + oldName;
+        Registry tenantGovReg = CarbonContext.getThreadLocalCarbonContext().getRegistry(
+                RegistryType.USER_GOVERNANCE);
+        //creating new application node
+        try {
+            for (ApplicationPermission applicationPermission : loadPermissions) {
+                tenantGovReg.delete(newApplicationNode + PATH_CONSTANT + applicationPermission.getValue());
+            }
+            tenantGovReg.delete(newApplicationNode);
+            Collection permissionNode = tenantGovReg.newCollection();
+            permissionNode.setProperty("name", newName);
+            newApplicationNode = ApplicationMgtUtil.getApplicationPermissionPath() + PATH_CONSTANT + newName;
+            ApplicationMgtUtil.applicationNode = newApplicationNode;
+            tenantGovReg.put(newApplicationNode, permissionNode);
+            addPermission(loadPermissions.toArray(new ApplicationPermission[loadPermissions.size()]), tenantGovReg);
+        } catch (RegistryException e) {
+            throw new IdentityApplicationManagementException("Error while renaming permission node "
+                    + oldName + "to " + newName, e);
+        }
     }
 
     /**
@@ -272,7 +323,7 @@ public class ApplicationMgtUtil {
                 tenantGovReg.delete(applicationNode);
             }
 
-            if (permissions == null) {
+            if (permissions == null || permissions.length == 0) {
                 return;
             }
 
@@ -295,10 +346,12 @@ public class ApplicationMgtUtil {
 
     }
 
-    private static void addPermission(ApplicationPermission[] permissions, Registry tenantGovReg) throws RegistryException {
+    private static void addPermission(ApplicationPermission[] permissions, Registry tenantGovReg) throws
+            RegistryException {
         for (ApplicationPermission permission : permissions) {
             String permissionValue = permission.getValue();
-            if (permissionValue.substring(0, 1).equals("/")) {         //if permissions are starts with slash remove that
+
+            if ("/".equals(permissionValue.substring(0, 1))) {         //if permissions are starts with slash remove that
                 permissionValue = permissionValue.substring(1);
             }
             String[] splitedPermission = permissionValue.split("/");
@@ -331,11 +384,26 @@ public class ApplicationMgtUtil {
             boolean exist = tenantGovReg.resourceExists(applicationNode);
 
             if (!exist) {
-                return null;
+                return Collections.emptyList();
             }
 
+            boolean loggedInUserChanged = false;
+            String loggedInUser = CarbonContext.getThreadLocalCarbonContext().getUsername();
+
+            UserRealm realm = (UserRealm) CarbonContext.getThreadLocalCarbonContext().getUserRealm();
+            if (loggedInUser == null || !realm.getAuthorizationManager().isUserAuthorized(
+                    loggedInUser, applicationNode, UserMgtConstants.EXECUTE_ACTION)) {
+                //Logged in user is not authorized to read the permission.
+                // Temporarily change the user to the admin for reading the permission
+                PrivilegedCarbonContext.getThreadLocalCarbonContext().setUsername(
+                        realm.getRealmConfiguration().getAdminUserName());
+                tenantGovReg = CarbonContext.getThreadLocalCarbonContext()
+                        .getRegistry(RegistryType.USER_GOVERNANCE);
+                loggedInUserChanged = true;
+            }
+
+
             paths.clear();             //clear current paths
-            Collection appCollection = (Collection) tenantGovReg.get(applicationNode);
             List<ApplicationPermission> permissions = new ArrayList<ApplicationPermission>();
 
 
@@ -348,10 +416,14 @@ public class ApplicationMgtUtil {
                 permissions.add(permission);
             }
 
+            if (loggedInUserChanged) {
+                PrivilegedCarbonContext.getThreadLocalCarbonContext().setUsername(loggedInUser);
+            }
+
             return permissions;
 
-        } catch (RegistryException e) {
-            throw new IdentityApplicationManagementException("Error while storing permissions", e);
+        } catch (RegistryException | org.wso2.carbon.user.core.UserStoreException e) {
+            throw new IdentityApplicationManagementException("Error while reading permissions", e);
         }
     }
 

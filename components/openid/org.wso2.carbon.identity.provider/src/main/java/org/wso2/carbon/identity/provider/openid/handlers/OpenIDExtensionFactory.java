@@ -1,17 +1,19 @@
 /*
- * Copyright 2005-2008 WSO2, Inc. (http://wso2.com)
+ * Copyright (c) 2005-2008, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package org.wso2.carbon.identity.provider.openid.handlers;
@@ -50,24 +52,23 @@ public class OpenIDExtensionFactory {
     /**
      * Create an instance of the OpenIDExtension based on the OpenID extension type
      *
-     * @param alias Extension alias
-     * @param auth  AuthRequest instance
+     * @param request  OpenIDAuthenticationRequest instance
      * @return Appropriate OpenIDExtension instance
-     * @throws IdentityProviderException
+     * @throws IdentityException
      */
     public OpenIDExtension getExtension(OpenIDAuthenticationRequest request)
             throws IdentityException {
 
-        if (request == null)
+        if (request == null) {
             return null;
+        }
 
         String alias = request.getExtensionAlias();
 
         if (AxMessage.OPENID_NS_AX.equals(alias) || ExchangeAttributes.NS_AX.equals(alias)) {
             return new OpenIDAttributeExchange(request);
-        } else if (SimpleRegAttributes.NS_SREG.equals(alias)
-                || SRegMessage.OPENID_NS_SREG.equals(alias)
-                || SimpleRegAttributes.NS_SREG_1.equals(alias)) {
+        } else if (SimpleRegAttributes.NS_SREG.equals(alias) || SRegMessage.OPENID_NS_SREG.equals(alias) ||
+                   SimpleRegAttributes.NS_SREG_1.equals(alias)) {
             return new OpenIDSimpleReg(request);
         } else if (PapeMessage.OPENID_NS_PAPE.equals(alias)) {
             return new OpenIDPape(request);

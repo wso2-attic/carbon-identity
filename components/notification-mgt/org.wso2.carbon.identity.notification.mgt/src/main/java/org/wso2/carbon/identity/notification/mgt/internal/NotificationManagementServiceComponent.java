@@ -22,7 +22,11 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.service.component.ComponentContext;
-import org.wso2.carbon.identity.notification.mgt.*;
+import org.wso2.carbon.identity.notification.mgt.NotificationManagementException;
+import org.wso2.carbon.identity.notification.mgt.NotificationMgtConfigBuilder;
+import org.wso2.carbon.identity.notification.mgt.NotificationMgtConstants;
+import org.wso2.carbon.identity.notification.mgt.NotificationSender;
+import org.wso2.carbon.identity.notification.mgt.NotificationSendingModule;
 import org.wso2.carbon.identity.notification.mgt.bean.ModuleConfiguration;
 
 import javax.mail.MessageRemovedException;
@@ -99,8 +103,8 @@ public class NotificationManagementServiceComponent {
                 log.debug("Notification Management bundle is activated");
             }
             // Catch throwable since there may be run time exceptions.
-        } catch (Throwable t) {
-            log.error("Error while initiating Notification Management component", t);
+        } catch (Throwable e) {
+            log.error("Error while initiating Notification Management component", e);
         }
     }
 
@@ -139,7 +143,7 @@ public class NotificationManagementServiceComponent {
             module.init(moduleConfiguration);
             notificationSendingModules.add(module);
         } catch (NotificationManagementException e) {
-            log.error("Error while initializing Notification sending module " + module.getModuleName());
+            log.error("Error while initializing Notification sending module " + module.getModuleName(), e);
         }
     }
 

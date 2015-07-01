@@ -21,17 +21,19 @@
 			required to skip schema initialization during the server start up, set the 
 			following property to "true". -->
 		<!-- <SkipDBSchemaCreation>false</SkipDBSchemaCreation> -->
-		<!--SessionDataPersist>
-			<Enable>true</Enable>
-			<RememberMePeriod>20160</RememberMePeriod>
-			<CleanUp>
-				<Enable>true</Enable>
-					<Period>1</Period>
-					<TimeOut>20160</TimeOut-->
-			<!--/CleanUp>
-			<Temporary>false</Temporary-->
-		<!--/SessionDataPersist-->
+        <!--SessionDataPersist>
+            <Enable>true</Enable>
+            <EnableCleanUp>true</EnableCleanUp>
+            <Temporary>false</Temporary-->
+        <!--/SessionDataPersist-->
 	</JDBCPersistenceManager>
+
+    <TimeConfig>
+        <SessionIdleTimeout>15</SessionIdleTimeout><!-- Minutes -->
+        <RememberMeTimeout>20160</RememberMeTimeout><!-- Minutes -->
+        <PersistanceCleanUpTimeout>20160</PersistanceCleanUpTimeout><!-- Minutes -->
+        <PersistanceCleanUpPeriod>1140</PersistanceCleanUpPeriod><!-- Minutes -->
+    </TimeConfig>
 
 	<!-- Security configurations -->
 	<Security>
@@ -80,6 +82,10 @@
 	</OpenID>
 
 	<OAuth>
+        <AppInfoCacheTimeout>-1</AppInfoCacheTimeout>
+        <AuthorizationGrantCacheTimeout>-1</AuthorizationGrantCacheTimeout>
+        <SessionDataCacheTimeout>-1</SessionDataCacheTimeout>
+        <ClaimCacheTimeout>-1</ClaimCacheTimeout>
 		<RequestTokenUrl>https://localhost:9443/oauth/request-token</RequestTokenUrl>
 		<AccessTokenUrl>https://localhost:9443/oauth/access-token</AccessTokenUrl>
 		<AuthorizeUrl>https://localhost:9443/oauth/authorize-url</AuthorizeUrl>
@@ -205,6 +211,8 @@
 	</MultifactorAuthentication>
 
 	<SSOService>
+        <PersistanceCacheTimeout>157680000</PersistanceCacheTimeout>
+        <SessionIndexCacheTimeout>157680000</SessionIndexCacheTimeout>
 		<EntityId>localhost</EntityId>
 		<IdentityProviderURL>https://localhost:9443/samlsso</IdentityProviderURL>
 		<SingleLogoutRetryCount>5</SingleLogoutRetryCount>
@@ -239,7 +247,7 @@
 			<Enable>true</Enable>
 		</AttributeCaching>
 		<ThirftBasedEntitlementConfig>
-			<EnableThriftService>true</EnableThriftService>
+            		<EnableThriftService>false</EnableThriftService>
 			<ReceivePort>${Ports.ThriftEntitlementReceivePort}</ReceivePort>
 			<ClientTimeout>10000</ClientTimeout>
 			<KeyStore>

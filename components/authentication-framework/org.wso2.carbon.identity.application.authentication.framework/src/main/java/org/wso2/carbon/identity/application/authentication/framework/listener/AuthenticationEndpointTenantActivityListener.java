@@ -1,20 +1,20 @@
 /*
-* Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-* WSO2 Inc. licenses this file to you under the Apache License,
-* Version 2.0 (the "License"); you may not use this file except
-* in compliance with the License.
-* You may obtain a copy of the License at
-*
-* http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied. See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ * Copyright (c) 2013, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 
 package org.wso2.carbon.identity.application.authentication.framework.listener;
 
@@ -147,12 +147,12 @@ public class AuthenticationEndpointTenantActivityListener implements TenantMgtLi
         if (!initialized) {
             if (log.isDebugEnabled()) {
                 log.debug("AuthenticationEndpointTenantActivityListener is not initialized. Tenant list not sent " +
-                        "to authentication endpoint");
+                          "to authentication endpoint");
             }
             return;
         }
 
-        if (tenantDataReceiveURLs != null && tenantDataReceiveURLs.size() > 0) {
+        if (tenantDataReceiveURLs != null && !tenantDataReceiveURLs.isEmpty()) {
             Tenant[] tenants = new Tenant[0];
             try {
                 tenants = tenantManager.getAllTenants();
@@ -163,10 +163,10 @@ public class AuthenticationEndpointTenantActivityListener implements TenantMgtLi
             // Add only the active tenants to the list
             for (Tenant tenant : tenants) {
                 if (tenant.isActive()) {
-                    tenantDataReceiverUrlBuilder.append(tenant.getDomain() + TENANT_LIST_DATA_SEPARATOR);
+                    tenantDataReceiverUrlBuilder.append(tenant.getDomain()).append(TENANT_LIST_DATA_SEPARATOR);
                 }
             }
-            if (tenantDataReceiverUrlBuilder.toString().length() > 0) {
+            if (!tenantDataReceiverUrlBuilder.toString().isEmpty()) {
                 // Delete data separator at the last index
                 tenantDataReceiverUrlBuilder.deleteCharAt(tenantDataReceiverUrlBuilder.toString().length() - 1);
             }
@@ -214,32 +214,32 @@ public class AuthenticationEndpointTenantActivityListener implements TenantMgtLi
 
     @Override
     public void onTenantCreate(TenantInfoBean tenantInfoBean) throws StratosException {
-
+        /* Method not implemented */
     }
 
     @Override
     public void onTenantUpdate(TenantInfoBean tenantInfoBean) throws StratosException {
-
+        /* Method not implemented */
     }
 
     @Override
     public void onPreDelete(int tenantId) throws StratosException {
-
+        /* Method not implemented */
     }
 
     @Override
     public void onTenantDelete(int tenantId) {
-
+        /* Method not implemented */
     }
 
     @Override
     public void onTenantRename(int tenantId, String oldDomainName, String newDomainName) throws StratosException {
-
+        /* Method not implemented */
     }
 
     @Override
     public void onSubscriptionPlanChange(int tenentId, String oldPlan, String newPlan) throws StratosException {
-
+        /* Method not implemented */
     }
 
     @Override

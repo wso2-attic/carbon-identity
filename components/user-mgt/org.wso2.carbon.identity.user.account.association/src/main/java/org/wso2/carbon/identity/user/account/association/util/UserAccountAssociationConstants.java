@@ -1,26 +1,30 @@
 /*
-*  Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.wso2.carbon.identity.user.account.association.util;
 
 public class UserAccountAssociationConstants {
 
+
     public static final String PRIMARY_USER_DOMAIN = "PRIMARY";
     public static final String LOGIN_PERMISSION = "/permission/admin/login";
+
+    private UserAccountAssociationConstants(){
+
+    }
 
     public enum ErrorMessages {
 
@@ -58,7 +62,15 @@ public class UserAccountAssociationConstants {
         ERROR_RETRIEVE_REMOTE_ADDRESS(8530, "Error occurred while retrieving remote address from the request"),
         ACCOUNT_SWITCHING_ERROR(8531, "Error occurred while switching the user account"),
         CONN_SWITCH_DB_ERROR(8532, "Database error occurred while switching the user account"),
-        SAME_ACCOUNT_CONNECTING_ERROR(8533, "User can not associate logged in user account to itself");
+        SAME_ACCOUNT_CONNECTING_ERROR(8533, "User can not associate logged in user account to itself"),
+        ERROR_UPDATE_DOMAIN_NAME(8534, "Database error occurred while updating user domain '%s' in the tenant " +
+                                             "'%s'"),
+        ERROR_DELETE_ASSOC_FROM_DOMAIN_NAME(8535, "Database error occurred while deleting user association from " +
+                                                  "domain '%s' in the tenant '%s'"),
+        ERROR_WHILE_UPDATING_ASSOC_DOMAIN(8536, "Error occurred while updating user domain of account associations" +
+                                                " with domain '%s'"),
+        ERROR_WHILE_DELETING_ASSOC_FROM_DOMAIN(8537, "Error occurred while deleting user account associations with " +
+                                                     "domain '%s'");
 
         private final int code;
         private final String description;
@@ -85,43 +97,38 @@ public class UserAccountAssociationConstants {
 
     public static class SQLQueries {
 
-        public static final String ADD_USER_ACCOUNT_ASSOCIATION = "INSERT INTO UM_USER_ACCOUNT_ASSOCIATIONS " +
-                                                                  "(ASSOCIATION_KEY, DOMAIN_ID, TENANT_ID, " +
-                                                                  "USER_NAME) SELECT ?, UM_DOMAIN_ID, ?, " +
-                                                                  "? FROM UM_DOMAIN WHERE UM_DOMAIN_NAME = ? AND " +
-                                                                  "UM_TENANT_ID = ?";
+        public static final String ADD_USER_ACCOUNT_ASSOCIATION = "INSERT INTO IDN_USER_ACCOUNT_ASSOCIATION " +
+                                                                  "(ASSOCIATION_KEY, TENANT_ID, DOMAIN_NAME, " +
+                                                                  "USER_NAME) VALUES (?, ?, ?, ?)";
 
         public static final String GET_ASSOCIATION_KEY_OF_USER = "SELECT ASSOCIATION_KEY FROM " +
-                                                                 "UM_USER_ACCOUNT_ASSOCIATIONS WHERE DOMAIN_ID = " +
-                                                                 "(SELECT UM_DOMAIN_ID FROM UM_DOMAIN WHERE " +
-                                                                 "UM_DOMAIN_NAME = ? AND UM_TENANT_ID= ?)  AND " +
-                                                                 "TENANT_ID = ? AND USER_NAME = ?";
+                                                                 "IDN_USER_ACCOUNT_ASSOCIATION WHERE TENANT_ID = ? " +
+                                                                 "AND DOMAIN_NAME = ? AND USER_NAME = ?";
 
-        public static final String LIST_USER_ACCOUNT_ASSOCIATIONS = "SELECT UM_DOMAIN_NAME, TENANT_ID, " +
-                                                                    "USER_NAME FROM UM_DOMAIN JOIN " +
-                                                                    "UM_USER_ACCOUNT_ASSOCIATIONS ON UM_DOMAIN" +
-                                                                    ".UM_DOMAIN_ID = UM_USER_ACCOUNT_ASSOCIATIONS" +
-                                                                    ".DOMAIN_ID WHERE UM_USER_ACCOUNT_ASSOCIATIONS" +
-                                                                    ".ASSOCIATION_KEY = ?";
+        public static final String LIST_USER_ACCOUNT_ASSOCIATIONS = "SELECT TENANT_ID, DOMAIN_NAME, " +
+                                                                    "USER_NAME FROM IDN_USER_ACCOUNT_ASSOCIATION " +
+                                                                    "WHERE ASSOCIATION_KEY = ?";
 
-        public static final String DELETE_CONNECTION = "DELETE FROM UM_USER_ACCOUNT_ASSOCIATIONS WHERE DOMAIN_ID = " +
-                                                       "(SELECT UM_DOMAIN_ID FROM UM_DOMAIN WHERE UM_DOMAIN_NAME = ? " +
-                                                       "AND UM_TENANT_ID= ?) AND TENANT_ID = ? AND USER_NAME = ?";
+        public static final String DELETE_CONNECTION = "DELETE FROM IDN_USER_ACCOUNT_ASSOCIATION WHERE TENANT_ID = ? " +
+                                                       "AND DOMAIN_NAME = ? AND USER_NAME = ?";
 
-        public static final String DELETE_CONNECTION_FROM_TENANT_ID = "DELETE FROM UM_USER_ACCOUNT_ASSOCIATIONS WHERE" +
+        public static final String DELETE_CONNECTION_FROM_TENANT_ID = "DELETE FROM IDN_USER_ACCOUNT_ASSOCIATION WHERE" +
                                                                       " TENANT_ID = ?";
 
-        public static final String UPDATE_ASSOCIATION_KEY = "UPDATE UM_USER_ACCOUNT_ASSOCIATIONS SET ASSOCIATION_KEY " +
+        public static final String UPDATE_ASSOCIATION_KEY = "UPDATE IDN_USER_ACCOUNT_ASSOCIATION SET ASSOCIATION_KEY " +
                                                             "= ? WHERE ASSOCIATION_KEY = ?";
 
-        public static final String IS_VALID_ASSOCIATION = "SELECT COUNT(*) FROM UM_USER_ACCOUNT_ASSOCIATIONS WHERE " +
-                                                          "DOMAIN_ID = (SELECT UM_DOMAIN_ID FROM UM_DOMAIN WHERE " +
-                                                          "UM_DOMAIN_NAME = ? AND UM_TENANT_ID= ?) AND TENANT_ID = ? " +
-                                                          "AND USER_NAME = ? AND ASSOCIATION_KEY = (SELECT  " +
-                                                          "ASSOCIATION_KEY FROM UM_USER_ACCOUNT_ASSOCIATIONS WHERE " +
-                                                          "DOMAIN_ID =  (SELECT UM_DOMAIN_ID FROM UM_DOMAIN WHERE " +
-                                                          "UM_DOMAIN_NAME =  ? AND UM_TENANT_ID= ?) AND TENANT_ID = ?" +
-                                                          " AND USER_NAME = ?)";
+        public static final String IS_VALID_ASSOCIATION = "SELECT COUNT(*) FROM IDN_USER_ACCOUNT_ASSOCIATION WHERE " +
+                                                          "TENANT_ID = ? AND DOMAIN_NAME = ? AND USER_NAME = ? AND " +
+                                                          "ASSOCIATION_KEY = (SELECT ASSOCIATION_KEY FROM " +
+                                                          "IDN_USER_ACCOUNT_ASSOCIATION WHERE TENANT_ID = ? AND " +
+                                                          "DOMAIN_NAME = ? AND USER_NAME = ?)";
+
+        public static final String UPDATE_USER_DOMAIN_NAME = "UPDATE IDN_USER_ACCOUNT_ASSOCIATION SET DOMAIN_NAME = ?" +
+                                                             " WHERE DOMAIN_NAME = ? AND TENANT_ID = ?";
+
+        public static final String DELETE_USER_ASSOCIATION_FROM_DOMAIN = "DELETE FROM IDN_USER_ACCOUNT_ASSOCIATION " +
+                                                                         "WHERE TENANT_ID = ? AND DOMAIN_NAME = ?";
 
     }
 

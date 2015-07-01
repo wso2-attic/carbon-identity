@@ -1,20 +1,21 @@
 /*
-*  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 package org.wso2.carbon.security.keystore;
 
 import org.apache.axiom.om.util.Base64;
@@ -33,11 +34,19 @@ import org.wso2.carbon.registry.core.Resource;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
 import org.wso2.carbon.security.SecurityConfigException;
 import org.wso2.carbon.security.SecurityConstants;
-import org.wso2.carbon.security.keystore.service.*;
+import org.wso2.carbon.security.keystore.service.CertData;
+import org.wso2.carbon.security.keystore.service.CertDataDetail;
+import org.wso2.carbon.security.keystore.service.KeyStoreData;
+import org.wso2.carbon.security.keystore.service.PaginatedCertData;
+import org.wso2.carbon.security.keystore.service.PaginatedKeyStoreData;
 import org.wso2.carbon.security.util.KeyStoreMgtUtil;
 import org.wso2.carbon.utils.CarbonUtils;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.security.Key;
 import java.security.KeyStore;
 import java.security.PrivateKey;
@@ -86,7 +95,7 @@ public class KeyStoreAdmin {
             if (registry.resourceExists(SecurityConstants.KEY_STORES)) {
                 Collection collection = (Collection) registry.get(SecurityConstants.KEY_STORES);
                 String[] ks = collection.getChildren();
-                List<KeyStoreData> lst = new ArrayList<KeyStoreData>();
+                List<KeyStoreData> lst = new ArrayList<>();
                 for (int i = 0; i < ks.length; i++) {
                     String fullname = ks[i];
 
@@ -158,8 +167,9 @@ public class KeyStoreAdmin {
             }
             return names;
         } catch (RegistryException e) {
-            log.error(e.getMessage(), e);
-            throw new SecurityConfigException(e.getMessage(), e);
+            String msg = "Error when getting keyStore data";
+            log.error(msg, e);
+            throw new SecurityConfigException(msg, e);
         }
     }
 
@@ -168,7 +178,7 @@ public class KeyStoreAdmin {
         try {
             addKeyStore(readBytesFromFile(filePath), filename, password, provider, type, pvtkeyPass);
         } catch (IOException e) {
-            throw new SecurityConfigException("Error while loading keystore from file " + filePath);
+            throw new SecurityConfigException("Error while loading keystore from file " + filePath, e);
         }
 
     }
@@ -234,8 +244,9 @@ public class KeyStoreAdmin {
         } catch (SecurityConfigException e) {
             throw e;
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            throw new SecurityConfigException(e.getMessage(), e);
+            String msg = "Error when adding a keyStore";
+            log.error(msg, e);
+            throw new SecurityConfigException(msg, e);
         }
     }
 
@@ -272,14 +283,16 @@ public class KeyStoreAdmin {
         } catch (SecurityConfigException e) {
             throw e;
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            throw new SecurityConfigException(e.getMessage(), e);
+            String msg = "Error when adding a trustStore";
+            log.error(msg, e);
+            throw new SecurityConfigException(msg, e);
         }
     }
 
     public void deleteStore(String keyStoreName) throws SecurityConfigException {
         try {
-            if (keyStoreName == null || (keyStoreName = keyStoreName.trim()).length() == 0) {
+            String keyStoreNameTrim = keyStoreName.trim();
+            if (keyStoreName == null || keyStoreNameTrim.length() == 0) {
                 throw new SecurityConfigException("Key Store name can't be null");
             }
 
@@ -301,8 +314,9 @@ public class KeyStoreAdmin {
             }
             registry.delete(path);
         } catch (RegistryException e) {
-            log.error(e.getMessage(), e);
-            throw new SecurityConfigException(e.getMessage(), e);
+            String msg = "Error when deleting a keyStore";
+            log.error(msg, e);
+            throw new SecurityConfigException(msg, e);
         }
     }
 
@@ -333,7 +347,6 @@ public class KeyStoreAdmin {
                 return;
             }
 
-            // String alias = this.getAlias(cert);
             ks.setCertificateEntry(fileName, cert);
 
             keyMan.updateKeyStore(keyStoreName, ks);
@@ -341,8 +354,9 @@ public class KeyStoreAdmin {
         } catch (SecurityConfigException e) {
             throw e;
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            throw new SecurityConfigException(e.getMessage(), e);
+            String msg = "Error when importing cert to the keyStore";
+            log.error(msg, e);
+            throw new SecurityConfigException(msg, e);
         }
 
     }
@@ -366,7 +380,7 @@ public class KeyStoreAdmin {
                 cert = (X509Certificate) factory
                         .generateCertificate(new ByteArrayInputStream(bytes));
             } catch (Exception e) {
-                throw new SecurityConfigException("Invalid format of the provided certificate file");
+                throw new SecurityConfigException("Invalid format of the provided certificate file", e);
             }
 
             if (ks.getCertificateAlias(cert) != null) {
@@ -375,7 +389,6 @@ public class KeyStoreAdmin {
                 return null;
             }
             alias = cert.getSubjectDN().getName();
-            // String alias = this.getAlias(cert);
             ks.setCertificateEntry(alias, cert);
 
             keyMan.updateKeyStore(keyStoreName, ks);
@@ -385,9 +398,9 @@ public class KeyStoreAdmin {
         } catch (SecurityConfigException e) {
             throw e;
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            throw new SecurityConfigException(e.getMessage(),
-                    e);
+            String msg = "Error when importing cert to keyStore";
+            log.error(msg, e);
+            throw new SecurityConfigException(msg);
         }
     }
 
@@ -410,8 +423,9 @@ public class KeyStoreAdmin {
         } catch (SecurityConfigException e) {
             throw e;
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            throw new SecurityConfigException(e.getMessage(), e);
+            String msg = "Error when removing cert from store";
+            log.error(msg, e);
+            throw new SecurityConfigException(msg);
         }
     }
 
@@ -426,7 +440,7 @@ public class KeyStoreAdmin {
             KeyStore ks = keyMan.getKeyStore(keyStoreName);
 
             Enumeration<String> enm = ks.aliases();
-            List<String> lst = new ArrayList<String>();
+            List<String> lst = new ArrayList<>();
             while (enm.hasMoreElements()) {
                 lst.add(enm.nextElement());
             }
@@ -435,29 +449,12 @@ public class KeyStoreAdmin {
         } catch (SecurityConfigException e) {
             throw e;
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            throw new SecurityConfigException(e.getMessage(), e);
+            String msg = "Error when getting store entries";
+            log.error(msg, e);
+            throw new SecurityConfigException(msg);
         }
 
         return names;
-    }
-
-    private String getAlias(X509Certificate cert) throws SecurityConfigException {
-        // Alias should be the host name
-        String name = cert.getSubjectDN().getName();
-        String[] parts = name.split(",");
-        String alias = null;
-        for (int i = 0; i < parts.length; i++) {
-            String cnStr = parts[i].trim();
-            if (cnStr.startsWith("CN")) {
-                alias = cnStr.substring(3).toLowerCase();
-                break;
-            }
-        }
-        if (alias == null) {
-            throw new SecurityConfigException("Null Alias");
-        }
-        return alias;
     }
 
     /**
@@ -504,7 +501,7 @@ public class KeyStoreAdmin {
             }
             // Fill the information about the certificates
             Enumeration<String> aliases = keyStore.aliases();
-            List<org.wso2.carbon.security.keystore.service.CertData> certDataList = new ArrayList<CertData>();
+            List<org.wso2.carbon.security.keystore.service.CertData> certDataList = new ArrayList<>();
             Format formatter = new SimpleDateFormat("dd/MM/yyyy");
 
             while (aliases.hasMoreElements()) {
@@ -659,11 +656,7 @@ public class KeyStoreAdmin {
             paginatedCertData.setCertDataSet(new CertData[0]);
             return paginatedCertData;
         }
-        String itemsPerPage = ServerConfiguration.getInstance().getFirstProperty("ItemsPerPage");
         int itemsPerPageInt = SecurityConstants.ITEMS_PER_PAGE;
-//          if (itemsPerPage != null) {
-//              itemsPerPageInt = Integer.parseInt(itemsPerPage);
-//          }
         int numberOfPages = (int) Math.ceil((double) certDataSet.length / itemsPerPageInt);
         if (pageNumber > numberOfPages - 1) {
             pageNumber = numberOfPages - 1;
@@ -728,7 +721,7 @@ public class KeyStoreAdmin {
             }
             // Fill the information about the certificates
             Enumeration<String> aliases = keyStore.aliases();
-            List<org.wso2.carbon.security.keystore.service.CertData> certDataList = new ArrayList<CertData>();
+            List<org.wso2.carbon.security.keystore.service.CertData> certDataList = new ArrayList<>();
             Format formatter = new SimpleDateFormat("dd/MM/yyyy");
 
             while (aliases.hasMoreElements()) {

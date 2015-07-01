@@ -20,10 +20,19 @@ package org.wso2.carbon.identity.authenticator.saml2.sso.ui;
 import org.apache.axis2.context.ConfigurationContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.opensaml.saml2.core.*;
+import org.opensaml.saml2.core.Assertion;
+import org.opensaml.saml2.core.LogoutRequest;
+import org.opensaml.saml2.core.LogoutResponse;
+import org.opensaml.saml2.core.Response;
+import org.opensaml.saml2.core.SessionIndex;
+import org.opensaml.saml2.core.Subject;
 import org.opensaml.xml.XMLObject;
 import org.wso2.carbon.CarbonConstants;
-import org.wso2.carbon.identity.authenticator.saml2.sso.common.*;
+import org.wso2.carbon.identity.authenticator.saml2.sso.common.FederatedSSOToken;
+import org.wso2.carbon.identity.authenticator.saml2.sso.common.SAML2SSOAuthenticatorConstants;
+import org.wso2.carbon.identity.authenticator.saml2.sso.common.SAML2SSOUIAuthenticatorException;
+import org.wso2.carbon.identity.authenticator.saml2.sso.common.SAMLConstants;
+import org.wso2.carbon.identity.authenticator.saml2.sso.common.Util;
 import org.wso2.carbon.identity.authenticator.saml2.sso.ui.authenticator.SAML2SSOUIAuthenticator;
 import org.wso2.carbon.identity.authenticator.saml2.sso.ui.client.SAMLSSOServiceClient;
 import org.wso2.carbon.identity.authenticator.saml2.sso.ui.session.SSOSessionManager;
@@ -31,12 +40,18 @@ import org.wso2.carbon.identity.sso.saml.stub.IdentityException;
 import org.wso2.carbon.identity.sso.saml.stub.types.SAMLSSOAuthnReqDTO;
 import org.wso2.carbon.identity.sso.saml.stub.types.SAMLSSOReqValidationResponseDTO;
 import org.wso2.carbon.identity.sso.saml.stub.types.SAMLSSORespDTO;
+import org.wso2.carbon.ui.CarbonSecuredHttpContext;
+import org.wso2.carbon.ui.CarbonUIAuthenticator;
 import org.wso2.carbon.ui.CarbonUIUtil;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
-import javax.servlet.http.*;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.Enumeration;
@@ -113,7 +128,12 @@ public class SSOAssertionConsumerService extends HttpServlet {
         try {
             XMLObject samlObject = Util.unmarshall(Util.decode(samlRespString));
             if (samlObject instanceof LogoutResponse) {   // if it is a logout response, redirect it to login page.
-                resp.sendRedirect(getAdminConsoleURL(req) + "admin/logout_action.jsp?logoutcomplete=true");
+                String externalLogoutPage = Util.getExternalLogoutPage();
+                if(externalLogoutPage != null && !externalLogoutPage.isEmpty()){
+                    handleExternalLogout(req, resp, externalLogoutPage);
+                } else {
+                    resp.sendRedirect(getAdminConsoleURL(req) + "admin/logout_action.jsp?logoutcomplete=true");
+                }
             } else if (samlObject instanceof Response) {    // if it is a SAML Response
                 handleSAMLResponses(req, resp, samlObject);
             }
@@ -181,7 +201,6 @@ public class SSOAssertionConsumerService extends HttpServlet {
             if (federatedSSOToken != null) {
                 isFederated = true;
                 HttpServletRequest fedRequest = federatedSSOToken.getHttpServletRequest();
-                HttpServletResponse fedResponse = federatedSSOToken.getHttpServletResponse();
 
                 String samlRequest = fedRequest.getParameter("SAMLRequest");
                 String authMode = SAMLConstants.AuthnModes.USERNAME_PASSWORD;
@@ -397,11 +416,54 @@ public class SSOAssertionConsumerService extends HttpServlet {
         Cookie[] cookies = req.getCookies();
         if (cookies != null) {
             for (Cookie cookie : cookies) {
-                if (cookie.getName().equals("ssoTokenId")) {
+                if ("ssoTokenId".equals(cookie.getName())) {
                     return cookie;
                 }
             }
         }
         return null;
+    }
+
+    private void handleExternalLogout(HttpServletRequest req, HttpServletResponse resp, String externalLogoutPage) throws IOException {
+
+        HttpSession currentSession = req.getSession(false);
+        if (currentSession != null) {
+            // check if current session has expired
+            currentSession.removeAttribute(CarbonSecuredHttpContext.LOGGED_USER);
+            currentSession.getServletContext().removeAttribute(CarbonSecuredHttpContext.LOGGED_USER);
+            try {
+                currentSession.invalidate();
+                if(log.isDebugEnabled()) {
+                    log.debug("Frontend session invalidated");
+                }
+            } catch (Exception ignored) {
+                // Ignore exception when invalidating and invalidated session
+            }
+        }
+        clearCookies(req, resp);
+
+        if (log.isDebugEnabled()) {
+            log.debug("Sending to " + externalLogoutPage);
+        }
+        resp.sendRedirect(externalLogoutPage);
+
+    }
+
+    private void clearCookies(HttpServletRequest req, HttpServletResponse resp) {
+        Cookie[] cookies = req.getCookies();
+
+        for (Cookie curCookie : cookies) {
+            if (curCookie.getName().equals("requestedURI")) {
+                Cookie cookie = new Cookie("requestedURI", null);
+                cookie.setPath("/");
+                cookie.setMaxAge(0);
+                resp.addCookie(cookie);
+            } else if (curCookie.getName().equals(CarbonConstants.REMEMBER_ME_COOKE_NAME)) {
+                Cookie cookie = new Cookie(CarbonConstants.REMEMBER_ME_COOKE_NAME, null);
+                cookie.setPath("/");
+                cookie.setMaxAge(0);
+                resp.addCookie(cookie);
+            }
+        }
     }
 }

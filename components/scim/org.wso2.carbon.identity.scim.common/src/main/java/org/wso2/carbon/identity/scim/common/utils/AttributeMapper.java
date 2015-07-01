@@ -1,32 +1,45 @@
 /*
-*  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 package org.wso2.carbon.identity.scim.common.utils;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.charon.core.attributes.*;
+import org.wso2.charon.core.attributes.Attribute;
+import org.wso2.charon.core.attributes.ComplexAttribute;
+import org.wso2.charon.core.attributes.DefaultAttributeFactory;
+import org.wso2.charon.core.attributes.MultiValuedAttribute;
+import org.wso2.charon.core.attributes.SimpleAttribute;
 import org.wso2.charon.core.exceptions.CharonException;
 import org.wso2.charon.core.exceptions.NotFoundException;
 import org.wso2.charon.core.objects.AbstractSCIMObject;
 import org.wso2.charon.core.objects.Group;
 import org.wso2.charon.core.objects.SCIMObject;
 import org.wso2.charon.core.objects.User;
-import org.wso2.charon.core.schema.*;
+import org.wso2.charon.core.schema.AttributeSchema;
+import org.wso2.charon.core.schema.ResourceSchema;
+import org.wso2.charon.core.schema.SCIMAttributeSchema;
+import org.wso2.charon.core.schema.SCIMConstants;
+import org.wso2.charon.core.schema.SCIMResourceSchemaManager;
+import org.wso2.charon.core.schema.SCIMSchemaDefinitions;
+import org.wso2.charon.core.schema.SCIMSubAttributeSchema;
 import org.wso2.charon.core.util.AttributeUtil;
 
 import java.util.Arrays;
@@ -52,7 +65,7 @@ public class AttributeMapper {
      * @return
      */
     public static Map<String, String> getClaimsMap(AbstractSCIMObject scimObject) throws CharonException {
-        Map<String, String> claimsMap = new HashMap<String, String>();
+        Map<String, String> claimsMap = new HashMap<>();
         Map<String, Attribute> attributeList = scimObject.getAttributeList();
         for (Map.Entry<String, Attribute> attributeEntry : attributeList.entrySet()) {
             Attribute attribute = attributeEntry.getValue();
@@ -73,7 +86,7 @@ public class AttributeMapper {
                 String attributeURI = multiValAttribute.getAttributeURI();
                 // check if values are set as simple attributes
                 List<String> attributeValues = multiValAttribute.getValuesAsStrings();
-                if (attributeValues != null && (!attributeValues.isEmpty())) {
+                if (CollectionUtils.isNotEmpty(attributeValues)) {
                     String values = null;
                     for (String attributeValue : attributeValues) {
                         if (values != null) {
@@ -115,16 +128,16 @@ public class AttributeMapper {
                 ComplexAttribute complexAttribute = (ComplexAttribute) attribute;
                 Map<String, Attribute> attributes = null;
                 if (complexAttribute.getSubAttributes() != null &&
-                        complexAttribute.getSubAttributes().size() > 0) {
+                        MapUtils.isNotEmpty(complexAttribute.getSubAttributes())) {
                     attributes = complexAttribute.getSubAttributes();
                 } else if (complexAttribute.getAttributes() != null &&
-                        complexAttribute.getAttributes().size() > 0) {
+                        MapUtils.isNotEmpty(complexAttribute.getAttributes())) {
                     attributes = complexAttribute.getAttributes();
                 }
                 for (Attribute entry : attributes.values()) {
                     // if the attribute a simple attribute
                     if (entry instanceof SimpleAttribute) {
-                        SimpleAttribute simpleAttribute = ((SimpleAttribute) entry);
+                        SimpleAttribute simpleAttribute = (SimpleAttribute) entry;
                         claimsMap.put(entry.getAttributeURI(),
                                 AttributeUtil.getStringValueOfAttribute(simpleAttribute.getValue(),
                                         simpleAttribute.getDataType()));
@@ -134,7 +147,7 @@ public class AttributeMapper {
                         String attributeURI = multiValAttribute.getAttributeURI();
                         // check if values are set as simple attributes
                         List<String> attributeValues = multiValAttribute.getValuesAsStrings();
-                        if (attributeValues != null && (!attributeValues.isEmpty())) {
+                        if (CollectionUtils.isNotEmpty(attributeValues)) {
                             String values = null;
                             for (String attributeValue : attributeValues) {
                                 if (values != null) {
@@ -177,16 +190,16 @@ public class AttributeMapper {
                         ComplexAttribute entryOfComplexAttribute = (ComplexAttribute) entry;
                         Map<String, Attribute> entryAttributes = null;
                         if (entryOfComplexAttribute.getSubAttributes() != null &&
-                                entryOfComplexAttribute.getSubAttributes().size() > 0) {
+                                MapUtils.isNotEmpty(entryOfComplexAttribute.getSubAttributes())) {
                             entryAttributes = entryOfComplexAttribute.getSubAttributes();
                         } else if (entryOfComplexAttribute.getAttributes() != null &&
-                                entryOfComplexAttribute.getAttributes().size() > 0) {
+                                MapUtils.isNotEmpty(entryOfComplexAttribute.getAttributes())) {
                             entryAttributes = entryOfComplexAttribute.getAttributes();
                         }
                         for (Attribute subEntry : entryAttributes.values()) {
                             // if the attribute a simple attribute
                             if (subEntry instanceof SimpleAttribute) {
-                                SimpleAttribute simpleAttribute = ((SimpleAttribute) subEntry);
+                                SimpleAttribute simpleAttribute = (SimpleAttribute) subEntry;
                                 claimsMap.put(subEntry.getAttributeURI(),
                                         AttributeUtil.getStringValueOfAttribute(simpleAttribute.getValue(),
                                                 simpleAttribute.getDataType()));
@@ -218,6 +231,8 @@ public class AttributeMapper {
             case SCIMConstants.USER_INT:
                 scimObject = new User();
                 log.debug("Building User Object");
+                break;
+            default:
                 break;
         }
         for (Map.Entry<String, String> attributeEntry : attributes.entrySet()) {
@@ -274,7 +289,7 @@ public class AttributeMapper {
                 with complex value*/
                 if (isMultivalued(parentAttributeName, scimObjectType)) {
                     //create map with complex value
-                    Map<String, Object> complexValue = new HashMap<String, Object>();
+                    Map<String, Object> complexValue = new HashMap<>();
                     complexValue.put(SCIMConstants.CommonSchemaConstants.TYPE, attributeNames[1]);
                     complexValue.put(SCIMConstants.CommonSchemaConstants.VALUE,
                             AttributeUtil.getAttributeValueFromString(attributeEntry.getValue(),
@@ -325,7 +340,7 @@ public class AttributeMapper {
                 with complex value*/
                 if (isMultivalued(immediateParentAttributeName, scimObjectType)) {
                     //create map with complex value
-                    Map<String, Object> complexValue = new HashMap<String, Object>();
+                    Map<String, Object> complexValue = new HashMap<>();
                     complexValue.put(SCIMConstants.CommonSchemaConstants.TYPE, attributeNames[1]);
                     complexValue.put(SCIMConstants.CommonSchemaConstants.VALUE,
                             AttributeUtil.getAttributeValueFromString(attributeEntry.getValue(),
@@ -415,7 +430,7 @@ public class AttributeMapper {
                 //check for sub attributes
                 List<SCIMSubAttributeSchema> subAttributeSchemas =
                         ((SCIMAttributeSchema) attributeSchema).getSubAttributes();
-                if (subAttributeSchemas != null && !subAttributeSchemas.isEmpty()) {
+                if (CollectionUtils.isNotEmpty(subAttributeSchemas)) {
                     for (SCIMSubAttributeSchema subAttributeSchema : subAttributeSchemas) {
                         if (attributeName.equals(subAttributeSchema.getName())) {
                             if (parentAttributeName == null ||
@@ -427,7 +442,7 @@ public class AttributeMapper {
                 }
                 // check for attributes of the attribute
                 List<SCIMAttributeSchema> attribSchemas = ((SCIMAttributeSchema) attributeSchema).getAttributes();
-                if (attribSchemas != null && !attribSchemas.isEmpty()) {
+                if (CollectionUtils.isNotEmpty(attribSchemas)) {
                     for (SCIMAttributeSchema attribSchema : attribSchemas) {
                         // if the attribute a simple attribute
                         if (attributeName.equals(attribSchema.getName())) {
@@ -437,7 +452,7 @@ public class AttributeMapper {
                         //check for sub attributes
                         List<SCIMSubAttributeSchema> subSubAttribSchemas =
                                 ((SCIMAttributeSchema) attribSchema).getSubAttributes();
-                        if (subSubAttribSchemas != null && !subSubAttribSchemas.isEmpty()) {
+                        if (CollectionUtils.isNotEmpty(subSubAttribSchemas)) {
                             for (SCIMSubAttributeSchema subSubAttribSchema : subSubAttribSchemas) {
                                 if (attributeName.equals(subSubAttribSchema.getName())) {
                                     if (parentAttributeName == null ||
@@ -449,7 +464,7 @@ public class AttributeMapper {
                         }
                         // check for attributes
                         List<SCIMAttributeSchema> attributSchemas = ((SCIMAttributeSchema) attribSchema).getAttributes();
-                        if (attributSchemas != null && !attributSchemas.isEmpty()) {
+                        if (CollectionUtils.isNotEmpty(attributSchemas)) {
                             for (SCIMAttributeSchema atttribSchema : attributSchemas) {
                                 if (attributeName.equals(atttribSchema.getName())) {
                                     if (parentAttributeName == null ||
@@ -475,6 +490,8 @@ public class AttributeMapper {
                 break;
             case SCIMConstants.GROUP_INT:
                 resourceSchema = SCIMSchemaDefinitions.SCIM_GROUP_SCHEMA;
+                break;
+            default:
                 break;
         }
         return resourceSchema;

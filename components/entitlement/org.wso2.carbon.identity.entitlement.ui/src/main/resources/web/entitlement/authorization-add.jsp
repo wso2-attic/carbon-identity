@@ -17,19 +17,19 @@
  -->
 <%@ page import="org.apache.axis2.context.ConfigurationContext"%>
 <%@ page import="org.wso2.carbon.CarbonConstants"%>
-<%@ page import="org.wso2.carbon.ui.CarbonUIMessage"%>
-<%@ page import="org.wso2.carbon.ui.CarbonUIUtil"%>
-<%@ page import="org.wso2.carbon.utils.ServerConstants"%>
+<%@ page import="org.wso2.carbon.identity.entitlement.stub.dto.PolicyDTO"%>
+<%@ page import="org.wso2.carbon.identity.entitlement.ui.EntitlementPolicyCreator"%>
+<%@ page import="org.wso2.carbon.identity.entitlement.ui.PolicyEditorConstants"%>
 
 <%@page
 	import="org.wso2.carbon.identity.entitlement.ui.client.EntitlementPolicyAdminServiceClient"%>
-<%@page import="java.util.ResourceBundle"%>
-<%@ page import="org.wso2.carbon.identity.entitlement.stub.dto.PolicyDTO" %>
-<%@ page import="org.wso2.carbon.identity.entitlement.ui.PolicyEditorConstants" %>
-<%@ page import="org.wso2.carbon.identity.entitlement.ui.dto.SimplePolicyEditorElementDTO" %>
-<%@ page import="java.util.List" %>
+<%@page import="org.wso2.carbon.identity.entitlement.ui.dto.SimplePolicyEditorElementDTO"%>
+<%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
+<%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
+<%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@ page import="java.util.ArrayList" %>
-<%@ page import="org.wso2.carbon.identity.entitlement.ui.EntitlementPolicyCreator" %>
+<%@ page import="java.util.List" %>
+<%@ page import="java.util.ResourceBundle" %>
 <%
 	String serverURL = CarbonUIUtil.getServerURL(config
 			.getServletContext(), session);

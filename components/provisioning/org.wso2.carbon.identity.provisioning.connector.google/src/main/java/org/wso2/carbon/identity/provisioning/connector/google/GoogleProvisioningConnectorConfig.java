@@ -1,23 +1,24 @@
 /*
- *  Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- *  WSO2 Inc. licenses this file to you under the Apache License,
- *  Version 2.0 (the "License"); you may not use this file except
- *  in compliance with the License.
- *  You may obtain a copy of the License at
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *  http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing,
- *  software distributed under the License is distributed on an
- *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *  KIND, either express or implied.  See the License for the
- *  specific language governing permissions and limitations
- *  under the License.
- *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
+
 package org.wso2.carbon.identity.provisioning.connector.google;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.provisioning.IdentityProvisioningConstants;
@@ -40,17 +41,10 @@ public class GoogleProvisioningConnectorConfig implements Serializable {
         this.configs = configs;
     }
 
-//	public static final String SALESFORCE_LIST_USER_SIMPLE_QUERY = "SELECT Id, Alias, Email, LastName, Name, ProfileId, Username from User";
-//	public static final String SALESFORCE_LIST_USER_FULL_QUERY = "SELECT Id, Username, Name, Alias, Email, EmailEncodingKey, LanguageLocaleKey, LastName, LocaleSidKey, ProfileId, TimeZoneSidKey, UserPermissionsCallCenterAutoLogin, UserPermissionsMarketingUser, UserPermissionsOfflineUser from User";
-//	public static final String SALESFORCE_SERVICES_DATA = "/services/data/";
-//	public static final String SALESFORCE_ENDPOINT_QUERY = "/query";
-//	
-//	public static final String IDENTITY_PROVISIONING_CONNECTOR = "Identity.Provisioning.Connector.Salesforce.Domain.Name";
-
     List<String> getRequiredAttributeNames() {
-        List<String> requiredAttributeList = new ArrayList<String>();
+        List<String> requiredAttributeList = new ArrayList<>();
         String requiredAttributes = this.configs.getProperty(GoogleConnectorConstants.PropertyConfig.REQUIRED_FIELDS);
-        if (requiredAttributes != null && !requiredAttributes.isEmpty()) {
+        if (StringUtils.isNotBlank(requiredAttributes)) {
             requiredAttributeList = Arrays.asList(requiredAttributes.split(IdentityProvisioningConstants.PropertyConfig.DELIMATOR));
         }
         return requiredAttributeList;
@@ -58,13 +52,12 @@ public class GoogleProvisioningConnectorConfig implements Serializable {
 
     String getUserIdClaim() throws IdentityProvisioningException {
         String userIDClaim = this.configs.getProperty(GoogleConnectorConstants.PropertyConfig.USER_ID_CLAIM);
-        if (userIDClaim == null || userIDClaim.isEmpty()) {
+        if (StringUtils.isBlank(userIDClaim)) {
             log.warn("Claim for user id is not defined in config. Using " + GoogleConnectorConstants.ATTRIBUTE_PRIMARYEMAIL + "'s claim instead");
 
-//			userIDClaim = this.configs.getProperty(GoogleConnectorConstants.PropertyConfig.REQUIRED_CLAIM_PREFIX + GoogleConnectorConstants.ATTRIBUTE_PRIMARYEMAIL);
             userIDClaim = this.configs.getProperty(GoogleConnectorConstants.ATTRIBUTE_PRIMARYEMAIL);
         }
-        if (userIDClaim == null || userIDClaim.isEmpty()) {
+        if (StringUtils.isBlank(userIDClaim)) {
             log.warn("Claim for user id is set to default value : " + "http://wso2.org/claims/streetaddress");
 
             //TODO make userIDClaim read from UI\DB
@@ -72,7 +65,7 @@ public class GoogleProvisioningConnectorConfig implements Serializable {
         }
 
 
-        if (userIDClaim == null || userIDClaim.isEmpty()) {
+        if (StringUtils.isBlank(userIDClaim)) {
             log.error("UserId cannot mapped to a claim");
             throw new IdentityProvisioningException("UserId cannot mapped to a claim");
         }

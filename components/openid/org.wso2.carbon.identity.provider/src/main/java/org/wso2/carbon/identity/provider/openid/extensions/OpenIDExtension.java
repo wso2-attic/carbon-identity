@@ -1,21 +1,24 @@
 /*
- * Copyright 2005-2008 WSO2, Inc. (http://wso2.com)
- * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright (c) 2005-2008, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package org.wso2.carbon.identity.provider.openid.extensions;
 
+import org.apache.commons.collections.MapUtils;
 import org.openid4java.message.MessageExtension;
 import org.wso2.carbon.identity.application.common.model.ClaimMapping;
 import org.wso2.carbon.identity.base.IdentityException;
@@ -47,7 +50,8 @@ public abstract class OpenIDExtension {
      * @return An instance of MessageExtension
      * @throws RelyingPartyException
      */
-    public abstract MessageExtension getMessageExtension(String userId, String profileName, OpenIDAuthRequestDTO requestDTO)
+    public abstract MessageExtension getMessageExtension(String userId, String profileName,
+                                                         OpenIDAuthRequestDTO requestDTO)
             throws IdentityException;
 
     /**
@@ -67,38 +71,29 @@ public abstract class OpenIDExtension {
      * @return A map, populated with ClaimDO objects which have OpenIDTag, that
      * is OpenID supported
      * claims.
-     * @throws IdentityProviderException
      */
     protected Map<String, OpenIDClaimDTO> populateAttributeValues(List<String> requiredClaims,
-                                                                  String openId, String profileName, OpenIDAuthRequestDTO requestDTO)
-            throws IdentityException {
-        Map<String, OpenIDClaimDTO> map = null;
-        map = new HashMap<String, OpenIDClaimDTO>();
-        OpenIDClaimDTO[] claims = null;
+                                                                  String openId, String profileName,
+                                                                  OpenIDAuthRequestDTO requestDTO) {
+        Map<String, OpenIDClaimDTO> map = new HashMap<>();
 
-        try {
-            if (requestDTO.getResponseClaims() == null || requestDTO.getResponseClaims().size() == 0) {
-                return map;
-            }
+        if (MapUtils.isEmpty(requestDTO.getResponseClaims())) {
+            return map;
+        }
 
-            claims = getClaimValues(openId, profileName, requiredClaims, requestDTO.getResponseClaims());
+        OpenIDClaimDTO[] claims = getClaimValues(requiredClaims, requestDTO.getResponseClaims());
 
-            if (claims != null) {
-                for (int i = 0; i < claims.length; i++) {
-                    if (claims[i] != null) {
-                        map.put(claims[i].getClaimUri(), claims[i]);
-                    }
+        if (claims != null) {
+            for (int i = 0; i < claims.length; i++) {
+                if (claims[i] != null) {
+                    map.put(claims[i].getClaimUri(), claims[i]);
                 }
             }
-            return map;
-
-        } catch (Exception e) {
-            throw new IdentityException(e.getLocalizedMessage(), e);
         }
+        return map;
     }
 
-    private OpenIDClaimDTO[] getClaimValues(String openId, String profileId, List<String> requiredClaims,
-                                            Map<ClaimMapping, String> receivedClaims) throws Exception {
+    private OpenIDClaimDTO[] getClaimValues(List<String> requiredClaims, Map<ClaimMapping, String> receivedClaims) {
 
         List<OpenIDClaimDTO> claims = new ArrayList<OpenIDClaimDTO>();
 

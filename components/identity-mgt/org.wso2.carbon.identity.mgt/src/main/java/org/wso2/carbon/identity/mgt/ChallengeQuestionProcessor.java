@@ -1,22 +1,25 @@
 /*
- * Copyright (c) WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
  * You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package org.wso2.carbon.identity.mgt;
 
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.base.IdentityException;
@@ -31,13 +34,12 @@ import org.wso2.carbon.registry.core.Registry;
 import org.wso2.carbon.registry.core.RegistryConstants;
 import org.wso2.carbon.registry.core.Resource;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
-import org.wso2.carbon.user.core.UserCoreConstants;
-import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.user.core.UserStoreException;
-import org.wso2.carbon.user.core.claim.Claim;
-import org.wso2.carbon.user.core.claim.ClaimMapping;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * process user challenges and questions
@@ -69,9 +71,7 @@ public class ChallengeQuestionProcessor {
                         ChallengeQuestionDTO questionDTO = new ChallengeQuestionDTO();
                         questionDTO.setQuestion(question);
                         if (isPromoteQuestion != null) {
-                            if (Boolean.parseBoolean(isPromoteQuestion)) {
-                                questionDTO.setPromoteQuestion(true);
-                            }
+                            questionDTO.setPromoteQuestion(Boolean.parseBoolean(isPromoteQuestion));
                         }
                         if (questionSetId != null) {
                             questionDTO.setQuestionSetId(questionSetId);
@@ -115,29 +115,10 @@ public class ChallengeQuestionProcessor {
                     registry.put(IdentityMgtConstants.IDENTITY_MANAGEMENT_QUESTIONS +
                             RegistryConstants.PATH_SEPARATOR + "question" + i +
                             RegistryConstants.PATH_SEPARATOR, resource);
-                    if (questionDTOs[i].getQuestionSetId() != null) {
-                        String setId = questionDTOs[i].getQuestionSetId().trim();
-                        UserRealm realm = IdentityMgtServiceComponent.getRealmService().getBootstrapRealm();
-                        String[] claimUris = realm.getClaimManager().getAllClaimUris();
-                        if (!(Arrays.asList((claimUris.length)).contains(setId))) {
-                            ClaimMapping mapping = new ClaimMapping();
-                            Claim claim = new Claim();
-                            claim.setClaimUri(setId);
-                            claim.setDisplayTag(setId);
-                            claim.setDescription(setId);
-                            claim.setDialectURI(UserCoreConstants.DEFAULT_CARBON_DIALECT);
-                            mapping.setClaim(claim);
-                            realm.getClaimManager().addNewClaimMapping(mapping);
-                        }
-                    }
                 }
             }
         } catch (RegistryException e) {
-            throw new IdentityException(e.getMessage(), e);
-        } catch (UserStoreException e) {
-            throw new IdentityException(e.getMessage(), e);
-        } catch (org.wso2.carbon.user.api.UserStoreException e) {
-            throw new IdentityException(e.getMessage(), e);
+            throw new IdentityException("Error while setting challenge question.", e);
         }
 
     }
@@ -153,7 +134,7 @@ public class ChallengeQuestionProcessor {
     public UserChallengesDTO[] getChallengeQuestionsOfUser(String userName, int tenantId,
                                                            boolean adminService) {
 
-        ArrayList<UserChallengesDTO> challengesDTOs = new ArrayList<UserChallengesDTO>();
+        List<UserChallengesDTO> challengesDTOs = new ArrayList<UserChallengesDTO>();
         try {
             if (log.isDebugEnabled()) {
                 log.debug("Retrieving Challenge question from the user profile.");
@@ -182,10 +163,12 @@ public class ChallengeQuestionProcessor {
 
         } catch (Exception e) {
             String msg = "No associated challenge question found for the user";
-            log.debug(msg, e);
+            if(log.isDebugEnabled()){
+                log.debug(msg, e);
+            }
         }
 
-        if (challengesDTOs.size() > 0) {
+        if (!challengesDTOs.isEmpty()) {
             return challengesDTOs.toArray(new UserChallengesDTO[challengesDTOs.size()]);
         } else {
             return new UserChallengesDTO[0];
@@ -199,7 +182,7 @@ public class ChallengeQuestionProcessor {
 
         UserChallengesDTO dto = null;
 
-        ArrayList<UserChallengesDTO> challengesDTOs = new ArrayList<UserChallengesDTO>();
+        List<UserChallengesDTO> challengesDTOs = new ArrayList<UserChallengesDTO>();
         try {
             if (log.isDebugEnabled()) {
                 log.debug("Retrieving Challenge question from the user profile.");
@@ -228,7 +211,9 @@ public class ChallengeQuestionProcessor {
 
         } catch (Exception e) {
             String msg = "No associated challenge question found for the user";
-            log.debug(msg, e);
+            if(log.isDebugEnabled()){
+                log.debug(msg, e);
+            }
         }
 
         return dto;
@@ -265,9 +250,12 @@ public class ChallengeQuestionProcessor {
         } catch (Exception e) {
             String errorMsg = "Error while getting the challenge questions for the user: "
                     + userName;
-            log.debug(errorMsg + " Error:" + e.getMessage());
+            if(log.isDebugEnabled()){
+                log.debug(errorMsg, e);
+            }
             dto = new UserChallengesDTO();
             dto.setError(errorMsg);
+            throw new IdentityMgtServiceException(errorMsg,e);
         }
 
         return dto;
@@ -309,7 +297,7 @@ public class ChallengeQuestionProcessor {
      * @param tenantId
      * @return
      */
-    public List<String> getChallengeQuestionUris(String userName, int tenantId) {
+    public List<String> getChallengeQuestionUris(String userName, int tenantId) throws IdentityMgtServiceException{
 
         if (log.isDebugEnabled()) {
             log.debug("Challenge Question from the user profile.");
@@ -323,7 +311,7 @@ public class ChallengeQuestionProcessor {
             claimValue = Utils.getClaimFromUserStoreManager(userName, tenantId,
                     "http://wso2.org/claims/challengeQuestionUris");
         } catch (IdentityException e) {
-            log.debug("Error while getting cliams. " + e.getMessage());
+            throw new IdentityMgtServiceException("Error while getting cliams.", e);
         }
 
         if (claimValue != null) {
@@ -346,14 +334,10 @@ public class ChallengeQuestionProcessor {
      * @param tenantId
      * @return
      */
-    public int getNoOfChallengeQuestions(String userName, int tenantId) {
+    public int getNoOfChallengeQuestions(String userName, int tenantId) throws IdentityMgtServiceException {
 
         List<String> questions = getChallengeQuestionUris(userName, tenantId);
-        if (questions != null) {
-            return questions.size();
-        }
-
-        return 0;
+        return questions.size();
     }
 
     /**
@@ -372,30 +356,27 @@ public class ChallengeQuestionProcessor {
             String challengesUrisValue = "";
             String separator = IdentityMgtConfig.getInstance().getChallengeQuestionSeparator();
 
-            if (challengesDTOs != null && challengesDTOs.length > 0) {
+            if (!ArrayUtils.isEmpty(challengesDTOs)) {
                 for (UserChallengesDTO dto : challengesDTOs) {
-                    if (dto.getId() != null) {
-                        if (dto.getQuestion() != null && dto.getAnswer() != null) {
+                    if (dto.getId() != null && dto.getQuestion() != null && dto.getAnswer() != null) {
+                        String oldValue = Utils.
+                                getClaimFromUserStoreManager(userName, tenantId, dto.getId().trim());
 
-                            String oldValue = Utils.
-                                    getClaimFromUserStoreManager(userName, tenantId, dto.getId().trim());
-
-                            if (oldValue != null && oldValue.contains(separator)) {
-                                String oldAnswer = oldValue.split(separator)[1];
-                                if (!oldAnswer.trim().equals(dto.getAnswer().trim())) {
-                                    String claimValue = dto.getQuestion().trim() + separator +
-                                            Utils.doHash(dto.getAnswer().trim().toLowerCase());
-                                    Utils.setClaimInUserStoreManager(userName,
-                                            tenantId, dto.getId().trim(), claimValue);
-                                }
-                            } else {
+                        if (oldValue != null && oldValue.contains(separator)) {
+                            String oldAnswer = oldValue.split(separator)[1];
+                            if (!oldAnswer.trim().equals(dto.getAnswer().trim())) {
                                 String claimValue = dto.getQuestion().trim() + separator +
                                         Utils.doHash(dto.getAnswer().trim().toLowerCase());
                                 Utils.setClaimInUserStoreManager(userName,
                                         tenantId, dto.getId().trim(), claimValue);
                             }
-                            challengesUris.add(dto.getId().trim());
+                        } else {
+                            String claimValue = dto.getQuestion().trim() + separator +
+                                    Utils.doHash(dto.getAnswer().trim().toLowerCase());
+                            Utils.setClaimInUserStoreManager(userName,
+                                    tenantId, dto.getId().trim(), claimValue);
                         }
+                        challengesUris.add(dto.getId().trim());
                     }
                 }
 
@@ -441,11 +422,11 @@ public class ChallengeQuestionProcessor {
                 }
 
                 for (UserChallengesDTO dto : storedDto) {
-                    if (challengesDTO.getId() == null || !challengesDTO.getId().trim().equals(dto.getId())) {
-                        if (challengesDTO.getQuestion() == null || !challengesDTO.getQuestion().
-                                trim().equals(dto.getQuestion())) {
-                            continue;
-                        }
+                    if ((challengesDTO.getId() == null || !challengesDTO.getId().trim().equals(dto.getId())) &&
+                            (challengesDTO.getQuestion() == null || !challengesDTO.getQuestion().
+                            trim().equals(dto.getQuestion()))) {
+                        continue;
+
                     }
 
                     String hashedAnswer = Utils.doHash(challengesDTO.getAnswer().trim().toLowerCase());
@@ -454,7 +435,6 @@ public class ChallengeQuestionProcessor {
                     } else {
                         return false;
                     }
-
                 }
             }
         } catch (Exception e) {
@@ -509,7 +489,7 @@ public class ChallengeQuestionProcessor {
      */
     public UserChallengesDTO[] getPrimaryChallengeQuestionsOfUser(String userName, int tenantId) {
 
-        ArrayList<UserChallengesDTO> challengesDTOs = new ArrayList<UserChallengesDTO>();
+        List<UserChallengesDTO> challengesDTOs = new ArrayList<>();
         try {
             if (log.isDebugEnabled()) {
                 log.debug("Challenge Question from the user profile.");
@@ -533,7 +513,7 @@ public class ChallengeQuestionProcessor {
             log.debug(msg, e);
         }
 
-        if (challengesDTOs.size() > 0) {
+        if (!challengesDTOs.isEmpty()) {
             return challengesDTOs.toArray(new UserChallengesDTO[challengesDTOs.size()]);
         } else {
             return new UserChallengesDTO[0];

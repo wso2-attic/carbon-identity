@@ -1,12 +1,12 @@
 /*
- *  Copyright (c) WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- *  WSO2 Inc. licenses this file to you under the Apache License,
- *  Version 2.0 (the "License"); you may not use this file except
- *  in compliance with the License.
- *  You may obtain a copy of the License at
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -18,8 +18,7 @@
 
 package org.wso2.carbon.identity.application.authenticator.samlsso.manager;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.commons.collections.CollectionUtils;
 import org.opensaml.xml.security.credential.Credential;
 import org.opensaml.xml.security.credential.CredentialContextSet;
 import org.opensaml.xml.security.credential.UsageType;
@@ -38,13 +37,13 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509CRL;
 import java.security.cert.X509Certificate;
 import java.util.Collection;
+import java.util.Collections;
 
 /**
  * X509Credential implementation for signing and verification.
  */
 public class X509CredentialImpl implements X509Credential {
 
-    private static Log log = LogFactory.getLog(X509CredentialImpl.class);
 
     private PublicKey publicKey = null;
     private PrivateKey privateKey = null;
@@ -90,7 +89,7 @@ public class X509CredentialImpl implements X509Credential {
             }
 
             KeyStoreManager keyStoreManager = KeyStoreManager.getInstance(tenantId);
-            PrivateKey privateKey;
+            PrivateKey key;
 
             try {
                 /**
@@ -101,12 +100,12 @@ public class X509CredentialImpl implements X509Credential {
                     String ksName = tenantDomain.trim().replace(".", "-");
                     // derive JKS name
                     String jksName = ksName + ".jks";
-                    privateKey =
+                    key =
                             (PrivateKey) keyStoreManager.getPrivateKey(jksName, tenantDomain);
                     cert = (X509Certificate) keyStoreManager.getKeyStore(jksName)
                             .getCertificate(tenantDomain);
                 } else {
-                    privateKey = keyStoreManager.getDefaultPrivateKey();
+                    key = keyStoreManager.getDefaultPrivateKey();
                     cert = keyStoreManager.getDefaultPrimaryCertificate();
 
                 }
@@ -116,12 +115,12 @@ public class X509CredentialImpl implements X509Credential {
                                 tenantDomain, e);
             }
 
-            if (privateKey == null) {
+            if (key == null) {
                 throw new SAMLSSOException(
                         "Cannot find the private key for tenant " + tenantDomain);
             }
 
-            this.privateKey = privateKey;
+            this.privateKey = key;
         }
 
         if (cert == null) {
@@ -135,55 +134,65 @@ public class X509CredentialImpl implements X509Credential {
     /**
      * Retrieves the publicKey
      */
+    @Override
     public PublicKey getPublicKey() {
         return publicKey;
     }
 
+    @Override
     public PrivateKey getPrivateKey() {
         return privateKey;
     }
 
+    @Override
     public X509Certificate getEntityCertificate() {
         return entityCertificate;
     }
 
     // ********** Not implemented **************************************************************
-
+    @Override
     public Collection<X509CRL> getCRLs() {
         // TODO Auto-generated method stub
-        return null;
+        return CollectionUtils.EMPTY_COLLECTION;
     }
 
+    @Override
     public Collection<X509Certificate> getEntityCertificateChain() {
         // TODO Auto-generated method stub
-        return null;
+        return Collections.emptySet();
     }
 
+    @Override
     public CredentialContextSet getCredentalContextSet() {
         // TODO Auto-generated method stub
         return null;
     }
 
+    @Override
     public Class<? extends Credential> getCredentialType() {
         // TODO Auto-generated method stub
         return null;
     }
 
+    @Override
     public String getEntityId() {
         // TODO Auto-generated method stub
         return null;
     }
 
+    @Override
     public Collection<String> getKeyNames() {
         // TODO Auto-generated method stub
-        return null;
+        return Collections.emptySet();
     }
 
+    @Override
     public SecretKey getSecretKey() {
         // TODO Auto-generated method stub
         return null;
     }
 
+    @Override
     public UsageType getUsageType() {
         // TODO Auto-generated method stub
         return null;

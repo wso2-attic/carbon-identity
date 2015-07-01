@@ -16,12 +16,12 @@
 ~ under the License.
 -->
 
-<%@page import="org.wso2.carbon.identity.application.common.model.idp.xsd.ProvisioningConnectorConfig"%>
+<%@page import="org.wso2.carbon.identity.application.common.model.idp.xsd.FederatedAuthenticatorConfig"%>
 <%@ page import="org.wso2.carbon.identity.application.common.model.idp.xsd.IdentityProvider" %>
-<%@ page import="org.wso2.carbon.identity.application.common.model.idp.xsd.FederatedAuthenticatorConfig" %>
 <%@ page import="org.wso2.carbon.identity.application.common.model.idp.xsd.Property" %>
-<%@ page import="org.wso2.carbon.idp.mgt.ui.util.IdPManagementUIUtil" %>
+<%@ page import="org.wso2.carbon.identity.application.common.model.idp.xsd.ProvisioningConnectorConfig" %>
 <%@ page import="org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants" %>
+<%@ page import="org.wso2.carbon.idp.mgt.ui.util.IdPManagementUIUtil" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="carbon" uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar"%>
 
@@ -43,6 +43,8 @@
     String tokenUrl = null;
     String userInfoUrl = null;
     String passiveSTSUrl = null;
+    String sessionIdleTimeout = null;
+    String rememberMeTimeout = null;
     FederatedAuthenticatorConfig[] federatedAuthenticators = residentIdentityProvider.getFederatedAuthenticatorConfigs();
     for(FederatedAuthenticatorConfig federatedAuthenticator : federatedAuthenticators){
         Property[] properties = federatedAuthenticator.getProperties();
@@ -66,6 +68,12 @@
         } else if(IdentityApplicationConstants.Authenticator.PassiveSTS.NAME.equals(federatedAuthenticator.getName())){
             passiveSTSUrl = IdPManagementUIUtil.getProperty(properties,
                     IdentityApplicationConstants.Authenticator.PassiveSTS.PASSIVE_STS_URL).getValue();
+        }else if(IdentityApplicationConstants.Authenticator.IDPProperties.NAME.equals(federatedAuthenticator.getName())){
+            sessionIdleTimeout = IdPManagementUIUtil.getProperty(properties,
+                    IdentityApplicationConstants.Authenticator.IDPProperties.SESSION_IDLE_TIME_OUT).getValue();
+            rememberMeTimeout = IdPManagementUIUtil.
+                    getProperty(properties,
+                            IdentityApplicationConstants.Authenticator.IDPProperties.REMEMBER_ME_TIME_OUT).getValue();
         }
     }
     String scimUserEp = null;
@@ -104,7 +112,7 @@ jQuery(document).ready(function(){
         jQuery(this).next().slideToggle("fast");
         return false; //Prevent the browser jump to the link anchor
     })
-    
+
 })
 
     initSections("");
@@ -151,13 +159,31 @@ jQuery(document).ready(function(){
                                 </div>
                             </td>
                         </tr>
+                        <tr>
+                            <td class="leftCol-med labelField"><fmt:message key='idle.session.timeout'/>:</td>
+                            <td>
+                                <input id="sessionIdleTimeout" name="sessionIdleTimeout" type="text" value="<%=sessionIdleTimeout%>" autofocus/>
+                                <div class="sectionHelp">
+                                    <fmt:message key='idle.session.timeout.help'/>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="leftCol-med labelField"><fmt:message key='remember.me.timeout'/>:</td>
+                            <td>
+                                <input id="rememberMeTimeout" name="rememberMeTimeout" type="text" value="<%=rememberMeTimeout%>" autofocus/>
+                                <div class="sectionHelp">
+                                    <fmt:message key='remember.me.timeout.help'/>
+                                </div>
+                            </td>
+                        </tr>
                     </table>
-                    
+
                     <h2 id="authenticationconfighead"  class="sectionSeperator trigger active" >
                 		<a href="#">Inbound Authentication Configuration</a>
             		</h2>
             		<div class="toggle_container sectionSub" style="margin-bottom:10px;display:none" id="authenticationconfig">
-                    
+
                     <h2 id="openidconfighead"  class="sectionSeperator trigger active" style="background-color: beige;">
                 		<a href="#"><fmt:message key='openid.config'/></a>
             		</h2>
@@ -169,12 +195,12 @@ jQuery(document).ready(function(){
                         </tr>
                     </table>
                     </div>
-                    
+
                     <h2 id="saml2confighead"  class="sectionSeperator trigger active" style="background-color: beige;">
                 		<a href="#"><fmt:message key='saml2.web.sso.config'/></a>
             		</h2>
             		<div class="toggle_container sectionSub" style="margin-bottom:10px;display:none" id="saml2config">
-                    
+
                     <table class="carbonFormTable">
                         <tr>
                             <td class="leftCol-med labelField"><fmt:message key='idp.entity.id'/>:</td>
@@ -195,12 +221,12 @@ jQuery(document).ready(function(){
                         </tr>
                     </table>
                     </div>
-                    
+
                     <h2 id="oidcconfighead"  class="sectionSeperator trigger active" style="background-color: beige;">
                 		<a href="#"><fmt:message key='oidc.config'/></a>
             		</h2>
             		<div class="toggle_container sectionSub" style="margin-bottom:10px;display:none" id="oidcconfig">
-                    
+
                     <table class="carbonFormTable">
                         <tr>
                             <td class="leftCol-med labelField"><fmt:message key='authz.endpoint'/>:</td>
@@ -216,12 +242,12 @@ jQuery(document).ready(function(){
                         </tr>
                     </table>
                     </div>
-                    
+
                      <h2 id="passivestsconfighead"  class="sectionSeperator trigger active" style="background-color: beige;">
                 		<a href="#"><fmt:message key='passive.sts.local.config'/></a>
             		</h2>
             		<div class="toggle_container sectionSub" style="margin-bottom:10px;display:none" id="passivestsconfig">
-                    
+
                     <table class="carbonFormTable">
                         <tr>
                             <td>
@@ -231,7 +257,7 @@ jQuery(document).ready(function(){
                                        style="background-image:url(images/configure.gif);margin-left: 0"><fmt:message key='apply.security.policy'/></a>
                                 </div>
                             </td>
-                            
+
                             </tr>
                             <tr>
                             <td>
@@ -242,17 +268,17 @@ jQuery(document).ready(function(){
                                     </a>
                                 </div>
                             </td>
-       
+
                         </tr>
-              
+
                     </table>
                     </div>
                 </div>
-                
+
                     <h2 id="inboundprovisioningconfighead"  class="sectionSeperator trigger active">
                 		<a href="#">Inbound Provisioning Configuration</a>
             		</h2>
-            		<div class="toggle_container sectionSub" style="margin-bottom:10px;display:none" id="inboundprovisioningconfig"> 
+            		<div class="toggle_container sectionSub" style="margin-bottom:10px;display:none" id="inboundprovisioningconfig">
             		  <table class="carbonFormTable">
                         <tr>
                             <td class="leftCol-med labelField"><fmt:message key='scim.user.endpoint'/>:</td>
@@ -263,8 +289,8 @@ jQuery(document).ready(function(){
                             <td><%=scimGroupEp%></td>
                         </tr>
                     </table>
-            		
-            		</div>               
+
+            		</div>
                 </div>
                 <div class="buttonRow">
                     <input type="button" value="<fmt:message key='update'/>" onclick="idpMgtUpdate();"/>

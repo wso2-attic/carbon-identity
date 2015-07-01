@@ -1,12 +1,12 @@
 /*
- *  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- *  WSO2 Inc. licenses this file to you under the Apache License,
- *  Version 2.0 (the "License"); you may not use this file except
- *  in compliance with the License.
- *  You may obtain a copy of the License at
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -15,10 +15,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.wso2.carbon.identity.scim.provider.resources;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.identity.jaxrs.designator.PATCH;
 import org.wso2.carbon.identity.scim.provider.impl.IdentitySCIMManager;
 import org.wso2.carbon.identity.scim.provider.util.JAXRSResponseBuilder;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
@@ -33,7 +36,15 @@ import org.wso2.charon.core.protocol.endpoints.AbstractResourceEndpoint;
 import org.wso2.charon.core.protocol.endpoints.UserResourceEndpoint;
 import org.wso2.charon.core.schema.SCIMConstants;
 
-import javax.ws.rs.*;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -57,14 +68,7 @@ public class UserResource extends AbstractResource {
             format = identifyOutputFormat(format);
             // obtain the encoder at this layer in case exceptions needs to be encoded.
             encoder = identitySCIMManager.getEncoder(SCIMConstants.identifyFormat(format));
-            // perform authentication
-            /*
-             * Map<String, String> headerMap = new HashMap<String, String>();
-             * headerMap.put(SCIMConstants.AUTHORIZATION_HEADER, authorization);
-             * headerMap.put(SCIMConstants.AUTHENTICATION_TYPE_HEADER, authMechanism);
-             */
-            // authenticate the request
-            // AuthenticationInfo authInfo = identitySCIMManager.handleAuthentication(headerMap);
+
             // obtain the user store manager
             UserManager userManager = IdentitySCIMManager.getInstance().getUserManager(
                     authorization);
@@ -89,7 +93,6 @@ public class UserResource extends AbstractResource {
             return new JAXRSResponseBuilder().buildResponse(AbstractResourceEndpoint
                     .encodeSCIMException(encoder, e));
         } catch (FormatNotSupportedException e) {
-            e.printStackTrace();
             return new JAXRSResponseBuilder().buildResponse(AbstractResourceEndpoint
                     .encodeSCIMException(encoder, e));
         }
@@ -120,13 +123,6 @@ public class UserResource extends AbstractResource {
             outputFormat = identifyOutputFormat(outputFormat);
             // obtain the encoder at this layer in case exceptions needs to be encoded.
             encoder = identitySCIMManager.getEncoder(SCIMConstants.identifyFormat(outputFormat));
-            /*
-             * //perform authentication Map<String, String> headerMap = new HashMap<String,
-             * String>(); headerMap.put(SCIMConstants.AUTHORIZATION_HEADER, authorization);
-             * //authenticate the request //AuthenticationInfo authInfo =
-             * identitySCIMManager.handleAuthentication(headerMap);
-             * System.out.println("user name at user resource: " + authorization);
-             */
 
             // obtain the user store manager
             UserManager userManager = IdentitySCIMManager.getInstance().getUserManager(
@@ -179,13 +175,6 @@ public class UserResource extends AbstractResource {
             format = identifyOutputFormat(format);
             // obtain the encoder at this layer in case exceptions needs to be encoded.
             encoder = identitySCIMManager.getEncoder(SCIMConstants.identifyFormat(format));
-            // perform authentication
-            /*
-             * Map<String, String> headerMap = new HashMap<String, String>();
-             * headerMap.put(SCIMConstants.AUTHORIZATION_HEADER, authorization); //authenticate the
-             * request AuthenticationInfo authInfo =
-             * identitySCIMManager.handleAuthentication(headerMap);
-             */
 
             // obtain the user store manager
             UserManager userManager = IdentitySCIMManager.getInstance().getUserManager(
@@ -234,13 +223,6 @@ public class UserResource extends AbstractResource {
             format = identifyOutputFormat(format);
             // obtain the encoder at this layer in case exceptions needs to be encoded.
             encoder = identitySCIMManager.getEncoder(SCIMConstants.identifyFormat(format));
-            // perform authentication
-            /*
-             * Map<String, String> headerMap = new HashMap<String, String>();
-             * headerMap.put(SCIMConstants.AUTHORIZATION_HEADER, authorization); //authenticate the
-             * request AuthenticationInfo authInfo =
-             * identitySCIMManager.handleAuthentication(headerMap);
-             */
 
             // obtain the user store manager
             UserManager userManager = IdentitySCIMManager.getInstance().getUserManager(
@@ -322,13 +304,6 @@ public class UserResource extends AbstractResource {
             outputFormat = identifyOutputFormat(outputFormat);
             // obtain the encoder at this layer in case exceptions needs to be encoded.
             encoder = identitySCIMManager.getEncoder(SCIMConstants.identifyFormat(outputFormat));
-            // perform authentication
-            /*
-             * Map<String, String> headerMap = new HashMap<String, String>();
-             * headerMap.put(SCIMConstants.AUTHORIZATION_HEADER, authorization); //authenticate the
-             * request AuthenticationInfo authInfo =
-             * identitySCIMManager.handleAuthentication(headerMap);
-             */
 
             // obtain the user store manager
             UserManager userManager = IdentitySCIMManager.getInstance().getUserManager(
@@ -362,6 +337,61 @@ public class UserResource extends AbstractResource {
         }
     }
 
+    @PATCH
+    @Path("{id}")
+    public Response updateUserPATCH(@PathParam(SCIMConstants.CommonSchemaConstants.ID) String id,
+                                    @HeaderParam(SCIMConstants.CONTENT_TYPE_HEADER) String inputFormat,
+                                    @HeaderParam(SCIMConstants.ACCEPT_HEADER) String outputFormat,
+                                    @HeaderParam(SCIMConstants.AUTHORIZATION_HEADER) String authorization,
+                                    String resourceString) {
+        Encoder encoder = null;
+        try {
+            // obtain default charon manager
+            IdentitySCIMManager identitySCIMManager = IdentitySCIMManager.getInstance();
+
+            // content-type header is compulsory in post request.
+            if (StringUtils.isEmpty(inputFormat)) {
+                String error = SCIMConstants.CONTENT_TYPE_HEADER
+                        + " not present in the request header";
+                throw new FormatNotSupportedException(error);
+            }
+            // identify input format
+            inputFormat = identifyInputFormat(inputFormat);
+            // set the format in which the response should be encoded, if not specified in the
+            // request,
+            // defaults to application/json.
+            outputFormat = identifyOutputFormat(outputFormat);
+            // obtain the encoder at this layer in case exceptions needs to be encoded.
+            encoder = identitySCIMManager.getEncoder(SCIMConstants.identifyFormat(outputFormat));
+
+            // obtain the user store manager
+            UserManager userManager = IdentitySCIMManager.getInstance().getUserManager(
+                    authorization);
+
+            // create charon-SCIM user endpoint and hand-over the request.
+            UserResourceEndpoint userResourceEndpoint = new UserResourceEndpoint();
+
+            SCIMResponse response = userResourceEndpoint.updateWithPATCH(id, resourceString,
+                    inputFormat, outputFormat, userManager);
+
+            return new JAXRSResponseBuilder().buildResponse(response);
+
+        } catch (CharonException e) {
+            logger.error("Charon Exception raised while executing PATCH request.", e);
+            // create SCIM response with code as the same of exception and message as error message
+            // of the exception
+            if (e.getCode() == -1) {
+                e.setCode(ResponseCodeConstants.CODE_INTERNAL_SERVER_ERROR);
+            }
+            return new JAXRSResponseBuilder().buildResponse(AbstractResourceEndpoint
+                    .encodeSCIMException(encoder, e));
+        } catch (FormatNotSupportedException e) {
+            logger.debug("Request format is not supported.", e);
+            return new JAXRSResponseBuilder().buildResponse(AbstractResourceEndpoint
+                    .encodeSCIMException(encoder, e));
+        }
+    }
+
     @GET
     @Path("/me")
     @Produces(MediaType.APPLICATION_JSON)
@@ -377,16 +407,8 @@ public class UserResource extends AbstractResource {
             format = identifyOutputFormat(format);
             // obtain the encoder at this layer in case exceptions needs to be encoded.
             encoder = identitySCIMManager.getEncoder(SCIMConstants.identifyFormat(format));
-            // perform authentication
-                    /*
-                    * Map<String, String> headerMap = new HashMap<String, String>();
-                    * headerMap.put(SCIMConstants.AUTHORIZATION_HEADER, authorization); //authenticate the
-                    * request AuthenticationInfo authInfo =
-                    * identitySCIMManager.handleAuthentication(headerMap);
-                    */
 
             // obtain the user store manager
-
             String SCIM_LIST_USER_PERMISSION = "/permission/admin/login";
             UserManager userManager = IdentitySCIMManager.getInstance().getUserManager(
                     authorization, SCIM_LIST_USER_PERMISSION);
@@ -395,7 +417,6 @@ public class UserResource extends AbstractResource {
             UserResourceEndpoint userResourceEndpoint = new UserResourceEndpoint();
             SCIMResponse scimResponse = null;
             scimResponse = userResourceEndpoint.listByFilter(filter, userManager, format);
-
 
             return new JAXRSResponseBuilder().buildResponse(scimResponse);
 

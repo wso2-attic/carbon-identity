@@ -1,3 +1,21 @@
+/*
+ * Copyright (c) 2014 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 package org.wso2.carbon.idp.mgt.dao;
 
 import org.wso2.carbon.identity.application.common.model.FederatedAuthenticatorConfig;
@@ -34,13 +52,16 @@ public class FileBasedIdPMgtDAO {
         for (Iterator<Entry<String, IdentityProvider>> iterator = identityProviders.entrySet().iterator(); iterator
                 .hasNext(); ) {
             Entry<String, IdentityProvider> entry = iterator.next();
-            FederatedAuthenticatorConfig[] federatedAuthenticatorConfigs = entry.getValue().getFederatedAuthenticatorConfigs();
+            FederatedAuthenticatorConfig[] federatedAuthenticatorConfigs = entry.getValue().
+                    getFederatedAuthenticatorConfigs();
             // Get SAML2 Web SSO authenticator
-            FederatedAuthenticatorConfig samlAuthenticatorConfig = IdentityApplicationManagementUtil.getFederatedAuthenticator(
-                    federatedAuthenticatorConfigs, IdentityApplicationConstants.Authenticator.SAML2SSO.NAME);
+            FederatedAuthenticatorConfig samlAuthenticatorConfig = IdentityApplicationManagementUtil.
+                    getFederatedAuthenticator(
+                            federatedAuthenticatorConfigs, IdentityApplicationConstants.Authenticator.SAML2SSO.NAME);
 
             if (samlAuthenticatorConfig != null) {
-                Property samlProperty = IdentityApplicationManagementUtil.getProperty(samlAuthenticatorConfig.getProperties(),
+                Property samlProperty = IdentityApplicationManagementUtil.getProperty(samlAuthenticatorConfig.
+                                getProperties(),
                         property);
                 if (samlProperty != null) {
                     if (value.equalsIgnoreCase(samlProperty.getValue())) {
