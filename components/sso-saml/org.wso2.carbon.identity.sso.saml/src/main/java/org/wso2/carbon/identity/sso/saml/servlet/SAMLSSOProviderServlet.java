@@ -742,7 +742,7 @@ public class SAMLSSOProviderServlet extends HttpServlet {
         authnReqDTO.setTenantDomain(sessionDTO.getTenantDomain());
 
         SAMLSSOUtil.setIsSaaSApplication(authResult.isSaaSApp());
-        SAMLSSOUtil.setUserTenantDomain(authResult.getAuthenticatedUserTenantDomain());
+        SAMLSSOUtil.setUserTenantDomain(authResult.getSubject().getTenantDomain());
     }
 
     private Cookie getTokenIdCookie(HttpServletRequest req) {

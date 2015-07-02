@@ -336,8 +336,8 @@ public class DefaultStepBasedSequenceHandler implements StepBasedSequenceHandler
                         }
 
                         //TODO: user tenant domain has to be an attribute in the AuthenticationContext
-                        authProperties.put(USER_TENANT_DOMAIN, tenantDomain);
-                        sequenceConfig.setAuthenticatedUserTenantDomain(tenantDomain);
+//                        authProperties.put(USER_TENANT_DOMAIN, tenantDomain);
+//                        sequenceConfig.setAuthenticatedUserTenantDomain(tenantDomain);
 
                         if (log.isDebugEnabled()) {
                             log.debug("Authenticated User: " +
@@ -424,12 +424,12 @@ public class DefaultStepBasedSequenceHandler implements StepBasedSequenceHandler
                     subjectFoundInStep = true;
                     sequenceConfig.setAuthenticatedUser(new AuthenticatedUser(stepConfig.getAuthenticatedUser()));
 
-                    String authenticatedUserTenantDomain = (String) context.getProperty(USER_TENANT_DOMAIN);
-                    sequenceConfig.setAuthenticatedUserTenantDomain(authenticatedUserTenantDomain);
+//                    String authenticatedUserTenantDomain = (String) context.getProperty(USER_TENANT_DOMAIN);
+//                    sequenceConfig.setAuthenticatedUserTenantDomain(authenticatedUserTenantDomain);
 
                     if (log.isDebugEnabled()) {
-                        log.debug("Authenticated User: " + sequenceConfig.getAuthenticatedUser());
-                        log.debug("Authenticated User Tenant Domain: " + authenticatedUserTenantDomain);
+                        log.debug("Authenticated User: " + sequenceConfig.getAuthenticatedUser().getUserName());
+                        log.debug("Authenticated User Tenant Domain: " + sequenceConfig.getAuthenticatedUser().getTenantDomain());
                     }
                 }
 
@@ -458,19 +458,26 @@ public class DefaultStepBasedSequenceHandler implements StepBasedSequenceHandler
 
         String subjectClaimURI = sequenceConfig.getApplicationConfig().getSubjectClaimUri();
         String subjectValue = (String) context.getProperty("ServiceProviderSubjectClaimValue");
-        if (subjectClaimURI != null && !subjectClaimURI.isEmpty() && subjectValue != null) {
-            sequenceConfig.getAuthenticatedUser().setAuthenticatedSubjectIdentifier(subjectValue);
+        if (subjectClaimURI != null) {
+            if (!subjectClaimURI.isEmpty() && subjectValue != null) {
+                sequenceConfig.getAuthenticatedUser().setAuthenticatedSubjectIdentifier(subjectValue);
 
-            String authenticatedUserTenantDomain = (String) context.getProperty(USER_TENANT_DOMAIN);
-            sequenceConfig.setAuthenticatedUserTenantDomain(authenticatedUserTenantDomain);
-
-            if (log.isDebugEnabled()) {
-                log.debug("Authenticated User: " +
-                          sequenceConfig.getAuthenticatedUser().getAuthenticatedSubjectIdentifier());
-                log.debug("Authenticated User Tenant Domain: " + authenticatedUserTenantDomain);
+                if (log.isDebugEnabled()) {
+                    log.debug("Authenticated User: " +
+                            sequenceConfig.getAuthenticatedUser().getAuthenticatedSubjectIdentifier());
+                    log.debug("Authenticated User Tenant Domain: " + sequenceConfig.getAuthenticatedUser().getTenantDomain());
+                }
+            } else if (subjectClaimURI != null && !subjectClaimURI.isEmpty()) {
+                log.warn("Subject claim could not be found. Defaulting to Name Identifier.");
+                sequenceConfig.getAuthenticatedUser().setAuthenticatedSubjectIdentifier(sequenceConfig
+                        .getAuthenticatedUser().getUsernameAsSubjectIdentifier(sequenceConfig.getApplicationConfig()
+                                .isUseUserstoreDomainInLocalSubjectIdentifier(), sequenceConfig.getApplicationConfig().isUseTenantDomainInLocalSubjectIdentifier()));
             }
-        } else if (subjectClaimURI != null && !subjectClaimURI.isEmpty()) {
-            log.warn("Subject claim could not be found. Defaulting to Name Identifier.");
+
+        } else {
+            sequenceConfig.getAuthenticatedUser().setAuthenticatedSubjectIdentifier(sequenceConfig
+                    .getAuthenticatedUser().getUsernameAsSubjectIdentifier(sequenceConfig.getApplicationConfig()
+                            .isUseUserstoreDomainInLocalSubjectIdentifier(), sequenceConfig.getApplicationConfig().isUseTenantDomainInLocalSubjectIdentifier()));
         }
 
         sequenceConfig.getAuthenticatedUser().setUserAttributes(authenticatedUserAttributes);

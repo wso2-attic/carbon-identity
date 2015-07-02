@@ -58,6 +58,7 @@ import org.wso2.carbon.identity.sso.saml.SAMLSSOConstants;
 import org.wso2.carbon.identity.sso.saml.builders.SignKeyDataHolder;
 import org.wso2.carbon.identity.sso.saml.dto.SAMLSSOAuthnReqDTO;
 import org.wso2.carbon.identity.sso.saml.util.SAMLSSOUtil;
+import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import java.util.Iterator;
 import java.util.Map;
@@ -88,30 +89,38 @@ public class DefaultSAMLAssertionBuilder implements SAMLAssertionBuilder {
 
             NameID nameId = new NameIDBuilder().buildObject();
 
-            if (authReqDTO.getUseFullyQualifiedUsernameAsSubject()) {
-                nameId.setValue(authReqDTO.getUser().getAuthenticatedSubjectIdentifier());
-                if (authReqDTO.getNameIDFormat() != null) {
-                    nameId.setFormat(authReqDTO.getNameIDFormat());
-                } else {
-                    nameId.setFormat(NameIdentifier.EMAIL);
-                }
-            } else {
-                // get tenant domain name from the username
-                String tenantDomainFromUserName = authReqDTO.getUser().getTenantDomain();
-                String authenticatedUserTenantDomain = SAMLSSOUtil.getUserTenantDomain();
-
-                if (authenticatedUserTenantDomain == null
-                        || !authenticatedUserTenantDomain.equals(tenantDomainFromUserName)) {
-                    // this means username comes from a federated Idp. no local
-                    // authenticator used.
-                    // no asserted identity for the user.
-                    nameId.setValue(authReqDTO.getUser().getAuthenticatedSubjectIdentifier());
-                } else {
-                    nameId.setValue(authReqDTO.getUser().getUserName());
-                }
-
+            nameId.setValue(authReqDTO.getUser().getAuthenticatedSubjectIdentifier());
+            if (authReqDTO.getNameIDFormat() != null) {
                 nameId.setFormat(authReqDTO.getNameIDFormat());
+            } else {
+                nameId.setFormat(NameIdentifier.EMAIL);
             }
+
+//            if (authReqDTO.getUseFullyQualifiedUsernameAsSubject()) {
+//                nameId.setValue(authReqDTO.getUser().getAuthenticatedSubjectIdentifier());
+//                if (authReqDTO.getNameIDFormat() != null) {
+//                    nameId.setFormat(authReqDTO.getNameIDFormat());
+//                } else {
+//                    nameId.setFormat(NameIdentifier.EMAIL);
+//                }
+//            } else {
+//                // get tenant domain name from the username
+//                String tenantDomainFromUserName = authReqDTO.getUser().getTenantDomain();
+//                String authenticatedUserTenantDomain = SAMLSSOUtil.getUserTenantDomain();
+//
+//                if (authenticatedUserTenantDomain == null
+//                        || !authenticatedUserTenantDomain.equals(tenantDomainFromUserName)) {
+//                    // this means username comes from a federated Idp. no local
+//                    // authenticator used.
+//                    // no asserted identity for the user.
+//                    nameId.setValue(authReqDTO.getUser().getAuthenticatedSubjectIdentifier());
+//                } else {
+//                    nameId.setValue(MultitenantUtils.getTenantAwareUsername( authReqDTO.getUser()
+//                            .getAuthenticatedSubjectIdentifier()));
+//                }
+//
+//                nameId.setFormat(authReqDTO.getNameIDFormat());
+//            }
 
             subject.setNameID(nameId);
 

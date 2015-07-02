@@ -344,9 +344,6 @@ public class DefaultAuthenticationRequestHandler implements AuthenticationReques
         if (context.getProperties() != null) {
             authenticatedUserTenantDomain = (String) context.getProperties()
                     .get("user-tenant-domain");
-            if (authenticatedUserTenantDomain != null) {
-                authenticationResult.setAuthenticatedUserTenantDomain(authenticatedUserTenantDomain);
-            }
         }
         return authenticatedUserTenantDomain;
     }
