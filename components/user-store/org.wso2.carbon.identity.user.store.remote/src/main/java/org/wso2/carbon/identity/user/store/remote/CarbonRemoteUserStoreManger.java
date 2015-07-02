@@ -22,6 +22,7 @@ import org.apache.axis2.context.ConfigurationContextFactory;
 import org.apache.axis2.description.TransportOutDescription;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.um.ws.api.WSRealmUtil;
 import org.wso2.carbon.um.ws.api.WSUserStoreManager;
 import org.wso2.carbon.user.api.ClaimManager;
 import org.wso2.carbon.user.api.Permission;
@@ -32,16 +33,15 @@ import org.wso2.carbon.user.core.UserStoreConfigConstants;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.claim.Claim;
+import org.wso2.carbon.user.core.common.AbstractUserStoreManager;
+import org.wso2.carbon.user.core.common.RoleContext;
 import org.wso2.carbon.user.core.tenant.Tenant;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
 
-public class CarbonRemoteUserStoreManger implements UserStoreManager {
+public class CarbonRemoteUserStoreManger extends AbstractUserStoreManager {
 
     private static final String CONNECTION_REFUSED = "Connection refused";
     private static final Log log = LogFactory.getLog(CarbonRemoteUserStoreManger.class);
@@ -57,6 +57,371 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
 
     public CarbonRemoteUserStoreManger() {
 
+    }
+
+    @Override
+    protected Map<String, String> getUserPropertyValues(String s, String[] strings, String s1) throws UserStoreException {
+        return null;
+    }
+
+    @Override
+    protected boolean doCheckExistingRole(String s) throws UserStoreException {
+        return false;
+    }
+
+    @Override
+    protected RoleContext createRoleContext(String s) throws UserStoreException {
+        return null;
+    }
+
+    @Override
+    protected boolean doCheckExistingUser(String s) throws UserStoreException {
+        return false;
+    }
+
+    @Override
+    protected String[] getUserListFromProperties(String s, String s1, String s2) throws UserStoreException {
+        return new String[0];
+    }
+
+    @Override
+    protected boolean doAuthenticate(String s, Object o) throws UserStoreException {
+        return false;
+    }
+
+    @Override
+    protected void doAddUser(String userName, Object credential, String[] roleList,
+                             Map<String, String> claims, String profileName, boolean requirePasswordChange)
+            throws UserStoreException {
+
+        for (Iterator<Entry<String, WSUserStoreManager>> iterator = remoteServers.entrySet()
+                .iterator(); iterator.hasNext(); ) {
+            Entry<String, WSUserStoreManager> remoteStore = iterator.next();
+            try {
+                remoteStore.getValue().addUser(userName, credential, roleList, claims, profileName);
+            } catch (UserStoreException e) {
+                if (!CONNECTION_REFUSED.equalsIgnoreCase(e.getMessage())) {
+                    throw e;
+                }
+                log.error("Failed to connect to the remote server : " + remoteStore.getKey());
+            }
+        }
+    }
+
+    @Override
+    protected void doUpdateCredential(String userName, Object newCredential, Object oldCredential)
+            throws UserStoreException {
+
+        for (Iterator<Entry<String, WSUserStoreManager>> iterator = remoteServers.entrySet()
+                .iterator(); iterator.hasNext(); ) {
+            Entry<String, WSUserStoreManager> remoteStore = iterator.next();
+            try {
+                remoteStore.getValue().updateCredential(userName, newCredential, oldCredential);
+            } catch (UserStoreException e) {
+                if (!CONNECTION_REFUSED.equalsIgnoreCase(e.getMessage())) {
+                    throw e;
+                }
+                log.error("Failed to connect to the remote server : " + remoteStore.getKey());
+            }
+        }
+    }
+
+    @Override
+    protected void doUpdateCredentialByAdmin(String userName, Object newCredential)
+            throws UserStoreException {
+
+        for (Iterator<Entry<String, WSUserStoreManager>> iterator = remoteServers.entrySet()
+                .iterator(); iterator.hasNext(); ) {
+            Entry<String, WSUserStoreManager> remoteStore = iterator.next();
+            try {
+                remoteStore.getValue().updateCredentialByAdmin(userName, newCredential);
+            } catch (UserStoreException e) {
+                if (!CONNECTION_REFUSED.equalsIgnoreCase(e.getMessage())) {
+                    throw e;
+                }
+                log.error("Failed to connect to the remote server : " + remoteStore.getKey());
+            }
+        }
+    }
+
+    @Override
+    protected void doDeleteUser(String userName) throws UserStoreException {
+
+        String domainAwareUserName = UserCoreUtil.removeDomainFromName(userName);
+
+        for (Iterator<Entry<String, WSUserStoreManager>> iterator = remoteServers.entrySet()
+                .iterator(); iterator.hasNext(); ) {
+            Entry<String, WSUserStoreManager> remoteStore = iterator.next();
+            try {
+                remoteStore.getValue().deleteUser(domainAwareUserName);
+            } catch (UserStoreException e) {
+                if (!CONNECTION_REFUSED.equalsIgnoreCase(e.getMessage())) {
+                    throw e;
+                }
+                log.error("Failed to connect to the remote server : " + remoteStore.getKey());
+            }
+        }
+    }
+
+    @Override
+    protected void doSetUserClaimValue(String userName, String claimURI, String claimValue,
+                                       String profileName) throws UserStoreException {
+
+        for (Iterator<Entry<String, WSUserStoreManager>> iterator = remoteServers.entrySet()
+                .iterator(); iterator.hasNext(); ) {
+            Entry<String, WSUserStoreManager> remoteStore = iterator.next();
+            try {
+                remoteStore.getValue().setUserClaimValue(userName, claimURI, claimValue,
+                        profileName);
+            } catch (UserStoreException e) {
+                if (!CONNECTION_REFUSED.equalsIgnoreCase(e.getMessage())) {
+                    throw e;
+                }
+                log.error("Failed to connect to the remote server : " + remoteStore.getKey());
+            }
+        }
+    }
+
+    @Override
+    protected void doSetUserClaimValues(String userName, Map<String, String> claims, String profileName)
+            throws UserStoreException {
+
+        for (Iterator<Entry<String, WSUserStoreManager>> iterator = remoteServers.entrySet()
+                .iterator(); iterator.hasNext(); ) {
+            Entry<String, WSUserStoreManager> remoteStore = iterator.next();
+            try {
+                remoteStore.getValue().setUserClaimValues(userName, claims, profileName);
+            } catch (UserStoreException e) {
+                if (!CONNECTION_REFUSED.equalsIgnoreCase(e.getMessage())) {
+                    throw e;
+                }
+                log.error("Failed to connect to the remote server : " + remoteStore.getKey());
+            }
+        }
+    }
+
+    @Override
+    protected void doDeleteUserClaimValue(String userName, String claimURI, String profileName)
+            throws UserStoreException {
+
+        for (Iterator<Entry<String, WSUserStoreManager>> iterator = remoteServers.entrySet()
+                .iterator(); iterator.hasNext(); ) {
+            Entry<String, WSUserStoreManager> remoteStore = iterator.next();
+            try {
+                remoteStore.getValue().deleteUserClaimValue(userName, claimURI, profileName);
+            } catch (UserStoreException e) {
+                if (!CONNECTION_REFUSED.equalsIgnoreCase(e.getMessage())) {
+                    throw e;
+                }
+                log.error("Failed to connect to the remote server : " + remoteStore.getKey());
+            }
+        }
+    }
+
+    @Override
+    protected void doDeleteUserClaimValues(String userName, String[] claims, String profileName)
+            throws UserStoreException {
+
+        for (Iterator<Entry<String, WSUserStoreManager>> iterator = remoteServers.entrySet()
+                .iterator(); iterator.hasNext(); ) {
+            Entry<String, WSUserStoreManager> remoteStore = iterator.next();
+            try {
+                remoteStore.getValue().deleteUserClaimValues(userName, claims, profileName);
+            } catch (UserStoreException e) {
+                if (!CONNECTION_REFUSED.equalsIgnoreCase(e.getMessage())) {
+                    throw e;
+                }
+                log.error("Failed to connect to the remote server : " + remoteStore.getKey());
+            }
+        }
+    }
+
+    @Override
+    protected void doUpdateUserListOfRole(String roleName, String[] deletedUsers, String[] newUsers)
+            throws UserStoreException {
+
+        for (Iterator<Entry<String, WSUserStoreManager>> iterator = remoteServers.entrySet()
+                .iterator(); iterator.hasNext(); ) {
+            Entry<String, WSUserStoreManager> remoteStore = iterator.next();
+            try {
+                remoteStore.getValue().updateUserListOfRole(roleName, deletedUsers, newUsers);
+            } catch (UserStoreException e) {
+                if (!CONNECTION_REFUSED.equalsIgnoreCase(e.getMessage())) {
+                    throw e;
+                }
+                log.error("Failed to connect to the remote server : " + remoteStore.getKey());
+            }
+        }
+    }
+
+    @Override
+    protected void doUpdateRoleListOfUser(String userName, String[] deletedRoles, String[] newRoles)
+            throws UserStoreException {
+
+        for (Iterator<Entry<String, WSUserStoreManager>> iterator = remoteServers.entrySet()
+                .iterator(); iterator.hasNext(); ) {
+            Entry<String, WSUserStoreManager> remoteStore = iterator.next();
+            try {
+                remoteStore.getValue().updateRoleListOfUser(userName, deletedRoles, newRoles);
+            } catch (UserStoreException e) {
+                if (!CONNECTION_REFUSED.equalsIgnoreCase(e.getMessage())) {
+                    throw e;
+                }
+                log.error("Failed to connect to the remote server : " + remoteStore.getKey());
+            }
+        }
+    }
+
+    @Override
+    protected String[] doGetExternalRoleListOfUser(String s, String s1) throws UserStoreException {
+        return new String[0];
+    }
+
+    @Override
+    protected String[] doGetSharedRoleListOfUser(String s, String s1, String s2) throws UserStoreException {
+        return new String[0];
+    }
+
+    @Override
+    protected void doAddRole(String s, String[] strings, boolean b) throws UserStoreException {
+
+    }
+
+    @Override
+    protected void doDeleteRole(String roleName) throws UserStoreException {
+
+        String domainAwareRoleName = UserCoreUtil.removeDomainFromName(roleName);
+
+        for (Iterator<Entry<String, WSUserStoreManager>> iterator = remoteServers.entrySet()
+                .iterator(); iterator.hasNext(); ) {
+            Entry<String, WSUserStoreManager> remoteStore = iterator.next();
+            try {
+                remoteStore.getValue().deleteRole(domainAwareRoleName);
+            } catch (UserStoreException e) {
+                if (!CONNECTION_REFUSED.equalsIgnoreCase(e.getMessage())) {
+                    throw e;
+                }
+                log.error("Failed to connect to the remote server : " + remoteStore.getKey());
+            }
+        }
+    }
+
+    @Override
+    protected void doUpdateRoleName(String roleName, String newRoleName) throws UserStoreException {
+
+        for (Iterator<Entry<String, WSUserStoreManager>> iterator = remoteServers.entrySet()
+                .iterator(); iterator.hasNext(); ) {
+            Entry<String, WSUserStoreManager> remoteStore = iterator.next();
+            try {
+                remoteStore.getValue().updateRoleName(roleName, newRoleName);
+            } catch (UserStoreException e) {
+                if (!CONNECTION_REFUSED.equalsIgnoreCase(e.getMessage())) {
+                    throw e;
+                }
+                log.error("Failed to connect to the remote server : " + remoteStore.getKey());
+            }
+        }
+    }
+
+    @Override
+    protected String[] doGetRoleNames(String s, int i) throws UserStoreException {
+        return new String[0];
+    }
+
+    @Override
+    protected String[] doListUsers(String filter, int maxItemLimit) throws UserStoreException {
+
+        String[] users = null;
+
+        try {
+            users = remoteUserStore.listUsers(filter, maxItemLimit);
+        } catch (UserStoreException e) {
+            if (!CONNECTION_REFUSED.equalsIgnoreCase(e.getMessage())) {
+                throw e;
+            }
+            synchronized (this) {
+                for (Iterator<Entry<String, WSUserStoreManager>> iterator = remoteServers
+                        .entrySet().iterator(); iterator.hasNext(); ) {
+                    Entry<String, WSUserStoreManager> remoteStore = iterator.next();
+                    try {
+                        users = remoteStore.getValue().listUsers(filter, maxItemLimit);
+                        remoteUserStore = remoteStore.getValue();
+                        break;
+                    } catch (UserStoreException ex) {
+                        if (!CONNECTION_REFUSED.equalsIgnoreCase(e.getMessage())) {
+
+                            if(log.isDebugEnabled()){
+
+                                log.debug(REMOTE_ERROR_MSG,ex);
+
+                            }
+
+                            throw e;
+                        }
+                        log.error("Failed to connect to the remote server : "
+                                + remoteStore.getKey());
+                    }
+                }
+            }
+        }
+
+        if (users != null) {
+            for (int i = 0; i < users.length; i++) {
+                users[i] = domainName + "/" + users[i];
+            }
+        } else {
+            users = new String[0];
+        }
+
+        return users;
+    }
+
+    @Override
+    protected Map<String, String> doGetUserClaimValues(String userName, String[] claims,
+                                                       String domainName, String profileName) throws UserStoreException {
+        Map<String, String> claimValue = new HashMap<String, String>();
+
+        try {
+            claimValue = remoteUserStore.getUserClaimValues(userName, claims, profileName);
+        } catch (UserStoreException e) {
+            if (!CONNECTION_REFUSED.equalsIgnoreCase(e.getMessage())) {
+                throw e;
+            }
+            synchronized (this) {
+                for (Iterator<Entry<String, WSUserStoreManager>> iterator = remoteServers
+                        .entrySet().iterator(); iterator.hasNext(); ) {
+                    Entry<String, WSUserStoreManager> remoteStore = iterator.next();
+                    try {
+                        claimValue = remoteStore.getValue().getUserClaimValues(userName, claims,
+                                profileName);
+                        remoteUserStore = remoteStore.getValue();
+                        break;
+                    } catch (UserStoreException ex) {
+                        if (!CONNECTION_REFUSED.equalsIgnoreCase(e.getMessage())) {
+
+                            if(log.isDebugEnabled()){
+
+                                log.debug(REMOTE_ERROR_MSG,ex);
+
+                            }
+
+                            throw e;
+                        }
+                        log.error("Failed to connect to the remote server : "
+                                + remoteStore.getKey());
+                    }
+                }
+            }
+        }
+        return claimValue;
+
+    }
+
+
+
+    @Override
+    protected String[] doGetDisplayNamesForInternalRole(String[] strings) throws UserStoreException {
+        return new String[0];
     }
 
     /**
@@ -278,68 +643,14 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
     }
 
     @Override
-    public ClaimManager getClaimManager() throws org.wso2.carbon.user.api.UserStoreException {
+    public org.wso2.carbon.user.core.claim.ClaimManager getClaimManager() {
         return remoteUserStore.getClaimManager();
     }
 
     @Override
-    public boolean isSCIMEnabled() throws org.wso2.carbon.user.api.UserStoreException {
+    public boolean isSCIMEnabled() {
         // CarbonRemoteUserStoreManger does not support SCIM.
         return false;
-    }
-
-    @Override
-    public boolean authenticate(String userName, Object credential) throws UserStoreException {
-        // CarbonRemoteUserStoreManger does not support authentication.
-        return false;
-    }
-
-    @Override
-    public String[] listUsers(String filter, int maxItemLimit) throws UserStoreException {
-
-        String[] users = null;
-
-        try {
-            users = remoteUserStore.listUsers(filter, maxItemLimit);
-        } catch (UserStoreException e) {
-            if (!CONNECTION_REFUSED.equalsIgnoreCase(e.getMessage())) {
-                throw e;
-            }
-            synchronized (this) {
-                for (Iterator<Entry<String, WSUserStoreManager>> iterator = remoteServers
-                        .entrySet().iterator(); iterator.hasNext(); ) {
-                    Entry<String, WSUserStoreManager> remoteStore = iterator.next();
-                    try {
-                        users = remoteStore.getValue().listUsers(filter, maxItemLimit);
-                        remoteUserStore = remoteStore.getValue();
-                        break;
-                    } catch (UserStoreException ex) {
-                        if (!CONNECTION_REFUSED.equalsIgnoreCase(e.getMessage())) {
-
-                            if(log.isDebugEnabled()){
-
-                                log.debug(REMOTE_ERROR_MSG,ex);
-
-                            }
-
-                            throw e;
-                        }
-                        log.error("Failed to connect to the remote server : "
-                                + remoteStore.getKey());
-                    }
-                }
-            }
-        }
-
-        if (users != null) {
-            for (int i = 0; i < users.length; i++) {
-                users[i] = domainName + "/" + users[i];
-            }
-        } else {
-            users = new String[0];
-        }
-
-        return users;
     }
 
     @Override
@@ -414,6 +725,11 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
             }
         }
         return roleExists;
+    }
+
+    @Override
+    public boolean doCheckIsUserInRole(String s, String s1) throws UserStoreException {
+        return false;
     }
 
     @Override
@@ -510,6 +826,60 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
     }
 
     @Override
+    protected String[] doGetSharedRoleNames(String s, String s1, int i) throws UserStoreException {
+        return new String[0];
+    }
+
+    @Override
+    protected String[] doGetUserListOfRole(String roleName, String s1) throws UserStoreException {
+
+
+        String[] users = null;
+
+        try {
+            users = remoteUserStore.getUserListOfRole(roleName);
+        } catch (UserStoreException e) {
+            if (!CONNECTION_REFUSED.equalsIgnoreCase(e.getMessage())) {
+                throw e;
+            }
+            synchronized (this) {
+                for (Iterator<Entry<String, WSUserStoreManager>> iterator = remoteServers
+                        .entrySet().iterator(); iterator.hasNext(); ) {
+                    Entry<String, WSUserStoreManager> remoteStore = iterator.next();
+                    try {
+                        users = remoteStore.getValue().getUserListOfRole(roleName);
+                        remoteUserStore = remoteStore.getValue();
+                        break;
+                    } catch (UserStoreException ex) {
+                        if (!CONNECTION_REFUSED.equalsIgnoreCase(e.getMessage())) {
+
+                            if(log.isDebugEnabled()){
+
+                                log.debug(REMOTE_ERROR_MSG,ex);
+
+                            }
+
+                            throw e;
+                        }
+                        log.error("Failed to connect to the remote server : "
+                                + remoteStore.getKey());
+                    }
+                }
+            }
+        }
+
+        if (users != null) {
+            for (int i = 0; i < users.length; i++) {
+                users[i] = domainName + "/" + users[i];
+            }
+        } else {
+            users = new String[0];
+        }
+
+        return users;
+    }
+
+    @Override
     public String[] getProfileNames(String userName) throws UserStoreException {
 
         String[] profileNames = new String[0];
@@ -591,173 +961,6 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
             roles = new String[0];
         }
         return roles;
-    }
-
-    @Override
-    public String[] getUserListOfRole(String roleName) throws UserStoreException {
-        String[] users = null;
-
-        try {
-            users = remoteUserStore.getUserListOfRole(roleName);
-        } catch (UserStoreException e) {
-            if (!CONNECTION_REFUSED.equalsIgnoreCase(e.getMessage())) {
-                throw e;
-            }
-            synchronized (this) {
-                for (Iterator<Entry<String, WSUserStoreManager>> iterator = remoteServers
-                        .entrySet().iterator(); iterator.hasNext(); ) {
-                    Entry<String, WSUserStoreManager> remoteStore = iterator.next();
-                    try {
-                        users = remoteStore.getValue().getUserListOfRole(roleName);
-                        remoteUserStore = remoteStore.getValue();
-                        break;
-                    } catch (UserStoreException ex) {
-                        if (!CONNECTION_REFUSED.equalsIgnoreCase(e.getMessage())) {
-
-                            if(log.isDebugEnabled()){
-
-                                log.debug(REMOTE_ERROR_MSG,ex);
-
-                            }
-
-                            throw e;
-                        }
-                        log.error("Failed to connect to the remote server : "
-                                + remoteStore.getKey());
-                    }
-                }
-            }
-        }
-
-        if (users != null) {
-            for (int i = 0; i < users.length; i++) {
-                users[i] = domainName + "/" + users[i];
-            }
-        } else {
-            users = new String[0];
-        }
-
-        return users;
-    }
-
-    @Override
-    public String getUserClaimValue(String userName, String claim, String profileName)
-            throws UserStoreException {
-        String claimValue = null;
-        try {
-            claimValue = remoteUserStore.getUserClaimValue(userName, claim, profileName);
-        } catch (UserStoreException e) {
-            if (!CONNECTION_REFUSED.equalsIgnoreCase(e.getMessage())) {
-                throw e;
-            }
-            synchronized (this) {
-                for (Iterator<Entry<String, WSUserStoreManager>> iterator = remoteServers
-                        .entrySet().iterator(); iterator.hasNext(); ) {
-                    Entry<String, WSUserStoreManager> remoteStore = iterator.next();
-                    try {
-                        claimValue = remoteStore.getValue().getUserClaimValue(userName, claim,
-                                profileName);
-                        remoteUserStore = remoteStore.getValue();
-                        break;
-                    } catch (UserStoreException ex) {
-                        if (!CONNECTION_REFUSED.equalsIgnoreCase(e.getMessage())) {
-
-                            if(log.isDebugEnabled()){
-
-                                log.debug(REMOTE_ERROR_MSG,ex);
-
-                            }
-
-                            throw e;
-                        }
-                        log.error("Failed to connect to the remote server : "
-                                + remoteStore.getKey());
-                    }
-                }
-            }
-        }
-        return claimValue;
-    }
-
-    @Override
-    public Map<String, String> getUserClaimValues(String userName, String[] claims,
-                                                  String profileName) throws UserStoreException {
-        Map<String, String> claimValue = new HashMap<String, String>();
-
-        try {
-            claimValue = remoteUserStore.getUserClaimValues(userName, claims, profileName);
-        } catch (UserStoreException e) {
-            if (!CONNECTION_REFUSED.equalsIgnoreCase(e.getMessage())) {
-                throw e;
-            }
-            synchronized (this) {
-                for (Iterator<Entry<String, WSUserStoreManager>> iterator = remoteServers
-                        .entrySet().iterator(); iterator.hasNext(); ) {
-                    Entry<String, WSUserStoreManager> remoteStore = iterator.next();
-                    try {
-                        claimValue = remoteStore.getValue().getUserClaimValues(userName, claims,
-                                profileName);
-                        remoteUserStore = remoteStore.getValue();
-                        break;
-                    } catch (UserStoreException ex) {
-                        if (!CONNECTION_REFUSED.equalsIgnoreCase(e.getMessage())) {
-
-                            if(log.isDebugEnabled()){
-
-                                log.debug(REMOTE_ERROR_MSG,ex);
-
-                            }
-
-                            throw e;
-                        }
-                        log.error("Failed to connect to the remote server : "
-                                + remoteStore.getKey());
-                    }
-                }
-            }
-        }
-        return claimValue;
-    }
-
-    /**
-     *
-     */
-    @Override
-    public Claim[] getUserClaimValues(String userName, String profileName)
-            throws UserStoreException {
-        Claim[] claim = new Claim[0];
-        try {
-            claim = remoteUserStore.getUserClaimValues(userName, profileName);
-        } catch (UserStoreException e) {
-            if (!CONNECTION_REFUSED.equalsIgnoreCase(e.getMessage())) {
-                throw e;
-            }
-            synchronized (this) {
-                for (Iterator<Entry<String, WSUserStoreManager>> iterator = remoteServers
-                        .entrySet().iterator(); iterator.hasNext(); ) {
-                    Entry<String, WSUserStoreManager> remoteStore = iterator.next();
-                    try {
-                        claim = remoteStore.getValue().getUserClaimValues(userName, profileName);
-                        remoteUserStore = remoteStore.getValue();
-                        break;
-                    } catch (UserStoreException ex) {
-                        if (!CONNECTION_REFUSED.equalsIgnoreCase(e.getMessage())) {
-
-                            if(log.isDebugEnabled()){
-
-                                log.debug(REMOTE_ERROR_MSG,ex);
-
-                            }
-
-                            throw e;
-                        }
-                        log.error("Failed to connect to the remote server : "
-                                + remoteStore.getKey());
-                    }
-                }
-            }
-        }
-        return claim;
     }
 
     /**
@@ -850,199 +1053,6 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
                 if (!CONNECTION_REFUSED.equalsIgnoreCase(e.getMessage())) {
 
 
-                    throw e;
-                }
-                log.error("Failed to connect to the remote server : " + remoteStore.getKey());
-            }
-        }
-    }
-
-    @Override
-    public void addUser(String userName, Object credential, String[] roleList,
-                        Map<String, String> claims, String profileName, boolean requirePasswordChange)
-            throws UserStoreException {
-        for (Iterator<Entry<String, WSUserStoreManager>> iterator = remoteServers.entrySet()
-                .iterator(); iterator.hasNext(); ) {
-            Entry<String, WSUserStoreManager> remoteStore = iterator.next();
-            try {
-                remoteStore.getValue().addUser(userName, credential, roleList, claims, profileName);
-            } catch (UserStoreException e) {
-                if (!CONNECTION_REFUSED.equalsIgnoreCase(e.getMessage())) {
-                    throw e;
-                }
-                log.error("Failed to connect to the remote server : " + remoteStore.getKey());
-            }
-        }
-    }
-
-    @Override
-    public void updateCredential(String userName, Object newCredential, Object oldCredential)
-            throws UserStoreException {
-        for (Iterator<Entry<String, WSUserStoreManager>> iterator = remoteServers.entrySet()
-                .iterator(); iterator.hasNext(); ) {
-            Entry<String, WSUserStoreManager> remoteStore = iterator.next();
-            try {
-                remoteStore.getValue().updateCredential(userName, newCredential, oldCredential);
-            } catch (UserStoreException e) {
-                if (!CONNECTION_REFUSED.equalsIgnoreCase(e.getMessage())) {
-                    throw e;
-                }
-                log.error("Failed to connect to the remote server : " + remoteStore.getKey());
-            }
-        }
-    }
-
-    @Override
-    public void updateCredentialByAdmin(String userName, Object newCredential)
-            throws UserStoreException {
-        for (Iterator<Entry<String, WSUserStoreManager>> iterator = remoteServers.entrySet()
-                .iterator(); iterator.hasNext(); ) {
-            Entry<String, WSUserStoreManager> remoteStore = iterator.next();
-            try {
-                remoteStore.getValue().updateCredentialByAdmin(userName, newCredential);
-            } catch (UserStoreException e) {
-                if (!CONNECTION_REFUSED.equalsIgnoreCase(e.getMessage())) {
-                    throw e;
-                }
-                log.error("Failed to connect to the remote server : " + remoteStore.getKey());
-            }
-        }
-    }
-
-    @Override
-    public void deleteUser(String userName) throws UserStoreException {
-
-        String domainAwareUserName = UserCoreUtil.removeDomainFromName(userName);
-
-        for (Iterator<Entry<String, WSUserStoreManager>> iterator = remoteServers.entrySet()
-                .iterator(); iterator.hasNext(); ) {
-            Entry<String, WSUserStoreManager> remoteStore = iterator.next();
-            try {
-                remoteStore.getValue().deleteUser(domainAwareUserName);
-            } catch (UserStoreException e) {
-                if (!CONNECTION_REFUSED.equalsIgnoreCase(e.getMessage())) {
-                    throw e;
-                }
-                log.error("Failed to connect to the remote server : " + remoteStore.getKey());
-            }
-        }
-    }
-
-    @Override
-    public void deleteRole(String roleName) throws UserStoreException {
-
-        String domainAwareRoleName = UserCoreUtil.removeDomainFromName(roleName);
-
-        for (Iterator<Entry<String, WSUserStoreManager>> iterator = remoteServers.entrySet()
-                .iterator(); iterator.hasNext(); ) {
-            Entry<String, WSUserStoreManager> remoteStore = iterator.next();
-            try {
-                remoteStore.getValue().deleteRole(domainAwareRoleName);
-            } catch (UserStoreException e) {
-                if (!CONNECTION_REFUSED.equalsIgnoreCase(e.getMessage())) {
-                    throw e;
-                }
-                log.error("Failed to connect to the remote server : " + remoteStore.getKey());
-            }
-        }
-    }
-
-    @Override
-    public void updateUserListOfRole(String roleName, String[] deletedUsers, String[] newUsers)
-            throws UserStoreException {
-        for (Iterator<Entry<String, WSUserStoreManager>> iterator = remoteServers.entrySet()
-                .iterator(); iterator.hasNext(); ) {
-            Entry<String, WSUserStoreManager> remoteStore = iterator.next();
-            try {
-                remoteStore.getValue().updateUserListOfRole(roleName, deletedUsers, newUsers);
-            } catch (UserStoreException e) {
-                if (!CONNECTION_REFUSED.equalsIgnoreCase(e.getMessage())) {
-                    throw e;
-                }
-                log.error("Failed to connect to the remote server : " + remoteStore.getKey());
-            }
-        }
-    }
-
-    @Override
-    public void updateRoleListOfUser(String userName, String[] deletedRoles, String[] newRoles)
-            throws UserStoreException {
-        for (Iterator<Entry<String, WSUserStoreManager>> iterator = remoteServers.entrySet()
-                .iterator(); iterator.hasNext(); ) {
-            Entry<String, WSUserStoreManager> remoteStore = iterator.next();
-            try {
-                remoteStore.getValue().updateRoleListOfUser(userName, deletedRoles, newRoles);
-            } catch (UserStoreException e) {
-                if (!CONNECTION_REFUSED.equalsIgnoreCase(e.getMessage())) {
-                    throw e;
-                }
-                log.error("Failed to connect to the remote server : " + remoteStore.getKey());
-            }
-        }
-    }
-
-    @Override
-    public void setUserClaimValue(String userName, String claimURI, String claimValue,
-                                  String profileName) throws UserStoreException {
-        for (Iterator<Entry<String, WSUserStoreManager>> iterator = remoteServers.entrySet()
-                .iterator(); iterator.hasNext(); ) {
-            Entry<String, WSUserStoreManager> remoteStore = iterator.next();
-            try {
-                remoteStore.getValue().setUserClaimValue(userName, claimURI, claimValue,
-                        profileName);
-            } catch (UserStoreException e) {
-                if (!CONNECTION_REFUSED.equalsIgnoreCase(e.getMessage())) {
-                    throw e;
-                }
-                log.error("Failed to connect to the remote server : " + remoteStore.getKey());
-            }
-        }
-    }
-
-    @Override
-    public void setUserClaimValues(String userName, Map<String, String> claims, String profileName)
-            throws UserStoreException {
-        for (Iterator<Entry<String, WSUserStoreManager>> iterator = remoteServers.entrySet()
-                .iterator(); iterator.hasNext(); ) {
-            Entry<String, WSUserStoreManager> remoteStore = iterator.next();
-            try {
-                remoteStore.getValue().setUserClaimValues(userName, claims, profileName);
-            } catch (UserStoreException e) {
-                if (!CONNECTION_REFUSED.equalsIgnoreCase(e.getMessage())) {
-                    throw e;
-                }
-                log.error("Failed to connect to the remote server : " + remoteStore.getKey());
-            }
-        }
-    }
-
-    @Override
-    public void deleteUserClaimValue(String userName, String claimURI, String profileName)
-            throws UserStoreException {
-        for (Iterator<Entry<String, WSUserStoreManager>> iterator = remoteServers.entrySet()
-                .iterator(); iterator.hasNext(); ) {
-            Entry<String, WSUserStoreManager> remoteStore = iterator.next();
-            try {
-                remoteStore.getValue().deleteUserClaimValue(userName, claimURI, profileName);
-            } catch (UserStoreException e) {
-                if (!CONNECTION_REFUSED.equalsIgnoreCase(e.getMessage())) {
-                    throw e;
-                }
-                log.error("Failed to connect to the remote server : " + remoteStore.getKey());
-            }
-        }
-    }
-
-    @Override
-    public void deleteUserClaimValues(String userName, String[] claims, String profileName)
-            throws UserStoreException {
-        for (Iterator<Entry<String, WSUserStoreManager>> iterator = remoteServers.entrySet()
-                .iterator(); iterator.hasNext(); ) {
-            Entry<String, WSUserStoreManager> remoteStore = iterator.next();
-            try {
-                remoteStore.getValue().deleteUserClaimValues(userName, claims, profileName);
-            } catch (UserStoreException e) {
-                if (!CONNECTION_REFUSED.equalsIgnoreCase(e.getMessage())) {
                     throw e;
                 }
                 log.error("Failed to connect to the remote server : " + remoteStore.getKey());
@@ -1326,22 +1336,6 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
     }
 
     @Override
-    public void updateRoleName(String roleName, String newRoleName) throws UserStoreException {
-        for (Iterator<Entry<String, WSUserStoreManager>> iterator = remoteServers.entrySet()
-                .iterator(); iterator.hasNext(); ) {
-            Entry<String, WSUserStoreManager> remoteStore = iterator.next();
-            try {
-                remoteStore.getValue().updateRoleName(roleName, newRoleName);
-            } catch (UserStoreException e) {
-                if (!CONNECTION_REFUSED.equalsIgnoreCase(e.getMessage())) {
-                    throw e;
-                }
-                log.error("Failed to connect to the remote server : " + remoteStore.getKey());
-            }
-        }
-    }
-
-    @Override
     public boolean isBulkImportSupported() throws UserStoreException {
         return false;
     }
@@ -1390,27 +1384,6 @@ public class CarbonRemoteUserStoreManger implements UserStoreManager {
             return new String[0];
         }
         return users;
-    }
-
-    @Override
-    public UserStoreManager getSecondaryUserStoreManager() {
-        return secondaryUserStoreManager;
-    }
-
-    @Override
-    public void setSecondaryUserStoreManager(UserStoreManager userStoreManager) {
-        this.secondaryUserStoreManager = userStoreManager;
-
-    }
-
-    @Override
-    public UserStoreManager getSecondaryUserStoreManager(String userDomain) {
-        return secondaryUserStoreManager;
-    }
-
-    @Override
-    public void addSecondaryUserStoreManager(String userDomain, UserStoreManager userStoreManager) {
-        return;
     }
 
     @Override
