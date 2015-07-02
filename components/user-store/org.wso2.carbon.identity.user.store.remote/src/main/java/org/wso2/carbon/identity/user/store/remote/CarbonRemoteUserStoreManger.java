@@ -22,9 +22,7 @@ import org.apache.axis2.context.ConfigurationContextFactory;
 import org.apache.axis2.description.TransportOutDescription;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.um.ws.api.WSRealmUtil;
 import org.wso2.carbon.um.ws.api.WSUserStoreManager;
-import org.wso2.carbon.user.api.ClaimManager;
 import org.wso2.carbon.user.api.Permission;
 import org.wso2.carbon.user.api.Properties;
 import org.wso2.carbon.user.api.Property;
@@ -32,7 +30,6 @@ import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.core.UserStoreConfigConstants;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
-import org.wso2.carbon.user.core.claim.Claim;
 import org.wso2.carbon.user.core.common.AbstractUserStoreManager;
 import org.wso2.carbon.user.core.common.RoleContext;
 import org.wso2.carbon.user.core.tenant.Tenant;
@@ -80,8 +77,49 @@ public class CarbonRemoteUserStoreManger extends AbstractUserStoreManager {
     }
 
     @Override
-    protected String[] getUserListFromProperties(String s, String s1, String s2) throws UserStoreException {
-        return new String[0];
+    protected String[] getUserListFromProperties(String claim, String claimValue, String profileName)
+            throws UserStoreException {
+        String[] users = new String[0];
+        try {
+            users = remoteUserStore.getUserList(claim, claimValue, profileName);
+        } catch (UserStoreException e) {
+            if (!CONNECTION_REFUSED.equalsIgnoreCase(e.getMessage())) {
+                throw e;
+            }
+            synchronized (this) {
+                for (Iterator<Entry<String, WSUserStoreManager>> iterator = remoteServers
+                        .entrySet().iterator(); iterator.hasNext(); ) {
+                    Entry<String, WSUserStoreManager> remoteStore = iterator.next();
+                    try {
+                        users = remoteStore.getValue().getUserList(claim, claimValue, profileName);
+                        remoteUserStore = remoteStore.getValue();
+                        break;
+                    } catch (UserStoreException ex) {
+                        if (!CONNECTION_REFUSED.equalsIgnoreCase(e.getMessage())) {
+
+                            if (log.isDebugEnabled()) {
+
+                                log.debug(REMOTE_ERROR_MSG, ex);
+
+                            }
+
+                            throw e;
+                        }
+                        log.error("Failed to connect to the remote server : "
+                                + remoteStore.getKey());
+                    }
+                }
+            }
+        }
+
+        if (users != null) {
+            for (int i = 0; i < users.length; i++) {
+                users[i] = domainName + "/" + users[i];
+            }
+        } else {
+            return new String[0];
+        }
+        return users;
     }
 
     @Override
@@ -324,8 +362,51 @@ public class CarbonRemoteUserStoreManger extends AbstractUserStoreManager {
     }
 
     @Override
-    protected String[] doGetRoleNames(String s, int i) throws UserStoreException {
-        return new String[0];
+    protected String[] doGetRoleNames(String filter, int maxItemLimit) throws UserStoreException {
+
+        String[] roles = null;
+
+        try {
+            roles = remoteUserStore.getRoleNames();
+        } catch (UserStoreException e) {
+            if (!CONNECTION_REFUSED.equalsIgnoreCase(e.getMessage())) {
+                throw e;
+            }
+            synchronized (this) {
+                for (Iterator<Entry<String, WSUserStoreManager>> iterator = remoteServers
+                        .entrySet().iterator(); iterator.hasNext(); ) {
+                    Entry<String, WSUserStoreManager> remoteStore = iterator.next();
+                    try {
+                        roles = remoteStore.getValue().getRoleNames();
+                        remoteUserStore = remoteStore.getValue();
+                        break;
+                    } catch (UserStoreException ex) {
+                        if (!CONNECTION_REFUSED.equalsIgnoreCase(e.getMessage())) {
+
+                            if (log.isDebugEnabled()) {
+
+                                log.debug(REMOTE_ERROR_MSG, ex);
+
+                            }
+
+                            throw e;
+                        }
+                        log.error("Failed to connect to the remote server : "
+                                + remoteStore.getKey());
+                    }
+                }
+            }
+        }
+
+        if (roles != null) {
+            for (int i = 0; i < roles.length; i++) {
+                roles[i] = domainName + "/" + roles[i];
+            }
+        } else {
+            roles = new String[0];
+        }
+
+        return roles;
     }
 
     @Override
@@ -350,9 +431,9 @@ public class CarbonRemoteUserStoreManger extends AbstractUserStoreManager {
                     } catch (UserStoreException ex) {
                         if (!CONNECTION_REFUSED.equalsIgnoreCase(e.getMessage())) {
 
-                            if(log.isDebugEnabled()){
+                            if (log.isDebugEnabled()) {
 
-                                log.debug(REMOTE_ERROR_MSG,ex);
+                                log.debug(REMOTE_ERROR_MSG, ex);
 
                             }
 
@@ -399,9 +480,9 @@ public class CarbonRemoteUserStoreManger extends AbstractUserStoreManager {
                     } catch (UserStoreException ex) {
                         if (!CONNECTION_REFUSED.equalsIgnoreCase(e.getMessage())) {
 
-                            if(log.isDebugEnabled()){
+                            if (log.isDebugEnabled()) {
 
-                                log.debug(REMOTE_ERROR_MSG,ex);
+                                log.debug(REMOTE_ERROR_MSG, ex);
 
                             }
 
@@ -416,7 +497,6 @@ public class CarbonRemoteUserStoreManger extends AbstractUserStoreManager {
         return claimValue;
 
     }
-
 
 
     @Override
@@ -531,9 +611,9 @@ public class CarbonRemoteUserStoreManger extends AbstractUserStoreManager {
                     } catch (UserStoreException ex) {
                         if (!CONNECTION_REFUSED.equalsIgnoreCase(e.getMessage())) {
 
-                            if(log.isDebugEnabled()){
+                            if (log.isDebugEnabled()) {
 
-                                log.debug(REMOTE_ERROR_MSG,ex);
+                                log.debug(REMOTE_ERROR_MSG, ex);
 
                             }
 
@@ -606,9 +686,9 @@ public class CarbonRemoteUserStoreManger extends AbstractUserStoreManager {
                     } catch (UserStoreException ex) {
                         if (!CONNECTION_REFUSED.equalsIgnoreCase(e.getMessage())) {
 
-                            if(log.isDebugEnabled()){
+                            if (log.isDebugEnabled()) {
 
-                                log.debug(REMOTE_ERROR_MSG,ex);
+                                log.debug(REMOTE_ERROR_MSG, ex);
 
                             }
 
@@ -644,7 +724,13 @@ public class CarbonRemoteUserStoreManger extends AbstractUserStoreManager {
 
     @Override
     public org.wso2.carbon.user.core.claim.ClaimManager getClaimManager() {
-        return remoteUserStore.getClaimManager();
+
+        try {
+            return remoteUserStore.getClaimManager();
+        } catch (org.wso2.carbon.user.api.UserStoreException e) {
+            log.error("Error while getting remote Claim Manager.", e);
+        }
+        return null;
     }
 
     @Override
@@ -673,9 +759,9 @@ public class CarbonRemoteUserStoreManger extends AbstractUserStoreManager {
                     } catch (UserStoreException ex) {
                         if (!CONNECTION_REFUSED.equalsIgnoreCase(e.getMessage())) {
 
-                            if(log.isDebugEnabled()){
+                            if (log.isDebugEnabled()) {
 
-                                log.debug(REMOTE_ERROR_MSG,ex);
+                                log.debug(REMOTE_ERROR_MSG, ex);
 
                             }
 
@@ -710,9 +796,9 @@ public class CarbonRemoteUserStoreManger extends AbstractUserStoreManager {
                     } catch (UserStoreException ex) {
                         if (!CONNECTION_REFUSED.equalsIgnoreCase(e.getMessage())) {
 
-                            if(log.isDebugEnabled()){
+                            if (log.isDebugEnabled()) {
 
-                                log.debug(REMOTE_ERROR_MSG,ex);
+                                log.debug(REMOTE_ERROR_MSG, ex);
 
                             }
 
@@ -730,99 +816,6 @@ public class CarbonRemoteUserStoreManger extends AbstractUserStoreManager {
     @Override
     public boolean doCheckIsUserInRole(String s, String s1) throws UserStoreException {
         return false;
-    }
-
-    @Override
-    public String[] getRoleNames() throws UserStoreException {
-
-        String[] roles = null;
-
-        try {
-            roles = remoteUserStore.getRoleNames();
-        } catch (UserStoreException e) {
-            if (!CONNECTION_REFUSED.equalsIgnoreCase(e.getMessage())) {
-                throw e;
-            }
-            synchronized (this) {
-                for (Iterator<Entry<String, WSUserStoreManager>> iterator = remoteServers
-                        .entrySet().iterator(); iterator.hasNext(); ) {
-                    Entry<String, WSUserStoreManager> remoteStore = iterator.next();
-                    try {
-                        roles = remoteStore.getValue().getRoleNames();
-                        remoteUserStore = remoteStore.getValue();
-                        break;
-                    } catch (UserStoreException ex) {
-                        if (!CONNECTION_REFUSED.equalsIgnoreCase(e.getMessage())) {
-
-                            if(log.isDebugEnabled()){
-
-                                log.debug(REMOTE_ERROR_MSG,ex);
-
-                            }
-
-                            throw e;
-                        }
-                        log.error("Failed to connect to the remote server : "
-                                + remoteStore.getKey());
-                    }
-                }
-            }
-        }
-
-        if (roles != null) {
-            for (int i = 0; i < roles.length; i++) {
-                roles[i] = domainName + "/" + roles[i];
-            }
-        } else {
-            roles = new String[0];
-        }
-
-        return roles;
-    }
-
-    @Override
-    public String[] getRoleNames(boolean noHybridRoles) throws UserStoreException {
-        String[] roles = null;
-
-        try {
-            roles = remoteUserStore.getRoleNames(noHybridRoles);
-        } catch (UserStoreException e) {
-            if (!CONNECTION_REFUSED.equalsIgnoreCase(e.getMessage())) {
-                throw e;
-            }
-            synchronized (this) {
-                for (Iterator<Entry<String, WSUserStoreManager>> iterator = remoteServers
-                        .entrySet().iterator(); iterator.hasNext(); ) {
-                    Entry<String, WSUserStoreManager> remoteStore = iterator.next();
-                    try {
-                        roles = remoteStore.getValue().getRoleNames(noHybridRoles);
-                        remoteUserStore = remoteStore.getValue();
-                        break;
-                    } catch (UserStoreException ex) {
-                        if (!CONNECTION_REFUSED.equalsIgnoreCase(e.getMessage())) {
-
-                            if(log.isDebugEnabled()){
-
-                                log.debug(REMOTE_ERROR_MSG,ex);
-
-                            }
-                            throw e;
-                        }
-                        log.error("Failed to connect to the remote server : "
-                                + remoteStore.getKey());
-                    }
-                }
-            }
-        }
-        if (roles != null) {
-            for (int i = 0; i < roles.length; i++) {
-                roles[i] = domainName + "/" + roles[i];
-            }
-        } else {
-            roles = new String[0];
-        }
-
-        return roles;
     }
 
     @Override
@@ -853,9 +846,9 @@ public class CarbonRemoteUserStoreManger extends AbstractUserStoreManager {
                     } catch (UserStoreException ex) {
                         if (!CONNECTION_REFUSED.equalsIgnoreCase(e.getMessage())) {
 
-                            if(log.isDebugEnabled()){
+                            if (log.isDebugEnabled()) {
 
-                                log.debug(REMOTE_ERROR_MSG,ex);
+                                log.debug(REMOTE_ERROR_MSG, ex);
 
                             }
 
@@ -901,9 +894,9 @@ public class CarbonRemoteUserStoreManger extends AbstractUserStoreManager {
                     } catch (UserStoreException ex) {
                         if (!CONNECTION_REFUSED.equalsIgnoreCase(e.getMessage())) {
 
-                            if(log.isDebugEnabled()){
+                            if (log.isDebugEnabled()) {
 
-                                log.debug(REMOTE_ERROR_MSG,ex);
+                                log.debug(REMOTE_ERROR_MSG, ex);
 
                             }
 
@@ -939,9 +932,9 @@ public class CarbonRemoteUserStoreManger extends AbstractUserStoreManager {
                     } catch (UserStoreException ex) {
                         if (!CONNECTION_REFUSED.equalsIgnoreCase(e.getMessage())) {
 
-                            if(log.isDebugEnabled()){
+                            if (log.isDebugEnabled()) {
 
-                                log.debug(REMOTE_ERROR_MSG,ex);
+                                log.debug(REMOTE_ERROR_MSG, ex);
 
                             }
 
@@ -986,9 +979,9 @@ public class CarbonRemoteUserStoreManger extends AbstractUserStoreManager {
                     } catch (UserStoreException ex) {
                         if (!CONNECTION_REFUSED.equalsIgnoreCase(e.getMessage())) {
 
-                            if(log.isDebugEnabled()){
+                            if (log.isDebugEnabled()) {
 
-                                log.debug(REMOTE_ERROR_MSG,ex);
+                                log.debug(REMOTE_ERROR_MSG, ex);
 
                             }
 
@@ -1023,9 +1016,9 @@ public class CarbonRemoteUserStoreManger extends AbstractUserStoreManager {
                     } catch (UserStoreException ex) {
                         if (!CONNECTION_REFUSED.equalsIgnoreCase(e.getMessage())) {
 
-                            if(log.isDebugEnabled()){
+                            if (log.isDebugEnabled()) {
 
-                                log.debug(REMOTE_ERROR_MSG,ex);
+                                log.debug(REMOTE_ERROR_MSG, ex);
 
                             }
 
@@ -1080,9 +1073,9 @@ public class CarbonRemoteUserStoreManger extends AbstractUserStoreManager {
                     } catch (UserStoreException ex) {
                         if (!CONNECTION_REFUSED.equalsIgnoreCase(e.getMessage())) {
 
-                            if(log.isDebugEnabled()){
+                            if (log.isDebugEnabled()) {
 
-                                log.debug(REMOTE_ERROR_MSG,ex);
+                                log.debug(REMOTE_ERROR_MSG, ex);
 
                             }
 
@@ -1126,9 +1119,9 @@ public class CarbonRemoteUserStoreManger extends AbstractUserStoreManager {
                     } catch (UserStoreException ex) {
                         if (!CONNECTION_REFUSED.equalsIgnoreCase(e.getMessage())) {
 
-                            if(log.isDebugEnabled()){
+                            if (log.isDebugEnabled()) {
 
-                                log.debug(REMOTE_ERROR_MSG,ex);
+                                log.debug(REMOTE_ERROR_MSG, ex);
 
                             }
 
@@ -1170,9 +1163,9 @@ public class CarbonRemoteUserStoreManger extends AbstractUserStoreManager {
                     } catch (UserStoreException ex) {
                         if (!CONNECTION_REFUSED.equalsIgnoreCase(e.getMessage())) {
 
-                            if(log.isDebugEnabled()){
+                            if (log.isDebugEnabled()) {
 
-                                log.debug(REMOTE_ERROR_MSG,ex);
+                                log.debug(REMOTE_ERROR_MSG, ex);
 
                             }
 
@@ -1207,9 +1200,9 @@ public class CarbonRemoteUserStoreManger extends AbstractUserStoreManager {
                     } catch (UserStoreException ex) {
                         if (!CONNECTION_REFUSED.equalsIgnoreCase(e.getMessage())) {
 
-                            if(log.isDebugEnabled()){
+                            if (log.isDebugEnabled()) {
 
-                                log.debug(REMOTE_ERROR_MSG,ex);
+                                log.debug(REMOTE_ERROR_MSG, ex);
 
                             }
 
@@ -1244,9 +1237,9 @@ public class CarbonRemoteUserStoreManger extends AbstractUserStoreManager {
                     } catch (UserStoreException ex) {
                         if (!CONNECTION_REFUSED.equalsIgnoreCase(e.getMessage())) {
 
-                            if(log.isDebugEnabled()){
+                            if (log.isDebugEnabled()) {
 
-                                log.debug(REMOTE_ERROR_MSG,ex);
+                                log.debug(REMOTE_ERROR_MSG, ex);
 
                             }
 
@@ -1281,9 +1274,9 @@ public class CarbonRemoteUserStoreManger extends AbstractUserStoreManager {
                     } catch (UserStoreException ex) {
                         if (!CONNECTION_REFUSED.equalsIgnoreCase(e.getMessage())) {
 
-                            if(log.isDebugEnabled()){
+                            if (log.isDebugEnabled()) {
 
-                                log.debug(REMOTE_ERROR_MSG,ex);
+                                log.debug(REMOTE_ERROR_MSG, ex);
 
                             }
 
@@ -1318,9 +1311,9 @@ public class CarbonRemoteUserStoreManger extends AbstractUserStoreManager {
                     } catch (UserStoreException ex) {
                         if (!CONNECTION_REFUSED.equalsIgnoreCase(e.getMessage())) {
 
-                            if(log.isDebugEnabled()){
+                            if (log.isDebugEnabled()) {
 
-                                log.debug(REMOTE_ERROR_MSG,ex);
+                                log.debug(REMOTE_ERROR_MSG, ex);
 
                             }
 
@@ -1338,52 +1331,6 @@ public class CarbonRemoteUserStoreManger extends AbstractUserStoreManager {
     @Override
     public boolean isBulkImportSupported() throws UserStoreException {
         return false;
-    }
-
-    @Override
-    public String[] getUserList(String claim, String claimValue, String profileName)
-            throws UserStoreException {
-        String[] users = new String[0];
-        try {
-            users = remoteUserStore.getUserList(claim, claimValue, profileName);
-        } catch (UserStoreException e) {
-            if (!CONNECTION_REFUSED.equalsIgnoreCase(e.getMessage())) {
-                throw e;
-            }
-            synchronized (this) {
-                for (Iterator<Entry<String, WSUserStoreManager>> iterator = remoteServers
-                        .entrySet().iterator(); iterator.hasNext(); ) {
-                    Entry<String, WSUserStoreManager> remoteStore = iterator.next();
-                    try {
-                        users = remoteStore.getValue().getUserList(claim, claimValue, profileName);
-                        remoteUserStore = remoteStore.getValue();
-                        break;
-                    } catch (UserStoreException ex) {
-                        if (!CONNECTION_REFUSED.equalsIgnoreCase(e.getMessage())) {
-
-                            if(log.isDebugEnabled()){
-
-                                log.debug(REMOTE_ERROR_MSG,ex);
-
-                            }
-
-                            throw e;
-                        }
-                        log.error("Failed to connect to the remote server : "
-                                + remoteStore.getKey());
-                    }
-                }
-            }
-        }
-
-        if (users != null) {
-            for (int i = 0; i < users.length; i++) {
-                users[i] = domainName + "/" + users[i];
-            }
-        } else {
-            return new String[0];
-        }
-        return users;
     }
 
     @Override
