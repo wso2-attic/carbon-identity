@@ -215,12 +215,6 @@
                 <groupId>org.wso2.carbon</groupId>
                 <artifactId>org.wso2.carbon.core</artifactId>
                 <version>${carbon.kernel.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>bouncycastle</groupId>
-                        <artifactId>bcprov-jdk15</artifactId>
-                    </exclusion>
-                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon</groupId>
@@ -1013,12 +1007,6 @@
                 <artifactId>org.wso2.carbon.identity.sso.saml.stub</artifactId>
                 <version>${carbon.identity.version}</version>
             </dependency>
-            <dependency>
-                <groupId>bouncycastle</groupId>
-                <artifactId>bcprov-jdk15</artifactId>
-                <version>${bcprov-jdk15.version}</version>
-            </dependency>
-
             <dependency>
                 <groupId>org.apache.amber.wso2</groupId>
                 <artifactId>amber</artifactId>
@@ -1924,7 +1912,6 @@
         <com.google.client.version>1.17.0-rc</com.google.client.version>
         <com.google.service.api.version>directory_v1-rev28-1.17.0-rc</com.google.service.api.version>
         <orbit.version.backport.util>3.1.0.wso2v1</orbit.version.backport.util>
-        <bcprov-jdk15.version>132</bcprov-jdk15.version>
         <stratos.version>2.2.0</stratos.version>
         <org.slf4j.verison>1.6.1</org.slf4j.verison>
         <org.slf4j.imp.pkg.version.range>[1.6.1,1.7.0)</org.slf4j.imp.pkg.version.range>
