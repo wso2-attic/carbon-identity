@@ -70,9 +70,6 @@
 
         serviceProviderDTO.setAssertionConsumerUrl(SAMLSSOUIUtil.getSafeInput(request, "assrtConsumerURL"));
 
-        if ("true".equals(request.getParameter("useFullQualifiedUsername"))) {
-            serviceProviderDTO.setUseFullyQualifiedUsername(true);
-        }
         if ("true".equals(request.getParameter("enableSingleLogout"))) {
             serviceProviderDTO.setDoSingleLogout(true);
         }

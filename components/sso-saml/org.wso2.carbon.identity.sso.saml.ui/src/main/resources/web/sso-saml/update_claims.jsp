@@ -35,7 +35,6 @@
 		 
 	String issuer = request.getParameter("issuer");
 	String assertionConsumerUrl = request.getParameter("assrtConsumerURL");
-	String useFullyQualifiedUserName = request.getParameter("useFullQualifiedUsername");
 	String enableSignatureTrigger = request.getParameter("enableSignatureTrigger");
 	String enableSignatureValidation = request.getParameter("enableSigValidation");
 	String certificateAlias = request.getParameter("alias");
@@ -51,7 +50,6 @@
 	
 	samlSsoServuceProviderConfigBean.setIssuer(issuer);
 	samlSsoServuceProviderConfigBean.setAssertionConsumerUrl(assertionConsumerUrl);
-	samlSsoServuceProviderConfigBean.setUseFullyQualifiedUserName(useFullyQualifiedUserName);
 	samlSsoServuceProviderConfigBean.setEnableAssertionSigning(enableSignatureTrigger);
 	samlSsoServuceProviderConfigBean.setEnableSignatureValidation(enableSignatureValidation);
 	samlSsoServuceProviderConfigBean.setCertificateAlias(certificateAlias);
