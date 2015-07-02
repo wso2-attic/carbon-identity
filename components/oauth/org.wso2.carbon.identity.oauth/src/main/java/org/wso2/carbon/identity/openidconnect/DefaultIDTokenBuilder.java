@@ -170,7 +170,7 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
 
         String digAlg = null;
         if(!JWSAlgorithm.NONE.getName().equals(signatureAlgorithm.getName())){
-            digAlg = mapDigestAlgorithm(signatureAlgorithm.getName());
+            digAlg = mapDigestAlgorithm(signatureAlgorithm);
         }
         MessageDigest md;
         try {
@@ -405,16 +405,16 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
      * @return
      * @throws IdentityOAuth2Exception
      */
-    protected String mapDigestAlgorithm(String signatureAlgorithm) throws IdentityOAuth2Exception {
+    protected String mapDigestAlgorithm(Algorithm signatureAlgorithm) throws IdentityOAuth2Exception {
 
-        if (SHA256_WITH_RSA.equals(signatureAlgorithm) || SHA256_WITH_HMAC.equals(signatureAlgorithm) ||
-                SHA256_WITH_EC.equals(signatureAlgorithm)) {
+        if (JWSAlgorithm.RS256.equals(signatureAlgorithm) || JWSAlgorithm.HS256.equals(signatureAlgorithm) ||
+            JWSAlgorithm.ES256.equals(signatureAlgorithm)) {
             return "SHA-256";
-        } else if (SHA384_WITH_RSA.equals(signatureAlgorithm) || SHA384_WITH_HMAC.equals(signatureAlgorithm) ||
-                SHA384_WITH_EC.equals(signatureAlgorithm)) {
+        } else if (JWSAlgorithm.RS384.equals(signatureAlgorithm) || JWSAlgorithm.HS384.equals(signatureAlgorithm) ||
+                   JWSAlgorithm.ES384.equals(signatureAlgorithm)) {
             return "SHA-384";
-        } else if (SHA512_WITH_RSA.equals(signatureAlgorithm) || SHA512_WITH_HMAC.equals(signatureAlgorithm) ||
-                SHA512_WITH_EC.equals(signatureAlgorithm)) {
+        } else if (JWSAlgorithm.RS512.equals(signatureAlgorithm) || JWSAlgorithm.HS512.equals(signatureAlgorithm) ||
+                   JWSAlgorithm.ES512.equals(signatureAlgorithm)) {
             return "SHA-512";
         }
         throw new RuntimeException("Cannot map Signature Algorithm in identity.xml to hashing algorithm");
