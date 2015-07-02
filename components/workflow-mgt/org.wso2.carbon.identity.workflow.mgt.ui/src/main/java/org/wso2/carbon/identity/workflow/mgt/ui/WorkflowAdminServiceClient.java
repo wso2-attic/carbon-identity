@@ -32,6 +32,7 @@ import org.wso2.carbon.identity.workflow.mgt.stub.bean.Parameter;
 import org.wso2.carbon.identity.workflow.mgt.stub.bean.TemplateBean;
 import org.wso2.carbon.identity.workflow.mgt.stub.bean.TemplateDTO;
 import org.wso2.carbon.identity.workflow.mgt.stub.bean.TemplateImplDTO;
+import org.wso2.carbon.identity.workflow.mgt.stub.bean.TemplateParameterDef;
 import org.wso2.carbon.identity.workflow.mgt.stub.bean.WorkflowBean;
 import org.wso2.carbon.identity.workflow.mgt.stub.bean.WorkflowEventDTO;
 
@@ -73,7 +74,16 @@ public class WorkflowAdminServiceClient {
 
     public TemplateDTO getTemplate(String templateName) throws RemoteException {
 
-        return stub.getTemplateDTO(templateName);
+        TemplateDTO templateDTO = stub.getTemplateDTO(templateName);
+        if (templateDTO !=null){
+            if(templateDTO.getParameters() == null){
+                templateDTO.setParameters(new TemplateParameterDef[0]);
+            }
+            if(templateDTO.getImplementations() == null){
+                templateDTO.setImplementations(new TemplateImplDTO[0]);
+            }
+        }
+        return templateDTO;
     }
 
     public TemplateImplDTO getTemplateImpDTO(String template, String implName) throws RemoteException {

@@ -66,12 +66,18 @@ public class WorkFlowExecutorManager {
             handleCallback(workFlowRequest, WorkflowRequestStatus.SKIPPED.toString(), null);
             return;
         }
-        WorkflowRequestDAO requestDAO = new WorkflowRequestDAO();
-        requestDAO.addWorkflowEntry(workFlowRequest);
+        boolean workflowEngaged = false;
+        boolean requestSaved = false;
         for (WorkflowAssociationBean association : associations) {
             try {
                 AXIOMXPath axiomxPath = new AXIOMXPath(association.getCondition());
                 if (axiomxPath.booleanValueOf(xmlRequest)) {
+                    workflowEngaged = true;
+                    if(!requestSaved){
+                        WorkflowRequestDAO requestDAO = new WorkflowRequestDAO();
+                        requestDAO.addWorkflowEntry(workFlowRequest);
+                        requestSaved = true;
+                    }
                     AbstractWorkflowTemplateImpl templateImplementation = WorkflowServiceDataHolder.getInstance()
                             .getTemplateImplementation(association.getTemplateId(), association.getImplId());
                     Map<String, Object> workflowParams = workflowDAO.getWorkflowParams(association.getWorkflowId());
@@ -84,6 +90,10 @@ public class WorkFlowExecutorManager {
                             xmlRequest, e);
                 }
             }
+        }
+
+        if(!workflowEngaged){
+            handleCallback(workFlowRequest, WorkflowRequestStatus.SKIPPED.toString(), null);
         }
     }
 

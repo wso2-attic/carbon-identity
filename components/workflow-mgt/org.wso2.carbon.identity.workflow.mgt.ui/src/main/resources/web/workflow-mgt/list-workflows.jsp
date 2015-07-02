@@ -66,6 +66,9 @@
         client = new WorkflowAdminServiceClient(cookie, backendServerURL, configContext);
 
         WorkflowBean[] workflows = client.listWorkflows();
+        if(workflows==null){
+            workflows = new WorkflowBean[0];
+        }
 
         numberOfPages = (int) Math.ceil((double) workflows.length / WorkflowUIConstants.RESULTS_PER_PAGE);
 

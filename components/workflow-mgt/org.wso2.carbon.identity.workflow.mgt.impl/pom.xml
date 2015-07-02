@@ -30,6 +30,7 @@
 
     <artifactId>org.wso2.carbon.identity.workflow.mgt.impl</artifactId>
     <packaging>bundle</packaging>
+    <name>WSO2 Carbon - Identity Workflow Mgt</name>
 
     <dependencies>
         <dependency>
