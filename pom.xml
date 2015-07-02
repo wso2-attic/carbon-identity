@@ -1760,7 +1760,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <!-- Carbon kernel version -->
-        <carbon.kernel.version>4.4.1-SNAPSHOT</carbon.kernel.version>
+        <carbon.kernel.version>4.4.0</carbon.kernel.version>
         <carbon.kernel.package.import.version.range>[4.4.0, 4.5.0)</carbon.kernel.package.import.version.range>
         <carbon.kernel.registry.imp.pkg.version>[1.0.1, 1.1.0)</carbon.kernel.registry.imp.pkg.version>
 
