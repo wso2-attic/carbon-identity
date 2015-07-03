@@ -114,6 +114,9 @@
                             org.wso2.carbon.identity.authenticator.saml2.sso.common.*;
                             version="${carbon.identity.package.export.version}"
                         </Export-Package>
+                        <Embed-Dependency>
+                            org.wso2.carbon.identity.authenticator.saml2.sso.stub;scope=compile|runtime;inline=true
+                        </Embed-Dependency>
                         <Carbon-Component>UIBundle</Carbon-Component>
                     </instructions>
                 </configuration>

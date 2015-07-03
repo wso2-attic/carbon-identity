@@ -31,7 +31,7 @@ import org.wso2.carbon.core.security.AuthenticatorsConfiguration;
 import org.wso2.carbon.identity.authenticator.saml2.sso.common.SAML2SSOAuthenticatorConstants;
 import org.wso2.carbon.identity.authenticator.saml2.sso.common.SAML2SSOUIAuthenticatorException;
 import org.wso2.carbon.identity.authenticator.saml2.sso.common.Util;
-import org.wso2.carbon.identity.authenticator.saml2.sso.ui.client.SAML2SSOAuthenticationClient;
+import org.wso2.carbon.identity.authenticator.saml2.sso.common.client.SAML2SSOAuthenticationClient;
 import org.wso2.carbon.identity.authenticator.saml2.sso.ui.internal.SAML2SSOAuthFEDataHolder;
 import org.wso2.carbon.identity.authenticator.saml2.sso.ui.session.SSOSessionManager;
 import org.wso2.carbon.ui.AbstractCarbonUIAuthenticator;
