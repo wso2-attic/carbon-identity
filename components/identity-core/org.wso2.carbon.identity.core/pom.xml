@@ -2,19 +2,19 @@
 <!--
   ~ Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
   ~
-  ~  WSO2 Inc. licenses this file to you under the Apache License,
-  ~  Version 2.0 (the "License"); you may not use this file except
-  ~  in compliance with the License.
-  ~  You may obtain a copy of the License at
+  ~ WSO2 Inc. licenses this file to you under the Apache License,
+  ~ Version 2.0 (the "License"); you may not use this file except
+  ~ in compliance with the License.
+  ~ You may obtain a copy of the License at
   ~
-  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~ http://www.apache.org/licenses/LICENSE-2.0
   ~
-  ~  Unless required by applicable law or agreed to in writing,
-  ~  software distributed under the License is distributed on an
-  ~  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-  ~  KIND, either express or implied.  See the License for the
-  ~  specific language governing permissions and limitations
-  ~  under the License.
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied.  See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
   -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
@@ -33,6 +33,10 @@
     <description>A custom wso2 products or solution</description>
     <url>http://www.wso2.com</url>
     <dependencies>
+        <dependency>
+            <groupId>commons-collections.wso2</groupId>
+            <artifactId>commons-collections</artifactId>
+        </dependency>
         <dependency>
             <groupId>javax.ws.rs</groupId>
             <artifactId>jsr311-api</artifactId>
@@ -78,6 +82,11 @@
             <groupId>org.wso2.securevault</groupId>
             <artifactId>org.wso2.securevault</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.opensaml</groupId>
+            <artifactId>opensaml</artifactId>
+            <version>2.6.4</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -112,6 +121,7 @@
                             org.apache.axis2.*; version="${axis2.osgi.version.range}",
                             org.apache.commons.codec.binary; version="${commons-codec.wso2.osgi.version.range}",
                             org.apache.commons.lang; version="${commons-lang.wso2.osgi.version.range}",
+                            org.apache.commons.collections; version="${commons-collections.wso2.osgi.version.range}",
                             org.apache.commons.logging; version="${commons-logging.osgi.version.range}",
                             org.apache.xml.security.utils; version="${wss4j.xml.security.imp.pkg.version.range}",
 
@@ -132,10 +142,20 @@
 
                             org.wso2.carbon.identity.base;version="${carbon.identity.package.import.version.range}",
                             org.wso2.carbon.security.config;version="${carbon.identity.package.import.version.range}",
+                            org.wso2.carbon.security; version="${carbon.identity.package.import.version.range}",
+                            org.wso2.carbon.security.keystore; version="${carbon.identity.package.import.version.range}",
+                            org.wso2.carbon.security.keystore.service; version="${carbon.identity.package.import.version.range}",
 
                             org.wso2.carbon.registry.core.*;version="${carbon.kernel.registry.imp.pkg.version}",
 
                             org.wso2.carbon.user.api; version="${carbon.user.api.imp.pkg.version.range}",
+                            javax.xml.parsers,
+                            javax.xml.transform,
+                            javax.xml.transform.dom,
+                            javax.xml.transform.stream,
+                            org.opensaml.*; version="${opensaml2.wso2.osgi.version.range}",
+                            org.xml.sax,
+
                         </Import-Package>
                         <Export-Package>
                             !org.wso2.carbon.identity.core.internal,
