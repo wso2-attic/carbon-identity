@@ -116,7 +116,7 @@ public class OAuth2Util {
      * @return
      */
     public static String[] buildScopeArray(String scopeStr) {
-        if (scopeStr != null) {
+        if (StringUtils.isNotBlank(scopeStr)) {
             scopeStr = scopeStr.trim();
             return scopeStr.split("\\s");
         }
