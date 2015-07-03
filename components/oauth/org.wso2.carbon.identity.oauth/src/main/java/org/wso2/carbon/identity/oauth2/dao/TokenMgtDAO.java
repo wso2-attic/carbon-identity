@@ -198,7 +198,7 @@ public class TokenMgtDAO {
                 " (ACCESS_TOKEN, REFRESH_TOKEN, CONSUMER_KEY, AUTHZ_USER, TIME_CREATED, REFRESH_TOKEN_TIME_CREATED, " +
                 "VALIDITY_PERIOD, REFRESH_TOKEN_VALIDITY_PERIOD, TOKEN_SCOPE_HASH, TOKEN_STATE, USER_TYPE, TOKEN_ID) " +
                 "VALUES (?,?,?,?,?,?,?,?,?,?,?,?)";
-        String sqlAddScopes = "INSERT INTO IDN_OAUTH2_ACCESS_TOKEN_SCOPE_ASSOCIATION (TOKEN_ID, TOKEN_SCOPE) " +
+        String sqlAddScopes = "INSERT INTO IDN_OAUTH2_SCOPE_ASSOCIATION (TOKEN_ID, TOKEN_SCOPE) " +
                 "VALUES (?,?)";
         try {
             prepStmt = connection.prepareStatement(sql);
@@ -222,9 +222,15 @@ public class TokenMgtDAO {
             prepStmt.execute();
             String accessTokenId = accessTokenDO.getTokenId();
             prepStmt = connection.prepareStatement(sqlAddScopes);
-            for (String scope : accessTokenDO.getScope()){
-                prepStmt.setString(1,accessTokenId);
-                prepStmt.setString(2, scope);
+            if (accessTokenDO.getScope() != null && accessTokenDO.getScope().length > 0) {
+                for (String scope : accessTokenDO.getScope()) {
+                    prepStmt.setString(1, accessTokenId);
+                    prepStmt.setString(2, scope);
+                    prepStmt.execute();
+                }
+            } else {
+                prepStmt.setString(1, accessTokenId);
+                prepStmt.setString(2, "");
                 prepStmt.execute();
             }
 
@@ -244,40 +250,44 @@ public class TokenMgtDAO {
 
     }
 
-    public void storeAccessToken(String accessToken, String consumerKey,
-                                 AccessTokenDO accessTokenDO, String userStoreDomain)
+    public void storeAccessToken(String accessToken, String consumerKey, AccessTokenDO newAccessTokenDO,
+                                 AccessTokenDO existingAccessTokenDO, String userStoreDomain)
             throws IdentityException {
 
         if (!enablePersist) {
             return;
         }
         if (maxPoolSize > 0) {
-            accessContextTokenQueue.push(new AccessContextTokenDO(accessToken, consumerKey, accessTokenDO
-                    , userStoreDomain));
+            accessContextTokenQueue.push(new AccessContextTokenDO(accessToken, consumerKey, newAccessTokenDO
+                    , existingAccessTokenDO, userStoreDomain));
         } else {
-            persistAccessToken(accessToken, consumerKey, accessTokenDO, userStoreDomain);
+            persistAccessToken(accessToken, consumerKey, newAccessTokenDO, existingAccessTokenDO, userStoreDomain);
         }
     }
 
     public boolean persistAccessToken(String accessToken, String consumerKey,
-                                      AccessTokenDO accessTokenDO,
+                                      AccessTokenDO newAccessTokenDO, AccessTokenDO existingAccessTokenDO,
                                       String userStoreDomain) throws IdentityOAuth2Exception {
-
         if (!enablePersist) {
             return false;
         }
         Connection connection = null;
         try {
             connection = JDBCPersistenceManager.getInstance().getDBConnection();
-            if(accessTokenDO.getAuthorizationCode() != null) {
-                storeAccessToken(accessToken, consumerKey, accessTokenDO, connection, userStoreDomain);
-                // expire authz code and insert issued access token against authz code
-                deactivateAuthorizationCode(accessTokenDO.getAuthorizationCode(), accessTokenDO.getTokenId());
-                connection.commit();
-            } else {
-                storeAccessToken(accessToken, consumerKey, accessTokenDO, connection, userStoreDomain);
-                connection.commit();
+            if (existingAccessTokenDO != null) {
+                //  Mark the existing access token as expired on database if a token exist for the user
+                setAccessTokenState(connection, existingAccessTokenDO.getTokenId(), OAuthConstants.TokenStates
+                        .TOKEN_STATE_EXPIRED, UUID.randomUUID().toString(), userStoreDomain);
             }
+
+            if (newAccessTokenDO.getAuthorizationCode() != null) {
+                storeAccessToken(accessToken, consumerKey, newAccessTokenDO, connection, userStoreDomain);
+                // expire authz code and insert issued access token against authz code
+                deactivateAuthorizationCode(newAccessTokenDO.getAuthorizationCode(), newAccessTokenDO.getTokenId());
+            } else {
+                storeAccessToken(accessToken, consumerKey, newAccessTokenDO, connection, userStoreDomain);
+            }
+            connection.commit();
             return true;
         } catch (IdentityException | SQLException e) {
             throw new IdentityOAuth2Exception(
@@ -328,6 +338,11 @@ public class TokenMgtDAO {
                 sql = sql.replace(AUTHZ_USER, LOWER_AUTHZ_USER);
             }
 
+            String hashedScope = OAuth2Util.hashScopes(scope);
+            if (hashedScope == null) {
+                sql = sql.replace("TOKEN_SCOPE_HASH=?", "TOKEN_SCOPE_HASH IS NULL");
+            }
+
             prepStmt = connection.prepareStatement(sql);
             prepStmt.setString(1, persistenceProcessor.getProcessedClientId(consumerKey));
             if (isUsernameCaseSensitive) {
@@ -335,7 +350,10 @@ public class TokenMgtDAO {
             } else {
                 prepStmt.setString(2, userName.toLowerCase());
             }
-            prepStmt.setString(3, OAuth2Util.hashScopes(scope));
+
+            if (hashedScope != null) {
+                prepStmt.setString(3, hashedScope);
+            }
 
             resultSet = prepStmt.executeQuery();
             connection.commit();
@@ -607,32 +625,32 @@ public class TokenMgtDAO {
                     "ACCESS_TOKEN, AUTHZ_USER, TOKEN_STATE, REFRESH_TOKEN_TIME_CREATED, " +
                     "REFRESH_TOKEN_VALIDITY_PERIOD, TOKEN_ID FROM " + accessTokenStoreTable + " WHERE CONSUMER_KEY = " +
                     "? AND REFRESH_TOKEN = ? ORDER BY TIME_CREATED DESC LIMIT 1) AS IDN_OAUTH2_ACCESS_TOKEN_SELECTED " +
-                    "JOIN IDN_OAUTH2_ACCESS_TOKEN_SCOPE_ASSOCIATION WHERE IDN_OAUTH2_ACCESS_TOKEN_SELECTED.TOKEN_ID =" +
-                    " IDN_OAUTH2_ACCESS_TOKEN_SCOPE_ASSOCIATION.TOKEN_ID";
+                         "LEFT JOIN IDN_OAUTH2_SCOPE_ASSOCIATION WHERE IDN_OAUTH2_ACCESS_TOKEN_SELECTED.TOKEN_ID =" +
+                         " IDN_OAUTH2_SCOPE_ASSOCIATION.TOKEN_ID";
 
             oracleQuery = "SELECT ACCESS_TOKEN, AUTHZ_USER, TOKEN_SCOPE, TOKEN_STATE, REFRESH_TOKEN_TIME_CREATED, " +
                     "REFRESH_TOKEN_VALIDITY_PERIOD, IDN_OAUTH2_ACCESS_TOKEN_SELECTED.TOKEN_ID FROM ( SELECT * FROM " +
                     "(SELECT ACCESS_TOKEN, AUTHZ_USER, TOKEN_STATE, REFRESH_TOKEN_TIME_CREATED, " +
                     "REFRESH_TOKEN_VALIDITY_PERIOD, TOKEN_ID FROM " + accessTokenStoreTable + " WHERE CONSUMER_KEY = " +
                     "? AND REFRESH_TOKEN = ? ORDER BY TIME_CREATED DESC) WHERE ROWNUM < 2 )  AS " +
-                    "IDN_OAUTH2_ACCESS_TOKEN_SELECTED JOIN IDN_OAUTH2_ACCESS_TOKEN_SCOPE_ASSOCIATION WHERE " +
-                    "IDN_OAUTH2_ACCESS_TOKEN_SELECTED.TOKEN_ID = IDN_OAUTH2_ACCESS_TOKEN_SCOPE_ASSOCIATION.TOKEN_ID";
+                          "IDN_OAUTH2_ACCESS_TOKEN_SELECTED LEFT JOIN IDN_OAUTH2_SCOPE_ASSOCIATION WHERE " +
+                          "IDN_OAUTH2_ACCESS_TOKEN_SELECTED.TOKEN_ID = IDN_OAUTH2_SCOPE_ASSOCIATION.TOKEN_ID";
 
             msSqlQuery = "SELECT ACCESS_TOKEN, AUTHZ_USER, TOKEN_SCOPE, TOKEN_STATE, REFRESH_TOKEN_TIME_CREATED, " +
                     "REFRESH_TOKEN_VALIDITY_PERIOD, IDN_OAUTH2_ACCESS_TOKEN_SELECTED.TOKEN_ID FROM (SELECT TOP 1 ACCESS_TOKEN, " +
                     "AUTHZ_USER, TOKEN_SCOPE, TOKEN_STATE, REFRESH_TOKEN_TIME_CREATED, TOKEN_ID FROM, " +
                     "REFRESH_TOKEN_VALIDITY_PERIOD, TOKEN_ID " + accessTokenStoreTable + " WHERE CONSUMER_KEY = ? AND" +
-                    " REFRESH_TOKEN = ? ORDER BY TIME_CREATED DESC) AS IDN_OAUTH2_ACCESS_TOKEN_SELECTED JOIN " +
-                    "IDN_OAUTH2_ACCESS_TOKEN_SCOPE_ASSOCIATION WHERE IDN_OAUTH2_ACCESS_TOKEN_SELECTED.TOKEN_ID = " +
-                    "IDN_OAUTH2_ACCESS_TOKEN_SCOPE_ASSOCIATION.TOKEN_ID";
+                         " REFRESH_TOKEN = ? ORDER BY TIME_CREATED DESC) AS IDN_OAUTH2_ACCESS_TOKEN_SELECTED LEFT JOIN " +
+                         "IDN_OAUTH2_SCOPE_ASSOCIATION WHERE IDN_OAUTH2_ACCESS_TOKEN_SELECTED.TOKEN_ID = " +
+                         "IDN_OAUTH2_SCOPE_ASSOCIATION.TOKEN_ID";
 
             postgreSqlQuery = "SELECT ACCESS_TOKEN, AUTHZ_USER, TOKEN_SCOPE, TOKEN_STATE, REFRESH_TOKEN_TIME_CREATED," +
                     " REFRESH_TOKEN_VALIDITY_PERIOD, IDN_OAUTH2_ACCESS_TOKEN_SELECTED.TOKEN_ID FROM (SELECT " +
                     "ACCESS_TOKEN, AUTHZ_USER, TOKEN_STATE, REFRESH_TOKEN_TIME_CREATED, " +
                     "REFRESH_TOKEN_VALIDITY_PERIOD, TOKEN_ID FROM " + accessTokenStoreTable + " WHERE CONSUMER_KEY = " +
                     "? AND REFRESH_TOKEN = ? ORDER BY TIME_CREATED DESC LIMIT 1) AS IDN_OAUTH2_ACCESS_TOKEN_SELECTED " +
-                    "JOIN IDN_OAUTH2_ACCESS_TOKEN_SCOPE_ASSOCIATION ON IDN_OAUTH2_ACCESS_TOKEN_SELECTED.TOKEN_ID = " +
-                    "IDN_OAUTH2_ACCESS_TOKEN_SCOPE_ASSOCIATION.TOKEN_ID";
+                              "LEFT JOIN IDN_OAUTH2_SCOPE_ASSOCIATION ON IDN_OAUTH2_ACCESS_TOKEN_SELECTED.TOKEN_ID = " +
+                              "IDN_OAUTH2_SCOPE_ASSOCIATION.TOKEN_ID";
 
             if (connection.getMetaData().getDriverName().contains("MySQL")
                     || connection.getMetaData().getDriverName().contains("H2")) {
@@ -698,7 +716,7 @@ public class TokenMgtDAO {
 
     public void cleanUpAccessToken(String accessToken) throws IdentityOAuth2Exception {
         if (maxPoolSize > 0) {
-            accessContextTokenQueue.push(new AccessContextTokenDO(accessToken, null, null, null));
+            accessContextTokenQueue.push(new AccessContextTokenDO(accessToken, null, null, null, null));
         } else {
             removeAccessToken(accessToken);
         }
@@ -812,35 +830,35 @@ public class TokenMgtDAO {
         return dataDO;
     }
 
-
-    /**
-     * Sets state of access token
-     *
-     * @param tokenId
-     * @param tokenState
-     * @throws IdentityOAuth2Exception
-     */
-    public void setAccessTokenState(String tokenId, String tokenState, String tokenStateId,
-                                    String userStoreDomain) throws IdentityOAuth2Exception {
-
-	    Connection connection = null;
-	    try {
-		    connection = JDBCPersistenceManager.getInstance().getDBConnection();
-	    } catch (IdentityException e) {
-            throw new IdentityOAuth2Exception("Error occurred while trying to get a Identity persistence store " +
-                    "instance", e);
-
-        }
-	    try {
-            setAccessTokenState(connection, tokenId, tokenState, tokenStateId, userStoreDomain);
-            connection.commit();
-	    } catch (SQLException e) {
-            throw new IdentityOAuth2Exception("Error while updating Access Token with ID : " +
-                                              tokenId + " to Token State : " + tokenState, e);
-        } finally {
-		    IdentityDatabaseUtil.closeConnection(connection);
-	    }
-    }
+//
+//    /**
+//     * Sets state of access token
+//     *
+//     * @param tokenId
+//     * @param tokenState
+//     * @throws IdentityOAuth2Exception
+//     */
+//    public void setAccessTokenState(String tokenId, String tokenState, String tokenStateId,
+//                                    String userStoreDomain) throws IdentityOAuth2Exception {
+//
+//	    Connection connection = null;
+//	    try {
+//		    connection = JDBCPersistenceManager.getInstance().getDBConnection();
+//	    } catch (IdentityException e) {
+//            throw new IdentityOAuth2Exception("Error occurred while trying to get a Identity persistence store " +
+//                    "instance", e);
+//
+//        }
+//	    try {
+//            setAccessTokenState(connection, tokenId, tokenState, tokenStateId, userStoreDomain);
+//            connection.commit();
+//	    } catch (SQLException e) {
+//            throw new IdentityOAuth2Exception("Error while updating Access Token with ID : " +
+//                                              tokenId + " to Token State : " + tokenState, e);
+//        } finally {
+//		    IdentityDatabaseUtil.closeConnection(connection);
+//	    }
+//    }
 
 	/**
 	 *
