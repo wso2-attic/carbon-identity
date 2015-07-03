@@ -137,6 +137,9 @@
                             org.wso2.carbon.identity.provisioning.connector.scim.*;
                             version="${carbon.identity.package.export.version}"
                         </Export-Package>
+                        <Embed-Dependency>
+                            openspml2|runtime;inline=false
+                        </Embed-Dependency>
                     </instructions>
                 </configuration>
             </plugin>
