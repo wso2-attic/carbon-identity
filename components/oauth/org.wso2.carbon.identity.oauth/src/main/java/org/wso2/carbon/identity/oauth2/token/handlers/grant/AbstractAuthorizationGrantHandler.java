@@ -176,9 +176,6 @@ public abstract class AbstractAuthorizationGrantHandler implements Authorization
                         }
                         //Token is expired. Clear it from cache.
                         oauthCache.clearCacheEntry(cacheKey);
-//                        tokenMgtDAO.setAccessTokenState(existingAccessTokenDO.getTokenId(),
-//                                OAuthConstants.TokenStates.TOKEN_STATE_EXPIRED,
-//                                UUID.randomUUID().toString(), userStoreDomain);
                         if (log.isDebugEnabled()) {
                             log.debug("Access token " + existingAccessTokenDO.getAccessToken() +
                                     " is expired. Therefore cleared it from cache and marked it" +
@@ -256,10 +253,6 @@ public abstract class AbstractAuthorizationGrantHandler implements Authorization
                             refreshTokenIssuedTime = existingAccessTokenDO.getRefreshTokenIssuedTime();
                             refreshTokenValidityPeriodInMillis = existingAccessTokenDO.getRefreshTokenValidityPeriodInMillis();
                         }
-//                        //  Mark token as expired on database
-//                        tokenMgtDAO.setAccessTokenState(existingAccessTokenDO.getTokenId(),
-//                                OAuthConstants.TokenStates.TOKEN_STATE_EXPIRED,
-//                                UUID.randomUUID().toString(), userStoreDomain);
                         if (log.isDebugEnabled()) {
                             log.debug("Marked token " + existingAccessTokenDO.getAccessToken() + " as expired");
                         }
