@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <parent>
         <groupId>org.wso2.carbon.identity</groupId>
@@ -22,8 +23,8 @@
             <artifactId>org.wso2.carbon.identity.user.store.configuration</artifactId>
         </dependency>
         <dependency>
-        <groupId>org.wso2.carbon</groupId>
-        <artifactId>org.wso2.carbon.core</artifactId>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.core</artifactId>
         </dependency>
         <dependency>
             <groupId>com.yubico</groupId>
@@ -63,9 +64,9 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
                         <Import-Package>
-                            org.wso2.carbon.identity.user.store.configuration.*;version="${carbon.identity.package.import.version.range}",
-                            !org.wso2.carbon.identity.application.authenticator.fido,
-                            *;resolution:=optional
+                            org.wso2.carbon.identity.user.store.configuration.*;
+                            version="${carbon.identity.package.import.version.range}",
+                            !org.wso2.carbon.identity.application.authenticator.fido
                         </Import-Package>
                         <Embed-Dependency>
                             jackson-core|guava|u2flib-server-core|jackson-databind|jackson-annotations
