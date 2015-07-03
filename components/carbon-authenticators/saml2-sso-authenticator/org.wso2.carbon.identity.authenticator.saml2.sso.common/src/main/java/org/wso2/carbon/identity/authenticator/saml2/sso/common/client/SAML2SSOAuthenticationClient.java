@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.wso2.carbon.identity.authenticator.saml2.sso.ui.client;
+package org.wso2.carbon.identity.authenticator.saml2.sso.common.client;
 
 import org.apache.axis2.client.Options;
 import org.apache.axis2.client.ServiceClient;
