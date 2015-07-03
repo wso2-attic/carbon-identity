@@ -102,11 +102,11 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
     }
 
     @Override
-    public int createApplication(ServiceProvider serviceProvider, String tenantDomain)
+    public int createApplication(ServiceProvider serviceProvider, String tenantDomain, String userName)
             throws IdentityApplicationManagementException {
         try {
 
-            startTenantFlow(tenantDomain);
+            startTenantFlow(tenantDomain, userName);
 
             // invoking the listeners
             List<ApplicationMgtListener> listeners = ApplicationMgtListenerServiceComponent.getListners();
@@ -154,10 +154,10 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
     }
 
     @Override
-    public ApplicationBasicInfo[] getAllApplicationBasicInfo(String tenantDomain)
+    public ApplicationBasicInfo[] getAllApplicationBasicInfo(String tenantDomain, String userName)
             throws IdentityApplicationManagementException {
         try {
-            startTenantFlow(tenantDomain);
+            startTenantFlow(tenantDomain, userName);
             ApplicationDAO appDAO = ApplicationMgtSystemConfig.getInstance().getApplicationDAO();
             return appDAO.getAllApplicationBasicInfo();
         } catch (Exception e) {
@@ -170,7 +170,7 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
     }
 
     @Override
-    public void updateApplication(ServiceProvider serviceProvider, String tenantDomain)
+    public void updateApplication(ServiceProvider serviceProvider, String tenantDomain, String userName)
             throws IdentityApplicationManagementException {
         try {
 
@@ -184,7 +184,7 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
 
             } finally {
                 endTenantFlow();
-                startTenantFlow(tenantDomain);
+                startTenantFlow(tenantDomain, userName);
             }
 
             // invoking the listeners
@@ -245,16 +245,31 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
         PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantId(tenantId);
     }
 
+    private void startTenantFlow(String tenantDomain, String userName)
+            throws IdentityApplicationManagementException {
+        int tenantId;
+        try {
+            tenantId = ApplicationManagementServiceComponentHolder.getInstance().getRealmService()
+                    .getTenantManager().getTenantId(tenantDomain);
+        } catch (UserStoreException e) {
+            throw new IdentityApplicationManagementException("Error when setting tenant domain. ", e);
+        }
+        PrivilegedCarbonContext.startTenantFlow();
+        PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
+        PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantId(tenantId);
+        PrivilegedCarbonContext.getThreadLocalCarbonContext().setUsername(userName);
+    }
+
     private void endTenantFlow() {
         PrivilegedCarbonContext.endTenantFlow();
     }
 
     @Override
-    public void deleteApplication(String applicationName, String tenantDomain)
+    public void deleteApplication(String applicationName, String tenantDomain, String userName)
             throws IdentityApplicationManagementException {
         try {
 
-            startTenantFlow(tenantDomain);
+            startTenantFlow(tenantDomain, userName);
 
             // invoking the listeners
             List<ApplicationMgtListener> listeners = ApplicationMgtListenerServiceComponent.getListners();
