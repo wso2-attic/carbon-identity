@@ -50,7 +50,7 @@ public class ApplicationManagementAdminService extends AbstractAdmin {
     public int createApplication(ServiceProvider serviceProvider)
             throws IdentityApplicationManagementException {
         applicationMgtService = ApplicationManagementService.getInstance();
-        return applicationMgtService.createApplication(serviceProvider, getTenantDomain());
+        return applicationMgtService.createApplication(serviceProvider, getTenantDomain(), getUsername());
     }
 
     /**
@@ -82,7 +82,7 @@ public class ApplicationManagementAdminService extends AbstractAdmin {
     public ApplicationBasicInfo[] getAllApplicationBasicInfo()
             throws IdentityApplicationManagementException {
         applicationMgtService = ApplicationManagementService.getInstance();
-        return applicationMgtService.getAllApplicationBasicInfo(getTenantDomain());
+        return applicationMgtService.getAllApplicationBasicInfo(getTenantDomain(), getUsername());
     }
 
     /**
@@ -103,7 +103,7 @@ public class ApplicationManagementAdminService extends AbstractAdmin {
             throw new IdentityApplicationManagementException("User not authorized");
         }
         applicationMgtService = ApplicationManagementService.getInstance();
-        applicationMgtService.updateApplication(serviceProvider, getTenantDomain());
+        applicationMgtService.updateApplication(serviceProvider, getTenantDomain(), getUsername());
     }
 
     /**
@@ -121,7 +121,7 @@ public class ApplicationManagementAdminService extends AbstractAdmin {
             throw new IdentityApplicationManagementException("User not authorized");
         }
         applicationMgtService = ApplicationManagementService.getInstance();
-        applicationMgtService.deleteApplication(applicationName, getTenantDomain());
+        applicationMgtService.deleteApplication(applicationName, getTenantDomain(), getUsername());
     }
 
     /**
