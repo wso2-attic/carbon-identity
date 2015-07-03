@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.identity.application.authentication.framework.handler.sequence.impl;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.application.authentication.framework.ApplicationAuthenticator;
@@ -336,8 +337,7 @@ public class DefaultStepBasedSequenceHandler implements StepBasedSequenceHandler
                         }
 
                         //TODO: user tenant domain has to be an attribute in the AuthenticationContext
-//                        authProperties.put(USER_TENANT_DOMAIN, tenantDomain);
-//                        sequenceConfig.setAuthenticatedUserTenantDomain(tenantDomain);
+                        authProperties.put(USER_TENANT_DOMAIN, tenantDomain);
 
                         if (log.isDebugEnabled()) {
                             log.debug("Authenticated User: " +
@@ -347,8 +347,6 @@ public class DefaultStepBasedSequenceHandler implements StepBasedSequenceHandler
 
                     } else {
 
-                        // there is no mapped local user found. set the value we got as the subject
-                        // identifier.
                         sequenceConfig.setAuthenticatedUser(new AuthenticatedUser(stepConfig.getAuthenticatedUser()));
 
                         // Only place we do not set the setAuthenticatedUserTenantDomain into the sequenceConfig
@@ -365,13 +363,12 @@ public class DefaultStepBasedSequenceHandler implements StepBasedSequenceHandler
                     String idpRoleClaimUri = getIdpRoleClaimUri(externalIdPConfig);
 
                     List<String> locallyMappedUserRoles = getLocallyMappedUserRoles(sequenceConfig,
-                                                                                    externalIdPConfig, extAttibutesValueMap, idpRoleClaimUri);
+                            externalIdPConfig, extAttibutesValueMap, idpRoleClaimUri);
 
-                    if (idpRoleClaimUri != null && getServiceProviderMappedUserRoles(sequenceConfig, locallyMappedUserRoles) != null) {
-                        extAttibutesValueMap.put(
-                                idpRoleClaimUri,
-                                getServiceProviderMappedUserRoles(sequenceConfig,
-                                                                  locallyMappedUserRoles));
+                    if (idpRoleClaimUri != null && getServiceProviderMappedUserRoles(sequenceConfig,
+                            locallyMappedUserRoles) != null) {
+                        extAttibutesValueMap.put(idpRoleClaimUri, getServiceProviderMappedUserRoles(sequenceConfig,
+                                locallyMappedUserRoles));
                     }
 
                     if (extAttrs != null && !extAttrs.isEmpty()
@@ -424,12 +421,10 @@ public class DefaultStepBasedSequenceHandler implements StepBasedSequenceHandler
                     subjectFoundInStep = true;
                     sequenceConfig.setAuthenticatedUser(new AuthenticatedUser(stepConfig.getAuthenticatedUser()));
 
-//                    String authenticatedUserTenantDomain = (String) context.getProperty(USER_TENANT_DOMAIN);
-//                    sequenceConfig.setAuthenticatedUserTenantDomain(authenticatedUserTenantDomain);
-
                     if (log.isDebugEnabled()) {
                         log.debug("Authenticated User: " + sequenceConfig.getAuthenticatedUser().getUserName());
-                        log.debug("Authenticated User Tenant Domain: " + sequenceConfig.getAuthenticatedUser().getTenantDomain());
+                        log.debug("Authenticated User Tenant Domain: " + sequenceConfig.getAuthenticatedUser()
+                                .getTenantDomain());
                     }
                 }
 
@@ -458,26 +453,34 @@ public class DefaultStepBasedSequenceHandler implements StepBasedSequenceHandler
 
         String subjectClaimURI = sequenceConfig.getApplicationConfig().getSubjectClaimUri();
         String subjectValue = (String) context.getProperty("ServiceProviderSubjectClaimValue");
-        if (subjectClaimURI != null) {
-            if (!subjectClaimURI.isEmpty() && subjectValue != null) {
+        if (StringUtils.isNotBlank(subjectClaimURI)) {
+            if (subjectValue != null) {
                 sequenceConfig.getAuthenticatedUser().setAuthenticatedSubjectIdentifier(subjectValue);
 
                 if (log.isDebugEnabled()) {
                     log.debug("Authenticated User: " +
                             sequenceConfig.getAuthenticatedUser().getAuthenticatedSubjectIdentifier());
-                    log.debug("Authenticated User Tenant Domain: " + sequenceConfig.getAuthenticatedUser().getTenantDomain());
+                    log.debug("Authenticated User Tenant Domain: " + sequenceConfig.getAuthenticatedUser()
+                            .getTenantDomain());
                 }
-            } else if (subjectClaimURI != null && !subjectClaimURI.isEmpty()) {
+            } else {
                 log.warn("Subject claim could not be found. Defaulting to Name Identifier.");
-                sequenceConfig.getAuthenticatedUser().setAuthenticatedSubjectIdentifier(sequenceConfig
-                        .getAuthenticatedUser().getUsernameAsSubjectIdentifier(sequenceConfig.getApplicationConfig()
-                                .isUseUserstoreDomainInLocalSubjectIdentifier(), sequenceConfig.getApplicationConfig().isUseTenantDomainInLocalSubjectIdentifier()));
+                if (StringUtils.isNotBlank(sequenceConfig.getAuthenticatedUser().getUserName())){
+                    sequenceConfig.getAuthenticatedUser().setAuthenticatedSubjectIdentifier(sequenceConfig
+                            .getAuthenticatedUser().getUsernameAsSubjectIdentifier(sequenceConfig.getApplicationConfig()
+                                    .isUseUserstoreDomainInLocalSubjectIdentifier(), sequenceConfig
+                                    .getApplicationConfig().isUseTenantDomainInLocalSubjectIdentifier()));
+                }
             }
 
         } else {
-            sequenceConfig.getAuthenticatedUser().setAuthenticatedSubjectIdentifier(sequenceConfig
-                    .getAuthenticatedUser().getUsernameAsSubjectIdentifier(sequenceConfig.getApplicationConfig()
-                            .isUseUserstoreDomainInLocalSubjectIdentifier(), sequenceConfig.getApplicationConfig().isUseTenantDomainInLocalSubjectIdentifier()));
+            if (StringUtils.isNotBlank(sequenceConfig.getAuthenticatedUser().getUserName())){
+                sequenceConfig.getAuthenticatedUser().setAuthenticatedSubjectIdentifier(sequenceConfig
+                        .getAuthenticatedUser().getUsernameAsSubjectIdentifier(sequenceConfig.getApplicationConfig()
+                                .isUseUserstoreDomainInLocalSubjectIdentifier(), sequenceConfig.getApplicationConfig
+                                ().isUseTenantDomainInLocalSubjectIdentifier()));
+            }
+
         }
 
         sequenceConfig.getAuthenticatedUser().setUserAttributes(authenticatedUserAttributes);
