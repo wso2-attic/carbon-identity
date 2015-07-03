@@ -684,8 +684,9 @@ public class ApplicationDAOImpl implements ApplicationDAO {
         PreparedStatement storeUseTenantDomainInLocalSubjectIdStmt = null;
         try {
             storeUseTenantDomainInLocalSubjectIdStmt = connection
-                    .prepareStatement(ApplicationMgtDBQueries.UPDATE_BASIC_APPINFO_WITH_USE_TENANT_DIMAIN_LOCAL_SUBJECT_ID);
-            // IS_SEND_LOCAL_SUBJECT_ID=? WHERE TENANT_ID= ? AND ID = ?
+                    .prepareStatement(ApplicationMgtDBQueries
+                            .UPDATE_BASIC_APPINFO_WITH_USE_TENANT_DIMAIN_LOCAL_SUBJECT_ID);
+            // IS_USE_TENANT_DIMAIN_LOCAL_SUBJECT_ID=? WHERE TENANT_ID= ? AND ID = ?
             storeUseTenantDomainInLocalSubjectIdStmt.setString(1, localAndOutboundAuthConfig
                     .isUseTenantDomainInLocalSubjectIdentifier() ? "1" : "0");
             storeUseTenantDomainInLocalSubjectIdStmt.setInt(2, tenantID);
@@ -700,7 +701,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
             storeUseUserstoreDomainInLocalSubjectIdStmt = connection
                     .prepareStatement(ApplicationMgtDBQueries
                             .UPDATE_BASIC_APPINFO_WITH_USE_USERSTORE_DIMAIN_LOCAL_SUBJECT_ID);
-            // IS_SEND_LOCAL_SUBJECT_ID=? WHERE TENANT_ID= ? AND ID = ?
+            // IS_USE_USERSTORE_DIMAIN_LOCAL_SUBJECT_ID=? WHERE TENANT_ID= ? AND ID = ?
             storeUseUserstoreDomainInLocalSubjectIdStmt.setString(1, localAndOutboundAuthConfig
                     .isUseUserstoreDomainInLocalSubjectIdentifier() ? "1" : "0");
             storeUseUserstoreDomainInLocalSubjectIdStmt.setInt(2, tenantID);
