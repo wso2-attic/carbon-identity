@@ -95,7 +95,8 @@
             <form method="post" name="serviceAdd" action="template-impl-params.jsp">
                 <input type="hidden" name="<%=WorkflowUIConstants.PARAM_WORKFLOW_TEMPLATE%>" value="<%=template%>">
                 <input type="hidden" name="<%=WorkflowUIConstants.PARAM_WORKFLOW_NAME%>" value="<%=workflowName%>">
-                <input type="hidden" name="<%=WorkflowUIConstants.PARAM_WORKFLOW_DESCRIPTION%>" value="<%=description%>">
+                <input type="hidden" name="<%=WorkflowUIConstants.PARAM_WORKFLOW_DESCRIPTION%>"
+                       value="<%=description%>">
                 <table class="styledLeft">
                     <thead>
                     <tr>
@@ -106,6 +107,21 @@
                         <td class="formRow">
                             <table class="normal">
                                 <%
+                                    boolean emptyList = true;
+                                    for (TemplateParameterDef parameter : templateDTO.getParameters()) {
+                                        if (parameter != null) {
+                                            emptyList = false;
+                                            break;
+                                        }
+                                    }
+
+                                    if (emptyList) {
+                                %>
+                                <tr>
+                                    <td colspan="2"><fmt:message key="workflow.template.has.no.params"/></td>
+                                </tr>
+                                <%
+                                } else {
                                     for (TemplateParameterDef parameter : templateDTO.getParameters()) {
                                         if (parameter != null) {
                                 %>
@@ -165,6 +181,7 @@
                                     %>
                                 </tr>
                                 <%
+                                        }
                                     }
 
                                 %>

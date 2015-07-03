@@ -35,6 +35,9 @@
     <script type="text/javascript" src="../carbon/admin/js/cookies.js"></script>
     <script type="text/javascript" src="../carbon/admin/js/main.js"></script>
     <script type="text/javascript">
+        function doCancel(){
+            window.location = "list-bps-profiles.jsp";
+        }
     </script>
 
     <div id="middle">
@@ -52,11 +55,12 @@
                     </thead>
                     <tbody>
                     <tr>
-                        <td><fmt:message key='workflow.bps.profile.name'/></td>
+                        <td width="30%"><fmt:message key='workflow.bps.profile.name'/></td>
                         <td><input type="text" name="<%=WorkflowUIConstants.PARAM_BPS_PROFILE_NAME%>"/></td>
                     </tr>
                     </tbody>
                 </table>
+                <br/>
                 <table class="styledLeft noBorders">
                     <thead>
                     <tr>
@@ -65,20 +69,21 @@
                     </thead>
                     <tbody>
                     <tr>
-                        <td><fmt:message key='workflow.bps.profile.host'/></td>
+                        <td width="30%"><fmt:message key='workflow.bps.profile.host'/></td>
                         <td><input type="text" name="<%=WorkflowUIConstants.PARAM_BPS_HOST%>"/></td>
                     </tr>
                     <tr>
-                        <td><fmt:message key='workflow.bps.profile.auth.user'/></td>
+                        <td width="30%"><fmt:message key='workflow.bps.profile.auth.user'/></td>
                         <td><input type="text" name="<%=WorkflowUIConstants.PARAM_BPS_AUTH_USER%>"/></td>
                     </tr>
                     <tr>
-                        <td><fmt:message key='workflow.bps.profile.auth.password'/></td>
+                        <td width="30%"><fmt:message key='workflow.bps.profile.auth.password'/></td>
                         <td><input type="password" name="<%=WorkflowUIConstants.PARAM_BPS_AUTH_PASSWORD%>"/>
                         </td>
                     </tr>
                     </tbody>
                 </table>
+                <br/>
                 <table class="styledLeft noBorders">
                     <thead>
                     <tr>
@@ -87,16 +92,17 @@
                     </thead>
                     <tbody>
                     <tr>
-                        <td><fmt:message key='workflow.bps.profile.callback.auth.user'/></td>
+                        <td width="30%"><fmt:message key='workflow.bps.profile.callback.auth.user'/></td>
                         <td><input type="text" name="<%=WorkflowUIConstants.PARAM_CARBON_AUTH_USER%>"/></td>
                     </tr>
                     <tr>
-                        <td><fmt:message key='workflow.bps.profile.callback.auth.password'/></td>
+                        <td width="30%"><fmt:message key='workflow.bps.profile.callback.auth.password'/></td>
                         <td><input type="password" name="<%=WorkflowUIConstants.PARAM_CARBON_AUTH_PASSWORD%>"/>
                         </td>
                     </tr>
                     </tbody>
                 </table>
+                <br/>
                 <table>
                     <tr>
                         <td class="buttonRow">

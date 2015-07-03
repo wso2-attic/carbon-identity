@@ -87,7 +87,9 @@
     <script type="text/javascript" src="../carbon/admin/js/cookies.js"></script>
     <script type="text/javascript" src="../carbon/admin/js/main.js"></script>
     <script type="text/javascript">
-
+        function doCancel() {
+            window.location = "list-workflows.jsp";
+        }
     </script>
 
     <div id="middle">

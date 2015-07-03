@@ -64,22 +64,30 @@ public class WorkflowAdminServiceClient {
 
     public WorkflowEventDTO[] listWorkflowEvents() throws RemoteException {
 
-        return stub.listWorkflowEvents();
+        WorkflowEventDTO[] workflowEvents = stub.listWorkflowEvents();
+        if (workflowEvents == null) {
+            workflowEvents = new WorkflowEventDTO[0];
+        }
+        return workflowEvents;
     }
 
     public TemplateBean[] listTemplates() throws RemoteException {
 
-        return stub.listWorkflowTemplates();
+        TemplateBean[] templates = stub.listWorkflowTemplates();
+        if (templates == null) {
+            templates = new TemplateBean[0];
+        }
+        return templates;
     }
 
     public TemplateDTO getTemplate(String templateName) throws RemoteException {
 
         TemplateDTO templateDTO = stub.getTemplateDTO(templateName);
-        if (templateDTO !=null){
-            if(templateDTO.getParameters() == null){
+        if (templateDTO != null) {
+            if (templateDTO.getParameters() == null) {
                 templateDTO.setParameters(new TemplateParameterDef[0]);
             }
-            if(templateDTO.getImplementations() == null){
+            if (templateDTO.getImplementations() == null) {
                 templateDTO.setImplementations(new TemplateImplDTO[0]);
             }
         }
@@ -88,7 +96,13 @@ public class WorkflowAdminServiceClient {
 
     public TemplateImplDTO getTemplateImpDTO(String template, String implName) throws RemoteException {
 
-        return stub.getTemplateImplDTO(template, implName);
+        TemplateImplDTO templateImplDTO = stub.getTemplateImplDTO(template, implName);
+        if (templateImplDTO != null) {
+            if (templateImplDTO.getImplementationParams() == null) {
+                templateImplDTO.setImplementationParams(new TemplateParameterDef[0]);
+            }
+        }
+        return templateImplDTO;
     }
 
     public void addWorkflow(String workflowName, String description, String templateName, String templateImplName,
@@ -96,7 +110,7 @@ public class WorkflowAdminServiceClient {
             throws RemoteException, WorkflowAdminServiceWorkflowException {
 
         stub.addWorkflow(workflowName, description, templateName, templateImplName, templateParams.toArray(new
-                Parameter[templateParams.size()]),
+                        Parameter[templateParams.size()]),
                 templateImplParams.toArray(new Parameter[templateImplParams.size()]));
 
     }
@@ -111,7 +125,11 @@ public class WorkflowAdminServiceClient {
 
     public BPSProfileBean[] listBPSProfiles() throws RemoteException, WorkflowAdminServiceWorkflowException {
 
-        return stub.listBPSProfiles();
+        BPSProfileBean[] bpsProfiles = stub.listBPSProfiles();
+        if (bpsProfiles == null) {
+            bpsProfiles = new BPSProfileBean[0];
+        }
+        return bpsProfiles;
     }
 
     public void deleteBPSProfile(String profileName) throws RemoteException, WorkflowAdminServiceWorkflowException {
@@ -121,7 +139,11 @@ public class WorkflowAdminServiceClient {
 
     public WorkflowBean[] listWorkflows() throws RemoteException, WorkflowAdminServiceWorkflowException {
 
-        return stub.listWorkflows();
+        WorkflowBean[] workflows = stub.listWorkflows();
+        if (workflows == null) {
+            workflows = new WorkflowBean[0];
+        }
+        return workflows;
     }
 
     public void deleteWorkflow(String workflowId) throws RemoteException, WorkflowAdminServiceWorkflowException {
@@ -132,12 +154,20 @@ public class WorkflowAdminServiceClient {
     public AssociationDTO[] listAssociationsForWorkflow(String workflowId)
             throws RemoteException, WorkflowAdminServiceWorkflowException {
 
-        return stub.listAssociationsForWorkflow(workflowId);
+        AssociationDTO[] associationsForWorkflow = stub.listAssociationsForWorkflow(workflowId);
+        if (associationsForWorkflow == null) {
+            associationsForWorkflow = new AssociationDTO[0];
+        }
+        return associationsForWorkflow;
     }
 
     public AssociationDTO[] listAllAssociations() throws RemoteException, WorkflowAdminServiceWorkflowException {
 
-        return stub.listAllAssociations();
+        AssociationDTO[] associations = stub.listAllAssociations();
+        if (associations == null) {
+            associations = new AssociationDTO[0];
+        }
+        return associations;
     }
 
     public void deleteAssociation(String associationId) throws RemoteException, WorkflowAdminServiceWorkflowException {

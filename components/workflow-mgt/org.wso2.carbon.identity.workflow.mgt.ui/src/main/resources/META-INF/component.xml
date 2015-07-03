@@ -32,7 +32,7 @@
         </menu>
         <menu>
             <id>configure_association_menu</id>
-            <i18n-key>workflow.mgt</i18n-key>
+            <i18n-key>workflow.association.mgt</i18n-key>
             <i18n-bundle>org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources</i18n-bundle>
             <parent-menu>workflow_mgt_menu</parent-menu>
             <link>#</link>

@@ -95,7 +95,7 @@
         <h2><fmt:message key='workflow.add'/></h2>
 
         <div id="workArea">
-            <form method="post" name="serviceAdd" action="update-workflow-finish.jsp">
+            <form id="param-form" method="post" name="serviceAdd" action="update-workflow-finish.jsp">
                 <input type="hidden" name="<%=WorkflowUIConstants.PARAM_ACTION%>"
                        value="<%=WorkflowUIConstants.ACTION_VALUE_ADD%>">
                 <input type="hidden" name="<%=WorkflowUIConstants.PARAM_WORKFLOW_TEMPLATE%>" value="<%=template%>">
@@ -200,5 +200,21 @@
                 <br/>
             </form>
         </div>
+        <script type="text/javascript">
+            autosubmit = true;
+            <%
+                for (TemplateParameterDef parameter : templateImplDTO.getImplementationParams()) {
+                    if (parameter != null) {
+                    %>
+            autosubmit = false;
+            <%
+                        break;
+                    }
+                }
+            %>
+            if(autosubmit){
+                document.getElementById("param-form").submit(); //auto submitting since there are no params
+            }
+        </script>
     </div>
 </fmt:bundle>
