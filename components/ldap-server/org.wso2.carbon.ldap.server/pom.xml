@@ -102,25 +102,21 @@
         <dependency>
             <artifactId>apacheds-protocol-ldap</artifactId>
             <groupId>org.apache.directory.server</groupId>
-            <version>1.5.7</version>
         </dependency>
 
         <dependency>
             <artifactId>apacheds-protocol-kerberos</artifactId>
             <groupId>org.apache.directory.server</groupId>
-            <version>1.5.7</version>
         </dependency>
 
         <dependency>
             <artifactId>apacheds-interceptor-kerberos</artifactId>
             <groupId>org.apache.directory.server</groupId>
-            <version>1.5.7</version>
         </dependency>
 
         <dependency>
             <artifactId>apacheds-core-annotations</artifactId>
             <groupId>org.apache.directory.server</groupId>
-            <version>1.5.7</version>
         </dependency>
 
     </dependencies>
