@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <parent>
         <groupId>org.wso2.carbon.identity</groupId>
@@ -13,12 +14,6 @@
     <artifactId>org.wso2.carbon.identity.application.authenticator.fido</artifactId>
     <name>WSO2 Carbon - FIDO Identity Application Authenticator</name>
     <dependencies>
-        <!--<dependency>-->
-            <!--<groupId>com.yubico.wso2</groupId>-->
-            <!--<artifactId>u2flib-server-core</artifactId>-->
-            <!--<version>0.14.0.wso2v1</version>-->
-            <!--&lt;!&ndash;<scope>provided</scope>&ndash;&gt;-->
-        <!--</dependency>-->
         <dependency>
             <groupId>org.wso2.carbon.identity</groupId>
             <artifactId>org.wso2.carbon.identity.application.authentication.framework</artifactId>
@@ -28,18 +23,16 @@
             <artifactId>org.wso2.carbon.identity.user.store.configuration</artifactId>
         </dependency>
         <dependency>
-        <groupId>org.wso2.carbon</groupId>
-        <artifactId>org.wso2.carbon.core</artifactId>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.core</artifactId>
         </dependency>
         <dependency>
             <groupId>com.yubico</groupId>
             <artifactId>u2flib-server-core</artifactId>
-            <version>0.14.0</version>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>15.0</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
@@ -49,21 +42,12 @@
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-annotations</artifactId>
-            <version>2.5.0</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>2.5.0</version>
         </dependency>
-
-
-
-
     </dependencies>
-    <properties>
-        <org.osgi.framework.system.packages.extra>sun.misc.*,</org.osgi.framework.system.packages.extra>
-    </properties>
 
     <build>
         <plugins>
@@ -82,13 +66,11 @@
                         <Import-Package>
                             org.wso2.carbon.identity.user.store.configuration.*;
                             version="${carbon.identity.package.import.version.range}",
-                            !org.wso2.carbon.identity.application.authenticator.fido,
-                            *;resolution:=optional
+                            !org.wso2.carbon.identity.application.authenticator.fido
                         </Import-Package>
                         <Embed-Dependency>
                             jackson-core|guava|u2flib-server-core|jackson-databind|jackson-annotations
                         </Embed-Dependency>
-                        <DynamicImport-Package>*</DynamicImport-Package>
                         <Export-Package>
                             !org.wso2.carbon.identity.application.authenticator.fido.u2f.internal,
                             org.wso2.carbon.identity.application.authenticator.fido.*,
