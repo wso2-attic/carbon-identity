@@ -11,6 +11,8 @@
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
 <%@ page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
+<%@ page import="java.util.HashMap" %>
+<%@ page import="java.util.Map" %>
 <%@ page import="java.util.ResourceBundle" %>
 <%--
   ~ Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
@@ -35,6 +37,40 @@
     String template = CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_WORKFLOW_TEMPLATE));
     String description =
             CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_WORKFLOW_DESCRIPTION));
+    Map<String, String> templateParams = new HashMap<String, String>();
+    String templateImpl = null;
+    if (session.getAttribute(WorkflowUIConstants.ATTRIB_WORKFLOW_WIZARD) != null &&
+            session.getAttribute(WorkflowUIConstants.ATTRIB_WORKFLOW_WIZARD) instanceof Map) {
+        Map<String, String> attribMap =
+                (Map<String, String>) session.getAttribute(WorkflowUIConstants.ATTRIB_WORKFLOW_WIZARD);
+        //setting params from previous page
+        if (workflowName == null) {
+            workflowName = attribMap.get(WorkflowUIConstants.PARAM_WORKFLOW_NAME);
+        } else {
+            attribMap.put(WorkflowUIConstants.PARAM_WORKFLOW_NAME, workflowName);
+        }
+
+        if (template == null) {
+            template = attribMap.get(WorkflowUIConstants.PARAM_WORKFLOW_TEMPLATE);
+        } else {
+            attribMap.put(WorkflowUIConstants.PARAM_WORKFLOW_TEMPLATE, template);
+        }
+
+        if (description == null) {
+            description = attribMap.get(WorkflowUIConstants.PARAM_WORKFLOW_TEMPLATE);
+        } else {
+            attribMap.put(WorkflowUIConstants.PARAM_WORKFLOW_DESCRIPTION, description);
+        }
+
+        for (Map.Entry<String, String> entry : attribMap.entrySet()) {
+            if (entry.getKey().startsWith("p-")) {
+                templateParams.put(entry.getKey(), entry.getValue());
+            }
+        }
+        templateImpl = attribMap.get(WorkflowUIConstants.PARAM_TEMPLATE_IMPL);
+        session.setAttribute(WorkflowUIConstants.ATTRIB_WORKFLOW_WIZARD, attribMap);
+    }
+
     WorkflowAdminServiceClient client;
     String bundle = "org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources";
     ResourceBundle resourceBundle = ResourceBundle.getBundle(bundle, request.getLocale());
@@ -85,7 +121,17 @@
     <script type="text/javascript" src="../carbon/admin/js/cookies.js"></script>
     <script type="text/javascript" src="../carbon/admin/js/main.js"></script>
     <script type="text/javascript">
+        function goBack() {
+            location.href = "add-workflow.jsp";
+        }
 
+        function doCancel() {
+            function cancel() {
+                location.href = "list-workflows.jsp";
+            }
+            CARBON.showConfirmationDialog('<fmt:message key="confirmation.workflow.add.abort"/> ' + name + '?',
+                    cancel, null);
+        }
     </script>
 
     <div id="middle">
@@ -134,7 +180,9 @@
                                                 .equals(parameter.getParamType())) {
                                     %>
                                     <td><textarea name="p-<%=parameter.getParamName()%>"
-                                                  title="<%=parameter.getDisplayName()%>"></textarea>
+                                                  title="<%=parameter.getDisplayName()%>"
+                                            ><%=templateParams.get("p-" + parameter.getParamName()) != null ?
+                                            templateParams.get("p-" + parameter.getParamName()) : ""%></textarea>
                                     </td>
                                     <%
                                     } else if (WorkflowUIConstants.ParamTypes.BPS_PROFILE
@@ -145,9 +193,12 @@
                                         <%
                                             for (BPSProfileBean bpsProfile : bpsProfiles) {
                                                 if (bpsProfile != null) {
+                                                    boolean select = bpsProfile.getProfileName().equals(
+                                                            templateParams.get("p-" +
+                                                                    parameter.getParamName()));
                                         %>
-                                        <option value="<%=bpsProfile.getProfileName()%>"><%=bpsProfile
-                                                .getProfileName()%>
+                                        <option value="<%=bpsProfile.getProfileName()%>" <%=select ? "selected" :
+                                                ""%>><%=bpsProfile.getProfileName()%>
                                         </option>
                                         <%
                                                 }
@@ -171,7 +222,9 @@
                                         }
                                     %>
                                         <%--Appending 'p-' to differentiate dynamic params--%>
-                                    <td><input name="p-<%=parameter.getParamName()%>" type="<%=type%>"></td>
+                                    <td><input name="p-<%=parameter.getParamName()%>" type="<%=type%>"
+                                               value='<%=templateParams.get("p-" + parameter.getParamName()) != null ?
+                                                templateParams.get("p-" + parameter.getParamName()) : ""%>'></td>
                                     <%
 
                                             }
@@ -189,6 +242,7 @@
                         </td>
                     </tr>
                 </table>
+                <br/>
                 <table class="styledLeft">
                     <thead>
                     <tr>
@@ -206,8 +260,9 @@
                                             <%
                                                 for (TemplateImplDTO impl : templateDTO.getImplementations()) {
                                             %>
-                                            <option value="<%=impl.getImplementationId()%>"><%=impl
-                                                    .getImplementationName()%>
+                                            <option value="<%=impl.getImplementationId()%>"
+                                                    <%=impl.getImplementationId() == templateImpl ? "selected" : ""%>>
+                                                <%=impl.getImplementationName()%>
                                             </option>
                                             <%
                                                 }
@@ -221,7 +276,7 @@
                     <tr>
                         <td class="buttonRow">
                                 <%--todo : implement back--%>
-                            <input class="button" value="<fmt:message key="back"/>" type="button">
+                            <input class="button" value="<fmt:message key="back"/>" type="button" onclick="goBack();">
                             <input class="button" value="<fmt:message key="next"/>" type="submit"/>
                             <input class="button" value="<fmt:message key="cancel"/>" type="button"
                                    onclick="doCancel();"/>

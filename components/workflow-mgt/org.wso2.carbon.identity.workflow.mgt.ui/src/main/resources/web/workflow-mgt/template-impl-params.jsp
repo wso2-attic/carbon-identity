@@ -31,6 +31,7 @@
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
 <%@ page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
+<%@ page import="java.util.Iterator" %>
 <%@ page import="java.util.Map" %>
 <%@ page import="java.util.ResourceBundle" %>
 
@@ -38,11 +39,38 @@
     String workflowName = CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_WORKFLOW_NAME));
     String template = CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_WORKFLOW_TEMPLATE));
     String templateImpl = CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_TEMPLATE_IMPL));
+    String description =
+            CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_WORKFLOW_DESCRIPTION));
     WorkflowAdminServiceClient client;
     String bundle = "org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources";
     ResourceBundle resourceBundle = ResourceBundle.getBundle(bundle, request.getLocale());
     String forwardTo = null;
     TemplateImplDTO templateImplDTO = null;
+
+    if (session.getAttribute(WorkflowUIConstants.ATTRIB_WORKFLOW_WIZARD) != null &&
+            session.getAttribute(WorkflowUIConstants.ATTRIB_WORKFLOW_WIZARD) instanceof Map) {
+        Map<String, String> attribMap =
+                (Map<String, String>) session.getAttribute(WorkflowUIConstants.ATTRIB_WORKFLOW_WIZARD);
+        //removing existing session params
+        for (Iterator<Map.Entry<String, String>> iterator = attribMap.entrySet().iterator(); iterator.hasNext(); ) {
+            Map.Entry<String, String> entry = iterator.next();
+            if (entry.getKey().startsWith("p-")) {
+                iterator.remove();
+            }
+        }
+
+
+        //setting params from previous page
+
+        Map<String, String[]> parameterMap = request.getParameterMap();
+        for (Map.Entry<String, String[]> paramEntry : parameterMap.entrySet()) {
+            if (StringUtils.startsWith(paramEntry.getKey(), "p-") &&
+                    paramEntry.getValue() != null && paramEntry.getValue().length > 0) {
+                String paramValue = CharacterEncoder.getSafeText(paramEntry.getValue()[0]);
+                attribMap.put(paramEntry.getKey(), paramValue);
+            }
+        }
+    }
 
     BPSProfileBean[] bpsProfiles = new BPSProfileBean[0];
     try {
@@ -88,7 +116,19 @@
     <script type="text/javascript" src="../carbon/admin/js/cookies.js"></script>
     <script type="text/javascript" src="../carbon/admin/js/main.js"></script>
     <script type="text/javascript">
+        function goBack() {
+            location.href = "template-params.jsp";
+        }
 
+        function doCancel() {
+            function cancel() {
+                location.href = "list-workflows.jsp";
+            }
+
+            //todo
+            CARBON.showConfirmationDialog('<fmt:message key="confirmation.workflow.add.abort"/> ' + name + '?',
+                    cancel, null);
+        }
     </script>
 
     <div id="middle">
@@ -99,6 +139,8 @@
                 <input type="hidden" name="<%=WorkflowUIConstants.PARAM_ACTION%>"
                        value="<%=WorkflowUIConstants.ACTION_VALUE_ADD%>">
                 <input type="hidden" name="<%=WorkflowUIConstants.PARAM_WORKFLOW_TEMPLATE%>" value="<%=template%>">
+                <input type="hidden" name="<%=WorkflowUIConstants.PARAM_WORKFLOW_DESCRIPTION%>"
+                       value="<%=description%>">
                 <input type="hidden" name="<%=WorkflowUIConstants.PARAM_TEMPLATE_IMPL%>" value="<%=templateImpl%>">
                 <input type="hidden" name="<%=WorkflowUIConstants.PARAM_WORKFLOW_NAME%>" value="<%=workflowName%>">
                 <%
@@ -191,7 +233,8 @@
                     </tr>
                     <tr>
                         <td class="buttonRow">
-                            <input class="button" value="<fmt:message key="next"/>" type="submit"/>
+                            <input class="button" value="<fmt:message key="back"/>" type="button" onclick="goBack();"/>
+                            <input class="button" value="<fmt:message key="finish"/>" type="submit"/>
                             <input class="button" value="<fmt:message key="cancel"/>" type="button"
                                    onclick="doCancel();"/>
                         </td>
@@ -212,7 +255,7 @@
                     }
                 }
             %>
-            if(autosubmit){
+            if (autosubmit) {
                 document.getElementById("param-form").submit(); //auto submitting since there are no params
             }
         </script>

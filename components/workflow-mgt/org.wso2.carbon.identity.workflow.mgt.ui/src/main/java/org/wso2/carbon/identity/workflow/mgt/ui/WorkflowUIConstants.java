@@ -31,6 +31,8 @@ public class WorkflowUIConstants {
     public static final String ACTION_VALUE_DELETE_ASSOCIATION = "deleteAssociation";
     public static final String ACTION_VALUE_ADD_ASSOCIATION = "addAssociation";
 
+    public static final String ATTRIB_WORKFLOW_WIZARD = "workflowAddWizard";
+
     public static final String PARAM_WORKFLOW_NAME = "workflowName";
     public static final String PARAM_WORKFLOW_ID = "workflowId";
     public static final String PARAM_ASSOCIATION_ID = "associationId";

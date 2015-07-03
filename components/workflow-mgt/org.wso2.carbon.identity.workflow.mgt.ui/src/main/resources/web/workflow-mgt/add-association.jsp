@@ -127,7 +127,7 @@
             var selectedCategory = categoryDropdown.options[categoryDropdown.selectedIndex].value;
             $("#actionDropdown").empty();
             var headOption = document.createElement("option");
-            headOption.text = "--- Select ---";
+            headOption.text = '<%=resourceBundle.getString("select")%>';
             headOption.value = "";
             headOption.selected = true;
             headOption.disabled = "disabled";
@@ -143,6 +143,7 @@
                 }
                 lastSelectedCategory = selectedCategory;
             }
+            $(".enableOnCategorySel").prop('disabled', false);
         }
 
         var paramDefs = {};
@@ -182,7 +183,7 @@
             $("#paramSelect").empty();
             $("#operationSelect").empty();
             var headOption = document.createElement("option");
-            headOption.text = "--- Select ---";
+            headOption.text = '<%=resourceBundle.getString("select")%>';
             headOption.value = "";
             headOption.selected = true;
             headOption.disabled = "disabled";
@@ -195,6 +196,7 @@
                     paramDropDown.options.add(opt);
                 }
             }
+            $(".enableOnOperationSel").prop('disabled', false);
         }
 
         function updateOperator() {
@@ -206,7 +208,7 @@
             var selectedParam = paramDropDown.options[paramDropDown.selectedIndex].value;
             var operationsForParam = operations[paramDefs[selectedCategory][selectedParam]];
             var headOption = document.createElement("option");
-            headOption.text = "--- Select ---";
+            headOption.text = '<%=resourceBundle.getString("select")%>';
             headOption.value = "";
             headOption.selected = true;
             headOption.disabled = "disabled";
@@ -278,7 +280,14 @@
         }
 
         function doCancel() {
-            location.href = 'list-associations.jsp';
+            function doCancel() {
+                function cancel() {
+                    location.href = 'list-associations.jsp';
+                }
+
+                CARBON.showConfirmationDialog('<fmt:message key="confirmation.association.add.abort"/> ' + name + '?',
+                        cancel, null);
+            }
         }
 
         function handleRadioInput(radio) {
@@ -323,16 +332,17 @@
                         </thead>
                         <tbody>
                         <tr>
-                            <td><fmt:message key="workflow.service.association.name"/></td>
-                            <td><input type="text" name="<%=WorkflowUIConstants.PARAM_ASSOCIATION_NAME%>">
+                            <td width="30%"><fmt:message key="workflow.service.association.name"/></td>
+                            <td><input type="text" name="<%=WorkflowUIConstants.PARAM_ASSOCIATION_NAME%>"
+                                       style="min-width: 30%;">
                             </td>
                         </tr>
 
                         <tr>
-                            <td><fmt:message key='workflow.operation.category'/></td>
+                            <td width="30%"><fmt:message key='workflow.operation.category'/></td>
                             <td>
-                                <select id="categoryDropdown" onchange="updateActions();">
-                                    <option disabled selected value="">--- Select ---</option>
+                                <select id="categoryDropdown" onchange="updateActions();" style="min-width: 30%;">
+                                    <option disabled selected value=""><fmt:message key="select"/></option>
                                     <%
                                         for (String key : events.keySet()) {
                                     %>
@@ -345,9 +355,10 @@
                             </td>
                         </tr>
                         <tr>
-                            <td><fmt:message key='workflow.operation.name'/></td>
-                            <td><select id="actionDropdown" onchange="updateParams();"
-                                        name="<%=WorkflowUIConstants.PARAM_OPERATION%>"></select>
+                            <td width="30%"><fmt:message key='workflow.operation.name'/></td>
+                            <td><select id="actionDropdown" onchange="updateParams();" style="min-width: 30%;"
+                                        name="<%=WorkflowUIConstants.PARAM_OPERATION%>" disabled
+                                        class="enableOnCategorySel"></select>
                             </td>
                         </tr>
                         </tbody>
@@ -362,13 +373,13 @@
                         </tr>
                         </thead>
                         <tr>
-                            <td>
-                                <fmt:message key="workflow.select">
-                                </fmt:message>
+                            <td width="30%">
+                                <fmt:message key="workflow.select"/>
                             </td>
                             <td>
-                                <select name="<%=WorkflowUIConstants.PARAM_WORKFLOW_ID%>">
-                                    <option disabled value="">--- Select ---</option>
+                                <select name="<%=WorkflowUIConstants.PARAM_WORKFLOW_ID%>" style="min-width: 30%;"
+                                        disabled class="enableOnOperationSel">
+                                    <option disabled selected value=""><fmt:message key="select"/></option>
 
                                     <%
                                         for (WorkflowBean workflowBean : client.listWorkflows()) {
@@ -392,15 +403,15 @@
                         </tr>
                         <tr>
                             <td colspan="2">
-                                <input type="radio" name="conditionType" value="applyToAll"
-                                       onclick="handleRadioInput(this);" checked="checked">Apply to all
-                                Requests
+                                <input type="radio" name="conditionType" value="applyToAll" disabled checked="checked"
+                                       onclick="handleRadioInput(this);" class="enableOnOperationSel">
+                                Apply to all Requests
                             </td>
                         </tr>
                         <tr>
                             <td colspan="2">
-                                <input type="radio" name="conditionType" value="applyIf"
-                                       onclick="handleRadioInput(this);">
+                                <input type="radio" name="conditionType" value="applyIf" disabled
+                                       class="enableOnOperationSel" onclick="handleRadioInput(this);">
                                 Apply if,
                             </td>
                         </tr>
@@ -422,8 +433,8 @@
                             </td>
                         </tr>
                         <tr>
-                            <td colspan="2"><input type="radio" name="conditionType" value="advanced"
-                                                   onclick="handleRadioInput(this);">
+                            <td colspan="2"><input type="radio" name="conditionType" value="advanced" disabled
+                                                   onclick="handleRadioInput(this);" class="enableOnOperationSel">
                                 Advanced
                             </td>
                         </tr>

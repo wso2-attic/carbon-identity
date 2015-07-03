@@ -28,6 +28,8 @@
 <%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
+<%@ page import="java.util.HashMap" %>
+<%@ page import="java.util.Map" %>
 <%@ page import="java.util.ResourceBundle" %>
 <script type="text/javascript" src="extensions/js/vui.js"></script>
 <script type="text/javascript" src="../extensions/core/js/vui.js"></script>
@@ -41,6 +43,9 @@
     String forwardTo = null;
     WorkflowAdminServiceClient client;
     TemplateBean[] templateList = null;
+    String workflowName = null;
+    String workflowDescription = null;
+    String workflowTemplate = null;
     try {
         String cookie = (String) session.getAttribute(ServerConstants.ADMIN_SERVICE_COOKIE);
         String backendServerURL = CarbonUIUtil.getServerURL(config.getServletContext(), session);
@@ -51,6 +56,17 @@
         templateList = client.listTemplates();
         if (templateList == null) {
             templateList = new TemplateBean[0];
+        }
+
+        if (session.getAttribute(WorkflowUIConstants.ATTRIB_WORKFLOW_WIZARD) != null &&
+                session.getAttribute(WorkflowUIConstants.ATTRIB_WORKFLOW_WIZARD) instanceof Map) {
+            Map<String, String> attribMap =
+                    (Map<String, String>) session.getAttribute(WorkflowUIConstants.ATTRIB_WORKFLOW_WIZARD);
+            workflowName = attribMap.get(WorkflowUIConstants.PARAM_WORKFLOW_NAME);
+            workflowDescription = attribMap.get(WorkflowUIConstants.PARAM_WORKFLOW_DESCRIPTION);
+            workflowTemplate = attribMap.get(WorkflowUIConstants.PARAM_WORKFLOW_TEMPLATE);
+        } else {
+            session.setAttribute(WorkflowUIConstants.ATTRIB_WORKFLOW_WIZARD, new HashMap<String, String>());
         }
     } catch (AxisFault e) {
         String message = resourceBundle.getString("workflow.error.when.initiating.service.client");
@@ -87,8 +103,14 @@
     <script type="text/javascript" src="../carbon/admin/js/cookies.js"></script>
     <script type="text/javascript" src="../carbon/admin/js/main.js"></script>
     <script type="text/javascript">
+
         function doCancel() {
-            window.location = "list-workflows.jsp";
+            function cancel() {
+                location.href = "list-workflows.jsp";
+            }
+
+            CARBON.showConfirmationDialog('<fmt:message key="confirmation.workflow.add.abort"/> ' + name + '?',
+                    cancel, null);
         }
     </script>
 
@@ -108,25 +130,30 @@
                             <table class="normal">
                                 <tr>
                                     <td><fmt:message key='workflow.name'/></td>
-                                    <td><input type="text" name="<%=WorkflowUIConstants.PARAM_WORKFLOW_NAME%>"/></td>
+                                    <td><input type="text" name="<%=WorkflowUIConstants.PARAM_WORKFLOW_NAME%>"
+                                               value="<%=workflowName != null ? workflowName : ""%>"/>
+                                    </td>
                                 </tr>
                                 <tr>
                                     <td><fmt:message key='workflow.description'/></td>
-                                    <td><textarea name="<%=WorkflowUIConstants.PARAM_WORKFLOW_DESCRIPTION%>"></textarea>
+                                    <td><textarea name="<%=WorkflowUIConstants.PARAM_WORKFLOW_DESCRIPTION%>"
+                                            ><%=workflowDescription != null ? workflowDescription : ""%></textarea>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td><fmt:message key='workflow.template'/></td>
                                     <td>
                                         <select name="<%=WorkflowUIConstants.PARAM_WORKFLOW_TEMPLATE%>">
+                                            <option value="" disabled selected>--Select--</option>
                                             <%
                                                 for (TemplateBean template : templateList) {
                                             %>
-                                            <option value="<%=template.getId()%>"><%=template.getName()%>
+                                            <option value="<%=template.getId()%>"
+                                                    <%=template.getId().equals(workflowTemplate) ? "selected" : ""%>>
+                                                <%=template.getName()%>
                                             </option>
                                             <%
                                                 }
-
                                             %>
                                         </select>
                                     </td>

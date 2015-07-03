@@ -43,7 +43,7 @@ public class UpdateRoleUsersWFRequestHandler extends AbstractWorkflowRequestHand
 
     private static final String ROLENAME = "Role Name";
     private static final String USER_STORE_DOMAIN = "User Store Domain";
-    private static final String DELETED_USER_LIST = "User to be Deleted";
+    private static final String DELETED_USER_LIST = "Users to be Deleted";
     private static final String NEW_USER_LIST = "Users to be Added";
 
     private static final Map<String, String> PARAM_DEFINITION;

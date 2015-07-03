@@ -55,7 +55,6 @@ public class AddUserWFRequestHandler extends AbstractWorkflowRequestHandler {
         PARAM_DEFINITION = new HashMap<>();
         PARAM_DEFINITION.put(USERNAME, WorkflowDataType.STRING_TYPE);
         PARAM_DEFINITION.put(USER_STORE_DOMAIN, WorkflowDataType.STRING_TYPE);
-        PARAM_DEFINITION.put(CREDENTIAL, WorkflowDataType.STRING_TYPE);
         PARAM_DEFINITION.put(PROFILE, WorkflowDataType.STRING_TYPE);
         PARAM_DEFINITION.put(ROLE_LIST, WorkflowDataType.STRING_LIST_TYPE);
         PARAM_DEFINITION.put(CLAIM_LIST, WorkflowDataType.STRING_STRING_MAP_TYPE);

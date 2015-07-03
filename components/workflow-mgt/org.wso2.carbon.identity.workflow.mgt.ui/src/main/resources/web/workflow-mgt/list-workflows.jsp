@@ -50,6 +50,11 @@
     int pageNumberInt = 0;
     int numberOfPages = 0;
 
+    //clear any unnecessary session data
+    if (session.getAttribute(WorkflowUIConstants.ATTRIB_WORKFLOW_WIZARD) != null) {
+        session.removeAttribute(WorkflowUIConstants.ATTRIB_WORKFLOW_WIZARD);
+    }
+
     if (pageNumber != null) {
         try {
             pageNumberInt = Integer.parseInt(pageNumber);
@@ -66,7 +71,7 @@
         client = new WorkflowAdminServiceClient(cookie, backendServerURL, configContext);
 
         WorkflowBean[] workflows = client.listWorkflows();
-        if(workflows==null){
+        if (workflows == null) {
             workflows = new WorkflowBean[0];
         }
 
