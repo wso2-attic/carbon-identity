@@ -16,32 +16,23 @@
   ~  specific language governing permissions and limitations
   ~  under the License.
   -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <parent>
         <groupId>org.wso2.carbon.identity</groupId>
-        <artifactId>carbon-identity</artifactId>
+        <artifactId>application-authenticator-features</artifactId>
         <version>4.5.6-SNAPSHOT</version>
-        <relativePath>../../pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>application-authenticator-features</artifactId>
+    <artifactId>social-authenticator-feature</artifactId>
     <packaging>pom</packaging>
-    <name>WSO2 Carbon - Application Authenticator Feature Aggregator Module</name>
+    <name>WSO2 Carbon - Social Authenticator Feature Aggregator Module</name>
     <url>http://wso2.org</url>
 
     <modules>
-        <module>basic-auth</module>
-        <module>basicauth-request-path-auth</module>
-        <module>social</module>
-        <module>iwa</module>
-        <module>oauth-request-path-auth</module>
-        <module>oidc</module>
-        <module>openid</module>
-        <module>passive-sts</module>
-        <module>samlsso</module>
-        <module>fido</module>
+        <module>org.wso2.carbon.identity.application.authenticator.social.server.feature</module>
     </modules>
 
 </project>
