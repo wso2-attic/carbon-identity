@@ -27,13 +27,16 @@ public class AccessContextTokenDO {
 
     private String accessToken;
     private String consumerKey;
-    private AccessTokenDO accessTokenDO;
+    private AccessTokenDO newAccessTokenDO;
+    private AccessTokenDO existingAccessTokenDO;
     private String userStoreDomain;
 
-    public AccessContextTokenDO(String accessToken, String consumerKey, AccessTokenDO accessTokenDO, String userStoreDomain) {
+    public AccessContextTokenDO(String accessToken, String consumerKey, AccessTokenDO newAccessTokenDO, AccessTokenDO
+            existingAccessTokenDO, String userStoreDomain) {
         this.accessToken = accessToken;
         this.consumerKey = consumerKey;
-        this.accessTokenDO = accessTokenDO;
+        this.newAccessTokenDO = newAccessTokenDO;
+        this.existingAccessTokenDO = existingAccessTokenDO;
         this.userStoreDomain = userStoreDomain;
     }
 
@@ -45,11 +48,15 @@ public class AccessContextTokenDO {
         return consumerKey;
     }
 
-    public AccessTokenDO getAccessTokenDO() {
-        return accessTokenDO;
+    public AccessTokenDO getNewAccessTokenDO() {
+        return newAccessTokenDO;
     }
 
     public String getUserStoreDomain() {
         return userStoreDomain;
+    }
+
+    public AccessTokenDO getExistingAccessTokenDO() {
+        return existingAccessTokenDO;
     }
 }

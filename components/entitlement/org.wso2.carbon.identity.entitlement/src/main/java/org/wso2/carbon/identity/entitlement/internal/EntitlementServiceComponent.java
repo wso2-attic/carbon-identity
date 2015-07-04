@@ -171,7 +171,7 @@ public class EntitlementServiceComponent {
     protected void activate(ComponentContext ctxt) {
 
         if (log.isDebugEnabled()) {
-            log.info("Identity Entitlement bundle is activated");
+            log.debug("Identity Entitlement bundle is activated");
         }
 
         try {
@@ -250,7 +250,10 @@ public class EntitlementServiceComponent {
 
             // Register Notification sending on user operations. Even though this is registered
             // only subscribed modules will send messages.
-            log.info("Registering notification sender on user operations");
+            if (log.isDebugEnabled()) {
+                log.debug("Registering notification sender on user operations");
+            }
+
             UserOperationsNotificationListener notificationListener =
                     new UserOperationsNotificationListener();
             ctxt.getBundleContext().registerService(
@@ -386,7 +389,9 @@ public class EntitlementServiceComponent {
                 Runnable serverThread = new ServerRunnable(server);
                 executor.submit(serverThread);
 
-                log.info("Started thrift entitlement service at port:" + receivePort);
+                if (log.isDebugEnabled()) {
+                    log.debug("Started thrift entitlement service at port:" + receivePort);
+                }
             }
 
 

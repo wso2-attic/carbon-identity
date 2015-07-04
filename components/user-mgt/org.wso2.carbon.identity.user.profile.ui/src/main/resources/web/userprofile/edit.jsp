@@ -100,6 +100,13 @@
 <script type="text/javascript">
 </script>
 
+<!-- Set checkbox checked/unchecked value to hidden textbox value -->
+<script type="text/javascript">
+    function setBooleanValueToTextBox(element)
+    {
+        document.getElementById(element.value).value = element.checked;
+    }
+</script>
 
 <fmt:bundle basename="org.wso2.carbon.identity.user.profile.ui.i18n.Resources">
     <carbon:breadcrumb label="update.profile"
@@ -253,9 +260,13 @@
                                             // assume as boolean value. But actually this must be sent from backend.
                                             // will fix for next release.
 		                         %>
-                                            <td><input id="<%=userFields[i].getClaimUri()%>" name="<%=userFields[i].getClaimUri()%>"
-                                             class="text-box-big" type="checkbox" value="true" <%if(Boolean.parseBoolean(value)){%> checked="checked" <%}%> ></td>
-
+                                <td>
+                                    <input class="text-box-big" type="checkbox" onclick="setBooleanValueToTextBox(this)"
+                                            <%if (Boolean.parseBoolean(value)) {%> checked="checked" <%}%>
+                                           value="<%=userFields[i].getClaimUri()%>"/>
+                                    <input id="<%=userFields[i].getClaimUri()%>" name="<%=userFields[i].getClaimUri()%>"
+                                           type="hidden" value="<%=value%>"/>
+                                </td>
 		                         <%
                                         } else {
                                  %>

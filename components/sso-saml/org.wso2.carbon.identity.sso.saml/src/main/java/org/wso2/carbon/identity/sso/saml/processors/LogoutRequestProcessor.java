@@ -103,15 +103,24 @@ public class LogoutRequestProcessor {
 
                 issuer = logoutRequest.getIssuer().getValue();
 
-                String[] splitIssuer = issuer.split("@");
-                if (splitIssuer.length == 2 && !splitIssuer[0].trim().isEmpty() && !splitIssuer[1].trim().isEmpty()) {
-                    issuer = splitIssuer[0];
+                if (issuer.contains("@")) {
+                    String[] splitIssuer = issuer.split("@");
+                    if (StringUtils.isNotEmpty(splitIssuer[0]) && StringUtils.isNotEmpty(splitIssuer[1])) {
+                        issuer = splitIssuer[0];
+                        SAMLSSOUtil.setTenantDomainInThreadLocal(splitIssuer[1]);
+                        if (log.isDebugEnabled()) {
+                            log.debug("Tenant Domain :" + " " + splitIssuer[1] + " " + "&" + " " +
+                                    "Issuer name :" + splitIssuer[0] + " " + "has being spilt");
+                        }
+                    } else {
+                        SAMLSSOUtil.setTenantDomainInThreadLocal(
+                                sessionInfoData.getServiceProviderList().get(issuer).getTenantDomain());
+                    }
+                } else {
+                    SAMLSSOUtil.setTenantDomainInThreadLocal(
+                            sessionInfoData.getServiceProviderList().get(issuer).getTenantDomain());
                 }
-
                 subject = sessionInfoData.getSubject(issuer);
-
-                SAMLSSOUtil.setTenantDomainInThreadLocal(
-                        sessionInfoData.getServiceProviderList().get(issuer).getTenantDomain());
 
                 Map<String, SAMLSSOServiceProviderDO> sessionsList = sessionInfoData
                         .getServiceProviderList();

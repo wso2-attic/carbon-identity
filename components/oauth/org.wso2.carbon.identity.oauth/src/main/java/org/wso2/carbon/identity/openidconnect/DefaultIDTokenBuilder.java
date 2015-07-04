@@ -33,6 +33,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.oltu.openidconnect.as.messages.IDTokenBuilder;
 import org.apache.oltu.openidconnect.as.messages.IDTokenException;
 import org.wso2.carbon.base.MultitenantConstants;
+import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.core.util.KeyStoreManager;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
 import org.wso2.carbon.identity.application.common.model.ServiceProvider;
@@ -59,6 +60,8 @@ import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import java.security.Key;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.security.interfaces.RSAPrivateKey;
 import java.text.ParseException;
 import java.util.Calendar;
@@ -114,11 +117,12 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
             ServiceProvider serviceProvider = null;
 
             try {
+                String tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
                 String spName =
                         applicationMgtService.getServiceProviderNameByClientId(request.getOauth2AccessTokenReqDTO()
                                                                                        .getClientId(),
-                                                                               INBOUND_AUTH2_TYPE);
-                serviceProvider = applicationMgtService.getApplication(spName);
+                                                                               INBOUND_AUTH2_TYPE, tenantDomain);
+                serviceProvider = applicationMgtService.getApplicationExcludingFileBasedSPs(spName, tenantDomain);
             } catch (IdentityApplicationManagementException ex) {
                 log.error("Error while getting service provider information.", ex);
                 throw new IdentityOAuth2Exception("Error while getting service provider information.",
@@ -163,7 +167,24 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
         }
         // Get access token issued time
         long accessTokenIssuedTime = getAccessTokenIssuedTime(tokenRespDTO.getAccessToken(), request) / 1000;
-        String atHash = new String(Base64.encodeBase64(tokenRespDTO.getAccessToken().getBytes(Charsets.UTF_8)), Charsets.UTF_8);
+
+        String digAlg = null;
+        if(!JWSAlgorithm.NONE.getName().equals(signatureAlgorithm.getName())){
+            digAlg = mapDigestAlgorithm(signatureAlgorithm);
+        }
+        MessageDigest md;
+        try {
+            md = MessageDigest.getInstance(digAlg);
+        } catch (NoSuchAlgorithmException e) {
+            throw new IdentityOAuth2Exception("Invalid Algorithm : " + digAlg);
+        }
+        md.update(tokenRespDTO.getAccessToken().getBytes(Charsets.UTF_8));
+        byte[] digest = md.digest();
+        byte[] leftmost = new byte[16];
+        for (int i = 0; i < 16; i++){
+            leftmost[i]=digest[i];
+        }
+        String atHash = new String(Base64.encodeBase64URLSafe(leftmost), Charsets.UTF_8);
 
         if (log.isDebugEnabled()) {
             StringBuilder stringBuilder = (new StringBuilder())
@@ -354,7 +375,7 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
     protected JWSAlgorithm mapSignatureAlgorithm(String signatureAlgorithm) throws IdentityOAuth2Exception {
 
         if (NONE.equals(signatureAlgorithm)) {
-            return JWSAlgorithm.RS256;
+            return new JWSAlgorithm(JWSAlgorithm.NONE.getName());
         } else if (SHA256_WITH_RSA.equals(signatureAlgorithm)) {
             return JWSAlgorithm.RS256;
         } else if (SHA384_WITH_RSA.equals(signatureAlgorithm)) {
@@ -377,5 +398,26 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
         throw new IdentityOAuth2Exception("Unsupported Signature Algorithm in identity.xml");
     }
 
+    /**
+     * This method maps signature algorithm define in identity.xml to digest algorithms to generate the at_hash
+     *
+     * @param signatureAlgorithm
+     * @return
+     * @throws IdentityOAuth2Exception
+     */
+    protected String mapDigestAlgorithm(Algorithm signatureAlgorithm) throws IdentityOAuth2Exception {
+
+        if (JWSAlgorithm.RS256.equals(signatureAlgorithm) || JWSAlgorithm.HS256.equals(signatureAlgorithm) ||
+            JWSAlgorithm.ES256.equals(signatureAlgorithm)) {
+            return "SHA-256";
+        } else if (JWSAlgorithm.RS384.equals(signatureAlgorithm) || JWSAlgorithm.HS384.equals(signatureAlgorithm) ||
+                   JWSAlgorithm.ES384.equals(signatureAlgorithm)) {
+            return "SHA-384";
+        } else if (JWSAlgorithm.RS512.equals(signatureAlgorithm) || JWSAlgorithm.HS512.equals(signatureAlgorithm) ||
+                   JWSAlgorithm.ES512.equals(signatureAlgorithm)) {
+            return "SHA-512";
+        }
+        throw new RuntimeException("Cannot map Signature Algorithm in identity.xml to hashing algorithm");
+    }
 }
 

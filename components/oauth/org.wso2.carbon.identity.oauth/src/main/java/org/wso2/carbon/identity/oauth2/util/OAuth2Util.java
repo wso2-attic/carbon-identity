@@ -24,10 +24,8 @@ import org.apache.commons.io.Charsets;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.core.model.OAuthAppDO;
 import org.wso2.carbon.identity.oauth.IdentityOAuthAdminException;
-import org.wso2.carbon.identity.oauth.OAuthUtil;
 import org.wso2.carbon.identity.oauth.cache.CacheEntry;
 import org.wso2.carbon.identity.oauth.cache.OAuthCache;
 import org.wso2.carbon.identity.oauth.cache.OAuthCacheKey;
@@ -43,9 +41,7 @@ import org.wso2.carbon.identity.oauth2.model.ClientCredentialDO;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserStoreManager;
-import org.wso2.carbon.user.core.common.AbstractUserStoreManager;
 import org.wso2.carbon.user.core.service.RealmService;
-import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import java.sql.Timestamp;
@@ -120,7 +116,7 @@ public class OAuth2Util {
      * @return
      */
     public static String[] buildScopeArray(String scopeStr) {
-        if (scopeStr != null) {
+        if (StringUtils.isNotBlank(scopeStr)) {
             scopeStr = scopeStr.trim();
             return scopeStr.split("\\s");
         }
@@ -481,6 +477,12 @@ public class OAuth2Util {
         }
         long currentTime;
         long validityPeriodMillis = accessTokenDO.getValidityPeriodInMillis();
+
+        if (validityPeriodMillis < 0) {
+            log.debug("Access Token : " + accessTokenDO.getAccessToken() + " has infinite lifetime");
+            return -1;
+        }
+
         long issuedTime = accessTokenDO.getIssuedTime().getTime();
         currentTime = System.currentTimeMillis();
         long validityMillis = issuedTime + validityPeriodMillis - (currentTime + timestampSkew);
