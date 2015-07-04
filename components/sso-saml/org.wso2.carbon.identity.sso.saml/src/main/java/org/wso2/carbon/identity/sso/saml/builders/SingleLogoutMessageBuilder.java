@@ -66,20 +66,24 @@ public class SingleLogoutMessageBuilder {
         SessionIndex sessionIndex = new SessionIndexBuilder().buildObject();
         sessionIndex.setSessionIndex(sessionId);
         logoutReq.getSessionIndexes().add(sessionIndex);
+        logoutReq.setDestination("http://test.com/test.jsp");
 
         logoutReq.setReason(reason);
 
         return logoutReq;
     }
 
-    public LogoutResponse buildLogoutResponse(String id, String status, String statMsg, SessionInfoData sessionInfoData, boolean isDoSignResponse, String acsURL) throws IdentityException {
+    public LogoutResponse buildLogoutResponse(String id, String status, String statMsg, SessionInfoData sessionInfoData,
+                                              boolean isDoSignResponse, String acsURL) throws IdentityException {
+
+        //This generate logout response with destination parameter
         LogoutResponse logoutResp = new LogoutResponseBuilder().buildObject();
         logoutResp.setID(SAMLSSOUtil.createID());
         logoutResp.setInResponseTo(id);
         logoutResp.setIssuer(SAMLSSOUtil.getIssuer());
         logoutResp.setStatus(buildStatus(status, statMsg));
         logoutResp.setIssueInstant(new DateTime());
-
+        logoutResp.setDestination(acsURL);
         if (isDoSignResponse && sessionInfoData != null) {
             SAMLSSOUtil.setSignature(logoutResp, XMLSignature.ALGO_ID_SIGNATURE_RSA, new SignKeyDataHolder(null));
         }
@@ -87,8 +91,8 @@ public class SingleLogoutMessageBuilder {
         return logoutResp;
     }
 
-    public LogoutResponse buildLogoutResponse(String id, String status, String statMsg,
-                                              SessionInfoData sessionInfoData, boolean isDoSignResponse) throws IdentityException {
+    public LogoutResponse buildLogoutResponse(String id, String status, String statMsg, SessionInfoData sessionInfoData,
+                                              boolean isDoSignResponse) throws IdentityException {
         // This generate logout response without destination parameter
         LogoutResponse logoutResp = new LogoutResponseBuilder().buildObject();
         logoutResp.setID(SAMLSSOUtil.createID());
