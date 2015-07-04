@@ -21,7 +21,7 @@ package org.wso2.carbon.identity.application.common.util;
 public class IdentityApplicationConstants {
 
 
-    private IdentityApplicationConstants() {
+    private IdentityApplicationConstants(){
     }
 
     public static final String APPLICATION_AUTHENTICATION_CONGIG = "application-authentication.xml";
@@ -46,7 +46,7 @@ public class IdentityApplicationConstants {
         public static final String PROPERTY_TYPE_STRING = "STRING";
         public static final String PROPERTY_TYPE_BLOB = "BLOB";
 
-        private ConfigElements() {
+        private ConfigElements(){
         }
 
     }
@@ -60,7 +60,7 @@ public class IdentityApplicationConstants {
             public static final String OPEN_ID_URL = "OpenIdUrl";
             public static final String IS_USER_ID_IN_CLAIMS = "IsUserIdInClaims";
 
-            private OpenID() {
+            private OpenID(){
             }
         }
 
@@ -82,7 +82,7 @@ public class IdentityApplicationConstants {
             public static final String IS_USER_ID_IN_CLAIMS = "IsUserIdInClaims";
             public static final String REQUEST_METHOD = "RequestMethod";
 
-            private SAML2SSO() {
+            private SAML2SSO(){
             }
 
         }
@@ -101,7 +101,7 @@ public class IdentityApplicationConstants {
             public static final String PASSIVE_STS_URL = "PassiveSTSUrl";
             public static final String IS_USER_ID_IN_CLAIMS = "IsUserIdInClaims";
 
-            private PassiveSTS() {
+            private PassiveSTS(){
             }
         }
 
@@ -115,15 +115,14 @@ public class IdentityApplicationConstants {
             public static final String AUTH_ENDPOINT = "AuthnEndpoint";
             public static final String AUTH_TOKEN_ENDPOINT = "AuthTokenEndpoint";
             public static final String USER_INFO_ENDPOINT = "UserInfoEndpoint";
-
-            private Facebook() {
+            private Facebook(){
             }
         }
 
         public static class WSTrust {
             public static final String NAME = "wstrust";
 
-            private WSTrust() {
+            private WSTrust(){
             }
         }
 
@@ -149,7 +148,7 @@ public class IdentityApplicationConstants {
         public static final String OAUTH10A_AUTHZ_URL = "OAuth10AAuthzTokenUrl";
         public static final String OAUTH10A_ACCESS_URL = "OAuth10AAccessTokenUrl";
 
-        private OAuth10A() {
+        private OAuth10A(){
         }
     }
 
@@ -161,7 +160,7 @@ public class IdentityApplicationConstants {
         public static final String OAUTH2_AUTHZ_URL = "OAuth2AuthzUrl";
         public static final String OAUTH2_TOKEN_URL = "OAUTH2TokenUrl";
 
-        private OAuth2() {
+        private OAuth2(){
         }
     }
 
