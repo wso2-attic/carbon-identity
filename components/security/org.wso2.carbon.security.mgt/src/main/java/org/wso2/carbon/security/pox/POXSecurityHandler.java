@@ -97,6 +97,13 @@ public class POXSecurityHandler implements Handler {
             return InvocationResponse.CONTINUE;
         }
 
+        //this handler only intercepts
+        //Adding a check for http since UT should work with http as well.
+        if (!(msgCtx.isDoingREST() || isSOAPWithoutSecHeader(msgCtx)) ||
+            !("https".equals(msgCtx.getIncomingTransportName()) || "http".equals(msgCtx.getIncomingTransportName()))) {
+            return InvocationResponse.CONTINUE;
+        }
+
         AxisService service = msgCtx.getAxisService();
 
         if (service == null) {

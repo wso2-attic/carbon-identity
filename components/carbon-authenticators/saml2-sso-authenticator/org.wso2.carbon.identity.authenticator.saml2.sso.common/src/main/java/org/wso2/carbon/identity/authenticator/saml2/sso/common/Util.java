@@ -93,6 +93,7 @@ public class Util {
     private static String loginPage = "/carbon/admin/login.jsp";
     private static String landingPage = null;
     private static String externalLogoutPage = null;
+    private static boolean logoutSupportedIDP = false;
     private static String assertionConsumerServiceUrl = null;
     private static boolean initSuccess = false;
     private static Properties saml2IdpProperties = new Properties();
@@ -363,6 +364,7 @@ public class Util {
             loginPage = parameters.get(SAML2SSOAuthenticatorConstants.LOGIN_PAGE);
             landingPage = parameters.get(SAML2SSOAuthenticatorConstants.LANDING_PAGE);
             externalLogoutPage = parameters.get(SAML2SSOAuthenticatorConstants.EXTERNAL_LOGOUT_PAGE);
+            logoutSupportedIDP = Boolean.parseBoolean(parameters.get(SAML2SSOAuthenticatorConstants.LOGOUT_SUPPORTED_IDP));
             assertionConsumerServiceUrl = parameters.get(SAML2SSOAuthenticatorConstants.ASSERTION_CONSUMER_SERVICE_URL);
 
             initSuccess = true;
@@ -507,6 +509,15 @@ public class Util {
      */
     public static String getExternalLogoutPage() {
         return externalLogoutPage;
+    }
+
+    /**
+     * Returns whether IDP supported for logout or not
+     * used while redirecting to external logout page
+     * @return
+     */
+    public static boolean isLogoutSupportedIDP() {
+        return logoutSupportedIDP;
     }
 
     /**

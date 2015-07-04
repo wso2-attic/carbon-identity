@@ -245,13 +245,23 @@
                 <%} %>
             </div>
             <%
-            } else if (localAuthenticatorNames.size() > 0 && localAuthenticatorNames.contains("IWAAuthenticator")) {
+            }
+            else if (localAuthenticatorNames.size() > 0 ){
+                 if (localAuthenticatorNames.contains("IWAAuthenticator")) {
             %>
             <div class="span3">
                 <a onclick="javascript: handleNoDomain('<%=idpEntry.getKey()%>','IWAAuthenticator')" class="main-link"
                    style="cursor:pointer">IWA</a>
             </div>
             <%
+            }  if (localAuthenticatorNames.contains("FIDOAuthenticator")) {
+            %>
+            <div class="span3">
+                <a onclick="javascript: handleNoDomain('<%=idpEntry.getKey()%>','FIDOAuthenticator')" class="main-link"
+                   style="cursor:pointer">FIDO</a>
+            </div>
+            <%
+                    }
                     }
 
                 }%>

@@ -36,7 +36,7 @@ import org.wso2.carbon.identity.application.common.IdentityApplicationManagement
 import org.wso2.carbon.identity.application.common.model.InboundAuthenticationRequestConfig;
 import org.wso2.carbon.identity.application.common.model.Property;
 import org.wso2.carbon.identity.application.common.model.ServiceProvider;
-import org.wso2.carbon.identity.application.mgt.ApplicationInfoProvider;
+import org.wso2.carbon.identity.application.mgt.ApplicationManagementService;
 import org.wso2.carbon.identity.sts.passive.internal.RegistryBasedTrustedServiceStore;
 import org.wso2.carbon.identity.sts.passive.processors.RequestProcessor;
 
@@ -212,8 +212,8 @@ public class PassiveSTSService {
             if(log.isDebugEnabled()) {
                 log.debug("Retrieving wreply url for : " + realm + " in tenant : " + tenantDomain);
             }
-            sp = ApplicationInfoProvider.getInstance().
-                    getServiceProviderByClienId(realm, "passivests", tenantDomain);
+            sp = ApplicationManagementService.getInstance().
+                    getServiceProviderByClientId(realm, "passivests", tenantDomain);
         } catch (IdentityApplicationManagementException e) {
             log.error("Error while retrieving Service Provider corresponding to Realm : " + realm +
                     ". Skip setting ReplyTo URL from Realm (Service Provider config)", e);

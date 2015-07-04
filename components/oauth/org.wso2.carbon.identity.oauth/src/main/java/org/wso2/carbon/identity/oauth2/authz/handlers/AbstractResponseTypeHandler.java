@@ -45,7 +45,7 @@ public abstract class AbstractResponseTypeHandler implements ResponseTypeHandler
         tokenMgtDAO = new TokenMgtDAO();
         if (OAuthServerConfiguration.getInstance().isCacheEnabled()) {
             cacheEnabled = true;
-            oauthCache = OAuthCache.getInstance();
+            oauthCache = OAuthCache.getInstance(OAuthServerConfiguration.getInstance().getOAuthCacheTimeout());
         }
     }
 

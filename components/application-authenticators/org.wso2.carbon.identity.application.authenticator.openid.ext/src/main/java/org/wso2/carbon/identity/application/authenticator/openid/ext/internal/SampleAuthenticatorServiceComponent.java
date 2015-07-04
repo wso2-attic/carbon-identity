@@ -21,7 +21,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.identity.application.authentication.framework.ApplicationAuthenticator;
-import org.wso2.carbon.identity.application.authenticator.openid.ext.GoogleOpenIDAuthenticator;
 import org.wso2.carbon.identity.application.authenticator.openid.ext.YahooOpenIDAuthenticator;
 
 
@@ -34,9 +33,6 @@ public class SampleAuthenticatorServiceComponent {
 
     protected void activate(ComponentContext ctxt) {
         try {
-            GoogleOpenIDAuthenticator googleOpenIDAuthenticator = new GoogleOpenIDAuthenticator();
-            ctxt.getBundleContext().registerService(ApplicationAuthenticator.class.getName(),
-                    googleOpenIDAuthenticator, null);
             YahooOpenIDAuthenticator yahooOpenIDAuthenticator = new YahooOpenIDAuthenticator();
             ctxt.getBundleContext().registerService(ApplicationAuthenticator.class.getName(),
                     yahooOpenIDAuthenticator, null);

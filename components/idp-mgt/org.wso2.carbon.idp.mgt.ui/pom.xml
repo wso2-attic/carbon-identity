@@ -44,7 +44,7 @@
             <artifactId>org.wso2.carbon.ui</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon.commons</groupId>
+            <groupId>org.wso2.carbon.identity</groupId>
             <artifactId>org.wso2.carbon.user.mgt.stub</artifactId>
         </dependency>
         <dependency>
@@ -74,7 +74,7 @@
                             org.apache.commons.lang; version="${commons-lang.wso2.osgi.version.range}",
 
                             org.wso2.carbon.ui;version="${carbon.kernel.package.import.version.range}",
-                            org.wso2.carbon.user.mgt.stub.*;version="${carbon.commons.imp.pkg.version}",
+                            org.wso2.carbon.user.mgt.stub.*;version="${carbon.identity.package.import.version.range}",
                             org.wso2.carbon.identity.application.common;
                             version="${carbon.identity.package.import.version.range}",
                             org.wso2.carbon.identity.application.common.model.idp.xsd;

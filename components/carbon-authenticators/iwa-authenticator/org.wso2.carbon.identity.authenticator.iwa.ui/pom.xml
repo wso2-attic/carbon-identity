@@ -63,6 +63,10 @@
             <groupId>org.wso2.carbon.identity</groupId>
             <artifactId>org.wso2.carbon.identity.base</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.identity</groupId>
+            <artifactId>org.wso2.carbon.identity.authenticator.iwa.stub</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -93,14 +97,13 @@
                             org.wso2.carbon.ui; version="${carbon.kernel.package.import.version.range}",
 
                             org.wso2.carbon.identity.base; version="${carbon.identity.package.import.version.range}",
+                            org.wso2.carbon.identity.authenticator.iwa.stub.client;
+                            version="${carbon.identity.package.import.version.range}",
                         </Import-Package>
                         <Export-Package>
                             !org.wso2.carbon.identity.authenticator.iwa.ui.internal,
                             org.wso2.carbon.identity.authenticator.iwa.ui.*; version="${carbon.identity.package.export.version}"
                         </Export-Package>
-                        <Embed-Dependency>
-                            org.wso2.carbon.identity.authenticator.iwa.stub;scope=compile|runtime;inline=true
-                        </Embed-Dependency>
                         <Carbon-Component>UIBundle</Carbon-Component>
                     </instructions>
                 </configuration>

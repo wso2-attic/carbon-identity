@@ -224,6 +224,23 @@ public class UserIdentityClaimsDO implements Serializable {
      */
     public void setUserIdentityDataClaim(String claim, String value) {
         userIdentityDataMap.put(claim, value);
+        if (UserIdentityDataStore.FAIL_LOGIN_ATTEMPTS.equalsIgnoreCase(claim)) {
+            setFailAttempts(Integer.parseInt(value));
+        } else if (UserIdentityDataStore.LAST_FAILED_LOGIN_ATTEMPT_TIME.equalsIgnoreCase(claim)) {
+            setLastFailAttemptTime(Long.parseLong(value));
+        } else if (UserIdentityDataStore.UNLOCKING_TIME.equalsIgnoreCase(claim)) {
+            setUnlockTime(Long.parseLong(value));
+        } else if (UserIdentityDataStore.ONE_TIME_PASSWORD.equalsIgnoreCase(claim)) {
+            setOneTimeLogin(Boolean.parseBoolean(claim));
+        } else if (UserIdentityDataStore.PASSWORD_CHANGE_REQUIRED.equalsIgnoreCase(claim)) {
+            setPasswordChangeRequired(Boolean.parseBoolean(value));
+        } else if (UserIdentityDataStore.LAST_LOGON_TIME.equalsIgnoreCase(claim)) {
+            setLastLogonTime(Long.parseLong(value));
+        } else if (UserIdentityDataStore.ACCOUNT_LOCK.equalsIgnoreCase(claim)) {
+            setAccountLock(Boolean.parseBoolean(value));
+        } else if (UserIdentityDataStore.PASSWORD_TIME_STAMP.equalsIgnoreCase(claim)) {
+            setPasswordTimeStamp(Long.parseLong(value));
+        }
     }
 
     public long getPasswordTimeStamp() {

@@ -25,6 +25,7 @@ import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.identity.application.authentication.framework.ApplicationAuthenticator;
 import org.wso2.carbon.identity.application.authenticator.fido.FIDOAuthenticator;
 import org.wso2.carbon.identity.application.authenticator.fido.u2f.U2FService;
+import org.wso2.carbon.identity.user.store.configuration.listener.UserStoreConfigListener;
 import org.wso2.carbon.user.core.service.RealmService;
 
 import java.util.Hashtable;
@@ -64,6 +65,14 @@ public class FIDOAuthenticatorServiceComponent {
         } catch (Exception e) {
             log.error("Error registering U2FService ", e);
         }
+
+        UserStoreConfigListenerImpl userStoreConfigListener = new UserStoreConfigListenerImpl();
+        try {
+            bundleContext.registerService(UserStoreConfigListener.class.getName(), new UserStoreConfigListenerImpl(), null);
+        } catch (Exception e){
+            log.error("Error registering UserStoreConfigListener ", e);
+        }
+
     }
 
     protected void deactivate(ComponentContext context) {

@@ -82,12 +82,6 @@
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.core</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>bouncycastle</groupId>
-                    <artifactId>bcprov-jdk15</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -108,25 +102,21 @@
         <dependency>
             <artifactId>apacheds-protocol-ldap</artifactId>
             <groupId>org.apache.directory.server</groupId>
-            <version>1.5.7</version>
         </dependency>
 
         <dependency>
             <artifactId>apacheds-protocol-kerberos</artifactId>
             <groupId>org.apache.directory.server</groupId>
-            <version>1.5.7</version>
         </dependency>
 
         <dependency>
             <artifactId>apacheds-interceptor-kerberos</artifactId>
             <groupId>org.apache.directory.server</groupId>
-            <version>1.5.7</version>
         </dependency>
 
         <dependency>
             <artifactId>apacheds-core-annotations</artifactId>
             <groupId>org.apache.directory.server</groupId>
-            <version>1.5.7</version>
         </dependency>
 
     </dependencies>
