@@ -517,12 +517,8 @@ public class SAMLSSOProviderServlet extends HttpServlet {
                               String tenantDomain)
             throws ServletException, IOException, IdentityException {
 
-        if (StringUtils.isNotBlank(relayState)) {
-            relayState = URLDecoder.decode(relayState, "UTF-8");
-            relayState = relayState.replaceAll("&", "&amp;").replaceAll("\"", "&quot;").replaceAll("'", "&apos;").
-                    replaceAll("<", "&lt;").replaceAll(">", "&gt;").replace("\n", "");
-        } else {
-            relayState = "null";
+        if (relayState != null) {
+            relayState = URLEncoder.encode(relayState,"UTF-8");
         }
 
         acUrl = getACSUrlWithTenantPartitioning(acUrl, tenantDomain);
@@ -544,13 +540,11 @@ public class SAMLSSOProviderServlet extends HttpServlet {
             String finalPage = null;
             String htmlPage = IdentitySAMLSSOServiceComponent.getSsoRedirectHtml();
             String pageWithAcs = htmlPage.replace("$acUrl", acUrl);
-            String pageWithAcsResponse = pageWithAcs.replace("$response", response);
-            String pageWithAcsResponseRelay;
+            String pageWithAcsResponse = pageWithAcs.replace("<!--$params-->", "<!--$params-->\n" + "<input type='hidden' name='SAMLResponse' value='" + response + "'>");
+            String pageWithAcsResponseRelay = pageWithAcsResponse;
 
-            if(StringUtils.isBlank(relayState) || "null".equals(relayState)) {
-                pageWithAcsResponseRelay = pageWithAcsResponse.replaceAll("<input.*RelayState.*>", "");
-            }else {
-                pageWithAcsResponseRelay = pageWithAcsResponse.replace("$relayState", relayState);
+            if(relayState != null) {
+                pageWithAcsResponseRelay = pageWithAcsResponse.replace("<!--$params-->", "<!--$params-->\n" + "<input type='hidden' name='RelayState' value='" + relayState + "'>");
             }
 
             if (authenticatedIdPs == null || authenticatedIdPs.isEmpty()) {
@@ -566,7 +560,7 @@ public class SAMLSSOProviderServlet extends HttpServlet {
             out.print(finalPage);
 
             if (log.isDebugEnabled()) {
-                log.debug("sso_redirect.html " + finalPage);
+                log.debug("sso_response.html " + finalPage);
             }
 
 
@@ -580,7 +574,7 @@ public class SAMLSSOProviderServlet extends HttpServlet {
             out.println("<p>");
             out.println("<input type='hidden' name='SAMLResponse' value='" + response + "'>");
 
-            if(StringUtils.isNotBlank(relayState) && !"null".equals(relayState)) {
+            if(relayState != null) {
                 out.println("<input type='hidden' name='RelayState' value='" + relayState + "'>");
             }
 

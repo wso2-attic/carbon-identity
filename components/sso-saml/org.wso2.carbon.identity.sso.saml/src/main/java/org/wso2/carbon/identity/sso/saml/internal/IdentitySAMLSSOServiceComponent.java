@@ -109,10 +109,10 @@ public class IdentitySAMLSSOServiceComponent {
 
 
             String redirectHtmlPath = CarbonUtils.getCarbonHome() + File.separator + "repository"
-                    + File.separator + "resources" + File.separator + "security" + File.separator + "sso_redirect.html";
+                    + File.separator + "resources" + File.separator + "security" + File.separator + "sso_response.html";
             FileInputStream fis = new FileInputStream(new File(redirectHtmlPath));
             ssoRedirectPage = new Scanner(fis, "UTF-8").useDelimiter("\\A").next();
-            log.debug("sso_redirect.html " + ssoRedirectPage);
+            log.debug("sso_response.html " + ssoRedirectPage);
 
             FileBasedConfigManager.getInstance().addServiceProviders();
 
