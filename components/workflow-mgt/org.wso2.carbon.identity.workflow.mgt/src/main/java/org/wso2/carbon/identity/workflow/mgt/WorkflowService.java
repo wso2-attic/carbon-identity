@@ -140,7 +140,7 @@ public class WorkflowService {
             implDTO.setTemplateId(templateId);
             implDTO.setImplementationId(template.getImplementations().get(i).getImplementationId());
             implDTO.setImplementationName(template.getImplementations().get(i).getImplementationName());
-            //todo: not sending any params here because we are giving the complete Impl list here, they will be sent
+            //not sending any params here because we are giving the complete Impl list here, they will be sent
             // when requesting individual templateImpl
             implDTO.setImplementationParams(new TemplateParameterDef[0]);
             templateImplDTOs[i] = implDTO;

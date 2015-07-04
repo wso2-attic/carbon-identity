@@ -36,7 +36,6 @@ public abstract class AbstractWorkflowTemplate {
     }
 
     public void addImplementation(AbstractWorkflowTemplateImpl impl) throws RuntimeWorkflowException {
-        //todo: check impl's template
         if (impl != null) {
             if (implementations.containsKey(impl.getImplementationId())) {
                 throw new RuntimeWorkflowException(

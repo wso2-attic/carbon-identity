@@ -112,8 +112,6 @@
                 location.href = 'update-association-finish.jsp?<%=WorkflowUIConstants.PARAM_ACTION%>=' +
                 '<%=WorkflowUIConstants.ACTION_VALUE_DELETE%>&<%=WorkflowUIConstants.PARAM_ASSOCIATION_ID%>=' + id;
             }
-
-            //todo
             CARBON.showConfirmationDialog('<fmt:message key="confirmation.association.delete"/> ' + name + '?',
                     doDelete, null);
         }

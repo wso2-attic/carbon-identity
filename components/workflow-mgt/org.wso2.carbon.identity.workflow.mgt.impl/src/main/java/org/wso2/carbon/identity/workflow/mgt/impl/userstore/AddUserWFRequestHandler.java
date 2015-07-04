@@ -33,6 +33,7 @@ import org.wso2.carbon.user.core.service.RealmService;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -52,7 +53,7 @@ public class AddUserWFRequestHandler extends AbstractWorkflowRequestHandler {
     private static Log log = LogFactory.getLog(AddUserWFRequestHandler.class);
 
     static {
-        PARAM_DEFINITION = new HashMap<>();
+        PARAM_DEFINITION = new LinkedHashMap<>();
         PARAM_DEFINITION.put(USERNAME, WorkflowDataType.STRING_TYPE);
         PARAM_DEFINITION.put(USER_STORE_DOMAIN, WorkflowDataType.STRING_TYPE);
         PARAM_DEFINITION.put(PROFILE, WorkflowDataType.STRING_TYPE);

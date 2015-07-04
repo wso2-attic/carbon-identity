@@ -33,6 +33,7 @@ import org.wso2.carbon.user.core.service.RealmService;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -50,7 +51,7 @@ public class DeleteMultipleClaimsWFRequestHandler extends AbstractWorkflowReques
     private static Log log = LogFactory.getLog(SetMultipleClaimsWFRequestHandler.class);
 
     static {
-        PARAM_DEFINITION = new HashMap<>();
+        PARAM_DEFINITION = new LinkedHashMap<>();
         PARAM_DEFINITION.put(USERNAME, WorkflowDataType.STRING_TYPE);
         PARAM_DEFINITION.put(USER_STORE_DOMAIN, WorkflowDataType.STRING_TYPE);
         PARAM_DEFINITION.put(CLAIMS, WorkflowDataType.STRING_STRING_MAP_TYPE);

@@ -32,6 +32,7 @@ import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.service.RealmService;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class DeleteUserWFRequestHandler extends AbstractWorkflowRequestHandler {
@@ -47,7 +48,7 @@ public class DeleteUserWFRequestHandler extends AbstractWorkflowRequestHandler {
 
 
     static {
-        PARAM_DEFINITION = new HashMap<>();
+        PARAM_DEFINITION = new LinkedHashMap<>();
         PARAM_DEFINITION.put(USERNAME, WorkflowDataType.STRING_TYPE);
         PARAM_DEFINITION.put(USER_STORE_DOMAIN, WorkflowDataType.STRING_TYPE);
     }
