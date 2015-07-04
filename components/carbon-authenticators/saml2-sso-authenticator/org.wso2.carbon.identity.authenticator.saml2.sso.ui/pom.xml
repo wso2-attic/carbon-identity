@@ -110,8 +110,6 @@
 
                             org.wso2.carbon.identity.authenticator.saml2.sso.common.*;
                             version="${carbon.identity.package.import.version.range}",
-                            org.wso2.carbon.identity.authenticator.saml2.sso.common.client;
-                            version="${carbon.identity.package.import.version.range}",
                             org.wso2.carbon.identity.sso.saml.stub.*;
                             version="${carbon.identity.package.import.version.range}",
                             org.wso2.carbon.identity.authenticator.saml2.sso.stub;
