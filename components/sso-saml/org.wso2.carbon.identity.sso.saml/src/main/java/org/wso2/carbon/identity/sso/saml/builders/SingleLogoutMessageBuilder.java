@@ -66,7 +66,6 @@ public class SingleLogoutMessageBuilder {
         SessionIndex sessionIndex = new SessionIndexBuilder().buildObject();
         sessionIndex.setSessionIndex(sessionId);
         logoutReq.getSessionIndexes().add(sessionIndex);
-        logoutReq.setDestination("http://test.com/test.jsp");
 
         logoutReq.setReason(reason);
 
