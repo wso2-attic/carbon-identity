@@ -167,4 +167,15 @@ public class AuthenticatedUser extends User {
     public void setUserAttributes(Map<ClaimMapping, String> userAttributes) {
         this.userAttributes = userAttributes;
     }
+
+    public String getUsernameAsSubjectIdentifier(boolean useUserstoreDomainInLocalSubjectIdentifier, boolean useTenantDomainInLocalSubjectIdentifier){
+        String userName = this.userName;
+        if (useUserstoreDomainInLocalSubjectIdentifier && userStoreDomain != null){
+            userName = userStoreDomain + "/" + userName;
+        }
+        if (useTenantDomainInLocalSubjectIdentifier && tenantDomain != null) {
+            userName = userName + "@" + tenantDomain;
+        }
+        return userName;
+    }
 }

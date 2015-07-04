@@ -43,7 +43,6 @@ public class SequenceConfig implements Serializable {
     private boolean completed;
 
     private AuthenticatedUser authenticatedUser;
-    private String authenticatedUserTenantDomain;
     private String authenticatedIdPs;
 
     private AuthenticatorConfig authenticatedReqPathAuthenticator;
@@ -122,14 +121,6 @@ public class SequenceConfig implements Serializable {
 
     public void setAuthenticatedUser(AuthenticatedUser authenticatedUser) {
         this.authenticatedUser = authenticatedUser;
-    }
-
-    public String getAuthenticatedUserTenantDomain() {
-        return authenticatedUserTenantDomain;
-    }
-
-    public void setAuthenticatedUserTenantDomain(String authenticatedUserTenantDomain) {
-        this.authenticatedUserTenantDomain = authenticatedUserTenantDomain;
     }
 
     public String getAuthenticatedIdPs() {

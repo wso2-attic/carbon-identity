@@ -156,11 +156,7 @@ public class SAMLResponseBuilder {
         }
 
         if (claimValue == null) {
-            if (ssoIdPConfigs.isUseFullyQualifiedUsername()) {
-                nameId.setValue(userName);
-            } else {
-                nameId.setValue(MultitenantUtils.getTenantAwareUsername(userName));
-            }
+            nameId.setValue(userName);
         }
 
         if (ssoIdPConfigs.getNameIDFormat() != null) {
