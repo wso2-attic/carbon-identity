@@ -22,10 +22,14 @@ package org.wso2.carbon.identity.uma.endpoint.authorization;
 
 
 
+import org.apache.amber.oauth2.as.response.OAuthASResponse;
+import org.apache.amber.oauth2.common.exception.OAuthSystemException;
+import org.apache.amber.oauth2.common.message.OAuthResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
+import org.wso2.carbon.identity.oauth.common.OAuth2ErrorCodes;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2ClientApplicationDTO;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2TokenValidationResponseDTO;
 import org.wso2.carbon.identity.uma.beans.UmaRptRequestPayloadBean;
@@ -56,7 +60,7 @@ public class UmaAuthorizationEndpoint {
     @Path("/")
     @Consumes("application/json")
     @Produces("application/json")
-    public Response issueRPT(@Context HttpServletRequest request,UmaRptRequestPayloadBean payloadBean){
+    public Response issueRPT(@Context HttpServletRequest request,UmaRptRequestPayloadBean payloadBean) throws OAuthSystemException {
 
         try {
             PrivilegedCarbonContext.startTenantFlow();
@@ -72,8 +76,7 @@ public class UmaAuthorizationEndpoint {
             // if the access token validation is not present either the
             // token validation valve is not engaged or their was some error in validating
             if (request.getAttribute(OAUTH_TOKEN_VALIDATION_RESPONSE) == null){
-                // TODO change the error message
-                return handlerInvalidAccessToken();
+                return handleOAuthAccessTokenValidationError();
             }
 
             // retrieve the token validation response
@@ -86,7 +89,7 @@ public class UmaAuthorizationEndpoint {
             // check whether the token is valid
             if (!tokenValidationResponseDTO.isValid()){
             // since token is not valid send an OAuth error
-            // TODO send OAuth error
+               return handleInvalidAccessToken(tokenValidationResponseDTO.getErrorMsg());
             }
 
             // create the UmaRptRequest
@@ -108,7 +111,6 @@ public class UmaAuthorizationEndpoint {
             }
 
 
-
             return Response.status(HttpServletResponse.SC_OK).build();
         }finally {
             PrivilegedCarbonContext.endTenantFlow();
@@ -116,10 +118,29 @@ public class UmaAuthorizationEndpoint {
     }
 
 
+    private Response handleOAuthAccessTokenValidationError() throws OAuthSystemException {
+        OAuthResponse response = OAuthASResponse.errorResponse(HttpServletResponse.SC_UNAUTHORIZED)
+                .setError(OAuth2ErrorCodes.ACCESS_DENIED)
+                .setErrorDescription("Access Token Validation failed").buildJSONMessage();
 
-    private Response handlerInvalidAccessToken() {
         Response.ResponseBuilder responseBuilder =
-                Response.status(HttpServletResponse.SC_UNAUTHORIZED);
+                Response.status(HttpServletResponse.SC_UNAUTHORIZED)
+                        .entity(response.getBody());
+
+        // build the message body
+        return responseBuilder.build();
+    }
+
+
+
+    private Response handleInvalidAccessToken(String errorMsg) throws OAuthSystemException {
+        OAuthResponse response = OAuthASResponse.errorResponse(HttpServletResponse.SC_UNAUTHORIZED)
+                .setError(OAuth2ErrorCodes.ACCESS_DENIED)
+                .setErrorDescription(errorMsg).buildJSONMessage();
+
+        Response.ResponseBuilder responseBuilder =
+                Response.status(HttpServletResponse.SC_UNAUTHORIZED)
+                .entity(response.getBody());
 
         // build the message body
         return responseBuilder.build();
@@ -135,25 +156,37 @@ public class UmaAuthorizationEndpoint {
         StringBuilder builder = new StringBuilder();
 
         if (log.isDebugEnabled()){
-            log.debug("Received a request : " + request.getRequestURI());
+            builder.append("Received a request : ").append(request.getRequestURI()).append("\n");
+            //log.debug("Received a request : " + request.getRequestURI());
             // log the headers.
-            log.debug("----------logging request headers.----------");
+            builder.append("----------logging request headers.----------").append("\n");
+            //log.debug("----------logging request headers.----------");
 
             Enumeration headerNames = request.getHeaderNames();
             while (headerNames.hasMoreElements()) {
                 String headerName = (String) headerNames.nextElement();
                 Enumeration headers = request.getHeaders(headerName);
                 while (headers.hasMoreElements()) {
-                    log.debug(headerName + " : " + headers.nextElement());
+                    builder.append(headerName).append(" : ").append(headers.nextElement()).append("\n");
+           //         log.debug(headerName + " : " + headers.nextElement());
                 }
             }
+
+            log.debug(builder.toString());
+
+            builder.setLength(0);
+
             // log the parameters.
-            log.debug("----------logging request payload----------");
+            builder.append("----------logging request payload----------").append("\n");
+           // log.debug("----------logging request payload----------");
             try {
-                log.debug(new ObjectMapper().writeValueAsString(payloadBean));
+                builder.append(new ObjectMapper().writeValueAsString(payloadBean)).append("\n");
+             //   log.debug(new ObjectMapper().writeValueAsString(payloadBean));
             } catch (IOException e) {
                 log.error("Cannot convert the payload to a JSON");
             }
+
+            log.debug(builder.toString());
         }
 
     }

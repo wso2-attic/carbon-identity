@@ -30,4 +30,8 @@ public abstract class AbstractUserConsentHandler implements UserConsentHandler{
     }
 
 
+    @Override
+    public void issueRPT(UmaReqMessageContext umaReqMessageContext) {
+
+    }
 }

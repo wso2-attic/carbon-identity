@@ -22,7 +22,7 @@ package org.wso2.carbon.identity.uma.userconsent.handlers;
 
 import org.wso2.carbon.identity.uma.userconsent.UmaReqMessageContext;
 
-public interface UserConsentHandler {
+public interface UserConsentHandler{
 
     /**
      *  initialization logic for the handler
@@ -36,6 +36,7 @@ public interface UserConsentHandler {
      */
     public int getPriority(UmaReqMessageContext umaReqMessageContext);
 
+    public String gethandledUserConsentType();
 
     public boolean canHandleUserConsentType(UmaReqMessageContext umaReqMessageContext);
 

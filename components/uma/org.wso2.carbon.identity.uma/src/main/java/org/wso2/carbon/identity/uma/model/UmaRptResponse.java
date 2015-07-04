@@ -27,6 +27,8 @@ public class UmaRptResponse {
     private String errorMsg;
     private long expiryTime;
     private long expiryTimeInMillis;
+    private String resourceId;
+    private String scopes[];
 
     public String getRptType() {
         return rptType;
@@ -82,5 +84,21 @@ public class UmaRptResponse {
 
     public void setExpiryTimeInMillis(long expiryTimeInMillis) {
         this.expiryTimeInMillis = expiryTimeInMillis;
+    }
+
+    public String getResourceId() {
+        return resourceId;
+    }
+
+    public void setResourceId(String resourceId) {
+        this.resourceId = resourceId;
+    }
+
+    public String[] getScopes() {
+        return scopes;
+    }
+
+    public void setScopes(String[] scopes) {
+        this.scopes = scopes;
     }
 }

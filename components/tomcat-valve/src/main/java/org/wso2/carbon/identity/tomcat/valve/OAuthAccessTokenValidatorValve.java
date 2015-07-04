@@ -101,14 +101,16 @@ public class OAuthAccessTokenValidatorValve extends ValveBase{
                     log.error("Authorization Header not found in the request");
                 }
             }else{
-                if (log.isDebugEnabled()){
-                    log.debug("Requested Endpoint "+request.getHost().getName()+request.getRequestURI()
-                            +" is not protected, Passing on to the next valve");
-                }
+                // since the End Point is not protected by OAuth we simply pass it on to the next valve
+//                if (log.isDebugEnabled()){
+//                    log.debug("Requested Endpoint "+request.getHost().getName()+request.getRequestURI()
+//                            +" is not protected, Passing on to the next valve");
+//                }
             }
         }catch (Exception ex){
             log.error("Could not handle the request",ex);
         }finally {
+
             // invoke the next valve
             getNext().invoke(request, response);
         }

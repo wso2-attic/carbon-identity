@@ -42,7 +42,8 @@ public class UMAService {
         // retrieve the permission sets associated with the ticket ( resourceID, scopes, user consent type)
 
 
-        // create the message context for the handlers to engage
+        // create the message context fill the UMARptRequest with
+
 
 
         // select the handlers to handle the user consent type

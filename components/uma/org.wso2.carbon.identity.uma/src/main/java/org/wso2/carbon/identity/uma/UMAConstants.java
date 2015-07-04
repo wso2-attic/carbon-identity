@@ -22,6 +22,9 @@ package org.wso2.carbon.identity.uma;
 
 public final class UMAConstants {
 
+    public static final String UMA_AUTHORIZATION_API_SCOPE = "uma_authorization";
+    public static final String UMA_PROTECTION_API_SCOPE = "uma_protection";
+
     public static final String UMA_PERMISSION_TICKET = "ticket";
     public static final String UMA_RPT = "rpt";
 
@@ -50,9 +53,6 @@ public final class UMAConstants {
     public static final String STATE = "state";
 
     public static final String AUTHORIZATION_STATE = "authorization_state";
-
-
-
 
 
     public static class UmaErrors{

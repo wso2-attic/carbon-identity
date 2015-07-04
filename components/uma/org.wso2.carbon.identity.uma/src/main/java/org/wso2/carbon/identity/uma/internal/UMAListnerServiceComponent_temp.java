@@ -28,6 +28,7 @@ import org.wso2.carbon.identity.uma.rpt.issuer.RptIssuer;
 import org.wso2.carbon.identity.uma.userconsent.handlers.UserConsentHandler;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -44,14 +45,17 @@ import java.util.TreeMap;
  * bind="setUserConsentHandler"
  * unbind="unsetUserConsentHandler"
  */
-public class UMAListnerServiceComponent {
+public class UMAListnerServiceComponent_temp {
 
-    private static Log log = LogFactory.getLog(UMAListnerServiceComponent.class);
+    private static Log log = LogFactory.getLog(UMAListnerServiceComponent_temp.class);
 
     private static Map<Integer, ClaimsTokenHandler> claimsTokenHandlers;
-    private static Map<Integer, UserConsentHandler> userConsentHandlers;
+    private static Map<Integer, UserConsentHandler> userConsentHandlerMap;
     private static Map<String, ClaimsToken> claimTokens;
     private static Map<Integer, RptIssuer> rptIssuers;
+
+    // list of handlers from the same string sorted by the priority
+    private static Map<String, List<UserConsentHandler>> userConsentHandlers;
 
     private static Collection<ClaimsTokenHandler> claimsTokenHandlerCollection;
     private static Collection<UserConsentHandler> userConsentHandlerCollection;
@@ -80,17 +84,17 @@ public class UMAListnerServiceComponent {
     protected static synchronized void setUserConsentHandler
             (UserConsentHandler userConsentHandler){
         userConsentHandlerCollection= null;
-        if (userConsentHandlers == null){
-            userConsentHandlers = new TreeMap<>();
+        if (userConsentHandlerMap == null){
+            userConsentHandlerMap = new TreeMap<>();
         }
-        userConsentHandlers.put(userConsentHandler.getPriority(), userConsentHandler);
+      //  userConsentHandlerMap.put(userConsentHandler.getPriority(), userConsentHandler);
 
     }
 
     protected static synchronized void unsetUserConsentHandler
             (UserConsentHandler userConsentHandler){
-        if (userConsentHandler != null && userConsentHandlers != null){
-            userConsentHandlers.remove(userConsentHandler.getPriority());
+        if (userConsentHandler != null && userConsentHandlerMap != null){
+        //    userConsentHandlerMap.remove(userConsentHandler.getPriority());
             userConsentHandlerCollection = null;
         }
 
@@ -116,11 +120,12 @@ public class UMAListnerServiceComponent {
 
     }
 
+
     public static Collection<ClaimsTokenHandler> getClaimsTokenHandlers() {
         return null;
     }
 
-    public static Collection<UserConsentHandler> getUserConsentHandlers() {
+    public static Collection<UserConsentHandler> getUserConsentHandlerMap() {
         return null;
     }
 

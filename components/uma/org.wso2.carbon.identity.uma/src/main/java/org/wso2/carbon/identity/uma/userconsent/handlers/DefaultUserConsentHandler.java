@@ -30,6 +30,11 @@ public class DefaultUserConsentHandler extends AbstractUserConsentHandler {
     }
 
     @Override
+    public String gethandledUserConsentType() {
+        return null;
+    }
+
+    @Override
     public boolean canHandleUserConsentType(UmaReqMessageContext umaReqMessageContext) {
         return true;
     }

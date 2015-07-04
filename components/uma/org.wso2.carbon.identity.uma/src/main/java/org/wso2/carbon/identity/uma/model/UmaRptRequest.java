@@ -25,6 +25,10 @@ public class UmaRptRequest {
 
     private List<ClaimTokenBean> claimTokens;
 
+    private String resourceId;
+
+    private String[] requestedScopes;
+
 
     public UmaRptRequest(HttpServletRequest request, UmaRptRequestPayloadBean payloadBean){
         this.httpServletRequest = request;
@@ -91,5 +95,21 @@ public class UmaRptRequest {
 
     public String getTenantDomain() {
         return tenantDomain;
+    }
+
+    public String getResourceId() {
+        return resourceId;
+    }
+
+    public void setResourceId(String resourceId) {
+        this.resourceId = resourceId;
+    }
+
+    public String[] getRequestedScopes() {
+        return requestedScopes;
+    }
+
+    public void setRequestedScopes(String[] requestedScopes) {
+        this.requestedScopes = requestedScopes;
     }
 }
