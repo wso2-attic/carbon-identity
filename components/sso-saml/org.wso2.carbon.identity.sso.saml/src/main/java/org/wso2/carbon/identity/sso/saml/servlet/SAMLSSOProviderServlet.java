@@ -519,11 +519,7 @@ public class SAMLSSOProviderServlet extends HttpServlet {
             throws ServletException, IOException, IdentityException {
 
         if (relayState != null) {
-            relayState = URLDecoder.decode(relayState, "UTF-8");
-            relayState = relayState.replaceAll("&", "&amp;").replaceAll("\"", "&quot;").replaceAll("'", "&apos;").
-                    replaceAll("<", "&lt;").replaceAll(">", "&gt;").replace("\n", "");
-        } else {
-            relayState = "null";
+            relayState = URLEncoder.encode(relayState,"UTF-8");
         }
 
         acUrl = getACSUrlWithTenantPartitioning(acUrl, tenantDomain);
@@ -545,10 +541,12 @@ public class SAMLSSOProviderServlet extends HttpServlet {
             String finalPage = null;
             String htmlPage = IdentitySAMLSSOServiceComponent.getSsoRedirectHtml();
             String pageWithAcs = htmlPage.replace("$acUrl", acUrl);
-            String pageWithAcsResponse = pageWithAcs.replace("$response", response);
-            String pageWithAcsResponseRelay;
+            String pageWithAcsResponse = pageWithAcs.replace("<!--$params-->", "<!--$params-->\n" + "<input type='hidden' name='SAMLResponse' value='" + response + "'>");
+            String pageWithAcsResponseRelay = pageWithAcsResponse;
 
-            pageWithAcsResponseRelay = pageWithAcsResponse.replace("$relayState", relayState);
+            if(relayState != null) {
+                pageWithAcsResponseRelay = pageWithAcsResponse.replace("<!--$params-->", "<!--$params-->\n" + "<input type='hidden' name='RelayState' value='" + relayState + "'>");
+            }
 
             if (authenticatedIdPs == null || authenticatedIdPs.isEmpty()) {
                 finalPage = pageWithAcsResponseRelay;
@@ -563,7 +561,7 @@ public class SAMLSSOProviderServlet extends HttpServlet {
             out.print(finalPage);
 
             if (log.isDebugEnabled()) {
-                log.debug("sso_redirect.html " + finalPage);
+                log.debug("sso_response.html " + finalPage);
             }
 
 
@@ -576,7 +574,10 @@ public class SAMLSSOProviderServlet extends HttpServlet {
             out.println("<form method='post' action='" + acUrl + "'>");
             out.println("<p>");
             out.println("<input type='hidden' name='SAMLResponse' value='" + response + "'>");
-            out.println("<input type='hidden' name='RelayState' value='" + relayState + "'>");
+
+            if(relayState != null) {
+                out.println("<input type='hidden' name='RelayState' value='" + relayState + "'>");
+            }
 
             if (authenticatedIdPs != null && !authenticatedIdPs.isEmpty()) {
                 out.println("<input type='hidden' name='AuthenticatedIdPs' value='" + authenticatedIdPs + "'>");
@@ -747,7 +748,7 @@ public class SAMLSSOProviderServlet extends HttpServlet {
         authnReqDTO.setTenantDomain(sessionDTO.getTenantDomain());
 
         SAMLSSOUtil.setIsSaaSApplication(authResult.isSaaSApp());
-        SAMLSSOUtil.setUserTenantDomain(authResult.getAuthenticatedUserTenantDomain());
+        SAMLSSOUtil.setUserTenantDomain(authResult.getSubject().getTenantDomain());
     }
 
     private Cookie getTokenIdCookie(HttpServletRequest req) {

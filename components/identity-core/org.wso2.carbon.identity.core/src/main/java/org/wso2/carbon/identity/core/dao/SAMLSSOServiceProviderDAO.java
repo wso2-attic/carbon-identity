@@ -48,14 +48,6 @@ public class SAMLSSOServiceProviderDAO extends AbstractDAO<SAMLSSOServiceProvide
         serviceProviderDO.setCertAlias(resource
                 .getProperty(IdentityRegistryResources.PROP_SAML_SSO_ISSUER_CERT_ALIAS));
 
-        if (resource
-                .getProperty(IdentityRegistryResources.PROP_SAML_SSO_USE_FULLY_QUALIFIED_USERNAME_AS_SUBJECT) != null) {
-            serviceProviderDO
-                    .setUseFullyQualifiedUsername(new Boolean(
-                            resource.getProperty(
-                                    IdentityRegistryResources.PROP_SAML_SSO_USE_FULLY_QUALIFIED_USERNAME_AS_SUBJECT)
-                                    .trim()));
-        }
 
         if (resource.getProperty(IdentityRegistryResources.PROP_SAML_SSO_DO_SINGLE_LOGOUT) != null) {
             serviceProviderDO.setDoSingleLogout(new Boolean(resource.getProperty(
@@ -187,12 +179,6 @@ public class SAMLSSOServiceProviderDAO extends AbstractDAO<SAMLSSOServiceProvide
                         IdentityRegistryResources.PROP_SAML_SSO_ENABLE_NAMEID_CLAIMURI,
                         "false");
             }
-
-            String useFullyQualifiedUsername = serviceProviderDO.isUseFullyQualifiedUsername() ? "true"
-                    : "false";
-            resource.addProperty(
-                    IdentityRegistryResources.PROP_SAML_SSO_USE_FULLY_QUALIFIED_USERNAME_AS_SUBJECT,
-                    useFullyQualifiedUsername);
 
             String doSingleLogout = serviceProviderDO.isDoSingleLogout() ? "true" : "false";
             resource.addProperty(IdentityRegistryResources.PROP_SAML_SSO_DO_SINGLE_LOGOUT,

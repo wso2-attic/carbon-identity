@@ -24,7 +24,6 @@ public class SAMLSSOProviderConfigBean {
 
     private String issuer = "";
     private String assertionConsumerUrl = "";
-    private String useFullyQualifiedUserName = "false";
     private String enableAssertionSigning = "false";
     private String enableSignatureValidation = "false";
     private String certificateAlias = "";
@@ -45,7 +44,6 @@ public class SAMLSSOProviderConfigBean {
     public void clearBean() {
         issuer = "";
         assertionConsumerUrl = "";
-        useFullyQualifiedUserName = "false";
         enableAssertionSigning = "false";
         enableSignatureValidation = "false";
         certificateAlias = "";
@@ -126,20 +124,6 @@ public class SAMLSSOProviderConfigBean {
      */
     public void setEnableAssertionSigning(String enableAssertionSigning) {
         this.enableAssertionSigning = enableAssertionSigning;
-    }
-
-    /**
-     * @return the useFullyQualifiedUserName
-     */
-    public String getUseFullyQualifiedUserName() {
-        return useFullyQualifiedUserName;
-    }
-
-    /**
-     * @param useFullyQualifiedUserName the useFullyQualifiedUserName to set
-     */
-    public void setUseFullyQualifiedUserName(String useFullyQualifiedUserName) {
-        this.useFullyQualifiedUserName = useFullyQualifiedUserName;
     }
 
     /**

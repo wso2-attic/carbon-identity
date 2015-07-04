@@ -201,7 +201,6 @@ public class IdPInitSSOAuthnRequestProcessor {
         }
         authnReqDTO.setLoginPageURL(ssoIdpConfigs.getLoginPageURL());
         authnReqDTO.setCertAlias(ssoIdpConfigs.getCertAlias());
-        authnReqDTO.setUseFullyQualifiedUsernameAsSubject(ssoIdpConfigs.isUseFullyQualifiedUsername());
         authnReqDTO.setNameIdClaimUri(ssoIdpConfigs.getNameIdClaimUri());
         authnReqDTO.setNameIDFormat(ssoIdpConfigs.getNameIDFormat());
         authnReqDTO.setDoSingleLogout(ssoIdpConfigs.isDoSingleLogout());
