@@ -78,7 +78,7 @@ public class FacebookAuthenticator extends AbstractApplicationAuthenticator impl
         try {
             Map<String, String> authenticatorProperties = context.getAuthenticatorProperties();
             String clientId = authenticatorProperties.get(FacebookAuthenticatorConstants.CLIENT_ID);
-            String authorizationEP = FacebookAuthenticatorConstants.FB_AUTHZ_URL;
+            String authorizationEP = authenticatorProperties.get(FacebookAuthenticatorConstants.FB_AUTHZ_URL);
             String scope = authenticatorProperties.get(FacebookAuthenticatorConstants.SCOPE);
 
             if (StringUtils.isEmpty(scope)) {
@@ -123,8 +123,8 @@ public class FacebookAuthenticator extends AbstractApplicationAuthenticator impl
                     authenticatorProperties.get(FacebookAuthenticatorConstants.CLIENT_SECRET);
             String userInfoFields = authenticatorProperties.get(FacebookAuthenticatorConstants.USER_INFO_FIELDS);
 
-            String tokenEndPoint = FacebookAuthenticatorConstants.FB_TOKEN_URL;
-            String fbauthUserInfoUrl = FacebookAuthenticatorConstants.FB_USER_INFO_URL;
+            String tokenEndPoint = authenticatorProperties.get(FacebookAuthenticatorConstants.FB_TOKEN_URL);
+            String fbauthUserInfoUrl = authenticatorProperties.get(FacebookAuthenticatorConstants.FB_USER_INFO_URL);
 
             String callbackurl = CarbonUIUtil.getAdminConsoleURL(request);
             callbackurl = callbackurl.replace("commonauth/carbon/", "commonauth");

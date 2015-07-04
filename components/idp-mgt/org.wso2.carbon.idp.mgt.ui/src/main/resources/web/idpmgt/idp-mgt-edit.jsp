@@ -109,6 +109,9 @@
     String fbScope = null;
     String fbUserInfoFields = null;
     boolean isFBUserIdInClaims = false;
+    String fbAuthnEndpoint = null;
+    String fbOauth2TokenEndpoint = null;
+    String fbUserInfoEndpoint = null;
     
 
     // Claims
@@ -281,6 +284,24 @@
                                              IdentityApplicationConstants.Authenticator.Facebook.USER_INFO_FIELDS);
                         if(fbUserInfoFieldsProp != null){
                             fbUserInfoFields = fbUserInfoFieldsProp.getValue();
+                        }
+                        Property fbAuthnEndpointProp = IdPManagementUIUtil
+                                .getProperty(fedAuthnConfig.getProperties(),
+                                        IdentityApplicationConstants.Authenticator.Facebook.AUTH_ENDPOINT);
+                        if(fbAuthnEndpointProp != null){
+                            fbAuthnEndpoint = fbAuthnEndpointProp.getValue();
+                        }
+                        Property fbOauth2TokenEndpointProp = IdPManagementUIUtil
+                                .getProperty(fedAuthnConfig.getProperties(),
+                                        IdentityApplicationConstants.Authenticator.Facebook.AUTH_TOKEN_ENDPOINT);
+                        if(fbOauth2TokenEndpointProp != null){
+                            fbOauth2TokenEndpoint = fbOauth2TokenEndpointProp.getValue();
+                        }
+                        Property fbUserInfoEndpointProp = IdPManagementUIUtil
+                                .getProperty(fedAuthnConfig.getProperties(),
+                                        IdentityApplicationConstants.Authenticator.Facebook.USER_INFO_ENDPOINT);
+                        if(fbUserInfoEndpointProp != null){
+                            fbUserInfoEndpoint = fbUserInfoEndpointProp.getValue();
                         }
             		}else if(fedAuthnConfig.getDisplayName().equals(IdentityApplicationConstants.Authenticator.PassiveSTS.NAME)){
             			allFedAuthConfigs.remove(fedAuthnConfig.getName());
@@ -904,6 +925,15 @@
             if(isFBUserIdInClaims){
             	fbUserIdInClaims = "checked=\'checked\'";
             }
+        }
+        if(fbAuthnEndpoint == null){
+            fbAuthnEndpoint = IdentityApplicationConstants.FB_AUTHZ_URL;
+        }
+        if(fbOauth2TokenEndpoint == null){
+            fbOauth2TokenEndpoint = IdentityApplicationConstants.FB_TOKEN_URL;
+        }
+        if(fbUserInfoEndpoint == null){
+            fbUserInfoEndpoint = IdentityApplicationConstants.FB_USER_INFO_URL;
         }
 
         
@@ -3870,6 +3900,24 @@
                                 <fmt:message key='fbauth.user.information.fields.help'/>
                             </div>
                         </td>
+                    </tr>
+                    <tr>
+                        <td class="leftCol-med labelField">Facebook Authentication Endpoint:<span
+                                class="required">*</span></td>
+                        <td><input class="text-box-big" id="fbAuthnEndpoint"
+                                   name="fbAuthnEndpoint" type="text" value=<%=fbAuthnEndpoint%>></td>
+                    </tr>
+                    <tr>
+                        <td class="leftCol-med labelField">Facebook OAuth2 Token Endpoint:<span
+                                class="required">*</span></td>
+                        <td><input class="text-box-big" id="fbOauth2TokenEndpoint"
+                                   name="fbOauth2TokenEndpoint" type="text" value=<%=fbOauth2TokenEndpoint%>></td>
+                    </tr>
+                    <tr>
+                        <td class="leftCol-med labelField">Facebook User Information Endpoint:<span
+                                class="required">*</span></td>
+                        <td><input class="text-box-big" id="fbUserInfoEndpoint"
+                                   name="fbUserInfoEndpoint" type="text" value=<%=fbUserInfoEndpoint%>></td>
                     </tr>
                 </table>
             </div>
