@@ -161,7 +161,8 @@ public class SAMLSSOProviderServlet extends HttpServlet {
                     if (sessionDTO.isInvalidLogout()) {
                         String errorResp = SAMLSSOUtil.buildErrorResponse(
                                 SAMLSSOConstants.StatusCodes.REQUESTOR_ERROR,
-                                "Invalid SAML SSO Logout Request");
+                                "Invalid SAML SSO Logout Request",
+                                sessionDTO.getDestination());
                         sendNotification(errorResp, SAMLSSOConstants.Notification.INVALID_MESSAGE_STATUS,
                                 SAMLSSOConstants.Notification.INVALID_MESSAGE_MESSAGE,
                                 sessionDTO.getAssertionConsumerURL(), req, resp);
@@ -180,7 +181,7 @@ public class SAMLSSOProviderServlet extends HttpServlet {
                     log.error("Failed to retrieve sessionDTO from the cache for key " + sessionDataKey);
                     String errorResp = SAMLSSOUtil.buildErrorResponse(
                             SAMLSSOConstants.StatusCodes.IDENTITY_PROVIDER_ERROR,
-                            SAMLSSOConstants.Notification.EXCEPTION_STATUS);
+                            SAMLSSOConstants.Notification.EXCEPTION_STATUS, null);
                     sendNotification(errorResp, SAMLSSOConstants.Notification.EXCEPTION_STATUS,
                             SAMLSSOConstants.Notification.EXCEPTION_MESSAGE, null, req, resp);
                     return;
@@ -195,7 +196,7 @@ public class SAMLSSOProviderServlet extends HttpServlet {
                 if (sessionId == null) {
                     String errorResp = SAMLSSOUtil.buildErrorResponse(
                             SAMLSSOConstants.StatusCodes.REQUESTOR_ERROR,
-                            "Invalid request message");
+                            "Invalid request message", null);
                     sendNotification(errorResp, SAMLSSOConstants.Notification.INVALID_MESSAGE_STATUS,
                             SAMLSSOConstants.Notification.INVALID_MESSAGE_MESSAGE, null, req, resp);
                 } else {
@@ -211,7 +212,7 @@ public class SAMLSSOProviderServlet extends HttpServlet {
             try {
                 errorResp = SAMLSSOUtil.buildErrorResponse(
                         SAMLSSOConstants.StatusCodes.IDENTITY_PROVIDER_ERROR,
-                        "Error occurred while handling SAML2 SSO request");
+                        "Error occurred while handling SAML2 SSO request", null);
             } catch (IdentityException e1) {
                 log.error("Error while building SAML response", e1);
             }
@@ -223,7 +224,7 @@ public class SAMLSSOProviderServlet extends HttpServlet {
             try {
                 errorResp = SAMLSSOUtil.buildErrorResponse(
                         SAMLSSOConstants.StatusCodes.IDENTITY_PROVIDER_ERROR,
-                        "Error when processing the authentication request");
+                        "Error when processing the authentication request", null);
             } catch (IdentityException e1) {
                 log.error("Error while building SAML response", e1);
             }
@@ -629,9 +630,11 @@ public class SAMLSSOProviderServlet extends HttpServlet {
                 List<String> statusCodes = new ArrayList<String>();
                 statusCodes.add(SAMLSSOConstants.StatusCodes.NO_PASSIVE);
                 statusCodes.add(SAMLSSOConstants.StatusCodes.IDENTITY_PROVIDER_ERROR);
+                String destination = reqValidationDTO.getDestination();
                 reqValidationDTO.setResponse(SAMLSSOUtil.buildErrorResponse(
                         reqValidationDTO.getId(), statusCodes,
-                        "Cannot authenticate Subject in Passive Mode"));
+                        "Cannot authenticate Subject in Passive Mode",
+                        destination));
 
                 sendResponse(req, resp, sessionDTO.getRelayState(), reqValidationDTO.getResponse(),
                         reqValidationDTO.getAssertionConsumerURL(), reqValidationDTO.getSubject(),
@@ -641,9 +644,10 @@ public class SAMLSSOProviderServlet extends HttpServlet {
             } else { // if forceAuthn or normal flow
                 //TODO send a saml response with a status message.
                 if (!authResult.isAuthenticated()) {
+                    String destination = reqValidationDTO.getDestination();
                     String errorResp = SAMLSSOUtil.buildErrorResponse(
                             SAMLSSOConstants.StatusCodes.AUTHN_FAILURE,
-                            "User authentication failed");
+                            "User authentication failed", destination);
                     sendNotification(errorResp, SAMLSSOConstants.Notification.EXCEPTION_STATUS,
                             SAMLSSOConstants.Notification.EXCEPTION_MESSAGE,
                             reqValidationDTO.getAssertionConsumerURL(), req, resp);
@@ -714,7 +718,8 @@ public class SAMLSSOProviderServlet extends HttpServlet {
 
             String errorResp = SAMLSSOUtil.buildErrorResponse(
                     SAMLSSOConstants.StatusCodes.REQUESTOR_ERROR,
-                    "Invalid request");
+                    "Invalid request",
+                    sessionDTO.getAssertionConsumerURL());
             sendNotification(errorResp, SAMLSSOConstants.Notification.INVALID_MESSAGE_STATUS,
                     SAMLSSOConstants.Notification.INVALID_MESSAGE_MESSAGE,
                     sessionDTO.getAssertionConsumerURL(), request, response);
