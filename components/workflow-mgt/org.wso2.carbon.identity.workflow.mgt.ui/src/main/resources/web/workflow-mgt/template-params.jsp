@@ -1,19 +1,3 @@
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
-<%@ page import="org.apache.axis2.context.ConfigurationContext" %>
-<%@ page import="org.wso2.carbon.CarbonConstants" %>
-<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.BPSProfileBean" %>
-<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.TemplateDTO" %>
-<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.TemplateImplDTO" %>
-<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.TemplateParameterDef" %>
-<%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.WorkflowAdminServiceClient" %>
-<%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.WorkflowUIConstants" %>
-<%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
-<%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
-<%@ page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
-<%@ page import="org.wso2.carbon.utils.ServerConstants" %>
-<%@ page import="java.util.HashMap" %>
-<%@ page import="java.util.Map" %>
-<%@ page import="java.util.ResourceBundle" %>
 <%--
   ~ Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
   ~
@@ -31,6 +15,24 @@
   ~ specific language governing permissions and limitations
   ~ under the License.
   --%>
+
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="carbon" uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar" %>
+<%@ page import="org.apache.axis2.context.ConfigurationContext" %>
+<%@ page import="org.wso2.carbon.CarbonConstants" %>
+<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.BPSProfileBean" %>
+<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.TemplateDTO" %>
+<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.TemplateImplDTO" %>
+<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.TemplateParameterDef" %>
+<%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.WorkflowAdminServiceClient" %>
+<%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.WorkflowUIConstants" %>
+<%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
+<%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
+<%@ page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
+<%@ page import="org.wso2.carbon.utils.ServerConstants" %>
+<%@ page import="java.util.HashMap" %>
+<%@ page import="java.util.Map" %>
+<%@ page import="java.util.ResourceBundle" %>
 
 <%
     String workflowName = CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_WORKFLOW_NAME));
@@ -112,9 +114,9 @@
 
 <fmt:bundle basename="org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources">
     <carbon:breadcrumb
-            label="workflow.mgt"
+            label="workflow.template"
             resourceBundle="org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources"
-            topPage="true"
+            topPage="false"
             request="<%=request%>"/>
 
     <script type="text/javascript" src="../carbon/admin/js/breadcrumbs.js"></script>
@@ -122,13 +124,15 @@
     <script type="text/javascript" src="../carbon/admin/js/main.js"></script>
     <script type="text/javascript">
         function goBack() {
-            location.href = "add-workflow.jsp";
+            location.href =
+                    "add-workflow.jsp?<%=WorkflowUIConstants.PARAM_ACTION%>=<%=WorkflowUIConstants.ACTION_VALUE_BACK%>";
         }
 
         function doCancel() {
             function cancel() {
                 location.href = "list-workflows.jsp";
             }
+
             CARBON.showConfirmationDialog('<fmt:message key="confirmation.workflow.add.abort"/> ' + name + '?',
                     cancel, null);
         }
@@ -172,7 +176,7 @@
                                         if (parameter != null) {
                                 %>
                                 <tr>
-                                    <td><%=parameter.getDisplayName()%>
+                                    <td width="30%"><%=parameter.getDisplayName()%>
                                     </td>
                                     <%
                                         //Text areas
@@ -180,7 +184,7 @@
                                                 .equals(parameter.getParamType())) {
                                     %>
                                     <td><textarea name="p-<%=parameter.getParamName()%>"
-                                                  title="<%=parameter.getDisplayName()%>"
+                                                  title="<%=parameter.getDisplayName()%>" style="min-width: 30%"
                                             ><%=templateParams.get("p-" + parameter.getParamName()) != null ?
                                             templateParams.get("p-" + parameter.getParamName()) : ""%></textarea>
                                     </td>
@@ -189,7 +193,7 @@
                                             .equals(parameter.getParamType())) {
                                         //bps profiles
                                     %>
-                                    <td><select name="p-<%=parameter.getParamName()%>">
+                                    <td><select name="p-<%=parameter.getParamName()%>" style="min-width: 30%">
                                         <%
                                             for (BPSProfileBean bpsProfile : bpsProfiles) {
                                                 if (bpsProfile != null) {
@@ -222,9 +226,10 @@
                                         }
                                     %>
                                         <%--Appending 'p-' to differentiate dynamic params--%>
-                                    <td><input name="p-<%=parameter.getParamName()%>" type="<%=type%>"
+                                    <td><input name="p-<%=parameter.getParamName()%>" style="min-width: 30%"
                                                value='<%=templateParams.get("p-" + parameter.getParamName()) != null ?
-                                                templateParams.get("p-" + parameter.getParamName()) : ""%>'></td>
+                                                templateParams.get("p-" + parameter.getParamName()) : ""%>'
+                                               type="<%=type%>"></td>
                                     <%
 
                                             }
@@ -261,7 +266,8 @@
                                                 for (TemplateImplDTO impl : templateDTO.getImplementations()) {
                                             %>
                                             <option value="<%=impl.getImplementationId()%>"
-                                                    <%=impl.getImplementationId() == templateImpl ? "selected" : ""%>>
+                                                    <%=impl.getImplementationId().equals(templateImpl) ? "selected" :
+                                                            ""%>>
                                                 <%=impl.getImplementationName()%>
                                             </option>
                                             <%
@@ -275,7 +281,6 @@
                     </tr>
                     <tr>
                         <td class="buttonRow">
-                                <%--todo : implement back--%>
                             <input class="button" value="<fmt:message key="back"/>" type="button" onclick="goBack();">
                             <input class="button" value="<fmt:message key="next"/>" type="submit"/>
                             <input class="button" value="<fmt:message key="cancel"/>" type="button"

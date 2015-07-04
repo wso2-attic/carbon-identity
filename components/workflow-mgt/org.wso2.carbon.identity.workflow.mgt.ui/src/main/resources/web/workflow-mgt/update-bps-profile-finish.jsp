@@ -41,7 +41,7 @@
 
     String bundle = "org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources";
     ResourceBundle resourceBundle = ResourceBundle.getBundle(bundle, request.getLocale());
-    String forwardTo = null;
+    String forwardTo = "list-bps-profiles.jsp";
 
     if (WorkflowUIConstants.ACTION_VALUE_ADD.equals(action)) {
         String profileName =
@@ -77,9 +77,6 @@
 
 
 %>
-<%
-    if (forwardTo != null) {
-%>
 <script type="text/javascript">
     function forward() {
         location.href = "<%=forwardTo%>";
@@ -90,6 +87,5 @@
     forward();
 </script>
 <%
-        return;
-    }
+    return;
 %>

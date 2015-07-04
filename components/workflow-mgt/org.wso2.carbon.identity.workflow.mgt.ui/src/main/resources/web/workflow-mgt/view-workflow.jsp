@@ -127,7 +127,7 @@
     }
 %>
 <fmt:bundle basename="org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources">
-    <carbon:breadcrumb label="workflow.mgt"
+    <carbon:breadcrumb label="view"
                        resourceBundle="org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources"
                        topPage="false" request="<%=request%>"/>
 

@@ -107,9 +107,9 @@
 
 <fmt:bundle basename="org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources">
     <carbon:breadcrumb
-            label="workflow.mgt"
+            label="workflow.template.impl"
             resourceBundle="org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources"
-            topPage="true"
+            topPage="false"
             request="<%=request%>"/>
 
     <script type="text/javascript" src="../carbon/admin/js/breadcrumbs.js"></script>
@@ -125,7 +125,6 @@
                 location.href = "list-workflows.jsp";
             }
 
-            //todo
             CARBON.showConfirmationDialog('<fmt:message key="confirmation.workflow.add.abort"/> ' + name + '?',
                     cancel, null);
         }
@@ -170,14 +169,14 @@
                                         if (parameter != null) {
                                 %>
                                 <tr>
-                                    <td><%=parameter.getDisplayName()%>
+                                    <td width="30%"><%=parameter.getDisplayName()%>
                                     </td>
                                     <%
                                         //Text areas
                                         if (WorkflowUIConstants.ParamTypes.LONG_STRING
                                                 .equals(parameter.getParamType())) {
                                     %>
-                                    <td><textarea name="imp-<%=parameter.getParamName()%>"
+                                    <td><textarea name="imp-<%=parameter.getParamName()%>" style="min-width: 30%"
                                                   title="<%=parameter.getDisplayName()%>"></textarea>
                                     </td>
                                     <%
@@ -185,7 +184,7 @@
                                             .equals(parameter.getParamType())) {
                                         //bps profiles
                                     %>
-                                    <td><select name="imp-<%=parameter.getParamName()%>">
+                                    <td><select name="imp-<%=parameter.getParamName()%>" style="min-width: 30%">
                                         <%
                                             for (BPSProfileBean bpsProfile : bpsProfiles) {
                                                 if (bpsProfile != null) {
@@ -215,7 +214,8 @@
                                         }
                                     %>
                                         <%--Appending 'p-' to differentiate dynamic params--%>
-                                    <td><input name="imp-<%=parameter.getParamName()%>" type="<%=type%>"></td>
+                                    <td><input name="imp-<%=parameter.getParamName()%>" type="<%=type%>"
+                                               style="min-width: 30%"></td>
                                     <%
 
                                             }

@@ -60,8 +60,7 @@
                     </tr>
                     </tbody>
                 </table>
-                <br/>
-                <table class="styledLeft noBorders">
+                <table class="styledLeft noBorders" style="margin-top: 10px">
                     <thead>
                     <tr>
                         <th colspan="2"><fmt:message key="workflow.bps.profile.connection.details"/></th>
@@ -83,8 +82,7 @@
                     </tr>
                     </tbody>
                 </table>
-                <br/>
-                <table class="styledLeft noBorders">
+                <table class="styledLeft noBorders" style="margin-top: 10px">
                     <thead>
                     <tr>
                         <th colspan="2"><fmt:message key="workflow.bps.profile.callback.details"/></th>
@@ -102,8 +100,7 @@
                     </tr>
                     </tbody>
                 </table>
-                <br/>
-                <table>
+                <table style="margin-top: 10px">
                     <tr>
                         <td class="buttonRow">
                             <input class="button" value="<fmt:message key="add"/>" type="submit"/>

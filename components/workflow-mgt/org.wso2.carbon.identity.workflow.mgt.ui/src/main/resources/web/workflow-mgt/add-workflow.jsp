@@ -31,6 +31,7 @@
 <%@ page import="java.util.HashMap" %>
 <%@ page import="java.util.Map" %>
 <%@ page import="java.util.ResourceBundle" %>
+<%@ page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
 <script type="text/javascript" src="extensions/js/vui.js"></script>
 <script type="text/javascript" src="../extensions/core/js/vui.js"></script>
 <script type="text/javascript" src="../admin/js/main.js"></script>
@@ -46,6 +47,7 @@
     String workflowName = null;
     String workflowDescription = null;
     String workflowTemplate = null;
+    String action = CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_ACTION));
     try {
         String cookie = (String) session.getAttribute(ServerConstants.ADMIN_SERVICE_COOKIE);
         String backendServerURL = CarbonUIUtil.getServerURL(config.getServletContext(), session);
@@ -59,7 +61,8 @@
         }
 
         if (session.getAttribute(WorkflowUIConstants.ATTRIB_WORKFLOW_WIZARD) != null &&
-                session.getAttribute(WorkflowUIConstants.ATTRIB_WORKFLOW_WIZARD) instanceof Map) {
+                session.getAttribute(WorkflowUIConstants.ATTRIB_WORKFLOW_WIZARD) instanceof Map &&
+                WorkflowUIConstants.ACTION_VALUE_BACK.equals(action)) {
             Map<String, String> attribMap =
                     (Map<String, String>) session.getAttribute(WorkflowUIConstants.ATTRIB_WORKFLOW_WIZARD);
             workflowName = attribMap.get(WorkflowUIConstants.PARAM_WORKFLOW_NAME);
@@ -94,9 +97,9 @@
 
 <fmt:bundle basename="org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources">
     <carbon:breadcrumb
-            label="workflow.mgt"
+            label="workflow.add"
             resourceBundle="org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources"
-            topPage="false"
+            topPage="true"
             request="<%=request%>"/>
 
     <script type="text/javascript" src="../carbon/admin/js/breadcrumbs.js"></script>
@@ -129,22 +132,27 @@
                         <td class="formRow">
                             <table class="normal">
                                 <tr>
-                                    <td><fmt:message key='workflow.name'/></td>
+                                    <td width="30%"><fmt:message key='workflow.name'/></td>
                                     <td><input type="text" name="<%=WorkflowUIConstants.PARAM_WORKFLOW_NAME%>"
-                                               value="<%=workflowName != null ? workflowName : ""%>"/>
+                                               value="<%=workflowName != null ? workflowName : ""%>"
+                                               style="min-width: 30%"/>
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td><fmt:message key='workflow.description'/></td>
+                                    <td width="30%"><fmt:message key='workflow.description'/></td>
                                     <td><textarea name="<%=WorkflowUIConstants.PARAM_WORKFLOW_DESCRIPTION%>"
+                                                  style="min-width: 30%"
                                             ><%=workflowDescription != null ? workflowDescription : ""%></textarea>
+                                            <%--do not leave any space/newlines between textarea start and close tags,
+                                            it will display those also if any--%>
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td><fmt:message key='workflow.template'/></td>
+                                    <td width="30%"><fmt:message key='workflow.template'/></td>
                                     <td>
-                                        <select name="<%=WorkflowUIConstants.PARAM_WORKFLOW_TEMPLATE%>">
-                                            <option value="" disabled selected>--Select--</option>
+                                        <select name="<%=WorkflowUIConstants.PARAM_WORKFLOW_TEMPLATE%>"
+                                                style="min-width: 30%">
+                                            <option value="" disabled selected><fmt:message key="select"/></option>
                                             <%
                                                 for (TemplateBean template : templateList) {
                                             %>
