@@ -85,7 +85,7 @@
                             org.wso2.carbon.identity.application.authentication.framework.exception,
                             org.wso2.carbon.identity.application.authentication.framework.model,
                             org.wso2.carbon.identity.base, org.wso2.carbon.identity.core.util, org.wso2.carbon.user.api,
-                            org.wso2.carbon.user.core.service, org.wso2.carbon.user.core.tenant, org.xml.sax, sun.misc;resolution:=optional,
+                            org.wso2.carbon.user.core.service, org.wso2.carbon.user.core.tenant, org.xml.sax, sun.misc
                         </Import-Package>
                         <Embed-Dependency>
                             jackson-core|guava|u2flib-server-core|jackson-databind|jackson-annotations

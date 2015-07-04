@@ -104,9 +104,6 @@
                             !org.wso2.carbon.identity.authenticator.iwa.ui.internal,
                             org.wso2.carbon.identity.authenticator.iwa.ui.*; version="${carbon.identity.package.export.version}"
                         </Export-Package>
-                        <Embed-Dependency>
-                            org.wso2.carbon.identity.authenticator.iwa.stub;scope=compile|runtime;inline=true
-                        </Embed-Dependency>
                         <Carbon-Component>UIBundle</Carbon-Component>
                     </instructions>
                 </configuration>
