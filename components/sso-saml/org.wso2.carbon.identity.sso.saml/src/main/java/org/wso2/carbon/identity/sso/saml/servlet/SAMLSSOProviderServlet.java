@@ -517,7 +517,7 @@ public class SAMLSSOProviderServlet extends HttpServlet {
                               String tenantDomain)
             throws ServletException, IOException, IdentityException {
 
-        if (relayState != null) {
+        if (StringUtils.isNotBlank(relayState)) {
             relayState = URLDecoder.decode(relayState, "UTF-8");
             relayState = relayState.replaceAll("&", "&amp;").replaceAll("\"", "&quot;").replaceAll("'", "&apos;").
                     replaceAll("<", "&lt;").replaceAll(">", "&gt;").replace("\n", "");
@@ -547,7 +547,11 @@ public class SAMLSSOProviderServlet extends HttpServlet {
             String pageWithAcsResponse = pageWithAcs.replace("$response", response);
             String pageWithAcsResponseRelay;
 
-            pageWithAcsResponseRelay = pageWithAcsResponse.replace("$relayState", relayState);
+            if(StringUtils.isBlank(relayState) || "null".equals(relayState)) {
+                pageWithAcsResponseRelay = pageWithAcsResponse.replaceAll("<input.*RelayState.*>", "");
+            }else {
+                pageWithAcsResponseRelay = pageWithAcsResponse.replace("$relayState", relayState);
+            }
 
             if (authenticatedIdPs == null || authenticatedIdPs.isEmpty()) {
                 finalPage = pageWithAcsResponseRelay;
@@ -575,7 +579,10 @@ public class SAMLSSOProviderServlet extends HttpServlet {
             out.println("<form method='post' action='" + acUrl + "'>");
             out.println("<p>");
             out.println("<input type='hidden' name='SAMLResponse' value='" + response + "'>");
-            out.println("<input type='hidden' name='RelayState' value='" + relayState + "'>");
+
+            if(StringUtils.isNotBlank(relayState) && !"null".equals(relayState)) {
+                out.println("<input type='hidden' name='RelayState' value='" + relayState + "'>");
+            }
 
             if (authenticatedIdPs != null && !authenticatedIdPs.isEmpty()) {
                 out.println("<input type='hidden' name='AuthenticatedIdPs' value='" + authenticatedIdPs + "'>");
