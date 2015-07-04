@@ -73,7 +73,7 @@ public class BPELApprovalDeployer implements TemplateInitializer {
         if (!validateParams(initParams)) {
             throw new RuntimeWorkflowException("Workflow initialization failed, required parameter is missing");
         }
-        processName = (String) initParams.get(WorkFlowConstants.TemplateConstants.PROCESS_NAME);
+        processName = (String) initParams.get(WorkFlowConstants.TemplateConstants.WORKFLOW_NAME);
         bpsHost = (String) initParams.get(WorkFlowConstants.TemplateConstants.HOST);
         bpsUser = (String) initParams.get(WorkFlowConstants.TemplateConstants.AUTH_USER);
         password = (String) initParams.get(WorkFlowConstants.TemplateConstants.AUTH_USER_PASSWORD);

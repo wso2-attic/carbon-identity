@@ -35,8 +35,6 @@ public class BPELApprovalTemplateImpl extends AbstractWorkflowTemplateImpl {
         Object[][] paramDef = {
                 {WorkFlowConstants.TemplateConstants.BPEL_IMPL_BPS_PROFILE, "BPEL Engine profile",
                         WorkflowTemplateParamType.BPS_PROFILE, "", true},
-                {WorkFlowConstants.TemplateConstants.PROCESS_NAME, "Process Name",
-                        WorkflowTemplateParamType.STRING, "", true},
                 {WorkFlowConstants.TemplateConstants.HT_SUBJECT, "Approval Request Subject",
                         WorkflowTemplateParamType.STRING, "Approval required", true},
                 {WorkFlowConstants.TemplateConstants.HT_DESCRIPTION, "Approval Request Body",

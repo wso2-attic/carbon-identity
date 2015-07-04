@@ -46,7 +46,7 @@ public class DefaultBPELExecutor implements WorkFlowExecutor {
     static {
         REQUIRED_PARAMS = new HashSet<>();
         REQUIRED_PARAMS.add(WorkFlowConstants.TemplateConstants.HOST);
-        REQUIRED_PARAMS.add(WorkFlowConstants.TemplateConstants.PROCESS_NAME);
+        REQUIRED_PARAMS.add(WorkFlowConstants.TemplateConstants.WORKFLOW_NAME);
         REQUIRED_PARAMS.add(WorkFlowConstants.TemplateConstants.SERVICE_ACTION);
         REQUIRED_PARAMS.add(WorkFlowConstants.TemplateConstants.AUTH_USER);
         REQUIRED_PARAMS.add(WorkFlowConstants.TemplateConstants.AUTH_USER_PASSWORD);
@@ -108,7 +108,7 @@ public class DefaultBPELExecutor implements WorkFlowExecutor {
         options.setAction((String) initParams.get(WorkFlowConstants.TemplateConstants.SERVICE_ACTION));
         String endpoint;
         String host = (String) initParams.get(WorkFlowConstants.TemplateConstants.HOST);
-        String serviceName = (String) initParams.get(WorkFlowConstants.TemplateConstants.PROCESS_NAME);
+        String serviceName = (String) initParams.get(WorkFlowConstants.TemplateConstants.WORKFLOW_NAME);
         if (host.endsWith("/")) {
             endpoint = host + "services/" + serviceName + WorkFlowConstants.TemplateConstants.SERVICE_SUFFIX;
         } else {

@@ -199,6 +199,7 @@ public class WorkflowService {
                 paramMap.put(param.getParamName(), param.getParamValue());
             }
         }
+        paramMap.put(WorkFlowConstants.TemplateConstants.WORKFLOW_NAME, name);
         workflowDAO.addWorkflowParams(id, paramMap);
         AbstractWorkflowTemplateImpl templateImplementation =
                 WorkflowServiceDataHolder.getInstance().getTemplateImplementation(templateId, templateImpl);
@@ -274,6 +275,7 @@ public class WorkflowService {
     }
 
     public List<AssociationDTO> listAllAssociations() throws WorkflowException {
+
         List<AssociationDTO> associations = workflowDAO.listAssociations();
         for (Iterator<AssociationDTO> iterator = associations.iterator(); iterator.hasNext(); ) {
             AssociationDTO association = iterator.next();

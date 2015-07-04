@@ -49,7 +49,8 @@ public class WorkFlowConstants {
         public static final String BPEL_IMPL_BPS_PROFILE = "BPELEngineProfile";
 
         public static final String HOST = "Host";
-        public static final String PROCESS_NAME = "ServiceName";
+
+        public static final String WORKFLOW_NAME = "WorkflowName";
         public static final String AUTH_USER = "User";
         public static final String AUTH_USER_PASSWORD = "UserPassword";
 
