@@ -830,36 +830,6 @@ public class TokenMgtDAO {
         return dataDO;
     }
 
-//
-//    /**
-//     * Sets state of access token
-//     *
-//     * @param tokenId
-//     * @param tokenState
-//     * @throws IdentityOAuth2Exception
-//     */
-//    public void setAccessTokenState(String tokenId, String tokenState, String tokenStateId,
-//                                    String userStoreDomain) throws IdentityOAuth2Exception {
-//
-//	    Connection connection = null;
-//	    try {
-//		    connection = JDBCPersistenceManager.getInstance().getDBConnection();
-//	    } catch (IdentityException e) {
-//            throw new IdentityOAuth2Exception("Error occurred while trying to get a Identity persistence store " +
-//                    "instance", e);
-//
-//        }
-//	    try {
-//            setAccessTokenState(connection, tokenId, tokenState, tokenStateId, userStoreDomain);
-//            connection.commit();
-//	    } catch (SQLException e) {
-//            throw new IdentityOAuth2Exception("Error while updating Access Token with ID : " +
-//                                              tokenId + " to Token State : " + tokenState, e);
-//        } finally {
-//		    IdentityDatabaseUtil.closeConnection(connection);
-//	    }
-//    }
-
 	/**
 	 *
 	 * @param connection database connection
