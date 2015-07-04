@@ -317,7 +317,7 @@ public class ApplicationBean {
     }
 
     /**
-     * @param roleClaimUri
+     * @param userClaimUri
      */
     public void setUserClaimUri(String userClaimUri) {
 
@@ -360,7 +360,8 @@ public class ApplicationBean {
     }
 
     /**
-     * @param roleMapping
+     * @param spRole
+     * @param localRole
      */
     public void addRoleMapping(String spRole, String localRole) {
         roleMap.put(localRole, spRole);
@@ -424,6 +425,20 @@ public class ApplicationBean {
     public boolean isAlwaysSendBackAuthenticatedListOfIdPs() {
         if (serviceProvider.getLocalAndOutBoundAuthenticationConfig() != null) {
             return serviceProvider.getLocalAndOutBoundAuthenticationConfig().getAlwaysSendBackAuthenticatedListOfIdPs();
+        }
+        return false;
+    }
+
+    public boolean isUseTenantDomainInLocalSubjectIdentifier() {
+        if (serviceProvider.getLocalAndOutBoundAuthenticationConfig() != null) {
+            return serviceProvider.getLocalAndOutBoundAuthenticationConfig().getUseTenantDomainInLocalSubjectIdentifier();
+        }
+        return false;
+    }
+
+    public boolean isUseUserstoreDomainInLocalSubjectIdentifier() {
+        if (serviceProvider.getLocalAndOutBoundAuthenticationConfig() != null) {
+            return serviceProvider.getLocalAndOutBoundAuthenticationConfig().getUseUserstoreDomainInLocalSubjectIdentifier();
         }
         return false;
     }
@@ -1066,6 +1081,18 @@ public class ApplicationBean {
         serviceProvider.getLocalAndOutBoundAuthenticationConfig()
                 .setAlwaysSendBackAuthenticatedListOfIdPs(alwaysSendAuthListOfIdPs != null &&
                         "on".equals(alwaysSendAuthListOfIdPs) ? true : false);
+
+        String useTenantDomainInLocalSubjectIdentifier = CharacterEncoder.getSafeText(
+                request.getParameter("use_tenant_domain_in_local_subject_identifier"));
+        serviceProvider.getLocalAndOutBoundAuthenticationConfig()
+                .setUseTenantDomainInLocalSubjectIdentifier(useTenantDomainInLocalSubjectIdentifier != null &&
+                        "on".equals(useTenantDomainInLocalSubjectIdentifier) ? true : false);
+
+        String useUserstoreDomainInLocalSubjectIdentifier = CharacterEncoder.getSafeText(
+                request.getParameter("use_userstore_domain_in_local_subject_identifier"));
+        serviceProvider.getLocalAndOutBoundAuthenticationConfig()
+                .setUseUserstoreDomainInLocalSubjectIdentifier(useUserstoreDomainInLocalSubjectIdentifier != null &&
+                        "on".equals(useUserstoreDomainInLocalSubjectIdentifier) ? true : false);
 
 
         String subjectClaimUri = CharacterEncoder.getSafeText(request.getParameter("subject_claim_uri"));

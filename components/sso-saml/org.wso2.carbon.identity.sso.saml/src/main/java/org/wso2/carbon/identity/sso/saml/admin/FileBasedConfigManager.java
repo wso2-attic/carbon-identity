@@ -153,7 +153,6 @@ public class FileBasedConfigManager {
                 spDO.setRequestedRecipients(getTextValueList(elem, SAMLSSOConstants.FileBasedSPConfig.RECIPIENT));
             }
 
-            spDO.setUseFullyQualifiedUsername(fullQualifyUserName);
             spDO.setDoSingleLogout(singleLogout);
             spDO.setDoSignAssertions(signAssertion);
             spDO.setDoValidateSignatureInRequests(validateSignature);
