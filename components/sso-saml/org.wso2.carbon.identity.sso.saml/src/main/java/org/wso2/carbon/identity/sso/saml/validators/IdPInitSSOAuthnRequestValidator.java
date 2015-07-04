@@ -60,7 +60,8 @@ public class IdPInitSSOAuthnRequestValidator {
                 validationResponse.setValid(false);
                 String errorResp = SAMLSSOUtil.buildErrorResponse(
                         SAMLSSOConstants.StatusCodes.REQUESTOR_ERROR,
-                        "spEntityID parameter not found in request");
+                        "spEntityID parameter not found in request",
+                        null);
                 log.debug("spEntityID parameter not found in request");
                 validationResponse.setResponse(errorResp);
                 validationResponse.setValid(false);
