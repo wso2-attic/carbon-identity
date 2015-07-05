@@ -66,10 +66,6 @@
             <artifactId>org.wso2.carbon.logging</artifactId>
         </dependency>
         <dependency>
-            <groupId>bouncycastle</groupId>
-            <artifactId>bcprov-jdk15</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.wso2.carbon.identity</groupId>
             <artifactId>org.wso2.carbon.identity.authenticator.saml2.sso.common</artifactId>
         </dependency>
@@ -150,9 +146,6 @@
                             !org.wso2.carbon.identity.sso.saml.internal,
                             org.wso2.carbon.identity.sso.saml.*; version="${carbon.identity.package.export.version}",
                         </Export-Package>
-                        <Embed-Dependency>
-                            bcprov-jdk15|naming-factory|naming-resources|commons-collections;scope=compile|runtime;inline=false
-                        </Embed-Dependency>
                         <DynamicImport-Package>*</DynamicImport-Package>
                     </instructions>
                 </configuration>
