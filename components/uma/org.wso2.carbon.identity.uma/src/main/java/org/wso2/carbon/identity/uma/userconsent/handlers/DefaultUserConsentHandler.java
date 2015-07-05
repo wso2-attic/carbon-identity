@@ -20,7 +20,7 @@
 
 package org.wso2.carbon.identity.uma.userconsent.handlers;
 
-import org.wso2.carbon.identity.uma.userconsent.UmaReqMessageContext;
+import org.wso2.carbon.identity.uma.dto.context.UmaAuthzMessageContext;
 
 public class DefaultUserConsentHandler extends AbstractUserConsentHandler {
 
@@ -35,27 +35,27 @@ public class DefaultUserConsentHandler extends AbstractUserConsentHandler {
     }
 
     @Override
-    public boolean canHandleUserConsentType(UmaReqMessageContext umaReqMessageContext) {
+    public boolean canHandleUserConsentType(UmaAuthzMessageContext umaReqMessageContext) {
         return true;
     }
 
     @Override
-    public void issueRPT(UmaReqMessageContext umaReqMessageContext) {
+    public void issueRPT(UmaAuthzMessageContext umaReqMessageContext) {
 
     }
 
     @Override
-    public void validateScope(UmaReqMessageContext umaReqMessageContext) {
+    public void validateScope(UmaAuthzMessageContext umaReqMessageContext) {
 
     }
 
     @Override
-    public boolean requestStepUpAuthentication(UmaReqMessageContext umaReqMessageContext) {
+    public boolean requestStepUpAuthentication(UmaAuthzMessageContext umaReqMessageContext) {
         return false;
     }
 
     @Override
-    public boolean requireClaims(UmaReqMessageContext umaReqMessageContext) {
+    public boolean requireClaims(UmaAuthzMessageContext umaReqMessageContext) {
         return false;
     }
 }

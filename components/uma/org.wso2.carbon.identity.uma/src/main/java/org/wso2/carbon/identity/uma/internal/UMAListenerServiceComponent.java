@@ -23,7 +23,7 @@ package org.wso2.carbon.identity.uma.internal;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.identity.uma.userconsent.UmaReqMessageContext;
+import org.wso2.carbon.identity.uma.dto.context.UmaAuthzMessageContext;
 import org.wso2.carbon.identity.uma.userconsent.handlers.UserConsentHandler;
 
 import java.util.*;
@@ -70,7 +70,7 @@ public class UMAListenerServiceComponent {
     }
 
 
-    public static synchronized Collection<UserConsentHandler> getUserConsentHandlers(String consentType,UmaReqMessageContext messageContext){
+    public static synchronized Collection<UserConsentHandler> getUserConsentHandlers(String consentType,UmaAuthzMessageContext messageContext){
         List<UserConsentHandler> userConsentHandlerList = userConsentHandlers.get(consentType);
 
         if (userConsentHandlerList != null){

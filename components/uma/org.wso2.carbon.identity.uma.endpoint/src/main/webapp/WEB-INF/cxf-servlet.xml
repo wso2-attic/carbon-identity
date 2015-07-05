@@ -29,6 +29,7 @@
   <jaxrs:server id="umaEP" address="/">
     <jaxrs:serviceBeans>
         <ref bean="authorizationEndpointBean"/>
+        <ref bean="resourceSetRegistrationEndpointBean" />
     </jaxrs:serviceBeans>
     <jaxrs:extensionMappings>
       <entry key="json" value="application/json" />
@@ -38,5 +39,8 @@
     </jaxrs:providers>
   </jaxrs:server>
 
+  <!-- Authorization API Endpoint-->
   <bean id="authorizationEndpointBean" class="org.wso2.carbon.identity.uma.endpoint.authorization.UmaAuthorizationEndpoint"/>
+  <!-- UMA Protection API Endpoints -->
+  <bean id="resourceSetRegistrationEndpointBean" class="org.wso2.carbon.identity.uma.endpoint.protection.ResourceSetRegistrationEndpoint" />
 </beans>

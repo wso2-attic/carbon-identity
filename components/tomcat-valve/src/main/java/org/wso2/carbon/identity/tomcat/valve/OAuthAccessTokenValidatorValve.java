@@ -125,9 +125,17 @@ public class OAuthAccessTokenValidatorValve extends ValveBase{
 
     private boolean checkEndPointIsProtected(String requestedURI){
         // substring to remove the preceding file path separators
-        String stringToCompare = requestedURI.substring(1);
+        String URI = requestedURI.trim();
 
-        return protectedEndpoints.contains(stringToCompare);
+        if (requestedURI.startsWith("/")){
+              URI = URI.substring(1);
+        }
+
+        if (requestedURI.endsWith("/")){
+            URI = URI.substring(0,URI.length()-1);
+        }
+
+        return protectedEndpoints.contains(URI);
     }
 
     /**

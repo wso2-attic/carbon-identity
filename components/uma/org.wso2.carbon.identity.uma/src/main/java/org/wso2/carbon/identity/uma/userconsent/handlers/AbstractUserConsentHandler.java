@@ -20,18 +20,18 @@
 
 package org.wso2.carbon.identity.uma.userconsent.handlers;
 
-import org.wso2.carbon.identity.uma.userconsent.UmaReqMessageContext;
+import org.wso2.carbon.identity.uma.dto.context.UmaAuthzMessageContext;
 
 public abstract class AbstractUserConsentHandler implements UserConsentHandler{
 
     @Override
-    public int getPriority(UmaReqMessageContext umaReqMessageContext) {
+    public int getPriority(UmaAuthzMessageContext umaReqMessageContext) {
         return 1;
     }
 
 
     @Override
-    public void issueRPT(UmaReqMessageContext umaReqMessageContext) {
+    public void issueRPT(UmaAuthzMessageContext umaReqMessageContext) {
 
     }
 }

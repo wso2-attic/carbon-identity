@@ -18,16 +18,17 @@
  * /
  */
 
-package org.wso2.carbon.identity.uma.beans;
+package org.wso2.carbon.identity.uma.beans.authz;
+
+import org.wso2.carbon.identity.uma.beans.authz.ClaimTokenBean;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  *  Bean class to parse the json payload of the the RPT Request sent by the authorization client
  *  on behalf of a Requesting Party to get an RPT (Request Party Token) to access the UMA Protected resource
  */
-
-
 public class UmaRptRequestPayloadBean {
 
     // permission ticket containing details about the resource,scope of access requested
@@ -38,7 +39,7 @@ public class UmaRptRequestPayloadBean {
     private String rpt;
 
     // claim tokens pushed by a claims aware client
-    private ArrayList<ClaimTokenBean> claim_tokens;
+    private List<ClaimTokenBean> claim_tokens;
 
     public UmaRptRequestPayloadBean() {
     }
@@ -59,16 +60,13 @@ public class UmaRptRequestPayloadBean {
         this.rpt = rpt;
     }
 
-    public ArrayList<ClaimTokenBean> getClaim_tokens() {
+    public List<ClaimTokenBean> getClaim_tokens() {
         return claim_tokens;
     }
 
-    public void setClaim_tokens(ArrayList<ClaimTokenBean> claim_tokens) {
+    public void setClaim_tokens(List<ClaimTokenBean> claim_tokens) {
         this.claim_tokens = claim_tokens;
     }
 
-    @Override
-    public String toString() {
-        return super.toString();
-    }
+
 }

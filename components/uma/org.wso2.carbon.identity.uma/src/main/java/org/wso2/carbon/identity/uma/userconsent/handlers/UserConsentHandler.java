@@ -20,7 +20,7 @@
 
 package org.wso2.carbon.identity.uma.userconsent.handlers;
 
-import org.wso2.carbon.identity.uma.userconsent.UmaReqMessageContext;
+import org.wso2.carbon.identity.uma.dto.context.UmaAuthzMessageContext;
 
 public interface UserConsentHandler{
 
@@ -34,18 +34,18 @@ public interface UserConsentHandler{
      * @param umaReqMessageContext
      * @return int priority (default value is 1)
      */
-    public int getPriority(UmaReqMessageContext umaReqMessageContext);
+    public int getPriority(UmaAuthzMessageContext umaReqMessageContext);
 
     public String gethandledUserConsentType();
 
-    public boolean canHandleUserConsentType(UmaReqMessageContext umaReqMessageContext);
+    public boolean canHandleUserConsentType(UmaAuthzMessageContext umaReqMessageContext);
 
-    public void issueRPT(UmaReqMessageContext umaReqMessageContext);
+    public void issueRPT(UmaAuthzMessageContext umaReqMessageContext);
 
-    public void validateScope(UmaReqMessageContext umaReqMessageContext);
+    public void validateScope(UmaAuthzMessageContext umaReqMessageContext);
 
-    public boolean requestStepUpAuthentication(UmaReqMessageContext umaReqMessageContext);
+    public boolean requestStepUpAuthentication(UmaAuthzMessageContext umaReqMessageContext);
 
-    public boolean requireClaims(UmaReqMessageContext umaReqMessageContext);
+    public boolean requireClaims(UmaAuthzMessageContext umaReqMessageContext);
 
 }

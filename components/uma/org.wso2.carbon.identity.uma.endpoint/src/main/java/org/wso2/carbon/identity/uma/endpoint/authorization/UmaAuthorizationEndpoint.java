@@ -32,9 +32,9 @@ import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.oauth.common.OAuth2ErrorCodes;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2ClientApplicationDTO;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2TokenValidationResponseDTO;
-import org.wso2.carbon.identity.uma.beans.UmaRptRequestPayloadBean;
-import org.wso2.carbon.identity.uma.model.UmaRptRequest;
-import org.wso2.carbon.identity.uma.model.UmaRptResponse;
+import org.wso2.carbon.identity.uma.beans.authz.UmaRptRequestPayloadBean;
+import org.wso2.carbon.identity.uma.dto.UmaRptRequest;
+import org.wso2.carbon.identity.uma.dto.UmaRptResponse;
 import org.wso2.carbon.identity.uma.endpoint.util.EndpointUtil;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 

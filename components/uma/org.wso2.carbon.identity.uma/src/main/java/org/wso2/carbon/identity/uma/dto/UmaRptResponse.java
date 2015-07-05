@@ -16,19 +16,21 @@
  *  * under the License.
  */
 
-package org.wso2.carbon.identity.uma.model;
+package org.wso2.carbon.identity.uma.dto;
 
-public class UmaRptResponse {
+public class UmaRptResponse extends UmaResponse{
 
     private String rptType;
     private String RPT;
-    private boolean error;
-    private String errorCode;
-    private String errorMsg;
     private long expiryTime;
     private long expiryTimeInMillis;
     private String resourceId;
     private String scopes[];
+
+
+    public UmaRptResponse(int responseStatus) {
+        super(responseStatus);
+    }
 
     public String getRptType() {
         return rptType;
@@ -44,30 +46,6 @@ public class UmaRptResponse {
 
     public void setRPT(String RPT) {
         this.RPT = RPT;
-    }
-
-    public boolean isError() {
-        return error;
-    }
-
-    public void setError(boolean error) {
-        this.error = error;
-    }
-
-    public String getErrorCode() {
-        return errorCode;
-    }
-
-    public void setErrorCode(String errorCode) {
-        this.errorCode = errorCode;
-    }
-
-    public String getErrorMsg() {
-        return errorMsg;
-    }
-
-    public void setErrorMsg(String errorMsg) {
-        this.errorMsg = errorMsg;
     }
 
     public long getExpiryTime() {

@@ -22,8 +22,8 @@ package org.wso2.carbon.identity.uma;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.identity.uma.model.UmaRptRequest;
-import org.wso2.carbon.identity.uma.model.UmaRptResponse;
+import org.wso2.carbon.identity.uma.dto.UmaRptRequest;
+import org.wso2.carbon.identity.uma.dto.UmaRptResponse;
 
 public class UMAService {
 

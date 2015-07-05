@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.carbon.identity.uma.model;
+package org.wso2.carbon.identity.uma.dto;
 
 import java.io.Serializable;
 
