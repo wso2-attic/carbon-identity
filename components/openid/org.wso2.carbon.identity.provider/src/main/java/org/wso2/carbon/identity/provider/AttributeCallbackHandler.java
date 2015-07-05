@@ -88,8 +88,10 @@ public class AttributeCallbackHandler implements SAMLCallbackHandler {
             }
 
             try {
-                loadClaims(claimElem, userIdentifier);
                 processClaimData(data, claimElem);
+                if (MapUtils.isEmpty(requestedClaimValues)) {
+                    loadClaims(claimElem, userIdentifier);
+                }
                 populateClaimValues(userIdentifier, attrCallback);
             } catch (IdentityProviderException e) {
                 log.error("Error occurred while populating claim data", e);
@@ -271,13 +273,6 @@ public class AttributeCallbackHandler implements SAMLCallbackHandler {
             return;
         }
 
-        try {
-            connector = IdentityTenantUtil.getRealm(null, userIdentifier).getUserStoreManager();
-        } catch (Exception e) {
-            log.error("Error while instantiating IdentityUserStore", e);
-            throw new IdentityProviderException("Error while instantiating IdentityUserStore", e);
-        }
-
         // get the column names for the URIs
         Iterator<RequestedClaimData> ite = requestedClaims.values().iterator();
         List<String> claimList = new ArrayList<String>();
@@ -296,9 +291,15 @@ public class AttributeCallbackHandler implements SAMLCallbackHandler {
 
         try {
             if (MapUtils.isEmpty(requestedClaimValues)) {
-                mapValues = connector.getUserClaimValues(
-                        MultitenantUtils.getTenantAwareUsername(userId),
-                        claimList.toArray(claimArray), null);
+                try {
+                    connector = IdentityTenantUtil.getRealm(null, userIdentifier).getUserStoreManager();
+                    mapValues = connector.getUserClaimValues(
+                            MultitenantUtils.getTenantAwareUsername(userId),
+                            claimList.toArray(claimArray), null);
+                } catch (Exception e) {
+                    log.error("Error while instantiating IdentityUserStore", e);
+                    throw new IdentityProviderException("Error while instantiating IdentityUserStore", e);
+                }
             } else {
                 mapValues = requestedClaimValues;
             }

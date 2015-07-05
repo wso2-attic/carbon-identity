@@ -1038,7 +1038,7 @@ public class IdPManagementUIUtil {
             fedIdp.setDefaultAuthenticatorConfig(facebookAuthnConfig);
         }
 
-        Property[] properties = new Property[4];
+        Property[] properties = new Property[7];
         Property property = new Property();
         property.setName(IdentityApplicationConstants.Authenticator.Facebook.CLIENT_ID);
         property.setValue(paramMap.get("fbClientId"));
@@ -1063,6 +1063,21 @@ public class IdPManagementUIUtil {
         }
         property.setValue(fbUserInfoFields);
         properties[3] = property;
+
+        property = new Property();
+        property.setName(IdentityApplicationConstants.Authenticator.Facebook.AUTH_ENDPOINT);
+        property.setValue(paramMap.get("fbAuthnEndpoint"));
+        properties[4] = property;
+
+        property = new Property();
+        property.setName(IdentityApplicationConstants.Authenticator.Facebook.AUTH_TOKEN_ENDPOINT);
+        property.setValue(paramMap.get("fbOauth2TokenEndpoint"));
+        properties[5] = property;
+
+        property = new Property();
+        property.setName(IdentityApplicationConstants.Authenticator.Facebook.USER_INFO_ENDPOINT);
+        property.setValue(paramMap.get("fbUserInfoEndpoint"));
+        properties[6] = property;
 
         facebookAuthnConfig.setProperties(properties);
 

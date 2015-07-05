@@ -84,8 +84,8 @@ public class OAuth2TokenEndpoint {
             if (request.getHeader(OAuthConstants.HTTP_REQ_HEADER_AUTHZ) != null) {
 
                 try {
-                    String[] clientCredentials = EndpointUtil
-                            .extractCredentialsFromAuthzHeader(request.getHeader(OAuthConstants.HTTP_REQ_HEADER_AUTHZ));
+                    String[] clientCredentials = EndpointUtil.extractCredentialsFromAuthzHeader(
+                            request.getHeader(OAuthConstants.HTTP_REQ_HEADER_AUTHZ));
 
                     // The client MUST NOT use more than one authentication method in each request
                     if (paramMap.containsKey(OAuth.OAUTH_CLIENT_ID)
@@ -95,7 +95,7 @@ public class OAuth2TokenEndpoint {
 
                     //If a client sends an invalid base64 encoded clientid:clientsecret value, it results in this
                     //array to only contain 1 element. This happens on specific errors though.
-                    if (clientCredentials.length < 2) {
+                    if (clientCredentials.length != 2) {
                         return handleBasicAuthFailure();
                     }
 

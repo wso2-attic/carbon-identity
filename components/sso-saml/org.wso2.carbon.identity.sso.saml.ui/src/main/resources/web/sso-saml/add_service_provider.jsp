@@ -576,16 +576,6 @@ function clearAll() {
     </td>
 </tr>
 
-<!-- UseFullQualifiedUsername -->
-<tr>
-    <td colspan="2" style="padding-top: 25px">
-        <input type="checkbox" name="useFullQualifiedUsername" value="true"
-               onclick="disableFullQualifiedUsername(this);"
-                <%=(isEditSP && provider.getUseFullyQualifiedUsername() ? "checked=\"checked\"" : "")%> />
-        <fmt:message key="use.fullqualified.username"/>
-    </td>
-</tr>
-
 <% if(applicationSPName == null || applicationSPName.isEmpty()){ %>
 
 <!-- UseUserClaimValueInNameID -->
