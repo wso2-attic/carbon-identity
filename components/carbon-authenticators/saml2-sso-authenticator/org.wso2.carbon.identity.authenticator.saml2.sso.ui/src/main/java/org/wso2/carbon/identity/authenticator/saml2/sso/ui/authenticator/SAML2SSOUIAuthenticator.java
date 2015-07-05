@@ -123,7 +123,8 @@ public class SAML2SSOUIAuthenticator extends AbstractCarbonUIAuthenticator {
         }
         if (username != null && username.trim().length() > 0 && AUDIT_LOG.isInfoEnabled()) {
             String tenantAwareUsername = MultitenantUtils.getTenantAwareUsername(username);
-            String tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+//            String tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+            String tenantDomain = MultitenantUtils.getTenantDomain(username);
 
             String auditInitiator = tenantAwareUsername + UserCoreConstants.TENANT_DOMAIN_COMBINER + tenantDomain;
             String auditData = "";
