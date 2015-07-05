@@ -51,7 +51,7 @@ public class OpenIDAuthenticator extends AbstractApplicationAuthenticator implem
             log.trace("Inside canHandle()");
         }
 
-        String opeidMode = request.getParameter("openid.mode");
+        String opeidMode = request.getParameter(OpenIDAuthenticatorConstants.MODE);
         if (opeidMode != null && !"checkid_immediate".equals(opeidMode)
                 && !"checkid_setup".equals(opeidMode) && !"check_authentication".equals(opeidMode)) {
             return true;
@@ -71,6 +71,10 @@ public class OpenIDAuthenticator extends AbstractApplicationAuthenticator implem
             try {
 
                 Map<String, String> authenticatorProperties = context.getAuthenticatorProperties();
+
+                if(authenticatorProperties != null){
+                    setOpenIDServerUrl(authenticatorProperties);
+                }
 
                 if (getOpenIDServerUrl() != null) {
                     // this is useful in case someone wants to overrode the default OpenID
@@ -168,7 +172,7 @@ public class OpenIDAuthenticator extends AbstractApplicationAuthenticator implem
             log.trace("Inside getContextIdentifier()");
         }
 
-        return request.getParameter("sessionDataKey");
+        return request.getParameter(OpenIDAuthenticatorConstants.SESSION_DATA_KEY);
     }
 
     private OpenIDManager getNewOpenIDManagerInstance() {
@@ -200,17 +204,17 @@ public class OpenIDAuthenticator extends AbstractApplicationAuthenticator implem
 
     @Override
     public String getClaimDialectURI() {
-        return "http://axschema.org";
+        return OpenIDAuthenticatorConstants.CLAIM_DIALECT_URI;
     }
 
     @Override
     public String getFriendlyName() {
-        return "openid";
+        return OpenIDAuthenticatorConstants.AUTHENTICATOR_FRIENDLY_NAME;
     }
 
     @Override
     public String getName() {
-        return "OpenIDAuthenticator";
+        return OpenIDAuthenticatorConstants.AUTHENTICATOR_NAME;
     }
 
     /**
@@ -218,6 +222,13 @@ public class OpenIDAuthenticator extends AbstractApplicationAuthenticator implem
      */
     protected String getOpenIDServerUrl() {
         return null;
+    }
+
+    /**
+     *
+     * @param authenticatorProperties
+     */
+    protected void setOpenIDServerUrl(Map<String, String> authenticatorProperties){
     }
 
     /**
@@ -231,7 +242,7 @@ public class OpenIDAuthenticator extends AbstractApplicationAuthenticator implem
             if(log.isDebugEnabled()) {
                 log.debug("Couldn't find the subject claim from claim mappings " + e);
             }
-  }
+        }
         return subject;
     }
 
