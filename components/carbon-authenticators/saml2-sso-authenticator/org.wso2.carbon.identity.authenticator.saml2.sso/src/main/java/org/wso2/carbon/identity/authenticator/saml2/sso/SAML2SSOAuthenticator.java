@@ -213,13 +213,19 @@ public class SAML2SSOAuthenticator implements CarbonServerAuthenticator {
         if (session != null) {
             loggedInUser = (String) session.getAttribute(ServerConstants.USER_LOGGED_IN);
             delegatedBy = (String) session.getAttribute("DELEGATED_BY");
-            if (delegatedBy == null) {
-                log.info("'" + loggedInUser + "' logged out at " + date.format(currentTime));
-            } else {
-                log.info("'" + loggedInUser + "' logged out at " + date.format(currentTime)
-                        + " delegated by " + delegatedBy);
+
+            if(loggedInUser != null && "".equals(loggedInUser.trim())) {
+                String logMessage = "'" + loggedInUser + "' logged out at " + date.format(currentTime);
+
+                if (delegatedBy != null) {
+                    logMessage += " delegated by " + delegatedBy;
+                }
+
+                log.info(logMessage);
             }
+
             session.invalidate();
+
             if (loggedInUser != null && AUDIT_LOG.isInfoEnabled()) {
                 String tenantAwareUsername = MultitenantUtils.getTenantAwareUsername(loggedInUser);
                 String tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
