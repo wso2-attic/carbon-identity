@@ -20,7 +20,7 @@ package org.wso2.carbon.identity.workflow.mgt.dao;
 
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
-import org.wso2.carbon.identity.workflow.mgt.WorkFlowConstants;
+import org.wso2.carbon.identity.workflow.mgt.util.WorkFlowConstants;
 import org.wso2.carbon.identity.workflow.mgt.bean.BPSProfileBean;
 import org.wso2.carbon.identity.workflow.mgt.exception.InternalWorkflowException;
 

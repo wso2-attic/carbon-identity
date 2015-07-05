@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.carbon.identity.workflow.mgt;
+package org.wso2.carbon.identity.workflow.mgt.template.impl;
 
 import org.apache.axiom.om.OMElement;
 import org.apache.axis2.AxisFault;
@@ -26,11 +26,13 @@ import org.apache.axis2.client.Options;
 import org.apache.axis2.client.ServiceClient;
 import org.apache.axis2.transport.http.HTTPConstants;
 import org.apache.axis2.transport.http.HttpTransportProperties;
+import org.wso2.carbon.identity.workflow.mgt.util.WorkFlowConstants;
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkFlowRequest;
 import org.wso2.carbon.identity.workflow.mgt.exception.InternalWorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.internal.WorkflowServiceDataHolder;
-import org.wso2.carbon.identity.workflow.mgt.ws.WorkflowRequestBuilder;
+import org.wso2.carbon.identity.workflow.mgt.template.WorkFlowExecutor;
+import org.wso2.carbon.identity.workflow.mgt.util.WorkflowRequestBuilder;
 
 import java.util.ArrayList;
 import java.util.HashSet;

@@ -16,10 +16,13 @@
  * under the License.
  */
 
-package org.wso2.carbon.identity.workflow.mgt;
+package org.wso2.carbon.identity.workflow.mgt.template.impl;
 
+import org.wso2.carbon.identity.workflow.mgt.WorkFlowExecutorManager;
+import org.wso2.carbon.identity.workflow.mgt.util.WorkflowRequestStatus;
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkFlowRequest;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
+import org.wso2.carbon.identity.workflow.mgt.template.WorkFlowExecutor;
 
 import java.util.Collections;
 import java.util.Map;

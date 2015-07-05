@@ -26,6 +26,8 @@ import org.apache.commons.logging.LogFactory;
 import org.jaxen.JaxenException;
 import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
+import org.wso2.carbon.identity.workflow.mgt.template.AbstractWorkflowTemplateImpl;
+import org.wso2.carbon.identity.workflow.mgt.extension.WorkflowRequestHandler;
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkFlowRequest;
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowAssociationBean;
 import org.wso2.carbon.identity.workflow.mgt.dao.WorkflowDAO;
@@ -33,7 +35,8 @@ import org.wso2.carbon.identity.workflow.mgt.dao.WorkflowRequestDAO;
 import org.wso2.carbon.identity.workflow.mgt.exception.InternalWorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.internal.WorkflowServiceDataHolder;
-import org.wso2.carbon.identity.workflow.mgt.ws.WorkflowRequestBuilder;
+import org.wso2.carbon.identity.workflow.mgt.util.WorkflowRequestBuilder;
+import org.wso2.carbon.identity.workflow.mgt.util.WorkflowRequestStatus;
 import org.wso2.carbon.user.api.UserStoreException;
 
 import java.util.List;

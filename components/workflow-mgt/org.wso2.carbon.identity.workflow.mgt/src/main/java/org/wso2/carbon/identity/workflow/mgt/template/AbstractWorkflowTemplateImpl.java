@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.carbon.identity.workflow.mgt;
+package org.wso2.carbon.identity.workflow.mgt.template;
 
 import org.apache.commons.lang.StringUtils;
 import org.wso2.carbon.identity.workflow.mgt.bean.TemplateParameterDef;
@@ -77,7 +77,7 @@ public abstract class AbstractWorkflowTemplateImpl {
         if (this == o) {
             return true;
         }
-        if (o == null || !(o instanceof AbstractWorkflowTemplate)) {
+        if (o == null || !(o instanceof AbstractWorkflowTemplateImpl)) {
             return false;
         }
         AbstractWorkflowTemplateImpl that = (AbstractWorkflowTemplateImpl) o;

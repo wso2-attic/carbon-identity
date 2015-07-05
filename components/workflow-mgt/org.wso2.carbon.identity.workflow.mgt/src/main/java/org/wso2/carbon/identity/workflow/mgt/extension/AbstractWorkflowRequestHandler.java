@@ -16,11 +16,13 @@
  * under the License.
  */
 
-package org.wso2.carbon.identity.workflow.mgt;
+package org.wso2.carbon.identity.workflow.mgt.extension;
 
 import org.wso2.carbon.context.CarbonContext;
-import org.wso2.carbon.identity.workflow.mgt.bean.WorkFlowRequest;
+import org.wso2.carbon.identity.workflow.mgt.WorkFlowExecutorManager;
+import org.wso2.carbon.identity.workflow.mgt.util.WorkflowDataType;
 import org.wso2.carbon.identity.workflow.mgt.bean.RequestParameter;
+import org.wso2.carbon.identity.workflow.mgt.bean.WorkFlowRequest;
 import org.wso2.carbon.identity.workflow.mgt.exception.RuntimeWorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 
@@ -30,8 +32,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-//import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
-
 public abstract class AbstractWorkflowRequestHandler implements WorkflowRequestHandler {
 
     /**
@@ -40,19 +40,23 @@ public abstract class AbstractWorkflowRequestHandler implements WorkflowRequestH
     private static ThreadLocal<Boolean> workFlowCompleted = new ThreadLocal<Boolean>();
 
     public static void unsetWorkFlowCompleted() {
+
         AbstractWorkflowRequestHandler.workFlowCompleted.remove();
     }
 
     public static Boolean getWorkFlowCompleted() {
+
         return workFlowCompleted.get();
     }
 
     public static void setWorkFlowCompleted(Boolean workFlowCompleted) {
+
         AbstractWorkflowRequestHandler.workFlowCompleted.set(workFlowCompleted);
     }
 
     public boolean startWorkFlow(Map<String, Object> wfParams, Map<String, Object> nonWfParams)
             throws WorkflowException {
+
         if (isWorkflowCompleted()) {
             return true;
         }
@@ -71,6 +75,7 @@ public abstract class AbstractWorkflowRequestHandler implements WorkflowRequestH
     }
 
     protected boolean isValueValid(String paramName, Object paramValue, String expectedType) {
+
         switch (expectedType) {
             case WorkflowDataType.BOOLEAN_TYPE:
                 return paramValue instanceof Boolean;
@@ -102,6 +107,7 @@ public abstract class AbstractWorkflowRequestHandler implements WorkflowRequestH
      */
     protected RequestParameter getParameter(String name, Object value, boolean required)
             throws RuntimeWorkflowException {
+
         RequestParameter parameter = new RequestParameter();
         parameter.setName(name);
         parameter.setValue(value);
@@ -123,6 +129,7 @@ public abstract class AbstractWorkflowRequestHandler implements WorkflowRequestH
 
     @Override
     public void engageWorkflow(WorkFlowRequest workFlowRequest) throws WorkflowException {
+
         workFlowRequest.setEventType(getEventId());
         WorkFlowExecutorManager.getInstance().executeWorkflow(workFlowRequest);
     }
@@ -130,6 +137,7 @@ public abstract class AbstractWorkflowRequestHandler implements WorkflowRequestH
     @Override
     public void onWorkflowCompletion(String status, WorkFlowRequest originalRequest, Map<String, Object>
             responseParams) throws WorkflowException {
+
         Map<String, Object> requestParams = new HashMap<String, Object>();
         for (RequestParameter parameter : originalRequest.getRequestParameters()) {
             requestParams.put(parameter.getName(), parameter.getValue());
@@ -161,6 +169,7 @@ public abstract class AbstractWorkflowRequestHandler implements WorkflowRequestH
     public abstract boolean retryNeedAtCallback();
 
     public boolean isWorkflowCompleted() {
+
         if (retryNeedAtCallback() && getWorkFlowCompleted() != null && getWorkFlowCompleted()) {
             unsetWorkFlowCompleted();
             return true;

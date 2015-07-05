@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.carbon.identity.workflow.mgt.ws;
+package org.wso2.carbon.identity.workflow.mgt.util;
 
 import org.apache.axiom.om.OMAbstractFactory;
 import org.apache.axiom.om.OMAttribute;
@@ -24,11 +24,9 @@ import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMFactory;
 import org.apache.axiom.om.OMNamespace;
 import org.apache.commons.lang.StringUtils;
-import org.wso2.carbon.identity.workflow.mgt.WorkflowDataType;
 import org.wso2.carbon.identity.workflow.mgt.bean.RequestParameter;
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkFlowRequest;
 import org.wso2.carbon.identity.workflow.mgt.exception.RuntimeWorkflowException;
-import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 
 import java.util.HashMap;
 import java.util.HashSet;

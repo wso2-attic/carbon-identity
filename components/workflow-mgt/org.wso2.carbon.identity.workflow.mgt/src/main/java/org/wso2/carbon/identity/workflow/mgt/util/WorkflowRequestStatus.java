@@ -16,15 +16,36 @@
  * under the License.
  */
 
-package org.wso2.carbon.identity.workflow.mgt;
+package org.wso2.carbon.identity.workflow.mgt.util;
 
-import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
+public enum WorkflowRequestStatus {
+    /**
+     * No matching executor for the event.
+     */
+    SKIPPED,
 
-import java.util.Map;
+    /**
+     * Request is received and persisted, but the executor is yet to be invoked
+     */
+    CREATED,
 
-public interface TemplateInitializer {
+    /**
+     * Invoked the executor and waiting for the callback
+     */
+    PENDING,
 
-    boolean initNeededAtStartUp();
+    /**
+     * The request is approved.
+     */
+    APPROVED,
 
-    void initialize(Map<String, Object> initParams) throws WorkflowException;
+    /**
+     * The request is rejected.
+     */
+    REJECTED,
+
+    /**
+     * The request failed at the executor.
+     */
+    UNDEFINED
 }

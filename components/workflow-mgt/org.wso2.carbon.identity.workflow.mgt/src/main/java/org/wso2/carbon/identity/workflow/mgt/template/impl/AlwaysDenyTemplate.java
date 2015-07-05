@@ -16,29 +16,21 @@
  * under the License.
  */
 
-package org.wso2.carbon.identity.workflow.mgt;
+package org.wso2.carbon.identity.workflow.mgt.template.impl;
 
+import org.wso2.carbon.identity.workflow.mgt.util.WorkFlowConstants;
 import org.wso2.carbon.identity.workflow.mgt.bean.TemplateParameterDef;
+import org.wso2.carbon.identity.workflow.mgt.template.AbstractWorkflowTemplate;
 
-public class DefaultImmediateDenyImpl extends AbstractWorkflowTemplateImpl {
+public class AlwaysDenyTemplate extends AbstractWorkflowTemplate {
 
-    private static final String IMPL_NAME = "Default";
-    private WorkFlowExecutor executor;
-
-    public DefaultImmediateDenyImpl() {
-        executor = new ImmediateDenyExecutor();
-    }
+    private static final String DESCRIPTION = "The operation will denied immediately";
+    private static final String TEMPLATE_FRIENDLY_NAME = "Deny Immediately";
 
     @Override
-    protected TemplateInitializer getInitializer() {
+    public TemplateParameterDef[] getParamDefinitions() {
 
-        return null;    //no initializer needed for this
-    }
-
-    @Override
-    protected WorkFlowExecutor getExecutor() {
-
-        return executor;
+        return new TemplateParameterDef[0];
     }
 
     @Override
@@ -48,20 +40,14 @@ public class DefaultImmediateDenyImpl extends AbstractWorkflowTemplateImpl {
     }
 
     @Override
-    public TemplateParameterDef[] getImplParamDefinitions() {
+    public String getFriendlyName() {
 
-        return new TemplateParameterDef[0];
+        return TEMPLATE_FRIENDLY_NAME;
     }
 
     @Override
-    public String getImplementationId() {
+    public String getDescription() {
 
-        return IMPL_NAME;
-    }
-
-    @Override
-    public String getImplementationName() {
-
-        return IMPL_NAME;
+        return DESCRIPTION;
     }
 }

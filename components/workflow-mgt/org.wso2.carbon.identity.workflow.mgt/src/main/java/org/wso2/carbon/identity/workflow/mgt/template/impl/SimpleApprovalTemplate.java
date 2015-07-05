@@ -16,9 +16,12 @@
  * under the License.
  */
 
-package org.wso2.carbon.identity.workflow.mgt;
+package org.wso2.carbon.identity.workflow.mgt.template.impl;
 
+import org.wso2.carbon.identity.workflow.mgt.util.WorkFlowConstants;
+import org.wso2.carbon.identity.workflow.mgt.util.WorkflowTemplateParamType;
 import org.wso2.carbon.identity.workflow.mgt.bean.TemplateParameterDef;
+import org.wso2.carbon.identity.workflow.mgt.template.AbstractWorkflowTemplate;
 
 public class SimpleApprovalTemplate extends AbstractWorkflowTemplate {
 

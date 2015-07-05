@@ -21,6 +21,9 @@ package org.wso2.carbon.identity.workflow.mgt;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.identity.workflow.mgt.template.AbstractWorkflowTemplate;
+import org.wso2.carbon.identity.workflow.mgt.template.AbstractWorkflowTemplateImpl;
+import org.wso2.carbon.identity.workflow.mgt.extension.WorkflowRequestHandler;
 import org.wso2.carbon.identity.workflow.mgt.bean.AssociationDTO;
 import org.wso2.carbon.identity.workflow.mgt.bean.BPSProfileBean;
 import org.wso2.carbon.identity.workflow.mgt.bean.Parameter;
@@ -36,6 +39,7 @@ import org.wso2.carbon.identity.workflow.mgt.exception.InternalWorkflowException
 import org.wso2.carbon.identity.workflow.mgt.exception.RuntimeWorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.internal.WorkflowServiceDataHolder;
+import org.wso2.carbon.identity.workflow.mgt.util.WorkFlowConstants;
 
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpressionException;

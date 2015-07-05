@@ -20,13 +20,13 @@ package org.wso2.carbon.identity.workflow.mgt.internal;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.ComponentContext;
-import org.wso2.carbon.identity.workflow.mgt.AbstractWorkflowTemplate;
-import org.wso2.carbon.identity.workflow.mgt.AbstractWorkflowTemplateImpl;
-import org.wso2.carbon.identity.workflow.mgt.AlwaysDenyTemplate;
-import org.wso2.carbon.identity.workflow.mgt.BPELApprovalTemplateImpl;
-import org.wso2.carbon.identity.workflow.mgt.DefaultImmediateDenyImpl;
-import org.wso2.carbon.identity.workflow.mgt.SimpleApprovalTemplate;
-import org.wso2.carbon.identity.workflow.mgt.WorkflowRequestHandler;
+import org.wso2.carbon.identity.workflow.mgt.template.AbstractWorkflowTemplate;
+import org.wso2.carbon.identity.workflow.mgt.template.AbstractWorkflowTemplateImpl;
+import org.wso2.carbon.identity.workflow.mgt.template.impl.AlwaysDenyTemplate;
+import org.wso2.carbon.identity.workflow.mgt.template.impl.BPELApprovalTemplateImpl;
+import org.wso2.carbon.identity.workflow.mgt.template.impl.DefaultImmediateDenyImpl;
+import org.wso2.carbon.identity.workflow.mgt.template.impl.SimpleApprovalTemplate;
+import org.wso2.carbon.identity.workflow.mgt.extension.WorkflowRequestHandler;
 import org.wso2.carbon.identity.workflow.mgt.WorkflowService;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.ConfigurationContextService;
@@ -37,17 +37,17 @@ import org.wso2.carbon.utils.ConfigurationContextService;
  * cardinality="1..1" policy="dynamic" bind="setRealmService"
  * unbind="unsetRealmService"
  * @scr.reference name="workflow.request.handler.service"
- * interface="org.wso2.carbon.identity.workflow.mgt.WorkflowRequestHandler"
+ * interface="org.wso2.carbon.identity.workflow.mgt.api.WorkflowRequestHandler"
  * cardinality="0..n" policy="dynamic"
  * bind="setWorkflowRequestHandler"
  * unbind="unsetWorkflowRequestHandler"
  * @scr.reference name="workflow.template.service"
- * interface="org.wso2.carbon.identity.workflow.mgt.AbstractWorkflowTemplate"
+ * interface="org.wso2.carbon.identity.workflow.mgt.template.AbstractWorkflowTemplate"
  * cardinality="0..n" policy="dynamic"
  * bind="setWorkflowTemplate"
  * unbind="unsetWorkflowTemplate"
  * @scr.reference name="workflow.template.impl.service"
- * interface="org.wso2.carbon.identity.workflow.mgt.AbstractWorkflowTemplateImpl"
+ * interface="org.wso2.carbon.identity.workflow.mgt.template.AbstractWorkflowTemplateImpl"
  * cardinality="0..n" policy="dynamic"
  * bind="setTemplateImplementation"
  * unbind="unsetTemplateImplementation"

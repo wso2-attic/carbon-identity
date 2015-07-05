@@ -280,14 +280,12 @@
         }
 
         function doCancel() {
-            function doCancel() {
-                function cancel() {
-                    location.href = 'list-associations.jsp';
-                }
-
-                CARBON.showConfirmationDialog('<fmt:message key="confirmation.association.add.abort"/> ' + name + '?',
-                        cancel, null);
+            function cancel() {
+                location.href = 'list-associations.jsp';
             }
+
+            CARBON.showConfirmationDialog('<fmt:message key="confirmation.association.add.abort"/> ' + name + '?',
+                    cancel, null);
         }
 
         function handleRadioInput(radio) {

@@ -16,10 +16,16 @@
  * under the License.
  */
 
-package org.wso2.carbon.identity.workflow.mgt;
+package org.wso2.carbon.identity.workflow.mgt.template.impl;
 
+import org.wso2.carbon.identity.workflow.mgt.util.WorkFlowConstants;
+import org.wso2.carbon.identity.workflow.mgt.WorkflowService;
+import org.wso2.carbon.identity.workflow.mgt.util.WorkflowTemplateParamType;
 import org.wso2.carbon.identity.workflow.mgt.bean.TemplateParameterDef;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
+import org.wso2.carbon.identity.workflow.mgt.template.AbstractWorkflowTemplateImpl;
+import org.wso2.carbon.identity.workflow.mgt.template.TemplateInitializer;
+import org.wso2.carbon.identity.workflow.mgt.template.WorkFlowExecutor;
 
 import java.util.Map;
 

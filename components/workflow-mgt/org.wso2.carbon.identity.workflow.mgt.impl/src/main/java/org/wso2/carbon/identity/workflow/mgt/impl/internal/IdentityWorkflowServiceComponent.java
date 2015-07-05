@@ -21,7 +21,7 @@ package org.wso2.carbon.identity.workflow.mgt.impl.internal;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.ComponentContext;
-import org.wso2.carbon.identity.workflow.mgt.WorkflowRequestHandler;
+import org.wso2.carbon.identity.workflow.mgt.extension.WorkflowRequestHandler;
 import org.wso2.carbon.identity.workflow.mgt.impl.userstore.AddRoleWFRequestHandler;
 import org.wso2.carbon.identity.workflow.mgt.impl.userstore.AddUserWFRequestHandler;
 import org.wso2.carbon.identity.workflow.mgt.impl.userstore.ChangeCredentialWFRequestHandler;

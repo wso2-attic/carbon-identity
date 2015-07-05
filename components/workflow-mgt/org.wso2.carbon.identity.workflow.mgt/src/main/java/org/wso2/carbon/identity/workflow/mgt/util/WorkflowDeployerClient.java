@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.carbon.identity.workflow.mgt;
+package org.wso2.carbon.identity.workflow.mgt.util;
 
 import org.apache.axis2.AxisFault;
 import org.apache.axis2.client.Options;

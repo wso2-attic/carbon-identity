@@ -16,14 +16,11 @@
  * under the License.
  */
 
-package org.wso2.carbon.identity.workflow.mgt;
+package org.wso2.carbon.identity.workflow.mgt.util;
 
 public class WorkflowDataType {
     public static final String STRING_TYPE = "STRING";
     public static final String BOOLEAN_TYPE = "BOOLEAN";
-    /**
-     * Represent either integer family.
-     */
     public static final String INTEGER_TYPE = "INTEGER";
     public static final String DOUBLE_TYPE = "DOUBLE";
     public static final String DOUBLE_LIST_TYPE = "DOUBLE_LIST";
@@ -32,5 +29,4 @@ public class WorkflowDataType {
     public static final String BOOLEAN_LIST_TYPE = "BOOLEAN_LIST";
     public static final String STRING_STRING_MAP_TYPE = "STRING_STRING_MAP";
     public static final String OTHER_TYPE = "OTHER";
-
 }

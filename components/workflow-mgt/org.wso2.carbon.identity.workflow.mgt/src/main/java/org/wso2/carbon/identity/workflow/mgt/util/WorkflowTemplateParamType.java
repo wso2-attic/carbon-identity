@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.carbon.identity.workflow.mgt;
+package org.wso2.carbon.identity.workflow.mgt.util;
 
 public class WorkflowTemplateParamType {
     public static final String INTEGER = "INTEGER";
