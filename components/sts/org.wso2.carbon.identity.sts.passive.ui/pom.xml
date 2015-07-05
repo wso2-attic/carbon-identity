@@ -49,6 +49,14 @@
             <groupId>org.wso2.carbon.identity</groupId>
             <artifactId>org.wso2.carbon.identity.application.authentication.framework</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.identity</groupId>
+            <artifactId>org.wso2.carbon.idp.mgt</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.identity</groupId>
+            <artifactId>org.wso2.carbon.identity.core</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -78,6 +86,10 @@
                             version="${carbon.identity.package.import.version.range}",
                             org.wso2.carbon.identity.sts.passive.stub.*;
                             version="${carbon.identity.package.import.version.range}",
+                            org.wso2.carbon.idp.mgt.*; version="${carbon.identity.package.import.version.range}",
+                            org.wso2.carbon.context; version="${carbon.kernel.package.import.version.range}",
+                            org.wso2.carbon.identity.core.*; version="${carbon.identity.package.import.version.range}",
+                            org.wso2.carbon.utils.*;version="${carbon.kernel.package.import.version.range}",
                         </Import-Package>
                         <Export-Package>
                             org.wso2.carbon.identity.sts.passive.ui.*;

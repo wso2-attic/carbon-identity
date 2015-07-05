@@ -34,6 +34,9 @@ public class IdentityApplicationConstants {
     public static final String WSO2CARBON_CLAIM_DIALECT = "http://wso2.org/claims";
     public static final String SF_OAUTH2_TOKEN_ENDPOINT = "https://login.salesforce.com/services/oauth2/token";
 
+    public static final String FB_AUTHZ_URL = "http://www.facebook.com/dialog/oauth";
+    public static final String FB_TOKEN_URL = "https://graph.facebook.com/oauth/access_token";
+    public static final String FB_USER_INFO_URL = "https://graph.facebook.com/me";
 
     public static class ConfigElements {
         public static final String PROPERTIES = "Properties";
@@ -109,7 +112,9 @@ public class IdentityApplicationConstants {
             public static final String CLIENT_SECRET = "ClientSecret";
             public static final String SCOPE = "Scope";
             public static final String USER_INFO_FIELDS = "UserInfoFields";
-
+            public static final String AUTH_ENDPOINT = "AuthnEndpoint";
+            public static final String AUTH_TOKEN_ENDPOINT = "AuthTokenEndpoint";
+            public static final String USER_INFO_ENDPOINT = "UserInfoEndpoint";
             private Facebook(){
             }
         }
@@ -119,6 +124,18 @@ public class IdentityApplicationConstants {
 
             private WSTrust(){
             }
+        }
+
+        public static class IDPProperties {
+            public static final String NAME = "IDPProperties";
+            public static final String SESSION_IDLE_TIME_OUT = "SessionIdleTimeout";
+            public static final String SESSION_IDLE_TIME_OUT_DEFAULT = "15";
+            public static final String REMEMBER_ME_TIME_OUT = "RememberMeTimeout";
+            public static final String REMEMBER_ME_TIME_OUT_DEFAULT = "20160";
+            public static final String CLEAN_UP_TIMEOUT = "CleanUpTimeout";
+            public static final String CLEAN_UP_TIMEOUT_DEFAULT = "20160";
+            public static final String CLEAN_UP_PERIOD = "CleanUpPeriod";
+            public static final String CLEAN_UP_PERIOD_DEFAULT = "1140";
         }
 
     }

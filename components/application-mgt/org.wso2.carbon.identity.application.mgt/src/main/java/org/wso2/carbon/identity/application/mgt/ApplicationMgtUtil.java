@@ -387,6 +387,22 @@ public class ApplicationMgtUtil {
                 return Collections.emptyList();
             }
 
+            boolean loggedInUserChanged = false;
+            String loggedInUser = CarbonContext.getThreadLocalCarbonContext().getUsername();
+
+            UserRealm realm = (UserRealm) CarbonContext.getThreadLocalCarbonContext().getUserRealm();
+            if (loggedInUser == null || !realm.getAuthorizationManager().isUserAuthorized(
+                    loggedInUser, applicationNode, UserMgtConstants.EXECUTE_ACTION)) {
+                //Logged in user is not authorized to read the permission.
+                // Temporarily change the user to the admin for reading the permission
+                PrivilegedCarbonContext.getThreadLocalCarbonContext().setUsername(
+                        realm.getRealmConfiguration().getAdminUserName());
+                tenantGovReg = CarbonContext.getThreadLocalCarbonContext()
+                        .getRegistry(RegistryType.USER_GOVERNANCE);
+                loggedInUserChanged = true;
+            }
+
+
             paths.clear();             //clear current paths
             List<ApplicationPermission> permissions = new ArrayList<ApplicationPermission>();
 
@@ -400,10 +416,14 @@ public class ApplicationMgtUtil {
                 permissions.add(permission);
             }
 
+            if (loggedInUserChanged) {
+                PrivilegedCarbonContext.getThreadLocalCarbonContext().setUsername(loggedInUser);
+            }
+
             return permissions;
 
-        } catch (RegistryException e) {
-            throw new IdentityApplicationManagementException("Error while storing permissions", e);
+        } catch (RegistryException | org.wso2.carbon.user.core.UserStoreException e) {
+            throw new IdentityApplicationManagementException("Error while reading permissions", e);
         }
     }
 

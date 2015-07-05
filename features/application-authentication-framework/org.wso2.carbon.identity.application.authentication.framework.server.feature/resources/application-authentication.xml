@@ -125,10 +125,11 @@
         	'sessionDataKey', 'type', 'relyingParty', 'sp' and 'authenticators' 
         	parameters will be always sent. They should not be specified here.  
     	-->
-    	<!--AuthenticationEndpointQueryParams action="exclude"-->
-        	<!--AuthenticationEndpointQueryParam name="username"/-->
-        	<!--AuthenticationEndpointQueryParam name="password"/-->
-    	<!--/AuthenticationEndpointQueryParams-->
+    	<AuthenticationEndpointQueryParams action="exclude">
+        	<AuthenticationEndpointQueryParam name="username"/>
+        	<AuthenticationEndpointQueryParam name="password"/>
+            <AuthenticationEndpointQueryParam name="SAMLRequest"/>
+        </AuthenticationEndpointQueryParams>
 	
 	    <!--TenantDomainDropDownEnabled>true</TenantDomainDropDownEnabled>
 	    <TenantDataListenerURLs>

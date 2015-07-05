@@ -82,11 +82,15 @@ public class IdentityCoreServiceComponent {
             if (("true".equals(skipSchemaCreation))) {
                 // This ideally should be an info log but in API Manager it could be confusing to say
                 // DB initialization was skipped, because DB initialization is done by apimgt components
-                log.debug("Identity Provider Database initialization attempt was skipped since '" +
-                          IdentityConstants.ServerConfig.SKIP_DB_SCHEMA_CREATION + "' property has been set to \'true\'");
+                if (log.isDebugEnabled()) {
+                    log.debug("Identity Provider Database initialization attempt was skipped since '" +
+                              IdentityConstants.ServerConfig.SKIP_DB_SCHEMA_CREATION + "' property has been set to \'true\'");
+                }
             } else if (System.getProperty("setup") == null) {
-                log.info("Identity Database schema initialization check was skipped since " +
-                         "\'setup\' variable was not given during startup");
+                if (log.isDebugEnabled()) {
+                    log.debug("Identity Database schema initialization check was skipped since " +
+                              "\'setup\' variable was not given during startup");
+                }
             } else {
                 jdbcPersistenceManager.initializeDatabase();
             }

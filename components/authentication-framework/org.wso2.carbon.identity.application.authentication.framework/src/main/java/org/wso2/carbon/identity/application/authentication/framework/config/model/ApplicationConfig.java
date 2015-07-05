@@ -49,6 +49,8 @@ public class ApplicationConfig implements Serializable {
     private Map<String, String> roleMappings = new HashMap<String, String>();
     private Map<String, String> requestedClaims = new HashMap<String, String>();
     private boolean isSaaSApp;
+    private boolean useTenantDomainInLocalSubjectIdentifier = false;
+    private boolean useUserstoreDomainInLocalSubjectIdentifier = false;
 
     public ApplicationConfig(ServiceProvider application) {
         this.serviceProvider = application;
@@ -59,6 +61,9 @@ public class ApplicationConfig implements Serializable {
 
         if (outboundAuthConfig != null) {
             subjectClaimUri = outboundAuthConfig.getSubjectClaimUri();
+            setUseTenantDomainInLocalSubjectIdentifier(outboundAuthConfig.isUseTenantDomainInLocalSubjectIdentifier());
+            setUseUserstoreDomainInLocalSubjectIdentifier(outboundAuthConfig
+                    .isUseUserstoreDomainInLocalSubjectIdentifier());
         }
 
 
@@ -110,7 +115,7 @@ public class ApplicationConfig implements Serializable {
 
             for (int i = 0; i < permissionList.length; i++) {
                 ApplicationPermission permission = permissionList[i];
-                permissions[i++] = permission.getValue();
+                permissions[i] = permission.getValue();
             }
 
             RoleMapping[] tempRoleMappings = permissionRoleConfiguration.getRoleMappings();
@@ -219,4 +224,19 @@ public class ApplicationConfig implements Serializable {
         return isSaaSApp;
     }
 
+    public boolean isUseTenantDomainInLocalSubjectIdentifier() {
+        return useTenantDomainInLocalSubjectIdentifier;
+    }
+
+    public void setUseTenantDomainInLocalSubjectIdentifier(boolean useTenantDomainInLocalSubjectIdentifier) {
+        this.useTenantDomainInLocalSubjectIdentifier = useTenantDomainInLocalSubjectIdentifier;
+    }
+
+    public boolean isUseUserstoreDomainInLocalSubjectIdentifier() {
+        return useUserstoreDomainInLocalSubjectIdentifier;
+    }
+
+    public void setUseUserstoreDomainInLocalSubjectIdentifier(boolean useUserstoreDomainInLocalSubjectIdentifier) {
+        this.useUserstoreDomainInLocalSubjectIdentifier = useUserstoreDomainInLocalSubjectIdentifier;
+    }
 }

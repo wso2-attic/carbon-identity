@@ -35,7 +35,7 @@ import org.wso2.carbon.identity.application.common.model.ProvisioningConnectorCo
 import org.wso2.carbon.identity.application.common.model.RoleMapping;
 import org.wso2.carbon.identity.application.common.model.ServiceProvider;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
-import org.wso2.carbon.identity.application.mgt.ApplicationInfoProvider;
+import org.wso2.carbon.identity.application.mgt.ApplicationManagementService;
 import org.wso2.carbon.identity.provisioning.cache.ServiceProviderProvisioningConnectorCache;
 import org.wso2.carbon.identity.provisioning.cache.ServiceProviderProvisioningConnectorCacheEntry;
 import org.wso2.carbon.identity.provisioning.cache.ServiceProviderProvisioningConnectorCacheKey;
@@ -379,7 +379,7 @@ public class OutboundProvisioningManager {
             // get details about the service provider.any in-bound provisioning request via
             // the SOAP based API (or the management console) - or SCIM API with HTTP Basic
             // Authentication is considered as coming from the local service provider.
-            ServiceProvider serviceProvider = ApplicationInfoProvider.getInstance()
+            ServiceProvider serviceProvider = ApplicationManagementService.getInstance()
                     .getServiceProvider(serviceProviderIdentifier, tenantDomainName);
 
             if (serviceProvider == null) {

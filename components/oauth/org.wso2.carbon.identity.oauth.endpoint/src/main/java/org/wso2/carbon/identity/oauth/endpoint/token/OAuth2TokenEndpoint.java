@@ -84,12 +84,18 @@ public class OAuth2TokenEndpoint {
             if (request.getHeader(OAuthConstants.HTTP_REQ_HEADER_AUTHZ) != null) {
 
                 try {
-                    String[] clientCredentials = EndpointUtil
-                            .extractCredentialsFromAuthzHeader(request.getHeader(OAuthConstants.HTTP_REQ_HEADER_AUTHZ));
+                    String[] clientCredentials = EndpointUtil.extractCredentialsFromAuthzHeader(
+                            request.getHeader(OAuthConstants.HTTP_REQ_HEADER_AUTHZ));
 
                     // The client MUST NOT use more than one authentication method in each request
                     if (paramMap.containsKey(OAuth.OAUTH_CLIENT_ID)
                             && paramMap.containsKey(OAuth.OAUTH_CLIENT_SECRET)) {
+                        return handleBasicAuthFailure();
+                    }
+
+                    //If a client sends an invalid base64 encoded clientid:clientsecret value, it results in this
+                    //array to only contain 1 element. This happens on specific errors though.
+                    if (clientCredentials.length != 2) {
                         return handleBasicAuthFailure();
                     }
 
@@ -230,7 +236,7 @@ public class OAuth2TokenEndpoint {
         if (GrantType.AUTHORIZATION_CODE.toString().equals(grantType)) {
             tokenReqDTO.setAuthorizationCode(oauthRequest.getCode());
         } else if (GrantType.PASSWORD.toString().equals(grantType)) {
-            tokenReqDTO.setResourceOwnerUsername(oauthRequest.getUsername().toLowerCase());
+            tokenReqDTO.setResourceOwnerUsername(oauthRequest.getUsername());
             tokenReqDTO.setResourceOwnerPassword(oauthRequest.getPassword());
         } else if (GrantType.REFRESH_TOKEN.toString().equals(grantType)) {
             tokenReqDTO.setRefreshToken(oauthRequest.getRefreshToken());

@@ -25,6 +25,7 @@ import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.mgt.constants.IdentityMgtConstants;
 import org.wso2.carbon.identity.mgt.dto.UserRecoveryDataDO;
 import org.wso2.carbon.identity.mgt.internal.IdentityMgtServiceComponent;
+import org.wso2.carbon.registry.core.Collection;
 import org.wso2.carbon.registry.core.Registry;
 import org.wso2.carbon.registry.core.RegistryConstants;
 import org.wso2.carbon.registry.core.Resource;
@@ -41,10 +42,12 @@ public class RegistryRecoveryDataStore implements UserRecoveryDataStore {
 
     @Override
     public void store(UserRecoveryDataDO recoveryDataDO) throws IdentityException {
-
+        Registry registry = null;
         try {
-            Registry registry = IdentityMgtServiceComponent.getRegistryService().
+            registry = IdentityMgtServiceComponent.getRegistryService().
                     getConfigSystemRegistry(PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantId());
+            registry.beginTransaction();
+            deleteOldResourcesIfFound(registry, recoveryDataDO.getUserName(), IdentityMgtConstants.IDENTITY_MANAGEMENT_DATA);
             Resource resource = registry.newResource();
             resource.setProperty(SECRET_KEY, recoveryDataDO.getSecret());
             resource.setProperty(USER_ID, recoveryDataDO.getUserName());
@@ -56,8 +59,15 @@ public class RegistryRecoveryDataStore implements UserRecoveryDataStore {
             log.error(e);
             throw new IdentityException("Error while persisting user recovery data for user : " +
                     recoveryDataDO.getUserName());
+        } finally {
+            if (registry != null) {
+                try {
+                    registry.commitTransaction();
+                } catch (RegistryException e) {
+                    log.error("Error while processing registry transaction", e);
+                }
+            }
         }
-
     }
 
     @Override
@@ -134,5 +144,29 @@ public class RegistryRecoveryDataStore implements UserRecoveryDataStore {
     @Override
     public UserRecoveryDataDO[] load(String userName, int tenantId) throws IdentityException {
         return new UserRecoveryDataDO[0];  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    private void deleteOldResourcesIfFound(Registry registry, String userName, String secretKeyPath) {
+        try {
+            if (registry.resourceExists(secretKeyPath)) {
+                Collection collection = (Collection) registry.get(secretKeyPath);
+                String[] resources = collection.getChildren();
+                for (String resource : resources) {
+                    String[] splittedResource = resource.split("___");
+                    if (splittedResource.length == 3) {
+                        //PRIMARY USER STORE
+                        if (resource.contains("___" + userName + "___")) {
+                            registry.delete(resource);
+                        }
+                    } else if (splittedResource.length == 2) {
+                        //SECONDARY USER STORE. Resource is a collection.
+                        deleteOldResourcesIfFound(registry, userName, resource);
+                    }
+
+                }
+            }
+        } catch (RegistryException e) {
+            log.error("Error while deleting the old confirmation code \n" + e);
+        }
     }
 }

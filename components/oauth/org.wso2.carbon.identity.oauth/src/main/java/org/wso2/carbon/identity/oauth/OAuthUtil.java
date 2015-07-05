@@ -27,6 +27,7 @@ import org.wso2.carbon.identity.oauth.cache.CacheKey;
 import org.wso2.carbon.identity.oauth.cache.OAuthCache;
 import org.wso2.carbon.identity.oauth.cache.OAuthCacheKey;
 import org.wso2.carbon.identity.oauth.config.OAuthServerConfiguration;
+import org.wso2.carbon.identity.oauth2.util.OAuth2Util;
 import org.wso2.carbon.registry.core.utils.UUIDGenerator;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
@@ -68,10 +69,18 @@ public final class OAuthUtil {
     }
 
     public static void clearOAuthCache(String consumerKey, String authorizedUser) {
+        boolean isUsernameCaseSensitive = OAuth2Util.isUsernameCaseSensitive(authorizedUser);
+        if (!isUsernameCaseSensitive){
+            authorizedUser = authorizedUser.toLowerCase();
+        }
         clearOAuthCache(consumerKey + ":" + authorizedUser);
     }
 
     public static void clearOAuthCache(String consumerKey, String authorizedUser, String scope) {
+        boolean isUsernameCaseSensitive = OAuth2Util.isUsernameCaseSensitive(authorizedUser);
+        if (!isUsernameCaseSensitive){
+            authorizedUser = authorizedUser.toLowerCase();
+        }
         clearOAuthCache(consumerKey + ":" + authorizedUser + ":" + scope);
     }
 
@@ -86,7 +95,7 @@ public final class OAuthUtil {
 
             CacheKey cacheKey = new OAuthCacheKey(oauthCacheKey);
             if (OAuthServerConfiguration.getInstance().isCacheEnabled()) {
-                oauthCache = OAuthCache.getInstance();
+                oauthCache = OAuthCache.getInstance(OAuthServerConfiguration.getInstance().getOAuthCacheTimeout());
                 oauthCache.clearCacheEntry(cacheKey);
             }
         } finally {

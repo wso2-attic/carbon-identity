@@ -97,7 +97,7 @@ public class IdPInitSSOAuthnRequestProcessor {
             String sessionIndexId = null;
 
             if (isAuthenticated) {
-                if (sessionPersistenceManager.isExistingTokenId(sessionId)) {
+                if (sessionId != null && sessionPersistenceManager.isExistingTokenId(sessionId)) {
                     sessionIndexId = sessionPersistenceManager.getSessionIndexFromTokenId(sessionId);
                 } else {
                     sessionIndexId = UUIDGenerator.generateUUID();
@@ -200,7 +200,6 @@ public class IdPInitSSOAuthnRequestProcessor {
         }
         authnReqDTO.setLoginPageURL(ssoIdpConfigs.getLoginPageURL());
         authnReqDTO.setCertAlias(ssoIdpConfigs.getCertAlias());
-        authnReqDTO.setUseFullyQualifiedUsernameAsSubject(ssoIdpConfigs.isUseFullyQualifiedUsername());
         authnReqDTO.setNameIdClaimUri(ssoIdpConfigs.getNameIdClaimUri());
         authnReqDTO.setNameIDFormat(ssoIdpConfigs.getNameIDFormat());
         authnReqDTO.setDoSingleLogout(ssoIdpConfigs.isDoSingleLogout());

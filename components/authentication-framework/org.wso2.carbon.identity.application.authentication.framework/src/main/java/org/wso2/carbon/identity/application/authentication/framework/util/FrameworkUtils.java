@@ -931,8 +931,9 @@ public class FrameworkUtils {
                         String paramName = entry.getKey();
                         String paramValue = entry.getValue()[0];
 
-                        //skip the sessionDataKey sent from the servlet.
-                        if (SESSION_DATA_KEY.equals(paramName)) {
+                        //skip issuer and type and sessionDataKey parameters
+                        if (SESSION_DATA_KEY.equals(paramName) || FrameworkConstants.RequestParams.ISSUER.equals
+                                (paramName) || FrameworkConstants.RequestParams.TYPE.equals(paramName)) {
                             continue;
                         }
 
@@ -977,8 +978,9 @@ public class FrameworkUtils {
                     String paramName = entry.getKey();
                     String paramValue = entry.getValue()[0];
 
-                    //skip the sessionDataKey sent from the servlet.
-                    if (SESSION_DATA_KEY.equals(paramName)) {
+                    //skip issuer and type and sessionDataKey parameters
+                    if (SESSION_DATA_KEY.equals(paramName) || FrameworkConstants.RequestParams.ISSUER.equals
+                            (paramName) || FrameworkConstants.RequestParams.TYPE.equals(paramName)) {
                         continue;
                     }
 

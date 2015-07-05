@@ -82,7 +82,7 @@ public class ClaimDTO {
     }
 
     public void setClaimUri(String claimUri) {
-        this.claimUri = claimUri;
+        this.claimUri = claimUri.replaceAll("\\s+","");
     }
 
     public String getDisplayTag() {
