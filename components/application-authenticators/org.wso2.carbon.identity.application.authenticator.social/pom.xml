@@ -101,9 +101,11 @@
                             !org.wso2.carbon.identity.application.authenticator.social.internal,
                             org.wso2.carbon.identity.application.authenticator.social.facebook.*;
                             version="${carbon.identity.package.export.version}",
-                            org.wso2.carbon.identity.application.authenticator.social.oidc.ext.*;
+                            org.wso2.carbon.identity.application.authenticator.social.google.*;
                             version="${carbon.identity.package.export.version}",
-                            org.wso2.carbon.identity.application.authenticator.social.openid.ext.*;
+                            org.wso2.carbon.identity.application.authenticator.social.live.*;
+                            version="${carbon.identity.package.export.version}",
+                            org.wso2.carbon.identity.application.authenticator.social.yahoo.*;
                             version="${carbon.identity.package.export.version}"
                         </Export-Package>
                     </instructions>

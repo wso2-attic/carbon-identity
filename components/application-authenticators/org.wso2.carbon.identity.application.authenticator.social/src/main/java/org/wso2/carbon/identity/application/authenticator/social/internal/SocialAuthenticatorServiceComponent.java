@@ -23,9 +23,9 @@ import org.apache.commons.logging.LogFactory;
 import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.identity.application.authentication.framework.ApplicationAuthenticator;
 import org.wso2.carbon.identity.application.authenticator.social.facebook.FacebookAuthenticator;
-import org.wso2.carbon.identity.application.authenticator.social.oidc.ext.google.GoogleOAuth2Authenticator;
-import org.wso2.carbon.identity.application.authenticator.social.oidc.ext.live.WindowsLiveOAuth2Authenticator;
-import org.wso2.carbon.identity.application.authenticator.social.openid.ext.yahoo.YahooOpenIDAuthenticator;
+import org.wso2.carbon.identity.application.authenticator.social.google.GoogleOAuth2Authenticator;
+import org.wso2.carbon.identity.application.authenticator.social.live.WindowsLiveOAuth2Authenticator;
+import org.wso2.carbon.identity.application.authenticator.social.yahoo.YahooOpenIDAuthenticator;
 
 /**
  * @scr.component name="identity.application.authenticator.social.component"

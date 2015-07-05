@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.carbon.identity.application.authenticator.social.oidc.ext.live;
+package org.wso2.carbon.identity.application.authenticator.social.live;
 
 import org.apache.amber.oauth2.client.response.OAuthClientResponse;
 import org.apache.amber.oauth2.common.utils.JSONUtils;
