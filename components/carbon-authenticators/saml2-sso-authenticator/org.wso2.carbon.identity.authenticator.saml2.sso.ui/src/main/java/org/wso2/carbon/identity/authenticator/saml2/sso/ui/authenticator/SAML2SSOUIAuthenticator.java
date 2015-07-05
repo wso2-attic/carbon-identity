@@ -181,7 +181,8 @@ public class SAML2SSOUIAuthenticator extends AbstractCarbonUIAuthenticator {
 
             auditResult = SAML2SSOAuthenticatorConstants.AUDIT_RESULT_SUCCESS;
 
-            if(username != null && !"".equals(username.trim())) {
+            if(username != null && !"".equals(username.trim())
+                    && request != null && "true".equalsIgnoreCase(request.getParameter("logoutcomplete"))) {
                 log.info(username + "@" + PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain()
                         + " successfully logged out");
             }
@@ -190,7 +191,8 @@ public class SAML2SSOUIAuthenticator extends AbstractCarbonUIAuthenticator {
             log.error(msg);
             throw new Exception(msg);
         } finally {
-            if (username != null && username.trim().length() > 0 && AUDIT_LOG.isInfoEnabled()) {
+            if (username != null && username.trim().length() > 0 && AUDIT_LOG.isInfoEnabled()
+                    && request != null && "true".equalsIgnoreCase(request.getParameter("logoutcomplete"))) {
                 String tenantAwareUsername = MultitenantUtils.getTenantAwareUsername(username);
                 String tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
 
