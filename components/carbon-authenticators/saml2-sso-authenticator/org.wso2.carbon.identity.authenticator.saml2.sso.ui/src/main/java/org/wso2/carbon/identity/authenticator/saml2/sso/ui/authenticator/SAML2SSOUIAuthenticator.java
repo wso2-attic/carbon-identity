@@ -163,6 +163,22 @@ public class SAML2SSOUIAuthenticator extends AbstractCarbonUIAuthenticator {
                     session);
             authClient.logout(session);
 
+//        // memory cleanup : remove the invalid session from the invalid session list at the SSOSessionManager
+//        CarbonSSOSessionManager ssoSessionManager =
+//                    SAML2SSOAuthFEDataHolder.getInstance().getCarbonSSOSessionManager();
+//        ssoSessionManager.removeInvalidSession(session.getId());
+
+            if (request != null) {
+                // this attribute is used to avoid generate the logout request
+                request.setAttribute(SAML2SSOAuthenticatorConstants.HTTP_ATTR_IS_LOGOUT_REQ, Boolean.valueOf(true));
+                request.setAttribute(SAML2SSOAuthenticatorConstants.LOGGED_IN_USER, session.getAttribute(
+                        "logged-user"));
+
+                if(!Util.isLogoutSupportedIDP()) {
+                    request.setAttribute(SAML2SSOAuthenticatorConstants.EXTERNAL_LOGOUT_PAGE, Util.getExternalLogoutPage());
+                }
+            }
+
             auditResult = SAML2SSOAuthenticatorConstants.AUDIT_RESULT_SUCCESS;
 
             if(username != null && !"".equals(username.trim())) {
@@ -184,23 +200,6 @@ public class SAML2SSOUIAuthenticator extends AbstractCarbonUIAuthenticator {
                 AUDIT_LOG.info(String.format(SAML2SSOAuthenticatorConstants.AUDIT_MESSAGE,
                         auditInitiator, SAML2SSOAuthenticatorConstants.AUDIT_ACTION_LOGOUT, AUTHENTICATOR_NAME,
                         auditData, auditResult));
-            }
-        }
-
-
-//        // memory cleanup : remove the invalid session from the invalid session list at the SSOSessionManager
-//        CarbonSSOSessionManager ssoSessionManager =
-//                    SAML2SSOAuthFEDataHolder.getInstance().getCarbonSSOSessionManager();
-//        ssoSessionManager.removeInvalidSession(session.getId());
-
-        if (request != null) {
-            // this attribute is used to avoid generate the logout request
-            request.setAttribute(SAML2SSOAuthenticatorConstants.HTTP_ATTR_IS_LOGOUT_REQ, Boolean.valueOf(true));
-            request.setAttribute(SAML2SSOAuthenticatorConstants.LOGGED_IN_USER, session.getAttribute(
-                    "logged-user"));
-
-            if(!Util.isLogoutSupportedIDP()) {
-                request.setAttribute(SAML2SSOAuthenticatorConstants.EXTERNAL_LOGOUT_PAGE, Util.getExternalLogoutPage());
             }
         }
     }
