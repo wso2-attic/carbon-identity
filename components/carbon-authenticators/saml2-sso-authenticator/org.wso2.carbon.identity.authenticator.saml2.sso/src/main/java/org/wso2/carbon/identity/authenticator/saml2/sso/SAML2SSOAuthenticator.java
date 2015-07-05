@@ -227,7 +227,8 @@ public class SAML2SSOAuthenticator implements CarbonServerAuthenticator {
             session.invalidate();
 
             if (loggedInUser != null && AUDIT_LOG.isInfoEnabled()) {
-                String tenantAwareUsername = MultitenantUtils.getTenantAwareUsername(loggedInUser);
+                // username in the session is in tenantAware manner
+                String tenantAwareUsername = loggedInUser;
                 String tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
 
                 String auditInitiator = tenantAwareUsername + UserCoreConstants.TENANT_DOMAIN_COMBINER + tenantDomain;
