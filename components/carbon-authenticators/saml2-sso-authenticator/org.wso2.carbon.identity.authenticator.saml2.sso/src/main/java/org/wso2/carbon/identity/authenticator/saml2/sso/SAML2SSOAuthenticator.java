@@ -48,6 +48,7 @@ import org.wso2.carbon.identity.authenticator.saml2.sso.dto.AuthnReqDTO;
 import org.wso2.carbon.identity.authenticator.saml2.sso.internal.SAML2SSOAuthBEDataHolder;
 import org.wso2.carbon.identity.authenticator.saml2.sso.util.Util;
 import org.wso2.carbon.registry.core.service.RegistryService;
+import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
@@ -73,15 +74,16 @@ import java.util.Map;
 public class SAML2SSOAuthenticator implements CarbonServerAuthenticator {
 
     public static final Log log = LogFactory.getLog(SAML2SSOAuthenticator.class);
+    private static final Log AUDIT_LOG = CarbonConstants.AUDIT_LOG;
+
     private static final int DEFAULT_PRIORITY_LEVEL = 3;
     private static final String AUTHENTICATOR_NAME = SAML2SSOAuthenticatorBEConstants.SAML2_SSO_AUTHENTICATOR_NAME;
-    private static final Log AUDIT_LOG = CarbonConstants.AUDIT_LOG;
     private SecureRandom random = new SecureRandom();
 
     public boolean login(AuthnReqDTO authDto) {
         String username = null;
         String tenantDomain = null;
-        String result = SAML2SSOAuthenticatorConstants.AUDIT_FAILED;
+        String auditResult = SAML2SSOAuthenticatorConstants.AUDIT_RESULT_FAILED;
 
         HttpSession httpSession = getHttpSession();
         try {
@@ -143,7 +145,7 @@ public class SAML2SSOAuthenticator implements CarbonServerAuthenticator {
                 CarbonAuthenticationUtil.onSuccessAdminLogin(httpSession, username,
                         tenantId, tenantDomain, "SAML2 SSO Authentication");
                 handleAuthenticationCompleted(tenantId, true);
-                result = SAML2SSOAuthenticatorConstants.AUDIT_SUCCESS;
+                auditResult = SAML2SSOAuthenticatorConstants.AUDIT_RESULT_SUCCESS;
                 return true;
             } else {
                 log.error("Authentication Request is rejected. Authorization Failure.");
@@ -158,8 +160,13 @@ public class SAML2SSOAuthenticator implements CarbonServerAuthenticator {
             return false;
         } finally {
             if (username != null && username.trim().length() > 0 && AUDIT_LOG.isInfoEnabled()) {
-                AUDIT_LOG.info(String.format(SAML2SSOAuthenticatorConstants.AUDIT_MESSAGE, username + '@' + tenantDomain, "Login",
-                        "SAML2SSOAuthenticator", "", result));
+
+                String auditInitiator = username + UserCoreConstants.TENANT_DOMAIN_COMBINER + tenantDomain;
+                String auditData = "";
+
+                AUDIT_LOG.info(String.format(SAML2SSOAuthenticatorConstants.AUDIT_MESSAGE,
+                        auditInitiator, SAML2SSOAuthenticatorConstants.AUDIT_ACTION_LOGIN, AUTHENTICATOR_NAME,
+                        auditData, auditResult));
             }
         }
     }
@@ -219,9 +226,13 @@ public class SAML2SSOAuthenticator implements CarbonServerAuthenticator {
             if (loggedInUser != null && AUDIT_LOG.isInfoEnabled()) {
                 String tenantAwareUsername = MultitenantUtils.getTenantAwareUsername(loggedInUser);
                 String tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-                AUDIT_LOG.info(String.format(SAML2SSOAuthenticatorConstants.AUDIT_MESSAGE, tenantAwareUsername + "@" + tenantDomain, "Logout",
-                        "SAML2SSOAuthenticator", delegatedBy != null ? "Delegated By : " + delegatedBy : "",
-                        SAML2SSOAuthenticatorConstants.AUDIT_SUCCESS));
+
+                String auditInitiator = tenantAwareUsername + UserCoreConstants.TENANT_DOMAIN_COMBINER + tenantDomain;
+                String auditData = delegatedBy != null ? "Delegated By : " + delegatedBy : "";
+
+                AUDIT_LOG.info(String.format(SAML2SSOAuthenticatorConstants.AUDIT_MESSAGE,
+                        auditInitiator, SAML2SSOAuthenticatorConstants.AUDIT_ACTION_LOGOUT, AUTHENTICATOR_NAME,
+                        auditData, SAML2SSOAuthenticatorConstants.AUDIT_RESULT_SUCCESS));
             }
         }
     }

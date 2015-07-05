@@ -119,7 +119,7 @@ public class SAML2SSOUIAuthenticator extends AbstractCarbonUIAuthenticator {
             String tenantAwareUsername = MultitenantUtils.getTenantAwareUsername(username);
             String tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
             AUDIT_LOG.info(String.format(SAML2SSOAuthenticatorConstants.AUDIT_MESSAGE, tenantAwareUsername + "@" + tenantDomain, "Login", "SAML2SSOUIAuthenticator", "",
-                    isAuthenticated ? SAML2SSOAuthenticatorConstants.AUDIT_SUCCESS : SAML2SSOAuthenticatorConstants.AUDIT_FAILED));
+                    isAuthenticated ? SAML2SSOAuthenticatorConstants.AUDIT_RESULT_SUCCESS : SAML2SSOAuthenticatorConstants.AUDIT_RESULT_FAILED));
         }
         if (!isAuthenticated) {
             throw new AuthenticationException("Authentication failure " + username);
@@ -143,7 +143,7 @@ public class SAML2SSOUIAuthenticator extends AbstractCarbonUIAuthenticator {
                 .getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
 
         String backendServerURL = CarbonUIUtil.getServerURL(servletContext, session);
-        String result = SAML2SSOAuthenticatorConstants.AUDIT_FAILED;
+        String result = SAML2SSOAuthenticatorConstants.AUDIT_RESULT_FAILED;
         try {
             String cookie = (String) session.getAttribute(ServerConstants.ADMIN_SERVICE_AUTH_TOKEN);
             SAML2SSOAuthenticationClient authClient = new SAML2SSOAuthenticationClient(configContext,
@@ -151,7 +151,7 @@ public class SAML2SSOUIAuthenticator extends AbstractCarbonUIAuthenticator {
                     cookie,
                     session);
             authClient.logout(session);
-            result = SAML2SSOAuthenticatorConstants.AUDIT_SUCCESS;
+            result = SAML2SSOAuthenticatorConstants.AUDIT_RESULT_SUCCESS;
             if(username != null) {
                 log.info(username + "@" + PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain()
                         + " successfully logged out");
