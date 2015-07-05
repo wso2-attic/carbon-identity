@@ -207,8 +207,11 @@ public class PassiveSTSService {
         }
         ServiceProvider sp = null;
         try {
-//            String tenantDomain = MultitenantUtils.getTenantDomain(request.getUserName());
-            String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+            String tenantDomain = request.getTenantDomain();
+            if (tenantDomain ==null || tenantDomain.trim().length() == 0) {
+                tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+                request.setTenantDomain(tenantDomain);
+            }
             if(log.isDebugEnabled()) {
                 log.debug("Retrieving wreply url for : " + realm + " in tenant : " + tenantDomain);
             }
