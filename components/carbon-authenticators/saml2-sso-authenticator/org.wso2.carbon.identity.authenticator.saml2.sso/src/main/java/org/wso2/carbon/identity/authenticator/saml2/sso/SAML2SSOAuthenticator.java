@@ -214,7 +214,7 @@ public class SAML2SSOAuthenticator implements CarbonServerAuthenticator {
             loggedInUser = (String) session.getAttribute(ServerConstants.USER_LOGGED_IN);
             delegatedBy = (String) session.getAttribute("DELEGATED_BY");
 
-            if(loggedInUser != null && "".equals(loggedInUser.trim())) {
+            if(loggedInUser != null && !"".equals(loggedInUser.trim())) {
                 String logMessage = "'" + loggedInUser + "' logged out at " + date.format(currentTime);
 
                 if (delegatedBy != null) {
