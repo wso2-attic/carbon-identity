@@ -123,7 +123,6 @@ public class SAML2SSOUIAuthenticator extends AbstractCarbonUIAuthenticator {
         }
         if (username != null && username.trim().length() > 0 && AUDIT_LOG.isInfoEnabled()) {
             String tenantAwareUsername = MultitenantUtils.getTenantAwareUsername(username);
-//            String tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
             String tenantDomain = MultitenantUtils.getTenantDomain(username);
 
             String auditInitiator = tenantAwareUsername + UserCoreConstants.TENANT_DOMAIN_COMBINER + tenantDomain;
@@ -184,8 +183,17 @@ public class SAML2SSOUIAuthenticator extends AbstractCarbonUIAuthenticator {
 
             if(username != null && !"".equals(username.trim())
                     && request != null && "true".equalsIgnoreCase(request.getParameter("logoutcomplete"))) {
-                log.info(username + "@" + PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain()
-                        + " successfully logged out");
+
+                if(session.getAttribute("tenantDomain") != null) {
+                    // Build username for authorized user login
+                    // username in the session is in tenantAware manner
+                    username = username + UserCoreConstants.TENANT_DOMAIN_COMBINER
+                            + PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+                } else {
+                    // Keep same username for unauthorized user login
+                }
+
+                log.info(username + " successfully logged out");
             }
         } catch (Exception ignored) {
             String msg = "Configuration context is null.";
@@ -194,10 +202,8 @@ public class SAML2SSOUIAuthenticator extends AbstractCarbonUIAuthenticator {
         } finally {
             if (username != null && username.trim().length() > 0 && AUDIT_LOG.isInfoEnabled()
                     && request != null && "true".equalsIgnoreCase(request.getParameter("logoutcomplete"))) {
-                String tenantAwareUsername = MultitenantUtils.getTenantAwareUsername(username);
-                String tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-
-                String auditInitiator = tenantAwareUsername + UserCoreConstants.TENANT_DOMAIN_COMBINER + tenantDomain;
+                // use the username built above (when printing info log)
+                String auditInitiator = username;
                 String auditData = "";
 
                 AUDIT_LOG.info(String.format(SAML2SSOAuthenticatorConstants.AUDIT_MESSAGE,
