@@ -70,14 +70,15 @@
                             org.apache.commons.logging,
                             org.osgi.framework,
                             org.osgi.service.component,
-                            org.wso2.carbon.identity.workflow.mgt,
                             org.wso2.carbon.identity.workflow.mgt.exception,
                             org.wso2.carbon.user.api,
                             org.wso2.carbon.user.core,
                             org.wso2.carbon.user.core.common,
                             org.wso2.carbon.user.core.listener,
                             org.wso2.carbon.user.core.service,
-                            org.wso2.carbon.utils
+                            org.wso2.carbon.utils,
+                            org.wso2.carbon.identity.workflow.mgt.extension,
+                            org.wso2.carbon.identity.workflow.mgt.util
                         </Import-Package>
                         <Export-Package>
                             org.wso2.carbon.identity.workflow.mgt.impl.*

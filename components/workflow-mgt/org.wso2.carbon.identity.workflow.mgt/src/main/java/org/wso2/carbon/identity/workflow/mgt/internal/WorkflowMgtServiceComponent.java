@@ -37,7 +37,7 @@ import org.wso2.carbon.utils.ConfigurationContextService;
  * cardinality="1..1" policy="dynamic" bind="setRealmService"
  * unbind="unsetRealmService"
  * @scr.reference name="workflow.request.handler.service"
- * interface="org.wso2.carbon.identity.workflow.mgt.api.WorkflowRequestHandler"
+ * interface="org.wso2.carbon.identity.workflow.mgt.extension.WorkflowRequestHandler"
  * cardinality="0..n" policy="dynamic"
  * bind="setWorkflowRequestHandler"
  * unbind="unsetWorkflowRequestHandler"
