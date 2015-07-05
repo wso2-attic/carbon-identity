@@ -95,17 +95,16 @@ public class SAML2SSOAuthenticator implements CarbonServerAuthenticator {
                 log.error("Authentication Request is rejected. " +
                         "SAMLResponse does not contain the username of the subject.");
                 CarbonAuthenticationUtil.onFailedAdminLogin(httpSession, username, -1,
-                        "SAML2 SSO Authentication", "Data");
+                        "SAML2 SSO Authentication", "SAMLResponse does not contain the username of the subject");
                 // Unable to call #handleAuthenticationCompleted since there is no way to determine
                 // tenantId without knowing the username.
                 return false;
             }
 
             if (!validateAudienceRestriction(xmlObject)) {
-                log.error("Authentication Request is rejected. " +
-                        "SAMLResponse AudienceRestriction validation failed.");
+                log.error("Authentication Request is rejected. SAMLResponse AudienceRestriction validation failed.");
                 CarbonAuthenticationUtil.onFailedAdminLogin(httpSession, username, -1,
-                        "SAML2 SSO Authentication", "Data");
+                        "SAML2 SSO Authentication", "AudienceRestriction validation failed");
                 return false;
             }
 
@@ -117,11 +116,9 @@ public class SAML2SSOAuthenticator implements CarbonServerAuthenticator {
             if (isResponseSignatureValidationEnabled()) {
                 boolean isSignatureValid = validateSignature(xmlObject, tenantDomain);
                 if (!isSignatureValid) {
-                    log.error("Authentication Request is rejected. "
-                            + " Signature validation failed.");
+                    log.error("Authentication Request is rejected. Signature validation failed.");
                     CarbonAuthenticationUtil.onFailedAdminLogin(httpSession, username, tenantId,
-                            "SAML2 SSO Authentication",
-                            "Invalid Signature");
+                            "SAML2 SSO Authentication", "Invalid Signature");
                     handleAuthenticationCompleted(tenantId, false);
                     return false;
                 }
@@ -150,7 +147,7 @@ public class SAML2SSOAuthenticator implements CarbonServerAuthenticator {
             } else {
                 log.error("Authentication Request is rejected. Authorization Failure.");
                 CarbonAuthenticationUtil.onFailedAdminLogin(httpSession, username, tenantId,
-                        "SAML2 SSO Authentication", "Invalid credential");
+                        "SAML2 SSO Authentication", "Authorization Failure");
                 handleAuthenticationCompleted(tenantId, false);
                 return false;
             }
