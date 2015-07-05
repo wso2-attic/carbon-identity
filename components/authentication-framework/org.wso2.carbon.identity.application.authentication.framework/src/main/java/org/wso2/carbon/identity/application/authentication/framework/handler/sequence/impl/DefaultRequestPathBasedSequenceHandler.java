@@ -101,12 +101,9 @@ public class DefaultRequestPathBasedSequenceHandler implements RequestPathBasedS
                     AuthenticatedUser authenticatedUser = context.getSubject();
                     seqConfig.setAuthenticatedUser(authenticatedUser);
 
-                    String authenticatedUserTenantDomain = (String) context.getProperty("user-tenant-domain");
-                    seqConfig.setAuthenticatedUserTenantDomain(authenticatedUserTenantDomain);
-
                     if (log.isDebugEnabled()) {
                         log.debug("Authenticated User: " + authenticatedUser.getAuthenticatedSubjectIdentifier());
-                        log.debug("Authenticated User Tenant Domain: " + authenticatedUserTenantDomain);
+                        log.debug("Authenticated User Tenant Domain: " + seqConfig.getAuthenticatedUser().getTenantDomain());
                     }
 
                     AuthenticatedIdPData authenticatedIdPData = new AuthenticatedIdPData();
@@ -209,13 +206,10 @@ public class DefaultRequestPathBasedSequenceHandler implements RequestPathBasedS
                 AuthenticatedUser authenticatedUser = sequenceConfig.getAuthenticatedUser();
                 authenticatedUser.setAuthenticatedSubjectIdentifier(subjectValue);
 
-                String authenticatedUserTenantDomain = (String) context.getProperty("user-tenant-domain");
-                sequenceConfig.setAuthenticatedUserTenantDomain(authenticatedUserTenantDomain);
-
                 if (log.isDebugEnabled()) {
                     log.debug("Authenticated User: " +
                               sequenceConfig.getAuthenticatedUser().getAuthenticatedSubjectIdentifier());
-                    log.debug("Authenticated User Tenant Domain: " + authenticatedUserTenantDomain);
+                    log.debug("Authenticated User Tenant Domain: " + sequenceConfig.getAuthenticatedUser().getTenantDomain());
                 }
             }
         }

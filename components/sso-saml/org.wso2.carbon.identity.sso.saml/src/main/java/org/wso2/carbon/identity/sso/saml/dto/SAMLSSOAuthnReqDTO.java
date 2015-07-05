@@ -46,7 +46,6 @@ public class SAMLSSOAuthnReqDTO implements Serializable {
     private boolean doSingleLogout;
     private boolean doSignResponse;
     private boolean doSignAssertions;
-    private boolean useFullyQualifiedUsernameAsSubject;
     private boolean isStratosDeployment = false;
     private int attributeConsumingServiceIndex;
     private String nameIdClaimUri;
@@ -176,15 +175,6 @@ public class SAMLSSOAuthnReqDTO implements Serializable {
 
     public void setLogoutURL(String logoutURL) {
         this.logoutURL = logoutURL;
-    }
-
-    public boolean getUseFullyQualifiedUsernameAsSubject() {
-        return useFullyQualifiedUsernameAsSubject;
-    }
-
-    public void setUseFullyQualifiedUsernameAsSubject(
-            boolean useFullyQualifiedUsernameAsSubject) {
-        this.useFullyQualifiedUsernameAsSubject = useFullyQualifiedUsernameAsSubject;
     }
 
     public boolean isDoSingleLogout() {

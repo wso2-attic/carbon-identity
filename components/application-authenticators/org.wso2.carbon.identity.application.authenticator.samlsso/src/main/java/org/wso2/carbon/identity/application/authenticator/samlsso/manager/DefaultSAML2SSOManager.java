@@ -605,7 +605,7 @@ public class DefaultSAML2SSOManager implements SAML2SSOManager {
                 List<AudienceRestriction> audienceRestrictions = conditions.getAudienceRestrictions();
                 if (audienceRestrictions != null && !audienceRestrictions.isEmpty()) {
                     for (AudienceRestriction audienceRestriction : audienceRestrictions) {
-                        if (CollectionUtils.isEmpty(audienceRestriction.getAudiences())) {
+                        if (CollectionUtils.isNotEmpty(audienceRestriction.getAudiences())) {
                             boolean audienceFound = false;
                             for (Audience audience : audienceRestriction.getAudiences()) {
                                 if (properties.get(IdentityApplicationConstants.Authenticator.SAML2SSO.SP_ENTITY_ID)

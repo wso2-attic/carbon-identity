@@ -102,11 +102,11 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
     }
 
     @Override
-    public int createApplication(ServiceProvider serviceProvider, String tenantDomain)
+    public int createApplication(ServiceProvider serviceProvider, String tenantDomain, String userName)
             throws IdentityApplicationManagementException {
         try {
 
-            setTenantDomainInThreadLocalCarbonContext(tenantDomain);
+            startTenantFlow(tenantDomain, userName);
 
             // invoking the listeners
             List<ApplicationMgtListener> listeners = ApplicationMgtListenerServiceComponent.getListners();
@@ -128,7 +128,8 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
             String error = "Error occurred while creating the application, " + serviceProvider.getApplicationName();
             log.error(error, e);
             throw new IdentityApplicationManagementException(error, e);
-
+        } finally {
+            endTenantFlow();
         }
     }
 
@@ -137,7 +138,7 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
             throws IdentityApplicationManagementException {
         try {
 
-            setTenantDomainInThreadLocalCarbonContext(tenantDomain);
+            startTenantFlow(tenantDomain);
 
             ApplicationDAO appDAO = ApplicationMgtSystemConfig.getInstance().getApplicationDAO();
             ServiceProvider serviceProvider = appDAO.getApplication(applicationName, tenantDomain);
@@ -147,33 +148,34 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
             String error = "Error occurred while retrieving the application, " + applicationName;
             log.error(error, e);
             throw new IdentityApplicationManagementException(error, e);
+        } finally {
+            endTenantFlow();
         }
     }
 
     @Override
-    public ApplicationBasicInfo[] getAllApplicationBasicInfo(String tenantDomain)
+    public ApplicationBasicInfo[] getAllApplicationBasicInfo(String tenantDomain, String userName)
             throws IdentityApplicationManagementException {
         try {
-            setTenantDomainInThreadLocalCarbonContext(tenantDomain);
+            startTenantFlow(tenantDomain, userName);
             ApplicationDAO appDAO = ApplicationMgtSystemConfig.getInstance().getApplicationDAO();
             return appDAO.getAllApplicationBasicInfo();
         } catch (Exception e) {
             String error = "Error occurred while retrieving the all applications";
             log.error(error, e);
             throw new IdentityApplicationManagementException(error, e);
+        } finally {
+            endTenantFlow();
         }
     }
 
     @Override
-    public void updateApplication(ServiceProvider serviceProvider, String tenantDomain)
+    public void updateApplication(ServiceProvider serviceProvider, String tenantDomain, String userName)
             throws IdentityApplicationManagementException {
         try {
 
             try {
-                PrivilegedCarbonContext.startTenantFlow();
-                PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
-                carbonContext.setTenantId(MultitenantConstants.SUPER_TENANT_ID);
-                carbonContext.setTenantDomain(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
+                startTenantFlow(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
 
                 IdentityServiceProviderCacheKey cacheKey = new IdentityServiceProviderCacheKey(
                         tenantDomain, serviceProvider.getApplicationName());
@@ -181,8 +183,8 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
                 IdentityServiceProviderCache.getInstance().clearCacheEntry(cacheKey);
 
             } finally {
-                PrivilegedCarbonContext.endTenantFlow();
-                setTenantDomainInThreadLocalCarbonContext(tenantDomain);
+                endTenantFlow();
+                startTenantFlow(tenantDomain, userName);
             }
 
             // invoking the listeners
@@ -224,28 +226,50 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
             String error = "Error occurred while updating the application";
             log.error(error, e);
             throw new IdentityApplicationManagementException(error, e);
+        } finally {
+            endTenantFlow();
         }
     }
 
-    private void setTenantDomainInThreadLocalCarbonContext(String tenantDomain)
+    private void startTenantFlow(String tenantDomain)
             throws IdentityApplicationManagementException {
-        int tenantId = 0;
+        int tenantId;
         try {
             tenantId = ApplicationManagementServiceComponentHolder.getInstance().getRealmService()
                     .getTenantManager().getTenantId(tenantDomain);
         } catch (UserStoreException e) {
             throw new IdentityApplicationManagementException("Error when setting tenant domain. ", e);
         }
+        PrivilegedCarbonContext.startTenantFlow();
         PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
         PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantId(tenantId);
     }
 
+    private void startTenantFlow(String tenantDomain, String userName)
+            throws IdentityApplicationManagementException {
+        int tenantId;
+        try {
+            tenantId = ApplicationManagementServiceComponentHolder.getInstance().getRealmService()
+                    .getTenantManager().getTenantId(tenantDomain);
+        } catch (UserStoreException e) {
+            throw new IdentityApplicationManagementException("Error when setting tenant domain. ", e);
+        }
+        PrivilegedCarbonContext.startTenantFlow();
+        PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
+        PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantId(tenantId);
+        PrivilegedCarbonContext.getThreadLocalCarbonContext().setUsername(userName);
+    }
+
+    private void endTenantFlow() {
+        PrivilegedCarbonContext.endTenantFlow();
+    }
+
     @Override
-    public void deleteApplication(String applicationName, String tenantDomain)
+    public void deleteApplication(String applicationName, String tenantDomain, String userName)
             throws IdentityApplicationManagementException {
         try {
 
-            setTenantDomainInThreadLocalCarbonContext(tenantDomain);
+            startTenantFlow(tenantDomain, userName);
 
             // invoking the listeners
             List<ApplicationMgtListener> listeners = ApplicationMgtListenerServiceComponent.getListners();
@@ -320,6 +344,8 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
             String error = "Error occurred while deleting the application";
             log.error(error, e);
             throw new IdentityApplicationManagementException(error, e);
+        } finally {
+            endTenantFlow();
         }
     }
 
@@ -327,13 +353,15 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
     public IdentityProvider getIdentityProvider(String federatedIdPName, String tenantDomain)
             throws IdentityApplicationManagementException {
         try {
-            setTenantDomainInThreadLocalCarbonContext(tenantDomain);
+            startTenantFlow(tenantDomain);
             IdentityProviderDAO idpdao = ApplicationMgtSystemConfig.getInstance().getIdentityProviderDAO();
             return idpdao.getIdentityProvider(federatedIdPName);
         } catch (Exception e) {
             String error = "Error occurred while retrieving Identity Provider";
             log.error(error, e);
             throw new IdentityApplicationManagementException(error, e);
+        } finally {
+            endTenantFlow();
         }
     }
 
@@ -341,7 +369,7 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
     public IdentityProvider[] getAllIdentityProviders(String tenantDomain)
             throws IdentityApplicationManagementException {
         try {
-            setTenantDomainInThreadLocalCarbonContext(tenantDomain);
+            startTenantFlow(tenantDomain);
             IdentityProviderDAO idpdao = ApplicationMgtSystemConfig.getInstance().getIdentityProviderDAO();
             List<IdentityProvider> fedIdpList = idpdao.getAllIdentityProviders();
             if (fedIdpList != null) {
@@ -352,6 +380,8 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
             String error = "Error occurred while retrieving all Identity Providers";
             log.error(error, e);
             throw new IdentityApplicationManagementException(error, e);
+        } finally {
+            endTenantFlow();
         }
     }
 
@@ -359,7 +389,7 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
     public LocalAuthenticatorConfig[] getAllLocalAuthenticators(String tenantDomain)
             throws IdentityApplicationManagementException {
         try {
-            setTenantDomainInThreadLocalCarbonContext(tenantDomain);
+            startTenantFlow(tenantDomain);
             IdentityProviderDAO idpdao = ApplicationMgtSystemConfig.getInstance().getIdentityProviderDAO();
             List<LocalAuthenticatorConfig> localAuthenticators = idpdao.getAllLocalAuthenticators();
             if (localAuthenticators != null) {
@@ -370,6 +400,8 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
             String error = "Error occurred while retrieving all Local Authenticators";
             log.error(error, e);
             throw new IdentityApplicationManagementException(error, e);
+        } finally {
+            endTenantFlow();
         }
     }
 
@@ -377,7 +409,7 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
     public RequestPathAuthenticatorConfig[] getAllRequestPathAuthenticators(String tenantDomain)
             throws IdentityApplicationManagementException {
         try {
-            setTenantDomainInThreadLocalCarbonContext(tenantDomain);
+            startTenantFlow(tenantDomain);
             IdentityProviderDAO idpdao = ApplicationMgtSystemConfig.getInstance().getIdentityProviderDAO();
             List<RequestPathAuthenticatorConfig> reqPathAuthenticators = idpdao.getAllRequestPathAuthenticators();
             if (reqPathAuthenticators != null) {
@@ -388,13 +420,15 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
             String error = "Error occurred while retrieving all Request Path Authenticators";
             log.error(error, e);
             throw new IdentityApplicationManagementException(error, e);
+        } finally {
+            endTenantFlow();
         }
     }
 
     @Override
     public String[] getAllLocalClaimUris(String tenantDomain) throws IdentityApplicationManagementException {
         try {
-            setTenantDomainInThreadLocalCarbonContext(tenantDomain);
+            startTenantFlow(tenantDomain);
             String claimDialect = ApplicationMgtSystemConfig.getInstance().getClaimDialect();
             ClaimMapping[] claimMappings = CarbonContext.getThreadLocalCarbonContext().getUserRealm().getClaimManager()
                     .getAllClaimMappings(claimDialect);
@@ -407,6 +441,8 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
             String error = "Error while reading system claims";
             log.error(error, e);
             throw new IdentityApplicationManagementException(error, e);
+        } finally {
+            endTenantFlow();
         }
     }
 
@@ -551,7 +587,7 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
     public ServiceProvider getServiceProvider(String serviceProviderName, String tenantDomain)
             throws IdentityApplicationManagementException {
 
-        setTenantDomainInThreadLocalCarbonContext(tenantDomain);
+        startTenantFlow(tenantDomain);
         ApplicationDAO appDAO = ApplicationMgtSystemConfig.getInstance().getApplicationDAO();
         ServiceProvider serviceProvider = appDAO.getApplication(serviceProviderName, tenantDomain);
 
@@ -565,7 +601,7 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
             serviceProvider = ApplicationManagementServiceComponent.getFileBasedSPs().get(
                     serviceProviderName);
         }
-
+        endTenantFlow();
         return serviceProvider;
     }
 
@@ -591,11 +627,7 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
         serviceProviderName = getServiceProviderNameByClientId(clientId, clientType, tenantDomain);
 
         try {
-            PrivilegedCarbonContext.startTenantFlow();
-            PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext
-                    .getThreadLocalCarbonContext();
-            carbonContext.setTenantId(MultitenantConstants.SUPER_TENANT_ID);
-            carbonContext.setTenantDomain(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
+            startTenantFlow(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
 
             IdentityServiceProviderCacheKey cacheKey = new IdentityServiceProviderCacheKey(
                     tenantDomain, serviceProviderName);
@@ -607,8 +639,8 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
             }
 
         } finally {
-            PrivilegedCarbonContext.endTenantFlow();
-            setTenantDomainInThreadLocalCarbonContext(tenantDomain);
+            endTenantFlow();
+            startTenantFlow(tenantDomain);
         }
 
         if (serviceProviderName != null) {
@@ -641,13 +673,10 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
                     serviceProviderName);
         }
 
-        try {
-            PrivilegedCarbonContext.startTenantFlow();
+        endTenantFlow();
 
-            PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext
-                    .getThreadLocalCarbonContext();
-            carbonContext.setTenantId(MultitenantConstants.SUPER_TENANT_ID);
-            carbonContext.setTenantDomain(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
+        try {
+            startTenantFlow(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
 
             IdentityServiceProviderCacheKey cacheKey = new IdentityServiceProviderCacheKey(
                     tenantDomain, serviceProviderName);
@@ -655,7 +684,7 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
             entry.setServiceProvider(serviceProvider);
             IdentityServiceProviderCache.getInstance().addToCache(cacheKey, entry);
         } finally {
-            PrivilegedCarbonContext.endTenantFlow();
+            endTenantFlow();
         }
         return serviceProvider;
     }

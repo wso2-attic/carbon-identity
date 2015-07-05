@@ -457,9 +457,14 @@ public class OpenIDHandler {
         authenticationRequest.setRelyingParty(getRelyingParty(request));
         authenticationRequest.setCommonAuthCallerPath(selfPath);
         String username = null;
+        String tenantDomain = null;
         if (params.getParameterValue(FrameworkConstants.OPENID_IDENTITY) != null) {
             username = OpenIDUtil.getUserName(params.getParameterValue(FrameworkConstants.OPENID_IDENTITY));
             authenticationRequest.addRequestQueryParam(FrameworkConstants.USERNAME, new String[] { username });
+        }
+        if (params.getParameterValue(FrameworkConstants.RequestParams.TENANT_DOMAIN) != null) {
+            tenantDomain = params.getParameterValue(FrameworkConstants.RequestParams.TENANT_DOMAIN);
+            authenticationRequest.setTenantDomain(tenantDomain);
         }
 
         boolean forceAuthenticate = false;

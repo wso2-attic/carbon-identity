@@ -49,12 +49,13 @@ public class SingleLogoutMessageBuilder {
         SAMLSSOUtil.doBootstrap();
     }
 
-    public LogoutRequest buildLogoutRequest(String subject, String sessionId, String reason) {
+    public LogoutRequest buildLogoutRequest(String subject, String sessionId, String reason) throws IdentityException {
         LogoutRequest logoutReq = new LogoutRequestBuilder().buildObject();
         logoutReq.setID(SAMLSSOUtil.createID());
 
         DateTime issueInstant = new DateTime();
         logoutReq.setIssueInstant(issueInstant);
+        logoutReq.setIssuer(SAMLSSOUtil.getIssuer());
         logoutReq.setNotOnOrAfter(new DateTime(issueInstant.getMillis() + 5 * 60 * 1000));
 
         NameID nameId = new NameIDBuilder().buildObject();

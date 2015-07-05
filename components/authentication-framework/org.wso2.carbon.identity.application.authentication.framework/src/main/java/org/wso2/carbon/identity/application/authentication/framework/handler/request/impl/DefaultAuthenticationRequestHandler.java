@@ -233,7 +233,7 @@ public class DefaultAuthenticationRequestHandler implements AuthenticationReques
 
             if (!sequenceConfig.getApplicationConfig().isSaaSApp()) {
                 String spTenantDomain = context.getTenantDomain();
-                String userTenantDomain = sequenceConfig.getAuthenticatedUserTenantDomain();
+                String userTenantDomain = sequenceConfig.getAuthenticatedUser().getTenantDomain();
                 if (userTenantDomain != null && !userTenantDomain.isEmpty()) {
                     if (spTenantDomain != null && !spTenantDomain.isEmpty() && !spTenantDomain.equals
                             (userTenantDomain)) {
@@ -303,7 +303,7 @@ public class DefaultAuthenticationRequestHandler implements AuthenticationReques
             AUDIT_LOG.info(String.format(
                     FrameworkConstants.AUDIT_MESSAGE,
                     sequenceConfig.getAuthenticatedUser().getAuthenticatedSubjectIdentifier() + '@' +
-                    sequenceConfig.getAuthenticatedUserTenantDomain(),
+                    sequenceConfig.getAuthenticatedUser().getTenantDomain(),
                     "Login",
                     "ApplicationAuthenticationFramework", auditData, FrameworkConstants.AUDIT_SUCCESS));
         }
@@ -344,9 +344,6 @@ public class DefaultAuthenticationRequestHandler implements AuthenticationReques
         if (context.getProperties() != null) {
             authenticatedUserTenantDomain = (String) context.getProperties()
                     .get("user-tenant-domain");
-            if (authenticatedUserTenantDomain != null) {
-                authenticationResult.setAuthenticatedUserTenantDomain(authenticatedUserTenantDomain);
-            }
         }
         return authenticatedUserTenantDomain;
     }
