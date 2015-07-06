@@ -65,7 +65,7 @@ public class SAMLSSOAuthenticatorServiceComponent {
             SAMLSSOAuthenticator samlSSOAuthenticator = new SAMLSSOAuthenticator();
             ctxt.getBundleContext().registerService(ApplicationAuthenticator.class.getName(), samlSSOAuthenticator, null);
             String postPagePath = CarbonUtils.getCarbonHome() + File.separator + "repository"
-                    + File.separator + "resources" + File.separator + "sso_responses" + File.separator
+                    + File.separator + "identity" + File.separator + "pages" + File.separator + "sso_responses" + File.separator
                     + "samlsso_federate.html";
             FileInputStream fis = new FileInputStream(new File(postPagePath));
             postPage = new Scanner(fis, "UTF-8").useDelimiter("\\A").next();

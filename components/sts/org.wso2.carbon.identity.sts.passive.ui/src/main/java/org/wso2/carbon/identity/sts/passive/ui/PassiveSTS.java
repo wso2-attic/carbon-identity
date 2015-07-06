@@ -96,7 +96,7 @@ public class PassiveSTS extends HttpServlet {
      */
     private String readPassiveSTSHtmlRedirectPage() {
         String redirectHtmlFilePath = CarbonUtils.getCarbonHome() + File.separator + "repository"
-                + File.separator + "resources" + File.separator + "sso_responses" + File.separator +
+                + File.separator + "resources" + File.separator + "identity" + File.separator + "pages" + File.separator +
                 "sts_response.html";
         FileInputStream fileInputStream = null;
         String fileContent = null;
