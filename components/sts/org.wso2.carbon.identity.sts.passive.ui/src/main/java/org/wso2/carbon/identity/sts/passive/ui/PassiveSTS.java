@@ -144,8 +144,7 @@ public class PassiveSTS extends HttpServlet {
 
         // Adding parameters to the Passive STS HTML redirect page
         String parameters = "<input type='hidden' name='wa' value='$action'>" +
-                "<input type='hidden' name='wresult' value='$result'>" +
-                "<input type='hidden' name='wctx' value='$context'>";
+                "<input type='hidden' name='wresult' value='$result'>";
 
         fileContent = fileContent.replace("<!--$params-->", parameters);
 
@@ -178,8 +177,12 @@ public class PassiveSTS extends HttpServlet {
 
         String pageWithReplyAction = pageWithReply.replace("$action", String.valueOf(action));
         String pageWithReplyActionResult = pageWithReplyAction.replace("$result", String.valueOf(respToken.getResults()));
-        String pageWithReplyActionResultContext =
-                pageWithReplyActionResult.replace("$context", String.valueOf(respToken.getContext()));
+        String pageWithReplyActionResultContext;
+        if(respToken.getContext() !=null) {
+            pageWithReplyActionResultContext = pageWithReplyActionResult.replace("<!--$additionalParams-->", "<!--$additionalParams-->" + "<input type='hidden' name='wctx' value='"  +respToken.getContext() + "'>");
+        } else {
+            pageWithReplyActionResultContext = pageWithReplyActionResult;
+        }
 
         if (authenticatedIdPs == null || authenticatedIdPs.isEmpty()) {
             finalPage = pageWithReplyActionResultContext;
