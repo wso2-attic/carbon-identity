@@ -80,7 +80,9 @@ public class OpenIDServerAssociationStore extends InMemoryServerAssociationStore
         Thread thread = new Thread() {
             @Override
             public void run() {
-                log.debug("Storing association " + association.getHandle() + " in the database.");
+                if(log.isDebugEnabled()) {
+                    log.debug("Storing association " + association.getHandle() + " in the database.");
+                }
                 dao.storeAssociation(association);
             }
         };
@@ -112,14 +114,18 @@ public class OpenIDServerAssociationStore extends InMemoryServerAssociationStore
 
         // if failed, look in the database
         if (association == null) {
-            log.debug("Association " + handle + " not found in cache. Loading from the database.");
+            if(log.isDebugEnabled()) {
+                log.debug("Association " + handle + " not found in cache. Loading from the database.");
+            }
             association = dao.loadAssociation(handle);
             chacheMiss = true;
         }
 
         // no association found for the given handle
         if (association == null) {
-            log.debug("Association " + handle + " not found in the database.");
+            if(log.isDebugEnabled()) {
+                log.debug("Association " + handle + " not found in the database.");
+            }
             return null;
         }
 
@@ -151,7 +157,9 @@ public class OpenIDServerAssociationStore extends InMemoryServerAssociationStore
         Thread thread = new Thread() {
             @Override
             public void run() {
-                log.debug("Removing the association" + handle + " from the database");
+                if(log.isDebugEnabled()) {
+                    log.debug("Removing the association" + handle + " from the database");
+                }
                 dao.removeAssociation(handle);
             }
         };
