@@ -100,7 +100,6 @@
                                         <include>saml2.federation.properties</include>
                                         <include>authenticationendpoint.war</include>
                                         <include>samlsso_response.html</include>
-                                        <include>samlsso_federate.html</include>
                                         <include>sso-idp-config.xml</include>
                                     </includes>
                                 </resource>
