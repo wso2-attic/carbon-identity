@@ -560,7 +560,7 @@ public class SAMLSSOProviderServlet extends HttpServlet {
             out.print(finalPage);
 
             if (log.isDebugEnabled()) {
-                log.debug("sso_response.html " + finalPage);
+                log.debug("samlsso_response.html " + finalPage);
             }
 
 
