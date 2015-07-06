@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.carbon.identity.application.authenticator.social.live;
+package org.wso2.carbon.identity.application.authenticator.oidc.ext;
 
 import org.apache.amber.oauth2.client.response.OAuthClientResponse;
 import org.apache.amber.oauth2.common.utils.JSONUtils;
@@ -25,6 +25,7 @@ import org.wso2.carbon.identity.application.authenticator.oidc.OIDCAuthenticator
 import org.wso2.carbon.identity.application.authenticator.oidc.OpenIDConnectAuthenticator;
 import org.wso2.carbon.identity.application.common.model.ClaimMapping;
 import org.wso2.carbon.identity.application.common.model.Property;
+import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -46,11 +47,11 @@ public class WindowsLiveOAuth2Authenticator extends OpenIDConnectAuthenticator {
     static {
 
         claimMap = new HashMap<String, String>();
-        claimMap.put("first_name", "http://wso2.org/claims/givenname");
-        claimMap.put("last_name", "http://wso2.org/claims/lastname");
-        claimMap.put("gender", "http://wso2.org/claims/gender");
-        claimMap.put("emails", "http://wso2.org/claims/emailaddress");
-        claimMap.put("locale", "http://wso2.org/claims/locality");
+        claimMap.put("first_name", WindowsLiveOAuth2AuthenticatorConstants.GIVEN_NAME_CLAIM_URI);
+        claimMap.put("last_name", WindowsLiveOAuth2AuthenticatorConstants.LAST_NAME_CLAIM_URI);
+        claimMap.put("gender", WindowsLiveOAuth2AuthenticatorConstants.GENDER_CLAIM_URI);
+        claimMap.put("emails", WindowsLiveOAuth2AuthenticatorConstants.EMAIL_ADD_CLAIM_URI);
+        claimMap.put("locale", WindowsLiveOAuth2AuthenticatorConstants.LOCALITY_CLAIM_URI);
     }
 
     private static Log log = LogFactory.getLog(WindowsLiveOAuth2Authenticator.class);
@@ -60,7 +61,7 @@ public class WindowsLiveOAuth2Authenticator extends OpenIDConnectAuthenticator {
      */
     @Override
     protected String getAuthorizationServerEndpoint(Map<String, String> authenticatorProperties) {
-        return "https://login.live.com/oauth20_authorize.srf";
+        return authenticatorProperties.get(WindowsLiveOAuth2AuthenticatorConstants.WINDOWS_LIVE_AUTHZ_URL);
     }
 
     /**
@@ -68,7 +69,7 @@ public class WindowsLiveOAuth2Authenticator extends OpenIDConnectAuthenticator {
      */
     @Override
     protected String getCallbackUrl(Map<String, String> authenticatorProperties) {
-        return authenticatorProperties.get("windows-live-callback-url");
+        return authenticatorProperties.get(WindowsLiveOAuth2AuthenticatorConstants.CALLBACK_URL);
     }
 
     /**
@@ -76,7 +77,7 @@ public class WindowsLiveOAuth2Authenticator extends OpenIDConnectAuthenticator {
      */
     @Override
     protected String getTokenEndpoint(Map<String, String> authenticatorProperties) {
-        return "https://login.live.com/oauth20_token.srf";
+        return authenticatorProperties.get(WindowsLiveOAuth2AuthenticatorConstants.WINDOWS_LIVE_TOKEN_URL);
     }
 
     /**
@@ -110,7 +111,7 @@ public class WindowsLiveOAuth2Authenticator extends OpenIDConnectAuthenticator {
      */
     @Override
     protected String getAuthenticateUser(OAuthClientResponse token) {
-        return token.getParam("user_id");
+        return token.getParam(WindowsLiveOAuth2AuthenticatorConstants.USER_ID);
     }
 
     /**
@@ -123,7 +124,7 @@ public class WindowsLiveOAuth2Authenticator extends OpenIDConnectAuthenticator {
         Map<ClaimMapping, String> claims = new HashMap<ClaimMapping, String>();
 
         try {
-            String json = sendRequest("https://apis.live.net/v5.0/me?access_token="
+            String json = sendRequest(token.getParam(WindowsLiveOAuth2AuthenticatorConstants.WINDOWS_LIVE_USER_INFO_URL)
                     + token.getParam(OIDCAuthenticatorConstants.ACCESS_TOKEN));
 
             Map<String, Object> jsonObject = JSONUtils.parseJSON(json);
@@ -135,7 +136,7 @@ public class WindowsLiveOAuth2Authenticator extends OpenIDConnectAuthenticator {
 
                     if (value != null && value.startsWith("{") && value.endsWith("}")) {
                         Map<String, Object> children = JSONUtils.parseJSON(value);
-                        if ("http://wso2.org/claims/emailaddress".equals(key)) {
+                        if (WindowsLiveOAuth2AuthenticatorConstants.EMAIL_ADD_CLAIM_URI.equals(key)) {
                             value = (String) children.get("account");
                         }
                     }
@@ -163,9 +164,10 @@ public class WindowsLiveOAuth2Authenticator extends OpenIDConnectAuthenticator {
 
         Property callbackUrl = new Property();
         callbackUrl.setDisplayName("Callback Url");
-        callbackUrl.setName("windows-live-callback-url");
+        callbackUrl.setName(WindowsLiveOAuth2AuthenticatorConstants.CALLBACK_URL);
         callbackUrl.setRequired(true);
         callbackUrl.setDescription("Enter value corresponding to callback url.");
+        configProperties.add(callbackUrl);
 
         Property clientId = new Property();
         clientId.setName(OIDCAuthenticatorConstants.CLIENT_ID);
@@ -182,19 +184,38 @@ public class WindowsLiveOAuth2Authenticator extends OpenIDConnectAuthenticator {
         clientSecret.setDescription("Enter Microsoft Live client secret value");
         configProperties.add(clientSecret);
 
-        configProperties.add(callbackUrl);
+        Property oauthEndpoint = new Property();
+        oauthEndpoint.setDisplayName("Windows Live Oauth Endpoint");
+        oauthEndpoint.setName(WindowsLiveOAuth2AuthenticatorConstants.WINDOWS_LIVE_AUTHZ_URL);
+        oauthEndpoint.setValue(IdentityApplicationConstants.WINDOWS_LIVE_OAUTH_URL);
+        oauthEndpoint.setDescription("Enter value corresponding to windows live oauth endpoint.");
+        configProperties.add(oauthEndpoint);
+
+        Property tokenEndpoint = new Property();
+        tokenEndpoint.setDisplayName("Windows Live Token Endpoint");
+        tokenEndpoint.setName(WindowsLiveOAuth2AuthenticatorConstants.WINDOWS_LIVE_TOKEN_URL);
+        tokenEndpoint.setValue(IdentityApplicationConstants.WINDOWS_LIVE_TOKEN_URL);
+        tokenEndpoint.setDescription("Enter value corresponding to windows live token endpoint.");
+        configProperties.add(tokenEndpoint);
+
+        Property userInfoEndpoint = new Property();
+        userInfoEndpoint.setDisplayName("Windows Live User Info Endpoint");
+        userInfoEndpoint.setName(WindowsLiveOAuth2AuthenticatorConstants.WINDOWS_LIVE_USER_INFO_URL);
+        userInfoEndpoint.setValue(IdentityApplicationConstants.WINDOWS_LIVE_USERINFO_URL);
+        userInfoEndpoint.setDescription("Enter value corresponding to windows live user info endpoint.");
+        configProperties.add(userInfoEndpoint);
 
         return configProperties;
     }
 
     @Override
     public String getFriendlyName() {
-        return "microsoft(hotmail, msn, live)";
+        return WindowsLiveOAuth2AuthenticatorConstants.AUTHENTICATOR_FRIENDLY_NAME;
     }
 
     @Override
     public String getName() {
-        return "MicrosoftWindowsLive";
+        return WindowsLiveOAuth2AuthenticatorConstants.AUTHENTICATOR_NAME;
     }
 
     /**
