@@ -593,15 +593,8 @@ public class OutboundProvisioningManager {
                     //DO Rollback
                 }
             } catch (Exception e) { //call() of Callable interface throws this exception
-                if (executors != null) {
-                    executors.shutdown();
-                }
-                if (log.isDebugEnabled()) {
-                    log.debug("Error in executing Outbound Provisioning", e);
-                }
-                throw new IdentityProvisioningException
-                        (generateMessageOnFailureProvisioningOperation(idPName,
-                                connectorType, provisioningEntity));
+                handleException(generateMessageOnFailureProvisioningOperation(idPName,
+                                                                              connectorType, provisioningEntity), e);
             }
         }
     }
@@ -906,5 +899,9 @@ public class OutboundProvisioningManager {
             return domain;
         }
         return UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME;
+    }
+
+    protected void handleException(String errorMessage, Exception e) {
+        log.error(errorMessage, e);
     }
 }
