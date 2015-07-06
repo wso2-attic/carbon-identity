@@ -175,8 +175,6 @@ public class LogoutRequestProcessor {
                 Map<String, String> rpSessionsList = sessionInfoData.getRPSessionsList();
                 SingleLogoutRequestDTO[] singleLogoutReqDTOs = new SingleLogoutRequestDTO[sessionsList
                         .size() - 1];
-                LogoutRequest logoutReq = logoutMsgBuilder.buildLogoutRequest(subject, sessionIndex,
-                        SAMLSSOConstants.SingleLogoutCodes.LOGOUT_USER, logoutRequest.getDestination());
                 int index = 0;
                 for (Map.Entry<String, SAMLSSOServiceProviderDO> entry : sessionsList.entrySet()) {
                     String key = entry.getKey();
@@ -187,6 +185,8 @@ public class LogoutRequestProcessor {
                         if (StringUtils.isBlank(value.getLogoutURL())) {
                             logoutReqDTO.setAssertionConsumerURL(value.getAssertionConsumerUrl());
                         }
+                        LogoutRequest logoutReq = logoutMsgBuilder.buildLogoutRequest(subject, sessionIndex,
+                                SAMLSSOConstants.SingleLogoutCodes.LOGOUT_USER, logoutReqDTO.getAssertionConsumerURL());
                         logoutReq.setIssuer(SAMLSSOUtil.getIssuer());
                         String logoutReqString = SAMLSSOUtil.encode(SAMLSSOUtil.marshall(logoutReq));
                         logoutReqDTO.setLogoutResponse(logoutReqString);
