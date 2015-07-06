@@ -72,6 +72,7 @@ public class WorkflowRequestBuilder {
     private Map<String, Map<String, Object>> mapTypeParams;
 
     public static OMElement buildXMLRequest(WorkFlowRequest workFlowRequest) throws RuntimeWorkflowException {
+
         WorkflowRequestBuilder requestBuilder = new WorkflowRequestBuilder(workFlowRequest.getUuid(),
                 workFlowRequest.getEventType());
 
@@ -107,6 +108,7 @@ public class WorkflowRequestBuilder {
      * @param action The identifier for the event for which the workflow was triggered
      */
     public WorkflowRequestBuilder(String uuid, String action) {
+
         this.uuid = uuid;
         this.event = action;
         singleValuedParams = new HashMap<>();
@@ -122,6 +124,7 @@ public class WorkflowRequestBuilder {
      * @return This builder instance
      */
     public WorkflowRequestBuilder addSingleValuedParam(String key, Object value) throws RuntimeWorkflowException {
+
         if (StringUtils.isNotBlank(key)) {
             if (isValidValue(value)) {
                 singleValuedParams.put(key, value);
@@ -142,7 +145,8 @@ public class WorkflowRequestBuilder {
      * @return
      */
     protected boolean isValidValue(Object obj) {
-        return obj != null && SUPPORTED_CLASS_TYPES.contains(obj.getClass());
+        //null value of one of the supported class
+        return obj == null || SUPPORTED_CLASS_TYPES.contains(obj.getClass());
     }
 
     /**
@@ -153,6 +157,7 @@ public class WorkflowRequestBuilder {
      * @return This builder instance
      */
     public WorkflowRequestBuilder addListTypeParam(String key, List<Object> value) throws RuntimeWorkflowException {
+
         if (StringUtils.isNotBlank(key)) {
             if (value != null) {
                 for (Object o : value) {
@@ -182,6 +187,7 @@ public class WorkflowRequestBuilder {
      */
     public WorkflowRequestBuilder addMapTypeParam(String key, Map<String, Object> value)
             throws RuntimeWorkflowException {
+
         if (StringUtils.isNotBlank(key)) {
             if (value != null) {
                 for (Map.Entry<String, Object> entry : value.entrySet()) {
@@ -210,6 +216,7 @@ public class WorkflowRequestBuilder {
      * @return
      */
     public OMElement buildRequest() {
+
         OMFactory omFactory = OMAbstractFactory.getOMFactory();
         OMNamespace omNs = omFactory.createOMNamespace(WF_NS, WF_NS_PREFIX);
         OMElement rootElement = omFactory.createOMElement(WF_REQ_ROOT_ELEM, omNs);
@@ -223,7 +230,8 @@ public class WorkflowRequestBuilder {
 
         for (Map.Entry<String, Object> entry : singleValuedParams.entrySet()) {
             OMElement paramElement = omFactory.createOMElement(WF_REQ_PARAM_ELEM, omNs);
-            OMAttribute paramNameAttribute = omFactory.createOMAttribute(WF_REQ_PARAM_NAME_ATTRIB, null, entry.getKey());
+            OMAttribute paramNameAttribute =
+                    omFactory.createOMAttribute(WF_REQ_PARAM_NAME_ATTRIB, null, entry.getKey());
             paramElement.addAttribute(paramNameAttribute);
             OMElement valueElement = omFactory.createOMElement(WF_REQ_VALUE_ELEM, omNs);
             OMElement valueItemElement = omFactory.createOMElement(WF_REQ_LIST_ITEM_ELEM, omNs);
@@ -234,7 +242,8 @@ public class WorkflowRequestBuilder {
         }
         for (Map.Entry<String, List<Object>> entry : listTypeParams.entrySet()) {
             OMElement paramElement = omFactory.createOMElement(WF_REQ_PARAM_ELEM, omNs);
-            OMAttribute paramNameAttribute = omFactory.createOMAttribute(WF_REQ_PARAM_NAME_ATTRIB, null, entry.getKey());
+            OMAttribute paramNameAttribute =
+                    omFactory.createOMAttribute(WF_REQ_PARAM_NAME_ATTRIB, null, entry.getKey());
             paramElement.addAttribute(paramNameAttribute);
             OMElement valueElement = omFactory.createOMElement(WF_REQ_VALUE_ELEM, omNs);
             for (Object listItem : entry.getValue()) {
@@ -250,16 +259,23 @@ public class WorkflowRequestBuilder {
 
         for (Map.Entry<String, Map<String, Object>> entry : mapTypeParams.entrySet()) {
             OMElement paramElement = omFactory.createOMElement(WF_REQ_PARAM_ELEM, omNs);
-            OMAttribute paramNameAttribute = omFactory.createOMAttribute(WF_REQ_PARAM_NAME_ATTRIB, null, entry.getKey());
+            OMAttribute paramNameAttribute =
+                    omFactory.createOMAttribute(WF_REQ_PARAM_NAME_ATTRIB, null, entry.getKey());
             paramElement.addAttribute(paramNameAttribute);
             OMElement valueElement = omFactory.createOMElement(WF_REQ_VALUE_ELEM, omNs);
             for (Map.Entry<String, Object> mapItem : entry.getValue().entrySet()) {
-                if (mapItem.getKey() != null && mapItem.getValue() != null) {
+                if (mapItem.getKey() != null) {
+                    String valueText;
+                    if (mapItem.getValue() != null) {
+                        valueText = mapItem.getValue().toString();
+                    } else {
+                        valueText = "Null";
+                    }
                     OMElement listItemElement = omFactory.createOMElement(WF_REQ_LIST_ITEM_ELEM, omNs);
                     OMAttribute itemNameAttribute = omFactory.createOMAttribute(WF_REQ_KEY_ATTRIB, null,
                             mapItem.getKey());
                     listItemElement.addAttribute(itemNameAttribute);
-                    listItemElement.setText(mapItem.getValue().toString());
+                    listItemElement.setText(valueText);
                     valueElement.addChild(listItemElement);
                 }
             }

@@ -63,6 +63,12 @@ public class AddRoleWFRequestHandler extends AbstractWorkflowRequestHandler {
 
     public boolean startAddRoleFlow(String userStoreDomain, String role, String[] userList, Permission[] permissions)
             throws WorkflowException {
+        if(permissions == null){
+            permissions = new Permission[0];
+        }
+        if(userList == null){
+            userList = new String[0];
+        }
         List<String> permissionList = new ArrayList<>(permissions.length);
         for (int i = 0; i < permissions.length; i++) {
             permissionList.add(permissions[i].getResourceId() + SEPARATOR + permissions[i].getAction());

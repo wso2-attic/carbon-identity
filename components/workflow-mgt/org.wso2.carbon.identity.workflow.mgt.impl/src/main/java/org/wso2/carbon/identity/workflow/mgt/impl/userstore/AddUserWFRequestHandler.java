@@ -21,11 +21,11 @@ package org.wso2.carbon.identity.workflow.mgt.impl.userstore;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.identity.workflow.mgt.extension.AbstractWorkflowRequestHandler;
-import org.wso2.carbon.identity.workflow.mgt.util.WorkflowDataType;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
-import org.wso2.carbon.identity.workflow.mgt.util.WorkflowRequestStatus;
+import org.wso2.carbon.identity.workflow.mgt.extension.AbstractWorkflowRequestHandler;
 import org.wso2.carbon.identity.workflow.mgt.impl.internal.IdentityWorkflowDataHolder;
+import org.wso2.carbon.identity.workflow.mgt.util.WorkflowDataType;
+import org.wso2.carbon.identity.workflow.mgt.util.WorkflowRequestStatus;
 import org.wso2.carbon.user.api.UserRealm;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.service.RealmService;
@@ -75,8 +75,15 @@ public class AddUserWFRequestHandler extends AbstractWorkflowRequestHandler {
      */
     public boolean startAddUserFlow(String userStoreDomain, String userName, Object credential, String[] roleList,
                                     Map<String, String> claims, String profile) throws WorkflowException {
+
         Map<String, Object> wfParams = new HashMap<>();
         Map<String, Object> nonWfParams = new HashMap<>();
+        if (roleList == null) {
+            roleList = new String[0];
+        }
+        if (claims == null) {
+            claims = new HashMap<>();
+        }
         wfParams.put(USERNAME, userName);
         wfParams.put(USER_STORE_DOMAIN, userStoreDomain);
         wfParams.put(ROLE_LIST, Arrays.asList(roleList));
@@ -88,31 +95,37 @@ public class AddUserWFRequestHandler extends AbstractWorkflowRequestHandler {
 
     @Override
     public String getEventId() {
+
         return UserStoreWFConstants.ADD_USER_EVENT;
     }
 
     @Override
     public Map<String, String> getParamDefinitions() {
+
         return PARAM_DEFINITION;
     }
 
     @Override
     public String getFriendlyName() {
+
         return FRIENDLY_NAME;
     }
 
     @Override
     public String getDescription() {
+
         return FRIENDLY_DESCRIPTION;
     }
 
     @Override
     public String getCategory() {
+
         return UserStoreWFConstants.CATEGORY_USERSTORE_OPERATIONS;
     }
 
     @Override
     public boolean retryNeedAtCallback() {
+
         return true;
     }
 
