@@ -887,7 +887,7 @@ public class SAMLSSOUtil {
                 throw new IdentityException("Illegal access to class: "
                         + IdentityUtil.getProperty("SSOService.SAMLSSOSigner"), e);
             } catch (Exception e) {
-                if(log.isDebugEnabled()){
+                if (log.isDebugEnabled()) {
                     log.debug("Error while validating XML signature.", e);
                 }
             }
@@ -930,25 +930,35 @@ public class SAMLSSOUtil {
             } catch (IdentityException e) {
                 request = (AuthnRequestImpl) SAMLSSOUtil.unmarshall(SAMLSSOUtil
                         .decodeForPost(authnReqDTO.getRequestMessageString()));
-                if(log.isDebugEnabled()){
+                if (log.isDebugEnabled()) {
                     log.debug("Error while decoding authentication request.", e);
                 }
             }
 
             if (request.getAttributeConsumingServiceIndex() == null) {
-                if (authnReqDTO.getAttributeConsumingServiceIndex() != 0) {
-                    index = authnReqDTO.getAttributeConsumingServiceIndex();
-                    spDO.setAttributeConsumingServiceIndex(String.valueOf(index));
+                //SP has not provide a AttributeConsumingServiceIndex in the authnReqDTO
+                if (StringUtils.isNotBlank(spDO.getAttributeConsumingServiceIndex())) {
+                    if (spDO.isEnableAttributesByDefault()) {
+                        index = Integer.parseInt(spDO.getAttributeConsumingServiceIndex());
+                    } else {
+                        return null;
+                    }
                 } else {
-                    return null; // not requesting for attributes
+                    return null;
                 }
             } else {
+                //SP has provide a AttributeConsumingServiceIndex in the authnReqDTO
                 index = request.getAttributeConsumingServiceIndex();
             }
         } else {
-            index = authnReqDTO.getAttributeConsumingServiceIndex();
-            if (index != 0) {
-                spDO.setAttributeConsumingServiceIndex(String.valueOf(index));
+            if (StringUtils.isNotBlank(spDO.getAttributeConsumingServiceIndex())) {
+                if (spDO.isEnableAttributesByDefault()) {
+                    index = Integer.parseInt(spDO.getAttributeConsumingServiceIndex());
+                } else {
+                    return null;
+                }
+            } else {
+                return null;
             }
 
         }
@@ -1135,7 +1145,7 @@ public class SAMLSSOUtil {
                         normalized.append(percentCode);
                 } catch (UnsupportedEncodingException e) {
                     normalized.append(percentCode);
-                    if(log.isDebugEnabled()){
+                    if (log.isDebugEnabled()) {
                         log.debug("Unsupported Encoding exception while decoding percent code.", e);
                     }
                 }

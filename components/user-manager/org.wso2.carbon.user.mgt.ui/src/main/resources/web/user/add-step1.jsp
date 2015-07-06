@@ -33,6 +33,7 @@
 <%@ page import="java.text.MessageFormat" %>
 <%@ page import="java.util.ResourceBundle" %>
 <%@ page import="org.wso2.carbon.user.mgt.ui.Util" %>
+<%@ page import="org.apache.commons.lang.StringUtils" %>
 <jsp:useBean id="userBean"
              type="org.wso2.carbon.user.mgt.ui.UserBean"
              class="org.wso2.carbon.user.mgt.ui.UserBean" scope="session"/>
@@ -204,7 +205,10 @@ try{
                 } else if (reason == "No conformance") {
                     <%
                         String passwordRegEx =   userStoreInfo.getPasswordRegEx();
-                        String passwordErrorMessage = MessageFormat.format(resourceBundle.getString("password.conformance"), passwordRegEx);
+                        String passwordErrorMessage = userStoreInfo.getPasswordRegExViolationErrorMsg();
+                        if (StringUtils.isBlank(passwordErrorMessage)){
+                            passwordErrorMessage = MessageFormat.format(resourceBundle.getString("password.conformance"), passwordRegEx);
+                        }
                     %>
 
                     CARBON.showWarningDialog("<%=passwordErrorMessage%>");
