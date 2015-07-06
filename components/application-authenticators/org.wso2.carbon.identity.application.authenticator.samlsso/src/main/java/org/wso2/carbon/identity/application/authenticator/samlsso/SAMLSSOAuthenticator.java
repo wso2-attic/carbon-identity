@@ -313,6 +313,7 @@ public class SAMLSSOAuthenticator extends AbstractApplicationAuthenticator imple
     protected void processLogoutResponse(HttpServletRequest request,
                                          HttpServletResponse response, AuthenticationContext context)
             throws LogoutFailedException {
+        throw new UnsupportedOperationException();
     }
 
     private void sendPostRequest(HttpServletRequest request, HttpServletResponse response,
