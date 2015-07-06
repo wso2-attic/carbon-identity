@@ -38,6 +38,16 @@ public class IdentityApplicationConstants {
     public static final String FB_TOKEN_URL = "https://graph.facebook.com/oauth/access_token";
     public static final String FB_USER_INFO_URL = "https://graph.facebook.com/me";
 
+    public static final String GOOGLE_OAUTH_URL = "https://accounts.google.com/o/oauth2/auth";
+    public static final String GOOGLE_TOKEN_URL = "https://accounts.google.com/o/oauth2/token";
+    public static final String GOOGLE_USERINFO_URL = "https://www.googleapis.com/oauth2/v3/userinfo?schema=openid";
+
+    public static final String WINDOWS_LIVE_OAUTH_URL = "https://login.live.com/oauth20_authorize.srf";
+    public static final String WINDOWS_LIVE_TOKEN_URL = "https://login.live.com/oauth20_token.srf";
+    public static final String WINDOWS_LIVE_USERINFO_URL = "https://apis.live.net/v5.0/me?access_token=";
+
+    public static final String YAHOO_AUTHZ_URL = "https://me.yahoo.com/";
+
     public static class ConfigElements {
         public static final String PROPERTIES = "Properties";
         public static final String PROPERTY = "Property";
