@@ -49,7 +49,8 @@ public class SingleLogoutMessageBuilder {
         SAMLSSOUtil.doBootstrap();
     }
 
-    public LogoutRequest buildLogoutRequest(String subject, String sessionId, String reason) throws IdentityException {
+    public LogoutRequest buildLogoutRequest(String subject, String sessionId, String reason,
+                                            String destination) throws IdentityException {
         LogoutRequest logoutReq = new LogoutRequestBuilder().buildObject();
         logoutReq.setID(SAMLSSOUtil.createID());
 
@@ -66,6 +67,10 @@ public class SingleLogoutMessageBuilder {
         SessionIndex sessionIndex = new SessionIndexBuilder().buildObject();
         sessionIndex.setSessionIndex(sessionId);
         logoutReq.getSessionIndexes().add(sessionIndex);
+
+        if (destination != null) {
+            logoutReq.setDestination(destination);
+        }
 
         logoutReq.setReason(reason);
 
