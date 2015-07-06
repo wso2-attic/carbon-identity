@@ -141,14 +141,15 @@ public class EndpointUtil {
     public static String[] extractCredentialsFromAuthzHeader(String authorizationHeader)
             throws OAuthClientException {
         String[] splitValues = authorizationHeader.trim().split(" ");
-        byte[] decodedBytes = Base64Utils.decode(splitValues[1].trim());
-        if (decodedBytes != null) {
-            String userNamePassword = new String(decodedBytes, Charsets.UTF_8);
-            return userNamePassword.split(":");
-        } else {
-            String errMsg = "Error decoding authorization header. Could not retrieve client id and client secret.";
-            throw new OAuthClientException(errMsg);
+        if(splitValues.length == 2) {
+            byte[] decodedBytes = Base64Utils.decode(splitValues[1].trim());
+            if (decodedBytes != null) {
+                String userNamePassword = new String(decodedBytes, Charsets.UTF_8);
+                return userNamePassword.split(":");
+            }
         }
+        String errMsg = "Error decoding authorization header. Could not retrieve client id and client secret.";
+        throw new OAuthClientException(errMsg);
     }
 
     /**
