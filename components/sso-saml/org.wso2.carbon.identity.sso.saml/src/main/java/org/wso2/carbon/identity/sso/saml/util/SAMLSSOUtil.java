@@ -996,9 +996,10 @@ public class SAMLSSOUtil {
      * @return decoded response
      * @throws IdentityException
      */
-    public static String buildErrorResponse(String id, List<String> statusCodes, String statusMsg) throws IdentityException {
+    public static String buildErrorResponse(String id, List<String> statusCodes, String statusMsg, String destination)
+            throws IdentityException {
         ErrorResponseBuilder respBuilder = new ErrorResponseBuilder();
-        Response response = respBuilder.buildResponse(id, statusCodes, statusMsg);
+        Response response = respBuilder.buildResponse(id, statusCodes, statusMsg, destination);
         return SAMLSSOUtil.encode(SAMLSSOUtil.marshall(response));
     }
 
@@ -1212,12 +1213,13 @@ public class SAMLSSOUtil {
      * @return decoded response
      * @throws org.wso2.carbon.identity.base.IdentityException
      */
-    public static String buildErrorResponse(String status, String message)
+    public static String buildErrorResponse(String status, String message, String destination)
             throws IdentityException, IOException {
+
         ErrorResponseBuilder respBuilder = new ErrorResponseBuilder();
         List<String> statusCodeList = new ArrayList<String>();
         statusCodeList.add(status);
-        Response response = respBuilder.buildResponse(null, statusCodeList, message);
+        Response response = respBuilder.buildResponse(null, statusCodeList, message, destination);
         String resp = SAMLSSOUtil.marshall(response);
 
         return compressResponse(resp);
