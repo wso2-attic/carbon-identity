@@ -37,7 +37,7 @@ public class STSAuthenticatorServiceComponent {
             ctxt.getBundleContext().registerService(ApplicationAuthenticator.class.getName(), stsAuthenticator, null);
 
             if (log.isDebugEnabled()) {
-                log.info("STS Authenticator bundle is activated");
+                log.debug("STS Authenticator bundle is activated");
             }
         } catch (Throwable e) {
             log.error("STS Authenticator bundle activation Failed", e);
@@ -46,7 +46,7 @@ public class STSAuthenticatorServiceComponent {
 
     protected void deactivate() {
         if (log.isDebugEnabled()) {
-            log.info("STS Authenticator bundle is deactivated");
+            log.debug("STS Authenticator bundle is deactivated");
         }
     }
 }
