@@ -34,6 +34,7 @@ import org.wso2.carbon.identity.oauth.cache.SessionDataCacheKey;
 import org.wso2.carbon.identity.oauth.common.OAuthConstants;
 import org.wso2.carbon.identity.oauth.common.exception.OAuthClientException;
 import org.wso2.carbon.identity.oauth.config.OAuthServerConfiguration;
+import org.wso2.carbon.identity.oauth2.IdentityOAuth2Exception;
 import org.wso2.carbon.identity.oauth2.OAuth2Service;
 import org.wso2.carbon.identity.oauth2.OAuth2TokenValidationService;
 import org.wso2.carbon.identity.oauth2.model.OAuth2Parameters;
@@ -140,14 +141,15 @@ public class EndpointUtil {
     public static String[] extractCredentialsFromAuthzHeader(String authorizationHeader)
             throws OAuthClientException {
         String[] splitValues = authorizationHeader.trim().split(" ");
-        byte[] decodedBytes = Base64Utils.decode(splitValues[1].trim());
-        if (decodedBytes != null) {
-            String userNamePassword = new String(decodedBytes, Charsets.UTF_8);
-            return userNamePassword.split(":");
-        } else {
-            String errMsg = "Error decoding authorization header. Could not retrieve client id and client secret.";
-            throw new OAuthClientException(errMsg);
+        if(splitValues.length == 2) {
+            byte[] decodedBytes = Base64Utils.decode(splitValues[1].trim());
+            if (decodedBytes != null) {
+                String userNamePassword = new String(decodedBytes, Charsets.UTF_8);
+                return userNamePassword.split(":");
+            }
         }
+        String errMsg = "Error decoding authorization header. Could not retrieve client id and client secret.";
+        throw new OAuthClientException(errMsg);
     }
 
     /**
@@ -243,13 +245,19 @@ public class EndpointUtil {
             String selfPath = "/oauth2/authorize";
             AuthenticationRequest authenticationRequest = new AuthenticationRequest();
 
+            int tenantId = OAuth2Util.getClientTenatId();
+
             //Build the authentication request context.
             authenticationRequest.setCommonAuthCallerPath(selfPath);
             authenticationRequest.setForceAuth(forceAuthenticate);
             authenticationRequest.setPassiveAuth(checkAuthentication);
             authenticationRequest.setRelyingParty(clientId);
-            authenticationRequest.addRequestQueryParam(FrameworkConstants.RequestParams.TENANT_ID,
-                    new String[]{String.valueOf(OAuth2Util.getClientTenatId())});
+            try {
+                authenticationRequest.setTenantDomain(OAuth2Util.getTenantDomain(tenantId));
+            } catch (IdentityOAuth2Exception e) {
+                log.error("Error while getting tenant domain from tenant id", e);
+                throw new UnsupportedEncodingException("Error while getting tenant domain from tenant id");
+            }
             authenticationRequest.setRequestQueryParams(reqParams);
 
             //Build an AuthenticationRequestCacheEntry which wraps AuthenticationRequestContext
