@@ -60,7 +60,6 @@ public class OpenIDServerAssociationStore extends InMemoryServerAssociationStore
         cache = OpenIDAssociationCache.getCacheInstance();
         // get singleton dao
         dao = OpenIDAssociationDAO.getInstance(associationsType);
-        dao = new OpenIDAssociationDAO(associationsType);
     }
 
     /**
