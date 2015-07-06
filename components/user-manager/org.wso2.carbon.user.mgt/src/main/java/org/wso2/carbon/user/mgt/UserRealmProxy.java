@@ -630,19 +630,12 @@ public class UserRealmProxy {
             info.setPasswordsExternallyManaged(realmConfig.isPasswordsExternallyManaged());
             info.setPasswordRegEx(realmConfig
                     .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_JS_REG_EX));
+
+            info.setPasswordRegExViolationErrorMsg(realmConfig
+                    .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_PASSWORD_ERROR_MSG));
+
             info.setUserNameRegEx(
                     realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_USER_NAME_JS_REG_EX));
-
-            if (MultitenantUtils.isEmailUserName()) {
-                String regEx = null;
-                if ((regEx = realmConfig
-                        .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_USER_NAME_WITH_EMAIL_JS_REG_EX))
-                        != null) {
-                    info.setUserNameRegEx(regEx);
-                } else {
-                    info.setUserNameRegEx(UserCoreConstants.RealmConfig.EMAIL_VALIDATION_REGEX);
-                }
-            }
 
             info.setRoleNameRegEx(
                     realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_ROLE_NAME_JS_REG_EX));
