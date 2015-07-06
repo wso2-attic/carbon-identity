@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.carbon.identity.application.authenticator.social.google;
+package org.wso2.carbon.identity.application.authenticator.oidc.googleext;
 
 import org.apache.amber.oauth2.client.OAuthClient;
 import org.apache.amber.oauth2.client.URLConnectionClient;
@@ -37,6 +37,7 @@ import org.wso2.carbon.identity.application.authenticator.oidc.OIDCAuthenticator
 import org.wso2.carbon.identity.application.authenticator.oidc.OpenIDConnectAuthenticator;
 import org.wso2.carbon.identity.application.common.model.ClaimMapping;
 import org.wso2.carbon.identity.application.common.model.Property;
+import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
 import org.wso2.carbon.ui.CarbonUIUtil;
 
 import javax.servlet.http.HttpServletRequest;
@@ -68,7 +69,7 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
     protected String getAuthorizationServerEndpoint(
             Map<String, String> authenticatorProperties) {
 
-        return GoogleOAuth2AuthenticationConstant.GOOGLE_OAUTH_ENDPOINT;
+        return authenticatorProperties.get(GoogleOAuth2AuthenticationConstant.GOOGLE_OAUTH_ENDPOINT);
     }
 
     /**
@@ -81,7 +82,7 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
     protected String getTokenEndpoint(
             Map<String, String> authenticatorProperties) {
 
-        return GoogleOAuth2AuthenticationConstant.GOOGLE_TOKEN_ENDPOINT;
+        return authenticatorProperties.get(GoogleOAuth2AuthenticationConstant.GOOGLE_TOKEN_ENDPOINT);
     }
 
     /**
@@ -206,7 +207,7 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
         Map<ClaimMapping, String> claims = new HashMap<ClaimMapping, String>();
 
         try {
-            String json = sendRequest(GoogleOAuth2AuthenticationConstant.GOOGLE_USERINFO_ENDPOINT,
+            String json = sendRequest(token.getParam(GoogleOAuth2AuthenticationConstant.GOOGLE_USERINFO_ENDPOINT),
                     token.getParam(OIDCAuthenticatorConstants.ACCESS_TOKEN));
 
             Map<String, Object> jsonObject = JSONUtils.parseJSON(json);
@@ -262,6 +263,27 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
         callbackUrl.setRequired(true);
         callbackUrl.setDescription("Enter value corresponding to callback url.");
         configProperties.add(callbackUrl);
+
+        Property oauthEndpoint = new Property();
+        oauthEndpoint.setDisplayName("Google Oauth Endpoint");
+        oauthEndpoint.setName(GoogleOAuth2AuthenticationConstant.GOOGLE_OAUTH_ENDPOINT);
+        oauthEndpoint.setValue(IdentityApplicationConstants.GOOGLE_OAUTH_URL);
+        oauthEndpoint.setDescription("Enter value corresponding to google oauth endpoint.");
+        configProperties.add(oauthEndpoint);
+
+        Property tokenEndpoint = new Property();
+        tokenEndpoint.setDisplayName("Google Token Endpoint");
+        tokenEndpoint.setName(GoogleOAuth2AuthenticationConstant.GOOGLE_TOKEN_ENDPOINT);
+        tokenEndpoint.setValue(IdentityApplicationConstants.GOOGLE_TOKEN_URL);
+        tokenEndpoint.setDescription("Enter value corresponding to google token endpoint.");
+        configProperties.add(tokenEndpoint);
+
+        Property userInfoEndpoint = new Property();
+        userInfoEndpoint.setDisplayName("Google User Info Endpoint");
+        userInfoEndpoint.setName(GoogleOAuth2AuthenticationConstant.GOOGLE_USERINFO_ENDPOINT);
+        userInfoEndpoint.setValue(IdentityApplicationConstants.GOOGLE_USERINFO_URL);
+        userInfoEndpoint.setDescription("Enter value corresponding to google user info endpoint.");
+        configProperties.add(userInfoEndpoint);
 
         return configProperties;
     }
