@@ -61,12 +61,6 @@ public class SPInitSSOAuthnRequestProcessor {
                         SAMLSSOConstants.StatusCodes.REQUESTOR_ERROR, msg);
             }
 
-            if (serviceProviderConfigs.isEnableAttributesByDefault() && serviceProviderConfigs.getAttributeConsumingServiceIndex() != null) {
-                authnReqDTO.setAttributeConsumingServiceIndex(Integer
-                        .parseInt(serviceProviderConfigs
-                                .getAttributeConsumingServiceIndex()));
-            }
-
             // reading the service provider configs
             populateServiceProviderConfigs(serviceProviderConfigs, authnReqDTO);
 
