@@ -62,7 +62,8 @@ public class SPInitSSOAuthnRequestProcessor {
             }
 
             String acUrl = serviceProviderConfigs.getAssertionConsumerUrl();
-            if (serviceProviderConfigs.isEnableAttributesByDefault() && serviceProviderConfigs.getAttributeConsumingServiceIndex() != null) {
+            if (serviceProviderConfigs.isEnableAttributesByDefault() &&
+                    serviceProviderConfigs.getAttributeConsumingServiceIndex() != null) {
                 authnReqDTO.setAttributeConsumingServiceIndex(Integer
                         .parseInt(serviceProviderConfigs
                                 .getAttributeConsumingServiceIndex()));
