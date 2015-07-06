@@ -643,7 +643,7 @@ public class OutboundProvisioningManager {
                     " For operation = " + provisioningEntity.getOperation() + " " +
                     "failed  ";
 
-            log.debug(errMsg);
+            log.error(errMsg);
         }
         return "Provisioning failed for IDP = " + idPName + " " +
                 "with Entity name=" + provisioningEntity.getEntityName();
@@ -902,6 +902,8 @@ public class OutboundProvisioningManager {
     }
 
     protected void handleException(String errorMessage, Exception e) {
-        log.error(errorMessage, e);
+        if(log.isDebugEnabled()){
+            log.debug(errorMessage, e);
+        }
     }
 }
