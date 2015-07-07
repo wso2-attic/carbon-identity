@@ -50,7 +50,7 @@ public abstract class AbstractWorkflowTemplateImpl {
     public void deploy(Map<String, Object> initParams) throws WorkflowException {
 
         TemplateInitializer initializer = getInitializer();
-        if (initializer != null && initializer.initNeededAtStartUp()) {
+        if (initializer != null) {
             initializer.initialize(initParams);
         }
     }
