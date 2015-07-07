@@ -47,6 +47,8 @@
         }
     }
 
+    String message=MessageFormat.format(resourceBundle.getString("role.update"),roleName);
+
     try {
         String[] selectedPermissions = request.getParameterValues("selectedPermissions");
         String cookie = (String)session.getAttribute(ServerConstants.ADMIN_SERVICE_COOKIE);
@@ -54,7 +56,8 @@
         ConfigurationContext configContext =
             (ConfigurationContext) config.getServletContext().getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
         UserAdminClient client = new UserAdminClient(cookie, backendServerURL, configContext);
-        String message = MessageFormat.format(resourceBundle.getString("role.update"), roleName);
+
+        client.setRoleUIPermission(roleName, selectedPermissions);
         CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.INFO, request);
 //        if("external".equals(userType)){
 //            proxy.updateSystemPermissionsOfExternalRole(roleBeanEditPermission.getRoleName(),
@@ -65,7 +68,6 @@
 //                                                                roleBeanEditPermission.getSelectedPermissions());
 //            forwardTo = "../userstore/ex-role-mgt.jsp?ordinal=1";
 //        }else{
-             client.setRoleUIPermission(roleName, selectedPermissions);
              //forwardTo = "role-mgt.jsp?ordinal=1";
 //        }
 
@@ -74,8 +76,9 @@
                 CarbonUIMessage.ERROR, request);
         //forwardTo = "role-mgt.jsp?ordinal=1";
     } catch (Exception e) {
-	    String message = MessageFormat.format(resourceBundle.getString("role.cannot.update"),
+	    message = MessageFormat.format(resourceBundle.getString("role.cannot.update"),
                 CharacterEncoder.getSafeText(roleName), e.getMessage());
+        CarbonUIMessage.sendCarbonUIMessage(message,CarbonUIMessage.ERROR,request);
 %>
 <script type="text/javascript">
     jQuery(document).ready(function () {
