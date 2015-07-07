@@ -55,7 +55,7 @@ public class RegistryPolicyStoreManageModule extends AbstractPolicyFinderModule
     private static final String PROPERTY_POLICY_STORE_PATH = "policyStorePath";
     private static final String PROPERTY_ATTRIBUTE_SEPARATOR = "attributeValueSeparator";
     private static final String DEFAULT_POLICY_STORE_PATH = "/repository/identity/entitlement" +
-            "/policy/pdp/";
+                                                            "/policy/pdp/";
     private static final String KEY_VALUE_POLICY_META_DATA = "policyMetaData";
     private static Log log = LogFactory.getLog(RegistryPolicyStoreManageModule.class);
     private String policyStorePath;
@@ -192,9 +192,22 @@ public class RegistryPolicyStoreManageModule extends AbstractPolicyFinderModule
             return dto.getPolicy();
         } catch (Exception e) {
             log.error("Policy with identifier " + policyId + " can not be retrieved " +
-                    "from registry policy finder module", e);
+                      "from registry policy finder module", e);
         }
         return null;
+    }
+
+    @Override
+    public int getPolicyOrder(String policyId) {
+        PolicyDTO dto;
+        try {
+            dto = getPolicyReader().readPolicy(policyId);
+            return dto.getPolicyOrder();
+        } catch (Exception e) {
+            log.error("Policy with identifier " + policyId + " can not be retrieved " +
+                      "from registry policy finder module", e);
+        }
+        return -1;
     }
 
     @Override
@@ -293,7 +306,7 @@ public class RegistryPolicyStoreManageModule extends AbstractPolicyFinderModule
                 String[] policySetIdRef = policyDTO.getPolicySetIdReferences();
 
                 if (policyIdRef != null && policyIdRef.length > 0 || policySetIdRef != null &&
-                        policySetIdRef.length > 0) {
+                                                                     policySetIdRef.length > 0) {
                     for (PolicyDTO dto : policyDTOs) {
                         if (policyIdRef != null) {
                             for (String policyId : policyIdRef) {
@@ -357,10 +370,10 @@ public class RegistryPolicyStoreManageModule extends AbstractPolicyFinderModule
         if (attributeDTOs != null) {
             for (AttributeDTO attributeDTO : attributeDTOs) {
                 resource.setProperty(KEY_VALUE_POLICY_META_DATA + attributeElementNo,
-                        attributeDTO.getCategory() + "," +
-                                attributeDTO.getAttributeValue() + "," +
-                                attributeDTO.getAttributeId() + "," +
-                                attributeDTO.getAttributeDataType());
+                                     attributeDTO.getCategory() + "," +
+                                     attributeDTO.getAttributeValue() + "," +
+                                     attributeDTO.getAttributeId() + "," +
+                                     attributeDTO.getAttributeDataType());
                 attributeElementNo++;
             }
         }
