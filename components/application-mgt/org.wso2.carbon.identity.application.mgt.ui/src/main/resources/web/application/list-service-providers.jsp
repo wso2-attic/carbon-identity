@@ -70,7 +70,7 @@
                 String BUNDLE = "org.wso2.carbon.identity.application.mgt.ui.i18n.Resources";
                 ResourceBundle resourceBundle = ResourceBundle.getBundle(BUNDLE, request.getLocale());
                 ApplicationBasicInfo[] applicationsToDisplay = new ApplicationBasicInfo[0];
-                String paginationValue = "region=region1&item=identity_providers_list";
+                String paginationValue = "region=region1&item=service_providers_list";
                 String pageNumber = CharacterEncoder.getSafeText(request.getParameter("pageNumber"));
 
                 int pageNumberInt = 0;
