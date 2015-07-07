@@ -69,8 +69,11 @@ public class PasswordGrantHandler extends AbstractAuthorizationGrantHandler {
                     clientId, e);
         }
         if(!serviceProvider.isSaasApp() && !userTenantDomain.equals(tenantDomain)){
-            throw new IdentityOAuth2Exception("Non-SaaS service provider tenant domain is not same as user tenant " +
-                    "domain; " + tenantDomain + " != " + userTenantDomain);
+            if(log.isDebugEnabled()) {
+                log.debug("Non-SaaS service provider tenant domain is not same as user tenant domain; " +
+                        tenantDomain + " != " + userTenantDomain);
+            }
+            return false;
 
         }
         String tenantAwareUserName = MultitenantUtils.getTenantAwareUsername(username);
