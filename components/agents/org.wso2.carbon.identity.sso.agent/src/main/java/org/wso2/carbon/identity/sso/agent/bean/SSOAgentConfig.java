@@ -291,7 +291,7 @@ public class SSOAgentConfig {
         String isForceAuthnString = properties.getProperty(
                 SSOAgentConstants.SSOAgentConfig.SAML2.IS_FORCE_AUTHN);
         if (isForceAuthnString != null) {
-            saml2.isForceAuthn = Boolean.parseBoolean(properties.getProperty(isForceAuthnString));
+            saml2.isForceAuthn = Boolean.parseBoolean(isForceAuthnString);
         } else {
             LOGGER.log(Level.FINE, "\'" + SSOAgentConstants.SSOAgentConfig.SAML2.IS_FORCE_AUTHN +
                     "\' not configured. Defaulting to \'false\'");
