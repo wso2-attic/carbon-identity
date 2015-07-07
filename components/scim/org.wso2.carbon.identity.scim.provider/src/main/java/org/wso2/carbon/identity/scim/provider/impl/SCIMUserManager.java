@@ -1068,6 +1068,7 @@ public class SCIMUserManager implements UserManager {
                 if (groupName != null) {
                     //delete group in carbon UM
                     carbonUM.deleteRole(groupName);
+                    groupHandler.deleteGroupAttributes(groupName);
 
                     //we do not update Identity_SCIM DB here since it is updated in SCIMUserOperationListener's methods.
                     log.info("Group: " + groupName + " is deleted through SCIM.");
