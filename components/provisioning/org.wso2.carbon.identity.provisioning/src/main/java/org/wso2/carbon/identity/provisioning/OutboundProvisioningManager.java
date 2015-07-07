@@ -593,8 +593,7 @@ public class OutboundProvisioningManager {
                     //DO Rollback
                 }
             } catch (Exception e) { //call() of Callable interface throws this exception
-                handleException(generateMessageOnFailureProvisioningOperation(idPName,
-                                                                              connectorType, provisioningEntity), e);
+                handleException(idPName, connectorType, provisioningEntity, executors, e);
             }
         }
     }
@@ -901,9 +900,20 @@ public class OutboundProvisioningManager {
         return UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME;
     }
 
-    protected void handleException(String errorMessage, Exception e) {
-        if(log.isDebugEnabled()){
-            log.debug(errorMessage, e);
+    /**
+     * introduce extendability for handling provisioning exceptions
+     *
+     * @param idPName
+     * @param connectorType
+     * @param provisioningEntity
+     * @param executors
+     * @param e
+     */
+    protected void handleException(String idPName, String connectorType, ProvisioningEntity provisioningEntity,
+                                   ExecutorService executors, Exception e) {
+
+        if (log.isDebugEnabled()) {
+            log.debug(generateMessageOnFailureProvisioningOperation(idPName, connectorType, provisioningEntity), e);
         }
     }
 }
