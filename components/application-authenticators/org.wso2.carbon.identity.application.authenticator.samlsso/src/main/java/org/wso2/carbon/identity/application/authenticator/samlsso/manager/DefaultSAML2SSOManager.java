@@ -439,12 +439,19 @@ public class DefaultSAML2SSOManager implements SAML2SSOManager {
         Issuer issuer = issuerBuilder.buildObject("urn:oasis:names:tc:SAML:2.0:assertion", "Issuer", "samlp");
 
         String spEntityId = properties.get(IdentityApplicationConstants.Authenticator.SAML2SSO.SP_ENTITY_ID);
+        // forceAuth is stored in wrapped authentication request
+        String forceAuthString = request.getParameter("forceAuth");
+        // isForceAuth has a default value of false
+        boolean isForceAuth = false;
 
         if (spEntityId != null && !spEntityId.isEmpty()) {
             issuer.setValue(spEntityId);
         } else {
             issuer.setValue("carbonServer");
         }
+
+        /* if Force auth is enabled, add it to the request. parseBoolean handles even if the value is null */
+        isForceAuth = Boolean.parseBoolean(forceAuthString);
 
 		/* NameIDPolicy */
         NameIDPolicyBuilder nameIdPolicyBuilder = new NameIDPolicyBuilder();
@@ -471,7 +478,7 @@ public class DefaultSAML2SSOManager implements SAML2SSOManager {
         AuthnRequestBuilder authRequestBuilder = new AuthnRequestBuilder();
         AuthnRequest authRequest = authRequestBuilder.buildObject("urn:oasis:names:tc:SAML:2.0:protocol",
                 "AuthnRequest", "samlp");
-        authRequest.setForceAuthn(false); //TODO check AuthenticationContext.forceAuthenticate
+        authRequest.setForceAuthn(isForceAuth);
         authRequest.setIsPassive(isPassive);
         authRequest.setIssueInstant(issueInstant);
         authRequest.setProtocolBinding("urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST");
