@@ -33,7 +33,6 @@
 <%@page import="org.wso2.carbon.user.mgt.ui.Util"%>
 <%@page import="org.wso2.carbon.utils.ServerConstants"%>
 <%@page import="java.util.List"%>
-<%@ page import="org.wso2.carbon.base.CarbonBaseUtils" %>
 <%@ page import="org.wso2.carbon.user.core.util.UserCoreUtil" %>
 
 <script type="text/javascript" src="../admin/js/main.js"></script>
