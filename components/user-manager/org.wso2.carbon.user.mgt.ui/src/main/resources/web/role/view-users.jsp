@@ -138,18 +138,18 @@
 		// page number format exception
 	}
 
-	flaggedNameMap =
-	                 (Map<Integer, PaginatedNamesBean>) session.getAttribute(UserAdminUIConstants.ROLE_LIST_ASSIGNED_USER_CACHE);
-	if (flaggedNameMap != null) {
-		PaginatedNamesBean bean = flaggedNameMap.get(pageNumber);
-		if (bean != null) {
-			users = bean.getNames();
-			if (users != null && users.length > 0) {
-				numberOfPages = bean.getNumberOfPages();
-				doUserList = false;
-			}
-		}
-	}
+//	flaggedNameMap =
+//	                 (Map<Integer, PaginatedNamesBean>) session.getAttribute(UserAdminUIConstants.ROLE_LIST_ASSIGNED_USER_CACHE);
+//	if (flaggedNameMap != null) {
+//		PaginatedNamesBean bean = flaggedNameMap.get(pageNumber);
+//		if (bean != null) {
+//			users = bean.getNames();
+//			if (users != null && users.length > 0) {
+//				numberOfPages = bean.getNumberOfPages();
+//				doUserList = false;
+//			}
+//		}
+//	}
 
 	if (doUserList || newFilter) {
 		try {
