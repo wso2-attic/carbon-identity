@@ -20,27 +20,68 @@ package org.wso2.carbon.identity.application.authenticator.social.yahoo;
 import org.wso2.carbon.identity.application.authentication.framework.context.AuthenticationContext;
 import org.wso2.carbon.identity.application.authentication.framework.exception.AuthenticationFailedException;
 import org.wso2.carbon.identity.application.authenticator.openid.OpenIDAuthenticator;
+import org.wso2.carbon.identity.application.common.model.Property;
+import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public class YahooOpenIDAuthenticator extends OpenIDAuthenticator {
 
+    /**
+     *
+     */
     private static final long serialVersionUID = -782801773114711699L;
+    private String openIDServerUrl;
 
     @Override
     public String getFriendlyName() {
-        return "yahoo";
+        return YahooOpenIDAuthenticatorConstants.YAHOO_AUTHENTICATOR_FRIENDLY_NAME;
     }
 
     @Override
     public String getName() {
-        return "YahooOpenIDAuthenticator";
+        return YahooOpenIDAuthenticatorConstants.YAHOO_AUTHENTICATOR_NAME;
+    }
+
+    /**
+     * Get Authorization Server Endpoint
+     *
+     * @param authenticatorProperties
+     * @return
+     */
+    @Override
+    protected void setOpenIDServerUrl(
+            Map<String, String> authenticatorProperties) {
+        this.openIDServerUrl = authenticatorProperties.get(YahooOpenIDAuthenticatorConstants.YAHOO_AUTHZ_URL);
     }
 
     @Override
     protected String getOpenIDServerUrl() {
-        return "https://me.yahoo.com/";
+        return this.openIDServerUrl;
+    }
+
+    /**
+     * Get Configuration Properties
+     *
+     * @return
+     */
+    @Override
+    public List<Property> getConfigurationProperties() {
+
+        List<Property> configProperties = new ArrayList<Property>();
+
+        Property oauthEndpoint = new Property();
+        oauthEndpoint.setDisplayName("Yahoo Authentication Endpoint");
+        oauthEndpoint.setName(YahooOpenIDAuthenticatorConstants.YAHOO_AUTHZ_URL);
+        oauthEndpoint.setValue(IdentityApplicationConstants.YAHOO_AUTHZ_URL);
+        oauthEndpoint.setDescription("Enter value corresponding to yahoo oauth endpoint.");
+        configProperties.add(oauthEndpoint);
+
+        return configProperties;
     }
 
     @Override
