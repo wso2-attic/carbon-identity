@@ -593,15 +593,7 @@ public class OutboundProvisioningManager {
                     //DO Rollback
                 }
             } catch (Exception e) { //call() of Callable interface throws this exception
-                if (executors != null) {
-                    executors.shutdown();
-                }
-                if (log.isDebugEnabled()) {
-                    log.debug("Error in executing Outbound Provisioning", e);
-                }
-                throw new IdentityProvisioningException
-                        (generateMessageOnFailureProvisioningOperation(idPName,
-                                connectorType, provisioningEntity));
+                handleException(idPName, connectorType, provisioningEntity, executors, e);
             }
         }
     }
@@ -650,7 +642,7 @@ public class OutboundProvisioningManager {
                     " For operation = " + provisioningEntity.getOperation() + " " +
                     "failed  ";
 
-            log.debug(errMsg);
+            log.error(errMsg);
         }
         return "Provisioning failed for IDP = " + idPName + " " +
                 "with Entity name=" + provisioningEntity.getEntityName();
@@ -906,5 +898,22 @@ public class OutboundProvisioningManager {
             return domain;
         }
         return UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME;
+    }
+
+    /**
+     * introduce extendability for handling provisioning exceptions
+     *
+     * @param idPName
+     * @param connectorType
+     * @param provisioningEntity
+     * @param executors
+     * @param e
+     */
+    protected void handleException(String idPName, String connectorType, ProvisioningEntity provisioningEntity,
+                                   ExecutorService executors, Exception e) {
+
+        if (log.isDebugEnabled()) {
+            log.debug(generateMessageOnFailureProvisioningOperation(idPName, connectorType, provisioningEntity), e);
+        }
     }
 }
