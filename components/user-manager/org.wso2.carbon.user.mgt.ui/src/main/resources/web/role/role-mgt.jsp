@@ -434,18 +434,14 @@
 <table width="100%" border="0" cellpadding="0" cellspacing="0">
 <%
     boolean showAddNewRole = false;
-
     UserStoreInfo[] stores = userRealmInfo.getUserStoresInfo();
 
     for(UserStoreInfo store : stores){
-
-
         if(!store.getReadOnly() && store.getDomainName().equalsIgnoreCase(selectedDomain)){
             showAddNewRole=true;
             break;
         }
     }
-
 
     if(showAddNewRole){%>
             <tr>
