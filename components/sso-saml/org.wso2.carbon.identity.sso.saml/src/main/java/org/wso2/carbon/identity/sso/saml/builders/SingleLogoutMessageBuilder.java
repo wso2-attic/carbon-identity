@@ -59,7 +59,7 @@ public class SingleLogoutMessageBuilder {
         logoutReq.setNotOnOrAfter(new DateTime(issueInstant.getMillis() + 5 * 60 * 1000));
 
         NameID nameId = new NameIDBuilder().buildObject();
-        nameId.setFormat(SAMLSSOConstants.NAME_ID_POLICY_ENTITY);
+        nameId.setFormat(NameID.UNSPECIFIED);
         nameId.setValue(subject);
         logoutReq.setNameID(nameId);
 
