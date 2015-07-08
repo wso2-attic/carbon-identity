@@ -22,6 +22,7 @@ import org.apache.commons.logging.LogFactory;
 import org.openid4java.association.Association;
 import org.openid4java.association.AssociationException;
 import org.openid4java.server.InMemoryServerAssociationStore;
+import org.openid4java.util.OpenID4JavaUtils;
 import org.wso2.carbon.identity.base.IdentityConstants;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 import javax.crypto.SecretKey;
@@ -84,7 +85,8 @@ public class PrivateAssociationCryptoStore extends InMemoryServerAssociationStor
         String handle = storeId + timestamp + "-" + counter++;
 
         if(this.expireIn == 0){
-            this.expireIn = expiryIn;
+            // make time in to millisecond before it is set
+            this.expireIn = expiryIn*1000;
         }
 
         SecretKey secretKey = null;
@@ -101,7 +103,9 @@ public class PrivateAssociationCryptoStore extends InMemoryServerAssociationStor
         Date expireDate = new Date(timestamp + this.expireIn);
 
         if(secretKey != null){
-            return new Association(Association.TYPE_HMAC_SHA256, handle, secretKey, expireDate);
+            Association association = new Association(Association.TYPE_HMAC_SHA256, handle, secretKey, expireDate);
+            OpenID4JavaUtils.setThreadLocalAssociation(association);
+            return association;
         }
 
         return null;
