@@ -57,14 +57,15 @@ public class IdPInitSSOAuthnRequestProcessor {
                                 " Service Provider should be registered in advance.";
                 log.warn(msg);
                 return buildErrorResponse(authnReqDTO.getId(),
-                        SAMLSSOConstants.StatusCodes.REQUESTOR_ERROR, msg);
+                        SAMLSSOConstants.StatusCodes.REQUESTOR_ERROR, msg, null);
             }
 
+            String acUrl = serviceProviderConfigs.getAssertionConsumerUrl();
             if (!serviceProviderConfigs.isIdPInitSSOEnabled()) {
                 String msg = "IdP initiated SSO not enabled for service provider '" + authnReqDTO.getIssuer() + "'.";
                 log.debug(msg);
                 return buildErrorResponse(null,
-                        SAMLSSOConstants.StatusCodes.REQUESTOR_ERROR, msg);
+                        SAMLSSOConstants.StatusCodes.REQUESTOR_ERROR, msg, acUrl);
             }
 
             if (serviceProviderConfigs.isEnableAttributesByDefault() && serviceProviderConfigs.getAttributeConsumingServiceIndex() != null) {
@@ -86,7 +87,7 @@ public class IdPInitSSOAuthnRequestProcessor {
                     String msg = "Provided username does not match with the requested subject";
                     log.warn(msg);
                     return buildErrorResponse(authnReqDTO.getId(),
-                            SAMLSSOConstants.StatusCodes.AUTHN_FAILURE, msg);
+                            SAMLSSOConstants.StatusCodes.AUTHN_FAILURE, msg, acUrl);
                 }
             }
 
@@ -144,7 +145,7 @@ public class IdPInitSSOAuthnRequestProcessor {
             SAMLSSORespDTO errorResp =
                     buildErrorResponse(authnReqDTO.getId(),
                             SAMLSSOConstants.StatusCodes.AUTHN_FAILURE,
-                            "Authentication Failure, invalid username or password.");
+                            "Authentication Failure, invalid username or password.", null);
             errorResp.setLoginPageURL(authnReqDTO.getLoginPageURL());
             return errorResp;
         }
@@ -220,12 +221,12 @@ public class IdPInitSSOAuthnRequestProcessor {
      * @throws Exception
      */
     private SAMLSSORespDTO buildErrorResponse(String id, String status,
-                                              String statMsg) throws Exception {
+                                              String statMsg, String destination) throws Exception {
         SAMLSSORespDTO samlSSORespDTO = new SAMLSSORespDTO();
         ErrorResponseBuilder errRespBuilder = new ErrorResponseBuilder();
         List<String> statusCodeList = new ArrayList<String>();
         statusCodeList.add(status);
-        Response resp = errRespBuilder.buildResponse(id, statusCodeList, statMsg);
+        Response resp = errRespBuilder.buildResponse(id, statusCodeList, statMsg, destination);
         String encodedResponse = SAMLSSOUtil.compressResponse(SAMLSSOUtil.marshall(resp));
 
         samlSSORespDTO.setRespString(encodedResponse);

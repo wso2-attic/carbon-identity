@@ -395,6 +395,26 @@ public class SCIMUserManager implements UserManager {
                     claims.remove(SCIMConstants.USER_NAME_URI);
                 }
 
+                ClaimMapping[] claimList;
+                claimList = carbonClaimManager.getAllClaimMappings(SCIMCommonConstants.SCIM_CLAIM_DIALECT);
+                List<String> claimURIList = new ArrayList<>();
+                for (ClaimMapping claim : claimList) {
+                    claimURIList.add(claim.getClaim().getClaimUri());
+                }
+
+                Map<String, String> oldClaimList = carbonUM.getUserClaimValues(user.getUserName(), claimURIList
+                        .toArray(new String[claimURIList.size()]), null);
+
+                for (Map.Entry<String, String> entry : oldClaimList.entrySet()) {
+                    if (!entry.getKey().equals(SCIMConstants.ID_URI) && !entry.getKey().equals(SCIMConstants
+                            .USER_NAME_URI) && !entry.getKey().equals(SCIMConstants.META_CREATED_URI) && !entry
+                            .getKey().equals(SCIMConstants.META_LAST_MODIFIED_URI) && !entry.getKey().equals
+                            (SCIMConstants.META_LOCATION_URI) && !entry.getKey().equals(SCIMConstants
+                            .NAME_FAMILY_NAME_URI)) {
+                        carbonUM.deleteUserClaimValue(user.getUserName(), entry.getKey(), null);
+                    }
+                }
+
                 //set user claim values
                 carbonUM.setUserClaimValues(user.getUserName(), claims, null);
                 //if password is updated, set it separately
@@ -402,7 +422,7 @@ public class SCIMUserManager implements UserManager {
                     carbonUM.updateCredentialByAdmin(user.getUserName(), user.getPassword());
                 }
                 log.info("User: " + user.getUserName() + " updated updated through SCIM.");
-            } catch (org.wso2.carbon.user.core.UserStoreException e) {
+            } catch (UserStoreException e) {
                 throw new CharonException("Error while updating attributes of user: " + user.getUserName(), e);
             }
 

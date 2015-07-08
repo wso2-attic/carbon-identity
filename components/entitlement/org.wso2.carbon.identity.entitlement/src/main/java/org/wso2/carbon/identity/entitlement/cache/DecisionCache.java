@@ -19,28 +19,56 @@
 
 package org.wso2.carbon.identity.entitlement.cache;
 
-import org.wso2.carbon.caching.impl.CachingConstants;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.identity.entitlement.PDPConstants;
 
 
 /**
- * Decision cache
+ * Decision cache to handle request against response cache within the cluster.
  */
 public class DecisionCache extends EntitlementBaseCache<IdentityCacheKey, String> {
 
+    private static Log log = LogFactory.getLog(DecisionCache.class);
+
     public DecisionCache(int timeOut) {
-        super(CachingConstants.LOCAL_CACHE_PREFIX + PDPConstants.PDP_DECISION_CACHE, timeOut);
+        super(PDPConstants.PDP_DECISION_CACHE, timeOut);
     }
 
+    /**
+     * Can add decision to the cluster with key
+     *
+     * @param key
+     * @param decision
+     */
     public void addToCache(String key, String decision) {
-
+        if (log.isDebugEnabled()) {
+            String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+            int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
+            log.debug("DecisionCache is added for tenant : " + tenantDomain + "  tenantId : " + tenantId + " " +
+                      "cache key : " + key + " cache value : " + decision);
+        }
         int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
         IdentityCacheKey cacheKey = new IdentityCacheKey(tenantId, key);
         addToCache(cacheKey, decision);
+
     }
 
+    /**
+     * Can get the decision for the request if it available in the cache.
+     *
+     * @param key
+     * @return
+     */
     public String getFromCache(String key) {
+
+        if (log.isDebugEnabled()) {
+            String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+            int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
+            log.debug("DecisionCache is get for tenant : " + tenantDomain + "  tenantId : " + tenantId + " " +
+                      "cache key : " + key);
+        }
 
         int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
         IdentityCacheKey cacheKey = new IdentityCacheKey(tenantId, key);
@@ -54,7 +82,15 @@ public class DecisionCache extends EntitlementBaseCache<IdentityCacheKey, String
         return null;
     }
 
+    /**
+     * Clear all decision cache
+     */
     public void clearCache() {
+        if (log.isDebugEnabled()) {
+            String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+            int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
+            log.debug("DecisionCache clear all cache from the cluster");
+        }
         clear();
     }
 

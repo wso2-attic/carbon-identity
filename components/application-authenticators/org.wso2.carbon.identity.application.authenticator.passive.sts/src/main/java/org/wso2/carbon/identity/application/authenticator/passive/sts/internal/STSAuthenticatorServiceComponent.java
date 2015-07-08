@@ -37,16 +37,16 @@ public class STSAuthenticatorServiceComponent {
             ctxt.getBundleContext().registerService(ApplicationAuthenticator.class.getName(), stsAuthenticator, null);
 
             if (log.isDebugEnabled()) {
-                log.info("SAMLSSO Authenticator bundle is activated");
+                log.debug("STS Authenticator bundle is activated");
             }
         } catch (Throwable e) {
-            log.error("SAMLSSO Authenticator bundle activation Failed", e);
+            log.error("STS Authenticator bundle activation Failed", e);
         }
     }
 
     protected void deactivate() {
         if (log.isDebugEnabled()) {
-            log.info("SAMLSSO Authenticator bundle is deactivated");
+            log.debug("STS Authenticator bundle is deactivated");
         }
     }
 }

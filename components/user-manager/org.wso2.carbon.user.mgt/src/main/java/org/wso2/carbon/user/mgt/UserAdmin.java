@@ -239,9 +239,6 @@ public class UserAdmin {
             if (!isAllowedRoleName(roleName, realm)) {
                 throw new UserAdminException("Role name is reserved by the system");
             }
-            if (permissions.length == 0) {
-                permissions = null;
-            }
             if (!isInternalRole) {
                 getUserAdminProxy().addRole(roleName, userList, permissions, isSharedRole);
             } else {
