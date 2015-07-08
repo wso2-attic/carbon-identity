@@ -50,7 +50,7 @@ public class SingleLogoutMessageBuilder {
     }
 
     public LogoutRequest buildLogoutRequest(String subject, String sessionId, String reason,
-                                            String destination,String nameIDFormat) throws IdentityException {
+                                            String destination, String nameIDFormat) throws IdentityException {
         LogoutRequest logoutReq = new LogoutRequestBuilder().buildObject();
         logoutReq.setID(SAMLSSOUtil.createID());
 
