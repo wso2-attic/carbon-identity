@@ -56,6 +56,7 @@ import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
+import javax.cache.Cache;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
@@ -84,6 +85,7 @@ public class UserStoreConfigAdminService extends AbstractAdmin {
     public static final String USERSTORES = "userstores";
     private static final String deploymentDirectory = CarbonUtils.getCarbonRepository() + USERSTORES;
     XMLProcessorUtils xmlProcessorUtils = new XMLProcessorUtils();
+    private UserStoreDTO editedUserDTO = null;
 
     /**
      * Get details of current secondary user store configurations
@@ -114,6 +116,8 @@ public class UserStoreConfigAdminService extends AbstractAdmin {
                 userStoreDTO.setClassName(secondaryRealmConfiguration.getUserStoreClass());
                 userStoreDTO.setDescription(secondaryRealmConfiguration.getUserStoreProperty(DESCRIPTION));
                 userStoreDTO.setDomainId(secondaryRealmConfiguration.getUserStoreProperty(UserStoreConfigConstants.DOMAIN_NAME));
+
+
                 if (userStoreProperties.get(DISABLED) != null) {
                     userStoreDTO.setDisabled(Boolean.valueOf(userStoreProperties.get(DISABLED)));
                 }
@@ -134,6 +138,16 @@ public class UserStoreConfigAdminService extends AbstractAdmin {
                     originalPassword = userStoreProperties.get(JDBCRealmConstants.PASSWORD);
                     userStoreProperties.put(JDBCRealmConstants.PASSWORD, randomPhrase);
                 }
+
+                if(editedUserDTO != null && userStoreDTO.getDomainId().equals(editedUserDTO.getDomainId())){
+                    for (PropertyDTO property : editedUserDTO.getProperties()){
+
+                        userStoreProperties.put(property.getName(),property.getValue());
+
+                    }
+                    editedUserDTO = null;
+                }
+
                 userStoreDTO.setProperties(convertMapToArray(userStoreProperties));
 
                 //Now revert back to original password
@@ -231,6 +245,10 @@ public class UserStoreConfigAdminService extends AbstractAdmin {
      */
     public void editUserStore(UserStoreDTO userStoreDTO) throws UserStoreException, DataSourceException {
         String domainName = userStoreDTO.getDomainId();
+
+        editedUserDTO = userStoreDTO;
+
+
         if (xmlProcessorUtils.isValidDomain(domainName, false)) {
 
             File userStoreConfigFile = createConfigurationFile(domainName);
