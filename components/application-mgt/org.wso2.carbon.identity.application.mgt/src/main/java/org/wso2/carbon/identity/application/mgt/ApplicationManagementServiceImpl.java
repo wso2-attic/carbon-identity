@@ -127,7 +127,7 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
         } catch (Exception e) {
             ApplicationMgtUtil.deleteAppRole(serviceProvider.getApplicationName());
             ApplicationMgtUtil.deletePermissions(serviceProvider.getApplicationName());
-            String error = "Error occurred while creating the application, " + serviceProvider.getApplicationName();
+            String error = "Error occurred while creating the application : " + serviceProvider.getApplicationName();
             log.error(error, e);
             throw new IdentityApplicationManagementException(error, e);
         } finally {
