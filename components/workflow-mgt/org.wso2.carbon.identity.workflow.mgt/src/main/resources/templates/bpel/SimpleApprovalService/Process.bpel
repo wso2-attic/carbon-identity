@@ -79,8 +79,8 @@
                 <bpel:literal>
                     <tns:ApprovalData xmlns:tns="http://ht.bpel.mgt.workflow.identity.carbon.wso2.org/wsdl"
                             >
-                        <taskSubject>taskSubject</taskSubject>
-                        <taskDescription>taskDescription</taskDescription>
+                        <taskSubject>${htSubject}</taskSubject>
+                        <taskDescription>${htDescription}</taskDescription>
                         <priority>10</priority>
                         <parametersList>
                             <item itemName="name">
@@ -152,9 +152,9 @@
                 <bpel:from>
                     <bpel:literal>
                         <tns:ApprovalData xmlns:tns="http://ht.bpel.mgt.workflow.identity.carbon.wso2.org/wsdl/schema">
-                            <taskSubject>taskSubject</taskSubject>
-                            <taskDescription>taskDescription</taskDescription>
-                            <priority>0</priority>
+                            <taskSubject>${htSubject}</taskSubject>
+                            <taskDescription>${htDescription}</taskDescription>
+                            <priority>10</priority>
                             <parametersList>
                                 <item itemName="">
                                     <itemValue></itemValue>
