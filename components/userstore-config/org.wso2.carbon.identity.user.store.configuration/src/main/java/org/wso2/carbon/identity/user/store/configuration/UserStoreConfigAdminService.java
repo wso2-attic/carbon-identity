@@ -56,7 +56,6 @@ import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
-import javax.cache.Cache;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
@@ -139,10 +138,10 @@ public class UserStoreConfigAdminService extends AbstractAdmin {
                     userStoreProperties.put(JDBCRealmConstants.PASSWORD, randomPhrase);
                 }
 
-                if(editedUserDTO != null && userStoreDTO.getDomainId().equals(editedUserDTO.getDomainId())){
-                    for (PropertyDTO property : editedUserDTO.getProperties()){
+                if (editedUserDTO != null && userStoreDTO.getDomainId().equals(editedUserDTO.getDomainId())) {
+                    for (PropertyDTO property : editedUserDTO.getProperties()) {
 
-                        userStoreProperties.put(property.getName(),property.getValue());
+                        userStoreProperties.put(property.getName(), property.getValue());
 
                     }
                     editedUserDTO = null;
