@@ -69,7 +69,7 @@
     session.removeAttribute(UserAdminUIConstants.ROLE_LIST_UNASSIGNED_USER_FILTER);
     session.removeAttribute(UserAdminUIConstants.ROLE_LIST_VIEW_USER_FILTER);
     session.removeAttribute(UserAdminUIConstants.ROLE_LIST_CACHE);
-
+    session.removeAttribute("previousRole");
     // search filter
     String selectedDomain = request.getParameter("domain");
     if(selectedDomain == null || selectedDomain.trim().length() == 0){
