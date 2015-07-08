@@ -125,9 +125,15 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
 
             return appDAO.createApplication(serviceProvider, tenantDomain);
         } catch (Exception e) {
-            ApplicationMgtUtil.deleteAppRole(serviceProvider.getApplicationName());
-            ApplicationMgtUtil.deletePermissions(serviceProvider.getApplicationName());
-            String error = "Error occurred while creating the application, " + serviceProvider.getApplicationName();
+            try {
+                ApplicationMgtUtil.deleteAppRole(serviceProvider.getApplicationName());
+                ApplicationMgtUtil.deletePermissions(serviceProvider.getApplicationName());
+            } catch (Exception ignored) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Ignored the exception occurred while trying to delete the role : ", e);
+                }
+            }
+            String error = "Error occurred while creating the application : " + serviceProvider.getApplicationName();
             log.error(error, e);
             throw new IdentityApplicationManagementException(error, e);
         } finally {
