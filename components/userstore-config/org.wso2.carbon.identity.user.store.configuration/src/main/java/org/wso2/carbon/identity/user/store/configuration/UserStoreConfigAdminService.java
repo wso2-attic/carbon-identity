@@ -140,9 +140,7 @@ public class UserStoreConfigAdminService extends AbstractAdmin {
 
                 if (editedUserDTO != null && userStoreDTO.getDomainId().equals(editedUserDTO.getDomainId())) {
                     for (PropertyDTO property : editedUserDTO.getProperties()) {
-
                         userStoreProperties.put(property.getName(), property.getValue());
-
                     }
                     editedUserDTO = null;
                 }
