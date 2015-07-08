@@ -186,7 +186,7 @@ public class LogoutRequestProcessor {
                             logoutReqDTO.setAssertionConsumerURL(value.getAssertionConsumerUrl());
                         }
                         LogoutRequest logoutReq = logoutMsgBuilder.buildLogoutRequest(subject, sessionIndex,
-                                SAMLSSOConstants.SingleLogoutCodes.LOGOUT_USER, logoutReqDTO.getAssertionConsumerURL());
+                                SAMLSSOConstants.SingleLogoutCodes.LOGOUT_USER, logoutReqDTO.getAssertionConsumerURL(),logoutReqIssuer.getNameIDFormat());
                         logoutReq.setIssuer(SAMLSSOUtil.getIssuer());
                         String logoutReqString = SAMLSSOUtil.encode(SAMLSSOUtil.marshall(logoutReq));
                         logoutReqDTO.setLogoutResponse(logoutReqString);
