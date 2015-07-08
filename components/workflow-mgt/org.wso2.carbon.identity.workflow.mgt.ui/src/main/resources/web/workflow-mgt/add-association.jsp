@@ -229,7 +229,7 @@
             var operationDropdown = document.getElementById("operationSelect");
             var condition = "boolean(1)";
 
-            if (selectionType == "applyIf" && selectedOperation != null) {
+            if (selectionType == "applyIf") {
                 var selectedParam = paramDropDown.options[paramDropDown.selectedIndex].value;
                 var selectedOperation = operationDropdown.options[operationDropdown.selectedIndex].value;
                 var val1 = document.getElementById("val1").value;
