@@ -2076,30 +2076,15 @@ public class UserRealmProxy {
 
     }
 
-    public void changePasswordByUser(String oldPassword, String newPassword)
+
+    public void changePasswordByUser(String userName, String oldPassword, String newPassword)
             throws UserAdminException {
         try {
             UserStoreManager userStore = this.realm.getUserStoreManager();
-            HttpServletRequest request = (HttpServletRequest) MessageContext
-                    .getCurrentMessageContext().getProperty(HTTPConstants.MC_HTTP_SERVLETREQUEST);
-            HttpSession httpSession = request.getSession(false);
-            String userName = (String) httpSession.getAttribute(ServerConstants.USER_LOGGED_IN);
-
-            int indexOne;
-            indexOne = userName.indexOf("/");
-            if (indexOne < 0) {
-                /*if domain is not provided, this can be the scenario where user from a secondary user store
-                logs in without domain name and tries to change his own password*/
-                String domainName = (String) httpSession.getAttribute("logged_in_domain");
-
-                if (domainName != null) {
-                    userName = domainName + "/" + userName;
-                }
-            }
             userStore.updateCredential(userName, newPassword, oldPassword);
         } catch (UserStoreException e) {
             // previously logged so logging not needed
-            throw new UserAdminException(e.getMessage(), e);
+            throw new UserAdminException("Error while updating password for user " + userName, e);
         }
     }
 

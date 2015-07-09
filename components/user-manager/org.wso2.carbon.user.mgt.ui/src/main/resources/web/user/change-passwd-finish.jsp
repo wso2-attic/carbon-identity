@@ -45,7 +45,7 @@
         UserAdminClient client = new UserAdminClient(cookie, backendServerURL, configContext);
         if(isUserChange != null) {
             username = (String)session.getAttribute(CarbonSecuredHttpContext.LOGGED_USER);
-            client.changePasswordByUser(currentPassword, newPassword);
+            client.changePasswordByUser(username, currentPassword, newPassword);
             forwardTo = returnPath;        
             session.removeAttribute(ServerConstants.PASSWORD_EXPIRATION);
         } else {

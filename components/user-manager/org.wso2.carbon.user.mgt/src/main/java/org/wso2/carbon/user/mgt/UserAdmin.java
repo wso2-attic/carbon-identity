@@ -554,12 +554,13 @@ public class UserAdmin {
      * @throws UserAdminException
      * @throws AxisFault
      */
-    public void changePasswordByUser(String oldPassword, String newPassword)
+        public void changePasswordByUser(String userName, String oldPassword, String newPassword)
             throws UserAdminException {
         String result = null;
 
-        try {
-            getUserAdminProxy().changePasswordByUser(oldPassword, newPassword);
+        try{
+
+            getUserAdminProxy().changePasswordByUser(userName, oldPassword, newPassword);
             result = SUCCESS;
         } catch (UserAdminException e) {
             result = FAILED;
