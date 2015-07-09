@@ -254,7 +254,7 @@ public class GoogleProvisioningConnector extends AbstractOutboundProvisioningCon
                 if (((GoogleJsonResponseException) e).getStatusCode() == 404) {
                     log.warn("Exception while deleting user from google. User may be already deleted from google");
                     if (log.isDebugEnabled()) {
-                        log.debug("", e);
+                        log.debug("Exception while deleting user from google. User may be already deleted from google", e);
                     }
                 } else {
                     throw new IdentityProvisioningException("Error while deleting Google user : "
