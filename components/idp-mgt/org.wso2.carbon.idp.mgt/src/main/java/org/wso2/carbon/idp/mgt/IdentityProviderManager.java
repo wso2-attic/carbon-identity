@@ -1149,10 +1149,8 @@ public class IdentityProviderManager {
                     } else {
                         role = mapping.getLocalRole().getLocalRoleName();
                     }
-                    if (usm.isExistingRole(mapping.getLocalRole().getLocalRoleName())) {
+                    if (usm.isExistingRole(role)) {
                         // perfect
-                    } else if (usm.isExistingRole(mapping.getLocalRole().getLocalRoleName(), true)) {
-                        // also fine
                     } else {
                         String msg = "Cannot find tenant role " + role + " for tenant "
                                 + tenantDomain;
