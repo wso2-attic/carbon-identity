@@ -32,16 +32,25 @@ function createAppOnclick() {
 	var spName = document.getElementById("spName").value;
 	var description = document.getElementById("sp-description").value;
 	if( spName == '') {
-		//CARBON.showWarningDialog('<fmt:message key="alert.please.provide.service.provider.id"/>');
 		CARBON.showWarningDialog('Please provide Service Provider ID');
 		location.href = '#';
-	//} else if( description == '') {
-	//	CARBON.showWarningDialog('<fmt:message key="alert.please.provide.service.provider.description"/>');
-	//	location.href = '#';
+    } else if (!validateTextForIllegal(spName)) {
+        CARBON.showWarningDialog('Provided Service Provider name is invalid.');
+        location.href = '#';
     }else {
 		location.href='add-service-provider-finish.jsp?spName=' + spName+'&sp-description='+description;
 	}
 }
+
+function validateTextForIllegal(fld) {
+    var illegalChars = /^[a-zA-Z0-9._|-]*$/;
+    if (illegalChars.test(fld)) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
 </script>
 
 <fmt:bundle basename="org.wso2.carbon.identity.application.mgt.ui.i18n.Resources">

@@ -25,6 +25,7 @@ import org.wso2.balana.ctx.EvaluationCtx;
 import org.wso2.carbon.identity.entitlement.EntitlementException;
 
 import java.net.URI;
+import java.util.LinkedHashMap;
 import java.util.Properties;
 
 /**
@@ -83,4 +84,10 @@ public interface PolicyCollection {
      * @param algorithm PolicyCombiningAlgorithm object of Balana
      */
     public void setPolicyCombiningAlgorithm(PolicyCombiningAlgorithm algorithm);
+
+
+    public boolean deletePolicy(String policyId);
+    public LinkedHashMap getPolicyMap() ;
+    public void setPolicyMap(LinkedHashMap policyMap) ;
+
 }

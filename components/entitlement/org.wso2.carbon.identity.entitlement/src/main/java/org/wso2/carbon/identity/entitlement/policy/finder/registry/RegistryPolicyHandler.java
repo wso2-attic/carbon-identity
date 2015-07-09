@@ -18,29 +18,50 @@
 
 package org.wso2.carbon.identity.entitlement.policy.finder.registry;
 
+import org.wso2.carbon.identity.entitlement.PDPConstants;
+import org.wso2.carbon.identity.entitlement.internal.EntitlementServiceComponent;
 import org.wso2.carbon.identity.entitlement.policy.store.RegistryPolicyStoreManageModule;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
 import org.wso2.carbon.registry.core.jdbc.handlers.Handler;
 import org.wso2.carbon.registry.core.jdbc.handlers.RequestContext;
 
+import java.util.Properties;
+
 /**
- * Registry policy handler
+ *  Registry policy handler
  */
 public class RegistryPolicyHandler extends Handler {
 
     @Override
     public void put(RequestContext requestContext) throws RegistryException {
-
-        RegistryPolicyStoreManageModule.invalidateCache();
         super.put(requestContext);
+        Properties properties = EntitlementServiceComponent.getEntitlementConfig().getEngineProperties();
+        boolean enableRegistryCacheClear = true ;
+        if(properties.getProperty(PDPConstants.PDP_REGISTRY_LEVEL_POLICY_CACHE_CLEAR)!=null){
+            enableRegistryCacheClear = Boolean.parseBoolean(properties.getProperty(PDPConstants.PDP_REGISTRY_LEVEL_POLICY_CACHE_CLEAR));
+        }
+        if(enableRegistryCacheClear) {
+            RegistryPolicyStoreManageModule.invalidateCache();
+        }
+
+
     }
 
     @Override
     public void delete(RequestContext requestContext) throws RegistryException {
 
-        RegistryPolicyStoreManageModule.invalidateCache();
         super.delete(requestContext);
+        Properties properties = EntitlementServiceComponent.getEntitlementConfig().getEngineProperties();
+        boolean enableRegistryCacheClear = true ;
+        if(properties.getProperty(PDPConstants.PDP_REGISTRY_LEVEL_POLICY_CACHE_CLEAR)!=null){
+            enableRegistryCacheClear = Boolean.parseBoolean(properties.getProperty(PDPConstants.PDP_REGISTRY_LEVEL_POLICY_CACHE_CLEAR));
+        }
+        if(enableRegistryCacheClear) {
+            RegistryPolicyStoreManageModule.invalidateCache();
+        }
+
     }
+
 
 
 }

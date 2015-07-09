@@ -631,7 +631,7 @@ public class IdPManagementDAO {
                 for (ProvisioningConnectorConfig connector : provisioningConnectors) {
                     Property[] connctorProperties = connector.getProvisioningProperties();
 
-                    if (connctorProperties != null && connctorProperties.length > 0) {
+                    if (connctorProperties != null) {
 
                         // SP_IDP_PROVISIONING_CONFIG
                         // TENANT_ID, IDP_ID, PROVISIONING_CONNECTOR_TYPE, IS_ENABLED, IS_DEFAULT
@@ -657,40 +657,43 @@ public class IdPManagementDAO {
                         if (rs.next()) {
                             int provisioningConfigID = rs.getInt(1);
 
-                            for (Property config : connctorProperties) {
+                            if (connctorProperties.length > 0) {
+                                for (Property config : connctorProperties) {
 
-                                if (config == null) {
-                                    continue;
+                                    if (config == null) {
+                                        continue;
+                                    }
+
+                                    // SP_IDP_PROV_CONFIG_PROPERTY
+                                    //TENANT_ID, PROVISIONING_CONFIG_ID, PROPERTY_KEY,
+                                    // PROPERTY_VALUE, PROPERTY_BLOB_VALUE, PROPERTY_TYPE, IS_SECRET
+                                    prepStmt.setInt(1, tenantId);
+                                    prepStmt.setInt(2, provisioningConfigID);
+                                    prepStmt.setString(3, CharacterEncoder.getSafeText(config.getName()));
+
+                                    // TODO : Sect property type accordingly
+                                    if (IdentityApplicationConstants.ConfigElements.PROPERTY_TYPE_BLOB.equals
+                                            (config.getType())) {
+                                        prepStmt.setString(4, null);
+                                        setBlobValue(config.getValue(), prepStmt, 5);
+                                        prepStmt.setString(6, config.getType());
+                                    } else {
+                                        prepStmt.setString(4, CharacterEncoder.getSafeText(config.getValue()));
+                                        setBlobValue(null, prepStmt, 5);
+                                        prepStmt.setString(6, IdentityApplicationConstants.ConfigElements.
+                                                PROPERTY_TYPE_STRING);
+                                    }
+
+                                    if (config.isConfidential()) {
+                                        prepStmt.setString(7, "1");
+                                    } else {
+                                        prepStmt.setString(7, "0");
+                                    }
+                                    prepStmt.addBatch();
+
                                 }
-
-                                // SP_IDP_PROV_CONFIG_PROPERTY
-                                //TENANT_ID, PROVISIONING_CONFIG_ID, PROPERTY_KEY,
-                                // PROPERTY_VALUE, PROPERTY_BLOB_VALUE, PROPERTY_TYPE, IS_SECRET
-                                prepStmt.setInt(1, tenantId);
-                                prepStmt.setInt(2, provisioningConfigID);
-                                prepStmt.setString(3, CharacterEncoder.getSafeText(config.getName()));
-
-                                // TODO : Sect property type accordingly
-                                if (IdentityApplicationConstants.ConfigElements.PROPERTY_TYPE_BLOB.equals
-                                        (config.getType())) {
-                                    prepStmt.setString(4, null);
-                                    setBlobValue(config.getValue(), prepStmt, 5);
-                                    prepStmt.setString(6, config.getType());
-                                } else {
-                                    prepStmt.setString(4, CharacterEncoder.getSafeText(config.getValue()));
-                                    setBlobValue(null, prepStmt, 5);
-                                    prepStmt.setString(6, IdentityApplicationConstants.ConfigElements.
-                                            PROPERTY_TYPE_STRING);
-                                }
-
-                                if (config.isConfidential()) {
-                                    prepStmt.setString(7, "1");
-                                } else {
-                                    prepStmt.setString(7, "0");
-                                }
-                                prepStmt.addBatch();
-
                             }
+
                         }
 
                         // Adding properties for base config

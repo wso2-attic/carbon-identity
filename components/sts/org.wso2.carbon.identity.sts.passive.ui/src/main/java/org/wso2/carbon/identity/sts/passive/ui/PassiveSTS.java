@@ -96,8 +96,8 @@ public class PassiveSTS extends HttpServlet {
      */
     private String readPassiveSTSHtmlRedirectPage() {
         String redirectHtmlFilePath = CarbonUtils.getCarbonHome() + File.separator + "repository"
-                + File.separator + "resources" + File.separator + "security" + File.separator +
-                "sts_redirect.html";
+                + File.separator + "resources" + File.separator + "identity" + File.separator + "pages" + File.separator +
+                "sts_response.html";
         FileInputStream fileInputStream = null;
         String fileContent = null;
         try {
@@ -105,7 +105,7 @@ public class PassiveSTS extends HttpServlet {
             fileContent = new Scanner(fileInputStream, "UTF-8").useDelimiter("\\A").next();
 
             if (log.isDebugEnabled()) {
-                log.debug("sts_redirect.html : " + fileContent);
+                log.debug("sts_response.html : " + fileContent);
             }
 
         } catch (FileNotFoundException e) {
@@ -117,7 +117,7 @@ public class PassiveSTS extends HttpServlet {
                 try {
                     fileInputStream.close();
                 } catch (IOException e) {
-                    log.error("Error occurred when closing file input stream for sts_redirect.html", e);
+                    log.error("Error occurred when closing file input stream for sts_response.html", e);
                 }
             }
         }
@@ -144,8 +144,7 @@ public class PassiveSTS extends HttpServlet {
 
         // Adding parameters to the Passive STS HTML redirect page
         String parameters = "<input type='hidden' name='wa' value='$action'>" +
-                "<input type='hidden' name='wresult' value='$result'>" +
-                "<input type='hidden' name='wctx' value='$context'>";
+                "<input type='hidden' name='wresult' value='$result'>";
 
         fileContent = fileContent.replace("<!--$params-->", parameters);
 
@@ -178,8 +177,12 @@ public class PassiveSTS extends HttpServlet {
 
         String pageWithReplyAction = pageWithReply.replace("$action", String.valueOf(action));
         String pageWithReplyActionResult = pageWithReplyAction.replace("$result", String.valueOf(respToken.getResults()));
-        String pageWithReplyActionResultContext =
-                pageWithReplyActionResult.replace("$context", String.valueOf(respToken.getContext()));
+        String pageWithReplyActionResultContext;
+        if(respToken.getContext() !=null) {
+            pageWithReplyActionResultContext = pageWithReplyActionResult.replace("<!--$additionalParams-->", "<!--$additionalParams-->" + "<input type='hidden' name='wctx' value='"  +respToken.getContext() + "'>");
+        } else {
+            pageWithReplyActionResultContext = pageWithReplyActionResult;
+        }
 
         if (authenticatedIdPs == null || authenticatedIdPs.isEmpty()) {
             finalPage = pageWithReplyActionResultContext;
@@ -193,7 +196,7 @@ public class PassiveSTS extends HttpServlet {
         out.print(finalPage);
 
         if (log.isDebugEnabled()) {
-            log.debug("sts_redirect.html : " + finalPage);
+            log.debug("sts_response.html : " + finalPage);
         }
         return;
     }

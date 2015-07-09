@@ -55,28 +55,6 @@
 <script type="text/javascript" src="../carbon/admin/js/main.js"></script>
 
 <script type="text/javascript">
-/* function validateAndSubmit(){
-	if($('#existingIssuers').length > 0 && $('#existingIssuers').val().length > 0 && $('#issuer').val().length > 0){
-		var existingIssuers = $('#existingIssuers').val().split(",");
-		var issuer = $('#issuer').val();
-		if(existingIssuers.length > 0){
-			var isValid = true;
-			$.each(existingIssuers, function(){
-				if(this.length > 0 && this == issuer){
-					isValid = false;
-					return false;
-				}
-			});
-			if(!isValid){
-		        CARBON.showWarningDialog('Service Provider with Issuer "'+issuer+'" is already registered.', null, null);
-		        return false;
-			}
-		}
-	}
-	if(doValidation()){
-		document.getElementById("addServiceProvider").submit();
-	}
-} */
 
 function doValidation() {
     var fld = document.getElementsByName("issuer")[0];
@@ -135,15 +113,6 @@ function doValidation() {
         }
     }
 
-    //if (document.getElementsByName("subjectType")[1].checked) {
-    //    var claimVal = document.getElementsByName("claimID")[0].value;
-    //    if (claimVal.length == 0) {
-    //        CARBON.showWarningDialog(
-    //                "<fmt:message key='sp.enter.valid.claimID'/>",
-    //                null, null);
-    //        return false;
-    //    }
-    //}
     return true;
 }
 
@@ -499,26 +468,11 @@ function clearAll() {
         }
     }
 
-/*     String existingIssuers = "";
-    if (!isEditSP) {
-    	if (providers.size() > 0) {
-    		for (SAMLSSOServiceProviderDTO sp : providers) {
-    			existingIssuers += sp.getIssuer()+",";
-    		}
-    	}
-    } */
 %>
 
 <form method="POST" action="add_service_provider_finish.jsp?SPAction=<%=spAction%>"
       id="addServiceProvider" name="addServiceProvider" target="_self"
       onsubmit="return doValidation();">
-<%--     <%
-        if (!isEditSP) {
-    %>
-		<input type="hidden" id="existingIssuers" value="<%=existingIssuers%>">
-	<%
-        }
-	%> --%>
 <table class="styledLeft" width="100%">
 <thead>
 <tr>
@@ -544,7 +498,7 @@ function clearAll() {
         <fmt:message key="sp.issuer"/>
         <font color="red">*</font>
     </td>
-    <td><input type="text" id="issuer" name="issuer" maxlength="30"
+    <td><input type="text" id="issuer" name="issuer"
                class="text-box-big"
                value="<%=isEditSP? provider.getIssuer():""%>" <%=isEditSP ? "disabled=\"disabled\"" : ""%>/>
         <input type="hidden" id="hiddenIssuer" name="hiddenIssuer"

@@ -78,7 +78,7 @@ public class SAMLSSOConfigAdmin {
         serviceProviderDO.setDoSignResponse(serviceProviderDTO.isDoSignResponse());
         serviceProviderDO.setDoSignAssertions(serviceProviderDTO.isDoSignAssertions());
         serviceProviderDO.setNameIdClaimUri(serviceProviderDTO.getNameIdClaimUri());
-        serviceProviderDO.setEnableAttributesByDefault(serviceProviderDTO.isEnableAttributesByDefault());
+
 
         if (serviceProviderDTO.getNameIDFormat() == null) {
             serviceProviderDTO.setNameIDFormat(NameIdentifier.EMAIL);
@@ -96,8 +96,13 @@ public class SAMLSSOConfigAdmin {
             } else {
                 serviceProviderDO.setAttributeConsumingServiceIndex(Integer.toString(IdentityUtil.getRandomInteger()));
             }
+            serviceProviderDO.setEnableAttributesByDefault(serviceProviderDTO.isEnableAttributesByDefault());
         } else {
             serviceProviderDO.setAttributeConsumingServiceIndex("");
+            if (serviceProviderDO.isEnableAttributesByDefault()) {
+                log.warn("Enable Attribute Profile must be selected to activate it by default. EnableAttributesByDefault will be disabled.");
+            }
+            serviceProviderDO.setEnableAttributesByDefault(false);
         }
 
         if (serviceProviderDTO.getRequestedAudiences() != null && serviceProviderDTO.getRequestedAudiences().length != 0) {

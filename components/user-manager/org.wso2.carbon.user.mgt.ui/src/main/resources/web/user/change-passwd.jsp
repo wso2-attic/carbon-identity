@@ -32,6 +32,7 @@
 <%@ page import="java.text.MessageFormat" %>
 <%@ page import="java.net.URLEncoder" %>
 <%@ page import="org.wso2.carbon.user.mgt.ui.Util" %>
+<%@ page import="org.apache.commons.lang.StringUtils" %>
 <script type="text/javascript" src="../userstore/extensions/js/vui.js"></script>
 <script type="text/javascript" src="../admin/js/main.js"></script>
 <jsp:include page="../dialog/display_messages.jsp"/>
@@ -158,7 +159,15 @@
                     } else if (reason == "Password Mismatch") {
                         CARBON.showWarningDialog("<fmt:message key="password.mismatch"/>");
                     } else if (reason == "No conformance") {
-                        CARBON.showWarningDialog("<fmt:message key="password.conformance"/>"  + pwdRegEX);
+                        <%
+                            String passwordRegEx =   userStoreInfo.getPasswordRegEx();
+                            String passwordErrorMessage = userStoreInfo.getPasswordRegExViolationErrorMsg();
+                            if (StringUtils.isBlank(passwordErrorMessage)){
+                                passwordErrorMessage = MessageFormat.format(resourceBundle.getString("password.conformance"), passwordRegEx);
+                            }
+                        %>
+
+                        CARBON.showWarningDialog("<%=passwordErrorMessage%>");
                     }
                     return false;
                 }
