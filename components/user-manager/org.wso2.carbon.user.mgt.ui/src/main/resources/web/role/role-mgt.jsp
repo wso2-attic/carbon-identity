@@ -437,7 +437,7 @@
     UserStoreInfo[] stores = userRealmInfo.getUserStoresInfo();
 
     for(UserStoreInfo store : stores){
-        if(!store.getReadOnly() && store.getDomainName().equalsIgnoreCase(selectedDomain)){
+        if(!store.getReadOnly()){
             showAddNewRole=true;
             break;
         }
