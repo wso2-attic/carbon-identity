@@ -31,6 +31,8 @@ public class UserStoreInfo {
 
     private String passwordRegEx;
 
+    private String passwordRegExViolationErrorMsg;
+
     private boolean isBulkImportSupported;
     
     private String externalIdP;
@@ -119,5 +121,13 @@ public class UserStoreInfo {
 
     public void setDomainName(String domainName) {
         this.domainName = domainName;
+    }
+
+    public String getPasswordRegExViolationErrorMsg() {
+        return passwordRegExViolationErrorMsg;
+    }
+
+    public void setPasswordRegExViolationErrorMsg(String passwordRegExViolationErrorMsg) {
+        this.passwordRegExViolationErrorMsg = passwordRegExViolationErrorMsg;
     }
 }

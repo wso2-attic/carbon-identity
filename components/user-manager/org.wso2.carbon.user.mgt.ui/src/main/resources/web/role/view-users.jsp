@@ -43,7 +43,6 @@
 <%
     String BUNDLE = "org.wso2.carbon.userstore.ui.i18n.Resources";
     ResourceBundle resourceBundle = ResourceBundle.getBundle(BUNDLE, request.getLocale());
-
     boolean newFilter = false;
     boolean doUserList = true;
     boolean readOnlyRole = false;
@@ -114,7 +113,19 @@
 
     String roleName = CharacterEncoder.getSafeText(request.getParameter("roleName"));
 
-	String readOnlyRoleString = request.getParameter(UserAdminUIConstants.ROLE_READ_ONLY);
+    String prevRole = (String) session.getAttribute("previousRole");
+
+    boolean useCache = false;
+
+    if(prevRole != null && prevRole.equals(roleName) ){
+        useCache = true;
+    } else if(prevRole!=null){
+        session.setAttribute("previousRole",roleName);
+    }
+
+
+
+    String readOnlyRoleString = request.getParameter(UserAdminUIConstants.ROLE_READ_ONLY);
 	if (readOnlyRoleString == null) {
 		readOnlyRoleString =
 		                     (String) session.getAttribute(UserAdminUIConstants.ROLE_READ_ONLY);
@@ -138,19 +149,21 @@
 		// page number format exception
 	}
 
-	flaggedNameMap =
-	                 (Map<Integer, PaginatedNamesBean>) session.getAttribute(UserAdminUIConstants.ROLE_LIST_ASSIGNED_USER_CACHE);
-	if (flaggedNameMap != null) {
-		PaginatedNamesBean bean = flaggedNameMap.get(pageNumber);
-		if (bean != null) {
-			users = bean.getNames();
-			if (users != null && users.length > 0) {
-				numberOfPages = bean.getNumberOfPages();
-				doUserList = false;
-			}
-		}
-	}
+	if(useCache) {
 
+        flaggedNameMap =
+                (Map<Integer, PaginatedNamesBean>) session.getAttribute(UserAdminUIConstants.ROLE_LIST_ASSIGNED_USER_CACHE);
+        if (flaggedNameMap != null) {
+            PaginatedNamesBean bean = flaggedNameMap.get(pageNumber);
+            if (bean != null) {
+                users = bean.getNames();
+                if (users != null && users.length > 0) {
+                    numberOfPages = bean.getNumberOfPages();
+                    doUserList = false;
+                }
+            }
+        }
+    }
 	if (doUserList || newFilter) {
 		try {
 			String cookie =

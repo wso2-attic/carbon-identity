@@ -58,7 +58,8 @@ public class ErrorResponseBuilder {
      * @param statusMsg
      * @return
      */
-    public Response buildResponse(String inResponseToID, List<String> statusCodes, String statusMsg) throws IdentityException {
+    public Response buildResponse(String inResponseToID, List<String> statusCodes, String statusMsg,
+                                  String destination) throws IdentityException {
         if (statusCodes == null || statusCodes.isEmpty()) {
             throw new IdentityException("No Status Values");
         }
@@ -75,6 +76,9 @@ public class ErrorResponseBuilder {
         response.setID(SAMLSSOUtil.createID());
         if (inResponseToID != null) {
             response.setInResponseTo(inResponseToID);
+        }
+        if (destination != null) {
+            response.setDestination(destination);
         }
         response.setIssueInstant(new DateTime());
         return response;

@@ -31,6 +31,7 @@
 <%@ page import="org.wso2.carbon.user.mgt.ui.UserAdminUIConstants" %>
 <%@ page import="org.wso2.carbon.user.mgt.stub.types.carbon.UserRealmInfo" %>
 <%@ page import="java.text.MessageFormat" %>
+<%@ page import="org.wso2.carbon.user.mgt.stub.types.carbon.UserStoreInfo" %>
 <script type="text/javascript" src="../userstore/extensions/js/vui.js"></script>
 <script type="text/javascript" src="../admin/js/main.js"></script>
 <jsp:include page="../dialog/display_messages.jsp"/>
@@ -68,7 +69,7 @@
     session.removeAttribute(UserAdminUIConstants.ROLE_LIST_UNASSIGNED_USER_FILTER);
     session.removeAttribute(UserAdminUIConstants.ROLE_LIST_VIEW_USER_FILTER);
     session.removeAttribute(UserAdminUIConstants.ROLE_LIST_CACHE);
-
+    session.removeAttribute("previousRole");
     // search filter
     String selectedDomain = request.getParameter("domain");
     if(selectedDomain == null || selectedDomain.trim().length() == 0){
@@ -431,7 +432,18 @@
             %>
 
 <table width="100%" border="0" cellpadding="0" cellspacing="0">
-<% if(multipleUserStores || !userRealmInfo.getPrimaryUserStoreInfo().getReadOnly()){%>
+<%
+    boolean showAddNewRole = false;
+    UserStoreInfo[] stores = userRealmInfo.getUserStoresInfo();
+
+    for(UserStoreInfo store : stores){
+        if(!store.getReadOnly() && store.getDomainName().equalsIgnoreCase(selectedDomain)){
+            showAddNewRole=true;
+            break;
+        }
+    }
+
+    if(showAddNewRole){%>
             <tr>
                 <td>
 <a href="add-step1.jsp" class="icon-link" style="background-image:url(images/add.gif);"><fmt:message key="add.new.role"/></a>
