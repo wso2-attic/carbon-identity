@@ -326,6 +326,10 @@ public class TokenMgtDAO {
                 sql = SQLQueries.RETRIEVE_LATEST_ACCESS_TOKEN_BY_CLIENT_ID_USER_SCOPE_MSSQL;
             } else if (connection.getMetaData().getDriverName().contains("PostgreSQL")) {
                 sql = SQLQueries.RETRIEVE_LATEST_ACCESS_TOKEN_BY_CLIENT_ID_USER_SCOPE_POSTGRESQL;
+            } else if (connection.getMetaData().getDriverName().contains("Informix")){
+                // Driver name = "IBM Informix JDBC Driver for IBM Informix Dynamic Server"
+                sql = SQLQueries.RETRIEVE_LATEST_ACCESS_TOKEN_BY_CLIENT_ID_USER_SCOPE_INFORMIX;
+
             } else {
                 sql = SQLQueries.RETRIEVE_LATEST_ACCESS_TOKEN_BY_CLIENT_ID_USER_SCOPE_ORACLE;
             }
@@ -609,6 +613,7 @@ public class TokenMgtDAO {
         String oracleQuery;
         String msSqlQuery;
         String postgreSqlQuery;
+        String informixQuery;
 
         try {
             connection = JDBCPersistenceManager.getInstance().getDBConnection();
@@ -620,37 +625,16 @@ public class TokenMgtDAO {
             if (userStoreDomain != null) {
                 accessTokenStoreTable = accessTokenStoreTable + "_" + userStoreDomain;
             }
-            mySqlQuery = "SELECT ACCESS_TOKEN, AUTHZ_USER, TOKEN_SCOPE, TOKEN_STATE, REFRESH_TOKEN_TIME_CREATED, " +
-                    "REFRESH_TOKEN_VALIDITY_PERIOD, IDN_OAUTH2_ACCESS_TOKEN_SELECTED.TOKEN_ID FROM ( SELECT " +
-                    "ACCESS_TOKEN, AUTHZ_USER, TOKEN_STATE, REFRESH_TOKEN_TIME_CREATED, " +
-                    "REFRESH_TOKEN_VALIDITY_PERIOD, TOKEN_ID FROM " + accessTokenStoreTable + " WHERE CONSUMER_KEY = " +
-                    "? AND REFRESH_TOKEN = ? ORDER BY TIME_CREATED DESC LIMIT 1) AS IDN_OAUTH2_ACCESS_TOKEN_SELECTED " +
-                         "JOIN IDN_OAUTH2_SCOPE_ASSOCIATION WHERE IDN_OAUTH2_ACCESS_TOKEN_SELECTED.TOKEN_ID =" +
-                         " IDN_OAUTH2_SCOPE_ASSOCIATION.TOKEN_ID";
-
-            oracleQuery = "SELECT ACCESS_TOKEN, AUTHZ_USER, TOKEN_SCOPE, TOKEN_STATE, REFRESH_TOKEN_TIME_CREATED, " +
-                    "REFRESH_TOKEN_VALIDITY_PERIOD, IDN_OAUTH2_ACCESS_TOKEN_SELECTED.TOKEN_ID FROM ( SELECT * FROM " +
-                    "(SELECT ACCESS_TOKEN, AUTHZ_USER, TOKEN_STATE, REFRESH_TOKEN_TIME_CREATED, " +
-                    "REFRESH_TOKEN_VALIDITY_PERIOD, TOKEN_ID FROM " + accessTokenStoreTable + " WHERE CONSUMER_KEY = " +
-                    "? AND REFRESH_TOKEN = ? ORDER BY TIME_CREATED DESC) WHERE ROWNUM < 2 )  AS " +
-                          "IDN_OAUTH2_ACCESS_TOKEN_SELECTED JOIN IDN_OAUTH2_SCOPE_ASSOCIATION WHERE " +
-                          "IDN_OAUTH2_ACCESS_TOKEN_SELECTED.TOKEN_ID = IDN_OAUTH2_SCOPE_ASSOCIATION.TOKEN_ID";
-
-            msSqlQuery = "SELECT ACCESS_TOKEN, AUTHZ_USER, TOKEN_SCOPE, TOKEN_STATE, REFRESH_TOKEN_TIME_CREATED, " +
-                    "REFRESH_TOKEN_VALIDITY_PERIOD, IDN_OAUTH2_ACCESS_TOKEN_SELECTED.TOKEN_ID FROM (SELECT TOP 1 ACCESS_TOKEN, " +
-                    "AUTHZ_USER, TOKEN_SCOPE, TOKEN_STATE, REFRESH_TOKEN_TIME_CREATED, TOKEN_ID FROM, " +
-                    "REFRESH_TOKEN_VALIDITY_PERIOD, TOKEN_ID " + accessTokenStoreTable + " WHERE CONSUMER_KEY = ? AND" +
-                         " REFRESH_TOKEN = ? ORDER BY TIME_CREATED DESC) AS IDN_OAUTH2_ACCESS_TOKEN_SELECTED JOIN " +
-                         "IDN_OAUTH2_SCOPE_ASSOCIATION WHERE IDN_OAUTH2_ACCESS_TOKEN_SELECTED.TOKEN_ID = " +
-                         "IDN_OAUTH2_SCOPE_ASSOCIATION.TOKEN_ID";
-
-            postgreSqlQuery = "SELECT ACCESS_TOKEN, AUTHZ_USER, TOKEN_SCOPE, TOKEN_STATE, REFRESH_TOKEN_TIME_CREATED," +
-                    " REFRESH_TOKEN_VALIDITY_PERIOD, IDN_OAUTH2_ACCESS_TOKEN_SELECTED.TOKEN_ID FROM (SELECT " +
-                    "ACCESS_TOKEN, AUTHZ_USER, TOKEN_STATE, REFRESH_TOKEN_TIME_CREATED, " +
-                    "REFRESH_TOKEN_VALIDITY_PERIOD, TOKEN_ID FROM " + accessTokenStoreTable + " WHERE CONSUMER_KEY = " +
-                    "? AND REFRESH_TOKEN = ? ORDER BY TIME_CREATED DESC LIMIT 1) AS IDN_OAUTH2_ACCESS_TOKEN_SELECTED " +
-                              "JOIN IDN_OAUTH2_SCOPE_ASSOCIATION ON IDN_OAUTH2_ACCESS_TOKEN_SELECTED.TOKEN_ID = " +
-                              "IDN_OAUTH2_SCOPE_ASSOCIATION.TOKEN_ID";
+            mySqlQuery = SQLQueries.RETRIEVE_ACCESS_TOKEN_VALIDATION_DATA_MYSQL.replaceAll("$accessTokenStoreTable",
+                    accessTokenStoreTable);
+            oracleQuery = SQLQueries.RETRIEVE_ACCESS_TOKEN_VALIDATION_DATA_ORACLE.replaceAll("$accessTokenStoreTable",
+                    accessTokenStoreTable);
+            msSqlQuery = SQLQueries.RETRIEVE_ACCESS_TOKEN_VALIDATION_DATA_MSSQL.replaceAll("$accessTokenStoreTable",
+                    accessTokenStoreTable);
+            informixQuery = SQLQueries.RETRIEVE_ACCESS_TOKEN_VALIDATION_DATA_INFORMIX.replaceAll("$accessTokenStoreTable",
+                    accessTokenStoreTable);
+            postgreSqlQuery = SQLQueries.RETRIEVE_ACCESS_TOKEN_VALIDATION_DATA_POSTGRESQL.replaceAll("$accessTokenStoreTable",
+                    accessTokenStoreTable);
 
             if (connection.getMetaData().getDriverName().contains("MySQL")
                     || connection.getMetaData().getDriverName().contains("H2")) {
@@ -661,6 +645,8 @@ public class TokenMgtDAO {
                 sql = msSqlQuery;
             } else if (connection.getMetaData().getDriverName().contains("PostgreSQL")) {
                 sql = postgreSqlQuery;
+            } else if (connection.getMetaData().getDriverName().contains("INFORMIX")) {
+                sql = informixQuery;
             } else {
                 sql = oracleQuery;
             }
