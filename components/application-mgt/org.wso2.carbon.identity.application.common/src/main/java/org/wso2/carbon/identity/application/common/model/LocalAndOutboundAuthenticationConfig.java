@@ -36,8 +36,8 @@ public class LocalAndOutboundAuthenticationConfig implements Serializable {
     private AuthenticationStep authenticationStepForAttributes;
     private boolean alwaysSendBackAuthenticatedListOfIdPs;
     private String subjectClaimUri;
-    private boolean useTenantDomainInLocalSubjectIdentifier;
-    private boolean useUserstoreDomainInLocalSubjectIdentifier;
+    private boolean useTenantDomainInLocalSubjectIdentifier = true;
+    private boolean useUserstoreDomainInLocalSubjectIdentifier = true;
 
     /*
      * <LocalAndOutboundAuthenticationConfig> <AuthenticationSteps></AuthenticationSteps>
