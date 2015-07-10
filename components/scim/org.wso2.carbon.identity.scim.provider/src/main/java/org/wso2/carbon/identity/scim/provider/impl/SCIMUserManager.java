@@ -646,6 +646,12 @@ public class SCIMUserManager implements UserManager {
                     log.info("Group: " + group.getDisplayName() + " is created through SCIM.");
                 }
             } catch (UserStoreException e) {
+                try {
+                    SCIMGroupHandler scimGroupHandler = new SCIMGroupHandler(carbonUM.getTenantId());
+                    scimGroupHandler.deleteGroupAttributes(group.getDisplayName());
+                } catch (UserStoreException | IdentitySCIMException ex) {
+                    throw new CharonException("Error occurred while doing rollback operation of the SCIM table entry for role: " + group.getDisplayName(), e);
+                }
                 throw new CharonException("Error occurred while adding role : " + group.getDisplayName(), e);
             } catch (IdentitySCIMException e) {
                 //This exception can occurr because of scimGroupHandler.createSCIMAttributes(group) or
