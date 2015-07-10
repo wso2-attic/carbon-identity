@@ -84,6 +84,7 @@ public class UserIdentityManagementUtil {
         UserIdentityClaimsDO userIdentityDO = store.load(UserCoreUtil.removeDomainFromName(userName), userStoreManager);
         if (userIdentityDO != null) {
             userIdentityDO.setAccountLock(true);
+            userIdentityDO.setUnlockTime(0);
             store.store(userIdentityDO, userStoreManager);
         } else {
             throw new IdentityException("No user account found for user " + userName);
@@ -103,6 +104,7 @@ public class UserIdentityManagementUtil {
         UserIdentityClaimsDO userIdentityDO = store.load(UserCoreUtil.removeDomainFromName(userName), userStoreManager);
         if (userIdentityDO != null) {
             userIdentityDO.setAccountLock(false);
+            userIdentityDO.setUnlockTime(0);
             store.store(userIdentityDO, userStoreManager);
         } else {
             throw new IdentityException("No user account found for user " + userName);
