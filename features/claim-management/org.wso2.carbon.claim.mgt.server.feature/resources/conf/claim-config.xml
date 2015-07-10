@@ -30,7 +30,7 @@
 			<Claim>
 				<ClaimURI>http://wso2.org/claims/lastname</ClaimURI>
 				<DisplayName>Last Name</DisplayName>
-				<AttributeID>surname</AttributeID>
+				<AttributeID>sn</AttributeID>
 				<Description>Last Name</Description>
 				<Required />
 				<DisplayOrder>2</DisplayOrder>
