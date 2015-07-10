@@ -311,7 +311,7 @@
     </script>
 
     <div id="middle">
-        <h2><fmt:message key='workflow.list'/></h2>
+        <h2><fmt:message key='workflow.service.association.add'/></h2>
 
         <div id="workArea">
             <div id="addNew">
