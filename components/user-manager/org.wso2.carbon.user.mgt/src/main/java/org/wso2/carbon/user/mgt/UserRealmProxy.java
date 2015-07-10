@@ -2084,7 +2084,7 @@ public class UserRealmProxy {
             userStore.updateCredential(userName, newPassword, oldPassword);
         } catch (UserStoreException e) {
             // previously logged so logging not needed
-            throw new UserAdminException("Error while updating password for user " + userName, e);
+            throw new UserAdminException(e.getMessage(), e);
         }
     }
 
