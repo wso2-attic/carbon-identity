@@ -19,20 +19,6 @@
 package org.wso2.carbon.user.mgt;
 
 
-
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-
 import org.apache.axis2.context.MessageContext;
 import org.apache.axis2.transport.http.HTTPConstants;
 import org.apache.commons.logging.Log;
@@ -68,6 +54,18 @@ import org.wso2.carbon.user.mgt.permission.ManagementPermissionUtil;
 import org.wso2.carbon.utils.ServerConstants;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class UserRealmProxy {
 
@@ -2052,22 +2050,44 @@ public class UserRealmProxy {
         }
     }
 
+
+    private String getDomainFromUserName(String username) {
+        int index;
+        if ((index = username.indexOf("/")) > 0) {
+            String domain = username.substring(0, index);
+            return domain;
+        }
+        return UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME;
+    }
+
     public void bulkImportUsers(String fileName, InputStream inStream, String defaultPassword)
             throws UserAdminException {
+
+        String domainName = getDomainFromUserName(fileName);
+
+        fileName = UserCoreUtil.removeDomainFromName(fileName);
+
         try {
             BulkImportConfig config = new BulkImportConfig(inStream, fileName);
             if (defaultPassword != null && defaultPassword.trim().length() > 0) {
                 config.setDefaultPassword(defaultPassword.trim());
             }
             UserStoreManager userStore = this.realm.getUserStoreManager();
-            if (fileName.endsWith("csv")) {
-                CSVUserBulkImport csvAdder = new CSVUserBulkImport(config);
-                csvAdder.addUserList(userStore);
-            } else if (fileName.endsWith("xls") || fileName.endsWith("xlsx")) {
-                ExcelUserBulkImport excelAdder = new ExcelUserBulkImport(config);
-                excelAdder.addUserList(userStore);
+
+            userStore = userStore.getSecondaryUserStoreManager(domainName);
+
+            if (userStore.isBulkImportSupported()) {
+                if (fileName.endsWith("csv")) {
+                    CSVUserBulkImport csvAdder = new CSVUserBulkImport(config);
+                    csvAdder.addUserList(userStore);
+                } else if (fileName.endsWith("xls") || fileName.endsWith("xlsx")) {
+                    ExcelUserBulkImport excelAdder = new ExcelUserBulkImport(config);
+                    excelAdder.addUserList(userStore);
+                } else {
+                    throw new UserAdminException("Unsupported format");
+                }
             } else {
-                throw new UserAdminException("Unsupported format");
+                throw new UserAdminException("Userstore does not support bulk import");
             }
         } catch (UserStoreException e) {
             // previously logged so logging not needed
