@@ -47,6 +47,8 @@ public class UserStoreInfo {
         return isBulkImportSupported;
     }
 
+    private boolean caseSensitiveUsername;
+
     public void setBulkImportSupported(boolean bulkImportSupported) {
         isBulkImportSupported = bulkImportSupported;
     }
@@ -129,5 +131,13 @@ public class UserStoreInfo {
 
     public void setPasswordRegExViolationErrorMsg(String passwordRegExViolationErrorMsg) {
         this.passwordRegExViolationErrorMsg = passwordRegExViolationErrorMsg;
+    }
+
+    public boolean isCaseSensitiveUsername() {
+        return caseSensitiveUsername;
+    }
+
+    public void setCaseSensitiveUsername(boolean caseSensitiveUsername) {
+        this.caseSensitiveUsername = caseSensitiveUsername;
     }
 }
