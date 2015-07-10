@@ -146,7 +146,7 @@
                                    onclick="javascript: approvedAlways();" value="<fmt:message key='approve.always'/>"/>
                             <input type="hidden" id="hasApprovedAlways" name="hasApprovedAlways" value="false"/>
                             <input class="btn" type="reset" value="<fmt:message key='cancel'/>"
-                                   onclick="javascript:document.location.href='../carbon/admin/login.jsp'"/>
+                                   onclick="javascript:document.location.href='<%=openidreturnto%>'"/>
                         </div>
                     </form>
 

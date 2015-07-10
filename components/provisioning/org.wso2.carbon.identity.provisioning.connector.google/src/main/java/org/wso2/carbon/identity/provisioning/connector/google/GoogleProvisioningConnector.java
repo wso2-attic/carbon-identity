@@ -19,6 +19,7 @@
 package org.wso2.carbon.identity.provisioning.connector.google;
 
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
+import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
@@ -250,8 +251,15 @@ public class GoogleProvisioningConnector extends AbstractOutboundProvisioningCon
                 request.execute();
 
             } catch (IOException e) {
-                throw new IdentityProvisioningException("Error while deleting Google user : "
-                                                        + provisioningEntity.getEntityName(), e);
+                if (((GoogleJsonResponseException) e).getStatusCode() == 404) {
+                    log.warn("Exception while deleting user from google. User may be already deleted from google");
+                    if (log.isDebugEnabled()) {
+                        log.debug("Exception while deleting user from google. User may be already deleted from google", e);
+                    }
+                } else {
+                    throw new IdentityProvisioningException("Error while deleting Google user : "
+                            + provisioningEntity.getEntityName(), e);
+                }
             }
 
             if (isDebugEnabled) {

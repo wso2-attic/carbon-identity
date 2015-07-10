@@ -98,6 +98,10 @@
                             org.wso2.carbon.identity.application.mgt.dto.*;
                             version="${carbon.identity.package.export.version}",
                             org.wso2.carbon.identity.application.common.model.xsd.*;
+                            version="${carbon.identity.package.export.version}",
+                            org.wso2.carbon.identity.application.common.xsd;
+                            version="${carbon.identity.package.export.version}",
+                            org.wso2.carbon.identity.application.mgt.stub.types.axis2;
                             version="${carbon.identity.package.export.version}"
                         </Export-Package>
                     </instructions>

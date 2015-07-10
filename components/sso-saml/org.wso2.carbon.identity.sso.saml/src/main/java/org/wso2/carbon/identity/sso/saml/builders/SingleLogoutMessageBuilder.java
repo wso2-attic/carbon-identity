@@ -50,7 +50,7 @@ public class SingleLogoutMessageBuilder {
     }
 
     public LogoutRequest buildLogoutRequest(String subject, String sessionId, String reason,
-                                            String destination) throws IdentityException {
+                                            String destination, String nameIDFormat) throws IdentityException {
         LogoutRequest logoutReq = new LogoutRequestBuilder().buildObject();
         logoutReq.setID(SAMLSSOUtil.createID());
 
@@ -60,7 +60,7 @@ public class SingleLogoutMessageBuilder {
         logoutReq.setNotOnOrAfter(new DateTime(issueInstant.getMillis() + 5 * 60 * 1000));
 
         NameID nameId = new NameIDBuilder().buildObject();
-        nameId.setFormat(SAMLSSOConstants.NAME_ID_POLICY_ENTITY);
+        nameId.setFormat(nameIDFormat);
         nameId.setValue(subject);
         logoutReq.setNameID(nameId);
 
