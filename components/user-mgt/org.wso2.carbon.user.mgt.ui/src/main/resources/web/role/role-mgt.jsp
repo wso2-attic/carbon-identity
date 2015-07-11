@@ -21,16 +21,21 @@
 <%@ page import="org.apache.axis2.context.ConfigurationContext" %>
 <%@page import="org.wso2.carbon.CarbonConstants" %>
 <%@page import="org.wso2.carbon.ui.CarbonUIUtil" %>
-<%@page import="org.wso2.carbon.user.mgt.ui.UserAdminClient"%>
-<%@page import="org.wso2.carbon.utils.ServerConstants"%>
 <%@page import="org.wso2.carbon.ui.util.CharacterEncoder"%>
-<%@ page import="org.wso2.carbon.user.mgt.ui.Util" %>
+<%@page import="org.wso2.carbon.user.mgt.stub.types.carbon.FlaggedName" %>
+<%@page import="org.wso2.carbon.user.mgt.stub.types.carbon.UserRealmInfo" %>
 <%@ page import="org.wso2.carbon.user.mgt.ui.PaginatedNamesBean" %>
-<%@ page import="java.util.*" %>
-<%@ page import="org.wso2.carbon.user.mgt.stub.types.carbon.FlaggedName" %>
+<%@ page import="org.wso2.carbon.user.mgt.ui.UserAdminClient" %>
 <%@ page import="org.wso2.carbon.user.mgt.ui.UserAdminUIConstants" %>
-<%@ page import="org.wso2.carbon.user.mgt.stub.types.carbon.UserRealmInfo" %>
+<%@ page import="org.wso2.carbon.user.mgt.ui.Util" %>
+<%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@ page import="java.text.MessageFormat" %>
+<%@ page import="java.util.ArrayList" %>
+<%@ page import="java.util.Arrays" %>
+<%@ page import="java.util.HashMap" %>
+<%@ page import="java.util.List" %>
+<%@ page import="java.util.Map" %>
+<%@ page import="java.util.ResourceBundle" %>
 <script type="text/javascript" src="../userstore/extensions/js/vui.js"></script>
 <script type="text/javascript" src="../admin/js/main.js"></script>
 <jsp:include page="../dialog/display_messages.jsp"/>
@@ -431,7 +436,7 @@
             %>
 
 <table width="100%" border="0" cellpadding="0" cellspacing="0">
-<% if(multipleUserStores || !userRealmInfo.getPrimaryUserStoreInfo().getReadOnly()){%>
+    <% if (multipleUserStores || !userRealmInfo.getPrimaryUserStoreInfo().getReadOnly()) {%>
             <tr>
                 <td>
 <a href="add-step1.jsp" class="icon-link" style="background-image:url(images/add.gif);"><fmt:message key="add.new.role"/></a>

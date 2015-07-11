@@ -107,7 +107,7 @@ public class LocalAndOutboundAuthenticationConfig implements Serializable {
                 if (member.getText() != null && "true".equals(member.getText())) {
                     localAndOutboundAuthenticationConfig.setUseUserstoreDomainInLocalSubjectIdentifier(true);
                 }
-            }else if ("UseTenantDomainInUsername".equals(member.getLocalName())) {
+            } else if ("UseTenantDomainInUsername".equals(member.getLocalName())) {
                 if (member.getText() != null && "true".equals(member.getText())) {
                     localAndOutboundAuthenticationConfig.setUseTenantDomainInLocalSubjectIdentifier(true);
                 }
