@@ -20,6 +20,7 @@ package org.wso2.carbon.identity.sts.passive.ui;
 import org.apache.axis2.context.ConfigurationContext;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
@@ -348,7 +349,8 @@ public class PassiveSTS extends HttpServlet {
             for (Iterator<Entry<ClaimMapping, String>> iterator = attrMap.entrySet().iterator(); iterator
                     .hasNext(); ) {
                 Entry<ClaimMapping, String> entry = iterator.next();
-                buffer.append("{" + entry.getKey().getRemoteClaim().getClaimUri() + "|" + entry.getValue() + "}#CODE#");
+                buffer.append("{" + entry.getKey().getRemoteClaim().getClaimUri() + "|" +
+                        StringEscapeUtils.escapeHtml(entry.getValue()) + "}#CODE#");
             }
         }
 
