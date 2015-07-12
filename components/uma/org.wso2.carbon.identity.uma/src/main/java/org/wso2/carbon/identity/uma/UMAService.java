@@ -22,8 +22,12 @@ package org.wso2.carbon.identity.uma;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.identity.uma.dto.UmaResourceSetRegistrationRequest;
+import org.wso2.carbon.identity.uma.dto.UmaResourceSetRegistrationResponse;
 import org.wso2.carbon.identity.uma.dto.UmaRptRequest;
 import org.wso2.carbon.identity.uma.dto.UmaRptResponse;
+
+import javax.servlet.http.HttpServletResponse;
 
 public class UMAService {
 
@@ -52,11 +56,31 @@ public class UMAService {
 
 
         // get the response from the handlers and send to back
-        UmaRptResponse umaRptResponse = new UmaRptResponse();
+        UmaRptResponse umaRptResponse = new UmaRptResponse(HttpServletResponse.SC_OK);
         umaRptResponse.setRPT("kdjfsdfhdfshjgsasdisdfyuwey83475y43undf4387437");
 
         return umaRptResponse;
     }
+
+
+    public UmaResourceSetRegistrationResponse createResourceSet
+            (UmaResourceSetRegistrationRequest umaResourceSetRegistrationRequest){
+
+        return null;
+    }
+
+    public UmaResourceSetRegistrationResponse updateResourceSet
+            (UmaResourceSetRegistrationRequest umaResourceSetRegistrationRequest){
+
+        return null;
+    }
+
+    public UmaResourceSetRegistrationResponse deleteResourceSet
+            (UmaResourceSetRegistrationRequest umaResourceSetRegistrationRequest){
+        return null;
+    }
+
+
 
 
 }

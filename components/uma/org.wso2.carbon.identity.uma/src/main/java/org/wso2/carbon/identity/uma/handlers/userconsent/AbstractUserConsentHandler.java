@@ -18,20 +18,19 @@
  * /
  */
 
-package org.wso2.carbon.identity.uma.userconsent.handlers;
+package org.wso2.carbon.identity.uma.handlers.userconsent;
 
 import org.wso2.carbon.identity.uma.dto.context.UmaAuthzMessageContext;
+import org.wso2.carbon.identity.uma.handlers.UmaHandler;
 
-public abstract class AbstractUserConsentHandler implements UserConsentHandler{
+public abstract class AbstractUserConsentHandler implements UmaHandler {
 
-    @Override
-    public int getPriority(UmaAuthzMessageContext umaReqMessageContext) {
-        return 1;
-    }
+    public abstract void issueRPT(UmaAuthzMessageContext umaReqMessageContext);
 
+    public abstract void validateScope(UmaAuthzMessageContext umaReqMessageContext);
 
-    @Override
-    public void issueRPT(UmaAuthzMessageContext umaReqMessageContext) {
+    public abstract boolean requestStepUpAuthentication(UmaAuthzMessageContext umaReqMessageContext);
 
-    }
+    public abstract boolean requireClaims(UmaAuthzMessageContext umaReqMessageContext);
+
 }

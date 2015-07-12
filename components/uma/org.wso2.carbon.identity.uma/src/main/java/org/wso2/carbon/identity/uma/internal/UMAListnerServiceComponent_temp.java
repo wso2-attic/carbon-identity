@@ -25,7 +25,6 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.uma.claims.handlers.ClaimsTokenHandler;
 import org.wso2.carbon.identity.uma.claims.token.ClaimsToken;
 import org.wso2.carbon.identity.uma.rpt.issuer.RptIssuer;
-import org.wso2.carbon.identity.uma.userconsent.handlers.UserConsentHandler;
 
 import java.util.Collection;
 import java.util.List;
@@ -46,94 +45,94 @@ import java.util.TreeMap;
  * unbind="unsetUserConsentHandler"
  */
 public class UMAListnerServiceComponent_temp {
-
-    private static Log log = LogFactory.getLog(UMAListnerServiceComponent_temp.class);
-
-    private static Map<Integer, ClaimsTokenHandler> claimsTokenHandlers;
-    private static Map<Integer, UserConsentHandler> userConsentHandlerMap;
-    private static Map<String, ClaimsToken> claimTokens;
-    private static Map<Integer, RptIssuer> rptIssuers;
-
-    // list of handlers from the same string sorted by the priority
-    private static Map<String, List<UserConsentHandler>> userConsentHandlers;
-
-    private static Collection<ClaimsTokenHandler> claimsTokenHandlerCollection;
-    private static Collection<UserConsentHandler> userConsentHandlerCollection;
-    private static Collection<ClaimsToken> claimsTokenCollection;
-    private static Collection<RptIssuer> rptIssuerCollection;
-
-    protected static synchronized void setClaimsTokenHandler
-            (ClaimsTokenHandler claimsTokenHandler){
-        claimsTokenHandlerCollection = null;
-        if (claimsTokenHandlers == null){
-            claimsTokenHandlers = new TreeMap<>();
-        }
-        claimsTokenHandlers.put(claimsTokenHandler.getPriority(),claimsTokenHandler);
-
-    }
-
-    protected static synchronized void unsetClaimsTokenHandler
-            (ClaimsTokenHandler claimsTokenHandler){
-        if (claimsTokenHandler != null && claimsTokenHandlers != null){
-            claimsTokenHandlers.remove(claimsTokenHandler.getPriority());
-            claimsTokenHandlerCollection = null;
-        }
-
-    }
-
-    protected static synchronized void setUserConsentHandler
-            (UserConsentHandler userConsentHandler){
-        userConsentHandlerCollection= null;
-        if (userConsentHandlerMap == null){
-            userConsentHandlerMap = new TreeMap<>();
-        }
-      //  userConsentHandlerMap.put(userConsentHandler.getPriority(), userConsentHandler);
-
-    }
-
-    protected static synchronized void unsetUserConsentHandler
-            (UserConsentHandler userConsentHandler){
-        if (userConsentHandler != null && userConsentHandlerMap != null){
-        //    userConsentHandlerMap.remove(userConsentHandler.getPriority());
-            userConsentHandlerCollection = null;
-        }
-
-    }
-
-    protected static synchronized void setClaimTokens
-            (ClaimsToken claimTokens){
-
-    }
-
-    protected static synchronized void unsetClaimTokens
-            (ClaimsToken claimTokens){
-
-    }
-
-    protected static synchronized void setRptIssuers
-            (RptIssuer rptIssuer){
-
-    }
-
-    protected static synchronized void unsetRptIssuers
-            (RptIssuer rptIssuer){
-
-    }
-
-
-    public static Collection<ClaimsTokenHandler> getClaimsTokenHandlers() {
-        return null;
-    }
-
-    public static Collection<UserConsentHandler> getUserConsentHandlerMap() {
-        return null;
-    }
-
-    public static Collection<ClaimsToken> getClaimTokens() {
-        return claimTokens.values();
-    }
-
-    public static Collection<RptIssuer> getRptIssuers() {
-        return rptIssuers.values();
-    }
+//
+//    private static Log log = LogFactory.getLog(UMAListnerServiceComponent_temp.class);
+//
+//    private static Map<Integer, ClaimsTokenHandler> claimsTokenHandlers;
+//    private static Map<Integer, UserConsentHandler> userConsentHandlerMap;
+//    private static Map<String, ClaimsToken> claimTokens;
+//    private static Map<Integer, RptIssuer> rptIssuers;
+//
+//    // list of handlers from the same string sorted by the priority
+//    private static Map<String, List<UserConsentHandler>> userConsentHandlers;
+//
+//    private static Collection<ClaimsTokenHandler> claimsTokenHandlerCollection;
+//    private static Collection<UserConsentHandler> userConsentHandlerCollection;
+//    private static Collection<ClaimsToken> claimsTokenCollection;
+//    private static Collection<RptIssuer> rptIssuerCollection;
+//
+//    protected static synchronized void setClaimsTokenHandler
+//            (ClaimsTokenHandler claimsTokenHandler){
+//        claimsTokenHandlerCollection = null;
+//        if (claimsTokenHandlers == null){
+//            claimsTokenHandlers = new TreeMap<>();
+//        }
+//        claimsTokenHandlers.put(claimsTokenHandler.getPriority(),claimsTokenHandler);
+//
+//    }
+//
+//    protected static synchronized void unsetClaimsTokenHandler
+//            (ClaimsTokenHandler claimsTokenHandler){
+//        if (claimsTokenHandler != null && claimsTokenHandlers != null){
+//            claimsTokenHandlers.remove(claimsTokenHandler.getPriority());
+//            claimsTokenHandlerCollection = null;
+//        }
+//
+//    }
+//
+//    protected static synchronized void setUserConsentHandler
+//            (UserConsentHandler userConsentHandler){
+//        userConsentHandlerCollection= null;
+//        if (userConsentHandlerMap == null){
+//            userConsentHandlerMap = new TreeMap<>();
+//        }
+//      //  userConsentHandlerMap.put(userConsentHandler.getPriority(), userConsentHandler);
+//
+//    }
+//
+//    protected static synchronized void unsetUserConsentHandler
+//            (UserConsentHandler userConsentHandler){
+//        if (userConsentHandler != null && userConsentHandlerMap != null){
+//        //    userConsentHandlerMap.remove(userConsentHandler.getPriority());
+//            userConsentHandlerCollection = null;
+//        }
+//
+//    }
+//
+//    protected static synchronized void setClaimTokens
+//            (ClaimsToken claimTokens){
+//
+//    }
+//
+//    protected static synchronized void unsetClaimTokens
+//            (ClaimsToken claimTokens){
+//
+//    }
+//
+//    protected static synchronized void setRptIssuers
+//            (RptIssuer rptIssuer){
+//
+//    }
+//
+//    protected static synchronized void unsetRptIssuers
+//            (RptIssuer rptIssuer){
+//
+//    }
+//
+//
+//    public static Collection<ClaimsTokenHandler> getClaimsTokenHandlers() {
+//        return null;
+//    }
+//
+//    public static Collection<UserConsentHandler> getUserConsentHandlerMap() {
+//        return null;
+//    }
+//
+//    public static Collection<ClaimsToken> getClaimTokens() {
+//        return claimTokens.values();
+//    }
+//
+//    public static Collection<RptIssuer> getRptIssuers() {
+//        return rptIssuers.values();
+//    }
 }

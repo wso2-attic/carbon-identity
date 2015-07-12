@@ -29,14 +29,25 @@ import javax.servlet.http.HttpServletRequest;
 public class UmaResourceSetRegistrationRequest extends UmaRequest{
 
     private ResourceSetDescriptionBean resourceSetDescription;
-
+    private int resourceId;
 
     public UmaResourceSetRegistrationRequest(HttpServletRequest httpServletRequest) {
         super(httpServletRequest);
+    }
+
+    public void setResourceSetDescription(ResourceSetDescriptionBean resourceSetDescription) {
+        this.resourceSetDescription = resourceSetDescription;
+    }
+
+    public void setResourceId(int resourceId) {
+        this.resourceId = resourceId;
     }
 
     public ResourceSetDescriptionBean getResourceSetDescription() {
         return resourceSetDescription;
     }
 
+    public int getResourceId() {
+        return resourceId;
+    }
 }

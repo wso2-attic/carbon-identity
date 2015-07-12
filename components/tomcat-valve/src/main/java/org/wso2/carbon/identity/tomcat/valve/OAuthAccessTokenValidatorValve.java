@@ -4,6 +4,7 @@ import org.apache.catalina.LifecycleException;
 import org.apache.catalina.connector.Request;
 import org.apache.catalina.connector.Response;
 import org.apache.catalina.valves.ValveBase;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.oauth2.OAuth2TokenValidationService;
@@ -43,7 +44,7 @@ public class OAuthAccessTokenValidatorValve extends ValveBase{
         for (String endpoint : endpoints.split(",")){
             String temp = endpoint.trim();
             if (!temp.isEmpty()){
-                if (temp.startsWith("/") || temp.startsWith("\\")) {
+                if (temp.startsWith("/")) {
                     temp = temp.substring(1);
                 }
                 protectedEndpoints.add(temp);
@@ -117,25 +118,27 @@ public class OAuthAccessTokenValidatorValve extends ValveBase{
 
     }
 
-    public void addProtectedEndpoints(String url){
-        protectedEndpoints.add(url.trim());
-    }
-
-
 
     private boolean checkEndPointIsProtected(String requestedURI){
-        // substring to remove the preceding file path separators
+        // substring to remove the preceding path separators
         String URI = requestedURI.trim();
+        boolean isProtected = false;
 
-        if (requestedURI.startsWith("/")){
-              URI = URI.substring(1);
+        // check whether the trimmed String is not empty
+        if(StringUtils.isNotEmpty(URI)){
+            // check whether there is a preceeding / character
+            if (StringUtils.startsWith(URI,"/")){
+                URI = URI.substring(1);
+            }
+
+            for (String endpoint : protectedEndpoints){
+                if (StringUtils.equals(endpoint,URI) || StringUtils.startsWith(URI,endpoint)){
+                    isProtected = true;
+                }
+            }
+
         }
-
-        if (requestedURI.endsWith("/")){
-            URI = URI.substring(0,URI.length()-1);
-        }
-
-        return protectedEndpoints.contains(URI);
+        return isProtected;
     }
 
     /**

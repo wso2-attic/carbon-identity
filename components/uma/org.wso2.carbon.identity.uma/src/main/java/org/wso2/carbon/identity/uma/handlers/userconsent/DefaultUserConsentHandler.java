@@ -18,9 +18,11 @@
  * /
  */
 
-package org.wso2.carbon.identity.uma.userconsent.handlers;
+package org.wso2.carbon.identity.uma.handlers.userconsent;
 
 import org.wso2.carbon.identity.uma.dto.context.UmaAuthzMessageContext;
+import org.wso2.carbon.identity.uma.dto.context.UmaMessageContext;
+import org.wso2.carbon.identity.uma.handlers.userconsent.AbstractUserConsentHandler;
 
 public class DefaultUserConsentHandler extends AbstractUserConsentHandler {
 
@@ -30,13 +32,13 @@ public class DefaultUserConsentHandler extends AbstractUserConsentHandler {
     }
 
     @Override
-    public String gethandledUserConsentType() {
-        return null;
+    public int getPriority(UmaMessageContext messageContext) {
+        return 0;
     }
 
     @Override
-    public boolean canHandleUserConsentType(UmaAuthzMessageContext umaReqMessageContext) {
-        return true;
+    public boolean canHandle(UmaMessageContext messageContext) {
+        return false;
     }
 
     @Override

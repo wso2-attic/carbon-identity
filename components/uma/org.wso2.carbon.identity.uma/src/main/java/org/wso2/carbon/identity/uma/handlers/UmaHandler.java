@@ -20,12 +20,16 @@
  *
  */
 
-package org.wso2.carbon.identity.uma.dto;
+package org.wso2.carbon.identity.uma.handlers;
 
-public class UmaResourceSetRegistrationResponse extends UmaResponse{
+import org.wso2.carbon.identity.uma.dto.context.UmaMessageContext;
 
-    protected UmaResourceSetRegistrationResponse(int responseStatus) {
-        super(responseStatus);
-    }
+public interface UmaHandler {
+
+    public void init();
+
+    public int getPriority(UmaMessageContext messageContext);
+
+    public boolean canHandle(UmaMessageContext messageContext);
 
 }

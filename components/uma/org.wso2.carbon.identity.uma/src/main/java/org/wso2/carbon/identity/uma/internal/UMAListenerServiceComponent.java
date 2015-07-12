@@ -24,73 +24,74 @@ package org.wso2.carbon.identity.uma.internal;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.uma.dto.context.UmaAuthzMessageContext;
-import org.wso2.carbon.identity.uma.userconsent.handlers.UserConsentHandler;
+import org.wso2.carbon.identity.uma.handlers.UmaHandler;
 
 import java.util.*;
 
 /**
  * @scr.component name="org.wso2.carbon.identity.uma.handlers.listener" immediate="true"
  * @scr.reference name="user.consent.handler.service"
- * interface="org.wso2.carbon.identity.uma.userconsent.handlers.UserConsentHandler"
+ * interface="org.wso2.carbon.identity.uma.handlers.UmaHandler"
  * cardinality="0..n" policy="dynamic"
- * bind="setUserConsentHandler"
- * unbind="unsetUserConsentHandler"
+ * bind="setUmaHandler"
+ * unbind="unsetUmaHandler"
  */
 public class UMAListenerServiceComponent {
     private static final Log log = LogFactory.getLog(UMAServiceComponent.class);
 
     // map of handlers
-    private static Map<String, List<UserConsentHandler>> userConsentHandlers;
+    private static Map<String, List<UmaHandler>> umaHandlers;
 
     // collections to be returned
-    private static Collection<UserConsentHandler> userConsentHandlerCollection;
+    private static Collection<UmaHandler> umaHandlerCollection;
 
 
-    protected static synchronized void setUserConsentHandler(UserConsentHandler userConsentHandler){
+    protected static synchronized void setUmaHandler(UmaHandler umaHandler){
 
-        userConsentHandlerCollection = null;
-
-        if (userConsentHandlers == null){
-            userConsentHandlers = new HashMap<>();
-        }
-
-        // if the list of handlers does not exist create one
-        if (userConsentHandlers.get(userConsentHandler.gethandledUserConsentType()) == null){
-            userConsentHandlers.put(userConsentHandler.gethandledUserConsentType(),new ArrayList<UserConsentHandler>());
-        }
-
-        // add the new user consent handler to the list
-        userConsentHandlers.get(userConsentHandler.gethandledUserConsentType()).add(userConsentHandler);
+//        userConsentHandlerCollection = null;
+//
+//        if (userConsentHandlers == null){
+//            userConsentHandlers = new HashMap<>();
+//        }
+//
+//        // if the list of handlers does not exist create one
+//        if (userConsentHandlers.get(userConsentHandler.gethandledUserConsentType()) == null){
+//            userConsentHandlers.put(userConsentHandler.gethandledUserConsentType(),new ArrayList<UserConsentHandler>());
+//        }
+//
+//        // add the new user consent handler to the list
+//        userConsentHandlers.get(userConsentHandler.gethandledUserConsentType()).add(userConsentHandler);
     }
 
 
-    protected static synchronized void unsetUserConsentHandler(UserConsentHandler userConsentHandler){
+    protected static synchronized void unsetUserConsentHandler(UmaHandler umaHandler){
 
 
     }
 
 
-    public static synchronized Collection<UserConsentHandler> getUserConsentHandlers(String consentType,UmaAuthzMessageContext messageContext){
-        List<UserConsentHandler> userConsentHandlerList = userConsentHandlers.get(consentType);
-
-        if (userConsentHandlerList != null){
-                // sort according to the priority
-        }
-
-        return userConsentHandlerList;
+    public static synchronized Collection<UmaHandler> getUserConsentHandlers(String consentType,UmaAuthzMessageContext messageContext){
+//        List<UserConsentHandler> userConsentHandlerList = userConsentHandlers.get(consentType);
+//
+//        if (userConsentHandlerList != null){
+//                // sort according to the priority
+//        }
+//
+//        return userConsentHandlerList;
+        return null;
     }
 
-    public static synchronized Collection<UserConsentHandler> getUserConsentHandlers(){
+    public static synchronized Collection<UmaHandler> getUserConsentHandlers(){
 
-        if (userConsentHandlerCollection == null) {
-            userConsentHandlerCollection = new ArrayList<>();
+//        if (userConsentHandlerCollection == null) {
+//            userConsentHandlerCollection = new ArrayList<>();
+//
+//            for (List list : userConsentHandlers.values()) {
+//                userConsentHandlerCollection.addAll(list);
+//            }
+//        }
 
-            for (List list : userConsentHandlers.values()) {
-                userConsentHandlerCollection.addAll(list);
-            }
-        }
-
-        return userConsentHandlerCollection;
+        return null;
     }
 }
 
