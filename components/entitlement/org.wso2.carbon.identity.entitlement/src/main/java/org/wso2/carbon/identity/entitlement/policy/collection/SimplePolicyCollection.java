@@ -159,4 +159,20 @@ public class SimplePolicyCollection implements PolicyCollection {
     public void setPolicyCombiningAlgorithm(PolicyCombiningAlgorithm algorithm) {
         this.combiningAlg = algorithm;
     }
+
+    @Override
+    public boolean deletePolicy(String policyId) {
+
+        return this.policyCollection.remove(policyId) != null ;
+    }
+
+    @Override
+    public LinkedHashMap getPolicyMap() {
+        return this.policyCollection;
+    }
+
+    @Override
+    public void setPolicyMap(LinkedHashMap policyMap) {
+        this.policyCollection = policyMap ;
+    }
 }
