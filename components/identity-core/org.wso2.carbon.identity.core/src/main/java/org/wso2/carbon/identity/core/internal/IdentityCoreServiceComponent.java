@@ -67,6 +67,7 @@ public class IdentityCoreServiceComponent {
      * @param ctxt
      */
     protected void activate(ComponentContext ctxt) {
+        IdentityTenantUtil.setBundleContext(ctxt.getBundleContext());
         if (log.isDebugEnabled()) {
             log.debug("Identity Core bundle is activated");
         }
@@ -113,6 +114,7 @@ public class IdentityCoreServiceComponent {
      * @param ctxt
      */
     protected void deactivate(ComponentContext ctxt) {
+        IdentityTenantUtil.setBundleContext(null);
         if (log.isDebugEnabled()) {
             log.debug("Identity Core bundle is deactivated");
         }
