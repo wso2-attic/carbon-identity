@@ -765,7 +765,7 @@ public class UserInformationRecoveryService {
 
         try {
 
-            if(userStoreManager == null){
+            if (userStoreManager == null) {
                 vBean = new VerificationBean();
                 vBean.setVerified(false);
                 vBean.setError(VerificationBean.ERROR_CODE_UNEXPECTED
@@ -800,43 +800,45 @@ public class UserInformationRecoveryService {
                         + " Error occurred while adding user : " + userName, e);
                 return vBean;
             }
+
+
+            IdentityMgtConfig config = IdentityMgtConfig.getInstance();
+
+            if (config.isListenerEnable() && config.isAuthPolicyAccountLockOnCreation()) {
+                UserDTO userDTO = new UserDTO(userName);
+                userDTO.setTenantId(tenantId);
+
+                UserRecoveryDTO dto = new UserRecoveryDTO(userDTO);
+                dto.setNotification(IdentityMgtConstants.Notification.ACCOUNT_CONFORM);
+                dto.setNotificationType("EMAIL");
+
+                RecoveryProcessor processor = IdentityMgtServiceComponent.getRecoveryProcessor();
+                try {
+                    vBean = processor.updateConfirmationCode(1, userName, tenantId);
+
+                    dto.setConfirmationCode(vBean.getKey());
+                    NotificationDataDTO notificationDto = processor.notifyWithEmail(dto);
+                    vBean.setVerified(notificationDto.isNotificationSent());
+
+//				Send email data only if not internally managed.
+                    if (!(IdentityMgtConfig.getInstance().isNotificationInternallyManaged())) {
+                        vBean.setNotificationData(notificationDto);
+                    }
+
+                } catch (IdentityException e) {
+                    userStoreManager.deleteUser(userName);
+                    vBean = handleError(VerificationBean.ERROR_CODE_UNEXPECTED
+                            + " Error occurred while registering user : " + userName, e);
+                    return vBean;
+                }
+
+            } else {
+                vBean.setVerified(true);
+            }
         } catch (UserStoreException e) {
             vBean = handleError(VerificationBean.ERROR_CODE_UNEXPECTED
                     + " Error occurred while adding user : " + userName, e);
             return vBean;
-        }
-
-        IdentityMgtConfig config = IdentityMgtConfig.getInstance();
-
-        if (config.isListenerEnable() && config.isAuthPolicyAccountLockOnCreation()) {
-            UserDTO userDTO = new UserDTO(userName);
-            userDTO.setTenantId(tenantId);
-
-            UserRecoveryDTO dto = new UserRecoveryDTO(userDTO);
-            dto.setNotification(IdentityMgtConstants.Notification.ACCOUNT_CONFORM);
-            dto.setNotificationType("EMAIL");
-
-            RecoveryProcessor processor = IdentityMgtServiceComponent.getRecoveryProcessor();
-            try {
-                vBean = processor.updateConfirmationCode(1, userName, tenantId);
-
-                dto.setConfirmationCode(vBean.getKey());
-                NotificationDataDTO notificationDto = processor.notifyWithEmail(dto);
-                vBean.setVerified(notificationDto.isNotificationSent());
-
-//				Send email data only if not internally managed.
-                if (!(IdentityMgtConfig.getInstance().isNotificationInternallyManaged())) {
-                    vBean.setNotificationData(notificationDto);
-                }
-
-            } catch (IdentityException e) {
-                vBean = handleError(VerificationBean.ERROR_CODE_UNEXPECTED
-                        + " Error occurred while registering user : " + userName, e);
-                return vBean;
-            }
-
-        } else {
-            vBean.setVerified(true);
         }
 
         return vBean;
@@ -957,7 +959,7 @@ public class UserInformationRecoveryService {
             log.error(error, e);
         } else {
             bean.setError(e.getMessage());
-            log.error(e);
+            log.error(e.getMessage(), e);
         }
 
         return bean;
@@ -972,7 +974,7 @@ public class UserInformationRecoveryService {
             log.error(error, e);
         } else {
             bean.setError(e.getMessage());
-            log.error(e);
+            log.error(e.getMessage(), e);
         }
 
         return bean;
@@ -987,7 +989,7 @@ public class UserInformationRecoveryService {
             log.error(error, e);
         } else {
             bean.setError(e.getMessage());
-            log.error(e);
+            log.error(e.getMessage(), e);
         }
 
         return bean;
