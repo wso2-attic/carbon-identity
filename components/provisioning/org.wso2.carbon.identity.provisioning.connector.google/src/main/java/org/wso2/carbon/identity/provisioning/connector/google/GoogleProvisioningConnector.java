@@ -258,7 +258,7 @@ public class GoogleProvisioningConnector extends AbstractOutboundProvisioningCon
                     }
                 } else {
                     throw new IdentityProvisioningException("Error while deleting Google user : "
-                            + provisioningEntity.getEntityName(), e);
+                                                            + provisioningEntity.getEntityName(), e);
                 }
             }
 

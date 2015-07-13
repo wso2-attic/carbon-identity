@@ -78,7 +78,7 @@ public class ApplicationManagementServiceClient {
 
     /**
      * @param serviceProvider
-     * @throws Exception
+     * @throws AxisFault
      */
     public void createApplication(ServiceProvider serviceProvider) throws AxisFault {
         try {
@@ -148,7 +148,7 @@ public class ApplicationManagementServiceClient {
 
     /**
      * @param identityProviderName
-     * @throws Exception
+     * @throws AxisFault
      */
     public IdentityProvider getFederatedIdentityProvider(String identityProviderName) throws AxisFault {
         try {
@@ -187,7 +187,7 @@ public class ApplicationManagementServiceClient {
 
     /**
      * @return
-     * @throws Exception
+     * @throws AxisFault
      */
     public IdentityProvider[] getAllFederatedIdentityProvider() throws AxisFault {
         try {
@@ -200,7 +200,7 @@ public class ApplicationManagementServiceClient {
 
     /**
      * @return
-     * @throws Exception
+     * @throws AxisFault
      */
     public String[] getAllClaimUris() throws AxisFault {
         try {
@@ -215,7 +215,7 @@ public class ApplicationManagementServiceClient {
      * Get User Store Domains
      *
      * @return
-     * @throws Exception
+     * @throws AxisFault
      */
     public String[] getUserStoreDomains() throws AxisFault {
         try {

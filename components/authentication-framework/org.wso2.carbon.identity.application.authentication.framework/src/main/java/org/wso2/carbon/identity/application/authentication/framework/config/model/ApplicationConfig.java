@@ -49,8 +49,8 @@ public class ApplicationConfig implements Serializable {
     private Map<String, String> roleMappings = new HashMap<String, String>();
     private Map<String, String> requestedClaims = new HashMap<String, String>();
     private boolean isSaaSApp;
-    private boolean useTenantDomainInLocalSubjectIdentifier = false;
-    private boolean useUserstoreDomainInLocalSubjectIdentifier = false;
+    private boolean useTenantDomainInLocalSubjectIdentifier = true;
+    private boolean useUserstoreDomainInLocalSubjectIdentifier = true;
 
     public ApplicationConfig(ServiceProvider application) {
         this.serviceProvider = application;

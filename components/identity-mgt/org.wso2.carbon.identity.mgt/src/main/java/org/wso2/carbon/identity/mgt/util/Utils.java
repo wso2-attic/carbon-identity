@@ -40,7 +40,9 @@ import org.wso2.carbon.user.api.UserStoreManager;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.core.tenant.TenantManager;
+import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
+import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import java.io.ByteArrayInputStream;
 import java.security.MessageDigest;
@@ -221,6 +223,10 @@ public class Utils {
             if (email == null || email.trim().length() < 1) {
                 email = getClaimFromUserStoreManager(userName, tenantId,
                         UserCoreConstants.ClaimTypeURIs.EMAIL_ADDRESS);
+            }
+
+            if ((email == null || email.trim().length() < 1) && MultitenantUtils.isEmailUserName()) {
+                email = UserCoreUtil.removeDomainFromName(userName);
             }
         } catch (Exception e) {
             String msg = "Unable to retrieve an email address associated with the given user : " + userName;

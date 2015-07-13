@@ -318,8 +318,8 @@ public class TokenMgtDAO {
 
             String sql;
             if (connection.getMetaData().getDriverName().contains("MySQL")
-                    || connection.getMetaData().getDriverName().contains("H2")
-                    || connection.getMetaData().getDatabaseProductName().contains("DB2")) {
+                || connection.getMetaData().getDriverName().contains("H2")
+                || connection.getMetaData().getDatabaseProductName().contains("DB2")) {
                 sql = SQLQueries.RETRIEVE_LATEST_ACCESS_TOKEN_BY_CLIENT_ID_USER_SCOPE_MYSQL;
             } else if (connection.getMetaData().getDriverName().contains("MS SQL")) {
                 sql = SQLQueries.RETRIEVE_LATEST_ACCESS_TOKEN_BY_CLIENT_ID_USER_SCOPE_MSSQL;
@@ -638,8 +638,8 @@ public class TokenMgtDAO {
                     accessTokenStoreTable);
 
             if (connection.getMetaData().getDriverName().contains("MySQL")
-                    || connection.getMetaData().getDriverName().contains("H2")
-                    || connection.getMetaData().getDatabaseProductName().contains("DB2")) {
+                || connection.getMetaData().getDriverName().contains("H2")
+                || connection.getMetaData().getDatabaseProductName().contains("DB2")) {
                 sql = mySqlQuery;
             } else if (connection.getMetaData().getDriverName().contains("MS SQL")) {
                 sql = msSqlQuery;
