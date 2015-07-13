@@ -24,6 +24,7 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.context.RegistryType;
+import org.wso2.carbon.user.api.UserRealmService;
 import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.mgt.common.ClaimValue;
@@ -31,6 +32,8 @@ import org.wso2.carbon.user.mgt.common.FlaggedName;
 import org.wso2.carbon.user.mgt.common.UIPermissionNode;
 import org.wso2.carbon.user.mgt.common.UserAdminException;
 import org.wso2.carbon.user.mgt.common.UserRealmInfo;
+import org.wso2.carbon.user.mgt.internal.UserMgtDSComponent;
+import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import javax.activation.DataHandler;
 import java.io.IOException;
@@ -556,15 +559,29 @@ public class UserAdmin {
      */
         public void changePasswordByUser(String userName, String oldPassword, String newPassword)
             throws UserAdminException {
+
         String result = null;
-
         try{
-
-            getUserAdminProxy().changePasswordByUser(userName, oldPassword, newPassword);
-            result = SUCCESS;
+            String tenantDomain = MultitenantUtils.getTenantDomain(userName);
+            UserRealmService realmService = UserMgtDSComponent.getRealmService();
+            int tenantId = realmService.getTenantManager().getTenantId(tenantDomain);
+            org.wso2.carbon.user.api.UserRealm userRealm = realmService.getTenantUserRealm(tenantId);
+            String tenantAwareUsername = MultitenantUtils.getTenantAwareUsername(userName);
+            boolean isAuthenticated = userRealm.getUserStoreManager().authenticate(tenantAwareUsername, oldPassword);
+            if(isAuthenticated){
+                getUserAdminProxy().changePasswordByUser(userName, oldPassword, newPassword);
+                result = SUCCESS;
+            }else{
+                result = FAILED;
+                throw new UserAdminException("Error while updating password. Wrong old credential provided ");
+            }
         } catch (UserAdminException e) {
             result = FAILED;
             throw e;
+        } catch (org.wso2.carbon.user.api.UserStoreException e) {
+            result = FAILED;
+            throw new UserAdminException("Error while updating password. Please enter tenant unaware username",
+                    e);
         } finally {
 
             // ################### <Audit Logs> ##########################################
@@ -572,7 +589,8 @@ public class UserAdmin {
                     getUser(), "", result));
             // ################### </Audit Logs> ##########################################
         }
-    }
+
+        }
 
 
     /**

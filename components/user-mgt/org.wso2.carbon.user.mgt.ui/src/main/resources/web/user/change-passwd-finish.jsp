@@ -43,10 +43,11 @@
         ConfigurationContext configContext =
             (ConfigurationContext) config.getServletContext().getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
         UserAdminClient client = new UserAdminClient(cookie, backendServerURL, configContext);
-        if(isUserChange != null) {
-            username = (String)session.getAttribute(CarbonSecuredHttpContext.LOGGED_USER);
-            client.changePasswordByUser(username, currentPassword, newPassword);
-            forwardTo = returnPath;        
+        if (isUserChange != null) {
+            String tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+            client.changePasswordByUser(UserCoreUtil.addTenantDomainToEntry(username, tenantDomain),
+                    currentPassword, newPassword);
+            forwardTo = returnPath;
             session.removeAttribute(ServerConstants.PASSWORD_EXPIRATION);
         } else {
             client.changePassword(Util.decodeHTMLCharacters(username), newPassword);
@@ -73,6 +74,8 @@
 
 <%@page import="java.text.MessageFormat" %>
 <%@page import="java.util.ResourceBundle" %>
+<%@ page import="org.wso2.carbon.context.PrivilegedCarbonContext" %>
+<%@ page import="org.wso2.carbon.user.core.util.UserCoreUtil" %>
 <script type="text/javascript">
     function forward() {
         location.href = "<%=forwardTo%>";

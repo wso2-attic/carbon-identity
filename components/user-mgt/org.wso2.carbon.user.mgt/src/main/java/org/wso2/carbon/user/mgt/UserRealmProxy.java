@@ -33,6 +33,7 @@ import org.wso2.carbon.registry.core.RegistryConstants;
 import org.wso2.carbon.user.api.Claim;
 import org.wso2.carbon.user.api.ClaimMapping;
 import org.wso2.carbon.user.api.RealmConfiguration;
+import org.wso2.carbon.user.api.UserRealmService;
 import org.wso2.carbon.user.core.AuthorizationManager;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserRealm;
@@ -53,6 +54,7 @@ import org.wso2.carbon.user.mgt.internal.UserMgtDSComponent;
 import org.wso2.carbon.user.mgt.permission.ManagementPermissionUtil;
 import org.wso2.carbon.utils.ServerConstants;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
+import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -2076,12 +2078,21 @@ public class UserRealmProxy {
 
     public void changePasswordByUser(String userName, String oldPassword, String newPassword)
             throws UserAdminException {
+
         try {
-            UserStoreManager userStore = this.realm.getUserStoreManager();
-            userStore.updateCredential(userName, newPassword, oldPassword);
+            String tenantDomain = MultitenantUtils.getTenantDomain(userName);
+            String tenantAwareUsername = MultitenantUtils.getTenantAwareUsername(userName);
+            UserRealmService realmService = UserMgtDSComponent.getRealmService();
+            int tenantId = realmService.getTenantManager().getTenantId(tenantDomain);
+            org.wso2.carbon.user.api.UserRealm userRealm = realmService.getTenantUserRealm(tenantId);
+            org.wso2.carbon.user.api.UserStoreManager userStore = userRealm.getUserStoreManager();
+            userStore.updateCredential(tenantAwareUsername, newPassword, oldPassword);
         } catch (UserStoreException e) {
             // previously logged so logging not needed
             throw new UserAdminException(e.getMessage(), e);
+        } catch (org.wso2.carbon.user.api.UserStoreException e) {
+            log.error("Error while getting tenant user realm", e);
+            throw new UserAdminException("Error while getting tenant user realm" , e);
         }
     }
 
