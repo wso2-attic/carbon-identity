@@ -28,7 +28,7 @@ public class OpenIDSQLQueries {
     /**
      * {@link OpenIDAssociationDAO}
      */
-    public static final String CHECK_ASSOCIATION_ENTRY_EXIST = "SELECT * " + "FROM IDN_OPENID_ASSOCIATIONS " +
+    public static final String CHECK_ASSOCIATION_ENTRY_EXIST = "SELECT 1 FROM IDN_OPENID_ASSOCIATIONS " +
                                                                "WHERE HANDLE = ?";
 
     public static final String LOAD_ASSOCIATION = "SELECT HANDLE, ASSOC_TYPE, EXPIRE_IN, MAC_KEY, ASSOC_STORE " +
