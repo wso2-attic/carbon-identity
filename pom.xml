@@ -40,7 +40,6 @@
     <modules>
         <module>service-stubs/identity</module>
         <module>components/userstore-config</module>
-        <module>components/user-manager</module>
         <module>components/agents</module>
         <module>components/application-authenticators</module>
         <module>components/authentication-framework</module>
