@@ -26,6 +26,7 @@ import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.core.util.KeyStoreManager;
 import org.wso2.carbon.identity.base.IdentityException;
+import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.sso.saml.SAMLSSOConstants;
 import org.wso2.carbon.identity.sso.saml.util.SAMLSSOUtil;
@@ -93,7 +94,7 @@ public class SignKeyDataHolder implements X509Credential {
                 tenantID = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantId();
             }
 
-            SAMLSSOUtil.initializeRegistry(tenantID, tenantDomain);
+            IdentityTenantUtil.initializeRegistry(tenantID, tenantDomain);
 
             if (tenantID != MultitenantConstants.SUPER_TENANT_ID) {
                 String keyStoreName = SAMLSSOUtil.generateKSNameFromDomainName(tenantDomain);

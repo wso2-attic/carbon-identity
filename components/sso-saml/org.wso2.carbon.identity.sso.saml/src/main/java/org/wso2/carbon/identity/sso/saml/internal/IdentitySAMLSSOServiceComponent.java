@@ -51,10 +51,6 @@ import java.util.Scanner;
  * interface="org.wso2.carbon.utils.ConfigurationContextService" cardinality="1..1"
  * policy="dynamic" bind="setConfigurationContextService"
  * unbind="unsetConfigurationContextService"
- * @scr.reference name="registry.loader.default"
- * interface="org.wso2.carbon.registry.core.service.TenantRegistryLoader"
- * cardinality="1..1" policy="dynamic" bind="setTenantRegistryLoader"
- * unbind="unsetTenantRegistryLoader"
  * @scr.reference name="user.realmservice.default" interface="org.wso2.carbon.user.core.service.RealmService"
  * cardinality="1..1" policy="dynamic" bind="setRealmService"
  * unbind="unsetRealmService"
@@ -197,19 +193,5 @@ public class IdentitySAMLSSOServiceComponent {
             log.debug("HTTP Service is unset in the SAML SSO bundle");
         }
         SAMLSSOUtil.setHttpService(null);
-    }
-
-    protected void setTenantRegistryLoader(TenantRegistryLoader tenantRegistryLoader) {
-        if (log.isDebugEnabled()) {
-            log.debug("Tenant Registry Loader is set in the SAML SSO bundle");
-        }
-        SAMLSSOUtil.setTenantRegistryLoader(tenantRegistryLoader);
-    }
-
-    protected void unsetTenantRegistryLoader(TenantRegistryLoader tenantRegistryLoader) {
-        if (log.isDebugEnabled()) {
-            log.debug("Tenant Registry Loader is unset in the SAML SSO bundle");
-        }
-        SAMLSSOUtil.setTenantRegistryLoader(null);
     }
 }
