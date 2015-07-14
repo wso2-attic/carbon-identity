@@ -685,7 +685,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
         try {
             storeUseTenantDomainInLocalSubjectIdStmt = connection
                     .prepareStatement(ApplicationMgtDBQueries
-                            .UPDATE_BASIC_APPINFO_WITH_USE_TENANT_DIMAIN_LOCAL_SUBJECT_ID);
+                            .UPDATE_BASIC_APPINFO_WITH_USE_TENANT_DOMAIN_LOCAL_SUBJECT_ID);
             // IS_USE_TENANT_DIMAIN_LOCAL_SUBJECT_ID=? WHERE TENANT_ID= ? AND ID = ?
             storeUseTenantDomainInLocalSubjectIdStmt.setString(1, localAndOutboundAuthConfig
                     .isUseTenantDomainInLocalSubjectIdentifier() ? "1" : "0");
@@ -700,7 +700,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
         try {
             storeUseUserstoreDomainInLocalSubjectIdStmt = connection
                     .prepareStatement(ApplicationMgtDBQueries
-                            .UPDATE_BASIC_APPINFO_WITH_USE_USERSTORE_DIMAIN_LOCAL_SUBJECT_ID);
+                            .UPDATE_BASIC_APPINFO_WITH_USE_USERSTORE_DOMAIN_LOCAL_SUBJECT_ID);
             // IS_USE_USERSTORE_DIMAIN_LOCAL_SUBJECT_ID=? WHERE TENANT_ID= ? AND ID = ?
             storeUseUserstoreDomainInLocalSubjectIdStmt.setString(1, localAndOutboundAuthConfig
                     .isUseUserstoreDomainInLocalSubjectIdentifier() ? "1" : "0");
@@ -1689,7 +1689,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
 
             try {
                 loadUseTenantDomainInLocalSubjectId = connection
-                        .prepareStatement(ApplicationMgtDBQueries.LOAD_USE_TENANT_DIMAIN_LOCAL_SUBJECT_ID_BY_APP_ID);
+                        .prepareStatement(ApplicationMgtDBQueries.LOAD_USE_TENANT_DOMAIN_LOCAL_SUBJECT_ID_BY_APP_ID);
                 loadUseTenantDomainInLocalSubjectId.setInt(1, tenantId);
                 loadUseTenantDomainInLocalSubjectId.setInt(2, applicationId);
                 useTenantDomainInLocalSubjectIdResultSet = loadUseTenantDomainInLocalSubjectId.executeQuery();
@@ -1708,7 +1708,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
 
             try {
                 loadUseUserstoreDomainInLocalSubjectId = connection
-                        .prepareStatement(ApplicationMgtDBQueries.LOAD_USE_USERSTORE_DIMAIN_LOCAL_SUBJECT_ID_BY_APP_ID);
+                        .prepareStatement(ApplicationMgtDBQueries.LOAD_USE_USERSTORE_DOMAIN_LOCAL_SUBJECT_ID_BY_APP_ID);
                 loadUseUserstoreDomainInLocalSubjectId.setInt(1, tenantId);
                 loadUseUserstoreDomainInLocalSubjectId.setInt(2, applicationId);
                 useUserstoreDomainInLocalSubjectIdResultSet = loadUseUserstoreDomainInLocalSubjectId.executeQuery();
