@@ -16,7 +16,7 @@
  ~ under the License.
  -->
 <component xmlns="http://products.wso2.org/carbon">
-	<menus>			
+    <menus>
 		<menu>
 			<id>identity_menu</id>
 			<i18n-key>component.identity</i18n-key>
