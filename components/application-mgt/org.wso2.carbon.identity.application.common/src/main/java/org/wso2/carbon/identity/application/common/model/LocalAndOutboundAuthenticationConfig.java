@@ -104,12 +104,12 @@ public class LocalAndOutboundAuthenticationConfig implements Serializable {
                     localAndOutboundAuthenticationConfig.setAlwaysSendBackAuthenticatedListOfIdPs(true);
                 }
             } else if ("UseUserstoreDomainInUsername".equals(member.getLocalName())) {
-                if (member.getText() != null && "true".equals(member.getText())) {
-                    localAndOutboundAuthenticationConfig.setUseUserstoreDomainInLocalSubjectIdentifier(true);
+                if (member.getText() != null && "false".equals(member.getText())) {
+                    localAndOutboundAuthenticationConfig.setUseUserstoreDomainInLocalSubjectIdentifier(false);
                 }
             } else if ("UseTenantDomainInUsername".equals(member.getLocalName())) {
-                if (member.getText() != null && "true".equals(member.getText())) {
-                    localAndOutboundAuthenticationConfig.setUseTenantDomainInLocalSubjectIdentifier(true);
+                if (member.getText() != null && "false".equals(member.getText())) {
+                    localAndOutboundAuthenticationConfig.setUseTenantDomainInLocalSubjectIdentifier(false);
                 }
             } else if ("subjectClaimUri".equals(member.getLocalName())) {
                 localAndOutboundAuthenticationConfig.setSubjectClaimUri(member.getText());
