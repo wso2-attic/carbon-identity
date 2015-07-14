@@ -111,6 +111,7 @@ public class OAuth2AuthzEndpoint {
         if (StringUtils.isNotEmpty(sessionDataKeyFromConsent)) {
             cacheKey = new SessionDataCacheKey(sessionDataKeyFromConsent);
             resultFromConsent = SessionDataCache.getInstance(OAuthServerConfiguration.getInstance().getSessionDataCacheTimeout()).getValueFromCache(cacheKey);
+            SessionDataCache.getInstance(OAuthServerConfiguration.getInstance().getSessionDataCacheTimeout()).clearCacheEntry(cacheKey);
         }
         if (resultFromLogin != null && resultFromConsent != null) {
 
