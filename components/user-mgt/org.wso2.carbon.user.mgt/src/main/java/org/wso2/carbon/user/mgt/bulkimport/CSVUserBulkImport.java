@@ -52,6 +52,9 @@ public class CSVUserBulkImport {
             boolean fail = false;
             boolean success = false;
             String lastError = "UNKNOWN";
+            int successCount = 0;
+            int failCount = 0;
+            int duplicateCount = 0;
             while (line != null && line.length > 0) {
                 String userName = line[0];
                 if (userName != null && userName.trim().length() > 0) {
@@ -60,39 +63,56 @@ public class CSVUserBulkImport {
                             if (line.length == 1) {
                                 userStore.addUser(userName, password, null, null, null, true);
                                 success = true;
+                                successCount++;
                             } else {
-                                boolean status = addUserWithClaims(userName, password, line, userStore);
-                                if (status) {
+                                try {
+                                    addUserWithClaims(userName, password, line, userStore);
                                     success = true;
-                                } else {
+                                    successCount++;
+                                    if (log.isDebugEnabled()){
+                                        log.debug("User import successful - Username : " + userName);
+                                    }
+                                }catch (UserAdminException e){
                                     fail = true;
+                                    failCount++;
+                                    lastError = e.getMessage();
+                                    log.error("User import unsuccessful - Username : " + userName + " - Error: " +
+                                            e.getMessage());
                                 }
                             }
                         } else {
                             isDuplicate = true;
+                            duplicateCount++;
+                            log.error("User import unsuccessful - Username : " + userName + " - Error: Duplicate user");
                         }
-                    } catch (Exception e) {
+                    } catch (UserStoreException e) {
                         if (log.isDebugEnabled()) {
                             log.debug(e);
                         }
                         lastError = e.getMessage();
                         fail = true;
+                        failCount++;
+                        log.error("User import unsuccessful - Username : " + userName + " - Error: " + e.getMessage());
                     }
                 }
                 line = csvReader.readNext();
             }
 
+            log.info("Success count: " + successCount + ", Fail count: " + failCount + ", Duplicate count: " +
+                    duplicateCount);
+
             if (fail && success) {
                 throw new UserAdminException("Error occurs while importing user names. " +
-                        "Some user names were successfully imported. Some were not. Last error was : " + lastError);
+                        "Success count: " + successCount + ", Fail count: " + failCount + ", Duplicate count: " +
+                        duplicateCount+". Last error was : " + lastError);
             }
 
-            if (fail && !success) {
+            if(fail && !success){
                 throw new UserAdminException("Error occurs while importing user names. " +
                         "All user names were not imported. Last error was : " + lastError);
             }
             if (isDuplicate) {
-                throw new UserAdminException("Detected duplicate user names. " +
+                throw new UserAdminException("Detected " + duplicateCount +" duplicate user names. " +
                         "Failed to import duplicate users. Non-duplicate user names were successfully imported.");
             }
         } catch (UserAdminException e) {
@@ -103,8 +123,8 @@ public class CSVUserBulkImport {
         }
     }
 
-    private boolean addUserWithClaims(String username, String password, String[] line, UserStoreManager userStore)
-            throws UserStoreException {
+    private void addUserWithClaims(String username, String password, String[] line, UserStoreManager userStore)
+            throws UserStoreException, UserAdminException {
         String roleString = null;
         String[] roles = null;
         Map<String, String> claims = new HashMap<String, String>();
@@ -112,7 +132,7 @@ public class CSVUserBulkImport {
             if (line[i] != null && !line[i].isEmpty()) {
                 String[] claimStrings = line[i].split("=");
                 if (claimStrings.length != 2) {
-                    return false;
+                    throw new UserAdminException("Claims and values are not in correct format");
                 } else {
                     if (claimStrings[0].contains("role")) {
                         roleString = claimStrings[1];
@@ -129,6 +149,5 @@ public class CSVUserBulkImport {
         }
 
         userStore.addUser(username, password, roles, claims, null, true);
-        return true;
     }
 }

@@ -131,9 +131,7 @@
 		<parameter name="AuthorizationAction" locked="false">/permission/admin/configure/security
 		</parameter>
 		<operation name="changePasswordByUser">
-			<parameter name="AuthorizationAction" locked="true">/permission/admin/login
-			</parameter>
-     
+            <parameter name="DoAuthentication" locked="true">false</parameter>
 		</operation>
 		<operation name="getRolesOfCurrentUser">
 			<parameter name="AuthorizationAction" locked="true">/permission/admin/login
