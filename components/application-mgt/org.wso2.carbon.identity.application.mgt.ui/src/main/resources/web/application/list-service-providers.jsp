@@ -120,7 +120,6 @@
                 <tbody>
                 <tr>
                     <td style="border:none !important">
-                        <!-- SAML SSO -->
                         <table class="styledLeft" width="100%" id="ServiceProviders">
                             <thead>
                             <tr style="white-space: nowrap">
