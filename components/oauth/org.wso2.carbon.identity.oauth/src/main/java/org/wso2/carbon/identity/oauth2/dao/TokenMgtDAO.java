@@ -679,8 +679,9 @@ public class TokenMgtDAO {
                 }
                 iterateId++;
             }
-            if (scopes.size() > 0){
-                validationDataDO.setScope((String[])ArrayUtils.addAll(validationDataDO.getScope(), scopes.toArray()));
+            if (scopes.size() > 0 && validationDataDO != null){
+                validationDataDO.setScope((String[])ArrayUtils.addAll(validationDataDO.getScope(),  
+                    scopes.toArray(new String[scopes.size()])));
             }
             connection.commit();
         } catch (IdentityException e) {
@@ -798,8 +799,9 @@ public class TokenMgtDAO {
                 }
                 iterateId++;
             }
-            if (scopes.size() > 0){
-                dataDO.setScope((String[])ArrayUtils.add(dataDO.getScope(), scopes.toArray()));
+            if (scopes.size() > 0 && dataDO != null){
+                dataDO.setScope((String[])ArrayUtils.addAll(dataDO.getScope(), 
+                     scopes.toArray(new String[scopes.size()])));
             }
             connection.commit();
         } catch (IdentityException e) {
