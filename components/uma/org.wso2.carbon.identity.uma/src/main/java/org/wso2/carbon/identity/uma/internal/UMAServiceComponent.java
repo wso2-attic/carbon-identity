@@ -27,7 +27,9 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.identity.uma.UMAService;
 import org.wso2.carbon.registry.core.service.RegistryService;
-import org.wso2.carbon.user.core.service.RealmService;/**
+import org.wso2.carbon.user.core.service.RealmService;
+
+/**
  * @scr.component name="org.wso2.carbon.identity.uma.internal.UMAServiceComponent" immediate="true" activate="activate"
  * @scr.reference name="registry.service"
  * interface="org.wso2.carbon.registry.core.service.RegistryService"

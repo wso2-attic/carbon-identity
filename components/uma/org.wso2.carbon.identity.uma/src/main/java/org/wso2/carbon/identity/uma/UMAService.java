@@ -22,12 +22,13 @@ package org.wso2.carbon.identity.uma;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.identity.uma.dto.UmaResourceSetRegistrationRequest;
-import org.wso2.carbon.identity.uma.dto.UmaResourceSetRegistrationResponse;
-import org.wso2.carbon.identity.uma.dto.UmaRptRequest;
-import org.wso2.carbon.identity.uma.dto.UmaRptResponse;
+import org.wso2.carbon.identity.uma.dao.ResourceSetMgtDAO;
+import org.wso2.carbon.identity.uma.dto.*;
+import org.wso2.carbon.identity.uma.exceptions.IdentityUMAException;
+import org.wso2.carbon.identity.uma.model.ResourceSetDO;
 
 import javax.servlet.http.HttpServletResponse;
+import java.util.UUID;
 
 public class UMAService {
 
@@ -63,10 +64,45 @@ public class UMAService {
     }
 
 
-    public UmaResourceSetRegistrationResponse createResourceSet
+    public UmaResponse createResourceSet
             (UmaResourceSetRegistrationRequest umaResourceSetRegistrationRequest){
 
-        return null;
+        UmaResponse.UmaResponseBuilder builder =  null;
+
+        // generate a unique string
+        String resourceSetID = UUID.randomUUID().toString();
+
+        ResourceSetDO resourceSetDO = new ResourceSetDO(
+                umaResourceSetRegistrationRequest.getResourceSetName(),
+                umaResourceSetRegistrationRequest.getResourceSetURI(),
+                umaResourceSetRegistrationRequest.getResourceSetType(),
+                umaResourceSetRegistrationRequest.getResourceSetScopes(),
+                umaResourceSetRegistrationRequest.getResouceSetIconURI()
+        );
+
+        resourceSetDO.setConsumerKey(umaResourceSetRegistrationRequest.getConsumerKey());
+        resourceSetDO.setResourceSetId(resourceSetID);
+
+        ResourceSetMgtDAO resourceSetMgtDAO = new ResourceSetMgtDAO();
+
+        try {
+            resourceSetMgtDAO.saveResourceSetDescription(resourceSetDO, null,resourceSetDO.getConsumerKey(),null);
+
+             builder = UmaResourceSetRegistrationResponse.status(HttpServletResponse.SC_OK)
+                            .setParam(UMAConstants.OAuthResourceRegistration.RESOURCE_REG_RESPONSE_ID,
+                                    resourceSetDO.getResourceSetId());
+
+        } catch (IdentityUMAException e) {
+           log.error(e.getMessage(),e);
+
+            builder =  UmaResourceSetRegistrationResponse.errorResponse(HttpServletResponse.SC_BAD_REQUEST)
+                            .setError("invalid_request");
+
+        }finally {
+
+            return builder.buildJSONResponse();
+        }
+
     }
 
     public UmaResourceSetRegistrationResponse updateResourceSet

@@ -32,17 +32,17 @@ import java.util.Map;
 import java.util.TreeMap;
 
 /**
- * @scr.component name="org.wso2.carbon.identity.uma.handlers.listener" immediate="true"
- * @scr.reference name="claims.token.handler.service"
- * interface="org.wso2.carbon.identity.uma.claims.handlers.ClaimsTokenHandler"
- * cardinality="0..n" policy="dynamic"
- * bind="setClaimsTokenHandler"
- * unbind="unsetClaimsTokenHandler"
- * @scr.reference name="user.consent.handler.service"
- * interface="org.wso2.carbon.identity.uma.userconsent.handlers.UserConsentHandler"
- * cardinality="0..n" policy="dynamic"
- * bind="setUserConsentHandler"
- * unbind="unsetUserConsentHandler"
+// * @scr.component name="org.wso2.carbon.identity.uma.handlers.listener" immediate="true"
+// * @scr.reference name="claims.token.handler.service"
+// * interface="org.wso2.carbon.identity.uma.claims.handlers.ClaimsTokenHandler"
+// * cardinality="0..n" policy="dynamic"
+// * bind="setClaimsTokenHandler"
+// * unbind="unsetClaimsTokenHandler"
+// * @scr.reference name="user.consent.handler.service"
+// * interface="org.wso2.carbon.identity.uma.userconsent.handlers.UserConsentHandler"
+// * cardinality="0..n" policy="dynamic"
+// * bind="setUserConsentHandler"
+// * unbind="unsetUserConsentHandler"
  */
 public class UMAListnerServiceComponent_temp {
 //

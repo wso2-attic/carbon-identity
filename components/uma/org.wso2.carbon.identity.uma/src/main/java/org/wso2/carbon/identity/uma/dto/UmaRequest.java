@@ -22,6 +22,8 @@
 
 package org.wso2.carbon.identity.uma.dto;
 
+import org.wso2.carbon.identity.uma.exceptions.IdentityUMAException;
+import org.wso2.carbon.identity.uma.util.UMAUtil;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import javax.servlet.http.HttpServletRequest;
@@ -38,6 +40,8 @@ public class UmaRequest {
 
     protected int tenantID;
 
+    protected String consumerKey;
+
 
     public UmaRequest(HttpServletRequest httpServletRequest){
         this.httpServletRequest = httpServletRequest;
@@ -46,7 +50,11 @@ public class UmaRequest {
         tenantDomain = MultitenantUtils.getTenantDomain(httpServletRequest);
 
         if (tenantDomain != null){
-            // get tenantId from tenant domain
+            try {
+                tenantID = UMAUtil.getTenantId(tenantDomain);
+            } catch (IdentityUMAException e) {
+                tenantID = -1;
+            }
         }
 
         // Store all request parameters
@@ -76,5 +84,13 @@ public class UmaRequest {
 
     public int getTenantID() {
         return tenantID;
+    }
+
+    public String getConsumerKey() {
+        return consumerKey;
+    }
+
+    public void setConsumerKey(String consumerKey) {
+        this.consumerKey = consumerKey;
     }
 }

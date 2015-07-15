@@ -50,4 +50,24 @@ public class UmaResourceSetRegistrationRequest extends UmaRequest{
     public int getResourceId() {
         return resourceId;
     }
+
+    public String getResourceSetName(){
+        return resourceSetDescription!= null ? resourceSetDescription.getName() : null;
+    }
+
+    public String getResourceSetType(){
+        return resourceSetDescription!= null ? resourceSetDescription.getType() : null;
+    }
+
+    public String getResourceSetURI(){
+        return resourceSetDescription != null ? resourceSetDescription.getUri() : null;
+    }
+
+    public String[] getResourceSetScopes(){
+        return resourceSetDescription != null ? resourceSetDescription.getScopes() : null;
+    }
+
+    public String getResouceSetIconURI(){
+        return resourceSetDescription != null ? resourceSetDescription.getIcon_uri() : null;
+    }
 }

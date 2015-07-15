@@ -106,6 +106,17 @@ public final class UMAConstants {
     }
 
 
+    public static class OAuthResourceRegistration{
+
+
+
+
+        public static final String RESOURCE_REG_RESPONSE_ID = "_id";
+        public static final String RESOURCE_REG_RESPONSE_POLICY_URI = "user_access_policy_uri";
+
+        private OAuthResourceRegistration(){}
+    }
+
 
     private UMAConstants(){
     }

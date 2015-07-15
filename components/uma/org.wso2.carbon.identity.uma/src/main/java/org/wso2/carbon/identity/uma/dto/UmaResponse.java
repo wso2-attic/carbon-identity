@@ -22,7 +22,9 @@
 
 package org.wso2.carbon.identity.uma.dto;
 
-import org.codehaus.jackson.map.ObjectMapper;
+import com.google.gson.Gson;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -38,6 +40,14 @@ public class UmaResponse {
 
     protected UmaResponse(int responseStatus) {
         this.responseStatus = responseStatus;
+    }
+
+    public static UmaResponseBuilder status(int code) {
+        return new UmaResponseBuilder(code);
+    }
+
+    public static UmaErrorResponseBuilder errorResponse(int code) {
+        return new UmaErrorResponseBuilder(code);
     }
 
     public String getBody() {
@@ -74,6 +84,8 @@ public class UmaResponse {
      */
     public static class UmaResponseBuilder{
 
+        private static final Log log = LogFactory.getLog(UmaResponseBuilder.class);
+
         protected Map<String, Object> parameters = new HashMap();
         protected int responseCode;
 
@@ -92,11 +104,11 @@ public class UmaResponse {
             return this;
         }
 
-        public UmaResponse buildJSONResponse() throws IOException {
+        public UmaResponse buildJSONResponse(){
             UmaResponse umaResponse = new UmaResponse(this.responseCode);
 
             // get the parameters from the map and build the json string for parameters
-            String body = new ObjectMapper().writeValueAsString(this.parameters);
+            String body = new Gson().toJson(this.parameters);
             umaResponse.setBody(body);
 
             // create the response and set the body

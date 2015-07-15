@@ -28,9 +28,10 @@ import org.wso2.carbon.identity.uma.handlers.UmaHandler;
 
 import java.util.*;
 
+
 /**
- * @scr.component name="org.wso2.carbon.identity.uma.handlers.listener" immediate="true"
- * @scr.reference name="user.consent.handler.service"
+ * @scr.component name="org.wso2.carbon.identity.uma.internal.UMAListenerServiceComponent" immediate="true"
+ * @scr.reference name="user.handler.service"
  * interface="org.wso2.carbon.identity.uma.handlers.UmaHandler"
  * cardinality="0..n" policy="dynamic"
  * bind="setUmaHandler"
@@ -64,7 +65,7 @@ public class UMAListenerServiceComponent {
     }
 
 
-    protected static synchronized void unsetUserConsentHandler(UmaHandler umaHandler){
+    protected static synchronized void unsetUmaHandler(UmaHandler umaHandler){
 
 
     }

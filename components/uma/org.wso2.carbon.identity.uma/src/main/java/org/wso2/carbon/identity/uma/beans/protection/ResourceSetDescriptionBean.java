@@ -34,12 +34,8 @@ public class ResourceSetDescriptionBean {
 
     private String icon_uri;
 
-    public ResourceSetDescriptionBean(String name, String type, String uri, String[] scopes, String icon_uri) {
-        this.name = name;
-        this.type = type;
-        this.uri = uri;
-        this.scopes = scopes;
-        this.icon_uri = icon_uri;
+    public ResourceSetDescriptionBean(){
+
     }
 
     public String getName() {

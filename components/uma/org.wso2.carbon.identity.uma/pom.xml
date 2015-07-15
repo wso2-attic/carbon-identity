@@ -63,9 +63,17 @@
             <artifactId>org.wso2.carbon.logging</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.codehaus.jackson</groupId>
-            <artifactId>jackson-jaxrs</artifactId>
-            <version>1.9.0</version>
+            <groupId>org.wso2.carbon.identity</groupId>
+            <artifactId>org.wso2.carbon.identity.core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.identity</groupId>
+            <artifactId>org.wso2.carbon.identity.oauth</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
         </dependency>
     </dependencies>
 
@@ -108,6 +116,15 @@
                             org.wso2.carbon.core.*;version="${carbon.kernel.package.import.version.range}",
                             org.wso2.carbon.user.core.*;version="${carbon.kernel.package.import.version.range}",
                             org.wso2.carbon.utils.multitenancy;version="${carbon.kernel.package.import.version.range}",
+                            org.wso2.carbon.identity.core.*; version="${carbon.identity.package.import.version.range}",
+                            org.wso2.carbon.identity.oauth.*; version="${carbon.identity.package.import.version.range}",
+                            org.wso2.carbon.identity.oauth2.*; version="${carbon.identity.package.import.version.range}",
+
+                            com.google.gson.*; version="${com.google.code.gson.osgi.version.range}",
+                            <!--org.codehaus.jackson.map.*; version="[1.0.0, 1.9.14)",-->
+
+
+
                         </Import-Package>
                         <Export-Package>
                             !org.wso2.carbon.identity.uma.internal,

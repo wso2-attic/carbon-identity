@@ -23,26 +23,48 @@
 package org.wso2.carbon.identity.uma.endpoint.protection;
 
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.identity.uma.UMAService;
+import org.wso2.carbon.identity.uma.beans.protection.ResourceSetDescriptionBean;
+import org.wso2.carbon.identity.uma.dto.UmaResourceSetRegistrationRequest;
+import org.wso2.carbon.identity.uma.dto.UmaResourceSetRegistrationResponse;
+import org.wso2.carbon.identity.uma.dto.UmaResponse;
+import org.wso2.carbon.identity.uma.endpoint.util.EndpointUtil;
+import org.wso2.carbon.identity.uma.util.UMAUtil;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
+import java.util.Map;
 
 @Path("/protect/resource_reg")
-@Consumes("application/json")
 public class ResourceSetRegistrationEndpoint {
 
     private static final Log log = LogFactory.getLog(ResourceSetRegistrationEndpoint.class);
 
     @POST
     @Path("/")
+    @Consumes("application/json")
     @Produces("application/json")
-    public Response createResourceSet(@Context HttpServletRequest httpServletRequest){
-        log.info("Hit the create resource set method");
-        return null;
+    public Response createResourceSet
+            (@Context HttpServletRequest httpServletRequest,ResourceSetDescriptionBean resourceSetDescription){
+
+
+        UmaResourceSetRegistrationRequest umaResourceSetRegistrationRequest =
+                new UmaResourceSetRegistrationRequest(httpServletRequest);
+
+        umaResourceSetRegistrationRequest.setResourceSetDescription(resourceSetDescription);
+        umaResourceSetRegistrationRequest.setConsumerKey(UMAUtil.getConsumerKey(httpServletRequest));
+
+
+        UmaResponse response =
+                EndpointUtil.getUMAService().createResourceSet(umaResourceSetRegistrationRequest);
+
+        // build Servlet Response from UMAResponse
+        return UMAUtil.buildResponse(response);
     }
 
     @GET
@@ -88,4 +110,11 @@ public class ResourceSetRegistrationEndpoint {
     private boolean checkAuthorization(HttpServletRequest httpServletRequest){
         return true;
     }
+
+
+
+    private void logRequest(){
+    }
+
+
 }
