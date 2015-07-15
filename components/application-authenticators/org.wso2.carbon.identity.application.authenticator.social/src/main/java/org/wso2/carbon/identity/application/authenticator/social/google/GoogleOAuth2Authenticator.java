@@ -211,7 +211,7 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
 
                 String json = sendRequest(token.getParam(GoogleOAuth2AuthenticationConstant.GOOGLE_USERINFO_ENDPOINT),
                         token.getParam(OIDCAuthenticatorConstants.ACCESS_TOKEN));
-            if (json.length() > 0) {
+            if (StringUtils.isNotBlank(json)) {
                 Map<String, Object> jsonObject = JSONUtils.parseJSON(json);
 
                 if (jsonObject != null) {

@@ -127,7 +127,7 @@ public class WindowsLiveOAuth2Authenticator extends OpenIDConnectAuthenticator {
         try {
             String json = sendRequest(token.getParam(WindowsLiveOAuth2AuthenticatorConstants.WINDOWS_LIVE_USER_INFO_URL)
                     + token.getParam(OIDCAuthenticatorConstants.ACCESS_TOKEN));
-            if (json.length() > 0) {
+            if (StringUtils.isNotBlank(json)) {
                 Map<String, Object> jsonObject = JSONUtils.parseJSON(json);
 
                 if (jsonObject != null) {
