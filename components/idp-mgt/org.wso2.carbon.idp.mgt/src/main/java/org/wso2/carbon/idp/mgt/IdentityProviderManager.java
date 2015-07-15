@@ -42,6 +42,7 @@ import org.wso2.carbon.identity.application.common.model.ProvisioningConnectorCo
 import org.wso2.carbon.identity.application.common.model.RoleMapping;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
+import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.idp.mgt.dao.CacheBackedIdPMgtDAO;
 import org.wso2.carbon.idp.mgt.dao.FileBasedIdPMgtDAO;
@@ -180,9 +181,10 @@ public class IdentityProviderManager {
             throw new IdentityApplicationManagementException(
                     "Exception occurred while retrieving Tenant ID from Tenant Domain " + tenantDomain, e);
         }
-        KeyStoreManager keyStoreManager = KeyStoreManager.getInstance(tenantId);
         X509Certificate cert = null;
         try {
+            IdentityTenantUtil.initializeRegistry(tenantId, tenantDomain);
+            KeyStoreManager keyStoreManager = KeyStoreManager.getInstance(tenantId);
             if (!MultitenantConstants.SUPER_TENANT_DOMAIN_NAME.equals(tenantDomain)) {
                 // derive key store name
                 String ksName = tenantDomain.trim().replace(".", "-");

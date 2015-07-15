@@ -19,7 +19,7 @@
         <!-- sample menu configuration -->
     <menus>
         <menu>
-            <id>userstores_menu</id>
+            <id>user_mgt_menu</id>
             <i18n-key>security.user-management</i18n-key>
             <i18n-bundle>org.wso2.carbon.userstore.ui.i18n.Resources</i18n-bundle>
             <parent-menu>configure_menu</parent-menu>
