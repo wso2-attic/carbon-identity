@@ -1381,6 +1381,12 @@
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
+                <artifactId>org.wso2.carbon.identity.self.registration.ui.feature</artifactId>
+                <version>${carbon.identity.version}</version>
+                <type>zip</type>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.directory.service.mgr.server.feature</artifactId>
                 <version>${carbon.identity.version}</version>
                 <type>zip</type>
