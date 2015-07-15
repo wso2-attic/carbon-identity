@@ -22,10 +22,51 @@
 
 package org.wso2.carbon.identity.uma.dto;
 
+import com.google.gson.Gson;
+
+import java.util.List;
+
 public class UmaResourceSetRegistrationResponse extends UmaResponse{
 
     protected UmaResourceSetRegistrationResponse(int responseStatus) {
         super(responseStatus);
     }
 
+    public static UmaResponseBuilder status(int code) {
+        return new UmaResourceSetRegRespBuilder(code);
+    }
+
+    public static class UmaResourceSetRegRespBuilder extends UmaResponse.UmaResponseBuilder {
+
+        List<String> resourceSetIds = null;
+
+        public UmaResourceSetRegRespBuilder(int responseCode) {
+            super(responseCode);
+        }
+
+        public UmaResourceSetRegRespBuilder setResourceSetIds(List<String> resourceSetIds) {
+            this.resourceSetIds = resourceSetIds;
+            return this;
+        }
+
+        @Override
+        public UmaResponse buildJSONResponse() {
+
+            // if the resourceSetId list is not null we are building a response to return a json array of ids
+            if (resourceSetIds != null) {
+
+                UmaResponse umaResponse = new UmaResponse(this.responseCode);
+
+                // get the parameters from the map and build the json string for parameters
+                String body = new Gson().toJson(this.resourceSetIds);
+                umaResponse.setBody(body);
+
+                // create the response and set the body
+                return umaResponse;
+
+            } else {
+                return super.buildJSONResponse();
+            }
+        }
+    }
 }

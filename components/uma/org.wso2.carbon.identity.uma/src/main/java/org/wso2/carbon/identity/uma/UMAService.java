@@ -28,6 +28,9 @@ import org.wso2.carbon.identity.uma.exceptions.IdentityUMAException;
 import org.wso2.carbon.identity.uma.model.ResourceSetDO;
 
 import javax.servlet.http.HttpServletResponse;
+import java.sql.Timestamp;
+import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 public class UMAService {
@@ -67,10 +70,10 @@ public class UMAService {
     public UmaResponse createResourceSet
             (UmaResourceSetRegistrationRequest umaResourceSetRegistrationRequest){
 
-        UmaResponse.UmaResponseBuilder builder =  null;
+        UmaResponse.UmaResponseBuilder builder;
 
         // generate a unique string
-        String resourceSetID = UUID.randomUUID().toString();
+        String resourceSetID = UUID.randomUUID().toString().replace("-","");
 
         ResourceSetDO resourceSetDO = new ResourceSetDO(
                 umaResourceSetRegistrationRequest.getResourceSetName(),
@@ -82,14 +85,15 @@ public class UMAService {
 
         resourceSetDO.setConsumerKey(umaResourceSetRegistrationRequest.getConsumerKey());
         resourceSetDO.setResourceSetId(resourceSetID);
+        resourceSetDO.setCreatedTime(new Timestamp(new Date().getTime()));
 
         ResourceSetMgtDAO resourceSetMgtDAO = new ResourceSetMgtDAO();
 
         try {
-            resourceSetMgtDAO.saveResourceSetDescription(resourceSetDO, null,resourceSetDO.getConsumerKey(),null);
+            resourceSetMgtDAO.saveResourceSetDescription(resourceSetDO,null);
 
              builder = UmaResourceSetRegistrationResponse.status(HttpServletResponse.SC_OK)
-                            .setParam(UMAConstants.OAuthResourceRegistration.RESOURCE_REG_RESPONSE_ID,
+                            .setParam(UMAConstants.OAuthResourceRegistration.RESOURCE_SET_ID,
                                     resourceSetDO.getResourceSetId());
 
         } catch (IdentityUMAException e) {
@@ -97,26 +101,125 @@ public class UMAService {
 
             builder =  UmaResourceSetRegistrationResponse.errorResponse(HttpServletResponse.SC_BAD_REQUEST)
                             .setError("invalid_request");
-
-        }finally {
-
-            return builder.buildJSONResponse();
         }
 
+
+        return builder.buildJSONResponse();
+
     }
 
-    public UmaResourceSetRegistrationResponse updateResourceSet
-            (UmaResourceSetRegistrationRequest umaResourceSetRegistrationRequest){
 
+    /**
+     *
+     * @param umaResourceSetRegRequest
+     * @return
+     */
+    public UmaResponse getResoucreSetIds(UmaResourceSetRegistrationRequest umaResourceSetRegRequest){
+
+        UmaResponse.UmaResponseBuilder builder;
+
+        ResourceSetMgtDAO resourceSetMgtDAO = new ResourceSetMgtDAO();
+        String consumerKey = umaResourceSetRegRequest.getConsumerKey();
+        String userStoreDomain = null;
+
+        try {
+            List<String> ids = resourceSetMgtDAO.retrieveResourceSetIDs(consumerKey, userStoreDomain);
+            builder = UmaResourceSetRegistrationResponse.status(HttpServletResponse.SC_OK);
+
+            // set the resource set id list
+            ((UmaResourceSetRegistrationResponse.UmaResourceSetRegRespBuilder)builder).setResourceSetIds(ids);
+
+
+        } catch (IdentityUMAException e) {
+            log.error("Error when retrieving registered resource sets for consumerKey : "+consumerKey,e);
+
+            builder =
+                    UmaResourceSetRegistrationResponse.errorResponse(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        }
+
+        return builder.buildJSONResponse();
+    }
+
+    /**
+     *
+     * @param umaResourceSetRegRequest
+     * @return
+     */
+    public UmaResponse getResourceSet(UmaResourceSetRegistrationRequest umaResourceSetRegRequest){
+        UmaResponse.UmaResponseBuilder builder;
+
+        ResourceSetMgtDAO resourceSetMgtDAO = new ResourceSetMgtDAO();
+
+        String resourceSetId = umaResourceSetRegRequest.getResourceId();
+        String consumerKey = umaResourceSetRegRequest.getConsumerKey();
+        String userStoreDomain = null;
+
+        try {
+            ResourceSetDO resourceSetDO =
+                    resourceSetMgtDAO.retrieveResourceSet(resourceSetId, consumerKey, userStoreDomain);
+
+            if (resourceSetDO == null){
+                builder = UmaResponse.errorResponse(HttpServletResponse.SC_NOT_FOUND)
+                          .setError(UMAProtectionConstants.ERROR_RESOURCE_SET_NOT_FOUND);
+            }else{
+                builder = UmaResponse.status(HttpServletResponse.SC_OK)
+                          .setParam(UMAProtectionConstants.RESOURCE_SET_ID, resourceSetDO.getResourceSetId())
+                          .setParam(UMAProtectionConstants.RESOURCE_SET_NAME, resourceSetDO.getName())
+                          .setParam(UMAProtectionConstants.RESOURCE_SET_URI, resourceSetDO.getURI())
+                          .setParam(UMAProtectionConstants.RESOURCE_SET_TYPE, resourceSetDO.getType())
+                          .setParam(UMAProtectionConstants.RESOURCE_SET_SCOPES, resourceSetDO.getScopes())
+                          .setParam(UMAProtectionConstants.RESOURCE_SET_ICON_URI, resourceSetDO.getIconURI());
+            }
+
+        } catch (IdentityUMAException e) {
+           String errorMsg =  "Error when retrieving resource set description for resourceSetId : "+resourceSetId
+                   +" for consumerKey : "+consumerKey;
+
+            log.error(errorMsg);
+
+            builder =
+                    UmaResourceSetRegistrationResponse.errorResponse(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        }
+
+
+        return builder.buildJSONResponse();
+    }
+
+
+    public UmaResponse deleteResourceSet(UmaResourceSetRegistrationRequest umaResourceSetRegRequest){
+        UmaResponse.UmaResponseBuilder builder;
+
+        ResourceSetMgtDAO resourceSetMgtDAO = new ResourceSetMgtDAO();
+
+        String resourceSetId = umaResourceSetRegRequest.getResourceId();
+        String consumerKey = umaResourceSetRegRequest.getConsumerKey();
+        String userStoreDomain = null;
+
+        try {
+            boolean isSuccessFul =resourceSetMgtDAO.removeResourceSet(resourceSetId, consumerKey, userStoreDomain);
+
+            if (isSuccessFul){
+                builder = UmaResponse.status(HttpServletResponse.SC_NO_CONTENT);
+            }else{
+                builder = UmaResponse.errorResponse(HttpServletResponse.SC_NOT_FOUND)
+                                     .setError(UMAProtectionConstants.ERROR_RESOURCE_SET_NOT_FOUND);
+            }
+
+        } catch (IdentityUMAException e) {
+            String errorMsg =  "Error when deleting resource set description with resourceSetId : "+resourceSetId
+                    +" for consumerKey : "+consumerKey;
+
+            log.error(errorMsg,e);
+            builder =
+                    UmaResourceSetRegistrationResponse.errorResponse(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        }
+
+        return builder.buildJSONResponse();
+    }
+
+
+    public UmaResponse updateResourceSet(UmaResourceSetRegistrationRequest umaResourceSetRegRequest){
         return null;
     }
-
-    public UmaResourceSetRegistrationResponse deleteResourceSet
-            (UmaResourceSetRegistrationRequest umaResourceSetRegistrationRequest){
-        return null;
-    }
-
-
-
 
 }

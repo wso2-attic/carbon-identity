@@ -24,15 +24,26 @@ package org.wso2.carbon.identity.uma.dao;
 
 public class SQLQueries {
 
-    public static final String CREATE_RESOURCE_SET_DESCRIPTION = "";
+    public static final String INSERT_RESOURCE_SET =
+            "INSERT INTO $resourceSetRegTable(RESOURCE_SET_ID, NAME, URI, TYPE, ICON_URI," +
+                    "AUTHZ_USER, CONSUMER_KEY, RESOURCE_SET_SCOPE, TIME_CREATED) " +
+                    "VALUES (?,?,?,?,?,?,?,?,?)";
 
-    public static final String UPDATE_RESOURCE_SET_DESCRIPTION = "";
+    public static final String UPDATE_RESOURCE_SET_DESCRIPTION =
+            "SELECT * FROM $resourceSetRegTable WHERE CONSUMER_KEY=?";
 
-    public static final String DELETE_RESOURCE_SET_DESCRIPTION = "";
+    public static final String DELETE_RESOURCE_SET_FROM_ID =
+            "DELETE FROM $resourceSetRegTable WHERE RESOURCE_SET_ID = ? ";
 
-    public static final String GET_RESOURCE_SET_DESCRIPTION = "";
+    public static final String GET_RESOURCE_SET_FROM_ID =
+            "SELECT * FROM $resourceSetRegTable WHERE RESOURCE_SET_ID=?";
 
-    public static final String GET_ALL_RESOURCE_SET_DESCRIPTIONS = "";
+    public static final String GET_ALL_RESOURCE_SETS=
+            "SELECT * FROM $resourceSetRegTable WHERE CONSUMER_KEY=?";
+
+    public static final String GET_ALL_RESOURCE_SET_IDS =
+            "SELECT RESOURCE_SET_ID FROM $resourceSetRegTable WHERE CONSUMER_KEY=?";
+
 
 
     private SQLQueries(){}

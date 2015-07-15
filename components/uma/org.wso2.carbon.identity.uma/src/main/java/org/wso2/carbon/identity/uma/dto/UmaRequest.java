@@ -22,6 +22,7 @@
 
 package org.wso2.carbon.identity.uma.dto;
 
+import org.wso2.carbon.identity.oauth2.dto.OAuth2ClientApplicationDTO;
 import org.wso2.carbon.identity.uma.exceptions.IdentityUMAException;
 import org.wso2.carbon.identity.uma.util.UMAUtil;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
@@ -32,6 +33,8 @@ import java.util.List;
 
 public class UmaRequest {
 
+    private static final String OAUTH_TOKEN_VALIDATION_RESPONSE = "oauth.access.token.validation.response";
+
     protected HttpServletRequest httpServletRequest;
 
     protected RequestParameter[] requestParameters;
@@ -41,6 +44,8 @@ public class UmaRequest {
     protected int tenantID;
 
     protected String consumerKey;
+
+    protected String authorizedUser;
 
 
     public UmaRequest(HttpServletRequest httpServletRequest){
@@ -68,6 +73,15 @@ public class UmaRequest {
             requestParameters =
                     requestParameterList.toArray(new RequestParameter[requestParameterList.size()]);
         }
+
+        if (httpServletRequest.getAttribute(OAUTH_TOKEN_VALIDATION_RESPONSE) != null){
+            OAuth2ClientApplicationDTO applicationDTO =
+                    (OAuth2ClientApplicationDTO)httpServletRequest.getAttribute(OAUTH_TOKEN_VALIDATION_RESPONSE);
+
+            consumerKey = applicationDTO.getConsumerKey();
+
+            authorizedUser = applicationDTO.getAccessTokenValidationResponse().getAuthorizedUser();
+        }
     }
 
     public HttpServletRequest getHttpServletRequest() {
@@ -92,5 +106,13 @@ public class UmaRequest {
 
     public void setConsumerKey(String consumerKey) {
         this.consumerKey = consumerKey;
+    }
+
+    public String getAuthorizedUser() {
+        return authorizedUser;
+    }
+
+    public void setAuthorizedUser(String authorizedUser) {
+        this.authorizedUser = authorizedUser;
     }
 }

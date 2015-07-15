@@ -40,7 +40,6 @@ import java.util.TreeMap;
 
 public class UMAUtil {
 
-    private static final String OAUTH_TOKEN_VALIDATION_RESPONSE = "oauth.access.token.validation.response";
 
     /**
      * Util method to get the tenant ID given the tenantDomain
@@ -79,10 +78,15 @@ public class UMAUtil {
         return null;
     }
 
+    /**
+     * Build a
+     * @param scopeStr
+     * @return
+     */
     public static String[] buildScopeArray(String scopeStr) {
         if (StringUtils.isNotBlank(scopeStr)) {
             scopeStr = scopeStr.trim();
-            return scopeStr.split("\\s");
+            return scopeStr.split(",");
         }
         return new String[0];
     }
@@ -98,48 +102,10 @@ public class UMAUtil {
     }
 
 
-    /**
-     * Util method to get the consumer key from the HttpServletRequest
-     * Note : The OAuthTokenValidationValve sets the token validation response in the
-     * attribute "oauth.access.token.validation.response" in the HttpServletRequest
-     *
-     * @param httpServletRequest
-     * @return
-     */
-    public static String getConsumerKey(HttpServletRequest httpServletRequest){
-        String consumerKey = null;
-
-        if (httpServletRequest.getAttribute(OAUTH_TOKEN_VALIDATION_RESPONSE) != null){
-            OAuth2ClientApplicationDTO applicationDTO =
-                    (OAuth2ClientApplicationDTO)httpServletRequest.getAttribute(OAUTH_TOKEN_VALIDATION_RESPONSE);
-            consumerKey = applicationDTO.getConsumerKey();
-
-        }
-        return consumerKey;
-    }
 
 
-    /**
-     * Build a JAX-RS Response Object from UmaResponse DTO object
-     * @param response UMAResponse
-     * @return
-     */
-    public static Response buildResponse(UmaResponse response){
-        // building the response
-        Response.ResponseBuilder responseBuilder =
-                Response.status(response.getResponseStatus());
-        responseBuilder.entity(response.getBody());
 
-        // adding the headers to the response
-        Map<String, String> headers = response.getHeaders();
-        for(Map.Entry<String,String> header : headers.entrySet() ){
-            if (header.getKey() != null && header.getValue() != null){
-                responseBuilder.header(header.getKey(),header.getValue());
-            }
-        }
 
-        return responseBuilder.build();
-    }
 
 
     private UMAUtil(){}

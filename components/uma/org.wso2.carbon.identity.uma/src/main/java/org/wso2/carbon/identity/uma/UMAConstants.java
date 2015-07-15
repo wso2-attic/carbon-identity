@@ -108,10 +108,13 @@ public final class UMAConstants {
 
     public static class OAuthResourceRegistration{
 
+        public static final String RESOURCE_SET_NAME = "name";
+        public static final String RESOURCE_SET_TYPE = "type";
+        public static final String RESOURCE_SET_URI = "uri";
+        public static final String RESOURCE_SET_ICON_URI = "icon_uri";
+        public static final String RESOURCE_SET_SCOPES = "scopes";
+        public static final String RESOURCE_SET_ID = "_id";
 
-
-
-        public static final String RESOURCE_REG_RESPONSE_ID = "_id";
         public static final String RESOURCE_REG_RESPONSE_POLICY_URI = "user_access_policy_uri";
 
         private OAuthResourceRegistration(){}

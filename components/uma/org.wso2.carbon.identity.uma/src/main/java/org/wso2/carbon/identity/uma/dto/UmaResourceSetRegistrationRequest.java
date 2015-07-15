@@ -29,17 +29,20 @@ import javax.servlet.http.HttpServletRequest;
 public class UmaResourceSetRegistrationRequest extends UmaRequest{
 
     private ResourceSetDescriptionBean resourceSetDescription;
-    private int resourceId;
+    private String resourceId;
 
-    public UmaResourceSetRegistrationRequest(HttpServletRequest httpServletRequest) {
+
+    public UmaResourceSetRegistrationRequest(HttpServletRequest httpServletRequest){
         super(httpServletRequest);
     }
 
-    public void setResourceSetDescription(ResourceSetDescriptionBean resourceSetDescription) {
-        this.resourceSetDescription = resourceSetDescription;
+    public UmaResourceSetRegistrationRequest
+            (HttpServletRequest httpServletRequest, ResourceSetDescriptionBean resourceSetDescriptionBean) {
+        super(httpServletRequest);
+        this.resourceSetDescription = resourceSetDescriptionBean;
     }
 
-    public void setResourceId(int resourceId) {
+    public void setResourceId(String resourceId) {
         this.resourceId = resourceId;
     }
 
@@ -47,7 +50,7 @@ public class UmaResourceSetRegistrationRequest extends UmaRequest{
         return resourceSetDescription;
     }
 
-    public int getResourceId() {
+    public String getResourceId() {
         return resourceId;
     }
 

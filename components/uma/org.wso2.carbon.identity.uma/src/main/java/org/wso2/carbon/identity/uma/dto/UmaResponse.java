@@ -25,6 +25,7 @@ package org.wso2.carbon.identity.uma.dto;
 import com.google.gson.Gson;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.identity.uma.UMAConstants;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -99,7 +100,7 @@ public class UmaResponse {
             return this;
         }
 
-        public UmaResponse.UmaResponseBuilder setParam(String key, String value) {
+        public UmaResponse.UmaResponseBuilder setParam(String key, Object value) {
             this.parameters.put(key, value);
             return this;
         }
@@ -108,8 +109,10 @@ public class UmaResponse {
             UmaResponse umaResponse = new UmaResponse(this.responseCode);
 
             // get the parameters from the map and build the json string for parameters
-            String body = new Gson().toJson(this.parameters);
-            umaResponse.setBody(body);
+            if (!this.parameters.isEmpty()) {
+                String body = new Gson().toJson(this.parameters);
+                umaResponse.setBody(body);
+            }
 
             // create the response and set the body
             return umaResponse;
@@ -120,7 +123,7 @@ public class UmaResponse {
     /**
      *  UmaErrorResponseBuilder class
      */
-    public static class UmaErrorResponseBuilder extends UmaResponse.UmaResponseBuilder {
+    public static class UmaErrorResponseBuilder extends UmaResponseBuilder {
         public UmaErrorResponseBuilder(int responseCode) {
             super(responseCode);
         }
@@ -135,17 +138,17 @@ public class UmaResponse {
 //        }
 
         public UmaErrorResponseBuilder setError(String error) {
-            this.parameters.put("error", error);
+            this.parameters.put(UMAConstants.UMA_ERROR, error);
             return this;
         }
 
         public UmaErrorResponseBuilder setErrorDescription(String desc) {
-            this.parameters.put("error_description", desc);
+            this.parameters.put(UMAConstants.UMA_ERROR_DESCRIPTION, desc);
             return this;
         }
 
         public UmaErrorResponseBuilder setErrorUri(String state) {
-            this.parameters.put("error_uri", state);
+            this.parameters.put(UMAConstants.UMA_ERROR_URI, state);
             return this;
         }
 
