@@ -136,8 +136,11 @@ public class SAML2SSOAuthenticator implements CarbonServerAuthenticator {
             // Starting Authorization
 
             PermissionUpdateUtil.updatePermissionTree(tenantId);
-            boolean isAuthorized = realm.getAuthorizationManager().isUserAuthorized(username,
-                    "/permission/admin/login", CarbonConstants.UI_PERMISSION_ACTION);
+            boolean isAuthorized = false;
+            if (realm != null) {
+                isAuthorized = realm.getAuthorizationManager().isUserAuthorized(username,
+                        "/permission/admin/login", CarbonConstants.UI_PERMISSION_ACTION);
+            }
             if (isAuthorized) {
                 CarbonAuthenticationUtil.onSuccessAdminLogin(httpSession, username,
                         tenantId, tenantDomain, "SAML2 SSO Authentication");
@@ -214,7 +217,7 @@ public class SAML2SSOAuthenticator implements CarbonServerAuthenticator {
             loggedInUser = (String) session.getAttribute(ServerConstants.USER_LOGGED_IN);
             delegatedBy = (String) session.getAttribute("DELEGATED_BY");
 
-            if(loggedInUser != null && !"".equals(loggedInUser.trim())) {
+            if (loggedInUser != null && !"".equals(loggedInUser.trim())) {
                 String logMessage = "'" + loggedInUser + "' logged out at " + date.format(currentTime);
 
                 if (delegatedBy != null) {
@@ -414,7 +417,7 @@ public class SAML2SSOAuthenticator implements CarbonServerAuthenticator {
             String errorMsg = "Error when creating an X509CredentialImpl instance";
             log.error(errorMsg, e);
         } catch (ValidationException e) {
-            log.warn("Signature validation failed for a SAML2 Reposnse from domain : " + domainName,e);
+            log.warn("Signature validation failed for a SAML2 Reposnse from domain : " + domainName, e);
         }
         return isSignatureValid;
     }
@@ -656,7 +659,7 @@ public class SAML2SSOAuthenticator implements CarbonServerAuthenticator {
      * @return String array of roles
      */
     private String[] getRoles(XMLObject xmlObject) {
-        String[] arrRoles={};
+        String[] arrRoles = {};
         if (xmlObject instanceof Response) {
             return getRolesFromResponse((Response) xmlObject);
         } else if (xmlObject instanceof Assertion) {

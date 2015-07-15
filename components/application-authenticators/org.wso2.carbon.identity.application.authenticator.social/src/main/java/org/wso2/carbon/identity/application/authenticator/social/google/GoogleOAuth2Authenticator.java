@@ -27,6 +27,7 @@ import org.apache.amber.oauth2.common.exception.OAuthSystemException;
 import org.apache.amber.oauth2.common.message.types.GrantType;
 import org.apache.amber.oauth2.common.utils.JSONUtils;
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.codehaus.jettison.json.JSONException;
@@ -207,25 +208,27 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
         Map<ClaimMapping, String> claims = new HashMap<ClaimMapping, String>();
 
         try {
-            String json = sendRequest(token.getParam(GoogleOAuth2AuthenticationConstant.GOOGLE_USERINFO_ENDPOINT),
-                    token.getParam(OIDCAuthenticatorConstants.ACCESS_TOKEN));
 
-            Map<String, Object> jsonObject = JSONUtils.parseJSON(json);
+                String json = sendRequest(token.getParam(GoogleOAuth2AuthenticationConstant.GOOGLE_USERINFO_ENDPOINT),
+                        token.getParam(OIDCAuthenticatorConstants.ACCESS_TOKEN));
+            if (json.length() > 0) {
+                Map<String, Object> jsonObject = JSONUtils.parseJSON(json);
 
-            if (jsonObject != null) {
-                for (Map.Entry<String, Object> entry : jsonObject.entrySet()) {
-                    claims.put(ClaimMapping.build(entry.getKey(),
-                            entry.getKey(), null, false), entry.getValue()
-                            .toString());
-                    if (log.isDebugEnabled()) {
-                        log.debug("Adding claim from end-point data mapping : " + entry.getKey() + " - " +
-                                entry.getValue());
+                if (jsonObject != null) {
+                    for (Map.Entry<String, Object> entry : jsonObject.entrySet()) {
+                        claims.put(ClaimMapping.build(entry.getKey(),
+                                entry.getKey(), null, false), entry.getValue()
+                                .toString());
+                        if (log.isDebugEnabled()) {
+                            log.debug("Adding claim from end-point data mapping : " + entry.getKey() + " - " +
+                                    entry.getValue());
+                        }
+
                     }
-
                 }
-            }
 
-        } catch (Exception e) {
+            }
+        }catch (Exception e) {
             log.error("Error occurred while accessing google user info endpoint", e);
         }
 
@@ -461,24 +464,29 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
         if (log.isDebugEnabled()) {
             log.debug("claim url: " + url + " & accessToken : " + accessToken);
         }
-        URL obj = new URL(url);
-        HttpURLConnection urlConnection = (HttpURLConnection) obj.openConnection();
+        if (url != null) {
+            URL obj = new URL(url);
+            HttpURLConnection urlConnection = (HttpURLConnection) obj.openConnection();
 
-        urlConnection.setRequestMethod("GET");
-        // add request header
-        urlConnection.setRequestProperty("Authorization", "Bearer " + accessToken);
-        BufferedReader in = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
-        StringBuilder b = new StringBuilder();
-        String inputLine = in.readLine();
-        while (inputLine != null) {
-            b.append(inputLine).append("\n");
-            inputLine = in.readLine();
-        }
-        in.close();
+            urlConnection.setRequestMethod("GET");
+            // add request header
+            urlConnection.setRequestProperty("Authorization", "Bearer " + accessToken);
+            BufferedReader in = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
+            StringBuilder b = new StringBuilder();
+            String inputLine = in.readLine();
+            while (inputLine != null) {
+                b.append(inputLine).append("\n");
+                inputLine = in.readLine();
+            }
+            in.close();
 
-        if (log.isDebugEnabled()) {
-            log.debug("response: " + b.toString());
-        }
+            if (log.isDebugEnabled()) {
+                log.debug("response: " + b.toString());
+            }
         return b.toString();
+    }
+        else{
+            return StringUtils.EMPTY;
+        }
     }
 }
