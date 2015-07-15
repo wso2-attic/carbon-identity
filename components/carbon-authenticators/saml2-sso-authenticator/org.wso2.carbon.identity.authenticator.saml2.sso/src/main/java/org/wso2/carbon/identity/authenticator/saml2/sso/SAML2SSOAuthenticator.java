@@ -19,6 +19,7 @@ package org.wso2.carbon.identity.authenticator.saml2.sso;
 
 import org.apache.axis2.context.MessageContext;
 import org.apache.axis2.transport.http.HTTPConstants;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opensaml.saml2.core.Assertion;
@@ -217,7 +218,7 @@ public class SAML2SSOAuthenticator implements CarbonServerAuthenticator {
             loggedInUser = (String) session.getAttribute(ServerConstants.USER_LOGGED_IN);
             delegatedBy = (String) session.getAttribute("DELEGATED_BY");
 
-            if (loggedInUser != null && !"".equals(loggedInUser.trim())) {
+            if (StringUtils.isBlank(loggedInUser)) {
                 String logMessage = "'" + loggedInUser + "' logged out at " + date.format(currentTime);
 
                 if (delegatedBy != null) {
