@@ -42,6 +42,12 @@ public class UMAUtil {
 
     private static final String OAUTH_TOKEN_VALIDATION_RESPONSE = "oauth.access.token.validation.response";
 
+    /**
+     * Util method to get the tenant ID given the tenantDomain
+     * @param tenantDomain
+     * @return
+     * @throws IdentityUMAException
+     */
     public static int getTenantId(String tenantDomain) throws IdentityUMAException {
         RealmService realmService = UMAServiceComponentHolder.getRealmService();
         try {
@@ -65,7 +71,7 @@ public class UMAUtil {
             for (int i = 0; i < scopes.length; i++) {
                 scopeString.append(scopes[i].trim());
                 if (i != scopes.length - 1) {
-                    scopeString.append(" ");
+                    scopeString.append(",");
                 }
             }
             return scopeString.toString();
@@ -82,15 +88,6 @@ public class UMAUtil {
     }
 
 
-    public static String hashScopes(String[] scope){
-        if (scope.length > 0){
-            return DigestUtils.md5Hex(buildScopeString(scope));
-        } else {
-            return null;
-        }
-
-    }
-
     public static String hashScopes(String scope){
         if (StringUtils.isNotBlank(scope)) {
             //first converted to an array to sort the scopes
@@ -101,6 +98,14 @@ public class UMAUtil {
     }
 
 
+    /**
+     * Util method to get the consumer key from the HttpServletRequest
+     * Note : The OAuthTokenValidationValve sets the token validation response in the
+     * attribute "oauth.access.token.validation.response" in the HttpServletRequest
+     *
+     * @param httpServletRequest
+     * @return
+     */
     public static String getConsumerKey(HttpServletRequest httpServletRequest){
         String consumerKey = null;
 
@@ -114,6 +119,11 @@ public class UMAUtil {
     }
 
 
+    /**
+     * Build a JAX-RS Response Object from UmaResponse DTO object
+     * @param response UMAResponse
+     * @return
+     */
     public static Response buildResponse(UmaResponse response){
         // building the response
         Response.ResponseBuilder responseBuilder =
