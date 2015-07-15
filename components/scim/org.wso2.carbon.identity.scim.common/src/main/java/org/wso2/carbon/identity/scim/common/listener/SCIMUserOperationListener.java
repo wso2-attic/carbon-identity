@@ -218,10 +218,9 @@ public class SCIMUserOperationListener implements UserOperationEventListener {
     }
 
     @Override
-    public boolean doPostUpdateCredential(String s, Object credential, UserStoreManager userStoreManager)
+    public boolean doPostUpdateCredential(String userName, Object credential, UserStoreManager userStoreManager)
             throws UserStoreException {
-        String currentUser = CarbonContext.getThreadLocalCarbonContext().getUsername();
-        return doPostUpdateCredentialByAdmin(currentUser, credential, userStoreManager);
+        return doPostUpdateCredentialByAdmin(userName, credential, userStoreManager);
     }
 
     @Override

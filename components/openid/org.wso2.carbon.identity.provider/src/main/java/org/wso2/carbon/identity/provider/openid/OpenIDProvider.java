@@ -17,6 +17,8 @@
  */
 package org.wso2.carbon.identity.provider.openid;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openid4java.server.ServerManager;
 import org.wso2.carbon.identity.base.IdentityConstants;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
@@ -30,6 +32,7 @@ import org.wso2.carbon.identity.core.util.IdentityUtil;
  */
 public class OpenIDProvider {
 
+    private static final Log log = LogFactory.getLog(OpenIDProvider.class);
     // Guaranteed to be thread safe
     private static OpenIDProvider provider = new OpenIDProvider();
     // Instantiate a ServerManager object.
@@ -46,6 +49,19 @@ public class OpenIDProvider {
         // performing discovery on the the User-Supplied Identifier. This value
         // must be an absolute URL
         manager.setOPEndpointUrl(opAddress);
+
+        // default association expiry time is set to 15 minutes
+        int assocExpiryTime = 15;
+        String expiryTime = IdentityUtil.getProperty(IdentityConstants.ServerConfig.OPENID_ASSOCIATION_EXPIRY_TIME);
+        if (expiryTime != null || !expiryTime.trim().isEmpty()) {
+            try {
+                assocExpiryTime = Integer.parseInt(expiryTime);
+            } catch (NumberFormatException e) {
+                log.warn("Error while setting association expiry time as " + expiryTime
+                        +  ". Setting association expiry time to default ("+assocExpiryTime+")", e);
+            }
+        }
+        manager.setExpireIn(assocExpiryTime);
     }
 
     /**

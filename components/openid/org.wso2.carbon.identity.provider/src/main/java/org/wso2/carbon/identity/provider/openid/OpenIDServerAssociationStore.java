@@ -44,7 +44,7 @@ public class OpenIDServerAssociationStore extends InMemoryServerAssociationStore
     private int storeId = 0;
     private String timestamp;
     private int counter;
-    private OpenIDAssociationCache cache;
+    private volatile OpenIDAssociationCache cache;
     private OpenIDAssociationDAO dao;
 
     /**
@@ -58,7 +58,8 @@ public class OpenIDServerAssociationStore extends InMemoryServerAssociationStore
         timestamp = Long.toString(new Date().getTime());
         counter = 0;
         cache = OpenIDAssociationCache.getCacheInstance();
-        dao = new OpenIDAssociationDAO(associationsType);
+        // get singleton dao
+        dao = OpenIDAssociationDAO.getInstance(associationsType);
     }
 
     /**
@@ -69,21 +70,31 @@ public class OpenIDServerAssociationStore extends InMemoryServerAssociationStore
      * @return <code>Association</code>
      */
     @Override
-    public synchronized Association generate(String type, int expiryIn)
+    public Association generate(String type, int expiryIn)
             throws AssociationException {
-        String handle = storeId + timestamp + "-" + counter++;
+        String handle = storeId + timestamp + "-" + getCounter();
         final Association association = Association.generate(type, handle, expiryIn);
         cache.addToCache(association);
         // Asynchronous write to database
         Thread thread = new Thread() {
             @Override
             public void run() {
-                log.debug("Stroing association " + association.getHandle() + " in the database.");
+                if(log.isDebugEnabled()) {
+                    log.debug("Storing association " + association.getHandle() + " in the database.");
+                }
                 dao.storeAssociation(association);
             }
         };
         thread.start();
         return association;
+    }
+
+    /**
+     *
+     * @return
+     */
+    private synchronized int getCounter(){
+        return counter++;
     }
 
     /**
@@ -93,7 +104,7 @@ public class OpenIDServerAssociationStore extends InMemoryServerAssociationStore
      * @return <code>Association<code>
      */
     @Override
-    public synchronized Association load(String handle) {
+    public Association load(String handle) {
 
         boolean chacheMiss = false;
 
@@ -102,14 +113,18 @@ public class OpenIDServerAssociationStore extends InMemoryServerAssociationStore
 
         // if failed, look in the database
         if (association == null) {
-            log.debug("Association " + handle + " not found in cache. Loading from the database.");
+            if(log.isDebugEnabled()) {
+                log.debug("Association " + handle + " not found in cache. Loading from the database.");
+            }
             association = dao.loadAssociation(handle);
             chacheMiss = true;
         }
 
         // no association found for the given handle
         if (association == null) {
-            log.debug("Association " + handle + " not found in the database.");
+            if(log.isDebugEnabled()) {
+                log.debug("Association " + handle + " not found in the database.");
+            }
             return null;
         }
 
@@ -131,7 +146,7 @@ public class OpenIDServerAssociationStore extends InMemoryServerAssociationStore
      * Removes the association from the memory and db.
      */
     @Override
-    public synchronized void remove(final String handle) {
+    public void remove(final String handle) {
 
         // we are not removing from cache
         // because it will cost a database call
@@ -141,7 +156,9 @@ public class OpenIDServerAssociationStore extends InMemoryServerAssociationStore
         Thread thread = new Thread() {
             @Override
             public void run() {
-                log.debug("Removing the association" + handle + " from the database");
+                if(log.isDebugEnabled()) {
+                    log.debug("Removing the association" + handle + " from the database");
+                }
                 dao.removeAssociation(handle);
             }
         };

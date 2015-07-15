@@ -241,6 +241,7 @@
             <xs:element name="changePasswordByUser">
                 <xs:complexType>
                     <xs:sequence>
+                        <xs:element minOccurs="0" name="userName" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="oldPassword" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="newPassword" nillable="true" type="xs:string"/>
                     </xs:sequence>
