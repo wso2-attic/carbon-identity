@@ -39,7 +39,6 @@
 
     <modules>
         <module>service-stubs/identity</module>
-        <module>components/userstore-config</module>
         <module>components/agents</module>
         <module>components/application-authenticators</module>
         <module>components/authentication-framework</module>
@@ -60,9 +59,7 @@
         <module>components/carbon-authenticators</module>
         <module>components/claim-mgt</module>
         <module>components/directory-server-manager</module>
-        <module>components/ldap-server</module>
         <module>components/policy-editor</module>
-        <module>components/remote-usermgt</module>
         <module>components/security</module>
         <module>components/sts</module>
 
@@ -1395,6 +1392,12 @@
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.identity.self.registration.server.feature</artifactId>
+                <version>${carbon.identity.version}</version>
+                <type>zip</type>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.identity</groupId>
+                <artifactId>org.wso2.carbon.identity.self.registration.ui.feature</artifactId>
                 <version>${carbon.identity.version}</version>
                 <type>zip</type>
             </dependency>

@@ -22,7 +22,7 @@
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>identity.authenticators</artifactId>
+    <artifactId>carbon-authenticators</artifactId>
     <packaging>pom</packaging>
     <name>WSO2 Carbon - Identity Authenticators</name>
     <description>This is a Carbon bundle that represent authenticators.</description>
