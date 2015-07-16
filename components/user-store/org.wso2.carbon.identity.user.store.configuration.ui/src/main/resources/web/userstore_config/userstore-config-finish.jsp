@@ -15,21 +15,21 @@
 * limitations under the License.
 */
 -->
-<%@ page import="org.wso2.carbon.ndatasource.common.DataSourceException"%>
-<%@ page import="org.apache.axis2.context.ConfigurationContext" %>
+<%@ page import="org.apache.axis2.context.ConfigurationContext"%>
 <%@ page import="org.wso2.carbon.CarbonConstants" %>
 <%@ page import="org.wso2.carbon.identity.user.store.configuration.stub.dto.PropertyDTO" %>
 <%@ page import="org.wso2.carbon.identity.user.store.configuration.stub.dto.UserStoreDTO" %>
 <%@ page import="org.wso2.carbon.identity.user.store.configuration.ui.client.UserStoreConfigAdminServiceClient" %>
+<%@ page import="org.wso2.carbon.ndatasource.common.DataSourceException" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
 <%@ page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
 <%@ page import="org.wso2.carbon.user.mgt.ui.UserAdminUIConstants" %>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
+<%@ page import="java.util.ArrayList" %>
 <%@ page import="java.util.HashMap" %>
-<%@ page import="java.util.Map" %>
+        <%@ page import="java.util.Map" %>
         <%@ page import="java.util.ResourceBundle" %>
-        <%@ page import="java.util.ArrayList" %>
 
         <%
         	Map<String, String> properties = new HashMap<String, String>();

@@ -28,7 +28,12 @@ import org.wso2.carbon.identity.entitlement.pap.store.PAPPolicyStore;
 import org.wso2.carbon.identity.entitlement.pap.store.PAPPolicyStoreReader;
 import org.wso2.carbon.identity.entitlement.pdp.EntitlementEngine;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Abstract implementation of a policy finder module. This can be easily extended by any module

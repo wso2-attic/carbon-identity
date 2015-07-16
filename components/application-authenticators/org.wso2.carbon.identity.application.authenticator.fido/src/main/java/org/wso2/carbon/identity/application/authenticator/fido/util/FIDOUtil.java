@@ -17,13 +17,11 @@
  */
 package org.wso2.carbon.identity.application.authenticator.fido.util;
 
-import org.apache.commons.logging.Log;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.identity.application.authenticator.fido.exception.FIDOAuthenticatorServerException;
 import org.wso2.carbon.identity.application.authenticator.fido.internal.FIDOAuthenticatorServiceComponent;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.service.RealmService;
-import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import javax.servlet.http.HttpServletRequest;
 

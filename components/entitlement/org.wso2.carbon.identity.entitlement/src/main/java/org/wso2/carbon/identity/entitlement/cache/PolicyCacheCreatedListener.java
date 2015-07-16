@@ -19,16 +19,10 @@ package org.wso2.carbon.identity.entitlement.cache;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.balana.finder.PolicyFinder;
-import org.wso2.balana.finder.PolicyFinderModule;
-import org.wso2.carbon.identity.entitlement.pdp.EntitlementEngine;
 
 import javax.cache.event.CacheEntryCreatedListener;
 import javax.cache.event.CacheEntryEvent;
 import javax.cache.event.CacheEntryListenerException;
-import javax.cache.event.CacheEntryUpdatedListener;
-import java.io.Serializable;
-import java.util.Set;
 
 /**
  * Created for get update when the cache entry created by any node in the cluster

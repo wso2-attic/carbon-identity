@@ -36,7 +36,6 @@ import org.wso2.carbon.identity.entitlement.policy.publisher.PublisherVerificati
 import org.wso2.carbon.identity.entitlement.policy.store.PolicyDataStore;
 import org.wso2.carbon.identity.entitlement.policy.store.PolicyStoreManageModule;
 import org.wso2.carbon.identity.entitlement.policy.version.PolicyVersionManager;
-import org.wso2.carbon.utils.CarbonUtils;
 
 import java.io.File;
 import java.io.FileInputStream;

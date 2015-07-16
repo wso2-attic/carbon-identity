@@ -75,7 +75,6 @@ import org.wso2.carbon.security.config.service.SecurityConfigData;
 import org.wso2.carbon.security.config.service.SecurityScenarioData;
 import org.wso2.carbon.security.pox.POXSecurityHandler;
 import org.wso2.carbon.security.util.RahasUtil;
-import org.wso2.carbon.security.util.RampartConfigUtil;
 import org.wso2.carbon.security.util.SecurityTokenStore;
 import org.wso2.carbon.security.util.ServerCrypto;
 import org.wso2.carbon.security.util.ServicePasswordCallbackHandler;
