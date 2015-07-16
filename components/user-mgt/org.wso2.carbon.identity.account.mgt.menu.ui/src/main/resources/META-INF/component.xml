@@ -29,7 +29,7 @@
             <order>3</order>
             <style-class>manage</style-class>
             <icon>../userstore/images/user-roles.gif</icon>
-            <require-permission>/permission/admin/manage</require-permission>
+            <require-permission>/permission/admin/login</require-permission>
             <require-not-logged-in>false</require-not-logged-in>
         </menu>
 
