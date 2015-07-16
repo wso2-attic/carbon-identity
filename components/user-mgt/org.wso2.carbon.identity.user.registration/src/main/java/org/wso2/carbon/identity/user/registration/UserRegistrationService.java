@@ -393,7 +393,6 @@ public class UserRegistrationService {
     /**
      * * This method provides a secured document builder which will secure XXE attacks.
      *
-     * @param setIgnoreComments whether to set setIgnoringComments in DocumentBuilderFactory.
      * @return DocumentBuilder
      * @throws ParserConfigurationException
      */
