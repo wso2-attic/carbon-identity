@@ -18,22 +18,28 @@
 package org.wso2.carbon.identity.core.util;
 
 import org.apache.axiom.om.impl.dom.factory.OMDOMFactory;
+import org.apache.axis2.engine.AxisConfiguration;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.xml.security.utils.Base64;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
+import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.base.ServerConfigurationException;
 import org.wso2.carbon.identity.base.IdentityException;
+import org.wso2.carbon.identity.core.internal.IdentityCoreServiceComponent;
 import org.wso2.carbon.identity.core.model.IdentityErrorMsgContext;
 import org.wso2.carbon.registry.core.utils.UUIDGenerator;
 import org.wso2.carbon.user.api.TenantManager;
 import org.wso2.carbon.user.api.UserStoreException;
+import org.wso2.carbon.utils.CarbonUtils;
+import org.wso2.carbon.utils.NetworkUtils;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
+import java.net.SocketException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -239,6 +245,42 @@ public class IdentityUtil {
             throw new IdentityException("Error when generating a random number.", e);
         }
 
+    }
+
+    public static String getServerURL() throws IdentityException{
+        String hostName = ServerConfiguration.getInstance().getFirstProperty(IdentityCoreConstants.HOST_NAME);
+
+        try {
+            if (hostName == null) {
+                hostName = NetworkUtils.getLocalHostname();
+            }
+        } catch (SocketException e) {
+            throw new IdentityException("Error while trying to read hostname.", e);
+        }
+
+        String mgtTransport = CarbonUtils.getManagementTransport();
+        AxisConfiguration axisConfiguration = IdentityCoreServiceComponent
+                .getConfigurationContextService().getServerConfigContext().getAxisConfiguration();
+        int mgtTransportPort = CarbonUtils.getTransportProxyPort(axisConfiguration, mgtTransport);
+        if (mgtTransportPort <= 0) {
+            mgtTransportPort = CarbonUtils.getTransportPort(axisConfiguration, mgtTransport);
+        }
+        String serverUrl = mgtTransport + "://" + hostName.toLowerCase();
+        // If it's well known HTTPS port, skip adding port
+        if (mgtTransportPort != IdentityCoreConstants.DEFAULT_HTTPS_PORT) {
+            serverUrl += ":" + mgtTransportPort;
+        }
+        // If ProxyContextPath is defined then append it
+        String proxyContextPath = ServerConfiguration.getInstance().getFirstProperty(IdentityCoreConstants.PROXY_CONTEXT_PATH);
+        if (proxyContextPath != null && !proxyContextPath.trim().isEmpty()) {
+            if (proxyContextPath.charAt(0) == '/') {
+                serverUrl += proxyContextPath;
+            } else {
+                serverUrl += "/" + proxyContextPath;
+            }
+        }
+
+        return serverUrl;
     }
 
 }
