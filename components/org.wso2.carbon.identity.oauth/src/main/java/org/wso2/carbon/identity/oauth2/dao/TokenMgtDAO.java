@@ -489,39 +489,20 @@ public class TokenMgtDAO {
             if (userStoreDomain != null) {
                 accessTokenStoreTable = accessTokenStoreTable + "_" + userStoreDomain;
             }
-            mySqlQuery = "SELECT ACCESS_TOKEN, AUTHZ_USER, " +
-                    "TOKEN_SCOPE, TOKEN_STATE, TIME_CREATED FROM " + accessTokenStoreTable +
-                    " WHERE CONSUMER_KEY = ? AND REFRESH_TOKEN = ? ORDER BY TIME_CREATED DESC LIMIT 1";
-
-            db2Query = "SELECT ACCESS_TOKEN, AUTHZ_USER, " +
-                    "TOKEN_SCOPE, TOKEN_STATE, TIME_CREATED FROM " + accessTokenStoreTable +
-                    " WHERE CONSUMER_KEY = ? AND REFRESH_TOKEN = ? ORDER BY TIME_CREATED DESC FETCH FIRST 1 ROWS ONLY";
-
-            oracleQuery = "SELECT * FROM (SELECT ACCESS_TOKEN, AUTHZ_USER, " +
-                    "TOKEN_SCOPE, TOKEN_STATE, TIME_CREATED FROM " + accessTokenStoreTable +
-                    " WHERE CONSUMER_KEY = ? AND REFRESH_TOKEN = ? ORDER BY TIME_CREATED DESC) WHERE ROWNUM < 2 ";
-
-            msSqlQuery = "SELECT TOP 1 ACCESS_TOKEN, AUTHZ_USER, " +
-                    "TOKEN_SCOPE, TOKEN_STATE, TIME_CREATED FROM " + accessTokenStoreTable +
-                    " WHERE CONSUMER_KEY = ? AND REFRESH_TOKEN = ? ORDER BY TIME_CREATED DESC";
-
-            postgreSqlQuery = "SELECT * FROM (SELECT ACCESS_TOKEN, AUTHZ_USER, TOKEN_SCOPE, TOKEN_STATE, TIME_CREATED" +
-                    " FROM " + accessTokenStoreTable + " WHERE CONSUMER_KEY = ? " +
-                    " AND REFRESH_TOKEN = ? ORDER BY TIME_CREATED DESC) AS TOKEN LIMIT 1 ";
 
             if (connection.getMetaData().getDriverName().contains("MySQL")
                     || connection.getMetaData().getDriverName().contains("H2")) {
-                sql = mySqlQuery;
+                sql = SQLQueries.VALIDATE_REFRESH_TOKEN_MYSQL.replaceAll("\\$accessTokenStoreTable", accessTokenStoreTable);
             } else if(connection.getMetaData().getDatabaseProductName().contains("DB2")){
-                sql = db2Query;
+                sql = SQLQueries.VALIDATE_REFRESH_TOKEN_DB2.replaceAll("\\$accessTokenStoreTable", accessTokenStoreTable);
             } else if (connection.getMetaData().getDriverName().contains("MS SQL")) {
-                sql = msSqlQuery;
+                sql = SQLQueries.VALIDATE_REFRESH_TOKEN_MSSQL.replaceAll("\\$accessTokenStoreTable", accessTokenStoreTable);
             } else if (connection.getMetaData().getDriverName().contains("Microsoft")) {
-                sql = msSqlQuery;
+                sql = SQLQueries.VALIDATE_REFRESH_TOKEN_MSSQL.replaceAll("\\$accessTokenStoreTable", accessTokenStoreTable);
             } else if (connection.getMetaData().getDriverName().contains("PostgreSQL")) {
-                sql = postgreSqlQuery;
+                sql = SQLQueries.VALIDATE_REFRESH_TOKEN_POSTGRESQL.replaceAll("\\$accessTokenStoreTable", accessTokenStoreTable);
             } else {
-                sql = oracleQuery;
+                sql = SQLQueries.VALIDATE_REFRESH_TOKEN_ORACLE.replaceAll("\\$accessTokenStoreTable", accessTokenStoreTable);
             }
 
             if(refreshToken == null){
