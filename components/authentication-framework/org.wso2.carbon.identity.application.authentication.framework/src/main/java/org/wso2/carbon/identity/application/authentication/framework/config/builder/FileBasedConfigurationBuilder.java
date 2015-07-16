@@ -32,6 +32,7 @@ import org.wso2.carbon.identity.application.authentication.framework.util.Framew
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkUtils;
 import org.wso2.carbon.identity.application.common.model.IdentityProvider;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.utils.CarbonUtils;
 
 import javax.xml.namespace.QName;
@@ -91,8 +92,8 @@ public class FileBasedConfigurationBuilder {
      */
     public void build() {
 
-        String authenticatorsFilePath = CarbonUtils.getCarbonConfigDirPath() + File.separator +
-                                        "security" + File.separator + FrameworkConstants.Config.AUTHENTICATORS_FILE_NAME;
+        String authenticatorsFilePath = IdentityUtil.getIdentityConfigDirPath() + File.separator + FrameworkConstants
+                .Config.AUTHENTICATORS_FILE_NAME;
         FileInputStream fileInputStream = null;
 
         try {

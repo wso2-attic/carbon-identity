@@ -30,10 +30,12 @@ import org.wso2.carbon.identity.core.model.IdentityErrorMsgContext;
 import org.wso2.carbon.registry.core.utils.UUIDGenerator;
 import org.wso2.carbon.user.api.TenantManager;
 import org.wso2.carbon.user.api.UserStoreException;
+import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
+import java.io.File;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -239,6 +241,10 @@ public class IdentityUtil {
             throw new IdentityException("Error when generating a random number.", e);
         }
 
+    }
+
+    public static String getIdentityConfigDirPath() {
+        return CarbonUtils.getCarbonConfigDirPath() + File.separator + "identity";
     }
 
 }

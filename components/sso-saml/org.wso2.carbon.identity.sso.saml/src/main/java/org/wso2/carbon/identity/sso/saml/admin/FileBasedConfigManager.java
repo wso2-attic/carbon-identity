@@ -24,6 +24,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.wso2.carbon.identity.core.model.SAMLSSOServiceProviderDO;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.sso.saml.SAMLSSOConstants;
 import org.wso2.carbon.identity.sso.saml.SSOServiceProviderConfigManager;
 import org.wso2.carbon.utils.CarbonUtils;
@@ -84,7 +85,7 @@ public class FileBasedConfigManager {
     private SAMLSSOServiceProviderDO[] readServiceProvidersFromFile() {
         Document document = null;
         try {
-            String configFilePath = CarbonUtils.getCarbonSecurityConfigDirPath() + File.separator + "sso-idp-config.xml";
+            String configFilePath = IdentityUtil.getIdentityConfigDirPath() + File.separator + "sso-idp-config.xml";
 
             if (!isFileExisting(configFilePath)) {
                 log.warn("sso-idp-config.xml does not exist in the 'conf' directory. The system may" +
