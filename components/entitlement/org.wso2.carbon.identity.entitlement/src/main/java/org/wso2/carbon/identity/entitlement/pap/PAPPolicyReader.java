@@ -79,14 +79,13 @@ public class PAPPolicyReader implements ErrorHandler {
         SecurityManager securityManager = new SecurityManager();
         securityManager.setEntityExpansionLimit(ENTITY_EXPANSION_LIMIT);
         documentBuilderFactory.setAttribute(SECURITY_MANAGER_PROPERTY, securityManager);
-        DocumentBuilder documentBuilder;
 
         // now use the factory to create the document builder
         try {
             documentBuilderFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
-            documentBuilder = documentBuilderFactory.newDocumentBuilder();
-            documentBuilder.setEntityResolver(new CarbonEntityResolver());
-            documentBuilder.setErrorHandler(this);
+            builder = documentBuilderFactory.newDocumentBuilder();
+            builder.setEntityResolver(new CarbonEntityResolver());
+            builder.setErrorHandler(this);
         } catch (ParserConfigurationException pce) {
             throw new IllegalArgumentException("Filed to setup repository: ");
         }
