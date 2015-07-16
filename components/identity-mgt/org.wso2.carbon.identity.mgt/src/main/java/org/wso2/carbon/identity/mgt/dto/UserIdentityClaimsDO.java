@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.identity.mgt.dto;
 
+import org.apache.commons.lang.StringUtils;
 import org.wso2.carbon.identity.mgt.store.UserIdentityDataStore;
 import org.wso2.carbon.user.core.UserCoreConstants;
 
@@ -224,7 +225,9 @@ public class UserIdentityClaimsDO implements Serializable {
      */
     public void setUserIdentityDataClaim(String claim, String value) {
         userIdentityDataMap.put(claim, value);
-        if (UserIdentityDataStore.FAIL_LOGIN_ATTEMPTS.equalsIgnoreCase(claim)) {
+        if(StringUtils.isBlank(value)){
+            return;
+        } else if (UserIdentityDataStore.FAIL_LOGIN_ATTEMPTS.equalsIgnoreCase(claim)) {
             setFailAttempts(Integer.parseInt(value));
         } else if (UserIdentityDataStore.LAST_FAILED_LOGIN_ATTEMPT_TIME.equalsIgnoreCase(claim)) {
             setLastFailAttemptTime(Long.parseLong(value));
