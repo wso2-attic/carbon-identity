@@ -24,6 +24,7 @@ import org.opensaml.saml2.core.LogoutRequest;
 import org.opensaml.saml2.core.LogoutResponse;
 import org.opensaml.saml2.core.NameID;
 import org.opensaml.saml2.core.SessionIndex;
+import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.base.IdentityConstants;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.model.SAMLSSOServiceProviderDO;
@@ -35,6 +36,7 @@ import org.wso2.carbon.identity.sso.saml.dto.SingleLogoutRequestDTO;
 import org.wso2.carbon.identity.sso.saml.session.SSOSessionPersistenceManager;
 import org.wso2.carbon.identity.sso.saml.session.SessionInfoData;
 import org.wso2.carbon.identity.sso.saml.util.SAMLSSOUtil;
+import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 import java.util.Map;
 
@@ -203,13 +205,26 @@ public class LogoutRequestProcessor {
                 }
                 reqValidationResponseDTO.setLogoutRespDTO(singleLogoutReqDTOs);
 
-                LogoutResponse logoutResponse = logoutMsgBuilder.buildLogoutResponse(
-                        logoutRequest.getID(), SAMLSSOConstants.StatusCodes.SUCCESS_CODE, null,
-                        sessionInfoData, logoutReqIssuer.isDoSignResponse(),
-                        reqValidationResponseDTO.getAssertionConsumerURL());
-                reqValidationResponseDTO.setLogoutResponse(SAMLSSOUtil.encode(SAMLSSOUtil
-                        .marshall(logoutResponse)));
-                reqValidationResponseDTO.setValid(true);
+                String tenantDomain = logoutReqIssuer.getTenantDomain();
+                if(StringUtils.isEmpty(tenantDomain)){
+                    tenantDomain = MultitenantConstants.SUPER_TENANT_DOMAIN_NAME;
+                }
+                try {
+                    int tenantId = SAMLSSOUtil.getRealmService().getTenantManager()
+                            .getTenantId(tenantDomain);
+                    PrivilegedCarbonContext.startTenantFlow();
+                    PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
+                    PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantId(tenantId);
+                    LogoutResponse logoutResponse = logoutMsgBuilder.buildLogoutResponse(
+                            logoutRequest.getID(), SAMLSSOConstants.StatusCodes.SUCCESS_CODE, null,
+                            sessionInfoData, logoutReqIssuer.isDoSignResponse(),
+                            reqValidationResponseDTO.getAssertionConsumerURL());
+                    reqValidationResponseDTO.setLogoutResponse(SAMLSSOUtil.encode(SAMLSSOUtil
+                            .marshall(logoutResponse)));
+                    reqValidationResponseDTO.setValid(true);
+                } finally {
+                    PrivilegedCarbonContext.endTenantFlow();
+                }
             }
 
             return reqValidationResponseDTO;
