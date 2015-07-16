@@ -473,11 +473,6 @@ public class TokenMgtDAO {
         ResultSet resultSet;
         String userStoreDomain = null;
         String sql = null;
-        String mySqlQuery;
-        String db2Query;
-        String oracleQuery;
-        String msSqlQuery;
-        String postgreSqlQuery;
 
         try {
             connection = JDBCPersistenceManager.getInstance().getDBConnection();
