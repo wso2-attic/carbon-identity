@@ -82,6 +82,7 @@ import org.wso2.carbon.security.util.ServicePasswordCallbackHandler;
 import org.wso2.carbon.user.core.AuthorizationManager;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserRealm;
+import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.utils.ServerException;
 import org.wso2.carbon.utils.deployment.GhostDeployerUtils;
 
@@ -111,6 +112,7 @@ import java.util.Properties;
 public class SecurityConfigAdmin {
 
     public static final String USER = "rampart.config.user";
+    public static final String IDENTITY_CONFIG_DIR = "identity";
     private static Log log = LogFactory.getLog(SecurityConfigAdmin.class);
     private AxisConfiguration axisConfig = null;
     private CallbackHandler callback = null;
@@ -1193,26 +1195,22 @@ public class SecurityConfigAdmin {
 
                 // Set system wide kerberos configurations
 
-                String carbonSecurityConfigurationPath = RampartConfigUtil.getCarbonSecurityConfigurationPath();
-                if (carbonSecurityConfigurationPath != null) {
+                String carbonSecurityConfigurationPath = CarbonUtils.getCarbonConfigDirPath() + File.separatorChar +
+                                                         IDENTITY_CONFIG_DIR;
 
-                    String krbFile = carbonSecurityConfigurationPath + File.separatorChar
-                            + KerberosConfigData.KERBEROS_CONFIG_FILE_NAME;
+                String krbFile = carbonSecurityConfigurationPath + File.separatorChar
+                        + KerberosConfigData.KERBEROS_CONFIG_FILE_NAME;
 
-                    File krbFileObject = new File(krbFile);
+                File krbFileObject = new File(krbFile);
 
-                    if (!krbFileObject.exists()) {
-                        throw new SecurityConfigException("Kerberos configuration file not found at " + krbFile);
-                    }
-
-                    log.info("Setting " + KerberosConfigData.KERBEROS_CONFIG_FILE_SYSTEM_PROPERTY +
-                            " to kerberos configuration file " + krbFile);
-
-                    System.setProperty(KerberosConfigData.KERBEROS_CONFIG_FILE_SYSTEM_PROPERTY, krbFile);
-
-                } else {
-                    throw new SecurityConfigException("Could not retrieve carbon home");
+                if (!krbFileObject.exists()) {
+                    throw new SecurityConfigException("Kerberos configuration file not found at " + krbFile);
                 }
+
+                log.info("Setting " + KerberosConfigData.KERBEROS_CONFIG_FILE_SYSTEM_PROPERTY +
+                        " to kerberos configuration file " + krbFile);
+
+                System.setProperty(KerberosConfigData.KERBEROS_CONFIG_FILE_SYSTEM_PROPERTY, krbFile);
 
                 rampartConfig.setKerberosConfig(kerberosConfig);
 

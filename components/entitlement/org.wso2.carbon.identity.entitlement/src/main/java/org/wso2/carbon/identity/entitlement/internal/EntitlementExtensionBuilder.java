@@ -21,6 +21,7 @@ package org.wso2.carbon.identity.entitlement.internal;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.entitlement.PAPStatusDataHandler;
 import org.wso2.carbon.identity.entitlement.PDPConstants;
 import org.wso2.carbon.identity.entitlement.pap.EntitlementDataFinderModule;
@@ -126,7 +127,7 @@ public class EntitlementExtensionBuilder {
         InputStream inStream = null;
         String warningMessage = null;
 
-        File pipConfigXml = new File(CarbonUtils.getCarbonSecurityConfigDirPath(), ENTITLEMENT_CONFIG);
+        File pipConfigXml = new File(IdentityUtil.getIdentityConfigDirPath(), ENTITLEMENT_CONFIG);
 
         try {
             if (pipConfigXml.exists()) {

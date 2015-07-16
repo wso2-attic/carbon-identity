@@ -20,6 +20,7 @@ package org.wso2.carbon.identity.mgt;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.mgt.constants.IdentityMgtConstants;
 import org.wso2.carbon.identity.mgt.mail.DefaultEmailSendingModule;
 import org.wso2.carbon.identity.mgt.password.DefaultPasswordGenerator;
@@ -32,7 +33,6 @@ import org.wso2.carbon.identity.mgt.store.UserRecoveryDataStore;
 import org.wso2.carbon.identity.mgt.store.UserStoreBasedIdentityDataStore;
 import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.core.jdbc.JDBCRealmConstants;
-import org.wso2.carbon.utils.CarbonUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -101,8 +101,8 @@ public class IdentityMgtConfig {
         Properties properties = new Properties();
         InputStream inStream = null;
 
-        File pipConfigXml = new File(CarbonUtils.getCarbonSecurityConfigDirPath(),
-                IdentityMgtConstants.PropertyConfig.CONFIG_FILE_NAME);
+        File pipConfigXml = new File(IdentityUtil.getIdentityConfigDirPath(), IdentityMgtConstants.PropertyConfig
+                .CONFIG_FILE_NAME);
         if (pipConfigXml.exists()) {
             try {
                 inStream = new FileInputStream(pipConfigXml);
@@ -131,7 +131,7 @@ public class IdentityMgtConfig {
             }
 
             String saasEnableProperty = properties.getProperty(IdentityMgtConstants.PropertyConfig.USER_INFO_RECOVERY_SAA_SENABLE);
-            if(saasEnableProperty != null){
+            if (saasEnableProperty != null) {
                 this.saasEnable = Boolean.parseBoolean(saasEnableProperty.trim());
             }
 
@@ -291,7 +291,7 @@ public class IdentityMgtConfig {
                     this.passwordGenerator = (RandomPasswordGenerator) clazz.newInstance();
                 } catch (Exception e) {
                     log.error("Error while loading random password generator class. " +
-                            "Default random password generator would be used", e);
+                              "Default random password generator would be used", e);
                 }
             }
 
@@ -303,7 +303,7 @@ public class IdentityMgtConfig {
                     this.identityDataStore = (UserIdentityDataStore) clazz.newInstance();
                 } catch (Exception e) {
                     log.error("Error while loading user identity data persist class. " + dataPersistModule +
-                            " Default module would be used", e);
+                              " Default module would be used", e);
                 }
             }
 
@@ -315,7 +315,7 @@ public class IdentityMgtConfig {
                     this.recoveryDataStore = (UserRecoveryDataStore) clazz.newInstance();
                 } catch (Exception e) {
                     log.error("Error while loading user recovery data persist class. " + dataPersistModule +
-                            " Default module would be used", e);
+                              " Default module would be used", e);
                 }
             }
 
@@ -336,7 +336,7 @@ public class IdentityMgtConfig {
                         } else {
                             if (notificationTypes.contains(type)) {
                                 log.error("Same Notification type can not be supported by more than " +
-                                        "one module. Module " + module + "  is not loaded.");
+                                          "one module. Module " + module + "  is not loaded.");
                             } else {
                                 notificationTypes.add(type);
                                 sendingModule.init();
@@ -559,7 +559,7 @@ public class IdentityMgtConfig {
                 this.policyRegistry.addPolicy((PolicyEnforcer) policy);
                 count++;
                 size--;
-            } catch (ClassNotFoundException | IllegalAccessException | InstantiationException | SecurityException e ) {
+            } catch (ClassNotFoundException | IllegalAccessException | InstantiationException | SecurityException e) {
                 log.error("Error while loading password policies " + className, e);
             }
         }
