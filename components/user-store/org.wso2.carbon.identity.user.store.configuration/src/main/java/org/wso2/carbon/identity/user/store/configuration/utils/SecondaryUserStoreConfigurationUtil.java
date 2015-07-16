@@ -25,7 +25,11 @@ import org.wso2.carbon.base.api.ServerConfigurationService;
 import org.wso2.carbon.identity.user.store.configuration.internal.UserStoreConfigComponent;
 
 import javax.crypto.Cipher;
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.security.GeneralSecurityException;
 import java.security.InvalidKeyException;
 import java.security.KeyStore;
