@@ -124,7 +124,7 @@ public class ResourceSetRegistrationEndpoint {
         umaResourceSetRegistrationRequest.setResourceId(resourceSetId);
 
 
-        UmaResponse umaResponse = EndpointUtil.getUMAService().deleteResourceSet(umaResourceSetRegistrationRequest);
+        UmaResponse umaResponse = EndpointUtil.getUMAService().updateResourceSet(umaResourceSetRegistrationRequest);
         return EndpointUtil.buildResponse(umaResponse);
     }
 

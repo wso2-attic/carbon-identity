@@ -92,7 +92,7 @@ public class UMAService {
         try {
             resourceSetMgtDAO.saveResourceSetDescription(resourceSetDO,null);
 
-             builder = UmaResourceSetRegistrationResponse.status(HttpServletResponse.SC_OK)
+             builder = UmaResourceSetRegistrationResponse.status(HttpServletResponse.SC_CREATED)
                             .setParam(UMAConstants.OAuthResourceRegistration.RESOURCE_SET_ID,
                                     resourceSetDO.getResourceSetId());
 
@@ -219,7 +219,48 @@ public class UMAService {
 
 
     public UmaResponse updateResourceSet(UmaResourceSetRegistrationRequest umaResourceSetRegRequest){
-        return null;
+        UmaResponse.UmaResponseBuilder builder;
+
+        ResourceSetMgtDAO resourceSetMgtDAO = new ResourceSetMgtDAO();
+
+        String resourceSetId = umaResourceSetRegRequest.getResourceId();
+        String consumerKey = umaResourceSetRegRequest.getConsumerKey();
+        String userStoreDomain = null;
+
+
+        ResourceSetDO newResourceSetDO  =
+                new ResourceSetDO(
+                    umaResourceSetRegRequest.getResourceSetName(),
+                    umaResourceSetRegRequest.getResourceSetURI(),
+                    umaResourceSetRegRequest.getResourceSetType(),
+                    umaResourceSetRegRequest.getResourceSetScopes(),
+                    umaResourceSetRegRequest.getResouceSetIconURI()
+                );
+
+
+        try {
+            boolean isSuccessFul =
+                    resourceSetMgtDAO.updateResourceSet(resourceSetId,newResourceSetDO,consumerKey, userStoreDomain);
+
+            if (isSuccessFul){
+                builder = UmaResponse.status(HttpServletResponse.SC_NO_CONTENT)
+                            .setParam(UMAProtectionConstants.RESOURCE_SET_ID, resourceSetId);
+            }else{
+                // we could not find the resource to update, hence this error message
+                builder = UmaResponse.errorResponse(HttpServletResponse.SC_NOT_FOUND)
+                        .setError(UMAProtectionConstants.ERROR_RESOURCE_SET_NOT_FOUND);
+            }
+
+        } catch (IdentityUMAException e) {
+            String errorMsg =  "Error when deleting resource set description with resourceSetId : "+resourceSetId
+                    +" for consumerKey : "+consumerKey;
+
+            log.error(errorMsg,e);
+            builder =
+                    UmaResourceSetRegistrationResponse.errorResponse(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        }
+
+        return builder.buildJSONResponse();
     }
 
 }

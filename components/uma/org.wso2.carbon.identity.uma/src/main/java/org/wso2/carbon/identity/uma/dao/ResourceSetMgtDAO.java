@@ -348,7 +348,53 @@ public class ResourceSetMgtDAO {
             IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
         }
 
+    }
 
+
+    public boolean updateResourceSet
+            (String resourceSetId,ResourceSetDO newResourceSetDO, String consumerKey, String userStoreDomain) throws IdentityUMAException {
+
+        Connection connection = null;
+        PreparedStatement prepStmt = null;
+        String sql = getCorrectedSQL(SQLQueries.UPDATE_RESOURCE_SET,userStoreDomain);
+
+        try {
+            connection = JDBCPersistenceManager.getInstance().getDBConnection();
+
+            prepStmt = connection.prepareStatement(sql);
+
+            String name = newResourceSetDO.getName();
+            String URI = newResourceSetDO.getURI();
+            String type = newResourceSetDO.getType();
+            String iconURI = newResourceSetDO.getIconURI();
+            String scopes = UMAUtil.buildScopeString(newResourceSetDO.getScopes());
+
+            prepStmt.setString(1,name);
+            prepStmt.setString(2,URI);
+            prepStmt.setString(3,type);
+            prepStmt.setString(4,iconURI);
+            prepStmt.setString(5,scopes);
+            prepStmt.setString(6,resourceSetId);
+
+            int rowsAffected = prepStmt.executeUpdate();
+            connection.commit();
+
+            return rowsAffected > 0 ?  true : false;
+
+        } catch (IdentityException e) {
+
+            throw new IdentityUMAException("Error occurred while getting Identity persistence " +
+                    "store connection", e);
+
+        } catch (SQLException e) {
+
+            String errorMsg = "Error occurred while update resource set with ID : " +resourceSetId
+                    + " registered with Client ID : " + consumerKey;
+            throw new IdentityUMAException(errorMsg, e);
+
+        }finally {
+            IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
+        }
     }
 
 

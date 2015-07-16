@@ -29,8 +29,9 @@ public class SQLQueries {
                     "AUTHZ_USER, CONSUMER_KEY, RESOURCE_SET_SCOPE, TIME_CREATED) " +
                     "VALUES (?,?,?,?,?,?,?,?,?)";
 
-    public static final String UPDATE_RESOURCE_SET_DESCRIPTION =
-            "SELECT * FROM $resourceSetRegTable WHERE CONSUMER_KEY=?";
+    public static final String UPDATE_RESOURCE_SET =
+            "UPDATE $resourceSetRegTable SET NAME=?, URI=?, TYPE=?, ICON_URI=?," +
+                    "RESOURCE_SET_SCOPE=? WHERE RESOURCE_SET_ID=?";
 
     public static final String DELETE_RESOURCE_SET_FROM_ID =
             "DELETE FROM $resourceSetRegTable WHERE RESOURCE_SET_ID = ? ";
