@@ -3340,7 +3340,7 @@ function doValidation() {
                     <tr>
                         <td><input type="text" value="<%=roleMappings[i].getRemoteRole()%>" id="rolerowname_<%=i%>"
                                    name="rolerowname_<%=i%>"/></td>
-                        <td><input type="text" value="<%=roleMappings[i].getLocalRole().getLocalRoleName()%>"
+                        <td><input type="text" value="<%=roleMappings[i].getLocalRole().getUserStoreId()%>/<%=roleMappings[i].getLocalRole().getLocalRoleName()%>"
                                    id="localrowname_<%=i%>" name="localrowname_<%=i%>"/></td>
                         <td>
                             <a title="<fmt:message key='delete.role'/>"
