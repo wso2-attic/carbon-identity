@@ -123,39 +123,37 @@ public class IdentityProviderManager {
             tenantContext = MultitenantConstants.TENANT_AWARE_URL_PREFIX + "/" + tenantDomain + "/";
         }
 
-        String serverUrl = "";
+        String hostName = ServerConfiguration.getInstance().getFirstProperty("HostName");
 
-//        String hostName = ServerConfiguration.getInstance().getFirstProperty("HostName");
-//
-//        try {
-//            if (hostName == null) {
-//                hostName = NetworkUtils.getLocalHostname();
-//            }
-//        } catch (SocketException e) {
-//            throw new IdentityApplicationManagementException("Error while trying to read hostname.", e);
-//        }
-//
-//        String mgtTransport = CarbonUtils.getManagementTransport();
-//        AxisConfiguration axisConfiguration = IdPManagementServiceComponent
-//                .getConfigurationContextService().getServerConfigContext().getAxisConfiguration();
-//        int mgtTransportPort = CarbonUtils.getTransportProxyPort(axisConfiguration, mgtTransport);
-//        if (mgtTransportPort <= 0) {
-//            mgtTransportPort = CarbonUtils.getTransportPort(axisConfiguration, mgtTransport);
-//        }
-//        String serverUrl = mgtTransport + "://" + hostName.toLowerCase();
-//        // If it's well known HTTPS port, skip adding port
-//        if (mgtTransportPort != 443) {
-//            serverUrl += ":" + mgtTransportPort;
-//        }
-//        // If ProxyContextPath is defined then append it
-//        String proxyContextPath = ServerConfiguration.getInstance().getFirstProperty("ProxyContextPath");
-//        if (proxyContextPath != null && !proxyContextPath.trim().isEmpty()) {
-//            if (proxyContextPath.charAt(0) == '/') {
-//                serverUrl += proxyContextPath;
-//            } else {
-//                serverUrl += "/" + proxyContextPath;
-//            }
-//        }
+        try {
+            if (hostName == null) {
+                hostName = NetworkUtils.getLocalHostname();
+            }
+        } catch (SocketException e) {
+            throw new IdentityApplicationManagementException("Error while trying to read hostname.", e);
+        }
+
+        String mgtTransport = CarbonUtils.getManagementTransport();
+        AxisConfiguration axisConfiguration = IdPManagementServiceComponent
+                .getConfigurationContextService().getServerConfigContext().getAxisConfiguration();
+        int mgtTransportPort = CarbonUtils.getTransportProxyPort(axisConfiguration, mgtTransport);
+        if (mgtTransportPort <= 0) {
+            mgtTransportPort = CarbonUtils.getTransportPort(axisConfiguration, mgtTransport);
+        }
+        String serverUrl = mgtTransport + "://" + hostName.toLowerCase();
+        // If it's well known HTTPS port, skip adding port
+        if (mgtTransportPort != 443) {
+            serverUrl += ":" + mgtTransportPort;
+        }
+        // If ProxyContextPath is defined then append it
+        String proxyContextPath = ServerConfiguration.getInstance().getFirstProperty("ProxyContextPath");
+        if (proxyContextPath != null && !proxyContextPath.trim().isEmpty()) {
+            if (proxyContextPath.charAt(0) == '/') {
+                serverUrl += proxyContextPath;
+            } else {
+                serverUrl += "/" + proxyContextPath;
+            }
+        }
         serverUrl += "/";
         String stsUrl = serverUrl + "services/" + tenantContext + "wso2carbon-sts";
         String openIdUrl = serverUrl + "openid";
