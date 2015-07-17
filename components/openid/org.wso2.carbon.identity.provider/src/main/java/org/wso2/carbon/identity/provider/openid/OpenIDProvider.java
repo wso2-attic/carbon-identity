@@ -53,7 +53,7 @@ public class OpenIDProvider {
         // default association expiry time is set to 15 minutes
         int assocExpiryTime = 15;
         String expiryTime = IdentityUtil.getProperty(IdentityConstants.ServerConfig.OPENID_ASSOCIATION_EXPIRY_TIME);
-        if (expiryTime != null || !expiryTime.trim().isEmpty()) {
+        if (expiryTime != null && !expiryTime.trim().isEmpty()) {
             try {
                 assocExpiryTime = Integer.parseInt(expiryTime);
             } catch (NumberFormatException e) {
