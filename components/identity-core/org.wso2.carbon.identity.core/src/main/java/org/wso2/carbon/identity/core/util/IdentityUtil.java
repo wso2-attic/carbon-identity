@@ -39,6 +39,7 @@ import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
+import java.io.File;
 import java.net.SocketException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -245,6 +246,10 @@ public class IdentityUtil {
             throw new IdentityException("Error when generating a random number.", e);
         }
 
+    }
+
+    public static String getIdentityConfigDirPath() {
+        return CarbonUtils.getCarbonConfigDirPath() + File.separator + "identity";
     }
 
     public static String getServerURL() throws IdentityException{
