@@ -22,7 +22,11 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.CarbonContext;
 
-import javax.cache.*;
+import javax.cache.Cache;
+import javax.cache.CacheBuilder;
+import javax.cache.CacheConfiguration;
+import javax.cache.CacheManager;
+import javax.cache.Caching;
 import javax.cache.event.CacheEntryCreatedListener;
 import javax.cache.event.CacheEntryUpdatedListener;
 import java.io.Serializable;

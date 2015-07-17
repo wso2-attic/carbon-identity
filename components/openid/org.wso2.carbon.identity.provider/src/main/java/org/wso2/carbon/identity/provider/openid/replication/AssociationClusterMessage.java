@@ -17,12 +17,12 @@
  */
 package org.wso2.carbon.identity.provider.openid.replication;
 
-import org.apache.axis2.context.ConfigurationContext;
-import org.apache.commons.logging.Log;
-import org.openid4java.association.Association;
 import org.apache.axis2.clustering.ClusteringCommand;
 import org.apache.axis2.clustering.ClusteringFault;
 import org.apache.axis2.clustering.ClusteringMessage;
+import org.apache.axis2.context.ConfigurationContext;
+import org.apache.commons.logging.Log;
+import org.openid4java.association.Association;
 
 import java.io.Serializable;
 

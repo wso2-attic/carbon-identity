@@ -30,7 +30,6 @@ import org.wso2.carbon.identity.provisioning.ProvisionedIdentifier;
 import org.wso2.carbon.identity.provisioning.ProvisioningEntity;
 import org.wso2.carbon.idp.mgt.util.IdPManagementConstants;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
-import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;

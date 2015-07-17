@@ -24,6 +24,7 @@ import org.openid4java.association.AssociationException;
 import org.openid4java.server.InMemoryServerAssociationStore;
 import org.wso2.carbon.identity.base.IdentityConstants;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
+
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import java.util.Date;

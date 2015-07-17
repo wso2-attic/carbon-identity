@@ -34,13 +34,19 @@ import org.wso2.carbon.registry.core.utils.UUIDGenerator;
 import org.wso2.carbon.user.api.TenantManager;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.utils.CarbonUtils;
+<<<<<<< HEAD
 import org.wso2.carbon.utils.NetworkUtils;
+=======
+>>>>>>> remotes/origin/master
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.File;
+<<<<<<< HEAD
 import java.net.SocketException;
+=======
+>>>>>>> remotes/origin/master
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;

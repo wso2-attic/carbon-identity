@@ -23,10 +23,8 @@ import com.google.common.collect.Multimap;
 import com.yubico.u2f.data.DeviceRegistration;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.identity.application.authenticator.fido.FIDOAuthenticator;
 import org.wso2.carbon.identity.application.authenticator.fido.exception.FIDOAuthenticatorServerException;
 import org.wso2.carbon.identity.application.authenticator.fido.util.FIDOAuthenticatorConstants;
-import org.wso2.carbon.identity.application.authenticator.fido.util.FIDOUtil;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
 
