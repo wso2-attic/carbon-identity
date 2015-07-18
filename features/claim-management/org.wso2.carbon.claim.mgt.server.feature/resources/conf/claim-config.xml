@@ -171,10 +171,10 @@
 				<Description>Full Name</Description>
 		    </Claim>
             <Claim>
-                <ClaimURI>http://wso2.org/claims/uid</ClaimURI>
-                <DisplayName>User Id</DisplayName>
+                <ClaimURI>http://wso2.org/claims/username</ClaimURI>
+                <DisplayName>User Name</DisplayName>
                 <AttributeID>uid</AttributeID>
-                <Description>User Id</Description>
+                <Description>User Name</Description>
             </Claim>
 
 
