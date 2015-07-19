@@ -91,6 +91,7 @@ public class IdentityMgtConfig {
     private PolicyRegistry policyRegistry = new PolicyRegistry();
 
     protected Properties properties = new Properties();
+
     /*
      * Define the pattern of the configuration file. Assume following
      * pattern in config.
@@ -99,7 +100,6 @@ public class IdentityMgtConfig {
     private Pattern propertyPattern = Pattern.compile("(\\.\\d\\.)");
 
     public IdentityMgtConfig(RealmConfiguration configuration) {
-
 
         InputStream inStream = null;
 
