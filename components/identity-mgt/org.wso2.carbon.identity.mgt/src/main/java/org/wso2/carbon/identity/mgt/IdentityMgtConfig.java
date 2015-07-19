@@ -89,6 +89,8 @@ public class IdentityMgtConfig {
     private List<String> notificationTypes = new ArrayList<String>();
     private String recoveryClaim;
     private PolicyRegistry policyRegistry = new PolicyRegistry();
+
+    protected Properties properties = new Properties();
     /*
      * Define the pattern of the configuration file. Assume following
      * pattern in config.
@@ -98,7 +100,7 @@ public class IdentityMgtConfig {
 
     public IdentityMgtConfig(RealmConfiguration configuration) {
 
-        Properties properties = new Properties();
+
         InputStream inStream = null;
 
         File pipConfigXml = new File(IdentityUtil.getIdentityConfigDirPath(), IdentityMgtConstants.PropertyConfig
@@ -610,5 +612,17 @@ public class IdentityMgtConfig {
         }
 
         return keyValues;
+    }
+
+    public Properties getProperties() {
+        return properties;
+    }
+
+    public String getProperty(String key) {
+        return properties.getProperty(key);
+    }
+
+    public void setProperty(String key, String value) {
+        this.properties.setProperty(key, value);
     }
 }
