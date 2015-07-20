@@ -364,6 +364,7 @@
                     <xs:element minOccurs="0" name="maxUserLimit" type="xs:int"/>
                     <xs:element minOccurs="0" name="passwordRegEx" nillable="true" type="xs:string"/>
                     <xs:element minOccurs="0" name="passwordRegExViolationErrorMsg" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="usernameRegExViolationErrorMsg" nillable="true" type="xs:string"/>
                     <xs:element minOccurs="0" name="passwordsExternallyManaged" type="xs:boolean"/>
                     <xs:element minOccurs="0" name="readOnly" type="xs:boolean"/>
                     <xs:element minOccurs="0" name="roleNameRegEx" nillable="true" type="xs:string"/>

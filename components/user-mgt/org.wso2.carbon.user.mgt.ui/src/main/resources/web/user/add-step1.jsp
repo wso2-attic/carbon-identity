@@ -180,7 +180,16 @@ try{
         
         if (reason != "") {
             if (reason == "No conformance") {
-                CARBON.showWarningDialog("<fmt:message key="enter.user.name.not.conforming"/>");
+                <%
+                       String usernameRegEx =   userStoreInfo.getUserNameRegEx();
+                       String usernameErrorMessage = userStoreInfo.getUsernameRegExViolationErrorMsg();
+                       if (StringUtils.isBlank(usernameErrorMessage)){
+                           usernameErrorMessage = resourceBundle.getString("enter.user.name.not.conforming");
+                       }
+                   %>
+
+                CARBON.showWarningDialog("<%=usernameErrorMessage%>");
+
             } else if (reason == "Empty string") {
             	CARBON.showWarningDialog("<fmt:message key="enter.user.name.empty"/>");
             } else if(reason == "Domain"){
