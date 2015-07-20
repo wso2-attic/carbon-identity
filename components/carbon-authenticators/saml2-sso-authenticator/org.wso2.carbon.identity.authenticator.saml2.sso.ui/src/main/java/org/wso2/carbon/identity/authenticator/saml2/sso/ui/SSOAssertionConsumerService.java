@@ -41,7 +41,6 @@ import org.wso2.carbon.identity.sso.saml.stub.types.SAMLSSOAuthnReqDTO;
 import org.wso2.carbon.identity.sso.saml.stub.types.SAMLSSOReqValidationResponseDTO;
 import org.wso2.carbon.identity.sso.saml.stub.types.SAMLSSORespDTO;
 import org.wso2.carbon.ui.CarbonSecuredHttpContext;
-import org.wso2.carbon.ui.CarbonUIAuthenticator;
 import org.wso2.carbon.ui.CarbonUIUtil;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 

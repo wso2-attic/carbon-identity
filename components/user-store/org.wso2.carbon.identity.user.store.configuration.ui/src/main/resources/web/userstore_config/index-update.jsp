@@ -15,29 +15,12 @@
 * limitations under the License.
 */
 -->
-<%@ page import="org.w3c.dom.Attr" %>
-<%@ page import="org.w3c.dom.Document" %>
-<%@ page import="org.w3c.dom.Element" %>
-<%@ page import="org.wso2.carbon.identity.user.store.configuration.ui.utils.UserStoreMgtDataKeeper" %>
+<%@ page import="org.wso2.carbon.identity.user.store.configuration.ui.utils.UserStoreUIUtils" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
 <%@ page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
-<%@ page import="org.wso2.carbon.user.core.config.RealmConfiguration" %>
-<%@ page import="org.wso2.carbon.utils.CarbonUtils" %>
-<%@ page import="javax.xml.parsers.DocumentBuilder" %>
-<%@ page import="javax.xml.parsers.DocumentBuilderFactory" %>
 <%@ page import="javax.xml.parsers.ParserConfigurationException" %>
-<%@ page import="javax.xml.transform.Transformer" %>
 <%@ page import="javax.xml.transform.TransformerException" %>
-<%@ page import="javax.xml.transform.TransformerFactory" %>
-<%@ page import="javax.xml.transform.dom.DOMSource" %>
-<%@ page import="javax.xml.transform.stream.StreamResult" %>
-<%@ page import="java.io.File" %>
-<%@ page import="java.util.HashMap" %>
-<%@ page import="java.util.Map" %>
 <%@ page import="java.util.ResourceBundle" %>
-<%@ page import="org.wso2.carbon.identity.user.store.configuration.ui.client.UserStoreConfigAdminServiceClient" %>
-<%@ page import="org.wso2.carbon.user.core.UserCoreConstants" %>
-<%@ page import="org.wso2.carbon.identity.user.store.configuration.ui.utils.UserStoreUIUtils" %>
 
 
 <%

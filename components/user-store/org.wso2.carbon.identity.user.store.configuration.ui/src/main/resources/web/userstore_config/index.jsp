@@ -27,7 +27,7 @@
 <%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
-<%@ page import="java.util.*" %>
+<%@ page import="java.util.ResourceBundle" %>
 
 <fmt:bundle basename="org.wso2.carbon.identity.user.store.configuration.ui.i18n.Resources">
 <carbon:breadcrumb

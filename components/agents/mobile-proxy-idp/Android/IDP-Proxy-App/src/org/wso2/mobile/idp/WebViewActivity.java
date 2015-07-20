@@ -1,7 +1,5 @@
 package org.wso2.mobile.idp;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
@@ -19,6 +17,9 @@ import android.webkit.SslErrorHandler;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ImageView;
+
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 
 /**
  * Entry point of IDP proxy application

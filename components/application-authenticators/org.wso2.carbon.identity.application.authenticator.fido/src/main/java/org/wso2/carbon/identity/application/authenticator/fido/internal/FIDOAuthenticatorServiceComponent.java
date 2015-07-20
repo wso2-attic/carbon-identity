@@ -28,9 +28,6 @@ import org.wso2.carbon.identity.application.authenticator.fido.u2f.U2FService;
 import org.wso2.carbon.identity.user.store.configuration.listener.UserStoreConfigListener;
 import org.wso2.carbon.user.core.service.RealmService;
 
-import java.util.Hashtable;
-import java.util.Map;
-
 /**
  * @scr.component name="identity.application.authenticator.fido.component" immediate="true"
  * @scr.reference name="realm.service"
