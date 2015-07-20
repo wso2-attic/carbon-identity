@@ -36,7 +36,7 @@
                 <li><p><fmt:message key='auth.failure.reason.2'/></p></li>
                 <li><p><fmt:message key='auth.failure.reason.3'/></p></li>
             </ul>
-            <div class="authFailuresTryAgain">Please <a href="../admin/login.jsp">Try Again.</a></div>
+            <div class="authFailuresTryAgain">Please <a href="../admin/logout_action.jsp">Try Again.</a></div>
         </div>
     </div>
 </fmt:bundle>
