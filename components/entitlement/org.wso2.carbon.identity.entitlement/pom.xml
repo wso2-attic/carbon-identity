@@ -166,7 +166,7 @@
                             version="${carbon.identity.package.import.version.range}",
                             org.wso2.carbon.identity.notification.mgt.*;
                             version="${carbon.identity.package.import.version.range}",
-                            org.wso2.carbon.identity.authenticator.thrift;
+                            org.wso2.carbon.identity.thrift.authentication;
                             version="${carbon.identity.package.import.version.range}",
                             org.wso2.carbon.security.*; version="${carbon.identity.package.import.version.range}",
                         </Import-Package>

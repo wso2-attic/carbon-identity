@@ -81,7 +81,7 @@
                             <goal>p2-feature-gen</goal>
                         </goals>
                         <configuration>
-                            <id>org.wso2.carbon.identity.authenticator.thrift</id>
+                            <id>org.wso2.carbon.identity.thrift.authentication</id>
                             <propertiesFile>../../etc/feature.properties</propertiesFile>
                             <adviceFile>
                                 <properties>
