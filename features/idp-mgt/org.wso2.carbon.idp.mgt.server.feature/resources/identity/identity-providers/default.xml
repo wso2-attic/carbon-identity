@@ -11,12 +11,12 @@
 	<DefaultAuthenticatorConfig>
 	</DefaultAuthenticatorConfig>
 	<ProvisioningConnectorConfigs>
-		<!--<ProvisioningConnectorConfig>-->
-			<!--<ProvisioningProperties>-->
-			<!--</ProvisioningProperties>-->
-		<!--</ProvisioningConnectorConfig>-->
+		<!--<ProvisioningConnectorConfig>
+			<ProvisioningProperties>
+			</ProvisioningProperties>
+		</ProvisioningConnectorConfig>-->
 	</ProvisioningConnectorConfigs>
-	<DefaultProvisioningConnectorConfig></DefaultProvisioningConnectorConfig>
+	<!--<DefaultProvisioningConnectorConfig></DefaultProvisioningConnectorConfig>-->
 	<ClaimConfig></ClaimConfig>
 	<Certificate></Certificate>
 	<PermissionAndRoleConfig></PermissionAndRoleConfig>
