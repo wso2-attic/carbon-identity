@@ -35,7 +35,7 @@
     <dependencies>
         <dependency>
             <groupId>org.wso2.carbon.identity</groupId>
-            <artifactId>org.wso2.carbon.identity.thrift.authentication</artifactId>
+            <artifactId>org.wso2.carbon.identity.authenticator.thrift</artifactId>
         </dependency>
         <dependency>
             <groupId>libthrift.wso2</groupId>
@@ -81,7 +81,7 @@
                             <goal>p2-feature-gen</goal>
                         </goals>
                         <configuration>
-                            <id>org.wso2.carbon.identity.thrift.authentication</id>
+                            <id>org.wso2.carbon.identity.authenticator.thrift</id>
                             <propertiesFile>../../etc/feature.properties</propertiesFile>
                             <adviceFile>
                                 <properties>
@@ -93,7 +93,7 @@
                             </adviceFile>
                             <bundles>
                                 <bundleDef>libthrift.wso2:libthrift</bundleDef>
-                                <bundleDef>org.wso2.carbon.identity:org.wso2.carbon.identity.thrift.authentication</bundleDef>
+                                <bundleDef>org.wso2.carbon.identity:org.wso2.carbon.identity.authenticator.thrift</bundleDef>
                             </bundles>
                             <importFeatures>
                                 <importFeatureDef>org.wso2.carbon.core:${carbon.kernel.version}</importFeatureDef>

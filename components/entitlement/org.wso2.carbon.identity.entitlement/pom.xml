@@ -48,7 +48,7 @@
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon.identity</groupId>
-            <artifactId>org.wso2.carbon.identity.thrift.authentication</artifactId>
+            <artifactId>org.wso2.carbon.identity.authenticator.thrift</artifactId>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon.identity</groupId>
@@ -166,7 +166,7 @@
                             version="${carbon.identity.package.import.version.range}",
                             org.wso2.carbon.identity.notification.mgt.*;
                             version="${carbon.identity.package.import.version.range}",
-                            org.wso2.carbon.identity.thrift.authentication;
+                            org.wso2.carbon.identity.authenticator.thrift;
                             version="${carbon.identity.package.import.version.range}",
                             org.wso2.carbon.security.*; version="${carbon.identity.package.import.version.range}",
                         </Import-Package>

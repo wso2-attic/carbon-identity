@@ -1402,7 +1402,7 @@
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
-                <artifactId>org.wso2.carbon.identity.thrift.authentication</artifactId>
+                <artifactId>org.wso2.carbon.identity.authenticator.thrift</artifactId>
                 <version>${carbon.identity.version}</version>
             </dependency>
             <dependency>
