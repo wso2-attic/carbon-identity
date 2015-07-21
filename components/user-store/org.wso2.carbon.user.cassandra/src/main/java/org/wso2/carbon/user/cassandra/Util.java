@@ -119,11 +119,7 @@ public class Util {
                 secureRandom.nextBytes(bytes);
                 saltValue = Base64.encode(bytes);
             } catch (NoSuchAlgorithmException e) {
-                // Ignore Exception.
-                // The SHA_1_PRNG algorithm is provided.
-                if (log.isDebugEnabled()) {
-                    log.debug("Ignoring NoSuchAlgorithmException. The SHA1PRNG algorithm is provided.", e);
-                }
+                throw new RuntimeException("SHA1PRNG algorithm could not be found.");
             }
 
         }

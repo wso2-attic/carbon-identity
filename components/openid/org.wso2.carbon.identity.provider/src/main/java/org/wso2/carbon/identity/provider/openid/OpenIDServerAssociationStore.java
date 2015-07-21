@@ -29,7 +29,6 @@ import org.wso2.carbon.identity.provider.openid.dao.OpenIDAssociationDAO;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Date;
-import java.util.Random;
 
 /**
  * This is the custom AssociationStore. Uses super's methods to generate
@@ -61,11 +60,7 @@ public class OpenIDServerAssociationStore extends InMemoryServerAssociationStore
             SecureRandom secureRandom = SecureRandom.getInstance(SHA_1_PRNG);
             storeId = secureRandom.nextInt(9999);
         } catch (NoSuchAlgorithmException e) {
-            // Ignore Exception.
-            // Tha SHA_1_PRNG algorithm is provided.
-            if (log.isDebugEnabled()) {
-                log.debug("Ignoring NoSuchAlgorithmException. Tha SHA1PRNG algorithm is provided.", e);
-            }
+            throw new RuntimeException("SHA1PRNG algorithm could not be found.");
         }
         timestamp = Long.toString(new Date().getTime());
         counter = 0;
