@@ -58,7 +58,8 @@ public class SPInitSSOAuthnRequestValidator {
             if (!(authnReq.getVersion().equals(SAMLVersion.VERSION_20))) {
                 String errorResp = SAMLSSOUtil.buildErrorResponse(
                         SAMLSSOConstants.StatusCodes.VERSION_MISMATCH,
-                        "Invalid SAML Version in Authentication Request. SAML Version should be equal to 2.0");
+                        "Invalid SAML Version in Authentication Request. SAML Version should be equal to 2.0",
+                        authnReq.getAssertionConsumerServiceURL());
                 if (log.isDebugEnabled()) {
                     log.debug("Invalid version in the SAMLRequest" + authnReq.getVersion());
                 }
@@ -76,7 +77,8 @@ public class SPInitSSOAuthnRequestValidator {
                 validationResponse.setValid(false);
                 String errorResp = SAMLSSOUtil.buildErrorResponse(
                         SAMLSSOConstants.StatusCodes.REQUESTOR_ERROR,
-                        "Issuer/ProviderName should not be empty in the Authentication Request.");
+                        "Issuer/ProviderName should not be empty in the Authentication Request.",
+                        authnReq.getAssertionConsumerServiceURL());
                 log.debug("SAML Request issuer validation failed. Issuer should not be empty");
                 validationResponse.setResponse(errorResp);
                 validationResponse.setValid(false);
@@ -89,7 +91,8 @@ public class SPInitSSOAuthnRequestValidator {
                 validationResponse.setValid(false);
                 String errorResp = SAMLSSOUtil.buildErrorResponse(
                         SAMLSSOConstants.StatusCodes.REQUESTOR_ERROR,
-                        "Issuer Format attribute value is invalid");
+                        "Issuer Format attribute value is invalid",
+                        authnReq.getAssertionConsumerServiceURL());
                 if (log.isDebugEnabled()) {
                     log.debug("Invalid Issuer Format attribute value " + issuer.getFormat());
                 }
@@ -116,7 +119,8 @@ public class SPInitSSOAuthnRequestValidator {
 
                 String errorResp = SAMLSSOUtil.buildErrorResponse(
                         SAMLSSOConstants.StatusCodes.REQUESTOR_ERROR,
-                        "Invalid Assertion Consumer Service URL in the Authentication Request.");
+                        "Invalid Assertion Consumer Service URL in the Authentication Request.",
+                        acsUrl);
                 validationResponse.setResponse(errorResp);
                 validationResponse.setValid(false);
                 return validationResponse;
@@ -133,7 +137,8 @@ public class SPInitSSOAuthnRequestValidator {
                 validationResponse.setValid(false);
                 String errorResp = SAMLSSOUtil.buildErrorResponse(
                         SAMLSSOConstants.StatusCodes.REQUESTOR_ERROR,
-                        "Subject Confirmation methods should NOT be in the request.");
+                        "Subject Confirmation methods should NOT be in the request.",
+                        authnReq.getAssertionConsumerServiceURL());
                 if (log.isDebugEnabled()) {
                     log.debug("Invalid Request message. A Subject confirmation method found " +
                             subject.getSubjectConfirmations().get(0));

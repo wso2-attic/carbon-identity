@@ -104,7 +104,7 @@ public class Util {
      *
      * @param authReqStr
      * @return Corresponding XMLObject which is a SAML2 object
-     * @throws org.wso2.carbon.identity.authenticator.saml2.sso.ui.SAML2SSOUIAuthenticatorException
+     * @throws SAML2SSOUIAuthenticatorException
      */
     public static XMLObject unmarshall(String authReqStr) throws SAML2SSOUIAuthenticatorException {
 
@@ -139,7 +139,7 @@ public class Util {
      *
      * @param xmlObject object that needs to serialized.
      * @return serialized object
-     * @throws org.wso2.carbon.identity.authenticator.saml2.sso.ui.SAML2SSOUIAuthenticatorException
+     * @throws SAML2SSOUIAuthenticatorException
      */
     public static String marshall(XMLObject xmlObject) throws SAML2SSOUIAuthenticatorException {
 

@@ -24,7 +24,7 @@
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>org.wso2.carbon.user.cassandra.core</artifactId>
+    <artifactId>org.wso2.carbon.user.cassandra</artifactId>
     <packaging>bundle</packaging>
     <name>WSO2 Carbon - Cassandra based User Manager</name>
     <url>http://wso2.org</url>

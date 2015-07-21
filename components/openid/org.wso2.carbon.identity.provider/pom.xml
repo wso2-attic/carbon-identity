@@ -141,6 +141,7 @@
                         <Import-Package>
                             javax.cache,
                             javax.crypto,
+                            javax.crypto.spec,
                             javax.xml.namespace,
                             javax.xml.parsers,
                             javax.xml.transform.*,

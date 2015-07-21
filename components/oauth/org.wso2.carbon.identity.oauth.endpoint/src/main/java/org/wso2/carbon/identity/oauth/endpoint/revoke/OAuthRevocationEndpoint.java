@@ -94,16 +94,20 @@ public class OAuthRevocationEndpoint {
                 try {
                     String[] clientCredentials = EndpointUtil.extractCredentialsFromAuthzHeader(
                             request.getHeader(OAuthConstants.HTTP_REQ_HEADER_AUTHZ));
-                    if (clientCredentials != null && clientCredentials.length == 2) {
-                        // The client MUST NOT use more than one authentication method in each request
-                        if (paramMap.containsKey(OAuth.OAUTH_CLIENT_ID) &&
-                                paramMap.containsKey(OAuth.OAUTH_CLIENT_SECRET)) {
-                            return handleBasicAuthFailure(callback);
-                        }
-                        // add the credentials available in Authorization to the parameter map
-                        paramMap.add(OAuth.OAUTH_CLIENT_ID, clientCredentials[0]);
-                        paramMap.add(OAuth.OAUTH_CLIENT_SECRET, clientCredentials[1]);
+
+                    // The client MUST NOT use more than one authentication method in each request
+                    if (paramMap.containsKey(OAuth.OAUTH_CLIENT_ID) &&
+                            paramMap.containsKey(OAuth.OAUTH_CLIENT_SECRET)) {
+                        return handleBasicAuthFailure(callback);
                     }
+
+                    if(clientCredentials.length != 2){
+                        handleBasicAuthFailure(callback);
+                    }
+
+                    // add the credentials available in Authorization to the parameter map
+                    paramMap.add(OAuth.OAUTH_CLIENT_ID, clientCredentials[0]);
+                    paramMap.add(OAuth.OAUTH_CLIENT_SECRET, clientCredentials[1]);
                 } catch (OAuthClientException e) {
                     // malformed credential string is considered as an auth failure.
                     log.error("Error while extracting credentials from authorization header", e);

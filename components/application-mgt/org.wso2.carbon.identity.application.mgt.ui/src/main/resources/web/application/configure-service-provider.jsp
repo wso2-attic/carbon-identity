@@ -72,7 +72,7 @@ location.href = 'list-service-provider.jsp';
     if (authTypeReq!=null && authTypeReq.trim().length()>0){
     	appBean.setAuthenticationType(authTypeReq);
     }
-    
+
     String samlIssuerName = CharacterEncoder.getSafeText(request.getParameter("samlIssuer"));
 
 
@@ -622,7 +622,9 @@ var roleMappinRowID = -1;
 				newRow+='<option>'+dataArray[i]+'</option>';					
 			}
 		}
-		newRow+='</select></td><td><input type="checkbox" name="blocking_prov_' + selectedIDPName + '"  />Blocking</td><td><input type="checkbox" name="provisioning_jit_' + selectedIDPName + '"  />Enable JIT</td><td class="leftCol-small" ><a onclick="deleteIDPRow(this);return false;" href="#" class="icon-link" style="background-image: url(images/delete.gif)"> Delete </a></td></tr>';
+		newRow+='</select></td><td><input type="checkbox" name="blocking_prov_' + selectedIDPName +
+				'"  />Blocking</td><td><input type="checkbox" name="provisioning_jit_' + selectedIDPName +
+				'"  />JIT Outbound</td><td class="leftCol-small" ><a onclick="deleteIDPRow(this);return false;" href="#" class="icon-link" style="background-image: url(images/delete.gif)"> Delete </a></td></tr>';
 		jQuery(obj)
 				.parent()
 				.parent()
@@ -1333,6 +1335,22 @@ var roleMappinRowID = -1;
                                 <input type="checkbox"  id="always_send_auth_list_of_idps" name="always_send_auth_list_of_idps" <%=appBean.isAlwaysSendBackAuthenticatedListOfIdPs() ? "checked" : "" %>/><label for="always_send_auth_list_of_idps"><fmt:message key="config.application.claim.always.auth.list"/></label>
                         	</td>
                     	</tr>
+					  <tr>
+						  <td class="leftCol-med">
+							  <input type="checkbox"  id="use_tenant_domain_in_local_subject_identifier"
+									 name="use_tenant_domain_in_local_subject_identifier" <%=appBean.isUseTenantDomainInLocalSubjectIdentifier() ? "checked"
+									  : "" %>/><label for="use_tenant_domain_in_local_subject_identifier"><fmt:message key="config.application.use.tenant.domain.in.local.subject.identifier"/></label>
+						  </td>
+					  </tr>
+					  <tr>
+						  <td class="leftCol-med">
+							  <input type="checkbox"  id="use_userstore_domain_in_local_subject_identifier"
+									 name="use_userstore_domain_in_local_subject_identifier" <%=appBean.isUseUserstoreDomainInLocalSubjectIdentifier() ?
+									  "checked" : "" %>/><label
+								  for="use_userstore_domain_in_local_subject_identifier"><fmt:message
+								  key="config.application.use.userstore.domain.in.local.subject.identifier"/></label>
+						  </td>
+					  </tr>
                     </table>
 
                   

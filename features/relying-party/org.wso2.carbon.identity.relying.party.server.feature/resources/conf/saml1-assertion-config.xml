@@ -17,10 +17,9 @@
  ~ under the License.
  -->
 <XMLTooling xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
- xsi:schemaLocation="http://www.opensaml.org/xmltooling-config ../../src/schema/xmltooling-config.xsd"
- xmlns:saml1="urn:oasis:names:tc:SAML:1.0:assertion"
- xmlns:ds="http://www.w3.org/2000/09/xmldsig#"
- xmlns="http://www.opensaml.org/xmltooling-config">
+            xsi:schemaLocation="http://www.opensaml.org/xmltooling-config ../../src/schema/xmltooling-config.xsd"
+            xmlns:saml1="urn:oasis:names:tc:SAML:1.0:assertion"
+            xmlns="http://www.opensaml.org/xmltooling-config">
  
     <!-- SAML 1.X Assertion Object providers -->
     

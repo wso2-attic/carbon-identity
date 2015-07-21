@@ -30,7 +30,6 @@ import org.wso2.carbon.identity.provisioning.ProvisionedIdentifier;
 import org.wso2.carbon.identity.provisioning.ProvisioningEntity;
 import org.wso2.carbon.idp.mgt.util.IdPManagementConstants;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
-import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -455,7 +454,7 @@ public class ProvisioningManagementDAO {
     }
 
 
-    public List<String> getSPNamesOfProvisioningConnectorsByIDP(String idPName, String tenantDomain)
+    public List<String> getSPNamesOfProvisioningConnectorsByIDP(String idPName, int tenantId)
             throws IdentityApplicationManagementException {
         Connection dbConnection = null;
         PreparedStatement prepStmt = null;
@@ -463,18 +462,10 @@ public class ProvisioningManagementDAO {
         List<String> spNames = new ArrayList<String>();
         try {
             dbConnection = JDBCPersistenceManager.getInstance().getDBConnection();
-            String sqlStmt = null;
-            if (MultitenantConstants.SUPER_TENANT_DOMAIN_NAME.equals(tenantDomain)) {
-                sqlStmt = IdentityProvisioningConstants.SQLQueries.GET_SP_NAMES_OF_SUPER_TENANT_PROV_CONNECTORS_BY_IDP;
-                prepStmt = dbConnection.prepareStatement(sqlStmt);
-                prepStmt.setString(1, idPName);
-                prepStmt.setInt(2, MultitenantConstants.SUPER_TENANT_ID);
-            } else {
-                sqlStmt = IdentityProvisioningConstants.SQLQueries.GET_SP_NAMES_OF_PROVISIONING_CONNECTORS_BY_IDP;
-                prepStmt = dbConnection.prepareStatement(sqlStmt);
-                prepStmt.setString(1, idPName);
-                prepStmt.setString(2, tenantDomain);
-            }
+            String sqlStmt = IdentityProvisioningConstants.SQLQueries.GET_SP_NAMES_OF_PROVISIONING_CONNECTORS_BY_IDP;
+            prepStmt = dbConnection.prepareStatement(sqlStmt);
+            prepStmt.setString(1, idPName);
+            prepStmt.setInt(2, tenantId);
             rs = prepStmt.executeQuery();
 
             while (rs.next()) {

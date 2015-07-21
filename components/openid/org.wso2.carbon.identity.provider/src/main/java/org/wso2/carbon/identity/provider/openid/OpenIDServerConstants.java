@@ -29,6 +29,9 @@ public class OpenIDServerConstants {
 
     public static final String OPENID_LOGGEDIN_USER = "OPENID_LOGGEDIN_USER";
 
+    public static final String OPENID = "openid";
+    public static final String OPENID_SERVER = "openidserver";
+
     private OpenIDServerConstants() {
     }
 }

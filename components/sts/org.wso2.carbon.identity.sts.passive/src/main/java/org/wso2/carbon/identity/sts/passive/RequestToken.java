@@ -79,6 +79,8 @@ public class RequestToken {
 
     private String dialect;
 
+    private String tenantDomain;
+
     public String getAttributes() {
         return attributes;
     }
@@ -189,5 +191,13 @@ public class RequestToken {
 
     public void setDialect(String dialect) {
         this.dialect = dialect;
+    }
+
+    public String getTenantDomain() {
+        return tenantDomain;
+    }
+
+    public void setTenantDomain(String tenantDomain) {
+        this.tenantDomain = tenantDomain;
     }
 }

@@ -34,6 +34,7 @@ import org.wso2.carbon.identity.oauth.cache.SessionDataCacheKey;
 import org.wso2.carbon.identity.oauth.common.OAuthConstants;
 import org.wso2.carbon.identity.oauth.common.exception.OAuthClientException;
 import org.wso2.carbon.identity.oauth.config.OAuthServerConfiguration;
+import org.wso2.carbon.identity.oauth2.IdentityOAuth2Exception;
 import org.wso2.carbon.identity.oauth2.OAuth2Service;
 import org.wso2.carbon.identity.oauth2.OAuth2TokenValidationService;
 import org.wso2.carbon.identity.oauth2.model.OAuth2Parameters;
@@ -45,6 +46,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 public class EndpointUtil {
 
@@ -140,14 +142,15 @@ public class EndpointUtil {
     public static String[] extractCredentialsFromAuthzHeader(String authorizationHeader)
             throws OAuthClientException {
         String[] splitValues = authorizationHeader.trim().split(" ");
-        byte[] decodedBytes = Base64Utils.decode(splitValues[1].trim());
-        if (decodedBytes != null) {
-            String userNamePassword = new String(decodedBytes, Charsets.UTF_8);
-            return userNamePassword.split(":");
-        } else {
-            String errMsg = "Error decoding authorization header. Could not retrieve client id and client secret.";
-            throw new OAuthClientException(errMsg);
+        if(splitValues.length == 2) {
+            byte[] decodedBytes = Base64Utils.decode(splitValues[1].trim());
+            if (decodedBytes != null) {
+                String userNamePassword = new String(decodedBytes, Charsets.UTF_8);
+                return userNamePassword.split(":");
+            }
         }
+        String errMsg = "Error decoding authorization header. Could not retrieve client id and client secret.";
+        throw new OAuthClientException(errMsg);
     }
 
     /**
@@ -243,13 +246,19 @@ public class EndpointUtil {
             String selfPath = "/oauth2/authorize";
             AuthenticationRequest authenticationRequest = new AuthenticationRequest();
 
+            int tenantId = OAuth2Util.getClientTenatId();
+
             //Build the authentication request context.
             authenticationRequest.setCommonAuthCallerPath(selfPath);
             authenticationRequest.setForceAuth(forceAuthenticate);
             authenticationRequest.setPassiveAuth(checkAuthentication);
             authenticationRequest.setRelyingParty(clientId);
-            authenticationRequest.addRequestQueryParam(FrameworkConstants.RequestParams.TENANT_ID,
-                    new String[]{String.valueOf(OAuth2Util.getClientTenatId())});
+            try {
+                authenticationRequest.setTenantDomain(OAuth2Util.getTenantDomain(tenantId));
+            } catch (IdentityOAuth2Exception e) {
+                log.error("Error while getting tenant domain from tenant id", e);
+                throw new UnsupportedEncodingException("Error while getting tenant domain from tenant id");
+            }
             authenticationRequest.setRequestQueryParams(reqParams);
 
             //Build an AuthenticationRequestCacheEntry which wraps AuthenticationRequestContext
@@ -290,15 +299,18 @@ public class EndpointUtil {
                 log.debug("Received OAuth2 params are Null for UserConsentURL");
             }
         }
-        SessionDataCacheEntry entry = (SessionDataCacheEntry) SessionDataCache.getInstance(0)
-                .getValueFromCache(new SessionDataCacheKey(sessionDataKey));
+        SessionDataCache sessionDataCache = SessionDataCache.getInstance(OAuthServerConfiguration.getInstance().getSessionDataCacheTimeout());
+        SessionDataCacheEntry entry = (SessionDataCacheEntry) sessionDataCache.getValueFromCache
+                (new SessionDataCacheKey(sessionDataKey));
         String consentPage = null;
+        String sessionDataKeyConsent = UUID.randomUUID().toString();
         try {
             if (entry == null) {
                 if (log.isDebugEnabled()) {
                     log.debug("Cache Entry is Null from SessionDataCache ");
                 }
             } else {
+                sessionDataCache.addToCache(new SessionDataCacheKey(sessionDataKeyConsent),entry);
                 queryString = URLEncoder.encode(entry.getQueryString(), "UTF-8");
             }
 
@@ -315,7 +327,7 @@ public class EndpointUtil {
                         "UTF-8") + "&application=" + URLEncoder.encode(params.getApplicationName(), "ISO-8859-1") +
                         "&" + OAuthConstants.OAuth20Params.SCOPE + "=" + URLEncoder.encode(EndpointUtil.getScope
                         (params), "ISO-8859-1") + "&" + OAuthConstants.SESSION_DATA_KEY_CONSENT + "=" + URLEncoder
-                        .encode(sessionDataKey, "UTF-8") + "&spQueryParams=" + queryString;
+                        .encode(sessionDataKeyConsent, "UTF-8") + "&spQueryParams=" + queryString;
             } else {
                 throw new OAuthSystemException("Error while retrieving the application name");
             }

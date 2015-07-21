@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.identity.application.authentication.framework.cache;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.CarbonContext;
@@ -53,12 +54,15 @@ public class SessionContextCache extends BaseCache<String, CacheEntry> {
                 if (instance == null) {
                     int capacity = 2000;
                     try {
-                        capacity = Integer.parseInt(
-                                IdentityUtil.getProperty("SessionContextCache.Capacity"));
-                    } catch (Exception e) {
+                        String capacityConfigValue = IdentityUtil.getProperty("SessionContextCache.Capacity");
+                        if (StringUtils.isNotBlank(capacityConfigValue)) {
+                            capacity = Integer.parseInt(capacityConfigValue);
+                        }
+                    } catch (NumberFormatException e) {
                         if (log.isDebugEnabled()) {
                             log.debug("Ignoring Exception.", e);
                         }
+                        log.warn("Session context cache capacity size is not configured. Using default value.");
                     }
                     instance = new SessionContextCache(SESSION_CONTEXT_CACHE_NAME, timeout, capacity);
                 }

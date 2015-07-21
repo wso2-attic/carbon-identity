@@ -40,8 +40,8 @@ import org.wso2.carbon.identity.entitlement.EntitlementException;
 import org.wso2.carbon.identity.entitlement.EntitlementUtil;
 import org.wso2.carbon.identity.entitlement.PDPConstants;
 import org.wso2.carbon.identity.entitlement.cache.DecisionCache;
-import org.wso2.carbon.identity.entitlement.cache.DecisionInvalidationCache;
 import org.wso2.carbon.identity.entitlement.cache.EntitlementEngineCache;
+import org.wso2.carbon.identity.entitlement.cache.PolicyCache;
 import org.wso2.carbon.identity.entitlement.cache.SimpleDecisionCache;
 import org.wso2.carbon.identity.entitlement.internal.EntitlementServiceComponent;
 import org.wso2.carbon.identity.entitlement.pap.store.PAPPolicyFinder;
@@ -66,8 +66,6 @@ import java.util.Set;
 
 public class EntitlementEngine {
 
-    private static final Object lock = new Object();
-    private static Log log = LogFactory.getLog(EntitlementEngine.class);
     private PolicyFinder papPolicyFinder;
     private CarbonAttributeFinder carbonAttributeFinder;
     private CarbonResourceFinder carbonResourceFinder;
@@ -77,13 +75,64 @@ public class EntitlementEngine {
     private PDP pdpTest;
     private Balana balana;
     private int tenantId;
+    private static final Object lock = new Object();
     private boolean pdpDecisionCacheEnable;
     private List<AttributeFinderModule> attributeModules = new ArrayList<AttributeFinderModule>();
     private List<ResourceFinderModule> resourceModules = new ArrayList<ResourceFinderModule>();
     private static EntitlementEngineCache entitlementEngines = EntitlementEngineCache.getInstance();
     private static EntitlementEngine entitlementEngine;
+
     private DecisionCache decisionCache = null;
+    private PolicyCache policyCache = null;
+
     private SimpleDecisionCache simpleDecisionCache = null;
+
+    private static Log log = LogFactory.getLog(EntitlementEngine.class);
+
+
+    public PolicyCache getPolicyCache() {
+        return policyCache;
+    }
+
+    public void setPolicyCache(PolicyCache policyCache) {
+        this.policyCache = policyCache;
+    }
+
+    public void clearDecisionCache() {
+        this.decisionCache.clear();
+    }
+
+    /**
+     * Get a EntitlementEngine instance for that tenant. This method will return an
+     * EntitlementEngine instance if exists, or creates a new one
+     *
+     * @return EntitlementEngine instance for that tenant
+     */
+    public static EntitlementEngine getInstance() {
+
+        int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
+
+        if (tenantId == MultitenantConstants.SUPER_TENANT_ID) {
+            if (entitlementEngine == null) {
+                synchronized (lock) {
+                    if (entitlementEngine == null) {
+                        entitlementEngine = new EntitlementEngine(tenantId);
+                    }
+                }
+            }
+
+            return entitlementEngine;
+        }
+
+        if (!entitlementEngines.contains(tenantId)) {
+            synchronized (lock) {
+                if (!entitlementEngines.contains(tenantId)) {
+                    entitlementEngines.put(tenantId, new EntitlementEngine(tenantId));
+                }
+            }
+        }
+        return entitlementEngines.get(tenantId);
+    }
 
     private EntitlementEngine(int tenantId) {
 
@@ -105,7 +154,8 @@ public class EntitlementEngine {
 
         if (balanaConfig) {
             System.setProperty("org.wso2.balana.PDPConfigFile", CarbonUtils.getCarbonConfigDirPath()
-                    + File.separator + "security" + File.separator + "balana-config.xml");
+                                                                + File.separator + "security" + File.separator +
+                                                                "balana-config.xml");
         }
 
         // if PDP config file is not configured, then balana instance is created from default configurations
@@ -132,9 +182,21 @@ public class EntitlementEngine {
             }
         }
 
+        int pdpPolicyCachingInterval = -1;
+        String policyCacheInterval = properties.getProperty(PDPConstants.POLICY_CACHING_INTERVAL);
+        if (policyCacheInterval != null) {
+            try {
+                pdpPolicyCachingInterval = Integer.parseInt(policyCacheInterval.trim());
+            } catch (Exception e) {
+                //ignore
+            }
+        }
+
+
         //init caches
         decisionCache = new DecisionCache(pdpDecisionCachingInterval);
         simpleDecisionCache = new SimpleDecisionCache(pdpDecisionCachingInterval);
+        this.policyCache = new PolicyCache(pdpPolicyCachingInterval);
 
         // policy search
 
@@ -149,10 +211,13 @@ public class EntitlementEngine {
             policyModules.add(papPolicyFinder);
             policyFinder.setModules(policyModules);
             this.papPolicyFinder = policyFinder;
+
             AttributeFinder attributeFinder = new AttributeFinder();
             attributeFinder.setModules(attributeModules);
+
             ResourceFinder resourceFinder = new ResourceFinder();
             resourceFinder.setModules(resourceModules);
+
             PDPConfig pdpConfig = new PDPConfig(attributeFinder, policyFinder, resourceFinder, true);
             pdpTest = new PDP(pdpConfig);
         }
@@ -164,38 +229,13 @@ public class EntitlementEngine {
 
             ResourceFinder resourceFinder = new ResourceFinder();
             resourceFinder.setModules(resourceModules);
-            PDPConfig pdpConfig = new PDPConfig(attributeFinder, carbonPolicyFinder, resourceFinder, pdpMultipleDecision);
+
+            PDPConfig pdpConfig =
+                    new PDPConfig(attributeFinder, carbonPolicyFinder, resourceFinder, pdpMultipleDecision);
             pdp = new PDP(pdpConfig);
         }
     }
 
-    /**
-     * Get a EntitlementEngine instance for that tenant. This method will return an
-     * EntitlementEngine instance if exists, or creates a new one
-     *
-     * @return EntitlementEngine instance for that tenant
-     */
-    public static EntitlementEngine getInstance() {
-        int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
-        if(tenantId == MultitenantConstants.SUPER_TENANT_ID){
-            if(entitlementEngine == null){
-                synchronized (lock) {
-                    if(entitlementEngine == null) {
-                        entitlementEngine = new EntitlementEngine(tenantId);
-                    }
-                }
-            }
-            return entitlementEngine;
-        }
-        if (!entitlementEngines.contains(tenantId)) {
-            synchronized (lock) {
-                if (!entitlementEngines.contains(tenantId)) {
-                    entitlementEngines.put(tenantId, new EntitlementEngine(tenantId));
-                }
-            }
-        }
-        return entitlementEngines.get(tenantId);
-    }
 
     /**
      * Test request for PDP
@@ -305,7 +345,7 @@ public class EntitlementEngine {
         }
         String response;
         String request = (subject != null ? subject : "") + (resource != null ? resource : "") +
-                (action != null ? action : "") + (environmentValue != null ? environmentValue : "");
+                         (action != null ? action : "") + (environmentValue != null ? environmentValue : "");
 
         if ((response = getFromCache(request, true)) != null) {
             if (log.isDebugEnabled()) {
@@ -387,10 +427,12 @@ public class EntitlementEngine {
             String tenantRequest = tenantId + "+" + request;
             String decision;
 
-            if (DecisionInvalidationCache.getInstance().isInvalidate()) {
+
+            //There is no any local cache hereafter and always get from distribute cache if there.
+            /*if (DecisionInvalidationCache.getInstance().isInvalidate()) {
                 decisionCache.clearCache();
                 simpleDecisionCache.clearCache();
-            }
+            }*/
 
             if (simpleCache) {
                 decision = simpleDecisionCache.getFromCache(tenantRequest);
@@ -446,8 +488,9 @@ public class EntitlementEngine {
         attributeModules.add(carbonAttributeFinder);
         attributeModules.add(envAttributeModule);
         attributeModules.add(selectorAttributeModule);
-        for(AttributeFinderModule module : balana.getPdpConfig().getAttributeFinder().getModules()){
-            if( module instanceof  CurrentEnvModule || module instanceof  SelectorModule){
+
+        for (AttributeFinderModule module : balana.getPdpConfig().getAttributeFinder().getModules()) {
+            if (module instanceof CurrentEnvModule || module instanceof SelectorModule) {
                 continue;
             }
             attributeModules.add(module);
@@ -462,7 +505,8 @@ public class EntitlementEngine {
         carbonResourceFinder = new CarbonResourceFinder(tenantId);
         carbonResourceFinder.init();
         resourceModules.add(carbonResourceFinder);
-        for(ResourceFinderModule module : balana.getPdpConfig().getResourceFinder().getModules()){
+
+        for (ResourceFinderModule module : balana.getPdpConfig().getResourceFinder().getModules()) {
             resourceModules.add(module);
         }
     }

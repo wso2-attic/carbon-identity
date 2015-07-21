@@ -24,6 +24,8 @@ import org.openid4java.message.AuthRequest;
 import org.openid4java.message.Message;
 import org.openid4java.server.ServerAssociationStore;
 import org.openid4java.server.ServerManager;
+import org.wso2.carbon.identity.base.IdentityConstants;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 
 /**
  * This class passes OpenID messages such as OpenID Association, OpenID Request
@@ -40,7 +42,6 @@ public class OpenIDServerManager extends ServerManager {
     /**
      * Here we set our AssociationStore implementation to the parent.
      *
-     * @param dbConnection for the identity database
      */
     public OpenIDServerManager() {
         /**
@@ -54,8 +55,43 @@ public class OpenIDServerManager extends ServerManager {
          * Keeps track of private (internal) associations created for signing
          * authentication responses for stateless consumer sites.
          */
-        ServerAssociationStore privateAssociations =
-                new OpenIDServerAssociationStore(OpenIDServerConstants.ASSOCIATION_STORE_TYPE_PRIVATE);
+//        ServerAssociationStore privateAssociations =
+//                new OpenIDServerAssociationStore(OpenIDServerConstants.ASSOCIATION_STORE_TYPE_PRIVATE);
+        ServerAssociationStore privateAssociations = null;
+        if(log.isDebugEnabled()) {
+            log.debug("Initialising privateAssociation Store");
+        }
+
+        synchronized (Runtime.getRuntime().getClass()){
+            String privateAssociationStoreClassName = IdentityUtil.getProperty(IdentityConstants.ServerConfig.OPENID_PRIVATE_ASSOCIATION_STORE_CLASS);
+            if(privateAssociationStoreClassName != null && !privateAssociationStoreClassName.trim().isEmpty()) {
+                try {
+                    if(log.isDebugEnabled()) {
+                        log.debug("Initialising privateAssociation Store : " + privateAssociationStoreClassName);
+                    }
+                    privateAssociations = (ServerAssociationStore)Class.forName(privateAssociationStoreClassName)
+                            .newInstance();
+                    if(log.isDebugEnabled()) {
+                        log.debug("Successfully initialized privateAssociation Store : "
+                                +  privateAssociationStoreClassName);
+                    }
+                } catch (ClassNotFoundException e) {
+                    log.error("Private association store class : " + privateAssociationStoreClassName + " not found", e);
+                } catch (InstantiationException e) {
+                    log.error("Error while initializing association store class : " + privateAssociationStoreClassName, e);
+                } catch (IllegalAccessException e) {
+                    log.error("Error while initializing association store class : " + privateAssociationStoreClassName, e);
+                } catch (Exception e) {
+                    log.error("Error while initializing private association store", e);
+                }
+            }
+
+            if(privateAssociations == null) {
+                privateAssociations = new OpenIDServerAssociationStore(OpenIDServerConstants.ASSOCIATION_STORE_TYPE_PRIVATE);
+                log.info("Setting default Store : " + OpenIDServerAssociationStore.class.getName());
+            }
+        }
+
         super.setPrivateAssociations(privateAssociations);
     }
 
@@ -66,7 +102,9 @@ public class OpenIDServerManager extends ServerManager {
                                 boolean authenticatedAndApproved,
                                 String opEndpoint,
                                 boolean signNow) {
-        log.info("Association handle in AuthRequest : " + authReq.getHandle());
+        if(log.isDebugEnabled()) {
+            log.info("Association handle in AuthRequest : " + authReq.getHandle());
+        }
         return super.authResponse(authReq, userSelId, userSelClaimed, authenticatedAndApproved, opEndpoint, signNow);
     }
 }
