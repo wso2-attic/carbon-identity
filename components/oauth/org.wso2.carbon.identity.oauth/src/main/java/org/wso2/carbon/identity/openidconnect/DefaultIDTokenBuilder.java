@@ -40,6 +40,7 @@ import org.wso2.carbon.identity.application.common.model.ServiceProvider;
 import org.wso2.carbon.identity.application.mgt.ApplicationManagementService;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.oauth.cache.AuthorizationGrantCache;
 import org.wso2.carbon.identity.oauth.cache.AuthorizationGrantCacheEntry;
 import org.wso2.carbon.identity.oauth.cache.AuthorizationGrantCacheKey;
@@ -86,6 +87,7 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
     private static final String SHA512_WITH_EC = "SHA512withEC";
     private static final String AUTHORIZATION_CODE = "AuthorizationCode";
     private static final String INBOUND_AUTH2_TYPE = "oauth2";
+    private static final String CONTEXT_TOKEN_ENDPOINT = "oauth2/token";
     private static final Log log = LogFactory.getLog(DefaultIDTokenBuilder.class);
     private static Map<Integer, Key> privateKeys = new ConcurrentHashMap<>();
     private OAuthServerConfiguration config = null;
@@ -102,7 +104,18 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
     public String buildIDToken(OAuthTokenReqMessageContext request, OAuth2AccessTokenRespDTO tokenRespDTO)
             throws IdentityOAuth2Exception {
 
+        //issuer read from identity.xml file as first priority. If it is not there, then server url will load from carbon.xml file configs.
         String issuer = config.getOpenIDConnectIDTokenIssuerIdentifier();
+
+        if (issuer == null || issuer.isEmpty()) {
+            try {
+                issuer = IdentityUtil.getServerURL() + CONTEXT_TOKEN_ENDPOINT ;
+            } catch (IdentityException e) {
+                log.error("Error occurred while getting serverURL " + e.getMessage());
+                throw new IdentityOAuth2Exception(e.getMessage(), e);
+            }
+        }
+
         long lifetime = Integer.parseInt(config.getOpenIDConnectIDTokenExpiration());
         long curTime = Calendar.getInstance().getTimeInMillis() / 1000;
         // setting subject

@@ -86,9 +86,6 @@
         <AuthorizationGrantCacheTimeout>-1</AuthorizationGrantCacheTimeout>
         <SessionDataCacheTimeout>-1</SessionDataCacheTimeout>
         <ClaimCacheTimeout>-1</ClaimCacheTimeout>
-		<RequestTokenUrl>https://localhost:9443/oauth/request-token</RequestTokenUrl>
-		<AccessTokenUrl>https://localhost:9443/oauth/access-token</AccessTokenUrl>
-		<AuthorizeUrl>https://localhost:9443/oauth/authorize-url</AuthorizeUrl>
 		<!-- Default validity period for Authorization Code in seconds -->
 		<AuthorizationCodeDefaultValidityPeriod>300</AuthorizationCodeDefaultValidityPeriod>
 		<!-- Default validity period for application access tokens in seconds -->
@@ -184,7 +181,8 @@
 		</SAML2Grant>
                 <OpenIDConnect>
                          <IDTokenBuilder>org.wso2.carbon.identity.openidconnect.DefaultIDTokenBuilder</IDTokenBuilder>
-                         <IDTokenIssuerID>https://localhost:9443/oauth2endpoints/token</IDTokenIssuerID>
+			 <!-- If you enable IDTokenIssuerID, then token issuer will be IDTokenIssuerID value and if it is commneted out then issuer will generate using hostname/port in carbon.xml --> 
+                         <!--IDTokenIssuerID>https://localhost:9443/oauth2/token</IDTokenIssuerID-->
                          <IDTokenSubjectClaim>http://wso2.org/claims/givenname</IDTokenSubjectClaim>
                          <IDTokenCustomClaimsCallBackHandler>org.wso2.carbon.identity.openidconnect.SAMLAssertionClaimsCallback</IDTokenCustomClaimsCallBackHandler>
                          <IDTokenExpiration>3600</IDTokenExpiration>
