@@ -16,12 +16,11 @@
  *  under the License.
  */
 
-package org.wso2.carbon.identity.entitlement.listener;
+package org.wso2.carbon.identity.mgt.listener;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.identity.entitlement.NotificationConstants;
-import org.wso2.carbon.identity.entitlement.internal.EntitlementServiceComponent;
+import org.wso2.carbon.identity.mgt.internal.IdentityMgtServiceComponent;
 import org.wso2.carbon.identity.notification.mgt.NotificationManagementException;
 import org.wso2.carbon.identity.notification.mgt.NotificationSender;
 import org.wso2.carbon.identity.notification.mgt.bean.PublisherEvent;
@@ -42,6 +41,8 @@ public class UserOperationsNotificationListener extends AbstractUserOperationEve
     private final String eventName = "userOperation";
     private final String usernameLabel = "username";
     private final String operationLabel = "operation";
+    private final String EVENT_TYPE_PROFILE_UPDATE = "profileUpdate";
+    private final String EVENT_TYPE_ROLE_UPDATE = "roleUpdate";
 
     @Override
     public int getExecutionOrderId() {
@@ -65,7 +66,7 @@ public class UserOperationsNotificationListener extends AbstractUserOperationEve
         if (log.isDebugEnabled()) {
             log.debug("Sending user delete notification for user " + username);
         }
-        sendNotification(NotificationConstants.EVENT_TYPE_PROFILE_UPDATE, username);
+        sendNotification(EVENT_TYPE_PROFILE_UPDATE, username);
         // Returns true since no major effect on upcoming listeners
         return true;
     }
@@ -87,7 +88,7 @@ public class UserOperationsNotificationListener extends AbstractUserOperationEve
         if (log.isDebugEnabled()) {
             log.debug("Sending user claim value update notification for user " + username);
         }
-        sendNotification(NotificationConstants.EVENT_TYPE_PROFILE_UPDATE, username);
+        sendNotification(EVENT_TYPE_PROFILE_UPDATE, username);
         // Returns true since no major effect on upcoming listeners
         return true;
     }
@@ -110,7 +111,7 @@ public class UserOperationsNotificationListener extends AbstractUserOperationEve
         if (log.isDebugEnabled()) {
             log.debug("Sending user delete update notification for user " + username);
         }
-        sendNotification(NotificationConstants.EVENT_TYPE_PROFILE_UPDATE, username);
+        sendNotification(EVENT_TYPE_PROFILE_UPDATE, username);
         // Returns true since no major effect on upcoming listeners
         return true;
     }
@@ -134,7 +135,7 @@ public class UserOperationsNotificationListener extends AbstractUserOperationEve
         if (log.isDebugEnabled()) {
             log.debug("Sending user role list update notification for user " + username);
         }
-        sendNotification(NotificationConstants.EVENT_TYPE_ROLE_UPDATE, username);
+        sendNotification(EVENT_TYPE_ROLE_UPDATE, username);
         // Returns true since no major effect on upcoming listeners
         return true;
     }
@@ -159,7 +160,7 @@ public class UserOperationsNotificationListener extends AbstractUserOperationEve
         if (log.isDebugEnabled()) {
             log.debug("Sending user claim values update notification for user " + username);
         }
-        sendNotification(NotificationConstants.EVENT_TYPE_PROFILE_UPDATE, username);
+        sendNotification(EVENT_TYPE_PROFILE_UPDATE, username);
         // Returns true since no major effect on upcoming listeners
         return true;
     }
@@ -172,7 +173,7 @@ public class UserOperationsNotificationListener extends AbstractUserOperationEve
      * @param username  username of the subjected user for attribute change
      */
     private void sendNotification(String operation, String username) {
-        NotificationSender notificationSender = EntitlementServiceComponent.getNotificationSender();
+        NotificationSender notificationSender = IdentityMgtServiceComponent.getNotificationSender();
         if (notificationSender != null) {
             try {
                 PublisherEvent event = new PublisherEvent(eventName);
