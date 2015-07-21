@@ -32,7 +32,6 @@ import org.wso2.carbon.identity.entitlement.EntitlementUtil;
 import org.wso2.carbon.identity.entitlement.PDPConstants;
 import org.wso2.carbon.identity.entitlement.dto.PolicyDTO;
 import org.wso2.carbon.identity.entitlement.listener.CacheClearingUserOperationListener;
-import org.wso2.carbon.identity.entitlement.listener.UserOperationsNotificationListener;
 import org.wso2.carbon.identity.entitlement.pap.store.PAPPolicyStore;
 import org.wso2.carbon.identity.entitlement.thrift.EntitlementService;
 import org.wso2.carbon.identity.entitlement.thrift.ThriftConfigConstants;
@@ -253,11 +252,6 @@ public class EntitlementServiceComponent {
             if (log.isDebugEnabled()) {
                 log.debug("Registering notification sender on user operations");
             }
-
-            UserOperationsNotificationListener notificationListener =
-                    new UserOperationsNotificationListener();
-            ctxt.getBundleContext().registerService(
-                    UserOperationEventListener.class.getName(), notificationListener, null);
 
             //TODO: Read from identity.xml, the configurations to be used in thrift based entitlement service.
             //initialize thrift authenticator
