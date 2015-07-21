@@ -26,8 +26,11 @@ public class SQLQueries {
 
     public static final String INSERT_RESOURCE_SET =
             "INSERT INTO $resourceSetRegTable(RESOURCE_SET_ID, NAME, URI, TYPE, ICON_URI," +
-                    "AUTHZ_USER, CONSUMER_KEY, RESOURCE_SET_SCOPE, TIME_CREATED) " +
+                    "AUTHZ_USER, CONSUMER_KEY, RESOURCE_SET_SCOPE_HASH, TIME_CREATED) " +
                     "VALUES (?,?,?,?,?,?,?,?,?)";
+
+    public static final String INSERT_RESOURCE_SET_SCOPE = "INSERT INTO $resourceSetScopeTable (RESOURCE_SET_ID, " +
+            "RESOURCE_SET_SCOPE) VALUES (?,?)";
 
     public static final String UPDATE_RESOURCE_SET =
             "UPDATE $resourceSetRegTable SET NAME=?, URI=?, TYPE=?, ICON_URI=?," +

@@ -32,7 +32,7 @@
 
     <artifactId>org.wso2.carbon.identity.uma</artifactId>
     <packaging>bundle</packaging>
-    <name>WSO2 Carbon - User Managed Access(UMA)</name>
+    <name>Identity User Managed Access(UMA)</name>
     <description>User Managed Access Implementation for WSO2 Identity Server</description>
     <url>http://wso2.org</url>
 
@@ -121,9 +121,6 @@
                             org.wso2.carbon.identity.oauth2.*; version="${carbon.identity.package.import.version.range}",
 
                             com.google.gson.*; version="${com.google.code.gson.osgi.version.range}",
-                            <!--org.codehaus.jackson.map.*; version="[1.0.0, 1.9.14)",-->
-
-
 
                         </Import-Package>
                         <Export-Package>
