@@ -607,7 +607,8 @@ public class EntitlementUtil {
      * @return DocumentBuilder
      * @throws ParserConfigurationException
      */
-    private static DocumentBuilder getSecuredDocumentBuilder(boolean setIgnoreComments) throws ParserConfigurationException {
+    private static DocumentBuilder getSecuredDocumentBuilder(boolean setIgnoreComments) throws
+            ParserConfigurationException {
 
         DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
         documentBuilderFactory.setIgnoringComments(setIgnoreComments);

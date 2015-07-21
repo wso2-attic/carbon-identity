@@ -76,7 +76,7 @@ public class InMemoryPersistenceManager implements DataPersistenceManager {
         Element root = null;
         inputStream = new ByteArrayInputStream(xmlConfig.getBytes());
         try {
-            builder = getSecuredDocumentBuilder(false);
+            builder = getSecuredDocumentBuilder();
             Document doc = builder.parse(inputStream);
             root = doc.getDocumentElement();
         } catch (Exception e) {
@@ -126,14 +126,12 @@ public class InMemoryPersistenceManager implements DataPersistenceManager {
     /**
      * * This method provides a secured document builder which will secure XXE attacks.
      *
-     * @param setIgnoreComments whether to set setIgnoringComments in DocumentBuilderdactory.
      * @return DocumentBuilder
      * @throws ParserConfigurationException
      */
-    private DocumentBuilder getSecuredDocumentBuilder(boolean setIgnoreComments) throws ParserConfigurationException {
+    private DocumentBuilder getSecuredDocumentBuilder() throws ParserConfigurationException {
 
         DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-        documentBuilderFactory.setIgnoringComments(setIgnoreComments);
         documentBuilderFactory.setNamespaceAware(true);
         documentBuilderFactory.setExpandEntityReferences(false);
         documentBuilderFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
