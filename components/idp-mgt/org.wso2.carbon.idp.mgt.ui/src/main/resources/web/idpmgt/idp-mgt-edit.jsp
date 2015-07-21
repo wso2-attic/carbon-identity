@@ -39,6 +39,7 @@
 <%@ page import="java.util.HashMap" %>
 <%@ page import="java.util.List" %>
 <%@ page import="java.util.Map" %>
+<%@ page import="org.apache.commons.lang.StringUtils" %>
 <link href="css/idpmgt.css" rel="stylesheet" type="text/css" media="all"/>
 
 <carbon:breadcrumb label="identity.providers" resourceBundle="org.wso2.carbon.idp.mgt.ui.i18n.Resources"
@@ -206,7 +207,7 @@
         idpDisplayName = identityProvider.getDisplayName();
         description = identityProvider.getIdentityProviderDescription();
         provisioningRole = identityProvider.getProvisioningRole();
-        if (identityProvider.getCertificate() != null) {
+        if (StringUtils.isNotBlank(identityProvider.getCertificate())) {
             certData = IdentityApplicationManagementUtil.getCertData(identityProvider.getCertificate());
         }
 
@@ -3340,7 +3341,7 @@ function doValidation() {
                     <tr>
                         <td><input type="text" value="<%=roleMappings[i].getRemoteRole()%>" id="rolerowname_<%=i%>"
                                    name="rolerowname_<%=i%>"/></td>
-                        <td><input type="text" value="<%=roleMappings[i].getLocalRole().getLocalRoleName()%>"
+                        <td><input type="text" value="<%=roleMappings[i].getLocalRole().getUserStoreId()%>/<%=roleMappings[i].getLocalRole().getLocalRoleName()%>"
                                    id="localrowname_<%=i%>" name="localrowname_<%=i%>"/></td>
                         <td>
                             <a title="<fmt:message key='delete.role'/>"

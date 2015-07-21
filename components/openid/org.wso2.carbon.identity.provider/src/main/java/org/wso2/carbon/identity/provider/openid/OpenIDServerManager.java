@@ -63,8 +63,8 @@ public class OpenIDServerManager extends ServerManager {
         }
 
         synchronized (Runtime.getRuntime().getClass()){
-            String privateAssociationStoreClassName = IdentityUtil.getProperty(IdentityConstants.ServerConfig.OPENID_PRIVATE_ASSOCIATION_STORE_CLASS).trim();
-            if(privateAssociationStoreClassName != null && !privateAssociationStoreClassName.isEmpty()) {
+            String privateAssociationStoreClassName = IdentityUtil.getProperty(IdentityConstants.ServerConfig.OPENID_PRIVATE_ASSOCIATION_STORE_CLASS);
+            if(privateAssociationStoreClassName != null && !privateAssociationStoreClassName.trim().isEmpty()) {
                 try {
                     if(log.isDebugEnabled()) {
                         log.debug("Initialising privateAssociation Store : " + privateAssociationStoreClassName);

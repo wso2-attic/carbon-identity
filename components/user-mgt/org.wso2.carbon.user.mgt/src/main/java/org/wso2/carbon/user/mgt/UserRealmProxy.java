@@ -19,8 +19,6 @@
 package org.wso2.carbon.user.mgt;
 
 
-import org.apache.axis2.context.MessageContext;
-import org.apache.axis2.transport.http.HTTPConstants;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
@@ -52,12 +50,9 @@ import org.wso2.carbon.user.mgt.common.UserRealmInfo;
 import org.wso2.carbon.user.mgt.common.UserStoreInfo;
 import org.wso2.carbon.user.mgt.internal.UserMgtDSComponent;
 import org.wso2.carbon.user.mgt.permission.ManagementPermissionUtil;
-import org.wso2.carbon.utils.ServerConstants;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -632,6 +627,10 @@ public class UserRealmProxy {
 
             info.setPasswordRegExViolationErrorMsg(realmConfig
                     .getUserStoreProperty("PasswordJavaRegExViolationErrorMsg"));
+            //TODO  Need to get value from UserCoreConstants.RealmConfig.PROPERTY_PASSWORD_ERROR_MSG
+
+            info.setUsernameRegExViolationErrorMsg(realmConfig
+                    .getUserStoreProperty("UsernameJavaRegExViolationErrorMsg"));
             //TODO  Need to get value from UserCoreConstants.RealmConfig.PROPERTY_PASSWORD_ERROR_MSG
 
             info.setUserNameRegEx(

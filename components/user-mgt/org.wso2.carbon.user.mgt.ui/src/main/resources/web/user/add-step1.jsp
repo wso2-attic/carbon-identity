@@ -21,10 +21,9 @@
 <%@page import="org.apache.axis2.context.ConfigurationContext"%>
 <%@page import="org.apache.commons.lang.StringUtils" %>
 <%@page import="org.wso2.carbon.CarbonConstants"%>
-<%@page import="org.wso2.carbon.ui.CarbonUIMessage"%>
 <%@page import="org.wso2.carbon.ui.CarbonUIUtil"%>
-<%@page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
-<%@ page import="org.wso2.carbon.user.mgt.stub.types.carbon.UserRealmInfo" %>
+<%@page import="org.wso2.carbon.ui.util.CharacterEncoder"%>
+<%@page import="org.wso2.carbon.user.mgt.stub.types.carbon.UserRealmInfo" %>
 <%@ page import="org.wso2.carbon.user.mgt.stub.types.carbon.UserStoreInfo" %>
 <%@ page import="org.wso2.carbon.user.mgt.ui.UserAdminClient" %>
 <%@ page import="org.wso2.carbon.user.mgt.ui.UserAdminUIConstants" %>
@@ -180,7 +179,16 @@ try{
         
         if (reason != "") {
             if (reason == "No conformance") {
-                CARBON.showWarningDialog("<fmt:message key="enter.user.name.not.conforming"/>");
+                <%
+                       String usernameRegEx =   userStoreInfo.getUserNameRegEx();
+                       String usernameErrorMessage = userStoreInfo.getUsernameRegExViolationErrorMsg();
+                       if (StringUtils.isBlank(usernameErrorMessage)){
+                           usernameErrorMessage = resourceBundle.getString("enter.user.name.not.conforming");
+                       }
+                   %>
+
+                CARBON.showWarningDialog("<%=usernameErrorMessage%>");
+
             } else if (reason == "Empty string") {
             	CARBON.showWarningDialog("<fmt:message key="enter.user.name.empty"/>");
             } else if(reason == "Domain"){
