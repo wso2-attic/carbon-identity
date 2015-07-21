@@ -25,6 +25,7 @@ package org.wso2.carbon.identity.uma.endpoint.protection;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.identity.uma.beans.protection.PermissionTicketReqBean;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.POST;
@@ -41,7 +42,8 @@ public class PermissionSetRegEndpoint {
 
     @POST
     @Path("/")
-    public Response issuePermissionTicket(@Context HttpServletRequest httpServletRequest) {
+    public Response issuePermissionTicket
+            (@Context HttpServletRequest httpServletRequest, PermissionTicketReqBean ticketReqBean) {
 
         log.info("hit issuePermissionTicket");
         return Response.ok("Yahooooooooooooooooo").build();
