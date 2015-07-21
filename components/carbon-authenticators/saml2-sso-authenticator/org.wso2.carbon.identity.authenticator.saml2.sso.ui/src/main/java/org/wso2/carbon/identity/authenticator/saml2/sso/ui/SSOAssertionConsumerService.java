@@ -40,6 +40,7 @@ import org.wso2.carbon.identity.sso.saml.stub.IdentityException;
 import org.wso2.carbon.identity.sso.saml.stub.types.SAMLSSOAuthnReqDTO;
 import org.wso2.carbon.identity.sso.saml.stub.types.SAMLSSOReqValidationResponseDTO;
 import org.wso2.carbon.identity.sso.saml.stub.types.SAMLSSORespDTO;
+import org.wso2.carbon.ui.CarbonSecuredHttpContext;
 import org.wso2.carbon.ui.CarbonUIUtil;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
@@ -126,7 +127,12 @@ public class SSOAssertionConsumerService extends HttpServlet {
         try {
             XMLObject samlObject = Util.unmarshall(Util.decode(samlRespString));
             if (samlObject instanceof LogoutResponse) {   // if it is a logout response, redirect it to login page.
-                resp.sendRedirect(getAdminConsoleURL(req) + "admin/logout_action.jsp?logoutcomplete=true");
+                String externalLogoutPage = Util.getExternalLogoutPage();
+                if(externalLogoutPage != null && !externalLogoutPage.isEmpty()){
+                    handleExternalLogout(req, resp, externalLogoutPage);
+                } else {
+                    resp.sendRedirect(getAdminConsoleURL(req) + "admin/logout_action.jsp?logoutcomplete=true");
+                }
             } else if (samlObject instanceof Response) {    // if it is a SAML Response
                 handleSAMLResponses(req, resp, samlObject);
             }
@@ -415,5 +421,48 @@ public class SSOAssertionConsumerService extends HttpServlet {
             }
         }
         return null;
+    }
+
+    private void handleExternalLogout(HttpServletRequest req, HttpServletResponse resp, String externalLogoutPage) throws IOException {
+
+        HttpSession currentSession = req.getSession(false);
+        if (currentSession != null) {
+            // check if current session has expired
+            currentSession.removeAttribute(CarbonSecuredHttpContext.LOGGED_USER);
+            currentSession.getServletContext().removeAttribute(CarbonSecuredHttpContext.LOGGED_USER);
+            try {
+                currentSession.invalidate();
+                if(log.isDebugEnabled()) {
+                    log.debug("Frontend session invalidated");
+                }
+            } catch (Exception ignored) {
+                // Ignore exception when invalidating and invalidated session
+            }
+        }
+        clearCookies(req, resp);
+
+        if (log.isDebugEnabled()) {
+            log.debug("Sending to " + externalLogoutPage);
+        }
+        resp.sendRedirect(externalLogoutPage);
+
+    }
+
+    private void clearCookies(HttpServletRequest req, HttpServletResponse resp) {
+        Cookie[] cookies = req.getCookies();
+
+        for (Cookie curCookie : cookies) {
+            if (curCookie.getName().equals("requestedURI")) {
+                Cookie cookie = new Cookie("requestedURI", null);
+                cookie.setPath("/");
+                cookie.setMaxAge(0);
+                resp.addCookie(cookie);
+            } else if (curCookie.getName().equals(CarbonConstants.REMEMBER_ME_COOKE_NAME)) {
+                Cookie cookie = new Cookie(CarbonConstants.REMEMBER_ME_COOKE_NAME, null);
+                cookie.setPath("/");
+                cookie.setMaxAge(0);
+                resp.addCookie(cookie);
+            }
+        }
     }
 }

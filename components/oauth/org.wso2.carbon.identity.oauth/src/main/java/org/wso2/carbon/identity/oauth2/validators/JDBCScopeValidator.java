@@ -55,7 +55,7 @@ public class JDBCScopeValidator extends OAuth2ScopeValidator {
         boolean cacheHit = false;
         // Check the cache, if caching is enabled.
         if (OAuthServerConfiguration.getInstance().isCacheEnabled()) {
-            OAuthCache oauthCache = OAuthCache.getInstance();
+            OAuthCache oauthCache = OAuthCache.getInstance(OAuthServerConfiguration.getInstance().getOAuthCacheTimeout());
             CacheKey cacheKey = new OAuthCacheKey(resource);
             CacheEntry result = oauthCache.getValueFromCache(cacheKey);
 
@@ -71,7 +71,7 @@ public class JDBCScopeValidator extends OAuth2ScopeValidator {
             resourceScope = tokenMgtDAO.findScopeOfResource(resource);
 
             if (OAuthServerConfiguration.getInstance().isCacheEnabled()) {
-                OAuthCache oauthCache = OAuthCache.getInstance();
+                OAuthCache oauthCache = OAuthCache.getInstance(OAuthServerConfiguration.getInstance().getOAuthCacheTimeout());
                 CacheKey cacheKey = new OAuthCacheKey(resource);
                 ResourceScopeCacheEntry cacheEntry = new ResourceScopeCacheEntry(resourceScope);
                 //Store resourceScope in cache even if it is null (to avoid database calls when accessing resources for

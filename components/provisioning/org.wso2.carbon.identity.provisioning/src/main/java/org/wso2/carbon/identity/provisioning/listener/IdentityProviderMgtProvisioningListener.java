@@ -31,7 +31,10 @@ import org.wso2.carbon.identity.provisioning.cache.ServiceProviderProvisioningCo
 import org.wso2.carbon.identity.provisioning.cache.ServiceProviderProvisioningConnectorCacheEntry;
 import org.wso2.carbon.identity.provisioning.cache.ServiceProviderProvisioningConnectorCacheKey;
 import org.wso2.carbon.identity.provisioning.dao.ProvisioningManagementDAO;
+import org.wso2.carbon.identity.provisioning.internal.ProvisioningServiceDataHolder;
 import org.wso2.carbon.idp.mgt.listener.IdentityProviderMgtLister;
+import org.wso2.carbon.user.api.UserStoreException;
+import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 import java.util.List;
@@ -106,8 +109,19 @@ public class IdentityProviderMgtProvisioningListener implements IdentityProvider
                 }
             }
 
+            int tenantId;
+
             try {
-                List<String> serviceProviders = provisioningManagementDAO.getSPNamesOfProvisioningConnectorsByIDP(identityProviderName, tenantDomain);
+                RealmService realmService = ProvisioningServiceDataHolder.getInstance().getRealmService();
+                tenantId = realmService.getTenantManager().getTenantId(tenantDomain);
+            } catch (UserStoreException e) {
+                throw new IdentityProvisioningException("Error occurred while retrieving tenant id from tenant domain",
+                                                        e);
+            }
+
+            try {
+                List<String> serviceProviders = provisioningManagementDAO.getSPNamesOfProvisioningConnectorsByIDP
+                        (identityProviderName, tenantId);
 
                 for (String serviceProvider : serviceProviders) {
 

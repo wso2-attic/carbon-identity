@@ -25,7 +25,7 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
-import org.wso2.carbon.utils.CarbonUtils;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.utils.ServerConstants;
 
 import javax.xml.stream.XMLStreamException;
@@ -104,8 +104,8 @@ public class IdentityApplicationConfig {
                     inStream = new FileInputStream(configFile);
                 }
             } else {
-                configFile = new File(CarbonUtils.getCarbonSecurityConfigDirPath(),
-                        IdentityApplicationConstants.APPLICATION_AUTHENTICATION_CONGIG);
+                configFile = new File(IdentityUtil.getIdentityConfigDirPath(),
+                                      IdentityApplicationConstants.APPLICATION_AUTHENTICATION_CONGIG);
                 if (configFile.exists()) {
                     inStream = new FileInputStream(configFile);
                 }
@@ -126,7 +126,7 @@ public class IdentityApplicationConfig {
                 }
             } catch (IOException e) {
                 log.error("Error occurred while closing the input stream after " +
-                        "reading Identity Application Management configuration", e);
+                          "reading Identity Application Management configuration", e);
             }
         }
     }
@@ -143,7 +143,7 @@ public class IdentityApplicationConfig {
                 if (currentObject == null) {
                     configuration.put(key, value);
                 } else if (currentObject instanceof ArrayList) {
-                    List<String> list = (ArrayList)currentObject;
+                    List<String> list = (ArrayList) currentObject;
                     if (!list.contains(value)) {
                         list.add(value);
                     }
@@ -187,17 +187,17 @@ public class IdentityApplicationConfig {
         // Properties are specified as ${system.property},
         // and are assumed to be System properties
         while (indexOfStartingChars < text.indexOf("${")
-                && (indexOfStartingChars = text.indexOf("${")) != -1
-                && (indexOfClosingBrace = text.indexOf("}")) != -1) { // Is a property used?
+               && (indexOfStartingChars = text.indexOf("${")) != -1
+               && (indexOfClosingBrace = text.indexOf("}")) != -1) { // Is a property used?
             String sysProp = text.substring(indexOfStartingChars + 2, indexOfClosingBrace);
             String propValue = System.getProperty(sysProp);
             if (propValue != null) {
                 tmpText = text.substring(0, indexOfStartingChars) + propValue
-                        + text.substring(indexOfClosingBrace + 1);
+                          + text.substring(indexOfClosingBrace + 1);
             }
 
             if ((ServerConstants.CARBON_HOME).equals(sysProp) &&
-                    (".").equals(System.getProperty(ServerConstants.CARBON_HOME))) {
+                (".").equals(System.getProperty(ServerConstants.CARBON_HOME))) {
                 tmpText = new File(".").getAbsolutePath() + File.separator + text;
 
             }

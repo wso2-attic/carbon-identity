@@ -17,10 +17,9 @@
  -->
 
 <wsp:Policy wsu:Id="SgnEncrUsername"
-		xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd"
-		xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy"
-		xmlns:wsa="http://schemas.xmlsoap.org/ws/2004/08/addressing"
-		xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
+            xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd"
+            xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy"
+            xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
 	<wsp:ExactlyOne>
 		<wsp:All>
 			<sp:SymmetricBinding>

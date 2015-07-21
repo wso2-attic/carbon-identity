@@ -22,6 +22,7 @@ import org.apache.axiom.om.OMElement;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -141,8 +142,15 @@ public class IdentityProvider implements Serializable {
                 while (provisioningConnectorConfigsIter.hasNext()) {
                     OMElement provisioningConnectorConfigsElement = (OMElement) (provisioningConnectorConfigsIter
                             .next());
-                    ProvisioningConnectorConfig proConConfig = ProvisioningConnectorConfig
-                            .build(provisioningConnectorConfigsElement);
+                    ProvisioningConnectorConfig proConConfig = null;
+                    try {
+                        proConConfig = ProvisioningConnectorConfig
+                                .build(provisioningConnectorConfigsElement);
+                    } catch (IdentityApplicationManagementException e) {
+                        log.error("Error while building provisioningConnectorConfig for IDP " + identityProvider
+                                .getIdentityProviderName() + ". Cause : " + e.getMessage() + ". Building rest of the " +
+                                "IDP configs");
+                    }
                     if (proConConfig != null) {
                         provisioningConnectorConfigsArrList.add(proConConfig);
                     }
@@ -156,8 +164,14 @@ public class IdentityProvider implements Serializable {
                             .setProvisioningConnectorConfigs(provisioningConnectorConfigsArr);
                 }
             } else if ("DefaultProvisioningConnectorConfig".equals(elementName)) {
-                identityProvider.setDefaultProvisioningConnectorConfig(ProvisioningConnectorConfig
-                        .build(element));
+                try {
+                    identityProvider.setDefaultProvisioningConnectorConfig(ProvisioningConnectorConfig
+                            .build(element));
+                } catch (IdentityApplicationManagementException e) {
+                    log.error("Error while building default provisioningConnectorConfig for IDP " + identityProvider
+                            .getIdentityProviderName() + ". Cause : " + e.getMessage() + ". Building rest of the " +
+                            "IDP configs");
+                }
             } else if ("ClaimConfig".equals(elementName)) {
                 identityProvider.setClaimConfig(ClaimConfig.build(element));
             } else if ("Certificate".equals(elementName)) {

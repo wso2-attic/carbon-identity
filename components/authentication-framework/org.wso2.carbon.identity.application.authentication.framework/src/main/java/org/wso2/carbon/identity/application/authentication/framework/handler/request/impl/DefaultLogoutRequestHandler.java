@@ -20,6 +20,7 @@ package org.wso2.carbon.identity.application.authentication.framework.handler.re
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.identity.application.authentication.framework.ApplicationAuthenticator;
 import org.wso2.carbon.identity.application.authentication.framework.AuthenticatorFlowStatus;
 import org.wso2.carbon.identity.application.authentication.framework.config.ConfigurationFacade;
@@ -35,6 +36,7 @@ import org.wso2.carbon.identity.application.authentication.framework.handler.req
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticationResult;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkConstants;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkUtils;
+import org.wso2.carbon.idp.mgt.util.IdPManagementUtil;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -115,8 +117,9 @@ public class DefaultLogoutRequestHandler implements LogoutRequestHandler {
                         continue;
                     }
                     // sends the logout request to the external IdP
-                    FrameworkUtils.addAuthenticationContextToCache(context.getContextIdentifier(),
-                                                                   context, FrameworkUtils.getMaxInactiveInterval());
+                    FrameworkUtils.addAuthenticationContextToCache(context.getContextIdentifier(),context
+                            , IdPManagementUtil.getIdleSessionTimeOut(CarbonContext.
+                                                  getThreadLocalCarbonContext().getTenantDomain()));
                     return;
                 } catch (AuthenticationFailedException | LogoutFailedException e) {
                     throw new FrameworkException(e.getMessage(), e);
@@ -147,17 +150,26 @@ public class DefaultLogoutRequestHandler implements LogoutRequestHandler {
         // Set values to be returned to the calling servlet as request
         // attributes
         request.setAttribute(FrameworkConstants.ResponseParams.LOGGED_OUT, isLoggedOut);
-        request.setAttribute(FrameworkConstants.SESSION_DATA_KEY, context.getCallerSessionKey());
 
-        AuthenticationResult authenticationResult = new AuthenticationResult();
-        authenticationResult.setLoggedOut(true);
+        String redirectURL;
 
-        SequenceConfig sequenceConfig = context.getSequenceConfig();
-        authenticationResult.setSaaSApp(sequenceConfig.getApplicationConfig().isSaaSApp());
+        if(context.getCallerSessionKey() != null) {
+            request.setAttribute(FrameworkConstants.SESSION_DATA_KEY, context.getCallerSessionKey());
 
-        // Put the result in the
-        FrameworkUtils.addAuthenticationResultToCache(context.getCallerSessionKey(), authenticationResult,
-                                                      FrameworkUtils.getMaxInactiveInterval());
+            AuthenticationResult authenticationResult = new AuthenticationResult();
+            authenticationResult.setLoggedOut(true);
+
+            SequenceConfig sequenceConfig = context.getSequenceConfig();
+            authenticationResult.setSaaSApp(sequenceConfig.getApplicationConfig().isSaaSApp());
+
+            // Put the result in the
+            FrameworkUtils.addAuthenticationResultToCache(context.getCallerSessionKey(), authenticationResult,
+                                                          FrameworkUtils.getMaxInactiveInterval());
+
+            redirectURL = context.getCallerPath() + "?sessionDataKey=" + context.getCallerSessionKey();
+        } else {
+            redirectURL = context.getCallerPath();
+        }
         
         /*
          * TODO Cache retaining is a temporary fix. Remove after Google fixes
@@ -176,7 +188,6 @@ public class DefaultLogoutRequestHandler implements LogoutRequestHandler {
         }
 
         // redirect to the caller
-        String redirectURL = context.getCallerPath() + "?sessionDataKey=" + context.getCallerSessionKey();
         response.sendRedirect(redirectURL);
     }
 }

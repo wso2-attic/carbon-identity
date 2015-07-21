@@ -27,7 +27,6 @@ public class SAMLSSOServiceProviderDTO implements Serializable {
     private String logoutURL;
     private String loginPageURL;
     private String attributeConsumingServiceIndex;
-    private boolean useFullyQualifiedUsername;
     private boolean doSingleLogout;
     private boolean doSignAssertions;
     private boolean doSignResponse;
@@ -96,14 +95,6 @@ public class SAMLSSOServiceProviderDTO implements Serializable {
 
     public void setCertAlias(String certAlias) {
         this.certAlias = certAlias;
-    }
-
-    public boolean isUseFullyQualifiedUsername() {
-        return useFullyQualifiedUsername;
-    }
-
-    public void setUseFullyQualifiedUsername(boolean useFullyQualifiedUsername) {
-        this.useFullyQualifiedUsername = useFullyQualifiedUsername;
     }
 
     public boolean isDoSingleLogout() {

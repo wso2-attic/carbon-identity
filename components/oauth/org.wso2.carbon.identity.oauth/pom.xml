@@ -222,7 +222,7 @@
                             version="${carbon.identity.package.import.version.range}",
                             org.wso2.carbon.identity.application.common.*;
                             version="${carbon.identity.package.import.version.range}",
-                            org.wso2.carbon.identity.application.authentication.framework.model;
+                            org.wso2.carbon.identity.application.authentication.framework.*;
                             version="${carbon.identity.package.import.version.range}",
 
                             org.wso2.carbon.base; version="${carbon.base.imp.pkg.version.range}",

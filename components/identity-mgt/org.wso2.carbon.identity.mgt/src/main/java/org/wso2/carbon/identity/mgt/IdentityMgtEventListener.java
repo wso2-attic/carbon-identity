@@ -139,6 +139,10 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
 
         IdentityMgtConfig config = IdentityMgtConfig.getInstance();
 
+        if (!config.isListenerEnable()) {
+            return true;
+        }
+
         if (!config.isEnableAuthPolicy()) {
             return true;
         }
@@ -210,6 +214,10 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
         }
 
         IdentityMgtConfig config = IdentityMgtConfig.getInstance();
+
+        if (!config.isListenerEnable()) {
+            return true;
+        }
 
         if (!config.isEnableAuthPolicy()) {
             return true;
@@ -405,6 +413,10 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
         }
         IdentityMgtConfig config = IdentityMgtConfig.getInstance();
         if (!config.isListenerEnable()) {
+            if (credential == null || StringUtils.isBlank(credential.toString())) {
+                log.error("Identity Management listener is disabled");
+                throw new UserStoreException("Ask Password Feature is disabled");
+            }
             return true;
         }
 
@@ -425,8 +437,8 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
                 (credential instanceof StringBuffer && (credential.toString().trim().length() < 1))) {
 
             if (!config.isEnableTemporaryPassword()) {
-                log.error("Empty passwords are not allowed");
-                return false;
+                log.error("Temporary password property is disabled");
+                throw new UserStoreException("Ask Password Feature is disabled");
             }
             if (log.isDebugEnabled()) {
                 log.debug("Credentials are null. Using a temporary password as credentials");
@@ -507,6 +519,8 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
             try {
                 module.store(userIdentityClaimsDO, userStoreManager);
             } catch (IdentityException e) {
+                //roleback user
+                userStoreManager.deleteUser(userName);
                 throw new UserStoreException("Error while saving user store for user : "
                         + userName, e);
             }
@@ -522,6 +536,8 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
             try {
                 verificationBean = processor.updateConfirmationCode(1, userName, userStoreManager.getTenantId());
             } catch (IdentityException e) {
+                //roleback user
+                userStoreManager.deleteUser(userName);
                 throw new UserStoreException(
                         "Error while updating confirmation code for user : " + userName, e);
             }
@@ -543,6 +559,8 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
             try {
                 notificationDto = processor.recoverWithNotification(recoveryDto);
             } catch (IdentityException e) {
+                //roleback user
+                userStoreManager.deleteUser(userName);
                 throw new UserStoreException("Error while sending notification for user : "
                         + userName, e);
             }
@@ -557,6 +575,8 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
             try {
                 config.getIdentityDataStore().store(userIdentityClaimsDO, userStoreManager);
             } catch (IdentityException e) {
+                //roleback user
+                userStoreManager.deleteUser(userName);
                 throw new UserStoreException("Error while saving user store data for user : "
                         + userName, e);
             }
@@ -572,6 +592,8 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
                 }
                 module.store(userIdentityClaimsDO, userStoreManager);
             } catch (IdentityException e) {
+                //roleback user
+                userStoreManager.deleteUser(userName);
                 throw new UserStoreException("Error while saving user store data for user : "
                         + userName, e);
             }
@@ -845,6 +867,9 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
     public boolean doPostUpdateCredential(String userName, Object credential, UserStoreManager userStoreManager) throws UserStoreException {
 
         IdentityMgtConfig config = IdentityMgtConfig.getInstance();
+        if (!config.isListenerEnable()) {
+            return true;
+        }
 
         UserIdentityClaimsDO userIdentityDTO = module.load(userName, userStoreManager);
 

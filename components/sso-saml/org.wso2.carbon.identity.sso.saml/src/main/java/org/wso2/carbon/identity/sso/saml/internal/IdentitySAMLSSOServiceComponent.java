@@ -31,7 +31,6 @@ import org.wso2.carbon.identity.sso.saml.admin.FileBasedConfigManager;
 import org.wso2.carbon.identity.sso.saml.servlet.SAMLSSOProviderServlet;
 import org.wso2.carbon.identity.sso.saml.util.SAMLSSOUtil;
 import org.wso2.carbon.registry.core.service.RegistryService;
-import org.wso2.carbon.registry.core.service.TenantRegistryLoader;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.utils.ConfigurationContextService;
@@ -51,10 +50,6 @@ import java.util.Scanner;
  * interface="org.wso2.carbon.utils.ConfigurationContextService" cardinality="1..1"
  * policy="dynamic" bind="setConfigurationContextService"
  * unbind="unsetConfigurationContextService"
- * @scr.reference name="registry.loader.default"
- * interface="org.wso2.carbon.registry.core.service.TenantRegistryLoader"
- * cardinality="1..1" policy="dynamic" bind="setTenantRegistryLoader"
- * unbind="unsetTenantRegistryLoader"
  * @scr.reference name="user.realmservice.default" interface="org.wso2.carbon.user.core.service.RealmService"
  * cardinality="1..1" policy="dynamic" bind="setRealmService"
  * unbind="unsetRealmService"
@@ -109,10 +104,10 @@ public class IdentitySAMLSSOServiceComponent {
 
 
             String redirectHtmlPath = CarbonUtils.getCarbonHome() + File.separator + "repository"
-                    + File.separator + "resources" + File.separator + "security" + File.separator + "sso_redirect.html";
+                    + File.separator + "resources" + File.separator + "identity" + File.separator + "pages" + File.separator + "samlsso_response.html";
             FileInputStream fis = new FileInputStream(new File(redirectHtmlPath));
             ssoRedirectPage = new Scanner(fis, "UTF-8").useDelimiter("\\A").next();
-            log.debug("sso_redirect.html " + ssoRedirectPage);
+            log.debug("samlsso_response.html " + ssoRedirectPage);
 
             FileBasedConfigManager.getInstance().addServiceProviders();
 
@@ -197,19 +192,5 @@ public class IdentitySAMLSSOServiceComponent {
             log.debug("HTTP Service is unset in the SAML SSO bundle");
         }
         SAMLSSOUtil.setHttpService(null);
-    }
-
-    protected void setTenantRegistryLoader(TenantRegistryLoader tenantRegistryLoader) {
-        if (log.isDebugEnabled()) {
-            log.debug("Tenant Registry Loader is set in the SAML SSO bundle");
-        }
-        SAMLSSOUtil.setTenantRegistryLoader(tenantRegistryLoader);
-    }
-
-    protected void unsetTenantRegistryLoader(TenantRegistryLoader tenantRegistryLoader) {
-        if (log.isDebugEnabled()) {
-            log.debug("Tenant Registry Loader is unset in the SAML SSO bundle");
-        }
-        SAMLSSOUtil.setTenantRegistryLoader(null);
     }
 }

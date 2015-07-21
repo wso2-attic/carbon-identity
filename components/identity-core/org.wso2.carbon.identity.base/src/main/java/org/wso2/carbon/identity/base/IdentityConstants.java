@@ -115,6 +115,13 @@ public class IdentityConstants {
         public final static String OPENID_SESSION_TIMEOUT = "OpenID.SessionTimeout";
         public static final String ACCEPT_SAMLSSO_LOGIN = "OpenID.AcceptSAMLSSOLogin";
 
+        public static final String OPENID_PRIVATE_ASSOCIATION_STORE_CLASS = "OpenIDPrivateAssociationStoreClass";
+        public static final String OPENID_ASSOCIATION_EXPIRY_TIME = "OpenIDAssociationExpiryTime";
+
+        public static final String ENABLE_OPENID_ASSOCIATION_CLEANUP_TASK = "EnableOpenIDAssociationCleanupTask";
+        public static final String OPENID_ASSOCIATION_CLEANUP_PERIOD = "OpenIDAssociationCleanupPeriod";
+        public static final String OPENID_PRIVATE_ASSOCIATION_SERVER_KEY = "OpenIDPrivateAssociationServerKey";
+
         public static final String ISSUER_POLICY = "Identity.IssuerPolicy";
         public static final String TOKEN_VALIDATE_POLICY = "Identity.TokenValidationPolicy";
         public static final String BLACK_LIST = "Identity.BlackList";
@@ -163,7 +170,6 @@ public class IdentityConstants {
         public static final String SINGLE_LOGOUT_RETRY_COUNT = "SSOService.SingleLogoutRetryCount";
         public static final String SINGLE_LOGOUT_RETRY_INTERVAL = "SSOService.SingleLogoutRetryInterval";
         public static final String SSO_TENANT_PARTITIONING_ENABLED = "SSOService.TenantPartitioningEnabled";
-        public static final String SSO_SESSION_TIMEOUT = "SSOService.SessionTimeout";
         public static final String ACCEPT_OPENID_LOGIN = "SSOService.AcceptOpenIDLogin";
         public static final String SAML_RESPONSE_VALIDITY_PERIOD = "SSOService.SAMLResponseValidityPeriod";
 

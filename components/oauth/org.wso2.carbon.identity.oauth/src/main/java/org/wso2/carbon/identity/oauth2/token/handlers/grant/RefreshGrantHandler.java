@@ -204,8 +204,7 @@ public class RefreshGrantHandler extends AbstractAuthorizationGrantHandler {
 
         // if a VALID validity period is set through the callback, then use it
         long callbackValidityPeriod = tokReqMsgCtx.getValidityPeriod();
-        if ((callbackValidityPeriod != OAuthConstants.UNASSIGNED_VALIDITY_PERIOD)
-                && callbackValidityPeriod > 0) {
+        if (callbackValidityPeriod != OAuthConstants.UNASSIGNED_VALIDITY_PERIOD) {
             validityPeriodInMillis = callbackValidityPeriod * 1000;
         }
 
@@ -248,7 +247,15 @@ public class RefreshGrantHandler extends AbstractAuthorizationGrantHandler {
         // if it's enabled.
         if (cacheEnabled) {
             // Remove the old access token from the OAuthCache
-            CacheKey oauthCacheKey = new OAuthCacheKey(clientId + ":" + authorizedUser + ":" + scope);
+            boolean isUsernameCaseSensitive = OAuth2Util.isUsernameCaseSensitive(authorizedUser);
+            String cacheKeyString;
+            if (isUsernameCaseSensitive){
+                cacheKeyString = clientId + ":" + authorizedUser + ":" + scope;
+            }else {
+                cacheKeyString = clientId + ":" + authorizedUser.toLowerCase() + ":" + scope;
+            }
+
+            CacheKey oauthCacheKey = new OAuthCacheKey(cacheKeyString);
             oauthCache.clearCacheEntry(oauthCacheKey);
 
             // Remove the old access token from the AccessTokenCache
@@ -286,7 +293,7 @@ public class RefreshGrantHandler extends AbstractAuthorizationGrantHandler {
             tokenRespDTO.setExpiresIn(accessTokenDO.getValidityPeriod());
             tokenRespDTO.setExpiresInMillis(accessTokenDO.getValidityPeriodInMillis());
         } else {
-            tokenRespDTO.setExpiresIn(Long.MAX_VALUE/1000);
+            tokenRespDTO.setExpiresIn(Long.MAX_VALUE);
             tokenRespDTO.setExpiresInMillis(Long.MAX_VALUE);
         }
         tokenRespDTO.setAuthorizedScopes(scope);

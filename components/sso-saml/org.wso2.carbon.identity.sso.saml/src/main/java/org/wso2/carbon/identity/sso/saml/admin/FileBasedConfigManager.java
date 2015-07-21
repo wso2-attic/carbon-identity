@@ -24,9 +24,9 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.wso2.carbon.identity.core.model.SAMLSSOServiceProviderDO;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.sso.saml.SAMLSSOConstants;
 import org.wso2.carbon.identity.sso.saml.SSOServiceProviderConfigManager;
-import org.wso2.carbon.utils.CarbonUtils;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -84,7 +84,7 @@ public class FileBasedConfigManager {
     private SAMLSSOServiceProviderDO[] readServiceProvidersFromFile() {
         Document document = null;
         try {
-            String configFilePath = CarbonUtils.getCarbonSecurityConfigDirPath() + File.separator + "sso-idp-config.xml";
+            String configFilePath = IdentityUtil.getIdentityConfigDirPath() + File.separator + "sso-idp-config.xml";
 
             if (!isFileExisting(configFilePath)) {
                 log.warn("sso-idp-config.xml does not exist in the 'conf' directory. The system may" +
@@ -153,7 +153,6 @@ public class FileBasedConfigManager {
                 spDO.setRequestedRecipients(getTextValueList(elem, SAMLSSOConstants.FileBasedSPConfig.RECIPIENT));
             }
 
-            spDO.setUseFullyQualifiedUsername(fullQualifyUserName);
             spDO.setDoSingleLogout(singleLogout);
             spDO.setDoSignAssertions(signAssertion);
             spDO.setDoValidateSignatureInRequests(validateSignature);

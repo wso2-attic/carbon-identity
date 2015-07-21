@@ -19,6 +19,7 @@
 package org.wso2.carbon.identity.oauth2.util;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.Charsets;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -38,6 +39,8 @@ import org.wso2.carbon.identity.oauth2.IdentityOAuth2Exception;
 import org.wso2.carbon.identity.oauth2.model.AccessTokenDO;
 import org.wso2.carbon.identity.oauth2.model.ClientCredentialDO;
 import org.wso2.carbon.user.api.UserStoreException;
+import org.wso2.carbon.user.core.UserCoreConstants;
+import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
@@ -54,7 +57,7 @@ public class OAuth2Util {
     public static final String IMPLICIT = "implicit";
     private static Log log = LogFactory.getLog(OAuth2Util.class);
     private static boolean cacheEnabled = OAuthServerConfiguration.getInstance().isCacheEnabled();
-    private static OAuthCache cache = OAuthCache.getInstance();
+    private static OAuthCache cache = OAuthCache.getInstance(OAuthServerConfiguration.getInstance().getOAuthCacheTimeout());
     private static long timestampSkew = OAuthServerConfiguration.getInstance().getTimeStampSkewInSeconds() * 1000;
     private static ThreadLocal<Integer> clientTenatId = new ThreadLocal<>();
 
@@ -94,8 +97,8 @@ public class OAuth2Util {
      * @return Comma separated list of scopes
      */
     public static String buildScopeString(String[] scopes) {
-        StringBuilder scopeString = new StringBuilder("");
         if (scopes != null) {
+            StringBuilder scopeString = new StringBuilder("");
             Arrays.sort(scopes);
             for (int i = 0; i < scopes.length; i++) {
                 scopeString.append(scopes[i].trim());
@@ -103,8 +106,9 @@ public class OAuth2Util {
                     scopeString.append(" ");
                 }
             }
+            return scopeString.toString();
         }
-        return scopeString.toString();
+        return null;
     }
 
     /**
@@ -112,7 +116,7 @@ public class OAuth2Util {
      * @return
      */
     public static String[] buildScopeArray(String scopeStr) {
-        if (scopeStr != null) {
+        if (StringUtils.isNotBlank(scopeStr)) {
             scopeStr = scopeStr.trim();
             return scopeStr.split("\\s");
         }
@@ -222,6 +226,7 @@ public class OAuth2Util {
 
         boolean cacheHit = false;
         String username = null;
+        boolean isUsernameCaseSensitive = OAuth2Util.isUsernameCaseSensitive(username);
 
         if (OAuth2Util.authenticateClient(clientId, clientSecretProvided)) {
             // check cache
@@ -242,7 +247,9 @@ public class OAuth2Util {
                 // Cache miss
                 OAuthConsumerDAO oAuthConsumerDAO = new OAuthConsumerDAO();
                 username = oAuthConsumerDAO.getAuthenticatedUsername(clientId, clientSecretProvided);
-                log.debug("Username fetch from the database");
+                if (log.isDebugEnabled()) {
+                    log.debug("Username fetch from the database");
+                }
             }
 
             if (username != null && cacheEnabled && !cacheHit) {
@@ -252,8 +259,15 @@ public class OAuth2Util {
                  * own cache key and cache entry class every time we need to put something to it? Ideal solution is
                  * to have a generalized way of caching a key:value pair
                  */
-                cache.addToCache(new OAuthCacheKey(clientId + ":" + username), new ClientCredentialDO(username));
-                log.debug("Caching username : " + username);
+                if (isUsernameCaseSensitive){
+                    cache.addToCache(new OAuthCacheKey(clientId + ":" + username), new ClientCredentialDO(username));
+                }else {
+                    cache.addToCache(new OAuthCacheKey(clientId + ":" + username.toLowerCase()), new ClientCredentialDO(username));
+                }
+                if (log.isDebugEnabled()){
+                    log.debug("Caching username : " + username);
+                }
+
             }
         }
         return username;
@@ -463,6 +477,12 @@ public class OAuth2Util {
         }
         long currentTime;
         long validityPeriodMillis = accessTokenDO.getValidityPeriodInMillis();
+
+        if (validityPeriodMillis < 0) {
+            log.debug("Access Token : " + accessTokenDO.getAccessToken() + " has infinite lifetime");
+            return -1;
+        }
+
         long issuedTime = accessTokenDO.getIssuedTime().getTime();
         currentTime = System.currentTimeMillis();
         long validityMillis = issuedTime + validityPeriodMillis - (currentTime + timestampSkew);
@@ -497,6 +517,55 @@ public class OAuth2Util {
 
         String domainName = MultitenantUtils.getTenantDomain(username);
         return getTenantId(domainName);
+    }
+
+    public static String hashScopes(String[] scope){
+        if (scope.length > 0){
+            return DigestUtils.md5Hex(OAuth2Util.buildScopeString(scope));
+        } else {
+            return null;
+        }
+
+    }
+
+    public static String hashScopes(String scope){
+        if (StringUtils.isNotBlank(scope)) {
+            //first converted to an array to sort the scopes
+            return DigestUtils.md5Hex(OAuth2Util.buildScopeString(buildScopeArray(scope)));
+        } else {
+           return null;
+        }
+    }
+
+    public static boolean isUsernameCaseSensitive(String username) {
+        boolean isUsernameCaseSensitive = false;
+        try {
+            String tenantDomain = MultitenantUtils.getTenantDomain(username);
+            int tenantId = OAuthComponentServiceHolder.getRealmService().getTenantManager().getTenantId(tenantDomain);
+
+            UserStoreManager userStoreManager = (UserStoreManager) OAuthComponentServiceHolder.getRealmService()
+                    .getTenantUserRealm(tenantId).getUserStoreManager();
+            UserStoreManager UserAvailableUserStoreManager = userStoreManager.getSecondaryUserStoreManager
+                    (OAuth2Util.getDomainFromName(username));
+            String caseInsensitiveUsername = UserAvailableUserStoreManager.getRealmConfiguration().getUserStoreProperty("CaseInsensitiveUsername");
+            if (caseInsensitiveUsername != null) {
+                isUsernameCaseSensitive = !Boolean.parseBoolean(caseInsensitiveUsername);
+            }
+        } catch (UserStoreException e) {
+            if (log.isDebugEnabled()){
+                log.debug("Error while reading user store property CaseInsensitiveUsername. Considering as false.");
+            }
+        }
+        return isUsernameCaseSensitive;
+    }
+
+    private static String getDomainFromName(String name) {
+        int index;
+        if ((index = name.indexOf("/")) > 0) {
+            String domain = name.substring(0, index);
+            return domain;
+        }
+        return UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME;
     }
 
 }

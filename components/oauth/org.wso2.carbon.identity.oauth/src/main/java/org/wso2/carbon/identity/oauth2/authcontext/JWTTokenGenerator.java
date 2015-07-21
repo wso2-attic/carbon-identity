@@ -30,6 +30,7 @@ import com.nimbusds.jwt.PlainJWT;
 import com.nimbusds.jwt.SignedJWT;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.Charsets;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.base.MultitenantConstants;
@@ -108,7 +109,7 @@ public class JWTTokenGenerator implements AuthorizationContextTokenGenerator {
     private ClaimCache claimsLocalCache;
 
     public JWTTokenGenerator() {
-        claimsLocalCache = ClaimCache.getInstance();
+        claimsLocalCache = ClaimCache.getInstance(OAuthServerConfiguration.getInstance().getClaimCacheTimeout());
     }
 
     private String userAttributeSeparator = ",";
@@ -255,15 +256,14 @@ public class JWTTokenGenerator implements AuthorizationContextTokenGenerator {
                         StringTokenizer st = new StringTokenizer(claimVal, userAttributeSeparator);
                         while (st.hasMoreElements()) {
                             String attValue = st.nextElement().toString();
-                            if (attValue != null && attValue.trim().length() > 0) {
+                            if (StringUtils.isNotBlank(attValue)) {
                                 claimList.add(attValue);
                             }
                         }
+                        claimsSet.setClaim(claimURI, claimList.toArray(new String[claimList.size()]));
                     } else {
-                        claimList.add(claimVal);
+                        claimsSet.setClaim(claimURI, claimVal);
                     }
-                    String[] claimArray = claimList.toArray(new String[claimList.size()]);
-                    claimsSet.setClaim(claimURI, claimArray);
                 }
             }
         }

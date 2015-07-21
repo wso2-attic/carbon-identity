@@ -44,7 +44,9 @@ public class Activator implements BundleActivator {
         Hashtable<String, String> props = new Hashtable<String, String>();
         props.put(CarbonConstants.AUTHENTICATOR_TYPE, authenticator.getAuthenticatorName());
         bc.registerService(CarbonUIAuthenticator.class.getName(), authenticator, props);
-        log.info("Integrated Windows Authenticator enabled in the system");
+        if (log.isDebugEnabled()) {
+            log.debug("Integrated Windows Authenticator enabled in the system");
+        }
     }
 
     @Override

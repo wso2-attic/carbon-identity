@@ -46,6 +46,8 @@ public class SessionDTO implements Serializable {
 
     private String reqQueryString;
 
+    private String tenantDomain;
+
     public SessionDTO() {
     }
 
@@ -127,5 +129,13 @@ public class SessionDTO implements Serializable {
 
     public void setReqQueryString(String reqQueryString) {
         this.reqQueryString = reqQueryString;
+    }
+
+    public String getTenantDomain() {
+        return tenantDomain;
+    }
+
+    public void setTenantDomain(String tenantDomain) {
+        this.tenantDomain = tenantDomain;
     }
 }

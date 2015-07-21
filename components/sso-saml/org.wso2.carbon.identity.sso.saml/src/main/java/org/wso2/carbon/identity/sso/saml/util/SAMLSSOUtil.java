@@ -46,7 +46,6 @@ import org.opensaml.xml.security.x509.X509Credential;
 import org.opensaml.xml.util.Base64;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.http.HttpService;
-import org.osgi.util.tracker.ServiceTracker;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.bootstrap.DOMImplementationRegistry;
@@ -66,6 +65,7 @@ import org.wso2.carbon.identity.base.IdentityConstants;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.model.SAMLSSOServiceProviderDO;
 import org.wso2.carbon.identity.core.persistence.IdentityPersistenceManager;
+import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.sso.saml.SAMLSSOConstants;
 import org.wso2.carbon.identity.sso.saml.SSOServiceProviderConfigManager;
@@ -81,13 +81,11 @@ import org.wso2.carbon.identity.sso.saml.exception.IdentitySAML2SSOException;
 import org.wso2.carbon.identity.sso.saml.session.SSOSessionPersistenceManager;
 import org.wso2.carbon.identity.sso.saml.validators.SAML2HTTPRedirectSignatureValidator;
 import org.wso2.carbon.idp.mgt.IdentityProviderManager;
-import org.wso2.carbon.registry.api.RegistryException;
 import org.wso2.carbon.registry.core.Registry;
 import org.wso2.carbon.registry.core.service.RegistryService;
 import org.wso2.carbon.registry.core.service.TenantRegistryLoader;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.service.RealmService;
-import org.wso2.carbon.utils.AuthenticationObserver;
 import org.wso2.carbon.utils.ConfigurationContextService;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
@@ -458,7 +456,7 @@ public class SAMLSSOUtil {
             throw new IdentityException(errorMsg, e);
         }
 
-        initializeRegistry(tenantId, tenantDomain);
+        IdentityTenantUtil.initializeRegistry(tenantId, tenantDomain);
 
         try {
             identityProvider = IdentityProviderManager.getInstance().getResidentIdP(tenantDomain);
@@ -887,7 +885,7 @@ public class SAMLSSOUtil {
                 throw new IdentityException("Illegal access to class: "
                         + IdentityUtil.getProperty("SSOService.SAMLSSOSigner"), e);
             } catch (Exception e) {
-                if(log.isDebugEnabled()){
+                if (log.isDebugEnabled()) {
                     log.debug("Error while validating XML signature.", e);
                 }
             }
@@ -930,25 +928,35 @@ public class SAMLSSOUtil {
             } catch (IdentityException e) {
                 request = (AuthnRequestImpl) SAMLSSOUtil.unmarshall(SAMLSSOUtil
                         .decodeForPost(authnReqDTO.getRequestMessageString()));
-                if(log.isDebugEnabled()){
+                if (log.isDebugEnabled()) {
                     log.debug("Error while decoding authentication request.", e);
                 }
             }
 
             if (request.getAttributeConsumingServiceIndex() == null) {
-                if (authnReqDTO.getAttributeConsumingServiceIndex() != 0) {
-                    index = authnReqDTO.getAttributeConsumingServiceIndex();
-                    spDO.setAttributeConsumingServiceIndex(String.valueOf(index));
+                //SP has not provide a AttributeConsumingServiceIndex in the authnReqDTO
+                if (StringUtils.isNotBlank(spDO.getAttributeConsumingServiceIndex())) {
+                    if (spDO.isEnableAttributesByDefault()) {
+                        index = Integer.parseInt(spDO.getAttributeConsumingServiceIndex());
+                    } else {
+                        return null;
+                    }
                 } else {
-                    return null; // not requesting for attributes
+                    return null;
                 }
             } else {
+                //SP has provide a AttributeConsumingServiceIndex in the authnReqDTO
                 index = request.getAttributeConsumingServiceIndex();
             }
         } else {
-            index = authnReqDTO.getAttributeConsumingServiceIndex();
-            if (index != 0) {
-                spDO.setAttributeConsumingServiceIndex(String.valueOf(index));
+            if (StringUtils.isNotBlank(spDO.getAttributeConsumingServiceIndex())) {
+                if (spDO.isEnableAttributesByDefault()) {
+                    index = Integer.parseInt(spDO.getAttributeConsumingServiceIndex());
+                } else {
+                    return null;
+                }
+            } else {
+                return null;
             }
 
         }
@@ -986,9 +994,10 @@ public class SAMLSSOUtil {
      * @return decoded response
      * @throws IdentityException
      */
-    public static String buildErrorResponse(String id, List<String> statusCodes, String statusMsg) throws IdentityException {
+    public static String buildErrorResponse(String id, List<String> statusCodes, String statusMsg, String destination)
+            throws IdentityException {
         ErrorResponseBuilder respBuilder = new ErrorResponseBuilder();
-        Response response = respBuilder.buildResponse(id, statusCodes, statusMsg);
+        Response response = respBuilder.buildResponse(id, statusCodes, statusMsg, destination);
         return SAMLSSOUtil.encode(SAMLSSOUtil.marshall(response));
     }
 
@@ -1134,7 +1143,7 @@ public class SAMLSSOUtil {
                         normalized.append(percentCode);
                 } catch (UnsupportedEncodingException e) {
                     normalized.append(percentCode);
-                    if(log.isDebugEnabled()){
+                    if (log.isDebugEnabled()) {
                         log.debug("Unsupported Encoding exception while decoding percent code.", e);
                     }
                 }
@@ -1202,12 +1211,13 @@ public class SAMLSSOUtil {
      * @return decoded response
      * @throws org.wso2.carbon.identity.base.IdentityException
      */
-    public static String buildErrorResponse(String status, String message)
+    public static String buildErrorResponse(String status, String message, String destination)
             throws IdentityException, IOException {
+
         ErrorResponseBuilder respBuilder = new ErrorResponseBuilder();
         List<String> statusCodeList = new ArrayList<String>();
         statusCodeList.add(status);
-        Response response = respBuilder.buildResponse(null, statusCodeList, message);
+        Response response = respBuilder.buildResponse(null, statusCodeList, message, destination);
         String resp = SAMLSSOUtil.marshall(response);
 
         return compressResponse(resp);
@@ -1229,41 +1239,4 @@ public class SAMLSSOUtil {
         deflaterOutputStream.close();
         return Base64.encodeBytes(byteArrayOutputStream.toByteArray(), Base64.DONT_BREAK_LINES);
     }
-
-    public static void initializeRegistry(int tenantId, String tenantDomain) throws IdentityException {
-
-        if (tenantId != MultitenantConstants.SUPER_TENANT_ID) {
-            try {
-                PrivilegedCarbonContext.startTenantFlow();
-                PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
-                carbonContext.setTenantDomain(tenantDomain, true);
-                BundleContext bundleContext = SAMLSSOUtil.getBundleContext();
-                if (bundleContext != null) {
-                    ServiceTracker tracker = new ServiceTracker(bundleContext, AuthenticationObserver.class.getName(), null);
-                    tracker.open();
-                    Object[] services = tracker.getServices();
-                    if (services != null) {
-                        for (Object service : services) {
-                            ((AuthenticationObserver) service).startedAuthentication(tenantId);
-                        }
-                    }
-                    tracker.close();
-                    try {
-                        SAMLSSOUtil.getTenantRegistryLoader().loadTenantRegistry(tenantId);
-                    } catch (RegistryException e) {
-                        throw new IdentityException("Error loading tenant registry for tenant domain " + tenantDomain, e);
-                    }
-                    try {
-                        registryService.getGovernanceSystemRegistry(tenantId);
-                    } catch (RegistryException e) {
-                        throw new IdentityException("Error obtaining governance system registry for tenant domain " +
-                                tenantDomain, e);
-                    }
-                }
-            } finally {
-                PrivilegedCarbonContext.endTenantFlow();
-            }
-        }
-    }
-
 }

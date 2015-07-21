@@ -41,9 +41,9 @@ public class DefaultPasswordPatternPolicy extends AbstractPasswordPolicyEnforcer
             if (matcher.matches()) {
                 return true;
             } else {
-                errorMessage = "Password pattern policy violated. Password should contain " +
-                        "a digit[0-9], a lower case letter[a-z], an upper case letter[A-Z], " +
-                        "one of !@#$%&* characters";
+                if (errorMessage == null) {
+                    errorMessage = "Password pattern policy violated. Policy :"+ pattern;
+                }
                 return false;
             }
 
@@ -58,6 +58,7 @@ public class DefaultPasswordPatternPolicy extends AbstractPasswordPolicyEnforcer
 
         if (!MapUtils.isEmpty(params)) {
             PASSWORD_PATTERN = params.get("pattern");
+            errorMessage = params.get("errorMsg");
         }
 
         pattern = Pattern.compile(PASSWORD_PATTERN);

@@ -82,11 +82,22 @@ public class DefaultRequestCoordinator implements RequestCoordinator {
             // TODO: use a different mechanism to determine the flow start.
             if (request.getParameter("type") != null) {
                 // Retrieve AuthenticationRequestCache Entry which is stored stored from servlet.
-                AuthenticationRequestCacheKey cacheKey = new AuthenticationRequestCacheKey(
-                        sessionDataKey);
-                authRequest = (AuthenticationRequestCacheEntry) AuthenticationRequestCache
-                        .getInstance(0).getValueFromCache(cacheKey);
-                log.debug("retrieving authentication request from cache..");
+                if (sessionDataKey != null) {
+                    log.debug("retrieving authentication request from cache..");
+                    AuthenticationRequestCacheKey cacheKey = new AuthenticationRequestCacheKey(
+                            sessionDataKey);
+                    authRequest = (AuthenticationRequestCacheEntry) AuthenticationRequestCache
+                            .getInstance(0).getValueFromCache(cacheKey);
+                } else if (request.getParameter(FrameworkConstants.LOGOUT) == null ||
+                           !"true".equals(request.getParameter(FrameworkConstants.LOGOUT))) {
+
+                    // sessionDataKey is null and not a logout request
+                    if (log.isDebugEnabled()) {
+                        log.debug("Session data key is null in the request and not a logout request.");
+                    }
+
+                    FrameworkUtils.sendToRetryPage(request, response);
+                }
 
                 // if there is a cache entry, wrap the original request with params in cache entry
                 if (authRequest != null) {
@@ -297,7 +308,7 @@ public class DefaultRequestCoordinator implements RequestCoordinator {
                     context.setPreviousSessionFound(true);
                     sequenceConfig = previousAuthenticatedSeq;
                     AuthenticatedUser authenticatedUser = sequenceConfig.getAuthenticatedUser();
-                    String authenticatedUserTenantDomain = sequenceConfig.getAuthenticatedUserTenantDomain();
+                    String authenticatedUserTenantDomain = sequenceConfig.getAuthenticatedUser().getTenantDomain();
 
                     if (authenticatedUser != null) {
                         // set the user for the current authentication/logout flow

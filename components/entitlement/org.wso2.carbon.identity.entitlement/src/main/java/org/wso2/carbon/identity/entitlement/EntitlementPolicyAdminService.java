@@ -112,7 +112,7 @@ public class EntitlementPolicyAdminService {
         // Finding from which registry by comparing prefix of resource path
         String resourceUri = policyRegistryPath.substring(policyRegistryPath.lastIndexOf(':') + 1);
         String registryIdentifier = policyRegistryPath.substring(0,
-                policyRegistryPath.lastIndexOf(':'));
+                                                                 policyRegistryPath.lastIndexOf(':'));
         if ("conf".equals(registryIdentifier)) {
             registry = (Registry) CarbonContext.getThreadLocalCarbonContext().
                     getRegistry(RegistryType.SYSTEM_CONFIGURATION);
@@ -199,9 +199,11 @@ public class EntitlementPolicyAdminService {
             boolean useAttributeFiler = false;
             // Filter out policies based on policy type
             if (!policyTypeFilter.equals(EntitlementConstants.PolicyType.POLICY_ALL)
-                    && (!policyTypeFilter.equals(policyDTO.getPolicyType()) &&
-                    !(EntitlementConstants.PolicyType.POLICY_ENABLED.equals(policyTypeFilter) && policyDTO.isActive()) &&
-                    !(EntitlementConstants.PolicyType.POLICY_DISABLED.equals(policyTypeFilter) && !policyDTO.isActive()))) {
+                && (!policyTypeFilter.equals(policyDTO.getPolicyType()) &&
+                    !(EntitlementConstants.PolicyType.POLICY_ENABLED.equals(policyTypeFilter) &&
+                      policyDTO.isActive()) &&
+                    !(EntitlementConstants.PolicyType.POLICY_DISABLED.equals(policyTypeFilter) &&
+                      !policyDTO.isActive()))) {
                 continue;
             }
 
@@ -371,7 +373,7 @@ public class EntitlementPolicyAdminService {
         // policy remove from PDP.  this is done by separate thread
         if (dePromote) {
             publishToPDP(new String[]{policyId}, null,
-                    EntitlementConstants.PolicyPublish.ACTION_DELETE);
+                         EntitlementConstants.PolicyPublish.ACTION_DELETE);
         }
     }
 
@@ -627,8 +629,8 @@ public class EntitlementPolicyAdminService {
         if (storeManager.isExistPolicy(policyId)) {
             storeManager.addOrUpdatePolicy(policyDTO);
         }
-        publishToPDP(new String[]{policyDTO.getPolicyId()}, null, EntitlementConstants.PolicyPublish.ACTION_ORDER,
-                false, newOrder);
+        publishToPDP(new String[]{policyDTO.getPolicyId()}, EntitlementConstants.PolicyPublish.ACTION_ORDER, null,
+                     false, newOrder);
     }
 
     public void enableDisablePolicy(String policyId, boolean enable) throws EntitlementException {
@@ -644,10 +646,10 @@ public class EntitlementPolicyAdminService {
 
         if (enable) {
             publishToPDP(new String[]{policyDTO.getPolicyId()}, null,
-                    EntitlementConstants.PolicyPublish.ACTION_ENABLE);
+                         EntitlementConstants.PolicyPublish.ACTION_ENABLE);
         } else {
             publishToPDP(new String[]{policyDTO.getPolicyId()}, null,
-                    EntitlementConstants.PolicyPublish.ACTION_DISABLE);
+                         EntitlementConstants.PolicyPublish.ACTION_DISABLE);
         }
     }
 
@@ -658,7 +660,7 @@ public class EntitlementPolicyAdminService {
     public void dePromotePolicy(String policyId) throws EntitlementException {
 
         publishToPDP(new String[]{policyId}, null,
-                EntitlementConstants.PolicyPublish.ACTION_DELETE);
+                     EntitlementConstants.PolicyPublish.ACTION_DELETE);
 
     }
 
@@ -703,7 +705,7 @@ public class EntitlementPolicyAdminService {
                 policyDTO.setPolicy(policy.replaceAll(">\\s+<", "><"));
                 if (!EntitlementUtil.validatePolicy(policyDTO)) {
                     throw new EntitlementException("Invalid Entitlement Policy. " +
-                            "Policy is not valid according to XACML schema");
+                                                   "Policy is not valid according to XACML schema");
                 }
                 policyObj = PAPPolicyReader.getInstance(null).getPolicy(policy);
                 if (policyObj != null) {
@@ -750,11 +752,11 @@ public class EntitlementPolicyAdminService {
         // publish policy to PDP directly
         if (policyDTO.isPromote()) {
             if (isAdd) {
-                publishToPDP(new String[] {policyDTO.getPolicyId()}, EntitlementConstants.PolicyPublish.ACTION_CREATE,
-                        null, policyDTO.isActive(), policyDTO.getPolicyOrder());
+                publishToPDP(new String[]{policyDTO.getPolicyId()}, EntitlementConstants.PolicyPublish.ACTION_CREATE,
+                             null, policyDTO.isActive(), policyDTO.getPolicyOrder());
             } else {
                 publishToPDP(new String[]{policyDTO.getPolicyId()}, EntitlementConstants.PolicyPublish.ACTION_UPDATE,
-                        null, policyDTO.isActive(), policyDTO.getPolicyOrder());
+                             null, policyDTO.isActive(), policyDTO.getPolicyOrder());
             }
         }
     }
@@ -898,7 +900,7 @@ public class EntitlementPolicyAdminService {
         String target = "PAP POLICY STORE";
         String targetAction = "";
         if (EntitlementConstants.StatusTypes.ADD_POLICY.equals(action) ||
-                EntitlementConstants.StatusTypes.UPDATE_POLICY.equals(action)) {
+            EntitlementConstants.StatusTypes.UPDATE_POLICY.equals(action)) {
             targetAction = "PERSIST";
         } else if (EntitlementConstants.StatusTypes.DELETE_POLICY.equals(action)) {
             targetAction = "REMOVE";
@@ -913,7 +915,7 @@ public class EntitlementPolicyAdminService {
 
         StatusHolder holder =
                 new StatusHolder(action, policyId, policyDTO.getVersion(),
-                        target, targetAction, success, message);
+                                 target, targetAction, success, message);
 
         if (handlers != null) {
             for (PAPStatusDataHandler handler : handlers) {

@@ -56,7 +56,8 @@ public class OAuthAdminService extends AbstractAdmin {
     public static final String AUTHORIZATION_CODE = "authorization_code";
     private static List<String> allowedGrants = null;
     protected Log log = LogFactory.getLog(OAuthAdminService.class);
-    private AppInfoCache appInfoCache = AppInfoCache.getInstance();
+    private AppInfoCache appInfoCache = AppInfoCache.getInstance(OAuthServerConfiguration.getInstance().
+                                                                                            getAppInfoCacheTimeout());
 
     /**
      * Registers an consumer secret against the logged in user. A given user can only have a single
@@ -296,7 +297,7 @@ public class OAuthAdminService extends AbstractAdmin {
         dao.removeConsumerApplication(consumerKey);
         // remove client credentials from cache
         if (OAuthServerConfiguration.getInstance().isCacheEnabled()) {
-            OAuthCache.getInstance().clearCacheEntry(new OAuthCacheKey(consumerKey));
+            OAuthCache.getInstance(0).clearCacheEntry(new OAuthCacheKey(consumerKey));
             appInfoCache.clearCacheEntry(consumerKey);
             if (log.isDebugEnabled()) {
                 log.debug("Client credentials are removed from the cache.");
@@ -317,7 +318,6 @@ public class OAuthAdminService extends AbstractAdmin {
         String tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
         String tenantAwareUserName = PrivilegedCarbonContext.getThreadLocalCarbonContext().getUsername();
         String username = tenantAwareUserName + "@" + tenantDomain;
-        username = username.toLowerCase();
 
         String userStoreDomain = null;
         if (OAuth2Util.checkAccessTokenPartitioningEnabled() && OAuth2Util.checkUserNameAssertionEnabled()) {
@@ -406,7 +406,6 @@ public class OAuthAdminService extends AbstractAdmin {
             String tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
             String tenantAwareUserName = PrivilegedCarbonContext.getThreadLocalCarbonContext().getUsername();
             String userName = tenantAwareUserName + "@" + tenantDomain;
-            userName = userName.toLowerCase();
 
             String userStoreDomain = null;
             if (OAuth2Util.checkAccessTokenPartitioningEnabled() &&
@@ -433,11 +432,17 @@ public class OAuthAdminService extends AbstractAdmin {
                             log.error(errorMsg, e);
                             throw new IdentityOAuthAdminException(errorMsg, e);
                         }
+                        String authzUser;
                         for (AccessTokenDO accessTokenDO : accessTokenDOs) {
                             //Clear cache with AccessTokenDO
-                            OAuthUtil.clearOAuthCache(accessTokenDO.getConsumerKey(), accessTokenDO.getAuthzUser(),
+                            authzUser = accessTokenDO.getAuthzUser();
+                            boolean isUsernameCaseSensitive = OAuth2Util.isUsernameCaseSensitive(authzUser);
+                            if (!isUsernameCaseSensitive){
+                                authzUser = authzUser.toLowerCase();
+                            }
+                            OAuthUtil.clearOAuthCache(accessTokenDO.getConsumerKey(), authzUser,
                                     OAuth2Util.buildScopeString(accessTokenDO.getScope()));
-                            OAuthUtil.clearOAuthCache(accessTokenDO.getConsumerKey(), accessTokenDO.getAuthzUser());
+                            OAuthUtil.clearOAuthCache(accessTokenDO.getConsumerKey(), authzUser);
                             OAuthUtil.clearOAuthCache(accessTokenDO.getAccessToken());
                             AccessTokenDO scopedToken = null;
                             try {
@@ -464,6 +469,15 @@ public class OAuthAdminService extends AbstractAdmin {
                                     throw new IdentityOAuthAdminException(errorMsg, e);
                                 }
                             }
+                        }
+
+                        try {
+                            tokenMgtDAO.revokeOAuthConsentByApplicationAndUser(userName, appName);
+                        } catch (IdentityOAuth2Exception e) {
+                            String errorMsg = "Error occurred while removing OAuth Consent of Application " + appName +
+                                              " of user " + userName;
+                            log.error(errorMsg, e);
+                            throw new IdentityOAuthAdminException(errorMsg, e);
                         }
                     }
                 }

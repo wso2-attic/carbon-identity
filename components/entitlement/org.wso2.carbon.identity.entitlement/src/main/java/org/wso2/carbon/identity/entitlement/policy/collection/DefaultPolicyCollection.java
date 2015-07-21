@@ -391,4 +391,17 @@ public class DefaultPolicyCollection implements PolicyCollection {
             return 0;
         }
     }
+@Override
+    public boolean deletePolicy(String policyId) {
+        return false;
+    }
+@Override
+    public LinkedHashMap getPolicyMap() {
+        return this.policies;
+    }
+
+    @Override
+    public void setPolicyMap(LinkedHashMap policyMap) {
+        this.policies = policyMap ;
+    }
 }

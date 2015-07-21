@@ -136,6 +136,7 @@
                             org.wso2.carbon.registry.core.*;version="${carbon.kernel.registry.imp.pkg.version}",
 
                             org.wso2.carbon.user.api; version="${carbon.user.api.imp.pkg.version.range}",
+                            org.osgi.util.tracker; version="${osgi.util.tracker.imp.pkg.version.range}"
                         </Import-Package>
                         <Export-Package>
                             !org.wso2.carbon.identity.core.internal,

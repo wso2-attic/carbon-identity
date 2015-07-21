@@ -42,6 +42,9 @@ import org.wso2.carbon.identity.application.common.model.ProvisioningConnectorCo
 import org.wso2.carbon.identity.application.common.model.RoleMapping;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
+import org.wso2.carbon.identity.base.IdentityException;
+import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.idp.mgt.dao.CacheBackedIdPMgtDAO;
 import org.wso2.carbon.idp.mgt.dao.FileBasedIdPMgtDAO;
 import org.wso2.carbon.idp.mgt.dao.IdPManagementDAO;
@@ -121,37 +124,13 @@ public class IdentityProviderManager {
             tenantContext = MultitenantConstants.TENANT_AWARE_URL_PREFIX + "/" + tenantDomain + "/";
         }
 
-        String hostName = ServerConfiguration.getInstance().getFirstProperty("HostName");
-
+        String serverUrl = "";
         try {
-            if (hostName == null) {
-                hostName = NetworkUtils.getLocalHostname();
-            }
-        } catch (SocketException e) {
-            throw new IdentityApplicationManagementException("Error while trying to read hostname.", e);
+            serverUrl = IdentityUtil.getServerURL();
+        } catch (IdentityException e) {
+            throw new IdentityApplicationManagementException(e.getMessage(), e);
         }
 
-        String mgtTransport = CarbonUtils.getManagementTransport();
-        AxisConfiguration axisConfiguration = IdPManagementServiceComponent
-                .getConfigurationContextService().getServerConfigContext().getAxisConfiguration();
-        int mgtTransportPort = CarbonUtils.getTransportProxyPort(axisConfiguration, mgtTransport);
-        if (mgtTransportPort <= 0) {
-            mgtTransportPort = CarbonUtils.getTransportPort(axisConfiguration, mgtTransport);
-        }
-        String serverUrl = mgtTransport + "://" + hostName.toLowerCase();
-        // If it's well known HTTPS port, skip adding port
-        if (mgtTransportPort != 443) {
-            serverUrl += ":" + mgtTransportPort;
-        }
-        // If ProxyContextPath is defined then append it
-        String proxyContextPath = ServerConfiguration.getInstance().getFirstProperty("ProxyContextPath");
-        if (proxyContextPath != null && !proxyContextPath.trim().isEmpty()) {
-            if (proxyContextPath.charAt(0) == '/') {
-                serverUrl += proxyContextPath;
-            } else {
-                serverUrl += "/" + proxyContextPath;
-            }
-        }
         serverUrl += "/";
         String stsUrl = serverUrl + "services/" + tenantContext + "wso2carbon-sts";
         String openIdUrl = serverUrl + "openid";
@@ -179,9 +158,10 @@ public class IdentityProviderManager {
             throw new IdentityApplicationManagementException(
                     "Exception occurred while retrieving Tenant ID from Tenant Domain " + tenantDomain, e);
         }
-        KeyStoreManager keyStoreManager = KeyStoreManager.getInstance(tenantId);
         X509Certificate cert = null;
         try {
+            IdentityTenantUtil.initializeRegistry(tenantId, tenantDomain);
+            KeyStoreManager keyStoreManager = KeyStoreManager.getInstance(tenantId);
             if (!MultitenantConstants.SUPER_TENANT_DOMAIN_NAME.equals(tenantDomain)) {
                 // derive key store name
                 String ksName = tenantDomain.trim().replace(".", "-");
@@ -316,6 +296,60 @@ public class IdentityProviderManager {
         passiveSTSFedAuthn
                 .setProperties(propertiesList.toArray(new Property[propertiesList.size()]));
         fedAuthnCofigs.add(passiveSTSFedAuthn);
+
+        FederatedAuthenticatorConfig sessionTimeoutConfig = IdentityApplicationManagementUtil
+                .getFederatedAuthenticator(identityProvider.getFederatedAuthenticatorConfigs(),
+                        IdentityApplicationConstants.Authenticator.IDPProperties.NAME);
+        if(sessionTimeoutConfig == null){
+            sessionTimeoutConfig = new FederatedAuthenticatorConfig();
+            sessionTimeoutConfig.setName(IdentityApplicationConstants.Authenticator.IDPProperties.NAME);
+        }
+        propertiesList = new ArrayList<Property>(Arrays.asList(sessionTimeoutConfig.getProperties()));
+        if(IdentityApplicationManagementUtil.getProperty(sessionTimeoutConfig.getProperties(),
+                IdentityApplicationConstants.Authenticator.IDPProperties.SESSION_IDLE_TIME_OUT) == null){
+            Property sessionIdletimeOutProp = new Property();
+            sessionIdletimeOutProp.setName(IdentityApplicationConstants.Authenticator.IDPProperties.SESSION_IDLE_TIME_OUT);
+            String idleTimeout = IdentityUtil.getProperty("TimeConfig.SessionIdleTimeout");
+            if(StringUtils.isEmpty(idleTimeout)){
+                idleTimeout = IdentityApplicationConstants.Authenticator.IDPProperties.SESSION_IDLE_TIME_OUT_DEFAULT;
+            }else if(!StringUtils.isNumeric(idleTimeout)){
+                log.warn("SessionIdleTimeout in identity.xml should be a numeric value");
+                idleTimeout = IdentityApplicationConstants.Authenticator.IDPProperties.SESSION_IDLE_TIME_OUT_DEFAULT;
+            }
+            sessionIdletimeOutProp.setValue(idleTimeout);
+            propertiesList.add(sessionIdletimeOutProp);
+        }
+        if(IdentityApplicationManagementUtil.getProperty(sessionTimeoutConfig.getProperties(),
+                IdentityApplicationConstants.Authenticator.IDPProperties.REMEMBER_ME_TIME_OUT) == null){
+            Property rememberMeTimeOutProp = new Property();
+            rememberMeTimeOutProp.setName(IdentityApplicationConstants.Authenticator.IDPProperties.REMEMBER_ME_TIME_OUT);
+            String rememberMeTimeout = IdentityUtil.getProperty("TimeConfig.RememberMeTimeout");
+            if(StringUtils.isEmpty(rememberMeTimeout)){
+                rememberMeTimeout = IdentityApplicationConstants.Authenticator.IDPProperties.REMEMBER_ME_TIME_OUT_DEFAULT;
+            }else if(!StringUtils.isNumeric(rememberMeTimeout)){
+                log.warn("RememberMeTimeout in identity.xml should be a numeric value");
+                rememberMeTimeout = IdentityApplicationConstants.Authenticator.IDPProperties.REMEMBER_ME_TIME_OUT_DEFAULT;
+            }
+            rememberMeTimeOutProp.setValue(rememberMeTimeout);
+            propertiesList.add(rememberMeTimeOutProp);
+        }
+        if(IdentityApplicationManagementUtil.getProperty(sessionTimeoutConfig.getProperties(),
+                IdentityApplicationConstants.Authenticator.IDPProperties.CLEAN_UP_PERIOD) == null){
+            Property cleanUpPeriodProp = new Property();
+            cleanUpPeriodProp.setName(IdentityApplicationConstants.Authenticator.IDPProperties.CLEAN_UP_PERIOD);
+            String cleanUpPeriod = IdentityUtil.getProperty("TimeConfig.PersistanceCleanUpPeriod");
+            if(StringUtils.isEmpty(cleanUpPeriod)){
+                cleanUpPeriod = IdentityApplicationConstants.Authenticator.IDPProperties.CLEAN_UP_PERIOD_DEFAULT;
+            }else if(!StringUtils.isNumeric(cleanUpPeriod)){
+                log.warn("PersistanceCleanUpPeriod in identity.xml should be a numeric value");
+                cleanUpPeriod = IdentityApplicationConstants.Authenticator.IDPProperties.CLEAN_UP_PERIOD_DEFAULT;
+            }
+            cleanUpPeriodProp.setValue(cleanUpPeriod);
+            propertiesList.add(cleanUpPeriodProp);
+        }
+        sessionTimeoutConfig.setProperties(propertiesList.toArray(new Property[propertiesList.size()]));
+        fedAuthnCofigs.add(sessionTimeoutConfig);
+
         identityProvider.setFederatedAuthenticatorConfigs(fedAuthnCofigs
                 .toArray(new FederatedAuthenticatorConfig[fedAuthnCofigs.size()]));
 
@@ -980,10 +1014,8 @@ public class IdentityProviderManager {
                                 + CarbonConstants.DOMAIN_SEPARATOR
                                 + mapping.getLocalRole().getLocalRoleName();
                     }
-                    if (usm.isExistingRole(mapping.getLocalRole().getLocalRoleName())) {
+                    if (usm.isExistingRole(role)) {
                         // perfect
-                    } else if (usm.isExistingRole(mapping.getLocalRole().getLocalRoleName(), true)) {
-                        // also fine
                     } else {
                         String msg = "Cannot find tenant role " + role + " for tenant "
                                 + tenantDomain;
@@ -1096,10 +1128,8 @@ public class IdentityProviderManager {
                     } else {
                         role = mapping.getLocalRole().getLocalRoleName();
                     }
-                    if (usm.isExistingRole(mapping.getLocalRole().getLocalRoleName())) {
+                    if (usm.isExistingRole(role)) {
                         // perfect
-                    } else if (usm.isExistingRole(mapping.getLocalRole().getLocalRoleName(), true)) {
-                        // also fine
                     } else {
                         String msg = "Cannot find tenant role " + role + " for tenant "
                                 + tenantDomain;
