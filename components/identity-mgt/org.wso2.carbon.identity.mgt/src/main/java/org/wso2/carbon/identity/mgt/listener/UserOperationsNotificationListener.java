@@ -46,7 +46,7 @@ public class UserOperationsNotificationListener extends AbstractUserOperationEve
 
     @Override
     public int getExecutionOrderId() {
-        return 7;
+        return 1503;
     }
 
     /**
