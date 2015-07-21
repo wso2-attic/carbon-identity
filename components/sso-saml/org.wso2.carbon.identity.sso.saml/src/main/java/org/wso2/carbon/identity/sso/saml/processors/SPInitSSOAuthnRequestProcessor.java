@@ -17,6 +17,7 @@
  */
 package org.wso2.carbon.identity.sso.saml.processors;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opensaml.saml2.core.Response;
@@ -61,8 +62,6 @@ public class SPInitSSOAuthnRequestProcessor {
                         SAMLSSOConstants.StatusCodes.REQUESTOR_ERROR, msg, null);
             }
 
-            String acUrl = serviceProviderConfigs.getAssertionConsumerUrl();
-
             // reading the service provider configs
             populateServiceProviderConfigs(serviceProviderConfigs, authnReqDTO);
 
@@ -78,7 +77,7 @@ public class SPInitSSOAuthnRequestProcessor {
                             " Expected: [" + idpUrl + "]";
                     log.warn(msg);
                     return buildErrorResponse(authnReqDTO.getId(),
-                            SAMLSSOConstants.StatusCodes.REQUESTOR_ERROR, msg, acUrl);
+                            SAMLSSOConstants.StatusCodes.REQUESTOR_ERROR, msg, null);
                 }
 
                 // validate the signature
@@ -88,18 +87,19 @@ public class SPInitSSOAuthnRequestProcessor {
                     String msg = "Signature validation for Authentication Request failed.";
                     log.warn(msg);
                     return buildErrorResponse(authnReqDTO.getId(),
-                            SAMLSSOConstants.StatusCodes.REQUESTOR_ERROR, msg, acUrl);
+                            SAMLSSOConstants.StatusCodes.REQUESTOR_ERROR, msg, null);
                 }
             } else {
                 //Validate the assertion consumer url,  only if request is not signed.
                 String acsUrl = authnReqDTO.getAssertionConsumerURL();
-                if (acsUrl != null && !serviceProviderConfigs.getAssertionConsumerUrl().equalsIgnoreCase(acsUrl)) {
+                if (StringUtils.isBlank(acsUrl) || !serviceProviderConfigs.getAssertionConsumerUrlList().contains
+                        (acsUrl)) {
                     String msg = "ALERT: Invalid Assertion Consumer URL value '" + acsUrl + "' in the " +
                             "AuthnRequest message from  the issuer '" + serviceProviderConfigs.getIssuer() +
                             "'. Possibly " + "an attempt for a spoofing attack";
                     log.error(msg);
                     return buildErrorResponse(authnReqDTO.getId(),
-                            SAMLSSOConstants.StatusCodes.REQUESTOR_ERROR, msg, acUrl);
+                            SAMLSSOConstants.StatusCodes.REQUESTOR_ERROR, msg, acsUrl);
                 }
             }
 
@@ -113,7 +113,7 @@ public class SPInitSSOAuthnRequestProcessor {
                     String msg = "Provided username does not match with the requested subject";
                     log.warn(msg);
                     return buildErrorResponse(authnReqDTO.getId(),
-                            SAMLSSOConstants.StatusCodes.AUTHN_FAILURE, msg, acUrl);
+                            SAMLSSOConstants.StatusCodes.AUTHN_FAILURE, msg, authnReqDTO.getAssertionConsumerURL());
                 }
             }
 
@@ -228,8 +228,8 @@ public class SPInitSSOAuthnRequestProcessor {
 
         // load the ACS url, if it is not defined in the request. If it is sent in request,  if must owner it.
         String acsUrl = authnReqDTO.getAssertionConsumerURL();
-        if (acsUrl == null || acsUrl.trim().length() == 0) {
-            authnReqDTO.setAssertionConsumerURL(ssoIdpConfigs.getAssertionConsumerUrl());
+        if (StringUtils.isBlank(acsUrl)) {
+            authnReqDTO.setAssertionConsumerURL(ssoIdpConfigs.getDefaultAssertionConsumerUrl());
         }
         authnReqDTO.setLoginPageURL(ssoIdpConfigs.getLoginPageURL());
         authnReqDTO.setCertAlias(ssoIdpConfigs.getCertAlias());

@@ -119,12 +119,13 @@ public class SAMLSSOService {
      */
     public SAMLSSOReqValidationResponseDTO validateIdPInitSSORequest(HttpServletRequest httpServletRequest,
                                                                      HttpServletResponse httpServletResponse,
-                                                                     String spEntityID, String relayState,
+                                                                     String spEntityID, String acs, String relayState,
                                                                      String queryString, String sessionId,
                                                                      String rpSessionId, String authnMode)
             throws IdentityException {
 
-        IdPInitSSOAuthnRequestValidator authnRequestValidator = new IdPInitSSOAuthnRequestValidator(httpServletRequest, httpServletResponse, spEntityID, relayState);
+        IdPInitSSOAuthnRequestValidator authnRequestValidator = new IdPInitSSOAuthnRequestValidator
+                (httpServletRequest, httpServletResponse, spEntityID, acs, relayState);
         SAMLSSOReqValidationResponseDTO validationResp = authnRequestValidator.validate();
         validationResp.setQueryString(queryString);
         validationResp.setRpSessionId(rpSessionId);

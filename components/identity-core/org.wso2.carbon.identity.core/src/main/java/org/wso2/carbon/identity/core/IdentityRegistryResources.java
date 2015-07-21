@@ -123,6 +123,8 @@ public class IdentityRegistryResources {
     //SAML SSO
     public final static String PROP_SAML_SSO_ISSUER = "Issuer";
     public final static String PROP_SAML_SSO_ASSERTION_CONS_URL = "SAMLSSOAssertionConsumerURL";
+    public final static String PROP_SAML_SSO_ASSERTION_CONS_URLS = "SAMLSSOAssertionConsumerURLs";
+    public final static String PROP_DEFAULT_SAML_SSO_ASSERTION_CONS_URL = "DefaultSAMLSSOAssertionConsumerURL";
     public final static String PROP_SAML_SSO_ISSUER_CERT_ALIAS = "IssuerCertAlias";
     public final static String PROP_SAML_SSO_USE_FULLY_QUALIFIED_USERNAME_AS_SUBJECT = "useFullyQualifiedUsername";
     public final static String PROP_SAML_SSO_DO_SINGLE_LOGOUT = "doSingleLogout";

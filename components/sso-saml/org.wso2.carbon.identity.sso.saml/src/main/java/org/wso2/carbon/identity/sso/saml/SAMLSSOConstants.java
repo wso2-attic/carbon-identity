@@ -138,5 +138,12 @@ public class SAMLSSOConstants {
         }
     }
 
+    public static class QueryParameter {
+
+        public static final String ACS = "acs";
+        public static final String SLO = "slo";
+        public static final String RETURN_TO = "returnTo";
+    }
+
 }
 

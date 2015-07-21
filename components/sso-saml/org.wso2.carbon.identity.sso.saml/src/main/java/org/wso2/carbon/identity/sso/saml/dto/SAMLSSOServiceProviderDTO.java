@@ -22,6 +22,8 @@ import java.io.Serializable;
 public class SAMLSSOServiceProviderDTO implements Serializable {
 
     private String issuer;
+    private String[] assertionConsumerUrls;
+    private String defaultAssertionConsumerUrl;
     private String assertionConsumerUrl;
     private String certAlias;
     private String logoutURL;
@@ -246,4 +248,25 @@ public class SAMLSSOServiceProviderDTO implements Serializable {
     public void setDoValidateSignatureInRequests(boolean doValidateSignatureInRequests) {
         this.doValidateSignatureInRequests = doValidateSignatureInRequests;
     }
+
+    public String[] getAssertionConsumerUrls() {
+
+        if (assertionConsumerUrls == null) {
+            return new String[0];
+        }
+        return assertionConsumerUrls.clone();
+    }
+
+    public void setAssertionConsumerUrls(String[] assertionConsumerUrls) {
+        this.assertionConsumerUrls = assertionConsumerUrls;
+    }
+
+    public String getDefaultAssertionConsumerUrl() {
+        return defaultAssertionConsumerUrl;
+    }
+
+    public void setDefaultAssertionConsumerUrl(String defaultAssertionConsumerUrl) {
+        this.defaultAssertionConsumerUrl = defaultAssertionConsumerUrl;
+    }
+
 }

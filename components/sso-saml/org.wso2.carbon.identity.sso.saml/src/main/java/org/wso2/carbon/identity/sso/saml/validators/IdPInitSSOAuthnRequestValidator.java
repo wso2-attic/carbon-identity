@@ -17,6 +17,7 @@
  */
 package org.wso2.carbon.identity.sso.saml.validators;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.base.IdentityException;
@@ -35,11 +36,13 @@ public class IdPInitSSOAuthnRequestValidator {
     private static Log log = LogFactory.getLog(IdPInitSSOAuthnRequestValidator.class);
 
     private String spEntityID;
+    private String acs;
 
 
     public IdPInitSSOAuthnRequestValidator(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse,
-                                           String spEntityID, String relayState) throws IdentityException {
+                                           String spEntityID, String acs, String relayState) throws IdentityException {
         this.spEntityID = spEntityID;
+        this.acs = acs;
     }
 
     /**
@@ -54,7 +57,7 @@ public class IdPInitSSOAuthnRequestValidator {
         try {
 
             // spEntityID MUST NOT be null
-            if (spEntityID != null) {
+            if (StringUtils.isNotBlank(spEntityID)) {
                 validationResponse.setIssuer(spEntityID);
             } else {
                 validationResponse.setValid(false);
@@ -68,17 +71,15 @@ public class IdPInitSSOAuthnRequestValidator {
                 return validationResponse;
             }
 
-            SSOServiceProviderConfigManager spConfigManager = SSOServiceProviderConfigManager.getInstance();
-            SAMLSSOServiceProviderDO spDO = spConfigManager.getServiceProvider(spEntityID);
-            String spAcsUrl = null;
-            if (spDO != null) {
-                spAcsUrl = spDO.getAssertionConsumerUrl();
+            // If SP has multiple ACS
+            if (StringUtils.isNotBlank(acs)) {
+                validationResponse.setAssertionConsumerURL(acs);
             }
-            validationResponse.setAssertionConsumerURL(spAcsUrl);
+
             validationResponse.setValid(true);
 
             if (log.isDebugEnabled()) {
-                log.debug("IdP Initiated SSO request validation is successful..");
+                log.debug("IdP Initiated SSO request validation is successful");
             }
             return validationResponse;
         } catch (Exception e) {

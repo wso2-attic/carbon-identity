@@ -101,6 +101,7 @@ public class SPInitSSOAuthnRequestValidator {
                 return validationResponse;
             }
 
+            //TODO : REMOVE THIS UNNECESSARY CHECK
             // set the custom login page URL and ACS URL if available
             SSOServiceProviderConfigManager spConfigManager = SSOServiceProviderConfigManager.getInstance();
             SAMLSSOServiceProviderDO spDO = spConfigManager.getServiceProvider(issuer.getValue());

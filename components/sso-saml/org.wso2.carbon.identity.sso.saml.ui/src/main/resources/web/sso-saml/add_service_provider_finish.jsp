@@ -25,6 +25,7 @@
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@ page import="java.util.ResourceBundle" %>
+<%@ page import="java.util.Arrays" %>
 
 <jsp:useBean id="samlSsoServuceProviderConfigBean"
              type="org.wso2.carbon.identity.sso.saml.ui.SAMLSSOProviderConfigBean"
@@ -68,7 +69,10 @@
             serviceProviderDTO.setIssuer(SAMLSSOUIUtil.getSafeInput(request, "issuer"));
         }
 
-        serviceProviderDTO.setAssertionConsumerUrl(SAMLSSOUIUtil.getSafeInput(request, "assrtConsumerURL"));
+        serviceProviderDTO.setAssertionConsumerUrls(SAMLSSOUIUtil.getSafeInput(request, "assertionConsumerURLs")
+                                                            .split(","));
+        serviceProviderDTO.setDefaultAssertionConsumerUrl(SAMLSSOUIUtil.getSafeInput(request,
+                                                                                     "defaultAssertionConsumerURL"));
 
         if ("true".equals(request.getParameter("enableSingleLogout"))) {
             serviceProviderDTO.setDoSingleLogout(true);

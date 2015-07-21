@@ -27,6 +27,9 @@ public class SAMLSSOServiceProviderDO implements Serializable {
     String tenantDomain;
     private String issuer;
     private String assertionConsumerUrl;
+    private String[] assertionConsumerUrls;
+    private List<String> assertionConsumerUrlList;
+    private String defaultAssertionConsumerUrl;
     private String certAlias;
     private String logoutURL;
     private boolean doSingleLogout;
@@ -239,12 +242,14 @@ public class SAMLSSOServiceProviderDO implements Serializable {
     }
 
     /**
-     * @param requestedRecipients the requestedRecipients to set
+     * @param requestedRecipientsList the requestedRecipients to set
      */
-    public void setRequestedRecipients(List<String> requestedRecipients) {
-        if (requestedRecipients != null) {
-            this.requestedRecipientsList = requestedRecipients;
-            this.requestedRecipients = requestedRecipients.toArray(new String[requestedRecipientsList.size()]);
+    public void setRequestedRecipients(List<String> requestedRecipientsList) {
+        this.requestedRecipientsList = requestedRecipientsList;
+        if (requestedRecipientsList != null) {
+            this.requestedRecipients = requestedRecipientsList.toArray(new String[requestedRecipientsList.size()]);
+        } else {
+            this.requestedRecipients = null;
         }
     }
 
@@ -255,6 +260,9 @@ public class SAMLSSOServiceProviderDO implements Serializable {
         if (requestedRecipients != null) {
             this.requestedRecipients = requestedRecipients.clone();
             this.requestedRecipientsList = Arrays.asList(requestedRecipients);
+        } else {
+            this.requestedRecipients = null;
+            this.requestedRecipientsList = null;
         }
     }
 
@@ -314,4 +322,48 @@ public class SAMLSSOServiceProviderDO implements Serializable {
     public void setTenantDomain(String tenantDomain) {
         this.tenantDomain = tenantDomain;
     }
+
+    public String[] getAssertionConsumerUrls() {
+        if (assertionConsumerUrls != null) {
+            return assertionConsumerUrls.clone();
+        } else {
+            return new String[0];
+        }
+    }
+
+    public List<String> getAssertionConsumerUrlList() {
+        if (assertionConsumerUrlList != null) {
+            return assertionConsumerUrlList;
+        } else {
+            return Collections.emptyList();
+        }
+    }
+
+    public void setAssertionConsumerUrls(String[] assertionConsumerUrls) {
+        if (assertionConsumerUrls != null) {
+            this.assertionConsumerUrls = assertionConsumerUrls.clone();
+            this.assertionConsumerUrlList = Arrays.asList(assertionConsumerUrls);
+        } else {
+            this.assertionConsumerUrls = null;
+            this.assertionConsumerUrlList = null;
+        }
+    }
+
+    public void setAssertionConsumerUrls(List<String> assertionConsumerUrlList) {
+        this.assertionConsumerUrlList = assertionConsumerUrlList;
+        if (assertionConsumerUrlList != null) {
+            this.assertionConsumerUrls = assertionConsumerUrlList.toArray(new String[assertionConsumerUrlList.size()]);
+        } else {
+            this.assertionConsumerUrls = null;
+        }
+    }
+
+    public String getDefaultAssertionConsumerUrl() {
+        return defaultAssertionConsumerUrl;
+    }
+
+    public void setDefaultAssertionConsumerUrl(String defaultAssertionConsumerUrl) {
+        this.defaultAssertionConsumerUrl = defaultAssertionConsumerUrl;
+    }
+
 }

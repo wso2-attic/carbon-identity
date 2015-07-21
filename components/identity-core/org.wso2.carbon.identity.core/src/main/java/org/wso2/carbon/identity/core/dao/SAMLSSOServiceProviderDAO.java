@@ -43,8 +43,10 @@ public class SAMLSSOServiceProviderDAO extends AbstractDAO<SAMLSSOServiceProvide
         SAMLSSOServiceProviderDO serviceProviderDO = new SAMLSSOServiceProviderDO();
         serviceProviderDO.setIssuer(resource
                 .getProperty(IdentityRegistryResources.PROP_SAML_SSO_ISSUER));
-        serviceProviderDO.setAssertionConsumerUrl(resource
-                .getProperty(IdentityRegistryResources.PROP_SAML_SSO_ASSERTION_CONS_URL));
+        serviceProviderDO.setAssertionConsumerUrls(resource.getPropertyValues(
+                IdentityRegistryResources.PROP_SAML_SSO_ASSERTION_CONS_URLS));
+        serviceProviderDO.setDefaultAssertionConsumerUrl(resource.getProperty(
+                IdentityRegistryResources.PROP_DEFAULT_SAML_SSO_ASSERTION_CONS_URL));
         serviceProviderDO.setCertAlias(resource
                 .getProperty(IdentityRegistryResources.PROP_SAML_SSO_ISSUER_CERT_ALIAS));
 
@@ -57,7 +59,6 @@ public class SAMLSSOServiceProviderDAO extends AbstractDAO<SAMLSSOServiceProvide
         if (resource.getProperty(IdentityRegistryResources.PROP_SAML_SSO_NAMEID_FORMAT) != null) {
             serviceProviderDO.setNameIDFormat(resource.
                     getProperty(IdentityRegistryResources.PROP_SAML_SSO_NAMEID_FORMAT));
-            ;
         }
 
         if (resource
@@ -154,8 +155,10 @@ public class SAMLSSOServiceProviderDAO extends AbstractDAO<SAMLSSOServiceProvide
             resource = registry.newResource();
             resource.addProperty(IdentityRegistryResources.PROP_SAML_SSO_ISSUER,
                     serviceProviderDO.getIssuer());
-            resource.addProperty(IdentityRegistryResources.PROP_SAML_SSO_ASSERTION_CONS_URL,
-                    serviceProviderDO.getAssertionConsumerUrl());
+            resource.setProperty(IdentityRegistryResources.PROP_SAML_SSO_ASSERTION_CONS_URLS,
+                                 serviceProviderDO.getAssertionConsumerUrlList());
+            resource.addProperty(IdentityRegistryResources.PROP_DEFAULT_SAML_SSO_ASSERTION_CONS_URL,
+                                 serviceProviderDO.getDefaultAssertionConsumerUrl());
             resource.addProperty(IdentityRegistryResources.PROP_SAML_SSO_ISSUER_CERT_ALIAS,
                     serviceProviderDO.getCertAlias());
             resource.addProperty(IdentityRegistryResources.PROP_SAML_SSO_LOGOUT_URL,

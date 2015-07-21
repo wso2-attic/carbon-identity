@@ -71,31 +71,20 @@ function doValidation() {
         return false;
     }
 
-    var fld2 = document.getElementsByName("assrtConsumerURL")[0];
-    var value = fld2.value;
-    var regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/
-    if (value.length == 0) {
-        CARBON.showWarningDialog(
-                "<fmt:message key='sp.enter.valid.endpoint.address'/>",
-                null, null);
-        return false;
-
+    var assertionConsumerURLs = null;
+    if($("#assertionConsumerURLTblRow").length) {
+        assertionConsumerURLs = $('#assertionConsumerURLs').val();
     }
 
-    if (!regexp.test(value)) {
-        CARBON.showWarningDialog(
-                "<fmt:message key='sp.enter.valid.endpoint.address'/>",
-                null, null);
+    if(assertionConsumerURLs == null || assertionConsumerURLs.trim().length === 0) {
+        CARBON.showWarningDialog("<fmt:message key='sp.enter.valid.endpoint.address'/>", null, null);
         return false;
     }
 
-    value = value.replace(/^\s+/, "");
-    if (value.length == 0) {
-        CARBON.showWarningDialog(
-                "<fmt:message key='sp.enter.valid.endpoint.address'/>",
-                null, null);
+    var defaultAssertionConsumerURL = $('#defaultAssertionConsumerURL').val();
+    if(defaultAssertionConsumerURL == null || defaultAssertionConsumerURL.trim().length === 0) {
+        CARBON.showWarningDialog("<fmt:message key='sp.enter.default.acs'/>", null, null);
         return false;
-
     }
 
     var fld3 = document.getElementsByName("logoutURL")[0];
@@ -216,6 +205,116 @@ function disableRecipients(chkbx) {
     document.addServiceProvider.addRecipient.disabled = (chkbx.checked) ? false
             : true;
 }
+
+function addAssertionConsumerURL() {
+
+    var assertionConsumerURL = $("#assertionConsumerURLTxt").val();
+    if(assertionConsumerURL == null || assertionConsumerURL.trim().length == 0) {
+        CARBON.showWarningDialog("<fmt:message key='sp.enter.not.valid.endpoint.address'/>", null, null);
+        return false;
+    }
+
+    assertionConsumerURL = assertionConsumerURL.trim();
+
+    var regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
+    if (!regexp.test(assertionConsumerURL) || assertionConsumerURL.indexOf(",") > -1) {
+        CARBON.showWarningDialog("<fmt:message key='sp.enter.not.valid.endpoint.address'/>", null, null);
+        return false;
+    }
+
+    if (!$("#assertionConsumerURLTblRow").length) {
+        var row = '<tr id="assertionConsumerURLTblRow">'+
+                  '    <td></td>'+
+                  '    <td>'+
+                  '        <table id="assertionConsumerURLsTable" style="width: 40%; margin-bottom: 3px;" class="styledInner">'+
+                  '            <tbody id="assertionConsumerURLsTableBody">'+
+                  '            </tbody>'+
+                  '        </table>'+
+                  '        <input type="hidden" id="assertionConsumerURLs" name="assertionConsumerURLs" value="">'+
+                  '        <input type="hidden" id="currentColumnId" value="0">'+
+                  '    </td>'+
+                  '</tr>';
+        $('#assertionConsumerURLInputRow').after(row);
+    }
+
+    var assertionConsumerURLs = $("#assertionConsumerURLs").val();
+    var currentColumnId =  $("#currentColumnId").val();
+    if(assertionConsumerURLs == null || assertionConsumerURLs.trim().length == 0) {
+        $("#assertionConsumerURLs").val(assertionConsumerURL);
+        var row =
+                '<tr id="acsUrl_'+ parseInt(currentColumnId) +'">' +
+                '</td><td style="padding-left: 15px !important; color: rgb(119, 119, 119);font-style: italic;">'+assertionConsumerURL+
+                '</td><td><a onclick="removeAssertionConsumerURL (\''+assertionConsumerURL+'\', \'acsUrl_'+ parseInt(currentColumnId) +'\');return false;"'+
+                'href="#" class="icon-link" style="background-image: url(../admin/images/delete.gif)"> Delete </a></td></tr>';
+
+        $('#assertionConsumerURLsTable tbody').append(row);
+        $('#defaultAssertionConsumerURL').append($("<option></option>").attr("value", assertionConsumerURL).text(assertionConsumerURL));
+        $('#defaultAssertionConsumerURL').val(assertionConsumerURL);
+    } else {
+        var isExist = false;
+        $.each(assertionConsumerURLs.split(","), function( index, value ) {
+            if(value === assertionConsumerURL) {
+                isExist = true;
+                CARBON.showWarningDialog("<fmt:message key='sp.endpoint.address.already.exists'/>", null, null);
+                return false;
+            }
+        });
+        if(isExist) {
+            return false;
+        }
+
+        $("#assertionConsumerURLs").val(assertionConsumerURLs + "," + assertionConsumerURL);
+        var row =
+                '<tr id="acsUrl_'+ parseInt(currentColumnId) +'">' +
+                '</td><td style="padding-left: 15px !important; color: rgb(119, 119, 119);font-style: italic;">'+assertionConsumerURL+
+                '</td><td><a onclick="removeAssertionConsumerURL(\''+assertionConsumerURL+'\', \'acsUrl_'+ parseInt(currentColumnId) +'\');return false;"'+
+                'href="#" class="icon-link" style="background-image: url(../admin/images/delete.gif)"> Delete </a></td></tr>';
+
+        $('#assertionConsumerURLsTable tr:last').after(row);
+        $('#defaultAssertionConsumerURL').append($("<option></option>").attr("value", assertionConsumerURL).text(assertionConsumerURL));
+    }
+    $("#assertionConsumerURLTxt").val("");
+    $("#currentColumnId").val(parseInt(currentColumnId) + 1);
+}
+
+function removeAssertionConsumerURL(assertionConsumerURL, columnId) {
+
+    var assertionConsumerURLs = $("#assertionConsumerURLs").val();
+    var defaultAssertionConsumerURL = $('#defaultAssertionConsumerURL').val();
+    var newAssertionConsumerURLs = "";
+    var isDeletingSelected = false;
+
+    if(assertionConsumerURLs != null && assertionConsumerURLs.trim().length > 0) {
+        $.each(assertionConsumerURLs.split(","), function( index, value ) {
+            if(value === assertionConsumerURL) {
+                if(assertionConsumerURL === defaultAssertionConsumerURL) {
+                    isDeletingSelected = true;
+                }
+                return true;
+            }
+
+            if(newAssertionConsumerURLs.length > 0) {
+                newAssertionConsumerURLs = newAssertionConsumerURLs + "," + value;
+            } else {
+                newAssertionConsumerURLs = value;
+            }
+        });
+    }
+
+    $('#defaultAssertionConsumerURL option[value="' + assertionConsumerURL + '"]').remove();
+
+    if(isDeletingSelected && newAssertionConsumerURLs.length > 0) {
+        $('select[id="defaultAssertionConsumerURL"] option:eq(1)').attr('selected', 'selected');
+    }
+
+    $('#' + columnId).remove();
+    $("#assertionConsumerURLs").val(newAssertionConsumerURLs);
+
+    if(newAssertionConsumerURLs.length == 0) {
+        $('#assertionConsumerURLTblRow').remove();
+    }
+}
+
 function addClaim() {
     var propertyCount = document.getElementById("claimPropertyCounter");
 
@@ -498,22 +597,95 @@ function clearAll() {
         <fmt:message key="sp.issuer"/>
         <font color="red">*</font>
     </td>
-    <td><input type="text" id="issuer" name="issuer"
+    <td><input type="text" id="issuer" name="issuer" maxlength="100"
                class="text-box-big"
                value="<%=isEditSP? provider.getIssuer():""%>" <%=isEditSP ? "disabled=\"disabled\"" : ""%>/>
         <input type="hidden" id="hiddenIssuer" name="hiddenIssuer"
                value="<%=isEditSP? provider.getIssuer():""%>"/>
     </td>
 </tr>
-<tr>
+<tr id="assertionConsumerURLInputRow">
     <td>
-        <fmt:message key="sp.assertionConsumerURL"/>
+        <fmt:message key="sp.assertionConsumerURLs"/>
         <font color="red">*</font>
     </td>
     <td>
-        <input type="text" id="assrtConsumerURL"
-               name="assrtConsumerURL" class="text-box-big"
-               value="<%=isEditSP?provider.getAssertionConsumerUrl():""%>"/>
+        <input type="text" id="assertionConsumerURLTxt" class="text-box-big" value=""/>
+        <input id="addAssertionConsumerURLBtn" type="button" value="<fmt:message key="saml.sso.add.acs"/>"
+               onclick="addAssertionConsumerURL()"/>
+    </td>
+</tr>
+<%
+    if (isEditSP && provider.getAssertionConsumerUrls() != null) {
+%>
+<tr id="assertionConsumerURLTblRow">
+    <td></td>
+    <td>
+        <table id="assertionConsumerURLsTable" style="width: 40%; margin-bottom: 3px;" class="styledInner">
+            <tbody id="assertionConsumerURLsTableBody">
+            <%
+                StringBuilder assertionConsumerURLsBuilder = new StringBuilder();
+                int acsColumnId = 0;
+                for (String assertionConsumerURL : provider.getAssertionConsumerUrls()) {
+                    if (assertionConsumerURLsBuilder.length() > 0) {
+                        assertionConsumerURLsBuilder.append(",").append(assertionConsumerURL);
+                    } else {
+                        assertionConsumerURLsBuilder.append(assertionConsumerURL);
+                    }
+            %>
+            <tr id="acsUrl_<%=acsColumnId%>">
+                <td style="padding-left: 15px !important; color: rgb(119, 119, 119);font-style: italic;">
+                    <%=assertionConsumerURL%>
+                </td>
+                <td>
+                    <a onclick="removeAssertionConsumerURL('<%=assertionConsumerURL%>', 'acsUrl_<%=acsColumnId%>');return false;"
+                       href="#" class="icon-link"
+                       style="background-image: url(../admin/images/delete.gif)">
+                        Delete
+                    </a>
+                </td>
+            </tr>
+            <%
+                    acsColumnId++;
+                }
+            %>
+            </tbody>
+        </table>
+        <input type="hidden" id="assertionConsumerURLs" name="assertionConsumerURLs" value="<%=assertionConsumerURLsBuilder.length() > 0 ?
+         assertionConsumerURLsBuilder.toString() : ""%>">
+        <input type="hidden" id="currentColumnId" value="<%=acsColumnId%>">
+    </td>
+</tr>
+<%
+    }
+%>
+
+<tr id="defaultAssertionConsumerURLRow">
+    <td>
+        <fmt:message key="sp.defaultAssertionConsumerURL"/>
+        <font color="red">*</font>
+    </td>
+    <td>
+        <select id="defaultAssertionConsumerURL" name="defaultAssertionConsumerURL">
+            <option value="">---Select---</option>
+            <%
+                if (isEditSP && provider.getAssertionConsumerUrls() != null) {
+                    for (String assertionConsumerUrl : provider.getAssertionConsumerUrls()) {
+                        if (assertionConsumerUrl.equals(provider.getDefaultAssertionConsumerUrl())) {
+            %>
+            <option value="<%=assertionConsumerUrl%>" selected><%=assertionConsumerUrl%>
+            </option>
+            <%
+            } else {
+            %>
+            <option value="<%=assertionConsumerUrl%>"><%=assertionConsumerUrl%>
+            </option>
+            <%
+                        }
+                    }
+                }
+            %>
+        </select>
     </td>
 </tr>
 

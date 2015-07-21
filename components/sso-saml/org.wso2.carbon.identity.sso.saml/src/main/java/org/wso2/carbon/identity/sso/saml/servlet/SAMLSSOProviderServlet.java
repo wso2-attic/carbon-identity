@@ -145,6 +145,7 @@ public class SAMLSSOProviderServlet extends HttpServlet {
         String spEntityID = CharacterEncoder.getSafeText(req.getParameter("spEntityID"));
         String samlRequest = CharacterEncoder.getSafeText(req.getParameter("SAMLRequest"));
         String sessionDataKey = CharacterEncoder.getSafeText(req.getParameter("sessionDataKey"));
+        String acs = CharacterEncoder.getSafeText(req.getParameter(SAMLSSOConstants.QueryParameter.ACS));
 
         boolean isExpFired = false;
         try {
@@ -186,7 +187,7 @@ public class SAMLSSOProviderServlet extends HttpServlet {
                     return;
                 }
             } else if (spEntityID != null) { // idp initiated SSO
-                handleIdPInitSSO(req, resp, spEntityID, relayState, queryString, authMode, sessionId);
+                handleIdPInitSSO(req, resp, spEntityID, acs,  relayState, queryString, authMode, sessionId);
             } else if (samlRequest != null) {// SAMLRequest received. SP initiated SSO
                 handleSPInitSSO(req, resp, queryString, relayState, authMode, samlRequest, sessionId, isPost);
             } else {
@@ -262,15 +263,15 @@ public class SAMLSSOProviderServlet extends HttpServlet {
         resp.sendRedirect(redirectURL + queryParams);
     }
 
-    private void handleIdPInitSSO(HttpServletRequest req, HttpServletResponse resp, String spEntityID, String relayState,
-                                  String queryString, String authMode, String sessionId)
+    private void handleIdPInitSSO(HttpServletRequest req, HttpServletResponse resp, String spEntityID, String acs,
+                                  String relayState, String queryString, String authMode, String sessionId)
             throws UserStoreException, IdentityException, IOException, ServletException {
 
         String rpSessionId = CharacterEncoder.getSafeText(req.getParameter(MultitenantConstants.SSO_AUTH_SESSION_ID));
         SAMLSSOService samlSSOService = new SAMLSSOService();
 
         SAMLSSOReqValidationResponseDTO signInRespDTO = samlSSOService.validateIdPInitSSORequest(req, resp,
-                spEntityID, relayState, queryString, sessionId, rpSessionId, authMode);
+                spEntityID, acs, relayState, queryString, sessionId, rpSessionId, authMode);
 
         if (signInRespDTO.isValid()) {
             sendToFrameworkForAuthentication(req, resp, signInRespDTO, relayState, false);
