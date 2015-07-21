@@ -23,23 +23,19 @@
 package org.wso2.carbon.identity.uma.model;
 
 import org.wso2.carbon.base.MultitenantConstants;
-import org.wso2.carbon.identity.uma.beans.protection.ResourceSetDescriptionBean;
+import org.wso2.carbon.identity.uma.beans.protection.PermissionTicketReqBean;
 
 import java.sql.Timestamp;
 
-public class ResourceSetDO {
+public class PermissionTicketDO {
 
-    private String resourceSetId;
-
-    private String name;
-
-    private String URI;
-
-    private String type;
+    private String resourceId;
 
     private String[] scopes;
 
-    private String iconURI;
+    private String status; // status of the permission ticket
+
+    private String expirationTime;
 
     // attributes not in the spec that need to persisted
     private int tenantID = MultitenantConstants.SUPER_TENANT_ID;
@@ -50,49 +46,20 @@ public class ResourceSetDO {
 
     private Timestamp createdTime;
 
-
-    public ResourceSetDO(ResourceSetDescriptionBean resourceSetDescriptionBean) {
-        name = resourceSetDescriptionBean.getName();
-        URI = resourceSetDescriptionBean.getUri();
-        type = resourceSetDescriptionBean.getType();
-        scopes = resourceSetDescriptionBean.getScopes();
-        iconURI = resourceSetDescriptionBean.getIcon_uri();
+    public PermissionTicketDO(PermissionTicketReqBean permissionTicketReqBean) {
+        resourceId = permissionTicketReqBean.getResource_set_id();
+        scopes = permissionTicketReqBean.getScopes();
     }
 
-    public ResourceSetDO() {
-
+    public PermissionTicketDO() {
     }
 
-    public String getResourceSetId() {
-        return resourceSetId;
+    public String getResourceId() {
+        return resourceId;
     }
 
-    public void setResourceSetId(String resourceSetId) {
-        this.resourceSetId = resourceSetId;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getURI() {
-        return URI;
-    }
-
-    public void setURI(String uri) {
-        this.URI = uri;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
+    public void setResourceId(String resourceId) {
+        this.resourceId = resourceId;
     }
 
     public String[] getScopes() {
@@ -103,12 +70,20 @@ public class ResourceSetDO {
         this.scopes = scopes;
     }
 
-    public String getIconURI() {
-        return iconURI;
+    public String getStatus() {
+        return status;
     }
 
-    public void setIconURI(String iconURI) {
-        this.iconURI = iconURI;
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getExpirationTime() {
+        return expirationTime;
+    }
+
+    public void setExpirationTime(String expirationTime) {
+        this.expirationTime = expirationTime;
     }
 
     public int getTenantID() {

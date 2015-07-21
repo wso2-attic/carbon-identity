@@ -76,11 +76,7 @@ public class UMAService {
         String resourceSetID = UUID.randomUUID().toString().replace("-","");
 
         ResourceSetDO resourceSetDO = new ResourceSetDO(
-                umaResourceSetRegistrationRequest.getResourceSetName(),
-                umaResourceSetRegistrationRequest.getResourceSetURI(),
-                umaResourceSetRegistrationRequest.getResourceSetType(),
-                umaResourceSetRegistrationRequest.getResourceSetScopes(),
-                umaResourceSetRegistrationRequest.getResouceSetIconURI()
+                umaResourceSetRegistrationRequest.getResourceSetDescriptionBean()
         );
 
         resourceSetDO.setConsumerKey(umaResourceSetRegistrationRequest.getConsumerKey());

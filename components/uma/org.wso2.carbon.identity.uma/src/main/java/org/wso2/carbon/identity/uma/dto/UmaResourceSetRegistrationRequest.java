@@ -46,7 +46,7 @@ public class UmaResourceSetRegistrationRequest extends UmaRequest{
         this.resourceId = resourceId;
     }
 
-    public ResourceSetDescriptionBean getResourceSetDescription() {
+    public ResourceSetDescriptionBean getResourceSetDescriptionBean() {
         return resourceSetDescription;
     }
 

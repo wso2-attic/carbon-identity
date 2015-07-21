@@ -39,24 +39,22 @@ import javax.ws.rs.core.Response;
 
 @Path("/protect/resource_reg")
 @Produces("application/json")
-public class ResourceSetRegistrationEndpoint {
+public class ResourceSetRegEndpoint {
 
-    private static final Log log = LogFactory.getLog(ResourceSetRegistrationEndpoint.class);
+    private static final Log log = LogFactory.getLog(ResourceSetRegEndpoint.class);
 
     @POST
     @Path("/")
     @Consumes("application/json")
     public Response createResourceSet
-            (@Context HttpServletRequest httpServletRequest,ResourceSetDescriptionBean resourceSetDescription){
-
+            (@Context HttpServletRequest httpServletRequest, ResourceSetDescriptionBean resourceSetDescription) {
 
         try {
             //  Check Authorization to access the API
             validateAuthorization(httpServletRequest);
-
         } catch (IdentityUMAException e) {
-           // build and error message and return
-           return EndpointUtil.buildOAuthErrorMessage(e.getMessage());
+            // build and error message and return
+            return EndpointUtil.buildOAuthErrorMessage(e.getMessage());
         }
 
 
@@ -75,7 +73,7 @@ public class ResourceSetRegistrationEndpoint {
     @GET
     @Path("/{rsid}")
     public Response getResourceSet
-            (@Context HttpServletRequest httpServletRequest,@PathParam("rsid") String resourceSetId){
+            (@Context HttpServletRequest httpServletRequest, @PathParam("rsid") String resourceSetId) {
 
 
         try {
@@ -106,7 +104,7 @@ public class ResourceSetRegistrationEndpoint {
     public Response updateResourceSet
             (@Context HttpServletRequest httpServletRequest,
              ResourceSetDescriptionBean resourceSetDescriptionBean,
-             @PathParam("rsid") String resourceSetId){
+             @PathParam("rsid") String resourceSetId) {
 
         try {
             //  Check Authorization to access the API
@@ -132,7 +130,7 @@ public class ResourceSetRegistrationEndpoint {
     @DELETE
     @Path("/{rsid}")
     public Response deleteResourceSet
-            (@Context HttpServletRequest httpServletRequest, @PathParam("rsid") String resourceSetId){
+            (@Context HttpServletRequest httpServletRequest, @PathParam("rsid") String resourceSetId) {
 
         try {
             //  Check Authorization to access the API
@@ -142,7 +140,6 @@ public class ResourceSetRegistrationEndpoint {
             // build and error message and return
             return EndpointUtil.buildOAuthErrorMessage(e.getMessage());
         }
-
 
         // create UMAResourceSetRegistration Request
         UmaResourceSetRegistrationRequest umaResourceSetRegistrationRequest =
@@ -155,11 +152,10 @@ public class ResourceSetRegistrationEndpoint {
     }
 
 
-
     @GET
     @Path("/")
     public Response listResourceSets
-            (@Context HttpServletRequest httpServletRequest){
+            (@Context HttpServletRequest httpServletRequest) {
 
         // check Authorization
         try {
@@ -184,7 +180,7 @@ public class ResourceSetRegistrationEndpoint {
     }
 
 
-    private void logRequest(){
+    private void logRequest() {
     }
 
 
