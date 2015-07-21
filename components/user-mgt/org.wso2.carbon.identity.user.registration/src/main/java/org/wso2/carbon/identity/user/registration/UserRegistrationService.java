@@ -255,7 +255,7 @@ public class UserRegistrationService {
 
             for (int i = 0; i < identityRoleNames.length; i++) {
                 // if this is the first time a user signs up, needs to create role
-                doAddUser(i, admin, identityRoleNames, userName, permission);
+                doAddUser(i,admin, identityRoleNames,userName,permission);
             }
 
         } catch (UserStoreException e) {
@@ -263,7 +263,7 @@ public class UserRegistrationService {
         }
     }
 
-    private void doAddUser(int i, UserStoreManager admin, String[] identityRoleNames, String userName, Permission
+    private void doAddUser(int i, UserStoreManager admin, String[] identityRoleNames, String userName,Permission
             permission) throws IdentityException, UserStoreException {
         try {
             if (!admin.isExistingRole(identityRoleNames[i], false)) {
