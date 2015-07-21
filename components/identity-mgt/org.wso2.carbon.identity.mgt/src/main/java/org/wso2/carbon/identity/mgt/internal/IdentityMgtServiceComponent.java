@@ -30,6 +30,8 @@ import org.wso2.carbon.identity.mgt.IdentityMgtEventListener;
 import org.wso2.carbon.identity.mgt.RecoveryProcessor;
 import org.wso2.carbon.identity.mgt.constants.IdentityMgtConstants;
 import org.wso2.carbon.identity.mgt.dto.ChallengeQuestionDTO;
+import org.wso2.carbon.identity.mgt.listener.UserOperationsNotificationListener;
+import org.wso2.carbon.identity.notification.mgt.NotificationSender;
 import org.wso2.carbon.registry.core.Collection;
 import org.wso2.carbon.registry.core.Registry;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
@@ -52,6 +54,10 @@ import java.util.List;
  * @scr.reference name="realm.service"
  * interface="org.wso2.carbon.user.core.service.RealmService"cardinality="1..1"
  * policy="dynamic" bind="setRealmService" unbind="unsetRealmService"
+ * @scr.reference name="carbon.identity.notification.mgt"
+ * interface="org.wso2.carbon.identity.notification.mgt.NotificationSender"
+ * cardinality="1..1" policy="dynamic" bind="setNotificationSender"
+ * unbind="unsetNotificationSender"
  */
 
 public class IdentityMgtServiceComponent {
@@ -64,6 +70,7 @@ public class IdentityMgtServiceComponent {
 
     private static ConfigurationContextService configurationContextService;
     private static RecoveryProcessor recoveryProcessor;
+    private static NotificationSender notificationSender;
 
     public static RealmService getRealmService() {
         return realmService;
@@ -169,6 +176,19 @@ public class IdentityMgtServiceComponent {
             log.error("Identity Management - UserOperationEventListener could not be registered.");
         }
 
+        UserOperationsNotificationListener notificationListener =
+                new UserOperationsNotificationListener();
+        ServiceRegistration userOperationNotificationSR = context.getBundleContext().registerService(
+                UserOperationEventListener.class.getName(), notificationListener, null);
+
+        if (userOperationNotificationSR != null) {
+            if (log.isDebugEnabled()) {
+                log.debug("Identity Management - UserOperationNotificationListener registered.");
+            }
+        } else {
+            log.error("Identity Management - UserOperationNotificationListener could not be registered.");
+        }
+
         if(log.isDebugEnabled()) {
             log.debug("Identity Management bundle is activated");
         }
@@ -192,4 +212,23 @@ public class IdentityMgtServiceComponent {
         log.debug("UnSetting the  ConfigurationContext Service");
         IdentityMgtServiceComponent.configurationContextService = null;
     }
+
+    protected void setNotificationSender(NotificationSender notificationSender) {
+        if (log.isDebugEnabled()) {
+            log.debug("Un-setting notification sender in Entitlement bundle");
+        }
+        this.notificationSender = notificationSender;
+    }
+
+    protected void unsetNotificationSender(NotificationSender notificationSender) {
+        if (log.isDebugEnabled()) {
+            log.debug("Setting notification sender in Entitlement bundle");
+        }
+        this.notificationSender = null;
+    }
+
+    public static NotificationSender getNotificationSender() {
+        return IdentityMgtServiceComponent.notificationSender;
+    }
+
 }
