@@ -28,7 +28,7 @@
 
   <jaxrs:server id="umaEP" address="/">
     <jaxrs:serviceBeans>
-        <ref bean="authorizationEndpointBean"/>
+      <ref bean="authorizationEndpointBean"/>
       <ref bean="resourceSetRegEndpointBean"/>
       <ref bean="permissionSetRegEndpointBean"/>
     </jaxrs:serviceBeans>

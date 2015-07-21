@@ -226,11 +226,7 @@ public class UMAService {
 
         ResourceSetDO newResourceSetDO  =
                 new ResourceSetDO(
-                    umaResourceSetRegRequest.getResourceSetName(),
-                    umaResourceSetRegRequest.getResourceSetURI(),
-                    umaResourceSetRegRequest.getResourceSetType(),
-                    umaResourceSetRegRequest.getResourceSetScopes(),
-                    umaResourceSetRegRequest.getResouceSetIconURI()
+                        umaResourceSetRegRequest.getResourceSetDescriptionBean()
                 );
 
 

@@ -59,6 +59,14 @@ public class ResourceSetDO {
         iconURI = resourceSetDescriptionBean.getIcon_uri();
     }
 
+    public ResourceSetDO(String name, String URI, String type, String[] scopes, String iconURI) {
+        this.name = name;
+        this.URI = URI;
+        this.type = type;
+        this.scopes = scopes;
+        this.iconURI = iconURI;
+    }
+
     public ResourceSetDO() {
 
     }
