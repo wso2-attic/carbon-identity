@@ -40,62 +40,68 @@
 	String profile = CharacterEncoder.getSafeText(request.getParameter("profile"));
     String username = CharacterEncoder.getSafeText(request.getParameter("username"));
     String profileConfiguration = request.getParameter("profileConfiguration");
-	UserFieldDTO[] fieldDTOs = null;
-	String forwardTo = null;
-	String BUNDLE = "org.wso2.carbon.identity.user.profile.ui.i18n.Resources";
-	ResourceBundle resourceBundle = ResourceBundle.getBundle(BUNDLE, request.getLocale());
-	String fromUserMgt = (String) request.getParameter("fromUserMgt");
-    String noOfProfiles = request.getParameter("noOfProfiles");
-    if (noOfProfiles == null) {
-        noOfProfiles = "0";
-    }
-    
-    if (fromUserMgt==null) fromUserMgt = "false";
+    String forwardTo = null;
 
-    
-    try {
-        String cookie = (String) session.getAttribute(ServerConstants.ADMIN_SERVICE_COOKIE);
-        String backendServerURL = CarbonUIUtil.getServerURL(config.getServletContext(), session);
-        ConfigurationContext configContext =
-                (ConfigurationContext) config.getServletContext().getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
-        UserProfileCient client = new UserProfileCient(cookie, backendServerURL, configContext);        
-
-    	fieldDTOs = client.getProfileFieldsForInternalStore().getFieldValues();
-    	
-        if (fieldDTOs!=null)
-        {
-          for (UserFieldDTO field : fieldDTOs) {
-            String value = request.getParameter(field.getClaimUri());
-            if(value == null){
-                value = "";
-            }
-            field.setFieldValue(value);   
-          }
+    if(!(username == null )) {
+        UserFieldDTO[] fieldDTOs = null;
+        String BUNDLE = "org.wso2.carbon.identity.user.profile.ui.i18n.Resources";
+        ResourceBundle resourceBundle = ResourceBundle.getBundle(BUNDLE, request.getLocale());
+        String fromUserMgt = (String) request.getParameter("fromUserMgt");
+        String noOfProfiles = request.getParameter("noOfProfiles");
+        if (noOfProfiles == null) {
+            noOfProfiles = "0";
         }
-        
-        UserProfileDTO userprofile= new UserProfileDTO();
-        userprofile.setProfileName(profile);
-        userprofile.setFieldValues(fieldDTOs);      
-        userprofile.setProfileConifuration(profileConfiguration);
-        client.setUserProfile(Util.decodeHTMLCharacters(username), userprofile);
-        String message = resourceBundle.getString("user.profile.updated.successfully");
-        CarbonUIMessage.sendCarbonUIMessage(message,CarbonUIMessage.INFO, request);
-        if ("true".equals(fromUserMgt)) {
-            //if there is only one profile, send directly to user-mgt.jsp
-            if ((!client.isAddProfileEnabled()) && ((Integer.parseInt(noOfProfiles)) == 1)) {
-                forwardTo = "../user/user-mgt.jsp?ordinal=1";
+
+        if (fromUserMgt == null) fromUserMgt = "false";
+
+
+        try {
+            String cookie = (String) session.getAttribute(ServerConstants.ADMIN_SERVICE_COOKIE);
+            String backendServerURL = CarbonUIUtil.getServerURL(config.getServletContext(), session);
+            ConfigurationContext configContext =
+                    (ConfigurationContext) config.getServletContext().getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
+            UserProfileCient client = new UserProfileCient(cookie, backendServerURL, configContext);
+
+            fieldDTOs = client.getProfileFieldsForInternalStore().getFieldValues();
+
+            if (fieldDTOs != null) {
+                for (UserFieldDTO field : fieldDTOs) {
+                    String value = request.getParameter(field.getClaimUri());
+                    if (value == null) {
+                        value = "";
+                    }
+                    field.setFieldValue(value);
+                }
+            }
+
+            UserProfileDTO userprofile = new UserProfileDTO();
+            userprofile.setProfileName(profile);
+            userprofile.setFieldValues(fieldDTOs);
+            userprofile.setProfileConifuration(profileConfiguration);
+
+            client.setUserProfile(Util.decodeHTMLCharacters(username), userprofile);
+            String message = resourceBundle.getString("user.profile.updated.successfully");
+            CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.INFO, request);
+            if ("true".equals(fromUserMgt)) {
+                //if there is only one profile, send directly to user-mgt.jsp
+                if ((!client.isAddProfileEnabled()) && ((Integer.parseInt(noOfProfiles)) == 1)) {
+                    forwardTo = "../user/user-mgt.jsp?ordinal=1";
+                } else {
+                    forwardTo = "index.jsp?username=" + URLEncoder.encode(username) + "&fromUserMgt=" + fromUserMgt;
+                }
             } else {
-                forwardTo ="index.jsp?username="+ URLEncoder.encode(username)+"&fromUserMgt="+fromUserMgt;
+                forwardTo = "index.jsp?region=region5&item=userprofiles_menu&ordinal=0";
             }
-        }else{
-        	forwardTo ="index.jsp?region=region5&item=userprofiles_menu&ordinal=0";        	
-        }
 
-    } catch (Exception e) {
-        String message = MessageFormat.format(resourceBundle.getString(
-                "error.while.updating.user.profile"), Util.decodeHTMLCharacters(username), e.getMessage());
-    	CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
-        forwardTo = "edit.jsp?username=" + URLEncoder.encode(username) + "&profile=" + profile + "&fromUserMgt=true&noOfProfiles=" + noOfProfiles;
+        } catch (Exception e) {
+            String message = MessageFormat.format(resourceBundle.getString(
+                    "error.while.updating.user.profile"), Util.decodeHTMLCharacters(username), e.getMessage());
+            CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
+            forwardTo = "edit.jsp?username=" + URLEncoder.encode(username) + "&profile=" + profile + "&fromUserMgt=true&noOfProfiles=" + noOfProfiles;
+        }
+    } else {
+        CarbonUIMessage.sendCarbonUIMessage("Profile update failed. Please try again.", CarbonUIMessage.ERROR, request);
+        forwardTo= "../user/user-mgt.jsp";
     }
 %>
 
