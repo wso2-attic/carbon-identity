@@ -622,7 +622,9 @@ var roleMappinRowID = -1;
 				newRow+='<option>'+dataArray[i]+'</option>';					
 			}
 		}
-		newRow+='</select></td><td><input type="checkbox" name="blocking_prov_' + selectedIDPName + '"  />Blocking</td><td><input type="checkbox" name="provisioning_jit_' + selectedIDPName + '"  />Enable JIT</td><td class="leftCol-small" ><a onclick="deleteIDPRow(this);return false;" href="#" class="icon-link" style="background-image: url(images/delete.gif)"> Delete </a></td></tr>';
+		newRow+='</select></td><td><input type="checkbox" name="blocking_prov_' + selectedIDPName +
+				'"  />Blocking</td><td><input type="checkbox" name="provisioning_jit_' + selectedIDPName +
+				'"  />JIT Outbound</td><td class="leftCol-small" ><a onclick="deleteIDPRow(this);return false;" href="#" class="icon-link" style="background-image: url(images/delete.gif)"> Delete </a></td></tr>';
 		jQuery(obj)
 				.parent()
 				.parent()

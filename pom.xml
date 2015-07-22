@@ -20,7 +20,7 @@
     <groupId>org.wso2.carbon.identity</groupId>
     <artifactId>carbon-identity</artifactId>
     <packaging>pom</packaging>
-    <version>4.5.6-SNAPSHOT</version>
+    <version>4.5.4-SNAPSHOT</version>
     <name>WSO2 Carbon - Platform Aggregator Pom</name>
     <url>http://wso2.org</url>
 
@@ -39,8 +39,6 @@
 
     <modules>
         <module>service-stubs/identity</module>
-        <module>components/userstore-config</module>
-        <module>components/user-manager</module>
         <module>components/agents</module>
         <module>components/application-authenticators</module>
         <module>components/authentication-framework</module>
@@ -61,9 +59,7 @@
         <module>components/carbon-authenticators</module>
         <module>components/claim-mgt</module>
         <module>components/directory-server-manager</module>
-        <module>components/ldap-server</module>
         <module>components/policy-editor</module>
-        <module>components/remote-usermgt</module>
         <module>components/security</module>
         <module>components/sts</module>
         <module>features/security-mgt</module>
@@ -386,6 +382,12 @@
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.user.mgt.ui</artifactId>
+                <version>${carbon.identity.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.wso2.carbon.identity</groupId>
+                <artifactId>org.wso2.carbon.identity.account.mgt.menu.ui</artifactId>
                 <version>${carbon.identity.version}</version>
             </dependency>
 
@@ -1382,6 +1384,12 @@
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
+                <artifactId>org.wso2.carbon.identity.self.registration.ui.feature</artifactId>
+                <version>${carbon.identity.version}</version>
+                <type>zip</type>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.directory.service.mgr.server.feature</artifactId>
                 <version>${carbon.identity.version}</version>
                 <type>zip</type>
@@ -1394,7 +1402,7 @@
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
-                <artifactId>org.wso2.carbon.identity.thrift.authentication</artifactId>
+                <artifactId>org.wso2.carbon.identity.authenticator.thrift</artifactId>
                 <version>${carbon.identity.version}</version>
             </dependency>
             <dependency>
@@ -1783,7 +1791,7 @@
         <carbon.commons.imp.pkg.version>[4.4.0, 4.5.0)</carbon.commons.imp.pkg.version>
 
         <!--Carbon identity version-->
-        <carbon.identity.version>4.5.6-SNAPSHOT</carbon.identity.version>
+        <carbon.identity.version>4.5.4-SNAPSHOT</carbon.identity.version>
         <carbon.identity.package.export.version>${carbon.identity.version}</carbon.identity.package.export.version>
         <carbon.identity.package.import.version.range>[4.5.0, 4.6.0)</carbon.identity.package.import.version.range>
 
@@ -1930,11 +1938,11 @@
         <google.step2.wso2.version>1.0.wso2v2</google.step2.wso2.version>
         <google.guice.wso2.version>3.0.wso2v1</google.guice.wso2.version>
         <google.guice.imp.pkg.version.range>[1.3.0,1.4.0)</google.guice.imp.pkg.version.range>
-        <charon.wso2.version.identity>2.0.0-wso2v4-SNAPSHOT</charon.wso2.version.identity>
-        <charon.core.imp.pkg.version.range>[1.0.0,1.1.0)</charon.core.imp.pkg.version.range>
+        <charon.wso2.version.identity>2.0.0-wso2v4</charon.wso2.version.identity>
+        <charon.core.imp.pkg.version.range>[2.0.0,2.1.0)</charon.core.imp.pkg.version.range>
         <openid4java.version>0.9.6</openid4java.version>
-        <openid4java.wso2.version>0.9.6.wso2v2</openid4java.wso2.version>
-        <openid4java.wso2.osgi.version.range>[0.9.6.wso2v2,0.10)</openid4java.wso2.osgi.version.range>
+        <openid4java.wso2.version>0.9.6.wso2v4-SNAPSHOT</openid4java.wso2.version>
+        <openid4java.wso2.osgi.version.range>[0.9.6.wso2v4-SNAPSHOT,0.10)</openid4java.wso2.osgi.version.range>
         <opensaml2.version>2.4.1.wso2v1</opensaml2.version>
         <opensaml.wso2.version>1.1.0.wso2v1</opensaml.wso2.version>
         <balana.version>1.0.0.wso2v8</balana.version>

@@ -19,6 +19,7 @@ package org.wso2.carbon.identity.application.authenticator.oidc.ext;
 
 import org.apache.amber.oauth2.client.response.OAuthClientResponse;
 import org.apache.amber.oauth2.common.utils.JSONUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.application.authenticator.oidc.OIDCAuthenticatorConstants;
@@ -126,26 +127,27 @@ public class WindowsLiveOAuth2Authenticator extends OpenIDConnectAuthenticator {
         try {
             String json = sendRequest(token.getParam(WindowsLiveOAuth2AuthenticatorConstants.WINDOWS_LIVE_USER_INFO_URL)
                     + token.getParam(OIDCAuthenticatorConstants.ACCESS_TOKEN));
+            if (StringUtils.isNotBlank(json)) {
+                Map<String, Object> jsonObject = JSONUtils.parseJSON(json);
 
-            Map<String, Object> jsonObject = JSONUtils.parseJSON(json);
+                if (jsonObject != null) {
+                    for (Map.Entry<String, Object> entry : jsonObject.entrySet()) {
+                        String key = getClaimUri(entry.getKey());
+                        String value = entry.getValue().toString();
 
-            if (jsonObject != null) {
-                for (Map.Entry<String, Object> entry : jsonObject.entrySet()) {
-                    String key = getClaimUri(entry.getKey());
-                    String value = entry.getValue().toString();
-
-                    if (value != null && value.startsWith("{") && value.endsWith("}")) {
-                        Map<String, Object> children = JSONUtils.parseJSON(value);
-                        if (WindowsLiveOAuth2AuthenticatorConstants.EMAIL_ADD_CLAIM_URI.equals(key)) {
-                            value = (String) children.get("account");
+                        if (value != null && value.startsWith("{") && value.endsWith("}")) {
+                            Map<String, Object> children = JSONUtils.parseJSON(value);
+                            if (WindowsLiveOAuth2AuthenticatorConstants.EMAIL_ADD_CLAIM_URI.equals(key)) {
+                                value = (String) children.get("account");
+                            }
                         }
-                    }
 
-                    if (key != null && value != null && value.trim().length() > 0) {
-                        claims.put(ClaimMapping.build(key, key, null, false), value);
-                    }
-                    if (log.isDebugEnabled()) {
-                        log.debug("Adding claim mapping : " + key + " <> " + key + " : " + value);
+                        if (key != null && value != null && value.trim().length() > 0) {
+                            claims.put(ClaimMapping.build(key, key, null, false), value);
+                        }
+                        if (log.isDebugEnabled()) {
+                            log.debug("Adding claim mapping : " + key + " <> " + key + " : " + value);
+                        }
                     }
                 }
             }
@@ -227,16 +229,20 @@ public class WindowsLiveOAuth2Authenticator extends OpenIDConnectAuthenticator {
     }
 
     private String sendRequest(String url) throws IOException {
-        URLConnection urlConnection = new URL(url).openConnection();
-        BufferedReader in = new BufferedReader(
-                new InputStreamReader(urlConnection.getInputStream(), Charset.forName("utf-8")));
-        StringBuilder b = new StringBuilder();
-        String inputLine = in.readLine();
-        while (inputLine != null) {
-            b.append(inputLine).append("\n");
-            inputLine = in.readLine();
+        if (url != null) {
+            URLConnection urlConnection = new URL(url).openConnection();
+            BufferedReader in = new BufferedReader(
+                    new InputStreamReader(urlConnection.getInputStream(), Charset.forName("utf-8")));
+            StringBuilder b = new StringBuilder();
+            String inputLine = in.readLine();
+            while (inputLine != null) {
+                b.append(inputLine).append("\n");
+                inputLine = in.readLine();
+            }
+            in.close();
+            return b.toString();
+        } else {
+            return StringUtils.EMPTY;
         }
-        in.close();
-        return b.toString();
     }
 }

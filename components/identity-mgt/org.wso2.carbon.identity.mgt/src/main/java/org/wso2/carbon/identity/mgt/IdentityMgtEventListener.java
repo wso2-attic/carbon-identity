@@ -519,6 +519,8 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
             try {
                 module.store(userIdentityClaimsDO, userStoreManager);
             } catch (IdentityException e) {
+                //roleback user
+                userStoreManager.deleteUser(userName);
                 throw new UserStoreException("Error while saving user store for user : "
                         + userName, e);
             }
@@ -534,6 +536,8 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
             try {
                 verificationBean = processor.updateConfirmationCode(1, userName, userStoreManager.getTenantId());
             } catch (IdentityException e) {
+                //roleback user
+                userStoreManager.deleteUser(userName);
                 throw new UserStoreException(
                         "Error while updating confirmation code for user : " + userName, e);
             }
@@ -555,6 +559,8 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
             try {
                 notificationDto = processor.recoverWithNotification(recoveryDto);
             } catch (IdentityException e) {
+                //roleback user
+                userStoreManager.deleteUser(userName);
                 throw new UserStoreException("Error while sending notification for user : "
                         + userName, e);
             }
@@ -569,6 +575,8 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
             try {
                 config.getIdentityDataStore().store(userIdentityClaimsDO, userStoreManager);
             } catch (IdentityException e) {
+                //roleback user
+                userStoreManager.deleteUser(userName);
                 throw new UserStoreException("Error while saving user store data for user : "
                         + userName, e);
             }
@@ -584,6 +592,8 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
                 }
                 module.store(userIdentityClaimsDO, userStoreManager);
             } catch (IdentityException e) {
+                //roleback user
+                userStoreManager.deleteUser(userName);
                 throw new UserStoreException("Error while saving user store data for user : "
                         + userName, e);
             }

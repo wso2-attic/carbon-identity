@@ -46,6 +46,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 public class EndpointUtil {
 
@@ -298,15 +299,18 @@ public class EndpointUtil {
                 log.debug("Received OAuth2 params are Null for UserConsentURL");
             }
         }
-        SessionDataCacheEntry entry = (SessionDataCacheEntry) SessionDataCache.getInstance(0)
-                .getValueFromCache(new SessionDataCacheKey(sessionDataKey));
+        SessionDataCache sessionDataCache = SessionDataCache.getInstance(OAuthServerConfiguration.getInstance().getSessionDataCacheTimeout());
+        SessionDataCacheEntry entry = (SessionDataCacheEntry) sessionDataCache.getValueFromCache
+                (new SessionDataCacheKey(sessionDataKey));
         String consentPage = null;
+        String sessionDataKeyConsent = UUID.randomUUID().toString();
         try {
             if (entry == null) {
                 if (log.isDebugEnabled()) {
                     log.debug("Cache Entry is Null from SessionDataCache ");
                 }
             } else {
+                sessionDataCache.addToCache(new SessionDataCacheKey(sessionDataKeyConsent),entry);
                 queryString = URLEncoder.encode(entry.getQueryString(), "UTF-8");
             }
 
@@ -323,7 +327,7 @@ public class EndpointUtil {
                         "UTF-8") + "&application=" + URLEncoder.encode(params.getApplicationName(), "ISO-8859-1") +
                         "&" + OAuthConstants.OAuth20Params.SCOPE + "=" + URLEncoder.encode(EndpointUtil.getScope
                         (params), "ISO-8859-1") + "&" + OAuthConstants.SESSION_DATA_KEY_CONSENT + "=" + URLEncoder
-                        .encode(sessionDataKey, "UTF-8") + "&spQueryParams=" + queryString;
+                        .encode(sessionDataKeyConsent, "UTF-8") + "&spQueryParams=" + queryString;
             } else {
                 throw new OAuthSystemException("Error while retrieving the application name");
             }

@@ -241,6 +241,7 @@
             <xs:element name="changePasswordByUser">
                 <xs:complexType>
                     <xs:sequence>
+                        <xs:element minOccurs="0" name="userName" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="oldPassword" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="newPassword" nillable="true" type="xs:string"/>
                     </xs:sequence>
@@ -367,6 +368,7 @@
                     <xs:element minOccurs="0" name="readOnly" type="xs:boolean"/>
                     <xs:element minOccurs="0" name="roleNameRegEx" nillable="true" type="xs:string"/>
                     <xs:element minOccurs="0" name="userNameRegEx" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="usernameRegExViolationErrorMsg" nillable="true" type="xs:string"/>
                 </xs:sequence>
             </xs:complexType>
             <xs:complexType name="UIPermissionNode">

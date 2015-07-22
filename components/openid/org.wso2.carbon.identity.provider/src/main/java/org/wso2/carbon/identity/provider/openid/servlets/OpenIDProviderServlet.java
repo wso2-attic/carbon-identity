@@ -19,6 +19,7 @@ package org.wso2.carbon.identity.provider.openid.servlets;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openid4java.util.OpenID4JavaUtils;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.provider.openid.handlers.OpenIDHandler;
 import org.wso2.carbon.identity.provider.openid.util.OpenIDUtil;
@@ -39,24 +40,30 @@ public class OpenIDProviderServlet extends HttpServlet {
 
     @Override
     protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String frontEndUrl = OpenIDUtil.getAdminConsoleURL(req);
-        frontEndUrl = frontEndUrl.replace("carbon/", "authenticationendpoint/openid_login.do");
-        OpenIDHandler provider = OpenIDHandler.getInstance(null);
-        provider.setFrontEndUrl(frontEndUrl);
-        String response = null;
 
-        try {
-            response = provider.processRequest(req, resp);
-        } catch (IdentityException e) {
-            throw new ServletException(e);
-        }
-        // at this time the response may be already committed
-        try {
-            if (response != null) {
-                resp.sendRedirect(response);
+        try{
+            String frontEndUrl = OpenIDUtil.getAdminConsoleURL(req);
+            frontEndUrl = frontEndUrl.replace("carbon/", "authenticationendpoint/openid_login.do");
+            OpenIDHandler provider = OpenIDHandler.getInstance(null);
+            provider.setFrontEndUrl(frontEndUrl);
+            String response = null;
+
+            try {
+                response = provider.processRequest(req, resp);
+            } catch (IdentityException e) {
+                throw new ServletException(e);
             }
-        } catch (Exception e) {
-            log.error(e);
+            // at this time the response may be already committed
+            try {
+                if (response != null) {
+                    resp.sendRedirect(response);
+                }
+            } catch (Exception e) {
+                log.error(e);
+            }
+        } finally {
+            // clear thread local
+            OpenID4JavaUtils.clearThreadLocalAssociation();
         }
     }
 

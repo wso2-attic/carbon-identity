@@ -18,8 +18,6 @@
  */
 package org.wso2.mobile.idp.proxy.utils;
 
-import android.util.StringBuilderPrinter;
-
 /**
  * package names of IDP proxy application
  */

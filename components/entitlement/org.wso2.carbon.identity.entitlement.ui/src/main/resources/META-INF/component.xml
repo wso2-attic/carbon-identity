@@ -136,7 +136,7 @@
     <FileUploadConfig>
         <Mapping>
             <Actions>
-                <Action>service</Action>
+                <Action>entitlement-policy</Action>
             </Actions>
             <Class>org.wso2.carbon.identity.entitlement.ui.client.EntitlementPolicyUploadExecutor</Class>
         </Mapping>

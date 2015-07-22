@@ -28,9 +28,11 @@ import org.wso2.carbon.identity.core.util.IdentityCoreInitializedEventImpl;
 import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.registry.core.service.RegistryService;
+import org.wso2.carbon.registry.core.service.TenantRegistryLoader;
 import org.wso2.carbon.security.config.SecurityConfigAdmin;
 import org.wso2.carbon.user.core.listener.UserStoreManagerListener;
 import org.wso2.carbon.user.core.service.RealmService;
+import org.wso2.carbon.utils.ConfigurationContextService;
 
 /**
  * @scr.component name="identity.core.component" immediate="true"
@@ -38,6 +40,10 @@ import org.wso2.carbon.user.core.service.RealmService;
  * interface="org.wso2.carbon.security.config.SecurityConfigAdmin" cardinality="1..1"
  * policy="dynamic" bind="setSecurityConfigAdminService"
  * unbind="unsetSecurityConfigAdminService"
+ * @scr.reference name="config.context.service"
+ * interface="org.wso2.carbon.utils.ConfigurationContextService" cardinality="1..1"
+ * policy="dynamic" bind="setConfigurationContextService"
+ * unbind="unsetConfigurationContextService"
  * @scr.reference name="registry.service"
  * interface="org.wso2.carbon.registry.core.service.RegistryService"
  * cardinality="1..1" policy="dynamic" bind="setRegistryService"
@@ -45,12 +51,16 @@ import org.wso2.carbon.user.core.service.RealmService;
  * @scr.reference name="user.realmservice.default"
  * interface="org.wso2.carbon.user.core.service.RealmService" cardinality="1..1"
  * policy="dynamic" bind="setRealmService" unbind="unsetRealmService"
+ * @scr.reference name="registry.loader.default"
+ * interface="org.wso2.carbon.registry.core.service.TenantRegistryLoader"
+ * cardinality="1..1" policy="dynamic" bind="setTenantRegistryLoader" unbind="unsetTenantRegistryLoader"
  */
 
 public class IdentityCoreServiceComponent {
     private static Log log = LogFactory.getLog(IdentityCoreServiceComponent.class);
 
     private static BundleContext bundleContext = null;
+    private static ConfigurationContextService configurationContextService = null;
 
     public IdentityCoreServiceComponent() {
     }
@@ -63,6 +73,7 @@ public class IdentityCoreServiceComponent {
      * @param ctxt
      */
     protected void activate(ComponentContext ctxt) {
+        IdentityTenantUtil.setBundleContext(ctxt.getBundleContext());
         if (log.isDebugEnabled()) {
             log.debug("Identity Core bundle is activated");
         }
@@ -109,6 +120,7 @@ public class IdentityCoreServiceComponent {
      * @param ctxt
      */
     protected void deactivate(ComponentContext ctxt) {
+        IdentityTenantUtil.setBundleContext(null);
         if (log.isDebugEnabled()) {
             log.debug("Identity Core bundle is deactivated");
         }
@@ -152,6 +164,41 @@ public class IdentityCoreServiceComponent {
         if (log.isDebugEnabled()) {
             log.debug("SecurityConfigAdmin unset in Identity Core bundle");
         }
+    }
+
+    protected void setTenantRegistryLoader(TenantRegistryLoader tenantRegistryLoader) {
+        if (log.isDebugEnabled()) {
+            log.debug("Tenant Registry Loader is set in the SAML SSO bundle");
+        }
+        IdentityTenantUtil.setTenantRegistryLoader(tenantRegistryLoader);
+    }
+
+    protected void unsetTenantRegistryLoader(TenantRegistryLoader tenantRegistryLoader) {
+        if (log.isDebugEnabled()) {
+            log.debug("Tenant Registry Loader is unset in the SAML SSO bundle");
+        }
+        IdentityTenantUtil.setTenantRegistryLoader(null);
+    }
+
+    /**
+     * @return
+     */
+    public static ConfigurationContextService getConfigurationContextService() {
+        return configurationContextService;
+    }
+
+    /**
+     * @param service
+     */
+    protected void setConfigurationContextService(ConfigurationContextService service) {
+        configurationContextService = service;
+    }
+
+    /**
+     * @param service
+     */
+    protected void unsetConfigurationContextService(ConfigurationContextService service) {
+        configurationContextService = null;
     }
 
 }
