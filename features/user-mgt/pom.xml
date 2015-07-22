@@ -22,7 +22,7 @@
     </parent>
 
 	<modelVersion>4.0.0</modelVersion>
-	<artifactId>user-manager-feature</artifactId>
+	<artifactId>user-mgt-feature</artifactId>
     <packaging>pom</packaging>
     <name>WSO2 Carbon - User Manager Aggregator Module</name>
     <url>http://wso2.org</url>
