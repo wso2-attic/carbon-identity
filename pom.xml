@@ -60,7 +60,7 @@
         <module>components/claim-mgt</module>
         <module>components/directory-server-manager</module>
         <module>components/policy-editor</module>
-        <module>components/security</module>
+        <module>components/security-mgt</module>
         <module>components/sts</module>
         <module>features/security-mgt</module>
         <module>features/authenticators</module>
@@ -74,7 +74,7 @@
         <module>features/oauth</module>
         <module>features/sso-saml</module>
         <module>features/passive-sts</module>
-        <module>features/application-authentication-framework</module>
+        <module>features/authentication-framework</module>
         <module>features/application-authenticators</module>
         <module>features/scim</module>
         <module>features/application-mgt</module>
