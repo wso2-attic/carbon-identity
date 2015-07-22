@@ -88,7 +88,7 @@
         <module>features/remote-usermgt</module>
         <module>features/ldap-server-manager</module>
         <module>features/sts</module>
-        <module>features/user-manager</module>
+        <module>features/user-mgt</module>
     </modules>
 
     <repositories>
