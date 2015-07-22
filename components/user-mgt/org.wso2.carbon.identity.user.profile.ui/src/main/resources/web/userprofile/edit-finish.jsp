@@ -92,8 +92,8 @@
         }
 
     } catch (Exception e) {
-        String decodedUsername="";
-        String encodedUsername="";
+        String decodedUsername = "";
+        String encodedUsername = "";
 
         if (username != null) {
             decodedUsername = Util.decodeHTMLCharacters(username);
