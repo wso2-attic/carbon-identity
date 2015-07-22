@@ -25,9 +25,9 @@ import org.apache.http.HttpStatus;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.wso2.mobile.idp.proxy.IdentityProxy;
+import org.wso2.mobile.idp.proxy.beans.Token;
 import org.wso2.mobile.idp.proxy.utils.IDPConstants;
 import org.wso2.mobile.idp.proxy.utils.ServerUtilities;
-import org.wso2.mobile.idp.proxy.beans.Token;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -25,6 +25,7 @@ import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.mgt.ChallengeQuestionProcessor;
+import org.wso2.carbon.identity.mgt.IdentityMgtConfig;
 import org.wso2.carbon.identity.mgt.IdentityMgtServiceException;
 import org.wso2.carbon.identity.mgt.constants.IdentityMgtConstants;
 import org.wso2.carbon.identity.mgt.dto.ChallengeQuestionDTO;
@@ -118,8 +119,9 @@ public class UserIdentityManagementAdminService {
             UserIdentityManagementUtil.unlockUserAccount(userNameWithoutDomain, userStoreManager);
             int tenantID = userStoreManager.getTenantId();
             String tenantDomain = IdentityMgtServiceComponent.getRealmService().getTenantManager().getDomain(tenantID);
-            if (notificationType != null) {
-                UserRecoveryDTO dto = null;
+            boolean isNotificationSending = IdentityMgtConfig.getInstance().isNotificationSending();
+            if (notificationType != null && isNotificationSending) {
+                UserRecoveryDTO dto;
                 if (MultitenantConstants.SUPER_TENANT_DOMAIN_NAME.equals(tenantDomain)) {
                     dto = new UserRecoveryDTO(userNameWithoutDomain);
                 } else {

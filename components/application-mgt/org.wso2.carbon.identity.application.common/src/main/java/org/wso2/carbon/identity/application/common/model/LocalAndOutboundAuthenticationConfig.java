@@ -36,8 +36,8 @@ public class LocalAndOutboundAuthenticationConfig implements Serializable {
     private AuthenticationStep authenticationStepForAttributes;
     private boolean alwaysSendBackAuthenticatedListOfIdPs;
     private String subjectClaimUri;
-    private boolean useTenantDomainInLocalSubjectIdentifier;
-    private boolean useUserstoreDomainInLocalSubjectIdentifier;
+    private boolean useTenantDomainInLocalSubjectIdentifier = true;
+    private boolean useUserstoreDomainInLocalSubjectIdentifier = true;
 
     /*
      * <LocalAndOutboundAuthenticationConfig> <AuthenticationSteps></AuthenticationSteps>
@@ -103,13 +103,13 @@ public class LocalAndOutboundAuthenticationConfig implements Serializable {
                 if (member.getText() != null && "true".equals(member.getText())) {
                     localAndOutboundAuthenticationConfig.setAlwaysSendBackAuthenticatedListOfIdPs(true);
                 }
-            } else if ("useUserstoreDomainInUsername".equals(member.getLocalName())) {
-                if (member.getText() != null && "true".equals(member.getText())) {
-                    localAndOutboundAuthenticationConfig.setUseUserstoreDomainInLocalSubjectIdentifier(true);
+            } else if ("UseUserstoreDomainInUsername".equals(member.getLocalName())) {
+                if (member.getText() != null && "false".equals(member.getText())) {
+                    localAndOutboundAuthenticationConfig.setUseUserstoreDomainInLocalSubjectIdentifier(false);
                 }
-            }else if ("useTenantDomainInUsername".equals(member.getLocalName())) {
-                if (member.getText() != null && "true".equals(member.getText())) {
-                    localAndOutboundAuthenticationConfig.setUseTenantDomainInLocalSubjectIdentifier(true);
+            } else if ("UseTenantDomainInUsername".equals(member.getLocalName())) {
+                if (member.getText() != null && "false".equals(member.getText())) {
+                    localAndOutboundAuthenticationConfig.setUseTenantDomainInLocalSubjectIdentifier(false);
                 }
             } else if ("subjectClaimUri".equals(member.getLocalName())) {
                 localAndOutboundAuthenticationConfig.setSubjectClaimUri(member.getText());

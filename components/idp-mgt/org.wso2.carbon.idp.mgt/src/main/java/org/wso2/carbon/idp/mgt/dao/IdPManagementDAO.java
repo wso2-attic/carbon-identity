@@ -718,10 +718,10 @@ public class IdPManagementDAO {
             if (inputStream != null) {
                 prepStmt.setBinaryStream(index, inputStream, inputStream.available());
             } else {
-                prepStmt.setBinaryStream(index, inputStream, 0);
+                prepStmt.setBinaryStream(index, new ByteArrayInputStream(CharacterEncoder.getSafeText("").getBytes()), 0);
             }
         } else {
-            prepStmt.setBinaryStream(index, null, 0);
+            prepStmt.setBinaryStream(index, new ByteArrayInputStream(CharacterEncoder.getSafeText("").getBytes()), 0);
         }
     }
 
@@ -2393,7 +2393,6 @@ public class IdPManagementDAO {
             prepStmt.setInt(2, MultitenantConstants.SUPER_TENANT_ID);
             prepStmt.setString(3, CharacterEncoder.getSafeText(idpName));
             rs = prepStmt.executeQuery();
-            dbConnection.commit();
             if (rs.next()) {
                 return rs.getInt(1);
             }

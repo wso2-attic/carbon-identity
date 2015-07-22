@@ -46,7 +46,6 @@ import org.opensaml.xml.security.x509.X509Credential;
 import org.opensaml.xml.util.Base64;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.http.HttpService;
-import org.osgi.util.tracker.ServiceTracker;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.bootstrap.DOMImplementationRegistry;
@@ -66,6 +65,7 @@ import org.wso2.carbon.identity.base.IdentityConstants;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.model.SAMLSSOServiceProviderDO;
 import org.wso2.carbon.identity.core.persistence.IdentityPersistenceManager;
+import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.sso.saml.SAMLSSOConstants;
 import org.wso2.carbon.identity.sso.saml.SSOServiceProviderConfigManager;
@@ -81,13 +81,11 @@ import org.wso2.carbon.identity.sso.saml.exception.IdentitySAML2SSOException;
 import org.wso2.carbon.identity.sso.saml.session.SSOSessionPersistenceManager;
 import org.wso2.carbon.identity.sso.saml.validators.SAML2HTTPRedirectSignatureValidator;
 import org.wso2.carbon.idp.mgt.IdentityProviderManager;
-import org.wso2.carbon.registry.api.RegistryException;
 import org.wso2.carbon.registry.core.Registry;
 import org.wso2.carbon.registry.core.service.RegistryService;
 import org.wso2.carbon.registry.core.service.TenantRegistryLoader;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.service.RealmService;
-import org.wso2.carbon.utils.AuthenticationObserver;
 import org.wso2.carbon.utils.ConfigurationContextService;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
@@ -458,7 +456,7 @@ public class SAMLSSOUtil {
             throw new IdentityException(errorMsg, e);
         }
 
-        initializeRegistry(tenantId, tenantDomain);
+        IdentityTenantUtil.initializeRegistry(tenantId, tenantDomain);
 
         try {
             identityProvider = IdentityProviderManager.getInstance().getResidentIdP(tenantDomain);
@@ -1241,41 +1239,4 @@ public class SAMLSSOUtil {
         deflaterOutputStream.close();
         return Base64.encodeBytes(byteArrayOutputStream.toByteArray(), Base64.DONT_BREAK_LINES);
     }
-
-    public static void initializeRegistry(int tenantId, String tenantDomain) throws IdentityException {
-
-        if (tenantId != MultitenantConstants.SUPER_TENANT_ID) {
-            try {
-                PrivilegedCarbonContext.startTenantFlow();
-                PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
-                carbonContext.setTenantDomain(tenantDomain, true);
-                BundleContext bundleContext = SAMLSSOUtil.getBundleContext();
-                if (bundleContext != null) {
-                    ServiceTracker tracker = new ServiceTracker(bundleContext, AuthenticationObserver.class.getName(), null);
-                    tracker.open();
-                    Object[] services = tracker.getServices();
-                    if (services != null) {
-                        for (Object service : services) {
-                            ((AuthenticationObserver) service).startedAuthentication(tenantId);
-                        }
-                    }
-                    tracker.close();
-                    try {
-                        SAMLSSOUtil.getTenantRegistryLoader().loadTenantRegistry(tenantId);
-                    } catch (RegistryException e) {
-                        throw new IdentityException("Error loading tenant registry for tenant domain " + tenantDomain, e);
-                    }
-                    try {
-                        registryService.getGovernanceSystemRegistry(tenantId);
-                    } catch (RegistryException e) {
-                        throw new IdentityException("Error obtaining governance system registry for tenant domain " +
-                                tenantDomain, e);
-                    }
-                }
-            } finally {
-                PrivilegedCarbonContext.endTenantFlow();
-            }
-        }
-    }
-
 }

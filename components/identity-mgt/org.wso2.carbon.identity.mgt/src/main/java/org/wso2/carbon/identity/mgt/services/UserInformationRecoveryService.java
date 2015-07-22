@@ -138,7 +138,7 @@ public class UserInformationRecoveryService {
 
         UserDTO userDTO = null;
         VerificationBean bean = null;
-        
+
         if (log.isDebugEnabled()) {
             log.debug("User recovery notification sending request received with username : " + username + " notification type :" + notificationType);
         }
@@ -765,7 +765,7 @@ public class UserInformationRecoveryService {
 
         try {
 
-            if(userStoreManager == null){
+            if (userStoreManager == null) {
                 vBean = new VerificationBean();
                 vBean.setVerified(false);
                 vBean.setError(VerificationBean.ERROR_CODE_UNEXPECTED
@@ -784,40 +784,28 @@ public class UserInformationRecoveryService {
             String identityRoleName = UserCoreConstants.INTERNAL_DOMAIN
                     + CarbonConstants.DOMAIN_SEPARATOR + IdentityConstants.IDENTITY_DEFAULT_ROLE;
 
-            try {
-                if (!userStoreManager.isExistingRole(identityRoleName, false)) {
-                    permission = new Permission("/permission/admin/login",
-                            UserMgtConstants.EXECUTE_ACTION);
-                    userStoreManager.addRole(identityRoleName, new String[]{userName},
-                            new Permission[]{permission}, false);
-                } else {
-                    userStoreManager.updateUserListOfRole(identityRoleName, new String[]{},
-                            new String[]{userName});
-                }
-            } catch (org.wso2.carbon.user.api.UserStoreException e) {
-                userStoreManager.deleteUser(userName);
-                vBean = handleError(VerificationBean.ERROR_CODE_UNEXPECTED
-                        + " Error occurred while adding user : " + userName, e);
-                return vBean;
+            if (!userStoreManager.isExistingRole(identityRoleName, false)) {
+                permission = new Permission("/permission/admin/login",
+                        UserMgtConstants.EXECUTE_ACTION);
+                userStoreManager.addRole(identityRoleName, new String[]{userName},
+                        new Permission[]{permission}, false);
+            } else {
+                userStoreManager.updateUserListOfRole(identityRoleName, new String[]{},
+                        new String[]{userName});
             }
-        } catch (UserStoreException e) {
-            vBean = handleError(VerificationBean.ERROR_CODE_UNEXPECTED
-                    + " Error occurred while adding user : " + userName, e);
-            return vBean;
-        }
 
-        IdentityMgtConfig config = IdentityMgtConfig.getInstance();
 
-        if (config.isListenerEnable() && config.isAuthPolicyAccountLockOnCreation()) {
-            UserDTO userDTO = new UserDTO(userName);
-            userDTO.setTenantId(tenantId);
+            IdentityMgtConfig config = IdentityMgtConfig.getInstance();
 
-            UserRecoveryDTO dto = new UserRecoveryDTO(userDTO);
-            dto.setNotification(IdentityMgtConstants.Notification.ACCOUNT_CONFORM);
-            dto.setNotificationType("EMAIL");
+            if (config.isListenerEnable() && config.isAuthPolicyAccountLockOnCreation()) {
+                UserDTO userDTO = new UserDTO(userName);
+                userDTO.setTenantId(tenantId);
 
-            RecoveryProcessor processor = IdentityMgtServiceComponent.getRecoveryProcessor();
-            try {
+                UserRecoveryDTO dto = new UserRecoveryDTO(userDTO);
+                dto.setNotification(IdentityMgtConstants.Notification.ACCOUNT_CONFORM);
+                dto.setNotificationType("EMAIL");
+
+                RecoveryProcessor processor = IdentityMgtServiceComponent.getRecoveryProcessor();
                 vBean = processor.updateConfirmationCode(1, userName, tenantId);
 
                 dto.setConfirmationCode(vBean.getKey());
@@ -829,14 +817,23 @@ public class UserInformationRecoveryService {
                     vBean.setNotificationData(notificationDto);
                 }
 
-            } catch (IdentityException e) {
+            } else {
+                vBean.setVerified(true);
+            }
+        } catch (UserStoreException | IdentityException e) {
+            vBean = handleError(VerificationBean.ERROR_CODE_UNEXPECTED
+                    + " Error occurred while registering user : " + userName, e);
+            //Rollback if user exists
+            try {
+                if (userStoreManager.isExistingUser(userName)) {
+                    userStoreManager.deleteUser(userName);
+                }
+            } catch (org.wso2.carbon.user.core.UserStoreException e1) {
                 vBean = handleError(VerificationBean.ERROR_CODE_UNEXPECTED
-                        + " Error occurred while registering user : " + userName, e);
-                return vBean;
+                        + " Error occurred while rollback registered user : " + userName, e);
             }
 
-        } else {
-            vBean.setVerified(true);
+            return vBean;
         }
 
         return vBean;
@@ -946,7 +943,7 @@ public class UserInformationRecoveryService {
         }
         return bean;
     }
-    
+
     private VerificationBean handleError(String error, Exception e) {
 
         VerificationBean bean = new VerificationBean();
@@ -957,7 +954,7 @@ public class UserInformationRecoveryService {
             log.error(error, e);
         } else {
             bean.setError(e.getMessage());
-            log.error(e);
+            log.error(e.getMessage(), e);
         }
 
         return bean;
@@ -972,7 +969,7 @@ public class UserInformationRecoveryService {
             log.error(error, e);
         } else {
             bean.setError(e.getMessage());
-            log.error(e);
+            log.error(e.getMessage(), e);
         }
 
         return bean;
@@ -987,7 +984,7 @@ public class UserInformationRecoveryService {
             log.error(error, e);
         } else {
             bean.setError(e.getMessage());
-            log.error(e);
+            log.error(e.getMessage(), e);
         }
 
         return bean;
