@@ -68,7 +68,6 @@
         <module>features/identity-core</module>
         <module>features/identity-provider</module>
         <module>features/identity-mgt</module>
-        <module>features/relying-party</module>
         <module>features/self-registration</module>
         <module>features/user-profiles</module>
         <module>features/xacml</module>
