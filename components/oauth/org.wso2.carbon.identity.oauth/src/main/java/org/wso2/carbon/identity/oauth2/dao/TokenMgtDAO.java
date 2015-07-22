@@ -473,7 +473,7 @@ public class TokenMgtDAO {
                     dataDO.setTokenId(tokenId);
                     accessTokenDOMap.put(accessToken, dataDO);
                 } else {
-                    String scope = resultSet.getString(3).trim();
+                    String scope = resultSet.getString(8).trim();
                     AccessTokenDO accessTokenDO = accessTokenDOMap.get(accessToken);
                     accessTokenDO.setScope((String[]) ArrayUtils.add(accessTokenDO.getScope(), scope));
                 }
