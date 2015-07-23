@@ -402,19 +402,19 @@ public class IdentityProviderManager {
         if (identityProvider.getFederatedAuthenticatorConfigs() == null) {
             identityProvider.setFederatedAuthenticatorConfigs(new FederatedAuthenticatorConfig[0]);
         }
-        FederatedAuthenticatorConfig fedAuthnConfig = IdentityApplicationManagementUtil
+        FederatedAuthenticatorConfig saml2SSOResidentAuthenticatorConfig = IdentityApplicationManagementUtil
                 .getFederatedAuthenticator(identityProvider.getFederatedAuthenticatorConfigs(),
                         IdentityApplicationConstants.Authenticator.SAML2SSO.NAME);
-        if (fedAuthnConfig == null) {
-            fedAuthnConfig = new FederatedAuthenticatorConfig();
-            fedAuthnConfig.setName(IdentityApplicationConstants.Authenticator.SAML2SSO.NAME);
+        if (saml2SSOResidentAuthenticatorConfig == null) {
+            saml2SSOResidentAuthenticatorConfig = new FederatedAuthenticatorConfig();
+            saml2SSOResidentAuthenticatorConfig.setName(IdentityApplicationConstants.Authenticator.SAML2SSO.NAME);
         }
-        if (fedAuthnConfig.getProperties() == null) {
-            fedAuthnConfig.setProperties(new Property[0]);
+        if (saml2SSOResidentAuthenticatorConfig.getProperties() == null) {
+            saml2SSOResidentAuthenticatorConfig.setProperties(new Property[0]);
         }
 
         boolean idPEntityIdAvailable = false;
-        for (Property property : fedAuthnConfig.getProperties()) {
+        for (Property property : saml2SSOResidentAuthenticatorConfig.getProperties()) {
             if (IdentityApplicationConstants.Authenticator.SAML2SSO.IDP_ENTITY_ID.equals(property.getName())) {
                 idPEntityIdAvailable = true;
             }
@@ -423,24 +423,24 @@ public class IdentityProviderManager {
             Property property = new Property();
             property.setName(IdentityApplicationConstants.Authenticator.SAML2SSO.IDP_ENTITY_ID);
             property.setValue(IdPManagementUtil.getResidentIdPEntityId());
-            if (fedAuthnConfig.getProperties().length > 0) {
-                List<Property> properties = Arrays.asList(fedAuthnConfig.getProperties());
+            if (saml2SSOResidentAuthenticatorConfig.getProperties().length > 0) {
+                List<Property> properties = Arrays.asList(saml2SSOResidentAuthenticatorConfig.getProperties());
                 properties.add(property);
-                fedAuthnConfig.setProperties((Property[]) properties.toArray());
+                saml2SSOResidentAuthenticatorConfig.setProperties((Property[]) properties.toArray());
             } else {
-                fedAuthnConfig.setProperties(new Property[]{property});
+                saml2SSOResidentAuthenticatorConfig.setProperties(new Property[]{property});
             }
         }
 
-        FederatedAuthenticatorConfig sessionTimeoutConfig = IdentityApplicationManagementUtil
+        FederatedAuthenticatorConfig idpPropertiesResidentAuthenticatorConfig = IdentityApplicationManagementUtil
                 .getFederatedAuthenticator(identityProvider.getFederatedAuthenticatorConfigs(),
                         IdentityApplicationConstants.Authenticator.IDPProperties.NAME);
-        if(sessionTimeoutConfig == null){
-            sessionTimeoutConfig = new FederatedAuthenticatorConfig();
-            sessionTimeoutConfig.setName(IdentityApplicationConstants.Authenticator.IDPProperties.NAME);
+        if(idpPropertiesResidentAuthenticatorConfig == null){
+            idpPropertiesResidentAuthenticatorConfig = new FederatedAuthenticatorConfig();
+            idpPropertiesResidentAuthenticatorConfig.setName(IdentityApplicationConstants.Authenticator.IDPProperties.NAME);
         }
-        List<Property> propertiesList = new ArrayList<Property>(Arrays.asList(sessionTimeoutConfig.getProperties()));
-        if(IdentityApplicationManagementUtil.getProperty(sessionTimeoutConfig.getProperties(),
+        List<Property> propertiesList = new ArrayList<Property>(Arrays.asList(idpPropertiesResidentAuthenticatorConfig.getProperties()));
+        if(IdentityApplicationManagementUtil.getProperty(idpPropertiesResidentAuthenticatorConfig.getProperties(),
                 IdentityApplicationConstants.Authenticator.IDPProperties.SESSION_IDLE_TIME_OUT) == null){
             Property sessionIdletimeOutProp = new Property();
             sessionIdletimeOutProp.setName(IdentityApplicationConstants.Authenticator.IDPProperties.SESSION_IDLE_TIME_OUT);
@@ -454,7 +454,7 @@ public class IdentityProviderManager {
             sessionIdletimeOutProp.setValue(idleTimeout);
             propertiesList.add(sessionIdletimeOutProp);
         }
-        if(IdentityApplicationManagementUtil.getProperty(sessionTimeoutConfig.getProperties(),
+        if(IdentityApplicationManagementUtil.getProperty(idpPropertiesResidentAuthenticatorConfig.getProperties(),
                 IdentityApplicationConstants.Authenticator.IDPProperties.REMEMBER_ME_TIME_OUT) == null){
             Property rememberMeTimeOutProp = new Property();
             rememberMeTimeOutProp.setName(IdentityApplicationConstants.Authenticator.IDPProperties.REMEMBER_ME_TIME_OUT);
@@ -468,7 +468,7 @@ public class IdentityProviderManager {
             rememberMeTimeOutProp.setValue(rememberMeTimeout);
             propertiesList.add(rememberMeTimeOutProp);
         }
-        if(IdentityApplicationManagementUtil.getProperty(sessionTimeoutConfig.getProperties(),
+        if(IdentityApplicationManagementUtil.getProperty(idpPropertiesResidentAuthenticatorConfig.getProperties(),
                 IdentityApplicationConstants.Authenticator.IDPProperties.CLEAN_UP_PERIOD) == null){
             Property cleanUpPeriodProp = new Property();
             cleanUpPeriodProp.setName(IdentityApplicationConstants.Authenticator.IDPProperties.CLEAN_UP_PERIOD);
@@ -482,9 +482,9 @@ public class IdentityProviderManager {
             cleanUpPeriodProp.setValue(cleanUpPeriod);
             propertiesList.add(cleanUpPeriodProp);
         }
-        sessionTimeoutConfig.setProperties(propertiesList.toArray(new Property[propertiesList.size()]));
+        idpPropertiesResidentAuthenticatorConfig.setProperties(propertiesList.toArray(new Property[propertiesList.size()]));
 
-        FederatedAuthenticatorConfig[] federatedAuthenticatorConfigs = {fedAuthnConfig, sessionTimeoutConfig};
+        FederatedAuthenticatorConfig[] federatedAuthenticatorConfigs = {saml2SSOResidentAuthenticatorConfig, idpPropertiesResidentAuthenticatorConfig};
         identityProvider.setFederatedAuthenticatorConfigs(IdentityApplicationManagementUtil
                 .concatArrays(identityProvider.getFederatedAuthenticatorConfigs(), federatedAuthenticatorConfigs));
 
