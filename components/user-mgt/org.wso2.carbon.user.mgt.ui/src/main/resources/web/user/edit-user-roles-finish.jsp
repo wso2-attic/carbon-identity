@@ -125,10 +125,11 @@
             </script>
 <%
         }
-} catch (Exception e) {
-    String message = MessageFormat.format(resourceBundle.getString("role.list.cannot.update"), Util.decodeHTMLCharacters(username), e.getMessage());
-    CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
-    if(viewUsers){
+
+    } catch (Exception e) {
+        	String message = MessageFormat.format(resourceBundle.getString("role.list.cannot.update"), Util.decodeHTMLCharacters(username), e.getMessage());
+        	CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
+        if(viewUsers){
 %>
             <script type="text/javascript">
                 location.href = "view-roles.jsp?username=<%=URLEncoder.encode(username)%>";
