@@ -16,10 +16,10 @@
    under the License.
   --%>
 
-<%@page import="org.apache.axis2.context.ConfigurationContext" %>
+<%@page import="org.apache.axis2.context.ConfigurationContext"%>
 <%@page import="org.wso2.carbon.CarbonConstants" %>
-<%@page import="org.wso2.carbon.ui.CarbonUIMessage" %>
-<%@page import="org.wso2.carbon.ui.CarbonUIUtil" %>
+<%@page import="org.wso2.carbon.ui.CarbonUIMessage"%>
+<%@page import="org.wso2.carbon.ui.CarbonUIUtil"%>
 <%@page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
 <%@page import="org.wso2.carbon.user.mgt.ui.UserAdminClient" %>
 <%@ page import="org.wso2.carbon.user.mgt.ui.UserAdminUIConstants" %>
@@ -40,42 +40,42 @@
     boolean viewUsers = false;
 
     String BUNDLE = "org.wso2.carbon.userstore.ui.i18n.Resources";
-    ResourceBundle resourceBundle = ResourceBundle.getBundle(BUNDLE, request.getLocale());
+	ResourceBundle resourceBundle = ResourceBundle.getBundle(BUNDLE, request.getLocale());
 
-    String username = CharacterEncoder.getSafeText(request.getParameter("username"));
+	String username = CharacterEncoder.getSafeText(request.getParameter("username"));
     String disPlayName = CharacterEncoder.getSafeText(request.getParameter("disPlayName"));
-    if (disPlayName == null || disPlayName.trim().length() == 0) {
+    if(disPlayName == null || disPlayName.trim().length() == 0){
         disPlayName = username;
     }
-    String[] selectedRoles = request.getParameterValues("selectedRoles");
-    String[] shownRoles = request.getParameterValues("shownRoles");
+	String[] selectedRoles = request.getParameterValues("selectedRoles");
+	String[] shownRoles = request.getParameterValues("shownRoles");
     String pageNumber = CharacterEncoder.getSafeText(request.getParameter("pageNumber"));
 
-    if (request.getParameter("logout") != null) {
+    if(request.getParameter("logout") != null){
         logout = Boolean.parseBoolean(request.getParameter("logout"));
     }
-    if (request.getParameter("finish") != null) {
+    if(request.getParameter("finish") != null){
         finish = Boolean.parseBoolean(request.getParameter("finish"));
     }
-    if (request.getParameter("viewRoles") != null) {
+    if(request.getParameter("viewRoles") != null){
         viewUsers = Boolean.parseBoolean(request.getParameter("viewRoles"));
     }
 
     try {
-        String cookie = (String) session.getAttribute(ServerConstants.ADMIN_SERVICE_COOKIE);
+        String cookie = (String)session.getAttribute(ServerConstants.ADMIN_SERVICE_COOKIE);
         String backendServerURL = CarbonUIUtil.getServerURL(config.getServletContext(), session);
         ConfigurationContext configContext =
-                (ConfigurationContext) config.getServletContext().getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
+            (ConfigurationContext) config.getServletContext().getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
         UserAdminClient client = new UserAdminClient(cookie, backendServerURL, configContext);
         ArrayList<String> deletedList = new ArrayList<String>();
-        if (selectedRoles != null) {
+        if(selectedRoles != null){
             Arrays.sort(selectedRoles);
         }
 
-        if (shownRoles != null) {
-            for (String name : shownRoles) {
-                if (selectedRoles != null) {
-                    if (Arrays.binarySearch(selectedRoles, name) < 0) {
+        if(shownRoles != null){
+            for(String name : shownRoles){
+                if(selectedRoles != null){
+                    if(Arrays.binarySearch(selectedRoles, name) < 0){
                         deletedList.add(name);
                     }
                 } else {
@@ -83,10 +83,10 @@
                 }
             }
         }
-        selectedRoles = addSelectedRoleLists(selectedRoles, (Map<String, Boolean>) session.getAttribute("checkedRolesMap"));
-        addDeletedRoleLists(deletedList, (Map<String, Boolean>) session.getAttribute("checkedRolesMap"));
+        selectedRoles = addSelectedRoleLists(selectedRoles,(Map<String,Boolean>)session.getAttribute("checkedRolesMap"));
+        addDeletedRoleLists(deletedList, (Map<String,Boolean>) session.getAttribute("checkedRolesMap"));
 
-        if (viewUsers) {
+        if(viewUsers){
             client.addRemoveRolesOfUser(Util.decodeHTMLCharacters(username), null,
                     deletedList.toArray(new String[deletedList.size()]));
         } else {
@@ -99,70 +99,70 @@
         CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.INFO, request);
 
 
-        if (logout) {
+        if(logout){
 %>
 
 <script type="text/javascript">
-    window.location.href = "../admin/logout_action.jsp";
-</script>
+                window.location.href = "../admin/logout_action.jsp";
+            </script>
 <%
-        } else if (finish) {
+        } else if(finish) {
+        	%>
+        	<script type="text/javascript">
+                location.href = "user-mgt.jsp?ordinal=1";
+            </script>
+        	<%
+        } else if(viewUsers){
 %>
-<script type="text/javascript">
-    location.href = "user-mgt.jsp?ordinal=1";
-</script>
-<%
-        } else if (viewUsers) {
-%>
-<script type="text/javascript">
-    location.href = "view-roles.jsp?username=<%=URLEncoder.encode(username)%>";
-</script>
+            <script type="text/javascript">
+                location.href = "view-roles.jsp?username=<%=URLEncoder.encode(username)%>";
+            </script>
 <%
         } else {
 %>
-<script type="text/javascript">
-    location.href = "edit-user-roles.jsp?username=<%=URLEncoder.encode(username)%>" + "&pageNumber=<%=pageNumber%>";
-</script>
+            <script type="text/javascript">
+                location.href = "edit-user-roles.jsp?username=<%=URLEncoder.encode(username)%>" + "&pageNumber=<%=pageNumber%>";
+            </script>
 <%
         }
     } catch (Exception e) {
 
-        String encodedUsername = "";
-        String decodedUserName = "";
+            String decodedUserName = "";
+            String encodedUserName = "";
 
             if(username != null){
-                encodedUsername = URLEncoder.encode(username);
                 decodedUserName = Util.decodeHTMLCharacters(username);
+                encodedUserName = URLEncoder.encode(username);
             }
 
-        String message = MessageFormat.format(resourceBundle.getString("role.list.cannot.update"), decodedUserName, e.getMessage());
-        CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
-        if (viewUsers) {
+         String message = MessageFormat.format(resourceBundle.getString("role.list.cannot.update"), decodedUserName, e.getMessage());
+         CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
+        if(viewUsers){
 %>
-<script type="text/javascript">
-    location.href = "view-roles.jsp?username=<%=encodedUsername%>";
-</script>
+            <script type="text/javascript">
+                location.href = "view-roles.jsp?username=<%=encodedUserName%>";
+            </script>
 <%
-} else {
+        } else {
 %>
-<script type="text/javascript">
-    location.href = "edit-user-roles.jsp?username=<%=encodedUsername%>";
-</script>
+            <script type="text/javascript">
+                location.href = "edit-user-roles.jsp?username=<%=encodedUserName%>";
+            </script>
 <%
         }
     }
 %>
 
 <%!
-    private String[] addSelectedRoleLists(String[] selectedRoles, Map<String, Boolean> sessionRolesMap) {
+    private String[] addSelectedRoleLists(String[] selectedRoles, Map<String,Boolean> sessionRolesMap){
         List<String> selectedRolesList = new ArrayList<String>();
-        if (selectedRoles != null && selectedRoles.length > 0) {
+        if(selectedRoles != null && selectedRoles.length > 0){
             selectedRolesList = new ArrayList<String>(Arrays.asList(selectedRoles));
         }
-        if (sessionRolesMap != null) {
+        if(sessionRolesMap != null){
             Set<String> keys = sessionRolesMap.keySet();
-            for (String key : keys) {
-                if (sessionRolesMap.get(key) == true && !selectedRolesList.contains(key)) {
+            for(String key:keys){
+                if(sessionRolesMap.get(key) == true && !selectedRolesList.contains(key)){
                     selectedRolesList.add(key);
                 }
             }
@@ -171,11 +171,11 @@
         return selectedRoles;
     }
 
-    private void addDeletedRoleLists(List<String> deletedRoles, Map<String, Boolean> sessionRolesMap) {
-        if (sessionRolesMap != null) {
+    private void addDeletedRoleLists(List<String> deletedRoles, Map<String,Boolean> sessionRolesMap){
+        if(sessionRolesMap != null){
             Set<String> keys = sessionRolesMap.keySet();
-            for (String key : keys) {
-                if (sessionRolesMap.get(key) == false && !deletedRoles.contains(key)) {
+            for(String key:keys){
+                if(sessionRolesMap.get(key) == false && !deletedRoles.contains(key)){
                     deletedRoles.add(key);
                 }
             }
