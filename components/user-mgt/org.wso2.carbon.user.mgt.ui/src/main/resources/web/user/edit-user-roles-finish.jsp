@@ -126,17 +126,8 @@
 <%
         }
     } catch (Exception e) {
-
-            String decodedUserName = "";
-            String encodedUserName = "";
-
-            if(username != null){
-                decodedUserName = Util.decodeHTMLCharacters(username);
-                encodedUserName = URLEncoder.encode(username);
-            }
-
-         String message = MessageFormat.format(resourceBundle.getString("role.list.cannot.update"), decodedUserName, e.getMessage());
-         CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
+            String message = MessageFormat.format(resourceBundle.getString("role.list.cannot.update"), Util.decodeHTMLCharacters(username), e.getMessage());
+            CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
         if(viewUsers){
 %>
             <script type="text/javascript">
