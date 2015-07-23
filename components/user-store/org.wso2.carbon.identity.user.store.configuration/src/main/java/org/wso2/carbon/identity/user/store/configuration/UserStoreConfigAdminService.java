@@ -24,6 +24,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.wso2.carbon.context.CarbonContext;
+import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.core.AbstractAdmin;
 import org.wso2.carbon.identity.user.store.configuration.beans.RandomPassword;
 import org.wso2.carbon.identity.user.store.configuration.beans.RandomPasswordContainer;
@@ -349,6 +350,17 @@ public class UserStoreConfigAdminService extends AbstractAdmin {
     public void deleteUserStoresSet(String[] domains) throws UserStoreException {
         boolean isDebugEnabled = log.isDebugEnabled();
 
+        if (domains == null || domains.length <= 0) {
+            throw new UserStoreException("No selected user stores to delete");
+        }
+
+        if (!validateDomainsForDelete(domains)) {
+            if (log.isDebugEnabled()) {
+                log.debug("Failed to delete user store : No privileges to delete own user store configurations ");
+            }
+            throw new UserStoreException("No privileges to delete own user store configurations.");
+        }
+
         int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
         String path;
         if (tenantId == MultitenantConstants.SUPER_TENANT_ID) {
@@ -387,6 +399,19 @@ public class UserStoreConfigAdminService extends AbstractAdmin {
             // Delete file
             deleteFile(file, domainName.replace(".", "_").concat(".xml"));
         }
+    }
+
+    private boolean validateDomainsForDelete(String[] domains) {
+        String userDomain = UserCoreUtil.extractDomainFromName(PrivilegedCarbonContext.getThreadLocalCarbonContext()
+                .getUsername());
+        for (String domain : domains) {
+            if (domain.equalsIgnoreCase(userDomain)) {
+                //Trying to delete own domain
+                return false;
+            }
+        }
+        return true;
+
     }
 
     /**
