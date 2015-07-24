@@ -78,7 +78,6 @@
         <module>features/application-mgt</module>
         <module>features/provisioning</module>
         <module>features/tools</module>
-        <module>features/thrift</module>
         <module>features/notification-mgt</module>
         <module>features/user-account-association</module>
         <module>features/idp-mgt</module>
@@ -1373,13 +1372,13 @@
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
-                <artifactId>org.wso2.carbon.identity.self.registration.server.feature</artifactId>
+                <artifactId>org.wso2.carbon.identity.user.registration.server.feature</artifactId>
                 <version>${carbon.identity.version}</version>
                 <type>zip</type>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
-                <artifactId>org.wso2.carbon.identity.self.registration.ui.feature</artifactId>
+                <artifactId>org.wso2.carbon.identity.user.registration.ui.feature</artifactId>
                 <version>${carbon.identity.version}</version>
                 <type>zip</type>
             </dependency>

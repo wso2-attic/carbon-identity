@@ -20,19 +20,21 @@
 
     <parent>
         <groupId>org.wso2.carbon.identity</groupId>
-        <artifactId>carbon-identity</artifactId>
+        <artifactId>carbon-authenticator-features</artifactId>
         <version>4.5.4-SNAPSHOT</version>
-        <relativePath>../../pom.xml</relativePath>
+        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>identity-thrift-feature</artifactId>
+    <artifactId>saml2-sso-authenticator-feature</artifactId>
     <packaging>pom</packaging>
-    <name>WSO2 Carbon - Thrift Authentication Aggregate Feature</name>
+    <name>WSO2 Carbon - SAML2 SSO Authenticator Feature Aggregator Module</name>
     <url>http://wso2.org</url>
 
     <modules>
-        <module>org.wso2.carbon.identity.thrift.authentication.feature</module>
+        <module>org.wso2.carbon.identity.authenticator.saml2.sso.ui.feature</module>
+        <module>org.wso2.carbon.identity.authenticator.saml2.sso.server.feature</module>
+        <module>org.wso2.carbon.identity.authenticator.saml2.sso.feature</module>
     </modules>
 
 </project>

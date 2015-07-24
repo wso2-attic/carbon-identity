@@ -32,8 +32,9 @@
     <url>http://wso2.org</url>
 
     <modules>
-        <module>saml2-sso</module>
+        <module>saml2-sso-authenticator</module>
         <module>iwa-authenticator</module>
+        <module>thrift-authenticator</module>
     </modules>
 </project>
 

@@ -20,33 +20,26 @@
 
     <parent>
         <groupId>org.wso2.carbon.identity</groupId>
-        <artifactId>self-registration-feature</artifactId>
+        <artifactId>user-mgt-feature</artifactId>
         <version>4.5.4-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>org.wso2.carbon.identity.self.registration.feature</artifactId>
+    <artifactId>org.wso2.carbon.identity.user.registration.server.feature</artifactId>
     <packaging>pom</packaging>
-    <name>Identity Self Registration Feature</name>
+    <name>Identity user Registration Server Feature</name>
     <url>http://wso2.org</url>
-    <description>This feature contains the core bundles required for Self Registration functionality
+    <description>This feature contains the core bundles required for
+        Back-end User Registration functionality
     </description>
-
 
     <dependencies>
         <dependency>
             <groupId>org.wso2.carbon.identity</groupId>
-            <artifactId>org.wso2.carbon.identity.self.registration.server.feature</artifactId>
-            <type>zip</type>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon.identity</groupId>
-            <artifactId>org.wso2.carbon.identity.self.registration.ui.feature</artifactId>
-            <type>zip</type>
+            <artifactId>org.wso2.carbon.identity.user.registration</artifactId>
         </dependency>
     </dependencies>
-
 
     <build>
         <plugins>
@@ -56,22 +49,28 @@
                 <version>${carbon.p2.plugin.version}</version>
                 <executions>
                     <execution>
-                        <id>p2-feature-generation</id>
+                        <id>4-p2-feature-generation</id>
                         <phase>package</phase>
                         <goals>
                             <goal>p2-feature-gen</goal>
                         </goals>
                         <configuration>
-                            <id>org.wso2.carbon.identity.self.registration</id>
+                            <id>org.wso2.carbon.identity.user.registration.server</id>
                             <propertiesFile>../../etc/feature.properties</propertiesFile>
-                            <includedFeatures>
-                                <includedFeatureDef>
-                                    org.wso2.carbon.identity:org.wso2.carbon.identity.self.registration.server.feature
-                                </includedFeatureDef>
-                                <includedFeatureDef>
-                                    org.wso2.carbon.identity:org.wso2.carbon.identity.self.registration.ui.feature
-                                </includedFeatureDef>
-                            </includedFeatures>
+                            <adviceFile>
+                                <properties>
+                                    <propertyDef>org.wso2.carbon.p2.category.type:server</propertyDef>
+                                    <propertyDef>org.eclipse.equinox.p2.type.group:false</propertyDef>
+                                </properties>
+                            </adviceFile>
+                            <bundles>
+                                <bundleDef>org.wso2.carbon.identity:org.wso2.carbon.identity.user.registration
+                                </bundleDef>
+                            </bundles>
+                            <importFeatures>
+                                <importFeatureDef>org.wso2.carbon.core:${carbon.kernel.version}</importFeatureDef>
+                                <importFeatureDef>org.wso2.carbon.identity.core.server:${carbon.identity.version}</importFeatureDef>
+                            </importFeatures>
                         </configuration>
                     </execution>
                 </executions>
