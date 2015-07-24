@@ -24,18 +24,16 @@
         <version>4.5.4-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
-
+    
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>openid</artifactId>
+    <artifactId>authentication-framework-feature</artifactId>
     <packaging>pom</packaging>
-    <name>WSO2 Carbon - OpenID Aggregator Module</name>
-    <description>
-        This is a Carbon bundle that represent the OpenID Aggregator module.
-    </description>
+    <name>WSO2 Carbon - Application Autentication Framework Feature Aggregator Module</name>
     <url>http://wso2.org</url>
 
     <modules>
-        <module>org.wso2.carbon.identity.provider</module>
+        <module>org.wso2.carbon.identity.application.authentication.framework.server.feature</module>
     </modules>
 
 </project>
+

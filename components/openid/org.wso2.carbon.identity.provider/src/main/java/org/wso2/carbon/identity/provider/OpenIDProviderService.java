@@ -370,12 +370,30 @@ public class OpenIDProviderService {
             throw new IdentityProviderException("Error while checking if user exists", e);
         }
 
-        try {
-            providerInfo.setOpenIDProviderServerUrl(IdentityUtil.getServerURL() + "/" + OpenIDServerConstants.OPENID_SERVER);
-            providerInfo.setOpenID(IdentityUtil.getServerURL() + "/" + OpenIDServerConstants.OPENID + "/" + tenantFreeUsername);
-        } catch (IdentityException e) {
-            throw new IdentityProviderException(e.getMessage(), e);
+        // Read from OpenID configuration in identity.xml
+        String openIDServerURL = IdentityUtil.getProperty(ServerConfig.OPENID_SERVER_URL);
+        String openIDUserPattern = IdentityUtil.getProperty(ServerConfig.OPENID_USER_PATTERN);
+
+        // If configuration are not defined in build URL from server configurations.
+        if (StringUtils.isBlank(openIDServerURL)) {
+            try {
+                openIDServerURL = IdentityUtil.getServerURL() + "/" + OpenIDServerConstants.OPENID_SERVER;
+            } catch (IdentityException e) {
+                throw new IdentityProviderException(e.getMessage(), e);
+            }
         }
+
+        if (StringUtils.isBlank(openIDUserPattern)) {
+            try {
+                openIDServerURL = IdentityUtil.getServerURL() + "/" + OpenIDServerConstants.OPENID;
+            } catch (IdentityException e) {
+                throw new IdentityProviderException(e.getMessage(), e);
+            }
+        }
+
+        providerInfo.setOpenIDProviderServerUrl(openIDServerURL);
+        providerInfo.setOpenID(openIDUserPattern + "/" + tenantFreeUsername);
+
 
         return providerInfo;
     }
