@@ -33,6 +33,8 @@ public class UserStoreInfo {
 
     private String passwordRegExViolationErrorMsg;
 
+    private String usernameRegExViolationErrorMsg;
+
     private boolean isBulkImportSupported;
     
     private String externalIdP;
@@ -129,5 +131,13 @@ public class UserStoreInfo {
 
     public void setPasswordRegExViolationErrorMsg(String passwordRegExViolationErrorMsg) {
         this.passwordRegExViolationErrorMsg = passwordRegExViolationErrorMsg;
+    }
+
+    public String getUsernameRegExViolationErrorMsg() {
+        return usernameRegExViolationErrorMsg;
+    }
+
+    public void setUsernameRegExViolationErrorMsg(String usernameRegExViolationErrorMsg) {
+        this.usernameRegExViolationErrorMsg = usernameRegExViolationErrorMsg;
     }
 }

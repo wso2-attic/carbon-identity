@@ -55,10 +55,6 @@
             <artifactId>org.wso2.carbon.utils</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.charon</groupId>
-            <artifactId>org.wso2.charon.core</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.wso2.carbon.identity</groupId>
             <artifactId>org.wso2.carbon.identity.core</artifactId>
         </dependency>

@@ -21,6 +21,7 @@ package org.wso2.carbon.identity.application.common.model;
 import org.apache.axiom.om.OMElement;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
+import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
 
 import java.io.Serializable;
@@ -45,7 +46,8 @@ public class ProvisioningConnectorConfig implements Serializable {
          * <ProvisioningConnectorConfig> <Name></Name> <ProvisioningProperties></ProvisioningProperties>
          * </ProvisioningConnectorConfig>
          */
-    public static ProvisioningConnectorConfig build(OMElement provisioningConnectorConfigOM) {
+    public static ProvisioningConnectorConfig build(OMElement provisioningConnectorConfigOM) throws
+            IdentityApplicationManagementException{
         ProvisioningConnectorConfig provisioningConnectorConfig = new ProvisioningConnectorConfig();
 
         Iterator<?> iter = provisioningConnectorConfigOM.getChildElements();
@@ -76,6 +78,10 @@ public class ProvisioningConnectorConfig implements Serializable {
             }
         }
 
+        if(StringUtils.isBlank(provisioningConnectorConfig.getName())){
+            throw new IdentityApplicationManagementException("No configured name found for " +
+                    "ProvisioningConnectorConfig");
+        }
         return provisioningConnectorConfig;
     }
 
