@@ -26,13 +26,15 @@
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>ldap-server-feature</artifactId>
+    <artifactId>directory-server-manager</artifactId>
     <packaging>pom</packaging>
-    <name>WSO2 Carbon - LDAP Server</name>
+    <name>WSO2 Carbon - LDAP Server Principle Management</name>
     <url>http://wso2.org</url>
 
     <modules>
-
+        <module>org.wso2.carbon.directory.service.mgr.server.feature</module>
+        <module>org.wso2.carbon.directory.service.mgr.ui.feature</module>
+        <module>org.wso2.carbon.directory.service.mgr.feature</module>
     </modules>
 
 </project>

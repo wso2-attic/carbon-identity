@@ -26,14 +26,14 @@
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>ldap-server-feature</artifactId>
+    <artifactId>carbon-authenticator-features</artifactId>
     <packaging>pom</packaging>
-    <name>WSO2 Carbon - LDAP Server</name>
+    <name>WSO2 Carbon - Authenticator Feature Aggregator Module</name>
     <url>http://wso2.org</url>
 
     <modules>
-
+        <module>saml2-sso</module>
+        <module>iwa-authenticator</module>
     </modules>
-
 </project>
 
