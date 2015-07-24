@@ -99,6 +99,14 @@ public class SQLConstants {
 
     public static final String DELETE_BPS_PROFILES_QUERY = "DELETE FROM WF_BPS_PROFILE WHERE PROFILE_NAME = ?";
 
+    public static final String ADD_ENTITY_STATE_QUERY = "INSERT INTO WF_ENTITY_LOCK_STATE VALUES (?, ?, ?, ?)";
+
+    public static final String GET_ENTITY_STATE_QUERY = "SELECT ATTRIBUTE_VALUE FROM WF_ENTITY_LOCK_STATE WHERE " +
+            "ENTITY_ID=? AND ENTITY_TYPE=? AND ATTRIBUTE_KEY=? AND ATTRIBUTE_VALUE=?";
+
+    public static final String DELETE_ENTITY_STATE_QUERY = "DELETE FROM WF_ENTITY_LOCK_STATE " +
+            "WHERE ENTITY_ID=? AND ENTITY_TYPE=? AND ATTRIBUTE_KEY=? AND ATTRIBUTE_VALUE=?";
+
     private SQLConstants() {
 
     }

@@ -21,7 +21,9 @@ package org.wso2.carbon.identity.workflow.mgt.impl.userstore;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.identity.workflow.mgt.extension.AbstractWorkflowRequestHandler;
+import org.wso2.carbon.identity.workflow.mgt.impl.dao.EntityDAO;
 import org.wso2.carbon.identity.workflow.mgt.util.WorkflowDataType;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.util.WorkflowRequestStatus;
@@ -29,6 +31,7 @@ import org.wso2.carbon.identity.workflow.mgt.impl.internal.IdentityWorkflowDataH
 import org.wso2.carbon.user.api.UserRealm;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.service.RealmService;
+import org.wso2.carbon.user.core.util.UserCoreUtil;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -55,6 +58,14 @@ public class DeleteUserWFRequestHandler extends AbstractWorkflowRequestHandler {
     public boolean startDeleteUserFlow(String userStoreDomain, String userName) throws WorkflowException {
         Map<String, Object> wfParams = new HashMap<>();
         Map<String, Object> nonWfParams = new HashMap<>();
+        EntityDAO entityDAO = new EntityDAO();
+        String tenant = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+        String nameWithTenant = UserCoreUtil.addTenantDomainToEntry(userName, tenant);
+        String fullyQualifiedName = UserCoreUtil.addDomainToName(nameWithTenant, userStoreDomain);
+        boolean isExistingUser = entityDAO.updateEntityLockedState(fullyQualifiedName, "USER", "DELETE");
+        if (!isExistingUser && !Boolean.TRUE.equals(getWorkFlowCompleted())) {
+            return false;
+        }
         wfParams.put(USERNAME, userName);
         wfParams.put(USER_STORE_DOMAIN, userStoreDomain);
         return startWorkFlow(wfParams, nonWfParams);
@@ -83,10 +94,26 @@ public class DeleteUserWFRequestHandler extends AbstractWorkflowRequestHandler {
                 RealmService realmService = IdentityWorkflowDataHolder.getInstance().getRealmService();
                 UserRealm userRealm = realmService.getTenantUserRealm(tenantId);
                 userRealm.getUserStoreManager().deleteUser(userName);
+
+                if (WorkflowRequestStatus.APPROVED.toString().equals(status)) {
+                    EntityDAO entityDAO = new EntityDAO();
+                    String tenant = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+                    String nameWithTenant = UserCoreUtil.addTenantDomainToEntry(UserCoreUtil.removeDomainFromName
+                                    (userName),
+                            tenant);
+                    String fullyQualifiedName = UserCoreUtil.addDomainToName(nameWithTenant, userStoreDomain);
+                    entityDAO.deleteEntityLockedState(fullyQualifiedName, "USER", "DELETE");
+                }
             } catch (UserStoreException e) {
                 throw new WorkflowException("Error when re-requesting addUser operation for " + userName, e);
             }
         } else {
+            EntityDAO entityDAO = new EntityDAO();
+            String tenant = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+            String nameWithTenant = UserCoreUtil.addTenantDomainToEntry(UserCoreUtil.removeDomainFromName(userName),
+                    tenant);
+            String fullyQualifiedName = UserCoreUtil.addDomainToName(nameWithTenant, userStoreDomain);
+            entityDAO.deleteEntityLockedState(fullyQualifiedName, "USER", "DELETE");
             if (retryNeedAtCallback()) {
                 //unset threadlocal variable
                 unsetWorkFlowCompleted();

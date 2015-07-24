@@ -46,6 +46,7 @@ public class UserStoreActionListener extends AbstractUserOperationEventListener 
                     .PROPERTY_DOMAIN_NAME);
             return new AddUserWFRequestHandler()
                     .startAddUserFlow(domain, userName, credential, roleList, claims, profile);
+
         } catch (WorkflowException e) {
             log.error("Initiating workflow for creating user: " + userName + " failed.", e);
         }
