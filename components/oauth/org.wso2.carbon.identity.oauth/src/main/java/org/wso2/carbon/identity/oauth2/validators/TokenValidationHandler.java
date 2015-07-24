@@ -144,7 +144,9 @@ public class TokenValidationHandler {
 
         // incomplete token validation request
         if (accessToken == null) {
-            log.debug("Access Token is not present in the validation request");
+            if (log.isDebugEnabled()) {
+                log.debug("Access Token is not present in the validation request");
+            }
             responseDTO.setValid(false);
             responseDTO.setErrorMsg("Access Token is not present in the validation request");
             clientApp.setAccessTokenValidationResponse(responseDTO);
@@ -154,7 +156,9 @@ public class TokenValidationHandler {
         String accessTokenIdentifier = accessToken.getIdentifier();
         // incomplete token validation request
         if (accessTokenIdentifier == null) {
-            log.debug("Access token identifier is not present in the validation request");
+            if (log.isDebugEnabled()) {
+                log.debug("Access token identifier is not present in the validation request");
+            }
             responseDTO.setValid(false);
             responseDTO.setErrorMsg("Access token identifier is not present in the validation request");
             clientApp.setAccessTokenValidationResponse(responseDTO);
@@ -165,7 +169,9 @@ public class TokenValidationHandler {
 
         // There is no token validator for the provided token type.
         if (tokenValidator == null) {
-            log.debug("Unsupported access token type");
+            if (log.isDebugEnabled()) {
+                log.debug("Unsupported access token type");
+            }
             responseDTO.setValid(false);
             responseDTO.setErrorMsg("Unsupported access token type");
             clientApp.setAccessTokenValidationResponse(responseDTO);
@@ -192,6 +198,9 @@ public class TokenValidationHandler {
 
             // No data retrieved due to invalid input.
             if (accessTokenDO == null) {
+                if (log.isDebugEnabled()){
+                    log.debug("Invalid access token : " + accessTokenIdentifier + ". Access token validation failed");
+                }
                 responseDTO.setValid(false);
                 responseDTO.setErrorMsg("Invalid input. Access token validation failed");
                 clientApp.setAccessTokenValidationResponse(responseDTO);
@@ -248,7 +257,9 @@ public class TokenValidationHandler {
         boolean isValidAccessToken = tokenValidator.validateAccessToken(messageContext);
 
         if (!isValidAccessDelegation) {
-            log.debug("Invalid access delegation");
+            if (log.isDebugEnabled()) {
+                log.debug("Invalid access delegation");
+            }
             responseDTO.setValid(false);
             responseDTO.setErrorMsg("Invalid access delegation");
             clientApp.setAccessTokenValidationResponse(responseDTO);
@@ -256,7 +267,9 @@ public class TokenValidationHandler {
         }
 
         if (!isValidScope) {
-            log.debug("Scope validation failed");
+            if (log.isDebugEnabled()) {
+                log.debug("Scope validation failed");
+            }
             responseDTO.setValid(false);
             responseDTO.setErrorMsg("Scope validation failed");
             clientApp.setAccessTokenValidationResponse(responseDTO);
@@ -264,7 +277,9 @@ public class TokenValidationHandler {
         }
 
         if (!isValidAccessToken) {
-            log.debug("OAuth2 access token validation failed");
+            if (log.isDebugEnabled()) {
+                log.debug("OAuth2 access token " + accessTokenIdentifier + " validation failed");
+            }
             responseDTO.setValid(false);
             responseDTO.setErrorMsg("OAuth2 access token validation failed");
             clientApp.setAccessTokenValidationResponse(responseDTO);
