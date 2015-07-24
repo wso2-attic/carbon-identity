@@ -61,9 +61,9 @@ public class DeleteUserWFRequestHandler extends AbstractWorkflowRequestHandler {
         EntityDAO entityDAO = new EntityDAO();
         String tenant = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
         String nameWithTenant = UserCoreUtil.addTenantDomainToEntry(userName, tenant);
-        String fullyQualifiedName = UserCoreUtil.addDomainToName(nameWithTenant,userStoreDomain);
+        String fullyQualifiedName = UserCoreUtil.addDomainToName(nameWithTenant, userStoreDomain);
         boolean isExistingUser = entityDAO.updateEntityLockedState(fullyQualifiedName, "USER", "DELETE");
-        if(!isExistingUser && !Boolean.TRUE.equals(getWorkFlowCompleted())){
+        if (!isExistingUser && !Boolean.TRUE.equals(getWorkFlowCompleted())) {
             return false;
         }
         wfParams.put(USERNAME, userName);

@@ -52,7 +52,7 @@ public class EntityDAO {
             results = prepStmtGet.executeQuery();
             if (results.next()) {
                 return false;
-            }else{
+            } else {
                 prepStmtSelect = connection.prepareStatement(SQLConstants.ADD_ENTITY_STATE_QUERY);
                 prepStmtSelect.setString(1, entityName);
                 prepStmtSelect.setString(2, entityType);
@@ -73,7 +73,7 @@ public class EntityDAO {
     }
 
     public void deleteEntityLockedState(String entityName, String entityType, String operation) throws
-            WorkflowException{
+            WorkflowException {
 
         Connection connection = null;
         PreparedStatement prepStmt = null;
