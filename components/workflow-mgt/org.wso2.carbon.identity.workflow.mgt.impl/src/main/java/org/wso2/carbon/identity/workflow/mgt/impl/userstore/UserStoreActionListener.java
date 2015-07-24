@@ -20,12 +20,15 @@ package org.wso2.carbon.identity.workflow.mgt.impl.userstore;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
+import org.wso2.carbon.identity.workflow.mgt.impl.dao.EntityDAO;
 import org.wso2.carbon.user.api.Permission;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.common.AbstractUserOperationEventListener;
+import org.wso2.carbon.user.core.util.UserCoreUtil;
 
 import java.util.Map;
 
@@ -209,5 +212,22 @@ public class UserStoreActionListener extends AbstractUserOperationEventListener 
             log.error("Initiating workflow failed for updating user roles of user: " + userName, e);
         }
         return false;
+    }
+
+    @Override
+    public boolean doPreAuthenticate(String userName, Object credential, UserStoreManager userStoreManager) throws
+            UserStoreException{
+
+        try {
+            String domain = userStoreManager.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig
+                    .PROPERTY_DOMAIN_NAME);
+            EntityDAO entityDAO = new EntityDAO();
+            String tenant = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+            String nameWithTenant = UserCoreUtil.addTenantDomainToEntry(userName, tenant);
+            String fullyQualifiedName = UserCoreUtil.addDomainToName(nameWithTenant, domain);
+            return entityDAO.checkEntityLocked(fullyQualifiedName, "USER");
+        } catch (WorkflowException e){
+            throw new UserStoreException("Couldn't access workflow states of the user.", e);
+        }
     }
 }
