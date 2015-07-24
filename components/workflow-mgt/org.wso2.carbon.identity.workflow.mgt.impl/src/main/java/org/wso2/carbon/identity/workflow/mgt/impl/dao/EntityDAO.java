@@ -23,7 +23,6 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.persistence.JDBCPersistenceManager;
 import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
-import org.wso2.carbon.identity.workflow.mgt.dao.SQLConstants;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 
 import java.sql.Connection;
@@ -43,7 +42,7 @@ public class EntityDAO {
         PreparedStatement prepStmtSelect = null;
         ResultSet results;
         try {
-            connection = JDBCPersistenceManager.getInstance().getDBConnection();
+            connection = IdentityDatabaseUtil.getDBConnection();;
             prepStmtGet = connection.prepareStatement(SQLConstants.GET_ENTITY_STATE_QUERY);
             prepStmtGet.setString(1, entityName);
             prepStmtGet.setString(2, entityType);
@@ -62,7 +61,6 @@ public class EntityDAO {
             }
             connection.commit();
         } catch (SQLException | IdentityException e) {
-            log.error("Error while saving new user data for Identity database.", e);
             throw new WorkflowException("Error while saving new user data for Identity database.", e);
         } finally {
             IdentityDatabaseUtil.closeStatement(prepStmtSelect);
@@ -78,7 +76,7 @@ public class EntityDAO {
         Connection connection = null;
         PreparedStatement prepStmt = null;
         try {
-            connection = JDBCPersistenceManager.getInstance().getDBConnection();
+            connection = IdentityDatabaseUtil.getDBConnection();;
             prepStmt = connection.prepareStatement(SQLConstants.DELETE_ENTITY_STATE_QUERY);
             prepStmt.setString(1, entityName);
             prepStmt.setString(2, entityType);
@@ -87,12 +85,37 @@ public class EntityDAO {
             prepStmt.execute();
             connection.commit();
         } catch (SQLException | IdentityException e) {
-            log.error("Error while saving new user data for Identity database.", e);
             throw new WorkflowException("Error while deleting temporary user record from Identity database.", e);
         } finally {
             IdentityDatabaseUtil.closeStatement(prepStmt);
             IdentityDatabaseUtil.closeConnection(connection);
         }
+    }
+
+    public boolean checkEntityLocked(String entityName, String entityType) throws
+            WorkflowException {
+
+        Connection connection = null;
+        PreparedStatement prepStmt = null;
+        ResultSet resultSet;
+        try {
+            connection = IdentityDatabaseUtil.getDBConnection();;
+            prepStmt = connection.prepareStatement(SQLConstants.GET_ENTITY_STATE_LIST);
+            prepStmt.setString(1, entityName);
+            prepStmt.setString(2, entityType);
+            resultSet = prepStmt.executeQuery();
+            if (resultSet.next()){
+                return false;
+            }
+            connection.commit();
+        } catch (SQLException | IdentityException e) {
+            throw new WorkflowException("Error while retrieving user records from Identity database.", e);
+        } finally {
+            IdentityDatabaseUtil.closeStatement(prepStmt);
+            IdentityDatabaseUtil.closeConnection(connection);
+        }
+
+        return true;
     }
 
 }
