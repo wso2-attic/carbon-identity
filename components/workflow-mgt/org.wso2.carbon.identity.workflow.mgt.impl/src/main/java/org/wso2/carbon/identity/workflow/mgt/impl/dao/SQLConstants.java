@@ -33,6 +33,8 @@ public class SQLConstants {
     public static final String GET_ENTITY_STATE_LIST = "SELECT ATTRIBUTE_VALUE FROM WF_ENTITY_LOCK_STATE WHERE " +
             "ENTITY_ID=? AND ENTITY_TYPE=?";
 
+    public static final String GET_ENTITY_LIST_STATES = "SELECT * FROM WF_ENTITY_LOCK_STATE WHERE ENTITY_ID IN (?) " +
+            "AND ENTITY_TYPE = ?";
 
     private SQLConstants(){
 

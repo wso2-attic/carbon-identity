@@ -52,8 +52,9 @@ public class UserStoreActionListener extends AbstractUserOperationEventListener 
 
         } catch (WorkflowException e) {
             log.error("Initiating workflow for creating user: " + userName + " failed.", e);
+            AddUserWFRequestHandler.unsetWorkFlowCompleted();
+            throw new UserStoreException(e.getMessage(), e);
         }
-        return false;
     }
 
     @Override

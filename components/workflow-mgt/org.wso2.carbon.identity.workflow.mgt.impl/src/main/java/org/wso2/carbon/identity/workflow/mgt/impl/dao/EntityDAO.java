@@ -21,7 +21,6 @@ package org.wso2.carbon.identity.workflow.mgt.impl.dao;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.base.IdentityException;
-import org.wso2.carbon.identity.core.persistence.JDBCPersistenceManager;
 import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 
@@ -42,7 +41,7 @@ public class EntityDAO {
         PreparedStatement prepStmtSelect = null;
         ResultSet results;
         try {
-            connection = IdentityDatabaseUtil.getDBConnection();;
+            connection = IdentityDatabaseUtil.getDBConnection();
             prepStmtGet = connection.prepareStatement(SQLConstants.GET_ENTITY_STATE_QUERY);
             prepStmtGet.setString(1, entityName);
             prepStmtGet.setString(2, entityType);
@@ -76,7 +75,7 @@ public class EntityDAO {
         Connection connection = null;
         PreparedStatement prepStmt = null;
         try {
-            connection = IdentityDatabaseUtil.getDBConnection();;
+            connection = IdentityDatabaseUtil.getDBConnection();
             prepStmt = connection.prepareStatement(SQLConstants.DELETE_ENTITY_STATE_QUERY);
             prepStmt.setString(1, entityName);
             prepStmt.setString(2, entityType);
@@ -99,7 +98,7 @@ public class EntityDAO {
         PreparedStatement prepStmt = null;
         ResultSet resultSet;
         try {
-            connection = IdentityDatabaseUtil.getDBConnection();;
+            connection = IdentityDatabaseUtil.getDBConnection();
             prepStmt = connection.prepareStatement(SQLConstants.GET_ENTITY_STATE_LIST);
             prepStmt.setString(1, entityName);
             prepStmt.setString(2, entityType);
@@ -110,6 +109,40 @@ public class EntityDAO {
             connection.commit();
         } catch (SQLException | IdentityException e) {
             throw new WorkflowException("Error while retrieving user records from Identity database.", e);
+        } finally {
+            IdentityDatabaseUtil.closeStatement(prepStmt);
+            IdentityDatabaseUtil.closeConnection(connection);
+        }
+
+        return true;
+    }
+
+    public boolean checkEntityListLocked(String[] entityList, String entityType) throws
+            WorkflowException {
+
+        Connection connection = null;
+        PreparedStatement prepStmt = null;
+        ResultSet resultSet;
+        StringBuffer queryInComponent = new StringBuffer("(?");
+        for(int i =1;i<entityList.length;i++){
+            queryInComponent.append(",?");
+        }
+        queryInComponent.append(")");
+        try {
+            connection = IdentityDatabaseUtil.getDBConnection();
+            String query = SQLConstants.GET_ENTITY_LIST_STATES.replace("(?)",queryInComponent);
+            prepStmt = connection.prepareStatement(query);
+            for(int i=0;i<entityList.length;i++){
+                prepStmt.setString(i+1,entityList[i]);
+            }
+            prepStmt.setString(entityList.length+1, entityType);
+            resultSet = prepStmt.executeQuery();
+            if (resultSet.next()){
+                return false;
+            }
+            connection.commit();
+        } catch (SQLException | IdentityException e) {
+            throw new WorkflowException("Error while retrieving user role details from Identity database.", e);
         } finally {
             IdentityDatabaseUtil.closeStatement(prepStmt);
             IdentityDatabaseUtil.closeConnection(connection);

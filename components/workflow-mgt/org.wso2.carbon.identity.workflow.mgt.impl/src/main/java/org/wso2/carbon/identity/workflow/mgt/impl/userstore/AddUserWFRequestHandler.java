@@ -88,12 +88,24 @@ public class AddUserWFRequestHandler extends AbstractWorkflowRequestHandler {
             claims = new HashMap<>();
         }
         EntityDAO entityDAO = new EntityDAO();
+        String[] fullyQulalifiedRoleList = new String[roleList.length];
         String tenant = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+        for (int i=0;i<roleList.length;i++){
+            String nameWithTenant = UserCoreUtil.addTenantDomainToEntry(roleList[i], tenant);
+            fullyQulalifiedRoleList[i] = UserCoreUtil.addDomainToName(nameWithTenant, userStoreDomain);
+        }
+        if(fullyQulalifiedRoleList.length >0 && !entityDAO.checkEntityListLocked(fullyQulalifiedRoleList, "ROLE") &&
+                !Boolean
+                .TRUE.equals
+                (getWorkFlowCompleted())){
+            throw new WorkflowException("Can't assign user to 1 or more given roles");
+        }
+
         String nameWithTenant = UserCoreUtil.addTenantDomainToEntry(userName, tenant);
         String fullyQualifiedName = UserCoreUtil.addDomainToName(nameWithTenant, userStoreDomain);
         boolean isExistingUser = entityDAO.updateEntityLockedState(fullyQualifiedName, "USER", "ADD");
         if (!isExistingUser && !Boolean.TRUE.equals(getWorkFlowCompleted())) {
-            return false;
+            throw new WorkflowException("User has already been added before.");
         }
         wfParams.put(USERNAME, userName);
         wfParams.put(USER_STORE_DOMAIN, userStoreDomain);
