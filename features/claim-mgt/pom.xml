@@ -16,6 +16,7 @@
   ~  specific language governing permissions and limitations
   ~  under the License.
   -->
+
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <parent>
@@ -26,13 +27,15 @@
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>ldap-server-feature</artifactId>
+    <artifactId>claim-mgt-feature</artifactId>
     <packaging>pom</packaging>
-    <name>WSO2 Carbon - LDAP Server</name>
+    <name>WSO2 Carbon - Claim Management Feature Aggregator Module</name>
     <url>http://wso2.org</url>
 
     <modules>
-
+        <module>org.wso2.carbon.claim.mgt.ui.feature</module>
+        <module>org.wso2.carbon.claim.mgt.server.feature</module>
+        <module>org.wso2.carbon.claim.mgt.feature</module>
     </modules>
 
 </project>
