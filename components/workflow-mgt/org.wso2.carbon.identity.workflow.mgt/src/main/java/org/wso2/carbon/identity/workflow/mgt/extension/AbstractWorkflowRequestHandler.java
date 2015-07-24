@@ -168,7 +168,7 @@ public abstract class AbstractWorkflowRequestHandler implements WorkflowRequestH
      */
     public abstract boolean retryNeedAtCallback();
 
-    public boolean isWorkflowCompleted() {
+    private boolean isWorkflowCompleted() {
 
         if (retryNeedAtCallback() && getWorkFlowCompleted() != null && getWorkFlowCompleted()) {
             unsetWorkFlowCompleted();

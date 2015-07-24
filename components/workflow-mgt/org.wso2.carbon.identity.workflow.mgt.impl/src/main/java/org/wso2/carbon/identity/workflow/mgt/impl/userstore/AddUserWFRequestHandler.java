@@ -22,12 +22,9 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.CarbonContext;
-import org.wso2.carbon.identity.base.IdentityException;
-import org.wso2.carbon.identity.core.persistence.JDBCPersistenceManager;
-import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
-import org.wso2.carbon.identity.workflow.mgt.dao.SQLConstants;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.extension.AbstractWorkflowRequestHandler;
+import org.wso2.carbon.identity.workflow.mgt.impl.dao.EntityDAO;
 import org.wso2.carbon.identity.workflow.mgt.impl.internal.IdentityWorkflowDataHolder;
 import org.wso2.carbon.identity.workflow.mgt.util.WorkflowDataType;
 import org.wso2.carbon.identity.workflow.mgt.util.WorkflowRequestStatus;
@@ -36,10 +33,6 @@ import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -94,11 +87,12 @@ public class AddUserWFRequestHandler extends AbstractWorkflowRequestHandler {
         if (claims == null) {
             claims = new HashMap<>();
         }
+        EntityDAO entityDAO = new EntityDAO();
         String tenant = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
         String nameWithTenant = UserCoreUtil.addTenantDomainToEntry(userName,tenant);
         String fullyQualifiedName = UserCoreUtil.addDomainToName(nameWithTenant,userStoreDomain);
-        boolean isExistingUser = updateEntityLockedState(fullyQualifiedName, "USER", "ADD");
-        if(!isExistingUser){
+        boolean isExistingUser = entityDAO.updateEntityLockedState(fullyQualifiedName, "USER", "ADD");
+        if(!isExistingUser && !Boolean.TRUE.equals(getWorkFlowCompleted())){
             return false;
         }
         wfParams.put(USERNAME, userName);
@@ -180,14 +174,25 @@ public class AddUserWFRequestHandler extends AbstractWorkflowRequestHandler {
                 RealmService realmService = IdentityWorkflowDataHolder.getInstance().getRealmService();
                 UserRealm userRealm = realmService.getTenantUserRealm(tenantId);
                 userRealm.getUserStoreManager().addUser(userName, credential, roles, claims, profile);
-                String tenant = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-                String nameWithTenant = UserCoreUtil.addTenantDomainToEntry(userName,tenant);
-                String fullyQualifiedName = UserCoreUtil.addDomainToName(nameWithTenant,userStoreDomain);
-                deleteEntityLockedState(fullyQualifiedName,"USER","ADD");
+                if (WorkflowRequestStatus.APPROVED.toString().equals(status)) {
+                    EntityDAO entityDAO = new EntityDAO();
+                    String tenant = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+                    String nameWithTenant = UserCoreUtil.addTenantDomainToEntry(UserCoreUtil.removeDomainFromName
+                                    (userName),
+                            tenant);
+                    String fullyQualifiedName = UserCoreUtil.addDomainToName(nameWithTenant, userStoreDomain);
+                    entityDAO.deleteEntityLockedState(fullyQualifiedName, "USER", "ADD");
+                }
             } catch (UserStoreException e) {
                 throw new WorkflowException("Error when re-requesting addUser operation for " + userName, e);
             }
         } else {
+            EntityDAO entityDAO = new EntityDAO();
+            String tenant = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+            String nameWithTenant = UserCoreUtil.addTenantDomainToEntry(UserCoreUtil.removeDomainFromName(userName),
+                    tenant);
+            String fullyQualifiedName = UserCoreUtil.addDomainToName(nameWithTenant, userStoreDomain);
+            entityDAO.deleteEntityLockedState(fullyQualifiedName, "USER", "ADD");
             if (retryNeedAtCallback()) {
                 //unset threadlocal variable
                 unsetWorkFlowCompleted();
@@ -196,65 +201,6 @@ public class AddUserWFRequestHandler extends AbstractWorkflowRequestHandler {
                 log.debug(
                         "Adding user is aborted for user '" + userName + "', Reason: Workflow response was " + status);
             }
-        }
-    }
-
-    private boolean updateEntityLockedState(String entityName, String entityType, String operation) throws WorkflowException{
-
-        Connection connection = null;
-        PreparedStatement prepStmtGet = null;
-        PreparedStatement prepStmtSelect = null;
-        ResultSet results;
-        try {
-            connection = JDBCPersistenceManager.getInstance().getDBConnection();
-            prepStmtGet = connection.prepareStatement(SQLConstants.GET_ENTITY_STATE_QUERY);
-            prepStmtGet.setString(1, entityName);
-            prepStmtGet.setString(2, entityType);
-            prepStmtGet.setString(3, "Operation");
-            prepStmtGet.setString(4, operation);
-            results = prepStmtGet.executeQuery();
-            if (results.next()) {
-                return false;
-            }else{
-                prepStmtSelect = connection.prepareStatement(SQLConstants.ADD_ENTITY_STATE_QUERY);
-                prepStmtSelect.setString(1, entityName);
-                prepStmtSelect.setString(2, entityType);
-                prepStmtSelect.setString(3, "Operation");
-                prepStmtSelect.setString(4, operation);
-                prepStmtSelect.execute();
-            }
-            connection.commit();
-        } catch (SQLException | IdentityException e) {
-            log.error("Error while saving new user data for Identity database.", e);
-            throw new WorkflowException("Error while saving new user data for Identity database.", e);
-        } finally {
-            IdentityDatabaseUtil.closeStatement(prepStmtSelect);
-            IdentityDatabaseUtil.closeStatement(prepStmtGet);
-            IdentityDatabaseUtil.closeConnection(connection);
-        }
-        return true;
-    }
-
-    private void deleteEntityLockedState(String entityName, String entityType, String operation) throws
-            WorkflowException{
-
-        Connection connection = null;
-        PreparedStatement prepStmt = null;
-        try {
-            connection = JDBCPersistenceManager.getInstance().getDBConnection();
-            prepStmt = connection.prepareStatement(SQLConstants.DELETE_ENTITY_STATE_QUERY);
-            prepStmt.setString(1, entityName);
-            prepStmt.setString(2, entityType);
-            prepStmt.setString(3, "Operation");
-            prepStmt.setString(4, operation);
-            prepStmt.execute();
-            connection.commit();
-        } catch (SQLException | IdentityException e) {
-            log.error("Error while saving new user data for Identity database.", e);
-            throw new WorkflowException("Error while deleting temporary user record from Identity database.", e);
-        } finally {
-            IdentityDatabaseUtil.closeStatement(prepStmt);
-            IdentityDatabaseUtil.closeConnection(connection);
         }
     }
 }

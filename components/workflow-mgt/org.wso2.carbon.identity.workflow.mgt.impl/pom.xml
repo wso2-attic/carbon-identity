@@ -87,6 +87,7 @@
                             org.wso2.carbon.utils,
                             org.wso2.carbon.identity.workflow.mgt.extension,
                             org.wso2.carbon.identity.workflow.mgt.util,
+                            org.wso2.carbon.identity.workflow.mgt.dao,
                             org.wso2.carbon.identity.core.*; version="${carbon.identity.package.import.version.range}",
                             org.wso2.carbon.identity.base; version="${carbon.identity.package.import.version.range}",
                             org.wso2.carbon.user.core.*;version="${carbon.kernel.package.import.version.range}",
