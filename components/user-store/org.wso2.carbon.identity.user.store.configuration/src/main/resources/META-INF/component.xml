@@ -14,26 +14,12 @@
  ~ limitations under the License.
 -->
 <component xmlns="http://products.wso2.org/carbon">
-    <menus>
-        <menu>
-            <id>userstores_mgt_menu</id>
-            <i18n-key>userstore.config</i18n-key>
-            <i18n-bundle>org.wso2.carbon.identity.user.store.configuration.ui.i18n.Resources</i18n-bundle>
-            <parent-menu>account_mgt_menu</parent-menu>
-            <link>../userstore_config/index.jsp</link>
-            <region>region1</region>
-            <order>6</order>
-            <style-class>manage</style-class>
-            <icon>../userstore_config/images/multiple-user-stores.png</icon>
-            <require-permission>/permission/admin/manage/identity/user-store/view</require-permission>
-        </menu>
-    </menus>
-
     <ManagementPermissions>
         <ManagementPermission>
             <DisplayName>User Store Management</DisplayName>
             <ResourceId>/permission/admin/manage/identity/user-store</ResourceId>
         </ManagementPermission>
+
         <ManagementPermission>
             <DisplayName>Create</DisplayName>
             <ResourceId>/permission/admin/manage/identity/user-store/create</ResourceId>
