@@ -1240,7 +1240,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
                 serviceProvider
                         .setLocalAndOutBoundAuthenticationConfig(localAndOutboundAuthenticationConfig);
 
-                serviceProvider.setSaasApp("1".equals(basicAppDataResultSet.getString(14)));
+                serviceProvider.setSaasApp("1".equals(basicAppDataResultSet.getString(16)));
 
                 if (debugMode) {
                     log.debug("ApplicationID: " + serviceProvider.getApplicationID()
