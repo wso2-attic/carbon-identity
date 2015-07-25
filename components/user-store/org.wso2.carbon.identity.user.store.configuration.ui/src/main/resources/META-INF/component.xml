@@ -25,31 +25,8 @@
             <order>6</order>
             <style-class>manage</style-class>
             <icon>../userstore_config/images/multiple-user-stores.png</icon>
-            <require-permission>/permission/admin/manage/identity/user-store/view</require-permission>
+            <require-permission>/permission/admin</require-permission>
         </menu>
     </menus>
-
-    <ManagementPermissions>
-        <ManagementPermission>
-            <DisplayName>User Store Management</DisplayName>
-            <ResourceId>/permission/admin/manage/identity/user-store</ResourceId>
-        </ManagementPermission>
-        <ManagementPermission>
-            <DisplayName>Create</DisplayName>
-            <ResourceId>/permission/admin/manage/identity/user-store/create</ResourceId>
-        </ManagementPermission>
-        <ManagementPermission>
-            <DisplayName>View</DisplayName>
-            <ResourceId>/permission/admin/manage/identity/user-store/view</ResourceId>
-        </ManagementPermission>
-        <ManagementPermission>
-            <DisplayName>Update</DisplayName>
-            <ResourceId>/permission/admin/manage/identity/user-store/update</ResourceId>
-        </ManagementPermission>
-        <ManagementPermission>
-            <DisplayName>Delete</DisplayName>
-            <ResourceId>/permission/admin/manage/identity/user-store/delete</ResourceId>
-        </ManagementPermission>
-    </ManagementPermissions>
 </component>
 
