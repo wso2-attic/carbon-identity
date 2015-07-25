@@ -65,7 +65,7 @@
         </ManagementPermission>
         <ManagementPermission>
             <DisplayName>View</DisplayName>
-            <ResourceId>/permission/admin/manage/identity/idpmgt/read</ResourceId>
+            <ResourceId>/permission/admin/manage/identity/idpmgt/view</ResourceId>
         </ManagementPermission>
         <ManagementPermission>
             <DisplayName>Delete</DisplayName>

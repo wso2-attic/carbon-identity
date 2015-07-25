@@ -72,7 +72,7 @@
         </ManagementPermission>
         <ManagementPermission>
             <DisplayName>View</DisplayName>
-            <ResourceId>/permission/admin/manage/identity/applicationmgt/read</ResourceId>
+            <ResourceId>/permission/admin/manage/identity/applicationmgt/view</ResourceId>
         </ManagementPermission>
         <ManagementPermission>
             <DisplayName>Delete</DisplayName>
