@@ -28,7 +28,7 @@
             <order>7</order>
             <style-class>manage</style-class>
 		    <icon>../claim-mgt/images/claimmgt.gif</icon>
-		    <require-permission>/permission/admin/configure/security</require-permission>
+		    <require-permission>/permission/admin/manage/identity/claimmgt/view</require-permission>
         </menu>
     </menus>
 
