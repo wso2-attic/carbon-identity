@@ -28,7 +28,30 @@
             <order>7</order>
             <style-class>manage</style-class>
 		    <icon>../claim-mgt/images/claimmgt.gif</icon>
-		    <require-permission>/permission/admin/configure/security</require-permission>
+		    <require-permission>/permission/admin/manage/identity/claimmgt/view</require-permission>
         </menu>
     </menus>
+
+    <ManagementPermissions>
+        <ManagementPermission>
+            <DisplayName>Claim Management</DisplayName>
+            <ResourceId>/permission/admin/manage/identity/claimmgt</ResourceId>
+        </ManagementPermission>
+        <ManagementPermission>
+            <DisplayName>Create</DisplayName>
+            <ResourceId>/permission/admin/manage/identity/claimmgt/create</ResourceId>
+        </ManagementPermission>
+        <ManagementPermission>
+            <DisplayName>View</DisplayName>
+            <ResourceId>/permission/admin/manage/identity/claimmgt/view</ResourceId>
+        </ManagementPermission>
+        <ManagementPermission>
+            <DisplayName>Update</DisplayName>
+            <ResourceId>/permission/admin/manage/identity/claimmgt/update</ResourceId>
+        </ManagementPermission>
+        <ManagementPermission>
+            <DisplayName>Delete</DisplayName>
+            <ResourceId>/permission/admin/manage/identity/claimmgt/delete</ResourceId>
+        </ManagementPermission>
+    </ManagementPermissions>
 </component>
