@@ -49,6 +49,10 @@
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon.identity</groupId>
+            <artifactId>org.wso2.carbon.identity.core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.identity</groupId>
             <artifactId>org.wso2.carbon.identity.application.common</artifactId>
         </dependency>
     </dependencies>
@@ -66,6 +70,7 @@
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
                         <Import-Package>
                             javax.servlet.http; version="${imp.pkg.version.javax.servlet}",
+                            org.osgi.service.component; version="${osgi.service.component.imp.pkg.version.range}",
                             org.apache.axis2.*; version="${axis2.osgi.version.range}",
                             org.apache.axiom.om.util; version="${axiom.osgi.version.range}",
                             org.apache.commons.fileupload.*; version="${commons-fileupload.imp.pkg.version.range}",
@@ -80,6 +85,8 @@
                             org.wso2.carbon.identity.application.common.model.idp.xsd;
                             version="${carbon.identity.package.import.version.range}",
                             org.wso2.carbon.idp.mgt.stub; version="${carbon.identity.package.import.version.range}",
+                            org.wso2.carbon.identity.core.util;
+                            version="${carbon.identity.package.import.version.range}",
                         </Import-Package>
                         <Export-Package>
                             org.wso2.carbon.idp.mgt.ui.*; version="${carbon.identity.package.export.version}",

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -16,51 +16,33 @@
  * under the License.
  */
 
-package org.wso2.carbon.identity.application.mgt.ui.internal;
+package org.wso2.carbon.idp.mgt.ui.internal;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.identity.core.util.IdentityCoreInitializedEvent;
-import org.wso2.carbon.utils.ConfigurationContextService;
 
 /**
- * @scr.component name="org.wso2.carbon.identity.application.mgt.ui" immediate="true"
- * @scr.reference name="config.context.service"
- * interface="org.wso2.carbon.utils.ConfigurationContextService" cardinality="1..1"
- * policy="dynamic" bind="setConfigurationContextService"
- * unbind="unsetConfigurationContextService"
+ * @scr.component name="org.wso2.carbon.identity.idp.mgt.ui" immediate="true"
  * @scr.reference name="identityCoreInitializedEventService"
  * interface="org.wso2.carbon.identity.core.util.IdentityCoreInitializedEvent" cardinality="1..1"
  * policy="dynamic" bind="setIdentityCoreInitializedEventService" unbind="unsetIdentityCoreInitializedEventService"
  */
-public class ApplicationMgtUIServiceComponent {
 
-    private static final Log log = LogFactory.getLog(ApplicationMgtUIServiceComponent.class);
+public class IdentityProviderMgtUIServiceComponent {
+
+    private static final Log log = LogFactory.getLog(IdentityProviderMgtUIServiceComponent.class);
 
     protected void activate(ComponentContext context) {
         if (log.isDebugEnabled()) {
-            log.debug("Application Management UI bundle acticated!");
+            log.debug("Identity Provider Management UI bundle acticated!");
         }
     }
 
     protected void deactivate(ComponentContext context) {
         if (log.isDebugEnabled()) {
-            log.debug("Application Management UI bundle is deactivated");
-        }
-    }
-
-    protected void setConfigurationContextService(ConfigurationContextService configurationContextService) {
-        ApplicationMgtServiceComponentHolder.getInstance().setConfigurationContextService(configurationContextService);
-        if (log.isDebugEnabled()) {
-            log.debug("ConfigurationContextService Instance was set.");
-        }
-    }
-
-    protected void unsetConfigurationContextService(ConfigurationContextService configurationContextService) {
-        ApplicationMgtServiceComponentHolder.getInstance().setConfigurationContextService(null);
-        if (log.isDebugEnabled()) {
-            log.debug("ConfigurationContextService Instance was unset.");
+            log.debug("Identity Provider Management UI bundle is deactivated");
         }
     }
 
