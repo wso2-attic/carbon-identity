@@ -26,13 +26,17 @@
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>ldap-server-feature</artifactId>
+    <artifactId>provisioning-feature</artifactId>
     <packaging>pom</packaging>
-    <name>WSO2 Carbon - LDAP Server</name>
+    <name>WSO2 Carbon - Identity Provisioning Feature</name>
     <url>http://wso2.org</url>
 
     <modules>
-
+        <module>org.wso2.carbon.identity.provisioning.server.feature</module>
+        <module>org.wso2.carbon.identity.provisioning.connector.google.server.feature</module>
+        <module>org.wso2.carbon.identity.provisioning.connector.salesforce.server.feature</module>
+        <module>org.wso2.carbon.identity.provisioning.connector.scim.server.feature</module>
+        <module>org.wso2.carbon.identity.provisioning.connector.spml.server.feature</module>
     </modules>
 
 </project>
