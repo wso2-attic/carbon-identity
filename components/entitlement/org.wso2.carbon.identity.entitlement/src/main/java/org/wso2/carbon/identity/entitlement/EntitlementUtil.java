@@ -377,7 +377,7 @@ public class EntitlementUtil {
 
         File policyFolder = new File(CarbonUtils.getCarbonHome() + File.separator
                 + "repository" + File.separator + "resources" + File.separator
-                + "security" + File.separator + "policies" + File.separator + "xacml"
+                + "identity" + File.separator + "policies" + File.separator + "xacml"
                 + File.separator + "default");
 
         if (policyFolder.exists()) {
