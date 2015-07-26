@@ -118,9 +118,8 @@ public class SAMLAssertionClaimsCallback implements CustomClaimsCallbackHandler 
                     builder.setClaim(entry.getKey(), values.toJSONString());
                 }
             } catch (OAuthSystemException e) {
-                log.error(
-                        "Error occurred while adding claims of " + requestMsgCtx.getAuthorizedUser() + " to id token.",
-                        e);
+                log.error("Error occurred while adding claims of " + requestMsgCtx.getAuthorizedUser() +
+                                " to id token.", e);
             }
         }
     }
