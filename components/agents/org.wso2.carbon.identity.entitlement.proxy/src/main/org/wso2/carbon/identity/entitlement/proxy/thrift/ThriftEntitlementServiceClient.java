@@ -136,14 +136,15 @@ public class ThriftEntitlementServiceClient extends AbstractEntitlementServiceCl
     }
 
     private String getDecision(String xacmlRequest, EntitlementThriftClient.Client client, Authenticator authenticator)
-            throws Exception {
+            throws EntitlementProxyException {
         try {
             return client.getDecision(xacmlRequest, authenticator.getSessionId(false));
         } catch (TException e) {
             if (log.isDebugEnabled()) {
                 log.debug("Thrift entitlement exception  : ", e);
             }
-            throw new EntitlementProxyException("Error while getting decision from PDP using ThriftEntitlementServiceClient", e);
+            throw new EntitlementProxyException("Error while getting decision from PDP using " +
+                    "ThriftEntitlementServiceClient", e);
         } catch (EntitlementException e) {
             if (log.isDebugEnabled()) {
                 log.debug("Exception occurred : ", e);
@@ -154,7 +155,7 @@ public class ThriftEntitlementServiceClient extends AbstractEntitlementServiceCl
                 if (log.isDebugEnabled()) {
                     log.debug("Exception occurred : ", e1);
                 }
-                throw new EntitlementProxyException("Error while attempting to re-authenticate the Thrift client in ", e1);
+                throw new EntitlementProxyException("Error while attempting to re-authenticate the Thrift client", e1);
             }
         }
     }
