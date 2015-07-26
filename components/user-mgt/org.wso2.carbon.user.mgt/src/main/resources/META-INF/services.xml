@@ -131,7 +131,7 @@
         </operation>
 
         <operation name="getRolesOfCurrentUser">
-            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/user-mgt, /permission/admin/manage/identity/role-mgt/view
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/role-mgt/view
             </parameter>
         </operation>
 
@@ -146,7 +146,7 @@
         </operation>
 
         <operation name="getUsersOfRole">
-            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/role-mgt, /permission/admin/manage/identity/user-mgt/view
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/user-mgt/view
             </parameter>
         </operation>
 
