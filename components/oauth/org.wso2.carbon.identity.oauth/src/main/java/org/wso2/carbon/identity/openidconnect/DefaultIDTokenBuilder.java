@@ -124,9 +124,7 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
                                                                                INBOUND_AUTH2_TYPE, tenantDomain);
                 serviceProvider = applicationMgtService.getApplicationExcludingFileBasedSPs(spName, tenantDomain);
             } catch (IdentityApplicationManagementException ex) {
-                log.error("Error while getting service provider information.", ex);
-                throw new IdentityOAuth2Exception("Error while getting service provider information.",
-                                                  ex);
+                throw new IdentityOAuth2Exception("Error while getting service provider information.", ex);
             }
 
             if (serviceProvider != null) {
@@ -137,10 +135,8 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
                     String tenantUser = MultitenantUtils.getTenantAwareUsername(username);
                     String domainName = MultitenantUtils.getTenantDomain(request.getAuthorizedUser());
                     try {
-                        subject =
-                                IdentityTenantUtil.getRealm(domainName, username)
-                                        .getUserStoreManager()
-                                        .getUserClaimValue(tenantUser, claim, null);
+                        subject = IdentityTenantUtil.getRealm(domainName, username).getUserStoreManager()
+                                .getUserClaimValue(tenantUser, claim, null);
                         if (subject == null) {
                             subject = request.getAuthorizedUser();
                         }
