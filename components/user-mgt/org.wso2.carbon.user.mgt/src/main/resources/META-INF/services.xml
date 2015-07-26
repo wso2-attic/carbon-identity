@@ -26,88 +26,71 @@
         </parameter>
 
         <operation name="addUser">
-            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/user-mgt/create
-            </parameter>
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/user-mgt/create</parameter>
         </operation>
 
         <operation name="addUsers">
-            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/user-mgt/create
-            </parameter>
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/user-mgt/create</parameter>
         </operation>
 
         <operation name="deleteUser">
-            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/user-mgt/delete
-            </parameter>
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/user-mgt/delete</parameter>
         </operation>
 
         <operation name="addCredential">
-            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/user-mgt/create
-            </parameter>
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/user-mgt/create</parameter>
         </operation>
 
         <operation name="updateCredential">
-            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/user-mgt/update
-            </parameter>
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/user-mgt/update</parameter>
         </operation>
 
         <operation name="deleteCredential">
-            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/user-mgt/delete
-            </parameter>
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/user-mgt/delete</parameter>
         </operation>
 
         <operation name="getCredentials">
-            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/user-mgt/view
-            </parameter>
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/user-mgt/view</parameter>
         </operation>
 
         <operation name="setUserClaimValue">
-            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/user-mgt/create
-            </parameter>
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/user-mgt/update</parameter>
         </operation>
 
         <operation name="setUserClaimValues">
-            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/user-mgt/create
-            </parameter>
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/user-mgt/update</parameter>
         </operation>
 
         <operation name="deleteUserClaimValue">
-            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/user-mgt/delete
-            </parameter>
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/user-mgt/delete</parameter>
         </operation>
 
         <operation name="deleteUserClaimValues">
-            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/user-mgt/delete
-            </parameter>
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/user-mgt/delete</parameter>
         </operation>
 
         <operation name="getUserClaimValue">
-            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/user-mgt/view
-            </parameter>
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/user-mgt/view</parameter>
         </operation>
 
         <operation name="getUserClaimValues">
-            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/user-mgt/view
-            </parameter>
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/user-mgt/view</parameter>
         </operation>
 
         <operation name="getAllUserClaimValues">
-            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/user-mgt/view
-            </parameter>
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/user-mgt/view</parameter>
         </operation>
 
         <operation name="addUserWithUserId">
-            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/user-mgt/create
-            </parameter>
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/user-mgt/create</parameter>
         </operation>
 
         <operation name="getUserId">
-            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/user-mgt/view
-            </parameter>
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/user-mgt/view</parameter>
         </operation>
 
         <operation name="authenticate">
-            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/user-mgt
-            </parameter>
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/user-mgt</parameter>
         </operation>
 
     </service>
@@ -131,58 +114,47 @@
         </operation>
 
         <operation name="getRolesOfCurrentUser">
-            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/role-mgt/view
-            </parameter>
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/role-mgt/view</parameter>
         </operation>
 
         <operation name="getUserRealmInfo">
-            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/user-mgt/view
-            </parameter>
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/user-mgt/view</parameter>
         </operation>
 
         <operation name="getAllRolesNames">
-            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/role-mgt/view
-            </parameter>
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/role-mgt/view</parameter>
         </operation>
 
         <operation name="getUsersOfRole">
-            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/user-mgt/view
-            </parameter>
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/user-mgt/view</parameter>
         </operation>
 
         <operation name="updateUsersOfRole">
-            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/role-mgt/update
-            </parameter>
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/role-mgt/update</parameter>
         </operation>
 
         <operation name="addUser">
-            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/user-mgt/create
-            </parameter>
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/user-mgt/create</parameter>
         </operation>
 
         <operation name="changePassword">
-            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/user-mgt/update
-            </parameter>
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/user-mgt/update</parameter>
         </operation>
 
         <operation name="deleteUser">
-            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/user-mgt/delete
-            </parameter>
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/user-mgt/delete</parameter>
         </operation>
 
         <operation name="listUsers">
-            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/user-mgt/view
-            </parameter>
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/user-mgt/view</parameter>
         </operation>
 
         <operation name="listAllUsers">
-            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/user-mgt/view
-            </parameter>
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/user-mgt/view</parameter>
         </operation>
 
         <operation name="hasMultipleUserStores">
-            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/user-mgt
-            </parameter>
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/user-mgt</parameter>
         </operation>
 
 	</service>
