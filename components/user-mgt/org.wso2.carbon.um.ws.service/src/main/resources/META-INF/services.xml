@@ -26,7 +26,81 @@
         </transports>
         <parameter name="ServiceClass" locked="false">org.wso2.carbon.um.ws.service.AuthorizationManagerService
         </parameter>
-        <parameter name="AuthorizationAction" locked="false">/permission/admin/configure/security</parameter>
+
+        <parameter name="AuthorizationAction" locked="false">/permission/admin/manage/identity/user-mgt,/permission/admin/manage/identity/role-mgt,/permission/admin/manage/identity/authorization-mgt</parameter>
+
+        <operation name="authorizeRole">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/role-mgt/update,/permission/admin/manage/identity/authorization-mgt</parameter>
+        </operation>
+
+        <operation name="authorizeUser">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/user-mgt/update,/permission/admin/manage/identity/authorization-mgt</parameter>
+        </operation>
+
+        <operation name="clearAllRoleAuthorization">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/role-mgt/update,/permission/admin/manage/identity/authorization-mgt/delete</parameter>
+        </operation>
+
+        <operation name="clearAllUserAuthorization">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/user-mgt/update,/permission/admin/manage/identity/authorization-mgt/delete</parameter>
+        </operation>
+
+        <operation name="clearResourceAuthorizations">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/authorization-mgt/delete</parameter>
+        </operation>
+
+        <operation name="clearRoleActionOnAllResources">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/role-mgt/update,/permission/admin/manage/identity/authorization-mgt/delete</parameter>
+        </operation>
+
+        <operation name="clearRoleAuthorization">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/role-mgt/update,/permission/admin/manage/identity/authorization-mgt/delete</parameter>
+        </operation>
+
+        <operation name="clearUserAuthorization">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/user-mgt/update,/permission/admin/manage/identity/authorization-mgt/delete</parameter>
+        </operation>
+
+        <operation name="denyRole">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/role-mgt/update,/permission/admin/manage/identity/authorization-mgt/delete</parameter>
+        </operation>
+
+        <operation name="denyUser">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/user-mgt/update,/permission/admin/manage/identity/authorization-mgt/delete</parameter>
+        </operation>
+
+        <operation name="getAllowedRolesForResource">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/authorization-mgt,/permission/admin/manage/identity/role-mgt/view</parameter>
+        </operation>
+
+        <operation name="getAllowedUIResourcesForUser">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/authorization-mgt/view</parameter>
+        </operation>
+
+        <operation name="getDeniedRolesForResource">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/authorization-mgt/view</parameter>
+        </operation>
+
+        <operation name="getExplicitlyAllowedUsersForResource">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/authorization-mgt/view</parameter>
+        </operation>
+
+        <operation name="getExplicitlyDeniedUsersForResource">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/authorization-mgt/view</parameter>
+        </operation>
+
+        <operation name="isRoleAuthorized">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/authorization-mgt/view</parameter>
+        </operation>
+
+        <operation name="isUserAuthorized">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/authorization-mgt/view</parameter>
+        </operation>
+
+        <operation name="resetPermissionOnUpdateRole">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/role-mgt/update,/permission/admin/manage/identity/authorization-mgt</parameter>
+        </operation>
+
     </service>
 
     <service name="RemoteUserStoreManagerService" scope="transportsession">
@@ -34,7 +108,148 @@
             <transport>https</transport>
         </transports>
         <parameter name="ServiceClass" locked="false">org.wso2.carbon.um.ws.service.UserStoreManagerService</parameter>
-        <parameter name="AuthorizationAction" locked="false">/permission/admin/configure/security</parameter>
+        <parameter name="AuthorizationAction" locked="false">/permission/admin/manage/identity/user-mgt,/permission/admin/manage/identity/role-mgt,/permission/admin/manage/identity/user-profile,/permission/admin/manage/identity/user-store</parameter>
+
+        <operation name="addUser">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/user-mgt/create</parameter>
+        </operation>
+
+        <operation name="setUserClaimValues">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/user-mgt/create</parameter>
+        </operation>
+
+        <operation name="addUserClaimValues">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/user-mgt/create</parameter>
+        </operation>
+
+        <operation name="getUserClaimValuesForClaims">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/user-mgt/view</parameter>
+        </operation>
+
+        <operation name="addRole">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/role-mgt/create</parameter>
+        </operation>
+
+        <operation name="getUserClaimValues">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/user-mgt/view</parameter>
+        </operation>
+
+        <operation name="authenticate">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/user-mgt</parameter>
+        </operation>
+
+        <operation name="updateCredential">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/user-mgt/update</parameter>
+        </operation>
+
+        <operation name="updateCredentialByAdmin">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/user-mgt/update</parameter>
+        </operation>
+
+        <operation name="getPasswordExpirationTime">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/user-mgt/view</parameter>
+        </operation>
+
+        <operation name="deleteRole">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/role-mgt/delete</parameter>
+        </operation>
+
+        <operation name="deleteUser">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/user-mgt/delete</parameter>
+        </operation>
+
+        <operation name="deleteUserClaimValue">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/user-mgt/delete</parameter>
+        </operation>
+
+        <operation name="deleteUserClaimValues">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/user-mgt/delete</parameter>
+        </operation>
+
+        <operation name="getAllProfileNames">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/user-profile/view</parameter>
+        </operation>
+
+        <operation name="getHybridRoles">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/role-mgt/view</parameter>
+        </operation>
+
+        <operation name="getProfileNames">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/user-profile/view</parameter>
+        </operation>
+
+        <operation name="getRoleListOfUser">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/role-mgt/view</parameter>
+        </operation>
+
+        <operation name="getRoleNames">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/role-mgt/view</parameter>
+        </operation>
+
+        <operation name="getTenantId">
+            <parameter name="AuthorizationAction" locked="true">false</parameter>
+        </operation>
+
+        <operation name="getUserList">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/user-mgt/view</parameter>
+        </operation>
+
+        <operation name="getTenantIdofUser">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/user-mgt/view</parameter>
+        </operation>
+
+        <operation name="getUserClaimValue">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/user-mgt/view</parameter>
+        </operation>
+
+        <operation name="getUserId">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/user-mgt/view</parameter>
+        </operation>
+
+        <operation name="getUserListOfRole">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/user-mgt/view</parameter>
+        </operation>
+
+        <operation name="isExistingRole">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/role-mgt</parameter>
+        </operation>
+
+        <operation name="isExistingUser">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/user-mgt</parameter>
+        </operation>
+
+        <operation name="isReadOnly">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/user-store/view</parameter>
+        </operation>
+
+        <operation name="listUsers">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/user-mgt/view</parameter>
+        </operation>
+
+        <operation name="setUserClaimValue">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/user-mgt/create</parameter>
+        </operation>
+
+        <operation name="addUserClaimValue">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/user-mgt/create</parameter>
+        </operation>
+
+        <operation name="updateRoleListOfUser">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/user-mgt/update</parameter>
+        </operation>
+
+        <operation name="updateRoleName">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/role-mgt/update</parameter>
+        </operation>
+
+        <operation name="updateUserListOfRole">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/role-mgt/update</parameter>
+        </operation>
+
+        <operation name="getProperties">
+            <parameter name="AuthorizationAction" locked="true">false</parameter>
+        </operation>
+
     </service>
 
     <service name="RemoteProfileConfigurationManagerService" scope="transportsession">
