@@ -31,6 +31,51 @@
 		    <require-permission>/permission/admin/login</require-permission>
         </menu>
     </menus>
+
+    <ManagementPermissions>
+        <ManagementPermission>
+            <DisplayName>User Management</DisplayName>
+            <ResourceId>/permission/admin/manage/identity/user-mgt</ResourceId>
+        </ManagementPermission>
+        <ManagementPermission>
+            <DisplayName>Create</DisplayName>
+            <ResourceId>/permission/admin/manage/identity/user-mgt/create</ResourceId>
+        </ManagementPermission>
+        <ManagementPermission>
+            <DisplayName>View</DisplayName>
+            <ResourceId>/permission/admin/manage/identity/user-mgt/view</ResourceId>
+        </ManagementPermission>
+        <ManagementPermission>
+            <DisplayName>Update</DisplayName>
+            <ResourceId>/permission/admin/manage/identity/user-mgt/update</ResourceId>
+        </ManagementPermission>
+        <ManagementPermission>
+            <DisplayName>Delete</DisplayName>
+            <ResourceId>/permission/admin/manage/identity/user-mgt/delete</ResourceId>
+        </ManagementPermission>
+
+        <ManagementPermission>
+            <DisplayName>Role Management</DisplayName>
+            <ResourceId>/permission/admin/manage/identity/role-mgt</ResourceId>
+        </ManagementPermission>
+        <ManagementPermission>
+            <DisplayName>Create</DisplayName>
+            <ResourceId>/permission/admin/manage/identity/role-mgt/create</ResourceId>
+        </ManagementPermission>
+        <ManagementPermission>
+            <DisplayName>View</DisplayName>
+            <ResourceId>/permission/admin/manage/identity/role-mgt/view</ResourceId>
+        </ManagementPermission>
+        <ManagementPermission>
+            <DisplayName>Update</DisplayName>
+            <ResourceId>/permission/admin/manage/identity/role-mgt/update</ResourceId>
+        </ManagementPermission>
+        <ManagementPermission>
+            <DisplayName>Delete</DisplayName>
+            <ResourceId>/permission/admin/manage/identity/role-mgt/delete</ResourceId>
+        </ManagementPermission>
+    </ManagementPermissions>
+
     <framework-configuration>
         <bypass>
             <tiles>
