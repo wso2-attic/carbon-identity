@@ -115,7 +115,7 @@
         </operation>
 
         <operation name="setUserClaimValues">
-            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/user-mgt/create</parameter>
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/user-mgt/update</parameter>
         </operation>
 
         <operation name="addUserClaimValues">
@@ -227,7 +227,7 @@
         </operation>
 
         <operation name="setUserClaimValue">
-            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/user-mgt/create</parameter>
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/user-mgt/update</parameter>
         </operation>
 
         <operation name="addUserClaimValue">
