@@ -36,6 +36,11 @@ public class SQLConstants {
     public static final String GET_ENTITY_LIST_STATES = "SELECT * FROM WF_ENTITY_LOCK_STATE WHERE ENTITY_ID IN (?) " +
             "AND ENTITY_TYPE = ?";
 
+    public static final String GET_ENTITY_RELATED_TO_AT_LEAST_ONE_FROM_LIST = "SELECT * FROM " +
+            "WF_ENTITY_RELATIONSHIP_LOCK_STATE WHERE (ENTITY1_ID = ? and ENTITY1_TYPE =? AND ENTITY2_TYPE =? AND " +
+            "ENTITY2_ID IN (?)) OR (ENTITY2_ID = ? and ENTITY2_TYPE =? AND ENTITY1_TYPE =? AND ENTITY1_ID IN " +
+            "(?))";
+
     private SQLConstants(){
 
     }

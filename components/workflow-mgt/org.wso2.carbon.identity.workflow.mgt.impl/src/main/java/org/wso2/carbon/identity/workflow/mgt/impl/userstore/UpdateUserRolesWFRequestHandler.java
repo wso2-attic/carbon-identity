@@ -21,7 +21,9 @@ package org.wso2.carbon.identity.workflow.mgt.impl.userstore;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.identity.workflow.mgt.extension.AbstractWorkflowRequestHandler;
+import org.wso2.carbon.identity.workflow.mgt.impl.dao.EntityDAO;
 import org.wso2.carbon.identity.workflow.mgt.util.WorkflowDataType;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.util.WorkflowRequestStatus;
@@ -29,6 +31,7 @@ import org.wso2.carbon.identity.workflow.mgt.impl.internal.IdentityWorkflowDataH
 import org.wso2.carbon.user.api.UserRealm;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.service.RealmService;
+import org.wso2.carbon.user.core.util.UserCoreUtil;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -153,5 +156,25 @@ public class UpdateUserRolesWFRequestHandler extends AbstractWorkflowRequestHand
                                 status);
             }
         }
+    }
+
+    public boolean checkUserUpdatePossible(String fullyQualifiedUserName, String[] fullyQulalifiedDeletedRoles,
+                                           String[] fullyQulalifiedNewRoles,
+                                           String
+            userStoreDomain) throws WorkflowException{
+
+        EntityDAO entityDao = new EntityDAO();
+        if(entityDao.checkEntityLocked(fullyQualifiedUserName, "USER")){
+            throw new WorkflowException("User is in pending state of a workflow");
+        }
+        if (fullyQulalifiedDeletedRoles.length > 0 && !entityDao.checkEntityListLocked(fullyQulalifiedDeletedRoles,
+                "ROLE")) {
+            throw new WorkflowException("1 or more given roles are in pending state in workflows.");
+        }
+        if (fullyQulalifiedNewRoles.length > 0 && !entityDao.checkEntityListLocked(fullyQulalifiedNewRoles,
+                "ROLE")) {
+            throw new WorkflowException("1 or more given roles are in pending state in workflows.");
+        }
+        return true;
     }
 }

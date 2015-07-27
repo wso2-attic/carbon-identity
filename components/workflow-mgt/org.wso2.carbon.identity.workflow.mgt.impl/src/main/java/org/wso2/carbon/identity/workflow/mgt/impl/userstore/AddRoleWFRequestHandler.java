@@ -76,24 +76,25 @@ public class AddRoleWFRequestHandler extends AbstractWorkflowRequestHandler {
         for (int i = 0; i < permissions.length; i++) {
             permissionList.add(permissions[i].getResourceId() + SEPARATOR + permissions[i].getAction());
         }
+        if(!Boolean.TRUE.equals(getWorkFlowCompleted())) {
+            EntityDAO entityDAO = new EntityDAO();
+            String[] fullyQulalifiedUserList = new String[userList.length];
+            String tenant = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+            for (int i = 0; i < userList.length; i++) {
+                String nameWithTenant = UserCoreUtil.addTenantDomainToEntry(userList[i], tenant);
+                fullyQulalifiedUserList[i] = UserCoreUtil.addDomainToName(nameWithTenant, userStoreDomain);
+            }
+            if (fullyQulalifiedUserList.length > 0 && !entityDAO.checkEntityListLocked(fullyQulalifiedUserList,
+                    "USER")) {
+                throw new WorkflowException("Can't assign role to 1 or more given users");
+            }
 
-        EntityDAO entityDAO = new EntityDAO();
-        String[] fullyQulalifiedUserList = new String[userList.length];
-        String tenant = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-        for (int i=0;i<userList.length;i++){
-            String nameWithTenant = UserCoreUtil.addTenantDomainToEntry(userList[i], tenant);
-            fullyQulalifiedUserList[i] = UserCoreUtil.addDomainToName(nameWithTenant, userStoreDomain);
-        }
-        if(fullyQulalifiedUserList.length >0 && !entityDAO.checkEntityListLocked(fullyQulalifiedUserList, "USER") &&
-                !Boolean.TRUE.equals(getWorkFlowCompleted())){
-            throw new WorkflowException("Can't assign role to 1 or more given users");
-        }
-
-        String nameWithTenant = UserCoreUtil.addTenantDomainToEntry(role, tenant);
-        String fullyQualifiedName = UserCoreUtil.addDomainToName(nameWithTenant, userStoreDomain);
-        boolean isExistingRole = entityDAO.updateEntityLockedState(fullyQualifiedName, "ROLE", "ADD");
-        if (!isExistingRole && !Boolean.TRUE.equals(getWorkFlowCompleted())) {
-            throw new WorkflowException("Role has already been added before.");
+            String nameWithTenant = UserCoreUtil.addTenantDomainToEntry(role, tenant);
+            String fullyQualifiedName = UserCoreUtil.addDomainToName(nameWithTenant, userStoreDomain);
+            boolean isExistingRole = entityDAO.updateEntityLockedState(fullyQualifiedName, "ROLE", "ADD");
+            if (!isExistingRole) {
+                throw new WorkflowException("Role has already been added before.");
+            }
         }
 
         Map<String, Object> wfParams = new HashMap<>();
