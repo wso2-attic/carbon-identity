@@ -53,6 +53,8 @@ public class UserStoreActionListener extends AbstractUserOperationEventListener 
         } catch (WorkflowException e) {
             log.error("Initiating workflow for creating user: " + userName + " failed.", e);
             AddUserWFRequestHandler.unsetWorkFlowCompleted();
+            //Use e.getMessage instead of using a message specific to this level since this message will be shown to in
+            //the admin console error message
             throw new UserStoreException(e.getMessage(), e);
         }
     }
@@ -86,9 +88,11 @@ public class UserStoreActionListener extends AbstractUserOperationEventListener 
         try {
             return new DeleteUserWFRequestHandler().startDeleteUserFlow(domain, userName);
         } catch (WorkflowException e) {
-            log.error("Initiating workflow for deleting user: " + userName + " failed.", e);
+            DeleteUserWFRequestHandler.unsetWorkFlowCompleted();
+            //Use e.getMessage instead of using a message specific to this level since this message will be shown to in
+            //the admin console error message
+            throw new UserStoreException(e.getMessage(), e);
         }
-        return false;
     }
 
     @Override
@@ -156,9 +160,11 @@ public class UserStoreActionListener extends AbstractUserOperationEventListener 
         try {
             return new AddRoleWFRequestHandler().startAddRoleFlow(domain, roleName, userList, permissions);
         } catch (WorkflowException e) {
-            log.error("Initiating workflow failed for adding role " + roleName, e);
+            AddRoleWFRequestHandler.unsetWorkFlowCompleted();
+            //Use e.getMessage instead of using a message specific to this level since this message will be shown to in
+            //the admin console error message
+            throw new UserStoreException(e.getMessage(), e);
         }
-        return false;
     }
 
     @Override
@@ -168,9 +174,11 @@ public class UserStoreActionListener extends AbstractUserOperationEventListener 
         try {
             return new DeleteRoleWFRequestHandler().startDeleteRoleFlow(domain, roleName);
         } catch (WorkflowException e) {
-            log.error("Initiating workflow failed for deleting role " + roleName, e);
+            DeleteRoleWFRequestHandler.unsetWorkFlowCompleted();
+            //Use e.getMessage instead of using a message specific to this level since this message will be shown to in
+            //the admin console error message
+            throw new UserStoreException(e.getMessage(), e);
         }
-        return false;
     }
 
     @Override

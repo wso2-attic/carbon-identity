@@ -21,14 +21,19 @@ package org.wso2.carbon.identity.workflow.mgt.impl.userstore;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.identity.workflow.mgt.extension.AbstractWorkflowRequestHandler;
+import org.wso2.carbon.identity.workflow.mgt.impl.dao.EntityDAO;
 import org.wso2.carbon.identity.workflow.mgt.util.WorkflowDataType;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.util.WorkflowRequestStatus;
 import org.wso2.carbon.identity.workflow.mgt.impl.internal.IdentityWorkflowDataHolder;
 import org.wso2.carbon.user.api.UserRealm;
 import org.wso2.carbon.user.api.UserStoreException;
+import org.wso2.carbon.user.core.UserStoreManager;
+import org.wso2.carbon.user.core.common.AbstractUserStoreManager;
 import org.wso2.carbon.user.core.service.RealmService;
+import org.wso2.carbon.user.core.util.UserCoreUtil;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -55,6 +60,34 @@ public class DeleteRoleWFRequestHandler extends AbstractWorkflowRequestHandler {
     public boolean startDeleteRoleFlow(String userStoreDomain, String roleName) throws WorkflowException {
         Map<String, Object> wfParams = new HashMap<>();
         Map<String, Object> nonWfParams = new HashMap<>();
+        UserStoreManager userStoreManager;
+        if(!Boolean.TRUE.equals(getWorkFlowCompleted())) {
+            String[] userListOfRole = new String[0];
+            try {
+                userStoreManager = ((AbstractUserStoreManager) CarbonContext.getThreadLocalCarbonContext()
+                        .getUserRealm().getUserStoreManager()).getSecondaryUserStoreManager(userStoreDomain);
+                userListOfRole = userStoreManager.getUserListOfRole(roleName);
+            } catch (UserStoreException e) {
+                throw new WorkflowException("Error while retrieving userStoreManager.", e);
+            }
+            EntityDAO entityDAO = new EntityDAO();
+            String[] fullyQulalifiedUserList = new String[userListOfRole.length];
+            String tenant = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+            for (int i=0;i<userListOfRole.length;i++){
+                String nameWithTenant = UserCoreUtil.addTenantDomainToEntry(userListOfRole[i], tenant);
+                fullyQulalifiedUserList[i] = UserCoreUtil.addDomainToName(nameWithTenant, userStoreDomain);
+            }
+            if(fullyQulalifiedUserList.length >0 && !entityDAO.checkEntityListLocked(fullyQulalifiedUserList,
+                    "USER")){
+                throw new WorkflowException("1 or more users of the role are in pending workflow states.");
+            }
+            String nameWithTenant = UserCoreUtil.addTenantDomainToEntry(roleName, tenant);
+            String fullyQualifiedName = UserCoreUtil.addDomainToName(nameWithTenant, userStoreDomain);
+            boolean alreadyDeleted = entityDAO.updateEntityLockedState(fullyQualifiedName, "ROLE", "DELETE");
+            if (!alreadyDeleted ) {
+                throw new WorkflowException("Already deleted role.");
+            }
+        }
         wfParams.put(ROLENAME, roleName);
         wfParams.put(USER_STORE_DOMAIN, userStoreDomain);
         return startWorkFlow(wfParams, nonWfParams);
@@ -81,10 +114,25 @@ public class DeleteRoleWFRequestHandler extends AbstractWorkflowRequestHandler {
                 RealmService realmService = IdentityWorkflowDataHolder.getInstance().getRealmService();
                 UserRealm userRealm = realmService.getTenantUserRealm(tenantId);
                 userRealm.getUserStoreManager().deleteRole(roleName);
+                if (WorkflowRequestStatus.APPROVED.toString().equals(status)) {
+                    EntityDAO entityDAO = new EntityDAO();
+                    String tenant = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+                    String nameWithTenant = UserCoreUtil.addTenantDomainToEntry(UserCoreUtil.removeDomainFromName
+                                    (roleName),
+                            tenant);
+                    String fullyQualifiedName = UserCoreUtil.addDomainToName(nameWithTenant, userStoreDomain);
+                    entityDAO.deleteEntityLockedState(fullyQualifiedName, "ROLE", "DELETE");
+                }
             } catch (UserStoreException e) {
                 throw new WorkflowException("Error when re-requesting deleteRole operation for " + roleName, e);
             }
         } else {
+            EntityDAO entityDAO = new EntityDAO();
+            String tenant = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+            String nameWithTenant = UserCoreUtil.addTenantDomainToEntry(UserCoreUtil.removeDomainFromName(roleName),
+                    tenant);
+            String fullyQualifiedName = UserCoreUtil.addDomainToName(nameWithTenant, userStoreDomain);
+            entityDAO.deleteEntityLockedState(fullyQualifiedName, "ROLE", "DELETE");
             if (retryNeedAtCallback()) {
                 //unset threadlocal variable
                 unsetWorkFlowCompleted();

@@ -95,9 +95,7 @@ public class AddUserWFRequestHandler extends AbstractWorkflowRequestHandler {
             fullyQulalifiedRoleList[i] = UserCoreUtil.addDomainToName(nameWithTenant, userStoreDomain);
         }
         if(fullyQulalifiedRoleList.length >0 && !entityDAO.checkEntityListLocked(fullyQulalifiedRoleList, "ROLE") &&
-                !Boolean
-                .TRUE.equals
-                (getWorkFlowCompleted())){
+                !Boolean.TRUE.equals(getWorkFlowCompleted())){
             throw new WorkflowException("Can't assign user to 1 or more given roles");
         }
 

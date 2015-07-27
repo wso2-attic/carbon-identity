@@ -64,7 +64,7 @@ public class DeleteUserWFRequestHandler extends AbstractWorkflowRequestHandler {
         String fullyQualifiedName = UserCoreUtil.addDomainToName(nameWithTenant, userStoreDomain);
         boolean isExistingUser = entityDAO.updateEntityLockedState(fullyQualifiedName, "USER", "DELETE");
         if (!isExistingUser && !Boolean.TRUE.equals(getWorkFlowCompleted())) {
-            return false;
+            throw new WorkflowException("Already deleted user.");
         }
         wfParams.put(USERNAME, userName);
         wfParams.put(USER_STORE_DOMAIN, userStoreDomain);
