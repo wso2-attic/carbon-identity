@@ -57,6 +57,7 @@ import org.wso2.carbon.identity.oauth2.IdentityOAuth2Exception;
 import org.wso2.carbon.identity.oauth2.token.OAuthTokenReqMessageContext;
 import org.wso2.carbon.identity.oauth2.token.handlers.grant.AbstractAuthorizationGrantHandler;
 import org.wso2.carbon.identity.oauth2.util.CarbonEntityResolver;
+import org.wso2.carbon.identity.oauth2.util.OAuth2Util;
 import org.wso2.carbon.identity.oauth2.util.X509CredentialImpl;
 import org.wso2.carbon.idp.mgt.IdentityProviderManager;
 
@@ -173,7 +174,7 @@ public class SAML2BearerGrantHandler extends AbstractAuthorizationGrantHandler {
                 }
                 return false;
             }
-            tokReqMsgCtx.setAuthorizedUser(resourceOwnerUserName);
+            tokReqMsgCtx.setAuthorizedUser(OAuth2Util.getUserFromUserName(resourceOwnerUserName));
         } else {
             log.debug("Cannot find a Subject in the Assertion");
             return false;
