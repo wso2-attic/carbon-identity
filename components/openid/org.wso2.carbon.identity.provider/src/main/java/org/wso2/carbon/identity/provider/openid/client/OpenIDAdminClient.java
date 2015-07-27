@@ -177,7 +177,7 @@ public class OpenIDAdminClient {
      * @param params
      * @return
      */
-    public String getOpenIDAssociationResponse(OpenIDParameterDTO[] params) {
+    public String getOpenIDAssociationResponse(OpenIDParameterDTO[] params) throws IdentityProviderException{
         return openIDProviderService.getOpenIDAssociationResponse(params);
     }
 

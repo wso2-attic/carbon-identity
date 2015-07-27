@@ -370,30 +370,8 @@ public class OpenIDProviderService {
             throw new IdentityProviderException("Error while checking if user exists", e);
         }
 
-        // Read from OpenID configuration in identity.xml
-        String openIDServerURL = IdentityUtil.getProperty(ServerConfig.OPENID_SERVER_URL);
-        String openIDUserPattern = IdentityUtil.getProperty(ServerConfig.OPENID_USER_PATTERN);
-
-        // If configuration are not defined in build URL from server configurations.
-        if (StringUtils.isBlank(openIDServerURL)) {
-            try {
-                openIDServerURL = IdentityUtil.getServerURL() + "/" + OpenIDServerConstants.OPENID_SERVER;
-            } catch (IdentityException e) {
-                throw new IdentityProviderException(e.getMessage(), e);
-            }
-        }
-
-        if (StringUtils.isBlank(openIDUserPattern)) {
-            try {
-                openIDServerURL = IdentityUtil.getServerURL() + "/" + OpenIDServerConstants.OPENID;
-            } catch (IdentityException e) {
-                throw new IdentityProviderException(e.getMessage(), e);
-            }
-        }
-
-        providerInfo.setOpenIDProviderServerUrl(openIDServerURL);
-        providerInfo.setOpenID(openIDUserPattern + "/" + tenantFreeUsername);
-
+        providerInfo.setOpenIDProviderServerUrl(OpenIDUtil.getOpenIDServerURL());
+        providerInfo.setOpenID(OpenIDUtil.getOpenIDUserPattern() + "/" + tenantFreeUsername);
 
         return providerInfo;
     }
@@ -436,7 +414,7 @@ public class OpenIDProviderService {
      * @return
      * @throws Exception
      */
-    public String getOpenIDAssociationResponse(OpenIDParameterDTO[] params) {
+    public String getOpenIDAssociationResponse(OpenIDParameterDTO[] params) throws IdentityProviderException{
         Message message = null;
         ParameterList paramList = null;
 

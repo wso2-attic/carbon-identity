@@ -22,6 +22,8 @@ import org.apache.commons.logging.LogFactory;
 import org.openid4java.server.ServerManager;
 import org.wso2.carbon.identity.base.IdentityConstants;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
+import org.wso2.carbon.identity.provider.IdentityProviderException;
+import org.wso2.carbon.identity.provider.IdentityProviderUtil;
 
 /**
  * This class is the WSO2 Implementation of OpenID Provider role.
@@ -34,7 +36,7 @@ public class OpenIDProvider {
 
     private static final Log log = LogFactory.getLog(OpenIDProvider.class);
     // Guaranteed to be thread safe
-    private static OpenIDProvider provider = new OpenIDProvider();
+    private static OpenIDProvider provider;
     // Instantiate a ServerManager object.
     private ServerManager manager = new OpenIDServerManager();
     private String opAddress;
@@ -42,9 +44,9 @@ public class OpenIDProvider {
     /**
      * Configure the OpenID Provider's end-point URL
      */
-    private OpenIDProvider() {
+    private OpenIDProvider() throws IdentityProviderException{
         // This is the OpenID provider server URL
-        opAddress = IdentityUtil.getProperty(IdentityConstants.ServerConfig.OPENID_SERVER_URL);
+        opAddress = OpenIDUtil.getOpenIDServerURL();
         // The URL which accepts OpenID Authentication requests, obtained by
         // performing discovery on the the User-Supplied Identifier. This value
         // must be an absolute URL
@@ -67,8 +69,19 @@ public class OpenIDProvider {
     /**
      * @return an instance of the OpenIDProvider
      */
-    public static OpenIDProvider getInstance() {
-        return provider;
+    public static OpenIDProvider getInstance() throws IdentityProviderException {
+        if (provider == null) {
+            synchronized (OpenIDProvider.class) {
+                if (provider == null) {
+                    provider = new OpenIDProvider();
+                    return provider;
+                } else {
+                    return provider;
+                }
+            }
+        } else {
+            return provider;
+        }
     }
 
     /**

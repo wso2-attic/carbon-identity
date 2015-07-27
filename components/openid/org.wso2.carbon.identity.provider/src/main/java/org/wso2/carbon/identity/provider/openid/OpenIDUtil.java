@@ -18,11 +18,14 @@
 
 package org.wso2.carbon.identity.provider.openid;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.identity.base.IdentityConstants;
+import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.provider.IdentityProviderException;
 import org.wso2.carbon.user.core.UserStoreManager;
 
@@ -82,7 +85,7 @@ public class OpenIDUtil {
         String encodedUser = null;
 
         serverConfig = ServerConfiguration.getInstance();
-        openIDUserUrl = serverConfig.getFirstProperty(IdentityConstants.ServerConfig.OPENID_SERVER_URL);
+        openIDUserUrl = getOpenIDServerURL();
 
         encodedUser = normalizeUrlEncoding(user);
 
@@ -209,4 +212,32 @@ public class OpenIDUtil {
 
     }
 
+    public static String getOpenIDServerURL() throws IdentityProviderException{
+
+        // Read from OpenID configuration in identity.xml
+        String openIDServerURL = IdentityUtil.getProperty(IdentityConstants.ServerConfig.OPENID_SERVER_URL);
+        // If configuration are not defined,  build URL from server configurations.
+        if (StringUtils.isBlank(openIDServerURL)) {
+            try {
+                openIDServerURL = IdentityUtil.getServerURL() + "/" + OpenIDServerConstants.OPENID_SERVER;
+            } catch (IdentityException e) {
+                throw new IdentityProviderException(e.getMessage(), e);
+            }
+        }
+        return openIDServerURL;
+    }
+
+    public static String getOpenIDUserPattern() throws IdentityProviderException{
+        // Read from OpenID configuration in identity.xml
+        String openIDUserPattern = IdentityUtil.getProperty(IdentityConstants.ServerConfig.OPENID_USER_PATTERN);
+        // If configuration are not defined,  build URL from server configurations.
+        if (StringUtils.isBlank(openIDUserPattern)) {
+            try {
+                openIDUserPattern = IdentityUtil.getServerURL() + "/" + OpenIDServerConstants.OPENID;
+            } catch (IdentityException e) {
+                throw new IdentityProviderException(e.getMessage(), e);
+            }
+        }
+        return openIDUserPattern;
+    }
 }
