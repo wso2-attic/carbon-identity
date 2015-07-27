@@ -50,7 +50,7 @@
     boolean showFilterMessage = false;
     boolean multipleUserStores = false;
     String forwardTo = "user-mgt.jsp";
-
+               
     FlaggedName[] datas = null;
     FlaggedName exceededDomains = null;
     String[] claimUris = null;
@@ -181,7 +181,7 @@
             }
 
             if(userRealmInfo != null){
-                claimUris = userRealmInfo.getRequiredUserClaims();
+                claimUris = userRealmInfo.getDefaultUserClaims();
             }
 
             if (filter.length() > 0) {
