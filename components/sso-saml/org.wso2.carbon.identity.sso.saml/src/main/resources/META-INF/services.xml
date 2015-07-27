@@ -43,5 +43,5 @@
     </service>
 
     <parameter name="hiddenService" locked="true">true</parameter>
-    
+
 </serviceGroup>
