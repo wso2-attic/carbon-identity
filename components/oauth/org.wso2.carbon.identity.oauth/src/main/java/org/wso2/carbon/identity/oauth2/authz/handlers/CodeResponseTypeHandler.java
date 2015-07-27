@@ -68,8 +68,9 @@ public class CodeResponseTypeHandler extends AbstractResponseTypeHandler {
         // convert to milliseconds
         validityPeriod = validityPeriod * 1000;
 
-        AuthzCodeDO authzCodeDO = new AuthzCodeDO(authorizationReqDTO.getUsername(),
-                oauthAuthzMsgCtx.getApprovedScope(), timestamp, validityPeriod, authorizationReqDTO.getCallbackUrl());
+        AuthzCodeDO authzCodeDO = new AuthzCodeDO(OAuth2Util.getUserFromUserName(authorizationReqDTO.getUsername()),
+                oauthAuthzMsgCtx.getApprovedScope(),timestamp, validityPeriod, authorizationReqDTO.getCallbackUrl(),
+                authorizationReqDTO.getConsumerKey(), authorizationCode);
 
         tokenMgtDAO.storeAuthorizationCode(authorizationCode, authorizationReqDTO.getConsumerKey(),
                 authorizationReqDTO.getCallbackUrl(), authzCodeDO);

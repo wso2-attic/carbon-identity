@@ -19,6 +19,7 @@
 package org.wso2.carbon.identity.oauth2.model;
 
 import org.wso2.carbon.base.MultitenantConstants;
+import org.wso2.carbon.identity.application.common.model.User;
 import org.wso2.carbon.identity.oauth.cache.CacheEntry;
 
 import java.sql.Timestamp;
@@ -29,7 +30,7 @@ public class AccessTokenDO extends CacheEntry {
 
     private String consumerKey;
 
-    private String authzUser;
+    private User authzUser;
 
     private String[] scope;
 
@@ -59,7 +60,7 @@ public class AccessTokenDO extends CacheEntry {
 
     private String tokenType;
 
-    public AccessTokenDO(String consumerKey, String authzUser, String[] scope, Timestamp issuedTime, Timestamp
+    public AccessTokenDO(String consumerKey, User authzUser, String[] scope, Timestamp issuedTime, Timestamp
             refreshTokenIssuedTime, long validityPeriodInMillis, long refreshTokenValidityPeriodInMillis, String
                                  tokenType) {
         this.consumerKey = consumerKey;
@@ -74,7 +75,7 @@ public class AccessTokenDO extends CacheEntry {
         this.tokenType = tokenType;
     }
 
-    public AccessTokenDO(String consumerKey, String authzUser, String[] scope, Timestamp issuedTime, Timestamp
+    public AccessTokenDO(String consumerKey, User authzUser, String[] scope, Timestamp issuedTime, Timestamp
             refreshTokenIssuedTime, long validityPeriodInMillis, long refreshTokenValidityPeriodInMillis, String
                                  tokenType, String authorizationCode) {
         this(consumerKey, authzUser, scope, issuedTime, refreshTokenIssuedTime, validityPeriodInMillis,
@@ -98,7 +99,7 @@ public class AccessTokenDO extends CacheEntry {
         this.consumerKey = consumerKey;
     }
 
-    public String getAuthzUser() {
+    public User getAuthzUser() {
         return authzUser;
     }
 

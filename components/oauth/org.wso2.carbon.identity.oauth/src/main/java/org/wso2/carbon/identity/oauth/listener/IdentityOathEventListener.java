@@ -118,7 +118,7 @@ public class IdentityOathEventListener extends AbstractUserOperationEventListene
                 if (scopedToken != null) {
                     try {
                         //Revoking token from database
-                        tokenMgtDAO.revokeToken(scopedToken.getAccessToken());
+                        tokenMgtDAO.revokeTokens(new String[]{scopedToken.getAccessToken()});
                     } catch (IdentityOAuth2Exception e) {
                         String errorMsg = "Error occurred while revoking " +
                                 "Access Token : " + scopedToken.getAccessToken();
