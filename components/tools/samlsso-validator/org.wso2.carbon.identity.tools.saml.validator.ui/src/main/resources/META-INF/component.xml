@@ -20,7 +20,7 @@
 			<order>1</order>
 			<style-class>tools</style-class>
 			<icon>../tools-saml/images/lock_blue.png</icon>
-			<require-permission>/permission/admin/manage</require-permission>
+			<require-permission>/permission/admin/manage/identity/tools/samlvalidator</require-permission>
 			<require-not-logged-in>false</require-not-logged-in>
 		</menu>
 		<menu>
@@ -34,7 +34,7 @@
 			<order>2</order>
 			<style-class>tools</style-class>
 			<icon>../tools-saml/images/validate_r.png</icon>
-			<require-permission>/permission/admin/manage</require-permission>
+			<require-permission>/permission/admin/manage/identity/tools/samlvalidator</require-permission>
 			<require-not-logged-in>false</require-not-logged-in>
 		</menu>
 		<menu>
@@ -48,9 +48,20 @@
 			<order>3</order>
 			<style-class>tools</style-class>
 			<icon>../tools-saml/images/response_gen.gif</icon>
-			<require-permission>/permission/admin/manage</require-permission>
+			<require-permission>/permission/admin/manage/identity/tools/samlvalidator</require-permission>
 			<require-not-logged-in>false</require-not-logged-in>
 		</menu>
 	</menus>
+
+    <ManagementPermissions>
+        <ManagementPermission>
+            <DisplayName>Tools</DisplayName>
+            <ResourceId>/permission/admin/manage/identity/tools</ResourceId>
+        </ManagementPermission>
+        <ManagementPermission>
+            <DisplayName>SAML Validator</DisplayName>
+            <ResourceId>/permission/admin/manage/identity/tools/samlvalidator</ResourceId>
+        </ManagementPermission>
+    </ManagementPermissions>
 </component>
  
