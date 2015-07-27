@@ -314,9 +314,10 @@ public class TokenMgtDAO {
 
             String sql;
             if (connection.getMetaData().getDriverName().contains("MySQL")
-                || connection.getMetaData().getDriverName().contains("H2")
-                || connection.getMetaData().getDatabaseProductName().contains("DB2")) {
+                || connection.getMetaData().getDriverName().contains("H2")) {
                 sql = SQLQueries.RETRIEVE_LATEST_ACCESS_TOKEN_BY_CLIENT_ID_USER_SCOPE_MYSQL;
+            } else if(connection.getMetaData().getDatabaseProductName().contains("DB2")){
+                sql = SQLQueries.RETRIEVE_LATEST_ACCESS_TOKEN_BY_CLIENT_ID_USER_SCOPE_DB2SQL;
             } else if (connection.getMetaData().getDriverName().contains("MS SQL")) {
                 sql = SQLQueries.RETRIEVE_LATEST_ACCESS_TOKEN_BY_CLIENT_ID_USER_SCOPE_MSSQL;
             } else if (connection.getMetaData().getDriverName().contains("Microsoft")) {
@@ -607,6 +608,7 @@ public class TokenMgtDAO {
         String userStoreDomain = null;
         String sql = null;
         String mySqlQuery;
+        String db2Query;
         String oracleQuery;
         String msSqlQuery;
         String postgreSqlQuery;
@@ -624,6 +626,8 @@ public class TokenMgtDAO {
             }
             mySqlQuery = SQLQueries.RETRIEVE_ACCESS_TOKEN_VALIDATION_DATA_MYSQL.replaceAll("\\$accessTokenStoreTable",
                     accessTokenStoreTable);
+            db2Query = SQLQueries.RETRIEVE_ACCESS_TOKEN_VALIDATION_DATA_DB2SQL.replaceAll("\\$accessTokenStoreTable",
+                    accessTokenStoreTable);
             oracleQuery = SQLQueries.RETRIEVE_ACCESS_TOKEN_VALIDATION_DATA_ORACLE.replaceAll("\\$accessTokenStoreTable",
                     accessTokenStoreTable);
             msSqlQuery = SQLQueries.RETRIEVE_ACCESS_TOKEN_VALIDATION_DATA_MSSQL.replaceAll("\\$accessTokenStoreTable",
@@ -634,9 +638,10 @@ public class TokenMgtDAO {
                     ("\\$accessTokenStoreTable", accessTokenStoreTable);
 
             if (connection.getMetaData().getDriverName().contains("MySQL")
-                || connection.getMetaData().getDriverName().contains("H2")
-                || connection.getMetaData().getDatabaseProductName().contains("DB2")) {
+                || connection.getMetaData().getDriverName().contains("H2")) {
                 sql = mySqlQuery;
+            } else if(connection.getMetaData().getDatabaseProductName().contains("DB2")){
+                sql = db2Query;
             } else if (connection.getMetaData().getDriverName().contains("MS SQL")) {
                 sql = msSqlQuery;
             } else if (connection.getMetaData().getDriverName().contains("Microsoft")) {
