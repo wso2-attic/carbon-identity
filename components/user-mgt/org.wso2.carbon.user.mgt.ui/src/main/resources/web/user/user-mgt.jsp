@@ -50,7 +50,7 @@
     boolean showFilterMessage = false;
     boolean multipleUserStores = false;
     String forwardTo = "user-mgt.jsp";
-               
+
     FlaggedName[] datas = null;
     FlaggedName exceededDomains = null;
     String[] claimUris = null;
@@ -181,7 +181,7 @@
             }
 
             if(userRealmInfo != null){
-                claimUris = userRealmInfo.getDefaultUserClaims();
+                claimUris = userRealmInfo.getRequiredUserClaims();
             }
 
             if (filter.length() > 0) {
@@ -403,7 +403,7 @@
                         <%
                             	}else{
                         %>
-
+                        
                         <a href="change-passwd.jsp?username=<%=java.net.URLEncoder.encode(userName,"UTF-8")%>&disPlayName=<%=java.net.URLEncoder.encode(disPlayName,"UTF-8")%>" class="icon-link"
                            style="background-image:url(../admin/images/edit.gif);"><fmt:message
                                 key="change.password"/></a>
