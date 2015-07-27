@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.carbon.identity.application.authenticator.social.google;
+package org.wso2.carbon.identity.application.authenticator.oidc.googleext;
 
 public class GoogleOAuth2AuthenticationConstant {
     private GoogleOAuth2AuthenticationConstant() {
