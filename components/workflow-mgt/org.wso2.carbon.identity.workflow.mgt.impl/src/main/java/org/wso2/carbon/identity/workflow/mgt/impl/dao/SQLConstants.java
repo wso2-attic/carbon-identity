@@ -45,7 +45,8 @@ public class SQLConstants {
             " (?, ?, ?, ?, ?, ?)";
 
     public static final String DELETE_ENTITY_RELATIONSHIP = "DELETE FROM WF_ENTITY_RELATIONSHIP_LOCK_STATE " +
-            "WHERE ENTITY1_ID=? AND ENTITY1_TYPE=? AND ENTITY2_ID=? AND ENTITY2_TYPE=? AND ATTRIBUTE_KEY=? AND ATTRIBUTE_VALUE=?";
+            "WHERE ENTITY1_ID=? AND ENTITY1_TYPE=? AND ENTITY2_ID=? AND ENTITY2_TYPE=? AND ATTRIBUTE_KEY=? AND " +
+            "ATTRIBUTE_VALUE=?";
 
     private SQLConstants(){
 
