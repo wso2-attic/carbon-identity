@@ -59,6 +59,7 @@
 	boolean refreshGrant = false;
 	boolean samlGrant = false;
 	boolean ntlmGrant = false;
+    boolean appTokenGrant = false;
     List<String> allowedGrants = null;
     String applicationSPName = null;
 
@@ -102,6 +103,7 @@
 	            refreshGrant = grants.contains("refresh_token") ? true : false;
 	            samlGrant = grants.contains("urn:ietf:params:oauth:grant-type:saml2-bearer") ? true : false;
 	            ntlmGrant = grants.contains("iwa:ntlm") ? true : false;
+                appTokenGrant = grants.contains("application_token") ? true : false;
             }
         }
 	} catch (Exception e) {
@@ -240,8 +242,15 @@
                                             }
                                             if(allowedGrants.contains("urn:ietf:params:oauth:grant-type:saml2-bearer")){
                                                 %><tr><tr><label><input type="checkbox" id="grant_saml" name="grant_saml" value="urn:ietf:params:oauth:grant-type:saml2-bearer"  <%=(samlGrant ? "checked=\"checked\"" : "")%>/>SAML</label></tr><%
-                                            } if(allowedGrants.contains("iwa:ntlm")){
+                                            }
+                                            if(allowedGrants.contains("iwa:ntlm")){
                                                 %><tr><tr><label><input type="checkbox" id="grant_ntlm" name="grant_ntlm" value="iwa:ntlm"  <%=(ntlmGrant ? "checked=\"checked\"" : "")%>/>IWA-NTLM</label></tr><%
+                                            }
+                                            if(allowedGrants.contains("application_token")){
+                                                %><tr><tr><label><input type="checkbox" id="grant_apptoken"
+                                                                        name="grant_apptoken" value="application_token"
+                                            <%=(appTokenGrant ? "checked=\"checked\"" : "")%>/>Application
+                                                                                               Token</label></tr><%
                                             }
                                     } catch (Exception e){
                                         forwardTo = "../admin/error.jsp";
