@@ -160,6 +160,9 @@ public class IWAAuthenticator extends AbstractAuthenticator {
                 throw new AuthenticationFailureException(
                         AuthenticationFailureException.AuthenticationFailureReason.INVALID_USER_NAME,
                         userNameInRequest);
+            }else{
+                // Set this attribute if authenticated, This will cause canHandle to return true
+                getHttpSession().setAttribute(IWA_USER_NAME,userName);
             }
 
         } catch (org.wso2.carbon.user.api.UserStoreException e) {
