@@ -172,7 +172,7 @@ public class TokenValidationHandler {
         // There is no token validator for the provided token type.
         if (tokenValidator == null) {
             if (log.isDebugEnabled()) {
-                log.debug("Unsupported access token type");
+                log.debug("Unsupported access token type : " + requestDTO.getAccessToken().getTokenType());
             }
             responseDTO.setValid(false);
             responseDTO.setErrorMsg("Unsupported access token type");
