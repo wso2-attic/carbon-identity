@@ -41,6 +41,12 @@ public class SQLConstants {
             "ENTITY2_ID IN (?)) OR (ENTITY2_ID = ? and ENTITY2_TYPE =? AND ENTITY1_TYPE =? AND ENTITY1_ID IN " +
             "(?))";
 
+    public static final String INSERT_NEW_ENTITY_RELATIONSHIP = "INSERT INTO WF_ENTITY_RELATIONSHIP_LOCK_STATE VALUES" +
+            " (?, ?, ?, ?, ?, ?)";
+
+    public static final String DELETE_ENTITY_RELATIONSHIP = "DELETE FROM WF_ENTITY_RELATIONSHIP_LOCK_STATE " +
+            "WHERE ENTITY1_ID=? AND ENTITY1_TYPE=? AND ENTITY2_ID=? AND ENTITY2_TYPE=? AND ATTRIBUTE_KEY=? AND ATTRIBUTE_VALUE=?";
+
     private SQLConstants(){
 
     }

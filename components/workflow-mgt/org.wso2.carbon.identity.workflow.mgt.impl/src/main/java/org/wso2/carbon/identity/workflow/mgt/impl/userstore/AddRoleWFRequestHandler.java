@@ -183,10 +183,10 @@ public class AddRoleWFRequestHandler extends AbstractWorkflowRequestHandler {
                 UserRealm userRealm = realmService.getTenantUserRealm(tenantId);
                 userRealm.getUserStoreManager().addRole(roleName, users, permissions);
                 if (WorkflowRequestStatus.APPROVED.toString().equals(status)) {
+                    String roleNameWithoutDomain = UserCoreUtil.removeDomainFromName(roleName);
                     EntityDAO entityDAO = new EntityDAO();
                     String tenant = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-                    String nameWithTenant = UserCoreUtil.addTenantDomainToEntry(UserCoreUtil.removeDomainFromName
-                                    (roleName),
+                    String nameWithTenant = UserCoreUtil.addTenantDomainToEntry(roleNameWithoutDomain,
                             tenant);
                     String fullyQualifiedName = UserCoreUtil.addDomainToName(nameWithTenant, userStoreDomain);
                     entityDAO.deleteEntityLockedState(fullyQualifiedName, "ROLE", "ADD");
@@ -195,10 +195,10 @@ public class AddRoleWFRequestHandler extends AbstractWorkflowRequestHandler {
                 throw new WorkflowException("Error when re-requesting addRole operation for " + roleName, e);
             }
         } else {
+            String roleNameWithoutDomain = UserCoreUtil.removeDomainFromName(roleName);
             EntityDAO entityDAO = new EntityDAO();
             String tenant = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-            String nameWithTenant = UserCoreUtil.addTenantDomainToEntry(UserCoreUtil.removeDomainFromName(roleName),
-                    tenant);
+            String nameWithTenant = UserCoreUtil.addTenantDomainToEntry(roleNameWithoutDomain, tenant);
             String fullyQualifiedName = UserCoreUtil.addDomainToName(nameWithTenant, userStoreDomain);
             entityDAO.deleteEntityLockedState(fullyQualifiedName, "ROLE", "ADD");
 

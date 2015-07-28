@@ -187,11 +187,10 @@ public class AddUserWFRequestHandler extends AbstractWorkflowRequestHandler {
                 UserRealm userRealm = realmService.getTenantUserRealm(tenantId);
                 userRealm.getUserStoreManager().addUser(userName, credential, roles, claims, profile);
                 if (WorkflowRequestStatus.APPROVED.toString().equals(status)) {
+                    String userNameWithoutDomain = UserCoreUtil.removeDomainFromName(userName);
                     EntityDAO entityDAO = new EntityDAO();
                     String tenant = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-                    String nameWithTenant = UserCoreUtil.addTenantDomainToEntry(UserCoreUtil.removeDomainFromName
-                                    (userName),
-                            tenant);
+                    String nameWithTenant = UserCoreUtil.addTenantDomainToEntry(userNameWithoutDomain, tenant);
                     String fullyQualifiedName = UserCoreUtil.addDomainToName(nameWithTenant, userStoreDomain);
                     entityDAO.deleteEntityLockedState(fullyQualifiedName, "USER", "ADD");
                 }
@@ -200,9 +199,9 @@ public class AddUserWFRequestHandler extends AbstractWorkflowRequestHandler {
             }
         } else {
             EntityDAO entityDAO = new EntityDAO();
+            String userNameWithoutDomain = UserCoreUtil.removeDomainFromName(userName);
             String tenant = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-            String nameWithTenant = UserCoreUtil.addTenantDomainToEntry(UserCoreUtil.removeDomainFromName(userName),
-                    tenant);
+            String nameWithTenant = UserCoreUtil.addTenantDomainToEntry(userNameWithoutDomain, tenant);
             String fullyQualifiedName = UserCoreUtil.addDomainToName(nameWithTenant, userStoreDomain);
             entityDAO.deleteEntityLockedState(fullyQualifiedName, "USER", "ADD");
             if (retryNeedAtCallback()) {

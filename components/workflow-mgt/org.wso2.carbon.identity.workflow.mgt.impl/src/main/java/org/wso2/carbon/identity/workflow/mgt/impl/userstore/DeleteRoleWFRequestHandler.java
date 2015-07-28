@@ -115,11 +115,10 @@ public class DeleteRoleWFRequestHandler extends AbstractWorkflowRequestHandler {
                 UserRealm userRealm = realmService.getTenantUserRealm(tenantId);
                 userRealm.getUserStoreManager().deleteRole(roleName);
                 if (WorkflowRequestStatus.APPROVED.toString().equals(status)) {
+                    String roleNameWithoutDomain = UserCoreUtil.removeDomainFromName(roleName);
                     EntityDAO entityDAO = new EntityDAO();
                     String tenant = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-                    String nameWithTenant = UserCoreUtil.addTenantDomainToEntry(UserCoreUtil.removeDomainFromName
-                                    (roleName),
-                            tenant);
+                    String nameWithTenant = UserCoreUtil.addTenantDomainToEntry(roleNameWithoutDomain, tenant);
                     String fullyQualifiedName = UserCoreUtil.addDomainToName(nameWithTenant, userStoreDomain);
                     entityDAO.deleteEntityLockedState(fullyQualifiedName, "ROLE", "DELETE");
                 }
@@ -127,10 +126,10 @@ public class DeleteRoleWFRequestHandler extends AbstractWorkflowRequestHandler {
                 throw new WorkflowException("Error when re-requesting deleteRole operation for " + roleName, e);
             }
         } else {
+            String roleNameWithoutDomain = UserCoreUtil.removeDomainFromName(roleName);
             EntityDAO entityDAO = new EntityDAO();
             String tenant = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-            String nameWithTenant = UserCoreUtil.addTenantDomainToEntry(UserCoreUtil.removeDomainFromName(roleName),
-                    tenant);
+            String nameWithTenant = UserCoreUtil.addTenantDomainToEntry(roleNameWithoutDomain, tenant);
             String fullyQualifiedName = UserCoreUtil.addDomainToName(nameWithTenant, userStoreDomain);
             entityDAO.deleteEntityLockedState(fullyQualifiedName, "ROLE", "DELETE");
             if (retryNeedAtCallback()) {

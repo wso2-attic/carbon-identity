@@ -33,27 +33,33 @@ public class EntityRelationshipDAO {
 
     private static Log log = LogFactory.getLog(EntityRelationshipDAO.class);
 
-    public boolean isEntityRelatedToOneInList(String entityName, String entityType,String[] entityList, String
-            entityListType){
+    public boolean isEntityRelatedToOneInList(String entityName, String entityType, String[] entityList, String
+            entityListType) throws WorkflowException {
 
         Connection connection = null;
         PreparedStatement prepStmt = null;
         ResultSet resultSet;
         StringBuffer queryInComponent = new StringBuffer("(?");
-        for(int i =1;i<entityList.length;i++){
+        for (int i = 1; i < entityList.length; i++) {
             queryInComponent.append(",?");
         }
         queryInComponent.append(")");
         try {
             connection = IdentityDatabaseUtil.getDBConnection();
-            String query = SQLConstants.GET_ENTITY_RELATED_TO_AT_LEAST_ONE_FROM_LIST.replace("(?)",queryInComponent);
+            String query = SQLConstants.GET_ENTITY_RELATED_TO_AT_LEAST_ONE_FROM_LIST.replace("(?)", queryInComponent);
             prepStmt = connection.prepareStatement(query);
-            for(int i=0;i<entityList.length;i++){
-                prepStmt.setString(i+1,entityList[i]);
+            prepStmt.setString(1, entityName);
+            prepStmt.setString(3 + entityList.length + 1, entityName);
+            prepStmt.setString(2, entityType);
+            prepStmt.setString(4 + entityList.length + 1, entityType);
+            prepStmt.setString(3, entityListType);
+            prepStmt.setString(5 + entityList.length + 1, entityListType);
+            for (int i = 0; i < entityList.length; i++) {
+                prepStmt.setString(3 + i + 1, entityList[i]);
+                prepStmt.setString(6 + entityList.length + i + 1, entityList[i]);
             }
-            prepStmt.setString(entityList.length+1, entityType);
             resultSet = prepStmt.executeQuery();
-            if (resultSet.next()){
+            if (resultSet.next()) {
                 return false;
             }
             connection.commit();
@@ -65,9 +71,62 @@ public class EntityRelationshipDAO {
         }
 
         return true;
-        return true;
     }
 
+    public void addNewRelationships(String entity1, String entity1_type, String[] entity2_List, String entity2_type,
+                                    String operation) throws WorkflowException {
 
+        Connection connection = null;
+        PreparedStatement prepStmt = null;
+        try {
+            connection = IdentityDatabaseUtil.getDBConnection();
+            String query = SQLConstants.INSERT_NEW_ENTITY_RELATIONSHIP;
+            prepStmt = connection.prepareStatement(query);
+            for (int i = 0; i < entity2_List.length; i++) {
+                prepStmt.setString(1, entity1);
+                prepStmt.setString(2, entity1_type);
+                prepStmt.setString(3, entity2_List[i]);
+                prepStmt.setString(4, entity2_type);
+                prepStmt.setString(5, "Operation");
+                prepStmt.setString(6, operation);
+                prepStmt.execute();
+            }
+            connection.commit();
+        } catch (SQLException | IdentityException e) {
+            throw new WorkflowException("Error while inserting relationship details from Identity database.", e);
+        } finally {
+            IdentityDatabaseUtil.closeStatement(prepStmt);
+            IdentityDatabaseUtil.closeConnection(connection);
+        }
+
+    }
+
+    public void deleteEntityRelationshipStates(String entity1, String entity1_type, String[] entity2_List, String
+            entity2_type, String operation) throws WorkflowException {
+
+        Connection connection = null;
+        PreparedStatement prepStmt = null;
+        try {
+            connection = IdentityDatabaseUtil.getDBConnection();
+            String query = SQLConstants.DELETE_ENTITY_RELATIONSHIP;
+            prepStmt = connection.prepareStatement(query);
+            for (int i = 0; i < entity2_List.length; i++) {
+                prepStmt.setString(1, entity1);
+                prepStmt.setString(2, entity1_type);
+                prepStmt.setString(3, entity2_List[i]);
+                prepStmt.setString(4, entity2_type);
+                prepStmt.setString(5, "Operation");
+                prepStmt.setString(6, operation);
+                prepStmt.execute();
+            }
+            connection.commit();
+        } catch (SQLException | IdentityException e) {
+            throw new WorkflowException("Error while inserting relationship details from Identity database.", e);
+        } finally {
+            IdentityDatabaseUtil.closeStatement(prepStmt);
+            IdentityDatabaseUtil.closeConnection(connection);
+        }
+
+    }
 
 }
