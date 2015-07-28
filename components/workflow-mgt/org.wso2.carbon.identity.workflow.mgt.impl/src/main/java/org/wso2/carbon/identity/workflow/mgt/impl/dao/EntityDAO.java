@@ -37,6 +37,7 @@ public class EntityDAO {
     /**
      * Add new entry to database which records that entity given entity added to workflow, If similar entry already
      * exists return false
+     *
      * @param entityName
      * @param entityType
      * @param operation
@@ -81,6 +82,7 @@ public class EntityDAO {
 
     /**
      * Delete entry once workflow is completed
+     *
      * @param entityName
      * @param entityType
      * @param operation
@@ -128,7 +130,7 @@ public class EntityDAO {
             prepStmt.setString(1, entityName);
             prepStmt.setString(2, entityType);
             resultSet = prepStmt.executeQuery();
-            if (resultSet.next()){
+            if (resultSet.next()) {
                 return false;
             }
             connection.commit();
@@ -157,20 +159,20 @@ public class EntityDAO {
         PreparedStatement prepStmt = null;
         ResultSet resultSet;
         StringBuffer queryInComponent = new StringBuffer("(?");
-        for(int i =1;i<entityList.length;i++){
+        for (int i = 1; i < entityList.length; i++) {
             queryInComponent.append(",?");
         }
         queryInComponent.append(")");
         try {
             connection = IdentityDatabaseUtil.getDBConnection();
-            String query = SQLConstants.GET_ENTITY_LIST_STATES.replace("(?)",queryInComponent);
+            String query = SQLConstants.GET_ENTITY_LIST_STATES.replace("(?)", queryInComponent);
             prepStmt = connection.prepareStatement(query);
-            for(int i=0;i<entityList.length;i++){
-                prepStmt.setString(i+1,entityList[i]);
+            for (int i = 0; i < entityList.length; i++) {
+                prepStmt.setString(i + 1, entityList[i]);
             }
-            prepStmt.setString(entityList.length+1, entityType);
+            prepStmt.setString(entityList.length + 1, entityType);
             resultSet = prepStmt.executeQuery();
-            if (resultSet.next()){
+            if (resultSet.next()) {
                 return false;
             }
             connection.commit();

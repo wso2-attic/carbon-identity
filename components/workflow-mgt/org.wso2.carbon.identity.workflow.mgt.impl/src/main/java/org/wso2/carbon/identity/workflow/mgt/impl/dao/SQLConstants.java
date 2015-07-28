@@ -21,7 +21,6 @@ package org.wso2.carbon.identity.workflow.mgt.impl.dao;
 public class SQLConstants {
 
 
-
     public static final String ADD_ENTITY_STATE_QUERY = "INSERT INTO WF_ENTITY_LOCK_STATE VALUES (?, ?, ?, ?)";
 
     public static final String GET_ENTITY_STATE_QUERY = "SELECT ATTRIBUTE_VALUE FROM WF_ENTITY_LOCK_STATE WHERE " +
@@ -48,7 +47,11 @@ public class SQLConstants {
             "WHERE ENTITY1_ID=? AND ENTITY1_TYPE=? AND ENTITY2_ID=? AND ENTITY2_TYPE=? AND ATTRIBUTE_KEY=? AND " +
             "ATTRIBUTE_VALUE=?";
 
-    private SQLConstants(){
+    public static final String GET_RELATIONSHIPS_ASSOCIATED_WITH_ENTITY = "SELECT * FROM " +
+            "WF_ENTITY_RELATIONSHIP_LOCK_STATE WHERE ( ENTITY1_ID = ? AND ENTITY1_TYPE = ? ) OR ( ENTITY2_ID = ? " +
+            "AND ENTITY2_TYPE = ? )";
+
+    private SQLConstants() {
 
     }
 

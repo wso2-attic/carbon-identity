@@ -66,7 +66,7 @@ public class UpdateRoleUsersWFRequestHandler extends AbstractWorkflowRequestHand
         Map<String, Object> wfParams = new HashMap<>();
         Map<String, Object> nonWfParams = new HashMap<>();
 
-        if(!Boolean.TRUE.equals(getWorkFlowCompleted())) {
+        if (!Boolean.TRUE.equals(getWorkFlowCompleted())) {
             EntityRelationshipDAO entityRelationshipDAO = new EntityRelationshipDAO();
             String tenant = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
             String nameWithTenant = UserCoreUtil.addTenantDomainToEntry(roleName, tenant);
@@ -169,7 +169,7 @@ public class UpdateRoleUsersWFRequestHandler extends AbstractWorkflowRequestHand
                 RealmService realmService = IdentityWorkflowDataHolder.getInstance().getRealmService();
                 UserRealm userRealm = realmService.getTenantUserRealm(tenantId);
                 userRealm.getUserStoreManager().updateUserListOfRole(roleName, deletedUsers, newUsers);
-                if(WorkflowRequestStatus.APPROVED.toString().equals(status)){
+                if (WorkflowRequestStatus.APPROVED.toString().equals(status)) {
                     String userNameWithoutDomain = UserCoreUtil.removeDomainFromName(roleName);
                     EntityRelationshipDAO entityRelationshipDAO = new EntityRelationshipDAO();
                     String tenant = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
@@ -184,7 +184,8 @@ public class UpdateRoleUsersWFRequestHandler extends AbstractWorkflowRequestHand
                     }
                     for (int i = 0; i < deletedUsers.length; i++) {
                         nameWithTenant = UserCoreUtil.addTenantDomainToEntry(deletedUsers[i], tenant);
-                        fullyQulalifiedDeletedRoleList[i] = UserCoreUtil.addDomainToName(nameWithTenant, userStoreDomain);
+                        fullyQulalifiedDeletedRoleList[i] = UserCoreUtil.addDomainToName(nameWithTenant,
+                                userStoreDomain);
                     }
                     entityRelationshipDAO.deleteEntityRelationshipStates(fullyQualifiedName, "ROLE",
                             fullyQulalifiedNewRoleList, "USER", "ADD");
@@ -238,11 +239,11 @@ public class UpdateRoleUsersWFRequestHandler extends AbstractWorkflowRequestHand
      * @throws WorkflowException
      */
     public boolean checkRoleUpdatePossible(String fullyQualifiedRoleName, String[] fullyQulalifiedDeletedUsers,
-                                           String[] fullyQulalifiedNewUsers) throws WorkflowException{
+                                           String[] fullyQulalifiedNewUsers) throws WorkflowException {
 
         EntityDAO entityDao = new EntityDAO();
         EntityRelationshipDAO entityRelationshipDAO = new EntityRelationshipDAO();
-        if (!entityDao.checkEntityLocked(fullyQualifiedRoleName, "ROLE")){
+        if (!entityDao.checkEntityLocked(fullyQualifiedRoleName, "ROLE")) {
             throw new WorkflowException("Role is in pending state of a workflow");
         }
         if (fullyQulalifiedDeletedUsers.length > 0 && !entityDao.checkEntityListLocked(fullyQulalifiedDeletedUsers,
@@ -255,13 +256,13 @@ public class UpdateRoleUsersWFRequestHandler extends AbstractWorkflowRequestHand
         }
 
         if (fullyQulalifiedNewUsers.length > 0 && !entityRelationshipDAO.isEntityRelatedToOneInList
-                (fullyQualifiedRoleName, "ROLE", fullyQulalifiedNewUsers, "USER")){
+                (fullyQualifiedRoleName, "ROLE", fullyQulalifiedNewUsers, "USER")) {
             throw new WorkflowException("1 or more given users are in pending state in workflows to associate with " +
                     "same role.");
         }
 
         if (fullyQulalifiedDeletedUsers.length > 0 && !entityRelationshipDAO.isEntityRelatedToOneInList
-                (fullyQualifiedRoleName, "ROLE", fullyQulalifiedDeletedUsers, "USER")){
+                (fullyQualifiedRoleName, "ROLE", fullyQulalifiedDeletedUsers, "USER")) {
             throw new WorkflowException("1 or more given users are in pending state in workflows to associate with " +
                     "same role.");
         }

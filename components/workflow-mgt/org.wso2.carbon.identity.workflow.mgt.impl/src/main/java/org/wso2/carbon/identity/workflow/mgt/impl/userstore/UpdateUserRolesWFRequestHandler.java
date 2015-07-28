@@ -66,7 +66,7 @@ public class UpdateUserRolesWFRequestHandler extends AbstractWorkflowRequestHand
             newRoles) throws WorkflowException {
         Map<String, Object> wfParams = new HashMap<>();
         Map<String, Object> nonWfParams = new HashMap<>();
-        if(!Boolean.TRUE.equals(getWorkFlowCompleted())) {
+        if (!Boolean.TRUE.equals(getWorkFlowCompleted())) {
             EntityRelationshipDAO entityRelationshipDAO = new EntityRelationshipDAO();
             String tenant = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
             String nameWithTenant = UserCoreUtil.addTenantDomainToEntry(userName, tenant);
@@ -88,7 +88,8 @@ public class UpdateUserRolesWFRequestHandler extends AbstractWorkflowRequestHand
             if (!goodToProceed) {
                 throw new WorkflowException("One or more specified entities are in pending workglows");
             }
-            entityRelationshipDAO.addNewRelationships(fullyQualifiedName, "USER", fullyQulalifiedDeletedRoleList, "ROLE",
+            entityRelationshipDAO.addNewRelationships(fullyQualifiedName, "USER", fullyQulalifiedDeletedRoleList,
+                    "ROLE",
 
                     "DELETE");
             entityRelationshipDAO.addNewRelationships(fullyQualifiedName, "USER", fullyQulalifiedNewRoleList, "ROLE",
@@ -170,8 +171,8 @@ public class UpdateUserRolesWFRequestHandler extends AbstractWorkflowRequestHand
             try {
                 RealmService realmService = IdentityWorkflowDataHolder.getInstance().getRealmService();
                 UserRealm userRealm = realmService.getTenantUserRealm(tenantId);
-                userRealm.getUserStoreManager().updateRoleListOfUser(userName,deletedRoles,newRoles);
-                if(WorkflowRequestStatus.APPROVED.toString().equals(status)){
+                userRealm.getUserStoreManager().updateRoleListOfUser(userName, deletedRoles, newRoles);
+                if (WorkflowRequestStatus.APPROVED.toString().equals(status)) {
                     String userNameWithoutDomain = UserCoreUtil.removeDomainFromName(userName);
                     EntityRelationshipDAO entityRelationshipDAO = new EntityRelationshipDAO();
                     String tenant = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
@@ -186,7 +187,8 @@ public class UpdateUserRolesWFRequestHandler extends AbstractWorkflowRequestHand
                     }
                     for (int i = 0; i < deletedRoles.length; i++) {
                         nameWithTenant = UserCoreUtil.addTenantDomainToEntry(deletedRoles[i], tenant);
-                        fullyQulalifiedDeletedRoleList[i] = UserCoreUtil.addDomainToName(nameWithTenant, userStoreDomain);
+                        fullyQulalifiedDeletedRoleList[i] = UserCoreUtil.addDomainToName(nameWithTenant,
+                                userStoreDomain);
                     }
                     entityRelationshipDAO.deleteEntityRelationshipStates(fullyQualifiedName, "USER",
                             fullyQulalifiedNewRoleList, "ROLE", "ADD");
@@ -240,11 +242,11 @@ public class UpdateUserRolesWFRequestHandler extends AbstractWorkflowRequestHand
      * @throws WorkflowException
      */
     public boolean checkUserUpdatePossible(String fullyQualifiedUserName, String[] fullyQulalifiedDeletedRoles,
-                                           String[] fullyQulalifiedNewRoles) throws WorkflowException{
+                                           String[] fullyQulalifiedNewRoles) throws WorkflowException {
 
         EntityDAO entityDao = new EntityDAO();
         EntityRelationshipDAO entityRelationshipDAO = new EntityRelationshipDAO();
-        if (!entityDao.checkEntityLocked(fullyQualifiedUserName, "USER")){
+        if (!entityDao.checkEntityLocked(fullyQualifiedUserName, "USER")) {
             throw new WorkflowException("User is in pending state of a workflow");
         }
         if (fullyQulalifiedDeletedRoles.length > 0 && !entityDao.checkEntityListLocked(fullyQulalifiedDeletedRoles,
@@ -257,13 +259,13 @@ public class UpdateUserRolesWFRequestHandler extends AbstractWorkflowRequestHand
         }
 
         if (fullyQulalifiedNewRoles.length > 0 && !entityRelationshipDAO.isEntityRelatedToOneInList
-                (fullyQualifiedUserName, "USER", fullyQulalifiedNewRoles, "ROLE")){
+                (fullyQualifiedUserName, "USER", fullyQulalifiedNewRoles, "ROLE")) {
             throw new WorkflowException("1 or more given roles are in pending state in workflows to associate with " +
                     "same user.");
         }
 
         if (fullyQulalifiedDeletedRoles.length > 0 && !entityRelationshipDAO.isEntityRelatedToOneInList
-                (fullyQualifiedUserName, "USER", fullyQulalifiedDeletedRoles, "ROLE")){
+                (fullyQualifiedUserName, "USER", fullyQulalifiedDeletedRoles, "ROLE")) {
             throw new WorkflowException("1 or more given roles are in pending state in workflows to associate with " +
                     "same user.");
         }

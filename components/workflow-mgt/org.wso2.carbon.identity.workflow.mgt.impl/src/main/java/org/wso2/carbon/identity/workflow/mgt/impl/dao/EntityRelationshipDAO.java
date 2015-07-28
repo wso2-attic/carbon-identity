@@ -159,4 +159,41 @@ public class EntityRelationshipDAO {
 
     }
 
+    /**
+     * Check if given entity has any workflow related relationships
+     *
+     * @param entityId
+     * @param EntityType
+     * @return
+     * @throws WorkflowException
+     */
+    public boolean checkIfEntityHasAnyRelationShip(String entityId, String EntityType) throws WorkflowException {
+
+        Connection connection = null;
+        PreparedStatement prepStmt = null;
+        ResultSet resultSet;
+        try {
+            connection = IdentityDatabaseUtil.getDBConnection();
+            String query = SQLConstants.GET_RELATIONSHIPS_ASSOCIATED_WITH_ENTITY;
+            prepStmt = connection.prepareStatement(query);
+
+            prepStmt.setString(1, entityId);
+            prepStmt.setString(2, EntityType);
+            prepStmt.setString(3, entityId);
+            prepStmt.setString(4, EntityType);
+
+            resultSet = prepStmt.executeQuery();
+            if (resultSet.next()) {
+                return false;
+            }
+            connection.commit();
+        } catch (SQLException | IdentityException e) {
+            throw new WorkflowException("Error while inserting relationship details from Identity database.", e);
+        } finally {
+            IdentityDatabaseUtil.closeStatement(prepStmt);
+            IdentityDatabaseUtil.closeConnection(connection);
+        }
+        return true;
+    }
+
 }

@@ -229,7 +229,7 @@ public class UserStoreActionListener extends AbstractUserOperationEventListener 
 
     @Override
     public boolean doPreAuthenticate(String userName, Object credential, UserStoreManager userStoreManager) throws
-            UserStoreException{
+            UserStoreException {
 
         try {
             String domain = userStoreManager.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig
@@ -239,7 +239,7 @@ public class UserStoreActionListener extends AbstractUserOperationEventListener 
             String nameWithTenant = UserCoreUtil.addTenantDomainToEntry(userName, tenant);
             String fullyQualifiedName = UserCoreUtil.addDomainToName(nameWithTenant, domain);
             return entityDAO.checkEntityLocked(fullyQualifiedName, "USER");
-        } catch (WorkflowException e){
+        } catch (WorkflowException e) {
             throw new UserStoreException("Couldn't access workflow states of the user.", e);
         }
     }
