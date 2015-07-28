@@ -228,6 +228,15 @@ public class UpdateRoleUsersWFRequestHandler extends AbstractWorkflowRequestHand
         }
     }
 
+    /**
+     * Check if updateUserListOfRole possible with given newUsers and deletedUsers
+     *
+     * @param fullyQualifiedRoleName
+     * @param fullyQulalifiedDeletedUsers
+     * @param fullyQulalifiedNewUsers
+     * @return
+     * @throws WorkflowException
+     */
     public boolean checkRoleUpdatePossible(String fullyQualifiedRoleName, String[] fullyQulalifiedDeletedUsers,
                                            String[] fullyQulalifiedNewUsers) throws WorkflowException{
 

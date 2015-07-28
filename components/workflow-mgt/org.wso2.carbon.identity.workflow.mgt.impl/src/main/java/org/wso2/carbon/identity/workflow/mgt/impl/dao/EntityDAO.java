@@ -33,6 +33,16 @@ public class EntityDAO {
 
     private static Log log = LogFactory.getLog(EntityDAO.class);
 
+
+    /**
+     * Add new entry to database which records that entity given entity added to workflow, If similar entry already
+     * exists return false
+     * @param entityName
+     * @param entityType
+     * @param operation
+     * @return status of operation
+     * @throws WorkflowException
+     */
     public boolean updateEntityLockedState(String entityName, String entityType, String operation) throws
             WorkflowException {
 
@@ -69,6 +79,13 @@ public class EntityDAO {
         return true;
     }
 
+    /**
+     * Delete entry once workflow is completed
+     * @param entityName
+     * @param entityType
+     * @param operation
+     * @throws WorkflowException
+     */
     public void deleteEntityLockedState(String entityName, String entityType, String operation) throws
             WorkflowException {
 
@@ -91,6 +108,14 @@ public class EntityDAO {
         }
     }
 
+    /**
+     * Check if a given entity currently has entry which associate it with a workflow
+     *
+     * @param entityName
+     * @param entityType
+     * @return
+     * @throws WorkflowException
+     */
     public boolean checkEntityLocked(String entityName, String entityType) throws
             WorkflowException {
 
@@ -117,6 +142,14 @@ public class EntityDAO {
         return true;
     }
 
+    /**
+     * Check if at least one of the entities in entityList associated with a pending workflow
+     *
+     * @param entityList
+     * @param entityType
+     * @return
+     * @throws WorkflowException
+     */
     public boolean checkEntityListLocked(String[] entityList, String entityType) throws
             WorkflowException {
 

@@ -33,6 +33,16 @@ public class EntityRelationshipDAO {
 
     private static Log log = LogFactory.getLog(EntityRelationshipDAO.class);
 
+    /**
+     * Check if an entity has pending operations with at least one of the entities in entityList
+     *
+     * @param entityName
+     * @param entityType
+     * @param entityList
+     * @param entityListType
+     * @return
+     * @throws WorkflowException
+     */
     public boolean isEntityRelatedToOneInList(String entityName, String entityType, String[] entityList, String
             entityListType) throws WorkflowException {
 
@@ -73,6 +83,16 @@ public class EntityRelationshipDAO {
         return true;
     }
 
+    /**
+     * Add entries when new workflow started with relate two entities
+     *
+     * @param entity1
+     * @param entity1_type
+     * @param entity2_List
+     * @param entity2_type
+     * @param operation
+     * @throws WorkflowException
+     */
     public void addNewRelationships(String entity1, String entity1_type, String[] entity2_List, String entity2_type,
                                     String operation) throws WorkflowException {
 
@@ -101,6 +121,16 @@ public class EntityRelationshipDAO {
 
     }
 
+    /**
+     * Delete entries when workflow completed which relate two entities
+     *
+     * @param entity1
+     * @param entity1_type
+     * @param entity2_List
+     * @param entity2_type
+     * @param operation
+     * @throws WorkflowException
+     */
     public void deleteEntityRelationshipStates(String entity1, String entity1_type, String[] entity2_List, String
             entity2_type, String operation) throws WorkflowException {
 
