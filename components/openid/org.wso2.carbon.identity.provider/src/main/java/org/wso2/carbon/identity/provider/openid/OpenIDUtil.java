@@ -23,7 +23,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.identity.base.IdentityConstants;
-import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.provider.IdentityProviderException;
@@ -213,7 +212,6 @@ public class OpenIDUtil {
     }
 
     public static String getOpenIDServerURL() {
-
         // Read from OpenID configuration in identity.xml
         String openIDServerURL = IdentityUtil.getProperty(IdentityConstants.ServerConfig.OPENID_SERVER_URL);
         // If configuration are not defined,  build URL from server configurations.

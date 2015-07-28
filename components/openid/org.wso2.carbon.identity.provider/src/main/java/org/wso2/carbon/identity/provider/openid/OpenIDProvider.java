@@ -22,8 +22,6 @@ import org.apache.commons.logging.LogFactory;
 import org.openid4java.server.ServerManager;
 import org.wso2.carbon.identity.base.IdentityConstants;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
-import org.wso2.carbon.identity.provider.IdentityProviderException;
-import org.wso2.carbon.identity.provider.IdentityProviderUtil;
 
 /**
  * This class is the WSO2 Implementation of OpenID Provider role.
