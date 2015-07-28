@@ -16,12 +16,11 @@
  * under the License.
  */
 
-package org.wso2.carbon.identity.oauth.common;
+package org.wso2.carbon.identity.oauth2.validators;
 
 import org.apache.amber.oauth2.common.validators.AbstractValidator;
 
 import javax.servlet.http.HttpServletRequest;
-
 
 public class SAML1GrantValidator extends AbstractValidator<HttpServletRequest> {
 
