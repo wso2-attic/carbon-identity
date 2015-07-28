@@ -63,13 +63,11 @@
         <module>components/security-mgt</module>
         <module>components/sts</module>
         <module>features/security-mgt</module>
-        <module>features/authenticators</module>
-        <module>features/claim-management</module>
+        <module>features/carbon-authenticators</module>
+        <module>features/claim-mgt</module>
         <module>features/identity-core</module>
-        <module>features/identity-provider</module>
+        <module>features/openid</module>
         <module>features/identity-mgt</module>
-        <module>features/self-registration</module>
-        <module>features/user-profiles</module>
         <module>features/xacml</module>
         <module>features/oauth</module>
         <module>features/sso-saml</module>
@@ -78,15 +76,12 @@
         <module>features/application-authenticators</module>
         <module>features/scim</module>
         <module>features/application-mgt</module>
-        <module>features/identity-provisioning</module>
-        <module>features/tools-saml</module>
-        <module>features/thrift</module>
+        <module>features/provisioning</module>
+        <module>features/tools</module>
         <module>features/notification-mgt</module>
         <module>features/user-account-association</module>
         <module>features/idp-mgt</module>
-        <module>features/ldap-server</module>
-        <module>features/remote-usermgt</module>
-        <module>features/ldap-server-manager</module>
+        <module>features/directory-server-manager</module>
         <module>features/sts</module>
         <module>features/user-mgt</module>
     </modules>
@@ -1377,13 +1372,13 @@
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
-                <artifactId>org.wso2.carbon.identity.self.registration.server.feature</artifactId>
+                <artifactId>org.wso2.carbon.identity.user.registration.server.feature</artifactId>
                 <version>${carbon.identity.version}</version>
                 <type>zip</type>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
-                <artifactId>org.wso2.carbon.identity.self.registration.ui.feature</artifactId>
+                <artifactId>org.wso2.carbon.identity.user.registration.ui.feature</artifactId>
                 <version>${carbon.identity.version}</version>
                 <type>zip</type>
             </dependency>

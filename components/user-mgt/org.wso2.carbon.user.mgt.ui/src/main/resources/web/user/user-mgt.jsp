@@ -181,7 +181,7 @@
             }
 
             if(userRealmInfo != null){
-                claimUris = userRealmInfo.getRequiredUserClaims();
+                claimUris = userRealmInfo.getDefaultUserClaims();
             }
 
             if (filter.length() > 0) {

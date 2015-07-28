@@ -119,7 +119,7 @@ public class RefreshGrantHandler extends AbstractAuthorizationGrantHandler {
                     ", Token Scope : " + OAuth2Util.buildScopeString(validationDataDO.getScope()));
         }
 
-        tokReqMsgCtx.setAuthorizedUser(validationDataDO.getAuthorizedUser());
+        tokReqMsgCtx.setAuthorizedUser(OAuth2Util.getUserFromUserName(validationDataDO.getAuthorizedUser()));
         tokReqMsgCtx.setScope(validationDataDO.getScope());
         // Store the old access token as a OAuthTokenReqMessageContext property, this is already
         // a preprocessed token.
@@ -177,7 +177,7 @@ public class RefreshGrantHandler extends AbstractAuthorizationGrantHandler {
         }
 
         if (OAuth2Util.checkUserNameAssertionEnabled()) {
-            String userName = tokReqMsgCtx.getAuthorizedUser();
+            String userName = tokReqMsgCtx.getAuthorizedUser().toString();
             //use ':' for token & userStoreDomain separation
             String accessTokenStrToEncode = accessToken + ":" + userName;
             accessToken = Base64Utils.encode(accessTokenStrToEncode.getBytes(Charsets.UTF_8));
@@ -237,7 +237,7 @@ public class RefreshGrantHandler extends AbstractAuthorizationGrantHandler {
         RefreshTokenValidationDataDO oldAccessToken =
                 (RefreshTokenValidationDataDO)tokReqMsgCtx.getProperty(PREV_ACCESS_TOKEN);
 
-        String authorizedUser = tokReqMsgCtx.getAuthorizedUser();
+        String authorizedUser = tokReqMsgCtx.getAuthorizedUser().toString();
 	    // set the previous access token state to "INACTIVE" and store new access token in single db connection
 	    tokenMgtDAO.invalidateAndCreateNewToken(oldAccessToken.getTokenId(), "INACTIVE", clientId,
 	                                            UUID.randomUUID().toString(), accessTokenDO,
