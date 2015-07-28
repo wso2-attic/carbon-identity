@@ -44,7 +44,7 @@ public class OpenIDProvider {
     /**
      * Configure the OpenID Provider's end-point URL
      */
-    private OpenIDProvider() throws IdentityProviderException{
+    private OpenIDProvider() {
         // This is the OpenID provider server URL
         opAddress = OpenIDUtil.getOpenIDServerURL();
         // The URL which accepts OpenID Authentication requests, obtained by
@@ -69,7 +69,7 @@ public class OpenIDProvider {
     /**
      * @return an instance of the OpenIDProvider
      */
-    public static OpenIDProvider getInstance() throws IdentityProviderException {
+    public static OpenIDProvider getInstance(){
         if (provider == null) {
             synchronized (OpenIDProvider.class) {
                 if (provider == null) {

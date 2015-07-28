@@ -28,6 +28,7 @@ import org.w3c.dom.Node;
 import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.base.ServerConfigurationException;
 import org.wso2.carbon.identity.base.IdentityException;
+import org.wso2.carbon.identity.base.IdentityRuntimeException;
 import org.wso2.carbon.identity.core.internal.IdentityCoreServiceComponent;
 import org.wso2.carbon.identity.core.model.IdentityErrorMsgContext;
 import org.wso2.carbon.registry.core.utils.UUIDGenerator;
@@ -252,7 +253,7 @@ public class IdentityUtil {
         return CarbonUtils.getCarbonConfigDirPath() + File.separator + "identity";
     }
 
-    public static String getServerURL() throws IdentityException{
+    public static String getServerURL() {
         String hostName = ServerConfiguration.getInstance().getFirstProperty(IdentityCoreConstants.HOST_NAME);
 
         try {
@@ -260,7 +261,7 @@ public class IdentityUtil {
                 hostName = NetworkUtils.getLocalHostname();
             }
         } catch (SocketException e) {
-            throw new IdentityException("Error while trying to read hostname.", e);
+            throw new IdentityRuntimeException("Error while trying to read hostname.", e);
         }
 
         String mgtTransport = CarbonUtils.getManagementTransport();

@@ -414,7 +414,7 @@ public class OpenIDProviderService {
      * @return
      * @throws Exception
      */
-    public String getOpenIDAssociationResponse(OpenIDParameterDTO[] params) throws IdentityProviderException{
+    public String getOpenIDAssociationResponse(OpenIDParameterDTO[] params){
         Message message = null;
         ParameterList paramList = null;
 
