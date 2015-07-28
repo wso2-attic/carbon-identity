@@ -74,7 +74,7 @@ public class AuthorizationCodeGrantHandler extends AbstractAuthorizationGrantHan
 
         // authz Code is not available in cache. check the database
         if (authzCodeDO == null) {
-            String userId = tokReqMsgCtx.getAuthorizedUser();
+            String userId = tokReqMsgCtx.getAuthorizedUser().toString();
             authzCodeDO = tokenMgtDAO.validateAuthorizationCode(clientId, authorizationCode, userId);
         }
 

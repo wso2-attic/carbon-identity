@@ -530,18 +530,26 @@ public class UserRealmProxy {
                 userRealmInfo.setEveryOneRole(realmConfig.getEveryOneRoleName());
                 ClaimMapping[] defaultClaims = realm.getClaimManager().
                         getAllClaimMappings(UserCoreConstants.DEFAULT_CARBON_DIALECT);
-                List<String> defaultClaimList = new ArrayList<String>();
+
+                List<String> fullClaimList = new ArrayList<String>();
                 List<String> requiredClaimsList = new ArrayList<String>();
+                List<String> defaultClaimList = new ArrayList<String>();
+
                 for (ClaimMapping claimMapping : defaultClaims) {
                     Claim claim = claimMapping.getClaim();
-                    defaultClaimList.add(claim.getClaimUri());
+
+                    fullClaimList.add(claim.getClaimUri());
                     if (claim.isRequired()) {
                         requiredClaimsList.add(claim.getClaimUri());
                     }
+                    if (claim.isSupportedByDefault()) {
+                        defaultClaimList.add(claim.getClaimUri());
+                    }
                 }
-                userRealmInfo.setUserClaims(defaultClaimList.toArray(new String[defaultClaimList.size()]));
-                userRealmInfo.setRequiredUserClaims(requiredClaimsList.
-                        toArray(new String[requiredClaimsList.size()]));
+
+                userRealmInfo.setUserClaims(fullClaimList.toArray(new String[fullClaimList.size()]));
+                userRealmInfo.setRequiredUserClaims(requiredClaimsList.toArray(new String[requiredClaimsList.size()]));
+                userRealmInfo.setDefaultUserClaims(defaultClaimList.toArray(new String[defaultClaimList.size()]));
             }
 
             List<UserStoreInfo> storeInfoList = new ArrayList<UserStoreInfo>();

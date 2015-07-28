@@ -1,75 +1,34 @@
-<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:ns1="http://org.apache.axis2/xsd" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:tns="http://mgt.user.carbon.wso2.org" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ax2630="http://common.mgt.user.carbon.wso2.org/xsd" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://mgt.user.carbon.wso2.org">
+<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:ns1="http://org.apache.axis2/xsd" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:tns="http://mgt.user.carbon.wso2.org" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:ax2631="http://common.mgt.user.carbon.wso2.org/xsd" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://mgt.user.carbon.wso2.org">
     <wsdl:documentation>UserAdmin</wsdl:documentation>
     <wsdl:types>
-        <xs:schema xmlns:ns="http://org.apache.axis2/xsd" xmlns:ax2631="http://common.mgt.user.carbon.wso2.org/xsd" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://org.apache.axis2/xsd">
+        <xs:schema xmlns:ax2632="http://common.mgt.user.carbon.wso2.org/xsd" xmlns:ns="http://org.apache.axis2/xsd" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://org.apache.axis2/xsd">
             <xs:import namespace="http://common.mgt.user.carbon.wso2.org/xsd"/>
             <xs:element name="UserAdminUserAdminException">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element minOccurs="0" name="UserAdminException" nillable="true" type="ax2630:UserAdminException"/>
+                        <xs:element minOccurs="0" name="UserAdminException" nillable="true" type="ax2632:UserAdminException"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
-            <xs:element name="updateUsersOfRole">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="roleName" nillable="true" type="xs:string"/>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="userList" nillable="true" type="ax2630:FlaggedName"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="updateRolesOfUser">
+            <xs:element name="changePassword">
                 <xs:complexType>
                     <xs:sequence>
                         <xs:element minOccurs="0" name="userName" nillable="true" type="xs:string"/>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="newUserList" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="newPassword" nillable="true" type="xs:string"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
-            <xs:element name="updateRoleName">
+            <xs:element name="getRolePermissions">
                 <xs:complexType>
                     <xs:sequence>
                         <xs:element minOccurs="0" name="roleName" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="newRoleName" nillable="true" type="xs:string"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
-            <xs:element name="setRoleUIPermission">
+            <xs:element name="getRolePermissionsResponse">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element minOccurs="0" name="roleName" nillable="true" type="xs:string"/>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="rawResources" nillable="true" type="xs:string"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="listUsers">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="filter" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="limit" type="xs:int"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="listUsersResponse">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="xs:string"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="listUserByClaim">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="claimValue" nillable="true" type="ax2630:ClaimValue"/>
-                        <xs:element minOccurs="0" name="filter" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="maxLimit" type="xs:int"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="listUserByClaimResponse">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="ax2630:FlaggedName"/>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ax2632:UIPermissionNode"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
@@ -84,19 +43,49 @@
             <xs:element name="listAllUsersResponse">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="ax2630:FlaggedName"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="ax2632:FlaggedName"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
-            <xs:element name="isSharedRolesEnabled">
+            <xs:element name="getAllRolesNames">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="filter" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="limit" type="xs:int"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getAllRolesNamesResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="ax2632:FlaggedName"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getAllSharedRoleNames">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="filter" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="limit" type="xs:int"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getAllSharedRoleNamesResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="ax2632:FlaggedName"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getUserRealmInfo">
                 <xs:complexType>
                     <xs:sequence/>
                 </xs:complexType>
             </xs:element>
-            <xs:element name="isSharedRolesEnabledResponse">
+            <xs:element name="getUserRealmInfoResponse">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element minOccurs="0" name="return" type="xs:boolean"/>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ax2632:UserRealmInfo"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
@@ -124,19 +113,15 @@
             <xs:element name="getUsersOfRoleResponse">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="ax2630:FlaggedName"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="ax2632:FlaggedName"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
-            <xs:element name="getUserRealmInfo">
-                <xs:complexType>
-                    <xs:sequence/>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="getUserRealmInfoResponse">
+            <xs:element name="updateUsersOfRole">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element minOccurs="0" name="return" nillable="true" type="ax2630:UserRealmInfo"/>
+                        <xs:element minOccurs="0" name="roleName" nillable="true" type="xs:string"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="userList" nillable="true" type="ax2632:FlaggedName"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
@@ -152,7 +137,7 @@
             <xs:element name="getRolesOfUserResponse">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="ax2630:FlaggedName"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="ax2632:FlaggedName"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
@@ -164,21 +149,15 @@
             <xs:element name="getRolesOfCurrentUserResponse">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="ax2630:FlaggedName"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="ax2632:FlaggedName"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
-            <xs:element name="getRolePermissions">
+            <xs:element name="updateRolesOfUser">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element minOccurs="0" name="roleName" nillable="true" type="xs:string"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="getRolePermissionsResponse">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="return" nillable="true" type="ax2630:UIPermissionNode"/>
+                        <xs:element minOccurs="0" name="userName" nillable="true" type="xs:string"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="newUserList" nillable="true" type="xs:string"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
@@ -190,68 +169,15 @@
             <xs:element name="getAllUIPermissionsResponse">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element minOccurs="0" name="return" nillable="true" type="ax2630:UIPermissionNode"/>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ax2632:UIPermissionNode"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
-            <xs:element name="getAllSharedRoleNames">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="filter" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="limit" type="xs:int"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="getAllSharedRoleNamesResponse">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="ax2630:FlaggedName"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="getAllRolesNames">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="filter" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="limit" type="xs:int"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="getAllRolesNamesResponse">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="ax2630:FlaggedName"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="deleteUser">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="userName" nillable="true" type="xs:string"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="deleteRole">
+            <xs:element name="setRoleUIPermission">
                 <xs:complexType>
                     <xs:sequence>
                         <xs:element minOccurs="0" name="roleName" nillable="true" type="xs:string"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="changePasswordByUser">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="userName" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="oldPassword" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="newPassword" nillable="true" type="xs:string"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="changePassword">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="userName" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="newPassword" nillable="true" type="xs:string"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="rawResources" nillable="true" type="xs:string"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
@@ -264,24 +190,12 @@
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
-            <xs:element name="addUser">
+            <xs:element name="changePasswordByUser">
                 <xs:complexType>
                     <xs:sequence>
                         <xs:element minOccurs="0" name="userName" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="password" nillable="true" type="xs:string"/>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="roles" nillable="true" type="xs:string"/>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="claims" nillable="true" type="ax2630:ClaimValue"/>
-                        <xs:element minOccurs="0" name="profileName" nillable="true" type="xs:string"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="addRole">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="roleName" nillable="true" type="xs:string"/>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="userList" nillable="true" type="xs:string"/>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="permissions" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="isSharedRole" type="xs:boolean"/>
+                        <xs:element minOccurs="0" name="oldPassword" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="newPassword" nillable="true" type="xs:string"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
@@ -303,6 +217,56 @@
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
+            <xs:element name="listUserByClaim">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="claimValue" nillable="true" type="ax2632:ClaimValue"/>
+                        <xs:element minOccurs="0" name="filter" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="maxLimit" type="xs:int"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="listUserByClaimResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="ax2632:FlaggedName"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="isSharedRolesEnabled">
+                <xs:complexType>
+                    <xs:sequence/>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="isSharedRolesEnabledResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" type="xs:boolean"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="deleteUser">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="userName" nillable="true" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="listUsers">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="filter" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="limit" type="xs:int"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="listUsersResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
             <xs:element name="addInternalRole">
                 <xs:complexType>
                     <xs:sequence>
@@ -312,11 +276,55 @@
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
+            <xs:element name="addUser">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="userName" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="password" nillable="true" type="xs:string"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="roles" nillable="true" type="xs:string"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="claims" nillable="true" type="ax2632:ClaimValue"/>
+                        <xs:element minOccurs="0" name="profileName" nillable="true" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="addRole">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="roleName" nillable="true" type="xs:string"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="userList" nillable="true" type="xs:string"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="permissions" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="isSharedRole" type="xs:boolean"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="deleteRole">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="roleName" nillable="true" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="updateRoleName">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="roleName" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="newRoleName" nillable="true" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
         </xs:schema>
         <xs:schema attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://common.mgt.user.carbon.wso2.org/xsd">
             <xs:complexType name="UserAdminException">
                 <xs:sequence>
                     <xs:element minOccurs="0" name="message" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="UIPermissionNode">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="displayName" nillable="true" type="xs:string"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="nodeList" nillable="true" type="ax2631:UIPermissionNode"/>
+                    <xs:element minOccurs="0" name="resourcePath" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="selected" type="xs:boolean"/>
                 </xs:sequence>
             </xs:complexType>
             <xs:complexType name="FlaggedName">
@@ -332,27 +340,22 @@
                     <xs:element minOccurs="0" name="shared" type="xs:boolean"/>
                 </xs:sequence>
             </xs:complexType>
-            <xs:complexType name="ClaimValue">
-                <xs:sequence>
-                    <xs:element minOccurs="0" name="claimURI" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="value" nillable="true" type="xs:string"/>
-                </xs:sequence>
-            </xs:complexType>
             <xs:complexType name="UserRealmInfo">
                 <xs:sequence>
                     <xs:element minOccurs="0" name="adminRole" nillable="true" type="xs:string"/>
                     <xs:element minOccurs="0" name="adminUser" nillable="true" type="xs:string"/>
                     <xs:element minOccurs="0" name="bulkImportSupported" type="xs:boolean"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="defaultUserClaims" nillable="true" type="xs:string"/>
                     <xs:element maxOccurs="unbounded" minOccurs="0" name="domainNames" nillable="true" type="xs:string"/>
                     <xs:element minOccurs="0" name="enableUIPageCache" type="xs:boolean"/>
                     <xs:element minOccurs="0" name="everyOneRole" nillable="true" type="xs:string"/>
                     <xs:element minOccurs="0" name="maxItemsPerUIPage" type="xs:int"/>
                     <xs:element minOccurs="0" name="maxUIPagesInCache" type="xs:int"/>
                     <xs:element minOccurs="0" name="multipleUserStore" type="xs:boolean"/>
-                    <xs:element minOccurs="0" name="primaryUserStoreInfo" nillable="true" type="ax2630:UserStoreInfo"/>
+                    <xs:element minOccurs="0" name="primaryUserStoreInfo" nillable="true" type="ax2631:UserStoreInfo"/>
                     <xs:element maxOccurs="unbounded" minOccurs="0" name="requiredUserClaims" nillable="true" type="xs:string"/>
                     <xs:element maxOccurs="unbounded" minOccurs="0" name="userClaims" nillable="true" type="xs:string"/>
-                    <xs:element maxOccurs="unbounded" minOccurs="0" name="userStoresInfo" nillable="true" type="ax2630:UserStoreInfo"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="userStoresInfo" nillable="true" type="ax2631:UserStoreInfo"/>
                 </xs:sequence>
             </xs:complexType>
             <xs:complexType name="UserStoreInfo">
@@ -371,12 +374,10 @@
                     <xs:element minOccurs="0" name="usernameRegExViolationErrorMsg" nillable="true" type="xs:string"/>
                 </xs:sequence>
             </xs:complexType>
-            <xs:complexType name="UIPermissionNode">
+            <xs:complexType name="ClaimValue">
                 <xs:sequence>
-                    <xs:element minOccurs="0" name="displayName" nillable="true" type="xs:string"/>
-                    <xs:element maxOccurs="unbounded" minOccurs="0" name="nodeList" nillable="true" type="ax2630:UIPermissionNode"/>
-                    <xs:element minOccurs="0" name="resourcePath" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="selected" type="xs:boolean"/>
+                    <xs:element minOccurs="0" name="claimURI" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="value" nillable="true" type="xs:string"/>
                 </xs:sequence>
             </xs:complexType>
         </xs:schema>
@@ -441,14 +442,14 @@
     <wsdl:message name="getRolePermissionsResponse">
         <wsdl:part name="parameters" element="ns1:getRolePermissionsResponse"/>
     </wsdl:message>
+    <wsdl:message name="updateRoleNameRequest">
+        <wsdl:part name="parameters" element="ns1:updateRoleName"/>
+    </wsdl:message>
     <wsdl:message name="isSharedRolesEnabledRequest">
         <wsdl:part name="parameters" element="ns1:isSharedRolesEnabled"/>
     </wsdl:message>
     <wsdl:message name="isSharedRolesEnabledResponse">
         <wsdl:part name="parameters" element="ns1:isSharedRolesEnabledResponse"/>
-    </wsdl:message>
-    <wsdl:message name="updateRoleNameRequest">
-        <wsdl:part name="parameters" element="ns1:updateRoleName"/>
     </wsdl:message>
     <wsdl:message name="getUsersOfRoleRequest">
         <wsdl:part name="parameters" element="ns1:getUsersOfRole"/>
@@ -570,14 +571,14 @@
             <wsdl:output message="tns:getRolePermissionsResponse" wsaw:Action="urn:getRolePermissionsResponse"/>
             <wsdl:fault message="tns:UserAdminUserAdminException" name="UserAdminUserAdminException" wsaw:Action="urn:getRolePermissionsUserAdminUserAdminException"/>
         </wsdl:operation>
+        <wsdl:operation name="updateRoleName">
+            <wsdl:input message="tns:updateRoleNameRequest" wsaw:Action="urn:updateRoleName"/>
+            <wsdl:fault message="tns:UserAdminUserAdminException" name="UserAdminUserAdminException" wsaw:Action="urn:updateRoleNameUserAdminUserAdminException"/>
+        </wsdl:operation>
         <wsdl:operation name="isSharedRolesEnabled">
             <wsdl:input message="tns:isSharedRolesEnabledRequest" wsaw:Action="urn:isSharedRolesEnabled"/>
             <wsdl:output message="tns:isSharedRolesEnabledResponse" wsaw:Action="urn:isSharedRolesEnabledResponse"/>
             <wsdl:fault message="tns:UserAdminUserAdminException" name="UserAdminUserAdminException" wsaw:Action="urn:isSharedRolesEnabledUserAdminUserAdminException"/>
-        </wsdl:operation>
-        <wsdl:operation name="updateRoleName">
-            <wsdl:input message="tns:updateRoleNameRequest" wsaw:Action="urn:updateRoleName"/>
-            <wsdl:fault message="tns:UserAdminUserAdminException" name="UserAdminUserAdminException" wsaw:Action="urn:updateRoleNameUserAdminUserAdminException"/>
         </wsdl:operation>
         <wsdl:operation name="getUsersOfRole">
             <wsdl:input message="tns:getUsersOfRoleRequest" wsaw:Action="urn:getUsersOfRole"/>
@@ -681,8 +682,8 @@
                 <soap:fault use="literal" name="UserAdminUserAdminException"/>
             </wsdl:fault>
         </wsdl:operation>
-        <wsdl:operation name="updateUsersOfRole">
-            <soap:operation soapAction="urn:updateUsersOfRole" style="document"/>
+        <wsdl:operation name="getAllSharedRoleNames">
+            <soap:operation soapAction="urn:getAllSharedRoleNames" style="document"/>
             <wsdl:input>
                 <soap:body use="literal"/>
             </wsdl:input>
@@ -693,8 +694,8 @@
                 <soap:fault use="literal" name="UserAdminUserAdminException"/>
             </wsdl:fault>
         </wsdl:operation>
-        <wsdl:operation name="getAllSharedRoleNames">
-            <soap:operation soapAction="urn:getAllSharedRoleNames" style="document"/>
+        <wsdl:operation name="updateUsersOfRole">
+            <soap:operation soapAction="urn:updateUsersOfRole" style="document"/>
             <wsdl:input>
                 <soap:body use="literal"/>
             </wsdl:input>
@@ -713,15 +714,6 @@
             <wsdl:output>
                 <soap:body use="literal"/>
             </wsdl:output>
-            <wsdl:fault name="UserAdminUserAdminException">
-                <soap:fault use="literal" name="UserAdminUserAdminException"/>
-            </wsdl:fault>
-        </wsdl:operation>
-        <wsdl:operation name="deleteRole">
-            <soap:operation soapAction="urn:deleteRole" style="document"/>
-            <wsdl:input>
-                <soap:body use="literal"/>
-            </wsdl:input>
             <wsdl:fault name="UserAdminUserAdminException">
                 <soap:fault use="literal" name="UserAdminUserAdminException"/>
             </wsdl:fault>
@@ -759,14 +751,11 @@
                 <soap:fault use="literal" name="UserAdminUserAdminException"/>
             </wsdl:fault>
         </wsdl:operation>
-        <wsdl:operation name="getRolePermissions">
-            <soap:operation soapAction="urn:getRolePermissions" style="document"/>
+        <wsdl:operation name="deleteRole">
+            <soap:operation soapAction="urn:deleteRole" style="document"/>
             <wsdl:input>
                 <soap:body use="literal"/>
             </wsdl:input>
-            <wsdl:output>
-                <soap:body use="literal"/>
-            </wsdl:output>
             <wsdl:fault name="UserAdminUserAdminException">
                 <soap:fault use="literal" name="UserAdminUserAdminException"/>
             </wsdl:fault>
@@ -780,11 +769,14 @@
                 <soap:fault use="literal" name="UserAdminUserAdminException"/>
             </wsdl:fault>
         </wsdl:operation>
-        <wsdl:operation name="updateRoleName">
-            <soap:operation soapAction="urn:updateRoleName" style="document"/>
+        <wsdl:operation name="getRolePermissions">
+            <soap:operation soapAction="urn:getRolePermissions" style="document"/>
             <wsdl:input>
                 <soap:body use="literal"/>
             </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
             <wsdl:fault name="UserAdminUserAdminException">
                 <soap:fault use="literal" name="UserAdminUserAdminException"/>
             </wsdl:fault>
@@ -801,8 +793,17 @@
                 <soap:fault use="literal" name="UserAdminUserAdminException"/>
             </wsdl:fault>
         </wsdl:operation>
-        <wsdl:operation name="getUserRealmInfo">
-            <soap:operation soapAction="urn:getUserRealmInfo" style="document"/>
+        <wsdl:operation name="updateRoleName">
+            <soap:operation soapAction="urn:updateRoleName" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:fault name="UserAdminUserAdminException">
+                <soap:fault use="literal" name="UserAdminUserAdminException"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="getUsersOfRole">
+            <soap:operation soapAction="urn:getUsersOfRole" style="document"/>
             <wsdl:input>
                 <soap:body use="literal"/>
             </wsdl:input>
@@ -813,8 +814,8 @@
                 <soap:fault use="literal" name="UserAdminUserAdminException"/>
             </wsdl:fault>
         </wsdl:operation>
-        <wsdl:operation name="getUsersOfRole">
-            <soap:operation soapAction="urn:getUsersOfRole" style="document"/>
+        <wsdl:operation name="getUserRealmInfo">
+            <soap:operation soapAction="urn:getUserRealmInfo" style="document"/>
             <wsdl:input>
                 <soap:body use="literal"/>
             </wsdl:input>
@@ -912,8 +913,8 @@
                 <soap:fault use="literal" name="UserAdminUserAdminException"/>
             </wsdl:fault>
         </wsdl:operation>
-        <wsdl:operation name="hasMultipleUserStores">
-            <soap:operation soapAction="urn:hasMultipleUserStores" style="document"/>
+        <wsdl:operation name="listUserByClaim">
+            <soap:operation soapAction="urn:listUserByClaim" style="document"/>
             <wsdl:input>
                 <soap:body use="literal"/>
             </wsdl:input>
@@ -924,8 +925,8 @@
                 <soap:fault use="literal" name="UserAdminUserAdminException"/>
             </wsdl:fault>
         </wsdl:operation>
-        <wsdl:operation name="listUserByClaim">
-            <soap:operation soapAction="urn:listUserByClaim" style="document"/>
+        <wsdl:operation name="hasMultipleUserStores">
+            <soap:operation soapAction="urn:hasMultipleUserStores" style="document"/>
             <wsdl:input>
                 <soap:body use="literal"/>
             </wsdl:input>
@@ -981,8 +982,8 @@
                 <soap12:fault use="literal" name="UserAdminUserAdminException"/>
             </wsdl:fault>
         </wsdl:operation>
-        <wsdl:operation name="updateUsersOfRole">
-            <soap12:operation soapAction="urn:updateUsersOfRole" style="document"/>
+        <wsdl:operation name="getAllSharedRoleNames">
+            <soap12:operation soapAction="urn:getAllSharedRoleNames" style="document"/>
             <wsdl:input>
                 <soap12:body use="literal"/>
             </wsdl:input>
@@ -993,8 +994,8 @@
                 <soap12:fault use="literal" name="UserAdminUserAdminException"/>
             </wsdl:fault>
         </wsdl:operation>
-        <wsdl:operation name="getAllSharedRoleNames">
-            <soap12:operation soapAction="urn:getAllSharedRoleNames" style="document"/>
+        <wsdl:operation name="updateUsersOfRole">
+            <soap12:operation soapAction="urn:updateUsersOfRole" style="document"/>
             <wsdl:input>
                 <soap12:body use="literal"/>
             </wsdl:input>
@@ -1013,15 +1014,6 @@
             <wsdl:output>
                 <soap12:body use="literal"/>
             </wsdl:output>
-            <wsdl:fault name="UserAdminUserAdminException">
-                <soap12:fault use="literal" name="UserAdminUserAdminException"/>
-            </wsdl:fault>
-        </wsdl:operation>
-        <wsdl:operation name="deleteRole">
-            <soap12:operation soapAction="urn:deleteRole" style="document"/>
-            <wsdl:input>
-                <soap12:body use="literal"/>
-            </wsdl:input>
             <wsdl:fault name="UserAdminUserAdminException">
                 <soap12:fault use="literal" name="UserAdminUserAdminException"/>
             </wsdl:fault>
@@ -1059,14 +1051,11 @@
                 <soap12:fault use="literal" name="UserAdminUserAdminException"/>
             </wsdl:fault>
         </wsdl:operation>
-        <wsdl:operation name="getRolePermissions">
-            <soap12:operation soapAction="urn:getRolePermissions" style="document"/>
+        <wsdl:operation name="deleteRole">
+            <soap12:operation soapAction="urn:deleteRole" style="document"/>
             <wsdl:input>
                 <soap12:body use="literal"/>
             </wsdl:input>
-            <wsdl:output>
-                <soap12:body use="literal"/>
-            </wsdl:output>
             <wsdl:fault name="UserAdminUserAdminException">
                 <soap12:fault use="literal" name="UserAdminUserAdminException"/>
             </wsdl:fault>
@@ -1080,11 +1069,14 @@
                 <soap12:fault use="literal" name="UserAdminUserAdminException"/>
             </wsdl:fault>
         </wsdl:operation>
-        <wsdl:operation name="updateRoleName">
-            <soap12:operation soapAction="urn:updateRoleName" style="document"/>
+        <wsdl:operation name="getRolePermissions">
+            <soap12:operation soapAction="urn:getRolePermissions" style="document"/>
             <wsdl:input>
                 <soap12:body use="literal"/>
             </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
             <wsdl:fault name="UserAdminUserAdminException">
                 <soap12:fault use="literal" name="UserAdminUserAdminException"/>
             </wsdl:fault>
@@ -1101,8 +1093,17 @@
                 <soap12:fault use="literal" name="UserAdminUserAdminException"/>
             </wsdl:fault>
         </wsdl:operation>
-        <wsdl:operation name="getUserRealmInfo">
-            <soap12:operation soapAction="urn:getUserRealmInfo" style="document"/>
+        <wsdl:operation name="updateRoleName">
+            <soap12:operation soapAction="urn:updateRoleName" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:fault name="UserAdminUserAdminException">
+                <soap12:fault use="literal" name="UserAdminUserAdminException"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="getUsersOfRole">
+            <soap12:operation soapAction="urn:getUsersOfRole" style="document"/>
             <wsdl:input>
                 <soap12:body use="literal"/>
             </wsdl:input>
@@ -1113,8 +1114,8 @@
                 <soap12:fault use="literal" name="UserAdminUserAdminException"/>
             </wsdl:fault>
         </wsdl:operation>
-        <wsdl:operation name="getUsersOfRole">
-            <soap12:operation soapAction="urn:getUsersOfRole" style="document"/>
+        <wsdl:operation name="getUserRealmInfo">
+            <soap12:operation soapAction="urn:getUserRealmInfo" style="document"/>
             <wsdl:input>
                 <soap12:body use="literal"/>
             </wsdl:input>
@@ -1212,8 +1213,8 @@
                 <soap12:fault use="literal" name="UserAdminUserAdminException"/>
             </wsdl:fault>
         </wsdl:operation>
-        <wsdl:operation name="hasMultipleUserStores">
-            <soap12:operation soapAction="urn:hasMultipleUserStores" style="document"/>
+        <wsdl:operation name="listUserByClaim">
+            <soap12:operation soapAction="urn:listUserByClaim" style="document"/>
             <wsdl:input>
                 <soap12:body use="literal"/>
             </wsdl:input>
@@ -1224,8 +1225,8 @@
                 <soap12:fault use="literal" name="UserAdminUserAdminException"/>
             </wsdl:fault>
         </wsdl:operation>
-        <wsdl:operation name="listUserByClaim">
-            <soap12:operation soapAction="urn:listUserByClaim" style="document"/>
+        <wsdl:operation name="hasMultipleUserStores">
+            <soap12:operation soapAction="urn:hasMultipleUserStores" style="document"/>
             <wsdl:input>
                 <soap12:body use="literal"/>
             </wsdl:input>
@@ -1269,8 +1270,8 @@
                 <mime:content type="text/xml" part="parameters"/>
             </wsdl:input>
         </wsdl:operation>
-        <wsdl:operation name="updateUsersOfRole">
-            <http:operation location="updateUsersOfRole"/>
+        <wsdl:operation name="getAllSharedRoleNames">
+            <http:operation location="getAllSharedRoleNames"/>
             <wsdl:input>
                 <mime:content type="text/xml" part="parameters"/>
             </wsdl:input>
@@ -1278,8 +1279,8 @@
                 <mime:content type="text/xml" part="parameters"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="getAllSharedRoleNames">
-            <http:operation location="getAllSharedRoleNames"/>
+        <wsdl:operation name="updateUsersOfRole">
+            <http:operation location="updateUsersOfRole"/>
             <wsdl:input>
                 <mime:content type="text/xml" part="parameters"/>
             </wsdl:input>
@@ -1295,12 +1296,6 @@
             <wsdl:output>
                 <mime:content type="text/xml" part="parameters"/>
             </wsdl:output>
-        </wsdl:operation>
-        <wsdl:operation name="deleteRole">
-            <http:operation location="deleteRole"/>
-            <wsdl:input>
-                <mime:content type="text/xml" part="parameters"/>
-            </wsdl:input>
         </wsdl:operation>
         <wsdl:operation name="listUsers">
             <http:operation location="listUsers"/>
@@ -1326,6 +1321,18 @@
                 <mime:content type="text/xml" part="parameters"/>
             </wsdl:input>
         </wsdl:operation>
+        <wsdl:operation name="deleteRole">
+            <http:operation location="deleteRole"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:input>
+        </wsdl:operation>
+        <wsdl:operation name="bulkImportUsers">
+            <http:operation location="bulkImportUsers"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:input>
+        </wsdl:operation>
         <wsdl:operation name="getRolePermissions">
             <http:operation location="getRolePermissions"/>
             <wsdl:input>
@@ -1334,18 +1341,6 @@
             <wsdl:output>
                 <mime:content type="text/xml" part="parameters"/>
             </wsdl:output>
-        </wsdl:operation>
-        <wsdl:operation name="bulkImportUsers">
-            <http:operation location="bulkImportUsers"/>
-            <wsdl:input>
-                <mime:content type="text/xml" part="parameters"/>
-            </wsdl:input>
-        </wsdl:operation>
-        <wsdl:operation name="updateRoleName">
-            <http:operation location="updateRoleName"/>
-            <wsdl:input>
-                <mime:content type="text/xml" part="parameters"/>
-            </wsdl:input>
         </wsdl:operation>
         <wsdl:operation name="isSharedRolesEnabled">
             <http:operation location="isSharedRolesEnabled"/>
@@ -1356,8 +1351,14 @@
                 <mime:content type="text/xml" part="parameters"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="getUserRealmInfo">
-            <http:operation location="getUserRealmInfo"/>
+        <wsdl:operation name="updateRoleName">
+            <http:operation location="updateRoleName"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:input>
+        </wsdl:operation>
+        <wsdl:operation name="getUsersOfRole">
+            <http:operation location="getUsersOfRole"/>
             <wsdl:input>
                 <mime:content type="text/xml" part="parameters"/>
             </wsdl:input>
@@ -1365,8 +1366,8 @@
                 <mime:content type="text/xml" part="parameters"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="getUsersOfRole">
-            <http:operation location="getUsersOfRole"/>
+        <wsdl:operation name="getUserRealmInfo">
+            <http:operation location="getUserRealmInfo"/>
             <wsdl:input>
                 <mime:content type="text/xml" part="parameters"/>
             </wsdl:input>
@@ -1437,8 +1438,8 @@
                 <mime:content type="text/xml" part="parameters"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="hasMultipleUserStores">
-            <http:operation location="hasMultipleUserStores"/>
+        <wsdl:operation name="listUserByClaim">
+            <http:operation location="listUserByClaim"/>
             <wsdl:input>
                 <mime:content type="text/xml" part="parameters"/>
             </wsdl:input>
@@ -1446,8 +1447,8 @@
                 <mime:content type="text/xml" part="parameters"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="listUserByClaim">
-            <http:operation location="listUserByClaim"/>
+        <wsdl:operation name="hasMultipleUserStores">
+            <http:operation location="hasMultipleUserStores"/>
             <wsdl:input>
                 <mime:content type="text/xml" part="parameters"/>
             </wsdl:input>
