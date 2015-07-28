@@ -212,23 +212,23 @@ public class OpenIDUtil {
 
     }
 
-    public static String getOpenIDServerURL(){
+    public static String getOpenIDServerURL() {
 
         // Read from OpenID configuration in identity.xml
         String openIDServerURL = IdentityUtil.getProperty(IdentityConstants.ServerConfig.OPENID_SERVER_URL);
         // If configuration are not defined,  build URL from server configurations.
         if (StringUtils.isBlank(openIDServerURL)) {
-                openIDServerURL = IdentityUtil.getServerURL() + "/" + OpenIDServerConstants.OPENID_SERVER;
+            openIDServerURL = IdentityUtil.getServerURL() + "/" + OpenIDServerConstants.OPENID_SERVER;
         }
         return openIDServerURL;
     }
 
-    public static String getOpenIDUserPattern(){
+    public static String getOpenIDUserPattern() {
         // Read from OpenID configuration in identity.xml
         String openIDUserPattern = IdentityUtil.getProperty(IdentityConstants.ServerConfig.OPENID_USER_PATTERN);
         // If configuration are not defined,  build URL from server configurations.
         if (StringUtils.isBlank(openIDUserPattern)) {
-                openIDUserPattern = IdentityUtil.getServerURL() + "/" + OpenIDServerConstants.OPENID;
+            openIDUserPattern = IdentityUtil.getServerURL() + "/" + OpenIDServerConstants.OPENID;
         }
         return openIDUserPattern;
     }
