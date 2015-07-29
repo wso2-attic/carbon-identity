@@ -22,7 +22,7 @@
             <id>user_mgt_menu</id>
             <i18n-key>security.user-management</i18n-key>
             <i18n-bundle>org.wso2.carbon.userstore.ui.i18n.Resources</i18n-bundle>
-            <parent-menu>account_mgt_menu</parent-menu>
+            <parent-menu>configure_menu</parent-menu>
             <link>../userstore/index.jsp</link>
             <region>region1</region>
             <order>5</order>
