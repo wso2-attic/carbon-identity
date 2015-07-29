@@ -83,7 +83,7 @@
     int rank;
     String[] classApplies = new String[0];
 
-    if (className.equals("0")) {
+    if ("0".equals(className)) {
         selectedClassApplied = request.getParameter("classApplied");       //add
         isEditing = false;
     } else {

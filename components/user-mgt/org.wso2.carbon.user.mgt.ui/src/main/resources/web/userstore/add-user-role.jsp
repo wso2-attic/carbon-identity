@@ -119,7 +119,7 @@
                                 <td>
                                     <a class="icon-link"
                                        style="background-image:url(images/users.gif);"
-                                       href="../user/user-mgt.jsp"><fmt:message key="users"/></a>
+                                       href="../user/add-step1.jsp"><fmt:message key="users"/></a>
                                 </td>
                             </tr>
 
@@ -129,7 +129,7 @@
                                 <td>
                                     <a class="icon-link"
                                        style="background-image:url(images/user-roles.gif);"
-                                       href="../role/role-mgt.jsp"><fmt:message key="roles"/></a>
+                                       href="../role/add-step1.jsp"><fmt:message key="roles"/></a>
                                 </td>
                             </tr>
                             <% } %>

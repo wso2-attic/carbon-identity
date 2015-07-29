@@ -435,20 +435,20 @@
                 }
             %>
 
-<table width="100%" border="0" cellpadding="0" cellspacing="0">
-    <% if (multipleUserStores || !userRealmInfo.getPrimaryUserStoreInfo().getReadOnly()) {%>
-            <tr>
-                <td>
-<a href="add-step1.jsp" class="icon-link" style="background-image:url(images/add.gif);"><fmt:message key="add.new.role"/></a>
-                </td>
-            </tr>
-<% } %>
-        <tr>
-                 <td>
-<a href="add-step1.jsp?roleType=<%=UserAdminUIConstants.INTERNAL_ROLE%>" class="icon-link" style="background-image:url(images/add.gif);"><fmt:message key="add.new.internal.role"/></a>
-</td>        
-    </tr>
-        </table>
+<%--<table width="100%" border="0" cellpadding="0" cellspacing="0">--%>
+    <%--<% if (multipleUserStores || !userRealmInfo.getPrimaryUserStoreInfo().getReadOnly()) {%>--%>
+            <%--<tr>--%>
+                <%--<td>--%>
+<%--<a href="add-step1.jsp" class="icon-link" style="background-image:url(images/add.gif);"><fmt:message key="add.new.role"/></a>--%>
+                <%--</td>--%>
+            <%--</tr>--%>
+<%--<% } %>--%>
+        <%--<tr>--%>
+                 <%--<td>--%>
+<%--<a href="add-step1.jsp?roleType=<%=UserAdminUIConstants.INTERNAL_ROLE%>" class="icon-link" style="background-image:url(images/add.gif);"><fmt:message key="add.new.internal.role"/></a>--%>
+<%--</td>        --%>
+    <%--</tr>--%>
+        <%--</table>--%>
         </div>
     </div>
     <script type="text/javascript">
