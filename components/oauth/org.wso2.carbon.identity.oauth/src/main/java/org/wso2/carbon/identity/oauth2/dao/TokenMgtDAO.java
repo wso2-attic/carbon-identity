@@ -537,7 +537,7 @@ public class TokenMgtDAO {
     }
 
 
-    public AuthzCodeDO validateAuthorizationCode(String consumerKey, String authorizationKey, String userId)
+    public AuthzCodeDO validateAuthorizationCode(String consumerKey, String authorizationKey)
             throws IdentityOAuth2Exception {
         Connection connection = null;
         PreparedStatement prepStmt = null;
@@ -551,15 +551,14 @@ public class TokenMgtDAO {
             resultSet = prepStmt.executeQuery();
 
             if (resultSet.next()) {
-                if (resultSet.getString(6).equals(OAuthConstants.AuthorizationCodeState.ACTIVE)) {
+                if (resultSet.getString(8).equals(OAuthConstants.AuthorizationCodeState.ACTIVE)) {
                     String authorizedUser = resultSet.getString(1);
                     String userstoreDomain = resultSet.getString(2);
                     int tenantId = resultSet.getInt(3);
                     String tenantDomain = OAuth2Util.getTenantDomain(tenantId);
                     String scopeString = resultSet.getString(4);
                     String callbackUrl = resultSet.getString(5);
-                    Timestamp issuedTime = resultSet.getTimestamp(6,
-                            Calendar.getInstance(TimeZone.getTimeZone("UTC")));
+                    Timestamp issuedTime = resultSet.getTimestamp(6, Calendar.getInstance(TimeZone.getTimeZone("UTC")));
                     long validityPeriod = resultSet.getLong(7);
 
                     User user = new User();
@@ -570,8 +569,14 @@ public class TokenMgtDAO {
                     return new AuthzCodeDO(user, OAuth2Util.buildScopeArray(scopeString), issuedTime, validityPeriod,
                             callbackUrl, consumerKey, authorizationKey);
                 } else {
-                    String tokenId = resultSet.getString(3);
-                    revokeToken(tokenId, userId);
+                    String authorizedUser = resultSet.getString(1);
+                    String userStoreDomain = resultSet.getString(2);
+                    int tenantId = resultSet.getInt(3);
+                    String tenantDomain = OAuth2Util.getTenantDomain(tenantId);
+                    authorizedUser = UserCoreUtil.addDomainToName(authorizedUser, userStoreDomain);
+                    authorizedUser = UserCoreUtil.addTenantDomainToEntry(authorizedUser, tenantDomain);
+                    String tokenId = resultSet.getString(9);
+                    revokeToken(tokenId, authorizedUser);
                 }
             }
             connection.commit();
@@ -1156,7 +1161,7 @@ public class TokenMgtDAO {
             String newAccessToken = accessTokenDO.getAccessToken();
             // store new token in the DB
             storeAccessToken(newAccessToken, consumerKey, accessTokenDO, connection,
-                             userStoreDomain);
+                    userStoreDomain);
 
             // update new access token against authorization code if token obtained via authorization code grant type
             updateTokenIdIfAutzCodeGrantType(oldAccessTokenId, accessTokenDO.getTokenId(), connection);
