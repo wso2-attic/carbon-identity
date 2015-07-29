@@ -25,7 +25,6 @@ import javax.servlet.http.HttpServletRequest;
 public class SAML1GrantValidator extends AbstractValidator<HttpServletRequest> {
 
     public SAML1GrantValidator(){
-        //requiredParams.add("grant_type");
         requiredParams.add("assertion");
     }
 

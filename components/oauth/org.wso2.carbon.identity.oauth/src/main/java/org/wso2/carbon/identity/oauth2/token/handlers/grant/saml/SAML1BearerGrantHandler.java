@@ -87,8 +87,9 @@ public class SAML1BearerGrantHandler extends AbstractAuthorizationGrantHandler {
         try {
             DefaultBootstrap.bootstrap();
         } catch (ConfigurationException e) {
-            log.error(e.getMessage(),e);
-            throw new IdentityOAuth2Exception("Error in bootstrapping the OpenSAML2 library");
+            String errorMessage = "Error in bootstrapping the OpenSAML2 library";
+            log.error(errorMessage, e);
+            throw new IdentityOAuth2Exception(errorMessage, e);
         } finally {
             thread.setContextClassLoader(loader);
         }
@@ -101,7 +102,10 @@ public class SAML1BearerGrantHandler extends AbstractAuthorizationGrantHandler {
             try {
                 grantTypeProperties.load(stream);
                 audienceRestrictionValidationEnabled = Boolean.parseBoolean(grantTypeProperties.getProperty("audienceRestrictionValidationEnabled"));
-                log.debug("Audience restriction validation enabled is set to " + audienceRestrictionValidationEnabled);
+                if (log.isDebugEnabled()) {
+                    log.debug("Audience restriction validation enabled is set to " +
+                              audienceRestrictionValidationEnabled);
+                }
             } catch (IOException e) {
                 log.warn("Failed to load the SAML-1.0-BearerGrantType.properties stream. The default configurations are " +
                         "used instead of configurations defined in " + SAML10_BEARER_GRANT_TYPE_CONFIG_FILE + " file.");
@@ -124,7 +128,7 @@ public class SAML1BearerGrantHandler extends AbstractAuthorizationGrantHandler {
      * Host: as.example.com
      * Content-Type: application/x-www-form-urlencoded
      * <p/>
-     * grant_type=urn%3Aietf%3Aparams%3Aoauth%3Agrant-type%3Asaml2-bearer&
+     * grant_type=urn%3Aietf%3Aparams%3Aoauth%3Agrant-type%3Asaml1-bearer&
      * assertion=PHNhbWxwOl...[omitted for brevity]...ZT4
      *
      * @param tokReqMsgCtx Token message request context
@@ -164,12 +168,16 @@ public class SAML1BearerGrantHandler extends AbstractAuthorizationGrantHandler {
             assertion = (Assertion) samlObject;
         } catch (IdentityOAuth2Exception e) {
             // fault in the saml token
-            log.debug(e.getMessage(), e);
+            if (log.isDebugEnabled()) {
+                log.debug("Error occurred while unmarshalling SAML assertion", e);
+            }
             return false;
         }
 
         if (assertion == null) {
-            log.debug("Assertion is null, cannot continue");
+            if (log.isDebugEnabled()) {
+                log.debug("Assertion is null, cannot continue");
+            }
             return false;
         }
 
@@ -190,26 +198,38 @@ public class SAML1BearerGrantHandler extends AbstractAuthorizationGrantHandler {
             if (subject != null) {
                 String resourceOwnerUserName = subject.getNameIdentifier().getNameIdentifier();
                 if (resourceOwnerUserName == null || resourceOwnerUserName.equals("")) {
-                    log.debug("NameID in Assertion cannot be empty");
+                    if (log.isDebugEnabled()) {
+                        log.debug("NameID in Assertion cannot be empty");
+                    }
                     return false;
                 }
                 tokReqMsgCtx.setAuthorizedUser(resourceOwnerUserName);
-                log.debug("Resource Owner User Name is set to "+resourceOwnerUserName);
+                if (log.isDebugEnabled()) {
+                    log.debug("Resource Owner User Name is set to " + resourceOwnerUserName);
+                }
             } else {
-                log.debug("Subject element cannot be empty.");
+                if (log.isDebugEnabled()) {
+                    log.debug("Subject element cannot be empty.");
+                }
                 return false;
             }
         } else {
-            log.debug("Authentication Statement cannot be empty");
+            if (log.isDebugEnabled()) {
+                log.debug("Authentication Statement cannot be empty");
+            }
             return false;
         }
 
         if (assertion.getIssuer() == null || assertion.getIssuer().isEmpty()) {
-            log.debug("Issuer is empty in the SAML assertion");
+            if (log.isDebugEnabled()) {
+                log.debug("Issuer is empty in the SAML assertion");
+            }
             return false;
         } else {
             try {
-                log.debug("Issuer is :"+assertion.getIssuer());
+                if (log.isDebugEnabled()) {
+                    log.debug("Issuer is :" + assertion.getIssuer());
+                }
                 identityProvider = IdentityProviderManager.getInstance().getIdPByAuthenticatorPropertyValue("IdPEntityId",
                                                                                                             assertion.getIssuer(), tenantDomain, false);
                 // IF Federated IDP not found get the resident IDP and check,
@@ -232,7 +252,9 @@ public class SAML1BearerGrantHandler extends AbstractAuthorizationGrantHandler {
                         }
 
                         if (idpEntityId == null || !assertion.getIssuer().equals(idpEntityId)) {
-                            log.debug("SAML Token Issuer verification failed or Issuer not registered");
+                            if (log.isDebugEnabled()) {
+                                log.debug("SAML Token Issuer verification failed or Issuer not registered");
+                            }
                             return false;
                         }
 
@@ -251,11 +273,15 @@ public class SAML1BearerGrantHandler extends AbstractAuthorizationGrantHandler {
                         tokenEndpointAlias = identityProvider.getAlias();
                     }
                 } else {
-                    log.debug("SAML Token Issuer verification failed or Issuer not registered");
+                    if (log.isDebugEnabled()) {
+                        log.debug("SAML Token Issuer verification failed or Issuer not registered");
+                    }
                     return false;
                 }
             } catch (IdentityApplicationManagementException e) {
-                log.debug("Error while getting Federated Identity Provider ");
+                if (log.isDebugEnabled()) {
+                    log.debug("Error while getting Federated Identity Provider ", e);
+                }
             }
         }
 
@@ -275,7 +301,9 @@ public class SAML1BearerGrantHandler extends AbstractAuthorizationGrantHandler {
             if (tokenEndpointAlias == null || tokenEndpointAlias.equals("")) {
                 String errorMsg = "Token Endpoint alias of the local Identity Provider has not been " +
                         "configured for " + identityProvider.getIdentityProviderName();
-                log.debug(errorMsg);
+                if (log.isDebugEnabled()) {
+                    log.debug(errorMsg);
+                }
                 return false;
             }
 
@@ -299,22 +327,19 @@ public class SAML1BearerGrantHandler extends AbstractAuthorizationGrantHandler {
                     }
                     if (!audienceFound) {
                         if (log.isDebugEnabled()) {
-                            String message = "SAML Assertion Audience Restriction validation failed";
-                            log.debug(message);
+                            log.debug("SAML Assertion Audience Restriction validation failed");
                         }
                          return false;
                     }
                 } else {
                     if (log.isDebugEnabled()) {
-                        String message = "SAML Assertion doesn't contain AudienceRestrictions";
-                        log.debug(message);
+                        log.debug("SAML Assertion doesn't contain AudienceRestrictions");
                     }
                      return false;
                 }
             } else {
                 if (log.isDebugEnabled()) {
-                    String message = "SAML Assertion doesn't contain Conditions";
-                    log.debug(message);
+                    log.debug("SAML Assertion doesn't contain Conditions");
                 }
                 return false;
             }
@@ -357,7 +382,10 @@ public class SAML1BearerGrantHandler extends AbstractAuthorizationGrantHandler {
 
             }
             if(!bearerFound){
-                log.debug("Cannot find Method attribute in SubjectConfirmation " + subject.getSubjectConfirmation());
+                if (log.isDebugEnabled()) {
+                    log.debug(
+                            "Cannot find Method attribute in SubjectConfirmation " + subject.getSubjectConfirmation());
+                }
                 return false;
             }
 
@@ -368,13 +396,17 @@ public class SAML1BearerGrantHandler extends AbstractAuthorizationGrantHandler {
             }
 
         } else {
-            log.debug("No SubjectConfirmation exist in Assertion");
+            if (log.isDebugEnabled()) {
+                log.debug("No SubjectConfirmation exist in Assertion");
+            }
             return false;
         }
 
         if (!bearerFound) {
-            log.debug("Failed to find a SubjectConfirmation with a Method attribute having : " +
-                      OAuthConstants.OAUTH_SAML2_BEARER_METHOD);
+            if (log.isDebugEnabled()) {
+                log.debug("Failed to find a SubjectConfirmation with a Method attribute having : " +
+                          OAuthConstants.OAUTH_SAML1_BEARER_METHOD);
+            }
             return false;
         }
 
@@ -390,7 +422,9 @@ public class SAML1BearerGrantHandler extends AbstractAuthorizationGrantHandler {
          */
         if (notOnOrAfterFromConditions != null && notOnOrAfterFromConditions.compareTo(new DateTime()) < 1) {
             // notOnOrAfter is an expired timestamp
-            log.debug("NotOnOrAfter is having an expired timestamp in Conditions element");
+            if (log.isDebugEnabled()) {
+                log.debug("NotOnOrAfter is having an expired timestamp in Conditions element");
+            }
             return false;
         }
         boolean validSubjectConfirmationDataExists = false;
@@ -402,7 +436,9 @@ public class SAML1BearerGrantHandler extends AbstractAuthorizationGrantHandler {
             }
         }
         if(notOnOrAfterFromConditions == null && !validSubjectConfirmationDataExists){
-            log.debug("No valid NotOnOrAfter element found in SubjectConfirmations");
+            if (log.isDebugEnabled()) {
+                log.debug("No valid NotOnOrAfter element found in SubjectConfirmations");
+            }
               return false;
         }
 
@@ -438,7 +474,9 @@ public class SAML1BearerGrantHandler extends AbstractAuthorizationGrantHandler {
             signatureValidator.validate(assertion.getSignature());
             log.debug("Signature validation successful");
         } catch (ValidationException e) {
-            log.debug("Signature validation failure due to" +e.getMessage(), e);
+            if (log.isDebugEnabled()) {
+                log.debug("Signature validation failure due to" + e.getMessage(), e);
+            }
             return false;
         }
 
@@ -452,7 +490,9 @@ public class SAML1BearerGrantHandler extends AbstractAuthorizationGrantHandler {
                 OAuthServerConfiguration.getInstance()
                         .getSAML2TokenCallbackHandler();
         if (callback != null) {
-            log.debug("Invoking the SAML2 Token callback handler");
+            if (log.isDebugEnabled()) {
+                log.debug("Invoking the SAML2 Token callback handler");
+            }
             callback.handleSAML2Token(tokReqMsgCtx);
         }
 
@@ -488,8 +528,8 @@ public class SAML1BearerGrantHandler extends AbstractAuthorizationGrantHandler {
             unmarshaller = unmarshallerFactory.getUnmarshaller(element);
             return unmarshaller.unmarshall(element);
         } catch (Exception e) {
-            log.error("Error in constructing XML Object from the encoded String", e);
-            throw new IdentityOAuth2Exception("Error in constructing XML Object from the encoded String", e);
+            throw new IdentityOAuth2Exception("Error in constructing XML Object from the encoded String :" + xmlString,
+                                              e);
         }
     }
 
@@ -507,9 +547,8 @@ public class SAML1BearerGrantHandler extends AbstractAuthorizationGrantHandler {
             int tenantId = realmService.getTenantManager().getTenantId(tenantDomain);
             return tenantId;
         } catch (UserStoreException e) {
-            String error = "Error in obtaining tenantId from Domain";
             //do not log
-            throw new IdentityOAuth2Exception(error);
+            throw new IdentityOAuth2Exception("Error in obtaining tenantId from Domain :" + tenantDomain, e);
         }
     }
 

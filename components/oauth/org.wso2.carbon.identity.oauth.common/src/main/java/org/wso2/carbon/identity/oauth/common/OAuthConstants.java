@@ -66,6 +66,7 @@ public final class OAuthConstants {
     public static final String DEFAULT_KEY_ALIAS = "Security.KeyStore.KeyAlias";
     // SAML2 Bearer Assertion Profile constants
     public static final String OAUTH_SAML2_BEARER_METHOD = "urn:oasis:names:tc:SAML:2.0:cm:bearer";
+    public static final String OAUTH_SAML1_BEARER_METHOD = "urn:oasis:names:tc:SAML:1.0:cm:bearer";
     public static final String OAUTH_SAML2_BEARER_GRANT_ENUM = "SAML20_BEARER";
     public static final String OAUTH_IWA_NTLM_GRANT_ENUM = "IWA_NTLM";
     // OAuth client authenticator properties
