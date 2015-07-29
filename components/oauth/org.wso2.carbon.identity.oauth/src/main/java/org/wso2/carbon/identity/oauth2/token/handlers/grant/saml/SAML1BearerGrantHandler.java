@@ -75,7 +75,8 @@ public class SAML1BearerGrantHandler extends AbstractAuthorizationGrantHandler {
     SAMLSignatureProfileValidator profileValidator = null;
     private boolean audienceRestrictionValidationEnabled = false;
     public static final String OAUTH_SAML_1_BEARER_METHOD = "urn:oasis:names:tc:SAML:1.0:cm:bearer";
-    private static final String SAML10_BEARER_GRANT_TYPE_CONFIG_FILE="SAML10_BearerGrantType.properties";
+    private static final String SAML10_BEARER_GRANT_TYPE_CONFIG_FILE = "SAML10_BearerGrantType.properties";
+
     public void init() throws IdentityOAuth2Exception {
 
         super.init();
@@ -94,20 +95,22 @@ public class SAML1BearerGrantHandler extends AbstractAuthorizationGrantHandler {
             thread.setContextClassLoader(loader);
         }
 
-        profileValidator =  new SAMLSignatureProfileValidator();
+        profileValidator = new SAMLSignatureProfileValidator();
 
         Properties grantTypeProperties = new Properties();
         InputStream stream = loader.getResourceAsStream("repository/conf/" + SAML10_BEARER_GRANT_TYPE_CONFIG_FILE);
         if (stream != null) {
             try {
                 grantTypeProperties.load(stream);
-                audienceRestrictionValidationEnabled = Boolean.parseBoolean(grantTypeProperties.getProperty("audienceRestrictionValidationEnabled"));
+                audienceRestrictionValidationEnabled =
+                        Boolean.parseBoolean(grantTypeProperties.getProperty("audienceRestrictionValidationEnabled"));
                 if (log.isDebugEnabled()) {
                     log.debug("Audience restriction validation enabled is set to " +
                               audienceRestrictionValidationEnabled);
                 }
             } catch (IOException e) {
-                log.warn("Failed to load the SAML-1.0-BearerGrantType.properties stream. The default configurations are " +
+                log.warn(
+                      "Failed to load the SAML-1.0-BearerGrantType.properties stream. The default configurations are " +
                         "used instead of configurations defined in " + SAML10_BEARER_GRANT_TYPE_CONFIG_FILE + " file.");
             } finally {
                 try {
@@ -148,8 +151,8 @@ public class SAML1BearerGrantHandler extends AbstractAuthorizationGrantHandler {
         }
 
         RequestParameter[] requestParameters = tokReqMsgCtx.getOauth2AccessTokenReqDTO().getRequestParameters();
-        for(RequestParameter requestParameter:requestParameters){
-            if(requestParameter.getKey().equals("assertion")){
+        for (RequestParameter requestParameter : requestParameters) {
+            if (requestParameter.getKey().equals("assertion")) {
                 String[] values = requestParameter.getValue();
                 tokReqMsgCtx.getOauth2AccessTokenReqDTO().setAssertion(values[0]);
                 break;
@@ -164,7 +167,8 @@ public class SAML1BearerGrantHandler extends AbstractAuthorizationGrantHandler {
         }
 
         try {
-            XMLObject samlObject = unmarshall(new String(Base64.decodeBase64(tokReqMsgCtx.getOauth2AccessTokenReqDTO().getAssertion())));
+            XMLObject samlObject = unmarshall(
+                    new String(Base64.decodeBase64(tokReqMsgCtx.getOauth2AccessTokenReqDTO().getAssertion())));
             assertion = (Assertion) samlObject;
         } catch (IdentityOAuth2Exception e) {
             // fault in the saml token
@@ -230,23 +234,29 @@ public class SAML1BearerGrantHandler extends AbstractAuthorizationGrantHandler {
                 if (log.isDebugEnabled()) {
                     log.debug("Issuer is :" + assertion.getIssuer());
                 }
-                identityProvider = IdentityProviderManager.getInstance().getIdPByAuthenticatorPropertyValue("IdPEntityId",
-                                                                                                            assertion.getIssuer(), tenantDomain, false);
+                identityProvider =
+                        IdentityProviderManager.getInstance().getIdPByAuthenticatorPropertyValue("IdPEntityId",
+                                                                                                 assertion.getIssuer(),
+                                                                                                 tenantDomain, false);
                 // IF Federated IDP not found get the resident IDP and check,
                 // resident IDP entitiID == issuer
                 if (identityProvider != null) {
-                    if (IdentityApplicationConstants.RESIDENT_IDP_RESERVED_NAME.equals(identityProvider.getIdentityProviderName())) {
+                    if (IdentityApplicationConstants.RESIDENT_IDP_RESERVED_NAME
+                            .equals(identityProvider.getIdentityProviderName())) {
                         identityProvider = IdentityProviderManager.getInstance().getResidentIdP(tenantDomain);
 
-                        FederatedAuthenticatorConfig[] fedAuthnConfigs = identityProvider.getFederatedAuthenticatorConfigs();
+                        FederatedAuthenticatorConfig[] fedAuthnConfigs =
+                                identityProvider.getFederatedAuthenticatorConfigs();
                         String idpEntityId = null;
 
                         // Get SAML authenticator
-                        FederatedAuthenticatorConfig samlAuthenticatorConfig = IdentityApplicationManagementUtil.getFederatedAuthenticator(fedAuthnConfigs,
-                                                                                                                                           IdentityApplicationConstants.Authenticator.SAML2SSO.NAME);
+                        FederatedAuthenticatorConfig samlAuthenticatorConfig =
+                                IdentityApplicationManagementUtil.getFederatedAuthenticator(fedAuthnConfigs,
+                                                              IdentityApplicationConstants.Authenticator.SAML2SSO.NAME);
                         // Get Entity ID from SAML authenticator
-                        Property samlProperty = IdentityApplicationManagementUtil.getProperty(samlAuthenticatorConfig.getProperties(),
-                                                                                              IdentityApplicationConstants.Authenticator.SAML2SSO.IDP_ENTITY_ID);
+                        Property samlProperty =
+                                IdentityApplicationManagementUtil.getProperty(samlAuthenticatorConfig.getProperties(),
+                                                     IdentityApplicationConstants.Authenticator.SAML2SSO.IDP_ENTITY_ID);
                         if (samlProperty != null) {
                             idpEntityId = samlProperty.getValue();
                         }
@@ -260,11 +270,13 @@ public class SAML1BearerGrantHandler extends AbstractAuthorizationGrantHandler {
 
                         // Get OpenIDConnect authenticator == OAuth
                         // authenticator
-                        FederatedAuthenticatorConfig oauthAuthenticatorConfig = IdentityApplicationManagementUtil.getFederatedAuthenticator(fedAuthnConfigs,
-                                                                                                                                            IdentityApplicationConstants.Authenticator.OIDC.NAME);
+                        FederatedAuthenticatorConfig oauthAuthenticatorConfig =
+                                IdentityApplicationManagementUtil.getFederatedAuthenticator(fedAuthnConfigs,
+                                                                  IdentityApplicationConstants.Authenticator.OIDC.NAME);
                         // Get OAuth token endpoint
-                        Property oauthProperty = IdentityApplicationManagementUtil.getProperty(oauthAuthenticatorConfig.getProperties(),
-                                                                                               IdentityApplicationConstants.Authenticator.OIDC.OAUTH2_TOKEN_URL);
+                        Property oauthProperty =
+                                IdentityApplicationManagementUtil.getProperty(oauthAuthenticatorConfig.getProperties(),
+                                                      IdentityApplicationConstants.Authenticator.OIDC.OAUTH2_TOKEN_URL);
                         if (oauthProperty != null) {
                             tokenEndpointAlias = oauthProperty.getValue();
                         }
@@ -297,10 +309,10 @@ public class SAML1BearerGrantHandler extends AbstractAuthorizationGrantHandler {
          * repository/conf/SAML-1.0-BearerGrantType.properties witch content audienceRestrictionValidationEnabled = true
          */
 
-        if(audienceRestrictionValidationEnabled) {
+        if (audienceRestrictionValidationEnabled) {
             if (tokenEndpointAlias == null || tokenEndpointAlias.equals("")) {
                 String errorMsg = "Token Endpoint alias of the local Identity Provider has not been " +
-                        "configured for " + identityProvider.getIdentityProviderName();
+                                  "configured for " + identityProvider.getIdentityProviderName();
                 if (log.isDebugEnabled()) {
                     log.debug(errorMsg);
                 }
@@ -313,7 +325,8 @@ public class SAML1BearerGrantHandler extends AbstractAuthorizationGrantHandler {
                 if (audienceRestrictions != null && !audienceRestrictions.isEmpty()) {
                     boolean audienceFound = false;
                     for (AudienceRestrictionCondition audienceRestriction : audienceRestrictions) {
-                        if (audienceRestriction.getAudiences() != null && audienceRestriction.getAudiences().size() > 0) {
+                        if (audienceRestriction.getAudiences() != null &&
+                            audienceRestriction.getAudiences().size() > 0) {
                             for (Audience audience : audienceRestriction.getAudiences()) {
                                 if (audience.getUri().equals(tokenEndpointAlias)) {
                                     audienceFound = true;
@@ -329,13 +342,13 @@ public class SAML1BearerGrantHandler extends AbstractAuthorizationGrantHandler {
                         if (log.isDebugEnabled()) {
                             log.debug("SAML Assertion Audience Restriction validation failed");
                         }
-                         return false;
+                        return false;
                     }
                 } else {
                     if (log.isDebugEnabled()) {
                         log.debug("SAML Assertion doesn't contain AudienceRestrictions");
                     }
-                     return false;
+                    return false;
                 }
             } else {
                 if (log.isDebugEnabled()) {
@@ -375,13 +388,13 @@ public class SAML1BearerGrantHandler extends AbstractAuthorizationGrantHandler {
         if (subject != null) {
             SubjectConfirmation subjectConfirmation = subject.getSubjectConfirmation();
             List<ConfirmationMethod> confirmationMethods = subjectConfirmation.getConfirmationMethods();
-            for(ConfirmationMethod confirmationMethod : confirmationMethods){
-                if(OAUTH_SAML_1_BEARER_METHOD.equals(confirmationMethod.getConfirmationMethod())){
-                    bearerFound =true;
+            for (ConfirmationMethod confirmationMethod : confirmationMethods) {
+                if (OAUTH_SAML_1_BEARER_METHOD.equals(confirmationMethod.getConfirmationMethod())) {
+                    bearerFound = true;
                 }
 
             }
-            if(!bearerFound){
+            if (!bearerFound) {
                 if (log.isDebugEnabled()) {
                     log.debug(
                             "Cannot find Method attribute in SubjectConfirmation " + subject.getSubjectConfirmation());
@@ -389,9 +402,8 @@ public class SAML1BearerGrantHandler extends AbstractAuthorizationGrantHandler {
                 return false;
             }
 
-
             XMLObject confirmationData = subject.getSubjectConfirmation().getSubjectConfirmationData();
-            if(confirmationData == null){
+            if (confirmationData == null) {
                 log.warn("Subject confirmation data is missing.");
             }
 
@@ -410,7 +422,6 @@ public class SAML1BearerGrantHandler extends AbstractAuthorizationGrantHandler {
             return false;
         }
 
-
         /**
          * The authorization server MUST verify that the NotOnOrAfter instant has not passed, subject to allowable
          * clock skew between systems.  An invalid NotOnOrAfter instant on the <Conditions> element invalidates
@@ -428,18 +439,18 @@ public class SAML1BearerGrantHandler extends AbstractAuthorizationGrantHandler {
             return false;
         }
         boolean validSubjectConfirmationDataExists = false;
-        if(!notOnOrAfterFromSubjectConfirmations.isEmpty()){
-            for(DateTime entry : notOnOrAfterFromSubjectConfirmations){
-                if(entry.compareTo(new DateTime()) >= 1){
+        if (!notOnOrAfterFromSubjectConfirmations.isEmpty()) {
+            for (DateTime entry : notOnOrAfterFromSubjectConfirmations) {
+                if (entry.compareTo(new DateTime()) >= 1) {
                     validSubjectConfirmationDataExists = true;
                 }
             }
         }
-        if(notOnOrAfterFromConditions == null && !validSubjectConfirmationDataExists){
+        if (notOnOrAfterFromConditions == null && !validSubjectConfirmationDataExists) {
             if (log.isDebugEnabled()) {
                 log.debug("No valid NotOnOrAfter element found in SubjectConfirmations");
             }
-              return false;
+            return false;
         }
 
         /**
@@ -451,21 +462,22 @@ public class SAML1BearerGrantHandler extends AbstractAuthorizationGrantHandler {
             profileValidator.validate(assertion.getSignature());
         } catch (ValidationException e) {
             // Indicates signature did not conform to SAML Signature profile
-            log.error("Indicates signature did not conform to SAML Signature profile",e);
+            log.error("Indicates signature did not conform to SAML Signature profile", e);
             log.debug(e.getMessage());
             return false;
         }
 
         X509Certificate x509Certificate = null;
         try {
-            x509Certificate = (X509Certificate)IdentityApplicationManagementUtil
+            x509Certificate = (X509Certificate) IdentityApplicationManagementUtil
                     .decodeCertificate(identityProvider.getCertificate());
         } catch (CertificateException e) {
             log.error(e.getMessage(), e);
             log.error("Error occurred while decoding public certificate of Identity Provider "
-                    + identityProvider.getIdentityProviderName() + " for tenant domain " + tenantDomain);
+                      + identityProvider.getIdentityProviderName() + " for tenant domain " + tenantDomain);
             throw new IdentityOAuth2Exception("Error occurred while decoding public certificate of Identity Provider "
-                                              + identityProvider.getIdentityProviderName() + " for tenant domain " + tenantDomain);
+                                              + identityProvider.getIdentityProviderName() + " for tenant domain " +
+                                              tenantDomain);
         }
 
         try {
@@ -488,7 +500,7 @@ public class SAML1BearerGrantHandler extends AbstractAuthorizationGrantHandler {
         // Invoking extension
         SAML2TokenCallbackHandler callback =
                 OAuthServerConfiguration.getInstance()
-                        .getSAML2TokenCallbackHandler();
+                                        .getSAML2TokenCallbackHandler();
         if (callback != null) {
             if (log.isDebugEnabled()) {
                 log.debug("Invoking the SAML2 Token callback handler");
@@ -511,12 +523,12 @@ public class SAML1BearerGrantHandler extends AbstractAuthorizationGrantHandler {
 
     /**
      * Constructing the SAML or XACML Objects from a String
+     *
      * @param xmlString Decoded SAML or XACML String
      * @return SAML or XACML Object
      * @throws org.wso2.carbon.identity.base.IdentityException
-     *
      */
-    private XMLObject unmarshall(String xmlString) throws IdentityOAuth2Exception{
+    private XMLObject unmarshall(String xmlString) throws IdentityOAuth2Exception {
         Unmarshaller unmarshaller;
         try {
             DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
