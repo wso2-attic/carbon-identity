@@ -86,7 +86,7 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
     private static final String UNLOCK_ADMIN_SYS_PROP = "unlockAdmin";
     PolicyRegistry policyRegistry = null;
     private UserIdentityDataStore module;
-    IdentityMgtConfig identityMgtConfig;
+    private IdentityMgtConfig identityMgtConfig;
     // Set of thread local variable names
     private static final String DO_PRE_AUTHENTICATE = "doPreAuthenticate";
     private static final String DO_POST_AUTHENTICATE = "doPostAuthenticate";
@@ -425,7 +425,6 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
                 }
             }
             return true;
-
         } finally {
             // Remove thread local variable
             threadLocalProperties.get().remove(DO_POST_AUTHENTICATE);
@@ -818,8 +817,6 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
                     throw new UserStoreException(
                             "Error while saving user store data for user : " + userName, e);
                 }
-
-
             }
             return true;
         } finally {
@@ -967,7 +964,6 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
             // Remove thread local variable.
             threadLocalProperties.get().remove(DO_POST_UPDATE_CREDENTIAL);
         }
-
     }
 
 }
