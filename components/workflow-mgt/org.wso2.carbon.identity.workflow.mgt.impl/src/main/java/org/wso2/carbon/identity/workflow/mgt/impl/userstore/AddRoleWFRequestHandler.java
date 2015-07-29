@@ -93,8 +93,8 @@ public class AddRoleWFRequestHandler extends AbstractWorkflowRequestHandler {
 
             String nameWithTenant = UserCoreUtil.addTenantDomainToEntry(role, tenant);
             String fullyQualifiedName = UserCoreUtil.addDomainToName(nameWithTenant, userStoreDomain);
-            boolean isExistingRole = entityDAO.updateEntityLockedState(fullyQualifiedName, "ROLE", "ADD");
-            if (!isExistingRole) {
+            if (!entityDAO.checkEntityLocked(fullyQualifiedName, "ROLE") || !entityDAO.updateEntityLockedState
+                    (fullyQualifiedName, "ROLE", "ADD")) {
                 throw new WorkflowException("Role has already been added before.");
             }
             entityRelationshipDAO.addNewRelationships(fullyQualifiedName, "ROLE", fullyQulalifiedUserList, "USER",

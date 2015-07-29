@@ -122,6 +122,42 @@ public class EntityRelationshipDAO {
     }
 
     /**
+     * Add entry when new workflow started with relate two entities
+     *
+     * @param entity1
+     * @param entity1_type
+     * @param entity2
+     * @param entity2_type
+     * @param operation
+     * @throws WorkflowException
+     */
+    public void addNewRelationship(String entity1, String entity1_type, String entity2, String entity2_type,
+                                   String operation) throws WorkflowException {
+
+        Connection connection = null;
+        PreparedStatement prepStmt = null;
+        try {
+            connection = IdentityDatabaseUtil.getDBConnection();
+            String query = SQLConstants.INSERT_NEW_ENTITY_RELATIONSHIP;
+            prepStmt = connection.prepareStatement(query);
+            prepStmt.setString(1, entity1);
+            prepStmt.setString(2, entity1_type);
+            prepStmt.setString(3, entity2);
+            prepStmt.setString(4, entity2_type);
+            prepStmt.setString(5, "Operation");
+            prepStmt.setString(6, operation);
+            prepStmt.execute();
+            connection.commit();
+        } catch (SQLException | IdentityException e) {
+            throw new WorkflowException("Error while inserting relationship details from Identity database.", e);
+        } finally {
+            IdentityDatabaseUtil.closeStatement(prepStmt);
+            IdentityDatabaseUtil.closeConnection(connection);
+        }
+
+    }
+
+    /**
      * Delete entries when workflow completed which relate two entities
      *
      * @param entity1
@@ -149,6 +185,42 @@ public class EntityRelationshipDAO {
                 prepStmt.setString(6, operation);
                 prepStmt.execute();
             }
+            connection.commit();
+        } catch (SQLException | IdentityException e) {
+            throw new WorkflowException("Error while inserting relationship details from Identity database.", e);
+        } finally {
+            IdentityDatabaseUtil.closeStatement(prepStmt);
+            IdentityDatabaseUtil.closeConnection(connection);
+        }
+
+    }
+
+    /**
+     * Delete entry when workflow completed which relate two entities
+     *
+     * @param entity1
+     * @param entity1_type
+     * @param entity2
+     * @param entity2_type
+     * @param operation
+     * @throws WorkflowException
+     */
+    public void deleteEntityRelationshipState(String entity1, String entity1_type, String entity2, String
+            entity2_type, String operation) throws WorkflowException {
+
+        Connection connection = null;
+        PreparedStatement prepStmt = null;
+        try {
+            connection = IdentityDatabaseUtil.getDBConnection();
+            String query = SQLConstants.DELETE_ENTITY_RELATIONSHIP;
+            prepStmt = connection.prepareStatement(query);
+            prepStmt.setString(1, entity1);
+            prepStmt.setString(2, entity1_type);
+            prepStmt.setString(3, entity2);
+            prepStmt.setString(4, entity2_type);
+            prepStmt.setString(5, "Operation");
+            prepStmt.setString(6, operation);
+            prepStmt.execute();
             connection.commit();
         } catch (SQLException | IdentityException e) {
             throw new WorkflowException("Error while inserting relationship details from Identity database.", e);

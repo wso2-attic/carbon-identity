@@ -190,9 +190,11 @@ public class UserStoreActionListener extends AbstractUserOperationEventListener 
             return new UpdateRoleNameWFRequestHandler()
                     .startUpdateRoleNameFlow(domain, roleName, newRoleName);
         } catch (WorkflowException e) {
-            log.error("Initiating workflow failed for updating role users of role: " + roleName, e);
+            DeleteRoleWFRequestHandler.unsetWorkFlowCompleted();
+            //Use e.getMessage instead of using a message specific to this level since this message will be shown to in
+            //the admin console error message
+            throw new UserStoreException(e.getMessage(), e);
         }
-        return false;
     }
 
     @Override
