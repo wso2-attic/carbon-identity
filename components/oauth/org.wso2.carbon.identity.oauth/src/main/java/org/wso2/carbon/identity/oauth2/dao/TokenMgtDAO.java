@@ -551,7 +551,7 @@ public class TokenMgtDAO {
             resultSet = prepStmt.executeQuery();
 
             if (resultSet.next()) {
-                if (resultSet.getString(6).equals(OAuthConstants.AuthorizationCodeState.ACTIVE)) {
+                if (resultSet.getString(8).equals(OAuthConstants.AuthorizationCodeState.ACTIVE)) {
                     String authorizedUser = resultSet.getString(1);
                     String userstoreDomain = resultSet.getString(2);
                     int tenantId = resultSet.getInt(3);
@@ -570,7 +570,7 @@ public class TokenMgtDAO {
                     return new AuthzCodeDO(user, OAuth2Util.buildScopeArray(scopeString), issuedTime, validityPeriod,
                             callbackUrl, consumerKey, authorizationKey);
                 } else {
-                    String tokenId = resultSet.getString(3);
+                    String tokenId = resultSet.getString(9);
                     revokeToken(tokenId, userId);
                 }
             }
