@@ -87,13 +87,13 @@ public class EntityRelationshipDAO {
      * Add entries when new workflow started with relate two entities
      *
      * @param entity1
-     * @param entity1_type
-     * @param entity2_List
-     * @param entity2_type
+     * @param entity1Type
+     * @param entity2List
+     * @param entity2Type
      * @param operation
      * @throws WorkflowException
      */
-    public void addNewRelationships(String entity1, String entity1_type, String[] entity2_List, String entity2_type,
+    public void addNewRelationships(String entity1, String entity1Type, String[] entity2List, String entity2Type,
                                     String operation) throws WorkflowException {
 
         Connection connection = null;
@@ -102,11 +102,11 @@ public class EntityRelationshipDAO {
             connection = IdentityDatabaseUtil.getDBConnection();
             String query = SQLConstants.INSERT_NEW_ENTITY_RELATIONSHIP;
             prepStmt = connection.prepareStatement(query);
-            for (int i = 0; i < entity2_List.length; i++) {
+            for (int i = 0; i < entity2List.length; i++) {
                 prepStmt.setString(1, entity1);
-                prepStmt.setString(2, entity1_type);
-                prepStmt.setString(3, entity2_List[i]);
-                prepStmt.setString(4, entity2_type);
+                prepStmt.setString(2, entity1Type);
+                prepStmt.setString(3, entity2List[i]);
+                prepStmt.setString(4, entity2Type);
                 prepStmt.setString(5, "Operation");
                 prepStmt.setString(6, operation);
                 prepStmt.execute();
@@ -125,13 +125,13 @@ public class EntityRelationshipDAO {
      * Add entry when new workflow started with relate two entities
      *
      * @param entity1
-     * @param entity1_type
+     * @param entity1Type
      * @param entity2
-     * @param entity2_type
+     * @param entity2Type
      * @param operation
      * @throws WorkflowException
      */
-    public void addNewRelationship(String entity1, String entity1_type, String entity2, String entity2_type,
+    public void addNewRelationship(String entity1, String entity1Type, String entity2, String entity2Type,
                                    String operation) throws WorkflowException {
 
         Connection connection = null;
@@ -141,9 +141,9 @@ public class EntityRelationshipDAO {
             String query = SQLConstants.INSERT_NEW_ENTITY_RELATIONSHIP;
             prepStmt = connection.prepareStatement(query);
             prepStmt.setString(1, entity1);
-            prepStmt.setString(2, entity1_type);
+            prepStmt.setString(2, entity1Type);
             prepStmt.setString(3, entity2);
-            prepStmt.setString(4, entity2_type);
+            prepStmt.setString(4, entity2Type);
             prepStmt.setString(5, "Operation");
             prepStmt.setString(6, operation);
             prepStmt.execute();
@@ -161,14 +161,14 @@ public class EntityRelationshipDAO {
      * Delete entries when workflow completed which relate two entities
      *
      * @param entity1
-     * @param entity1_type
-     * @param entity2_List
-     * @param entity2_type
+     * @param entity1Type
+     * @param entity2List
+     * @param entity2Type
      * @param operation
      * @throws WorkflowException
      */
-    public void deleteEntityRelationshipStates(String entity1, String entity1_type, String[] entity2_List, String
-            entity2_type, String operation) throws WorkflowException {
+    public void deleteEntityRelationshipStates(String entity1, String entity1Type, String[] entity2List, String
+            entity2Type, String operation) throws WorkflowException {
 
         Connection connection = null;
         PreparedStatement prepStmt = null;
@@ -176,11 +176,11 @@ public class EntityRelationshipDAO {
             connection = IdentityDatabaseUtil.getDBConnection();
             String query = SQLConstants.DELETE_ENTITY_RELATIONSHIP;
             prepStmt = connection.prepareStatement(query);
-            for (int i = 0; i < entity2_List.length; i++) {
+            for (int i = 0; i < entity2List.length; i++) {
                 prepStmt.setString(1, entity1);
-                prepStmt.setString(2, entity1_type);
-                prepStmt.setString(3, entity2_List[i]);
-                prepStmt.setString(4, entity2_type);
+                prepStmt.setString(2, entity1Type);
+                prepStmt.setString(3, entity2List[i]);
+                prepStmt.setString(4, entity2Type);
                 prepStmt.setString(5, "Operation");
                 prepStmt.setString(6, operation);
                 prepStmt.execute();
@@ -199,14 +199,14 @@ public class EntityRelationshipDAO {
      * Delete entry when workflow completed which relate two entities
      *
      * @param entity1
-     * @param entity1_type
+     * @param entity1Type
      * @param entity2
-     * @param entity2_type
+     * @param entity2Type
      * @param operation
      * @throws WorkflowException
      */
-    public void deleteEntityRelationshipState(String entity1, String entity1_type, String entity2, String
-            entity2_type, String operation) throws WorkflowException {
+    public void deleteEntityRelationshipState(String entity1, String entity1Type, String entity2, String
+            entity2Type, String operation) throws WorkflowException {
 
         Connection connection = null;
         PreparedStatement prepStmt = null;
@@ -215,9 +215,9 @@ public class EntityRelationshipDAO {
             String query = SQLConstants.DELETE_ENTITY_RELATIONSHIP;
             prepStmt = connection.prepareStatement(query);
             prepStmt.setString(1, entity1);
-            prepStmt.setString(2, entity1_type);
+            prepStmt.setString(2, entity1Type);
             prepStmt.setString(3, entity2);
-            prepStmt.setString(4, entity2_type);
+            prepStmt.setString(4, entity2Type);
             prepStmt.setString(5, "Operation");
             prepStmt.setString(6, operation);
             prepStmt.execute();
