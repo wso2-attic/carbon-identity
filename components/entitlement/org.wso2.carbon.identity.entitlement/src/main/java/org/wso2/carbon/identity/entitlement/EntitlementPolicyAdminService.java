@@ -618,7 +618,7 @@ public class EntitlementPolicyAdminService {
 
         String[] versions = EntitlementAdminEngine.getInstance().getVersionManager().getVersions(policyId);
         if(versions == null){
-            return new String[0];
+            throw new EntitlementException("Error obtaining policy versions");
         }
         Arrays.sort(versions);
         return versions;
