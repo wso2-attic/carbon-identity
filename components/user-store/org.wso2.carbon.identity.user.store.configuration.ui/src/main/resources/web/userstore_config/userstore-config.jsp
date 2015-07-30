@@ -53,8 +53,8 @@
     private Property[] optionals;
     private Property[] advancedProperties;
     private String forwardTo;
-    private String domain;
-    private String className;
+    private String domain = "0";
+    private String className = "0";
     private Boolean isEditing;
     private int isBoolean;
     private String existingDomains;
@@ -111,7 +111,7 @@
     }
     existingDomains = "[" + existingDomains + "\"PRIMARY\"]";
 
-    if (!domain.equals("0")) {
+    if (!"0".equals(domain)) {
 
         //Get the defined properties of user store manager
         Map<String, String> tempProperties = UserStoreMgtDataKeeper.getUserStoreManager(domain);

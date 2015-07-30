@@ -41,11 +41,10 @@
     ResourceBundle resourceBundle = ResourceBundle.getBundle(BUNDLE, request.getLocale());
     try {
         roleName = CharacterEncoder.getSafeText(roleBean.getRoleName());
-        roleType = roleBean.getRoleType();
-        if ((roleType == null || "null".equals(roleType)) &&
+        roleType = roleBean.getR		leType();
+        if (roleType == null &&
                 UserCoreConstants.INTERNAL_USERSTORE.equalsIgnoreCase(UserCoreUtil.extractDomainFromName(roleName))) {
             roleType = UserCoreConstants.INTERNAL_USERSTORE;
-            roleName = UserCoreUtil.removeDomainFromName(roleName);
         }
         boolean isSharedRole = roleBean.getSharedRole() != null && !roleBean.getSharedRole().isEmpty(); 
         String cookie = (String) session.getAttribute(ServerConstants.ADMIN_SERVICE_COOKIE);
