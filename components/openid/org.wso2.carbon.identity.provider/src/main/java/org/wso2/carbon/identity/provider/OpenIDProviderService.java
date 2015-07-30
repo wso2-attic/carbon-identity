@@ -370,12 +370,8 @@ public class OpenIDProviderService {
             throw new IdentityProviderException("Error while checking if user exists", e);
         }
 
-        try {
-            providerInfo.setOpenIDProviderServerUrl(IdentityUtil.getServerURL() + "/" + OpenIDServerConstants.OPENID_SERVER);
-            providerInfo.setOpenID(IdentityUtil.getServerURL() + "/" + OpenIDServerConstants.OPENID + "/" + tenantFreeUsername);
-        } catch (IdentityException e) {
-            throw new IdentityProviderException(e.getMessage(), e);
-        }
+        providerInfo.setOpenIDProviderServerUrl(OpenIDUtil.getOpenIDServerURL());
+        providerInfo.setOpenID(OpenIDUtil.getOpenIDUserPattern() + "/" + tenantFreeUsername);
 
         return providerInfo;
     }

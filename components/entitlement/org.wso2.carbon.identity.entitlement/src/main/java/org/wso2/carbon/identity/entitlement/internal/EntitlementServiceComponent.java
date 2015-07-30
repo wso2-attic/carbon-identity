@@ -210,7 +210,7 @@ public class EntitlementServiceComponent {
                     if (policyPathFromConfig == null || !policyFolder.exists()) {
                         policyFolder = new File(CarbonUtils.getCarbonHome() + File.separator
                                 + "repository" + File.separator + "resources" + File.separator
-                                + "security" + File.separator + "policies" + File.separator + "xacml");
+                                + "identity" + File.separator + "policies" + File.separator + "xacml");
 
                     }
 

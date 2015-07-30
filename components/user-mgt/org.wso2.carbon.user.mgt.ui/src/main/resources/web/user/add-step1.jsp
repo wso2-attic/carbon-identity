@@ -242,7 +242,7 @@ try{
     }
 
     function doCancel() {
-        location.href = 'user-mgt.jsp?ordinal=1';
+        location.href = '../userstore/add-user-role.jsp';
     }
 
     function doNext() {

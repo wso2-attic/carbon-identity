@@ -24,6 +24,7 @@ import org.apache.commons.io.Charsets;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.identity.application.common.model.User;
 import org.wso2.carbon.identity.core.model.OAuthAppDO;
 import org.wso2.carbon.identity.oauth.IdentityOAuthAdminException;
 import org.wso2.carbon.identity.oauth.cache.CacheEntry;
@@ -42,6 +43,7 @@ import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.service.RealmService;
+import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import java.sql.Timestamp;
@@ -546,7 +548,7 @@ public class OAuth2Util {
             UserStoreManager userStoreManager = (UserStoreManager) OAuthComponentServiceHolder.getRealmService()
                     .getTenantUserRealm(tenantId).getUserStoreManager();
             UserStoreManager UserAvailableUserStoreManager = userStoreManager.getSecondaryUserStoreManager
-                    (OAuth2Util.getDomainFromName(username));
+                    (UserCoreUtil.extractDomainFromName(username));
             String caseInsensitiveUsername = UserAvailableUserStoreManager.getRealmConfiguration().getUserStoreProperty("CaseInsensitiveUsername");
             if (caseInsensitiveUsername != null) {
                 isUsernameCaseSensitive = !Boolean.parseBoolean(caseInsensitiveUsername);
@@ -559,13 +561,29 @@ public class OAuth2Util {
         return isUsernameCaseSensitive;
     }
 
-    private static String getDomainFromName(String name) {
+    public static String getDomainFromName(String name) {
         int index;
         if ((index = name.indexOf("/")) > 0) {
             String domain = name.substring(0, index);
             return domain;
         }
         return UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME;
+    }
+
+    public static User getUserFromUserName(String username) throws IllegalArgumentException{
+        if (StringUtils.isNotBlank(username)) {
+            String tenantDomain = MultitenantUtils.getTenantDomain(username);
+            String tenantAwareUsername = MultitenantUtils.getTenantAwareUsername(username);
+            String tenantAwareUsernameWithNoUserDomain = UserCoreUtil.removeDomainFromName(tenantAwareUsername);
+            String userStoreDomain = UserCoreUtil.extractDomainFromName(username).toUpperCase();
+            User user = new User();
+            user.setUserName(tenantAwareUsernameWithNoUserDomain);
+            user.setTenantDomain(tenantDomain);
+            user.setUserStoreDomain(userStoreDomain);
+
+            return user;
+        }
+        throw  new IllegalArgumentException("Cannot create user from empty user name");
     }
 
 }

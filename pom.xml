@@ -14,7 +14,8 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.wso2.carbon.identity</groupId>
@@ -60,37 +61,31 @@
         <module>components/claim-mgt</module>
         <module>components/directory-server-manager</module>
         <module>components/policy-editor</module>
-        <module>components/security</module>
+        <module>components/security-mgt</module>
         <module>components/sts</module>
         <module>components/workflow-mgt</module>
         <module>features/security-mgt</module>
-        <module>features/authenticators</module>
-        <module>features/claim-management</module>
+        <module>features/carbon-authenticators</module>
+        <module>features/claim-mgt</module>
         <module>features/identity-core</module>
-        <module>features/identity-provider</module>
+        <module>features/openid</module>
         <module>features/identity-mgt</module>
-        <module>features/relying-party</module>
-        <module>features/self-registration</module>
-        <module>features/user-profiles</module>
         <module>features/xacml</module>
         <module>features/oauth</module>
         <module>features/sso-saml</module>
         <module>features/passive-sts</module>
-        <module>features/application-authentication-framework</module>
+        <module>features/authentication-framework</module>
         <module>features/application-authenticators</module>
         <module>features/scim</module>
         <module>features/application-mgt</module>
-        <module>features/identity-provisioning</module>
-        <module>features/tools-saml</module>
-        <module>features/thrift</module>
+        <module>features/provisioning</module>
+        <module>features/tools</module>
         <module>features/notification-mgt</module>
         <module>features/user-account-association</module>
         <module>features/idp-mgt</module>
-        <module>features/ldap-server</module>
-        <module>features/remote-usermgt</module>
-        <module>features/ldap-server-manager</module>
+        <module>features/directory-server-manager</module>
         <module>features/sts</module>
-        <module>features/user-manager</module>
+        <module>features/user-mgt</module>
         <module>features/workflow-mgt</module>
     </modules>
 
@@ -936,7 +931,7 @@
                 <version>${carbon.identity.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.openid4java.wso2</groupId>
+                <groupId>org.wso2.orbit.org.openid4java</groupId>
                 <artifactId>openid4java-nodeps</artifactId>
                 <version>${openid4java.wso2.version}</version>
             </dependency>
@@ -1380,13 +1375,13 @@
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
-                <artifactId>org.wso2.carbon.identity.self.registration.server.feature</artifactId>
+                <artifactId>org.wso2.carbon.identity.user.registration.server.feature</artifactId>
                 <version>${carbon.identity.version}</version>
                 <type>zip</type>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
-                <artifactId>org.wso2.carbon.identity.self.registration.ui.feature</artifactId>
+                <artifactId>org.wso2.carbon.identity.user.registration.ui.feature</artifactId>
                 <version>${carbon.identity.version}</version>
                 <type>zip</type>
             </dependency>
@@ -1757,43 +1752,6 @@
                 <version>${carbon.kernel.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.wso2.carbon.identity</groupId>
-                <artifactId>org.wso2.carbon.identity.workflow.mgt</artifactId>
-                <version>${carbon.identity.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.wso2.carbon.identity</groupId>
-                <artifactId>org.wso2.carbon.identity.workflow.mgt.impl</artifactId>
-                <version>${carbon.identity.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.wso2.carbon.identity</groupId>
-                <artifactId>org.wso2.carbon.identity.workflow.mgt.ui</artifactId>
-                <version>${carbon.identity.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.wso2.carbon.identity</groupId>
-                <artifactId>org.wso2.carbon.identity.workflow.mgt.bps.stub</artifactId>
-                <version>${carbon.identity.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.wso2.carbon.identity</groupId>
-                <artifactId>org.wso2.carbon.identity.workflow.mgt.server.feature</artifactId>
-                <version>${carbon.identity.version}</version>
-                <type>zip</type>
-            </dependency>
-            <dependency>
-                <groupId>org.wso2.carbon.identity</groupId>
-                <artifactId>org.wso2.carbon.identity.workflow.mgt.ui.feature</artifactId>
-                <version>${carbon.identity.version}</version>
-                <type>zip</type>
-            </dependency>
-            <dependency>
-                <groupId>org.wso2.carbon.identity</groupId>
-                <artifactId>org.wso2.carbon.identity.workflow.mgt.stub</artifactId>
-                <version>${carbon.identity.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>com.yubico</groupId>
                 <artifactId>u2flib-server-core</artifactId>
                 <version>${com.yubico.version}</version>
@@ -1980,8 +1938,8 @@
         <charon.wso2.version.identity>2.0.0-wso2v4</charon.wso2.version.identity>
         <charon.core.imp.pkg.version.range>[2.0.0,2.1.0)</charon.core.imp.pkg.version.range>
         <openid4java.version>0.9.6</openid4java.version>
-        <openid4java.wso2.version>0.9.6.wso2v4-SNAPSHOT</openid4java.wso2.version>
-        <openid4java.wso2.osgi.version.range>[0.9.6.wso2v4-SNAPSHOT,0.10)</openid4java.wso2.osgi.version.range>
+        <openid4java.wso2.version>0.9.6.wso2v4</openid4java.wso2.version>
+        <openid4java.wso2.osgi.version.range>[0.9.6.wso2v4,0.10)</openid4java.wso2.osgi.version.range>
         <opensaml2.version>2.4.1.wso2v1</opensaml2.version>
         <opensaml.wso2.version>1.1.0.wso2v1</opensaml.wso2.version>
         <balana.version>1.0.0.wso2v8</balana.version>
