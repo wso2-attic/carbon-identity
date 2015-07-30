@@ -35,7 +35,7 @@
             <i18n-key>add</i18n-key>
             <i18n-bundle>org.wso2.carbon.claim.mgt.ui.i18n.Resources</i18n-bundle>
             <parent-menu>claim_mgt_menu</parent-menu>
-            <link>../claim-mgt/add-dialect.jsp?extuser=false</link>
+            <link>../claim-mgt/add-dialect-claim.jsp</link>
             <region>region1</region>
             <order>1</order>
             <style-class>manage</style-class>

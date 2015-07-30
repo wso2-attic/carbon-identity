@@ -288,8 +288,7 @@
                         <td colspan="2" class="buttonRow">
                             <input type="button" value="<fmt:message key='add'/>" class="button" onclick="validate();"/>
                             <input class="button" type="button" value="<fmt:message key='cancel'/>"
-                                   onclick="javascript:document.location.href='claim-view.jsp?dialect=<%=dialectUri%>&ordinal=1'"/
-                                                                                                                                 >
+                                   onclick="javascript:document.location.href='add-dialect-claim.jsp?region=region1&item=claim_mgt_menu_add'"/>
                         </td>
                     </tr>
 
