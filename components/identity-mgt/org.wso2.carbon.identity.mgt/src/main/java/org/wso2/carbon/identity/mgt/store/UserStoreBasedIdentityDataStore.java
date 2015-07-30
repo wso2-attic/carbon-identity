@@ -72,6 +72,9 @@ public class UserStoreBasedIdentityDataStore extends InMemoryIdentityDataStore {
             try {
                 // Check if the user store is read only. If it is read only and still uses user store based data
                 // store then log a warn.
+                if (!userStoreManager.isExistingUser(userIdentityDTO.getUserName())){
+                    throw new IdentityException("Non existing user: "+username);
+                }
                 if(!userStoreManager.isReadOnly()) {
                     // Need to clone the map. If not iterative calls will refer the same map
                     userStoreManager.setUserClaimValues(username, new HashMap<String,String>
