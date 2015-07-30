@@ -24,6 +24,7 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.identity.workflow.mgt.extension.AbstractWorkflowRequestHandler;
 import org.wso2.carbon.identity.workflow.mgt.impl.dao.EntityDAO;
+import org.wso2.carbon.identity.workflow.mgt.impl.dao.EntityRelationshipDAO;
 import org.wso2.carbon.identity.workflow.mgt.util.WorkflowDataType;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.util.WorkflowRequestStatus;
@@ -58,14 +59,21 @@ public class DeleteUserWFRequestHandler extends AbstractWorkflowRequestHandler {
     public boolean startDeleteUserFlow(String userStoreDomain, String userName) throws WorkflowException {
         Map<String, Object> wfParams = new HashMap<>();
         Map<String, Object> nonWfParams = new HashMap<>();
-        EntityDAO entityDAO = new EntityDAO();
-        String tenant = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-        String nameWithTenant = UserCoreUtil.addTenantDomainToEntry(userName, tenant);
-        String fullyQualifiedName = UserCoreUtil.addDomainToName(nameWithTenant, userStoreDomain);
-        boolean isExistingUser = entityDAO.updateEntityLockedState(fullyQualifiedName, "USER", "DELETE");
-        if (!isExistingUser && !Boolean.TRUE.equals(getWorkFlowCompleted())) {
-            return false;
+        if (!Boolean.TRUE.equals(getWorkFlowCompleted())) {
+            EntityDAO entityDAO = new EntityDAO();
+            EntityRelationshipDAO entityRelationshipDAO = new EntityRelationshipDAO();
+            String tenant = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+            String nameWithTenant = UserCoreUtil.addTenantDomainToEntry(userName, tenant);
+            String fullyQualifiedName = UserCoreUtil.addDomainToName(nameWithTenant, userStoreDomain);
+            boolean isExistingUser = entityDAO.updateEntityLockedState(fullyQualifiedName, "USER", "DELETE");
+            if (!isExistingUser) {
+                throw new WorkflowException("Already deleted user.");
+            }
+            if (!entityRelationshipDAO.checkIfEntityHasAnyRelationShip(fullyQualifiedName, "USER")) {
+                throw new WorkflowException("User has pending workflows.");
+            }
         }
+
         wfParams.put(USERNAME, userName);
         wfParams.put(USER_STORE_DOMAIN, userStoreDomain);
         return startWorkFlow(wfParams, nonWfParams);
@@ -96,11 +104,10 @@ public class DeleteUserWFRequestHandler extends AbstractWorkflowRequestHandler {
                 userRealm.getUserStoreManager().deleteUser(userName);
 
                 if (WorkflowRequestStatus.APPROVED.toString().equals(status)) {
+                    String userNameWithoutDomain = UserCoreUtil.removeDomainFromName(userName);
                     EntityDAO entityDAO = new EntityDAO();
                     String tenant = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-                    String nameWithTenant = UserCoreUtil.addTenantDomainToEntry(UserCoreUtil.removeDomainFromName
-                                    (userName),
-                            tenant);
+                    String nameWithTenant = UserCoreUtil.addTenantDomainToEntry(userNameWithoutDomain, tenant);
                     String fullyQualifiedName = UserCoreUtil.addDomainToName(nameWithTenant, userStoreDomain);
                     entityDAO.deleteEntityLockedState(fullyQualifiedName, "USER", "DELETE");
                 }
@@ -108,10 +115,10 @@ public class DeleteUserWFRequestHandler extends AbstractWorkflowRequestHandler {
                 throw new WorkflowException("Error when re-requesting addUser operation for " + userName, e);
             }
         } else {
+            String userNameWithoutDomain = UserCoreUtil.removeDomainFromName(userName);
             EntityDAO entityDAO = new EntityDAO();
             String tenant = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-            String nameWithTenant = UserCoreUtil.addTenantDomainToEntry(UserCoreUtil.removeDomainFromName(userName),
-                    tenant);
+            String nameWithTenant = UserCoreUtil.addTenantDomainToEntry(userNameWithoutDomain, tenant);
             String fullyQualifiedName = UserCoreUtil.addDomainToName(nameWithTenant, userStoreDomain);
             entityDAO.deleteEntityLockedState(fullyQualifiedName, "USER", "DELETE");
             if (retryNeedAtCallback()) {

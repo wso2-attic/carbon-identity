@@ -21,7 +21,10 @@ package org.wso2.carbon.identity.workflow.mgt.impl.userstore;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.identity.workflow.mgt.extension.AbstractWorkflowRequestHandler;
+import org.wso2.carbon.identity.workflow.mgt.impl.dao.EntityDAO;
+import org.wso2.carbon.identity.workflow.mgt.impl.dao.EntityRelationshipDAO;
 import org.wso2.carbon.identity.workflow.mgt.util.WorkflowDataType;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.util.WorkflowRequestStatus;
@@ -29,6 +32,7 @@ import org.wso2.carbon.identity.workflow.mgt.impl.internal.IdentityWorkflowDataH
 import org.wso2.carbon.user.api.UserRealm;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.service.RealmService;
+import org.wso2.carbon.user.core.util.UserCoreUtil;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -58,6 +62,24 @@ public class UpdateRoleNameWFRequestHandler extends AbstractWorkflowRequestHandl
             WorkflowException {
         Map<String, Object> wfParams = new HashMap<>();
         Map<String, Object> nonWfParams = new HashMap<>();
+        if (!Boolean.TRUE.equals(getWorkFlowCompleted())) {
+            EntityDAO entityDAO = new EntityDAO();
+            EntityRelationshipDAO entityRelationshipDAO = new EntityRelationshipDAO();
+            String tenant = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+            String nameWithTenant = UserCoreUtil.addTenantDomainToEntry(roleName, tenant);
+            String fullyQualifiedName = UserCoreUtil.addDomainToName(nameWithTenant, userStoreDomain);
+            String newNameWithTenant = UserCoreUtil.addTenantDomainToEntry(newRoleName, tenant);
+            String fullyQualifiedNewName = UserCoreUtil.addDomainToName(newNameWithTenant, userStoreDomain);
+            if (!entityDAO.checkEntityLocked(fullyQualifiedName, "ROLE") || !entityDAO.checkEntityLocked
+                    (fullyQualifiedNewName, "ROLE") || !entityRelationshipDAO.checkIfEntityHasAnyRelationShip
+                    (fullyQualifiedName, "ROLE") || !entityDAO.updateEntityLockedState(fullyQualifiedName, "ROLE",
+                    "RENAME") || !entityDAO.updateEntityLockedState(fullyQualifiedNewName, "ROLE", "RENAME")) {
+                throw new WorkflowException("Role cannot rename, it is currently pending in 1 or more workflows.");
+            }
+            entityRelationshipDAO.addNewRelationship(fullyQualifiedName, "ROLE", fullyQualifiedNewName, "ROLE",
+                    "RENAME");
+
+        }
         wfParams.put(ROLENAME, roleName);
         wfParams.put(NEW_ROLENAME, newRoleName);
         wfParams.put(USER_STORE_DOMAIN, userStoreDomain);
@@ -93,7 +115,36 @@ public class UpdateRoleNameWFRequestHandler extends AbstractWorkflowRequestHandl
             } catch (UserStoreException e) {
                 throw new WorkflowException("Error when re-requesting updateRoleName operation for " + roleName, e);
             }
+
+            if (WorkflowRequestStatus.APPROVED.toString().equals(status)) {
+                String roleNameWithoutDomain = UserCoreUtil.removeDomainFromName(roleName);
+                String newRoleNameWithoutDomain = UserCoreUtil.removeDomainFromName(newRoleName);
+                EntityDAO entityDAO = new EntityDAO();
+                EntityRelationshipDAO entityRelationshipDAO = new EntityRelationshipDAO();
+                String tenant = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+                String nameWithTenant = UserCoreUtil.addTenantDomainToEntry(roleNameWithoutDomain, tenant);
+                String fullyQualifiedName = UserCoreUtil.addDomainToName(nameWithTenant, userStoreDomain);
+                String newNameWithTenant = UserCoreUtil.addTenantDomainToEntry(newRoleNameWithoutDomain, tenant);
+                String fullyQualifiedNewName = UserCoreUtil.addDomainToName(newNameWithTenant, userStoreDomain);
+                entityRelationshipDAO.deleteEntityRelationshipState(fullyQualifiedName, "ROLE",
+                        fullyQualifiedNewName, "ROLE", "RENAME");
+                entityDAO.deleteEntityLockedState(fullyQualifiedName, "ROLE", "RENAME");
+                entityDAO.deleteEntityLockedState(fullyQualifiedNewName, "ROLE", "RENAME");
+            }
         } else {
+            String roleNameWithoutDomain = UserCoreUtil.removeDomainFromName(roleName);
+            String newRoleNameWithoutDomain = UserCoreUtil.removeDomainFromName(newRoleName);
+            EntityDAO entityDAO = new EntityDAO();
+            EntityRelationshipDAO entityRelationshipDAO = new EntityRelationshipDAO();
+            String tenant = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+            String nameWithTenant = UserCoreUtil.addTenantDomainToEntry(roleNameWithoutDomain, tenant);
+            String fullyQualifiedName = UserCoreUtil.addDomainToName(nameWithTenant, userStoreDomain);
+            String newNameWithTenant = UserCoreUtil.addTenantDomainToEntry(newRoleNameWithoutDomain, tenant);
+            String fullyQualifiedNewName = UserCoreUtil.addDomainToName(newNameWithTenant, userStoreDomain);
+            entityRelationshipDAO.deleteEntityRelationshipState(fullyQualifiedName, "ROLE",
+                    fullyQualifiedNewName, "ROLE", "RENAME");
+            entityDAO.deleteEntityLockedState(fullyQualifiedName, "ROLE", "RENAME");
+            entityDAO.deleteEntityLockedState(fullyQualifiedNewName, "ROLE", "RENAME");
             if (retryNeedAtCallback()) {
                 //unset threadlocal variable
                 unsetWorkFlowCompleted();

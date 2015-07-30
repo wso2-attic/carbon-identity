@@ -21,7 +21,10 @@ package org.wso2.carbon.identity.workflow.mgt.impl.userstore;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.identity.workflow.mgt.extension.AbstractWorkflowRequestHandler;
+import org.wso2.carbon.identity.workflow.mgt.impl.dao.EntityDAO;
+import org.wso2.carbon.identity.workflow.mgt.impl.dao.EntityRelationshipDAO;
 import org.wso2.carbon.identity.workflow.mgt.util.WorkflowDataType;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.util.WorkflowRequestStatus;
@@ -30,6 +33,7 @@ import org.wso2.carbon.user.api.Permission;
 import org.wso2.carbon.user.api.UserRealm;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.service.RealmService;
+import org.wso2.carbon.user.core.util.UserCoreUtil;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -63,16 +67,40 @@ public class AddRoleWFRequestHandler extends AbstractWorkflowRequestHandler {
 
     public boolean startAddRoleFlow(String userStoreDomain, String role, String[] userList, Permission[] permissions)
             throws WorkflowException {
-        if(permissions == null){
+        if (permissions == null) {
             permissions = new Permission[0];
         }
-        if(userList == null){
+        if (userList == null) {
             userList = new String[0];
         }
         List<String> permissionList = new ArrayList<>(permissions.length);
         for (int i = 0; i < permissions.length; i++) {
             permissionList.add(permissions[i].getResourceId() + SEPARATOR + permissions[i].getAction());
         }
+        if (!Boolean.TRUE.equals(getWorkFlowCompleted())) {
+            EntityDAO entityDAO = new EntityDAO();
+            EntityRelationshipDAO entityRelationshipDAO = new EntityRelationshipDAO();
+            String[] fullyQulalifiedUserList = new String[userList.length];
+            String tenant = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+            for (int i = 0; i < userList.length; i++) {
+                String nameWithTenant = UserCoreUtil.addTenantDomainToEntry(userList[i], tenant);
+                fullyQulalifiedUserList[i] = UserCoreUtil.addDomainToName(nameWithTenant, userStoreDomain);
+            }
+            if (fullyQulalifiedUserList.length > 0 && !entityDAO.checkEntityListLocked(fullyQulalifiedUserList,
+                    "USER")) {
+                throw new WorkflowException("Can't assign role to 1 or more given users");
+            }
+
+            String nameWithTenant = UserCoreUtil.addTenantDomainToEntry(role, tenant);
+            String fullyQualifiedName = UserCoreUtil.addDomainToName(nameWithTenant, userStoreDomain);
+            if (!entityDAO.checkEntityLocked(fullyQualifiedName, "ROLE") || !entityDAO.updateEntityLockedState
+                    (fullyQualifiedName, "ROLE", "ADD")) {
+                throw new WorkflowException("Role has already been added before.");
+            }
+            entityRelationshipDAO.addNewRelationships(fullyQualifiedName, "ROLE", fullyQulalifiedUserList, "USER",
+                    "ADD");
+        }
+
         Map<String, Object> wfParams = new HashMap<>();
         Map<String, Object> nonWfParams = new HashMap<>();
         wfParams.put(ROLENAME, role);
@@ -158,10 +186,43 @@ public class AddRoleWFRequestHandler extends AbstractWorkflowRequestHandler {
                 RealmService realmService = IdentityWorkflowDataHolder.getInstance().getRealmService();
                 UserRealm userRealm = realmService.getTenantUserRealm(tenantId);
                 userRealm.getUserStoreManager().addRole(roleName, users, permissions);
+                if (WorkflowRequestStatus.APPROVED.toString().equals(status)) {
+                    String roleNameWithoutDomain = UserCoreUtil.removeDomainFromName(roleName);
+                    EntityDAO entityDAO = new EntityDAO();
+                    EntityRelationshipDAO entityRelationshipDAO = new EntityRelationshipDAO();
+                    String tenant = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+                    String nameWithTenant = UserCoreUtil.addTenantDomainToEntry(roleNameWithoutDomain,
+                            tenant);
+                    String fullyQualifiedName = UserCoreUtil.addDomainToName(nameWithTenant, userStoreDomain);
+                    entityDAO.deleteEntityLockedState(fullyQualifiedName, "ROLE", "ADD");
+                    String[] fullyQulalifiedUserList = new String[users.length];
+                    for (int i = 0; i < users.length; i++) {
+                        nameWithTenant = UserCoreUtil.addTenantDomainToEntry(users[i], tenant);
+                        fullyQulalifiedUserList[i] = UserCoreUtil.addDomainToName(nameWithTenant, userStoreDomain);
+                    }
+                    entityRelationshipDAO.deleteEntityRelationshipStates(fullyQualifiedName, "ROLE",
+                            fullyQulalifiedUserList, "USER", "ADD");
+                }
             } catch (UserStoreException e) {
                 throw new WorkflowException("Error when re-requesting addRole operation for " + roleName, e);
             }
         } else {
+            String roleNameWithoutDomain = UserCoreUtil.removeDomainFromName(roleName);
+            EntityDAO entityDAO = new EntityDAO();
+            EntityRelationshipDAO entityRelationshipDAO = new EntityRelationshipDAO();
+            String tenant = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+            String nameWithTenant = UserCoreUtil.addTenantDomainToEntry(roleNameWithoutDomain,
+                    tenant);
+            String fullyQualifiedName = UserCoreUtil.addDomainToName(nameWithTenant, userStoreDomain);
+            entityDAO.deleteEntityLockedState(fullyQualifiedName, "ROLE", "ADD");
+            String[] fullyQulalifiedUserList = new String[users.length];
+            for (int i = 0; i < users.length; i++) {
+                nameWithTenant = UserCoreUtil.addTenantDomainToEntry(users[i], tenant);
+                fullyQulalifiedUserList[i] = UserCoreUtil.addDomainToName(nameWithTenant, userStoreDomain);
+            }
+            entityRelationshipDAO.deleteEntityRelationshipStates(fullyQualifiedName, "ROLE",
+                    fullyQulalifiedUserList, "USER", "ADD");
+
             if (retryNeedAtCallback()) {
                 //unset threadlocal variable
                 unsetWorkFlowCompleted();
