@@ -73,12 +73,8 @@
             topPage="true"
             request="<%=request%>"/>
 
-    <script type="text/javascript" src="../carbon/admin/js/breadcrumbs.js"></script>
-    <script type="text/javascript" src="../carbon/admin/js/cookies.js"></script>
-    <script type="text/javascript" src="../carbon/admin/js/main.js"></script>
-
     <div id="middle">
-        <h2><fmt:message key='claim.management'/></h2>
+        <h2><fmt:message key='add-claim.management'/></h2>
 
         <div id="workArea">
             <script type="text/javascript">
@@ -93,16 +89,11 @@
                             }, null);
                 }
 
-                function formUrl() {
-                    var element = document.getElementById("select-claim-dialect").value;
-                    window.location = "add-claim.jsp?dialect="+element;
-                }
-
             </script>
 
 
-            <table>
-                <tr>
+            <table class="styledLeft" id="internal" name="internal" width="100%">
+                <tr class="tableOddRow">
                     <td style="width: 30px;">
                         <div style="height:30px;">
                             <a href="javascript:document.location.href='add-dialect.jsp?extuser=<%=haveExternalUserStore%>'"
@@ -112,70 +103,19 @@
                         </div>
                     </td>
                 </tr>
-                <tr>
+                <tr class="tableEvenRow">
                     <td style="width: 30px;">
                         <div style="height:30px;">
-                            <a href="javascript:formUrl()"
+                            <a href="javascript:document.location.href='add-claim.jsp'"
                                class="icon-link"
                                style="background-image:url(../admin/images/add.gif);"><fmt:message
                                     key='add.new.claim.mapping'/></a>
                         </div>
                     </td>
-                    <td style="width: 30px;">
-                        <form method="post" name="add-claim-mappings">
-                            <select id="select-claim-dialect" name="select-claim-dialect">
-                                <%
-                                    if (claimDialectDTO != null && claimDialectDTO.length > 0) {
-                                        for (int i = 0; i < claimDialectDTO.length; i++) {
-                                %>
-                                <option value="<%=claimDialectDTO[i].getDialectURI()%>"><%=claimDialectDTO[i].getDialectURI()%>
-                                </option>
-                                <%
-                                        }
-                                    }
-                                %>
-                            </select>
-                        </form>
-                    </td>
                 </tr>
 
             </table>
 
-
-            <%--<table style="width: 100%" class="styledLeft">--%>
-                <%--<thead>--%>
-                <%--<tr>--%>
-                    <%--<th colspan="2"><fmt:message--%>
-                            <%--key='available.claim.dialctes.for.internal.user.stores'/></th>--%>
-                <%--</tr>--%>
-                <%--</thead>--%>
-                <%--<tbody>--%>
-                <%--<%--%>
-                    <%--if (claimDialectDTO != null && claimDialectDTO.length > 0) {--%>
-                        <%--for (int i = 0; i < claimDialectDTO.length; i++) {--%>
-                <%--%>--%>
-                <%--<tr>--%>
-                    <%--<td width="50%"><a--%>
-                            <%--href="claim-view.jsp?store=<%=UserCoreConstants.INTERNAL_USERSTORE%>&dialect=<%=claimDialectDTO[i].getDialectURI()%>"><%=claimDialectDTO[i].getDialectURI()%>--%>
-                    <%--</a></td>--%>
-                    <%--<td width="50%"><a title="<fmt:message key='remove.claim.dialect'/>"--%>
-                                       <%--onclick="removeItem('<%=UserCoreConstants.INTERNAL_USERSTORE%>','<%=claimDialectDTO[i].getDialectURI()%>','<%=UserCoreConstants.DEFAULT_CARBON_DIALECT%>');return false;"--%>
-                                       <%--href="#" style="background-image: url(images/delete.gif);"--%>
-                                       <%--class="icon-link"><fmt:message key='delete'/></a></td>--%>
-                <%--</tr>--%>
-                <%--<%--%>
-                    <%--}--%>
-                <%--} else {--%>
-                <%--%>--%>
-                <%--<tr>--%>
-                    <%--<td width="100%" colspan="2"><i><fmt:message--%>
-                            <%--key='no.claim.mappings.available'/></i></td>--%>
-                <%--</tr>--%>
-                <%--<%--%>
-                    <%--}--%>
-                <%--%>--%>
-                <%--</tbody>--%>
-            <%--</table>--%>
             <br/>
         </div>
     </div>

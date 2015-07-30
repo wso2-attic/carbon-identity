@@ -335,7 +335,7 @@
 </script>
 
 <div id="middle">
-<h2><fmt:message key="user.store.manager.configuration"/></h2>
+<h2><fmt:message key="add-user.store.manager.configuration"/></h2>
 
 <div id="workArea">
 <form id="dataForm" name="dataForm" method="post" action="">

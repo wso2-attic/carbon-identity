@@ -162,13 +162,6 @@
 
     }
 
-    //    function getOrder() {
-    //        var orderList = new Array();
-    //        jQuery('.valueCell a').each(function () {
-    //            orderList.push($(this).html());
-    //        });
-    //        return orderList;
-    //    }
 </script>
 
 
@@ -182,17 +175,6 @@
 
     <div id="workArea">
 
-
-        <%--<table style="border:none; margin-bottom:10px">--%>
-            <%--<tr>--%>
-                <%--<td>--%>
-                    <%--<a title="<fmt:message key='add'/>"--%>
-                       <%--onclick="edit('0','0');"--%>
-                       <%--href="#" style="background-image: url(images/add.gif);" class="icon-link">--%>
-                        <%--<fmt:message key='add.user.store'/></a>--%>
-                <%--</td>--%>
-            <%--</tr>--%>
-        <%--</table>--%>
 
 
         <table style="margin-top:10px;margin-bottom:10px">

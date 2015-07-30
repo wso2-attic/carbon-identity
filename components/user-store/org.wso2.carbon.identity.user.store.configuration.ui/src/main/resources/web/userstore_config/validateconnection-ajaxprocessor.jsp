@@ -17,7 +17,7 @@ String connectionPassword = request.getParameter("connectionPassword");
         String backendServerURL = CarbonUIUtil.getServerURL(config.getServletContext(), session);
         ConfigurationContext configContext =
                 (ConfigurationContext) config.getServletContext().getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
-    	UserStoreConfigAdminServiceClient client;
+    	UserStoreConfigAdminServ    iceClient client;
         try {
         	client = new UserStoreConfigAdminServiceClient(cookie, backendServerURL, configContext);;
         	

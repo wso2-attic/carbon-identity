@@ -110,11 +110,6 @@
                 <tr>
                     <td>
                         <table class="styledLeft" id="internal" width="100%">
-                            <thead>
-                            <tr>
-                                <th><fmt:message key="system.user.store"/></th>
-                            </tr>
-                            </thead>
                             <tr>
                                 <td>
                                     <a class="icon-link"
@@ -138,44 +133,6 @@
                 </tr>
             </table>
             <% } %>
-            <%--<%--%>
-                <%--UserStoreInfo userStoreInfo = Util.getUserStoreInfoForUser(currentUser, userRealmInfo);--%>
-                <%--if (!userStoreInfo.getReadOnly() && CarbonUIUtil.isUserAuthorized(request,--%>
-                                                                                  <%--"/permission/admin/login") && !userStoreInfo.getPasswordsExternallyManaged()) {--%>
-            <%--%>--%>
-            <%--<br/>--%>
-            <%--<table class="styledLeft">--%>
-                <%--<tbody>--%>
-                <%--<tr>--%>
-                    <%--<td class="middle-header">Change Password</td>--%>
-                <%--</tr>--%>
-                <%--<tr>--%>
-                    <%--<td>--%>
-                        <%--<a href="../user/change-passwd.jsp?isUserChange=true&returnPath=../userstore/index.jsp"--%>
-                           <%--style="background-image: url(images/keys.gif);" class="icon-link">--%>
-                            <%--<fmt:message key="change.my.password"/></a></td>--%>
-                <%--</tr>--%>
-                <%--</tbody>--%>
-            <%--</table>--%>
-            <%--<% }--%>
-                <%--if (!userStoreInfo.getReadOnly() && CarbonUIUtil.isContextRegistered(config, "/identity-mgt/") &&--%>
-                    <%--CarbonUIUtil.isUserAuthorized(request, "/permission/admin")) {%>--%>
-            <%--<br/>--%>
-            <%--<table class="styledLeft">--%>
-                <%--<tbody>--%>
-                <%--<tr>--%>
-                    <%--<td class="middle-header"><fmt:message key="manage.challenge.questions"/></td>--%>
-                <%--</tr>--%>
-                <%--<tr>--%>
-                    <%--<td>--%>
-                        <%--<a class="icon-link" style="background-image:url(images/keys.gif);"--%>
-                           <%--href="../identity-mgt/challenges-set-mgt.jsp"><fmt:message--%>
-                                <%--key="add.questions"/></a>--%>
-                    <%--</td>--%>
-                <%--</tr>--%>
-                <%--</tbody>--%>
-            <%--</table>--%>
-            <%--<% } %>--%>
 
         </div>
     </div>
