@@ -21,7 +21,10 @@ package org.wso2.carbon.identity.workflow.mgt.impl.userstore;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.identity.workflow.mgt.extension.AbstractWorkflowRequestHandler;
+import org.wso2.carbon.identity.workflow.mgt.impl.dao.EntityDAO;
+import org.wso2.carbon.identity.workflow.mgt.impl.dao.EntityRelationshipDAO;
 import org.wso2.carbon.identity.workflow.mgt.util.WorkflowDataType;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.util.WorkflowRequestStatus;
@@ -29,6 +32,7 @@ import org.wso2.carbon.identity.workflow.mgt.impl.internal.IdentityWorkflowDataH
 import org.wso2.carbon.user.api.UserRealm;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.service.RealmService;
+import org.wso2.carbon.user.core.util.UserCoreUtil;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -59,6 +63,22 @@ public class DeleteClaimWFRequestHandler extends AbstractWorkflowRequestHandler 
             profileName) throws WorkflowException {
         Map<String, Object> wfParams = new HashMap<>();
         Map<String, Object> nonWfParams = new HashMap<>();
+        if (!Boolean.TRUE.equals(getWorkFlowCompleted())) {
+            EntityDAO entityDAO = new EntityDAO();
+            EntityRelationshipDAO entityRelationshipDAO = new EntityRelationshipDAO();
+            String tenant = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+            String nameWithTenant = UserCoreUtil.addTenantDomainToEntry(userName, tenant);
+            String fullyQualifiedName = UserCoreUtil.addDomainToName(nameWithTenant, userStoreDomain);
+            if(!entityDAO.checkEntityLocked(fullyQualifiedName, "USER")){
+                throw new WorkflowException("User is currently pending on another workflow.");
+            }
+            if(!entityRelationshipDAO.isEntityRelatedToOneInList(fullyQualifiedName, "USER", new String[]{claimURI},
+            "CLAIM")){
+                throw new WorkflowException("This claim of this user is currently pending on another workflow.");
+            }
+            entityRelationshipDAO.addNewRelationship(fullyQualifiedName, "USER", claimURI, "CLAIM","DELETE");
+
+        }
         wfParams.put(USERNAME, userName);
         wfParams.put(USER_STORE_DOMAIN, userStoreDomain);
         wfParams.put(CLAIM_URI, claimURI);
@@ -92,11 +112,27 @@ public class DeleteClaimWFRequestHandler extends AbstractWorkflowRequestHandler 
                 RealmService realmService = IdentityWorkflowDataHolder.getInstance().getRealmService();
                 UserRealm userRealm = realmService.getTenantUserRealm(tenantId);
                 userRealm.getUserStoreManager().deleteUserClaimValue(userName, claimURI, profile);
+                if(WorkflowRequestStatus.APPROVED.toString().equals(status)){
+                    String userNameWithoutDomain = UserCoreUtil.removeDomainFromName(userName);
+                    EntityRelationshipDAO entityRelationshipDAO = new EntityRelationshipDAO();
+                    String tenant = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+                    String nameWithTenant = UserCoreUtil.addTenantDomainToEntry(userNameWithoutDomain, tenant);
+                    String fullyQualifiedName = UserCoreUtil.addDomainToName(nameWithTenant, userStoreDomain);
+                    entityRelationshipDAO.deleteEntityRelationshipState(fullyQualifiedName, "USER", claimURI,
+                            "CLAIM","DELETE");
+                }
             } catch (UserStoreException e) {
                 throw new WorkflowException("Error when re-requesting deleteUserClaimValue operation for " + userName,
                         e);
             }
         } else {
+            String userNameWithoutDomain = UserCoreUtil.removeDomainFromName(userName);
+            EntityRelationshipDAO entityRelationshipDAO = new EntityRelationshipDAO();
+            String tenant = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+            String nameWithTenant = UserCoreUtil.addTenantDomainToEntry(userNameWithoutDomain, tenant);
+            String fullyQualifiedName = UserCoreUtil.addDomainToName(nameWithTenant, userStoreDomain);
+            entityRelationshipDAO.deleteEntityRelationshipState(fullyQualifiedName, "USER", claimURI,
+                    "CLAIM","DELETE");
             if (retryNeedAtCallback()) {
                 //unset threadlocal variable
                 unsetWorkFlowCompleted();
