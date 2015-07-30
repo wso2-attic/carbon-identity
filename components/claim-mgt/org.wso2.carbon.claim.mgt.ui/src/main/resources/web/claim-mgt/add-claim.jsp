@@ -20,6 +20,13 @@
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar"
            prefix="carbon" %>
 <%@ page import="org.wso2.carbon.claim.mgt.stub.dto.ClaimDialectDTO" %>
+<%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
+<%@ page import="org.apache.axis2.context.ConfigurationContext" %>
+<%@ page import="org.wso2.carbon.CarbonConstants" %>
+<%@ page import="org.wso2.carbon.utils.ServerConstants" %>
+<%@ page import="org.wso2.carbon.claim.mgt.ui.client.ClaimAdminClient" %>
+<%@ page import="java.util.ResourceBundle" %>
+<%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
 
 <script type="text/javascript" src="../admin/js/main.js"></script>
 <jsp:include page="../dialog/display_messages.jsp"/>
@@ -30,8 +37,42 @@
 </style>
 
 <%
-    ClaimDialectDTO[] claimMappping = null;
-    String dialectUri = request.getParameter("dialect");
+    String serverURL = CarbonUIUtil.getServerURL(config
+            .getServletContext(), session);
+    ConfigurationContext configContext = (ConfigurationContext) config
+            .getServletContext().getAttribute(
+                    CarbonConstants.CONFIGURATION_CONTEXT);
+    String cookie = (String) session
+            .getAttribute(ServerConstants.ADMIN_SERVICE_COOKIE);
+    String forwardTo = null;
+    ClaimDialectDTO[] claimDialectDTO = null;
+
+    boolean haveExternalUserStore = false;
+    String BUNDLE = "org.wso2.carbon.claim.mgt.ui.i18n.Resources";
+    ResourceBundle resourceBundle = ResourceBundle.getBundle(BUNDLE, request.getLocale());
+
+    try {
+        ClaimAdminClient client = new ClaimAdminClient(cookie, serverURL, configContext);
+        claimDialectDTO = client.getAllClaimMappings();
+    } catch (Exception e) {
+        String message = resourceBundle.getString("error.while.loading.claim.mappings");
+        CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
+        forwardTo = "../admin/error.jsp";
+%>
+
+<%@page import="org.wso2.carbon.utils.ServerConstants" %>
+<%@page import="java.util.ResourceBundle" %>
+<script type="text/javascript">
+    function forward() {
+        location.href = "<%=forwardTo%>";
+    }
+</script>
+
+<script type="text/javascript">
+    forward();
+</script>
+<%
+    }
 %>
 
 
@@ -190,7 +231,7 @@
 
             </script>
 
-            <form name="addclaim" action="add-claim-submit.jsp?dialect=<%=dialectUri%>" method="post">
+            <form name="addclaim" action="add-claim-submit.jsp" method="post">
                 <table style="width: 100%" class="styledLeft">
                     <thead>
                     <tr>
@@ -201,6 +242,25 @@
                     <tr>
                         <td class="formRow">
                             <table class="normal" cellspacing="0">
+                                <tr>
+                                    <td class="leftCol-small"><fmt:message key='claim-dialect'/><font
+                                            color="red">*</font></td>
+                                    <td class="leftCol-big">
+                                        <select id="dialect" name="dialect">
+                                        <%
+                                            if (claimDialectDTO != null && claimDialectDTO.length > 0) {
+                                                for (int i = 0; i < claimDialectDTO.length; i++) {
+                                        %>
+                                        <option value="<%=claimDialectDTO[i].getDialectURI()%>"><%=claimDialectDTO[i].getDialectURI()%>
+                                        </option>
+                                        <%
+                                                }
+                                            }
+                                        %>
+                                    </select>
+                                    </td>
+                                </tr>
+
                                 <tr>
                                     <td class="leftCol-small"><fmt:message key='display.name'/><font
                                             color="red">*</font></td>
@@ -239,7 +299,7 @@
                                     <td class="leftCol-big">
                                         <input type="text" name="attribute" id="attribute" class="text-box-big"/>
 
-                                        <div class="sectionHelp" style="display: inline">
+                                        <div class="sectionHelp" style="display: block">
                                             <fmt:message key='help.mapped.attribute'/>
                                         </div>
                                     </td>
@@ -288,8 +348,7 @@
                         <td colspan="2" class="buttonRow">
                             <input type="button" value="<fmt:message key='add'/>" class="button" onclick="validate();"/>
                             <input class="button" type="button" value="<fmt:message key='cancel'/>"
-                                   onclick="javascript:document.location.href='claim-view.jsp?dialect=<%=dialectUri%>&ordinal=1'"/
-                                                                                                                                 >
+                                   onclick="javascript:document.location.href='add-dialect-claim.jsp?region=region1&item=claim_mgt_menu_add'"/>
                         </td>
                     </tr>
 

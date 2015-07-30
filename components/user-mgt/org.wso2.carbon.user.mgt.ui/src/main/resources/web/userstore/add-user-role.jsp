@@ -97,7 +97,7 @@
 
 
     <div id="middle">
-        <h2><fmt:message key="user.management"/></h2>
+        <h2><fmt:message key="add.user.management"/></h2>
 
         <div id="workArea">
             <table width="100%">
@@ -114,7 +114,7 @@
                                 <td>
                                     <a class="icon-link"
                                        style="background-image:url(images/users.gif);"
-                                       href="../user/user-mgt.jsp"><fmt:message key="users"/></a>
+                                       href="../user/add-step1.jsp"><fmt:message key="add-users"/></a>
                                 </td>
                             </tr>
 
@@ -124,7 +124,7 @@
                                 <td>
                                     <a class="icon-link"
                                        style="background-image:url(images/user-roles.gif);"
-                                       href="../role/role-mgt.jsp"><fmt:message key="roles"/></a>
+                                       href="../role/add-step1.jsp"><fmt:message key="add-roles"/></a>
                                 </td>
                             </tr>
                             <% } %>
