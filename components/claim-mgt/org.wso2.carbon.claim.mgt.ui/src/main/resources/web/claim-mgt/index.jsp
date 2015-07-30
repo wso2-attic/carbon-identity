@@ -93,12 +93,6 @@
                             }, null);
                 }
             </script>
-            <%--<div style="height:30px;">--%>
-                <%--<a href="javascript:document.location.href='add-dialect.jsp?extuser=<%=haveExternalUserStore%>'"--%>
-                   <%--class="icon-link"--%>
-                   <%--style="background-image:url(../admin/images/add.gif);"><fmt:message--%>
-                        <%--key='add.new.claim.dialect'/></a>--%>
-            <%--</div>--%>
             <table style="width: 100%" class="styledLeft">
                 <thead>
                 <tr>

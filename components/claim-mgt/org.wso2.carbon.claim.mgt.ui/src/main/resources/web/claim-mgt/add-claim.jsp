@@ -299,7 +299,7 @@
                                     <td class="leftCol-big">
                                         <input type="text" name="attribute" id="attribute" class="text-box-big"/>
 
-                                        <div class="sectionHelp" style="display: inline">
+                                        <div class="sectionHelp" style="display: block">
                                             <fmt:message key='help.mapped.attribute'/>
                                         </div>
                                     </td>

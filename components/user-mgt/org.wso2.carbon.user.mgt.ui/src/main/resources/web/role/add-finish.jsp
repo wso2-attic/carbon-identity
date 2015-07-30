@@ -41,8 +41,8 @@
     ResourceBundle resourceBundle = ResourceBundle.getBundle(BUNDLE, request.getLocale());
     try {
         roleName = CharacterEncoder.getSafeText(roleBean.getRoleName());
-        roleType = roleBean.getR		leType();
-        if (roleType == null &&
+        roleType = roleBean.getRoleType();
+        if ((roleType == null || "null".equals(roleType)) &&
                 UserCoreConstants.INTERNAL_USERSTORE.equalsIgnoreCase(UserCoreUtil.extractDomainFromName(roleName))) {
             roleType = UserCoreConstants.INTERNAL_USERSTORE;
         }
@@ -55,8 +55,8 @@
 
         roleBean.addRoleUsers((Map<String, Boolean>) session.getAttribute("checkedUsersMap"));
 
-        if(UserAdminUIConstants.INTERNAL_ROLE.equals(roleType)){
-            client.addInternalRole(roleName, roleBean.getRoleUsers(),
+        if(UserAdminUIConstants.INTERNAL_ROLE.equalsIgnoreCase(roleType)){
+            client.addInternalRole(UserCoreUtil.removeDomainFromName(roleName), roleBean.getRoleUsers(),
                                                                 roleBean.getSelectedPermissions());
         } else {
             client.addRole(roleName, roleBean.getRoleUsers(), roleBean.getSelectedPermissions(), isSharedRole);

@@ -540,13 +540,6 @@
                                 "/permission/admin/configure/security/usermgt/users")) {
             %>
             <table width="100%" border="0" cellpadding="0" cellspacing="0" style="margin-top:2px;">
-                <%--<tr>--%>
-                    <%--<td class="addNewSecurity">--%>
-                        <%--<a href="add-step1.jsp" class="icon-link"--%>
-                           <%--style="background-image:url(images/add.gif);"><fmt:message--%>
-                                <%--key="add.new.user"/></a>--%>
-                    <%--</td>--%>
-                <%--</tr>--%>
 
                 <%
                     if (!multipleUserStores && userRealmInfo.getBulkImportSupported()) {
