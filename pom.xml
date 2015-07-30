@@ -14,7 +14,8 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.wso2.carbon.identity</groupId>
@@ -928,7 +929,7 @@
                 <version>${carbon.identity.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.openid4java.wso2</groupId>
+                <groupId>org.wso2.orbit.org.openid4java</groupId>
                 <artifactId>openid4java-nodeps</artifactId>
                 <version>${openid4java.wso2.version}</version>
             </dependency>
@@ -1935,8 +1936,8 @@
         <charon.wso2.version.identity>2.0.0-wso2v4</charon.wso2.version.identity>
         <charon.core.imp.pkg.version.range>[2.0.0,2.1.0)</charon.core.imp.pkg.version.range>
         <openid4java.version>0.9.6</openid4java.version>
-        <openid4java.wso2.version>0.9.6.wso2v4-SNAPSHOT</openid4java.wso2.version>
-        <openid4java.wso2.osgi.version.range>[0.9.6.wso2v4-SNAPSHOT,0.10)</openid4java.wso2.osgi.version.range>
+        <openid4java.wso2.version>0.9.6.wso2v4</openid4java.wso2.version>
+        <openid4java.wso2.osgi.version.range>[0.9.6.wso2v4,0.10)</openid4java.wso2.osgi.version.range>
         <opensaml2.version>2.4.1.wso2v1</opensaml2.version>
         <opensaml.wso2.version>1.1.0.wso2v1</opensaml.wso2.version>
         <balana.version>1.0.0.wso2v8</balana.version>
