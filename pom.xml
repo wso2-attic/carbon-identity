@@ -1879,9 +1879,9 @@
         <orbit.version.maven-scm>1.7.0.wso2v1</orbit.version.maven-scm>
 
         <!-- Rampart -->
-        <rampart.wso2.version>1.6.1.wso2v14</rampart.wso2.version>
-        <rampart.wso2.osgi.version.range>[1.6.1,1.6.2)</rampart.wso2.osgi.version.range>
-        <rampart.mar.version>1.6.1.wso2v14</rampart.mar.version>
+        <rampart.wso2.version>1.6.1.wso2v15</rampart.wso2.version>
+        <rampart.wso2.osgi.version.range>[1.6.1,1.7.0)</rampart.wso2.osgi.version.range>
+        <rampart.mar.version>1.6.1.wso2v15</rampart.mar.version>
 
         <!-- Equinox -->
         <version.equinox.osgi.services>3.3.100.v20130513-1956</version.equinox.osgi.services>
