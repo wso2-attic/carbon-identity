@@ -29,6 +29,7 @@ import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.core.util.AdminServicesUtil;
 import org.wso2.carbon.core.util.AnonymousSessionUtil;
 import org.wso2.carbon.identity.base.IdentityException;
+import org.wso2.carbon.identity.base.IdentityRuntimeException;
 import org.wso2.carbon.identity.core.internal.IdentityCoreServiceComponent;
 import org.wso2.carbon.registry.core.Registry;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
@@ -223,13 +224,14 @@ public class IdentityTenantUtil {
         }
     }
 
-    public static int getTenantID(String tenantDomain) throws IdentityException {
+    public static int getTenantID(String tenantDomain) throws IdentityRuntimeException {
 
         int tenantId;
         try {
             tenantId = realmService.getTenantManager().getTenantId(tenantDomain);
         } catch (UserStoreException e) {
-            throw new IdentityException(e.getMessage(), e);
+            //
+            throw new IdentityRuntimeException("Error occurred while retrieving tnenat" + e.getMessage(), e);
         }
         return tenantId;
     }
