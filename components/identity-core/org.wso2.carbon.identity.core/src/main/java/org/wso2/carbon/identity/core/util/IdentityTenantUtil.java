@@ -230,8 +230,12 @@ public class IdentityTenantUtil {
         try {
             tenantId = realmService.getTenantManager().getTenantId(tenantDomain);
         } catch (UserStoreException e) {
-            //
-            throw new IdentityRuntimeException("Error occurred while retrieving tnenat" + e.getMessage(), e);
+            // Ideally user.core should be throwing an unchecked exception, in which case no need to wrap at this
+            // level once more without adding any valuable contextual information. Because we don't have exception
+            // enrichment properly implemented, we are appending the error message from the UserStoreException to the
+            // new message
+            throw new IdentityRuntimeException("Error occurred while retrieving tenantId for tenantDomain: " +
+                    tenantDomain + e.getMessage(), e);
         }
         return tenantId;
     }
