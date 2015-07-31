@@ -79,7 +79,6 @@
         <module>features/provisioning</module>
         <module>features/tools</module>
         <module>features/notification-mgt</module>
-        <module>features/user-account-association</module>
         <module>features/idp-mgt</module>
         <module>features/directory-server-manager</module>
         <module>features/sts</module>
