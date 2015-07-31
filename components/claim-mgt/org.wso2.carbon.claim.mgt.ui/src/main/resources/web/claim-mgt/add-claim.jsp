@@ -77,7 +77,7 @@
 
 
 <fmt:bundle basename="org.wso2.carbon.claim.mgt.ui.i18n.Resources">
-    <carbon:breadcrumb label="claim.add"
+    <carbon:breadcrumb label="add.new.claim.mapping"
                        resourceBundle="org.wso2.carbon.claim.mgt.ui.i18n.Resources"
                        topPage="false" request="<%=request%>"/>
 
@@ -86,7 +86,7 @@
     <script type="text/javascript" src="../carbon/admin/js/main.js"></script>
 
     <div id="middle">
-        <h2><fmt:message key='claim.management'/></h2>
+        <h2><fmt:message key='add.new.claim.mapping'/></h2>
 
         <div id="workArea">
 
