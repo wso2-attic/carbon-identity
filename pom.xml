@@ -72,7 +72,6 @@
         <module>features/xacml</module>
         <module>features/oauth</module>
         <module>features/sso-saml</module>
-        <module>features/passive-sts</module>
         <module>features/authentication-framework</module>
         <module>features/application-authenticators</module>
         <module>features/scim</module>
