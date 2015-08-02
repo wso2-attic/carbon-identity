@@ -26,15 +26,15 @@
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>sts-feature</artifactId>
+    <artifactId>user-account-association</artifactId>
     <packaging>pom</packaging>
-    <name>WSO2 Carbon - STS Feature Aggregator Module</name>
+    <name>WSO2 Carbon User Account Association Feature Aggregator Module</name>
     <url>http://wso2.org</url>
 
     <modules>
-        <module>org.wso2.carbon.sts.ui.feature</module>
-        <module>org.wso2.carbon.sts.server.feature</module>
-        <module>org.wso2.carbon.sts.feature</module>
+        <module>org.wso2.carbon.identity.user.account.association.ui.feature</module>
+        <module>org.wso2.carbon.identity.user.account.association.server.feature</module>
+        <module>org.wso2.carbon.identity.user.account.association.feature</module>
     </modules>
 
 </project>

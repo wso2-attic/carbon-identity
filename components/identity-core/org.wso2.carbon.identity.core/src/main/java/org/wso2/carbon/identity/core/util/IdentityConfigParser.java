@@ -104,7 +104,7 @@ public class IdentityConfigParser {
                 }
             } else {
 
-                File identityConfigXml = new File(IdentityUtil.getIdentityConfigDirPath(), IDENTITY_CONFIG);
+                File identityConfigXml = new File(CarbonUtils.getCarbonConfigDirPath(), IDENTITY_CONFIG);
                 if (identityConfigXml.exists()) {
                     inStream = new FileInputStream(identityConfigXml);
                 }
