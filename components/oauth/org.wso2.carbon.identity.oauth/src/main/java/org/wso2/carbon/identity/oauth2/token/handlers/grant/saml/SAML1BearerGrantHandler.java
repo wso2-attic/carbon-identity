@@ -22,20 +22,21 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.joda.time.DateTime;
-import org.opensaml.Configuration;
 import org.opensaml.DefaultBootstrap;
-import org.opensaml.saml1.core.*;
 import org.opensaml.saml1.core.Assertion;
+import org.opensaml.saml1.core.Audience;
+import org.opensaml.saml1.core.AudienceRestrictionCondition;
+import org.opensaml.saml1.core.AuthenticationStatement;
+import org.opensaml.saml1.core.Conditions;
+import org.opensaml.saml1.core.ConfirmationMethod;
+import org.opensaml.saml1.core.Subject;
+import org.opensaml.saml1.core.SubjectConfirmation;
 import org.opensaml.security.SAMLSignatureProfileValidator;
 import org.opensaml.xml.ConfigurationException;
 import org.opensaml.xml.XMLObject;
-import org.opensaml.xml.io.Unmarshaller;
-import org.opensaml.xml.io.UnmarshallerFactory;
 import org.opensaml.xml.security.x509.X509Credential;
 import org.opensaml.xml.signature.SignatureValidator;
 import org.opensaml.xml.validation.ValidationException;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
 import org.wso2.carbon.identity.application.common.model.FederatedAuthenticatorConfig;
@@ -43,27 +44,26 @@ import org.wso2.carbon.identity.application.common.model.IdentityProvider;
 import org.wso2.carbon.identity.application.common.model.Property;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
+import org.wso2.carbon.identity.base.IdentityException;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.oauth.common.OAuthConstants;
 import org.wso2.carbon.identity.oauth.config.OAuthServerConfiguration;
-import org.wso2.carbon.identity.oauth.internal.OAuthComponentServiceHolder;
 import org.wso2.carbon.identity.oauth2.IdentityOAuth2Exception;
 import org.wso2.carbon.identity.oauth2.model.RequestParameter;
 import org.wso2.carbon.identity.oauth2.token.OAuthTokenReqMessageContext;
 import org.wso2.carbon.identity.oauth2.token.handlers.grant.AbstractAuthorizationGrantHandler;
-import org.wso2.carbon.identity.oauth2.token.handlers.grant.saml.SAML2TokenCallbackHandler;
+import org.wso2.carbon.identity.oauth2.util.OAuth2Util;
 import org.wso2.carbon.identity.oauth2.util.X509CredentialImpl;
 import org.wso2.carbon.idp.mgt.IdentityProviderManager;
-import org.wso2.carbon.user.api.UserStoreException;
-import org.wso2.carbon.user.core.service.RealmService;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Properties;
+import java.util.Set;
 
 /**
  * This implements SAML 1.0 Bearer Assertion Profile(this is to be documented) for OAuth 2.0
@@ -74,7 +74,6 @@ public class SAML1BearerGrantHandler extends AbstractAuthorizationGrantHandler {
 
     SAMLSignatureProfileValidator profileValidator = null;
     private boolean audienceRestrictionValidationEnabled = false;
-    public static final String OAUTH_SAML_1_BEARER_METHOD = "urn:oasis:names:tc:SAML:1.0:cm:bearer";
     private static final String SAML10_BEARER_GRANT_TYPE_CONFIG_FILE = "SAML10_BearerGrantType.properties";
 
     public void init() throws IdentityOAuth2Exception {
@@ -88,7 +87,7 @@ public class SAML1BearerGrantHandler extends AbstractAuthorizationGrantHandler {
         try {
             DefaultBootstrap.bootstrap();
         } catch (ConfigurationException e) {
-            String errorMessage = "Error in bootstrapping the OpenSAML2 library";
+            String errorMessage = "Error in bootstrapping the OpenSAML library";
             log.error(errorMessage, e);
             throw new IdentityOAuth2Exception(errorMessage, e);
         } finally {
@@ -106,7 +105,7 @@ public class SAML1BearerGrantHandler extends AbstractAuthorizationGrantHandler {
                         Boolean.parseBoolean(grantTypeProperties.getProperty("audienceRestrictionValidationEnabled"));
                 if (log.isDebugEnabled()) {
                     log.debug("Audience restriction validation enabled is set to " +
-                              audienceRestrictionValidationEnabled);
+                            audienceRestrictionValidationEnabled);
                 }
             } catch (IOException e) {
                 log.warn(
@@ -159,21 +158,18 @@ public class SAML1BearerGrantHandler extends AbstractAuthorizationGrantHandler {
             }
         }
 
-        // Logging the SAML token
         if (log.isDebugEnabled()) {
             log.debug("Received SAML assertion : " +
-                      new String(Base64.decodeBase64(tokReqMsgCtx.getOauth2AccessTokenReqDTO().getAssertion()))
-            );
+                      new String(Base64.decodeBase64(tokReqMsgCtx.getOauth2AccessTokenReqDTO().getAssertion())));
         }
 
         try {
-            XMLObject samlObject = unmarshall(
-                    new String(Base64.decodeBase64(tokReqMsgCtx.getOauth2AccessTokenReqDTO().getAssertion())));
+            XMLObject samlObject = IdentityUtil.unmarshall(new String(Base64.decodeBase64(
+                    tokReqMsgCtx.getOauth2AccessTokenReqDTO().getAssertion())));
             assertion = (Assertion) samlObject;
-        } catch (IdentityOAuth2Exception e) {
-            // fault in the saml token
+        } catch (IdentityException e) {
             if (log.isDebugEnabled()) {
-                log.debug("Error occurred while unmarshalling SAML assertion", e);
+                log.debug("Error occurred while unmarshalling SAML1.0 assertion", e);
             }
             return false;
         }
@@ -207,7 +203,7 @@ public class SAML1BearerGrantHandler extends AbstractAuthorizationGrantHandler {
                     }
                     return false;
                 }
-                tokReqMsgCtx.setAuthorizedUser(resourceOwnerUserName);
+                tokReqMsgCtx.setAuthorizedUser(OAuth2Util.getUserFromUserName(resourceOwnerUserName));
                 if (log.isDebugEnabled()) {
                     log.debug("Resource Owner User Name is set to " + resourceOwnerUserName);
                 }
@@ -389,15 +385,14 @@ public class SAML1BearerGrantHandler extends AbstractAuthorizationGrantHandler {
             SubjectConfirmation subjectConfirmation = subject.getSubjectConfirmation();
             List<ConfirmationMethod> confirmationMethods = subjectConfirmation.getConfirmationMethods();
             for (ConfirmationMethod confirmationMethod : confirmationMethods) {
-                if (OAUTH_SAML_1_BEARER_METHOD.equals(confirmationMethod.getConfirmationMethod())) {
+                if (OAuthConstants.OAUTH_SAML1_BEARER_METHOD.equals(confirmationMethod.getConfirmationMethod())) {
                     bearerFound = true;
                 }
 
             }
             if (!bearerFound) {
                 if (log.isDebugEnabled()) {
-                    log.debug(
-                            "Cannot find Method attribute in SubjectConfirmation " + subject.getSubjectConfirmation());
+                    log.debug("Cannot find Method attribute in SubjectConfirmation " + subject.getSubjectConfirmation());
                 }
                 return false;
             }
@@ -461,9 +456,10 @@ public class SAML1BearerGrantHandler extends AbstractAuthorizationGrantHandler {
         try {
             profileValidator.validate(assertion.getSignature());
         } catch (ValidationException e) {
-            // Indicates signature did not conform to SAML Signature profile
-            log.error("Indicates signature did not conform to SAML Signature profile", e);
-            log.debug(e.getMessage());
+            // Indicates signature did not conform to SAML1.0 Signature profile
+            if(log.isDebugEnabled()) {
+                log.debug("Signature did not conform to SAML1.0 Signature profile", e);
+            }
             return false;
         }
 
@@ -472,22 +468,21 @@ public class SAML1BearerGrantHandler extends AbstractAuthorizationGrantHandler {
             x509Certificate = (X509Certificate) IdentityApplicationManagementUtil
                     .decodeCertificate(identityProvider.getCertificate());
         } catch (CertificateException e) {
-            log.error(e.getMessage(), e);
-            log.error("Error occurred while decoding public certificate of Identity Provider "
-                      + identityProvider.getIdentityProviderName() + " for tenant domain " + tenantDomain);
-            throw new IdentityOAuth2Exception("Error occurred while decoding public certificate of Identity Provider "
-                                              + identityProvider.getIdentityProviderName() + " for tenant domain " +
-                                              tenantDomain);
+            String message = "Error occurred while decoding public certificate of Identity Provider "
+                    + identityProvider.getIdentityProviderName() + " for tenant domain " + tenantDomain;
+            throw new IdentityOAuth2Exception(message, e);
         }
 
         try {
             X509Credential x509Credential = new X509CredentialImpl(x509Certificate);
             SignatureValidator signatureValidator = new SignatureValidator(x509Credential);
             signatureValidator.validate(assertion.getSignature());
-            log.debug("Signature validation successful");
+            if(log.isDebugEnabled()) {
+                log.debug("Signature validation successful");
+            }
         } catch (ValidationException e) {
             if (log.isDebugEnabled()) {
-                log.debug("Signature validation failure due to" + e.getMessage(), e);
+                log.debug("Signature validation failure:" + e.getMessage(), e);
             }
             return false;
         }
@@ -520,48 +515,4 @@ public class SAML1BearerGrantHandler extends AbstractAuthorizationGrantHandler {
     public boolean authorizeAccessDelegation(OAuthTokenReqMessageContext tokReqMsgCtx) throws IdentityOAuth2Exception {
         return true;
     }
-
-    /**
-     * Constructing the SAML or XACML Objects from a String
-     *
-     * @param xmlString Decoded SAML or XACML String
-     * @return SAML or XACML Object
-     * @throws org.wso2.carbon.identity.base.IdentityException
-     */
-    private XMLObject unmarshall(String xmlString) throws IdentityOAuth2Exception {
-        Unmarshaller unmarshaller;
-        try {
-            DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-            documentBuilderFactory.setNamespaceAware(true);
-            DocumentBuilder docBuilder = documentBuilderFactory.newDocumentBuilder();
-            Document document = docBuilder.parse(new ByteArrayInputStream(xmlString.trim().getBytes()));
-            Element element = document.getDocumentElement();
-            UnmarshallerFactory unmarshallerFactory = Configuration.getUnmarshallerFactory();
-            unmarshaller = unmarshallerFactory.getUnmarshaller(element);
-            return unmarshaller.unmarshall(element);
-        } catch (Exception e) {
-            throw new IdentityOAuth2Exception("Error in constructing XML Object from the encoded String :" + xmlString,
-                                              e);
-        }
-    }
-
-    /**
-     * Helper method to get tenantId from userName
-     *
-     * @param tenantDomain
-     * @return tenantId
-     * @throws org.wso2.carbon.identity.oauth2.IdentityOAuth2Exception
-     */
-    private int getTenantId(String tenantDomain) throws IdentityOAuth2Exception {
-        //get tenant domain from user name
-        RealmService realmService = OAuthComponentServiceHolder.getRealmService();
-        try {
-            int tenantId = realmService.getTenantManager().getTenantId(tenantDomain);
-            return tenantId;
-        } catch (UserStoreException e) {
-            //do not log
-            throw new IdentityOAuth2Exception("Error in obtaining tenantId from Domain :" + tenantDomain, e);
-        }
-    }
-
 }
