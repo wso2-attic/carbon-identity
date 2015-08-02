@@ -20,29 +20,22 @@
 
     <parent>
         <groupId>org.wso2.carbon.identity</groupId>
-        <artifactId>sts-feature</artifactId>
+        <artifactId>user-account-association</artifactId>
         <version>4.5.4-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>org.wso2.carbon.identity.sts.passive.feature</artifactId>
+    <artifactId>org.wso2.carbon.identity.user.account.association.server.feature</artifactId>
     <packaging>pom</packaging>
-    <name>Passive STS feature</name>
+    <name>WSO2 Carbon User Account Association Server Feature</name>
     <url>http://wso2.org</url>
-    <description>This feature contains the bundles required for Passive STS functionality
-    </description>
+    <description>This feature contains the core bundles required for Back-end user account association functionality</description>
 
     <dependencies>
         <dependency>
             <groupId>org.wso2.carbon.identity</groupId>
-            <artifactId>org.wso2.carbon.identity.sts.passive.server.feature</artifactId>
-            <type>zip</type>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon.identity</groupId>
-            <artifactId>org.wso2.carbon.identity.sts.passive.ui.feature</artifactId>
-            <type>zip</type>
+            <artifactId>org.wso2.carbon.identity.user.account.association</artifactId>
         </dependency>
     </dependencies>
 
@@ -60,16 +53,22 @@
                             <goal>p2-feature-gen</goal>
                         </goals>
                         <configuration>
-                            <id>org.wso2.carbon.identity.sts.passive</id>
+                            <id>org.wso2.carbon.identity.user.account.association.server</id>
                             <propertiesFile>../../etc/feature.properties</propertiesFile>
-                            <includedFeatures>
-                                <includedFeatureDef>
-                                    org.wso2.carbon.identity:org.wso2.carbon.identity.sts.passive.server.feature
-                                </includedFeatureDef>
-                                <includedFeatureDef>
-                                    org.wso2.carbon.identity:org.wso2.carbon.identity.sts.passive.ui.feature
-                                </includedFeatureDef>
-                            </includedFeatures>
+                            <adviceFile>
+                                <properties>
+                                    <propertyDef>org.wso2.carbon.p2.category.type:server</propertyDef>
+                                    <propertyDef>org.eclipse.equinox.p2.type.group:false</propertyDef>
+                                </properties>
+                            </adviceFile>
+                            <bundles>
+                                <bundleDef>org.wso2.carbon.identity:org.wso2.carbon.identity.user.account.association</bundleDef>
+                            </bundles>
+                            <importFeatures>
+                                <importFeatureDef>org.wso2.carbon.core:${carbon.kernel.version}</importFeatureDef>
+                                <importFeatureDef>org.wso2.carbon.security.mgt.server:${carbon.identity.version}</importFeatureDef>
+                                <importFeatureDef>org.wso2.carbon.identity.application.mgt.server:${carbon.identity.version}</importFeatureDef>
+                            </importFeatures>
                         </configuration>
                     </execution>
                 </executions>

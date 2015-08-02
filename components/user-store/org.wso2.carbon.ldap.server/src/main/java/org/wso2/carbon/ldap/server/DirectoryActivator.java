@@ -148,8 +148,8 @@ public class DirectoryActivator implements BundleActivator {
 
     private File getLdapConfigurationFile() throws EmbeddingLDAPException {
 
-        String configurationFilePath =  "repository" + File.separator + "conf" + File.separator + "identity"
-                + File.separator + "embedded-ldap.xml";
+        String configurationFilePath = "repository" + File.separator + "conf" + File.separator +
+                "embedded-ldap.xml";
         return new File(getCarbonHome(), configurationFilePath);
     }
 

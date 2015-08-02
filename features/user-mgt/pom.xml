@@ -42,8 +42,5 @@
         <module>org.wso2.carbon.identity.user.profile.ui.feature</module>
         <module>org.wso2.carbon.identity.user.profile.server.feature</module>
         <module>org.wso2.carbon.identity.user.profile.feature</module>
-        <module>org.wso2.carbon.identity.user.account.association.ui.feature</module>
-        <module>org.wso2.carbon.identity.user.account.association.server.feature</module>
-        <module>org.wso2.carbon.identity.user.account.association.feature</module>
     </modules>
 </project>
