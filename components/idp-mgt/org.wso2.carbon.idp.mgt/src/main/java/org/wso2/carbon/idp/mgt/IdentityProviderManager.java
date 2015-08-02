@@ -19,13 +19,11 @@
 package org.wso2.carbon.idp.mgt;
 
 import org.apache.axiom.om.util.Base64;
-import org.apache.axis2.engine.AxisConfiguration;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
-import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.core.util.KeyStoreManager;
 import org.wso2.carbon.identity.application.common.ApplicationAuthenticatorService;
@@ -42,7 +40,6 @@ import org.wso2.carbon.identity.application.common.model.ProvisioningConnectorCo
 import org.wso2.carbon.identity.application.common.model.RoleMapping;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
-import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.idp.mgt.dao.CacheBackedIdPMgtDAO;
@@ -53,11 +50,8 @@ import org.wso2.carbon.idp.mgt.util.IdPManagementConstants;
 import org.wso2.carbon.idp.mgt.util.IdPManagementUtil;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.api.UserStoreManager;
-import org.wso2.carbon.utils.CarbonUtils;
-import org.wso2.carbon.utils.NetworkUtils;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
-import java.net.SocketException;
 import java.security.KeyStore;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
@@ -124,9 +118,7 @@ public class IdentityProviderManager {
             tenantContext = MultitenantConstants.TENANT_AWARE_URL_PREFIX + "/" + tenantDomain + "/";
         }
 
-        String serverUrl = "";
-        serverUrl = IdentityUtil.getServerURL();
-        serverUrl += "/";
+        String serverUrl = IdentityUtil.getServerURL() + "/";
         String stsUrl = serverUrl + "services/" + tenantContext + "wso2carbon-sts";
         String openIdUrl = serverUrl + "openid";
         String samlSSOUrl = serverUrl + "samlsso";

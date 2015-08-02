@@ -273,7 +273,7 @@ public class IdentityUtil {
         return CarbonUtils.getCarbonConfigDirPath() + File.separator + "identity";
     }
 
-    public static String getServerURL() {
+    public static String getServerURL() throws IdentityRuntimeException {
         String hostName = ServerConfiguration.getInstance().getFirstProperty(IdentityCoreConstants.HOST_NAME);
 
         try {
