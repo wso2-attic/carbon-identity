@@ -613,11 +613,11 @@ function clearAll() {
 
 <tr>
     <td colspan="2">
-        <input type="checkbox" name="enableAssertionSignature" value="true"
+        <%--<input type="checkbox" name="enableAssertionSignature" value="true"
                onclick="disableAssertionSignature(this);"
-                <%=(isEditSP && provider.getDoSignAssertions() ? "checked=\"checked\"" : "")%> />
-            <%--<input type="hidden" name="enableAssertionSignature" value="true"/>--%>
-        <fmt:message key="do.assertion.signature"/>
+                <%=(isEditSP && provider.getDoSignAssertions() ? "checked=\"checked\"" : "")%> />--%>
+            <input type="hidden" name="enableAssertionSignature" value="true"/>
+        <%--<fmt:message key="do.assertion.signature"/>--%>
     </td>
 </tr>
 <!-- enableSigValidation -->
