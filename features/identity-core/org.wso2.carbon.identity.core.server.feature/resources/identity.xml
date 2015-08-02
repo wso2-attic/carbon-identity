@@ -168,10 +168,8 @@
         <AccessTokenPartitioningDomains><!-- A:foo.com, B:bar.com --></AccessTokenPartitioningDomains>
         <AuthorizationContextTokenGeneration>
             <Enabled>false</Enabled>
-            <TokenGeneratorImplClass>org.wso2.carbon.identity.oauth2.authcontext.JWTTokenGenerator
-            </TokenGeneratorImplClass>
-            <ClaimsRetrieverImplClass>org.wso2.carbon.identity.oauth2.authcontext.DefaultClaimsRetriever
-            </ClaimsRetrieverImplClass>
+            <TokenGeneratorImplClass>org.wso2.carbon.identity.oauth2.authcontext.JWTTokenGenerator</TokenGeneratorImplClass>
+            <ClaimsRetrieverImplClass>org.wso2.carbon.identity.oauth2.authcontext.DefaultClaimsRetriever</ClaimsRetrieverImplClass>
             <ConsumerDialectURI>http://wso2.org/claims</ConsumerDialectURI>
             <SignatureAlgorithm>SHA256withRSA</SignatureAlgorithm>
             <AuthorizationContextTTL>15</AuthorizationContextTTL>
