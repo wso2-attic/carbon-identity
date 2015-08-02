@@ -152,11 +152,12 @@ public class IdentityApplicationConstants {
 
     public static class OAuth10A {
 
+        public static final String NAME = "oauth10a";
         public static final String CONSUMER_KEY = "ConsumerKey";
         public static final String CONSUMER_SECRET = "ConsumerSecret";
-        public static final String OAUTH10A_REQ_URL = "OAuth10AReqTokenUrl";
-        public static final String OAUTH10A_AUTHZ_URL = "OAuth10AAuthzTokenUrl";
-        public static final String OAUTH10A_ACCESS_URL = "OAuth10AAccessTokenUrl";
+        public static final String OAUTH1_REQUEST_TOKEN_URL = "OAuth1RequestTokenUrl";
+        public static final String OAUTH1_AUTHORIZE_URL = "OAuth1AuthorizeUrl";
+        public static final String OAUTH1_ACCESS_TOKEN_URL = "OAuth1AccessTokenUrl";
 
         private OAuth10A(){
         }
@@ -167,8 +168,9 @@ public class IdentityApplicationConstants {
         public static final String NAME = "oauth2";
         public static final String CLIENT_ID = "ClientId";
         public static final String CLIENT_SECRET = "ClientSecret";
-        public static final String OAUTH2_AUTHZ_URL = "OAuth2AuthzUrl";
-        public static final String OAUTH2_TOKEN_URL = "OAUTH2TokenUrl";
+        public static final String OAUTH2_AUTHZ_URL = "OAuth2AuthzEPUrl";
+        public static final String OAUTH2_TOKEN_URL = "OAuth2TokenEPUrl";
+        public static final String OAUTH2_USER_INFO_EP_URL = "OAuth2UserInfoEPUrl";
 
         private OAuth2(){
         }

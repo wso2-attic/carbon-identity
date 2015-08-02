@@ -39,6 +39,9 @@
     String idPEntityId = null;
     String samlSSOUrl = null;
     String samlSLOUrl = null;
+    String oauth1RequestTokenUrl = null;
+    String oauth1AuthorizeUrl = null;
+    String oauth1AccessTokenUrl = null;
     String authzUrl = null;
     String tokenUrl = null;
     String userInfoUrl = null;
@@ -58,13 +61,20 @@
                     IdentityApplicationConstants.Authenticator.SAML2SSO.SSO_URL).getValue();
             samlSLOUrl = IdPManagementUIUtil.getProperty(properties,
                     IdentityApplicationConstants.Authenticator.SAML2SSO.LOGOUT_REQ_URL).getValue();
+        } else if(IdentityApplicationConstants.OAuth10A.NAME.equals(federatedAuthenticator.getName())){
+            oauth1RequestTokenUrl = IdPManagementUIUtil.getProperty(properties,
+                    IdentityApplicationConstants.OAuth10A.OAUTH1_REQUEST_TOKEN_URL).getValue();
+            oauth1AuthorizeUrl = IdPManagementUIUtil.getProperty(properties,
+                    IdentityApplicationConstants.OAuth10A.OAUTH1_AUTHORIZE_URL).getValue();
+            oauth1AccessTokenUrl = IdPManagementUIUtil.getProperty(properties,
+                    IdentityApplicationConstants.OAuth10A.OAUTH1_ACCESS_TOKEN_URL).getValue();
         } else if(IdentityApplicationConstants.Authenticator.OIDC.NAME.equals(federatedAuthenticator.getName())){
             authzUrl = IdPManagementUIUtil.getProperty(properties,
                     IdentityApplicationConstants.Authenticator.OIDC.OAUTH2_AUTHZ_URL).getValue();
             tokenUrl = IdPManagementUIUtil.getProperty(properties,
                     IdentityApplicationConstants.Authenticator.OIDC.OAUTH2_TOKEN_URL).getValue();
             userInfoUrl = IdPManagementUIUtil.getProperty(properties,
-                    IdentityApplicationConstants.Authenticator.OIDC.USER_INFO_URL).getValue();
+                    IdentityApplicationConstants.Authenticator.OIDC.OAUTH2_USER_INFO_EP_URL).getValue();
         } else if(IdentityApplicationConstants.Authenticator.PassiveSTS.NAME.equals(federatedAuthenticator.getName())){
             passiveSTSUrl = IdPManagementUIUtil.getProperty(properties,
                     IdentityApplicationConstants.Authenticator.PassiveSTS.PASSIVE_STS_URL).getValue();
@@ -220,6 +230,27 @@ jQuery(document).ready(function(){
                             <td><%=samlSLOUrl%></td>
                         </tr>
                     </table>
+                    </div>
+
+                    <h2 id="oauth1confighead"  class="sectionSeperator trigger active" style="background-color: beige;">
+                        <a href="#"><fmt:message key='oauth1.config'/></a>
+                    </h2>
+                    <div class="toggle_container sectionSub" style="margin-bottom:10px;display:none" id="oauth1config">
+
+                        <table class="carbonFormTable">
+                            <tr>
+                                <td class="leftCol-med labelField"><fmt:message key='oauth1.request.endpoint'/>:</td>
+                                <td><%=oauth1RequestTokenUrl%></td>
+                            </tr>
+                            <tr>
+                                <td class="leftCol-med labelField"><fmt:message key='oauth1.authz.endpoint'/>:</td>
+                                <td><%=oauth1AuthorizeUrl%></td>
+                            </tr>
+                            <tr>
+                                <td class="leftCol-med labelField"><fmt:message key='oauth1.access.endpoint'/>:</td>
+                                <td><%=oauth1AccessTokenUrl%></td>
+                            </tr>
+                        </table>
                     </div>
 
                     <h2 id="oidcconfighead"  class="sectionSeperator trigger active" style="background-color: beige;">

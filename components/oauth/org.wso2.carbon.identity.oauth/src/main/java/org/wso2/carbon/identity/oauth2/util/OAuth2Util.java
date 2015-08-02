@@ -26,6 +26,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.application.common.model.User;
 import org.wso2.carbon.identity.core.model.OAuthAppDO;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.oauth.IdentityOAuthAdminException;
 import org.wso2.carbon.identity.oauth.cache.CacheEntry;
 import org.wso2.carbon.identity.oauth.cache.OAuthCache;
@@ -586,4 +587,62 @@ public class OAuth2Util {
         throw  new IllegalArgumentException("Cannot create user from empty user name");
     }
 
+    public static String getIDTokenIssuer() {
+        String issuer = OAuthServerConfiguration.getInstance().getOpenIDConnectIDTokenIssuerIdentifier();
+        if (StringUtils.isBlank(issuer)) {
+            issuer = OAuthURL.getOAuth2TokenEPUrl();
+        }
+        return issuer;
+    }
+
+    public static class OAuthURL {
+
+        public static String getOAuth1RequestTokenUrl() {
+            String oauth1RequestTokenUrl = OAuthServerConfiguration.getInstance().getOAuth1RequestTokenUrl();
+            if(StringUtils.isBlank(oauth1RequestTokenUrl)){
+                oauth1RequestTokenUrl = IdentityUtil.getServerURL() + "/oauth/request-token";
+            }
+            return oauth1RequestTokenUrl;
+        }
+
+        public static String getOAuth1AuthorizeUrl() {
+            String oauth1AuthorizeUrl = OAuthServerConfiguration.getInstance().getOAuth1AuthorizeUrl();
+            if(StringUtils.isBlank(oauth1AuthorizeUrl)){
+                oauth1AuthorizeUrl = IdentityUtil.getServerURL() + "/oauth/authorize-url";
+            }
+            return oauth1AuthorizeUrl;
+        }
+
+        public static String getOAuth1AccessTokenUrl() {
+            String oauth1AccessTokenUrl = OAuthServerConfiguration.getInstance().getOAuth1AccessTokenUrl();
+            if(StringUtils.isBlank(oauth1AccessTokenUrl)){
+                oauth1AccessTokenUrl = IdentityUtil.getServerURL() + "/oauth/access-token";
+            }
+            return oauth1AccessTokenUrl;
+        }
+
+        public static String getOAuth2AuthzEPUrl() {
+            String oauth2AuthzEPUrl = OAuthServerConfiguration.getInstance().getOAuth2AuthzEPUrl();
+            if(StringUtils.isBlank(oauth2AuthzEPUrl)){
+                oauth2AuthzEPUrl = IdentityUtil.getServerURL() + "/oauth2/authorize";
+            }
+            return oauth2AuthzEPUrl;
+        }
+
+        public static String getOAuth2TokenEPUrl() {
+            String oauth2TokenEPUrl = OAuthServerConfiguration.getInstance().getOAuth2TokenEPUrl();
+            if(StringUtils.isBlank(oauth2TokenEPUrl)){
+                oauth2TokenEPUrl = IdentityUtil.getServerURL() + "/oauth2/token";
+            }
+            return oauth2TokenEPUrl;
+        }
+
+        public static String getOAuth2UserInfoEPUrl() {
+            String oauth2UserInfoEPUrl = OAuthServerConfiguration.getInstance().getOauth2UserInfoEPUrl();
+            if(StringUtils.isBlank(oauth2UserInfoEPUrl)){
+                oauth2UserInfoEPUrl = IdentityUtil.getServerURL() + "/oauth2/userinfo";
+            }
+            return oauth2UserInfoEPUrl;
+        }
+    }
 }
