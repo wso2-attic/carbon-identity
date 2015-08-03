@@ -125,12 +125,7 @@ public class IdentityProviderManager {
         }
 
         String serverUrl = "";
-        try {
-            serverUrl = IdentityUtil.getServerURL();
-        } catch (IdentityException e) {
-            throw new IdentityApplicationManagementException(e.getMessage(), e);
-        }
-
+        serverUrl = IdentityUtil.getServerURL();
         serverUrl += "/";
         String stsUrl = serverUrl + "services/" + tenantContext + "wso2carbon-sts";
         String openIdUrl = serverUrl + "openid";

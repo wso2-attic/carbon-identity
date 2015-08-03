@@ -52,13 +52,15 @@ public class UserStoreBasedIdentityDataStore extends InMemoryIdentityDataStore {
             return FALSE_STRING;
         }
     };
+
     /**
      * This method stores data in the read write user stores.
      */
     @Override
     public void store(UserIdentityClaimsDO userIdentityDTO, UserStoreManager userStoreManager) throws IdentityException {
 
-        UserIdentityClaimsDO newIdentityClaimDO = new UserIdentityClaimsDO(userIdentityDTO.getUserName(), userIdentityDTO.getUserDataMap());
+        UserIdentityClaimsDO newIdentityClaimDO = new UserIdentityClaimsDO(userIdentityDTO.getUserName(),
+                userIdentityDTO.getUserDataMap());
         super.store(newIdentityClaimDO, userStoreManager);
 
         if (userIdentityDTO.getUserName() == null) {
@@ -66,21 +68,23 @@ public class UserStoreBasedIdentityDataStore extends InMemoryIdentityDataStore {
             return;
         }
         String username = UserCoreUtil.removeDomainFromName(userIdentityDTO.getUserName());
-        // using userstore implementations directly to avoid listeners which can cause for infinite loops
-        try {
-            if (userStoreManager instanceof JDBCUserStoreManager) {
-                ((JDBCUserStoreManager) userStoreManager).doSetUserClaimValues(username, userIdentityDTO.getUserDataMap(), null);
-            } else if (userStoreManager instanceof ActiveDirectoryUserStoreManager) {
-                ((ActiveDirectoryUserStoreManager) userStoreManager).doSetUserClaimValues(username, userIdentityDTO.getUserDataMap(), null);
-            } else if (userStoreManager instanceof ReadWriteLDAPUserStoreManager) {
-                ((ReadWriteLDAPUserStoreManager) userStoreManager).doSetUserClaimValues(username, userIdentityDTO.getUserDataMap(), null);
-            } else {
-                throw new IdentityException("Cannot persist identity data in to the user store");
-            }
 
-        } catch (org.wso2.carbon.user.api.UserStoreException e) {
-            throw new IdentityException("Error while persisting identity user data in to user store", e);
-        }
+            try {
+                // Check if the user store is read only. If it is read only and still uses user store based data
+                // store then log a warn.
+                if(!userStoreManager.isReadOnly()) {
+                    // Need to clone the map. If not iterative calls will refer the same map
+                    userStoreManager.setUserClaimValues(username, new HashMap<String,String>
+                            (userIdentityDTO.getUserDataMap()), null);
+                } else {
+                    // If the user store is read only and still uses UserStoreBasedIdentityDataStore, then log a warn
+                        log.warn("User store is read only. Changes to identities are only stored in memory, " +
+                                "and not updated in user store.");
+                    return;
+                }
+            } catch (UserStoreException e) {
+                throw new IdentityException("Error while persisting identity user data in to user store", e);
+            }
     }
 
     /**

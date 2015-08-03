@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.carbon.identity.oauth2.util;
+package org.wso2.carbon.identity.base;
 
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
@@ -31,6 +31,4 @@ public class CarbonEntityResolver implements EntityResolver {
             IOException {
         throw new SAXException("SAML request contains invalid elements. Possible XML External Entity (XXE) attack.");
     }
-
-
 }
