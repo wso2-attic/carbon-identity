@@ -102,7 +102,7 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
     public String buildIDToken(OAuthTokenReqMessageContext request, OAuth2AccessTokenRespDTO tokenRespDTO)
             throws IdentityOAuth2Exception {
 
-        String issuer = config.getOpenIDConnectIDTokenIssuerIdentifier();
+        String issuer = OAuth2Util.getIDTokenIssuer();
         long lifetime = Integer.parseInt(config.getOpenIDConnectIDTokenExpiration());
         long curTime = Calendar.getInstance().getTimeInMillis() / 1000;
         // setting subject

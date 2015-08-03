@@ -81,6 +81,12 @@ public class OAuthServerConfiguration {
             "org.wso2.carbon.identity.oauth2.token.handlers.grant.iwa.ntlm.NTLMAuthenticationGrantHandler";
     private static Log log = LogFactory.getLog(OAuthServerConfiguration.class);
     private static OAuthServerConfiguration instance;
+    private static String oauth1RequestTokenUrl = null;
+    private static String oauth1AuthorizeUrl = null;
+    private static String oauth1AccessTokenUrl = null;
+    private static String oauth2AuthzEPUrl = null;
+    private static String oauth2TokenEPUrl = null;
+    private static String oauth2UserInfoEPUrl = null;
     private long authorizationCodeValidityPeriodInSeconds = 300;
     private long userAccessTokenValidityPeriodInSeconds = 3600;
     private long applicationAccessTokenValidityPeriodInSeconds = 3600;
@@ -121,7 +127,7 @@ public class OAuthServerConfiguration {
     private String openIDConnectIDTokenCustomClaimsHanlderClassName = "org.wso2.carbon.identity.openidconnect.SAMLAssertionClaimsCallback";
     private IDTokenBuilder openIDConnectIDTokenBuilder = null;
     private CustomClaimsCallbackHandler openidConnectIDTokenCustomClaimsCallbackHandler = null;
-    private String openIDConnectIDTokenIssuerIdentifier = "OIDCAuthzServer";
+    private String openIDConnectIDTokenIssuerIdentifier = null;
     private String openIDConnectIDTokenSubClaim = "http://wso2.org/claims/fullname";
     private String openIDConnectSkipUserConsent = "true";
     private String openIDConnectIDTokenExpiration = "300";
@@ -177,6 +183,9 @@ public class OAuthServerConfiguration {
             // read default timeout periods
             parseDefaultValidityPeriods(oauthElem);
 
+            // read OAuth URLs
+            parseOAuthURLs(oauthElem);
+
             // read caching configurations
             parseCachingConfiguration(oauthElem);
 
@@ -222,6 +231,30 @@ public class OAuthServerConfiguration {
 
     public Set<OAuthCallbackHandlerMetaData> getCallbackHandlerMetaData() {
         return callbackHandlerMetaData;
+    }
+
+    public String getOAuth1RequestTokenUrl() {
+        return oauth1RequestTokenUrl;
+    }
+
+    public String getOAuth1AuthorizeUrl() {
+        return oauth1AuthorizeUrl;
+    }
+
+    public String getOAuth1AccessTokenUrl() {
+        return oauth1AccessTokenUrl;
+    }
+
+    public String getOAuth2AuthzEPUrl() {
+        return oauth2AuthzEPUrl;
+    }
+
+    public String getOAuth2TokenEPUrl() {
+        return oauth2TokenEPUrl;
+    }
+
+    public String getOauth2UserInfoEPUrl() {
+        return oauth2UserInfoEPUrl;
     }
 
     public long getAuthorizationCodeValidityPeriodInSeconds() {
@@ -831,6 +864,52 @@ public class OAuthServerConfiguration {
         }
     }
 
+    private void parseOAuthURLs(OMElement oauthConfigElem) {
+
+        OMElement elem = oauthConfigElem.getFirstChildWithName(getQNameWithIdentityNS(
+                ConfigElements.OAUTH1_REQUEST_TOKEN_URL));
+        if(elem != null){
+            if(StringUtils.isNotBlank(elem.getText())) {
+                oauth1RequestTokenUrl = elem.getText();
+            }
+        }
+        elem = oauthConfigElem.getFirstChildWithName(getQNameWithIdentityNS(
+                ConfigElements.OAUTH1_AUTHORIZE_URL));
+        if(elem != null){
+            if(StringUtils.isNotBlank(elem.getText())) {
+                oauth1AuthorizeUrl = elem.getText();
+            }
+        }
+        elem = oauthConfigElem.getFirstChildWithName(getQNameWithIdentityNS(
+                ConfigElements.OAUTH1_ACCESS_TOKEN_URL));
+        if(elem != null){
+            if(StringUtils.isNotBlank(elem.getText())) {
+                oauth1AccessTokenUrl = elem.getText();
+            }
+        }
+        elem = oauthConfigElem.getFirstChildWithName(getQNameWithIdentityNS(
+                ConfigElements.OAUTH2_AUTHZ_EP_URL));
+        if(elem != null){
+            if(StringUtils.isNotBlank(elem.getText())) {
+                oauth2AuthzEPUrl = elem.getText();
+            }
+        }
+        elem = oauthConfigElem.getFirstChildWithName(getQNameWithIdentityNS(
+                ConfigElements.OAUTH2_TOKEN_EP_URL));
+        if(elem != null){
+            if(StringUtils.isNotBlank(elem.getText())) {
+                oauth2TokenEPUrl = elem.getText();
+            }
+        }
+        elem = oauthConfigElem.getFirstChildWithName(getQNameWithIdentityNS(
+                ConfigElements.OAUTH2_USERINFO_EP_URL));
+        if(elem != null){
+            if(StringUtils.isNotBlank(elem.getText())) {
+                oauth2UserInfoEPUrl = elem.getText();
+            }
+        }
+    }
+
     private void parseCachingConfiguration(OMElement oauthConfigElem) {
         OMElement enableCacheElem =
                 oauthConfigElem.getFirstChildWithName(getQNameWithIdentityNS(ConfigElements.ENABLE_CACHE));
@@ -1225,6 +1304,14 @@ public class OAuthServerConfiguration {
      * Localpart names for the OAuth configuration in identity.xml.
      */
     private class ConfigElements {
+
+        // URLs
+        public static final String OAUTH1_REQUEST_TOKEN_URL = "OAuth1RequestTokenUrl";
+        public static final String OAUTH1_AUTHORIZE_URL = "OAuth1AuthorizeUrl";
+        public static final String OAUTH1_ACCESS_TOKEN_URL = "OAuth1AccessTokenUrl";
+        public static final String OAUTH2_AUTHZ_EP_URL = "OAuth2AuthzEPUrl";
+        public static final String OAUTH2_TOKEN_EP_URL = "OAuth2TokenEPUrl";
+        public static final String OAUTH2_USERINFO_EP_URL = "OAuth2UserInfoEPUrl";
 
         // JWT Generator
         public static final String AUTHORIZATION_CONTEXT_TOKEN_GENERATION = "AuthorizationContextTokenGeneration";
