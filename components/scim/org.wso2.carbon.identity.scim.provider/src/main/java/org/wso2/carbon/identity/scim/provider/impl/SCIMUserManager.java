@@ -1004,12 +1004,37 @@ public class SCIMUserManager implements UserManager {
                     updated = true;
                 }
 
-                // find out added members and deleted members..
-                List<String> oldMembers = oldGroup.getMembersWithDisplayName();
                 //SCIM request does not have operation attribute for new members need be added hence parsing null
                 List<String> addRequestedMembers = newGroup.getMembersWithDisplayName(null);
                 List<String> deleteRequestedMembers =
                         newGroup.getMembersWithDisplayName(SCIMConstants.CommonSchemaConstants.OPERATION_DELETE);
+
+                //Handling meta data attributes coming from SCIM request. Through meta attributes all existing members
+                // can be replaced with new set of members
+                if (SCIMConstants.GroupSchemaConstants.MEMBERS.equals(newGroup.getAttributesOfMeta().get(0))) {
+                    if (!deleteRequestedMembers.isEmpty()) {
+                        log.warn(
+                                "All Existing members will be deleted through SCIM meta attributes Hence operation " +
+                                "delete is Invalid");
+                        deleteRequestedMembers = new ArrayList<>();
+                    }
+                    String users[] = carbonUM.getUserListOfRole(newGroup.getDisplayName());
+                    if (addRequestedMembers.isEmpty()) {
+                        carbonUM.updateUserListOfRole(newGroup.getDisplayName(), users, new String[0]);
+                    } else {
+                        //If new set of members contains an old members, save those old members without deleting from user store
+                        List<String> membersDeleteFromUserStore = new ArrayList<String>();
+                        for (String user : users) {
+                            if (!addRequestedMembers.contains(user)) {
+                                membersDeleteFromUserStore.add(user);
+                            }
+                        }
+                        carbonUM.updateUserListOfRole(newGroup.getDisplayName(), membersDeleteFromUserStore
+                                .toArray(new String[membersDeleteFromUserStore.size()]), new String[0]);
+                    }
+                }
+                // find out added members and deleted members..
+                List<String> oldMembers = oldGroup.getMembersWithDisplayName();
 
                 List<String> addedMembers = new ArrayList<>();
                 List<String> deletedMembers = new ArrayList<>();
