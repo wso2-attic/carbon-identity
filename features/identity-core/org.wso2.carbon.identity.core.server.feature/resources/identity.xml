@@ -61,6 +61,7 @@
          -->
         <!--OpenIDServerUrl>https://localhost:9443/openidserver</OpenIDServerUrl-->
         <!--OpenIDUserPattern>https://localhost:9443/openid/</OpenIDUserPattern-->
+
         <!-- If the users must be prompted for approval -->
         <OpenIDSkipUserConsent>false</OpenIDSkipUserConsent>
         <!-- Expiry time of the OpenID RememberMe token in minutes -->
@@ -82,6 +83,7 @@
         <AuthorizationGrantCacheTimeout>-1</AuthorizationGrantCacheTimeout>
         <SessionDataCacheTimeout>-1</SessionDataCacheTimeout>
         <ClaimCacheTimeout>-1</ClaimCacheTimeout>
+
         <!--
             Default values for OAuth1RequestTokenUrl, OAuth1AccessTokenUrl, OAuth1AuthorizeUrl
             OAuth2AuthzEPUrl, OAuth2TokenEPUrl and OAuth2UserInfoEPUrl are built in following format
@@ -94,6 +96,7 @@
         <!--OAuth2AuthzEPUrl>https://localhost:9443/oauth2/authorize</OAuth2AuthzEPUrl-->
         <!--OAuth2TokenEPUrl>https://localhost:9443/oauth2/token</OAuth2TokenEPUrl-->
         <!--OAuth2UserInfoEPUrl>https://localhost:9443/oauth2/userinfo</OAuth2UserInfoEPUrl-->
+
         <!-- Default validity period for Authorization Code in seconds -->
         <AuthorizationCodeDefaultValidityPeriod>300</AuthorizationCodeDefaultValidityPeriod>
         <!-- Default validity period for application access tokens in seconds -->
@@ -222,7 +225,12 @@
         <PersistanceCacheTimeout>157680000</PersistanceCacheTimeout>
         <SessionIndexCacheTimeout>157680000</SessionIndexCacheTimeout>
         <EntityId>localhost</EntityId>
-        <IdentityProviderURL>https://localhost:9443/samlsso</IdentityProviderURL>
+        <!--
+            Default value for IdentityProviderURL is  built in following format
+            https://<HostName>:<MgtTrpProxyPort except 443>/<ProxyContextPath>/samlsso
+            If that doesn't satisfy uncomment the following config and explicitly configure the value
+        -->
+        <!--IdentityProviderURL>https://localhost:9443/samlsso</IdentityProviderURL-->
         <SingleLogoutRetryCount>5</SingleLogoutRetryCount>
         <SingleLogoutRetryInterval>60000</SingleLogoutRetryInterval>
         <!-- in milli seconds -->
@@ -244,6 +252,24 @@
         <SAMLResponseValidityPeriod>5</SAMLResponseValidityPeriod>
         <UseAuthenticatedUserDomainCrypto>false</UseAuthenticatedUserDomainCrypto>
     </SSOService>
+
+    <SecurityTokenService>
+        <!--
+            Default value for IdentityProviderURL is  built in following format
+            https://<HostName>:<MgtTrpProxyPort except 443>/<ProxyContextPath>/services/wso2carbon-sts
+            If that doesn't satisfy uncomment the following config and explicitly configure the value
+        -->
+        <!--IdentityProviderURL>https://localhost:9443/services/wso2carbon-sts</IdentityProviderURL-->
+    </SecurityTokenService>
+
+    <PassiveSTS>
+        <!--
+            Default value for IdentityProviderURL is  built in following format
+            https://<HostName>:<MgtTrpProxyPort except 443>/<ProxyContextPath>/passivests
+            If that doesn't satisfy uncomment the following config and explicitly configure the value
+        -->
+        <!--IdentityProviderURL>https://localhost:9443/passivests</IdentityProviderURL-->
+    </PassiveSTS>
 
     <EntitlementSettings>
         <!-- Uncomment this to enable on-demand policy loading -->
@@ -269,18 +295,28 @@
         </ThirftBasedEntitlementConfig>
     </EntitlementSettings>
 
-    <SCIMAuthenticators>
-        <Authenticator class="org.wso2.carbon.identity.scim.provider.auth.BasicAuthHandler">
-            <Property name="Priority">5</Property>
-        </Authenticator>
-        <Authenticator class="org.wso2.carbon.identity.scim.provider.auth.OAuthHandler">
-            <Property name="Priority">10</Property>
-            <Property name="AuthorizationServer">local://services</Property>
-            <!--Property name="AuthorizationServer">https://localhost:9443/services</Property>
-            <Property name="UserName">admin</Property>
-            <Property name="Password">admin</Property-->
-        </Authenticator>
-    </SCIMAuthenticators>
+    <SCIM>
+        <!--
+            Default value for UserEPUrl and GroupEPUrl are built in following format
+            https://<HostName>:<MgtTrpProxyPort except 443>/<ProxyContextPath>/<context>/<path>
+            If that doesn't satisfy uncomment the following config and explicitly configure the value
+        -->
+        <!--UserEPUrl>https://localhost:9443/wso2/scim/Users</UserEPUrl-->
+        <!--GroupEPUrl>https://localhost:9443/wso2/scim/Groups</GroupEPUrl-->
+        <SCIMAuthenticators>
+            <Authenticator class="org.wso2.carbon.identity.scim.provider.auth.BasicAuthHandler">
+                <Property name="Priority">5</Property>
+            </Authenticator>
+            <Authenticator class="org.wso2.carbon.identity.scim.provider.auth.OAuthHandler">
+                <Property name="Priority">10</Property>
+                <Property name="AuthorizationServer">local://services</Property>
+                <!--Property name="AuthorizationServer">https://localhost:9443/services</Property>
+                <Property name="UserName">admin</Property>
+                <Property name="Password">admin</Property-->
+            </Authenticator>
+        </SCIMAuthenticators>
+    </SCIM>
+
     <!--SessionContextCache>
         <Enable>true</Enable>
         <Capacity>100000</Capacity>

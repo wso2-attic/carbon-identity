@@ -46,6 +46,7 @@
     String tokenUrl = null;
     String userInfoUrl = null;
     String passiveSTSUrl = null;
+    String stsUrl = null;
     String sessionIdleTimeout = null;
     String rememberMeTimeout = null;
     FederatedAuthenticatorConfig[] federatedAuthenticators = residentIdentityProvider.getFederatedAuthenticatorConfigs();
@@ -77,8 +78,11 @@
                     IdentityApplicationConstants.Authenticator.OIDC.OAUTH2_USER_INFO_EP_URL).getValue();
         } else if(IdentityApplicationConstants.Authenticator.PassiveSTS.NAME.equals(federatedAuthenticator.getName())){
             passiveSTSUrl = IdPManagementUIUtil.getProperty(properties,
-                    IdentityApplicationConstants.Authenticator.PassiveSTS.PASSIVE_STS_URL).getValue();
-        }else if(IdentityApplicationConstants.Authenticator.IDPProperties.NAME.equals(federatedAuthenticator.getName())){
+                    IdentityApplicationConstants.Authenticator.PassiveSTS.IDENTITY_PROVIDER_URL).getValue();
+        } else if(IdentityApplicationConstants.Authenticator.WSTrust.NAME.equals(federatedAuthenticator.getName())){
+            stsUrl = IdPManagementUIUtil.getProperty(properties,
+                    IdentityApplicationConstants.Authenticator.WSTrust.IDENTITY_PROVIDER_URL).getValue();
+        } else if(IdentityApplicationConstants.Authenticator.IDPProperties.NAME.equals(federatedAuthenticator.getName())){
             sessionIdleTimeout = IdPManagementUIUtil.getProperty(properties,
                     IdentityApplicationConstants.Authenticator.IDPProperties.SESSION_IDLE_TIME_OUT).getValue();
             rememberMeTimeout = IdPManagementUIUtil.
@@ -274,36 +278,41 @@ jQuery(document).ready(function(){
                     </table>
                     </div>
 
-                     <h2 id="passivestsconfighead"  class="sectionSeperator trigger active" style="background-color: beige;">
+                    <h2 id="passivestsconfighead"  class="sectionSeperator trigger active" style="background-color: beige;">
                 		<a href="#"><fmt:message key='passive.sts.local.config'/></a>
             		</h2>
             		<div class="toggle_container sectionSub" style="margin-bottom:10px;display:none" id="passivestsconfig">
-
                     <table class="carbonFormTable">
                         <tr>
-                            <td>
-                                <div style="height:30px;">
-                                    <a href="javascript:document.location.href='../securityconfig/index.jsp?serviceName=wso2carbon-sts'"
-                                       class="icon-link"
-                                       style="background-image:url(images/configure.gif);margin-left: 0"><fmt:message key='apply.security.policy'/></a>
-                                </div>
-                            </td>
-
-                            </tr>
-                            <tr>
-                            <td>
-                                <div style="height:30px;">
-                                    <a href="javascript:document.location.href='<%=passiveSTSUrl+"?wsdl"%>'"
-                                       class="icon-link"
-                                       style="background-image:url(images/sts.gif);margin-left: 0"><%=passiveSTSUrl%>
-                                    </a>
-                                </div>
-                            </td>
-
+                            <td class="leftCol-med labelField"><fmt:message key='passive.sts.url'/>:</td>
+                            <td><%=passiveSTSUrl%></td>
                         </tr>
-
                     </table>
                     </div>
+
+                        <h2 id="stsconfighead"  class="sectionSeperator trigger active" style="background-color: beige;">
+                            <a href="#"><fmt:message key='sts.local.config'/></a>
+                        </h2>
+                        <div class="toggle_container sectionSub" style="margin-bottom:10px;display:none" id="stsconfig">
+                            <table class="carbonFormTable">
+                                <tr>
+                                    <td class="leftCol-med labelField" style="padding-top: 5px"><fmt:message key='sts.url'/>:</td>
+                                    <td>
+                                        <a href="javascript:document.location.href='<%=stsUrl+"?wsdl"%>'"
+                                           class="icon-link"
+                                           style="background-image:url(images/sts.gif);margin-left: 0"><%=stsUrl%>
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <a href="javascript:document.location.href='../securityconfig/index.jsp?serviceName=wso2carbon-sts'"
+                                           class="icon-link"
+                                           style="background-image:url(images/configure.gif);margin-right: 300px">
+                                            <fmt:message key='apply.security.policy'/>
+                                        </a>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
                 </div>
 
                     <h2 id="inboundprovisioningconfighead"  class="sectionSeperator trigger active">

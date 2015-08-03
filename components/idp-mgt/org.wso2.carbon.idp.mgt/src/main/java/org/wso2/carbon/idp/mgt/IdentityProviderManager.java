@@ -123,14 +123,33 @@ public class IdentityProviderManager {
 
         String serverUrl = IdentityUtil.getServerURL() + "/";
 
+        String openIdUrl = null;
+        String samlSSOUrl = null;
+        String samlLogoutUrl = null;
         String oauth1RequestTokenUrl = null;
         String oauth1AuthorizeUrl = null;
         String oauth1AccessTokenUrl = null;
         String oauth2AuthzEPUrl = null;
         String oauth2TokenEPUrl = null;
         String oauth2UserInfoEPUrl = null;
+        String passiveStsUrl = null;
+        String stsUrl = null;
+        String scimUserEndpoint = null;
+        String scimGroupsEndpoint = null;
+
         try {
             OMElement elem = IdentityConfigParser.getInstance().
+                    getConfigElement("OpenID.OpenIDServerUrl");
+            if(elem != null){
+                openIdUrl = elem.getText();
+            }
+            elem = IdentityConfigParser.getInstance().
+                    getConfigElement("SSOService.IdentityProviderURL");
+            if(elem != null){
+                samlSSOUrl = elem.getText();
+                samlLogoutUrl = samlSSOUrl;
+            }
+            elem = IdentityConfigParser.getInstance().
                     getConfigElement("OAuth.OAuth1RequestTokenUrl");
             if(elem != null){
                 oauth1RequestTokenUrl = elem.getText();
@@ -160,17 +179,46 @@ public class IdentityProviderManager {
             if(elem != null){
                 oauth2UserInfoEPUrl = elem.getText();
             }
+            elem = IdentityConfigParser.getInstance().
+                    getConfigElement("PassiveSTS.IdentityProviderURL");
+            if(elem != null){
+                passiveStsUrl = elem.getText();
+            }
+            elem = IdentityConfigParser.getInstance().
+                    getConfigElement("SecurityTokenService.IdentityProviderURL");
+            if(elem != null){
+                stsUrl = elem.getText();
+            }
+            elem = IdentityConfigParser.getInstance().
+                    getConfigElement("SCIM.UserEPUrl");
+            if(elem != null){
+                scimUserEndpoint = elem.getText();
+            }
+            elem = IdentityConfigParser.getInstance().
+                    getConfigElement("SCIM.GroupEPUrl");
+            if(elem != null){
+                scimGroupsEndpoint = elem.getText();
+            }
         } catch (ServerConfigurationException e) {
             log.error("Error occurred while reading OAuth URL configurations from identity.xml. Continuing with " +
                     "default values.", e);
+        }
+        if(StringUtils.isBlank(openIdUrl)){
+            openIdUrl = serverUrl + "openid";
+        }
+        if(StringUtils.isBlank(samlSSOUrl)){
+            samlSSOUrl = serverUrl + "samlsso";
+        }
+        if(StringUtils.isBlank(samlLogoutUrl)){
+            samlLogoutUrl = serverUrl + "samlsso";
         }
         if(StringUtils.isBlank(oauth1RequestTokenUrl)){
             oauth1RequestTokenUrl = serverUrl + "oauth/request-token";
         }
         if(StringUtils.isBlank(oauth1AuthorizeUrl)){
-            oauth1RequestTokenUrl = serverUrl + "oauth/authorize-url";
+            oauth1AuthorizeUrl = serverUrl + "oauth/authorize-url";
         }
-        if(StringUtils.isBlank(oauth1AuthorizeUrl)){
+        if(StringUtils.isBlank(oauth1AccessTokenUrl)){
             oauth1AccessTokenUrl = serverUrl + "oauth/access-token";
         }
         if(StringUtils.isBlank(oauth2AuthzEPUrl)){
@@ -182,13 +230,18 @@ public class IdentityProviderManager {
         if(StringUtils.isBlank(oauth2UserInfoEPUrl)){
             oauth2UserInfoEPUrl = serverUrl + "oauth2/userinfo";
         }
-
-        String stsUrl = serverUrl + "services/" + tenantContext + "wso2carbon-sts";
-        String openIdUrl = serverUrl + "openid";
-        String samlSSOUrl = serverUrl + "samlsso";
-        String samlLogoutUrl = serverUrl + "samlsso";
-        String scimUserEndpoint = serverUrl + "wso2/scim/Users";
-        String scimGroupsEndpoint = serverUrl + "wso2/scim/Groups";
+        if(StringUtils.isBlank(passiveStsUrl)){
+            passiveStsUrl = serverUrl + "passivests";
+        }
+        if(StringUtils.isBlank(stsUrl)){
+            stsUrl = serverUrl + "services/" + tenantContext + "wso2carbon-sts";
+        }
+        if(StringUtils.isBlank(scimUserEndpoint)){
+            scimUserEndpoint = serverUrl + "wso2/scim/Users";
+        }
+        if(StringUtils.isBlank(scimGroupsEndpoint)){
+            scimGroupsEndpoint = serverUrl + "wso2/scim/Groups";
+        }
 
         IdentityProvider identityProvider = dao.getIdPByName(null,
                 IdentityApplicationConstants.RESIDENT_IDP_RESERVED_NAME,
@@ -364,18 +417,36 @@ public class IdentityProviderManager {
             passiveSTSFedAuthn.setName(IdentityApplicationConstants.Authenticator.PassiveSTS.NAME);
         }
         propertiesList = new ArrayList<Property>(Arrays.asList(passiveSTSFedAuthn.getProperties()));
-        if (IdentityApplicationManagementUtil.getProperty(saml2SSOFedAuthn.getProperties(),
-                IdentityApplicationConstants.Authenticator.PassiveSTS.PASSIVE_STS_URL) == null) {
+        if (IdentityApplicationManagementUtil.getProperty(passiveSTSFedAuthn.getProperties(),
+                IdentityApplicationConstants.Authenticator.PassiveSTS.IDENTITY_PROVIDER_URL) == null) {
             Property passiveSTSUrlProp = new Property();
             passiveSTSUrlProp
-                    .setName(IdentityApplicationConstants.Authenticator.PassiveSTS.PASSIVE_STS_URL);
-            passiveSTSUrlProp.setValue(stsUrl);
+                    .setName(IdentityApplicationConstants.Authenticator.PassiveSTS.IDENTITY_PROVIDER_URL);
+            passiveSTSUrlProp.setValue(passiveStsUrl);
             propertiesList.add(passiveSTSUrlProp);
         }
-
         passiveSTSFedAuthn
                 .setProperties(propertiesList.toArray(new Property[propertiesList.size()]));
         fedAuthnCofigs.add(passiveSTSFedAuthn);
+
+        FederatedAuthenticatorConfig stsFedAuthn = IdentityApplicationManagementUtil
+                .getFederatedAuthenticator(identityProvider.getFederatedAuthenticatorConfigs(),
+                        IdentityApplicationConstants.Authenticator.WSTrust.NAME);
+        if (stsFedAuthn == null) {
+            stsFedAuthn = new FederatedAuthenticatorConfig();
+            stsFedAuthn.setName(IdentityApplicationConstants.Authenticator.WSTrust.NAME);
+        }
+        propertiesList = new ArrayList<Property>(Arrays.asList(stsFedAuthn.getProperties()));
+        if (IdentityApplicationManagementUtil.getProperty(stsFedAuthn.getProperties(),
+                IdentityApplicationConstants.Authenticator.WSTrust.IDENTITY_PROVIDER_URL) == null) {
+            Property stsUrlProp = new Property();
+            stsUrlProp.setName(IdentityApplicationConstants.Authenticator.WSTrust.IDENTITY_PROVIDER_URL);
+            stsUrlProp.setValue(stsUrl);
+            propertiesList.add(stsUrlProp);
+        }
+        stsFedAuthn
+                .setProperties(propertiesList.toArray(new Property[propertiesList.size()]));
+        fedAuthnCofigs.add(stsFedAuthn);
 
         FederatedAuthenticatorConfig sessionTimeoutConfig = IdentityApplicationManagementUtil
                 .getFederatedAuthenticator(identityProvider.getFederatedAuthenticatorConfigs(),
