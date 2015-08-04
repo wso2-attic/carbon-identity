@@ -273,7 +273,7 @@ public class IdentityUtil {
         return CarbonUtils.getCarbonConfigDirPath() + File.separator + "identity";
     }
 
-    public static String getServerURL() {
+    public static String getServerURL() throws IdentityRuntimeException {
         String hostName = ServerConfiguration.getInstance().getFirstProperty(IdentityCoreConstants.HOST_NAME);
 
         try {
@@ -285,8 +285,8 @@ public class IdentityUtil {
         }
 
         String mgtTransport = CarbonUtils.getManagementTransport();
-        AxisConfiguration axisConfiguration = IdentityCoreServiceComponent
-                .getConfigurationContextService().getServerConfigContext().getAxisConfiguration();
+        AxisConfiguration axisConfiguration = IdentityCoreServiceComponent.getConfigurationContextService().
+                getServerConfigContext().getAxisConfiguration();
         int mgtTransportPort = CarbonUtils.getTransportProxyPort(axisConfiguration, mgtTransport);
         if (mgtTransportPort <= 0) {
             mgtTransportPort = CarbonUtils.getTransportPort(axisConfiguration, mgtTransport);
