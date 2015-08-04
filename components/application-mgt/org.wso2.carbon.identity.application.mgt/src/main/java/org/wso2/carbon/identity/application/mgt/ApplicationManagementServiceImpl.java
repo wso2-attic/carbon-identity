@@ -31,7 +31,6 @@ import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.context.RegistryType;
 import org.wso2.carbon.core.RegistryResources;
-import org.wso2.carbon.directory.server.manager.DirectoryServerManager;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
 import org.wso2.carbon.identity.application.common.model.ApplicationBasicInfo;
 import org.wso2.carbon.identity.application.common.model.ApplicationPermission;
@@ -323,8 +322,8 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
                     } else if ("kerberos".equalsIgnoreCase(config.getInboundAuthType()) && config.getInboundAuthKey()
                             != null) {
 
-                        DirectoryServerManager directoryServerManager = new DirectoryServerManager();
-                        directoryServerManager.removeServer(config.getInboundAuthKey());
+//                        DirectoryServerManager directoryServerManager = new DirectoryServerManager();
+//                        directoryServerManager.removeServer(config.getInboundAuthKey());
 
                     } else if(IdentityApplicationConstants.Authenticator.WSTrust.NAME.equalsIgnoreCase(
                                             config.getInboundAuthType()) && config.getInboundAuthKey() != null) {
