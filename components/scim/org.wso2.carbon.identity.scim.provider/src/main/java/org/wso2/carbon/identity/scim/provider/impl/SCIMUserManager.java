@@ -292,8 +292,13 @@ public class SCIMUserManager implements UserManager {
         ClaimMapping[] claims;
         User scimUser = null;
         try {
-            //get the user name of the user with this id
-            String[] userNames = carbonUM.getUserList(attributeName, attributeValue, UserCoreConstants.DEFAULT_PROFILE);
+            String[] userNames = null;
+            if (!SCIMConstants.GROUPS_URI.equals(attributeName)) {
+                //get the user name of the user with this id
+                userNames = carbonUM.getUserList(attributeName, attributeValue, UserCoreConstants.DEFAULT_PROFILE);
+            } else {
+                userNames = carbonUM.getUserListOfRole(attributeValue);
+            }
 
             if (userNames == null || userNames.length == 0) {
                 if (log.isDebugEnabled()) {
