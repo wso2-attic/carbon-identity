@@ -25,7 +25,7 @@
             <parent-menu>manage_menu</parent-menu>
             <link>#</link>
             <region>region1</region>
-            <order>1</order>
+            <order>3</order>
             <style-class>manage</style-class>
             <icon>../keystoremgt/images/keystore.gif</icon>
             <require-permission>/permission/admin/configure/security</require-permission>
