@@ -19,10 +19,7 @@ package org.wso2.carbon.identity.oauth.listener;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
-import org.wso2.carbon.identity.core.model.OAuthAppDO;
 import org.wso2.carbon.identity.oauth.OAuthUtil;
-import org.wso2.carbon.identity.oauth.common.exception.InvalidOAuthClientException;
-import org.wso2.carbon.identity.oauth.dao.OAuthAppDAO;
 import org.wso2.carbon.identity.oauth2.IdentityOAuth2Exception;
 import org.wso2.carbon.identity.oauth2.dao.TokenMgtDAO;
 import org.wso2.carbon.identity.oauth2.model.AccessTokenDO;
@@ -58,7 +55,6 @@ public class IdentityOathEventListener extends AbstractUserOperationEventListene
             throws org.wso2.carbon.user.core.UserStoreException {
 
         TokenMgtDAO tokenMgtDAO = new TokenMgtDAO();
-        OAuthAppDAO appDAO = new OAuthAppDAO();
 
         String tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
         username = (username + "@" + tenantDomain).toLowerCase();
