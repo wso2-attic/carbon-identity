@@ -66,6 +66,7 @@ public class ApplicationBean {
     private Map<String, String> claimMap;
     private Map<String, String> requestedClaims = new HashMap<String, String>();
     private String samlIssuer;
+    private String kerberosServiceName;
     private String oauthAppName;
     private String oauthConsumerSecret;
     private String attrConsumServiceIndex;
@@ -88,6 +89,7 @@ public class ApplicationBean {
         claimMap = null;
         requestedClaims = new HashMap<String, String>();
         samlIssuer = null;
+        kerberosServiceName = null;
         oauthAppName = null;
         wstrustEp = null;
         passivests = null;
@@ -532,6 +534,28 @@ public class ApplicationBean {
         return samlIssuer;
     }
 
+    public String getKerberosServiceName() {
+        if (kerberosServiceName != null) {
+            return kerberosServiceName;
+        }
+        InboundAuthenticationRequestConfig[] authRequest = serviceProvider
+                .getInboundAuthenticationConfig().getInboundAuthenticationRequestConfigs();
+
+        if (authRequest != null) {
+            for (int i = 0; i < authRequest.length; i++) {
+                if ("kerberos".equalsIgnoreCase(authRequest[i].getInboundAuthType())) {
+                    kerberosServiceName = authRequest[i].getInboundAuthKey();
+                    break;
+                }
+            }
+        }
+        return kerberosServiceName;
+    }
+
+    public void setKerberosServiceName(String kerberosServiceName) {
+        this.kerberosServiceName = kerberosServiceName;
+    }
+
     /**
      * @param issuerName
      */
@@ -584,6 +608,33 @@ public class ApplicationBean {
             List<InboundAuthenticationRequestConfig> tempAuthRequest = new ArrayList<InboundAuthenticationRequestConfig>();
             for (int i = 0; i < authRequest.length; i++) {
                 if ("oauth2".equalsIgnoreCase(authRequest[i].getInboundAuthType())) {
+                    continue;
+                }
+                tempAuthRequest.add(authRequest[i]);
+            }
+            if (CollectionUtils.isNotEmpty(tempAuthRequest)) {
+                serviceProvider
+                        .getInboundAuthenticationConfig()
+                        .setInboundAuthenticationRequestConfigs(
+                                tempAuthRequest
+                                        .toArray(new InboundAuthenticationRequestConfig[tempAuthRequest
+                                                .size()]));
+            } else {
+                serviceProvider.getInboundAuthenticationConfig()
+                        .setInboundAuthenticationRequestConfigs(null);
+            }
+        }
+    }
+
+    public void deleteKerberosApp() {
+        this.kerberosServiceName = null;
+        InboundAuthenticationRequestConfig[] authRequest = serviceProvider
+                .getInboundAuthenticationConfig().getInboundAuthenticationRequestConfigs();
+
+        if (authRequest != null && authRequest.length > 0) {
+            List<InboundAuthenticationRequestConfig> tempAuthRequest = new ArrayList<InboundAuthenticationRequestConfig>();
+            for (int i = 0; i < authRequest.length; i++) {
+                if ("kerberos".equalsIgnoreCase(authRequest[i].getInboundAuthType())) {
                     continue;
                 }
                 tempAuthRequest.add(authRequest[i]);
@@ -982,6 +1033,13 @@ public class ApplicationBean {
                 samlAuthenticationRequest.setProperties(properties);
             }
             authRequestList.add(samlAuthenticationRequest);
+        }
+
+        if (kerberosServiceName != null) {
+            InboundAuthenticationRequestConfig kerberosAuthenticationRequest = new InboundAuthenticationRequestConfig();
+            kerberosAuthenticationRequest.setInboundAuthKey(kerberosServiceName);
+            kerberosAuthenticationRequest.setInboundAuthType("kerberos");
+            authRequestList.add(kerberosAuthenticationRequest);
         }
 
         if (oauthAppName != null) {
