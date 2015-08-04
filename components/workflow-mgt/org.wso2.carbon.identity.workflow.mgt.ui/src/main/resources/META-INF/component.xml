@@ -22,7 +22,7 @@
             <id>workflow_mgt_menu</id>
             <i18n-key>workflow.parent</i18n-key>
             <i18n-bundle>org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources</i18n-bundle>
-            <parent-menu></parent-menu>
+            <parent-menu>manage_menu</parent-menu>
             <link>#</link>
             <region>region1</region>
             <order>3</order>
@@ -77,7 +77,7 @@
             <id>configure_workflow_menu</id>
             <i18n-key>workflow.mgt</i18n-key>
             <i18n-bundle>org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources</i18n-bundle>
-            <parent-menu>configure_menu</parent-menu>
+            <parent-menu>workflow_mgt_menu</parent-menu>
             <link>#</link>
             <icon>../workflow-mgt/images/workflow.gif</icon>
             <region>region1</region>
