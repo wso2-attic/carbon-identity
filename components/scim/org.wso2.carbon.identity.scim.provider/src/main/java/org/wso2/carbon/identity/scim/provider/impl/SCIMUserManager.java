@@ -977,18 +977,20 @@ public class SCIMUserManager implements UserManager {
                 List<String> userIds = newGroup.getMembers();
                 List<String> userDisplayNames = newGroup.getMembersWithDisplayName();
                 String[] userNames = null;
-                for (String userId : userIds) {
-                    userNames =
-                            carbonUM.getUserList(SCIMConstants.ID_URI, userId,
-                                    UserCoreConstants.DEFAULT_PROFILE);
-                    if (userNames == null || userNames.length == 0) {
-                        String error =
-                                "User: " + userId + " doesn't exist in the user store. " +
-                                        "Hence, can not update the group: " + oldGroup.getDisplayName();
-                        throw new CharonException(error);
-                    } else {
-                        if (!userDisplayNames.contains(userNames[0])) {
-                            throw new CharonException("Given SCIM user Id and name not matching..");
+                if (userIds != null) {
+                    for (String userId : userIds) {
+                        userNames =
+                                carbonUM.getUserList(SCIMConstants.ID_URI, userId,
+                                                     UserCoreConstants.DEFAULT_PROFILE);
+                        if (userNames == null || userNames.length == 0) {
+                            String error =
+                                    "User: " + userId + " doesn't exist in the user store. " +
+                                    "Hence, can not update the group: " + oldGroup.getDisplayName();
+                            throw new CharonException(error);
+                        } else {
+                            if (!userDisplayNames.contains(userNames[0])) {
+                                throw new CharonException("Given SCIM user Id and name not matching..");
+                            }
                         }
                     }
                 }
