@@ -78,6 +78,7 @@ import org.opensaml.xml.util.XMLHelper;
 import org.opensaml.xml.validation.ValidationException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.identity.application.authentication.framework.context.AuthenticationContext;
 import org.wso2.carbon.identity.application.authenticator.samlsso.exception.SAMLSSOException;
 import org.wso2.carbon.identity.application.authenticator.samlsso.util.CarbonEntityResolver;
@@ -176,8 +177,10 @@ public class DefaultSAML2SSOManager implements SAML2SSOManager {
         } else {
             String username = (String) request.getSession().getAttribute("logoutUsername");
             String sessionIndex = (String) request.getSession().getAttribute("logoutSessionIndex");
+            String nameQualifier=(String)request.getSession().getAttribute("nameQualifier");
+            String spNameQualifier=(String)request.getSession().getAttribute("spNameQualifier");
 
-            requestMessage = buildLogoutRequest(username, sessionIndex, loginPage);
+            requestMessage = buildLogoutRequest(username, sessionIndex, loginPage, nameQualifier, spNameQualifier);
         }
         String idpUrl = null;
 
@@ -227,8 +230,10 @@ public class DefaultSAML2SSOManager implements SAML2SSOManager {
         } else {
             String username = (String) request.getSession().getAttribute("logoutUsername");
             String sessionIndex = (String) request.getSession().getAttribute("logoutSessionIndex");
+            String nameQualifier = (String) request.getSession().getAttribute("nameQualifier");
+            String spNameQualifier = (String) request.getSession().getAttribute("spNameQualifier");
 
-            requestMessage = buildLogoutRequest(username, sessionIndex, loginPage);
+            requestMessage = buildLogoutRequest(username, sessionIndex, loginPage, nameQualifier, spNameQualifier);
             if (SSOUtils.isLogoutRequestSigned(properties)) {
                 requestMessage = SSOUtils.setSignature((LogoutRequest) requestMessage,
                         XMLSignature.ALGO_ID_SIGNATURE_RSA,
@@ -359,6 +364,8 @@ public class DefaultSAML2SSOManager implements SAML2SSOManager {
 
         // Get the subject name from the Response Object and forward it to login_action.jsp
         String subject = null;
+        String nameQualifier=null;
+        String spNameQualifier=null;
         if (assertion.getSubject() != null && assertion.getSubject().getNameID() != null) {
             subject = assertion.getSubject().getNameID().getValue();
         }
@@ -368,6 +375,8 @@ public class DefaultSAML2SSOManager implements SAML2SSOManager {
         }
 
         request.getSession().setAttribute("username", subject); // get the subject
+        nameQualifier = assertion.getSubject().getNameID().getNameQualifier();
+        spNameQualifier = assertion.getSubject().getNameID().getSPNameQualifier();
 
         // validate audience restriction
         validateAudienceRestriction(assertion);
@@ -384,11 +393,13 @@ public class DefaultSAML2SSOManager implements SAML2SSOManager {
                 throw new SAMLSSOException("Single Logout is enabled but IdP Session ID not found in SAML Assertion");
             }
             request.getSession().setAttribute(SSOConstants.IDP_SESSION, sessionId);
+            request.getSession().setAttribute("nameQualifier", nameQualifier);
+            request.getSession().setAttribute("spNameQualifier", spNameQualifier);
         }
 
     }
 
-    private LogoutRequest buildLogoutRequest(String user, String sessionIndexStr, String idpUrl)
+    private LogoutRequest buildLogoutRequest(String user, String sessionIndexStr, String idpUrl, String nameQualifier, String spNameQualifier)
             throws SAMLSSOException {
 
         LogoutRequest logoutReq = new LogoutRequestBuilder().buildObject();
@@ -416,6 +427,8 @@ public class DefaultSAML2SSOManager implements SAML2SSOManager {
         NameID nameId = new NameIDBuilder().buildObject();
         nameId.setFormat("urn:oasis:names:tc:SAML:2.0:nameid-format:unspecified");
         nameId.setValue(user);
+        nameId.setNameQualifier(nameQualifier);
+        nameId.setSPNameQualifier(spNameQualifier);
         logoutReq.setNameID(nameId);
 
         SessionIndex sessionIndex = new SessionIndexBuilder().buildObject();

@@ -24,6 +24,8 @@ public class StateInfo extends AuthenticatorStateInfo {
 
     private String sessionIndex;
     private String subject;
+    private String nameQualifier;
+    private String spNameQualifier;
 
     public String getSessionIndex() {
         return sessionIndex;
@@ -39,5 +41,21 @@ public class StateInfo extends AuthenticatorStateInfo {
 
     public void setSubject(String subject) {
         this.subject = subject;
+    }
+
+    public String getNameQualifier() {
+        return nameQualifier;
+    }
+
+    public void setNameQualifier(String nameQualifier) {
+        this.nameQualifier = nameQualifier;
+    }
+
+    public String getSpNameQualifier() {
+        return spNameQualifier;
+    }
+
+    public void setSpNameQualifier(String spNameQualifier) {
+        this.spNameQualifier = spNameQualifier;
     }
 }
