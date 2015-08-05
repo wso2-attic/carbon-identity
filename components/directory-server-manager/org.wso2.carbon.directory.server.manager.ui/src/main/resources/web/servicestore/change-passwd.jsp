@@ -32,6 +32,8 @@
 <jsp:include page="../dialog/display_messages.jsp"/>
 
 <%
+        String applicationSPName = request.getParameter("spName");
+        session.setAttribute("application-sp-name", applicationSPName);
         String spnName = request.getParameter("spnName");
         DirectoryServerManagerClient serverManager = null;
         try{
@@ -69,7 +71,7 @@
     <script type="text/javascript">
 
         function doCancel() {
-            location.href = 'index.jsp';
+            location.href = '../application/configure-service-provider.jsp?action=cancel&display=kerberos&spName=<%=applicationSPName%>';
         }
 
         function doValidation() {
