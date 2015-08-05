@@ -311,7 +311,7 @@
                         passiveSTSRealm = passiveSTSRealmProp.getValue();
                     }
                     Property passiveSTSUrlProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
-                            IdentityApplicationConstants.Authenticator.PassiveSTS.PASSIVE_STS_URL);
+                            IdentityApplicationConstants.Authenticator.PassiveSTS.IDENTITY_PROVIDER_URL);
                     if (passiveSTSUrlProp != null) {
                         passiveSTSUrl = passiveSTSUrlProp.getValue();
                     }

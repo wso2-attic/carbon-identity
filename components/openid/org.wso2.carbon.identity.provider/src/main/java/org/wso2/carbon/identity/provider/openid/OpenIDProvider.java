@@ -34,7 +34,7 @@ public class OpenIDProvider {
 
     private static final Log log = LogFactory.getLog(OpenIDProvider.class);
     // Guaranteed to be thread safe
-    private static OpenIDProvider provider;
+    private static volatile OpenIDProvider provider;
     // Instantiate a ServerManager object.
     private ServerManager manager = new OpenIDServerManager();
     private String opAddress;
@@ -72,14 +72,10 @@ public class OpenIDProvider {
             synchronized (OpenIDProvider.class) {
                 if (provider == null) {
                     provider = new OpenIDProvider();
-                    return provider;
-                } else {
-                    return provider;
                 }
             }
-        } else {
-            return provider;
         }
+        return provider;
     }
 
     /**
