@@ -78,7 +78,6 @@ import org.opensaml.xml.util.XMLHelper;
 import org.opensaml.xml.validation.ValidationException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.identity.application.authentication.framework.context.AuthenticationContext;
 import org.wso2.carbon.identity.application.authenticator.samlsso.exception.SAMLSSOException;
 import org.wso2.carbon.identity.application.authenticator.samlsso.util.CarbonEntityResolver;
@@ -177,8 +176,8 @@ public class DefaultSAML2SSOManager implements SAML2SSOManager {
         } else {
             String username = (String) request.getSession().getAttribute("logoutUsername");
             String sessionIndex = (String) request.getSession().getAttribute("logoutSessionIndex");
-            String nameQualifier=(String)request.getSession().getAttribute("nameQualifier");
-            String spNameQualifier=(String)request.getSession().getAttribute("spNameQualifier");
+            String nameQualifier = (String) request.getSession().getAttribute("nameQualifier");
+            String spNameQualifier = (String) request.getSession().getAttribute("spNameQualifier");
 
             requestMessage = buildLogoutRequest(username, sessionIndex, loginPage, nameQualifier, spNameQualifier);
         }
@@ -364,8 +363,8 @@ public class DefaultSAML2SSOManager implements SAML2SSOManager {
 
         // Get the subject name from the Response Object and forward it to login_action.jsp
         String subject = null;
-        String nameQualifier=null;
-        String spNameQualifier=null;
+        String nameQualifier = null;
+        String spNameQualifier = null;
         if (assertion.getSubject() != null && assertion.getSubject().getNameID() != null) {
             subject = assertion.getSubject().getNameID().getValue();
         }

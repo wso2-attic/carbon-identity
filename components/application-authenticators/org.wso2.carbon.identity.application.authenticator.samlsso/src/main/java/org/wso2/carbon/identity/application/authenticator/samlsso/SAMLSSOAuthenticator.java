@@ -171,7 +171,7 @@ public class SAMLSSOAuthenticator extends AbstractApplicationAuthenticator imple
             }
             idpSubject = (String) request.getSession().getAttribute("username");
             if (subject == null) {
-                subject=idpSubject;
+                subject = idpSubject;
             }
             if (subject == null) {
                 throw new SAMLSSOException("Cannot find federated User Identifier");
