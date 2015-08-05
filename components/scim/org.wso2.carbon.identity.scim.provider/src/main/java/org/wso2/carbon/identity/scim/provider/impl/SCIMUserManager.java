@@ -1013,7 +1013,8 @@ public class SCIMUserManager implements UserManager {
 
                 //Handling meta data attributes coming from SCIM request. Through meta attributes all existing members
                 // can be replaced with new set of members
-                if (SCIMConstants.GroupSchemaConstants.MEMBERS.equals(newGroup.getAttributesOfMeta().get(0))) {
+                if (newGroup.getAttributesOfMeta() != null &&
+                    SCIMConstants.GroupSchemaConstants.MEMBERS.equals(newGroup.getAttributesOfMeta().get(0))) {
                     if (!deleteRequestedMembers.isEmpty()) {
                         log.warn(
                                 "All Existing members will be deleted through SCIM meta attributes Hence operation " +
