@@ -45,8 +45,8 @@ public class SQLConstants {
     public static final String ASSOCIATION_NAME_COLUMN = "ASSOC_NAME";
 
 
-    public static final String ADD_WORKFLOW_REQUEST_QUERY = "INSERT INTO WF_REQUEST(UUID, CREATED_AT, UPDATED_AT, " +
-            "REQUEST, STATUS) VALUES (?, ?, ?, ?, ?)";
+    public static final String ADD_WORKFLOW_REQUEST_QUERY = "INSERT INTO WF_REQUEST(UUID, CREATED_BY, OPERATION_TYPE," +
+            " CREATED_AT, UPDATED_AT, REQUEST, STATUS) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
     public static final String GET_WORKFLOW_REQUEST_QUERY = "SELECT UUID, REQUEST, STATUS FROM WF_REQUEST WHERE UUID" +
             " = ?";

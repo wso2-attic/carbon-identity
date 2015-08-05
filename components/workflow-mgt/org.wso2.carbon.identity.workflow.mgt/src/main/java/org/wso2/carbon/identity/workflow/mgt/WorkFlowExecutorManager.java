@@ -25,6 +25,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jaxen.JaxenException;
 import org.wso2.carbon.base.MultitenantConstants;
+import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.workflow.mgt.template.AbstractWorkflowTemplateImpl;
 import org.wso2.carbon.identity.workflow.mgt.extension.WorkflowRequestHandler;
@@ -38,6 +39,7 @@ import org.wso2.carbon.identity.workflow.mgt.internal.WorkflowServiceDataHolder;
 import org.wso2.carbon.identity.workflow.mgt.util.WorkflowRequestBuilder;
 import org.wso2.carbon.identity.workflow.mgt.util.WorkflowRequestStatus;
 import org.wso2.carbon.user.api.UserStoreException;
+import org.wso2.carbon.user.core.util.UserCoreUtil;
 
 import java.util.List;
 import java.util.Map;
@@ -78,7 +80,10 @@ public class WorkFlowExecutorManager {
                     workflowEngaged = true;
                     if(!requestSaved){
                         WorkflowRequestDAO requestDAO = new WorkflowRequestDAO();
-                        requestDAO.addWorkflowEntry(workFlowRequest);
+                        String tenant = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+                        String currentUser = CarbonContext.getThreadLocalCarbonContext().getUsername();
+                        String fullyQualifiedName = UserCoreUtil.addTenantDomainToEntry(currentUser, tenant);
+                        requestDAO.addWorkflowEntry(workFlowRequest, fullyQualifiedName);
                         requestSaved = true;
                     }
                     AbstractWorkflowTemplateImpl templateImplementation = WorkflowServiceDataHolder.getInstance()
