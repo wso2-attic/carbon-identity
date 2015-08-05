@@ -134,6 +134,28 @@
             </table>
             <% } %>
 
+            <%
+                UserStoreInfo userStoreInfo = Util.getUserStoreInfoForUser(currentUser, userRealmInfo);
+                if (!userStoreInfo.getReadOnly() && CarbonUIUtil.isUserAuthorized(request,
+                        "/permission/admin/login") && !userStoreInfo.getPasswordsExternallyManaged()) {
+            %>
+            <br/>
+            <table class="styledLeft">
+                <tbody>
+                <tr>
+                    <td class="middle-header">Change Password</td>
+                </tr>
+                <tr>
+                    <td>
+                        <a href="../user/change-passwd.jsp?isUserChange=true&returnPath=../userstore/index.jsp"
+                           style="background-image: url(images/keys.gif);" class="icon-link">
+                            <fmt:message key="change.my.password"/></a></td>
+                </tr>
+                </tbody>
+            </table>
+            <% }%>
+            </td>
+
         </div>
     </div>
     <script type="text/javascript">

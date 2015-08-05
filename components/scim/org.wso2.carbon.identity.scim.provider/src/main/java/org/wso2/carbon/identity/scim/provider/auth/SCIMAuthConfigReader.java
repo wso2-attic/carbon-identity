@@ -42,10 +42,11 @@ public class SCIMAuthConfigReader {
             IdentityConfigParser identityConfig = IdentityConfigParser.getInstance();
             OMElement scimElem = identityConfig.getConfigElement(SCIMProviderConstants.ELEMENT_NAME_SCIM);
             if(scimElem != null) {
-                OMElement SCIMAuthElement = identityConfig.getConfigElement(
-                        SCIMProviderConstants.ELEMENT_NAME_SCIM_AUTHENTICATORS);
+                OMElement scimAuthElement = scimElem.getFirstChildWithName(
+                        new QName(IdentityConfigParser.IDENTITY_DEFAULT_NAMESPACE,
+                                SCIMProviderConstants.ELEMENT_NAME_SCIM_AUTHENTICATORS));
                 //iterate through authenticators and build authenticators list
-                Iterator<OMElement> authenticators = SCIMAuthElement.getChildrenWithName(new QName(
+                Iterator<OMElement> authenticators = scimAuthElement.getChildrenWithName(new QName(
                         SCIMProviderConstants.ELEMENT_NAME_AUTHENTICATOR));
                 List<SCIMAuthenticationHandler> SCIMAuthHandlers = new ArrayList<SCIMAuthenticationHandler>();
                 if (authenticators != null) {

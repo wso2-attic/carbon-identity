@@ -41,7 +41,7 @@
             <order>1</order>
             <style-class>manage</style-class>
             <icon>../userstore/images/add.gif</icon>
-            <require-permission>/permission/admin/login</require-permission>
+            <require-permission>/permission/admin/configure/security/usermgt/users</require-permission>
         </menu>
 
         <menu>
