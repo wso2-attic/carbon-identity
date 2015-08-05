@@ -16,16 +16,16 @@
  * under the License.
  */
 
-package org.wso2.carbon.identity.workflow.mgt.impl.userstore;
+package org.wso2.carbon.user.mgt.workflow.userstore;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.user.mgt.workflow.internal.IdentityWorkflowDataHolder;
 import org.wso2.carbon.identity.workflow.mgt.extension.AbstractWorkflowRequestHandler;
 import org.wso2.carbon.identity.workflow.mgt.util.WorkflowDataType;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.util.WorkflowRequestStatus;
-import org.wso2.carbon.identity.workflow.mgt.impl.internal.IdentityWorkflowDataHolder;
 import org.wso2.carbon.user.api.UserRealm;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.service.RealmService;

@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.carbon.identity.workflow.mgt.impl.internal;
+package org.wso2.carbon.user.mgt.workflow.internal;
 
 import org.osgi.framework.BundleContext;
 import org.wso2.carbon.user.core.service.RealmService;

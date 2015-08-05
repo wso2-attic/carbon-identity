@@ -16,25 +16,24 @@
  * under the License.
  */
 
-package org.wso2.carbon.identity.workflow.mgt.impl.internal;
+package org.wso2.carbon.user.mgt.workflow.internal;
 
 
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.identity.workflow.mgt.extension.WorkflowRequestHandler;
-import org.wso2.carbon.identity.workflow.mgt.impl.userstore.AddRoleWFRequestHandler;
-import org.wso2.carbon.identity.workflow.mgt.impl.userstore.AddUserWFRequestHandler;
-import org.wso2.carbon.identity.workflow.mgt.impl.userstore.ChangeCredentialWFRequestHandler;
-import org.wso2.carbon.identity.workflow.mgt.impl.userstore.DeleteClaimWFRequestHandler;
-import org.wso2.carbon.identity.workflow.mgt.impl.userstore.DeleteMultipleClaimsWFRequestHandler;
-import org.wso2.carbon.identity.workflow.mgt.impl.userstore.DeleteRoleWFRequestHandler;
-import org.wso2.carbon.identity.workflow.mgt.impl.userstore.DeleteUserWFRequestHandler;
-import org.wso2.carbon.identity.workflow.mgt.impl.userstore.SetMultipleClaimsWFRequestHandler;
-import org.wso2.carbon.identity.workflow.mgt.impl.userstore.SetUserClaimWFRequestHandler;
-import org.wso2.carbon.identity.workflow.mgt.impl.userstore.UpdateRoleNameWFRequestHandler;
-import org.wso2.carbon.identity.workflow.mgt.impl.userstore.UpdateRoleUsersWFRequestHandler;
-import org.wso2.carbon.identity.workflow.mgt.impl.userstore.UpdateUserRolesWFRequestHandler;
-import org.wso2.carbon.identity.workflow.mgt.impl.userstore.UserStoreActionListener;
+import org.wso2.carbon.user.mgt.workflow.userstore.AddRoleWFRequestHandler;
+import org.wso2.carbon.user.mgt.workflow.userstore.AddUserWFRequestHandler;
+import org.wso2.carbon.user.mgt.workflow.userstore.DeleteClaimWFRequestHandler;
+import org.wso2.carbon.user.mgt.workflow.userstore.DeleteMultipleClaimsWFRequestHandler;
+import org.wso2.carbon.user.mgt.workflow.userstore.DeleteRoleWFRequestHandler;
+import org.wso2.carbon.user.mgt.workflow.userstore.DeleteUserWFRequestHandler;
+import org.wso2.carbon.user.mgt.workflow.userstore.SetMultipleClaimsWFRequestHandler;
+import org.wso2.carbon.user.mgt.workflow.userstore.SetUserClaimWFRequestHandler;
+import org.wso2.carbon.user.mgt.workflow.userstore.UpdateRoleNameWFRequestHandler;
+import org.wso2.carbon.user.mgt.workflow.userstore.UpdateRoleUsersWFRequestHandler;
+import org.wso2.carbon.user.mgt.workflow.userstore.UpdateUserRolesWFRequestHandler;
+import org.wso2.carbon.user.mgt.workflow.userstore.UserStoreActionListener;
 import org.wso2.carbon.user.core.listener.UserOperationEventListener;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.ConfigurationContextService;

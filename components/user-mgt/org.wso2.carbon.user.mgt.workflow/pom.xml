@@ -28,7 +28,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>org.wso2.carbon.identity.workflow.mgt.impl</artifactId>
+    <artifactId>org.wso2.carbon.user.mgt.workflow</artifactId>
     <packaging>bundle</packaging>
     <name>WSO2 Carbon - Identity Workflow Mgt</name>
 
@@ -40,7 +40,6 @@
         <dependency>
             <groupId>org.wso2.carbon.identity</groupId>
             <artifactId>org.wso2.carbon.identity.workflow.mgt</artifactId>
-            <version>${carbon.identity.version}</version>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
@@ -63,7 +62,7 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
                         <Private-Package>
-                            org.wso2.carbon.identity.workflow.mgt.impl.internal,
+                            org.wso2.carbon.user.mgt.workflow,
                         </Private-Package>
                         <Import-Package>
                             org.apache.commons.lang,
@@ -81,7 +80,7 @@
                             org.wso2.carbon.identity.workflow.mgt.util
                         </Import-Package>
                         <Export-Package>
-                            org.wso2.carbon.identity.workflow.mgt.impl.*
+                            org.wso2.carbon.user.mgt.workflow.*
                         </Export-Package>
                     </instructions>
                 </configuration>

@@ -16,16 +16,16 @@
  * under the License.
  */
 
-package org.wso2.carbon.identity.workflow.mgt.impl.userstore;
+package org.wso2.carbon.user.mgt.workflow.userstore;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.user.mgt.workflow.internal.IdentityWorkflowDataHolder;
 import org.wso2.carbon.identity.workflow.mgt.extension.AbstractWorkflowRequestHandler;
 import org.wso2.carbon.identity.workflow.mgt.util.WorkflowDataType;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.util.WorkflowRequestStatus;
-import org.wso2.carbon.identity.workflow.mgt.impl.internal.IdentityWorkflowDataHolder;
 import org.wso2.carbon.user.api.UserRealm;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.service.RealmService;
@@ -34,35 +34,29 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class DeleteClaimWFRequestHandler extends AbstractWorkflowRequestHandler {
+public class DeleteUserWFRequestHandler extends AbstractWorkflowRequestHandler {
 
-    private static final String FRIENDLY_NAME = "Delete User Claim";
-    private static final String FRIENDLY_DESCRIPTION = "Triggered when a user's claim is deleted";
+    private static final String FRIENDLY_NAME = "Delete User";
+    private static final String FRIENDLY_DESCRIPTION = "Triggered when a user is removed.";
 
     private static final String USERNAME = "Username";
     private static final String USER_STORE_DOMAIN = "User Store Domain";
-    private static final String CLAIM_URI = "Claim URI";
-    private static final String PROFILE_NAME = "Profile";
 
     private static final Map<String, String> PARAM_DEFINITION;
-    private static Log log = LogFactory.getLog(AddUserWFRequestHandler.class);
+    private static Log log = LogFactory.getLog(DeleteUserWFRequestHandler.class);
+
 
     static {
         PARAM_DEFINITION = new LinkedHashMap<>();
         PARAM_DEFINITION.put(USERNAME, WorkflowDataType.STRING_TYPE);
         PARAM_DEFINITION.put(USER_STORE_DOMAIN, WorkflowDataType.STRING_TYPE);
-        PARAM_DEFINITION.put(CLAIM_URI, WorkflowDataType.STRING_TYPE);
-        PARAM_DEFINITION.put(PROFILE_NAME, WorkflowDataType.STRING_TYPE);
     }
 
-    public boolean startDeleteClaimWorkflow(String userStoreDomain, String userName, String claimURI, String
-            profileName) throws WorkflowException {
+    public boolean startDeleteUserFlow(String userStoreDomain, String userName) throws WorkflowException {
         Map<String, Object> wfParams = new HashMap<>();
         Map<String, Object> nonWfParams = new HashMap<>();
         wfParams.put(USERNAME, userName);
         wfParams.put(USER_STORE_DOMAIN, userStoreDomain);
-        wfParams.put(CLAIM_URI, claimURI);
-        wfParams.put(PROFILE_NAME, profileName);
         return startWorkFlow(wfParams, nonWfParams);
     }
 
@@ -73,7 +67,7 @@ public class DeleteClaimWFRequestHandler extends AbstractWorkflowRequestHandler 
         String userName;
         Object requestUsername = requestParams.get(USERNAME);
         if (requestUsername == null || !(requestUsername instanceof String)) {
-            throw new WorkflowException("Callback request for Set User Claim received without the mandatory " +
+            throw new WorkflowException("Callback request for delete user received without the mandatory " +
                     "parameter 'username'");
         }
         String userStoreDomain = (String) requestParams.get(USER_STORE_DOMAIN);
@@ -83,18 +77,14 @@ public class DeleteClaimWFRequestHandler extends AbstractWorkflowRequestHandler 
             userName = (String) requestUsername;
         }
 
-        String claimURI = (String) requestParams.get(CLAIM_URI);
-        String profile = (String) requestParams.get(PROFILE_NAME);
-
         if (WorkflowRequestStatus.APPROVED.toString().equals(status) ||
                 WorkflowRequestStatus.SKIPPED.toString().equals(status)) {
             try {
                 RealmService realmService = IdentityWorkflowDataHolder.getInstance().getRealmService();
                 UserRealm userRealm = realmService.getTenantUserRealm(tenantId);
-                userRealm.getUserStoreManager().deleteUserClaimValue(userName, claimURI, profile);
+                userRealm.getUserStoreManager().deleteUser(userName);
             } catch (UserStoreException e) {
-                throw new WorkflowException("Error when re-requesting deleteUserClaimValue operation for " + userName,
-                        e);
+                throw new WorkflowException("Error when re-requesting addUser operation for " + userName, e);
             }
         } else {
             if (retryNeedAtCallback()) {
@@ -102,8 +92,8 @@ public class DeleteClaimWFRequestHandler extends AbstractWorkflowRequestHandler 
                 unsetWorkFlowCompleted();
             }
             if (log.isDebugEnabled()) {
-                log.debug("Deleting User Claim is aborted for user '" + userName + "', ClaimURI:" + claimURI +
-                        ", Reason: Workflow response was " + status);
+                log.debug("Deleting user is aborted for user '" + userName + "', Reason: Workflow response was " +
+                        status);
             }
         }
     }
@@ -115,7 +105,7 @@ public class DeleteClaimWFRequestHandler extends AbstractWorkflowRequestHandler 
 
     @Override
     public String getEventId() {
-        return UserStoreWFConstants.DELETE_USER_CLAIM_EVENT;
+        return UserStoreWFConstants.DELETE_USER_EVENT;
     }
 
     @Override

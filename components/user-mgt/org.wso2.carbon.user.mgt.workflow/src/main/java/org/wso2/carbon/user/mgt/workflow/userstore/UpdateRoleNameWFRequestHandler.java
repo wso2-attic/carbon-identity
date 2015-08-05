@@ -16,16 +16,16 @@
  * under the License.
  */
 
-package org.wso2.carbon.identity.workflow.mgt.impl.userstore;
+package org.wso2.carbon.user.mgt.workflow.userstore;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.user.mgt.workflow.internal.IdentityWorkflowDataHolder;
 import org.wso2.carbon.identity.workflow.mgt.extension.AbstractWorkflowRequestHandler;
 import org.wso2.carbon.identity.workflow.mgt.util.WorkflowDataType;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.util.WorkflowRequestStatus;
-import org.wso2.carbon.identity.workflow.mgt.impl.internal.IdentityWorkflowDataHolder;
 import org.wso2.carbon.user.api.UserRealm;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.service.RealmService;
@@ -34,28 +34,32 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class DeleteUserWFRequestHandler extends AbstractWorkflowRequestHandler {
+public class UpdateRoleNameWFRequestHandler extends AbstractWorkflowRequestHandler {
 
-    private static final String FRIENDLY_NAME = "Delete User";
-    private static final String FRIENDLY_DESCRIPTION = "Triggered when a user is removed.";
+    private static final String FRIENDLY_NAME = "Update Rolename";
+    private static final String FRIENDLY_DESCRIPTION = "Triggered when a role name is updates";
 
-    private static final String USERNAME = "Username";
+    private static final String ROLENAME = "Role Name";
+    private static final String NEW_ROLENAME = "New Role Name";
     private static final String USER_STORE_DOMAIN = "User Store Domain";
 
     private static final Map<String, String> PARAM_DEFINITION;
-    private static Log log = LogFactory.getLog(DeleteUserWFRequestHandler.class);
+    private static Log log = LogFactory.getLog(DeleteRoleWFRequestHandler.class);
 
 
     static {
         PARAM_DEFINITION = new LinkedHashMap<>();
-        PARAM_DEFINITION.put(USERNAME, WorkflowDataType.STRING_TYPE);
+        PARAM_DEFINITION.put(ROLENAME, WorkflowDataType.STRING_TYPE);
+        PARAM_DEFINITION.put(NEW_ROLENAME, WorkflowDataType.STRING_TYPE);
         PARAM_DEFINITION.put(USER_STORE_DOMAIN, WorkflowDataType.STRING_TYPE);
     }
 
-    public boolean startDeleteUserFlow(String userStoreDomain, String userName) throws WorkflowException {
+    public boolean startUpdateRoleNameFlow(String userStoreDomain, String roleName, String newRoleName) throws
+            WorkflowException {
         Map<String, Object> wfParams = new HashMap<>();
         Map<String, Object> nonWfParams = new HashMap<>();
-        wfParams.put(USERNAME, userName);
+        wfParams.put(ROLENAME, roleName);
+        wfParams.put(NEW_ROLENAME, newRoleName);
         wfParams.put(USER_STORE_DOMAIN, userStoreDomain);
         return startWorkFlow(wfParams, nonWfParams);
     }
@@ -64,17 +68,20 @@ public class DeleteUserWFRequestHandler extends AbstractWorkflowRequestHandler {
     public void onWorkflowCompletion(String status, Map<String, Object> requestParams,
                                      Map<String, Object> responseAdditionalParams, int tenantId)
             throws WorkflowException {
-        String userName;
-        Object requestUsername = requestParams.get(USERNAME);
-        if (requestUsername == null || !(requestUsername instanceof String)) {
-            throw new WorkflowException("Callback request for delete user received without the mandatory " +
-                    "parameter 'username'");
+        String roleName = (String) requestParams.get(ROLENAME);
+        String newRoleName = (String) requestParams.get(NEW_ROLENAME);
+        if (roleName == null) {
+            throw new WorkflowException("Callback request for rename role received without the mandatory " +
+                    "parameter 'roleName'");
         }
+        if (newRoleName == null) {
+            throw new WorkflowException("Callback request for rename role received without the mandatory " +
+                    "parameter 'newRoleName'");
+        }
+
         String userStoreDomain = (String) requestParams.get(USER_STORE_DOMAIN);
         if (StringUtils.isNotBlank(userStoreDomain)) {
-            userName = userStoreDomain + "/" + requestUsername;
-        } else {
-            userName = (String) requestUsername;
+            roleName = userStoreDomain + "/" + roleName;
         }
 
         if (WorkflowRequestStatus.APPROVED.toString().equals(status) ||
@@ -82,9 +89,9 @@ public class DeleteUserWFRequestHandler extends AbstractWorkflowRequestHandler {
             try {
                 RealmService realmService = IdentityWorkflowDataHolder.getInstance().getRealmService();
                 UserRealm userRealm = realmService.getTenantUserRealm(tenantId);
-                userRealm.getUserStoreManager().deleteUser(userName);
+                userRealm.getUserStoreManager().updateRoleName(roleName, newRoleName);
             } catch (UserStoreException e) {
-                throw new WorkflowException("Error when re-requesting addUser operation for " + userName, e);
+                throw new WorkflowException("Error when re-requesting updateRoleName operation for " + roleName, e);
             }
         } else {
             if (retryNeedAtCallback()) {
@@ -92,7 +99,7 @@ public class DeleteUserWFRequestHandler extends AbstractWorkflowRequestHandler {
                 unsetWorkFlowCompleted();
             }
             if (log.isDebugEnabled()) {
-                log.debug("Deleting user is aborted for user '" + userName + "', Reason: Workflow response was " +
+                log.debug("Updating role is aborted for role '" + roleName + "', Reason: Workflow response was " +
                         status);
             }
         }
@@ -105,7 +112,7 @@ public class DeleteUserWFRequestHandler extends AbstractWorkflowRequestHandler {
 
     @Override
     public String getEventId() {
-        return UserStoreWFConstants.DELETE_USER_EVENT;
+        return UserStoreWFConstants.UPDATE_ROLE_NAME_EVENT;
     }
 
     @Override
@@ -127,5 +134,4 @@ public class DeleteUserWFRequestHandler extends AbstractWorkflowRequestHandler {
     public String getCategory() {
         return UserStoreWFConstants.CATEGORY_USERSTORE_OPERATIONS;
     }
-
 }

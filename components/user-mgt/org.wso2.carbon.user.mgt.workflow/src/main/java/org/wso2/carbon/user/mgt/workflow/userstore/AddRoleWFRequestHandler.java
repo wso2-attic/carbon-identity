@@ -16,61 +16,75 @@
  * under the License.
  */
 
-package org.wso2.carbon.identity.workflow.mgt.impl.userstore;
+package org.wso2.carbon.user.mgt.workflow.userstore;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.user.mgt.workflow.internal.IdentityWorkflowDataHolder;
 import org.wso2.carbon.identity.workflow.mgt.extension.AbstractWorkflowRequestHandler;
 import org.wso2.carbon.identity.workflow.mgt.util.WorkflowDataType;
-import org.wso2.carbon.identity.workflow.mgt.util.WorkflowRequestStatus;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
-import org.wso2.carbon.identity.workflow.mgt.impl.internal.IdentityWorkflowDataHolder;
+import org.wso2.carbon.identity.workflow.mgt.util.WorkflowRequestStatus;
+import org.wso2.carbon.user.api.Permission;
 import org.wso2.carbon.user.api.UserRealm;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.service.RealmService;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-public class UpdateRoleUsersWFRequestHandler extends AbstractWorkflowRequestHandler {
+public class AddRoleWFRequestHandler extends AbstractWorkflowRequestHandler {
 
-    private static final String FRIENDLY_NAME = "Update Role Users";
-    private static final String FRIENDLY_DESCRIPTION = "Triggered when users are added to/removed from a role.";
+    private static final String FRIENDLY_NAME = "Add Role";
+    private static final String FRIENDLY_DESCRIPTION = "Triggered when a user create a new role.";
 
     private static final String ROLENAME = "Role Name";
     private static final String USER_STORE_DOMAIN = "User Store Domain";
-    private static final String DELETED_USER_LIST = "Users to be Deleted";
-    private static final String NEW_USER_LIST = "Users to be Added";
+    private static final String PERMISSIONS = "Permissions";
+    private static final String USER_LIST = "Users";
+
+    private static final String SEPARATOR = "->";
 
     private static final Map<String, String> PARAM_DEFINITION;
-    private static Log log = LogFactory.getLog(AddUserWFRequestHandler.class);
+    private static Log log = LogFactory.getLog(AddRoleWFRequestHandler.class);
 
     static {
         PARAM_DEFINITION = new LinkedHashMap<>();
         PARAM_DEFINITION.put(ROLENAME, WorkflowDataType.STRING_TYPE);
         PARAM_DEFINITION.put(USER_STORE_DOMAIN, WorkflowDataType.STRING_TYPE);
-        PARAM_DEFINITION.put(DELETED_USER_LIST, WorkflowDataType.STRING_LIST_TYPE);
-        PARAM_DEFINITION.put(NEW_USER_LIST, WorkflowDataType.STRING_LIST_TYPE);
+        PARAM_DEFINITION.put(USER_LIST, WorkflowDataType.STRING_LIST_TYPE);
+        PARAM_DEFINITION.put(PERMISSIONS, WorkflowDataType.STRING_LIST_TYPE);
     }
 
-    public boolean startUpdateRoleUsersFlow(String userStoreDomain, String roleName, String[] deletedUsers, String[]
-            newUsers) throws WorkflowException {
+    public boolean startAddRoleFlow(String userStoreDomain, String role, String[] userList, Permission[] permissions)
+            throws WorkflowException {
+        if(permissions == null){
+            permissions = new Permission[0];
+        }
+        if(userList == null){
+            userList = new String[0];
+        }
+        List<String> permissionList = new ArrayList<>(permissions.length);
+        for (int i = 0; i < permissions.length; i++) {
+            permissionList.add(permissions[i].getResourceId() + SEPARATOR + permissions[i].getAction());
+        }
         Map<String, Object> wfParams = new HashMap<>();
         Map<String, Object> nonWfParams = new HashMap<>();
-        wfParams.put(ROLENAME, roleName);
+        wfParams.put(ROLENAME, role);
         wfParams.put(USER_STORE_DOMAIN, userStoreDomain);
-        wfParams.put(DELETED_USER_LIST, Arrays.asList(deletedUsers));
-        wfParams.put(NEW_USER_LIST, Arrays.asList(newUsers));
+        wfParams.put(PERMISSIONS, permissionList);
+        wfParams.put(USER_LIST, Arrays.asList(userList));
         return startWorkFlow(wfParams, nonWfParams);
     }
 
     @Override
     public String getEventId() {
-        return UserStoreWFConstants.UPDATE_ROLE_USERS_EVENT;
+        return UserStoreWFConstants.ADD_ROLE_EVENT;
     }
 
     @Override
@@ -104,30 +118,38 @@ public class UpdateRoleUsersWFRequestHandler extends AbstractWorkflowRequestHand
 
         String roleName = (String) requestParams.get(ROLENAME);
         if (roleName == null) {
-            throw new WorkflowException("Callback request for Add User received without the mandatory " +
-                    "parameter 'username'");
+            throw new WorkflowException("Callback request for Add role received without the mandatory " +
+                    "parameter 'roleName'");
         }
+
         String userStoreDomain = (String) requestParams.get(USER_STORE_DOMAIN);
         if (StringUtils.isNotBlank(userStoreDomain)) {
             roleName = userStoreDomain + "/" + roleName;
         }
 
-        List<String> deletedUserList = ((List<String>) requestParams.get(DELETED_USER_LIST));
-        String[] deletedUsers;
-        if (deletedUserList != null) {
-            deletedUsers = new String[deletedUserList.size()];
-            deletedUsers = deletedUserList.toArray(deletedUsers);
+        List<String> userList = (List<String>) requestParams.get(USER_LIST);
+        String[] users;
+        if (userList != null) {
+            users = new String[userList.size()];
+            users = userList.toArray(users);
         } else {
-            deletedUsers = new String[0];
+            users = new String[0];
         }
 
-        List<String> newUserList = ((List<String>) requestParams.get(NEW_USER_LIST));
-        String[] newUsers;
-        if (newUserList != null) {
-            newUsers = new String[newUserList.size()];
-            newUsers = newUserList.toArray(newUsers);
+        List<String> permissionList = (List<String>) requestParams.get(PERMISSIONS);
+        Permission[] permissions;
+        if (permissionList != null) {
+            permissions = new Permission[permissionList.size()];
+            int i = 0;
+            for (String permissionString : permissionList) {
+                String[] splittedString = permissionString.split(SEPARATOR);
+                if (splittedString.length == 2) {
+                    permissions[i] = new Permission(splittedString[0], splittedString[1]);
+                }
+                i++;
+            }
         } else {
-            newUsers = new String[0];
+            permissions = new Permission[0];
         }
 
         if (WorkflowRequestStatus.APPROVED.toString().equals(status) ||
@@ -135,10 +157,9 @@ public class UpdateRoleUsersWFRequestHandler extends AbstractWorkflowRequestHand
             try {
                 RealmService realmService = IdentityWorkflowDataHolder.getInstance().getRealmService();
                 UserRealm userRealm = realmService.getTenantUserRealm(tenantId);
-                userRealm.getUserStoreManager().updateUserListOfRole(roleName, deletedUsers, newUsers);
+                userRealm.getUserStoreManager().addRole(roleName, users, permissions);
             } catch (UserStoreException e) {
-                throw new WorkflowException("Error when re-requesting updateUserListOfRole operation for " + roleName,
-                        e);
+                throw new WorkflowException("Error when re-requesting addRole operation for " + roleName, e);
             }
         } else {
             if (retryNeedAtCallback()) {
@@ -147,8 +168,7 @@ public class UpdateRoleUsersWFRequestHandler extends AbstractWorkflowRequestHand
             }
             if (log.isDebugEnabled()) {
                 log.debug(
-                        "Updating role users is aborted for role '" + roleName + "', Reason: Workflow response was " +
-                                status);
+                        "Adding role is aborted for role '" + roleName + "', Reason: Workflow response was " + status);
             }
         }
     }

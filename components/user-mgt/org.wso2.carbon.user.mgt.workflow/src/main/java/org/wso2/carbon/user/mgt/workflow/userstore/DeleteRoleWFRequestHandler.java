@@ -16,16 +16,16 @@
  * under the License.
  */
 
-package org.wso2.carbon.identity.workflow.mgt.impl.userstore;
+package org.wso2.carbon.user.mgt.workflow.userstore;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.user.mgt.workflow.internal.IdentityWorkflowDataHolder;
 import org.wso2.carbon.identity.workflow.mgt.extension.AbstractWorkflowRequestHandler;
 import org.wso2.carbon.identity.workflow.mgt.util.WorkflowDataType;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.util.WorkflowRequestStatus;
-import org.wso2.carbon.identity.workflow.mgt.impl.internal.IdentityWorkflowDataHolder;
 import org.wso2.carbon.user.api.UserRealm;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.service.RealmService;
@@ -34,38 +34,29 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class SetUserClaimWFRequestHandler extends AbstractWorkflowRequestHandler {
+public class DeleteRoleWFRequestHandler extends AbstractWorkflowRequestHandler {
 
-    private static final String FRIENDLY_NAME = "Update User Claim";
-    private static final String FRIENDLY_DESCRIPTION = "Triggered when a user update one of his/her claim.";
+    private static final String FRIENDLY_NAME = "Delete Role";
+    private static final String FRIENDLY_DESCRIPTION = "Triggered when a user deletes a role.";
 
-    private static final String USERNAME = "Username";
+    private static final String ROLENAME = "Role Name";
     private static final String USER_STORE_DOMAIN = "User Store Domain";
-    private static final String CLAIM_URI = "Claim URI";
-    private static final String CLAIM_VALUE = "Claim Value";
-    private static final String PROFILE_NAME = "Profile";
 
     private static final Map<String, String> PARAM_DEFINITION;
-    private static Log log = LogFactory.getLog(AddUserWFRequestHandler.class);
+    private static Log log = LogFactory.getLog(DeleteRoleWFRequestHandler.class);
+
 
     static {
         PARAM_DEFINITION = new LinkedHashMap<>();
-        PARAM_DEFINITION.put(USERNAME, WorkflowDataType.STRING_TYPE);
+        PARAM_DEFINITION.put(ROLENAME, WorkflowDataType.STRING_TYPE);
         PARAM_DEFINITION.put(USER_STORE_DOMAIN, WorkflowDataType.STRING_TYPE);
-        PARAM_DEFINITION.put(CLAIM_URI, WorkflowDataType.STRING_TYPE);
-        PARAM_DEFINITION.put(CLAIM_VALUE, WorkflowDataType.STRING_TYPE);
-        PARAM_DEFINITION.put(PROFILE_NAME, WorkflowDataType.STRING_TYPE);
     }
 
-    public boolean startSetClaimWorkflow(String userStoreDomain, String userName, String claimURI, String claimValue,
-                                         String profileName) throws WorkflowException {
+    public boolean startDeleteRoleFlow(String userStoreDomain, String roleName) throws WorkflowException {
         Map<String, Object> wfParams = new HashMap<>();
         Map<String, Object> nonWfParams = new HashMap<>();
-        wfParams.put(USERNAME, userName);
+        wfParams.put(ROLENAME, roleName);
         wfParams.put(USER_STORE_DOMAIN, userStoreDomain);
-        wfParams.put(CLAIM_URI, claimURI);
-        wfParams.put(CLAIM_VALUE, claimValue);
-        wfParams.put(PROFILE_NAME, profileName);
         return startWorkFlow(wfParams, nonWfParams);
     }
 
@@ -73,31 +64,25 @@ public class SetUserClaimWFRequestHandler extends AbstractWorkflowRequestHandler
     public void onWorkflowCompletion(String status, Map<String, Object> requestParams,
                                      Map<String, Object> responseAdditionalParams, int tenantId)
             throws WorkflowException {
-        String userName;
-        Object requestUsername = requestParams.get(USERNAME);
-        if (requestUsername == null || !(requestUsername instanceof String)) {
-            throw new WorkflowException("Callback request for Set User Claim received without the mandatory " +
+        String roleName = (String) requestParams.get(ROLENAME);
+        if (roleName == null) {
+            throw new WorkflowException("Callback request for delete role received without the mandatory " +
                     "parameter 'username'");
         }
+
         String userStoreDomain = (String) requestParams.get(USER_STORE_DOMAIN);
         if (StringUtils.isNotBlank(userStoreDomain)) {
-            userName = userStoreDomain + "/" + requestUsername;
-        } else {
-            userName = (String) requestUsername;
+            roleName = userStoreDomain + "/" + roleName;
         }
-
-        String claimURI = (String) requestParams.get(CLAIM_URI);
-        String claimValue = (String) requestParams.get(CLAIM_VALUE);
-        String profile = (String) requestParams.get(PROFILE_NAME);
 
         if (WorkflowRequestStatus.APPROVED.toString().equals(status) ||
                 WorkflowRequestStatus.SKIPPED.toString().equals(status)) {
             try {
                 RealmService realmService = IdentityWorkflowDataHolder.getInstance().getRealmService();
                 UserRealm userRealm = realmService.getTenantUserRealm(tenantId);
-                userRealm.getUserStoreManager().setUserClaimValue(userName, claimURI, claimValue, profile);
+                userRealm.getUserStoreManager().deleteRole(roleName);
             } catch (UserStoreException e) {
-                throw new WorkflowException("Error when re-requesting setUserClaimValue operation for " + userName, e);
+                throw new WorkflowException("Error when re-requesting deleteRole operation for " + roleName, e);
             }
         } else {
             if (retryNeedAtCallback()) {
@@ -105,8 +90,8 @@ public class SetUserClaimWFRequestHandler extends AbstractWorkflowRequestHandler
                 unsetWorkFlowCompleted();
             }
             if (log.isDebugEnabled()) {
-                log.debug("Setting User Claim is aborted for user '" + userName + "', ClaimURI:" + claimURI + " " +
-                        "ClaimValue:" + claimValue + ", Reason: Workflow response was " + status);
+                log.debug("Deleting role is aborted for role '" + roleName + "', Reason: Workflow response was " +
+                        status);
             }
         }
     }
@@ -118,7 +103,7 @@ public class SetUserClaimWFRequestHandler extends AbstractWorkflowRequestHandler
 
     @Override
     public String getEventId() {
-        return UserStoreWFConstants.SET_USER_CLAIM_EVENT;
+        return UserStoreWFConstants.DELETE_ROLE_EVENT;
     }
 
     @Override
@@ -140,4 +125,5 @@ public class SetUserClaimWFRequestHandler extends AbstractWorkflowRequestHandler
     public String getCategory() {
         return UserStoreWFConstants.CATEGORY_USERSTORE_OPERATIONS;
     }
+
 }

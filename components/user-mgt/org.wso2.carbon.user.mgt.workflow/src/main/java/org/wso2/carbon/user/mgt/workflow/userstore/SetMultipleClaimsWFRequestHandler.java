@@ -16,35 +16,33 @@
  * under the License.
  */
 
-package org.wso2.carbon.identity.workflow.mgt.impl.userstore;
+package org.wso2.carbon.user.mgt.workflow.userstore;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.user.mgt.workflow.internal.IdentityWorkflowDataHolder;
 import org.wso2.carbon.identity.workflow.mgt.extension.AbstractWorkflowRequestHandler;
 import org.wso2.carbon.identity.workflow.mgt.util.WorkflowDataType;
-import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.util.WorkflowRequestStatus;
-import org.wso2.carbon.identity.workflow.mgt.impl.internal.IdentityWorkflowDataHolder;
+import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 import org.wso2.carbon.user.api.UserRealm;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.service.RealmService;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
-public class DeleteMultipleClaimsWFRequestHandler extends AbstractWorkflowRequestHandler {
+public class SetMultipleClaimsWFRequestHandler extends AbstractWorkflowRequestHandler {
 
-    private static final String FRIENDLY_NAME = "Delete User Claims";
-    private static final String FRIENDLY_DESCRIPTION = "Triggered when a user create a new role.";
+    private static final String FRIENDLY_NAME = "Update User Claims";
+    private static final String FRIENDLY_DESCRIPTION = "Triggered when a user updates his claims";
 
     private static final String USERNAME = "Username";
     private static final String USER_STORE_DOMAIN = "User Store Domain";
-    private static final String CLAIMS = "Claims to Delete";
-    private static final String PROFILE_NAME = "Profile Name";
+    private static final String CLAIMS = "Claims";
+    private static final String PROFILE_NAME = "Profile";
 
     private static final Map<String, String> PARAM_DEFINITION;
     private static Log log = LogFactory.getLog(SetMultipleClaimsWFRequestHandler.class);
@@ -57,13 +55,13 @@ public class DeleteMultipleClaimsWFRequestHandler extends AbstractWorkflowReques
         PARAM_DEFINITION.put(PROFILE_NAME, WorkflowDataType.STRING_TYPE);
     }
 
-    public boolean startDeleteMultipleClaimsWorkflow(String userStoreDomain, String userName, String[] claims,
-                                                  String profileName) throws WorkflowException {
+    public boolean startSetMultipleClaimsWorkflow(String userStoreDomain, String userName, Map<String, String>
+            claims, String profileName) throws WorkflowException {
         Map<String, Object> wfParams = new HashMap<>();
         Map<String, Object> nonWfParams = new HashMap<>();
         wfParams.put(USERNAME, userName);
         wfParams.put(USER_STORE_DOMAIN, userStoreDomain);
-        wfParams.put(CLAIMS, Arrays.asList(claims));
+        wfParams.put(CLAIMS, claims);
         wfParams.put(PROFILE_NAME, profileName);
         return startWorkFlow(wfParams, nonWfParams);
     }
@@ -85,7 +83,7 @@ public class DeleteMultipleClaimsWFRequestHandler extends AbstractWorkflowReques
             userName = (String) requestUsername;
         }
 
-        List<String> claims = (List<String>) requestParams.get(CLAIMS);
+        Map<String, String> claims = (Map<String, String>) requestParams.get(CLAIMS);
         String profile = (String) requestParams.get(PROFILE_NAME);
 
         if (WorkflowRequestStatus.APPROVED.toString().equals(status) ||
@@ -93,11 +91,9 @@ public class DeleteMultipleClaimsWFRequestHandler extends AbstractWorkflowReques
             try {
                 RealmService realmService = IdentityWorkflowDataHolder.getInstance().getRealmService();
                 UserRealm userRealm = realmService.getTenantUserRealm(tenantId);
-                userRealm.getUserStoreManager().deleteUserClaimValues(userName,
-                        claims.toArray(new String[claims.size()]), profile);
+                userRealm.getUserStoreManager().setUserClaimValues(userName, claims, profile);
             } catch (UserStoreException e) {
-                throw new WorkflowException("Error when re-requesting deleteUserClaimValues operation for " + userName,
-                        e);
+                throw new WorkflowException("Error when re-requesting setUserClaimValues operation for " + userName, e);
             }
         } else {
             if (retryNeedAtCallback()) {
@@ -105,8 +101,8 @@ public class DeleteMultipleClaimsWFRequestHandler extends AbstractWorkflowReques
                 unsetWorkFlowCompleted();
             }
             if (log.isDebugEnabled()) {
-                log.debug("Deleting User Claims is aborted for user '" + userName + "', Reason: Workflow response " +
-                        "was: " + status);
+                log.debug("Setting User Claims is aborted for user '" + userName + "', Reason: Workflow response was " +
+                        status);
             }
         }
     }
@@ -118,7 +114,7 @@ public class DeleteMultipleClaimsWFRequestHandler extends AbstractWorkflowReques
 
     @Override
     public String getEventId() {
-        return UserStoreWFConstants.DELETE_MULTIPLE_USER_CLAIMS_EVENT;
+        return UserStoreWFConstants.SET_MULTIPLE_USER_CLAIMS_EVENT;
     }
 
     @Override
@@ -140,5 +136,4 @@ public class DeleteMultipleClaimsWFRequestHandler extends AbstractWorkflowReques
     public String getCategory() {
         return UserStoreWFConstants.CATEGORY_USERSTORE_OPERATIONS;
     }
-
 }
