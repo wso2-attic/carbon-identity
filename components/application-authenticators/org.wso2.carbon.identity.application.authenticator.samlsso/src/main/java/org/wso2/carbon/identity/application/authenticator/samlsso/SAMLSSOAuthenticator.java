@@ -158,7 +158,7 @@ public class SAMLSSOAuthenticator extends AbstractApplicationAuthenticator imple
                     .getSession(false).getAttribute("samlssoAttributes");
 
             String subject = null;
-            String idpSubject=null;
+            String idpSubject = null;
             String isSubjectInClaimsProp = context.getAuthenticatorProperties().get(
                     IdentityApplicationConstants.Authenticator.SAML2SSO.IS_USER_ID_IN_CLAIMS);
             if ("true".equalsIgnoreCase(isSubjectInClaimsProp)) {
