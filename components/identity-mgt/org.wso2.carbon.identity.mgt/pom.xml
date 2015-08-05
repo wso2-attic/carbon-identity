@@ -94,7 +94,7 @@
                             org.wso2.carbon.identity.mgt.internal,
                         </Private-Package>
                         <Export-Package>
-                            org.wso2.carbon.identity.mgt.*,
+                            org.wso2.carbon.identity.mgt.*; version="${carbon.identity.package.export.version}",
                         </Export-Package>
                         <Import-Package>
                             javax.cache,
@@ -102,6 +102,7 @@
                             javax.xml.stream; version="${equinox.osgi.stax-api.imp.pkg.version.range}",
 
                             org.apache.axiom.*; version="${axiom.osgi.version.range}",
+                            org.apache.axis2.transport.mail; version="${org.apache.axis2.transport.mail.version.range}",
                             org.apache.axis2.*; version="${axis2.osgi.version.range}",
                             org.apache.neethi; version="${neethi.osgi.version.range}",
                             org.apache.commons.logging; version="${commons-logging.osgi.version.range}",
