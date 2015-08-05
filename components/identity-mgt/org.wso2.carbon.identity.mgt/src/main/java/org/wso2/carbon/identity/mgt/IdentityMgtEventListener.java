@@ -814,8 +814,7 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
                 try {
                     identityDataStore.store(identityDTO, userStoreManager);
                 } catch (IdentityException e) {
-                    throw new UserStoreException(
-                            "Error while saving user store data for user : " + userName, e);
+                    throw new UserStoreException(e.getMessage(), e);
                 }
             }
             return true;
