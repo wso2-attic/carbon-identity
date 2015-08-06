@@ -68,8 +68,8 @@ public class DefaultSSOSigner implements SSOSigner {
     }
 
     @Override
-    public SignableXMLObject setSignature(SignableXMLObject request, String signatureAlgorithm, X509Credential cred)
-            throws IdentityException {
+    public SignableXMLObject setSignature(SignableXMLObject signableXMLObject, String signatureAlgorithm,
+                                          X509Credential cred) throws IdentityException {
 
         Signature signature = (Signature) buildXMLObject(Signature.DEFAULT_ELEMENT_NAME);
         signature.setSigningCredential(cred);
@@ -92,16 +92,16 @@ public class DefaultSSOSigner implements SSOSigner {
         keyInfo.getX509Datas().add(data);
         signature.setKeyInfo(keyInfo);
 
-        request.setSignature(signature);
+        signableXMLObject.setSignature(signature);
 
         List<Signature> signatureList = new ArrayList<Signature>();
         signatureList.add(signature);
 
         MarshallerFactory marshallerFactory = org.opensaml.xml.Configuration.getMarshallerFactory();
-        Marshaller marshaller = marshallerFactory.getMarshaller(request);
+        Marshaller marshaller = marshallerFactory.getMarshaller(signableXMLObject);
 
         try {
-            marshaller.marshall(request);
+            marshaller.marshall(signableXMLObject);
         } catch (MarshallingException e) {
             throw new IdentityException("Unable to marshall the request", e);
         }
@@ -113,7 +113,7 @@ public class DefaultSSOSigner implements SSOSigner {
             throw new IdentityException("Error occurred while signing request", e);
         }
 
-        return request;
+        return signableXMLObject;
     }
 
     /**

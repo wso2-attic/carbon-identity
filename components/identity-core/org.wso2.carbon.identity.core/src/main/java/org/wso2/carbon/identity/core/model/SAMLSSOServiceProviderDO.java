@@ -16,6 +16,7 @@
 
 package org.wso2.carbon.identity.core.model;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 
 import java.io.Serializable;
@@ -161,7 +162,7 @@ public class SAMLSSOServiceProviderDO implements Serializable {
         if (requestedClaims != null) {
             return requestedClaims.clone();
         } else {
-            return new String[0];
+            return ArrayUtils.EMPTY_STRING_ARRAY;
         }
     }
 
@@ -203,7 +204,7 @@ public class SAMLSSOServiceProviderDO implements Serializable {
         if (requestedAudiences != null) {
             return requestedAudiences.clone();
         } else {
-            return new String[0];
+            return ArrayUtils.EMPTY_STRING_ARRAY;
         }
     }
 
@@ -245,7 +246,7 @@ public class SAMLSSOServiceProviderDO implements Serializable {
         if (requestedRecipients != null) {
             return requestedRecipients.clone();
         } else {
-            return new String[0];
+            return ArrayUtils.EMPTY_STRING_ARRAY;
         }
     }
 
@@ -335,7 +336,7 @@ public class SAMLSSOServiceProviderDO implements Serializable {
         if (assertionConsumerUrls != null) {
             return assertionConsumerUrls.clone();
         } else {
-            return new String[0];
+            return ArrayUtils.EMPTY_STRING_ARRAY;
         }
     }
 
@@ -402,7 +403,7 @@ public class SAMLSSOServiceProviderDO implements Serializable {
         if (idpInitSLOReturnToURLs != null) {
             return idpInitSLOReturnToURLs.clone();
         } else {
-            return new String[0];
+            return ArrayUtils.EMPTY_STRING_ARRAY;
         }
     }
 

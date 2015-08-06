@@ -451,7 +451,7 @@ public class SAMLSSOUtil {
         IdentityProvider identityProvider;
         int tenantId;
 
-        if (StringUtils.isEmpty(tenantDomain)) {
+        if (StringUtils.isEmpty(tenantDomain) || "null".equals(tenantDomain)) {
             tenantDomain = MultitenantConstants.SUPER_TENANT_DOMAIN_NAME;
             tenantId = MultitenantConstants.SUPER_TENANT_ID;
         } else {

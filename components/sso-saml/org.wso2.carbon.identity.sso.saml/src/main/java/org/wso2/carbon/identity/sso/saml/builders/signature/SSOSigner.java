@@ -55,7 +55,7 @@ public interface SSOSigner {
      * @return
      * @throws IdentityException
      */
-    public SignableXMLObject setSignature(SignableXMLObject request, String signatureAlgorithm,
+    public SignableXMLObject setSignature(SignableXMLObject signableXMLObject, String signatureAlgorithm,
                                             X509Credential cred) throws IdentityException;
 }
 
