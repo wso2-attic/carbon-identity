@@ -42,6 +42,7 @@
     ResourceBundle resourceBundle = ResourceBundle.getBundle(bundle, request.getLocale());
     WorkflowAdminServiceClient client;
     String forwardTo = null;
+    AssociationDTO[] associations = null;
     AssociationDTO[] associationsToDisplay = new AssociationDTO[0];
     String paginationValue = "region=region1&item=association_list_menu";
 
@@ -64,7 +65,7 @@
                         .getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
         client = new WorkflowAdminServiceClient(cookie, backendServerURL, configContext);
 
-        AssociationDTO[] associations = client.listAllAssociations();
+        associations = client.listAllAssociations();
         if (associations != null) {
             numberOfPages = (int) Math.ceil((double) associations.length / WorkflowUIConstants.RESULTS_PER_PAGE);
             int startIndex = pageNumberInt * WorkflowUIConstants.RESULTS_PER_PAGE;
@@ -122,16 +123,13 @@
     </script>
 
     <div id="middle">
-        <h2><fmt:message key='workflow.list'/></h2>
+        <h2><fmt:message key='workflow.association.mgt'/></h2>
 
         <div id="workArea">
-            <a title="<fmt:message key='workflow.service.association.add'/>"
-               href="#" style="background-image: url(images/add.png);" onclick="addAssociation();return false;"
-               class="icon-link"><fmt:message key='workflow.service.association.add'/></a>
             <table class="styledLeft" id="servicesTable">
                 <thead>
                 <tr>
-                    <th width="30%"><fmt:message key="workflow.service.association.name"/></th>
+                    <th width="30%"><fmt:message key="workflow.service.engamement.name"/></th>
                     <th width="30%"><fmt:message key="workflow.service.associate.event"/></th>
                     <th width="15%"><fmt:message key="workflow.name"/></th>
                     <th><fmt:message key="actions"/></th>
@@ -139,6 +137,7 @@
                 </thead>
                 <tbody>
                 <%
+                if(associations != null && associations.length > 0) {
                     for (AssociationDTO association : associationsToDisplay) {
                         if (association != null) {
 
@@ -159,9 +158,15 @@
                            class="icon-link"><fmt:message key='delete'/></a>
                     </td>
                 </tr>
-                <%
-                        }
+                        <% }
                     }
+                  }else { %>
+                <tbody>
+                <tr>
+                    <td colspan="4"><i>No Workflow Engagements registered</i></td>
+                </tr>
+                </tbody>
+                <% }
                 %>
                 </tbody>
             </table>

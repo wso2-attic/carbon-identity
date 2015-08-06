@@ -311,7 +311,7 @@
     </script>
 
     <div id="middle">
-        <h2><fmt:message key='workflow.list'/></h2>
+        <h2><fmt:message key='add.workflow.engagement'/></h2>
 
         <div id="workArea">
             <div id="addNew">
@@ -330,7 +330,7 @@
                         </thead>
                         <tbody>
                         <tr>
-                            <td width="30%"><fmt:message key="workflow.service.association.name"/></td>
+                            <td width="30%"><fmt:message key="workflow.service.engamement.name"/></td>
                             <td><input type="text" name="<%=WorkflowUIConstants.PARAM_ASSOCIATION_NAME%>"
                                        style="min-width: 30%;">
                             </td>

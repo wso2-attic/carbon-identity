@@ -321,4 +321,8 @@
         <Enable>true</Enable>
         <Capacity>100000</Capacity>
     </SessionContextCache-->
+
+    <Provisioning>
+        <EnableDefaultInboundUserProvisioningListener>true</EnableDefaultInboundUserProvisioningListener>
+    </Provisioning>
 </Server>
