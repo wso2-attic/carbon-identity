@@ -110,8 +110,10 @@ public class PassiveSTS extends HttpServlet {
 
         } catch (FileNotFoundException e) {
             // The Passive STS Redirect HTML file is optional. When the file is not found, use the default page content.
-            log.info("Passive STS Redirect HTML file not found in : " + redirectHtmlFilePath +
-                    ". Default Redirect is used.");
+            if (log.isDebugEnabled()) {
+                log.debug("Passive STS Redirect HTML file not found in : " + redirectHtmlFilePath +
+                        ". Default Redirect is used.");
+            }
         } finally {
             if (fileInputStream != null) {
                 try {
