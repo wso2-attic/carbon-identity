@@ -158,7 +158,8 @@ public class SCIMUserManager implements UserManager {
 
                 if (log.isDebugEnabled()) {
                     log.debug("This instance is operating in dumb mode. " +
-                              "Hence, operation is not persisted, it will only be provisioned.");
+                              "Hence, operation is not persisted, it will only be provisioned."
+                                + "provisioned user : " + user.getUserName());
                 }
                 this.provisionSCIMOperation(SCIMConstants.POST, user, SCIMConstants.USER_INT, null);
 
