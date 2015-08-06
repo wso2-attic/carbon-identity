@@ -27,6 +27,7 @@ import org.wso2.carbon.identity.oauth2.dao.TokenMgtDAO;
 import org.wso2.carbon.identity.oauth2.model.AccessTokenDO;
 import org.wso2.carbon.identity.oauth2.util.OAuth2Util;
 import org.wso2.carbon.user.core.common.AbstractUserOperationEventListener;
+import org.wso2.carbon.user.core.util.UserCoreUtil;
 
 import java.util.Set;
 
@@ -56,10 +57,16 @@ public class IdentityOathEventListener extends AbstractUserOperationEventListene
 
         TokenMgtDAO tokenMgtDAO = new TokenMgtDAO();
 
+        String userStoreDomain = UserCoreUtil.getDomainName(userStoreManager.getRealmConfiguration());
         String tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-        username = (username + "@" + tenantDomain);
 
-        String userStoreDomain = null;
+        username = UserCoreUtil.addDomainToName(username, userStoreDomain);
+        username = UserCoreUtil.addTenantDomainToEntry(username, tenantDomain);
+        username = username.toLowerCase();
+
+        /* This userStoreDomain variable is used for access token table partitioning. So it is set to null when access
+        token table partitioning is not enabled.*/
+        userStoreDomain = null;
         if (OAuth2Util.checkAccessTokenPartitioningEnabled() && OAuth2Util.checkUserNameAssertionEnabled()) {
             try {
                 userStoreDomain = OAuth2Util.getUserStoreDomainFromUserId(username);
@@ -111,7 +118,7 @@ public class IdentityOathEventListener extends AbstractUserOperationEventListene
                 if (scopedToken != null) {
                     try {
                         //Revoking token from database
-                        tokenMgtDAO.revokeToken(scopedToken.getAccessToken());
+                        tokenMgtDAO.revokeTokens(new String[]{scopedToken.getAccessToken()});
                     } catch (IdentityOAuth2Exception e) {
                         String errorMsg = "Error occurred while revoking " +
                                 "Access Token : " + scopedToken.getAccessToken();

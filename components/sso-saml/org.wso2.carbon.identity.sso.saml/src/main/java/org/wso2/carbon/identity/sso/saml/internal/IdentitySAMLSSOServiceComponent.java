@@ -38,6 +38,7 @@ import org.wso2.carbon.utils.ConfigurationContextService;
 import javax.servlet.Servlet;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.util.Scanner;
 
 /**
@@ -88,7 +89,7 @@ public class IdentitySAMLSSOServiceComponent {
         // Register a SSOServiceProviderConfigManager object as an OSGi Service
         ctxt.getBundleContext().registerService(SSOServiceProviderConfigManager.class.getName(),
                 SSOServiceProviderConfigManager.getInstance(), null);
-
+        String redirectHtmlPath = null;
         try {
             IdentityUtil.populateProperties();
             SAMLSSOUtil.setSingleLogoutRetryCount(Integer.parseInt(
@@ -103,7 +104,7 @@ public class IdentitySAMLSSOServiceComponent {
                     SAMLSSOUtil.getSingleLogoutRetryInterval() + " in seconds.");
 
 
-            String redirectHtmlPath = CarbonUtils.getCarbonHome() + File.separator + "repository"
+            redirectHtmlPath = CarbonUtils.getCarbonHome() + File.separator + "repository"
                     + File.separator + "resources" + File.separator + "identity" + File.separator + "pages" + File.separator + "samlsso_response.html";
             FileInputStream fis = new FileInputStream(new File(redirectHtmlPath));
             ssoRedirectPage = new Scanner(fis, "UTF-8").useDelimiter("\\A").next();
@@ -114,6 +115,10 @@ public class IdentitySAMLSSOServiceComponent {
             Util.initSSOConfigParams();
             if (log.isDebugEnabled()) {
                 log.info("Identity SAML SSO bundle is activated");
+            }
+        } catch (FileNotFoundException e) {
+            if (log.isDebugEnabled()) {
+                log.debug("Failed to find SAML SSO response page in : " + redirectHtmlPath);
             }
         } catch (Throwable e) {
             SAMLSSOUtil.setSingleLogoutRetryCount(defaultSingleLogoutRetryCount);

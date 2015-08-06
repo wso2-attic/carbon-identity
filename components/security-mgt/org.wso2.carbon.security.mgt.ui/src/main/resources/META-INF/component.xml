@@ -22,12 +22,38 @@
             <id>keystores_menu</id>
             <i18n-key>security.keystores</i18n-key>
             <i18n-bundle>org.wso2.carbon.security.ui.i18n.Resources</i18n-bundle>
-            <parent-menu>configure_menu</parent-menu>
-            <link>../keystoremgt/keystore-mgt.jsp</link>
+            <parent-menu>manage_menu</parent-menu>
+            <link>#</link>
             <region>region1</region>
-            <order>10</order>
+            <order>3</order>
             <style-class>manage</style-class>
             <icon>../keystoremgt/images/keystore.gif</icon>
+            <require-permission>/permission/admin/configure/security</require-permission>
+        </menu>
+
+        <menu>
+            <id>keystores_add_menu</id>
+            <i18n-key>security.add.keystores</i18n-key>
+            <i18n-bundle>org.wso2.carbon.security.ui.i18n.Resources</i18n-bundle>
+            <parent-menu>keystores_menu</parent-menu>
+            <link>../keystoremgt/add-keystore-step1.jsp</link>
+            <region>region1</region>
+            <order>1</order>
+            <style-class>manage</style-class>
+            <icon>../keystoremgt/images/add.gif</icon>
+            <require-permission>/permission/admin/configure/security</require-permission>
+        </menu>
+
+        <menu>
+            <id>keystores_list_menu</id>
+            <i18n-key>security.list.keystores</i18n-key>
+            <i18n-bundle>org.wso2.carbon.security.ui.i18n.Resources</i18n-bundle>
+            <parent-menu>keystores_menu</parent-menu>
+            <link>../keystoremgt/keystore-mgt.jsp</link>
+            <region>region1</region>
+            <order>2</order>
+            <style-class>manage</style-class>
+            <icon>../keystoremgt/images/list.gif</icon>
             <require-permission>/permission/admin/configure/security</require-permission>
         </menu>
     </menus>

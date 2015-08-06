@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.identity.provisioning.listener;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.CarbonContext;
@@ -28,6 +29,7 @@ import org.wso2.carbon.identity.application.common.model.ThreadLocalProvisioning
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
 import org.wso2.carbon.identity.application.mgt.ApplicationConstants;
 import org.wso2.carbon.identity.application.mgt.ApplicationManagementService;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.provisioning.IdentityProvisioningConstants;
 import org.wso2.carbon.identity.provisioning.IdentityProvisioningException;
 import org.wso2.carbon.identity.provisioning.OutboundProvisioningManager;
@@ -68,6 +70,9 @@ public class DefaultInboundUserProvisioningListener extends AbstractUserOperatio
     public boolean doPreAddUser(String userName, Object credential, String[] roleList,
                                 Map<String, String> inboundAttributes, String profile, UserStoreManager userStoreManager)
             throws UserStoreException {
+        if (!isProvisioningListenerEnable()) {
+            return true;
+        }
 
         try {
             Map<ClaimMapping, List<String>> outboundAttributes = new HashMap<>();
@@ -156,6 +161,10 @@ public class DefaultInboundUserProvisioningListener extends AbstractUserOperatio
     public boolean doPreSetUserClaimValues(String userName, Map<String, String> inboundAttributes,
                                            String profileName, UserStoreManager userStoreManager) throws UserStoreException {
 
+        if (!isProvisioningListenerEnable()) {
+            return true;
+        }
+
         try {
             Map<ClaimMapping, List<String>> outboundAttributes = new HashMap<>();
 
@@ -224,6 +233,10 @@ public class DefaultInboundUserProvisioningListener extends AbstractUserOperatio
     public boolean doPreDeleteUser(String userName, UserStoreManager userStoreManager)
             throws UserStoreException {
 
+        if (!isProvisioningListenerEnable()) {
+            return true;
+        }
+
         try {
             Map<ClaimMapping, List<String>> outboundAttributes = new HashMap<>();
 
@@ -284,6 +297,10 @@ public class DefaultInboundUserProvisioningListener extends AbstractUserOperatio
      */
     public boolean doPostUpdateUserListOfRole(String roleName, String[] deletedUsers,
                                               String[] newUsers, UserStoreManager userStoreManager) throws UserStoreException {
+
+        if (!isProvisioningListenerEnable()) {
+            return true;
+        }
 
         try {
             String[] userList = userStoreManager.getUserListOfRole(roleName);
@@ -359,6 +376,10 @@ public class DefaultInboundUserProvisioningListener extends AbstractUserOperatio
      */
     public boolean doPostUpdateRoleListOfUser(String userName, String[] deletedRoles,
                                               String[] newRoles, UserStoreManager userStoreManager) throws UserStoreException {
+
+        if (!isProvisioningListenerEnable()) {
+            return true;
+        }
 
         try {
             String[] roleList = userStoreManager.getRoleListOfUser(userName);
@@ -454,6 +475,10 @@ public class DefaultInboundUserProvisioningListener extends AbstractUserOperatio
     public boolean doPreAddRole(String roleName, String[] userList, Permission[] permissions,
                                 UserStoreManager userStoreManager) throws UserStoreException {
 
+        if (!isProvisioningListenerEnable()) {
+            return true;
+        }
+
         try {
             Map<ClaimMapping, List<String>> outboundAttributes = new HashMap<>();
 
@@ -524,6 +549,10 @@ public class DefaultInboundUserProvisioningListener extends AbstractUserOperatio
     public boolean doPreDeleteRole(String roleName, UserStoreManager userStoreManager)
             throws UserStoreException {
 
+        if (!isProvisioningListenerEnable()) {
+            return true;
+        }
+
         try {
 
             Map<ClaimMapping, List<String>> outboundAttributes = new HashMap<>();
@@ -582,4 +611,17 @@ public class DefaultInboundUserProvisioningListener extends AbstractUserOperatio
         }
     }
 
+
+    private boolean isProvisioningListenerEnable() {
+
+        boolean listenerEnable = false;
+        String listenerProperty = IdentityUtil.getProperty(IdentityProvisioningConstants
+                .PARAM_ENABLE_DEFAULT_INBOUND_PROV_LISTENER);
+
+        if (StringUtils.isNotBlank(listenerProperty)) {
+            listenerEnable = Boolean.parseBoolean(listenerProperty);
+        }
+
+        return listenerEnable;
+    }
 }

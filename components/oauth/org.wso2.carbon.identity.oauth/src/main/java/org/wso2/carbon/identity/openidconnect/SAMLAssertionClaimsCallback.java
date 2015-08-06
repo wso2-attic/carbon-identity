@@ -41,6 +41,7 @@ import org.wso2.carbon.identity.oauth.common.OAuthConstants;
 import org.wso2.carbon.identity.oauth.config.OAuthServerConfiguration;
 import org.wso2.carbon.identity.oauth2.internal.OAuth2ServiceComponentHolder;
 import org.wso2.carbon.identity.oauth2.token.OAuthTokenReqMessageContext;
+import org.wso2.carbon.identity.oauth2.util.OAuth2Util;
 import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.user.core.UserStoreManager;
@@ -182,8 +183,8 @@ public class SAMLAssertionClaimsCallback implements CustomClaimsCallbackHandler 
     private static Map<String, Object> getClaimsFromUserStore(OAuthTokenReqMessageContext requestMsgCtx)
             throws Exception {
 
-        String username = requestMsgCtx.getAuthorizedUser();
-        String tenantDomain = MultitenantUtils.getTenantDomain(requestMsgCtx.getAuthorizedUser());
+        String username = requestMsgCtx.getAuthorizedUser().toString();
+        String tenantDomain = requestMsgCtx.getAuthorizedUser().getTenantDomain();
 
         UserRealm realm;
         List<String> claimURIList = new ArrayList<String>();

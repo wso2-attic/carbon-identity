@@ -1236,11 +1236,11 @@ public class ApplicationDAOImpl implements ApplicationDAO {
                 localAndOutboundAuthenticationConfig.setAlwaysSendBackAuthenticatedListOfIdPs("1"
                         .equals(basicAppDataResultSet.getString(12)));
                 localAndOutboundAuthenticationConfig.setSubjectClaimUri(basicAppDataResultSet
-                        .getString(13));
+                        .getString(15));
                 serviceProvider
                         .setLocalAndOutBoundAuthenticationConfig(localAndOutboundAuthenticationConfig);
 
-                serviceProvider.setSaasApp("1".equals(basicAppDataResultSet.getString(14)));
+                serviceProvider.setSaasApp("1".equals(basicAppDataResultSet.getString(16)));
 
                 if (debugMode) {
                     log.debug("ApplicationID: " + serviceProvider.getApplicationID()
