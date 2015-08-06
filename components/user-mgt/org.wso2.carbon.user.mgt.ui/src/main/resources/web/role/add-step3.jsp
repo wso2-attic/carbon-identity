@@ -183,10 +183,10 @@
             form.setAttribute("method", "POST");
             form.setAttribute("action", page + "?" + pageNumberParameterName + "=" + pageNumber + "&roleName=" + '<%=roleName%>');
             var selectedUsersStr = "";
-            $("input:checkbox:checked").each(function(index){
+            $("input[type='checkbox']:checked").each(function(index){
                 if(!$(this).is(":disabled")){
                     selectedUsersStr += $(this).val();
-                    if(index != $("input:checkbox:checked").length-1){
+                    if(index != $("input[type='checkbox']:checked").length-1){
                         selectedUsersStr += ":";
                     }
                 }
@@ -197,10 +197,10 @@
             selectedUsersElem.setAttribute("value", selectedUsersStr);
             form.appendChild(selectedUsersElem);
             var unselectedUsersStr = "";
-            $("input:checkbox:not(:checked)").each(function(index){
+            $("input[type='checkbox']:not(:checked)").each(function(index){
                 if(!$(this).is(":disabled")){
                     unselectedUsersStr += $(this).val();
-                    if(index != $("input:checkbox:not(:checked)").length-1){
+                    if(index != $("input[type='checkbox']:not(:checked)").length-1){
                         unselectedUsersStr += ":";
                     }
                 }
