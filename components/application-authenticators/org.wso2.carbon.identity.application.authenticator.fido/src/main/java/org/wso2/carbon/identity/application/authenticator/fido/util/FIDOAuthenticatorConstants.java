@@ -30,13 +30,10 @@ public class FIDOAuthenticatorConstants {
     public static final String UNUSED = "unused";
     public static final String AUTHENTICATION_STATUS = "Authentication Failed !";
     public static final String AUTHENTICATION_ERROR_MESSAGE = "No registered device found, Please register your device before sign in.";
-    public static final String PRIMARY_USER_DOMAIN = "PRIMARY";
 
     public static final String U2F_KEY_HANDLE = "KEY_HANDLE";
     public static final String U2F_DEVICE_DATA = "DEVICE_DATA";
     public static final String U2F_DEVICE_METADATA = "TIME_REGISTERED";
-    public static final String UTF_8 = "UTF-8";
-    public static final String UTC = "UTC";
 
     public static class SQLQueries {
         private SQLQueries() {

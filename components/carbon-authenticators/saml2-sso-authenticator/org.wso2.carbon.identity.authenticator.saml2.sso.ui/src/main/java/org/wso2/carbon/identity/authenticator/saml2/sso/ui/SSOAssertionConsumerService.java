@@ -162,6 +162,20 @@ public class SSOAssertionConsumerService extends HttpServlet {
         }
 
         if (assertion == null) {
+
+            // This condition would succeed if Passive Login Request was sent because SP session has timed out
+            if (samlResponse.getStatus() != null &&
+                    samlResponse.getStatus().getStatusCode() != null &&
+                    samlResponse.getStatus().getStatusCode().getValue().equals("urn:oasis:names:tc:SAML:2.0:status:Responder") &&
+                    samlResponse.getStatus().getStatusCode().getStatusCode() != null &&
+                    samlResponse.getStatus().getStatusCode().getStatusCode().getValue().equals("urn:oasis:names:tc:SAML:2.0:status:NoPassive")) {
+
+                RequestDispatcher requestDispatcher = req.getRequestDispatcher("/carbon/admin/login.jsp");
+                requestDispatcher.forward(req, resp);
+                return;
+
+            }
+
             if (samlResponse.getStatus() != null &&
                     samlResponse.getStatus().getStatusMessage() != null) {
                 log.error(samlResponse.getStatus().getStatusMessage().getMessage());

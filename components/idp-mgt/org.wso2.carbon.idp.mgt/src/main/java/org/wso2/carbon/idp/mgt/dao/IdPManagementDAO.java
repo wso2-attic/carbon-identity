@@ -1091,7 +1091,7 @@ public class IdPManagementDAO {
                     federatedIdp.setPrimary(false);
                 }
 
-                federatedIdp.setHomeRealmId(rs.getString("dp.HOME_REALM_ID"));
+                federatedIdp.setHomeRealmId(rs.getString("idp.HOME_REALM_ID"));
                 federatedIdp.setCertificate(getBlobValue(rs.getBinaryStream("idp.CERTIFICATE")));
                 federatedIdp.setAlias(rs.getString("idp.ALIAS"));
 
