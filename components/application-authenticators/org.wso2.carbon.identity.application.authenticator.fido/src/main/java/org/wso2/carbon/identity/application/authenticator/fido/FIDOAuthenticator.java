@@ -34,6 +34,8 @@ import org.wso2.carbon.identity.application.authenticator.fido.dto.FIDOUser;
 import org.wso2.carbon.identity.application.authenticator.fido.u2f.U2FService;
 import org.wso2.carbon.identity.application.authenticator.fido.util.FIDOAuthenticatorConstants;
 import org.wso2.carbon.identity.application.authenticator.fido.util.FIDOUtil;
+import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
+import org.wso2.carbon.user.core.UserCoreConstants;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -132,9 +134,9 @@ public class FIDOAuthenticator extends AbstractApplicationAuthenticator
                         "&data=" + data.toJson());
             } else {
                 String redirectURL = loginPage.replace("authentication.jsp", "retry.do");
-                redirectURL = response.encodeRedirectURL(redirectURL + ("?")) + "&failedUsername=" + URLEncoder.encode(user.getUserName(), FIDOAuthenticatorConstants.UTF_8) +
-                        "&statusMsg=" + URLEncoder.encode(FIDOAuthenticatorConstants.AUTHENTICATION_ERROR_MESSAGE, FIDOAuthenticatorConstants.UTF_8) +
-                        "&status=" + URLEncoder.encode(FIDOAuthenticatorConstants.AUTHENTICATION_STATUS, FIDOAuthenticatorConstants.UTF_8);
+                redirectURL = response.encodeRedirectURL(redirectURL + ("?")) + "&failedUsername=" + URLEncoder.encode(user.getUserName(), IdentityCoreConstants.UTF_8) +
+                        "&statusMsg=" + URLEncoder.encode(FIDOAuthenticatorConstants.AUTHENTICATION_ERROR_MESSAGE, IdentityCoreConstants.UTF_8) +
+                        "&status=" + URLEncoder.encode(FIDOAuthenticatorConstants.AUTHENTICATION_STATUS, IdentityCoreConstants.UTF_8);
                 response.sendRedirect(redirectURL);
             }
 
@@ -160,7 +162,7 @@ public class FIDOAuthenticator extends AbstractApplicationAuthenticator
                             .getApplicationAuthenticator() instanceof LocalApplicationAuthenticator) {
                 authenticatedUser = context.getSequenceConfig().getStepMap().get(i).getAuthenticatedUser();
                 if (authenticatedUser.getUserStoreDomain() == null) {
-                    authenticatedUser.setUserStoreDomain(FIDOAuthenticatorConstants.PRIMARY_USER_DOMAIN);
+                    authenticatedUser.setUserStoreDomain(UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME);
                 }
 
 

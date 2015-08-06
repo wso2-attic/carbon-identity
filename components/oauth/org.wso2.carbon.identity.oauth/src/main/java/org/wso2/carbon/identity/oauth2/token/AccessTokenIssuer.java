@@ -137,15 +137,16 @@ public class AccessTokenIssuer {
         // loading the stored application data
         OAuthAppDO oAuthAppDO = getAppInformation(tokenReqDTO);
         String applicationName = oAuthAppDO.getApplicationName();
-        String userName = tokReqMsgCtx.getAuthorizedUser();
         if (!authzGrantHandler.isOfTypeApplicationUser()) {
-            tokReqMsgCtx.setAuthorizedUser(oAuthAppDO.getUserName());
+            tokReqMsgCtx.setAuthorizedUser(OAuth2Util.getUserFromUserName(oAuthAppDO.getUserName()));
             tokReqMsgCtx.setTenantID(oAuthAppDO.getTenantId());
         }
 
         boolean isValidGrant = authzGrantHandler.validateGrant(tokReqMsgCtx);
         boolean isAuthorized = authzGrantHandler.authorizeAccessDelegation(tokReqMsgCtx);
         boolean isValidScope = authzGrantHandler.validateScope(tokReqMsgCtx);
+
+        String userName = tokReqMsgCtx.getAuthorizedUser().toString();
 
         //boolean isAuthenticated = true;
         if (!isAuthenticated) {

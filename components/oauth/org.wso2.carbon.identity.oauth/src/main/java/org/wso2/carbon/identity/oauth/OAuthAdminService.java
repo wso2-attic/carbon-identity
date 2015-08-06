@@ -25,6 +25,7 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.core.AbstractAdmin;
+import org.wso2.carbon.identity.application.common.model.User;
 import org.wso2.carbon.identity.core.model.OAuthAppDO;
 import org.wso2.carbon.identity.oauth.cache.AppInfoCache;
 import org.wso2.carbon.identity.oauth.cache.OAuthCache;
@@ -432,14 +433,11 @@ public class OAuthAdminService extends AbstractAdmin {
                             log.error(errorMsg, e);
                             throw new IdentityOAuthAdminException(errorMsg, e);
                         }
-                        String authzUser;
+                        User authzUser;
                         for (AccessTokenDO accessTokenDO : accessTokenDOs) {
                             //Clear cache with AccessTokenDO
                             authzUser = accessTokenDO.getAuthzUser();
-                            boolean isUsernameCaseSensitive = OAuth2Util.isUsernameCaseSensitive(authzUser);
-                            if (!isUsernameCaseSensitive){
-                                authzUser = authzUser.toLowerCase();
-                            }
+
                             OAuthUtil.clearOAuthCache(accessTokenDO.getConsumerKey(), authzUser,
                                     OAuth2Util.buildScopeString(accessTokenDO.getScope()));
                             OAuthUtil.clearOAuthCache(accessTokenDO.getConsumerKey(), authzUser);
@@ -461,7 +459,7 @@ public class OAuthAdminService extends AbstractAdmin {
                             if (scopedToken != null) {
                                 //Revoking token from database
                                 try {
-                                    tokenMgtDAO.revokeToken(scopedToken.getAccessToken());
+                                    tokenMgtDAO.revokeTokens(new String[]{scopedToken.getAccessToken()});
                                 } catch (IdentityOAuth2Exception e) {
                                     String errorMsg = "Error occurred while revoking " + "Access Token : " +
                                             scopedToken.getAccessToken();

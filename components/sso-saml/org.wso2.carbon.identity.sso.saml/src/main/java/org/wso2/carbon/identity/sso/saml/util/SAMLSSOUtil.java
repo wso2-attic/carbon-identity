@@ -446,7 +446,7 @@ public class SAMLSSOUtil {
         IdentityProvider identityProvider;
         int tenantId;
         String tenantDomain = getTenantDomainFromThreadLocal();
-        if (tenantDomain == null || "null".equals(tenantDomain)) {
+        if (StringUtils.isBlank(tenantDomain) || "null".equals(tenantDomain)) {
             tenantDomain = MultitenantConstants.SUPER_TENANT_DOMAIN_NAME;
         }
         try {

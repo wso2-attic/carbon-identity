@@ -296,6 +296,9 @@
     <h2><fmt:message key='policy.administration'/></h2>
     <div id="workArea">
 
+    <%
+        if (CarbonUIUtil.isUserAuthorized(request, "/permission/admin/configure/entitlement/policy/manage/add")) {
+    %>
     <table style="border:none; margin-bottom:10px">
         <tr>
             <td>
@@ -318,6 +321,9 @@
             <%--</td>--%>
         </tr>
     </table>
+    <%
+        }
+    %>
 
     <form action="index.jsp" name="searchForm" method="post">
         <table id="searchTable" name="searchTable" class="styledLeft" style="border:0;
@@ -383,18 +389,32 @@
                &nbsp; | &nbsp;</td><td><a style="cursor: pointer;" onclick="selectAllInThisPage(false);return false;" href="#"><fmt:message key="selectNone"/></a>
             </td>
             <td width="20%">&nbsp;</td>
+            <%
+                if (CarbonUIUtil.isUserAuthorized(request, "/permission/admin/configure/entitlement/policy/manage/delete")) {
+            %>
             <td>
                 <a onclick="deleteServices();return false;"  href="#"  class="icon-link"
                    style="background-image: url(images/delete.gif);" ><fmt:message key="delete"/></a>
             </td>
+            <%
+                }
+                if (CarbonUIUtil.isUserAuthorized(request, "/permission/admin/configure/entitlement/policy/publish")) {
+            %>
             <td>
                 <a onclick="publishPolicies();return false;"  href="#" class="icon-link"
                    style="background-image: url(images/publish.gif);" ><fmt:message key="publish.selected"/></a>
             </td>
+            <%
+                }
+                if (CarbonUIUtil.isUserAuthorized(request, "/permission/admin/configure/entitlement/policy/publish")) {
+            %>
             <td>
                 <a onclick="publishAllPolicies();return false;"  class="icon-link" href="#"
                    style="background-image: url(images/publish-all.gif);" ><fmt:message key="publish.all.policies"/></a>
             </td>
+            <%
+                }
+            %>
             <td width="20%">&nbsp;</td>
         </tr>
         </tbody>
@@ -438,27 +458,58 @@
                     </nobr>
                 </td>
                 
+                <%
+                    boolean canEdit = CarbonUIUtil.isUserAuthorized(request, "/permission/admin/configure/entitlement/policy/manage/edit");
+                    boolean canViewVersions = CarbonUIUtil.isUserAuthorized(request, "/permission/admin/configure/entitlement/policy/view");
+                    boolean canPublish = CarbonUIUtil.isUserAuthorized(request, "/permission/admin/configure/entitlement/policy/publish");
+                    boolean canTryIt  = CarbonUIUtil.isUserAuthorized(request, "/permission/admin/configure/entitlement/policy/manage/test");
+                    boolean canViewStatus = CarbonUIUtil.isUserAuthorized(request, "/permission/admin/configure/entitlement/policy/view");
+                %>
+
+
                 <td width="60%">
+                    <%
+                        if (canEdit) {
+                    %>
                     <a title="<fmt:message key='edit.policy'/>"
                      onclick="edit('<%=policies[i].getPolicyId()%>');return false;"
                     href="#" style="background-image: url(images/edit.gif);" class="icon-link">
                     <fmt:message key='edit'/></a>
+                    <%
+                        }
+                        if (canViewVersions) {
+                    %>
                     <a title="<fmt:message key='versions'/>"
                        onclick="showVersions('<%=policies[i].getPolicyId()%>');return false;"
                        href="#" style="background-image: url(images/edit.gif);" class="icon-link">
                         <fmt:message key='versions'/></a>
+                    <%
+                        }
+                        if (canPublish) {
+                    %>
                     <a title="<fmt:message key='publish.to.pdp'/>"   id="publish"
                        onclick="publishPolicyToPDP('<%=policies[i].getPolicyId()%>');return false;"
                        href="#" style="background-image: url(images/publish.gif);" class="icon-link">
                         <fmt:message key='publish.to.pdp'/></a>
+                    <%
+                        }
+                        if (canTryIt) {
+                    %>
                     <a title="<fmt:message key='try.this'/>"
                        onclick="tryPolicy('<%=policies[i].getPolicyId()%>');return false;"
                        href="#" style="background-image: url(images/evaluate.png);" class="icon-link">
                         <fmt:message key='try.this'/></a>
+                    <%
+                        }
+                        if (canViewStatus) {
+                    %>
                     <a title="<fmt:message key='view'/>"
                        onclick="viewStatus('<%=policies[i].getPolicyId()%>');return false;"
                        href="#" style="background-image: url(images/view.gif);" class="icon-link">
                         <fmt:message key='view.status'/></a>
+                    <%
+                        }
+                    %>
                 </td>
             </tr>
             <%} } } else { %>

@@ -63,6 +63,13 @@ public class LogoutRequestProcessor {
             // the logout responses
             SSOSessionPersistenceManager ssoSessionPersistenceManager = SSOSessionPersistenceManager
                     .getPersistenceManager();
+            if (StringUtils.isBlank(sessionId)) {
+                String message = "Session was already Expired";
+                log.error(message);
+                return buildErrorResponse(logoutRequest.getID(),
+                                          SAMLSSOConstants.StatusCodes.REQUESTOR_ERROR, message,
+                                          logoutRequest.getDestination());
+            }
             String sessionIndex = ssoSessionPersistenceManager.getSessionIndexFromTokenId(sessionId);
 
             // Only if the logout request is received.
