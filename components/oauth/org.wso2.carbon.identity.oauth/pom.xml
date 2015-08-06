@@ -241,6 +241,7 @@
                             org.wso2.carbon.identity.oauth.*; version="${carbon.identity.package.export.version}",
                             org.wso2.carbon.identity.oauth2.*; version="${carbon.identity.package.export.version}",
                             org.wso2.carbon.identity.openidconnect.*;
+                            org.wso2.carbon.identity.oidcdiscovery.*;
                             version="${carbon.identity.package.export.version}",
                         </Export-Package>
                         <DynamicImport-Package>*</DynamicImport-Package>

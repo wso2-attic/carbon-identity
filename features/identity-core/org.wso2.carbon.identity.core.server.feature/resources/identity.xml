@@ -186,7 +186,82 @@
                          <SkipUserConsent>false</SkipUserConsent>
                 </OpenIDConnect>
 	</OAuth>
-
+	<OpenIDConnectDiscovery>
+		<Configuration name="default">
+			<Issuer>MyIssuer</Issuer>
+			<Authorization_endpoint></Authorization_endpoint>
+			<Token_endpoint></Token_endpoint>
+			<Userinfo_endpoint></Userinfo_endpoint>
+			<Jwks_uri></Jwks_uri>
+			<Registration_endpoint></Registration_endpoint>
+			<Scopes_supported></Scopes_supported>
+			<Response_types_supported></Response_types_supported>
+			<Response_modes_supported></Response_modes_supported>
+			<Grant_types_supported></Grant_types_supported>
+			<Acr_values_supported></Acr_values_supported>
+			<Subject_types_supported></Subject_types_supported>
+			<ID_token_signing_alg_values_supported></ID_token_signing_alg_values_supported>
+			<ID_token_encryption_alg_values_supported></ID_token_encryption_alg_values_supported>
+			<ID_token_encryption_enc_values_supported></ID_token_encryption_enc_values_supported>
+			<Userinfo_signing_alg_values_supported></Userinfo_signing_alg_values_supported>
+			<Userinfo_encryption_alg_values_supported></Userinfo_encryption_alg_values_supported>
+			<Userinfo_encryption_enc_values_supported></Userinfo_encryption_enc_values_supported>
+			<Request_object_signing_alg_values_supported></Request_object_signing_alg_values_supported>
+			<Request_object_encryption_alg_values_supported></Request_object_encryption_alg_values_supported>
+			<Request_object_encryption_enc_values_supported></Request_object_encryption_enc_values_supported>
+			<Token_endpoint_auth_methods_supported></Token_endpoint_auth_methods_supported>
+			<Token_endpoint_auth_signing_alg_values_supported></Token_endpoint_auth_signing_alg_values_supported>
+			<Display_values_supported></Display_values_supported>
+			<Claim_types_supported></Claim_types_supported>
+			<Claims_supported></Claims_supported>
+			<Service_documentation></Service_documentation>
+			<Claims_locales_supported></Claims_locales_supported>
+			<UI_locales_supported></UI_locales_supported>
+			<Claims_parameter_supported></Claims_parameter_supported>
+			<Request_parameter_supported></Request_parameter_supported>
+			<Request_uri_parameter_supported></Request_uri_parameter_supported>
+			<Require_request_uri_registration></Require_request_uri_registration>
+			<OP_policy_uri></OP_policy_uri>
+			<OP_tos_uri></OP_tos_uri>
+		</Configuration>
+		<Configuration name="chamara">
+			<Issuer>Chamara</Issuer>
+			<Authorization_endpoint></Authorization_endpoint>
+			<Token_endpoint></Token_endpoint>
+			<Userinfo_endpoint></Userinfo_endpoint>
+			<Jwks_uri></Jwks_uri>
+			<Registration_endpoint></Registration_endpoint>
+			<Scopes_supported></Scopes_supported>
+			<Response_types_supported></Response_types_supported>
+			<Response_modes_supported></Response_modes_supported>
+			<Grant_types_supported></Grant_types_supported>
+			<Acr_values_supported></Acr_values_supported>
+			<Subject_types_supported></Subject_types_supported>
+			<ID_token_signing_alg_values_supported></ID_token_signing_alg_values_supported>
+			<ID_token_encryption_alg_values_supported></ID_token_encryption_alg_values_supported>
+			<ID_token_encryption_enc_values_supported></ID_token_encryption_enc_values_supported>
+			<Userinfo_signing_alg_values_supported></Userinfo_signing_alg_values_supported>
+			<Userinfo_encryption_alg_values_supported></Userinfo_encryption_alg_values_supported>
+			<Userinfo_encryption_enc_values_supported></Userinfo_encryption_enc_values_supported>
+			<Request_object_signing_alg_values_supported></Request_object_signing_alg_values_supported>
+			<Request_object_encryption_alg_values_supported></Request_object_encryption_alg_values_supported>
+			<Request_object_encryption_enc_values_supported></Request_object_encryption_enc_values_supported>
+			<Token_endpoint_auth_methods_supported></Token_endpoint_auth_methods_supported>
+			<Token_endpoint_auth_signing_alg_values_supported></Token_endpoint_auth_signing_alg_values_supported>
+			<Display_values_supported></Display_values_supported>
+			<Claim_types_supported></Claim_types_supported>
+			<Claims_supported></Claims_supported>
+			<Service_documentation></Service_documentation>
+			<Claims_locales_supported></Claims_locales_supported>
+			<UI_locales_supported></UI_locales_supported>
+			<Claims_parameter_supported></Claims_parameter_supported>
+			<Request_parameter_supported></Request_parameter_supported>
+			<Request_uri_parameter_supported></Request_uri_parameter_supported>
+			<Require_request_uri_registration></Require_request_uri_registration>
+			<OP_policy_uri></OP_policy_uri>
+			<OP_tos_uri></OP_tos_uri>
+		</Configuration>
+	</OpenIDConnectDiscovery>
 	<MultifactorAuthentication>
 		<XMPPSettings>
 			<XMPPConfig>
