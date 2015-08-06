@@ -115,6 +115,8 @@
                             org.wso2.carbon.identity.authenticator.saml2.sso.stub;
                             version="${carbon.identity.package.import.version.range}",
                             org.wso2.carbon.identity.authenticator.saml2.sso.stub.types;
+                            version="${carbon.identity.package.import.version.range}",
+                            org.wso2.carbon.identity.application.authentication.framework.model.xsd;
                             version="${carbon.identity.package.import.version.range}"
                         </Import-Package>
                         <Export-Package>

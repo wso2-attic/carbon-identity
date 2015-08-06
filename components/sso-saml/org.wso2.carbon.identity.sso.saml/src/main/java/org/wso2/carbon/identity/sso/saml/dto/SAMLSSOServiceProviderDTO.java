@@ -26,7 +26,8 @@ public class SAMLSSOServiceProviderDTO implements Serializable {
     private String defaultAssertionConsumerUrl;
     private String assertionConsumerUrl;
     private String certAlias;
-    private String logoutURL;
+    private String sloResponseURL;
+    private String sloRequestURL;
     private String loginPageURL;
     private String attributeConsumingServiceIndex;
     private boolean doSingleLogout;
@@ -40,6 +41,8 @@ public class SAMLSSOServiceProviderDTO implements Serializable {
     private String nameIdClaimUri;
     private String nameIDFormat;
     private boolean idPInitSSOEnabled;
+    private boolean idPInitSLOEnabled;
+    private String[] idpInitSLOReturnToURLs;
     private boolean doEnableEncryptedAssertion;
     private boolean doValidateSignatureInRequests;
 
@@ -107,12 +110,12 @@ public class SAMLSSOServiceProviderDTO implements Serializable {
         this.doSingleLogout = doSingleLogout;
     }
 
-    public String getLogoutURL() {
-        return logoutURL;
+    public String getSloResponseURL() {
+        return sloResponseURL;
     }
 
-    public void setLogoutURL(String logoutURL) {
-        this.logoutURL = logoutURL;
+    public void setSloResponseURL(String logoutURL) {
+        this.sloResponseURL = logoutURL;
     }
 
     public String getLoginPageURL() {
@@ -269,4 +272,27 @@ public class SAMLSSOServiceProviderDTO implements Serializable {
         this.defaultAssertionConsumerUrl = defaultAssertionConsumerUrl;
     }
 
+    public String getSloRequestURL() {
+        return sloRequestURL;
+    }
+
+    public void setSloRequestURL(String sloRequestURL) {
+        this.sloRequestURL = sloRequestURL;
+    }
+
+    public boolean isIdPInitSLOEnabled() {
+        return idPInitSLOEnabled;
+    }
+
+    public void setIdPInitSLOEnabled(boolean idPInitSLOEnabled) {
+        this.idPInitSLOEnabled = idPInitSLOEnabled;
+    }
+
+    public String[] getIdpInitSLOReturnToURLs() {
+        return idpInitSLOReturnToURLs;
+    }
+
+    public void setIdpInitSLOReturnToURLs(String[] idpInitSLOReturnToURLs) {
+        this.idpInitSLOReturnToURLs = idpInitSLOReturnToURLs;
+    }
 }

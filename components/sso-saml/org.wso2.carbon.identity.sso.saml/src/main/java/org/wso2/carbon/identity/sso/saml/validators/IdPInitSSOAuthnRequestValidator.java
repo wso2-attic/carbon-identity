@@ -21,14 +21,10 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.base.IdentityException;
-import org.wso2.carbon.identity.core.model.SAMLSSOServiceProviderDO;
 import org.wso2.carbon.identity.sso.saml.SAMLSSOConstants;
-import org.wso2.carbon.identity.sso.saml.SSOServiceProviderConfigManager;
+import org.wso2.carbon.identity.sso.saml.dto.QueryParamDTO;
 import org.wso2.carbon.identity.sso.saml.dto.SAMLSSOReqValidationResponseDTO;
 import org.wso2.carbon.identity.sso.saml.util.SAMLSSOUtil;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 
 public class IdPInitSSOAuthnRequestValidator {
@@ -39,10 +35,9 @@ public class IdPInitSSOAuthnRequestValidator {
     private String acs;
 
 
-    public IdPInitSSOAuthnRequestValidator(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse,
-                                           String spEntityID, String acs, String relayState) throws IdentityException {
-        this.spEntityID = spEntityID;
-        this.acs = acs;
+    public IdPInitSSOAuthnRequestValidator(QueryParamDTO[] queryParamDTOs, String relayState) throws IdentityException {
+
+        init(queryParamDTOs);
     }
 
     /**
@@ -84,6 +79,17 @@ public class IdPInitSSOAuthnRequestValidator {
             return validationResponse;
         } catch (Exception e) {
             throw new IdentityException("Error validating the IdP Initiated SSO request", e);
+        }
+    }
+
+    private void init(QueryParamDTO[] queryParamDTOs) {
+
+        for (QueryParamDTO queryParamDTO : queryParamDTOs) {
+            if (SAMLSSOConstants.QueryParameter.SP_ENTITY_ID.toString().equals(queryParamDTO.getKey())) {
+                this.spEntityID = queryParamDTO.getValue();
+            } else if (SAMLSSOConstants.QueryParameter.ACS.toString().equals(queryParamDTO.getKey())) {
+                this.acs = queryParamDTO.getValue();
+            }
         }
     }
 

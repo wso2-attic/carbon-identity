@@ -16,6 +16,8 @@
 
 package org.wso2.carbon.identity.core.model;
 
+import org.apache.commons.lang.StringUtils;
+
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collections;
@@ -31,7 +33,8 @@ public class SAMLSSOServiceProviderDO implements Serializable {
     private List<String> assertionConsumerUrlList;
     private String defaultAssertionConsumerUrl;
     private String certAlias;
-    private String logoutURL;
+    private String sloResponseURL;
+    private String sloRequestURL;
     private boolean doSingleLogout;
     private String loginPageURL;
     private boolean doSignResponse;
@@ -47,6 +50,9 @@ public class SAMLSSOServiceProviderDO implements Serializable {
     private String nameIdClaimUri;
     private String nameIDFormat;
     private boolean isIdPInitSSOEnabled;
+    private boolean idPInitSLOEnabled;
+    private String[] idpInitSLOReturnToURLs;
+    private List<String> idpInitSLOReturnToURLList;
     private boolean doEnableEncryptedAssertion;
     private boolean doValidateSignatureInRequests;
 
@@ -102,13 +108,13 @@ public class SAMLSSOServiceProviderDO implements Serializable {
         this.certAlias = certAlias;
     }
 
-    public String getLogoutURL() {
-        return logoutURL;
+    public String getSloResponseURL() {
+        return sloResponseURL;
     }
 
-    public void setLogoutURL(String logoutURL) {
-        if (logoutURL != null) {
-            this.logoutURL = logoutURL.replaceAll("[\n\r]", "").trim();
+    public void setSloResponseURL(String sloResponseURL) {
+        if (sloResponseURL != null) {
+            this.sloResponseURL = sloResponseURL.replaceAll("[\n\r]", "").trim();
         }
     }
 
@@ -125,8 +131,10 @@ public class SAMLSSOServiceProviderDO implements Serializable {
     }
 
     public void setLoginPageURL(String loginPageURL) {
-        if (loginPageURL != null) {
+        if(StringUtils.isNotBlank(loginPageURL)) {
             this.loginPageURL = loginPageURL.replaceAll("[\n\r]", "").trim();
+        } else {
+            this.loginPageURL = null;
         }
     }
 
@@ -363,7 +371,65 @@ public class SAMLSSOServiceProviderDO implements Serializable {
     }
 
     public void setDefaultAssertionConsumerUrl(String defaultAssertionConsumerUrl) {
-        this.defaultAssertionConsumerUrl = defaultAssertionConsumerUrl;
+        if(StringUtils.isNotBlank(defaultAssertionConsumerUrl)) {
+            this.defaultAssertionConsumerUrl = defaultAssertionConsumerUrl.replaceAll("[\n\r]", "").trim();
+        } else {
+            this.defaultAssertionConsumerUrl = null;
+        }
     }
 
+    public String getSloRequestURL() {
+        return sloRequestURL;
+    }
+
+    public void setSloRequestURL(String sloRequestURL) {
+        if(StringUtils.isNotBlank(sloRequestURL)) {
+            this.sloRequestURL = sloRequestURL.replaceAll("[\n\r]", "").trim();
+        } else {
+            this.sloRequestURL = null;
+        }
+    }
+
+    public boolean isIdPInitSLOEnabled() {
+        return idPInitSLOEnabled;
+    }
+
+    public void setIdPInitSLOEnabled(boolean idPInitSLOEnabled) {
+        this.idPInitSLOEnabled = idPInitSLOEnabled;
+    }
+
+    public String[] getIdpInitSLOReturnToURLs() {
+        if (idpInitSLOReturnToURLs != null) {
+            return idpInitSLOReturnToURLs.clone();
+        } else {
+            return new String[0];
+        }
+    }
+
+    public void setIdpInitSLOReturnToURLs(String[] idpInitSLOReturnToURLs) {
+        if (idpInitSLOReturnToURLs != null) {
+            this.idpInitSLOReturnToURLs = idpInitSLOReturnToURLs.clone();
+            this.idpInitSLOReturnToURLList = Arrays.asList(idpInitSLOReturnToURLs);
+        } else {
+            this.idpInitSLOReturnToURLs = null;
+            this.idpInitSLOReturnToURLList = null;
+        }
+    }
+
+    public List<String> getIdpInitSLOReturnToURLList() {
+        if (idpInitSLOReturnToURLList != null) {
+            return idpInitSLOReturnToURLList;
+        } else {
+            return Collections.emptyList();
+        }
+    }
+
+    public void setIdpInitSLOReturnToURLs(List<String> idpInitSLOReturnToURLList) {
+        this.idpInitSLOReturnToURLList = idpInitSLOReturnToURLList;
+        if (idpInitSLOReturnToURLList != null) {
+            this.idpInitSLOReturnToURLs = idpInitSLOReturnToURLList.toArray(new String[idpInitSLOReturnToURLList.size()]);
+        } else {
+            this.idpInitSLOReturnToURLs = null;
+        }
+    }
 }

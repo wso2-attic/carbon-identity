@@ -26,6 +26,7 @@
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@ page import="java.util.ResourceBundle" %>
 <%@ page import="java.util.Arrays" %>
+<%@ page import="org.apache.commons.lang.StringUtils" %>
 
 <jsp:useBean id="samlSsoServuceProviderConfigBean"
              type="org.wso2.carbon.identity.sso.saml.ui.SAMLSSOProviderConfigBean"
@@ -76,10 +77,18 @@
 
         if ("true".equals(request.getParameter("enableSingleLogout"))) {
             serviceProviderDTO.setDoSingleLogout(true);
+            if (StringUtils.isNotBlank(request.getParameter("sloResponseURL"))) {
+                serviceProviderDTO.setSloResponseURL(request.getParameter("sloResponseURL"));
+            }
+            if (StringUtils.isNotBlank(request.getParameter("sloRequestURL"))) {
+                serviceProviderDTO.setSloRequestURL(request.getParameter("sloRequestURL"));
+            }
         }
+
         if ("true".equals(request.getParameter("enableResponseSignature"))) {
             serviceProviderDTO.setDoSignResponse(true);
         }
+
         if ("true".equals(request.getParameter("enableAssertionSignature"))) {
             serviceProviderDTO.setDoSignAssertions(true);
         }
@@ -111,11 +120,7 @@
         if ("true".equals(request.getParameter("enableRecipients"))) {
             serviceProviderDTO.setRequestedRecipients(samlSsoServuceProviderConfigBean.getSelectedRecipientsArray());
         }
-        
-        if (request.getParameter("logoutURL")!=null && !"null".equals(request.getParameter("logoutURL"))) {
-            serviceProviderDTO.setLogoutURL(request.getParameter("logoutURL"));
-        }
-        
+
         if (request.getParameter("loginPageURL")!=null && !"null".equals(request.getParameter("loginPageURL"))) {
             serviceProviderDTO.setLoginPageURL(request.getParameter("loginPageURL"));
         }
@@ -213,7 +218,13 @@
             serviceProviderDTO.setIdPInitSSOEnabled(true);
         }
 
-
+        if ("true".equals(request.getParameter("enableIdPInitSLO"))) {
+            serviceProviderDTO.setIdPInitSLOEnabled(true);
+            String returnToUrls = SAMLSSOUIUtil.getSafeInput(request, "idpInitSLOReturnToURLs");
+            if(StringUtils.isNotBlank(returnToUrls)) {
+                serviceProviderDTO.setIdpInitSLOReturnToURLs(returnToUrls.split(","));
+            }
+        }
 
         if ("true".equals(request.getParameter("enableEncAssertion"))) {
             serviceProviderDTO.setDoEnableEncryptedAssertion(true);

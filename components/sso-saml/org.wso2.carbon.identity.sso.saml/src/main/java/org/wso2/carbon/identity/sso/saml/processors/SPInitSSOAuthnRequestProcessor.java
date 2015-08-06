@@ -48,9 +48,9 @@ public class SPInitSSOAuthnRequestProcessor {
 
     public SAMLSSORespDTO process(SAMLSSOAuthnReqDTO authnReqDTO, String sessionId,
                                   boolean isAuthenticated, String authenticators, String authMode) throws Exception {
+
         try {
             SAMLSSOServiceProviderDO serviceProviderConfigs = getServiceProviderConfig(authnReqDTO);
-
 
             if (serviceProviderConfigs == null) {
                 String msg =
@@ -138,9 +138,14 @@ public class SPInitSSOAuthnRequestProcessor {
                     spDO.setIssuer(authnReqDTO.getIssuer());
                     spDO.setAssertionConsumerUrl(authnReqDTO.getAssertionConsumerURL());
                     spDO.setCertAlias(authnReqDTO.getCertAlias());
-                    spDO.setLogoutURL(authnReqDTO.getLogoutURL());
+                    spDO.setSloResponseURL(authnReqDTO.getSloResponseURL());
+                    spDO.setSloRequestURL(authnReqDTO.getSloRequestURL());
                     spDO.setTenantDomain(authnReqDTO.getTenantDomain());
                     spDO.setNameIDFormat(authnReqDTO.getNameIDFormat());
+                    spDO.setDoSingleLogout(authnReqDTO.isDoSingleLogout());
+                    spDO.setIdPInitSLOEnabled(authnReqDTO.isIdPInitSLOEnabled());
+                    spDO.setAssertionConsumerUrls(authnReqDTO.getAssertionConsumerURLs());
+                    spDO.setIdpInitSLOReturnToURLs(authnReqDTO.getIdpInitSLOReturnToURLs());
                     sessionPersistenceManager.persistSession(sessionIndexId,
                             authnReqDTO.getUser().getAuthenticatedSubjectIdentifier(),
                             spDO, authnReqDTO.getRpSessionId(),
@@ -236,7 +241,8 @@ public class SPInitSSOAuthnRequestProcessor {
         authnReqDTO.setNameIdClaimUri(ssoIdpConfigs.getNameIdClaimUri());
         authnReqDTO.setNameIDFormat(ssoIdpConfigs.getNameIDFormat());
         authnReqDTO.setDoSingleLogout(ssoIdpConfigs.isDoSingleLogout());
-        authnReqDTO.setLogoutURL(ssoIdpConfigs.getLogoutURL());
+        authnReqDTO.setSloResponseURL(ssoIdpConfigs.getSloResponseURL());
+        authnReqDTO.setSloRequestURL(ssoIdpConfigs.getSloRequestURL());
         authnReqDTO.setDoSignResponse(ssoIdpConfigs.isDoSignResponse());
         authnReqDTO.setDoSignAssertions(ssoIdpConfigs.isDoSignAssertions());
         authnReqDTO.setRequestedClaims(ssoIdpConfigs.getRequestedClaims());
@@ -244,6 +250,9 @@ public class SPInitSSOAuthnRequestProcessor {
         authnReqDTO.setRequestedRecipients(ssoIdpConfigs.getRequestedRecipients());
         authnReqDTO.setDoEnableEncryptedAssertion(ssoIdpConfigs.isDoEnableEncryptedAssertion());
         authnReqDTO.setDoValidateSignatureInRequests(ssoIdpConfigs.isDoValidateSignatureInRequests());
+        authnReqDTO.setIdPInitSLOEnabled(ssoIdpConfigs.isIdPInitSLOEnabled());
+        authnReqDTO.setAssertionConsumerURLs(ssoIdpConfigs.getAssertionConsumerUrls());
+        authnReqDTO.setIdpInitSLOReturnToURLs(ssoIdpConfigs.getIdpInitSLOReturnToURLs());
     }
 
     /**

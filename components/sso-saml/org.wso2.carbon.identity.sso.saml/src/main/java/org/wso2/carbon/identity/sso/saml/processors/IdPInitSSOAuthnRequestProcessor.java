@@ -120,8 +120,13 @@ public class IdPInitSSOAuthnRequestProcessor {
                     spDO.setIssuer(authnReqDTO.getIssuer());
                     spDO.setAssertionConsumerUrl(authnReqDTO.getAssertionConsumerURL());
                     spDO.setCertAlias(authnReqDTO.getCertAlias());
-                    spDO.setLogoutURL(authnReqDTO.getLogoutURL());
+                    spDO.setSloResponseURL(authnReqDTO.getSloResponseURL());
+                    spDO.setSloRequestURL(authnReqDTO.getSloRequestURL());
                     spDO.setTenantDomain(authnReqDTO.getTenantDomain());
+                    spDO.setDoSingleLogout(authnReqDTO.isDoSingleLogout());
+                    spDO.setIdPInitSLOEnabled(authnReqDTO.isIdPInitSLOEnabled());
+                    spDO.setAssertionConsumerUrls(authnReqDTO.getAssertionConsumerURLs());
+                    spDO.setIdpInitSLOReturnToURLs(authnReqDTO.getIdpInitSLOReturnToURLs());
                     sessionPersistenceManager.persistSession(sessionIndexId,
                             authnReqDTO.getUser().getAuthenticatedSubjectIdentifier(), spDO,
                             authnReqDTO.getRpSessionId(), authnReqDTO.getIssuer(),
@@ -214,13 +219,17 @@ public class IdPInitSSOAuthnRequestProcessor {
         authnReqDTO.setNameIdClaimUri(ssoIdpConfigs.getNameIdClaimUri());
         authnReqDTO.setNameIDFormat(ssoIdpConfigs.getNameIDFormat());
         authnReqDTO.setDoSingleLogout(ssoIdpConfigs.isDoSingleLogout());
-        authnReqDTO.setLogoutURL(ssoIdpConfigs.getLogoutURL());
+        authnReqDTO.setSloResponseURL(ssoIdpConfigs.getSloResponseURL());
+        authnReqDTO.setSloRequestURL(ssoIdpConfigs.getSloRequestURL());
         authnReqDTO.setDoSignResponse(ssoIdpConfigs.isDoSignResponse());
         authnReqDTO.setDoSignAssertions(ssoIdpConfigs.isDoSignAssertions());
         authnReqDTO.setRequestedClaims(ssoIdpConfigs.getRequestedClaims());
         authnReqDTO.setRequestedAudiences(ssoIdpConfigs.getRequestedAudiences());
         authnReqDTO.setRequestedRecipients(ssoIdpConfigs.getRequestedRecipients());
         authnReqDTO.setDoEnableEncryptedAssertion(ssoIdpConfigs.isDoEnableEncryptedAssertion());
+        authnReqDTO.setIdPInitSLOEnabled(ssoIdpConfigs.isIdPInitSLOEnabled());
+        authnReqDTO.setAssertionConsumerURLs(ssoIdpConfigs.getAssertionConsumerUrls());
+        authnReqDTO.setIdpInitSLOReturnToURLs(ssoIdpConfigs.getIdpInitSLOReturnToURLs());
     }
 
     /**

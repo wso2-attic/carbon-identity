@@ -22,6 +22,7 @@ import org.opensaml.saml2.core.Assertion;
 import org.opensaml.saml2.core.RequestAbstractType;
 import org.opensaml.saml2.core.StatusResponseType;
 import org.opensaml.xml.security.x509.X509Credential;
+import org.opensaml.xml.signature.SignableXMLObject;
 import org.wso2.carbon.identity.base.IdentityException;
 
 /**
@@ -42,30 +43,19 @@ public interface SSOSigner {
      * @throws IdentityException
      */
 
-    public boolean doValidateXMLSignature(RequestAbstractType request, X509Credential cred, String alias) throws IdentityException;
+    public boolean validateXMLSignature(RequestAbstractType request, X509Credential cred,
+                                        String alias) throws IdentityException;
 
     /**
-     * Set the signature to the SAML assertion
+     * Set the signature to XML object
      *
-     * @param assertion          SAML assertion to be signed
-     * @param signatureAlgorithm Signature algorithm
-     * @param cred               Signature signing credential
-     * @return SAML Assertion with a signature
-     * @throws IdentityException
-     */
-    public Assertion doSetSignature(Assertion assertion, String signatureAlgorithm,
-                                    X509Credential cred) throws IdentityException;
-
-    /**
-     * Sign the Response
-     *
-     * @param response           Response to be signed
-     * @param signatureAlgorithm Signature algorithm
-     * @param cred               Signature signing credential
+     * @param request
+     * @param signatureAlgorithm
+     * @param cred
      * @return
      * @throws IdentityException
      */
-    public StatusResponseType doSignResponse(StatusResponseType response, String signatureAlgorithm,
-                                             X509Credential cred) throws IdentityException;
+    public SignableXMLObject setSignature(SignableXMLObject request, String signatureAlgorithm,
+                                            X509Credential cred) throws IdentityException;
 }
 
