@@ -21,7 +21,7 @@
          xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>identity-workflow-mgt</artifactId>
+        <artifactId>user-mgt</artifactId>
         <groupId>org.wso2.carbon.identity</groupId>
         <version>4.5.4-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
@@ -62,7 +62,7 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
                         <Private-Package>
-                            org.wso2.carbon.user.mgt.workflow,
+                            org.wso2.carbon.user.mgt.workflow.internal,
                         </Private-Package>
                         <Import-Package>
                             org.apache.commons.lang,
