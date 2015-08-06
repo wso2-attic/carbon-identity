@@ -174,8 +174,11 @@
                                             if(allowedGrants.contains("refresh_token")){
                                                 %><tr><label><input type="checkbox" id="grant_refresh" name="grant_refresh" value="refresh_token" checked="checked"/>Refresh Token</label></tr><%
                                             }
+                                            if(allowedGrants.contains("urn:ietf:params:oauth:grant-type:saml1-bearer")){
+                                                %><tr><label><input type="checkbox" id="grant_saml1" name="grant_saml1" value="urn:ietf:params:oauth:grant-type:saml1-bearer" checked="checked"/>SAML1</label></tr><%
+                                            }
                                             if(allowedGrants.contains("urn:ietf:params:oauth:grant-type:saml2-bearer")){
-                                                %><tr><label><input type="checkbox" id="grant_saml" name="grant_saml" value="urn:ietf:params:oauth:grant-type:saml2-bearer" checked="checked"/>SAML</label></tr><%
+                                                %><tr><label><input type="checkbox" id="grant_saml2" name="grant_saml2" value="urn:ietf:params:oauth:grant-type:saml2-bearer" checked="checked"/>SAML2</label></tr><%
                                             }if(allowedGrants.contains("iwa:ntlm")){
                                                 %><tr><label><input type="checkbox" id="grant_ntlm" name="grant_ntlm" value="iwa:ntlm" checked="checked"/>IWA-NTLM</label></tr><%
                                             }

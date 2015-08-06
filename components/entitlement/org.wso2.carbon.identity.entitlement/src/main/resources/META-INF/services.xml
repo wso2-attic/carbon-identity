@@ -26,7 +26,91 @@
 		<parameter name="ServiceClass">
 			org.wso2.carbon.identity.entitlement.EntitlementPolicyAdminService
 		</parameter>
-	    <parameter name="AuthorizationAction" locked="true">/permission/admin/configure</parameter>        
+
+        <operation name="addPolicies">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/configure/entitlement/policy/manage/add</parameter>
+        </operation>
+        <operation name="addPolicy">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/configure/entitlement/policy/manage/add</parameter>
+        </operation>
+        <operation name="addSubscriber">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/configure/entitlement/policy/publish</parameter>
+        </operation>
+        <operation name="deleteSubscriber">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/configure/entitlement/policy/publish</parameter>
+        </operation>
+        <operation name="dePromotePolicy">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/configure/entitlement/policy/manage/demote</parameter>
+        </operation>
+        <operation name="enableDisablePolicy">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/configure/entitlement/policy/manage/enable</parameter>
+        </operation>
+        <operation name="getAllPolicies">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/configure/entitlement/policy/view</parameter>
+        </operation>
+        <operation name="getAllPolicyIds">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/configure/entitlement/policy/view</parameter>
+        </operation>
+        <operation name="getEntitlementData">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/configure/entitlement/policy/view</parameter>
+        </operation>
+        <operation name="getEntitlementDataModules">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/configure/entitlement/policy/view</parameter>
+        </operation>
+        <operation name="getLightPolicy">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/configure/entitlement/policy/view</parameter>
+        </operation>
+        <operation name="getPolicy">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/configure/entitlement/policy/view</parameter>
+        </operation>
+        <operation name="getPolicyByVersion">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/configure/entitlement/policy/view</parameter>
+        </operation>
+        <operation name="getPolicyVersions">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/configure/entitlement/policy/view</parameter>
+        </operation>
+        <operation name="getPublisherModuleData">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/configure/entitlement/policy/publish</parameter>
+        </operation>
+        <operation name="getStatusData">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/configure/entitlement/policy/view</parameter>
+        </operation>
+        <operation name="getSubscriber">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/configure/entitlement/policy/publish</parameter>
+        </operation>
+        <operation name="getSubscriberIds">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/configure/entitlement/policy/publish</parameter>
+        </operation>
+        <operation name="importPolicyFromRegistry">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/configure/entitlement/policy/manage/add</parameter>
+        </operation>
+        <operation name="orderPolicy">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/configure/entitlement/policy/manage/order</parameter>
+        </operation>
+        <operation name="publish">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/configure/entitlement/policy/publish</parameter>
+        </operation>
+        <operation name="publishPolicies">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/configure/entitlement/policy/publish</parameter>
+        </operation>
+        <operation name="publishToPDP">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/configure/entitlement/policy/publish</parameter>
+        </operation>
+        <operation name="removePolicies">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/configure/entitlement/policy/manage/delete</parameter>
+        </operation>
+        <operation name="removePolicy">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/configure/entitlement/policy/manage/delete</parameter>
+        </operation>
+        <operation name="rollBackPolicy">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/configure/entitlement/policy/manage/rollback</parameter>
+        </operation>
+        <operation name="updatePolicy">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/configure/entitlement/policy/manage/edit</parameter>
+        </operation>
+        <operation name="updateSubscriber">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/configure/entitlement/policy/publish</parameter>
+        </operation>
 	</service>
 
 	<service name="EntitlementAdminService" scope="transportsession">
@@ -38,7 +122,67 @@
 		<parameter name="ServiceClass">
 			org.wso2.carbon.identity.entitlement.EntitlementAdminService
 		</parameter>
-	    <parameter name="AuthorizationAction" locked="true">/permission/admin/configure</parameter>
+        <operation name="clearAllAttributeCaches">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/configure/entitlement/pdp/manage</parameter>
+        </operation>
+        <operation name="clearAllResourceCaches">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/configure/entitlement/pdp/manage</parameter>
+        </operation>
+        <operation name="clearAttributeFinderCache">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/configure/entitlement/pdp/manage</parameter>
+        </operation>
+        <operation name="clearAttributeFinderCacheByAttributes">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/configure/entitlement/pdp/manage</parameter>
+        </operation>
+        <operation name="clearCarbonAttributeCache">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/configure/entitlement/pdp/manage</parameter>
+        </operation>
+        <operation name="clearCarbonResourceCache">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/configure/entitlement/pdp/manage</parameter>
+        </operation>
+        <operation name="clearDecisionCache">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/configure/entitlement/pdp/manage</parameter>
+        </operation>
+        <operation name="clearPolicyCache">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/configure/entitlement/pdp/manage</parameter>
+        </operation>
+        <operation name="clearResourceFinderCache">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/configure/entitlement/pdp/manage</parameter>
+        </operation>
+        <operation name="doTestRequest">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/configure/entitlement/policy/manage/test</parameter>
+        </operation>
+        <operation name="doTestRequestForGivenPolicies">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/configure/entitlement/policy/manage/test</parameter>
+        </operation>
+        <operation name="getGlobalPolicyAlgorithm">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/configure/entitlement/policy/view</parameter>
+        </operation>
+        <operation name="getPDPData">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/configure/entitlement/pdp/view</parameter>
+        </operation>
+        <operation name="getPIPAttributeFinderData">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/configure/entitlement/pdp/view</parameter>
+        </operation>
+        <operation name="getPIPResourceFinderData">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/configure/entitlement/pdp/view</parameter>
+        </operation>
+        <operation name="getPolicyFinderData">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/configure/entitlement/pdp/view</parameter>
+        </operation>
+        <operation name="refreshAttributeFinder">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/configure/entitlement/pdp/manage</parameter>
+        </operation>
+        <operation name="refreshPolicyFinders">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/configure/entitlement/pdp/manage</parameter>
+        </operation>
+        <operation name="refreshResourceFinder">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/configure/entitlement/pdp/manage</parameter>
+        </operation>
+        <operation name="setGlobalPolicyAlgorithm">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/configure/entitlement/pdp/manage</parameter>
+        </operation>
+
 	</service>
 
 	<service name="EntitlementService" scope="transportsession">
