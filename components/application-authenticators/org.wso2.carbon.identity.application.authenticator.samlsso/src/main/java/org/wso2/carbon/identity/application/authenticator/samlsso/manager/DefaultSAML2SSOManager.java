@@ -200,7 +200,8 @@ public class DefaultSAML2SSOManager implements SAML2SSOManager {
             Map<String, String> parameterMap = FileBasedConfigurationBuilder.getInstance()
                     .getAuthenticatorBean(SSOConstants.AUTHENTICATOR_NAME).getParameterMap();
             if (parameterMap.size() > 0) {
-                isSignAuth2SAMLUsingSuperTenant = Boolean.parseBoolean(parameterMap.get(SIGN_AUTH2_SAML_USING_SUPER_TENANT));
+                isSignAuth2SAMLUsingSuperTenant = Boolean.parseBoolean(parameterMap.
+                        get(SIGN_AUTH2_SAML_USING_SUPER_TENANT));
             }
             if (isSignAuth2SAMLUsingSuperTenant) {
                 SSOUtils.addSignatureToHTTPQueryString(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME, httpQueryString);
