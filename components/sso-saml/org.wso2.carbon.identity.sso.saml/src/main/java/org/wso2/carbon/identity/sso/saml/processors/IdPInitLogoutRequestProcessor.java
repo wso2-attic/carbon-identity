@@ -70,7 +70,6 @@ public class IdPInitLogoutRequestProcessor {
                 log.error(SAMLSSOConstants.Notification.INVALID_SESSION);
                 validationResponseDTO.setValid(false);
                 validationResponseDTO.setLogoutFromAuthFramework(true);
-                ;
                 return validationResponseDTO;
             }
 
@@ -111,10 +110,9 @@ public class IdPInitLogoutRequestProcessor {
                     }
                     validationResponseDTO.setReturnToURL(returnTo);
                 } else {
-                    validationResponseDTO.setReturnToURL(serverURL.replace(SAMLSSOConstants.SAML_ENDPOINT,
-                                                                                    SAMLSSOConstants
-                                                                                            .DEFAULT_LOGOUT_LOCATION
-                                                                                    + "?spEntityID=" + spEntityID));
+                    validationResponseDTO.setReturnToURL(serverURL.replace(
+                            SAMLSSOConstants.SAML_ENDPOINT, SAMLSSOConstants.DEFAULT_LOGOUT_LOCATION+ "?spEntityID="
+                                                            + spEntityID));
                 }
                 validationResponseDTO.setIssuer(logoutReqIssuer.getIssuer());
                 SAMLSSOUtil.setTenantDomainInThreadLocal(logoutReqIssuer.getTenantDomain());

@@ -17,6 +17,8 @@
  */
 package org.wso2.carbon.identity.sso.saml.dto;
 
+import org.apache.commons.lang.ArrayUtils;
+
 import java.io.Serializable;
 
 public class SAMLSSOServiceProviderDTO implements Serializable {
@@ -289,10 +291,19 @@ public class SAMLSSOServiceProviderDTO implements Serializable {
     }
 
     public String[] getIdpInitSLOReturnToURLs() {
-        return idpInitSLOReturnToURLs;
+
+        if (idpInitSLOReturnToURLs == null) {
+            return ArrayUtils.EMPTY_STRING_ARRAY;
+        }
+        return idpInitSLOReturnToURLs.clone();
     }
 
     public void setIdpInitSLOReturnToURLs(String[] idpInitSLOReturnToURLs) {
-        this.idpInitSLOReturnToURLs = idpInitSLOReturnToURLs;
+
+        if(idpInitSLOReturnToURLs != null) {
+            this.idpInitSLOReturnToURLs = idpInitSLOReturnToURLs.clone();
+        } else {
+            this.idpInitSLOReturnToURLs = null;
+        }
     }
 }
