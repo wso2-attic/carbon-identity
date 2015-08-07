@@ -21,10 +21,15 @@ package org.wso2.carbon.user.mgt.workflow.userstore;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.context.CarbonContext;
+import org.wso2.carbon.identity.workflow.mgt.WorkflowService;
+import org.wso2.carbon.identity.workflow.mgt.bean.Entity;
+import org.wso2.carbon.identity.workflow.mgt.exception.InternalWorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.extension.AbstractWorkflowRequestHandler;
 import org.wso2.carbon.identity.workflow.mgt.util.WorkflowDataType;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.util.WorkflowRequestStatus;
+import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.user.mgt.workflow.internal.IdentityWorkflowDataHolder;
 import org.wso2.carbon.user.api.UserRealm;
 import org.wso2.carbon.user.api.UserStoreException;
@@ -35,6 +40,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 public class UpdateUserRolesWFRequestHandler extends AbstractWorkflowRequestHandler {
 
@@ -59,13 +65,44 @@ public class UpdateUserRolesWFRequestHandler extends AbstractWorkflowRequestHand
 
     public boolean startUpdateUserRolesFlow(String userStoreDomain, String userName, String[] deletedRoles, String[]
             newRoles) throws WorkflowException {
+
+        WorkflowService workflowService = IdentityWorkflowDataHolder.getInstance().getWorkflowService();
+
+        String tenant = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+        String nameWithTenant = UserCoreUtil.addTenantDomainToEntry(userName, tenant);
+        String fullyQualifiedName = UserCoreUtil.addDomainToName(nameWithTenant, userStoreDomain);
         Map<String, Object> wfParams = new HashMap<>();
         Map<String, Object> nonWfParams = new HashMap<>();
         wfParams.put(USERNAME, userName);
         wfParams.put(USER_STORE_DOMAIN, userStoreDomain);
         wfParams.put(DELETED_ROLE_LIST, Arrays.asList(deletedRoles));
         wfParams.put(NEW_ROLE_LIST, Arrays.asList(newRoles));
-        return startWorkFlow(wfParams, nonWfParams);
+        String uuid = UUID.randomUUID().toString();
+        boolean state = startWorkFlow(wfParams, nonWfParams, uuid);
+
+        //WF_REQUEST_ENTITY_RELATIONSHIP table has foreign key to WF_REQUEST, so need to run this after WF_REQUEST is
+        // updated
+        if (!Boolean.TRUE.equals(getWorkFlowCompleted()) && !state) {
+            Entity[] entities = new Entity[deletedRoles.length + newRoles.length + 1];
+            entities[0] = new Entity(fullyQualifiedName, "USER");
+            for (int i = 0; i < newRoles.length; i++) {
+                nameWithTenant = UserCoreUtil.addTenantDomainToEntry(newRoles[i], tenant);
+                fullyQualifiedName = UserCoreUtil.addDomainToName(nameWithTenant, userStoreDomain);
+                entities[i + 1] = new Entity(fullyQualifiedName, "ROLE");
+            }
+            for (int i = 0; i < deletedRoles.length; i++) {
+                nameWithTenant = UserCoreUtil.addTenantDomainToEntry(deletedRoles[i], tenant);
+                fullyQualifiedName = UserCoreUtil.addDomainToName(nameWithTenant, userStoreDomain);
+                entities[i + newRoles.length + 1] = new Entity(fullyQualifiedName, "ROLE");
+            }
+            try {
+                workflowService.addRequestEntityRelationships(uuid, entities);
+            } catch (InternalWorkflowException e) {
+                //Ignore exception which occurs at DB level since no workflows associated with event
+                log.info("No workflow associated with the operation.");
+            }
+        }
+        return state;
     }
 
     @Override
@@ -137,7 +174,7 @@ public class UpdateUserRolesWFRequestHandler extends AbstractWorkflowRequestHand
             try {
                 RealmService realmService = IdentityWorkflowDataHolder.getInstance().getRealmService();
                 UserRealm userRealm = realmService.getTenantUserRealm(tenantId);
-                userRealm.getUserStoreManager().updateRoleListOfUser(userName,deletedRoles,newRoles);
+                userRealm.getUserStoreManager().updateRoleListOfUser(userName, deletedRoles, newRoles);
             } catch (UserStoreException e) {
                 throw new WorkflowException("Error when re-requesting updateRoleListOfUser operation for " + userName,
                         e);

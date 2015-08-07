@@ -47,9 +47,9 @@ public class UserStoreActionListener extends AbstractUserOperationEventListener 
             return new AddUserWFRequestHandler()
                     .startAddUserFlow(domain, userName, credential, roleList, claims, profile);
         } catch (WorkflowException e) {
-            log.error("Initiating workflow for creating user: " + userName + " failed.", e);
+            // Sending e.getMessage() since it is required to give error message to end user.
+            throw new UserStoreException(e.getMessage(), e);
         }
-        return false;
     }
 
     @Override
@@ -81,9 +81,9 @@ public class UserStoreActionListener extends AbstractUserOperationEventListener 
         try {
             return new DeleteUserWFRequestHandler().startDeleteUserFlow(domain, userName);
         } catch (WorkflowException e) {
-            log.error("Initiating workflow for deleting user: " + userName + " failed.", e);
+            // Sending e.getMessage() since it is required to give error message to end user.
+            throw new UserStoreException(e.getMessage(), e);
         }
-        return false;
     }
 
     @Override
@@ -95,10 +95,9 @@ public class UserStoreActionListener extends AbstractUserOperationEventListener 
             return new SetUserClaimWFRequestHandler()
                     .startSetClaimWorkflow(domain, userName, claimURI, claimValue, profileName);
         } catch (WorkflowException e) {
-            log.error("Initiating workflow failed for setting claim " + claimURI + "=" + claimValue + " of user: " +
-                    userName, e);
+            // Sending e.getMessage() since it is required to give error message to end user.
+            throw new UserStoreException(e.getMessage(), e);
         }
-        return false;
     }
 
     @Override
@@ -110,9 +109,9 @@ public class UserStoreActionListener extends AbstractUserOperationEventListener 
             return new SetMultipleClaimsWFRequestHandler()
                     .startSetMultipleClaimsWorkflow(domain, userName, claims, profileName);
         } catch (WorkflowException e) {
-            log.error("Initiating workflow failed for setting claims of user: " + userName, e);
+            // Sending e.getMessage() since it is required to give error message to end user.
+            throw new UserStoreException(e.getMessage(), e);
         }
-        return false;
     }
 
     @Override
@@ -124,9 +123,9 @@ public class UserStoreActionListener extends AbstractUserOperationEventListener 
             return new DeleteMultipleClaimsWFRequestHandler()
                     .startDeleteMultipleClaimsWorkflow(domain, userName, claims, profileName);
         } catch (WorkflowException e) {
-            log.error("Initiating workflow failed for deleting claims of user: " + userName, e);
+            // Sending e.getMessage() since it is required to give error message to end user.
+            throw new UserStoreException(e.getMessage(), e);
         }
-        return false;
     }
 
     @Override
@@ -138,9 +137,9 @@ public class UserStoreActionListener extends AbstractUserOperationEventListener 
             return new DeleteClaimWFRequestHandler()
                     .startDeleteClaimWorkflow(domain, userName, claimURI, profileName);
         } catch (WorkflowException e) {
-            log.error("Initiating workflow failed for deleting claim " + claimURI + " of user: " + userName, e);
+            // Sending e.getMessage() since it is required to give error message to end user.
+            throw new UserStoreException(e.getMessage(), e);
         }
-        return false;
     }
 
     @Override
@@ -151,9 +150,9 @@ public class UserStoreActionListener extends AbstractUserOperationEventListener 
         try {
             return new AddRoleWFRequestHandler().startAddRoleFlow(domain, roleName, userList, permissions);
         } catch (WorkflowException e) {
-            log.error("Initiating workflow failed for adding role " + roleName, e);
+            // Sending e.getMessage() since it is required to give error message to end user.
+            throw new UserStoreException(e.getMessage(), e);
         }
-        return false;
     }
 
     @Override
@@ -163,9 +162,9 @@ public class UserStoreActionListener extends AbstractUserOperationEventListener 
         try {
             return new DeleteRoleWFRequestHandler().startDeleteRoleFlow(domain, roleName);
         } catch (WorkflowException e) {
-            log.error("Initiating workflow failed for deleting role " + roleName, e);
+            // Sending e.getMessage() since it is required to give error message to end user.
+            throw new UserStoreException(e.getMessage(), e);
         }
-        return false;
     }
 
     @Override
@@ -177,9 +176,9 @@ public class UserStoreActionListener extends AbstractUserOperationEventListener 
             return new UpdateRoleNameWFRequestHandler()
                     .startUpdateRoleNameFlow(domain, roleName, newRoleName);
         } catch (WorkflowException e) {
-            log.error("Initiating workflow failed for updating role users of role: " + roleName, e);
+            // Sending e.getMessage() since it is required to give error message to end user.
+            throw new UserStoreException(e.getMessage(), e);
         }
-        return false;
     }
 
     @Override
@@ -191,9 +190,9 @@ public class UserStoreActionListener extends AbstractUserOperationEventListener 
             return new UpdateRoleUsersWFRequestHandler()
                     .startUpdateRoleUsersFlow(domain, roleName, deletedUsers, newUsers);
         } catch (WorkflowException e) {
-            log.error("Initiating workflow failed for updating role users of role: " + roleName, e);
+            // Sending e.getMessage() since it is required to give error message to end user.
+            throw new UserStoreException(e.getMessage(), e);
         }
-        return false;
     }
 
     @Override
@@ -205,8 +204,8 @@ public class UserStoreActionListener extends AbstractUserOperationEventListener 
             return new UpdateUserRolesWFRequestHandler()
                     .startUpdateUserRolesFlow(domain, userName, deletedRoles, newRoles);
         } catch (WorkflowException e) {
-            log.error("Initiating workflow failed for updating user roles of user: " + userName, e);
+            // Sending e.getMessage() since it is required to give error message to end user.
+            throw new UserStoreException(e.getMessage(), e);
         }
-        return false;
     }
 }

@@ -21,6 +21,7 @@ package org.wso2.carbon.user.mgt.workflow.internal;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.ComponentContext;
+import org.wso2.carbon.identity.workflow.mgt.WorkflowService;
 import org.wso2.carbon.identity.workflow.mgt.extension.WorkflowRequestHandler;
 import org.wso2.carbon.user.mgt.workflow.userstore.AddRoleWFRequestHandler;
 import org.wso2.carbon.user.mgt.workflow.userstore.AddUserWFRequestHandler;
@@ -43,6 +44,9 @@ import org.wso2.carbon.utils.ConfigurationContextService;
  * @scr.reference name="user.realmservice.default" interface="org.wso2.carbon.user.core.service.RealmService"
  * cardinality="1..1" policy="dynamic" bind="setRealmService"
  * unbind="unsetRealmService"
+ * @scr.reference name="workflowservice.default" interface="org.wso2.carbon.identity.workflow.mgt.WorkflowService"
+ * cardinality="1..1" policy="dynamic" bind="setWorkflowService"
+ * unbind="unsetWorkflowService"
  * @scr.reference name="config.context.service"
  * interface="org.wso2.carbon.utils.ConfigurationContextService"
  * cardinality="1..1" policy="dynamic"  bind="setConfigurationContextService"
@@ -58,6 +62,11 @@ public class IdentityWorkflowServiceComponent {
     protected void setConfigurationContextService(ConfigurationContextService contextService) {
 
         IdentityWorkflowDataHolder.getInstance().setConfigurationContextService(contextService);
+    }
+
+    protected void setWorkflowService(WorkflowService workflowService) {
+
+        IdentityWorkflowDataHolder.getInstance().setWorkflowService(workflowService);
     }
 
     protected void activate(ComponentContext context) {
@@ -94,5 +103,10 @@ public class IdentityWorkflowServiceComponent {
     protected void unsetConfigurationContextService(ConfigurationContextService contextService) {
 
         IdentityWorkflowDataHolder.getInstance().setConfigurationContextService(null);
+    }
+
+    protected void unsetWorkflowService(WorkflowService workflowService) {
+
+        IdentityWorkflowDataHolder.getInstance().setWorkflowService(null);
     }
 }
