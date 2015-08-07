@@ -45,8 +45,8 @@ public class SQLConstants {
     public static final String ASSOCIATION_NAME_COLUMN = "ASSOC_NAME";
 
 
-    public static final String ADD_WORKFLOW_REQUEST_QUERY = "INSERT INTO WF_REQUEST(UUID, CREATED_AT, UPDATED_AT, " +
-            "REQUEST, STATUS) VALUES (?, ?, ?, ?, ?)";
+    public static final String ADD_WORKFLOW_REQUEST_QUERY = "INSERT INTO WF_REQUEST(UUID, CREATED_BY, OPERATION_TYPE," +
+            " CREATED_AT, UPDATED_AT, REQUEST, STATUS) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
     public static final String GET_WORKFLOW_REQUEST_QUERY = "SELECT UUID, REQUEST, STATUS FROM WF_REQUEST WHERE UUID" +
             " = ?";
@@ -98,6 +98,13 @@ public class SQLConstants {
                     "WF_BPS_PROFILE WHERE TENANT_ID = ?";
 
     public static final String DELETE_BPS_PROFILES_QUERY = "DELETE FROM WF_BPS_PROFILE WHERE PROFILE_NAME = ?";
+
+    public static final String ADD_REQUEST_ENTITY_RELATIONSHIP = "INSERT INTO WF_REQUEST_ENTITY_RELATIONSHIP" +
+            "(REQUEST_ID, ENTITY_NAME, " +
+            "ENTITY_TYPE) VALUES (?, ?, ?)";
+
+    public static final String DELETE_REQUEST_ENTITY_RELATIONSHIP = "DELETE FROM WF_REQUEST_ENTITY_RELATIONSHIP WHERE" +
+            " REQUEST_ID = ?";
 
     private SQLConstants() {
 

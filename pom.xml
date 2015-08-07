@@ -84,6 +84,7 @@
         <module>features/directory-server-manager</module>
         <module>features/sts</module>
         <module>features/user-mgt</module>
+        <module>features/user-mgt-workflow</module>
         <module>features/workflow-mgt</module>
     </modules>
 
@@ -1656,7 +1657,11 @@
                 <artifactId>org.wso2.carbon.sts.stub</artifactId>
                 <version>${carbon.identity.version}</version>
             </dependency>
-
+            <dependency>
+                <groupId>org.wso2.carbon.identity</groupId>
+                <artifactId>org.wso2.carbon.user.mgt.workflow</artifactId>
+                <version>${carbon.identity.version}</version>
+            </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.identity.user.store.configuration.deployer</artifactId>
@@ -1693,11 +1698,6 @@
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.identity.workflow.mgt</artifactId>
-                <version>${carbon.identity.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.wso2.carbon.identity</groupId>
-                <artifactId>org.wso2.carbon.identity.workflow.mgt.impl</artifactId>
                 <version>${carbon.identity.version}</version>
             </dependency>
             <dependency>
