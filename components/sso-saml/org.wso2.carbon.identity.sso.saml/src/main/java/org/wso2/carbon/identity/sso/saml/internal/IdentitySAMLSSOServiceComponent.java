@@ -26,6 +26,7 @@ import org.osgi.service.http.HttpService;
 import org.wso2.carbon.identity.authenticator.saml2.sso.common.Util;
 import org.wso2.carbon.identity.base.IdentityConstants;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
+import org.wso2.carbon.identity.sso.saml.SAMLSSOConstants;
 import org.wso2.carbon.identity.sso.saml.SSOServiceProviderConfigManager;
 import org.wso2.carbon.identity.sso.saml.admin.FileBasedConfigManager;
 import org.wso2.carbon.identity.sso.saml.servlet.SAMLSSOProviderServlet;
@@ -60,7 +61,6 @@ import java.util.Scanner;
  */
 public class IdentitySAMLSSOServiceComponent {
 
-    public static final String SAMLSSO_URL = "/samlsso";
     private static Log log = LogFactory.getLog(IdentitySAMLSSOServiceComponent.class);
     private static int defaultSingleLogoutRetryCount = 5;
 
@@ -77,9 +77,10 @@ public class IdentitySAMLSSOServiceComponent {
         HttpService httpService = SAMLSSOUtil.getHttpService();
 
         // Register SAML SSO servlet
-        Servlet samlSSOServlet = new ContextPathServletAdaptor(new SAMLSSOProviderServlet(), SAMLSSO_URL);
+        Servlet samlSSOServlet = new ContextPathServletAdaptor(new SAMLSSOProviderServlet(),
+                                                               SAMLSSOConstants.SAMLSSO_URL);
         try {
-            httpService.registerServlet(SAMLSSO_URL, samlSSOServlet, null, null);
+            httpService.registerServlet(SAMLSSOConstants.SAMLSSO_URL, samlSSOServlet, null, null);
         } catch (Exception e) {
             String errMsg = "Error when registering SAML SSO Servlet via the HttpService.";
             log.error(errMsg, e);

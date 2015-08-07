@@ -69,6 +69,9 @@ public class SPInitSSOAuthnRequestProcessor {
 
                 // Validate 'Destination'
                 String idpUrl = IdentityUtil.getProperty(IdentityConstants.ServerConfig.SSO_IDP_URL);
+                if(StringUtils.isBlank(idpUrl)) {
+                    idpUrl = IdentityUtil.getServerURL(SAMLSSOConstants.SAMLSSO_URL);
+                }
 
                 if (authnReqDTO.getDestination() == null
                         || !idpUrl.equals(authnReqDTO.getDestination())) {
