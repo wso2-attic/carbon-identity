@@ -31,7 +31,6 @@ import org.wso2.carbon.identity.provider.IdentityProviderException;
 import org.wso2.carbon.identity.provider.dto.OpenIDParameterDTO;
 import org.wso2.carbon.identity.provider.openid.OpenIDConstants;
 import org.wso2.carbon.identity.provider.openid.client.OpenIDAdminClient;
-import org.wso2.carbon.identity.relyingparty.RelyingPartyException;
 import org.wso2.carbon.ui.CarbonUIUtil;
 import org.wso2.carbon.utils.ServerConstants;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
@@ -166,7 +165,7 @@ public class OpenIDUtil {
      *
      * @param rpUrl Relying party URL to be normalized
      * @return Normalized relying party URL
-     * @throws RelyingPartyException
+     * @throws IdentityException
      */
     public static String getRelyingPartyUrl(String rpUrl) throws IdentityException {
         URI uri = null;
