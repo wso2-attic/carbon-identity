@@ -81,7 +81,7 @@ public class DeleteClaimWFRequestHandler extends AbstractWorkflowRequestHandler 
 
         //WF_REQUEST_ENTITY_RELATIONSHIP table has foreign key to WF_REQUEST, so need to run this after WF_REQUEST is
         // updated
-        if (!getWorkFlowCompleted() && !state) {
+        if (!Boolean.TRUE.equals(getWorkFlowCompleted()) && !state) {
             try {
                 workflowService.addRequestEntityRelationships(uuid, new Entity[]{new Entity(fullyQualifiedName,
                         "USER"), new Entity(claimURI, "CLAIM")});

@@ -191,7 +191,7 @@ public abstract class AbstractWorkflowRequestHandler implements WorkflowRequestH
      * @param entities Array of entities involved in operation
      * @return
      */
-    public abstract boolean isValidOperation(Entity[] entities);
+    //public abstract boolean isValidOperation(Entity[] entities);
 
     private boolean isWorkflowCompleted() {
 

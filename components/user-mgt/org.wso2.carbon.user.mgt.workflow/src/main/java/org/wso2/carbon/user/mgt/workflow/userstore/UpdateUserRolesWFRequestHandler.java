@@ -82,7 +82,7 @@ public class UpdateUserRolesWFRequestHandler extends AbstractWorkflowRequestHand
 
         //WF_REQUEST_ENTITY_RELATIONSHIP table has foreign key to WF_REQUEST, so need to run this after WF_REQUEST is
         // updated
-        if (!getWorkFlowCompleted() && !state) {
+        if (!Boolean.TRUE.equals(getWorkFlowCompleted()) && !state) {
             Entity[] entities = new Entity[deletedRoles.length + newRoles.length + 1];
             entities[0] = new Entity(fullyQualifiedName, "USER");
             for (int i = 0; i < newRoles.length; i++) {

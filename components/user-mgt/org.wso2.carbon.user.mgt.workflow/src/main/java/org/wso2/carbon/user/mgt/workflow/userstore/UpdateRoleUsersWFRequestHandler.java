@@ -82,7 +82,7 @@ public class UpdateRoleUsersWFRequestHandler extends AbstractWorkflowRequestHand
 
         //WF_REQUEST_ENTITY_RELATIONSHIP table has foreign key to WF_REQUEST, so need to run this after WF_REQUEST is
         // updated
-        if (!getWorkFlowCompleted() && !state) {
+        if (!Boolean.TRUE.equals(getWorkFlowCompleted()) && !state) {
             Entity[] entities = new Entity[deletedUsers.length + newUsers.length + 1];
             entities[0] = new Entity(fullyQualifiedName, "ROLE");
             for (int i = 0; i < newUsers.length; i++) {
@@ -174,8 +174,9 @@ public class UpdateRoleUsersWFRequestHandler extends AbstractWorkflowRequestHand
                 UserRealm userRealm = realmService.getTenantUserRealm(tenantId);
                 userRealm.getUserStoreManager().updateUserListOfRole(roleName, deletedUsers, newUsers);
             } catch (UserStoreException e) {
-                throw new WorkflowException("Error when re-requesting updateUserListOfRole operation for " + roleName,
+                log.error("Error when re-requesting updateUserListOfRole operation for " + roleName,
                         e);
+                throw new WorkflowException(e);
             }
         } else {
             if (retryNeedAtCallback()) {
