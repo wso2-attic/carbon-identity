@@ -21,6 +21,11 @@ package org.wso2.carbon.user.mgt.workflow.userstore;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.context.CarbonContext;
+import org.wso2.carbon.identity.workflow.mgt.WorkflowService;
+import org.wso2.carbon.identity.workflow.mgt.bean.Entity;
+import org.wso2.carbon.identity.workflow.mgt.exception.InternalWorkflowException;
+import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.user.mgt.workflow.internal.IdentityWorkflowDataHolder;
 import org.wso2.carbon.identity.workflow.mgt.extension.AbstractWorkflowRequestHandler;
 import org.wso2.carbon.identity.workflow.mgt.util.WorkflowDataType;
@@ -33,6 +38,7 @@ import org.wso2.carbon.user.core.service.RealmService;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.UUID;
 
 public class UpdateRoleNameWFRequestHandler extends AbstractWorkflowRequestHandler {
 
@@ -56,12 +62,34 @@ public class UpdateRoleNameWFRequestHandler extends AbstractWorkflowRequestHandl
 
     public boolean startUpdateRoleNameFlow(String userStoreDomain, String roleName, String newRoleName) throws
             WorkflowException {
+
+        WorkflowService workflowService = IdentityWorkflowDataHolder.getInstance().getWorkflowService();
+        String tenant = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+        String oldNameWithTenant = UserCoreUtil.addTenantDomainToEntry(roleName, tenant);
+        String fullyQualifiedOldName = UserCoreUtil.addDomainToName(oldNameWithTenant, userStoreDomain);
+        String newNameWithTenant = UserCoreUtil.addTenantDomainToEntry(newRoleName, tenant);
+        String fullyQualifiedNewName = UserCoreUtil.addDomainToName(newNameWithTenant, userStoreDomain);
         Map<String, Object> wfParams = new HashMap<>();
         Map<String, Object> nonWfParams = new HashMap<>();
         wfParams.put(ROLENAME, roleName);
         wfParams.put(NEW_ROLENAME, newRoleName);
         wfParams.put(USER_STORE_DOMAIN, userStoreDomain);
-        return startWorkFlow(wfParams, nonWfParams);
+        String uuid = UUID.randomUUID().toString();
+        boolean state = startWorkFlow(wfParams, nonWfParams, uuid);
+
+        //WF_REQUEST_ENTITY_RELATIONSHIP table has foreign key to WF_REQUEST, so need to run this after WF_REQUEST is
+        // updated
+        if (!getWorkFlowCompleted() && !state) {
+            try {
+                workflowService.addRequestEntityRelationships(uuid, new Entity[]{new Entity(fullyQualifiedOldName,
+                        "ROLE"), new Entity(fullyQualifiedNewName, "ROLE")});
+
+            } catch (InternalWorkflowException e) {
+                //Ignore exception which occurs at DB level since no workflows associated with event
+                log.info("No workflow associated with the operation.");
+            }
+        }
+        return state;
     }
 
     @Override

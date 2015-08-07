@@ -19,6 +19,7 @@
 package org.wso2.carbon.user.mgt.workflow.internal;
 
 import org.osgi.framework.BundleContext;
+import org.wso2.carbon.identity.workflow.mgt.WorkflowService;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.ConfigurationContextService;
 
@@ -29,6 +30,7 @@ public class IdentityWorkflowDataHolder {
     private RealmService realmService;
     private ConfigurationContextService configurationContextService;
     private BundleContext bundleContext;
+    private WorkflowService workflowService;
 
     public static IdentityWorkflowDataHolder getInstance() {
 
@@ -68,5 +70,15 @@ public class IdentityWorkflowDataHolder {
     public void setBundleContext(BundleContext bundleContext) {
 
         this.bundleContext = bundleContext;
+    }
+
+    public WorkflowService getWorkflowService() {
+
+        return workflowService;
+    }
+
+    public void setWorkflowService(WorkflowService workflowService) {
+
+        this.workflowService = workflowService;
     }
 }

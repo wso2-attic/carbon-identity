@@ -21,12 +21,14 @@ package org.wso2.carbon.identity.workflow.mgt;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.xpath.AXIOMXPath;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jaxen.JaxenException;
 import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
+import org.wso2.carbon.identity.workflow.mgt.dao.RequestEntityRelationshipDAO;
 import org.wso2.carbon.identity.workflow.mgt.template.AbstractWorkflowTemplateImpl;
 import org.wso2.carbon.identity.workflow.mgt.extension.WorkflowRequestHandler;
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkFlowRequest;
@@ -62,11 +64,13 @@ public class WorkFlowExecutorManager {
 
     public void executeWorkflow(WorkFlowRequest workFlowRequest) throws WorkflowException {
 
-        workFlowRequest.setUuid(UUID.randomUUID().toString());
+        if (StringUtils.isBlank(workFlowRequest.getUuid())) {
+            workFlowRequest.setUuid(UUID.randomUUID().toString());
+        }
         OMElement xmlRequest = WorkflowRequestBuilder.buildXMLRequest(workFlowRequest);
         WorkflowDAO workflowDAO = new WorkflowDAO();
         List<WorkflowAssociationBean> associations =
-                workflowDAO.getWorkflowsForRequest(workFlowRequest.getEventType(),workFlowRequest.getTenantId());
+                workflowDAO.getWorkflowsForRequest(workFlowRequest.getEventType(), workFlowRequest.getTenantId());
         if (CollectionUtils.isEmpty(associations)) {
             handleCallback(workFlowRequest, WorkflowRequestStatus.SKIPPED.toString(), null);
             return;
@@ -78,7 +82,7 @@ public class WorkFlowExecutorManager {
                 AXIOMXPath axiomxPath = new AXIOMXPath(association.getCondition());
                 if (axiomxPath.booleanValueOf(xmlRequest)) {
                     workflowEngaged = true;
-                    if(!requestSaved){
+                    if (!requestSaved) {
                         WorkflowRequestDAO requestDAO = new WorkflowRequestDAO();
                         String tenant = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
                         String currentUser = CarbonContext.getThreadLocalCarbonContext().getUsername();
@@ -100,7 +104,7 @@ public class WorkFlowExecutorManager {
             }
         }
 
-        if(!workflowEngaged){
+        if (!workflowEngaged) {
             handleCallback(workFlowRequest, WorkflowRequestStatus.SKIPPED.toString(), null);
         }
     }
@@ -114,9 +118,10 @@ public class WorkFlowExecutorManager {
             if (requestHandler == null) {
                 throw new InternalWorkflowException("No request handlers registered for the id: " + eventId);
             }
+            String request_id = request.getUuid();
             if (request.getTenantId() == MultitenantConstants.INVALID_TENANT_ID) {
                 throw new InternalWorkflowException(
-                        "Invalid tenant id for request " + eventId + " with id" + request.getUuid());
+                        "Invalid tenant id for request " + eventId + " with id" + request_id);
             }
             PrivilegedCarbonContext.startTenantFlow();
             PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext
@@ -127,6 +132,11 @@ public class WorkFlowExecutorManager {
                 carbonContext.setTenantId(request.getTenantId());
                 carbonContext.setTenantDomain(tenantDomain);
                 requestHandler.onWorkflowCompletion(status, request, additionalParams);
+                RequestEntityRelationshipDAO requestEntityRelationshipDAO = new RequestEntityRelationshipDAO();
+                if (WorkflowRequestStatus.APPROVED.toString().equals(status) || WorkflowRequestStatus.REJECTED
+                        .toString().equals(status)) {
+                    requestEntityRelationshipDAO.deleteRelationshipsOfRequest(request_id);
+                }
             } catch (WorkflowException e) {
                 throw e;
             } catch (UserStoreException e) {

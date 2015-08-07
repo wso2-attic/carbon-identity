@@ -21,6 +21,11 @@ package org.wso2.carbon.user.mgt.workflow.userstore;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.context.CarbonContext;
+import org.wso2.carbon.identity.workflow.mgt.WorkflowService;
+import org.wso2.carbon.identity.workflow.mgt.bean.Entity;
+import org.wso2.carbon.identity.workflow.mgt.exception.InternalWorkflowException;
+import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.user.mgt.workflow.internal.IdentityWorkflowDataHolder;
 import org.wso2.carbon.identity.workflow.mgt.extension.AbstractWorkflowRequestHandler;
 import org.wso2.carbon.identity.workflow.mgt.util.WorkflowDataType;
@@ -37,6 +42,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 public class AddRoleWFRequestHandler extends AbstractWorkflowRequestHandler {
 
@@ -63,12 +69,18 @@ public class AddRoleWFRequestHandler extends AbstractWorkflowRequestHandler {
 
     public boolean startAddRoleFlow(String userStoreDomain, String role, String[] userList, Permission[] permissions)
             throws WorkflowException {
-        if(permissions == null){
+
+        WorkflowService workflowService = IdentityWorkflowDataHolder.getInstance().getWorkflowService();
+
+        if (permissions == null) {
             permissions = new Permission[0];
         }
-        if(userList == null){
+        if (userList == null) {
             userList = new String[0];
         }
+        String tenant = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+        String nameWithTenant = UserCoreUtil.addTenantDomainToEntry(role, tenant);
+        String fullyQualifiedName = UserCoreUtil.addDomainToName(nameWithTenant, userStoreDomain);
         List<String> permissionList = new ArrayList<>(permissions.length);
         for (int i = 0; i < permissions.length; i++) {
             permissionList.add(permissions[i].getResourceId() + SEPARATOR + permissions[i].getAction());
@@ -79,7 +91,21 @@ public class AddRoleWFRequestHandler extends AbstractWorkflowRequestHandler {
         wfParams.put(USER_STORE_DOMAIN, userStoreDomain);
         wfParams.put(PERMISSIONS, permissionList);
         wfParams.put(USER_LIST, Arrays.asList(userList));
-        return startWorkFlow(wfParams, nonWfParams);
+        String uuid = UUID.randomUUID().toString();
+        boolean state = startWorkFlow(wfParams, nonWfParams, uuid);
+
+        //WF_REQUEST_ENTITY_RELATIONSHIP table has foreign key to WF_REQUEST, so need to run this after WF_REQUEST is
+        // updated
+        if (!getWorkFlowCompleted() && !state) {
+            try {
+                workflowService.addRequestEntityRelationships(uuid, new Entity[]{new Entity(fullyQualifiedName,
+                        "ROLE")});
+            } catch (InternalWorkflowException e) {
+                //Ignore exception which occurs at DB level since no workflows associated with event
+                log.info("No workflow associated with the operation.");
+            }
+        }
+        return state;
     }
 
     @Override

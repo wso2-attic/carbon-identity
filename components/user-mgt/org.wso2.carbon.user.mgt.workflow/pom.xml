@@ -77,7 +77,11 @@
                             org.wso2.carbon.user.core.service,
                             org.wso2.carbon.utils,
                             org.wso2.carbon.identity.workflow.mgt.extension,
-                            org.wso2.carbon.identity.workflow.mgt.util
+                            org.wso2.carbon.identity.workflow.mgt.util,
+                            org.wso2.carbon.context,
+                            org.wso2.carbon.identity.workflow.mgt,
+                            org.wso2.carbon.identity.workflow.mgt.bean,
+                            org.wso2.carbon.user.core.util
                         </Import-Package>
                         <Export-Package>
                             org.wso2.carbon.user.mgt.workflow.*

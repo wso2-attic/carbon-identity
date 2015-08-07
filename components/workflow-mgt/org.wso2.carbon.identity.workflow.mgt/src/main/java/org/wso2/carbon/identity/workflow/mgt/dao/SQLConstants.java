@@ -99,6 +99,13 @@ public class SQLConstants {
 
     public static final String DELETE_BPS_PROFILES_QUERY = "DELETE FROM WF_BPS_PROFILE WHERE PROFILE_NAME = ?";
 
+    public static final String ADD_REQUEST_ENTITY_RELATIONSHIP = "INSERT INTO WF_REQUEST_ENTITY_RELATIONSHIP" +
+            "(REQUEST_ID, ENTITY_NAME, " +
+            "ENTITY_TYPE) VALUES (?, ?, ?)";
+
+    public static final String DELETE_REQUEST_ENTITY_RELATIONSHIP = "DELETE FROM WF_REQUEST_ENTITY_RELATIONSHIP WHERE" +
+            " REQUEST_ID = ?";
+
     private SQLConstants() {
 
     }
