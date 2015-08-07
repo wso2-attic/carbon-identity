@@ -87,8 +87,8 @@ public class FileBasedConfigManager {
             String configFilePath = IdentityUtil.getIdentityConfigDirPath() + File.separator + "sso-idp-config.xml";
 
             if (!isFileExisting(configFilePath)) {
-                log.warn("sso-idp-config.xml does not exist in the 'conf' directory. The system may" +
-                        "depend on the service providers added through the UI.");
+                log.warn("sso-idp-config.xml does not exist in the "+IdentityUtil.getIdentityConfigDirPath() +
+                        " directory. The system may depend on the service providers added through the UI.");
                 return new SAMLSSOServiceProviderDO[0];
             }
 

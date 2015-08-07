@@ -1842,6 +1842,7 @@
         <orbit.version.neethi>2.0.4.wso2v4</orbit.version.neethi>
         <axis2-transports.version>1.1.0-wso2v13</axis2-transports.version>
         <axis2-transports.version.range>[1.1.0-wso2v13,1.2.0)</axis2-transports.version.range>
+        <org.apache.axis2.transport.mail.version.range>[0.0.0,1.0.0)</org.apache.axis2.transport.mail.version.range>
 
         <!-- Axiom Version -->
         <axiom.version>1.2.11-wso2v6</axiom.version>
@@ -1984,7 +1985,7 @@
         <gdata-core.imp.pkg.version.range>[1.47.0.wso2v1,1.48.0)</gdata-core.imp.pkg.version.range>
         <smack.wso2.version>3.0.4.wso2v1</smack.wso2.version>
         <smackx.wso2.version>3.0.4.wso2v1</smackx.wso2.version>
-        <orbit.version.apacheds>1.5.7.wso2v3</orbit.version.apacheds>
+        <orbit.version.apacheds>1.5.7.wso2v4</orbit.version.apacheds>
         <version.apacheds.shared.ldap>0.9.18</version.apacheds.shared.ldap>
         <httpcomponents-httpclient.wso2.version>4.3.1.wso2v2</httpcomponents-httpclient.wso2.version>
         <httpcomponents-httpclient.imp.pkg.version.range>[4.3.1.wso2v2,4.4.0)</httpcomponents-httpclient.imp.pkg.version.range>
@@ -2043,7 +2044,7 @@
                 <plugin>
                     <groupId>org.apache.felix</groupId>
                     <artifactId>maven-bundle-plugin</artifactId>
-                    <version>2.3.5</version>
+                    <version>2.4.0</version>
                     <extensions>true</extensions>
                     <configuration>
                         <obrRepository>NONE</obrRepository>
