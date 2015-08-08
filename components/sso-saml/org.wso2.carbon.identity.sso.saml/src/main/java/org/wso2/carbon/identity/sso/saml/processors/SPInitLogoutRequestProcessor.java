@@ -36,6 +36,7 @@ import org.wso2.carbon.identity.sso.saml.session.SSOSessionPersistenceManager;
 import org.wso2.carbon.identity.sso.saml.session.SessionInfoData;
 import org.wso2.carbon.identity.sso.saml.util.SAMLSSOUtil;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -251,7 +252,7 @@ public class SPInitLogoutRequestProcessor {
     }
 
     private SAMLSSOReqValidationResponseDTO buildErrorResponse(String id, String status,
-                                                               String statMsg, String destination) throws Exception {
+                                                               String statMsg, String destination) throws IOException{
         SAMLSSOReqValidationResponseDTO reqValidationResponseDTO = new SAMLSSOReqValidationResponseDTO();
         LogoutResponse logoutResp = new SingleLogoutMessageBuilder().buildLogoutResponse(id,
                 status, statMsg, destination, null);
