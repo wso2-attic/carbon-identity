@@ -246,7 +246,6 @@ public class SPInitLogoutRequestProcessor {
 
             return reqValidationResponseDTO;
         } catch (Exception e) {
-            log.error("Error Processing the Logout Request", e);
             throw new IdentityException("Error Processing the Logout Request", e);
         }
     }
