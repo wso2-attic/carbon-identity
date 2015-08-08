@@ -17,17 +17,14 @@
  */
 package org.wso2.carbon.identity.sso.saml.validators;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.base.IdentityException;
-import org.wso2.carbon.identity.core.model.SAMLSSOServiceProviderDO;
 import org.wso2.carbon.identity.sso.saml.SAMLSSOConstants;
-import org.wso2.carbon.identity.sso.saml.SSOServiceProviderConfigManager;
+import org.wso2.carbon.identity.sso.saml.dto.QueryParamDTO;
 import org.wso2.carbon.identity.sso.saml.dto.SAMLSSOReqValidationResponseDTO;
 import org.wso2.carbon.identity.sso.saml.util.SAMLSSOUtil;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 
 public class IdPInitSSOAuthnRequestValidator {
@@ -35,11 +32,12 @@ public class IdPInitSSOAuthnRequestValidator {
     private static Log log = LogFactory.getLog(IdPInitSSOAuthnRequestValidator.class);
 
     private String spEntityID;
+    private String acs;
 
 
-    public IdPInitSSOAuthnRequestValidator(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse,
-                                           String spEntityID, String relayState) throws IdentityException {
-        this.spEntityID = spEntityID;
+    public IdPInitSSOAuthnRequestValidator(QueryParamDTO[] queryParamDTOs, String relayState) throws IdentityException {
+
+        init(queryParamDTOs);
     }
 
     /**
@@ -54,7 +52,7 @@ public class IdPInitSSOAuthnRequestValidator {
         try {
 
             // spEntityID MUST NOT be null
-            if (spEntityID != null) {
+            if (StringUtils.isNotBlank(spEntityID)) {
                 validationResponse.setIssuer(spEntityID);
             } else {
                 validationResponse.setValid(false);
@@ -66,21 +64,30 @@ public class IdPInitSSOAuthnRequestValidator {
                 return validationResponse;
             }
 
-            SSOServiceProviderConfigManager spConfigManager = SSOServiceProviderConfigManager.getInstance();
-            SAMLSSOServiceProviderDO spDO = spConfigManager.getServiceProvider(spEntityID);
-            String spAcsUrl = null;
-            if (spDO != null) {
-                spAcsUrl = spDO.getAssertionConsumerUrl();
+            // If SP has multiple ACS
+            if (StringUtils.isNotBlank(acs)) {
+                validationResponse.setAssertionConsumerURL(acs);
             }
-            validationResponse.setAssertionConsumerURL(spAcsUrl);
+
             validationResponse.setValid(true);
 
             if (log.isDebugEnabled()) {
-                log.debug("IdP Initiated SSO request validation is successful..");
+                log.debug("IdP Initiated SSO request validation is successful");
             }
             return validationResponse;
         } catch (Exception e) {
             throw new IdentityException("Error validating the IdP Initiated SSO request", e);
+        }
+    }
+
+    private void init(QueryParamDTO[] queryParamDTOs) {
+
+        for (QueryParamDTO queryParamDTO : queryParamDTOs) {
+            if (SAMLSSOConstants.QueryParameter.SP_ENTITY_ID.toString().equals(queryParamDTO.getKey())) {
+                this.spEntityID = queryParamDTO.getValue();
+            } else if (SAMLSSOConstants.QueryParameter.ACS.toString().equals(queryParamDTO.getKey())) {
+                this.acs = queryParamDTO.getValue();
+            }
         }
     }
 

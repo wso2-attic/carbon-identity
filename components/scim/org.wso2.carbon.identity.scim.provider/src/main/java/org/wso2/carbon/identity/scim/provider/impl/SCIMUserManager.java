@@ -291,8 +291,13 @@ public class SCIMUserManager implements UserManager {
         ClaimMapping[] claims;
         User scimUser = null;
         try {
-            //get the user name of the user with this id
-            String[] userNames = carbonUM.getUserList(attributeName, attributeValue, UserCoreConstants.DEFAULT_PROFILE);
+            String[] userNames = null;
+            if (!SCIMConstants.GROUPS_URI.equals(attributeName)) {
+                //get the user name of the user with this id
+                userNames = carbonUM.getUserList(attributeName, attributeValue, UserCoreConstants.DEFAULT_PROFILE);
+            } else {
+                userNames = carbonUM.getUserListOfRole(attributeValue);
+            }
 
             if (userNames == null || userNames.length == 0) {
                 if (log.isDebugEnabled()) {
@@ -976,18 +981,20 @@ public class SCIMUserManager implements UserManager {
                 List<String> userIds = newGroup.getMembers();
                 List<String> userDisplayNames = newGroup.getMembersWithDisplayName();
                 String[] userNames = null;
-                for (String userId : userIds) {
-                    userNames =
-                            carbonUM.getUserList(SCIMConstants.ID_URI, userId,
-                                    UserCoreConstants.DEFAULT_PROFILE);
-                    if (userNames == null || userNames.length == 0) {
-                        String error =
-                                "User: " + userId + " doesn't exist in the user store. " +
-                                        "Hence, can not update the group: " + oldGroup.getDisplayName();
-                        throw new CharonException(error);
-                    } else {
-                        if (!userDisplayNames.contains(userNames[0])) {
-                            throw new CharonException("Given SCIM user Id and name not matching..");
+                if (userIds != null) {
+                    for (String userId : userIds) {
+                        userNames =
+                                carbonUM.getUserList(SCIMConstants.ID_URI, userId,
+                                                     UserCoreConstants.DEFAULT_PROFILE);
+                        if (userNames == null || userNames.length == 0) {
+                            String error =
+                                    "User: " + userId + " doesn't exist in the user store. " +
+                                    "Hence, can not update the group: " + oldGroup.getDisplayName();
+                            throw new CharonException(error);
+                        } else {
+                            if (!userDisplayNames.contains(userNames[0])) {
+                                throw new CharonException("Given SCIM user Id and name not matching..");
+                            }
                         }
                     }
                 }
@@ -1003,12 +1010,38 @@ public class SCIMUserManager implements UserManager {
                     updated = true;
                 }
 
-                // find out added members and deleted members..
-                List<String> oldMembers = oldGroup.getMembersWithDisplayName();
                 //SCIM request does not have operation attribute for new members need be added hence parsing null
                 List<String> addRequestedMembers = newGroup.getMembersWithDisplayName(null);
                 List<String> deleteRequestedMembers =
                         newGroup.getMembersWithDisplayName(SCIMConstants.CommonSchemaConstants.OPERATION_DELETE);
+
+                //Handling meta data attributes coming from SCIM request. Through meta attributes all existing members
+                // can be replaced with new set of members
+                if (newGroup.getAttributesOfMeta() != null &&
+                    SCIMConstants.GroupSchemaConstants.MEMBERS.equals(newGroup.getAttributesOfMeta().get(0))) {
+                    if (!deleteRequestedMembers.isEmpty()) {
+                        log.warn(
+                                "All Existing members will be deleted through SCIM meta attributes Hence operation " +
+                                "delete is Invalid");
+                        deleteRequestedMembers = new ArrayList<>();
+                    }
+                    String users[] = carbonUM.getUserListOfRole(newGroup.getDisplayName());
+                    if (addRequestedMembers.isEmpty()) {
+                        carbonUM.updateUserListOfRole(newGroup.getDisplayName(), users, new String[0]);
+                    } else {
+                        //If new set of members contains an old members, save those old members without deleting from user store
+                        List<String> membersDeleteFromUserStore = new ArrayList<String>();
+                        for (String user : users) {
+                            if (!addRequestedMembers.contains(user)) {
+                                membersDeleteFromUserStore.add(user);
+                            }
+                        }
+                        carbonUM.updateUserListOfRole(newGroup.getDisplayName(), membersDeleteFromUserStore
+                                .toArray(new String[membersDeleteFromUserStore.size()]), new String[0]);
+                    }
+                }
+                // find out added members and deleted members..
+                List<String> oldMembers = oldGroup.getMembersWithDisplayName();
 
                 List<String> addedMembers = new ArrayList<>();
                 List<String> deletedMembers = new ArrayList<>();

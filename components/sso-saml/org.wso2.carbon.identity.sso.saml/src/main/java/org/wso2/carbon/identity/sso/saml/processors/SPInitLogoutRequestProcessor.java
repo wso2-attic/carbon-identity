@@ -36,11 +36,13 @@ import org.wso2.carbon.identity.sso.saml.session.SSOSessionPersistenceManager;
 import org.wso2.carbon.identity.sso.saml.session.SessionInfoData;
 import org.wso2.carbon.identity.sso.saml.util.SAMLSSOUtil;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
-public class LogoutRequestProcessor {
+public class SPInitLogoutRequestProcessor {
 
-    private static Log log = LogFactory.getLog(LogoutRequestProcessor.class);
+    private static Log log = LogFactory.getLog(SPInitLogoutRequestProcessor.class);
 
     /**
      * @param logoutRequest
@@ -72,6 +74,15 @@ public class LogoutRequestProcessor {
             }
             String sessionIndex = ssoSessionPersistenceManager.getSessionIndexFromTokenId(sessionId);
 
+            if (StringUtils.isBlank(sessionId)) {
+                String message = "Session index value not found in the request";
+                log.error(message);
+                reqValidationResponseDTO = buildErrorResponse(logoutRequest.getID(),
+                                                              SAMLSSOConstants.StatusCodes
+                                                                      .REQUESTOR_ERROR, message, null);
+                reqValidationResponseDTO.setLogoutFromAuthFramework(true);
+                return reqValidationResponseDTO;
+            }
             // Only if the logout request is received.
             if (logoutRequest != null) {
                 if (logoutRequest.getIssuer() == null) {
@@ -104,8 +115,11 @@ public class LogoutRequestProcessor {
                 if (sessionInfoData == null) {
                     String message = "No Established Sessions corresponding to Session Indexes provided.";
                     log.error(message);
-                    return buildErrorResponse(logoutRequest.getID(),
-                            SAMLSSOConstants.StatusCodes.REQUESTOR_ERROR, message, logoutRequest.getDestination());
+                    reqValidationResponseDTO = buildErrorResponse(logoutRequest.getID(),
+                                                                  SAMLSSOConstants.StatusCodes.REQUESTOR_ERROR,
+                                                                  message, null);
+                    reqValidationResponseDTO.setLogoutFromAuthFramework(true);
+                    return reqValidationResponseDTO;
                 }
 
                 issuer = logoutRequest.getIssuer().getValue();
@@ -135,12 +149,13 @@ public class LogoutRequestProcessor {
 
                 if (logoutReqIssuer.isDoSingleLogout()) {
                     //validate session index
-                    SessionIndex requestSessionIndex = logoutRequest.getSessionIndexes().get(0);
+                    SessionIndex requestSessionIndex = logoutRequest.getSessionIndexes().size() > 0 ? logoutRequest
+                            .getSessionIndexes().get(0) : null;
 
                     if (requestSessionIndex == null || !sessionIndex.equals(requestSessionIndex.getSessionIndex())) {
                         String message = "Session Index validation for Logout Request failed. " +
-                                "Received: [" + requestSessionIndex == null ? "null" : requestSessionIndex.getSessionIndex() +
-                                "]." + " Expected: [" + sessionIndex + "]";
+                                         "Received: [" + (requestSessionIndex == null ? "null" : requestSessionIndex
+                                .getSessionIndex()) + "]." + " Expected: [" + sessionIndex + "]";
                         log.error(message);
                         return buildErrorResponse(logoutRequest.getID(),
                                 SAMLSSOConstants.StatusCodes.REQUESTOR_ERROR,
@@ -152,6 +167,9 @@ public class LogoutRequestProcessor {
 
                     // Validate 'Destination'
                     String idpUrl = IdentityUtil.getProperty(IdentityConstants.ServerConfig.SSO_IDP_URL);
+                    if(StringUtils.isBlank(idpUrl)) {
+                        idpUrl = IdentityUtil.getServerURL(SAMLSSOConstants.SAMLSSO_URL);
+                    }
 
                     if (logoutRequest.getDestination() == null ||
                             !idpUrl.equals(logoutRequest.getDestination())) {
@@ -180,40 +198,47 @@ public class LogoutRequestProcessor {
 
                 SingleLogoutMessageBuilder logoutMsgBuilder = new SingleLogoutMessageBuilder();
                 Map<String, String> rpSessionsList = sessionInfoData.getRPSessionsList();
-                SingleLogoutRequestDTO[] singleLogoutReqDTOs = new SingleLogoutRequestDTO[sessionsList
-                        .size() - 1];
-                int index = 0;
+                List<SingleLogoutRequestDTO> singleLogoutReqDTOs = new ArrayList<SingleLogoutRequestDTO>();
+
                 for (Map.Entry<String, SAMLSSOServiceProviderDO> entry : sessionsList.entrySet()) {
                     String key = entry.getKey();
                     SAMLSSOServiceProviderDO value = entry.getValue();
+
                     if (!key.equals(issuer)) {
                         SingleLogoutRequestDTO logoutReqDTO = new SingleLogoutRequestDTO();
-                        logoutReqDTO.setAssertionConsumerURL(value.getLogoutURL());
-                        if (StringUtils.isBlank(value.getLogoutURL())) {
+                        if (StringUtils.isNotBlank(value.getSloRequestURL())) {
+                            logoutReqDTO.setAssertionConsumerURL(value.getSloRequestURL());
+                        } else if (StringUtils.isNotBlank(value.getSloResponseURL())) {
+                            logoutReqDTO.setAssertionConsumerURL(value.getSloResponseURL());
+                        } else {
                             logoutReqDTO.setAssertionConsumerURL(value.getAssertionConsumerUrl());
                         }
-                        LogoutRequest logoutReq = logoutMsgBuilder.buildLogoutRequest(subject, sessionIndex,
-                                SAMLSSOConstants.SingleLogoutCodes.LOGOUT_USER, logoutReqDTO.getAssertionConsumerURL(), value.getNameIDFormat());
-                        logoutReq.setIssuer(SAMLSSOUtil.getIssuer());
+
+                        LogoutRequest logoutReq = logoutMsgBuilder.buildLogoutRequest(
+                                sessionInfoData.getSubject(key), sessionIndex, SAMLSSOConstants.SingleLogoutCodes
+                                        .LOGOUT_USER, logoutReqDTO.getAssertionConsumerURL(),
+                                value.getNameIDFormat(), value.getTenantDomain());
                         String logoutReqString = SAMLSSOUtil.encode(SAMLSSOUtil.marshall(logoutReq));
                         logoutReqDTO.setLogoutResponse(logoutReqString);
                         logoutReqDTO.setRpSessionId(rpSessionsList.get(key));
-                        singleLogoutReqDTOs[index] = logoutReqDTO;
-                        index++;
+                        singleLogoutReqDTOs.add(logoutReqDTO);
                     } else {
                         reqValidationResponseDTO.setIssuer(value.getIssuer());
-                        reqValidationResponseDTO.setAssertionConsumerURL(value.getAssertionConsumerUrl());
-                        if (!StringUtils.isBlank(value.getLogoutURL())) {
-                            reqValidationResponseDTO.setAssertionConsumerURL(value.getLogoutURL());
+                        if (StringUtils.isNotBlank(value.getSloResponseURL())) {
+                            reqValidationResponseDTO.setAssertionConsumerURL(value.getSloResponseURL());
+                        } else {
+                            reqValidationResponseDTO.setAssertionConsumerURL(value.getAssertionConsumerUrl());
                         }
                     }
                 }
-                reqValidationResponseDTO.setLogoutRespDTO(singleLogoutReqDTOs);
+
+                reqValidationResponseDTO.setLogoutRespDTO(singleLogoutReqDTOs.toArray(
+                        new SingleLogoutRequestDTO[singleLogoutReqDTOs.size()]));
 
                 LogoutResponse logoutResponse = logoutMsgBuilder.buildLogoutResponse(
                         logoutRequest.getID(), SAMLSSOConstants.StatusCodes.SUCCESS_CODE, null,
-                        sessionInfoData, logoutReqIssuer.isDoSignResponse(),
-                        reqValidationResponseDTO.getAssertionConsumerURL());
+                        reqValidationResponseDTO.getAssertionConsumerURL(),
+                        SAMLSSOUtil.getTenantDomainFromThreadLocal());
                 reqValidationResponseDTO.setLogoutResponse(SAMLSSOUtil.encode(SAMLSSOUtil
                         .marshall(logoutResponse)));
                 reqValidationResponseDTO.setValid(true);
@@ -230,7 +255,7 @@ public class LogoutRequestProcessor {
                                                                String statMsg, String destination) throws Exception {
         SAMLSSOReqValidationResponseDTO reqValidationResponseDTO = new SAMLSSOReqValidationResponseDTO();
         LogoutResponse logoutResp = new SingleLogoutMessageBuilder().buildLogoutResponse(id,
-                status, statMsg, null, false, destination);
+                status, statMsg, destination, null);
         reqValidationResponseDTO.setLogOutReq(true);
         reqValidationResponseDTO.setValid(false);
         reqValidationResponseDTO.setResponse(SAMLSSOUtil.compressResponse(SAMLSSOUtil.marshall(logoutResp)));

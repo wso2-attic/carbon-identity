@@ -214,7 +214,8 @@ public class LogoutRequestSender {
                         }
                         // ignore this exception since retrying is enabled if response is null.
                     }
-                    if (response != null && SAMLSSOUtil.isHttpSuccessStatusCode(statusCode)) {
+                    if (response != null && (SAMLSSOUtil.isHttpSuccessStatusCode(statusCode) || SAMLSSOUtil
+                            .isHttpRedirectStatusCode(statusCode))) {
                         log.info("single logout request is sent to : " + logoutReqDTO.getAssertionConsumerURL() +
                                 " is returned with " + HttpStatus.getStatusText(response.getStatusLine().getStatusCode()));
                         isSuccessfullyLogout = true;

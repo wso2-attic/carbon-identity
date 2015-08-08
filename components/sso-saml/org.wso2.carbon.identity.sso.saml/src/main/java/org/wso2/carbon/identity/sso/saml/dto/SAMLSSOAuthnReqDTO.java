@@ -29,12 +29,14 @@ public class SAMLSSOAuthnReqDTO implements Serializable {
     private String issuer;
     private String subject;
     private String assertionConsumerURL;
+    private String[] assertionConsumerURLs;
     private String id;
     private String claim;
     private String audience;
     private String recipient;
     private String nameIDFormat;
-    private String logoutURL;
+    private String sloResponseURL;
+    private String sloRequestURL;
     private String loginPageURL;
     private String rpSessionId;
     private String requestMessageString;
@@ -49,7 +51,9 @@ public class SAMLSSOAuthnReqDTO implements Serializable {
     private boolean isStratosDeployment = false;
     private int attributeConsumingServiceIndex;
     private String nameIdClaimUri;
-    private boolean isIdPInitSSO;
+    private boolean idPInitSSOEnabled;
+    private boolean idPInitSLOEnabled;
+    private String[] idpInitSLOReturnToURLs;
     private boolean doEnableEncryptedAssertion;
     private boolean doValidateSignatureInRequests;
     private Map<String, String> claimMapping = null;
@@ -169,12 +173,12 @@ public class SAMLSSOAuthnReqDTO implements Serializable {
         this.recipient = recipient;
     }
 
-    public String getLogoutURL() {
-        return logoutURL;
+    public String getSloResponseURL() {
+        return sloResponseURL;
     }
 
-    public void setLogoutURL(String logoutURL) {
-        this.logoutURL = logoutURL;
+    public void setSloResponseURL(String sloResponseURL) {
+        this.sloResponseURL = sloResponseURL;
     }
 
     public boolean isDoSingleLogout() {
@@ -318,12 +322,12 @@ public class SAMLSSOAuthnReqDTO implements Serializable {
         this.destination = destination;
     }
 
-    public boolean isIdPInitSSO() {
-        return isIdPInitSSO;
+    public boolean isIdPInitSSOEnabled() {
+        return idPInitSSOEnabled;
     }
 
-    public void setIdPInitSSO(boolean isIdPInitSSO) {
-        this.isIdPInitSSO = isIdPInitSSO;
+    public void setIdPInitSSOEnabled(boolean isIdPInitSSO) {
+        this.idPInitSSOEnabled = isIdPInitSSO;
     }
 
     public boolean isDoEnableEncryptedAssertion() {
@@ -359,4 +363,35 @@ public class SAMLSSOAuthnReqDTO implements Serializable {
         this.tenantDomain = tenantDomain;
     }
 
+    public boolean isIdPInitSLOEnabled() {
+        return idPInitSLOEnabled;
+    }
+
+    public void setIdPInitSLOEnabled(boolean idPInitSLOEnabled) {
+        this.idPInitSLOEnabled = idPInitSLOEnabled;
+    }
+
+    public String[] getAssertionConsumerURLs() {
+        return assertionConsumerURLs;
+    }
+
+    public void setAssertionConsumerURLs(String[] assertionConsumerURLs) {
+        this.assertionConsumerURLs = assertionConsumerURLs;
+    }
+
+    public String[] getIdpInitSLOReturnToURLs() {
+        return idpInitSLOReturnToURLs;
+    }
+
+    public void setIdpInitSLOReturnToURLs(String[] idpInitSLOReturnToURLs) {
+        this.idpInitSLOReturnToURLs = idpInitSLOReturnToURLs;
+    }
+
+    public String getSloRequestURL() {
+        return sloRequestURL;
+    }
+
+    public void setSloRequestURL(String sloRequestURL) {
+        this.sloRequestURL = sloRequestURL;
+    }
 }
