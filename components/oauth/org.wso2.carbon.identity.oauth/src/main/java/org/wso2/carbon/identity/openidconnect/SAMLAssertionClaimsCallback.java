@@ -108,9 +108,9 @@ public class SAMLAssertionClaimsCallback implements CustomClaimsCallbackHandler 
                     if (userAttributeSeparator != null && value.contains(userAttributeSeparator)) {
                         StringTokenizer st = new StringTokenizer(value, userAttributeSeparator);
                         while (st.hasMoreElements()) {
-                            String attValue = st.nextElement().toString();
-                            if (StringUtils.isNotBlank(attValue)) {
-                                values.add(attValue);
+                            String attributeValue = st.nextElement().toString();
+                            if (StringUtils.isNotBlank(attributeValue)) {
+                                values.add(attributeValue);
                             }
                         }
                     } else {
