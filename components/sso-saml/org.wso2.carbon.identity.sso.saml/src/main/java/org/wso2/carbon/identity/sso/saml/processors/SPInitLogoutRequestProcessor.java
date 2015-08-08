@@ -251,14 +251,18 @@ public class SPInitLogoutRequestProcessor {
         }
     }
 
-    private SAMLSSOReqValidationResponseDTO buildErrorResponse(String id, String status,
-                                                               String statMsg, String destination) throws IOException{
+    private SAMLSSOReqValidationResponseDTO buildErrorResponse(String id, String status, String statMsg,
+                                                               String destination) throws IdentityException{
         SAMLSSOReqValidationResponseDTO reqValidationResponseDTO = new SAMLSSOReqValidationResponseDTO();
         LogoutResponse logoutResp = new SingleLogoutMessageBuilder().buildLogoutResponse(id,
                 status, statMsg, destination, null);
         reqValidationResponseDTO.setLogOutReq(true);
         reqValidationResponseDTO.setValid(false);
-        reqValidationResponseDTO.setResponse(SAMLSSOUtil.compressResponse(SAMLSSOUtil.marshall(logoutResp)));
+        try {
+            reqValidationResponseDTO.setResponse(SAMLSSOUtil.compressResponse(SAMLSSOUtil.marshall(logoutResp)));
+        } catch (IOException e) {
+            throw new IdentityException("Error while creating logout response", e);
+        }
         return reqValidationResponseDTO;
     }
 }
