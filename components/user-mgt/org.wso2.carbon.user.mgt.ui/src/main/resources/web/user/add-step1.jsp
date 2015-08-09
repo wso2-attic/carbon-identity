@@ -242,7 +242,7 @@ try{
     }
 
     function doCancel() {
-        location.href = 'user-mgt.jsp?ordinal=1';
+        location.href = '../userstore/add-user-role.jsp';
     }
 
     function doNext() {
@@ -291,7 +291,7 @@ try{
 
 </script>
 <div id="middle">
-    <h2><fmt:message key="add.user"/></h2>
+    <h2><fmt:message key="add.new.user"/></h2>
 
     <div id="workArea">
         <h3><fmt:message key="step.1.user"/></h3>

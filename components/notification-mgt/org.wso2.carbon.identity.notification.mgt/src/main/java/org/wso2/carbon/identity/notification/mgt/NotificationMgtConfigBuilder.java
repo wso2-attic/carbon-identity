@@ -97,8 +97,8 @@ public class NotificationMgtConfigBuilder {
         InputStream inStream = null;
 
         // Open the default configuration file in carbon conf directory path .
-        File MessageMgtPropertyFile = new File(CarbonUtils.getCarbonConfigDirPath(),
-                NotificationMgtConstants.MODULE_CONFIG_FILE);
+        File MessageMgtPropertyFile = new File(CarbonUtils.getCarbonConfigDirPath() + File.separator + "identity" +
+                File.separator, NotificationMgtConstants.MODULE_CONFIG_FILE);
 
         try {
             // If the configuration exists in the carbon conf directory, read properties from there

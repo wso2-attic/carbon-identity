@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.identity.oauth2.model;
 
+import org.wso2.carbon.identity.application.common.model.User;
 import org.wso2.carbon.identity.oauth.cache.CacheEntry;
 
 import java.sql.Timestamp;
@@ -29,7 +30,7 @@ public class AuthzCodeDO extends CacheEntry {
 
     private static final long serialVersionUID = 3308401412530535040L;
 
-    private String authorizedUser;
+    private User authorizedUser;
 
     private String[] scope;
 
@@ -39,16 +40,27 @@ public class AuthzCodeDO extends CacheEntry {
 
     private String callbackUrl;
 
-    public AuthzCodeDO(String authorizedUser, String[] scope,
-                       Timestamp issuedTime, long validityPeriod, String callbackUrl) {
+    private String consumerKey;
+
+    private String authorizationCode;
+
+    private String oauthTokenId;
+
+    public AuthzCodeDO(User authorizedUser, String[] scope, Timestamp issuedTime, long validityPeriod, String
+            callbackUrl, String consumerKey, String authorizationCode) {
         this.authorizedUser = authorizedUser;
         this.scope = scope;
         this.issuedTime = issuedTime;
         this.validityPeriod = validityPeriod;
         this.callbackUrl = callbackUrl;
+        this.consumerKey = consumerKey;
+        this.authorizationCode = authorizationCode;
     }
 
-    public String getAuthorizedUser() {
+    public AuthzCodeDO() {
+    }
+
+    public User getAuthorizedUser() {
         return authorizedUser;
     }
 
@@ -66,5 +78,25 @@ public class AuthzCodeDO extends CacheEntry {
 
     public String getCallbackUrl() {
         return callbackUrl;
+    }
+
+    public String getConsumerKey() {
+        return consumerKey;
+    }
+
+    public String getAuthorizationCode() {
+        return authorizationCode;
+    }
+
+    public String getOauthTokenId() {
+        return oauthTokenId;
+    }
+
+    public void setOauthTokenId(String oauthTokenId) {
+        this.oauthTokenId = oauthTokenId;
+    }
+
+    public void setAuthorizationCode(String authorizationCode) {
+        this.authorizationCode = authorizationCode;
     }
 }

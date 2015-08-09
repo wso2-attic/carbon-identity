@@ -27,7 +27,7 @@
 
 
 <fmt:bundle basename="org.wso2.carbon.claim.mgt.ui.i18n.Resources">
-    <carbon:breadcrumb label="claim.add"
+    <carbon:breadcrumb label="add.new.claim.dialect"
                        resourceBundle="org.wso2.carbon.claim.mgt.ui.i18n.Resources"
                        topPage="false" request="<%=request%>"/>
 
@@ -36,7 +36,7 @@
     <script type="text/javascript" src="../carbon/admin/js/main.js"></script>
 
     <div id="middle">
-        <h2><fmt:message key='claim.management'/></h2>
+        <h2><fmt:message key='add.new.claim.dialect'/></h2>
 
         <div id="workArea">
 
@@ -221,7 +221,7 @@
                         <td colspan="2" class="buttonRow">
                             <input type="button" value="<fmt:message key='add'/>" class="button" onclick="validate();"/>
                             <input class="button" type="button" value="<fmt:message key='cancel'/>"
-                                   onclick="javascript:document.location.href='index.jsp?region=region1&item=claim_mgt_menu&ordinal=0'"/>
+                                   onclick="javascript:document.location.href='add-dialect-claim.jsp?region=region1&item=claim_mgt_menu_add'"/>
                         </td>
                     </tr>
 

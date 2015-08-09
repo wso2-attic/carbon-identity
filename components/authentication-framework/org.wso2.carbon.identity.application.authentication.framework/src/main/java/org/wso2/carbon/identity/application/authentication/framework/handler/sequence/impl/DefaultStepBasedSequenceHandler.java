@@ -282,8 +282,11 @@ public class DefaultStepBasedSequenceHandler implements StepBasedSequenceHandler
                             FrameworkUtils.startTenantFlow(context.getTenantDomain());
                             associatedID = userProfileAdmin.getNameAssociatedWith(stepConfig.getAuthenticatedIdP(),
                                                                                   originalExternalIdpSubjectValueForThisStep);
+                            stepConfig.getAuthenticatedUser().setUserName(associatedID);
+                            stepConfig.getAuthenticatedUser().setTenantDomain(context.getTenantDomain());
+                            stepConfig.setAuthenticatedUser(stepConfig.getAuthenticatedUser());
                         } catch (UserProfileException e) {
-                            throw new FrameworkException("Error while getting associated ID", e);
+                            throw new FrameworkException("Error while getting associated local user ID for "+originalExternalIdpSubjectValueForThisStep, e);
                         } finally {
                             // end tenant flow
                             FrameworkUtils.endTenantFlow();
