@@ -20,6 +20,7 @@ package org.wso2.carbon.identity.sts.passive.ui;
 import org.apache.axis2.context.ConfigurationContext;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
@@ -109,8 +110,10 @@ public class PassiveSTS extends HttpServlet {
 
         } catch (FileNotFoundException e) {
             // The Passive STS Redirect HTML file is optional. When the file is not found, use the default page content.
-            log.info("Passive STS Redirect HTML file not found in : " + redirectHtmlFilePath +
-                    ". Default Redirect is used.");
+            if (log.isDebugEnabled()) {
+                log.debug("Passive STS Redirect HTML file not found in : " + redirectHtmlFilePath +
+                        ". Default Redirect is used.");
+            }
         } finally {
             if (fileInputStream != null) {
                 try {
@@ -142,8 +145,8 @@ public class PassiveSTS extends HttpServlet {
         }
 
         // Adding parameters to the Passive STS HTML redirect page
-        String parameters = "<input type='hidden' name='wa' value='$action'>" +
-                "<input type='hidden' name='wresult' value='$result'>";
+        String parameters = "<input type=\"hidden\" name=\"wa\" value=\"$action\">" +
+                "<input type=\"hidden\" name=\"wresult\" value=\"$result\">";
 
         fileContent = fileContent.replace("<!--$params-->", parameters);
 
@@ -175,10 +178,13 @@ public class PassiveSTS extends HttpServlet {
         String pageWithReply = htmlPage.replace("$url", String.valueOf(respToken.getReplyTo()));
 
         String pageWithReplyAction = pageWithReply.replace("$action", String.valueOf(action));
-        String pageWithReplyActionResult = pageWithReplyAction.replace("$result", String.valueOf(respToken.getResults()));
+        String pageWithReplyActionResult = pageWithReplyAction.replace("$result",
+                StringEscapeUtils.escapeHtml(String.valueOf(respToken.getResults())));
         String pageWithReplyActionResultContext;
         if(respToken.getContext() !=null) {
-            pageWithReplyActionResultContext = pageWithReplyActionResult.replace("<!--$additionalParams-->", "<!--$additionalParams-->" + "<input type='hidden' name='wctx' value='"  +respToken.getContext() + "'>");
+            pageWithReplyActionResultContext = pageWithReplyActionResult.replace(
+                    "<!--$additionalParams-->", "<!--$additionalParams-->" + "<input type='hidden' name='wctx' value='"
+                            +respToken.getContext() + "'>");
         } else {
             pageWithReplyActionResultContext = pageWithReplyActionResult;
         }

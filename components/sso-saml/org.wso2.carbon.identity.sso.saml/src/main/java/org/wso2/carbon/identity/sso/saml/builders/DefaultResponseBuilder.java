@@ -60,7 +60,7 @@ public class DefaultResponseBuilder implements ResponseBuilder {
         Response response = new org.opensaml.saml2.core.impl.ResponseBuilder().buildObject();
         response.setIssuer(SAMLSSOUtil.getIssuer());
         response.setID(SAMLSSOUtil.createID());
-        if (!authReqDTO.isIdPInitSSO()) {
+        if (!authReqDTO.isIdPInitSSOEnabled()) {
             response.setInResponseTo(authReqDTO.getId());
         }
         response.setDestination(authReqDTO.getAssertionConsumerURL());

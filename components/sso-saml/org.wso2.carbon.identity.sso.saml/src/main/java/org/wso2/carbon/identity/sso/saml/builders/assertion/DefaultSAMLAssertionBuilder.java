@@ -103,7 +103,7 @@ public class DefaultSAMLAssertionBuilder implements SAMLAssertionBuilder {
             SubjectConfirmationData scData = new SubjectConfirmationDataBuilder().buildObject();
             scData.setRecipient(authReqDTO.getAssertionConsumerURL());
             scData.setNotOnOrAfter(notOnOrAfter);
-            if (!authReqDTO.isIdPInitSSO()) {
+            if (!authReqDTO.isIdPInitSSOEnabled()) {
                 scData.setInResponseTo(authReqDTO.getId());
             }
             subjectConfirmation.setSubjectConfirmationData(scData);
@@ -117,7 +117,7 @@ public class DefaultSAMLAssertionBuilder implements SAMLAssertionBuilder {
                     scData = new SubjectConfirmationDataBuilder().buildObject();
                     scData.setRecipient(recipient);
                     scData.setNotOnOrAfter(notOnOrAfter);
-                    if (!authReqDTO.isIdPInitSSO()) {
+                    if (!authReqDTO.isIdPInitSSOEnabled()) {
                         scData.setInResponseTo(authReqDTO.getId());
                     }
                     subjectConfirmation.setSubjectConfirmationData(scData);

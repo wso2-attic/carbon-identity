@@ -57,7 +57,7 @@ public class SCIMCommonComponent {
 
     protected void activate(ComponentContext ctx) {
         try {
-            String filePath = CarbonUtils.getCarbonConfigDirPath() + File.separator +
+            String filePath = CarbonUtils.getCarbonConfigDirPath() + File.separator + "identity" + File.separator +
                               SCIMConfigConstants.PROVISIONING_CONFIG_NAME;
 
             SCIMConfigProcessor scimConfigProcessor = new SCIMConfigProcessor();

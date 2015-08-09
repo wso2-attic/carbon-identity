@@ -1200,7 +1200,7 @@ public class IdPManagementUIUtil {
         properties[0] = property;
 
         property = new Property();
-        property.setName(IdentityApplicationConstants.Authenticator.PassiveSTS.PASSIVE_STS_URL);
+        property.setName(IdentityApplicationConstants.Authenticator.PassiveSTS.IDENTITY_PROVIDER_URL);
         property.setValue(paramMap.get("passiveSTSUrl"));
         properties[1] = property;
 
