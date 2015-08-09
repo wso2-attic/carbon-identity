@@ -105,15 +105,6 @@
                                     <outputDirectory>${basedir}/src/main/resources/</outputDirectory>
                                     <destFileName>oauth2.war</destFileName>
                                 </artifactItem>
-                                <artifactItem>
-                                    <groupId>org.wso2.carbon.identity</groupId>
-                                    <artifactId>org.wso2.carbon.identity.application.authentication.endpoint
-                                    </artifactId>
-                                    <type>war</type>
-                                    <overWrite>true</overWrite>
-                                    <outputDirectory>${basedir}/src/main/resources/</outputDirectory>
-                                    <destFileName>authenticationendpoint.war</destFileName>
-                                </artifactItem>
                             </artifactItems>
                         </configuration>
                     </execution>
@@ -135,7 +126,6 @@
                                     <directory>resources</directory>
                                     <includes>
                                         <include>oauth2.war</include>
-                                        <include>authenticationendpoint.war</include>
                                         <include>p2.inf</include>
                                         <include>build.properties</include>
                                     </includes>

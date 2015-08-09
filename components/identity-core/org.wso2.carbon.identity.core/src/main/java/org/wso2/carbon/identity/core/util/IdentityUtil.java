@@ -20,14 +20,26 @@ package org.wso2.carbon.identity.core.util;
 import org.apache.axiom.om.impl.dom.factory.OMDOMFactory;
 import org.apache.axis2.engine.AxisConfiguration;
 import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.io.Charsets;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.xerces.impl.Constants;
+import org.apache.xerces.util.SecurityManager;
 import org.apache.xml.security.utils.Base64;
+import org.opensaml.Configuration;
+import org.opensaml.xml.XMLObject;
+import org.opensaml.xml.io.Unmarshaller;
+import org.opensaml.xml.io.UnmarshallerFactory;
+import org.opensaml.xml.io.UnmarshallingException;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.base.ServerConfigurationException;
+import org.wso2.carbon.identity.base.CarbonEntityResolver;
 import org.wso2.carbon.identity.base.IdentityException;
+import org.wso2.carbon.identity.base.IdentityRuntimeException;
 import org.wso2.carbon.identity.core.internal.IdentityCoreServiceComponent;
 import org.wso2.carbon.identity.core.model.IdentityErrorMsgContext;
 import org.wso2.carbon.registry.core.utils.UUIDGenerator;
@@ -36,10 +48,17 @@ import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.utils.NetworkUtils;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
+import org.xml.sax.SAXException;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
+import javax.xml.XMLConstants;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.IOException;
 import java.net.SocketException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -61,6 +80,9 @@ public class IdentityUtil {
     private static Map<String, Object> configuration = new HashMap<String, Object>();
     private static Document importerDoc = null;
     private static ThreadLocal<IdentityErrorMsgContext> IdentityError = new ThreadLocal<IdentityErrorMsgContext>();
+    private static final String SECURITY_MANAGER_PROPERTY = Constants.XERCES_PROPERTY_PREFIX +
+            Constants.SECURITY_MANAGER_PROPERTY;
+    private static final int ENTITY_EXPANSION_LIMIT = 0;
 
     /**
      * @return
@@ -252,7 +274,7 @@ public class IdentityUtil {
         return CarbonUtils.getCarbonConfigDirPath() + File.separator + "identity";
     }
 
-    public static String getServerURL() throws IdentityException{
+    public static String getServerURL(String endpoint) throws IdentityRuntimeException {
         String hostName = ServerConfiguration.getInstance().getFirstProperty(IdentityCoreConstants.HOST_NAME);
 
         try {
@@ -260,12 +282,12 @@ public class IdentityUtil {
                 hostName = NetworkUtils.getLocalHostname();
             }
         } catch (SocketException e) {
-            throw new IdentityException("Error while trying to read hostname.", e);
+            throw new IdentityRuntimeException("Error while trying to read hostname.", e);
         }
 
         String mgtTransport = CarbonUtils.getManagementTransport();
-        AxisConfiguration axisConfiguration = IdentityCoreServiceComponent
-                .getConfigurationContextService().getServerConfigContext().getAxisConfiguration();
+        AxisConfiguration axisConfiguration = IdentityCoreServiceComponent.getConfigurationContextService().
+                getServerConfigContext().getAxisConfiguration();
         int mgtTransportPort = CarbonUtils.getTransportProxyPort(axisConfiguration, mgtTransport);
         if (mgtTransportPort <= 0) {
             mgtTransportPort = CarbonUtils.getTransportPort(axisConfiguration, mgtTransport);
@@ -285,7 +307,45 @@ public class IdentityUtil {
             }
         }
 
+        if(StringUtils.isNotBlank(endpoint)) {
+            if(!endpoint.startsWith("/")) {
+                serverUrl += "/";
+            }
+            serverUrl += endpoint;
+        }
+
         return serverUrl;
     }
 
+    /**
+     * Constructing the SAML or XACML Objects from a String
+     *
+     * @param xmlString Decoded SAML or XACML String
+     * @return SAML or XACML Object
+     * @throws org.wso2.carbon.identity.base.IdentityException
+     */
+    public static XMLObject unmarshall(String xmlString) throws IdentityException {
+
+        try {
+            DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+            documentBuilderFactory.setNamespaceAware(true);
+
+            documentBuilderFactory.setExpandEntityReferences(false);
+            documentBuilderFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+            org.apache.xerces.util.SecurityManager securityManager = new SecurityManager();
+            securityManager.setEntityExpansionLimit(ENTITY_EXPANSION_LIMIT);
+            documentBuilderFactory.setAttribute(SECURITY_MANAGER_PROPERTY, securityManager);
+
+            DocumentBuilder docBuilder = documentBuilderFactory.newDocumentBuilder();
+            docBuilder.setEntityResolver(new CarbonEntityResolver());
+            Document document = docBuilder.parse(new ByteArrayInputStream(xmlString.trim().getBytes(Charsets.UTF_8)));
+            Element element = document.getDocumentElement();
+            UnmarshallerFactory unmarshallerFactory = Configuration.getUnmarshallerFactory();
+            Unmarshaller unmarshaller = unmarshallerFactory.getUnmarshaller(element);
+            return unmarshaller.unmarshall(element);
+        } catch (ParserConfigurationException|UnmarshallingException|SAXException|IOException e) {
+            String message = "Error in constructing XML Object from the encoded String";
+            throw new IdentityException(message, e);
+        }
+    }
 }

@@ -71,31 +71,20 @@ function doValidation() {
         return false;
     }
 
-    var fld2 = document.getElementsByName("assrtConsumerURL")[0];
-    var value = fld2.value;
-    var regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/
-    if (value.length == 0) {
-        CARBON.showWarningDialog(
-                "<fmt:message key='sp.enter.valid.endpoint.address'/>",
-                null, null);
-        return false;
-
+    var assertionConsumerURLs = null;
+    if($("#assertionConsumerURLTblRow").length) {
+        assertionConsumerURLs = $('#assertionConsumerURLs').val();
     }
 
-    if (!regexp.test(value)) {
-        CARBON.showWarningDialog(
-                "<fmt:message key='sp.enter.valid.endpoint.address'/>",
-                null, null);
+    if(assertionConsumerURLs == null || assertionConsumerURLs.trim().length === 0) {
+        CARBON.showWarningDialog("<fmt:message key='sp.enter.valid.endpoint.address'/>", null, null);
         return false;
     }
 
-    value = value.replace(/^\s+/, "");
-    if (value.length == 0) {
-        CARBON.showWarningDialog(
-                "<fmt:message key='sp.enter.valid.endpoint.address'/>",
-                null, null);
+    var defaultAssertionConsumerURL = $('#defaultAssertionConsumerURL').val();
+    if(defaultAssertionConsumerURL == null || defaultAssertionConsumerURL.trim().length === 0) {
+        CARBON.showWarningDialog("<fmt:message key='sp.enter.default.acs'/>", null, null);
         return false;
-
     }
 
     var fld3 = document.getElementsByName("logoutURL")[0];
@@ -151,8 +140,15 @@ function disableEncCertAlias(chkbx) {
 }
 
 function disableLogoutUrl(chkbx) {
-    document.addServiceProvider.logoutURL.disabled = (chkbx.checked) ? false
-            : true;
+    if($(chkbx).is(':checked')) {
+        $("#sloResponseURL").prop('disabled', false);
+        $("#sloRequestURL").prop('disabled', false);
+    } else {
+        $("#sloResponseURL").prop('disabled', true);
+        $("#sloRequestURL").prop('disabled', true);
+        $("#sloResponseURL").val("");
+        $("#sloRequestURL").val("");
+    }
 }
 
 function disableFullQualifiedUsername(chkbx) {
@@ -216,6 +212,222 @@ function disableRecipients(chkbx) {
     document.addServiceProvider.addRecipient.disabled = (chkbx.checked) ? false
             : true;
 }
+
+function addAssertionConsumerURL() {
+
+    var assertionConsumerURL = $("#assertionConsumerURLTxt").val();
+    if(assertionConsumerURL == null || assertionConsumerURL.trim().length == 0) {
+        CARBON.showWarningDialog("<fmt:message key='sp.enter.not.valid.endpoint.address'/>", null, null);
+        return false;
+    }
+
+    assertionConsumerURL = assertionConsumerURL.trim();
+
+    var regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
+    if (!regexp.test(assertionConsumerURL) || assertionConsumerURL.indexOf(",") > -1) {
+        CARBON.showWarningDialog("<fmt:message key='sp.enter.not.valid.endpoint.address'/>", null, null);
+        return false;
+    }
+
+    if (!$("#assertionConsumerURLTblRow").length) {
+        var row = '<tr id="assertionConsumerURLTblRow">'+
+                  '    <td></td>'+
+                  '    <td>'+
+                  '        <table id="assertionConsumerURLsTable" style="width: 40%; margin-bottom: 3px;" class="styledInner">'+
+                  '            <tbody id="assertionConsumerURLsTableBody">'+
+                  '            </tbody>'+
+                  '        </table>'+
+                  '        <input type="hidden" id="assertionConsumerURLs" name="assertionConsumerURLs" value="">'+
+                  '        <input type="hidden" id="currentColumnId" value="0">'+
+                  '    </td>'+
+                  '</tr>';
+        $('#assertionConsumerURLInputRow').after(row);
+    }
+
+    var assertionConsumerURLs = $("#assertionConsumerURLs").val();
+    var currentColumnId =  $("#currentColumnId").val();
+    if(assertionConsumerURLs == null || assertionConsumerURLs.trim().length == 0) {
+        $("#assertionConsumerURLs").val(assertionConsumerURL);
+        var row =
+                '<tr id="acsUrl_'+ parseInt(currentColumnId) +'">' +
+                '</td><td style="padding-left: 15px !important; color: rgb(119, 119, 119);font-style: italic;">'+assertionConsumerURL+
+                '</td><td><a onclick="removeAssertionConsumerURL (\''+assertionConsumerURL+'\', \'acsUrl_'+ parseInt(currentColumnId) +'\');return false;"'+
+                'href="#" class="icon-link" style="background-image: url(../admin/images/delete.gif)"> Delete </a></td></tr>';
+
+        $('#assertionConsumerURLsTable tbody').append(row);
+        $('#defaultAssertionConsumerURL').append($("<option></option>").attr("value", assertionConsumerURL).text(assertionConsumerURL));
+        $('#defaultAssertionConsumerURL').val(assertionConsumerURL);
+    } else {
+        var isExist = false;
+        $.each(assertionConsumerURLs.split(","), function( index, value ) {
+            if(value === assertionConsumerURL) {
+                isExist = true;
+                CARBON.showWarningDialog("<fmt:message key='sp.endpoint.address.already.exists'/>", null, null);
+                return false;
+            }
+        });
+        if(isExist) {
+            return false;
+        }
+
+        $("#assertionConsumerURLs").val(assertionConsumerURLs + "," + assertionConsumerURL);
+        var row =
+                '<tr id="acsUrl_'+ parseInt(currentColumnId) +'">' +
+                '</td><td style="padding-left: 15px !important; color: rgb(119, 119, 119);font-style: italic;">'+assertionConsumerURL+
+                '</td><td><a onclick="removeAssertionConsumerURL(\''+assertionConsumerURL+'\', \'acsUrl_'+ parseInt(currentColumnId) +'\');return false;"'+
+                'href="#" class="icon-link" style="background-image: url(../admin/images/delete.gif)"> Delete </a></td></tr>';
+
+        $('#assertionConsumerURLsTable tr:last').after(row);
+        $('#defaultAssertionConsumerURL').append($("<option></option>").attr("value", assertionConsumerURL).text(assertionConsumerURL));
+    }
+    $("#assertionConsumerURLTxt").val("");
+    $("#currentColumnId").val(parseInt(currentColumnId) + 1);
+}
+
+function removeAssertionConsumerURL(assertionConsumerURL, columnId) {
+
+    var assertionConsumerURLs = $("#assertionConsumerURLs").val();
+    var defaultAssertionConsumerURL = $('#defaultAssertionConsumerURL').val();
+    var newAssertionConsumerURLs = "";
+    var isDeletingSelected = false;
+
+    if(assertionConsumerURLs != null && assertionConsumerURLs.trim().length > 0) {
+        $.each(assertionConsumerURLs.split(","), function( index, value ) {
+            if(value === assertionConsumerURL) {
+                if(assertionConsumerURL === defaultAssertionConsumerURL) {
+                    isDeletingSelected = true;
+                }
+                return true;
+            }
+
+            if(newAssertionConsumerURLs.length > 0) {
+                newAssertionConsumerURLs = newAssertionConsumerURLs + "," + value;
+            } else {
+                newAssertionConsumerURLs = value;
+            }
+        });
+    }
+
+    $('#defaultAssertionConsumerURL option[value="' + assertionConsumerURL + '"]').remove();
+
+    if(isDeletingSelected && newAssertionConsumerURLs.length > 0) {
+        $('select[id="defaultAssertionConsumerURL"] option:eq(1)').attr('selected', 'selected');
+    }
+
+    $('#' + columnId).remove();
+    $("#assertionConsumerURLs").val(newAssertionConsumerURLs);
+
+    if(newAssertionConsumerURLs.length == 0) {
+        $('#assertionConsumerURLTblRow').remove();
+    }
+}
+
+function addSloReturnToURL() {
+
+    var returnToURL = $("#returnToURLTxtBox").val();
+    if(returnToURL == null || returnToURL.trim().length == 0) {
+        CARBON.showWarningDialog("<fmt:message key='slo.enter.not.valid.endpoint.address'/>", null, null);
+        return false;
+    }
+
+    returnToURL = returnToURL.trim();
+
+    var regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
+    if (!regexp.test(returnToURL) || returnToURL.indexOf(",") > -1) {
+        CARBON.showWarningDialog("<fmt:message key='slo.enter.not.valid.endpoint.address'/>", null, null);
+        return false;
+    }
+
+    if (!$("#idpSLOReturnToURLsTblRow").length) {
+        var row = '<tr id="idpSLOReturnToURLsTblRow">'+
+                  '    <td></td>'+
+                  '    <td>'+
+                  '        <table id="idpSLOReturnToURLsTbl" style="width: 40%; margin-bottom: 3px;" class="styledInner">'+
+                  '            <tbody id="idpSLOReturnToURLsTblBody">'+
+                  '            </tbody>'+
+                  '        </table>'+
+                  '        <input type="hidden" id="idpInitSLOReturnToURLs" name="idpInitSLOReturnToURLs" value="">'+
+                  '        <input type="hidden" id="currentReturnToColumnId" value="0">'+
+                  '    </td>'+
+                  '</tr>';
+        $('#idpSLOReturnToURLInputRow').after(row);
+    }
+
+    var idpInitSLOReturnToURLs = $("#idpInitSLOReturnToURLs").val();
+    var currentColumnId =  $("#currentReturnToColumnId").val();
+    if(idpInitSLOReturnToURLs == null || idpInitSLOReturnToURLs.trim().length == 0) {
+        $("#idpInitSLOReturnToURLs").val(returnToURL);
+        var row =
+                '<tr id="returnToUrl_'+ parseInt(currentColumnId) +'">' +
+                '</td><td style="padding-left: 15px !important; color: rgb(119, 119, 119);font-style: italic;">'+returnToURL+
+                '</td><td><a onclick="removeSloReturnToURL(\''+returnToURL+'\', \'returnToUrl_'+
+                parseInt(currentColumnId) + '\');return false;"'+
+                'href="#" class="icon-link" style="background-image: url(../admin/images/delete.gif)"> Delete </a></td></tr>';
+
+        $('#idpSLOReturnToURLsTbl tbody').append(row);
+    } else {
+        var isExist = false;
+        $.each(idpInitSLOReturnToURLs.split(","), function( index, value ) {
+            if(value === returnToURL) {
+                isExist = true;
+                CARBON.showWarningDialog("<fmt:message key='slo.endpoint.address.already.exists'/>", null, null);
+                return false;
+            }
+        });
+        if(isExist) {
+            return false;
+        }
+
+        $("#idpInitSLOReturnToURLs").val(idpInitSLOReturnToURLs + "," + returnToURL);
+        var row =
+                '<tr id="returnToUrl_'+ parseInt(currentColumnId) +'">' +
+                '</td><td style="padding-left: 15px !important; color: rgb(119, 119, 119);font-style: italic;">'+
+                returnToURL + '</td><td><a onclick="removeSloReturnToURL(\''+returnToURL+'\', \'returnToUrl_'+ parseInt(currentColumnId) +'\');return false;"'+
+                'href="#" class="icon-link" style="background-image: url(../admin/images/delete.gif)"> Delete </a></td></tr>';
+
+        $('#idpSLOReturnToURLsTbl tr:last').after(row);
+    }
+    $("#returnToURLTxtBox").val("");
+    $("#currentReturnToColumnId").val(parseInt(currentColumnId) + 1);
+}
+
+function removeSloReturnToURL(returnToURL, columnId) {
+
+    var idpInitSLOReturnToURLs = $("#idpInitSLOReturnToURLs").val();
+    var newIdpInitSLOReturnToURLs = "";
+
+    if(idpInitSLOReturnToURLs != null && idpInitSLOReturnToURLs.trim().length > 0) {
+        $.each(idpInitSLOReturnToURLs.split(","), function( index, value ) {
+            if(value === returnToURL) {
+                return true;
+            }
+
+            if(newIdpInitSLOReturnToURLs.length > 0) {
+                newIdpInitSLOReturnToURLs = newIdpInitSLOReturnToURLs + "," + value;
+            } else {
+                newIdpInitSLOReturnToURLs = value;
+            }
+        });
+    }
+
+    $('#' + columnId).remove();
+    $("#idpInitSLOReturnToURLs").val(newIdpInitSLOReturnToURLs);
+
+    if(newIdpInitSLOReturnToURLs.length == 0) {
+        $('#idpSLOReturnToURLsTblRow').remove();
+    }
+}
+
+function disableIdPInitSLO(chkbx) {
+    if($(chkbx).is(':checked')) {
+        $("#returnToURLTxtBox").prop('disabled', false);
+        $("#addReturnToURL").prop('disabled', false);
+    } else {
+        $("#returnToURLTxtBox").prop('disabled', true);
+        $("#addReturnToURL").prop('disabled', true);
+    }
+}
+
 function addClaim() {
     var propertyCount = document.getElementById("claimPropertyCounter");
 
@@ -498,22 +710,95 @@ function clearAll() {
         <fmt:message key="sp.issuer"/>
         <font color="red">*</font>
     </td>
-    <td><input type="text" id="issuer" name="issuer"
+    <td><input type="text" id="issuer" name="issuer" maxlength="100"
                class="text-box-big"
                value="<%=isEditSP? provider.getIssuer():""%>" <%=isEditSP ? "disabled=\"disabled\"" : ""%>/>
         <input type="hidden" id="hiddenIssuer" name="hiddenIssuer"
                value="<%=isEditSP? provider.getIssuer():""%>"/>
     </td>
 </tr>
-<tr>
+<tr id="assertionConsumerURLInputRow">
     <td>
-        <fmt:message key="sp.assertionConsumerURL"/>
+        <fmt:message key="sp.assertionConsumerURLs"/>
         <font color="red">*</font>
     </td>
     <td>
-        <input type="text" id="assrtConsumerURL"
-               name="assrtConsumerURL" class="text-box-big"
-               value="<%=isEditSP?provider.getAssertionConsumerUrl():""%>"/>
+        <input type="text" id="assertionConsumerURLTxt" class="text-box-big" value=""/>
+        <input id="addAssertionConsumerURLBtn" type="button" value="<fmt:message key="saml.sso.add.acs"/>"
+               onclick="addAssertionConsumerURL()"/>
+    </td>
+</tr>
+<%
+    if (isEditSP && provider.getAssertionConsumerUrls() != null) {
+%>
+<tr id="assertionConsumerURLTblRow">
+    <td></td>
+    <td>
+        <table id="assertionConsumerURLsTable" style="width: 40%; margin-bottom: 3px;" class="styledInner">
+            <tbody id="assertionConsumerURLsTableBody">
+            <%
+                StringBuilder assertionConsumerURLsBuilder = new StringBuilder();
+                int acsColumnId = 0;
+                for (String assertionConsumerURL : provider.getAssertionConsumerUrls()) {
+                    if (assertionConsumerURLsBuilder.length() > 0) {
+                        assertionConsumerURLsBuilder.append(",").append(assertionConsumerURL);
+                    } else {
+                        assertionConsumerURLsBuilder.append(assertionConsumerURL);
+                    }
+            %>
+            <tr id="acsUrl_<%=acsColumnId%>">
+                <td style="padding-left: 15px !important; color: rgb(119, 119, 119);font-style: italic;">
+                    <%=assertionConsumerURL%>
+                </td>
+                <td>
+                    <a onclick="removeAssertionConsumerURL('<%=assertionConsumerURL%>', 'acsUrl_<%=acsColumnId%>');return false;"
+                       href="#" class="icon-link"
+                       style="background-image: url(../admin/images/delete.gif)">
+                        Delete
+                    </a>
+                </td>
+            </tr>
+            <%
+                    acsColumnId++;
+                }
+            %>
+            </tbody>
+        </table>
+        <input type="hidden" id="assertionConsumerURLs" name="assertionConsumerURLs" value="<%=assertionConsumerURLsBuilder.length() > 0 ?
+         assertionConsumerURLsBuilder.toString() : ""%>">
+        <input type="hidden" id="currentColumnId" value="<%=acsColumnId%>">
+    </td>
+</tr>
+<%
+    }
+%>
+
+<tr id="defaultAssertionConsumerURLRow">
+    <td>
+        <fmt:message key="sp.defaultAssertionConsumerURL"/>
+        <font color="red">*</font>
+    </td>
+    <td>
+        <select id="defaultAssertionConsumerURL" name="defaultAssertionConsumerURL">
+            <option value="">---Select---</option>
+            <%
+                if (isEditSP && provider.getAssertionConsumerUrls() != null) {
+                    for (String assertionConsumerUrl : provider.getAssertionConsumerUrls()) {
+                        if (assertionConsumerUrl.equals(provider.getDefaultAssertionConsumerUrl())) {
+            %>
+            <option value="<%=assertionConsumerUrl%>" selected><%=assertionConsumerUrl%>
+            </option>
+            <%
+            } else {
+            %>
+            <option value="<%=assertionConsumerUrl%>"><%=assertionConsumerUrl%>
+            </option>
+            <%
+                        }
+                    }
+                }
+            %>
+        </select>
     </td>
 </tr>
 
@@ -611,21 +896,14 @@ function clearAll() {
     </td>
 </tr>
 
-<tr>
-    <td colspan="2">
-        <input type="checkbox" name="enableAssertionSignature" value="true"
-               onclick="disableAssertionSignature(this);"
-                <%=(isEditSP && provider.getDoSignAssertions() ? "checked=\"checked\"" : "")%> />
-            <%--<input type="hidden" name="enableAssertionSignature" value="true"/>--%>
-        <fmt:message key="do.assertion.signature"/>
-    </td>
-</tr>
+<input type="hidden" name="enableAssertionSignature" value="true"/>
+
 <!-- enableSigValidation -->
 <%
     if (isEditSP && provider.isDoValidateSignatureInRequestsSpecified() && provider.getDoValidateSignatureInRequests()) {
 %>
 <tr>
-    <td colspan="2"  style="padding-top: 25px">
+    <td colspan="2">
         <input type="checkbox" id="enableSigValidation"
                name="enableSigValidation" value="true" checked="checked"
                onclick="disableCertAlias(this);"/>
@@ -635,7 +913,7 @@ function clearAll() {
 </tr>
 <% } else {%>
 <tr>
-    <td colspan="2"  style="padding-top: 25px">
+    <td colspan="2">
         <input type="checkbox" id="enableSigValidation"
                name="enableSigValidation" value="true"
                onclick="disableCertAlias(this);"/>
@@ -732,42 +1010,41 @@ function clearAll() {
 </tr>
 <%}%>
 <!-- EnableSingleLogout -->
-<%
-    if (isEditSP && provider.getDoSingleLogout()) {
-%>
 <tr>
     <td colspan="2"><input type="checkbox"
                            name="enableSingleLogout" value="true"
-                           onclick="disableLogoutUrl(this);" checked="checked"/> <fmt:message
+                           onclick="disableLogoutUrl(this);"
+                           <%=(isEditSP && provider.getDoSingleLogout()) ? "checked=\"checked\"" : ""%>/> <fmt:message
             key="enable.single.logout"/></td>
 </tr>
 <tr>
     <td
             style="padding-left: 40px ! important; color: rgb(119, 119, 119); font-style: italic;">
-        <fmt:message key="logout.url"/>
+        <fmt:message key="slo.response.url"/>
     </td>
-    <td><input type="text" id="logoutURL" name="logoutURL"
-               value="<%=provider.getLogoutURL()%>"
-               class="text-box-big"></td>
-</tr>
-<% } else {%>
-<tr>
-    <td colspan="2"><input type="checkbox"
-                           name="enableSingleLogout" value="true"
-                           onclick="disableLogoutUrl(this);"/> <fmt:message
-            key="enable.single.logout"/></td>
+    <td><input type="text" id="sloResponseURL" name="sloResponseURL"
+               value="<%=(isEditSP && StringUtils.isNotBlank(provider.getSloResponseURL())) ?
+               provider.getSloResponseURL() : ""%>"
+               class="text-box-big" <%=(isEditSP && provider.getDoSingleLogout()) ? "" : "disabled=\"disabled\""%>>
+        <div class="sectionHelp" style="margin-top: 2px;">
+            Single logout response accepting endpoint
+        </div>
+    </td>
 </tr>
 <tr>
     <td
             style="padding-left: 40px ! important; color: rgb(119, 119, 119); font-style: italic;">
-        <fmt:message key="logout.url"/>
+        <fmt:message key="slo.request.url"/>
     </td>
-    <td><input type="text" id="logoutURL" name="logoutURL"
-               value="<%=samlSsoServuceProviderConfigBean.getSingleLogoutUrl()%>"
-               class="text-box-big" disabled="disabled"></td>
+    <td><input type="text" id="sloRequestURL" name="sloRequestURL"
+               value="<%=(isEditSP && StringUtils.isNotBlank(provider.getSloRequestURL())) ?
+               provider.getSloRequestURL() : ""%>"
+               class="text-box-big" <%=(isEditSP && provider.getDoSingleLogout()) ? "" : "disabled=\"disabled\""%>>
+        <div class="sectionHelp" style="margin-top: 2px;">
+            Single logout request accepting endpoint
+        </div>
+    </td>
 </tr>
-<% } %>
-
 <!-- EnableAttributeProfile -->
 <%
 boolean show = false;
@@ -970,7 +1247,7 @@ if (isEditSP && show) {
     </td>
     <td>
         <input type="text" id="audience" name="audience"
-               class="text-box-big"/>
+               class="text-box-big" disabled="disabled"/>
         <input id="addAudience" name="addAudience" type="button"
                disabled="disabled" value="<fmt:message key="saml.sso.add.audience"/>"
                onclick="addAudienceFunc()"/>
@@ -978,8 +1255,9 @@ if (isEditSP && show) {
 </tr>
 <%} %>
 <tr>
+    <td></td>
     <td>
-        <table id="audienceTableId" style="<%=audienceTableStyle%>" class="styledInner">
+        <table id="audienceTableId" style="width: 40%; <%=audienceTableStyle%>" class="styledInner">
             <tbody id="audienceTableTbody">
             <%
                 int j = 0;
@@ -1057,7 +1335,7 @@ if (isEditSP && show) {
     </td>
     <td>
         <input type="text" id="recipient" name="recipient"
-               class="text-box-big"/>
+               class="text-box-big" disabled="disabled"/>
         <input id="addRecipient" name="addRecipient" type="button"
                disabled="disabled" value="<fmt:message key="saml.sso.add.recipient"/>"
                onclick="addRecipientFunc()"/>
@@ -1065,8 +1343,9 @@ if (isEditSP && show) {
 </tr>
 <%} %>
 <tr>
+    <td></td>
     <td>
-        <table id="recipientTableId" style="<%=recipientTableStyle%>" class="styledInner">
+        <table id="recipientTableId" style="width: 40%; <%=recipientTableStyle%>" class="styledInner">
             <tbody id="recipientTableTbody">
             <%
                 int k = 0;
@@ -1114,6 +1393,76 @@ if (isEditSP && show) {
     </td>
 </tr>
 
+<!-- IdP-Initiated SLO -->
+<tr>
+    <td colspan="2">
+        <input type="checkbox" name="enableIdPInitSLO" value="true"
+               onclick="disableIdPInitSLO(this);"
+                <%=(isEditSP && provider.getIdPInitSLOEnabled() ? "checked=\"checked\"" : "")%> />
+        <fmt:message key="enable.idp.init.slo"/>
+    </td>
+</tr>
+
+
+<tr id="idpSLOReturnToURLInputRow">
+    <td
+            style="padding-left: 40px ! important; color: rgb(119, 119, 119); font-style: italic;">
+        <fmt:message key="sp.returnTo.url"/>
+    </td>
+    <td>
+        <input type="text" id="returnToURLTxtBox" class="text-box-big" <%=(isEditSP &&
+                                                                       provider.getIdPInitSLOEnabled()) ? "" : "disabled=\"disabled\""%> />
+        <input id="addReturnToURL" type="button" <%=(isEditSP && provider.getIdPInitSLOEnabled()) ? "" : "disabled=\"disabled\""%>
+               value="<fmt:message key="saml.sso.add.returnTo"/>" onclick="addSloReturnToURL()"/>
+    </td>
+</tr>
+
+<%
+    if (isEditSP && provider.getIdpInitSLOReturnToURLs() != null) {
+%>
+<tr id="idpSLOReturnToURLsTblRow">
+    <td></td>
+    <td>
+        <table id="idpSLOReturnToURLsTbl" style="width: 40%;" class="styledInner">
+            <tbody id="idpSLOReturnToURLsTblBody">
+            <%
+                StringBuilder sloReturnToURLsBuilder = new StringBuilder();
+                int returnToColumnId = 0;
+                for (String returnToURL : provider.getIdpInitSLOReturnToURLs()) {
+                    if (returnToURL != null && !"null".equals(returnToURL)) {
+                        if (sloReturnToURLsBuilder.length() > 0) {
+                            sloReturnToURLsBuilder.append(",").append(returnToURL);
+                        } else {
+                            sloReturnToURLsBuilder.append(returnToURL);
+                        }
+            %>
+            <tr id="returnToUrl_<%=returnToColumnId%>">
+                <td style="padding-left: 15px !important; color: rgb(119, 119, 119);font-style: italic;">
+                    <%=returnToURL%>
+                </td>
+                <td>
+                    <a onclick="removeSloReturnToURL('<%=returnToURL%>', 'returnToUrl_<%=returnToColumnId%>');return false;"
+                       href="#" class="icon-link"
+                       style="background-image: url(../admin/images/delete.gif)">
+                        Delete
+                    </a>
+                </td>
+            </tr>
+            <%
+                        returnToColumnId++;
+                    }
+                }
+            %>
+            </tbody>
+        </table>
+        <input type="hidden" id="idpInitSLOReturnToURLs" name="idpInitSLOReturnToURLs" value="<%=sloReturnToURLsBuilder.length() > 0 ?
+         sloReturnToURLsBuilder.toString() : ""%>">
+        <input type="hidden" id="currentReturnToColumnId" value="<%=returnToColumnId%>">
+    </td>
+</tr>
+<%
+    }
+%>
 
 </table>
 </td>

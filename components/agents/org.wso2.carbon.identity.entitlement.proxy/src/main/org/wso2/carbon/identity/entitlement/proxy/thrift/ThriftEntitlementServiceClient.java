@@ -76,8 +76,7 @@ public class ThriftEntitlementServiceClient extends AbstractEntitlementServiceCl
     public String getDecision(Attribute[] attributes, String appId) throws Exception {
         String xacmlRequest = XACMLRequetBuilder.buildXACML3Request(attributes);
         EntitlementThriftClient.Client client = getThriftClient();
-        Authenticator authenticator = getAuthenticator(serverUrl, userName,
-                password);
+        Authenticator authenticator = getAuthenticator(serverUrl, userName, password);
         return getDecision(xacmlRequest, client, authenticator);
     }
 
