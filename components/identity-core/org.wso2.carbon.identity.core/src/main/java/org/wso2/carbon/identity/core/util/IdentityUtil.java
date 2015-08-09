@@ -21,6 +21,7 @@ import org.apache.axiom.om.impl.dom.factory.OMDOMFactory;
 import org.apache.axis2.engine.AxisConfiguration;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.io.Charsets;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.xerces.impl.Constants;
@@ -273,7 +274,7 @@ public class IdentityUtil {
         return CarbonUtils.getCarbonConfigDirPath() + File.separator + "identity";
     }
 
-    public static String getServerURL() throws IdentityRuntimeException {
+    public static String getServerURL(String endpoint) throws IdentityRuntimeException {
         String hostName = ServerConfiguration.getInstance().getFirstProperty(IdentityCoreConstants.HOST_NAME);
 
         try {
@@ -304,6 +305,13 @@ public class IdentityUtil {
             } else {
                 serverUrl += "/" + proxyContextPath;
             }
+        }
+
+        if(StringUtils.isNotBlank(endpoint)) {
+            if(!endpoint.startsWith("/")) {
+                serverUrl += "/";
+            }
+            serverUrl += endpoint;
         }
 
         return serverUrl;

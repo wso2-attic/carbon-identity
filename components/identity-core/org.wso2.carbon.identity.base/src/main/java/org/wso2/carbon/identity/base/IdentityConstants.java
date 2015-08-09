@@ -115,12 +115,12 @@ public class IdentityConstants {
         public final static String OPENID_SESSION_TIMEOUT = "OpenID.SessionTimeout";
         public static final String ACCEPT_SAMLSSO_LOGIN = "OpenID.AcceptSAMLSSOLogin";
 
-        public static final String OPENID_PRIVATE_ASSOCIATION_STORE_CLASS = "OpenIDPrivateAssociationStoreClass";
-        public static final String OPENID_ASSOCIATION_EXPIRY_TIME = "OpenIDAssociationExpiryTime";
+        public static final String OPENID_PRIVATE_ASSOCIATION_STORE_CLASS = "OpenID.OpenIDPrivateAssociationStoreClass";
+        public static final String OPENID_ASSOCIATION_EXPIRY_TIME = "OpenID.OpenIDAssociationExpiryTime";
 
-        public static final String ENABLE_OPENID_ASSOCIATION_CLEANUP_TASK = "EnableOpenIDAssociationCleanupTask";
-        public static final String OPENID_ASSOCIATION_CLEANUP_PERIOD = "OpenIDAssociationCleanupPeriod";
-        public static final String OPENID_PRIVATE_ASSOCIATION_SERVER_KEY = "OpenIDPrivateAssociationServerKey";
+        public static final String ENABLE_OPENID_ASSOCIATION_CLEANUP_TASK = "OpenID.EnableOpenIDAssociationCleanupTask";
+        public static final String OPENID_ASSOCIATION_CLEANUP_PERIOD = "OpenID.OpenIDAssociationCleanupPeriod";
+        public static final String OPENID_PRIVATE_ASSOCIATION_SERVER_KEY = "OpenID.OpenIDPrivateAssociationServerKey";
 
         public static final String ISSUER_POLICY = "Identity.IssuerPolicy";
         public static final String TOKEN_VALIDATE_POLICY = "Identity.TokenValidationPolicy";

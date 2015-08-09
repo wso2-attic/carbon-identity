@@ -60,12 +60,11 @@ public class IdPInitSSOAuthnRequestProcessor {
                         SAMLSSOConstants.StatusCodes.REQUESTOR_ERROR, msg, null);
             }
 
-            String acUrl = serviceProviderConfigs.getAssertionConsumerUrl();
             if (!serviceProviderConfigs.isIdPInitSSOEnabled()) {
                 String msg = "IdP initiated SSO not enabled for service provider '" + authnReqDTO.getIssuer() + "'.";
                 log.debug(msg);
                 return buildErrorResponse(null,
-                        SAMLSSOConstants.StatusCodes.REQUESTOR_ERROR, msg, acUrl);
+                        SAMLSSOConstants.StatusCodes.REQUESTOR_ERROR, msg, null);
             }
 
             if (serviceProviderConfigs.isEnableAttributesByDefault() && serviceProviderConfigs.getAttributeConsumingServiceIndex() != null) {
@@ -77,6 +76,17 @@ public class IdPInitSSOAuthnRequestProcessor {
             // reading the service provider configs
             populateServiceProviderConfigs(serviceProviderConfigs, authnReqDTO);
 
+            String acsUrl = authnReqDTO.getAssertionConsumerURL();
+            if (StringUtils.isBlank(acsUrl) || !serviceProviderConfigs.getAssertionConsumerUrlList().contains
+                    (acsUrl)) {
+                String msg = "ALERT: Invalid Assertion Consumer URL value '" + acsUrl + "' in the " +
+                             "AuthnRequest message from  the issuer '" + serviceProviderConfigs.getIssuer() +
+                             "'. Possibly " + "an attempt for a spoofing attack";
+                log.error(msg);
+                return buildErrorResponse(authnReqDTO.getId(),
+                                          SAMLSSOConstants.StatusCodes.REQUESTOR_ERROR, msg, acsUrl);
+            }
+
             // if subject is specified in AuthnRequest only that user should be
             // allowed to logged-in
             if (authnReqDTO.getSubject() != null && authnReqDTO.getUser() != null) {
@@ -87,7 +97,7 @@ public class IdPInitSSOAuthnRequestProcessor {
                     String msg = "Provided username does not match with the requested subject";
                     log.warn(msg);
                     return buildErrorResponse(authnReqDTO.getId(),
-                            SAMLSSOConstants.StatusCodes.AUTHN_FAILURE, msg, acUrl);
+                            SAMLSSOConstants.StatusCodes.AUTHN_FAILURE, msg, authnReqDTO.getAssertionConsumerURL());
                 }
             }
 
@@ -110,8 +120,13 @@ public class IdPInitSSOAuthnRequestProcessor {
                     spDO.setIssuer(authnReqDTO.getIssuer());
                     spDO.setAssertionConsumerUrl(authnReqDTO.getAssertionConsumerURL());
                     spDO.setCertAlias(authnReqDTO.getCertAlias());
-                    spDO.setLogoutURL(authnReqDTO.getLogoutURL());
+                    spDO.setSloResponseURL(authnReqDTO.getSloResponseURL());
+                    spDO.setSloRequestURL(authnReqDTO.getSloRequestURL());
                     spDO.setTenantDomain(authnReqDTO.getTenantDomain());
+                    spDO.setDoSingleLogout(authnReqDTO.isDoSingleLogout());
+                    spDO.setIdPInitSLOEnabled(authnReqDTO.isIdPInitSLOEnabled());
+                    spDO.setAssertionConsumerUrls(authnReqDTO.getAssertionConsumerURLs());
+                    spDO.setIdpInitSLOReturnToURLs(authnReqDTO.getIdpInitSLOReturnToURLs());
                     sessionPersistenceManager.persistSession(sessionIndexId,
                             authnReqDTO.getUser().getAuthenticatedSubjectIdentifier(), spDO,
                             authnReqDTO.getRpSessionId(), authnReqDTO.getIssuer(),
@@ -197,20 +212,24 @@ public class IdPInitSSOAuthnRequestProcessor {
             throws IdentityException {
 
         if (StringUtils.isBlank(authnReqDTO.getAssertionConsumerURL())) {
-            authnReqDTO.setAssertionConsumerURL(ssoIdpConfigs.getAssertionConsumerUrl());
+            authnReqDTO.setAssertionConsumerURL(ssoIdpConfigs.getDefaultAssertionConsumerUrl());
         }
         authnReqDTO.setLoginPageURL(ssoIdpConfigs.getLoginPageURL());
         authnReqDTO.setCertAlias(ssoIdpConfigs.getCertAlias());
         authnReqDTO.setNameIdClaimUri(ssoIdpConfigs.getNameIdClaimUri());
         authnReqDTO.setNameIDFormat(ssoIdpConfigs.getNameIDFormat());
         authnReqDTO.setDoSingleLogout(ssoIdpConfigs.isDoSingleLogout());
-        authnReqDTO.setLogoutURL(ssoIdpConfigs.getLogoutURL());
+        authnReqDTO.setSloResponseURL(ssoIdpConfigs.getSloResponseURL());
+        authnReqDTO.setSloRequestURL(ssoIdpConfigs.getSloRequestURL());
         authnReqDTO.setDoSignResponse(ssoIdpConfigs.isDoSignResponse());
         authnReqDTO.setDoSignAssertions(ssoIdpConfigs.isDoSignAssertions());
         authnReqDTO.setRequestedClaims(ssoIdpConfigs.getRequestedClaims());
         authnReqDTO.setRequestedAudiences(ssoIdpConfigs.getRequestedAudiences());
         authnReqDTO.setRequestedRecipients(ssoIdpConfigs.getRequestedRecipients());
         authnReqDTO.setDoEnableEncryptedAssertion(ssoIdpConfigs.isDoEnableEncryptedAssertion());
+        authnReqDTO.setIdPInitSLOEnabled(ssoIdpConfigs.isIdPInitSLOEnabled());
+        authnReqDTO.setAssertionConsumerURLs(ssoIdpConfigs.getAssertionConsumerUrls());
+        authnReqDTO.setIdpInitSLOReturnToURLs(ssoIdpConfigs.getIdpInitSLOReturnToURLs());
     }
 
     /**

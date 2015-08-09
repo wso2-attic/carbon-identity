@@ -42,6 +42,7 @@ public class SAMLSSOSessionDTO implements Serializable {
     private boolean invalidLogout;
     private boolean passiveAuth;
     private boolean forceAuth;
+    private boolean isIdPInitSLO;
 
     public String getHttpQueryString() {
         return httpQueryString;
@@ -186,5 +187,13 @@ public class SAMLSSOSessionDTO implements Serializable {
 
     public void setForceAuth(boolean forceAuth) {
         this.forceAuth = forceAuth;
+    }
+
+    public boolean isIdPInitSLO() {
+        return isIdPInitSLO;
+    }
+
+    public void setIdPInitSLO(boolean isIdPInitSLO) {
+        this.isIdPInitSLO = isIdPInitSLO;
     }
 }

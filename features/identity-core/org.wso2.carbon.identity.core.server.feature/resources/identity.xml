@@ -76,6 +76,40 @@
         <AcceptSAMLSSOLogin>false</AcceptSAMLSSOLogin>
         <ClaimsRetrieverImplClass>org.wso2.carbon.identity.provider.openid.claims.DefaultClaimsRetriever
         </ClaimsRetrieverImplClass>
+
+        <!--
+               OpenID private association store is configurable from following configs.
+               It includes two new replication stores,
+                       i.   OpenIDServerAssociationStore (Default association store)
+                       ii.  PrivateAssociationCryptoStore
+                       iii. PrivateAssociationReplicationStore
+        -->
+
+        <!-- Specify full qualified class name of the class which going to use as private association store -->
+        <!-- 
+		<OpenIDPrivateAssociationStoreClass>org.wso2.carbon.identity.provider.openid.PrivateAssociationCryptoStore</OpenIDPrivateAssociationStoreClass>
+	-->
+
+        <!-- The exiration time (in minutes) for the OpenID association -->
+        <!--
+		<OpenIDAssociationExpiryTime>15</OpenIDAssociationExpiryTime>
+	-->
+
+        <!-- Configs specific to PrivateAssociationCryptoStore -->
+        <!-- Server secret. This value should be the same in all nodes in the cluster -->
+        <!--
+		<OpenIDPrivateAssociationServerKey>qewlj324lmasc</OpenIDPrivateAssociationServerKey>
+	-->
+
+        <!-- Configs specific to PrivateAssociationCryptoStore -->
+        <!-- This enable private association cleanup task which cleans expired private associations -->
+        <!--
+		<EnableOpenIDAssociationCleanupTask>true</EnableOpenIDAssociationCleanupTask>
+	-->
+        <!-- Time Period (in minutes) that cleanup task would run -->
+        <!--
+		<OpenIDAssociationCleanupPeriod>15</OpenIDAssociationCleanupPeriod>
+	-->
     </OpenID>
 
     <OAuth>
@@ -209,6 +243,7 @@
     </OAuth>
 
     <MultifactorAuthentication>
+        <!--Enable>false</Enable-->
         <XMPPSettings>
             <XMPPConfig>
                 <XMPPProvider>gtalk</XMPPProvider>
