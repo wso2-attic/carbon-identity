@@ -21,11 +21,9 @@ package org.wso2.carbon.identity.workflow.mgt;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.identity.workflow.mgt.template.AbstractWorkflowTemplate;
-import org.wso2.carbon.identity.workflow.mgt.template.AbstractWorkflowTemplateImpl;
-import org.wso2.carbon.identity.workflow.mgt.extension.WorkflowRequestHandler;
 import org.wso2.carbon.identity.workflow.mgt.bean.AssociationDTO;
 import org.wso2.carbon.identity.workflow.mgt.bean.BPSProfileBean;
+import org.wso2.carbon.identity.workflow.mgt.bean.Entity;
 import org.wso2.carbon.identity.workflow.mgt.bean.Parameter;
 import org.wso2.carbon.identity.workflow.mgt.bean.TemplateBean;
 import org.wso2.carbon.identity.workflow.mgt.bean.TemplateDTO;
@@ -33,6 +31,10 @@ import org.wso2.carbon.identity.workflow.mgt.bean.TemplateImplDTO;
 import org.wso2.carbon.identity.workflow.mgt.bean.TemplateParameterDef;
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowBean;
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowEventDTO;
+import org.wso2.carbon.identity.workflow.mgt.dao.RequestEntityRelationshipDAO;
+import org.wso2.carbon.identity.workflow.mgt.template.AbstractWorkflowTemplate;
+import org.wso2.carbon.identity.workflow.mgt.template.AbstractWorkflowTemplateImpl;
+import org.wso2.carbon.identity.workflow.mgt.extension.WorkflowRequestHandler;
 import org.wso2.carbon.identity.workflow.mgt.dao.BPSProfileDAO;
 import org.wso2.carbon.identity.workflow.mgt.dao.WorkflowDAO;
 import org.wso2.carbon.identity.workflow.mgt.exception.InternalWorkflowException;
@@ -56,6 +58,7 @@ public class WorkflowService {
 
     WorkflowDAO workflowDAO = new WorkflowDAO();
     BPSProfileDAO bpsProfileDAO = new BPSProfileDAO();
+    RequestEntityRelationshipDAO requestEntityRelationshipDAO = new RequestEntityRelationshipDAO();
 
     public List<WorkflowEventDTO> listWorkflowEvents() {
 
@@ -293,5 +296,12 @@ public class WorkflowService {
             }
         }
         return associations;
+    }
+
+    public void addRequestEntityRelationships (String requestId, Entity[] entities) throws InternalWorkflowException{
+
+        for (int i=0;i<entities.length;i++){
+            requestEntityRelationshipDAO.addRelationship(entities[i], requestId);
+        }
     }
 }

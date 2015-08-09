@@ -46,9 +46,10 @@ public class WorkflowRequestDAO {
      * Persists WorkflowRequest to be used when workflow is completed
      *
      * @param workflow The workflow object to be persisted
+     * @param currentUser Currently logged in user's fully qualified username
      * @throws WorkflowException
      */
-    public void addWorkflowEntry(WorkFlowRequest workflow) throws WorkflowException {
+    public void addWorkflowEntry(WorkFlowRequest workflow, String currentUser) throws WorkflowException {
         Connection connection = null;
         PreparedStatement prepStmt = null;
         String query = SQLConstants.ADD_WORKFLOW_REQUEST_QUERY;
@@ -57,10 +58,12 @@ public class WorkflowRequestDAO {
             connection = IdentityDatabaseUtil.getDBConnection();
             prepStmt = connection.prepareStatement(query);
             prepStmt.setString(1, workflow.getUuid());
-            prepStmt.setTimestamp(2, createdDateStamp);
-            prepStmt.setTimestamp(3, createdDateStamp);
-            prepStmt.setBytes(4, serializeWorkflowRequest(workflow));
-            prepStmt.setString(5, WorkflowRequestStatus.PENDING.toString());
+            prepStmt.setString(2, currentUser);
+            prepStmt.setString(3, workflow.getEventType());
+            prepStmt.setTimestamp(4, createdDateStamp);
+            prepStmt.setTimestamp(5, createdDateStamp);
+            prepStmt.setBytes(6, serializeWorkflowRequest(workflow));
+            prepStmt.setString(7, WorkflowRequestStatus.PENDING.toString());
             prepStmt.executeUpdate();
             connection.commit();
         } catch (IdentityException e) {
