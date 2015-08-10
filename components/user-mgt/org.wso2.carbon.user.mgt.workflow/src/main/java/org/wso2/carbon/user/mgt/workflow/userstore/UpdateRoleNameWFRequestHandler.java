@@ -82,7 +82,8 @@ public class UpdateRoleNameWFRequestHandler extends AbstractWorkflowRequestHandl
         if (!Boolean.TRUE.equals(getWorkFlowCompleted()) && !state) {
             try {
                 workflowService.addRequestEntityRelationships(uuid, new Entity[]{new Entity(fullyQualifiedOldName,
-                        "ROLE"), new Entity(fullyQualifiedNewName, "ROLE")});
+                        UserStoreWFConstants.ENTITY_TYPE_ROLE), new Entity(fullyQualifiedNewName,
+                        UserStoreWFConstants.ENTITY_TYPE_ROLE)});
 
             } catch (InternalWorkflowException e) {
                 //Ignore exception which occurs at DB level since no workflows associated with event

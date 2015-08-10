@@ -78,7 +78,7 @@ public class DeleteUserWFRequestHandler extends AbstractWorkflowRequestHandler {
             //ToDo: Add thread local to handle scenarios where workflow is not associated with the event.
             try {
                 workflowService.addRequestEntityRelationships(uuid, new Entity[]{new Entity(fullyQualifiedName,
-                        "USER")});
+                        UserStoreWFConstants.ENTITY_TYPE_USER)});
 
             } catch (InternalWorkflowException e) {
                 //Ignore exception which occurs at DB level since no workflows associated with event

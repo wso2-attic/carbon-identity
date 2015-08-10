@@ -83,10 +83,10 @@ public class SetMultipleClaimsWFRequestHandler extends AbstractWorkflowRequestHa
         // updated
         if (!Boolean.TRUE.equals(getWorkFlowCompleted()) && !state) {
             Entity[] entities = new Entity[claims.size() + 1];
-            entities[0] = new Entity(fullyQualifiedName, "USER");
+            entities[0] = new Entity(fullyQualifiedName, UserStoreWFConstants.ENTITY_TYPE_USER);
             int i = 1;
             for (String key : claims.keySet()) {
-                entities[i] = new Entity(key, "CLAIM");
+                entities[i] = new Entity(key, UserStoreWFConstants.ENTITY_TYPE_CLAIM);
                 i++;
             }
             try {

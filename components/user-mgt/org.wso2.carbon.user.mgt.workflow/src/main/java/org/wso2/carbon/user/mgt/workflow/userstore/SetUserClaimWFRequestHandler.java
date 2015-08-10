@@ -88,7 +88,8 @@ public class SetUserClaimWFRequestHandler extends AbstractWorkflowRequestHandler
         if (!Boolean.TRUE.equals(getWorkFlowCompleted()) && !state) {
             try {
                 workflowService.addRequestEntityRelationships(uuid, new Entity[]{new Entity(fullyQualifiedName,
-                        "USER"), new Entity(claimURI, "CLAIM")});
+                        UserStoreWFConstants.ENTITY_TYPE_USER), new Entity(claimURI, UserStoreWFConstants
+                        .ENTITY_TYPE_CLAIM)});
 
             } catch (InternalWorkflowException e) {
                 //Ignore exception which occurs at DB level since no workflows associated with event

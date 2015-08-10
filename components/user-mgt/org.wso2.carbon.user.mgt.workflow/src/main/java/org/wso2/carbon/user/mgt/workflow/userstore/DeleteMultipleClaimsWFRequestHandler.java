@@ -86,9 +86,9 @@ public class DeleteMultipleClaimsWFRequestHandler extends AbstractWorkflowReques
         // updated
         if (!Boolean.TRUE.equals(getWorkFlowCompleted()) && !state) {
             Entity[] entities = new Entity[claims.length + 1];
-            entities[0] = new Entity(fullyQualifiedName, "USER");
+            entities[0] = new Entity(fullyQualifiedName, UserStoreWFConstants.ENTITY_TYPE_USER);
             for (int i = 0; i < claims.length; i++) {
-                entities[i + 1] = new Entity(claims[i], "CLAIM");
+                entities[i + 1] = new Entity(claims[i], UserStoreWFConstants.ENTITY_TYPE_CLAIM);
             }
             try {
                 workflowService.addRequestEntityRelationships(uuid, entities);

@@ -84,16 +84,17 @@ public class UpdateUserRolesWFRequestHandler extends AbstractWorkflowRequestHand
         // updated
         if (!Boolean.TRUE.equals(getWorkFlowCompleted()) && !state) {
             Entity[] entities = new Entity[deletedRoles.length + newRoles.length + 1];
-            entities[0] = new Entity(fullyQualifiedName, "USER");
+            entities[0] = new Entity(fullyQualifiedName, UserStoreWFConstants.ENTITY_TYPE_USER);
             for (int i = 0; i < newRoles.length; i++) {
                 nameWithTenant = UserCoreUtil.addTenantDomainToEntry(newRoles[i], tenant);
                 fullyQualifiedName = UserCoreUtil.addDomainToName(nameWithTenant, userStoreDomain);
-                entities[i + 1] = new Entity(fullyQualifiedName, "ROLE");
+                entities[i + 1] = new Entity(fullyQualifiedName, UserStoreWFConstants.ENTITY_TYPE_ROLE);
             }
             for (int i = 0; i < deletedRoles.length; i++) {
                 nameWithTenant = UserCoreUtil.addTenantDomainToEntry(deletedRoles[i], tenant);
                 fullyQualifiedName = UserCoreUtil.addDomainToName(nameWithTenant, userStoreDomain);
-                entities[i + newRoles.length + 1] = new Entity(fullyQualifiedName, "ROLE");
+                entities[i + newRoles.length + 1] = new Entity(fullyQualifiedName, UserStoreWFConstants
+                        .ENTITY_TYPE_ROLE);
             }
             try {
                 workflowService.addRequestEntityRelationships(uuid, entities);
