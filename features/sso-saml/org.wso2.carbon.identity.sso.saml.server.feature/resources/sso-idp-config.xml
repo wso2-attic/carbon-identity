@@ -19,7 +19,10 @@
 	<ServiceProviders>
        		<!--ServiceProvider>
           		<Issuer></Issuer>
-           		<AssertionConsumerService></AssertionConsumerService>
+                        <AssertionConsumerServiceURLs>
+				<AssertionConsumerServiceURL></AssertionConsumerServiceURL>
+			</AssertionConsumerServiceURLs>
+                        <DefaultAssertionConsumerServiceURL></DefaultAssertionConsumerServiceURL>
 			<SignAssertion>false</SignAssertion>
            		<SignResponse>false</SignResponse>
 			<EnableAttributeProfile>false</EnableAttributeProfile>
