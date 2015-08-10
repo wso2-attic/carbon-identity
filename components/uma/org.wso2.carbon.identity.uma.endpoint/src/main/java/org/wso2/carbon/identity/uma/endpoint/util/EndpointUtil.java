@@ -20,11 +20,14 @@
 
 package org.wso2.carbon.identity.uma.endpoint.util;
 
+import org.apache.axiom.util.base64.Base64Utils;
+import org.apache.commons.io.Charsets;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.oauth.common.OAuth2ErrorCodes;
+import org.wso2.carbon.identity.oauth.common.exception.OAuthClientException;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2ClientApplicationDTO;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2TokenValidationResponseDTO;
 import org.wso2.carbon.identity.uma.UMAService;
@@ -58,6 +61,26 @@ public class EndpointUtil {
     }
 
 
+    /**
+     * Extracts the username and password info from the HTTP Authorization Header
+     *
+     * @param authorizationHeader "Basic " + base64encode(username + ":" + password)
+     * @return String array with client id and client secret.
+     * @throws org.wso2.carbon.identity.base.IdentityException If the decoded data is null.
+     */
+    public static String[] extractCredentialsFromAuthzHeader(String authorizationHeader)
+            throws OAuthClientException {
+        String[] splitValues = authorizationHeader.trim().split(" ");
+        if(splitValues.length == 2) {
+            byte[] decodedBytes = Base64Utils.decode(splitValues[1].trim());
+            if (decodedBytes != null) {
+                String userNamePassword = new String(decodedBytes, Charsets.UTF_8);
+                return userNamePassword.split(":");
+            }
+        }
+
+        return new String[0];
+    }
 
     public static void checkAuthorization(HttpServletRequest httpServletRequest, String scope) throws IdentityUMAException {
         boolean isAuthorized = false;
@@ -106,8 +129,6 @@ public class EndpointUtil {
         }
 
     }
-
-
 
     /**
      * Build a JAX-RS Response Object from UmaResponse DTO object

@@ -22,6 +22,7 @@
 
 package org.wso2.carbon.identity.uma.dto;
 
+import org.wso2.carbon.identity.application.common.model.User;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2ClientApplicationDTO;
 import org.wso2.carbon.identity.uma.exceptions.IdentityUMAException;
 import org.wso2.carbon.identity.uma.util.UMAUtil;
@@ -45,7 +46,7 @@ public class UmaRequest {
 
     protected String consumerKey;
 
-    protected String authorizedUser;
+    protected User authorizedUser;
 
 
     public UmaRequest(HttpServletRequest httpServletRequest){
@@ -80,7 +81,8 @@ public class UmaRequest {
 
             consumerKey = applicationDTO.getConsumerKey();
 
-            authorizedUser = applicationDTO.getAccessTokenValidationResponse().getAuthorizedUser();
+            String userName = applicationDTO.getAccessTokenValidationResponse().getAuthorizedUser();
+            authorizedUser = UMAUtil.getUserFromUserName(userName);
         }
     }
 
@@ -108,11 +110,7 @@ public class UmaRequest {
         this.consumerKey = consumerKey;
     }
 
-    public String getAuthorizedUser() {
+    public User getAuthorizedUser() {
         return authorizedUser;
-    }
-
-    public void setAuthorizedUser(String authorizedUser) {
-        this.authorizedUser = authorizedUser;
     }
 }

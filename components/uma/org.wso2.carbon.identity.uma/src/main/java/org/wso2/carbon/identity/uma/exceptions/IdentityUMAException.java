@@ -25,7 +25,7 @@ package org.wso2.carbon.identity.uma.exceptions;
 import org.wso2.carbon.identity.base.IdentityException;
 
 public class IdentityUMAException extends IdentityException {
-    private String errorStatus;
+    private int errorStatus;
     private String errorCode;
     private String errorDetails;
     private String errorURI;
@@ -38,11 +38,11 @@ public class IdentityUMAException extends IdentityException {
         super(message, e);
     }
 
-    public String getErrorStatus() {
+    public int getErrorStatus() {
         return errorStatus;
     }
 
-    public void setErrorStatus(String errorStatus) {
+    public void setErrorStatus(int errorStatus) {
         this.errorStatus = errorStatus;
     }
 

@@ -24,6 +24,7 @@ package org.wso2.carbon.identity.uma.util;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
+import org.wso2.carbon.identity.application.common.model.User;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2ClientApplicationDTO;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2TokenValidationResponseDTO;
 import org.wso2.carbon.identity.uma.dto.UmaResponse;
@@ -31,6 +32,8 @@ import org.wso2.carbon.identity.uma.exceptions.IdentityUMAException;
 import org.wso2.carbon.identity.uma.internal.UMAServiceComponentHolder;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.service.RealmService;
+import org.wso2.carbon.user.core.util.UserCoreUtil;
+import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Response;
@@ -70,7 +73,7 @@ public class UMAUtil {
             for (int i = 0; i < scopes.length; i++) {
                 scopeString.append(scopes[i].trim());
                 if (i != scopes.length - 1) {
-                    scopeString.append(",");
+                    scopeString.append(" ");
                 }
             }
             return scopeString.toString();
@@ -86,7 +89,7 @@ public class UMAUtil {
     public static String[] buildScopeArray(String scopeStr) {
         if (StringUtils.isNotBlank(scopeStr)) {
             scopeStr = scopeStr.trim();
-            return scopeStr.split(",");
+            return scopeStr.split(" ");
         }
         return new String[0];
     }
@@ -99,6 +102,22 @@ public class UMAUtil {
         } else {
             return null;
         }
+    }
+
+    public static User getUserFromUserName(String username) throws IllegalArgumentException{
+        if (StringUtils.isNotBlank(username)) {
+            String tenantDomain = MultitenantUtils.getTenantDomain(username);
+            String tenantAwareUsername = MultitenantUtils.getTenantAwareUsername(username);
+            String tenantAwareUsernameWithNoUserDomain = UserCoreUtil.removeDomainFromName(tenantAwareUsername);
+            String userStoreDomain = UserCoreUtil.extractDomainFromName(username).toUpperCase();
+            User user = new User();
+            user.setUserName(tenantAwareUsernameWithNoUserDomain);
+            user.setTenantDomain(tenantDomain);
+            user.setUserStoreDomain(userStoreDomain);
+
+            return user;
+        }
+        throw  new IllegalArgumentException("Cannot create user from empty user name");
     }
 
 

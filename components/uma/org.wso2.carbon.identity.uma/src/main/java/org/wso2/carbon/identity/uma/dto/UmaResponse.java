@@ -95,14 +95,14 @@ public class UmaResponse {
             this.responseCode = responseCode;
         }
 
-        public UmaResponse.UmaResponseBuilder setScope(String value) {
-            this.parameters.put("scope", value);
-            return this;
-        }
 
         public UmaResponse.UmaResponseBuilder setParam(String key, Object value) {
             this.parameters.put(key, value);
             return this;
+        }
+
+        public Object getParam(String key){
+            return parameters.get(key);
         }
 
         public UmaResponse buildJSONResponse(){

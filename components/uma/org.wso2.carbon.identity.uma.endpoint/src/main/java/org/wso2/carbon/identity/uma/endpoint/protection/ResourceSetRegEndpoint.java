@@ -63,11 +63,11 @@ public class ResourceSetRegEndpoint {
                 new UmaResourceSetRegistrationRequest(httpServletRequest, resourceSetDescription);
 
         // get the response
-        UmaResponse response =
+        UmaResponse umaResponse =
                 EndpointUtil.getUMAService().createResourceSet(umaResourceSetRegistrationRequest);
 
         // build Servlet Response from UMAResponse
-        return EndpointUtil.buildResponse(response);
+        return EndpointUtil.buildResponse(umaResponse);
     }
 
     @GET
