@@ -289,13 +289,13 @@ public class UMAService {
         TokenMgtDAO tokenMgtDAO = new TokenMgtDAO();
 
         try {
-            AccessTokenDO accessTokenDO = tokenMgtDAO.retrieveAccessToken(tokenIdentifier, true);
+            // retrieve the active access token
+            AccessTokenDO accessTokenDO = tokenMgtDAO.retrieveAccessToken(tokenIdentifier, false);
 
-            // if the token is not found or if the token is not active
-            // we send a response with the active state set to false;
-            if (accessTokenDO == null ||
-                    !StringUtils.equals(accessTokenDO.getTokenState(), OAuthConstants.TokenStates.TOKEN_STATE_ACTIVE)){
-
+            // if the token is not found that means it's either inactive or revoked
+            if (accessTokenDO == null){
+                // since the access token is not in an active state, send a response with active property equal to
+                // false as said in the spec
                 builder.setActive(false);
                 return builder.buildJSONResponse();
             }
