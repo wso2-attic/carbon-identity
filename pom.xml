@@ -53,6 +53,7 @@
         <module>components/provisioning</module>
         <module>components/scim</module>
         <module>components/sso-saml</module>
+        <module>components/sso-cas</module>
         <module>components/tools</module>
         <module>components/user-mgt</module>
         <module>components/user-store</module>
@@ -64,6 +65,7 @@
         <module>components/security-mgt</module>
         <module>components/sts</module>
         <module>components/workflow-mgt</module>
+        <module>components/cas</module>
         <module>features/security-mgt</module>
         <module>features/carbon-authenticators</module>
         <module>features/claim-mgt</module>
@@ -819,6 +821,11 @@
                 <version>${httpcore.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.apache.httpcomponents.wso2</groupId>
+                <artifactId>httpclient</artifactId>
+                <version>${httpcomponents-httpclient.wso2.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.testng</groupId>
                 <artifactId>testng</artifactId>
                 <version>${testng.version}</version>
@@ -1392,6 +1399,12 @@
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.identity.oauth.common</artifactId>
+                <version>${carbon.identity.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.identity.application.authentication.framework</artifactId>
                 <version>${carbon.identity.version}</version>
             </dependency>
 
@@ -1976,7 +1989,7 @@
         <smackx.wso2.version>3.0.4.wso2v1</smackx.wso2.version>
         <orbit.version.apacheds>1.5.7.wso2v4</orbit.version.apacheds>
         <version.apacheds.shared.ldap>0.9.18</version.apacheds.shared.ldap>
-        <httpcomponents-httpclient.wso2.version>4.3.1.wso2v2</httpcomponents-httpclient.wso2.version>
+        <httpcomponents-httpclient.wso2.version>[4.2.5.wso2v1,4.4.0)</httpcomponents-httpclient.wso2.version>
         <httpcomponents-httpclient.imp.pkg.version.range>[4.3.1.wso2v2,4.4.0)</httpcomponents-httpclient.imp.pkg.version.range>
         <orbit.version.commons.lang>2.6.0.wso2v1</orbit.version.commons.lang>
         <org.wso2.securevault.version>1.0.0-wso2v2</org.wso2.securevault.version>
