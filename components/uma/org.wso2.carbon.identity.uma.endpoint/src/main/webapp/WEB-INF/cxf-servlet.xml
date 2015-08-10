@@ -31,7 +31,10 @@
       <ref bean="authorizationEndpointBean"/>
       <ref bean="resourceSetRegEndpointBean"/>
       <ref bean="permissionSetRegEndpointBean"/>
+      <ref bean="oauthIntrospectEndpointBean"/>
+      <ref bean="testbean"/>
     </jaxrs:serviceBeans>
+
     <jaxrs:extensionMappings>
       <entry key="json" value="application/json" />
     </jaxrs:extensionMappings>
@@ -41,10 +44,11 @@
   </jaxrs:server>
 
   <!-- Authorization API Endpoint-->
-  <bean id="authorizationEndpointBean" class="org.wso2.carbon.identity.uma.endpoint.authorization.UmaAuthorizationEndpoint"/>
+  <bean id="authorizationEndpointBean" class="org.wso2.carbon.identity.uma.endpoint.authorization.UmaAuthorizationEndpoint" />
+  <bean id="testbean" class="org.wso2.carbon.identity.uma.beans.authz.UmaRptRequestPayloadBean" />
   <!-- UMA Protection API Endpoints -->
-  <bean id="resourceSetRegEndpointBean"
-        class="org.wso2.carbon.identity.uma.endpoint.protection.ResourceSetRegEndpoint"/>
-  <bean id="permissionSetRegEndpointBean"
-        class="org.wso2.carbon.identity.uma.endpoint.protection.PermissionSetRegEndpoint"/>
+  <bean id="resourceSetRegEndpointBean" class="org.wso2.carbon.identity.uma.endpoint.protection.ResourceSetRegEndpoint" />
+  <bean id="permissionSetRegEndpointBean" class="org.wso2.carbon.identity.uma.endpoint.protection.PermissionSetRegEndpoint" />
+  <bean id="oauthIntrospectEndpointBean" class="org.wso2.carbon.identity.uma.endpoint.protection.OAuthTokenIntrospectEndpoint" />
+
 </beans>
