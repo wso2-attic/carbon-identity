@@ -193,7 +193,7 @@ public class SCIMUserManager implements UserManager {
             }
         } catch (UserStoreException e) {
             String errMsg = "Error in adding the user: " + user.getUserName() + " to the user store..";
-            throw new CharonException(errMsg,e);
+            throw new CharonException(errMsg, e);
         } finally {
             PrivilegedCarbonContext.endTenantFlow();
         }
