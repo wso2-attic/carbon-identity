@@ -145,6 +145,10 @@ public class BaseCache<K extends Serializable, V extends Serializable> {
      */
     public V getValueFromCache(K key) {
 
+        if(key == null) {
+            return null;
+        }
+
         try {
             PrivilegedCarbonContext.startTenantFlow();
             PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext
@@ -152,7 +156,7 @@ public class BaseCache<K extends Serializable, V extends Serializable> {
             carbonContext.setTenantId(MultitenantConstants.SUPER_TENANT_ID);
             carbonContext.setTenantDomain(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
             Cache<K, V> cache = getBaseCache();
-            if (cache != null) {
+            if (cache != null && cache.get(key) != null) {
                 return (V) cache.get(key);
             }
             return null;

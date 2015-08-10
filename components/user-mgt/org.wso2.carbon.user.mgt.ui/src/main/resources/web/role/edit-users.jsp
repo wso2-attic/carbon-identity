@@ -217,10 +217,10 @@
         form.setAttribute("method", "POST");
         form.setAttribute("action", page + "?" + pageNumberParameterName + "=" + pageNumber + "&roleName=" + '<%=roleName%>');
         var selectedRolesStr = "";
-        $(["input:checkbox:checked"]).each(function(index){
+        $("input[type='checkbox']:checked").each(function(index){
             if(!$(this).is(":disabled")){
                 selectedRolesStr += $(this).val();
-                if(index != $("input:checkbox:checked").length-1){
+                if(index != $("input[type='checkbox']:checked").length-1){
                     selectedRolesStr += ":";
                 }
             }
@@ -231,10 +231,10 @@
         selectedRolesElem.setAttribute("value", selectedRolesStr);
         form.appendChild(selectedRolesElem);
         var unselectedRolesStr = "";
-        $("input:checkbox:not(:checked)").each(function(index){
+        $("input[type='checkbox']:not(:checked)").each(function(index){
             if(!$(this).is(":disabled")){
                 unselectedRolesStr += $(this).val();
-                if(index != $("input:checkbox:not(:checked)").length-1){
+                if(index != $("input[type='checkbox']:not(:checked)").length-1){
                     unselectedRolesStr += ":";
                 }
             }
