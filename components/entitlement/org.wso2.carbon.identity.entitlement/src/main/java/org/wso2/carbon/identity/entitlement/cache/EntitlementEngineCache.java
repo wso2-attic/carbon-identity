@@ -67,18 +67,18 @@ public class EntitlementEngineCache {
         CacheManager cacheManager = Caching.getCacheManagerFactory().
                 getCacheManager(ENTITLEMENT_ENGINE_CACHE_MANAGER);
         if (cacheManager != null) {
-            if (cacheBuilder == null){
+            if (cacheBuilder == null) {
                 Properties properties = EntitlementServiceComponent.getEntitlementConfig().getEngineProperties();
                 String engineCachingInterval = properties.getProperty(PDPConstants.ENTITLEMENT_ENGINE_CACHING_INTERVAL);
                 long entitlementEngineCachingInterval = DEFAULT_ENTITLEMENT_ENGINE_CACHING_INTERVAL;
-                if (engineCachingInterval != null){
-                    try{
+                if (engineCachingInterval != null) {
+                    try {
                         entitlementEngineCachingInterval = Long.parseLong(engineCachingInterval);
-                    }catch (NumberFormatException e){
+                    } catch (NumberFormatException e) {
                         //Do nothing. value will remain as original
                     }
                 } else {
-                    if (log.isDebugEnabled()){
+                    if (log.isDebugEnabled()) {
                         log.debug("Entitlement.Engine.CachingInterval not set. Using default value " +
                                 entitlementEngineCachingInterval);
                     }
