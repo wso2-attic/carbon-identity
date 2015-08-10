@@ -16,6 +16,9 @@
 
 package org.wso2.carbon.identity.core.model;
 
+import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
+
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collections;
@@ -27,8 +30,12 @@ public class SAMLSSOServiceProviderDO implements Serializable {
     String tenantDomain;
     private String issuer;
     private String assertionConsumerUrl;
+    private String[] assertionConsumerUrls;
+    private List<String> assertionConsumerUrlList;
+    private String defaultAssertionConsumerUrl;
     private String certAlias;
-    private String logoutURL;
+    private String sloResponseURL;
+    private String sloRequestURL;
     private boolean doSingleLogout;
     private String loginPageURL;
     private boolean doSignResponse;
@@ -44,6 +51,9 @@ public class SAMLSSOServiceProviderDO implements Serializable {
     private String nameIdClaimUri;
     private String nameIDFormat;
     private boolean isIdPInitSSOEnabled;
+    private boolean idPInitSLOEnabled;
+    private String[] idpInitSLOReturnToURLs;
+    private List<String> idpInitSLOReturnToURLList;
     private boolean doEnableEncryptedAssertion;
     private boolean doValidateSignatureInRequests;
 
@@ -99,13 +109,13 @@ public class SAMLSSOServiceProviderDO implements Serializable {
         this.certAlias = certAlias;
     }
 
-    public String getLogoutURL() {
-        return logoutURL;
+    public String getSloResponseURL() {
+        return sloResponseURL;
     }
 
-    public void setLogoutURL(String logoutURL) {
-        if (logoutURL != null) {
-            this.logoutURL = logoutURL.replaceAll("[\n\r]", "").trim();
+    public void setSloResponseURL(String sloResponseURL) {
+        if (sloResponseURL != null) {
+            this.sloResponseURL = sloResponseURL.replaceAll("[\n\r]", "").trim();
         }
     }
 
@@ -122,8 +132,10 @@ public class SAMLSSOServiceProviderDO implements Serializable {
     }
 
     public void setLoginPageURL(String loginPageURL) {
-        if (loginPageURL != null) {
+        if(StringUtils.isNotBlank(loginPageURL)) {
             this.loginPageURL = loginPageURL.replaceAll("[\n\r]", "").trim();
+        } else {
+            this.loginPageURL = null;
         }
     }
 
@@ -150,7 +162,7 @@ public class SAMLSSOServiceProviderDO implements Serializable {
         if (requestedClaims != null) {
             return requestedClaims.clone();
         } else {
-            return new String[0];
+            return ArrayUtils.EMPTY_STRING_ARRAY;
         }
     }
 
@@ -192,7 +204,7 @@ public class SAMLSSOServiceProviderDO implements Serializable {
         if (requestedAudiences != null) {
             return requestedAudiences.clone();
         } else {
-            return new String[0];
+            return ArrayUtils.EMPTY_STRING_ARRAY;
         }
     }
 
@@ -234,17 +246,19 @@ public class SAMLSSOServiceProviderDO implements Serializable {
         if (requestedRecipients != null) {
             return requestedRecipients.clone();
         } else {
-            return new String[0];
+            return ArrayUtils.EMPTY_STRING_ARRAY;
         }
     }
 
     /**
-     * @param requestedRecipients the requestedRecipients to set
+     * @param requestedRecipientsList the requestedRecipients to set
      */
-    public void setRequestedRecipients(List<String> requestedRecipients) {
-        if (requestedRecipients != null) {
-            this.requestedRecipientsList = requestedRecipients;
-            this.requestedRecipients = requestedRecipients.toArray(new String[requestedRecipientsList.size()]);
+    public void setRequestedRecipients(List<String> requestedRecipientsList) {
+        this.requestedRecipientsList = requestedRecipientsList;
+        if (requestedRecipientsList != null) {
+            this.requestedRecipients = requestedRecipientsList.toArray(new String[requestedRecipientsList.size()]);
+        } else {
+            this.requestedRecipients = null;
         }
     }
 
@@ -255,6 +269,9 @@ public class SAMLSSOServiceProviderDO implements Serializable {
         if (requestedRecipients != null) {
             this.requestedRecipients = requestedRecipients.clone();
             this.requestedRecipientsList = Arrays.asList(requestedRecipients);
+        } else {
+            this.requestedRecipients = null;
+            this.requestedRecipientsList = null;
         }
     }
 
@@ -313,5 +330,107 @@ public class SAMLSSOServiceProviderDO implements Serializable {
 
     public void setTenantDomain(String tenantDomain) {
         this.tenantDomain = tenantDomain;
+    }
+
+    public String[] getAssertionConsumerUrls() {
+        if (assertionConsumerUrls != null) {
+            return assertionConsumerUrls.clone();
+        } else {
+            return ArrayUtils.EMPTY_STRING_ARRAY;
+        }
+    }
+
+    public List<String> getAssertionConsumerUrlList() {
+        if (assertionConsumerUrlList != null) {
+            return assertionConsumerUrlList;
+        } else {
+            return Collections.emptyList();
+        }
+    }
+
+    public void setAssertionConsumerUrls(String[] assertionConsumerUrls) {
+        if (assertionConsumerUrls != null) {
+            this.assertionConsumerUrls = assertionConsumerUrls.clone();
+            this.assertionConsumerUrlList = Arrays.asList(assertionConsumerUrls);
+        } else {
+            this.assertionConsumerUrls = null;
+            this.assertionConsumerUrlList = null;
+        }
+    }
+
+    public void setAssertionConsumerUrls(List<String> assertionConsumerUrlList) {
+        this.assertionConsumerUrlList = assertionConsumerUrlList;
+        if (assertionConsumerUrlList != null) {
+            this.assertionConsumerUrls = assertionConsumerUrlList.toArray(new String[assertionConsumerUrlList.size()]);
+        } else {
+            this.assertionConsumerUrls = null;
+        }
+    }
+
+    public String getDefaultAssertionConsumerUrl() {
+        return defaultAssertionConsumerUrl;
+    }
+
+    public void setDefaultAssertionConsumerUrl(String defaultAssertionConsumerUrl) {
+        if(StringUtils.isNotBlank(defaultAssertionConsumerUrl)) {
+            this.defaultAssertionConsumerUrl = defaultAssertionConsumerUrl.replaceAll("[\n\r]", "").trim();
+        } else {
+            this.defaultAssertionConsumerUrl = null;
+        }
+    }
+
+    public String getSloRequestURL() {
+        return sloRequestURL;
+    }
+
+    public void setSloRequestURL(String sloRequestURL) {
+        if(StringUtils.isNotBlank(sloRequestURL)) {
+            this.sloRequestURL = sloRequestURL.replaceAll("[\n\r]", "").trim();
+        } else {
+            this.sloRequestURL = null;
+        }
+    }
+
+    public boolean isIdPInitSLOEnabled() {
+        return idPInitSLOEnabled;
+    }
+
+    public void setIdPInitSLOEnabled(boolean idPInitSLOEnabled) {
+        this.idPInitSLOEnabled = idPInitSLOEnabled;
+    }
+
+    public String[] getIdpInitSLOReturnToURLs() {
+        if (idpInitSLOReturnToURLs != null) {
+            return idpInitSLOReturnToURLs.clone();
+        } else {
+            return ArrayUtils.EMPTY_STRING_ARRAY;
+        }
+    }
+
+    public void setIdpInitSLOReturnToURLs(String[] idpInitSLOReturnToURLs) {
+        if (idpInitSLOReturnToURLs != null) {
+            this.idpInitSLOReturnToURLs = idpInitSLOReturnToURLs.clone();
+            this.idpInitSLOReturnToURLList = Arrays.asList(idpInitSLOReturnToURLs);
+        } else {
+            this.idpInitSLOReturnToURLs = null;
+            this.idpInitSLOReturnToURLList = null;
+        }
+    }
+
+    public List<String> getIdpInitSLOReturnToURLList() {
+        if (idpInitSLOReturnToURLList != null) {
+            return idpInitSLOReturnToURLList;
+        } else {
+            return Collections.emptyList();
+        }
+    }
+
+    public void setIdpInitSLOReturnToURLs(List<String> idpInitSLOReturnToURLList) {
+        this.idpInitSLOReturnToURLList = idpInitSLOReturnToURLList;
+        if (idpInitSLOReturnToURLList != null) {
+            this.idpInitSLOReturnToURLs = idpInitSLOReturnToURLList.toArray(new String[idpInitSLOReturnToURLList.size()]);
+        } else {
+            this.idpInitSLOReturnToURLs = null;
+        }
     }
 }

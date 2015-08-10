@@ -43,6 +43,7 @@
     ResourceBundle resourceBundle = ResourceBundle.getBundle(bundle, request.getLocale());
     WorkflowAdminServiceClient client;
     String forwardTo = null;
+    WorkflowBean[] workflows = null;
     WorkflowBean[] workflowsToDisplay = new WorkflowBean[0];
     String paginationValue = "region=region1&item=workflow_services_list_menu";
 
@@ -70,7 +71,7 @@
                         .getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
         client = new WorkflowAdminServiceClient(cookie, backendServerURL, configContext);
 
-        WorkflowBean[] workflows = client.listWorkflows();
+        workflows = client.listWorkflows();
         if (workflows == null) {
             workflows = new WorkflowBean[0];
         }
@@ -135,7 +136,7 @@
     </script>
 
     <div id="middle">
-        <h2><fmt:message key='workflow.list'/></h2>
+        <h2><fmt:message key='workflow.mgt'/></h2>
 
         <div id="workArea">
 
@@ -150,7 +151,7 @@
                 </tr>
                 </thead>
                 <tbody>
-                <%
+                <%  if(workflows != null && workflows.length > 0) {
                     for (WorkflowBean workflow : workflowsToDisplay) {
                         if (workflow != null) {
 
@@ -175,9 +176,16 @@
                            class="icon-link"><fmt:message key='delete'/></a>
                     </td>
                 </tr>
-                <%
+                        <%
                         }
                     }
+                     }else { %>
+                <tbody>
+                <tr>
+                    <td colspan="5"><i>No Workflows registered</i></td>
+                </tr>
+                </tbody>
+                <% }
                 %>
                 </tbody>
             </table>
