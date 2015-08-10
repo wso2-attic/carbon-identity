@@ -266,7 +266,6 @@ public class UMAService {
     public UmaResponse introspectToken(UmaRequest umaOAuthIntrospectRequest) throws IdentityUMAException {
 
         UmaOAuthIntropectResponse.UmaOAuthIntrospectRespBuilder builder =
-                (UmaOAuthIntropectResponse.UmaOAuthIntrospectRespBuilder)
                         UmaOAuthIntropectResponse.status(HttpServletResponse.SC_OK);
 
         // retrieve the token identifier sent in the request

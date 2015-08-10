@@ -30,11 +30,14 @@ public class UmaOAuthIntropectResponse extends UmaResponse {
         super(responseStatus);
     }
 
+    public static UmaOAuthIntrospectRespBuilder status(int code) {
+        return new UmaOAuthIntrospectRespBuilder(code);
+    }
 
     public static class UmaOAuthIntrospectRespBuilder extends UmaResponseBuilder{
 
-        public UmaOAuthIntrospectRespBuilder(int responseCode) {
-            super(responseCode);
+        public UmaOAuthIntrospectRespBuilder(int responseStatus) {
+            super(responseStatus);
         }
 
         public UmaOAuthIntrospectRespBuilder setActive(boolean activeStatus){
