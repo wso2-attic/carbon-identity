@@ -69,8 +69,7 @@ public class DeleteMultipleClaimsWFRequestHandler extends AbstractWorkflowReques
         WorkflowService workflowService = IdentityWorkflowDataHolder.getInstance().getWorkflowService();
 
         String tenant = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-        String nameWithTenant = UserCoreUtil.addTenantDomainToEntry(userName, tenant);
-        String fullyQualifiedName = UserCoreUtil.addDomainToName(nameWithTenant, userStoreDomain);
+        String fullyQualifiedName = UserCoreUtil.addDomainToName(userName, userStoreDomain);
 
         Map<String, Object> wfParams = new HashMap<>();
         Map<String, Object> nonWfParams = new HashMap<>();
@@ -81,9 +80,9 @@ public class DeleteMultipleClaimsWFRequestHandler extends AbstractWorkflowReques
 
         String uuid = UUID.randomUUID().toString();
         Entity[] entities = new Entity[claims.length + 1];
-        entities[0] = new Entity(fullyQualifiedName, UserStoreWFConstants.ENTITY_TYPE_USER);
+        entities[0] = new Entity(fullyQualifiedName, UserStoreWFConstants.ENTITY_TYPE_USER, tenant);
         for (int i = 0; i < claims.length; i++) {
-            entities[i + 1] = new Entity(claims[i], UserStoreWFConstants.ENTITY_TYPE_CLAIM);
+            entities[i + 1] = new Entity(claims[i], UserStoreWFConstants.ENTITY_TYPE_CLAIM, tenant);
         }
         if (workflowService.eventEngagedWithWorkflows(UserStoreWFConstants.DELETE_MULTIPLE_USER_CLAIMS_EVENT) &&
                 !Boolean.TRUE.equals(getWorkFlowCompleted()) && !isValidOperation(entities)) {

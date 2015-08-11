@@ -132,16 +132,12 @@ public class WorkFlowExecutorManager {
                 carbonContext.setTenantId(request.getTenantId());
                 carbonContext.setTenantDomain(tenantDomain);
                 requestHandler.onWorkflowCompletion(status, request, additionalParams);
-                RequestEntityRelationshipDAO requestEntityRelationshipDAO = new RequestEntityRelationshipDAO();
-                WorkflowRequestDAO workflowRequestDAO = new WorkflowRequestDAO();
-                if (WorkflowRequestStatus.APPROVED.toString().equals(status) || WorkflowRequestStatus.REJECTED
-                        .toString().equals(status)) {
-                    requestEntityRelationshipDAO.deleteRelationshipsOfRequest(requestId);
-                    workflowRequestDAO.updateStatusOfRequest(requestId, status);
-                }
+                updateDBAtWorkflowCompletion(requestId, status);
             } catch (WorkflowException e) {
+                updateDBAtWorkflowCompletion(requestId, WorkflowRequestStatus.FAILED.toString());
                 throw e;
             } catch (UserStoreException e) {
+                updateDBAtWorkflowCompletion(requestId, WorkflowRequestStatus.FAILED.toString());
                 throw new InternalWorkflowException("Error when getting tenant domain for tenant id " + request
                         .getTenantId());
             } finally {
@@ -156,5 +152,21 @@ public class WorkFlowExecutorManager {
         WorkflowRequestDAO requestDAO = new WorkflowRequestDAO();
         WorkFlowRequest request = requestDAO.retrieveWorkflow(uuid);
         handleCallback(request, status, additionalParams);
+    }
+
+    /**
+     * Update the state and delete relationships of request at workflow completion.
+     *
+     * @param requestId
+     * @param status
+     * @throws InternalWorkflowException
+     */
+    private void updateDBAtWorkflowCompletion(String requestId, String status) throws InternalWorkflowException {
+
+
+        RequestEntityRelationshipDAO requestEntityRelationshipDAO = new RequestEntityRelationshipDAO();
+        WorkflowRequestDAO workflowRequestDAO = new WorkflowRequestDAO();
+        requestEntityRelationshipDAO.deleteRelationshipsOfRequest(requestId);
+        workflowRequestDAO.updateStatusOfRequest(requestId, status);
     }
 }

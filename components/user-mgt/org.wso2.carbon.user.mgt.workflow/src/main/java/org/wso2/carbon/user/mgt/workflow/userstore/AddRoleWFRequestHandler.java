@@ -79,8 +79,7 @@ public class AddRoleWFRequestHandler extends AbstractWorkflowRequestHandler {
             userList = new String[0];
         }
         String tenant = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-        String nameWithTenant = UserCoreUtil.addTenantDomainToEntry(role, tenant);
-        String fullyQualifiedName = UserCoreUtil.addDomainToName(nameWithTenant, userStoreDomain);
+        String fullyQualifiedName = UserCoreUtil.addDomainToName(role, userStoreDomain);
         List<String> permissionList = new ArrayList<>(permissions.length);
         for (int i = 0; i < permissions.length; i++) {
             permissionList.add(permissions[i].getResourceId() + SEPARATOR + permissions[i].getAction());
@@ -93,11 +92,10 @@ public class AddRoleWFRequestHandler extends AbstractWorkflowRequestHandler {
         wfParams.put(USER_LIST, Arrays.asList(userList));
         String uuid = UUID.randomUUID().toString();
         Entity[] entities = new Entity[userList.length + 1];
-        entities[0] = new Entity(fullyQualifiedName, UserStoreWFConstants.ENTITY_TYPE_ROLE);
+        entities[0] = new Entity(fullyQualifiedName, UserStoreWFConstants.ENTITY_TYPE_ROLE, tenant);
         for (int i = 0; i < userList.length; i++) {
-            nameWithTenant = UserCoreUtil.addTenantDomainToEntry(userList[i], tenant);
-            fullyQualifiedName = UserCoreUtil.addDomainToName(nameWithTenant, userStoreDomain);
-            entities[i + 1] = new Entity(fullyQualifiedName, UserStoreWFConstants.ENTITY_TYPE_USER);
+            fullyQualifiedName = UserCoreUtil.addDomainToName(userList[i], userStoreDomain);
+            entities[i + 1] = new Entity(fullyQualifiedName, UserStoreWFConstants.ENTITY_TYPE_USER, tenant);
         }
         if (workflowService.eventEngagedWithWorkflows(UserStoreWFConstants.ADD_ROLE_EVENT) && !Boolean.TRUE.equals
                 (getWorkFlowCompleted()) && !isValidOperation(entities)) {

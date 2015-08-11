@@ -63,8 +63,7 @@ public class DeleteRoleWFRequestHandler extends AbstractWorkflowRequestHandler {
         WorkflowService workflowService = IdentityWorkflowDataHolder.getInstance().getWorkflowService();
 
         String tenant = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-        String nameWithTenant = UserCoreUtil.addTenantDomainToEntry(roleName, tenant);
-        String fullyQualifiedName = UserCoreUtil.addDomainToName(nameWithTenant, userStoreDomain);
+        String fullyQualifiedName = UserCoreUtil.addDomainToName(roleName, userStoreDomain);
         Map<String, Object> wfParams = new HashMap<>();
         Map<String, Object> nonWfParams = new HashMap<>();
         wfParams.put(ROLENAME, roleName);
@@ -72,7 +71,7 @@ public class DeleteRoleWFRequestHandler extends AbstractWorkflowRequestHandler {
 
         String uuid = UUID.randomUUID().toString();
 
-        Entity roleEntity = new Entity(fullyQualifiedName, UserStoreWFConstants.ENTITY_TYPE_ROLE);
+        Entity roleEntity = new Entity(fullyQualifiedName, UserStoreWFConstants.ENTITY_TYPE_ROLE, tenant);
         if (workflowService.eventEngagedWithWorkflows(UserStoreWFConstants.DELETE_ROLE_EVENT) && !Boolean.TRUE.equals
                 (getWorkFlowCompleted()) && !isValidOperation(new Entity[]{roleEntity})) {
             throw new WorkflowException("Operation is not valid.");

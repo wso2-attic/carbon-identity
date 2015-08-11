@@ -63,9 +63,8 @@ public class DeleteUserWFRequestHandler extends AbstractWorkflowRequestHandler {
         WorkflowService workflowService = IdentityWorkflowDataHolder.getInstance().getWorkflowService();
 
         String tenant = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-        String nameWithTenant = UserCoreUtil.addTenantDomainToEntry(userName, tenant);
-        String fullyQualifiedName = UserCoreUtil.addDomainToName(nameWithTenant, userStoreDomain);
-        Entity userEntity = new Entity(fullyQualifiedName, UserStoreWFConstants.ENTITY_TYPE_USER);
+        String fullyQualifiedName = UserCoreUtil.addDomainToName(userName, userStoreDomain);
+        Entity userEntity = new Entity(fullyQualifiedName, UserStoreWFConstants.ENTITY_TYPE_USER, tenant);
         Map<String, Object> wfParams = new HashMap<>();
         Map<String, Object> nonWfParams = new HashMap<>();
         wfParams.put(USERNAME, userName);

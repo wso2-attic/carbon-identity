@@ -65,20 +65,20 @@ public class UpdateRoleNameWFRequestHandler extends AbstractWorkflowRequestHandl
 
         WorkflowService workflowService = IdentityWorkflowDataHolder.getInstance().getWorkflowService();
         String tenant = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-        String oldNameWithTenant = UserCoreUtil.addTenantDomainToEntry(roleName, tenant);
-        String fullyQualifiedOldName = UserCoreUtil.addDomainToName(oldNameWithTenant, userStoreDomain);
-        String newNameWithTenant = UserCoreUtil.addTenantDomainToEntry(newRoleName, tenant);
-        String fullyQualifiedNewName = UserCoreUtil.addDomainToName(newNameWithTenant, userStoreDomain);
+        String fullyQualifiedOldName = UserCoreUtil.addDomainToName(roleName, userStoreDomain);
+        String fullyQualifiedNewName = UserCoreUtil.addDomainToName(newRoleName, userStoreDomain);
         Map<String, Object> wfParams = new HashMap<>();
         Map<String, Object> nonWfParams = new HashMap<>();
         wfParams.put(ROLENAME, roleName);
         wfParams.put(NEW_ROLENAME, newRoleName);
         wfParams.put(USER_STORE_DOMAIN, userStoreDomain);
         String uuid = UUID.randomUUID().toString();
-        if (workflowService.eventEngagedWithWorkflows(UserStoreWFConstants.UPDATE_ROLE_NAME_EVENT) && !Boolean.TRUE.equals
+        if (workflowService.eventEngagedWithWorkflows(UserStoreWFConstants.UPDATE_ROLE_NAME_EVENT) && !Boolean.TRUE
+                .equals
                 (getWorkFlowCompleted()) && !isValidOperation(new Entity[]{new Entity
-                (fullyQualifiedOldName, UserStoreWFConstants.ENTITY_TYPE_ROLE), new Entity(fullyQualifiedNewName,
-                UserStoreWFConstants.ENTITY_TYPE_ROLE)})) {
+                (fullyQualifiedOldName, UserStoreWFConstants.ENTITY_TYPE_ROLE, tenant), new Entity
+                (fullyQualifiedNewName,
+                UserStoreWFConstants.ENTITY_TYPE_ROLE, tenant)})) {
             throw new WorkflowException("Operation is not valid.");
         }
         boolean state = startWorkFlow(wfParams, nonWfParams, uuid);
@@ -88,8 +88,8 @@ public class UpdateRoleNameWFRequestHandler extends AbstractWorkflowRequestHandl
         if (!Boolean.TRUE.equals(getWorkFlowCompleted()) && !state) {
             try {
                 workflowService.addRequestEntityRelationships(uuid, new Entity[]{new Entity(fullyQualifiedOldName,
-                        UserStoreWFConstants.ENTITY_TYPE_ROLE), new Entity(fullyQualifiedNewName,
-                        UserStoreWFConstants.ENTITY_TYPE_ROLE)});
+                        UserStoreWFConstants.ENTITY_TYPE_ROLE, tenant), new Entity(fullyQualifiedNewName,
+                        UserStoreWFConstants.ENTITY_TYPE_ROLE, tenant)});
 
             } catch (InternalWorkflowException e) {
                 //debug exception which occurs at DB level since no workflows associated with event

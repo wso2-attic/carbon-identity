@@ -69,8 +69,7 @@ public class UpdateUserRolesWFRequestHandler extends AbstractWorkflowRequestHand
         WorkflowService workflowService = IdentityWorkflowDataHolder.getInstance().getWorkflowService();
 
         String tenant = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-        String nameWithTenant = UserCoreUtil.addTenantDomainToEntry(userName, tenant);
-        String fullyQualifiedName = UserCoreUtil.addDomainToName(nameWithTenant, userStoreDomain);
+        String fullyQualifiedName = UserCoreUtil.addDomainToName(userName, userStoreDomain);
         Map<String, Object> wfParams = new HashMap<>();
         Map<String, Object> nonWfParams = new HashMap<>();
         wfParams.put(USERNAME, userName);
@@ -79,17 +78,15 @@ public class UpdateUserRolesWFRequestHandler extends AbstractWorkflowRequestHand
         wfParams.put(NEW_ROLE_LIST, Arrays.asList(newRoles));
         String uuid = UUID.randomUUID().toString();
         Entity[] entities = new Entity[deletedRoles.length + newRoles.length + 1];
-        entities[0] = new Entity(fullyQualifiedName, UserStoreWFConstants.ENTITY_TYPE_USER);
+        entities[0] = new Entity(fullyQualifiedName, UserStoreWFConstants.ENTITY_TYPE_USER, tenant);
         for (int i = 0; i < newRoles.length; i++) {
-            nameWithTenant = UserCoreUtil.addTenantDomainToEntry(newRoles[i], tenant);
-            fullyQualifiedName = UserCoreUtil.addDomainToName(nameWithTenant, userStoreDomain);
-            entities[i + 1] = new Entity(fullyQualifiedName, UserStoreWFConstants.ENTITY_TYPE_ROLE);
+            fullyQualifiedName = UserCoreUtil.addDomainToName(newRoles[i], userStoreDomain);
+            entities[i + 1] = new Entity(fullyQualifiedName, UserStoreWFConstants.ENTITY_TYPE_ROLE, tenant);
         }
         for (int i = 0; i < deletedRoles.length; i++) {
-            nameWithTenant = UserCoreUtil.addTenantDomainToEntry(deletedRoles[i], tenant);
-            fullyQualifiedName = UserCoreUtil.addDomainToName(nameWithTenant, userStoreDomain);
+            fullyQualifiedName = UserCoreUtil.addDomainToName(deletedRoles[i], userStoreDomain);
             entities[i + newRoles.length + 1] = new Entity(fullyQualifiedName, UserStoreWFConstants
-                    .ENTITY_TYPE_ROLE);
+                    .ENTITY_TYPE_ROLE, tenant);
         }
         if (workflowService.eventEngagedWithWorkflows(UserStoreWFConstants.UPDATE_USER_ROLES_EVENT) && !Boolean.TRUE
                 .equals(getWorkFlowCompleted()) && !isValidOperation(entities)) {

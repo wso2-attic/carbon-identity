@@ -45,6 +45,11 @@ public enum WorkflowRequestStatus {
     REJECTED,
 
     /**
+     * The request is failed at callback.
+     */
+    FAILED,
+
+    /**
      * The request failed at the executor.
      */
     UNDEFINED

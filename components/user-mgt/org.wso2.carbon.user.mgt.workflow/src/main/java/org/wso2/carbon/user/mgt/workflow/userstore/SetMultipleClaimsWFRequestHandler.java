@@ -67,8 +67,7 @@ public class SetMultipleClaimsWFRequestHandler extends AbstractWorkflowRequestHa
         WorkflowService workflowService = IdentityWorkflowDataHolder.getInstance().getWorkflowService();
 
         String tenant = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-        String nameWithTenant = UserCoreUtil.addTenantDomainToEntry(userName, tenant);
-        String fullyQualifiedName = UserCoreUtil.addDomainToName(nameWithTenant, userStoreDomain);
+        String fullyQualifiedName = UserCoreUtil.addDomainToName(userName, userStoreDomain);
 
         Map<String, Object> wfParams = new HashMap<>();
         Map<String, Object> nonWfParams = new HashMap<>();
@@ -78,10 +77,10 @@ public class SetMultipleClaimsWFRequestHandler extends AbstractWorkflowRequestHa
         wfParams.put(PROFILE_NAME, profileName);
         String uuid = UUID.randomUUID().toString();
         Entity[] entities = new Entity[claims.size() + 1];
-        entities[0] = new Entity(fullyQualifiedName, UserStoreWFConstants.ENTITY_TYPE_USER);
+        entities[0] = new Entity(fullyQualifiedName, UserStoreWFConstants.ENTITY_TYPE_USER, tenant);
         int i = 1;
         for (String key : claims.keySet()) {
-            entities[i] = new Entity(key, UserStoreWFConstants.ENTITY_TYPE_CLAIM);
+            entities[i] = new Entity(key, UserStoreWFConstants.ENTITY_TYPE_CLAIM, tenant);
             i++;
         }
         if (workflowService.eventEngagedWithWorkflows(UserStoreWFConstants.SET_MULTIPLE_USER_CLAIMS_EVENT) &&

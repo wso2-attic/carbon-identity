@@ -67,8 +67,7 @@ public class DeleteClaimWFRequestHandler extends AbstractWorkflowRequestHandler 
         WorkflowService workflowService = IdentityWorkflowDataHolder.getInstance().getWorkflowService();
 
         String tenant = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-        String nameWithTenant = UserCoreUtil.addTenantDomainToEntry(userName, tenant);
-        String fullyQualifiedName = UserCoreUtil.addDomainToName(nameWithTenant, userStoreDomain);
+        String fullyQualifiedName = UserCoreUtil.addDomainToName(userName, userStoreDomain);
 
         Map<String, Object> wfParams = new HashMap<>();
         Map<String, Object> nonWfParams = new HashMap<>();
@@ -79,8 +78,8 @@ public class DeleteClaimWFRequestHandler extends AbstractWorkflowRequestHandler 
         String uuid = UUID.randomUUID().toString();
         if (workflowService.eventEngagedWithWorkflows(UserStoreWFConstants.DELETE_USER_CLAIM_EVENT) && !Boolean.TRUE
                 .equals(getWorkFlowCompleted()) && !isValidOperation(new Entity[]{new Entity(fullyQualifiedName,
-                UserStoreWFConstants.ENTITY_TYPE_USER), new Entity(claimURI, UserStoreWFConstants.ENTITY_TYPE_CLAIM)
-        })) {
+                UserStoreWFConstants.ENTITY_TYPE_USER, tenant), new Entity(claimURI, UserStoreWFConstants
+                .ENTITY_TYPE_CLAIM, tenant)})) {
 
             throw new WorkflowException("Operation is not valid.");
         }
@@ -91,8 +90,8 @@ public class DeleteClaimWFRequestHandler extends AbstractWorkflowRequestHandler 
         if (!Boolean.TRUE.equals(getWorkFlowCompleted()) && !state) {
             try {
                 workflowService.addRequestEntityRelationships(uuid, new Entity[]{new Entity(fullyQualifiedName,
-                        UserStoreWFConstants.ENTITY_TYPE_USER), new Entity(claimURI, UserStoreWFConstants
-                        .ENTITY_TYPE_CLAIM)});
+                        UserStoreWFConstants.ENTITY_TYPE_USER, tenant), new Entity(claimURI, UserStoreWFConstants
+                        .ENTITY_TYPE_CLAIM, tenant)});
 
             } catch (InternalWorkflowException e) {
                 ///debug exception which occurs at DB level since no workflows associated with event
