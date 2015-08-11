@@ -21,6 +21,6 @@ import javax.servlet.http.HttpServletRequest;
 
 public interface OIDProviderRequestValidator {
 
-    public OIDProviderRequestDTO validateRequest(HttpServletRequest request) throws OIDCDiscoveryEndPointException;
+    public OIDProviderRequest validateRequest(HttpServletRequest request, String tenant) throws OIDCDiscoveryEndPointException;
 
 }

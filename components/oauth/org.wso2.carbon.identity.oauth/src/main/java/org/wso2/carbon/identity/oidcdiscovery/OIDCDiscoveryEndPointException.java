@@ -19,14 +19,12 @@
 package org.wso2.carbon.identity.oidcdiscovery;
 
 public class OIDCDiscoveryEndPointException extends Exception {
-    //This error occurs due to a bad request
-    public static final String ERROR_CODE_NO_WELL_KNOWN_PATH = "no_well_known_path";
 
-    //These error are internal server errorrs
-    public static final String ERROR_CODE_INVALID_HOST = "invalid_host";
-    public static final String ERROR_CODE_INVALID_PATH = "invalid_path";
+
+    public static final String ERROR_CODE_INVALID_TENANT = "invalid_tenant";
     public static final String ERROR_CODE_NO_OPENID_PROVIDER_FOUND = "no_configuration_found";
     public static final String ERROR_CODE_JSON_EXCEPTION = "json_error";
+    public static final String ERROR_CODE_SERVER_ERROR = "server_error";
 
     private static final long serialVersionUID = -4449780649560053452L;
     private final String errorCode;

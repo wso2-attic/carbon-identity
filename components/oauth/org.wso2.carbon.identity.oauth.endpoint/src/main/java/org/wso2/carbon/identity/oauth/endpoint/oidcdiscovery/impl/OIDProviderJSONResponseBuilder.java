@@ -22,7 +22,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.codehaus.jettison.json.JSONException;
 import org.wso2.carbon.identity.oidcdiscovery.OIDCDiscoveryEndPointException;
-import org.wso2.carbon.identity.oidcdiscovery.OIDProviderConfigDTO;
+import org.wso2.carbon.identity.oidcdiscovery.OIDProviderConfig;
 import org.wso2.carbon.identity.oidcdiscovery.OIDProviderResponseBuilder;
 
 import java.util.Map;
@@ -31,14 +31,16 @@ import java.util.Map;
 public class OIDProviderJSONResponseBuilder implements OIDProviderResponseBuilder {
     private static final Log log = LogFactory.getLog(OIDProviderResponseBuilder.class);
 
-    public String getOIDProviderConfigString(OIDProviderConfigDTO oidProviderConfig) throws
+    public String getOIDProviderConfigString(OIDProviderConfig oidProviderConfig) throws
             OIDCDiscoveryEndPointException {
         Map<String, Object> configs = oidProviderConfig.getConfigMap(oidProviderConfig);
         try {
             return JSONUtils.buildJSON(configs);
 
         } catch (JSONException e) {
-            log.error("Error while generating the response JSON", e);
+            if (log.isDebugEnabled()) {
+                log.debug("Error while generating the response JSON", e);
+            }
             throw new OIDCDiscoveryEndPointException(OIDCDiscoveryEndPointException.ERROR_CODE_JSON_EXCEPTION, "Error" +
                     " while generating the response JSON");
         }

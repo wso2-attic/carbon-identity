@@ -21,12 +21,16 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.base.ServerConfigurationException;
 import org.wso2.carbon.identity.oauth.endpoint.oidcdiscovery.impl.OIDProviderJSONResponseBuilder;
-import org.wso2.carbon.identity.oidcdiscovery.*;
+import org.wso2.carbon.identity.oauth.endpoint.util.EndpointUtil;
+import org.wso2.carbon.identity.oidcdiscovery.OIDCDiscoveryEndPointException;
+import org.wso2.carbon.identity.oidcdiscovery.OIDCProcessor;
+import org.wso2.carbon.identity.oidcdiscovery.OIDProviderResponseBuilder;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
@@ -34,33 +38,51 @@ import javax.ws.rs.core.Response;
 @Path("/oidcdiscovery")
 public class OIDCDiscoveryEndPoint {
 
-    public static final String WELL_KNOWN_RESOURCE = "/.well-known";
-    public static final String OPENID_CONFIGURATION_RESOURCE = WELL_KNOWN_RESOURCE + "/openid-configuration";
-    public static final String WEBFINGER_RESOURCE = WELL_KNOWN_RESOURCE + "/webfinger";
     private static final Log log = LogFactory.getLog(OIDCDiscoveryEndPoint.class);
 
     @GET
-    @Path(OPENID_CONFIGURATION_RESOURCE)
+    @Path("{tenant}/.well-known/openid-configuration")
     @Produces("application/json")
-    public Response getOIDProviderConfiguration(@Context HttpServletRequest request) {
+    public Response getOIDProviderConfiguration(@Context HttpServletRequest request,@PathParam("tenant") String tenant) {
         String response = null;
-        log.warn("I am in the config.");
-        OIDCService processor = OIDCService.getInstance();
+        OIDCProcessor processor = EndpointUtil.getOIDCService();
         try {
-            OIDProviderRequestValidator requestBuilder = new OIDProviderRequestBuilder();
-            OIDProviderRequestDTO providerRequest = requestBuilder.validateRequest(request);
+            processor.validateRequest(request,tenant);
             OIDProviderResponseBuilder responseBuilder = new OIDProviderJSONResponseBuilder();
             response = responseBuilder.getOIDProviderConfigString(processor.getOIDProviderConfig
-                    (providerRequest));
+                    ());
         } catch (OIDCDiscoveryEndPointException e) {
-            return processor.handleError(e);
-        } catch (ServerConfigurationException e){
-
+            Response.ResponseBuilder errorResponse = Response.status(processor.handleError(e));
+            return errorResponse.entity(e.getMessage()).build();
+        } catch (ServerConfigurationException e) {
+            Response.ResponseBuilder errorResponse = Response.status(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            return errorResponse.entity("Error in reading configuration.").build();
         }
         Response.ResponseBuilder responseBuilder =
                 Response.status(HttpServletResponse.SC_OK);
         return responseBuilder.entity(response).build();
     }
-
+    @GET
+    @Path("/.well-known/openid-configuration")
+    @Produces("application/json")
+    public Response getOIDProviderConfiguration(@Context HttpServletRequest request) {
+        String response = null;
+        OIDCProcessor processor = EndpointUtil.getOIDCService();
+        try {
+            processor.validateRequest(request,null);
+            OIDProviderResponseBuilder responseBuilder = new OIDProviderJSONResponseBuilder();
+            response = responseBuilder.getOIDProviderConfigString(processor.getOIDProviderConfig
+                    ());
+        } catch (OIDCDiscoveryEndPointException e) {
+            Response.ResponseBuilder errorResponse = Response.status(processor.handleError(e));
+            return errorResponse.entity(e.getErrorMessage()).build();
+        } catch (ServerConfigurationException e) {
+            Response.ResponseBuilder errorResponse = Response.status(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            return errorResponse.entity("Error in reading configuration.").build();
+        }
+        Response.ResponseBuilder responseBuilder =
+                Response.status(HttpServletResponse.SC_OK);
+        return responseBuilder.entity(response).build();
+    }
 
 }

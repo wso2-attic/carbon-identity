@@ -11,13 +11,33 @@
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
+ * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.carbon.identity.oidcdiscovery.internal;
+package org.wso2.carbon.identity.oidcdiscovery;
 
 
-public class OIDCDiscoveryServiceComponentHolder {
+public class OIDProviderRequest {
+
+    private String uri;
+    private String tenant;
+
+    public String getUri() {
+        return uri;
+    }
+
+    public void setUri(String uri) {
+        this.uri = uri.trim();
+    }
+
+    public String getTenant() {
+        return tenant;
+    }
+
+    public void setTenant(String tenant) {
+        this.tenant = tenant;
+    }
+
 
 }
