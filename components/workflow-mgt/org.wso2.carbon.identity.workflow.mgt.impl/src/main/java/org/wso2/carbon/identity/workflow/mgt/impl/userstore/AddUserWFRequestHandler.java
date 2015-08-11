@@ -89,7 +89,7 @@ public class AddUserWFRequestHandler extends AbstractWorkflowRequestHandler {
         wfParams.put(ROLE_LIST, Arrays.asList(roleList));
         wfParams.put(CLAIM_LIST, claims);
         wfParams.put(PROFILE, profile);
-        nonWfParams.put(CREDENTIAL, credential.toString());
+        nonWfParams.put(CREDENTIAL, credential);
         return startWorkFlow(wfParams, nonWfParams);
     }
 

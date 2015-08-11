@@ -19,7 +19,10 @@
 package org.wso2.carbon.identity.mgt.policy.password;
 
 import org.wso2.carbon.identity.mgt.policy.AbstractPasswordPolicyEnforcer;
+import org.wso2.carbon.utils.Secret;
+import org.wso2.carbon.utils.UnsupportedSecretTypeException;
 
+import java.util.Arrays;
 import java.util.Map;
 
 public class DefaultPasswordNamePolicy extends AbstractPasswordPolicyEnforcer {
@@ -29,14 +32,23 @@ public class DefaultPasswordNamePolicy extends AbstractPasswordPolicyEnforcer {
 
         if (args != null) {
 
-            String password = args[0].toString();
             String username = args[1].toString();
-
-            if (password.equalsIgnoreCase(username)) {
-                errorMessage = "Cannot use the username as the password";
-                return false;
-            } else {
+            Secret password = null;
+            try {
+                password = Secret.getSecret(args[0]);
+                if (Arrays.equals(password.getChars(), username.toCharArray())) {
+                    errorMessage = "Cannot use the username as the password";
+                    return false;
+                } else {
+                    return true;
+                }
+            } catch (UnsupportedSecretTypeException e) {
+                //Ignoring UnsupportedSecretTypeException
                 return true;
+            } finally {
+                if (password != null) {
+                    password.clear();
+                }
             }
         } else {
             return true;

@@ -26,10 +26,11 @@ import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.common.AbstractUserOperationEventListener;
+import org.wso2.carbon.user.core.listener.SecretHandleableListener;
 
 import java.util.Map;
 
-public class UserStoreActionListener extends AbstractUserOperationEventListener {
+public class UserStoreActionListener extends AbstractUserOperationEventListener implements SecretHandleableListener {
 
     private static Log log = LogFactory.getLog(UserStoreActionListener.class);
 

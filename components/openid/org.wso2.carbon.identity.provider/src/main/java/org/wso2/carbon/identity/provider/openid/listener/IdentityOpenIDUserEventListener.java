@@ -25,8 +25,10 @@ import org.wso2.carbon.identity.provider.openid.dao.OpenIDUserRPDAO;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.common.AbstractUserOperationEventListener;
+import org.wso2.carbon.user.core.listener.SecretHandleableListener;
 
-public class IdentityOpenIDUserEventListener extends AbstractUserOperationEventListener {
+public class IdentityOpenIDUserEventListener extends AbstractUserOperationEventListener
+        implements SecretHandleableListener {
 
     private static final Log log = LogFactory.getLog(IdentityOpenIDUserEventListener.class);
 

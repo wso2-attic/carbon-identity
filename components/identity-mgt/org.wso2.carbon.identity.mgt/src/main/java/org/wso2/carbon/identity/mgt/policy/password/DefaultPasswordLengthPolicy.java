@@ -20,6 +20,8 @@ package org.wso2.carbon.identity.mgt.policy.password;
 
 import org.apache.commons.collections.MapUtils;
 import org.wso2.carbon.identity.mgt.policy.AbstractPasswordPolicyEnforcer;
+import org.wso2.carbon.utils.Secret;
+import org.wso2.carbon.utils.UnsupportedSecretTypeException;
 
 import java.util.Map;
 
@@ -62,17 +64,27 @@ public class DefaultPasswordLengthPolicy extends AbstractPasswordPolicyEnforcer 
 
         // If null input pass through.
         if (args != null) {
-
-            String password = args[0].toString();
-            if (password.length() < MIN_LENGTH) {
-                errorMessage = "Password at least should have " + MIN_LENGTH + " characters";
-                return false;
-            } else if (password.length() > MAX_LENGTH) {
-                errorMessage = "Password cannot have more than " + MAX_LENGTH + " characters";
-                return false;
-            } else {
+            Secret password = null;
+            try {
+                password = Secret.getSecret(args[0]);
+                if (password.getChars().length < MIN_LENGTH) {
+                    errorMessage = "Password at least should have " + MIN_LENGTH + " characters";
+                    return false;
+                } else if (password.getChars().length > MAX_LENGTH) {
+                    errorMessage = "Password cannot have more than " + MAX_LENGTH + " characters";
+                    return false;
+                } else {
+                    return true;
+                }
+            } catch (UnsupportedSecretTypeException e) {
+                // Ignoring UnsupportedSecretTypeException
                 return true;
+            } finally {
+                if (password != null){
+                    password.clear();
+                }
             }
+
         } else {
             return true;
         }

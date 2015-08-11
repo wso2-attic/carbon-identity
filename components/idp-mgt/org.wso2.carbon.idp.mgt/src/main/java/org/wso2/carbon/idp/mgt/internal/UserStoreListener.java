@@ -25,8 +25,9 @@ import org.wso2.carbon.idp.mgt.dao.IdPManagementDAO;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.common.AbstractUserOperationEventListener;
+import org.wso2.carbon.user.core.listener.SecretHandleableListener;
 
-public class UserStoreListener extends AbstractUserOperationEventListener {
+public class UserStoreListener extends AbstractUserOperationEventListener implements SecretHandleableListener {
 
     private CacheBackedIdPMgtDAO dao = new CacheBackedIdPMgtDAO(new IdPManagementDAO());
 

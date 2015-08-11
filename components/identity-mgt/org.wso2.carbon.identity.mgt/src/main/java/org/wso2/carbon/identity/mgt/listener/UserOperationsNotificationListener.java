@@ -27,6 +27,7 @@ import org.wso2.carbon.identity.notification.mgt.bean.PublisherEvent;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.common.AbstractUserOperationEventListener;
+import org.wso2.carbon.user.core.listener.SecretHandleableListener;
 
 import java.util.Map;
 
@@ -35,7 +36,8 @@ import java.util.Map;
  * this listener fires message sending module, So that registered modules with registered events
  * will send messages to endpoints.
  */
-public class UserOperationsNotificationListener extends AbstractUserOperationEventListener {
+public class UserOperationsNotificationListener extends AbstractUserOperationEventListener
+        implements SecretHandleableListener {
 
     private static final Log log = LogFactory.getLog(UserOperationsNotificationListener.class);
     private final String eventName = "userOperation";

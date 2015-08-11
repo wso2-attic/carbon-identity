@@ -51,7 +51,10 @@ import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.common.AbstractUserOperationEventListener;
+import org.wso2.carbon.user.core.listener.SecretHandleableListener;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
+import org.wso2.carbon.utils.Secret;
+import org.wso2.carbon.utils.UnsupportedSecretTypeException;
 
 import java.util.Calendar;
 import java.util.HashMap;
@@ -66,7 +69,7 @@ import java.util.Map.Entry;
  * additional operations
  * for some of the core user management operations
  */
-public class IdentityMgtEventListener extends AbstractUserOperationEventListener {
+public class IdentityMgtEventListener extends AbstractUserOperationEventListener implements SecretHandleableListener {
 
     /*
      * The thread local variable to hold data with scope only to that variable.
@@ -448,49 +451,57 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
         }
         IdentityMgtConfig config = IdentityMgtConfig.getInstance();
         if (!config.isListenerEnable()) {
-            if (credential == null || StringUtils.isBlank(credential.toString())) {
+            if (credential == null || (credential instanceof Secret && ((Secret)credential).isEmpty())) {
                 log.error("Identity Management listener is disabled");
                 throw new UserStoreException("Ask Password Feature is disabled");
             }
             return true;
         }
 
+        Secret credentialObj;
         try {
-            // Enforcing the password policies.
-            if (credential != null &&
-                    (credential instanceof StringBuffer && (credential.toString().trim().length() > 0))) {
-                policyRegistry.enforcePasswordPolicies(credential.toString(), userName);
-            }
-
-        } catch (PolicyViolationException pe) {
-            throw new UserStoreException(pe.getMessage(), pe);
+            credentialObj = Secret.getSecret(credential);
+        } catch (UnsupportedSecretTypeException e) {
+            throw new UserStoreException("Unsupported credential type", e);
         }
 
+        try {
+            try {
+                // Enforcing the password policies.
+                if (!credentialObj.isEmpty()) {
+                    policyRegistry.enforcePasswordPolicies(credentialObj, userName);
+                }
 
-        // empty password account creation
-        if (credential == null ||
-                (credential instanceof StringBuffer && (credential.toString().trim().length() < 1))) {
-
-            if (!config.isEnableTemporaryPassword()) {
-                log.error("Temporary password property is disabled");
-                throw new UserStoreException("Ask Password Feature is disabled");
-            }
-            if (log.isDebugEnabled()) {
-                log.debug("Credentials are null. Using a temporary password as credentials");
-            }
-            // setting the thread-local to check in doPostAddUser
-            threadLocalProperties.get().put(EMPTY_PASSWORD_USED, true);
-            // temporary passwords will be used
-            char[] temporaryPassword = null;
-            if (IdentityMgtConfig.getInstance().getTemporaryDefaultPassword() != null) {
-                temporaryPassword = IdentityMgtConfig.getInstance().getTemporaryDefaultPassword()
-                        .toCharArray();
-            } else {
-                temporaryPassword = UserIdentityManagementUtil.generateTemporaryPassword();
+            } catch (PolicyViolationException pe) {
+                throw new UserStoreException(pe.getMessage(), pe);
             }
 
-            // setting the password value
-            ((StringBuffer) credential).replace(0, temporaryPassword.length, new String(temporaryPassword));
+            // empty password account creation
+            if (credentialObj.isEmpty()) {
+
+                if (!config.isEnableTemporaryPassword()) {
+                    log.error("Temporary password property is disabled");
+                    throw new UserStoreException("Ask Password Feature is disabled");
+                }
+                if (log.isDebugEnabled()) {
+                    log.debug("Credentials are null. Using a temporary password as credentials");
+                }
+                // setting the thread-local to check in doPostAddUser
+                threadLocalProperties.get().put(EMPTY_PASSWORD_USED, true);
+                // temporary passwords will be used
+                char[] temporaryPassword = null;
+                if (IdentityMgtConfig.getInstance().getTemporaryDefaultPassword() != null) {
+                    temporaryPassword = IdentityMgtConfig.getInstance().getTemporaryDefaultPassword()
+                                                         .toCharArray();
+                } else {
+                    temporaryPassword = UserIdentityManagementUtil.generateTemporaryPassword();
+                }
+
+                // setting the password value
+                credentialObj.setChars(temporaryPassword);
+            }
+        } finally {
+            credentialObj.clear();
         }
 
         // Filtering security question URIs from claims and add them to the thread local dto
@@ -564,10 +575,6 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
                         throw new UserStoreException("Error while saving user store for user : "
                                 + userName, e);
                     }
-                    // store identity metadata
-                    UserRecoveryDataDO metadataDO = new UserRecoveryDataDO();
-                    metadataDO.setUserName(userName).setTenantId(userStoreManager.getTenantId())
-                            .setCode((String) credential);
 
                     // set recovery data
                     RecoveryProcessor processor = new RecoveryProcessor();
@@ -664,17 +671,24 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
             return true;
         }
 
+        Secret newCredentialObj;
+        try {
+            newCredentialObj = Secret.getSecret(newCredential);
+        } catch (UnsupportedSecretTypeException e) {
+            throw new UserStoreException("Unsupported credential type", e);
+        }
+
         try {
             // Enforcing the password policies.
-            if (newCredential != null
-                    && (newCredential instanceof String && (newCredential.toString().trim()
-                            .length() > 0))) {
-                policyRegistry.enforcePasswordPolicies(newCredential.toString(), userName);
+            if (!newCredentialObj.isEmpty()) {
+                policyRegistry.enforcePasswordPolicies(newCredentialObj, userName);
 
             }
 
         } catch (PolicyViolationException pe) {
             throw new UserStoreException(pe.getMessage(), pe);
+        } finally {
+            newCredentialObj.clear();
         }
 
         return true;
@@ -697,48 +711,45 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
             return true;
         }
 
+        Secret newCredentialObj;
         try {
-            // Enforcing the password policies.
-            if (newCredential != null
-                    && (newCredential instanceof StringBuffer && (newCredential.toString().trim()
-                            .length() > 0))) {
-                policyRegistry.enforcePasswordPolicies(newCredential.toString(), userName);
-            }
-
-        } catch (PolicyViolationException pe) {
-            throw new UserStoreException(pe.getMessage(), pe);
+            newCredentialObj = Secret.getSecret(newCredential);
+        } catch (UnsupportedSecretTypeException e) {
+            throw new UserStoreException("Unsupported credential type", e);
         }
 
-        if (newCredential == null
-                || (newCredential instanceof StringBuffer && ((StringBuffer) newCredential)
-                        .toString().trim().length() < 1)) {
+        try {
+            try {
+                // Enforcing the password policies.
+                if (!newCredentialObj.isEmpty()) {
+                    policyRegistry.enforcePasswordPolicies(newCredentialObj, userName);
+                }
 
-            if (!config.isEnableTemporaryPassword()) {
-                log.error("Empty passwords are not allowed");
-                return false;
+            } catch (PolicyViolationException pe) {
+                throw new UserStoreException(pe.getMessage(), pe);
             }
-            if (log.isDebugEnabled()) {
-                log.debug("Credentials are null. Using a temporary password as credentials");
-            }
-            // temporary passwords will be used
-            char[] temporaryPassword = UserIdentityManagementUtil.generateTemporaryPassword();
-            // setting the password value
-            ((StringBuffer) newCredential).replace(0, temporaryPassword.length, new String(
-                    temporaryPassword));
 
-            UserIdentityMgtBean bean = new UserIdentityMgtBean();
-            bean.setUserId(userName);
-            bean.setConfirmationCode(newCredential.toString());
-            bean.setRecoveryType(IdentityMgtConstants.Notification.TEMPORARY_PASSWORD);
-            if (log.isDebugEnabled()) {
-                log.debug("Sending the temporary password to the user " + userName);
+            if (newCredentialObj.isEmpty()) {
+
+                if (!config.isEnableTemporaryPassword()) {
+                    log.error("Empty passwords are not allowed");
+                    return false;
+                }
+                if (log.isDebugEnabled()) {
+                    log.debug("Credentials are null. Using a temporary password as credentials");
+                }
+                // temporary passwords will be used
+                char[] temporaryPassword = UserIdentityManagementUtil.generateTemporaryPassword();
+                // setting the password value
+                newCredentialObj.setChars(temporaryPassword);
+            } else {
+                if (log.isDebugEnabled()) {
+                    log.debug("Updating credentials of user " + userName
+                              + " by admin with a non-empty password");
+                }
             }
-            UserIdentityManagementUtil.notifyViaEmail(bean);
-        } else {
-            if (log.isDebugEnabled()) {
-                log.debug("Updating credentials of user " + userName
-                        + " by admin with a non-empty password");
-            }
+        } finally {
+            newCredentialObj.clear();
         }
         return true;
     }

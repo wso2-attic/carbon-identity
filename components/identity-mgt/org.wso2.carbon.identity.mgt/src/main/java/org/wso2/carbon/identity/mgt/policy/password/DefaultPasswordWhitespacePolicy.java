@@ -19,6 +19,8 @@
 package org.wso2.carbon.identity.mgt.policy.password;
 
 import org.wso2.carbon.identity.mgt.policy.AbstractPasswordPolicyEnforcer;
+import org.wso2.carbon.utils.Secret;
+import org.wso2.carbon.utils.UnsupportedSecretTypeException;
 
 import java.util.Map;
 
@@ -28,14 +30,24 @@ public class DefaultPasswordWhitespacePolicy extends AbstractPasswordPolicyEnfor
     public boolean enforce(Object... args) {
 
         if (args != null) {
-
-            String password = args[0].toString();
-            String[] splits = password.split(" ");
-            if (splits.length > 1) {
-                errorMessage = "Password cannot contain whitespaces";
-                return false;
-            } else {
+            Secret password = null;
+            try {
+                password = Secret.getSecret(args[0]);
+                char[] passwordChars = password.getChars();
+                for (int i = 0; i < passwordChars.length; i++) {
+                    if (Character.isWhitespace(passwordChars[i])) {
+                        errorMessage = "Password cannot contain whitespaces";
+                        return false;
+                    }
+                }
                 return true;
+            } catch (UnsupportedSecretTypeException e) {
+                //Ignoring UnsupportedSecretTypeException
+                return true;
+            } finally {
+                if (password != null) {
+                    password.clear();
+                }
             }
         } else {
             return true;

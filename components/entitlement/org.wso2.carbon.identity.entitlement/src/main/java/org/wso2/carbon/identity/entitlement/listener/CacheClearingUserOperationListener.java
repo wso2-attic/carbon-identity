@@ -28,6 +28,7 @@ import org.wso2.carbon.user.api.Permission;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.common.AbstractUserOperationEventListener;
+import org.wso2.carbon.user.core.listener.SecretHandleableListener;
 
 import java.util.Map;
 import java.util.Properties;
@@ -39,7 +40,8 @@ import java.util.Set;
  * clear all 3 caches including  PIP_ATTRIBUTE_CACHE, PDP_DECISION_INVALIDATION_CACHE,
  * ENTITLEMENT_POLICY_INVALIDATION_CACHE
  */
-public class CacheClearingUserOperationListener extends AbstractUserOperationEventListener {
+public class CacheClearingUserOperationListener extends AbstractUserOperationEventListener
+        implements SecretHandleableListener {
 
     private static final Log log = LogFactory.getLog(CacheClearingUserOperationListener.class);
 

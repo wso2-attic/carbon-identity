@@ -19,8 +19,13 @@
 package org.wso2.carbon.identity.mgt.policy.password;
 
 import org.apache.commons.collections.MapUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.mgt.policy.AbstractPasswordPolicyEnforcer;
+import org.wso2.carbon.utils.Secret;
+import org.wso2.carbon.utils.UnsupportedSecretTypeException;
 
+import java.nio.CharBuffer;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -35,18 +40,26 @@ public class DefaultPasswordPatternPolicy extends AbstractPasswordPolicyEnforcer
     public boolean enforce(Object... args) {
 
         if (args != null) {
-            String password = args[0].toString();
-
-            matcher = pattern.matcher(password);
-            if (matcher.matches()) {
-                return true;
-            } else {
-                if (errorMessage == null) {
-                    errorMessage = "Password pattern policy violated. Policy :"+ pattern;
+            Secret password = null;
+            try {
+                password = Secret.getSecret(args[0]);
+                matcher = pattern.matcher(CharBuffer.wrap(password.getChars()));
+                if (matcher.matches()) {
+                    return true;
+                } else {
+                    if (errorMessage == null) {
+                        errorMessage = "Password pattern policy violated. Policy :" + pattern;
+                    }
+                    return false;
                 }
-                return false;
+            } catch (UnsupportedSecretTypeException e) {
+                //Ignoring UnsupportedSecretTypeException
+                return true;
+            } finally {
+                if (password != null) {
+                    password.clear();
+                }
             }
-
         } else {
             return true;
         }

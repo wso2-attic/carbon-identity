@@ -27,6 +27,7 @@ import org.wso2.carbon.identity.oauth2.dao.TokenMgtDAO;
 import org.wso2.carbon.identity.oauth2.model.AccessTokenDO;
 import org.wso2.carbon.identity.oauth2.util.OAuth2Util;
 import org.wso2.carbon.user.core.common.AbstractUserOperationEventListener;
+import org.wso2.carbon.user.core.listener.SecretHandleableListener;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 
 import java.util.Set;
@@ -36,7 +37,7 @@ import java.util.Set;
  * additional operations
  * for some of the core user management operations
  */
-public class IdentityOathEventListener extends AbstractUserOperationEventListener {
+public class IdentityOathEventListener extends AbstractUserOperationEventListener implements SecretHandleableListener {
     private static final Log log = LogFactory.getLog(IdentityOathEventListener.class);
 
     /**
