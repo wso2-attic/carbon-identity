@@ -46,6 +46,7 @@ import org.opensaml.saml2.core.LogoutRequest;
 import org.opensaml.saml2.core.LogoutResponse;
 import org.opensaml.saml2.core.NameID;
 import org.opensaml.saml2.core.NameIDPolicy;
+import org.opensaml.saml2.core.NameIDType;
 import org.opensaml.saml2.core.RequestAbstractType;
 import org.opensaml.saml2.core.RequestedAuthnContext;
 import org.opensaml.saml2.core.Response;
@@ -424,7 +425,7 @@ public class DefaultSAML2SSOManager implements SAML2SSOManager {
         logoutReq.setIssuer(issuer);
 
         NameID nameId = new NameIDBuilder().buildObject();
-        nameId.setFormat("urn:oasis:names:tc:SAML:2.0:nameid-format:unspecified");
+        nameId.setFormat(NameIDType.UNSPECIFIED);
         nameId.setValue(user);
         nameId.setNameQualifier(nameQualifier);
         nameId.setSPNameQualifier(spNameQualifier);
