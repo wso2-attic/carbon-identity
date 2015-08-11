@@ -1272,13 +1272,13 @@ public class IdPManagementDAO {
             }
 
             prepStmt.setString(4, CharacterEncoder.getSafeText(identityProvider.getHomeRealmId()));
-            CertData certData = null;
+            CertData certData;
             if (StringUtils.isNotBlank(identityProvider.getCertificate())) {
                 try{
                 certData = IdentityApplicationManagementUtil.getCertData(identityProvider.getCertificate());
                 }catch (CertificateException ex){
                     String msg = "Malformed Public Certificate file has been provided.";
-                    throw new IdentityApplicationManagementException(msg);
+                    throw new IdentityApplicationManagementException(msg,ex);
                 }
             }
             if (certData != null) {
@@ -1288,6 +1288,7 @@ public class IdPManagementDAO {
                 }
             } else {
                 String msg = "Malformed Public Certificate file has been provided.";
+                log.error(msg);
                 throw new IdentityApplicationManagementException(msg);
             }
             prepStmt.setString(6, CharacterEncoder.getSafeText(identityProvider.getAlias()));
@@ -1471,13 +1472,13 @@ public class IdPManagementDAO {
             }
 
             prepStmt.setString(3, CharacterEncoder.getSafeText(newIdentityProvider.getHomeRealmId()));
-            CertData certData = null;
+            CertData certData;
             if (StringUtils.isNotBlank(newIdentityProvider.getCertificate())) {
                 try{
                     certData = IdentityApplicationManagementUtil.getCertData(newIdentityProvider.getCertificate());
                 }catch (CertificateException ex){
                     String msg = "Malformed Public Certificate file has been provided.";
-                    throw new IdentityApplicationManagementException(msg);
+                    throw new IdentityApplicationManagementException(msg, ex);
                 }
             }
             if (certData != null) {
@@ -1487,6 +1488,7 @@ public class IdPManagementDAO {
                 }
             } else {
                 String msg = "Malformed Public Certificate file has been provided.";
+                log.error(msg);
                 throw new IdentityApplicationManagementException(msg);
             }
             prepStmt.setString(5, CharacterEncoder.getSafeText(newIdentityProvider.getAlias()));
