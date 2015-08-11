@@ -36,6 +36,7 @@ import org.wso2.carbon.identity.sso.saml.session.SSOSessionPersistenceManager;
 import org.wso2.carbon.identity.sso.saml.session.SessionInfoData;
 import org.wso2.carbon.identity.sso.saml.util.SAMLSSOUtil;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -246,19 +247,22 @@ public class SPInitLogoutRequestProcessor {
 
             return reqValidationResponseDTO;
         } catch (Exception e) {
-            log.error("Error Processing the Logout Request", e);
             throw new IdentityException("Error Processing the Logout Request", e);
         }
     }
 
-    private SAMLSSOReqValidationResponseDTO buildErrorResponse(String id, String status,
-                                                               String statMsg, String destination) throws Exception {
+    private SAMLSSOReqValidationResponseDTO buildErrorResponse(String id, String status, String statMsg,
+                                                               String destination) throws IdentityException{
         SAMLSSOReqValidationResponseDTO reqValidationResponseDTO = new SAMLSSOReqValidationResponseDTO();
         LogoutResponse logoutResp = new SingleLogoutMessageBuilder().buildLogoutResponse(id,
                 status, statMsg, destination, null);
         reqValidationResponseDTO.setLogOutReq(true);
         reqValidationResponseDTO.setValid(false);
-        reqValidationResponseDTO.setResponse(SAMLSSOUtil.compressResponse(SAMLSSOUtil.marshall(logoutResp)));
+        try {
+            reqValidationResponseDTO.setResponse(SAMLSSOUtil.compressResponse(SAMLSSOUtil.marshall(logoutResp)));
+        } catch (IOException e) {
+            throw new IdentityException("Error while creating logout response", e);
+        }
         return reqValidationResponseDTO;
     }
 }
