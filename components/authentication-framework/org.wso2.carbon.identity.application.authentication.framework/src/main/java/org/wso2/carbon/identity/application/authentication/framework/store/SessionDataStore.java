@@ -258,9 +258,9 @@ public class SessionDataStore {
                 connection.commit();
             }
         } catch (SQLException e) {
-            log.error("Error while removing Session Data ", e);
+            log.error("Error while removing session data from the database ", e);
         } catch (IdentityException e) {
-            log.error("Error while removing Session Data", e);
+            log.error("Error while obtaining the database connection", e);
         } finally {
             try {
                 if (statement != null) {
@@ -436,10 +436,10 @@ public class SessionDataStore {
                 }
             } catch (SQLException e) {
                 //ignore
-                log.error("Error while storing session data", e);
+                log.error("Error while storing session data in the database", e);
             } catch (IdentityException e) {
                 //ignore
-                log.error("Error while storing session data", e);
+                log.error("Error while obtaining the database connection", e);
             }
             return timestamp;
         } else {
