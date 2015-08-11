@@ -19,8 +19,6 @@
 package org.wso2.carbon.identity.mgt.policy.password;
 
 import org.apache.commons.collections.MapUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.mgt.policy.AbstractPasswordPolicyEnforcer;
 import org.wso2.carbon.utils.Secret;
 import org.wso2.carbon.utils.UnsupportedSecretTypeException;
