@@ -365,6 +365,7 @@ public enum ClaimManagerHandler {
             if (claimManager != null) {
                 mapping = claimManager.getAllClaimMappings(dialectUri);
                 claimManager.deleteClaimMappings(dialectUri, mapping);
+                claimManager.deleteClaimDialect(dialectUri);
             }
         } catch (org.wso2.carbon.user.api.UserStoreException e) {
             throw new ClaimManagementException("Error occurred while removing new claim dialect", e);
