@@ -1895,6 +1895,7 @@
         <apacheds.imp.pkg.version.range>[1.5.7,1.6.0)</apacheds.imp.pkg.version.range>
         <nimbusds.version>2.26.1.wso2v3</nimbusds.version>
         <nimbusds.osgi.version.range>[2.26.1,2.27.0)</nimbusds.osgi.version.range>
+        <bcprov.version>1.49.0.wso2v2</bcprov.version>
 
         <!-- Orbits -->
         <orbit.version.xmlschema>1.4.7.wso2v3</orbit.version.xmlschema>
