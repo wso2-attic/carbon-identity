@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2005-2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -171,7 +171,7 @@ public class TOTPKeyGenerator {
 	private GoogleAuthenticatorKey generateKey() throws TOTPException {
 		KeyRepresentation encoding = KeyRepresentation.BASE32;
 		try {
-			if ("Base64".equals(TOTPUtil.getEncodingMethod())) {
+			if (Constants.BASE64.equals(TOTPUtil.getEncodingMethod())) {
 				encoding = KeyRepresentation.BASE64;
 			}
 		} catch (IdentityApplicationManagementException e) {

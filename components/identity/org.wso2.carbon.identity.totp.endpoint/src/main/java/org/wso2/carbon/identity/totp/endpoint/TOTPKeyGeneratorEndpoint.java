@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2005-2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -24,7 +24,7 @@ import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.totp.TOTPDTO;
 import org.wso2.carbon.identity.totp.TOTPManager;
 import org.wso2.carbon.identity.totp.exception.TOTPException;
-
+import org.wso2.carbon.identity.application.common.util.CharacterEncoder;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -48,7 +48,7 @@ public class TOTPKeyGeneratorEndpoint {
 		TOTPManager totpManager = (TOTPManager) PrivilegedCarbonContext.getThreadLocalCarbonContext().getOSGiService
 				(TOTPManager.class);
 		if (totpManager != null) {
-			String username = request.getParameter("username");
+			String username = CharacterEncoder.getSafeText(request.getParameter("username"));
 			TOTPDTO totpdto = null;
 			try {
 				totpdto = totpManager.generateTOTPKeyLocal(username);
@@ -76,14 +76,14 @@ public class TOTPKeyGeneratorEndpoint {
 		TOTPManager totpManager = (TOTPManager) PrivilegedCarbonContext.getThreadLocalCarbonContext().getOSGiService
 				(TOTPManager.class);
 		if (totpManager != null) {
-			String username = request.getParameter("username");
+			String username = CharacterEncoder.getSafeText(request.getParameter("username"));
 			TOTPDTO totpdto = null;
 			try {
 				totpdto = totpManager.generateTOTPKey(username);
 				String json = createJsonPayload(totpdto.getSecretkey(), totpdto.getQRCodeURL());
 				return Response.ok(json, MediaType.APPLICATION_JSON_TYPE).build();
 			} catch (TOTPException e) {
-				log.error("TOTPKeyGenerator endpoint could not generate the key for the user : "+username,e);
+				log.error("TOTPKeyGenerator endpoint could not generate the key for the user : " + username,e);
 				return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Error when generating the key")
 						.type(MediaType.APPLICATION_JSON_TYPE).build();
 			}

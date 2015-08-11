@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright (c) 2005-2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+  ~ Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
   ~
   ~ WSO2 Inc. licenses this file to you under the Apache License,
   ~ Version 2.0 (the "License"); you may not use this file except
@@ -21,9 +21,9 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <groupId>org.wso2.carbon</groupId>
+        <groupId>org.wso2.carbon.identity</groupId>
         <artifactId>identity</artifactId>
-        <version>4.3.0-SNAPSHOT</version>
+        <version>4.3.4-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -37,21 +37,24 @@
             <artifactId>org.wso2.carbon.core</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.identity</groupId>
             <artifactId>org.wso2.carbon.identity.core</artifactId>
         </dependency>
         <dependency>
             <groupId>com.warrenstrange</groupId>
             <artifactId>googleauth</artifactId>
-            <version>0.4.3</version>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.identity</groupId>
             <artifactId>org.wso2.carbon.idp.mgt</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.identity</groupId>
             <artifactId>org.wso2.carbon.identity.notification.mgt</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.identity</groupId>
+            <artifactId>org.wso2.carbon.identity.application.common</artifactId>
         </dependency>
     </dependencies>
     <build>

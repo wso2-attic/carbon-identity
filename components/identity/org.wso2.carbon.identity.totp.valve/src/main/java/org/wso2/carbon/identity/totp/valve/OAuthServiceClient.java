@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2005-2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -42,17 +42,16 @@ public class OAuthServiceClient {
 	 * @param username
 	 * @param password
 	 * @param configCtx
-	 * @throws Exception
+	 * @throws AxisFault
 	 */
 	public OAuthServiceClient(String backendServerURL, String username, String password,
-	                          ConfigurationContext configCtx) throws Exception {
+	                          ConfigurationContext configCtx) throws AxisFault {
 		String serviceURL = backendServerURL + "OAuth2TokenValidationService";
 		try {
 			stub = new OAuth2TokenValidationServiceStub(configCtx, serviceURL);
 			CarbonUtils.setBasicAccessSecurityHeaders(username, password, true, stub._getServiceClient());
 		} catch (AxisFault e) {
-			log.error("Error initializing OAuth2 Client");
-			throw new Exception("Error initializing OAuth Client", e);
+			throw new AxisFault("Error initializing OAuth Client", e);
 		}
 	}
 
@@ -61,10 +60,10 @@ public class OAuthServiceClient {
 	 *
 	 * @param accessTokenIdentifier
 	 * @return
-	 * @throws Exception
+	 * @throws RemoteException
 	 */
 	public OAuth2TokenValidationResponseDTO validateAccessToken(String accessTokenIdentifier)
-			throws Exception {
+			throws RemoteException {
 		OAuth2TokenValidationRequestDTO oauthReq = new OAuth2TokenValidationRequestDTO();
 		OAuth2TokenValidationRequestDTO_OAuth2AccessToken accessToken =
 				new OAuth2TokenValidationRequestDTO_OAuth2AccessToken();
@@ -74,18 +73,17 @@ public class OAuthServiceClient {
 		try {
 			return stub.validate(oauthReq);
 		} catch (RemoteException e) {
-			log.error("Error while validating OAuth2 request");
-			throw new Exception("Error while validating OAuth2 request", e);
+			throw new RemoteException("Error while validating OAuth2 request", e);
 		}
 	}
 
 	/**
 	 * @param accessTokenIdentifier
 	 * @return
-	 * @throws Exception
+	 * @throws RemoteException
 	 */
 	public OAuth2ClientApplicationDTO findOAuthConsumerIfTokenIsValid(String accessTokenIdentifier)
-			throws Exception {
+			throws RemoteException {
 		OAuth2TokenValidationRequestDTO oauthReq = new OAuth2TokenValidationRequestDTO();
 		OAuth2TokenValidationRequestDTO_OAuth2AccessToken accessToken =
 				new OAuth2TokenValidationRequestDTO_OAuth2AccessToken();
@@ -95,8 +93,7 @@ public class OAuthServiceClient {
 		try {
 			return stub.findOAuthConsumerIfTokenIsValid(oauthReq);
 		} catch (RemoteException e) {
-			log.error("Error while validating OAuth2 request");
-			throw new Exception("Error while validating OAuth2 request", e);
+			throw new RemoteException("Error while validating OAuth2 request", e);
 		}
 	}
 

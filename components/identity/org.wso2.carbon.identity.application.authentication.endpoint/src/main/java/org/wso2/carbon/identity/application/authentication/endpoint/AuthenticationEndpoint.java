@@ -80,7 +80,7 @@ public class AuthenticationEndpoint extends HttpServlet {
                 loadPage = "oauth2_login.do";
             }else if (request.getParameter("type").equals("totp")) {
                 loadPage = "totp_login.do";
-            }else if(request.getParameter("type").equals("totp_error")){
+            }else if (request.getParameter("type").equals("totp_error")) {
                 loadPage = "totp_error.do";
             }
             request.getRequestDispatcher(loadPage).forward(request, response);

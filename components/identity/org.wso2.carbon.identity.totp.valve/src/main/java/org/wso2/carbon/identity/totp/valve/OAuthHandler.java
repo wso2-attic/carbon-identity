@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2005-2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -122,7 +122,7 @@ public class OAuthHandler implements TOTPAuthenticationHandler {
 			String accessToken = authheader.substring(Constants.BEARER_AUTH_HEADER.length()).trim();
 
 			try {
-				OAuth2ClientApplicationDTO validationApp = this.validateAccessToken(accessToken);
+				OAuth2ClientApplicationDTO validationApp = validateAccessToken(accessToken);
 				OAuth2TokenValidationResponseDTO validationResponse = null;
 
 				if (validationApp != null) {
@@ -192,10 +192,8 @@ public class OAuthHandler implements TOTPAuthenticationHandler {
 			appDTO.setConsumerKey(validationResponse.getConsumerKey());
 
 			OAuth2TokenValidationResponseDTO validationDto = new OAuth2TokenValidationResponseDTO();
-			validationDto.setAuthorizedUser(validationResponse.getAccessTokenValidationResponse()
-					                                .getAuthorizedUser());
-			validationDto
-					.setValid(validationResponse.getAccessTokenValidationResponse().getValid());
+			validationDto.setAuthorizedUser(validationResponse.getAccessTokenValidationResponse().getAuthorizedUser());
+			validationDto.setValid(validationResponse.getAccessTokenValidationResponse().getValid());
 			appDTO.setAccessTokenValidationResponse(validationDto);
 			return appDTO;
 		} catch (AxisFault axisFault) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2005-2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -27,6 +27,7 @@ import org.wso2.carbon.identity.application.common.model.IdentityProvider;
 import org.wso2.carbon.identity.application.common.model.Property;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
+import org.wso2.carbon.identity.totp.Constants;
 import org.wso2.carbon.idp.mgt.IdentityProviderManager;
 
 /**
@@ -58,9 +59,9 @@ public class TOTPUtil {
 					.getThreadLocalCarbonContext().getTenantId());
 		}
 
-		if ("Base32".equals(property.getValue())) {
-			return "Base32";
+		if (Constants.BASE32.equals(property.getValue())) {
+			return Constants.BASE32;
 		}
-		return "Base64";
+		return Constants.BASE64;
 	}
 }

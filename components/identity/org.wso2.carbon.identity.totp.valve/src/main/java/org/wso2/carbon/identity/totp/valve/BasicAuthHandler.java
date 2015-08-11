@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2005-2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -20,6 +20,7 @@ package org.wso2.carbon.identity.totp.valve;
 
 import org.apache.axiom.om.util.Base64;
 import org.apache.catalina.connector.Request;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
@@ -73,7 +74,7 @@ public class BasicAuthHandler implements TOTPAuthenticationHandler {
 			String username = values[0];
 			String password = values[1];
 
-			if ("".equals(username) || username == null || "".equals(password) || password == null) {
+			if (StringUtils.isEmpty(username) || StringUtils.isEmpty(password)) {
 				return false;
 			}
 
@@ -116,8 +117,7 @@ public class BasicAuthHandler implements TOTPAuthenticationHandler {
 		this.properties = authenticatorProperties;
 		String priorityString = properties.get(Constants.PROPERTY_NAME_PRIORITY);
 		if (priorityString != null) {
-			priority = Integer.parseInt(properties
-					                            .get(Constants.PROPERTY_NAME_PRIORITY));
+			priority = Integer.parseInt(properties.get(Constants.PROPERTY_NAME_PRIORITY));
 		} else {
 			priority = DEFAULT_PRIORITY;
 		}

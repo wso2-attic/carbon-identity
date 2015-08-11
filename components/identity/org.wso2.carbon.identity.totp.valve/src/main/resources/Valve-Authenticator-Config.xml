@@ -18,6 +18,5 @@
 <valve-authenticator-config>
     <context-paths>
         <context-path>/totp</context-path>
-        <context-path>/wattale</context-path>
     </context-paths>
 </valve-authenticator-config>

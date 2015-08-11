@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2005-2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -60,7 +60,7 @@ public class TOTPAuthenticator extends AbstractApplicationAuthenticator
 
 		if (context.isLogoutRequest()) {
 			return AuthenticatorFlowStatus.SUCCESS_COMPLETED;
-		} else if (request.getParameter("sendToken") != null) {
+		} else if (CharacterEncoder.getSafeText(request.getParameter("sendToken")) != null) {
 			if(generateTOTPToken(context)) {
 				return AuthenticatorFlowStatus.INCOMPLETE;
 			}else{
@@ -92,13 +92,13 @@ public class TOTPAuthenticator extends AbstractApplicationAuthenticator
 			boolean isTOTPEnabled = TOTPAuthenticatorServiceComponent.getTotpManager().isTOTPEnabledForLocalUser
 					(username);
 			if (isTOTPEnabled) {
-				response.sendRedirect(response.encodeRedirectURL(loginPage + ("?sessionDataKey=" + request
-						.getParameter("sessionDataKey")))
+				response.sendRedirect(response.encodeRedirectURL(loginPage + ("?sessionDataKey=" + CharacterEncoder
+                        .getSafeText(request.getParameter("sessionDataKey"))))
 				                      + "&authenticators=" + getName() + "&type=totp" + retryParam + "&username=" +
 				                      username);
 			} else {
-				response.sendRedirect(response.encodeRedirectURL(loginPage + ("?sessionDataKey=" + request
-						.getParameter("sessionDataKey")))
+				response.sendRedirect(response.encodeRedirectURL(loginPage + ("?sessionDataKey=" + CharacterEncoder
+                        .getSafeText(request.getParameter("sessionDataKey"))))
 				                      + "&authenticators=" + getName() + "&type=totp_error" + retryParam + 
 				                      "&username=" + username);
 			}
@@ -116,7 +116,7 @@ public class TOTPAuthenticator extends AbstractApplicationAuthenticator
 	                                             AuthenticationContext context)
 			throws AuthenticationFailedException {
 
-		String token = request.getParameter("token");
+		String token = CharacterEncoder.getSafeText(request.getParameter("token"));
 		String username = getLoggedInUser(context);
 
 		if (token != null) {
@@ -140,7 +140,7 @@ public class TOTPAuthenticator extends AbstractApplicationAuthenticator
 
 	@Override
 	public String getContextIdentifier(HttpServletRequest request) {
-		return request.getParameter("sessionDataKey");
+		return CharacterEncoder.getSafeText(request.getParameter("sessionDataKey"));
 	}
 
 	@Override

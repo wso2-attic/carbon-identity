@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2005-2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -22,4 +22,6 @@ public abstract class Constants {
 	public static final String QR_CODE_URL = "http://wso2.org/claims/identity/qrcodeurl";
 	public static final String SECRET_KEY = "http://wso2.org/claims/identity/secretkey";
 	public static final String Encoding = "http://wso2.org/claims/identity/encoding";
+    public static final String BASE32 = "Base32";
+    public static final String BASE64 = "Base64";
 }
