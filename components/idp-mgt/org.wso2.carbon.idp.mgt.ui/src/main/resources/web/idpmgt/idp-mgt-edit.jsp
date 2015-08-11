@@ -3017,7 +3017,8 @@ function doValidation() {
                                 String issuerDN = "";
                                 if (certData.getIssuerDN() != null) {
                                     issuerDN = certData.getIssuerDN();
-                                }%><%=issuerDN%>
+                                }
+                            %><%=issuerDN%>
                             </td>
                             <td><%
                                 String subjectDN = "";
