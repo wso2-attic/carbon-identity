@@ -78,28 +78,34 @@ public class UpdateRoleUsersWFRequestHandler extends AbstractWorkflowRequestHand
         wfParams.put(DELETED_USER_LIST, Arrays.asList(deletedUsers));
         wfParams.put(NEW_USER_LIST, Arrays.asList(newUsers));
         String uuid = UUID.randomUUID().toString();
+        Entity[] entities = new Entity[deletedUsers.length + newUsers.length + 1];
+        entities[0] = new Entity(fullyQualifiedName, UserStoreWFConstants.ENTITY_TYPE_ROLE);
+        for (int i = 0; i < newUsers.length; i++) {
+            nameWithTenant = UserCoreUtil.addTenantDomainToEntry(newUsers[i], tenant);
+            fullyQualifiedName = UserCoreUtil.addDomainToName(nameWithTenant, userStoreDomain);
+            entities[i + 1] = new Entity(fullyQualifiedName, UserStoreWFConstants.ENTITY_TYPE_USER);
+        }
+        for (int i = 0; i < deletedUsers.length; i++) {
+            nameWithTenant = UserCoreUtil.addTenantDomainToEntry(deletedUsers[i], tenant);
+            fullyQualifiedName = UserCoreUtil.addDomainToName(nameWithTenant, userStoreDomain);
+            entities[i + newUsers.length + 1] = new Entity(fullyQualifiedName, UserStoreWFConstants.ENTITY_TYPE_USER);
+        }
+        if (workflowService.eventEngagedWithWorkflows(UserStoreWFConstants.UPDATE_ROLE_USERS_EVENT) && !Boolean.TRUE
+                .equals(getWorkFlowCompleted()) && !isValidOperation(entities)) {
+            throw new WorkflowException("Operation is not valid.");
+        }
         boolean state = startWorkFlow(wfParams, nonWfParams, uuid);
 
         //WF_REQUEST_ENTITY_RELATIONSHIP table has foreign key to WF_REQUEST, so need to run this after WF_REQUEST is
         // updated
         if (!Boolean.TRUE.equals(getWorkFlowCompleted()) && !state) {
-            Entity[] entities = new Entity[deletedUsers.length + newUsers.length + 1];
-            entities[0] = new Entity(fullyQualifiedName, UserStoreWFConstants.ENTITY_TYPE_ROLE);
-            for (int i = 0; i < newUsers.length; i++) {
-                nameWithTenant = UserCoreUtil.addTenantDomainToEntry(newUsers[i], tenant);
-                fullyQualifiedName = UserCoreUtil.addDomainToName(nameWithTenant, userStoreDomain);
-                entities[i + 1] = new Entity(fullyQualifiedName, UserStoreWFConstants.ENTITY_TYPE_USER);
-            }
-            for (int i = 0; i < deletedUsers.length; i++) {
-                nameWithTenant = UserCoreUtil.addTenantDomainToEntry(deletedUsers[i], tenant);
-                fullyQualifiedName = UserCoreUtil.addDomainToName(nameWithTenant, userStoreDomain);
-                entities[i + newUsers.length + 1] = new Entity(fullyQualifiedName, UserStoreWFConstants.ENTITY_TYPE_USER);
-            }
             try {
                 workflowService.addRequestEntityRelationships(uuid, entities);
             } catch (InternalWorkflowException e) {
-                //Ignore exception which occurs at DB level since no workflows associated with event
-                log.info("No workflow associated with the operation.");
+                //debug exception which occurs at DB level since no workflows associated with event
+                if (log.isDebugEnabled()) {
+                    log.debug("No workflow associated with the operation.", e);
+                }
             }
         }
         return state;
@@ -189,5 +195,32 @@ public class UpdateRoleUsersWFRequestHandler extends AbstractWorkflowRequestHand
                                 status);
             }
         }
+    }
+
+    @Override
+    public boolean isValidOperation(Entity[] entities) throws WorkflowException {
+
+        WorkflowService workflowService = IdentityWorkflowDataHolder.getInstance().getWorkflowService();
+        for (int i = 0; i < entities.length; i++) {
+            try {
+                if (entities[i].getEntityType() == UserStoreWFConstants.ENTITY_TYPE_USER && workflowService
+                        .entityHasPendingWorkflowsOfType(entities[i], UserStoreWFConstants.DELETE_USER_EVENT)) {
+
+                    throw new WorkflowException("One or more users assigned has pending workflows which " +
+                            "blocks this operation.");
+                } else if (entities[i].getEntityType() == UserStoreWFConstants.ENTITY_TYPE_ROLE && (workflowService
+                        .entityHasPendingWorkflowsOfType(entities[i], UserStoreWFConstants.DELETE_ROLE_EVENT) ||
+                        workflowService
+                                .entityHasPendingWorkflowsOfType(entities[i], UserStoreWFConstants
+                                        .UPDATE_ROLE_NAME_EVENT))) {
+
+                    throw new WorkflowException("Role has a pending delete or rename operation which blocks this " +
+                            "operation.");
+                }
+            } catch (InternalWorkflowException e) {
+                throw new WorkflowException(e.getMessage(), e);
+            }
+        }
+        return true;
     }
 }

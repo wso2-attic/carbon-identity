@@ -22,13 +22,22 @@ import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
 import org.wso2.carbon.identity.workflow.mgt.bean.Entity;
 import org.wso2.carbon.identity.workflow.mgt.exception.InternalWorkflowException;
+import org.wso2.carbon.identity.workflow.mgt.util.WorkflowRequestStatus;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class RequestEntityRelationshipDAO {
 
+    /**
+     * Add a new relationship between a workflow request and an entity.
+     *
+     * @param entity
+     * @param uuid
+     * @throws InternalWorkflowException
+     */
     public void addRelationship(Entity entity, String uuid) throws InternalWorkflowException {
 
         Connection connection = null;
@@ -51,6 +60,12 @@ public class RequestEntityRelationshipDAO {
         }
     }
 
+    /**
+     * Delete existing relationship between a Workflow request and and entity.
+     *
+     * @param uuid
+     * @throws InternalWorkflowException
+     */
     public void deleteRelationshipsOfRequest(String uuid) throws InternalWorkflowException {
 
         Connection connection = null;
@@ -69,6 +84,114 @@ public class RequestEntityRelationshipDAO {
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
         }
+    }
+
+    /**
+     * Check if a given entity has any pending workflow requests associated with it.
+     *
+     * @param entity
+     * @return
+     * @throws InternalWorkflowException
+     */
+    public boolean entityHasPendingWorkflows(Entity entity) throws InternalWorkflowException {
+
+        Connection connection = null;
+        PreparedStatement prepStmt = null;
+        String query = SQLConstants.GET_PENDING_RELATIONSHIPS_OF_ENTITY;
+        ResultSet resultSet;
+        try {
+            connection = IdentityDatabaseUtil.getDBConnection();
+            prepStmt = connection.prepareStatement(query);
+            prepStmt.setString(1, entity.getEntityType());
+            prepStmt.setString(2, entity.getEntityId());
+            prepStmt.setString(3, WorkflowRequestStatus.PENDING.toString());
+            resultSet = prepStmt.executeQuery();
+            if (resultSet.next()) {
+                return true;
+            }
+            connection.commit();
+        } catch (IdentityException e) {
+            throw new InternalWorkflowException("Error when connecting to the Identity Database.", e);
+        } catch (SQLException e) {
+            throw new InternalWorkflowException("Error when executing the sql query", e);
+        } finally {
+            IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
+        }
+        return false;
+    }
+
+    /**
+     * Check if a given entity as any pending workflows of a given type associated with it.
+     *
+     * @param entity
+     * @param requsetType
+     * @return
+     * @throws InternalWorkflowException
+     */
+    public boolean entityHasPendingWorkflowsOfType(Entity entity, String requsetType) throws
+            InternalWorkflowException {
+
+        Connection connection = null;
+        PreparedStatement prepStmt = null;
+        String query = SQLConstants.GET_PENDING_RELATIONSHIPS_OF_GIVEN_TYPE_FOR_ENTITY;
+        ResultSet resultSet;
+        try {
+            connection = IdentityDatabaseUtil.getDBConnection();
+            prepStmt = connection.prepareStatement(query);
+            prepStmt.setString(1, entity.getEntityType());
+            prepStmt.setString(2, entity.getEntityId());
+            prepStmt.setString(3, WorkflowRequestStatus.PENDING.toString());
+            prepStmt.setString(4, requsetType);
+            resultSet = prepStmt.executeQuery();
+            if (resultSet.next()) {
+                return true;
+            }
+            connection.commit();
+        } catch (IdentityException e) {
+            throw new InternalWorkflowException("Error when connecting to the Identity Database.", e);
+        } catch (SQLException e) {
+            throw new InternalWorkflowException("Error when executing the sql query", e);
+        } finally {
+            IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
+        }
+        return false;
+    }
+
+    /**
+     * Check if there are any requests the associated with both entities.
+     *
+     * @param entity1
+     * @param entity2
+     * @return
+     * @throws InternalWorkflowException
+     */
+    public boolean twoEntitiesAreRelated(Entity entity1, Entity entity2) throws InternalWorkflowException {
+
+        Connection connection = null;
+        PreparedStatement prepStmt = null;
+        String query = SQLConstants.GET_REQUESTS_OF_TWO_ENTITIES;
+        ResultSet resultSet;
+        try {
+            connection = IdentityDatabaseUtil.getDBConnection();
+            prepStmt = connection.prepareStatement(query);
+            prepStmt.setString(1, entity1.getEntityId());
+            prepStmt.setString(2, entity1.getEntityType());
+            prepStmt.setString(3, entity2.getEntityId());
+            prepStmt.setString(4, entity2.getEntityType());
+            resultSet = prepStmt.executeQuery();
+            if (resultSet.next()) {
+                return true;
+            }
+            connection.commit();
+        } catch (IdentityException e) {
+            throw new InternalWorkflowException("Error when connecting to the Identity Database.", e);
+        } catch (SQLException e) {
+            throw new InternalWorkflowException("Error when executing the sql query", e);
+        } finally {
+            IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
+        }
+
+        return false;
     }
 
 }

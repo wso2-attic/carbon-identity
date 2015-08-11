@@ -75,6 +75,12 @@ public class UpdateRoleNameWFRequestHandler extends AbstractWorkflowRequestHandl
         wfParams.put(NEW_ROLENAME, newRoleName);
         wfParams.put(USER_STORE_DOMAIN, userStoreDomain);
         String uuid = UUID.randomUUID().toString();
+        if (workflowService.eventEngagedWithWorkflows(UserStoreWFConstants.UPDATE_ROLE_NAME_EVENT) && !Boolean.TRUE.equals
+                (getWorkFlowCompleted()) && !isValidOperation(new Entity[]{new Entity
+                (fullyQualifiedOldName, UserStoreWFConstants.ENTITY_TYPE_ROLE), new Entity(fullyQualifiedNewName,
+                UserStoreWFConstants.ENTITY_TYPE_ROLE)})) {
+            throw new WorkflowException("Operation is not valid.");
+        }
         boolean state = startWorkFlow(wfParams, nonWfParams, uuid);
 
         //WF_REQUEST_ENTITY_RELATIONSHIP table has foreign key to WF_REQUEST, so need to run this after WF_REQUEST is
@@ -86,8 +92,10 @@ public class UpdateRoleNameWFRequestHandler extends AbstractWorkflowRequestHandl
                         UserStoreWFConstants.ENTITY_TYPE_ROLE)});
 
             } catch (InternalWorkflowException e) {
-                //Ignore exception which occurs at DB level since no workflows associated with event
-                log.info("No workflow associated with the operation.");
+                //debug exception which occurs at DB level since no workflows associated with event
+                if (log.isDebugEnabled()) {
+                    log.debug("No workflow associated with the operation.", e);
+                }
             }
         }
         return state;
@@ -163,5 +171,25 @@ public class UpdateRoleNameWFRequestHandler extends AbstractWorkflowRequestHandl
     @Override
     public String getCategory() {
         return UserStoreWFConstants.CATEGORY_USERSTORE_OPERATIONS;
+    }
+
+    @Override
+    public boolean isValidOperation(Entity[] entities) throws WorkflowException {
+
+        WorkflowService workflowService = IdentityWorkflowDataHolder.getInstance().getWorkflowService();
+        for (int i = 0; i < entities.length; i++) {
+            try {
+                if (entities[i].getEntityType() == UserStoreWFConstants.ENTITY_TYPE_ROLE && workflowService
+                        .entityHasPendingWorkflows(entities[i])) {
+
+                    throw new WorkflowException("One or more roles assigned has pending workflows which " +
+                            "blocks this operation.");
+
+                }
+            } catch (InternalWorkflowException e) {
+                throw new WorkflowException(e.getMessage(), e);
+            }
+        }
+        return true;
     }
 }

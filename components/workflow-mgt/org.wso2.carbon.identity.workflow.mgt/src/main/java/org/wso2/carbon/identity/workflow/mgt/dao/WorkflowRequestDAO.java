@@ -45,7 +45,7 @@ public class WorkflowRequestDAO {
     /**
      * Persists WorkflowRequest to be used when workflow is completed
      *
-     * @param workflow The workflow object to be persisted
+     * @param workflow    The workflow object to be persisted
      * @param currentUser Currently logged in user's fully qualified username
      * @throws WorkflowException
      */
@@ -92,11 +92,9 @@ public class WorkflowRequestDAO {
         return baos.toByteArray();
     }
 
-    public void updateWorkflowStatus(WorkFlowRequest workflowDataBean) throws InternalWorkflowException{
-    }
-
     /**
      * Retrieve workflow request specified by the given uuid
+     *
      * @param uuid The uuid of the request to be retrieved
      * @return
      * @throws WorkflowException
@@ -145,5 +143,34 @@ public class WorkflowRequestDAO {
             return (WorkFlowRequest) objectRead;
         }
         return null;
+    }
+
+    /**
+     * Update state of a existing workflow request
+     *
+     * @param requestId
+     * @param newState
+     * @throws InternalWorkflowException
+     */
+    public void updateStatusOfRequest(String requestId, String newState) throws InternalWorkflowException {
+
+        Connection connection = null;
+        PreparedStatement prepStmt = null;
+        String query = SQLConstants.UPDATE_STATUS_OF_REQUEST;
+        try {
+            connection = IdentityDatabaseUtil.getDBConnection();
+            prepStmt = connection.prepareStatement(query);
+            prepStmt.setString(1, newState);
+            prepStmt.setTimestamp(2, new Timestamp(System.currentTimeMillis()));
+            prepStmt.setString(3, requestId);
+            prepStmt.execute();
+            connection.commit();
+        } catch (IdentityException e) {
+            throw new InternalWorkflowException("Error when connecting to the Identity Database.", e);
+        } catch (SQLException e) {
+            throw new InternalWorkflowException("Error when executing the sql query:" + query, e);
+        } finally {
+            IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
+        }
     }
 }

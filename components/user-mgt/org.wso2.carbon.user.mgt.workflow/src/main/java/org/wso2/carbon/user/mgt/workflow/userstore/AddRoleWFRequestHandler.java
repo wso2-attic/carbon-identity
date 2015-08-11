@@ -92,17 +92,30 @@ public class AddRoleWFRequestHandler extends AbstractWorkflowRequestHandler {
         wfParams.put(PERMISSIONS, permissionList);
         wfParams.put(USER_LIST, Arrays.asList(userList));
         String uuid = UUID.randomUUID().toString();
+        Entity[] entities = new Entity[userList.length + 1];
+        entities[0] = new Entity(fullyQualifiedName, UserStoreWFConstants.ENTITY_TYPE_ROLE);
+        for (int i = 0; i < userList.length; i++) {
+            nameWithTenant = UserCoreUtil.addTenantDomainToEntry(userList[i], tenant);
+            fullyQualifiedName = UserCoreUtil.addDomainToName(nameWithTenant, userStoreDomain);
+            entities[i + 1] = new Entity(fullyQualifiedName, UserStoreWFConstants.ENTITY_TYPE_USER);
+        }
+        if (workflowService.eventEngagedWithWorkflows(UserStoreWFConstants.ADD_ROLE_EVENT) && !Boolean.TRUE.equals
+                (getWorkFlowCompleted()) && !isValidOperation(entities)) {
+            throw new WorkflowException("Operation is not valid");
+        }
         boolean state = startWorkFlow(wfParams, nonWfParams, uuid);
 
         //WF_REQUEST_ENTITY_RELATIONSHIP table has foreign key to WF_REQUEST, so need to run this after WF_REQUEST is
         // updated
         if (!Boolean.TRUE.equals(getWorkFlowCompleted()) && !state) {
             try {
-                workflowService.addRequestEntityRelationships(uuid, new Entity[]{new Entity(fullyQualifiedName,
-                        UserStoreWFConstants.ENTITY_TYPE_ROLE)});
+
+                workflowService.addRequestEntityRelationships(uuid, entities);
             } catch (InternalWorkflowException e) {
-                //Ignore exception which occurs at DB level since no workflows associated with event
-                log.info("No workflow associated with the operation.");
+                //debug exception which occurs at DB level since no workflows associated with event
+                if (log.isDebugEnabled()) {
+                    log.debug("No workflow associated with the operation.", e);
+                }
             }
         }
         return state;
@@ -198,4 +211,24 @@ public class AddRoleWFRequestHandler extends AbstractWorkflowRequestHandler {
             }
         }
     }
+
+    @Override
+    public boolean isValidOperation(Entity[] entities) throws WorkflowException {
+
+        WorkflowService workflowService = IdentityWorkflowDataHolder.getInstance().getWorkflowService();
+        for (int i = 0; i < entities.length; i++) {
+            try {
+                if (entities[i].getEntityType() == UserStoreWFConstants.ENTITY_TYPE_ROLE && (workflowService
+                        .entityHasPendingWorkflowsOfType(entities[i], UserStoreWFConstants.ADD_ROLE_EVENT) ||
+                        workflowService.entityHasPendingWorkflowsOfType(entities[i], UserStoreWFConstants
+                                .UPDATE_ROLE_NAME_EVENT))) {
+                    throw new WorkflowException("Rolename already exists in the system. Please pick another rolename.");
+                }
+            } catch (InternalWorkflowException e) {
+                throw new WorkflowException(e.getMessage(), e);
+            }
+        }
+        return true;
+    }
 }
+

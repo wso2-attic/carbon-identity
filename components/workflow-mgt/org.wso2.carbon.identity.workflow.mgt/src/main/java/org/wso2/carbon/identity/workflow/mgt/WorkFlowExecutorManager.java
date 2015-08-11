@@ -118,10 +118,10 @@ public class WorkFlowExecutorManager {
             if (requestHandler == null) {
                 throw new InternalWorkflowException("No request handlers registered for the id: " + eventId);
             }
-            String request_id = request.getUuid();
+            String requestId = request.getUuid();
             if (request.getTenantId() == MultitenantConstants.INVALID_TENANT_ID) {
                 throw new InternalWorkflowException(
-                        "Invalid tenant id for request " + eventId + " with id" + request_id);
+                        "Invalid tenant id for request " + eventId + " with id" + requestId);
             }
             PrivilegedCarbonContext.startTenantFlow();
             PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext
@@ -133,9 +133,11 @@ public class WorkFlowExecutorManager {
                 carbonContext.setTenantDomain(tenantDomain);
                 requestHandler.onWorkflowCompletion(status, request, additionalParams);
                 RequestEntityRelationshipDAO requestEntityRelationshipDAO = new RequestEntityRelationshipDAO();
+                WorkflowRequestDAO workflowRequestDAO = new WorkflowRequestDAO();
                 if (WorkflowRequestStatus.APPROVED.toString().equals(status) || WorkflowRequestStatus.REJECTED
                         .toString().equals(status)) {
-                    requestEntityRelationshipDAO.deleteRelationshipsOfRequest(request_id);
+                    requestEntityRelationshipDAO.deleteRelationshipsOfRequest(requestId);
+                    workflowRequestDAO.updateStatusOfRequest(requestId, status);
                 }
             } catch (WorkflowException e) {
                 throw e;
