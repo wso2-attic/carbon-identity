@@ -78,9 +78,9 @@ public class AuthenticationEndpoint extends HttpServlet {
                 loadPage = "passivests_login.do";
             } else if (request.getParameter("type").equals("oauth2") || request.getParameter("type").equals("oidc")) {
                 loadPage = "oauth2_login.do";
-            }else if (request.getParameter("type").equals("totp")) {
+            } else if (request.getParameter("type").equals("totp")) {
                 loadPage = "totp_login.do";
-            }else if (request.getParameter("type").equals("totp_error")) {
+            } else if (request.getParameter("type").equals("totp_error")) {
                 loadPage = "totp_error.do";
             }
             request.getRequestDispatcher(loadPage).forward(request, response);
