@@ -3013,30 +3013,39 @@ function doValidation() {
                         </thead>
                         <tbody>
                         <tr>
-                            <td><%String issuerDN = "";
-                                if(certData.getIssuerDN()!=null){
-                                    issuerDN=certData.getIssuerDN();
+                            <td><%
+                                String issuerDN = "";
+                                if (certData.getIssuerDN() != null) {
+                                    issuerDN = certData.getIssuerDN();
                                 }%><%=issuerDN%>
                             </td>
-                            <td><%String subjectDN = "";
-                                if(certData.getSubjectDN()!=null){
-                                subjectDN=certData.getSubjectDN();
-                                }%><%=subjectDN%>
+                            <td><%
+                                String subjectDN = "";
+                                if (certData.getSubjectDN() != null) {
+                                    subjectDN = certData.getSubjectDN();
+                                }
+                            %><%=subjectDN%>
                             </td>
-                            <td><%String notAfter = "";
-                                if(certData.getNotAfter()!=null){
-                                    notAfter=certData.getNotAfter();
-                                }%><%=notAfter%>
+                            <td><%
+                                String notAfter = "";
+                                if (certData.getNotAfter() != null) {
+                                    notAfter = certData.getNotAfter();
+                                }
+                            %><%=notAfter%>
                             </td>
-                            <td><%String notBefore = "";
-                                if(certData.getNotBefore()!=null){
-                                    notBefore=certData.getNotBefore();
-                                }%><%=notBefore%>
+                            <td><%
+                                String notBefore = "";
+                                if (certData.getNotBefore() != null) {
+                                    notBefore = certData.getNotBefore();
+                                }
+                            %><%=notBefore%>
                             </td>
-                            <td><%String serialNo = "";
-                                if(certData.getSerialNumber()!=null){
-                                    serialNo=certData.getSerialNumber().toString();
-                                }%><%=serialNo%>
+                            <td><%
+                                String serialNo = "";
+                                if (certData.getSerialNumber() != null) {
+                                    serialNo = certData.getSerialNumber().toString();
+                                }
+                            %><%=serialNo%>
                             </td>
                             <td><%=certData.getVersion()%>
                             </td>
@@ -3357,7 +3366,8 @@ function doValidation() {
                     <tr>
                         <td><input type="text" value="<%=roleMappings[i].getRemoteRole()%>" id="rolerowname_<%=i%>"
                                    name="rolerowname_<%=i%>"/></td>
-                        <td><input type="text" value="<%=roleMappings[i].getLocalRole().getUserStoreId()%>/<%=roleMappings[i].getLocalRole().getLocalRoleName()%>"
+                        <td><input type="text"
+                                   value="<%=roleMappings[i].getLocalRole().getUserStoreId()%>/<%=roleMappings[i].getLocalRole().getLocalRoleName()%>"
                                    id="localrowname_<%=i%>" name="localrowname_<%=i%>"/></td>
                         <td>
                             <a title="<fmt:message key='delete.role'/>"
