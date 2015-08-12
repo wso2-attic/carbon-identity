@@ -60,6 +60,10 @@ public class DefaultInboundUserProvisioningListener extends AbstractUserOperatio
 
     @Override
     public int getExecutionOrderId() {
+        int orderId = IdentityUtil.readEventListenerOrderIDs("UserOperationEventListener", "org.wso2.carbon.identity.provisioning.listener.DefaultInboundUserProvisioningListener");
+        if (orderId != -1) {
+            return orderId;
+        }
         return 10;
     }
 

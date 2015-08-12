@@ -20,6 +20,7 @@ package org.wso2.carbon.identity.workflow.mgt.impl.userstore;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 import org.wso2.carbon.user.api.Permission;
 import org.wso2.carbon.user.core.UserCoreConstants;
@@ -35,7 +36,11 @@ public class UserStoreActionListener extends AbstractUserOperationEventListener 
 
     @Override
     public int getExecutionOrderId() {
-        return 15;
+        int orderId = IdentityUtil.readEventListenerOrderIDs("UserOperationEventListener", "org.wso2.carbon.identity.workflow.mgt.impl.userstore.UserStoreActionListener");
+        if (orderId != -1) {
+            return orderId;
+        }
+        return 1;
     }
 
     @Override

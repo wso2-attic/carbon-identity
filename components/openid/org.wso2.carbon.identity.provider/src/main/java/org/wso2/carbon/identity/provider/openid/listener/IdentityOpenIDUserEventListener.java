@@ -21,6 +21,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.model.OpenIDUserRPDO;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.provider.openid.dao.OpenIDUserRPDAO;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
@@ -32,6 +33,10 @@ public class IdentityOpenIDUserEventListener extends AbstractUserOperationEventL
 
     @Override
     public int getExecutionOrderId() {
+        int orderId = IdentityUtil.readEventListenerOrderIDs("UserOperationEventListener", "org.wso2.carbon.identity.provider.openid.listener.IdentityOpenIDUserEventListener");
+        if (orderId != -1) {
+            return orderId;
+        }
         return 1502;
     }
 

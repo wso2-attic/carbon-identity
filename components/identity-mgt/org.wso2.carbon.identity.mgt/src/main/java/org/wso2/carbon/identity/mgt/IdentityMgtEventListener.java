@@ -135,6 +135,10 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
      */
     @Override
     public int getExecutionOrderId() {
+        int orderId = IdentityUtil.readEventListenerOrderIDs("UserOperationEventListener", "org.wso2.carbon.identity.mgt.IdentityMgtEventListener");
+        if (orderId != -1) {
+            return orderId;
+        }
         return 1357;
     }
 
