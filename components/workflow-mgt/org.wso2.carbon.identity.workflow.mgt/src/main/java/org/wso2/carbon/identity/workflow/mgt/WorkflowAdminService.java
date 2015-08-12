@@ -218,7 +218,7 @@ public class WorkflowAdminService {
      * @return
      * @throws WorkflowException
      */
-    public WorkflowRequestDTO[] getRequestsCreatedByUser (String user) throws WorkflowException {
+    public WorkflowRequestDTO[] getRequestsCreatedByUser(String user) throws WorkflowException {
 
         return service.getRequestsCreatedByUser(user);
     }
@@ -229,7 +229,7 @@ public class WorkflowAdminService {
      * @param requestId
      * @throws WorkflowException
      */
-    public void deleteWorkflowRequest (String requestId) throws WorkflowException{
+    public void deleteWorkflowRequest(String requestId) throws WorkflowException {
 
         service.updateStatusOfRequest(requestId, WorkflowRequestStatus.DELETED.toString());
     }

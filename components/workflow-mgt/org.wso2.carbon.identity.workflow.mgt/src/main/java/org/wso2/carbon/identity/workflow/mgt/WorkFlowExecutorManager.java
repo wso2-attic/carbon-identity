@@ -114,7 +114,8 @@ public class WorkFlowExecutorManager {
 
         if (request != null) {
             WorkflowRequestDAO workflowRequestDAO = new WorkflowRequestDAO();
-            if (workflowRequestDAO.retrieveStatusOfWorkflow(request.getUuid()).equals(WorkflowRequestStatus.DELETED.toString())){
+            if (workflowRequestDAO.retrieveStatusOfWorkflow(request.getUuid()).equals(WorkflowRequestStatus.DELETED
+                    .toString())) {
                 log.info("Callback received for request which is already deleted by user.");
                 return;
             }

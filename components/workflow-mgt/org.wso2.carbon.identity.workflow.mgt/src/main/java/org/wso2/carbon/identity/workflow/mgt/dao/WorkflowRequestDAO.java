@@ -209,7 +209,7 @@ public class WorkflowRequestDAO {
         }
     }
 
-    public WorkflowRequestDTO[] getRequestsOfUser (String userName) throws InternalWorkflowException{
+    public WorkflowRequestDTO[] getRequestsOfUser(String userName) throws InternalWorkflowException {
 
         Connection connection = null;
         PreparedStatement prepStmt = null;
@@ -221,7 +221,7 @@ public class WorkflowRequestDAO {
             prepStmt.setString(1, userName);
             resultSet = prepStmt.executeQuery();
             ArrayList<WorkflowRequestDTO> requestDTOs = new ArrayList<>();
-            while (resultSet.next()){
+            while (resultSet.next()) {
                 WorkflowRequestDTO requestDTO = new WorkflowRequestDTO();
                 requestDTO.setRequestId(resultSet.getString(SQLConstants.REQUEST_UUID_COLUMN));
                 requestDTO.setEventType(resultSet.getString(SQLConstants.REQUEST_OPERATION_TYPE_COLUMN));
@@ -233,7 +233,7 @@ public class WorkflowRequestDAO {
                 requestDTOs.add(requestDTO);
             }
             WorkflowRequestDTO[] requestArray = new WorkflowRequestDTO[requestDTOs.size()];
-            for (int i=0;i<requestDTOs.size();i++){
+            for (int i = 0; i < requestDTOs.size(); i++) {
                 requestArray[i] = requestDTOs.get(i);
             }
             return requestArray;

@@ -381,7 +381,7 @@ public class WorkflowService {
      * @return
      * @throws WorkflowException
      */
-    public WorkflowRequestDTO[] getRequestsCreatedByUser (String user) throws WorkflowException {
+    public WorkflowRequestDTO[] getRequestsCreatedByUser(String user) throws WorkflowException {
 
         return workflowRequestDAO.getRequestsOfUser(user);
     }
@@ -393,8 +393,8 @@ public class WorkflowService {
      * @param newState
      * @throws WorkflowException
      */
-    public void updateStatusOfRequest (String requestId, String newState) throws WorkflowException{
-        if(WorkflowRequestStatus.DELETED.toString().equals(newState)) {
+    public void updateStatusOfRequest(String requestId, String newState) throws WorkflowException {
+        if (WorkflowRequestStatus.DELETED.toString().equals(newState)) {
             workflowRequestDAO.updateStatusOfRequest(requestId, newState);
         }
         requestEntityRelationshipDAO.deleteRelationshipsOfRequest(requestId);
