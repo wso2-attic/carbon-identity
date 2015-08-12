@@ -37,7 +37,7 @@ public class UserOperationEventListenerImpl implements UserOperationEventListene
 
     private static final Log log = LogFactory.getLog(UserOperationEventListenerImpl.class);
 
-    private static final int EXEC_ORDER = 22;
+    private static final int EXEC_ORDER = 4;
 
     @Override
     public int getExecutionOrderId() {

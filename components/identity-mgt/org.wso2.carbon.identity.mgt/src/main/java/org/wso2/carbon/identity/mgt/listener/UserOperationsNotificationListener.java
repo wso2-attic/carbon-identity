@@ -51,7 +51,7 @@ public class UserOperationsNotificationListener extends AbstractUserOperationEve
         if (orderId != -1) {
             return orderId;
         }
-        return 1503;
+        return 8;
     }
 
     /**

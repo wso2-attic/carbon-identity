@@ -79,7 +79,7 @@ public class SCIMUserOperationListener implements UserOperationEventListener {
         if (orderId != -1) {
             return orderId;
         }
-        return 1;
+        return 9;
     }
 
     @Override

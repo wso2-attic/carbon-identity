@@ -37,7 +37,7 @@ public class IdentityOpenIDUserEventListener extends AbstractUserOperationEventL
         if (orderId != -1) {
             return orderId;
         }
-        return 1502;
+        return 7;
     }
 
     @Override

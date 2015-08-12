@@ -64,7 +64,7 @@ public class DefaultInboundUserProvisioningListener extends AbstractUserOperatio
         if (orderId != -1) {
             return orderId;
         }
-        return 10;
+        return 3;
     }
 
     @Override
