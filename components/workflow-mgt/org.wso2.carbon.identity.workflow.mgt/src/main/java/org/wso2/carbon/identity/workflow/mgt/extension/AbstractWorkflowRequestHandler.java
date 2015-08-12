@@ -20,6 +20,7 @@ package org.wso2.carbon.identity.workflow.mgt.extension;
 
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.identity.workflow.mgt.WorkFlowExecutorManager;
+import org.wso2.carbon.identity.workflow.mgt.bean.Entity;
 import org.wso2.carbon.identity.workflow.mgt.util.WorkflowDataType;
 import org.wso2.carbon.identity.workflow.mgt.bean.RequestParameter;
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkFlowRequest;
@@ -57,6 +58,21 @@ public abstract class AbstractWorkflowRequestHandler implements WorkflowRequestH
     public boolean startWorkFlow(Map<String, Object> wfParams, Map<String, Object> nonWfParams)
             throws WorkflowException {
 
+        return startWorkFlow(wfParams, nonWfParams, null);
+    }
+
+    /**
+     * Start a new workflow.
+     *
+     * @param wfParams
+     * @param nonWfParams
+     * @param uuid
+     * @return
+     * @throws WorkflowException
+     */
+    public boolean startWorkFlow(Map<String, Object> wfParams, Map<String, Object> nonWfParams, String uuid)
+            throws WorkflowException {
+
         if (isWorkflowCompleted()) {
             return true;
         }
@@ -70,6 +86,7 @@ public abstract class AbstractWorkflowRequestHandler implements WorkflowRequestH
         }
         workFlowRequest.setRequestParameters(parameters);
         workFlowRequest.setTenantId(CarbonContext.getThreadLocalCarbonContext().getTenantId());
+        workFlowRequest.setUuid(uuid);
         engageWorkflow(workFlowRequest);
         return false;
     }
@@ -168,7 +185,17 @@ public abstract class AbstractWorkflowRequestHandler implements WorkflowRequestH
      */
     public abstract boolean retryNeedAtCallback();
 
-    public boolean isWorkflowCompleted() {
+    /**
+     * Check if an operation engaged with a workflow valid to execute
+     *
+     * @param entities Array of entities involved in operation
+     * @return
+     */
+    public boolean isValidOperation(Entity[] entities) throws WorkflowException {
+        return true;
+    }
+
+    private boolean isWorkflowCompleted() {
 
         if (retryNeedAtCallback() && getWorkFlowCompleted() != null && getWorkFlowCompleted()) {
             unsetWorkFlowCompleted();
