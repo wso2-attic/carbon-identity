@@ -1494,7 +1494,7 @@ public class IdPManagementDAO {
                     }
                 }
             } else {
-                setBlobValue(newIdentityProvider.getCertificate(), prepStmt, 5);
+                setBlobValue(newIdentityProvider.getCertificate(), prepStmt, 4);
             }
             prepStmt.setString(5, CharacterEncoder.getSafeText(newIdentityProvider.getAlias()));
 
