@@ -20,6 +20,7 @@ package org.wso2.carbon.idp.mgt.internal;
 
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
+import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.idp.mgt.dao.CacheBackedIdPMgtDAO;
 import org.wso2.carbon.idp.mgt.dao.IdPManagementDAO;
@@ -33,10 +34,10 @@ public class UserStoreListener extends AbstractUserOperationEventListener {
 
     public int getExecutionOrderId() {
         int orderId = IdentityUtil.readEventListenerOrderIDs("UserOperationEventListener", "org.wso2.carbon.idp.mgt.internal.UserStoreListener");
-        if (orderId != -1) {
+        if (orderId != IdentityCoreConstants.EVENT_LISTENER_ORDER_ID) {
             return orderId;
         }
-        return 2;
+        return 20;
     }
 
     @Override

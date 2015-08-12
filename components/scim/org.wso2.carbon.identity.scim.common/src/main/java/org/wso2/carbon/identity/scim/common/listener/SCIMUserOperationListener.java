@@ -24,6 +24,7 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
+import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.scim.common.config.SCIMProvisioningConfigManager;
 import org.wso2.carbon.identity.scim.common.group.SCIMGroupHandler;
@@ -76,10 +77,10 @@ public class SCIMUserOperationListener implements UserOperationEventListener {
     @Override
     public int getExecutionOrderId() {
         int orderId = IdentityUtil.readEventListenerOrderIDs("UserOperationEventListener", "org.wso2.carbon.identity.scim.common.listener.SCIMUserOperationListener");
-        if (orderId != -1) {
+        if (orderId != IdentityCoreConstants.EVENT_LISTENER_ORDER_ID) {
             return orderId;
         }
-        return 9;
+        return 90;
     }
 
     @Override

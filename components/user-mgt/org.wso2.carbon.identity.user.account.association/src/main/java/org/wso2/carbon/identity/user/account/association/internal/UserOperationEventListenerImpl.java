@@ -21,6 +21,7 @@ package org.wso2.carbon.identity.user.account.association.internal;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.user.account.association.dao.UserAccountAssociationDAO;
 import org.wso2.carbon.identity.user.account.association.exception.UserAccountAssociationException;
@@ -37,12 +38,12 @@ public class UserOperationEventListenerImpl implements UserOperationEventListene
 
     private static final Log log = LogFactory.getLog(UserOperationEventListenerImpl.class);
 
-    private static final int EXEC_ORDER = 4;
+    private static final int EXEC_ORDER = 40;
 
     @Override
     public int getExecutionOrderId() {
         int orderId = IdentityUtil.readEventListenerOrderIDs("UserOperationEventListener", "org.wso2.carbon.identity.user.account.association.internal.UserOperationEventListenerImpl");
-        if (orderId != -1) {
+        if (orderId != IdentityCoreConstants.EVENT_LISTENER_ORDER_ID) {
             return orderId;
         }
         return EXEC_ORDER;

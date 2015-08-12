@@ -130,7 +130,7 @@ public class IdentityUtil {
         if (eventListenerMap != null && !eventListenerMap.isEmpty()) {
             return eventListenerMap.get(name);
         } else {
-            return -1;
+            return IdentityCoreConstants.EVENT_LISTENER_ORDER_ID;
         }
     }
 
