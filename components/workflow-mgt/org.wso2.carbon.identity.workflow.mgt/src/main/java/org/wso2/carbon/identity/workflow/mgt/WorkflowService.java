@@ -46,6 +46,7 @@ import org.wso2.carbon.identity.workflow.mgt.exception.RuntimeWorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.internal.WorkflowServiceDataHolder;
 import org.wso2.carbon.identity.workflow.mgt.util.WorkFlowConstants;
+import org.wso2.carbon.identity.workflow.mgt.util.WorkflowRequestStatus;
 
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpressionException;
@@ -393,7 +394,9 @@ public class WorkflowService {
      * @throws WorkflowException
      */
     public void updateStatusOfRequest (String requestId, String newState) throws WorkflowException{
-        workflowRequestDAO.updateStatusOfRequest(requestId,newState);
+        if(WorkflowRequestStatus.DELETED.toString().equals(newState)) {
+            workflowRequestDAO.updateStatusOfRequest(requestId, newState);
+        }
         requestEntityRelationshipDAO.deleteRelationshipsOfRequest(requestId);
     }
 }
