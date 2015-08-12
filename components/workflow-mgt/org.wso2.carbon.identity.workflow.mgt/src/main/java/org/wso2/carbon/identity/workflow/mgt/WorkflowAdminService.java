@@ -30,9 +30,12 @@ import org.wso2.carbon.identity.workflow.mgt.bean.TemplateDTO;
 import org.wso2.carbon.identity.workflow.mgt.bean.TemplateImplDTO;
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowBean;
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowEventDTO;
+import org.wso2.carbon.identity.workflow.mgt.dao.WorkflowRequestDAO;
+import org.wso2.carbon.identity.workflow.mgt.dto.WorkflowRequestDTO;
 import org.wso2.carbon.identity.workflow.mgt.exception.InternalWorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.exception.RuntimeWorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
+import org.wso2.carbon.identity.workflow.mgt.util.WorkflowRequestStatus;
 
 import java.util.List;
 import java.util.UUID;
@@ -207,4 +210,29 @@ public class WorkflowAdminService {
 
         return service.getEvent(eventId);
     }
+
+    /**
+     * Returns array of requests initiated by a user.
+     *
+     * @param user
+     * @return
+     * @throws WorkflowException
+     */
+    public WorkflowRequestDTO[] getRequestsCreatedByUser (String user) throws WorkflowException {
+
+        return service.getRequestsCreatedByUser(user);
+    }
+
+    /**
+     * Move Workflow request to DELETED state.
+     *
+     * @param requestId
+     * @throws WorkflowException
+     */
+    public void deleteWorkflowRequest (String requestId) throws WorkflowException{
+
+        service.updateStatusOfRequest(requestId, WorkflowRequestStatus.DELETED.toString());
+    }
+
+
 }

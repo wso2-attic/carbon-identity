@@ -44,6 +44,12 @@ public class SQLConstants {
     public static final String PARAM_VALUE_COLUMN = "PARAM_VALUE";
     public static final String ASSOCIATION_NAME_COLUMN = "ASSOC_NAME";
 
+    public static final String REQUEST_UUID_COLUMN = "UUID";
+    public static final String REQUEST_OPERATION_TYPE_COLUMN = "OPERATION_TYPE";
+    public static final String REQUEST_CREATED_AT_COLUMN = "CREATED_AT";
+    public static final String REQUEST_UPDATED_AT_COLUMN = "UPDATED_AT";
+    public static final String REQUEST_STATUS_COLUMN = "STATUS";
+
 
     public static final String ADD_WORKFLOW_REQUEST_QUERY = "INSERT INTO WF_REQUEST(UUID, CREATED_BY, OPERATION_TYPE," +
             " CREATED_AT, UPDATED_AT, REQUEST, STATUS) VALUES (?, ?, ?, ?, ?, ?, ?)";
@@ -125,6 +131,9 @@ public class SQLConstants {
             "WF_REQUEST_ENTITY_RELATIONSHIP AS TABLE1, WF_REQUEST_ENTITY_RELATIONSHIP AS TABLE2 WHERE TABLE1" +
             ".REQUEST_ID = TABLE2.REQUEST_ID AND TABLE1.ENTITY_NAME = ? AND TABLE1.ENTITY_TYPE= ? AND TABLE2" +
             ".ENTITY_NAME = ? AND TABLE2.ENTITY_TYPE = ? AND TABLE1.TENANT_ID = ? AND TABLE2.TENANT_ID = ?";
+
+    public static final String GET_REQUESTS_OF_USER = "SELECT UUID, OPERATION_TYPE, CREATED_AT, UPDATED_AT, STATUS, " +
+            "REQUEST FROM WF_REQUEST WHERE CREATED_BY = ?";
 
     private SQLConstants() {
 
