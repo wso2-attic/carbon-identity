@@ -1030,7 +1030,7 @@
 				<ClaimURI>birthdate</ClaimURI>
 				<DisplayName>Birth Date</DisplayName>
 				<AttributeID>birthDate</AttributeID>
-				<Description>End-User's birthday, represented as an ISO 8601:2004 [ISO8601‑2004] YYYY-MM-DD format. The year MAY be 0000, indicating that it is omitted. To represent only the year, YYYY format is allowed.</Description>
+				<Description>End-User's birthday, represented as an ISO 8601:2004 [ISO8601-2004] YYYY-MM-DD format. The year MAY be 0000, indicating that it is omitted. To represent only the year, YYYY format is allowed.</Description>
 			</Claim>
 			<Claim>
 				<ClaimURI>zoneinfo</ClaimURI>
