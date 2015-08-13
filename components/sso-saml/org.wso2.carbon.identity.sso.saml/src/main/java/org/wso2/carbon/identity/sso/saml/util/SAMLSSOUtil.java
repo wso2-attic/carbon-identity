@@ -1236,9 +1236,7 @@ public class SAMLSSOUtil {
         statusCodeList.add(status);
         Response response = respBuilder.buildResponse(null, statusCodeList, message, destination);
         String resp = SAMLSSOUtil.marshall(response);
-
         return compressResponse(resp);
-
     }
 
     /**
@@ -1249,11 +1247,15 @@ public class SAMLSSOUtil {
      * @throws IOException
      */
     public static String compressResponse(String response) throws IOException {
+
         Deflater deflater = new Deflater(Deflater.DEFLATED, true);
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         DeflaterOutputStream deflaterOutputStream = new DeflaterOutputStream(byteArrayOutputStream, deflater);
-        deflaterOutputStream.write(response.getBytes(StandardCharsets.UTF_8));
-        deflaterOutputStream.close();
-        return Base64.encodeBytes(byteArrayOutputStream.toByteArray(), Base64.DONT_BREAK_LINES);
+        try {
+            deflaterOutputStream.write(response.getBytes(StandardCharsets.UTF_8));
+            return Base64.encodeBytes(byteArrayOutputStream.toByteArray(), Base64.DONT_BREAK_LINES);
+        }finally {
+            deflaterOutputStream.close();
+        }
     }
 }
