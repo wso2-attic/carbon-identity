@@ -92,7 +92,12 @@ public class ThriftEntitlementServiceClient extends AbstractEntitlementServiceCl
         String xacmlRequest = XACMLRequetBuilder.buildXACML3Request(tempArr);
         EntitlementThriftClient.Client client = getThriftClient();
         Authenticator authenticator = getAuthenticator(serverUrl, userName, password);
-        return (getDecision(xacmlRequest, client, authenticator)).contains("Permit");
+        String decision = getDecision(xacmlRequest, client, authenticator);
+        if (decision != null) {
+            return decision.contains("Permit");
+        } else {
+            return false;
+        }
     }
 
     @Override
@@ -110,7 +115,12 @@ public class ThriftEntitlementServiceClient extends AbstractEntitlementServiceCl
         String xacmlRequest = XACMLRequetBuilder.buildXACML3Request(attrs);
         EntitlementThriftClient.Client client = getThriftClient();
         Authenticator authenticator = getAuthenticator(serverUrl, userName, password);
-        return (getDecision(xacmlRequest, client, authenticator)).contains("Permit");
+        String decision = getDecision(xacmlRequest, client, authenticator);
+        if (decision != null) {
+            return decision.contains("Permit");
+        } else {
+            return false;
+        }
     }
 
     @Override
@@ -150,11 +160,11 @@ public class ThriftEntitlementServiceClient extends AbstractEntitlementServiceCl
             }
             try {
                 return client.getDecision(xacmlRequest, authenticator.getSessionId(true));
-            } catch (Exception e1) {
-                if (log.isDebugEnabled()) {
-                    log.debug("Exception occurred : ", e1);
-                }
-                throw new EntitlementProxyException("Error while attempting to re-authenticate the Thrift client", e1);
+            } catch (TException | EntitlementException e1) {
+                throw new EntitlementProxyException("Error occurred while getting the decision from " +
+                                                    "PDP using ThriftEntitlementServiceClient", e1);
+            } catch (EntitlementProxyException e1) {
+                throw new EntitlementProxyException("Error occurred while re-authenticating the thrift client", e1);
             }
         }
     }
