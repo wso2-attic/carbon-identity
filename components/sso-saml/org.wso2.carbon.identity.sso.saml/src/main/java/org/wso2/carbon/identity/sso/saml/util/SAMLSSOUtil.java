@@ -1254,7 +1254,7 @@ public class SAMLSSOUtil {
         try {
             deflaterOutputStream.write(response.getBytes(StandardCharsets.UTF_8));
             return Base64.encodeBytes(byteArrayOutputStream.toByteArray(), Base64.DONT_BREAK_LINES);
-        }finally {
+        } finally {
             deflaterOutputStream.close();
         }
     }
