@@ -346,8 +346,8 @@ public class EndpointUtil {
     * Returns the RPInitiated Logout page url		
     * @return		
     */		
-   public static String getRpInitiatedLogoutUrl(){		
-	return CarbonUIUtil.getAdminConsoleURL("/")+"../authenticationendpoint/oauth2_logout.jsp?sessionDataKey=";		
+   public static String getRpInitiatedLogoutUrl(){
+       return CarbonUIUtil.getAdminConsoleURL("/") + "../authenticationendpoint/oauth2_logout.jsp?sessionDataKey=";
    }
 
 }

@@ -70,6 +70,8 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Cookie;
+import javax.ws.rs.core.NewCookie;
+
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -92,7 +94,7 @@ public class OAuth2AuthzEndpoint {
     @Consumes("application/x-www-form-urlencoded")
     @Produces("text/html")
     @CookieParam("statusCookie")
-    public Response authorize(@Context HttpServletRequest request,@CookieParam("statusCookie") Cookie statCookie) throws URISyntaxException {
+    public Response authorize(@Context HttpServletRequest request, @CookieParam("statusCookie") Cookie statCookie) throws URISyntaxException {
 
         // Setting super-tenant carbon context
         PrivilegedCarbonContext.startTenantFlow();
@@ -188,17 +190,15 @@ public class OAuth2AuthzEndpoint {
                         sessionDataCacheEntry.setAuthenticatedIdPs(authnResult.getAuthenticatedIdPs());
                         SessionDataCache.getInstance().addToCache(cacheKey, sessionDataCacheEntry);
                         redirectURL = doUserAuthz(request, sessionDataKeyFromLogin, sessionDataCacheEntry);
-                        if(redirectURL.contains("oauth2_consent")){
-                        return Response.status(HttpServletResponse.SC_FOUND).location(new URI(redirectURL)).build();
-                        }
-                        else{
+                        if (redirectURL.contains("oauth2_consent")) {
+                            return Response.status(HttpServletResponse.SC_FOUND).location(new URI(redirectURL)).build();
+                        } else {
                             String sessionKey = UUIDGenerator.generateUUID();
-                            if(statCookie ==null) {
-                                Cookie cookie=new Cookie(OAuthConstants.STATUSCOOKIE,sessionKey);
+                            if (statCookie == null) {
+                                Cookie cookie = new Cookie(OAuthConstants.STATUSCOOKIE, sessionKey);
                                 return Response.status(HttpServletResponse.SC_FOUND).
                                         cookie(new NewCookie(cookie)).location(new URI(redirectURL + "&session=" + cookie.getValue())).build();
-                            }
-                            else{
+                            } else {
                                 return Response.status(HttpServletResponse.SC_FOUND).
                                         cookie(new NewCookie(statCookie)).location(new URI(redirectURL + "&session=" + statCookie.getValue())).build();
                             }
@@ -339,10 +339,10 @@ public class OAuth2AuthzEndpoint {
     @Path("/")
     @Consumes("application/x-www-form-urlencoded")
     @Produces("text/html")
-    public Response authorizePost(@Context HttpServletRequest request, MultivaluedMap paramMap,@CookieParam("statusCookie") Cookie cookie2)
+    public Response authorizePost(@Context HttpServletRequest request, MultivaluedMap paramMap, @CookieParam("statusCookie") Cookie cookie2)
             throws URISyntaxException {
         HttpServletRequestWrapper httpRequest = new OAuthRequestWrapper(request, paramMap);
-        return authorize(httpRequest,cookie2);
+        return authorize(httpRequest, cookie2);
     }
 
     /**
