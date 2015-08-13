@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.carbon.identity.workflow.mgt.dto;
+package org.wso2.carbon.identity.workflow.mgt.bean;
 
 public class WorkflowRequestDTO {
 

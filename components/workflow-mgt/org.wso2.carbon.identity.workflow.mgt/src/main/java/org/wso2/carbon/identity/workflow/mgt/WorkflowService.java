@@ -35,7 +35,7 @@ import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowBean;
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowEventDTO;
 import org.wso2.carbon.identity.workflow.mgt.dao.RequestEntityRelationshipDAO;
 import org.wso2.carbon.identity.workflow.mgt.dao.WorkflowRequestDAO;
-import org.wso2.carbon.identity.workflow.mgt.dto.WorkflowRequestDTO;
+import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowRequestDTO;
 import org.wso2.carbon.identity.workflow.mgt.template.AbstractWorkflowTemplate;
 import org.wso2.carbon.identity.workflow.mgt.template.AbstractWorkflowTemplateImpl;
 import org.wso2.carbon.identity.workflow.mgt.extension.WorkflowRequestHandler;

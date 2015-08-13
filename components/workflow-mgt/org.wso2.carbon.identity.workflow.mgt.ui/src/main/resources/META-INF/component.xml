@@ -150,11 +150,11 @@
             <id>wf_request_list_menu</id>
             <i18n-key>list_requests</i18n-key>
             <i18n-bundle>org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources</i18n-bundle>
-            <parent-menu>configure_menu</parent-menu>
+            <parent-menu>monitor_menu</parent-menu>
             <link>../workflow-mgt/wf_request_list.jsp</link>
             <icon>../workflow-mgt/images/workflow.gif</icon>
-            <region>region1</region>
-            <order>5</order>
+            <region>region4</region>
+            <order>78</order>
             <style-class>manage</style-class>
             <!--TODO change icon-->
             <!--<icon>../workflow-mgt/images/claimmgt.gif</icon>-->

@@ -37,6 +37,10 @@
 <%@ page import="java.util.List" %>
 <%@ page import="java.util.Map" %>
 <%@ page import="java.util.ResourceBundle" %>
+<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.WorkflowRequestDTO" %>
+<%@ page import="org.wso2.carbon.context.CarbonContext" %>
+<%@ page import="org.wso2.carbon.user.core.util.UserCoreUtil" %>
+<%@ page import="org.wso2.carbon.context.PrivilegedCarbonContext" %>
 
 <script type="text/javascript" src="extensions/js/vui.js"></script>
 <script type="text/javascript" src="../extensions/core/js/vui.js"></script>
@@ -45,11 +49,15 @@
 <%
     //    String username = CharacterEncoder.getSafeText(request.getParameter("username"));
 
+    //String loggedUser =  CarbonContext.getThreadLocalCarbonContext().getUsername();
+    String loggedUser = (String)session.getAttribute("logged-user");
+    String tenant = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+    loggedUser = UserCoreUtil.addTenantDomainToEntry(loggedUser, tenant);
     String bundle = "org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources";
     ResourceBundle resourceBundle = ResourceBundle.getBundle(bundle, request.getLocale());
     WorkflowAdminServiceClient client;
     String forwardTo = null;
-    AssociationDTO[] associationToDisplay = new AssociationDTO[0];
+    WorkflowRequestDTO[] associationToDisplay = new WorkflowRequestDTO[0];
     String paginationValue = "region=region1";
 
     String pageNumber = CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_PAGE_NUMBER));
@@ -75,20 +83,20 @@
         client = new WorkflowAdminServiceClient(cookie, backendServerURL, configContext);
         workflowId = CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_WORKFLOW_ID));
 
-        AssociationDTO[] associations = client.listAssociationsForWorkflow(workflowId);
+        WorkflowRequestDTO[] requestList = client.getRequestsCreatedByUser(loggedUser);
 
-        if (associations == null) {
-            associations = new AssociationDTO[0];
+        if (requestList == null) {
+            requestList = new WorkflowRequestDTO[0];
         }
 
-        numberOfPages = (int) Math.ceil((double) associations.length / WorkflowUIConstants.RESULTS_PER_PAGE);
+        numberOfPages = (int) Math.ceil((double) requestList.length / WorkflowUIConstants.RESULTS_PER_PAGE);
 
         int startIndex = pageNumberInt * WorkflowUIConstants.RESULTS_PER_PAGE;
         int endIndex = (pageNumberInt + 1) * WorkflowUIConstants.RESULTS_PER_PAGE;
-        associationToDisplay = new AssociationDTO[WorkflowUIConstants.RESULTS_PER_PAGE];
+        associationToDisplay = new WorkflowRequestDTO[WorkflowUIConstants.RESULTS_PER_PAGE];
 
-        for (int i = startIndex, j = 0; i < endIndex && i < associations.length; i++, j++) {
-            associationToDisplay[j] = associations[i];
+        for (int i = startIndex, j = 0; i < endIndex && i < requestList.length; i++, j++) {
+            associationToDisplay[j] = requestList[i];
         }
 
         workflowEvents = client.listWorkflowEvents();
@@ -200,31 +208,34 @@
         <h2><fmt:message key='workflow.list'/></h2>
 
         <div id="workArea">
-            <a title="<fmt:message key='workflow.service.association.add'/>"
-               onclick="addAssociation();return false;"
-               href="#" style="background-image: url(images/add.png);" class="icon-link">
-                <fmt:message key='workflow.service.association.add'/></a>
             <table class="styledLeft" id="servicesTable">
                 <thead>
                 <tr>
-                    <th width="30%"><fmt:message key="workflow.operation.name"/></th>
+                    <th><fmt:message key="workflow.eventType"/></th>
+                    <th><fmt:message key="workflow.createdAt"/></th>
+                    <th><fmt:message key="workflow.updatedAt"/></th>
+                    <th><fmt:message key="workflow.status"/></th>
+                    <th><fmt:message key="workflow.requestParams"/></th>
                     <th><fmt:message key="actions"/></th>
                 </tr>
                 </thead>
                 <tbody>
                 <%
-                    for (AssociationDTO association : associationToDisplay) {
-                        if (association != null) {
+                    for (WorkflowRequestDTO workflowReq : associationToDisplay) {
+                        if (workflowReq != null) {
                 %>
                 <tr>
-                    <td><%=association.getEventName()%>
+                    <td><%=workflowReq.getEventType()%>
+                    </td>
+                    <td><%=workflowReq.getCreatedAt()%>
+                    </td>
+                    <td><%=workflowReq.getUpdatedAt()%>
+                    </td>
+                    <td><%=workflowReq.getStatus()%>
+                    </td>
+                    <td><%=workflowReq.getRequestParams()%>
                     </td>
                     <td>
-                        <a title="<fmt:message key='workflow.service.association.delete.title'/>"
-                           onclick="removeAssociation('<%=association.getAssociationId()%>',
-                                   '<%=association.getEventName()%>');return false;"
-                           href="#" style="background-image: url(images/delete.gif);"
-                           class="icon-link"><fmt:message key='delete'/></a>
                     </td>
                 </tr>
                 <%

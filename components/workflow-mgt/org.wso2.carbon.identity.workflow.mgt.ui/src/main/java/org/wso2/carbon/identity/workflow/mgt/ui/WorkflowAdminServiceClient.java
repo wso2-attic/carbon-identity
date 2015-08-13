@@ -24,6 +24,7 @@ import org.apache.axis2.client.ServiceClient;
 import org.apache.axis2.context.ConfigurationContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.identity.workflow.mgt.stub.bean.WorkflowRequestDTO;
 import org.wso2.carbon.identity.workflow.mgt.stub.WorkflowAdminServiceStub;
 import org.wso2.carbon.identity.workflow.mgt.stub.WorkflowAdminServiceWorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.stub.bean.AssociationDTO;
@@ -184,6 +185,17 @@ public class WorkflowAdminServiceClient {
     public WorkflowEventDTO getEvent(String id) throws RemoteException {
 
         return stub.getEvent(id);
+    }
+
+    public WorkflowRequestDTO[] getRequestsCreatedByUser (String user) throws RemoteException,
+            WorkflowAdminServiceWorkflowException {
+
+        WorkflowRequestDTO[] requestDTOs = stub.getRequestsCreatedByUser(user);
+        if (requestDTOs == null) {
+            requestDTOs = new WorkflowRequestDTO[0];
+        }
+        return requestDTOs;
+
     }
 
 }
