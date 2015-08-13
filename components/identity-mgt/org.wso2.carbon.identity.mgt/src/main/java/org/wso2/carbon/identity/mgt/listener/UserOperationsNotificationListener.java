@@ -20,6 +20,8 @@ package org.wso2.carbon.identity.mgt.listener;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.mgt.internal.IdentityMgtServiceComponent;
 import org.wso2.carbon.identity.notification.mgt.NotificationManagementException;
 import org.wso2.carbon.identity.notification.mgt.NotificationSender;
@@ -46,7 +48,11 @@ public class UserOperationsNotificationListener extends AbstractUserOperationEve
 
     @Override
     public int getExecutionOrderId() {
-        return 1503;
+        int orderId = IdentityUtil.readEventListenerOrderIDs("UserOperationEventListener", "org.wso2.carbon.identity.mgt.listener.UserOperationsNotificationListener");
+        if (orderId != IdentityCoreConstants.EVENT_LISTENER_ORDER_ID) {
+            return orderId;
+        }
+        return 80;
     }
 
     /**

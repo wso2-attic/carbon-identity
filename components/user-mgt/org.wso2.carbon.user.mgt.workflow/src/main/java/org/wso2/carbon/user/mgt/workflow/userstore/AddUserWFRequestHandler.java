@@ -93,7 +93,7 @@ public class AddUserWFRequestHandler extends AbstractWorkflowRequestHandler {
         if (claims == null) {
             claims = new HashMap<>();
         }
-        String tenant = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+        int tenant = CarbonContext.getThreadLocalCarbonContext().getTenantId();
         String fullyQualifiedName = UserCoreUtil.addDomainToName(userName, userStoreDomain);
         wfParams.put(USERNAME, userName);
         wfParams.put(USER_STORE_DOMAIN, userStoreDomain);

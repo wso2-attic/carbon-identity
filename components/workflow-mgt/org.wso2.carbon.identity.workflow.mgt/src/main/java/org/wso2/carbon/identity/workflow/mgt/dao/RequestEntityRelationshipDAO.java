@@ -51,7 +51,7 @@ public class RequestEntityRelationshipDAO {
             prepStmt.setString(1, uuid);
             prepStmt.setString(2, entity.getEntityId());
             prepStmt.setString(3, entity.getEntityType());
-            prepStmt.setString(4, entity.getTenantId());
+            prepStmt.setInt(4, entity.getTenantId());
             prepStmt.executeUpdate();
             connection.commit();
         } catch (IdentityException e) {
@@ -139,7 +139,7 @@ public class RequestEntityRelationshipDAO {
             prepStmt.setString(1, entity.getEntityType());
             prepStmt.setString(2, entity.getEntityId());
             prepStmt.setString(3, WorkflowRequestStatus.PENDING.toString());
-            prepStmt.setString(4, entity.getTenantId());
+            prepStmt.setInt(4, entity.getTenantId());
             resultSet = prepStmt.executeQuery();
             if (resultSet.next()) {
                 return true;
@@ -177,7 +177,7 @@ public class RequestEntityRelationshipDAO {
             prepStmt.setString(2, entity.getEntityId());
             prepStmt.setString(3, WorkflowRequestStatus.PENDING.toString());
             prepStmt.setString(4, requsetType);
-            prepStmt.setString(5, entity.getTenantId());
+            prepStmt.setInt(5, entity.getTenantId());
             resultSet = prepStmt.executeQuery();
             if (resultSet.next()) {
                 return true;
@@ -214,8 +214,8 @@ public class RequestEntityRelationshipDAO {
             prepStmt.setString(2, entity1.getEntityType());
             prepStmt.setString(3, entity2.getEntityId());
             prepStmt.setString(4, entity2.getEntityType());
-            prepStmt.setString(5, entity1.getTenantId());
-            prepStmt.setString(6, entity2.getTenantId());
+            prepStmt.setInt(5, entity1.getTenantId());
+            prepStmt.setInt(6, entity2.getTenantId());
             resultSet = prepStmt.executeQuery();
             if (resultSet.next()) {
                 return true;

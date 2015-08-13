@@ -78,7 +78,7 @@ public class AddRoleWFRequestHandler extends AbstractWorkflowRequestHandler {
         if (userList == null) {
             userList = new String[0];
         }
-        String tenant = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+        int tenant = CarbonContext.getThreadLocalCarbonContext().getTenantId();
         String fullyQualifiedName = UserCoreUtil.addDomainToName(role, userStoreDomain);
         List<String> permissionList = new ArrayList<>(permissions.length);
         for (int i = 0; i < permissions.length; i++) {
