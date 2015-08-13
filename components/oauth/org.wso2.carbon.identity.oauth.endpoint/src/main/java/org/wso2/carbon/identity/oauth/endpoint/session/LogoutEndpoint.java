@@ -42,7 +42,7 @@ public class LogoutEndpoint {
 
     /**
      * @param request
-     * @param logoutNotification The logout notification coming from the RP
+     * @param logoutNotification The logout notification from the RP
      * @param id_token_hint      The id_token_hint of RP
      */
     @GET
