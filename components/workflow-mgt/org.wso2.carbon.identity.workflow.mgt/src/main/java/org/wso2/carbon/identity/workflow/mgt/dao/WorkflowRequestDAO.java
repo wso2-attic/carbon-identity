@@ -22,6 +22,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
+import org.wso2.carbon.identity.workflow.mgt.dto.WorkflowRequestDTO;
 import org.wso2.carbon.identity.workflow.mgt.exception.InternalWorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.util.WorkflowRequestStatus;
@@ -37,6 +38,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 public class WorkflowRequestDAO {
 
@@ -127,6 +130,38 @@ public class WorkflowRequestDAO {
     }
 
     /**
+     * Get status of a request.
+     *
+     * @param uuid
+     * @return
+     * @throws InternalWorkflowException
+     */
+    public String retrieveStatusOfWorkflow(String uuid) throws InternalWorkflowException {
+        Connection connection = null;
+        PreparedStatement prepStmt = null;
+        ResultSet rs = null;
+
+        String query = SQLConstants.GET_WORKFLOW_REQUEST_QUERY;
+        try {
+            connection = IdentityDatabaseUtil.getDBConnection();
+            prepStmt = connection.prepareStatement(query);
+            prepStmt.setString(1, uuid);
+            rs = prepStmt.executeQuery();
+            if (rs.next()) {
+                String status = rs.getString(SQLConstants.REQUEST_STATUS_COLUMN);
+                return status;
+            }
+        } catch (IdentityException e) {
+            throw new InternalWorkflowException("Error when connecting to the Identity Database.", e);
+        } catch (SQLException e) {
+            throw new InternalWorkflowException("Error when executing the sql query:" + query, e);
+        } finally {
+            IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
+        }
+        return "";
+    }
+
+    /**
      * Deserialize the persisted Workflow request
      *
      * @param serializedData Serialized request
@@ -173,4 +208,45 @@ public class WorkflowRequestDAO {
             IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
         }
     }
+
+    public WorkflowRequestDTO[] getRequestsOfUser(String userName) throws InternalWorkflowException {
+
+        Connection connection = null;
+        PreparedStatement prepStmt = null;
+        String query = SQLConstants.GET_REQUESTS_OF_USER;
+        ResultSet resultSet;
+        try {
+            connection = IdentityDatabaseUtil.getDBConnection();
+            prepStmt = connection.prepareStatement(query);
+            prepStmt.setString(1, userName);
+            resultSet = prepStmt.executeQuery();
+            ArrayList<WorkflowRequestDTO> requestDTOs = new ArrayList<>();
+            while (resultSet.next()) {
+                WorkflowRequestDTO requestDTO = new WorkflowRequestDTO();
+                requestDTO.setRequestId(resultSet.getString(SQLConstants.REQUEST_UUID_COLUMN));
+                requestDTO.setEventType(resultSet.getString(SQLConstants.REQUEST_OPERATION_TYPE_COLUMN));
+                requestDTO.setCreatedAt(resultSet.getTimestamp(SQLConstants.REQUEST_CREATED_AT_COLUMN).toString());
+                requestDTO.setUpdatedAt(resultSet.getTimestamp(SQLConstants.REQUEST_UPDATED_AT_COLUMN).toString());
+                requestDTO.setStatus(resultSet.getString(SQLConstants.REQUEST_STATUS_COLUMN));
+                requestDTO.setRequestParams(Arrays.toString(deserializeWorkflowRequest(resultSet.getBytes(SQLConstants
+                        .REQUEST_COLUMN)).getRequestParameters().toArray()));
+                requestDTOs.add(requestDTO);
+            }
+            WorkflowRequestDTO[] requestArray = new WorkflowRequestDTO[requestDTOs.size()];
+            for (int i = 0; i < requestDTOs.size(); i++) {
+                requestArray[i] = requestDTOs.get(i);
+            }
+            return requestArray;
+        } catch (IdentityException e) {
+            throw new InternalWorkflowException("Error when connecting to the Identity Database.", e);
+        } catch (SQLException e) {
+            throw new InternalWorkflowException("Error when executing the sql query:" + query, e);
+        } catch (ClassNotFoundException | IOException e) {
+            throw new InternalWorkflowException("Error when deserializing a workflow request.", e);
+        } finally {
+            IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
+        }
+    }
+
+
 }

@@ -34,6 +34,8 @@ import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowAssociationBean;
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowBean;
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowEventDTO;
 import org.wso2.carbon.identity.workflow.mgt.dao.RequestEntityRelationshipDAO;
+import org.wso2.carbon.identity.workflow.mgt.dao.WorkflowRequestDAO;
+import org.wso2.carbon.identity.workflow.mgt.dto.WorkflowRequestDTO;
 import org.wso2.carbon.identity.workflow.mgt.template.AbstractWorkflowTemplate;
 import org.wso2.carbon.identity.workflow.mgt.template.AbstractWorkflowTemplateImpl;
 import org.wso2.carbon.identity.workflow.mgt.extension.WorkflowRequestHandler;
@@ -44,6 +46,7 @@ import org.wso2.carbon.identity.workflow.mgt.exception.RuntimeWorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.internal.WorkflowServiceDataHolder;
 import org.wso2.carbon.identity.workflow.mgt.util.WorkFlowConstants;
+import org.wso2.carbon.identity.workflow.mgt.util.WorkflowRequestStatus;
 
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpressionException;
@@ -61,6 +64,7 @@ public class WorkflowService {
     WorkflowDAO workflowDAO = new WorkflowDAO();
     BPSProfileDAO bpsProfileDAO = new BPSProfileDAO();
     RequestEntityRelationshipDAO requestEntityRelationshipDAO = new RequestEntityRelationshipDAO();
+    WorkflowRequestDAO workflowRequestDAO = new WorkflowRequestDAO();
 
     public List<WorkflowEventDTO> listWorkflowEvents() {
 
@@ -368,5 +372,31 @@ public class WorkflowService {
             return false;
         }
 
+    }
+
+    /**
+     * Returns array of requests initiated by a user.
+     *
+     * @param user
+     * @return
+     * @throws WorkflowException
+     */
+    public WorkflowRequestDTO[] getRequestsCreatedByUser(String user) throws WorkflowException {
+
+        return workflowRequestDAO.getRequestsOfUser(user);
+    }
+
+    /**
+     * Update state of a existing workflow request
+     *
+     * @param requestId
+     * @param newState
+     * @throws WorkflowException
+     */
+    public void updateStatusOfRequest(String requestId, String newState) throws WorkflowException {
+        if (WorkflowRequestStatus.DELETED.toString().equals(newState)) {
+            workflowRequestDAO.updateStatusOfRequest(requestId, newState);
+        }
+        requestEntityRelationshipDAO.deleteRelationshipsOfRequest(requestId);
     }
 }
