@@ -17,6 +17,7 @@
  */
 package org.wso2.carbon.identity.sso.saml.validators;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opensaml.common.SAMLVersion;
@@ -55,7 +56,7 @@ public class SPInitSSOAuthnRequestValidator {
             Subject subject = authnReq.getSubject();
 
             // Validate the version
-            if (!(authnReq.getVersion().equals(SAMLVersion.VERSION_20))) {
+            if (!(SAMLVersion.VERSION_20.equals(authnReq.getVersion()))) {
                 String errorResp = SAMLSSOUtil.buildErrorResponse(
                         SAMLSSOConstants.StatusCodes.VERSION_MISMATCH,
                         "Invalid SAML Version in Authentication Request. SAML Version should be equal to 2.0",
@@ -69,9 +70,9 @@ public class SPInitSSOAuthnRequestValidator {
             }
 
             // Issuer MUST NOT be null
-            if (issuer.getValue() != null) {
+            if (StringUtils.isNotBlank(issuer.getValue())) {
                 validationResponse.setIssuer(issuer.getValue());
-            } else if (issuer.getSPProvidedID() != null) {
+            } else if (StringUtils.isNotBlank(issuer.getSPProvidedID())) {
                 validationResponse.setIssuer(issuer.getSPProvidedID());
             } else {
                 validationResponse.setValid(false);
@@ -86,7 +87,7 @@ public class SPInitSSOAuthnRequestValidator {
             }
 
             // Issuer Format attribute
-            if ((issuer.getFormat() != null) &&
+            if ((StringUtils.isNotBlank(issuer.getFormat())) &&
                     !(issuer.getFormat().equals(SAMLSSOConstants.Attribute.ISSUER_FORMAT))) {
                 validationResponse.setValid(false);
                 String errorResp = SAMLSSOUtil.buildErrorResponse(
@@ -101,6 +102,7 @@ public class SPInitSSOAuthnRequestValidator {
                 return validationResponse;
             }
 
+            //TODO : REMOVE THIS UNNECESSARY CHECK
             // set the custom login page URL and ACS URL if available
             SSOServiceProviderConfigManager spConfigManager = SSOServiceProviderConfigManager.getInstance();
             SAMLSSOServiceProviderDO spDO = spConfigManager.getServiceProvider(issuer.getValue());
@@ -111,7 +113,7 @@ public class SPInitSSOAuthnRequestValidator {
             }
             // Check for a Spoofing attack
             String acsUrl = authnReq.getAssertionConsumerServiceURL();
-            if (spAcsUrl != null && acsUrl != null && !acsUrl.equals(spAcsUrl)) {
+            if ( StringUtils.isNotBlank(spAcsUrl) && StringUtils.isNotBlank(acsUrl) && !acsUrl.equals(spAcsUrl)) {
                 log.error("Invalid ACS URL value " + acsUrl + " in the AuthnRequest message from " +
                         spDO.getIssuer() + "\n" +
                         "Possibly an attempt for a spoofing attack from Provider " +

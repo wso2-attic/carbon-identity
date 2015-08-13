@@ -69,8 +69,7 @@ public class DeleteMultipleClaimsWFRequestHandler extends AbstractWorkflowReques
         WorkflowService workflowService = IdentityWorkflowDataHolder.getInstance().getWorkflowService();
 
         String tenant = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-        String nameWithTenant = UserCoreUtil.addTenantDomainToEntry(userName, tenant);
-        String fullyQualifiedName = UserCoreUtil.addDomainToName(nameWithTenant, userStoreDomain);
+        String fullyQualifiedName = UserCoreUtil.addDomainToName(userName, userStoreDomain);
 
         Map<String, Object> wfParams = new HashMap<>();
         Map<String, Object> nonWfParams = new HashMap<>();
@@ -80,21 +79,28 @@ public class DeleteMultipleClaimsWFRequestHandler extends AbstractWorkflowReques
         wfParams.put(PROFILE_NAME, profileName);
 
         String uuid = UUID.randomUUID().toString();
+        Entity[] entities = new Entity[claims.length + 1];
+        entities[0] = new Entity(fullyQualifiedName, UserStoreWFConstants.ENTITY_TYPE_USER, tenant);
+        for (int i = 0; i < claims.length; i++) {
+            entities[i + 1] = new Entity(claims[i], UserStoreWFConstants.ENTITY_TYPE_CLAIM, tenant);
+        }
+        if (workflowService.eventEngagedWithWorkflows(UserStoreWFConstants.DELETE_MULTIPLE_USER_CLAIMS_EVENT) &&
+                !Boolean.TRUE.equals(getWorkFlowCompleted()) && !isValidOperation(entities)) {
+            throw new WorkflowException("Operation is not valid.");
+        }
         boolean state = startWorkFlow(wfParams, nonWfParams, uuid);
 
         //WF_REQUEST_ENTITY_RELATIONSHIP table has foreign key to WF_REQUEST, so need to run this after WF_REQUEST is
         // updated
         if (!Boolean.TRUE.equals(getWorkFlowCompleted()) && !state) {
-            Entity[] entities = new Entity[claims.length + 1];
-            entities[0] = new Entity(fullyQualifiedName, "USER");
-            for (int i = 0; i < claims.length; i++) {
-                entities[i + 1] = new Entity(claims[i], "CLAIM");
-            }
+
             try {
                 workflowService.addRequestEntityRelationships(uuid, entities);
             } catch (InternalWorkflowException e) {
-                //Ignore exception which occurs at DB level since no workflows associated with event
-                log.info("No workflow associated with the operation.");
+                //debug exception which occurs at DB level since no workflows associated with event
+                if (log.isDebugEnabled()) {
+                    log.debug("No workflow associated with the operation.");
+                }
             }
         }
         return state;
@@ -171,6 +177,35 @@ public class DeleteMultipleClaimsWFRequestHandler extends AbstractWorkflowReques
     @Override
     public String getCategory() {
         return UserStoreWFConstants.CATEGORY_USERSTORE_OPERATIONS;
+    }
+
+    @Override
+    public boolean isValidOperation(Entity[] entities) throws WorkflowException {
+
+        WorkflowService workflowService = IdentityWorkflowDataHolder.getInstance().getWorkflowService();
+        for (int i = 0; i < entities.length; i++) {
+            try {
+                if (entities[i].getEntityType() == UserStoreWFConstants.ENTITY_TYPE_USER && workflowService
+                        .entityHasPendingWorkflowsOfType(entities[i], UserStoreWFConstants.DELETE_USER_EVENT)) {
+
+                    throw new WorkflowException("User has a delete operation pending.");
+                }
+                if (entities[i].getEntityType() == UserStoreWFConstants.ENTITY_TYPE_USER) {
+                    for (int j = 0; j < entities.length; j++) {
+
+                        if (entities[j].getEntityType() == UserStoreWFConstants.ENTITY_TYPE_CLAIM && workflowService
+                                .areTwoEntitiesRelated(entities[i], entities[j])) {
+
+                            throw new WorkflowException(entities[j].getEntityId() + " of user is already in a " +
+                                    "workflow to delete or update.");
+                        }
+                    }
+                }
+            } catch (InternalWorkflowException e) {
+                throw new WorkflowException(e.getMessage(), e);
+            }
+        }
+        return true;
     }
 
 }

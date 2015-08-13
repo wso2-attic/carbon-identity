@@ -209,7 +209,7 @@
                 <tr>
                     <td style="width:20%"><%=sp.getIssuer()%>
                     </td>
-                    <td><%=sp.getAssertionConsumerUrl()%>
+                    <td><%=sp.getDefaultAssertionConsumerUrl()%>
                     </td>
                     <td style="width:10%"><%=sp.getCertAlias() == null ? "" : sp.getCertAlias()%>
                     </td>

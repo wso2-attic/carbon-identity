@@ -23,7 +23,7 @@
     <parent>
         <artifactId>identity-workflow-mgt</artifactId>
         <groupId>org.wso2.carbon.identity</groupId>
-        <version>4.5.4-SNAPSHOT</version>
+        <version>4.5.5-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -77,40 +77,40 @@
                             org.wso2.carbon.identity.workflow.mgt.internal,
                         </Private-Package>
                         <Import-Package>
+                            javax.activation; version="${javax.activation.import.pkg.version}",
                             javax.xml.xpath,
-                            org.apache.axiom.om;version="${axiom.osgi.version.range}",
-                            org.apache.axiom.om.xpath;version="${axiom.osgi.version.range}",
-                            org.apache.axis2;version="${axis2.osgi.version.range}",
-                            org.apache.axis2.addressing;version="${axis2.osgi.version.range}",
-                            org.apache.axis2.client;version="${axis2.osgi.version.range}",
-                            org.apache.axis2.context;version="${axis2.osgi.version.range}",
-                            org.apache.axis2.description;version="${axis2.osgi.version.range}",
-                            org.apache.axis2.transport.http;version="${axis2.osgi.version.range}",
-                            org.apache.commons.lang;version="${commons-lang.wso2.osgi.version.range}",
-                            org.apache.commons.logging;version="${commons-logging.osgi.version.range}",
-                            org.apache.commons.collections;version="${commons-collections.wso2.osgi.version.range}",
-                            org.jaxen,
-                            org.osgi.framework;version="${osgi.framework.imp.pkg.version.range}",
-                            org.osgi.service.component;version="${osgi.service.component.imp.pkg.version.range}",
-                            org.wso2.carbon.context;version="${carbon.kernel.package.import.version.range}",
-                            org.wso2.carbon.identity.base;version="${carbon.identity.package.import.version.range}",
-                            org.wso2.carbon.identity.core.util;version="${carbon.identity.package.import.version.range}",
-                            org.wso2.carbon.user.core.service;version="${carbon.kernel.package.import.version.range}",
-                            org.wso2.carbon.utils;version="${carbon.kernel.package.import.version.range}",
-                            javax.activation;version="0.0.0",
-                            org.apache.commons.io;version="${commons.io.wso2.osgi.version.range}",
-                            org.wso2.carbon.base;version="${carbon.base.imp.pkg.version.range}",
-                            org.wso2.carbon.bpel.stub.upload,
-                            org.wso2.carbon.bpel.stub.upload.types,
-                            org.wso2.carbon.humantask.stub.upload,
-                            org.wso2.carbon.humantask.stub.upload.types,
-                            org.wso2.carbon.user.api;version="${carbon.user.api.imp.pkg.version.range}",
-                            org.wso2.carbon.user.core.tenant;version="${carbon.kernel.package.import.version.range}",
-                            org.wso2.carbon.user.core.util;version="${carbon.kernel.package.import.version.range}"
+                            org.apache.axiom.om; version="${axiom.osgi.version.range}",
+                            org.apache.axiom.om.xpath; version="${axiom.osgi.version.range}",
+                            org.apache.axis2; version="${axis2.osgi.version.range}",
+                            org.apache.axis2.addressing; version="${axis2.osgi.version.range}",
+                            org.apache.axis2.client; version="${axis2.osgi.version.range}",
+                            org.apache.axis2.context; version="${axis2.osgi.version.range}",
+                            org.apache.axis2.description; version="${axis2.osgi.version.range}",
+                            org.apache.axis2.transport.http; version="${axis2.osgi.version.range}",
+                            org.apache.commons.collections; version="${commons-collections.wso2.osgi.version.range}",
+                            org.apache.commons.io; version="${commons.io.wso2.osgi.version.range}",
+                            org.apache.commons.lang; version="${commons-lang.wso2.osgi.version.range}",
+                            org.apache.commons.logging; version="${commons-logging.osgi.version.range}",
+                            org.jaxen; version="${axiom.org.jaxen.imp.pkg.version.range}",
+                            org.osgi.framework; version="${osgi.framework.imp.pkg.version.range}",
+                            org.osgi.service.component; version="${osgi.service.component.imp.pkg.version.range}",
+                            org.wso2.carbon.base; version="${carbon.base.imp.pkg.version.range}",
+                            org.wso2.carbon.bpel.stub.upload; version="${carbon.identity.package.import.version.range}",
+                            org.wso2.carbon.bpel.stub.upload.types; version="${carbon.identity.package.import.version.range}",
+                            org.wso2.carbon.context; version="${carbon.kernel.package.import.version.range}",
+                            org.wso2.carbon.humantask.stub.upload; version="${carbon.identity.package.import.version.range}",
+                            org.wso2.carbon.humantask.stub.upload.types; version="${carbon.identity.package.import.version.range}",
+                            org.wso2.carbon.identity.base; version="${carbon.identity.package.import.version.range}",
+                            org.wso2.carbon.identity.core.util; version="${carbon.identity.package.import.version.range}",
+                            org.wso2.carbon.user.api; version="${carbon.user.api.imp.pkg.version.range}",
+                            org.wso2.carbon.user.core.service; version="${carbon.kernel.package.import.version.range}",
+                            org.wso2.carbon.user.core.tenant; version="${carbon.kernel.package.import.version.range}",
+                            org.wso2.carbon.user.core.util; version="${carbon.kernel.package.import.version.range}",
+                            org.wso2.carbon.utils; version="${carbon.kernel.package.import.version.range}"
                         </Import-Package>
                         <Export-Package>
                             !org.wso2.carbon.identity.workflow.mgt.internal,
-                            org.wso2.carbon.identity.workflow.mgt.*;version="${carbon.identity.package.export.version}"
+                            org.wso2.carbon.identity.workflow.mgt.*; version="${carbon.identity.package.export.version}"
                         </Export-Package>
                     </instructions>
                 </configuration>

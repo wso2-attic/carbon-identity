@@ -21,6 +21,7 @@ package org.wso2.carbon.identity.workflow.mgt;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.identity.workflow.mgt.bean.AssociationDTO;
 import org.wso2.carbon.identity.workflow.mgt.bean.BPSProfileBean;
 import org.wso2.carbon.identity.workflow.mgt.bean.Entity;
@@ -29,6 +30,7 @@ import org.wso2.carbon.identity.workflow.mgt.bean.TemplateBean;
 import org.wso2.carbon.identity.workflow.mgt.bean.TemplateDTO;
 import org.wso2.carbon.identity.workflow.mgt.bean.TemplateImplDTO;
 import org.wso2.carbon.identity.workflow.mgt.bean.TemplateParameterDef;
+import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowAssociationBean;
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowBean;
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowEventDTO;
 import org.wso2.carbon.identity.workflow.mgt.dao.RequestEntityRelationshipDAO;
@@ -298,10 +300,73 @@ public class WorkflowService {
         return associations;
     }
 
-    public void addRequestEntityRelationships (String requestId, Entity[] entities) throws InternalWorkflowException{
+    /**
+     * Add a new relationship between a workflow request and an entity.
+     *
+     * @param requestId
+     * @param entities
+     * @throws InternalWorkflowException
+     */
+    public void addRequestEntityRelationships(String requestId, Entity[] entities) throws InternalWorkflowException {
 
-        for (int i=0;i<entities.length;i++){
+        for (int i = 0; i < entities.length; i++) {
             requestEntityRelationshipDAO.addRelationship(entities[i], requestId);
         }
+    }
+
+    /**
+     * Check if a given entity has any pending workflow requests associated with it.
+     *
+     * @param entity
+     * @return
+     * @throws InternalWorkflowException
+     */
+    public boolean entityHasPendingWorkflows(Entity entity) throws InternalWorkflowException {
+        return requestEntityRelationshipDAO.entityHasPendingWorkflows(entity);
+    }
+
+    /**
+     * Check if a given entity as any pending workflows of a given type associated with it.
+     *
+     * @param entity
+     * @param requestType
+     * @return
+     * @throws InternalWorkflowException
+     */
+    public boolean entityHasPendingWorkflowsOfType(Entity entity, String requestType) throws
+            InternalWorkflowException {
+        return requestEntityRelationshipDAO.entityHasPendingWorkflowsOfType(entity, requestType);
+    }
+
+    /**
+     * Check if there are any requests the associated with both entities.
+     *
+     * @param entity1
+     * @param entity2
+     * @return
+     * @throws InternalWorkflowException
+     */
+    public boolean areTwoEntitiesRelated(Entity entity1, Entity entity2) throws
+            InternalWorkflowException {
+        return requestEntityRelationshipDAO.twoEntitiesAreRelated(entity1, entity2);
+    }
+
+    /**
+     * Check if an operation is engaged with a workflow or not.
+     *
+     * @param eventType
+     * @return
+     * @throws InternalWorkflowException
+     */
+    public boolean eventEngagedWithWorkflows(String eventType) throws InternalWorkflowException {
+
+        List<WorkflowAssociationBean> associations = workflowDAO.getWorkflowsForRequest(eventType, CarbonContext
+                .getThreadLocalCarbonContext().getTenantId());
+        if (associations.size() > 0) {
+            return true;
+        } else {
+            return false;
+        }
+
     }
 }

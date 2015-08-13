@@ -63,13 +63,17 @@ public class DeleteUserWFRequestHandler extends AbstractWorkflowRequestHandler {
         WorkflowService workflowService = IdentityWorkflowDataHolder.getInstance().getWorkflowService();
 
         String tenant = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-        String nameWithTenant = UserCoreUtil.addTenantDomainToEntry(userName, tenant);
-        String fullyQualifiedName = UserCoreUtil.addDomainToName(nameWithTenant, userStoreDomain);
+        String fullyQualifiedName = UserCoreUtil.addDomainToName(userName, userStoreDomain);
+        Entity userEntity = new Entity(fullyQualifiedName, UserStoreWFConstants.ENTITY_TYPE_USER, tenant);
         Map<String, Object> wfParams = new HashMap<>();
         Map<String, Object> nonWfParams = new HashMap<>();
         wfParams.put(USERNAME, userName);
         wfParams.put(USER_STORE_DOMAIN, userStoreDomain);
         String uuid = UUID.randomUUID().toString();
+        if (workflowService.eventEngagedWithWorkflows(UserStoreWFConstants.DELETE_USER_EVENT) && !Boolean.TRUE.equals
+                (getWorkFlowCompleted()) && !isValidOperation(new Entity[]{userEntity})) {
+            throw new WorkflowException("Operation is not valid");
+        }
         boolean state = startWorkFlow(wfParams, nonWfParams, uuid);
 
         //WF_REQUEST_ENTITY_RELATIONSHIP table has foreign key to WF_REQUEST, so need to run this after WF_REQUEST is
@@ -77,12 +81,13 @@ public class DeleteUserWFRequestHandler extends AbstractWorkflowRequestHandler {
         if (!Boolean.TRUE.equals(getWorkFlowCompleted()) && !state) {
             //ToDo: Add thread local to handle scenarios where workflow is not associated with the event.
             try {
-                workflowService.addRequestEntityRelationships(uuid, new Entity[]{new Entity(fullyQualifiedName,
-                        "USER")});
+                workflowService.addRequestEntityRelationships(uuid, new Entity[]{userEntity});
 
             } catch (InternalWorkflowException e) {
-                //Ignore exception which occurs at DB level since no workflows associated with event
-                log.info("No workflow associated with the operation.");
+                //debug exception which occurs at DB level since no workflows associated with event
+                if (log.isDebugEnabled()) {
+                    log.debug("No workflow associated with the operation.", e);
+                }
             }
         }
 
@@ -155,6 +160,23 @@ public class DeleteUserWFRequestHandler extends AbstractWorkflowRequestHandler {
     @Override
     public String getCategory() {
         return UserStoreWFConstants.CATEGORY_USERSTORE_OPERATIONS;
+    }
+
+    @Override
+    public boolean isValidOperation(Entity[] entities) throws WorkflowException {
+
+        WorkflowService workflowService = IdentityWorkflowDataHolder.getInstance().getWorkflowService();
+        for (int i = 0; i < entities.length; i++) {
+            try {
+                if (entities[i].getEntityType() == UserStoreWFConstants.ENTITY_TYPE_USER && workflowService
+                        .entityHasPendingWorkflows(entities[i])) {
+                    throw new WorkflowException("User has pending workflows which blocks this operation.");
+                }
+            } catch (InternalWorkflowException e) {
+                throw new WorkflowException(e.getMessage(), e);
+            }
+        }
+        return true;
     }
 
 }
