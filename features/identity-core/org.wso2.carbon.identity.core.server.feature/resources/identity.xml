@@ -360,4 +360,10 @@
     <Provisioning>
         <EnableDefaultInboundUserProvisioningListener>true</EnableDefaultInboundUserProvisioningListener>
     </Provisioning>
+
+
+    <!--<EventListenerOrderIDs>-->
+        <!--<EventListener type="UserOperationEventListener"-->
+                       <!--name="org.wso2.carbon.identity.workflow.mgt.impl.userstore.UserStoreActionListener" orderId="1"/>-->
+    <!--</EventListenerOrderIDs>-->
 </Server>

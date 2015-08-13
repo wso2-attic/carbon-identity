@@ -20,6 +20,8 @@ package org.wso2.carbon.idp.mgt.internal;
 
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
+import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.idp.mgt.dao.CacheBackedIdPMgtDAO;
 import org.wso2.carbon.idp.mgt.dao.IdPManagementDAO;
 import org.wso2.carbon.user.core.UserStoreException;
@@ -29,6 +31,14 @@ import org.wso2.carbon.user.core.common.AbstractUserOperationEventListener;
 public class UserStoreListener extends AbstractUserOperationEventListener {
 
     private CacheBackedIdPMgtDAO dao = new CacheBackedIdPMgtDAO(new IdPManagementDAO());
+
+    public int getExecutionOrderId() {
+        int orderId = IdentityUtil.readEventListenerOrderIDs("UserOperationEventListener", "org.wso2.carbon.idp.mgt.internal.UserStoreListener");
+        if (orderId != IdentityCoreConstants.EVENT_LISTENER_ORDER_ID) {
+            return orderId;
+        }
+        return 20;
+    }
 
     @Override
     public boolean doPostUpdateRoleName(String newRoleName, String oldRoleName, UserStoreManager um) throws
