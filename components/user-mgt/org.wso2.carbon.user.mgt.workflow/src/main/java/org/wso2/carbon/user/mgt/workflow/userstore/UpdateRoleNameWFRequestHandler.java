@@ -64,7 +64,7 @@ public class UpdateRoleNameWFRequestHandler extends AbstractWorkflowRequestHandl
             WorkflowException {
 
         WorkflowService workflowService = IdentityWorkflowDataHolder.getInstance().getWorkflowService();
-        String tenant = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+        int tenant = CarbonContext.getThreadLocalCarbonContext().getTenantId();
         String fullyQualifiedOldName = UserCoreUtil.addDomainToName(roleName, userStoreDomain);
         String fullyQualifiedNewName = UserCoreUtil.addDomainToName(newRoleName, userStoreDomain);
         Map<String, Object> wfParams = new HashMap<>();
