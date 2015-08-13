@@ -89,7 +89,16 @@ public abstract class AbstractClientAuthHandler implements ClientAuthenticationH
         if (StringUtils.isEmpty(oAuth2AccessTokenReqDTO.getClientSecret()) && org.wso2.carbon.identity.oauth.common
                 .GrantType.SAML20_BEARER.toString().equals(oAuth2AccessTokenReqDTO.getGrantType()) && JavaUtils
                 .isFalseExplicitly(authConfig)) {
+            if (log.isDebugEnabled()) {
+                log.debug("Grant type : " + oAuth2AccessTokenReqDTO.getGrantType() + " " +
+                        "Strict client validation set to : " + authConfig + " Authenticating without client secret");
+            }
             return true;
+        }
+
+        if (log.isDebugEnabled()) {
+            log.debug("Grant type : " + oAuth2AccessTokenReqDTO.getGrantType() + " " +
+                    "Strict client validation set to : " + authConfig);
         }
         return false;
     }
