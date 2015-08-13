@@ -60,8 +60,16 @@ import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.*;
-import javax.ws.rs.core.*;
+import javax.ws.rs.CookieParam;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Cookie;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -84,7 +92,7 @@ public class OAuth2AuthzEndpoint {
     @Consumes("application/x-www-form-urlencoded")
     @Produces("text/html")
     @CookieParam("statusCookie")
-    public Response authorize(@Context HttpServletRequest request,@CookieParam("statusCookie") Cookie cookie2) throws URISyntaxException {
+    public Response authorize(@Context HttpServletRequest request,@CookieParam("statusCookie") Cookie statCookie) throws URISyntaxException {
 
         // Setting super-tenant carbon context
         PrivilegedCarbonContext.startTenantFlow();
@@ -185,14 +193,14 @@ public class OAuth2AuthzEndpoint {
                         }
                         else{
                             String sessionKey = UUIDGenerator.generateUUID();
-                            if(cookie2==null) {
+                            if(statCookie ==null) {
                                 Cookie cookie=new Cookie(OAuthConstants.STATUSCOOKIE,sessionKey);
                                 return Response.status(HttpServletResponse.SC_FOUND).
                                         cookie(new NewCookie(cookie)).location(new URI(redirectURL + "&session=" + cookie.getValue())).build();
                             }
                             else{
                                 return Response.status(HttpServletResponse.SC_FOUND).
-                                        cookie(new NewCookie(cookie2)).location(new URI(redirectURL + "&session=" +cookie2.getValue())).build();
+                                        cookie(new NewCookie(statCookie)).location(new URI(redirectURL + "&session=" + statCookie.getValue())).build();
                             }
                         }
                     } else {
@@ -251,14 +259,14 @@ public class OAuth2AuthzEndpoint {
                         }
                     }
                     String sessionKey = UUIDGenerator.generateUUID();
-                    if(cookie2==null) {
+                    if(statCookie ==null) {
                         Cookie cookie=new Cookie(OAuthConstants.STATUSCOOKIE,sessionKey);
                         return Response.status(HttpServletResponse.SC_FOUND).
                                 cookie(new NewCookie(cookie)).location(new URI(redirectURL + "&session=" + cookie.getValue())).build();
                     }
                     else{
                         return Response.status(HttpServletResponse.SC_FOUND).
-                                cookie(new NewCookie(cookie2)).location(new URI(redirectURL + "&session=" +cookie2.getValue())).build();
+                                cookie(new NewCookie(statCookie)).location(new URI(redirectURL + "&session=" + statCookie.getValue())).build();
                     }
                 } else {
                     String appName = sessionDataCacheEntry.getoAuth2Parameters().getApplicationName();
@@ -566,7 +574,7 @@ public class OAuth2AuthzEndpoint {
             sessionDataCacheEntryNew.setParamMap(new ConcurrentHashMap<String, String[]>(req.getParameterMap()));
         }
         SessionDataCache.getInstance().addToCache(cacheKey, sessionDataCacheEntryNew);
-        LogoutEndpoint logoutEndpoint=new LogoutEndpoint();
+        LogoutEndpoint logoutEndpoint = new LogoutEndpoint();
         logoutEndpoint.setSessionDataKey(sessionDataKey);
 
         try {
