@@ -29,12 +29,14 @@ import org.wso2.carbon.identity.application.common.model.ApplicationPermission;
 import org.wso2.carbon.identity.application.common.model.PermissionsAndRoleConfig;
 import org.wso2.carbon.identity.application.common.model.Property;
 import org.wso2.carbon.identity.application.mgt.dao.ApplicationDAO;
+import org.wso2.carbon.identity.application.mgt.internal.ApplicationManagementServiceComponentHolder;
 import org.wso2.carbon.registry.api.Collection;
 import org.wso2.carbon.registry.api.Registry;
 import org.wso2.carbon.registry.api.RegistryException;
 import org.wso2.carbon.registry.api.Resource;
 import org.wso2.carbon.registry.core.RegistryConstants;
 import org.wso2.carbon.user.api.UserStoreException;
+import org.wso2.carbon.user.api.UserStoreManager;
 import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.user.mgt.UserMgtConstants;
@@ -142,14 +144,24 @@ public class ApplicationMgtUtil {
         String roleName = UserCoreUtil.addInternalDomainName(applicationName);
         String qualifiedUsername = CarbonContext.getThreadLocalCarbonContext().getUsername();
         String[] user = {qualifiedUsername};
+        int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
+        UserStoreManager usm = null;
 
         try {
             // create a role for the application and assign the user to that role.
             if (log.isDebugEnabled()) {
-                log.debug("Creating application role : " + roleName + " and assign the user : " + Arrays.toString(user) + " to that role");
+                log.debug("Creating application role : " + roleName + " and assign the user : " + Arrays.toString(user)
+                        + " to that role");
             }
-            CarbonContext.getThreadLocalCarbonContext().getUserRealm().getUserStoreManager()
-                    .addRole(roleName, user, null);
+
+            usm = ApplicationManagementServiceComponentHolder.getInstance().getRealmService().
+                    getTenantUserRealm(tenantId).getUserStoreManager();
+            if (usm.isExistingRole(roleName)) {
+                throw new IdentityApplicationManagementException("Duplicated Internal Role");
+            } else {
+                CarbonContext.getThreadLocalCarbonContext().getUserRealm().getUserStoreManager()
+                        .addRole(roleName, user, null);
+            }
         } catch (UserStoreException e) {
             throw new IdentityApplicationManagementException("Error while creating application", e);
         }
