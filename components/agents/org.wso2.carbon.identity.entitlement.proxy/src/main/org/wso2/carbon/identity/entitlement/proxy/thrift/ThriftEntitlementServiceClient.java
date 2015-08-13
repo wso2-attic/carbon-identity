@@ -161,8 +161,8 @@ public class ThriftEntitlementServiceClient extends AbstractEntitlementServiceCl
             try {
                 return client.getDecision(xacmlRequest, authenticator.getSessionId(true));
             } catch (TException | EntitlementException e1) {
-                throw new EntitlementProxyException("Error occurred while getting the decision from " +
-                                                    "PDP using ThriftEntitlementServiceClient", e1);
+                throw new EntitlementProxyException("Error occurred while getting the decision from PDP using " +
+                                                    "ThriftEntitlementServiceClient", e1);
             } catch (EntitlementProxyException e1) {
                 throw new EntitlementProxyException("Error occurred while re-authenticating the thrift client", e1);
             }
