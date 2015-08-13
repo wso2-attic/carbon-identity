@@ -314,6 +314,14 @@ public class WorkflowService {
         }
     }
 
+    public List<String> listEntityNames(String wfOperationType, String wfStatus, String entityType) throws
+            InternalWorkflowException {
+        return requestEntityRelationshipDAO.getEntityNamesOfRequest(wfOperationType, wfStatus, entityType);
+    }
+
+
+
+
     /**
      * Check if a given entity has any pending workflow requests associated with it.
      *

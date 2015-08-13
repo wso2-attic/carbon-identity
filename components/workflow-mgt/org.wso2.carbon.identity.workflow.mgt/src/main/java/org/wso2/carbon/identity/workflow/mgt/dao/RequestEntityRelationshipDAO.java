@@ -263,4 +263,35 @@ public class RequestEntityRelationshipDAO {
         return entityNames;
     }
 
+    public List<String> getEntityNamesOfRequest(String wfOperationType, String wfStatus, String entityType)
+            throws InternalWorkflowException {
+
+        Connection connection = null;
+        PreparedStatement prepStmt = null;
+        ResultSet rs;
+        String query = SQLConstants.GET_REQUEST_ENTITY_NAMES;
+        List<String> entityNames = new ArrayList<>();
+
+        try {
+            connection = IdentityDatabaseUtil.getDBConnection();
+            prepStmt = connection.prepareStatement(query);
+            prepStmt.setString(1, wfOperationType);
+            prepStmt.setString(2, wfStatus);
+            prepStmt.setString(3, entityType);
+            rs = prepStmt.executeQuery();
+            while (rs.next()) {
+                String entityName = rs.getString(SQLConstants.ENTITY_NAME_COLUMN);
+                entityNames.add(entityName);
+            }
+
+        } catch (IdentityException e) {
+            throw new InternalWorkflowException("Error when connecting to the Identity Database.", e);
+        } catch (SQLException e) {
+            throw new InternalWorkflowException("Error when executing the sql query", e);
+        } finally {
+            IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
+        }
+        return entityNames;
+    }
+
 }
