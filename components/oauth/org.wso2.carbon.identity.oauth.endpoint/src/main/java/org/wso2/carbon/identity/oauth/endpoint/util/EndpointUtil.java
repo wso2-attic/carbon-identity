@@ -41,6 +41,7 @@ import org.wso2.carbon.identity.oauth2.model.OAuth2Parameters;
 import org.wso2.carbon.identity.oauth2.util.OAuth2Util;
 import org.wso2.carbon.identity.oidcdiscovery.OIDCProcessor;
 import org.wso2.carbon.identity.oidcdiscovery.DefaultOIDProviderRequestValidator;
+import org.wso2.carbon.identity.webfinger.WebFingerProcessor;
 import org.wso2.carbon.ui.CarbonUIUtil;
 import org.wso2.carbon.ui.util.CharacterEncoder;
 
@@ -56,6 +57,16 @@ public class EndpointUtil {
 
     private EndpointUtil() {
 
+    }
+
+    /**
+     * Returns the {@code WebFingerProcessor} instance
+     *
+     * @return
+     */
+    public static WebFingerProcessor getWebFingerService() {
+        return (WebFingerProcessor) PrivilegedCarbonContext.getThreadLocalCarbonContext().getOSGiService
+                (WebFingerProcessor.class);
     }
 
     /**

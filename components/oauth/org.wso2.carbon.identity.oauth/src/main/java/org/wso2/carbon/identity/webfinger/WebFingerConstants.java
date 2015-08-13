@@ -11,14 +11,18 @@
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the
+ * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.carbon.identity.oidcdiscovery;
+package org.wso2.carbon.identity.webfinger;
 
-public interface OIDProviderResponseBuilder {
-    public String getOIDProviderConfigString(OIDProviderConfig oidProviderConfig) throws
-            OIDCDiscoveryEndPointException;
+/**
+ * This class contains all the rel types to be used in web finger.
+ * Any such constants should be added in future implementations.
+ */
 
+public class WebFingerConstants {
+    public static final String OPENID_CONNETCT_ISSUER_REL = "http://openid.net/specs/connect/1.0/issuer";
+    //public static final int RES_
 }

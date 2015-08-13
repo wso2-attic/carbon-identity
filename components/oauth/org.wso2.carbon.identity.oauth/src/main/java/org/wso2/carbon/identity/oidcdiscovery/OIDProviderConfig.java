@@ -30,29 +30,29 @@ public class OIDProviderConfig {
     private String userinfo_endpoint;
     private String jwks_uri;
     private String registration_endpoint;
-    private String scopes_supported;
-    private String response_types_supported;
-    private String response_modes_supported;
-    private String grant_types_supported;
-    private String acr_values_supported;
-    private String subject_types_supported;
-    private String id_token_signing_alg_values_supported;
-    private String id_token_encryption_alg_values_supported;
-    private String id_token_encryption_enc_values_supported;
-    private String userinfo_signing_alg_values_supported;
-    private String userinfo_encryption_alg_values_supported;
-    private String userinfo_encryption_enc_values_supported;
-    private String request_object_signing_alg_values_supported;
-    private String request_object_encryption_alg_values_supported;
-    private String request_object_encryption_enc_values_supported;
-    private String token_endpoint_auth_methods_supported;
-    private String token_endpoint_auth_signing_alg_values_supported;
-    private String display_values_supported;
-    private String claim_types_supported;
-    private String claims_supported;
+    private String[] scopes_supported;
+    private String[] response_types_supported;
+    private String[] response_modes_supported;
+    private String[] grant_types_supported;
+    private String[] acr_values_supported;
+    private String[] subject_types_supported;
+    private String[] id_token_signing_alg_values_supported;
+    private String[] id_token_encryption_alg_values_supported;
+    private String[] id_token_encryption_enc_values_supported;
+    private String[] userinfo_signing_alg_values_supported;
+    private String[] userinfo_encryption_alg_values_supported;
+    private String[] userinfo_encryption_enc_values_supported;
+    private String[] request_object_signing_alg_values_supported;
+    private String[] request_object_encryption_alg_values_supported;
+    private String[] request_object_encryption_enc_values_supported;
+    private String[] token_endpoint_auth_methods_supported;
+    private String[] token_endpoint_auth_signing_alg_values_supported;
+    private String[] display_values_supported;
+    private String[] claim_types_supported;
+    private String[] claims_supported;
     private String service_documentation;
-    private String claims_locales_supported;
-    private String ui_locales_supported;
+    private String[] claims_locales_supported;
+    private String[] ui_locales_supported;
     private String claims_parameter_supported;
     private String request_parameter_supported;
     private String request_uri_parameter_supported;
@@ -110,163 +110,163 @@ public class OIDProviderConfig {
         this.registration_endpoint = registration_endpoint;
     }
 
-    public String getScopes_supported() {
+    public String[] getScopes_supported() {
         return scopes_supported;
     }
 
-    public void setScopes_supported(String scopes_supported) {
+    public void setScopes_supported(String[] scopes_supported) {
         this.scopes_supported = scopes_supported;
     }
 
-    public String getResponse_types_supported() {
+    public String[] getResponse_types_supported() {
         return response_types_supported;
     }
 
-    public void setResponse_types_supported(String response_types_supported) {
+    public void setResponse_types_supported(String[] response_types_supported) {
         this.response_types_supported = response_types_supported;
     }
 
-    public String getResponse_modes_supported() {
+    public String[] getResponse_modes_supported() {
         return response_modes_supported;
     }
 
-    public void setResponse_modes_supported(String response_modes_supported) {
+    public void setResponse_modes_supported(String[] response_modes_supported) {
         this.response_modes_supported = response_modes_supported;
     }
 
-    public String getGrant_types_supported() {
+    public String[] getGrant_types_supported() {
         return grant_types_supported;
     }
 
-    public void setGrant_types_supported(String grant_types_supported) {
+    public void setGrant_types_supported(String[] grant_types_supported) {
         this.grant_types_supported = grant_types_supported;
     }
 
-    public String getAcr_values_supported() {
+    public String[] getAcr_values_supported() {
         return acr_values_supported;
     }
 
-    public void setAcr_values_supported(String acr_values_supported) {
+    public void setAcr_values_supported(String[] acr_values_supported) {
         this.acr_values_supported = acr_values_supported;
     }
 
-    public String getSubject_types_supported() {
+    public String[] getSubject_types_supported() {
         return subject_types_supported;
     }
 
-    public void setSubject_types_supported(String subject_types_supported) {
+    public void setSubject_types_supported(String[] subject_types_supported) {
         this.subject_types_supported = subject_types_supported;
     }
 
-    public String getId_token_signing_alg_values_supported() {
+    public String[] getId_token_signing_alg_values_supported() {
         return id_token_signing_alg_values_supported;
     }
 
-    public void setId_token_signing_alg_values_supported(String id_token_signing_alg_values_supported) {
+    public void setId_token_signing_alg_values_supported(String[] id_token_signing_alg_values_supported) {
         this.id_token_signing_alg_values_supported = id_token_signing_alg_values_supported;
     }
 
-    public String getId_token_encryption_alg_values_supported() {
+    public String[] getId_token_encryption_alg_values_supported() {
         return id_token_encryption_alg_values_supported;
     }
 
-    public void setId_token_encryption_alg_values_supported(String id_token_encryption_alg_values_supported) {
+    public void setId_token_encryption_alg_values_supported(String[] id_token_encryption_alg_values_supported) {
         this.id_token_encryption_alg_values_supported = id_token_encryption_alg_values_supported;
     }
 
-    public String getId_token_encryption_enc_values_supported() {
+    public String[] getId_token_encryption_enc_values_supported() {
         return id_token_encryption_enc_values_supported;
     }
 
-    public void setId_token_encryption_enc_values_supported(String id_token_encryption_enc_values_supported) {
+    public void setId_token_encryption_enc_values_supported(String[] id_token_encryption_enc_values_supported) {
         this.id_token_encryption_enc_values_supported = id_token_encryption_enc_values_supported;
     }
 
-    public String getUserinfo_signing_alg_values_supported() {
+    public String[] getUserinfo_signing_alg_values_supported() {
         return userinfo_signing_alg_values_supported;
     }
 
-    public void setUserinfo_signing_alg_values_supported(String userinfo_signing_alg_values_supported) {
+    public void setUserinfo_signing_alg_values_supported(String[] userinfo_signing_alg_values_supported) {
         this.userinfo_signing_alg_values_supported = userinfo_signing_alg_values_supported;
     }
 
-    public String getUserinfo_encryption_alg_values_supported() {
+    public String[] getUserinfo_encryption_alg_values_supported() {
         return userinfo_encryption_alg_values_supported;
     }
 
-    public void setUserinfo_encryption_alg_values_supported(String userinfo_encryption_alg_values_supported) {
+    public void setUserinfo_encryption_alg_values_supported(String[] userinfo_encryption_alg_values_supported) {
         this.userinfo_encryption_alg_values_supported = userinfo_encryption_alg_values_supported;
     }
 
-    public String getUserinfo_encryption_enc_values_supported() {
+    public String[] getUserinfo_encryption_enc_values_supported() {
         return userinfo_encryption_enc_values_supported;
     }
 
-    public void setUserinfo_encryption_enc_values_supported(String userinfo_encryption_enc_values_supported) {
+    public void setUserinfo_encryption_enc_values_supported(String[] userinfo_encryption_enc_values_supported) {
         this.userinfo_encryption_enc_values_supported = userinfo_encryption_enc_values_supported;
     }
 
-    public String getRequest_object_signing_alg_values_supported() {
+    public String[] getRequest_object_signing_alg_values_supported() {
         return request_object_signing_alg_values_supported;
     }
 
-    public void setRequest_object_signing_alg_values_supported(String request_object_signing_alg_values_supported) {
+    public void setRequest_object_signing_alg_values_supported(String[] request_object_signing_alg_values_supported) {
         this.request_object_signing_alg_values_supported = request_object_signing_alg_values_supported;
     }
 
-    public String getRequest_object_encryption_alg_values_supported() {
+    public String[] getRequest_object_encryption_alg_values_supported() {
         return request_object_encryption_alg_values_supported;
     }
 
-    public void setRequest_object_encryption_alg_values_supported(String request_object_encryption_alg_values_supported) {
+    public void setRequest_object_encryption_alg_values_supported(String[] request_object_encryption_alg_values_supported) {
         this.request_object_encryption_alg_values_supported = request_object_encryption_alg_values_supported;
     }
 
-    public String getRequest_object_encryption_enc_values_supported() {
+    public String[] getRequest_object_encryption_enc_values_supported() {
         return request_object_encryption_enc_values_supported;
     }
 
-    public void setRequest_object_encryption_enc_values_supported(String request_object_encryption_enc_values_supported) {
+    public void setRequest_object_encryption_enc_values_supported(String[] request_object_encryption_enc_values_supported) {
         this.request_object_encryption_enc_values_supported = request_object_encryption_enc_values_supported;
     }
 
-    public String getToken_endpoint_auth_methods_supported() {
+    public String[] getToken_endpoint_auth_methods_supported() {
         return token_endpoint_auth_methods_supported;
     }
 
-    public void setToken_endpoint_auth_methods_supported(String token_endpoint_auth_methods_supported) {
+    public void setToken_endpoint_auth_methods_supported(String[] token_endpoint_auth_methods_supported) {
         this.token_endpoint_auth_methods_supported = token_endpoint_auth_methods_supported;
     }
 
-    public String getToken_endpoint_auth_signing_alg_values_supported() {
+    public String[] getToken_endpoint_auth_signing_alg_values_supported() {
         return token_endpoint_auth_signing_alg_values_supported;
     }
 
-    public void setToken_endpoint_auth_signing_alg_values_supported(String token_endpoint_auth_signing_alg_values_supported) {
+    public void setToken_endpoint_auth_signing_alg_values_supported(String[] token_endpoint_auth_signing_alg_values_supported) {
         this.token_endpoint_auth_signing_alg_values_supported = token_endpoint_auth_signing_alg_values_supported;
     }
 
-    public String getDisplay_values_supported() {
+    public String[] getDisplay_values_supported() {
         return display_values_supported;
     }
 
-    public void setDisplay_values_supported(String display_values_supported) {
+    public void setDisplay_values_supported(String[] display_values_supported) {
         this.display_values_supported = display_values_supported;
     }
 
-    public String getClaim_types_supported() {
+    public String[] getClaim_types_supported() {
         return claim_types_supported;
     }
 
-    public void setClaim_types_supported(String claim_types_supported) {
+    public void setClaim_types_supported(String[] claim_types_supported) {
         this.claim_types_supported = claim_types_supported;
     }
 
-    public String getClaims_supported() {
+    public String[] getClaims_supported() {
         return claims_supported;
     }
 
-    public void setClaims_supported(String claims_supported) {
+    public void setClaims_supported(String[] claims_supported) {
         this.claims_supported = claims_supported;
     }
 
@@ -278,19 +278,19 @@ public class OIDProviderConfig {
         this.service_documentation = service_documentation;
     }
 
-    public String getClaims_locales_supported() {
+    public String[] getClaims_locales_supported() {
         return claims_locales_supported;
     }
 
-    public void setClaims_locales_supported(String claims_locales_supported) {
+    public void setClaims_locales_supported(String[] claims_locales_supported) {
         this.claims_locales_supported = claims_locales_supported;
     }
 
-    public String getUi_locales_supported() {
+    public String[] getUi_locales_supported() {
         return ui_locales_supported;
     }
 
-    public void setUi_locales_supported(String ui_locales_supported) {
+    public void setUi_locales_supported(String[] ui_locales_supported) {
         this.ui_locales_supported = ui_locales_supported;
     }
 

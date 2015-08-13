@@ -15,10 +15,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.carbon.identity.oidcdiscovery;
+package org.wso2.carbon.identity.webfinger;
 
-public interface OIDProviderResponseBuilder {
-    public String getOIDProviderConfigString(OIDProviderConfig oidProviderConfig) throws
-            OIDCDiscoveryEndPointException;
-
+public class DefaultWebFingerRequestValidator implements WebFingerRequestValidator {
+    @Override
+    public WebFingerRequest validateRequest(MessageContext context) throws WebFingerEndPointException {
+        return null;
+    }
+    private void normalizeResource(WebFingerRequest webFingerRequest) throws WebFingerEndPointException{
+        //set the host and userinfo of webfinger request
+    }
 }

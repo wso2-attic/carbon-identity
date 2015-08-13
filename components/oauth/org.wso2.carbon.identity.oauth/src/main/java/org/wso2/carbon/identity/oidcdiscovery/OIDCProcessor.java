@@ -105,11 +105,16 @@ public class OIDCProcessor {
         }
         return  HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
     }
-
+    /**
+    * This method sets all the configuration parameters accordingly.
+     *Use this method to assign newly introduced parameters.
+    * */
     private void setParmaters(OIDProviderConfig providerConfig,OMElement oidcTenantConfig){
 
         providerConfig.setIssuer(oidcTenantConfig.getFirstChildWithName(getQNameWithIdentityNS(DiscoveryConstants
                 .ISSUER)).getText());
+        providerConfig.setAuthorization_endpoint((oidcTenantConfig.getFirstChildWithName(getQNameWithIdentityNS(DiscoveryConstants
+                .AUTHORIZATION_ENDPOINT)).getText()));
 
     }
     private QName getQNameWithIdentityNS(String localPart) {

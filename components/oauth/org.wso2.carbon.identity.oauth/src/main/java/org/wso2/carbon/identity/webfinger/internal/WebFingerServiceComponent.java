@@ -15,22 +15,23 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.carbon.identity.oidcdiscovery.internal;
+package org.wso2.carbon.identity.webfinger.internal;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.ComponentContext;
-import org.wso2.carbon.identity.oidcdiscovery.DefaultOIDProviderRequestValidator;
-import org.wso2.carbon.identity.oidcdiscovery.OIDCProcessor;
+import org.wso2.carbon.identity.webfinger.WebFingerProcessor;
+import org.wso2.carbon.utils.ConfigurationContextService;
 /**
- * @scr.component name="identity.oidcdiscovery.component" immediate="true"
+ * @scr.component name="identity.webfinger.component" immediate="true"
  */
-public class OIDCDiscoveryServiceComponent {
-    private static Log log = LogFactory.getLog(OIDCDiscoveryServiceComponent.class);
+public class WebFingerServiceComponent {
+    private static Log log = LogFactory.getLog(WebFingerServiceComponent.class);
     private static BundleContext bundleContext = null;
+    private static ConfigurationContextService configurationContextService = null;
 
-    public OIDCDiscoveryServiceComponent() {
+    public WebFingerServiceComponent() {
     }
 
     public static BundleContext getBundleContext() {
@@ -41,15 +42,13 @@ public class OIDCDiscoveryServiceComponent {
      * @param context
      */
     protected void activate(ComponentContext context) {
-        //Registering OAuth2Service as a OSGIService
         bundleContext = context.getBundleContext();
-        bundleContext.registerService(OIDCProcessor.class.getName(), OIDCProcessor.getInstance(), null);
-        bundleContext.registerService(DefaultOIDProviderRequestValidator.class.getName(),new DefaultOIDProviderRequestValidator(),null);
+        bundleContext.registerService(WebFingerProcessor.class.getName(), WebFingerProcessor.getInstance(), null);
+        //bundleContext.registerService(DefaultOIDProviderRequestValidator.class.getName(),new DefaultOIDProviderRequestValidator(),null);
         // exposing server configuration as a service
         if (log.isDebugEnabled()) {
-            log.debug("Identity OIDCDiscovery bundle is activated");
+            log.debug("OpenID WebFinger bundle is activated");
         }
 
     }
-
 }
