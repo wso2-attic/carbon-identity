@@ -78,6 +78,7 @@ public class IdentityUtil {
             'V', 'W', 'X', 'Y', 'Z'};
     private static Log log = LogFactory.getLog(IdentityUtil.class);
     private static Map<String, Object> configuration = new HashMap<String, Object>();
+    private static Map<String, Map<String, Integer>> eventListenerOrderIds = new HashMap<>();
     private static Document importerDoc = null;
     private static ThreadLocal<IdentityErrorMsgContext> IdentityError = new ThreadLocal<IdentityErrorMsgContext>();
     private static final String SECURITY_MANAGER_PROPERTY = Constants.XERCES_PROPERTY_PREFIX +
@@ -124,8 +125,18 @@ public class IdentityUtil {
         return (String) value;
     }
 
+    public static int readEventListenerOrderIDs(String type, String name) {
+        Map<String, Integer> eventListenerMap = eventListenerOrderIds.get(type);
+        if (eventListenerMap != null && !eventListenerMap.isEmpty()) {
+            return eventListenerMap.get(name);
+        } else {
+            return IdentityCoreConstants.EVENT_LISTENER_ORDER_ID;
+        }
+    }
+
     public static void populateProperties() throws ServerConfigurationException {
         configuration = IdentityConfigParser.getInstance().getConfiguration();
+        eventListenerOrderIds = IdentityConfigParser.getInstance().getEventListenerOrderIds();
     }
 
     public static String getPPIDDisplayValue(String value) throws Exception {

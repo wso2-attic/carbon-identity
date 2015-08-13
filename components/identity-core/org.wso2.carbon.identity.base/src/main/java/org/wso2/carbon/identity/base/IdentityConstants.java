@@ -88,6 +88,14 @@ public class IdentityConstants {
     public final static String IDENTITY_DEFAULT_ROLE = "identity";
     public final static String DEFAULT_SUPER_TENAT = "identity.cloud.wso2.com";
     public static String PPID_DISPLAY_VALUE = "Private personal identifier";
+
+    //Event Listeners attributes
+    public final static String EVENT_LISTENER_TYPE = "type";
+    public final static String EVENT_LISTENER_NAME = "name";
+    public final static String EVENT_LISTENER_ORDER = "orderId";
+    public final static String EVENT_LISTENER_ORDER_IDS = "EventListenerOrderIDs";
+    public final static String EVENT_LISTENER = "EventListener";
+
     private IdentityConstants() {
     }
 
