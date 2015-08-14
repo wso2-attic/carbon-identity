@@ -158,7 +158,8 @@ public class SCIMUserManager implements UserManager {
 
                 if (log.isDebugEnabled()) {
                     log.debug("This instance is operating in dumb mode. " +
-                              "Hence, operation is not persisted, it will only be provisioned.");
+                              "Hence, operation is not persisted, it will only be provisioned."
+                                + "provisioned user : " + user.getUserName());
                 }
                 this.provisionSCIMOperation(SCIMConstants.POST, user, SCIMConstants.USER_INT, null);
 
@@ -191,10 +192,8 @@ public class SCIMUserManager implements UserManager {
 
             }
         } catch (UserStoreException e) {
-            String errMsg = e.getMessage()+ " ";
-            errMsg += "Error in adding the user: " + user.getUserName() +
-                    " to the user store..";
-            throw new CharonException(errMsg,e);
+            String errMsg = "Error in adding the user: " + user.getUserName() + " to the user store..";
+            throw new CharonException(errMsg, e);
         } finally {
             PrivilegedCarbonContext.endTenantFlow();
         }

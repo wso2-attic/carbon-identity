@@ -64,8 +64,7 @@ public class EntitlementEngineCache {
 
     private Cache<Integer, EntitlementEngine> getEntitlementCache() {
         Cache<Integer, EntitlementEngine> cache;
-        CacheManager cacheManager = Caching.getCacheManagerFactory().
-                getCacheManager(ENTITLEMENT_ENGINE_CACHE_MANAGER);
+        CacheManager cacheManager = Caching.getCacheManagerFactory().getCacheManager(ENTITLEMENT_ENGINE_CACHE_MANAGER);
         if (cacheManager != null) {
             if (cacheBuilder == null) {
                 Properties properties = EntitlementServiceComponent.getEntitlementConfig().getEngineProperties();
