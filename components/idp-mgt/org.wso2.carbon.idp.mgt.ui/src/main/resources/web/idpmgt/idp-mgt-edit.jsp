@@ -40,7 +40,7 @@
 <%@ page import="java.util.List" %>
 <%@ page import="java.util.Map" %>
 <%@ page import="org.apache.commons.lang.StringUtils" %>
-<%@ page import="java.math.BigInteger" %>
+<%@ page import="org.wso2.carbon.user.core.util.UserCoreUtil" %>
 <link href="css/idpmgt.css" rel="stylesheet" type="text/css" media="all"/>
 
 <carbon:breadcrumb label="identity.providers" resourceBundle="org.wso2.carbon.idp.mgt.ui.i18n.Resources"
@@ -3013,40 +3013,15 @@ function doValidation() {
                         </thead>
                         <tbody>
                         <tr>
-                            <td><%
-                                String issuerDN = "";
-                                if (certData.getIssuerDN() != null) {
-                                    issuerDN = certData.getIssuerDN();
-                                }
-                            %><%=issuerDN%>
+                            <td><%=certData.getIssuerDN()%>
                             </td>
-                            <td><%
-                                String subjectDN = "";
-                                if (certData.getSubjectDN() != null) {
-                                    subjectDN = certData.getSubjectDN();
-                                }
-                            %><%=subjectDN%>
+                            <td><%=certData.getSubjectDN()%>
                             </td>
-                            <td><%
-                                String notAfter = "";
-                                if (certData.getNotAfter() != null) {
-                                    notAfter = certData.getNotAfter();
-                                }
-                            %><%=notAfter%>
+                            <td><%=certData.getNotAfter()%>
                             </td>
-                            <td><%
-                                String notBefore = "";
-                                if (certData.getNotBefore() != null) {
-                                    notBefore = certData.getNotBefore();
-                                }
-                            %><%=notBefore%>
+                            <td><%=certData.getNotBefore()%>
                             </td>
-                            <td><%
-                                String serialNo = "";
-                                if (certData.getSerialNumber() != null) {
-                                    serialNo = certData.getSerialNumber().toString();
-                                }
-                            %><%=serialNo%>
+                            <td><%=certData.getSerialNumber()%>
                             </td>
                             <td><%=certData.getVersion()%>
                             </td>

@@ -22,7 +22,7 @@
     <parent>
         <groupId>org.wso2.carbon.identity</groupId>
         <artifactId>openid</artifactId>
-        <version>4.5.4-SNAPSHOT</version>
+        <version>4.5.5-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -79,7 +79,7 @@
             <artifactId>axiom</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.orbit.org.openid4java</groupId>
+            <groupId>org.openid4java.wso2</groupId>
             <artifactId>openid4java-nodeps</artifactId>
         </dependency>
         <dependency>

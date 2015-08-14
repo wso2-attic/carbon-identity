@@ -21,6 +21,8 @@ package org.wso2.carbon.identity.oauth.listener;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
+import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.oauth.OAuthUtil;
 import org.wso2.carbon.identity.oauth2.IdentityOAuth2Exception;
 import org.wso2.carbon.identity.oauth2.dao.TokenMgtDAO;
@@ -44,7 +46,11 @@ public class IdentityOathEventListener extends AbstractUserOperationEventListene
      */
     @Override
     public int getExecutionOrderId() {
-        return 1501;
+        int orderId = IdentityUtil.readEventListenerOrderIDs("UserOperationEventListener", "org.wso2.carbon.identity.oauth.listener.IdentityOathEventListener");
+        if (orderId != IdentityCoreConstants.EVENT_LISTENER_ORDER_ID) {
+            return orderId;
+        }
+        return 60;
     }
 
     /**
