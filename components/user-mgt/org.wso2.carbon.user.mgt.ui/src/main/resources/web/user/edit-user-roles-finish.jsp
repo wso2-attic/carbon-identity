@@ -33,6 +33,7 @@
 <%@ page import="java.util.Map" %>
 <%@ page import="java.util.ResourceBundle" %>
 <%@ page import="java.util.Set" %>
+<%@ page import="org.apache.commons.lang.StringUtils" %>
 
 <%
     boolean logout = false;
@@ -43,6 +44,16 @@
 	ResourceBundle resourceBundle = ResourceBundle.getBundle(BUNDLE, request.getLocale());
 
 	String username = CharacterEncoder.getSafeText(request.getParameter("username"));
+    if(StringUtils.isBlank(username)){
+        String message = MessageFormat.format(resourceBundle.getString("role.list.cannot.update"), null);
+        CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
+%>
+        <script type="text/javascript">
+            location.href = "user-mgt.jsp?ordinal=1";
+        </script>
+<%
+        return;
+    }
     String disPlayName = CharacterEncoder.getSafeText(request.getParameter("disPlayName"));
     if(disPlayName == null || disPlayName.trim().length() == 0){
         disPlayName = username;
@@ -126,17 +137,11 @@
 <%
         }
     } catch (Exception e) {
-
-            String decodedUserName = "";
-            String encodedUserName = "";
-
-            if(username != null){
-                decodedUserName = Util.decodeHTMLCharacters(username);
-                encodedUserName = URLEncoder.encode(username);
-            }
-
-         String message = MessageFormat.format(resourceBundle.getString("role.list.cannot.update"), decodedUserName, e.getMessage());
-         CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
+        String decodedUserName = Util.decodeHTMLCharacters(username);
+        String encodedUserName = URLEncoder.encode(username);
+        String message = MessageFormat.format(resourceBundle.getString("role.list.cannot.update.user"),
+                decodedUserName, e.getMessage());
+        CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
         if(viewUsers){
 %>
             <script type="text/javascript">

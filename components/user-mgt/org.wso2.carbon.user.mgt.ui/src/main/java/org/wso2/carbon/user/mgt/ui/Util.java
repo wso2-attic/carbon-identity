@@ -139,6 +139,9 @@ public class Util {
     }
 
     public static String decodeHTMLCharacters(String encodedStr) {
+        if(encodedStr == null){
+            throw new IllegalArgumentException("Encoded string is \'NULL\', cannot decode it.");
+        }
         return encodedStr.replaceAll("&amp;", "&").replaceAll("&lt;", "<").replaceAll("&gt;", ">")
                 .replaceAll("&quot;", "\"").replaceAll("&apos;", "'");
     }
