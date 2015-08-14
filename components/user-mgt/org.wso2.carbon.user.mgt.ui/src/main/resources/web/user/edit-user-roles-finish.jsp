@@ -21,8 +21,7 @@
 <%@page import="org.wso2.carbon.ui.CarbonUIMessage"%>
 <%@page import="org.wso2.carbon.ui.CarbonUIUtil"%>
 <%@page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
-<%@page import="org.wso2.carbon.user.mgt.stub.types.carbon.FlaggedName" %>
-<%@ page import="org.wso2.carbon.user.mgt.ui.UserAdminClient" %>
+<%@page import="org.wso2.carbon.user.mgt.ui.UserAdminClient" %>
 <%@ page import="org.wso2.carbon.user.mgt.ui.UserAdminUIConstants" %>
 <%@ page import="org.wso2.carbon.user.mgt.ui.Util" %>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
@@ -95,7 +94,7 @@
             session.removeAttribute(UserAdminUIConstants.USER_LIST_UNASSIGNED_ROLE_CACHE);
             session.removeAttribute(UserAdminUIConstants.USER_LIST_UNASSIGNED_ROLE_CACHE_EXCEEDED);
         }
-       
+
         String message = MessageFormat.format(resourceBundle.getString("user.update"), Util.decodeHTMLCharacters(username));
         CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.INFO, request);
 
@@ -127,18 +126,27 @@
 <%
         }
     } catch (Exception e) {
-         String message = MessageFormat.format(resourceBundle.getString("role.list.cannot.update"), Util.decodeHTMLCharacters(username), e.getMessage());
+
+            String decodedUserName = "";
+            String encodedUserName = "";
+
+            if(username != null){
+                decodedUserName = Util.decodeHTMLCharacters(username);
+                encodedUserName = URLEncoder.encode(username);
+            }
+
+         String message = MessageFormat.format(resourceBundle.getString("role.list.cannot.update"), decodedUserName, e.getMessage());
          CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
         if(viewUsers){
 %>
             <script type="text/javascript">
-                location.href = "view-roles.jsp?username=<%=URLEncoder.encode(username)%>";
+                location.href = "view-roles.jsp?username=<%=encodedUserName%>";
             </script>
 <%
         } else {
 %>
             <script type="text/javascript">
-                location.href = "edit-user-roles.jsp?username=<%=URLEncoder.encode(username)%>";
+                location.href = "edit-user-roles.jsp?username=<%=encodedUserName%>";
             </script>
 <%
         }

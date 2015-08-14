@@ -30,6 +30,9 @@
     String servicePrincipleName = request.getParameter("serviceName");
     String description = request.getParameter("serviceDescription");
     String password = request.getParameter("password");
+    String spName = (String) session.getAttribute("application-sp-name");
+    session.removeAttribute("application-sp-name");
+    boolean isError = false;
 
     String forwardTo = null;
 
@@ -63,6 +66,7 @@
         forwardTo = "index.jsp";
 
     } catch (Exception e) {
+        isError = true;
         String message = MessageFormat.format(resourceBundle.getString(e.getMessage()),
                 new Object[]{servicePrincipleName});
         CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
@@ -73,10 +77,23 @@
 
 
 <%@page import="java.util.ResourceBundle" %>
-<script type="text/javascript">
-    function forward() {
-        location.href = "<%=forwardTo%>";
-    }
+<script>
+
+    <%
+    boolean qpplicationComponentFound = CarbonUIUtil.isContextRegistered(config, "/application/");
+    if (qpplicationComponentFound) {
+        if (!isError) {
+    %>
+    location.href = '../application/configure-service-provider.jsp?action=update&display=kerberos&spName=<%=spName%>&kerberos=<%=servicePrincipleName%>';
+    <%  } else { %>
+    location.href = '../application/configure-service-provider.jsp?action=cancel&display=kerberos&spName=<%=spName%>';
+    <%
+        }
+    }else {
+    %>
+    location.href = '<%=forwardTo%>';
+    <% } %>
+
 </script>
 
 <script type="text/javascript">

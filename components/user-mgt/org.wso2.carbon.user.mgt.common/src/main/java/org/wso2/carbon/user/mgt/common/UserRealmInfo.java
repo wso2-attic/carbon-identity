@@ -36,6 +36,8 @@ public class UserRealmInfo {
 
     private String[] requiredUserClaims;
 
+    private String[] defaultUserClaims;
+
     private String[] userClaims;
 
     private String[] domainNames;
@@ -100,6 +102,18 @@ public class UserRealmInfo {
     public void setRequiredUserClaims(String[] requiredUserClaims) {
         if (requiredUserClaims != null) {
             this.requiredUserClaims = requiredUserClaims.clone();
+        }
+    }
+
+    public String[] getDefaultUserClaims() {
+        if (defaultUserClaims != null) {
+            return defaultUserClaims.clone();
+        } else return new String[0];
+    }
+
+    public void setDefaultUserClaims(String[] defaultUserClaims) {
+        if (defaultUserClaims != null) {
+            this.defaultUserClaims = defaultUserClaims.clone();
         }
     }
 

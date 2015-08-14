@@ -21,6 +21,7 @@ import net.minidev.json.JSONArray;
 import org.apache.amber.oauth2.common.exception.OAuthSystemException;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.oltu.openidconnect.as.messages.IDTokenBuilder;
@@ -107,9 +108,9 @@ public class SAMLAssertionClaimsCallback implements CustomClaimsCallbackHandler 
                     if (userAttributeSeparator != null && value.contains(userAttributeSeparator)) {
                         StringTokenizer st = new StringTokenizer(value, userAttributeSeparator);
                         while (st.hasMoreElements()) {
-                            String attValue = st.nextElement().toString();
-                            if (attValue != null && attValue.trim().length() > 0) {
-                                values.add(attValue);
+                            String attributeValue = st.nextElement().toString();
+                            if (StringUtils.isNotBlank(attributeValue)) {
+                                values.add(attributeValue);
                             }
                         }
                     } else {
@@ -118,9 +119,8 @@ public class SAMLAssertionClaimsCallback implements CustomClaimsCallbackHandler 
                     builder.setClaim(entry.getKey(), values.toJSONString());
                 }
             } catch (OAuthSystemException e) {
-                log.error(
-                        "Error occurred while adding claims of " + requestMsgCtx.getAuthorizedUser() + " to id token.",
-                        e);
+                log.error("Error occurred while adding claims of " + requestMsgCtx.getAuthorizedUser() +
+                                " to id token.", e);
             }
         }
     }
@@ -140,7 +140,7 @@ public class SAMLAssertionClaimsCallback implements CustomClaimsCallbackHandler 
         Map<String, Object> claims = Collections.emptyMap();
 
         // If subject claim uri is null, we get the actual user name of the logged in user.
-        if ((userAttributes == null || userAttributes.isEmpty()) && (getSubjectClaimUri(requestMsgCtx) == null)) {
+        if (MapUtils.isEmpty(userAttributes) && (getSubjectClaimUri(requestMsgCtx) == null)) {
             if (log.isDebugEnabled()) {
                 log.debug("User attributes not found in cache. Trying to retrieve attribute for user " + requestMsgCtx
                         .getAuthorizedUser());
@@ -183,8 +183,8 @@ public class SAMLAssertionClaimsCallback implements CustomClaimsCallbackHandler 
     private static Map<String, Object> getClaimsFromUserStore(OAuthTokenReqMessageContext requestMsgCtx)
             throws Exception {
 
-        String username = requestMsgCtx.getAuthorizedUser();
-        String tenantDomain = MultitenantUtils.getTenantDomain(requestMsgCtx.getAuthorizedUser());
+        String username = requestMsgCtx.getAuthorizedUser().toString();
+        String tenantDomain = requestMsgCtx.getAuthorizedUser().getTenantDomain();
 
         UserRealm realm;
         List<String> claimURIList = new ArrayList<String>();

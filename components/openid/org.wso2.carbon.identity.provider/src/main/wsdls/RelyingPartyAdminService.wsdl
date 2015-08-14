@@ -25,7 +25,7 @@
                   targetNamespace="http://provider.identity.carbon.wso2.org">
     <wsdl:documentation>RelyingPartyAdminService</wsdl:documentation>
     <wsdl:types>
-        <xs:schema xmlns:ns="http://org.apache.axis2/xsd" xmlns:ax262="http://dto.provider.identity.carbon.wso2.org/xsd"
+        <xs:schema xmlns:ns="http://org.apache.axis2/xsd"
                    attributeFormDefault="qualified" elementFormDefault="qualified"
                    targetNamespace="http://org.apache.axis2/xsd">
             <xs:import namespace="http://dto.provider.identity.carbon.wso2.org/xsd"/>

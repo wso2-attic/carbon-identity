@@ -33,6 +33,7 @@
     String encodedReq = null;
     String relayState = "";
     String domain = null;
+    String url = null;
     if (request.getParameter(SAML2SSOAuthenticatorConstants.LOG_OUT_REQ) != null) {
         LogoutRequestBuilder logoutRequestBuilder = new LogoutRequestBuilder();
         LogoutRequest logoutReq = logoutRequestBuilder.buildLogoutRequest((String) request.getAttribute(
@@ -40,6 +41,10 @@
                 (String)request.getSession().getAttribute(SAML2SSOAuthenticatorConstants.IDP_SESSION_INDEX));
         encodedReq = Util.encode(Util.marshall(logoutReq));
         relayState = UUIDGenerator.generateUUID();
+        url = Util.getIdentityProviderSLOServiceURL();
+        if (url == null) {
+        	url = Util.getIdentityProviderSSOServiceURL();
+        }
     } else {
     	 AuthenticationRequestBuilder authnReqGenerator = new AuthenticationRequestBuilder();
          AuthenticatorsConfiguration authenticatorsConfiguration = AuthenticatorsConfiguration.getInstance();
@@ -49,6 +54,7 @@
          encodedReq = Util.encode(Util.marshall(authRequest));
          relayState = UUIDGenerator.generateUUID();
          domain = (String)request.getAttribute(MultitenantConstants.TENANT_DOMAIN);
+         url = Util.getIdentityProviderSSOServiceURL();
     }
     // add the relay state to Session Manager
     SSOSessionManager.addAuthnRequest(relayState);
@@ -56,7 +62,7 @@
 %>
  <p>You are now redirected to <%=Util.getIdentityProviderSSOServiceURL()%>. If the
  redirection fails, please click the post button.</p>
-<form method="post" action="<%=Util.getIdentityProviderSSOServiceURL()%>">
+<form method="post" action="<%=url%>">
     <p><input type="hidden" name="<%=SAML2SSOAuthenticatorConstants.HTTP_POST_PARAM_SAML2_AUTH_REQ%>"
               value="<%= encodedReq %>"/>
         <input type="hidden" name="RelayState" value="<%= relayState %>"/>

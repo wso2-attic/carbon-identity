@@ -1,10 +1,5 @@
 package org.wso2.mobile.idp;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import org.wso2.mobile.idp.filebrowser.FileDialog;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -24,6 +19,12 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
+import org.wso2.mobile.idp.filebrowser.FileDialog;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 
 /**
  * This activity will be fired to user to insert his profile image. The idea of inserting a profile image is avoid phishing attacks

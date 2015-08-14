@@ -19,8 +19,8 @@
 
     <parent>
         <groupId>org.wso2.carbon.identity</groupId>
-        <artifactId>identity.authenticators</artifactId>
-        <version>4.5.6-SNAPSHOT</version>
+        <artifactId>carbon-authenticators</artifactId>
+        <version>4.5.5-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 

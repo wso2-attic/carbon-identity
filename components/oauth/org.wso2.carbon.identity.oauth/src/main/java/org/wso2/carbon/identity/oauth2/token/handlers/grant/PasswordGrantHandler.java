@@ -26,7 +26,6 @@ import org.wso2.carbon.identity.application.common.model.ServiceProvider;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.oauth.internal.OAuthComponentServiceHolder;
-import org.wso2.carbon.identity.oauth.internal.OAuthServiceComponent;
 import org.wso2.carbon.identity.oauth2.IdentityOAuth2Exception;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2AccessTokenReqDTO;
 import org.wso2.carbon.identity.oauth2.internal.OAuth2ServiceComponentHolder;
@@ -121,7 +120,7 @@ public class PasswordGrantHandler extends AbstractAuthorizationGrantHandler {
                     null && !"".equals(UserCoreUtil.getDomainFromThreadLocal())) {
                 username = UserCoreUtil.getDomainFromThreadLocal() + CarbonConstants.DOMAIN_SEPARATOR + username;
             }
-            tokReqMsgCtx.setAuthorizedUser(username);
+            tokReqMsgCtx.setAuthorizedUser(OAuth2Util.getUserFromUserName(username));
             tokReqMsgCtx.setScope(oAuth2AccessTokenReqDTO.getScope());
         }
 

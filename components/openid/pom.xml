@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.wso2.carbon.identity</groupId>
         <artifactId>carbon-identity</artifactId>
-        <version>4.5.6-SNAPSHOT</version>
+        <version>4.5.5-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -36,8 +36,6 @@
 
     <modules>
         <module>org.wso2.carbon.identity.provider</module>
-        <module>org.wso2.carbon.identity.provider.openid.ui</module>
-        <module>org.wso2.carbon.identity.relyingparty</module>
     </modules>
 
 </project>

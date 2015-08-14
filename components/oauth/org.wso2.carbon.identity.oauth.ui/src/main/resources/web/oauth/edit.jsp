@@ -57,7 +57,8 @@
 	boolean passowrdGrant = false;
 	boolean clientCredGrant = false;
 	boolean refreshGrant = false;
-	boolean samlGrant = false;
+	boolean samlGrant1 = false;
+	boolean samlGrant2 = false;
 	boolean ntlmGrant = false;
     List<String> allowedGrants = null;
     String applicationSPName = null;
@@ -100,7 +101,8 @@
 	            passowrdGrant = grants.contains("password") ? true : false;
 	            clientCredGrant = grants.contains("client_credentials") ? true : false;
 	            refreshGrant = grants.contains("refresh_token") ? true : false;
-	            samlGrant = grants.contains("urn:ietf:params:oauth:grant-type:saml2-bearer") ? true : false;
+	            samlGrant1 = grants.contains("urn:ietf:params:oauth:grant-type:saml1-bearer") ? true : false;
+	            samlGrant2 = grants.contains("urn:ietf:params:oauth:grant-type:saml2-bearer") ? true : false;
 	            ntlmGrant = grants.contains("iwa:ntlm") ? true : false;
             }
         }
@@ -238,8 +240,11 @@
                                             if(allowedGrants.contains("refresh_token")){
                                                 %><tr><label><input type="checkbox" id="grant_refresh" name="grant_refresh" value="refresh_token"  <%=(refreshGrant ? "checked=\"checked\"" : "")%>/>Refresh Token</label></tr><%
                                             }
+                                            if(allowedGrants.contains("urn:ietf:params:oauth:grant-type:saml1-bearer")){
+                                                %><tr><tr><label><input type="checkbox" id="grant_saml1" name="grant_saml1" value="urn:ietf:params:oauth:grant-type:saml1-bearer"  <%=(samlGrant1 ? "checked=\"checked\"" : "")%>/>SAML1</label></tr><%
+                                            }
                                             if(allowedGrants.contains("urn:ietf:params:oauth:grant-type:saml2-bearer")){
-                                                %><tr><tr><label><input type="checkbox" id="grant_saml" name="grant_saml" value="urn:ietf:params:oauth:grant-type:saml2-bearer"  <%=(samlGrant ? "checked=\"checked\"" : "")%>/>SAML</label></tr><%
+                                                %><tr><tr><label><input type="checkbox" id="grant_saml2" name="grant_saml2" value="urn:ietf:params:oauth:grant-type:saml2-bearer"  <%=(samlGrant2 ? "checked=\"checked\"" : "")%>/>SAML2</label></tr><%
                                             } if(allowedGrants.contains("iwa:ntlm")){
                                                 %><tr><tr><label><input type="checkbox" id="grant_ntlm" name="grant_ntlm" value="iwa:ntlm"  <%=(ntlmGrant ? "checked=\"checked\"" : "")%>/>IWA-NTLM</label></tr><%
                                             }

@@ -49,7 +49,8 @@
     String grantPassword = CharacterEncoder.getSafeText(request.getParameter("grant_password"));
     String grantClient = CharacterEncoder.getSafeText(request.getParameter("grant_client"));
     String grantRefresh = CharacterEncoder.getSafeText(request.getParameter("grant_refresh"));
-    String grantSAML = CharacterEncoder.getSafeText(request.getParameter("grant_saml"));
+    String grantSAML1 = CharacterEncoder.getSafeText(request.getParameter("grant_saml1"));
+    String grantSAML2 = CharacterEncoder.getSafeText(request.getParameter("grant_saml2"));
     String grantNTLM = CharacterEncoder.getSafeText(request.getParameter("grant_ntlm"));
     String grants = null;
    	StringBuffer buff = new StringBuffer();
@@ -68,9 +69,12 @@
 	if (grantRefresh != null) {
 		buff.append(grantRefresh + " ");
 	}
-	if (grantSAML != null) {
-		buff.append(grantSAML+ " ");
+	if (grantSAML1 != null) {
+		buff.append(grantSAML1+ " ");
 	}
+	if (grantSAML2 != null) {
+    		buff.append(grantSAML2+ " ");
+    }
     if (grantNTLM != null) {
 		buff.append(grantNTLM);
 	}

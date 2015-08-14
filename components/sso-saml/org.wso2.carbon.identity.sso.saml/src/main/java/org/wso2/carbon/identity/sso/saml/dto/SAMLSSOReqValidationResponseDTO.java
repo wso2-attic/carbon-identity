@@ -39,6 +39,9 @@ public class SAMLSSOReqValidationResponseDTO implements Serializable {
     private String destination;
     private SingleLogoutRequestDTO[] logoutRespDTO;
     private boolean isIdPInitSSO;
+    private boolean logoutFromAuthFramework;
+    private boolean isIdPInitSLO;
+    private String returnToURL;
 
     public boolean isValid() {
         return isValid;
@@ -213,5 +216,29 @@ public class SAMLSSOReqValidationResponseDTO implements Serializable {
 
     public void setForceAuthn(boolean isForceAuthn) {
         this.isForceAuthn = isForceAuthn;
+    }
+
+    public boolean isLogoutFromAuthFramework() {
+        return logoutFromAuthFramework;
+    }
+
+    public void setLogoutFromAuthFramework(boolean logoutFromAuthFramework) {
+        this.logoutFromAuthFramework = logoutFromAuthFramework;
+    }
+
+    public boolean isIdPInitSLO() {
+        return isIdPInitSLO;
+    }
+
+    public void setIdPInitSLO(boolean isIdPInitSLO) {
+        this.isIdPInitSLO = isIdPInitSLO;
+    }
+
+    public String getReturnToURL() {
+        return returnToURL;
+    }
+
+    public void setReturnToURL(String returnToURL) {
+        this.returnToURL = returnToURL;
     }
 }

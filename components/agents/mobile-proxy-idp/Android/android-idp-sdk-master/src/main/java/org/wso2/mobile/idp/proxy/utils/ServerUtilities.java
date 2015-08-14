@@ -20,7 +20,6 @@ package org.wso2.mobile.idp.proxy.utils;
 
 import android.util.Log;
 import org.apache.commons.codec.binary.Base64;
-import org.apache.http.*;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;

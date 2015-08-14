@@ -25,7 +25,7 @@ import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.provider.IdentityProviderException;
 import org.wso2.carbon.identity.provider.dto.OpenIDAuthRequestDTO;
 import org.wso2.carbon.identity.provider.dto.OpenIDClaimDTO;
-import org.wso2.carbon.identity.relyingparty.RelyingPartyException;
+
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -48,7 +48,7 @@ public abstract class OpenIDExtension {
      * @param requestDTO
      * @param requestDTO OpenID authentication request
      * @return An instance of MessageExtension
-     * @throws RelyingPartyException
+     * @throws IdentityException
      */
     public abstract MessageExtension getMessageExtension(String userId, String profileName,
                                                          OpenIDAuthRequestDTO requestDTO)
