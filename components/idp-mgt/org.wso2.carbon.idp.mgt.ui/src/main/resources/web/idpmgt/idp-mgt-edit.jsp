@@ -3013,30 +3013,40 @@ function doValidation() {
                         </thead>
                         <tbody>
                         <tr>
-                            <td><%String issuerDN = "";
-                                if(certData.getIssuerDN()!=null){
-                                    issuerDN=certData.getIssuerDN();
-                                }%><%=issuerDN%>
+                            <td><%
+                                String issuerDN = "";
+                                if (certData.getIssuerDN() != null) {
+                                    issuerDN = certData.getIssuerDN();
+                                }
+                            %><%=issuerDN%>
                             </td>
-                            <td><%String subjectDN = "";
-                                if(certData.getSubjectDN()!=null){
-                                    subjectDN=certData.getSubjectDN();
-                                }%><%=subjectDN%>
+                            <td><%
+                                String subjectDN = "";
+                                if (certData.getSubjectDN() != null) {
+                                    subjectDN = certData.getSubjectDN();
+                                }
+                            %><%=subjectDN%>
                             </td>
-                            <td><%String notAfter = "";
-                                if(certData.getNotAfter()!=null){
-                                    notAfter=certData.getNotAfter();
-                                }%><%=notAfter%>
+                            <td><%
+                                String notAfter = "";
+                                if (certData.getNotAfter() != null) {
+                                    notAfter = certData.getNotAfter();
+                                }
+                            %><%=notAfter%>
                             </td>
-                            <td><%String notBefore = "";
-                                if(certData.getNotBefore()!=null){
-                                    notBefore=certData.getNotBefore();
-                                }%><%=notBefore%>
+                            <td><%
+                                String notBefore = "";
+                                if (certData.getNotBefore() != null) {
+                                    notBefore = certData.getNotBefore();
+                                }
+                            %><%=notBefore%>
                             </td>
-                            <td><%String serialNo = "";
-                                if(certData.getSerialNumber()!=null){
-                                    serialNo=certData.getSerialNumber().toString();
-                                }%><%=serialNo%>
+                            <td><%
+                                String serialNo = "";
+                                if (certData.getSerialNumber() != null) {
+                                    serialNo = certData.getSerialNumber().toString();
+                                }
+                            %><%=serialNo%>
                             </td>
                         </tr>
                         </tbody>
