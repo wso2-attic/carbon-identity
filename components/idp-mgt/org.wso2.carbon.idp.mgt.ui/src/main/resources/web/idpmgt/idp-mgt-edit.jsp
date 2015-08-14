@@ -3013,17 +3013,30 @@ function doValidation() {
                         </thead>
                         <tbody>
                         <tr>
-                            <td><%=certData.getIssuerDN()%>
+                            <td><%String issuerDN = "";
+                                if(certData.getIssuerDN()!=null){
+                                    issuerDN=certData.getIssuerDN();
+                                }%><%=issuerDN%>
                             </td>
-                            <td><%=certData.getSubjectDN()%>
+                            <td><%String subjectDN = "";
+                                if(certData.getSubjectDN()!=null){
+                                    subjectDN=certData.getSubjectDN();
+                                }%><%=subjectDN%>
                             </td>
-                            <td><%=certData.getNotAfter()%>
+                            <td><%String notAfter = "";
+                                if(certData.getNotAfter()!=null){
+                                    notAfter=certData.getNotAfter();
+                                }%><%=notAfter%>
                             </td>
-                            <td><%=certData.getNotBefore()%>
+                            <td><%String notBefore = "";
+                                if(certData.getNotBefore()!=null){
+                                    notBefore=certData.getNotBefore();
+                                }%><%=notBefore%>
                             </td>
-                            <td><%=certData.getSerialNumber()%>
-                            </td>
-                            <td><%=certData.getVersion()%>
+                            <td><%String serialNo = "";
+                                if(certData.getSerialNumber()!=null){
+                                    serialNo=certData.getSerialNumber().toString();
+                                }%><%=serialNo%>
                             </td>
                         </tr>
                         </tbody>
@@ -3342,8 +3355,7 @@ function doValidation() {
                     <tr>
                         <td><input type="text" value="<%=roleMappings[i].getRemoteRole()%>" id="rolerowname_<%=i%>"
                                    name="rolerowname_<%=i%>"/></td>
-                        <td><input type="text" value="<%=roleMappings[i].getLocalRole().getUserStoreId()%>/<%=roleMappings[i].getLocalRole().getLocalRoleName()%>"
-                                   id="localrowname_<%=i%>" name="localrowname_<%=i%>"/></td>
+                        <td><input type="text" value="<%=UserCoreUtil.addDomainToName(roleMappings[i].getLocalRole().getLocalRoleName(), roleMappings[i].getLocalRole().getUserStoreId())%>" id="localrowname_<%=i%>" name="localrowname_<%=i%>"/></td>
                         <td>
                             <a title="<fmt:message key='delete.role'/>"
                                onclick="deleteRoleRow(this);return false;"
