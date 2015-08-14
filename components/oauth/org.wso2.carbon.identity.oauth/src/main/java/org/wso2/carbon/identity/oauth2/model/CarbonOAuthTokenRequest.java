@@ -60,6 +60,9 @@ public class CarbonOAuthTokenRequest extends OAuthTokenRequest {
         assertion = request.getParameter(ASSERTION);
         credentialType = request.getParameter(CREDENTIAL_TYPE);
         tenantDomain = request.getParameter(TENANT_DOMAIN);
+        if (tenantDomain == null){
+            tenantDomain = "carbon.super";
+        }
         windows_token = request.getParameter(WINDOWS_TOKEN);
 
         // Store all request parameters

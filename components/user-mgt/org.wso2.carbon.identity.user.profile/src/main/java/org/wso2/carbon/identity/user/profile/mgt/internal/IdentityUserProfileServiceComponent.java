@@ -25,7 +25,6 @@ import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.identity.user.profile.mgt.util.ServiceHodler;
 import org.wso2.carbon.identity.user.store.configuration.listener.UserStoreConfigListener;
 import org.wso2.carbon.user.core.UserRealm;
-import org.wso2.carbon.user.core.service.RealmService;
 
 /**
  * @scr.component name="identity.user.profile.mgt.component" immediate="true"

@@ -19,8 +19,6 @@
 package org.wso2.carbon.user.mgt;
 
 
-import org.apache.axis2.context.MessageContext;
-import org.apache.axis2.transport.http.HTTPConstants;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
@@ -52,12 +50,9 @@ import org.wso2.carbon.user.mgt.common.UserRealmInfo;
 import org.wso2.carbon.user.mgt.common.UserStoreInfo;
 import org.wso2.carbon.user.mgt.internal.UserMgtDSComponent;
 import org.wso2.carbon.user.mgt.permission.ManagementPermissionUtil;
-import org.wso2.carbon.utils.ServerConstants;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -535,18 +530,26 @@ public class UserRealmProxy {
                 userRealmInfo.setEveryOneRole(realmConfig.getEveryOneRoleName());
                 ClaimMapping[] defaultClaims = realm.getClaimManager().
                         getAllClaimMappings(UserCoreConstants.DEFAULT_CARBON_DIALECT);
-                List<String> defaultClaimList = new ArrayList<String>();
+
+                List<String> fullClaimList = new ArrayList<String>();
                 List<String> requiredClaimsList = new ArrayList<String>();
+                List<String> defaultClaimList = new ArrayList<String>();
+
                 for (ClaimMapping claimMapping : defaultClaims) {
                     Claim claim = claimMapping.getClaim();
-                    defaultClaimList.add(claim.getClaimUri());
+
+                    fullClaimList.add(claim.getClaimUri());
                     if (claim.isRequired()) {
                         requiredClaimsList.add(claim.getClaimUri());
                     }
+                    if (claim.isSupportedByDefault()) {
+                        defaultClaimList.add(claim.getClaimUri());
+                    }
                 }
-                userRealmInfo.setUserClaims(defaultClaimList.toArray(new String[defaultClaimList.size()]));
-                userRealmInfo.setRequiredUserClaims(requiredClaimsList.
-                        toArray(new String[requiredClaimsList.size()]));
+
+                userRealmInfo.setUserClaims(fullClaimList.toArray(new String[fullClaimList.size()]));
+                userRealmInfo.setRequiredUserClaims(requiredClaimsList.toArray(new String[requiredClaimsList.size()]));
+                userRealmInfo.setDefaultUserClaims(defaultClaimList.toArray(new String[defaultClaimList.size()]));
             }
 
             List<UserStoreInfo> storeInfoList = new ArrayList<UserStoreInfo>();
@@ -632,6 +635,10 @@ public class UserRealmProxy {
 
             info.setPasswordRegExViolationErrorMsg(realmConfig
                     .getUserStoreProperty("PasswordJavaRegExViolationErrorMsg"));
+            //TODO  Need to get value from UserCoreConstants.RealmConfig.PROPERTY_PASSWORD_ERROR_MSG
+
+            info.setUsernameRegExViolationErrorMsg(realmConfig
+                    .getUserStoreProperty("UsernameJavaRegExViolationErrorMsg"));
             //TODO  Need to get value from UserCoreConstants.RealmConfig.PROPERTY_PASSWORD_ERROR_MSG
 
             info.setUserNameRegEx(

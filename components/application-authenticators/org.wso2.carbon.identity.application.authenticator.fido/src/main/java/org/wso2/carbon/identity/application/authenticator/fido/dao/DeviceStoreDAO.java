@@ -23,11 +23,10 @@ import com.google.common.collect.Multimap;
 import com.yubico.u2f.data.DeviceRegistration;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.identity.application.authenticator.fido.FIDOAuthenticator;
 import org.wso2.carbon.identity.application.authenticator.fido.exception.FIDOAuthenticatorServerException;
 import org.wso2.carbon.identity.application.authenticator.fido.util.FIDOAuthenticatorConstants;
-import org.wso2.carbon.identity.application.authenticator.fido.util.FIDOUtil;
 import org.wso2.carbon.identity.base.IdentityException;
+import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
 import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
 
 import java.sql.Connection;
@@ -87,7 +86,7 @@ public class DeviceStoreDAO {
             preparedStatement.setInt(1, tenantID);
             preparedStatement.setString(2, userStoreDomain);
             preparedStatement.setString(3, username);
-            preparedStatement.setTimestamp(4, timestamp, Calendar.getInstance(TimeZone.getTimeZone(FIDOAuthenticatorConstants.UTC)));
+            preparedStatement.setTimestamp(4, timestamp, Calendar.getInstance(TimeZone.getTimeZone(IdentityCoreConstants.UTC)));
             preparedStatement.setString(5, registration.getKeyHandle());
             preparedStatement.setString(6, registration.toJson());
             preparedStatement.executeUpdate();

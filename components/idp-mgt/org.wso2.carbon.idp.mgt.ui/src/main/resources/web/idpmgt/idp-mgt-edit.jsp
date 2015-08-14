@@ -39,6 +39,8 @@
 <%@ page import="java.util.HashMap" %>
 <%@ page import="java.util.List" %>
 <%@ page import="java.util.Map" %>
+<%@ page import="org.apache.commons.lang.StringUtils" %>
+<%@ page import="org.wso2.carbon.user.core.util.UserCoreUtil" %>
 <link href="css/idpmgt.css" rel="stylesheet" type="text/css" media="all"/>
 
 <carbon:breadcrumb label="identity.providers" resourceBundle="org.wso2.carbon.idp.mgt.ui.i18n.Resources"
@@ -206,7 +208,7 @@
         idpDisplayName = identityProvider.getDisplayName();
         description = identityProvider.getIdentityProviderDescription();
         provisioningRole = identityProvider.getProvisioningRole();
-        if (identityProvider.getCertificate() != null) {
+        if (StringUtils.isNotBlank(identityProvider.getCertificate())) {
             certData = IdentityApplicationManagementUtil.getCertData(identityProvider.getCertificate());
         }
 
@@ -310,7 +312,7 @@
                         passiveSTSRealm = passiveSTSRealmProp.getValue();
                     }
                     Property passiveSTSUrlProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
-                            IdentityApplicationConstants.Authenticator.PassiveSTS.PASSIVE_STS_URL);
+                            IdentityApplicationConstants.Authenticator.PassiveSTS.IDENTITY_PROVIDER_URL);
                     if (passiveSTSUrlProp != null) {
                         passiveSTSUrl = passiveSTSUrlProp.getValue();
                     }
@@ -3011,15 +3013,40 @@ function doValidation() {
                         </thead>
                         <tbody>
                         <tr>
-                            <td><%=certData.getIssuerDN()%>
+                            <td><%
+                                String issuerDN = "";
+                                if (certData.getIssuerDN() != null) {
+                                    issuerDN = certData.getIssuerDN();
+                                }
+                            %><%=issuerDN%>
                             </td>
-                            <td><%=certData.getSubjectDN()%>
+                            <td><%
+                                String subjectDN = "";
+                                if (certData.getSubjectDN() != null) {
+                                    subjectDN = certData.getSubjectDN();
+                                }
+                            %><%=subjectDN%>
                             </td>
-                            <td><%=certData.getNotAfter()%>
+                            <td><%
+                                String notAfter = "";
+                                if (certData.getNotAfter() != null) {
+                                    notAfter = certData.getNotAfter();
+                                }
+                            %><%=notAfter%>
                             </td>
-                            <td><%=certData.getNotBefore()%>
+                            <td><%
+                                String notBefore = "";
+                                if (certData.getNotBefore() != null) {
+                                    notBefore = certData.getNotBefore();
+                                }
+                            %><%=notBefore%>
                             </td>
-                            <td><%=certData.getSerialNumber()%>
+                            <td><%
+                                String serialNo = "";
+                                if (certData.getSerialNumber() != null) {
+                                    serialNo = certData.getSerialNumber().toString();
+                                }
+                            %><%=serialNo%>
                             </td>
                             <td><%=certData.getVersion()%>
                             </td>
@@ -3340,8 +3367,7 @@ function doValidation() {
                     <tr>
                         <td><input type="text" value="<%=roleMappings[i].getRemoteRole()%>" id="rolerowname_<%=i%>"
                                    name="rolerowname_<%=i%>"/></td>
-                        <td><input type="text" value="<%=roleMappings[i].getLocalRole().getLocalRoleName()%>"
-                                   id="localrowname_<%=i%>" name="localrowname_<%=i%>"/></td>
+                        <td><input type="text" value="<%=UserCoreUtil.addDomainToName(roleMappings[i].getLocalRole().getLocalRoleName(), roleMappings[i].getLocalRole().getUserStoreId())%>" id="localrowname_<%=i%>" name="localrowname_<%=i%>"/></td>
                         <td>
                             <a title="<fmt:message key='delete.role'/>"
                                onclick="deleteRoleRow(this);return false;"

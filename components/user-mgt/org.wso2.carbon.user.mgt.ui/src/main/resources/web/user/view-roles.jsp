@@ -21,15 +21,14 @@
 <%@page session="true" %>
 <%@page import="org.apache.axis2.context.ConfigurationContext" %>
 <%@page import="org.wso2.carbon.CarbonConstants" %>
-<%@page import="org.wso2.carbon.ui.CarbonUIMessage" %>
 <%@page import="org.wso2.carbon.ui.CarbonUIUtil" %>
 <%@page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
 <%@page import="org.wso2.carbon.user.mgt.stub.types.carbon.FlaggedName" %>
-<%@ page import="org.wso2.carbon.user.mgt.stub.types.carbon.UserRealmInfo" %>
+<%@page import="org.wso2.carbon.user.mgt.stub.types.carbon.UserRealmInfo" %>
+<%@ page import="org.wso2.carbon.user.mgt.ui.PaginatedNamesBean" %>
 
 
-<%@page import="org.wso2.carbon.user.mgt.ui.PaginatedNamesBean" %>
-<%@ page import="org.wso2.carbon.user.mgt.ui.UserAdminClient" %>
+<%@page import="org.wso2.carbon.user.mgt.ui.UserAdminClient" %>
 <%@ page import="org.wso2.carbon.user.mgt.ui.UserAdminUIConstants" %>
 <%@ page import="org.wso2.carbon.user.mgt.ui.Util" %>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
@@ -226,10 +225,10 @@
         form.setAttribute("method", "POST");
         form.setAttribute("action", page + "?" + pageNumberParameterName + "=" + pageNumber + "&username=" + '<%=URLEncoder.encode(userName,"UTF-8")%>');
         var selectedRolesStr = "";
-        $("input:checkbox:checked").each(function(index){
+        $("input[type='checkbox']:checked").each(function(index){
             if(!$(this).is(":disabled")){
                 selectedRolesStr += $(this).val();
-                if(index != $("input:checkbox:checked").length-1){
+                if(index != $("input[type='checkbox']:checked").length-1){
                     selectedRolesStr += ":";
                 }
             }
@@ -240,10 +239,10 @@
         selectedRolesElem.setAttribute("value", selectedRolesStr);
         form.appendChild(selectedRolesElem);
         var unselectedRolesStr = "";
-        $("input:checkbox:not(:checked)").each(function(index){
+        $("input[type='checkbox']:not(:checked)").each(function(index){
             if(!$(this).is(":disabled")){
                 unselectedRolesStr += $(this).val();
-                if(index != $("input:checkbox:not(:checked)").length-1){
+                if(index != $("input[type='checkbox']:not(:checked)").length-1){
                     unselectedRolesStr += ":";
                 }
             }

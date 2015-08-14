@@ -23,18 +23,17 @@ import org.opensaml.xml.XMLObject;
 import org.wso2.carbon.identity.base.IdentityConstants;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
+import org.wso2.carbon.identity.sso.saml.dto.QueryParamDTO;
 import org.wso2.carbon.identity.sso.saml.dto.SAMLSSOAuthnReqDTO;
 import org.wso2.carbon.identity.sso.saml.dto.SAMLSSOReqValidationResponseDTO;
 import org.wso2.carbon.identity.sso.saml.dto.SAMLSSORespDTO;
+import org.wso2.carbon.identity.sso.saml.processors.IdPInitLogoutRequestProcessor;
 import org.wso2.carbon.identity.sso.saml.processors.IdPInitSSOAuthnRequestProcessor;
-import org.wso2.carbon.identity.sso.saml.processors.LogoutRequestProcessor;
+import org.wso2.carbon.identity.sso.saml.processors.SPInitLogoutRequestProcessor;
 import org.wso2.carbon.identity.sso.saml.processors.SPInitSSOAuthnRequestProcessor;
 import org.wso2.carbon.identity.sso.saml.util.SAMLSSOUtil;
 import org.wso2.carbon.identity.sso.saml.validators.IdPInitSSOAuthnRequestValidator;
 import org.wso2.carbon.identity.sso.saml.validators.SPInitSSOAuthnRequestValidator;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 public class SAMLSSOService {
 
@@ -94,7 +93,7 @@ public class SAMLSSOService {
             validationResp.setIdPInitSSO(false);
             return validationResp;
         } else if (request instanceof LogoutRequest) {
-            LogoutRequestProcessor logoutReqProcessor = new LogoutRequestProcessor();
+            SPInitLogoutRequestProcessor logoutReqProcessor = new SPInitLogoutRequestProcessor();
             SAMLSSOReqValidationResponseDTO validationResponseDTO =
                     logoutReqProcessor.process((LogoutRequest) request,
                             sessionId,
@@ -106,31 +105,41 @@ public class SAMLSSOService {
     }
 
     /**
-     * Validates the IdP Initiated SSO request.
+     * validates the IdP Initiated SSO/SLO request.
      * If the user already having a SSO session then the Response
      * will be returned if not only the validation results will be returned.
      *
+     * @param relayState
      * @param queryString
+     * @param queryParamDTOs
+     * @param serverURL
      * @param sessionId
      * @param rpSessionId
      * @param authnMode
+     * @param isLogout
      * @return
      * @throws IdentityException
      */
-    public SAMLSSOReqValidationResponseDTO validateIdPInitSSORequest(HttpServletRequest httpServletRequest,
-                                                                     HttpServletResponse httpServletResponse,
-                                                                     String spEntityID, String relayState,
-                                                                     String queryString, String sessionId,
-                                                                     String rpSessionId, String authnMode)
-            throws IdentityException {
+    public SAMLSSOReqValidationResponseDTO validateIdPInitSSORequest(String relayState, String queryString,
+                                                                     QueryParamDTO[] queryParamDTOs,
+                                                                     String serverURL, String sessionId,
+                                                                     String rpSessionId, String authnMode,
+                                                                     boolean isLogout) throws IdentityException {
 
-        IdPInitSSOAuthnRequestValidator authnRequestValidator = new IdPInitSSOAuthnRequestValidator(httpServletRequest, httpServletResponse, spEntityID, relayState);
-        SAMLSSOReqValidationResponseDTO validationResp = authnRequestValidator.validate();
-        validationResp.setQueryString(queryString);
-        validationResp.setRpSessionId(rpSessionId);
-        validationResp.setIdPInitSSO(true);
-
-        return validationResp;
+        SAMLSSOReqValidationResponseDTO validationResponseDTO = null;
+        if(!isLogout) {
+            IdPInitSSOAuthnRequestValidator authnRequestValidator = new IdPInitSSOAuthnRequestValidator(queryParamDTOs,
+                                                                                                        relayState);
+            validationResponseDTO = authnRequestValidator.validate();
+            validationResponseDTO.setIdPInitSSO(true);
+        } else {
+            IdPInitLogoutRequestProcessor idPInitLogoutRequestProcessor = new IdPInitLogoutRequestProcessor();
+            validationResponseDTO = idPInitLogoutRequestProcessor.process(sessionId, queryParamDTOs, serverURL);
+            validationResponseDTO.setIdPInitSLO(true);
+        }
+        validationResponseDTO.setQueryString(queryString);
+        validationResponseDTO.setRpSessionId(rpSessionId);
+        return validationResponseDTO;
     }
 
     /**
@@ -141,7 +150,7 @@ public class SAMLSSOService {
      */
     public SAMLSSORespDTO authenticate(SAMLSSOAuthnReqDTO authReqDTO, String sessionId, boolean authenticated, String authenticators, String authMode)
             throws IdentityException {
-        if (authReqDTO.isIdPInitSSO()) {
+        if (authReqDTO.isIdPInitSSOEnabled()) {
             IdPInitSSOAuthnRequestProcessor authnRequestProcessor = new IdPInitSSOAuthnRequestProcessor();
             try {
                 return authnRequestProcessor.process(authReqDTO, sessionId, authenticated, authenticators, authMode);
@@ -168,7 +177,7 @@ public class SAMLSSOService {
      */
     public SAMLSSOReqValidationResponseDTO doSingleLogout(String sessionId)
             throws IdentityException {
-        LogoutRequestProcessor logoutReqProcessor = new LogoutRequestProcessor();
+        SPInitLogoutRequestProcessor logoutReqProcessor = new SPInitLogoutRequestProcessor();
         SAMLSSOReqValidationResponseDTO validationResponseDTO =
                 logoutReqProcessor.process(null,
                         sessionId,

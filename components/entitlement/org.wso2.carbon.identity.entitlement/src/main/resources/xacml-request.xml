@@ -1,5 +1,4 @@
-		    
-<Request xmlns="urn:oasis:names:tc:xacml:2.0:context:schema:os" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<Request xmlns="urn:oasis:names:tc:xacml:2.0:context:schema:os">
 <Subject>
 	<Attribute AttributeId="urn:oasis:names:tc:xacml:1.0:subject:subject-id"
 		    DataType="http://www.w3.org/2001/XMLSchema#string">

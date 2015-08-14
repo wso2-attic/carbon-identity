@@ -18,14 +18,14 @@
 
 <%@page import="org.apache.axis2.context.ConfigurationContext"%>
 <%@page import="org.wso2.carbon.CarbonConstants"%>
-<%@page import="org.wso2.carbon.ui.CarbonSecuredHttpContext"%>
+<%@page import="org.wso2.carbon.context.PrivilegedCarbonContext"%>
 <%@page import="org.wso2.carbon.ui.CarbonUIMessage"%>
 <%@page import="org.wso2.carbon.ui.CarbonUIUtil"%>
 <%@page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
+<%@ page import="org.wso2.carbon.user.core.util.UserCoreUtil" %>
 <%@ page import="org.wso2.carbon.user.mgt.ui.UserAdminClient" %>
 <%@ page import="org.wso2.carbon.user.mgt.ui.Util" %>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
-<%@ page import="java.net.URLEncoder" %>
 <%
 	String forwardTo = null;
     String username = CharacterEncoder.getSafeText(request.getParameter("username"));
@@ -72,10 +72,9 @@
 %>
 
 
+<%@page import="java.net.URLEncoder" %>
 <%@page import="java.text.MessageFormat" %>
-<%@page import="java.util.ResourceBundle" %>
-<%@ page import="org.wso2.carbon.context.PrivilegedCarbonContext" %>
-<%@ page import="org.wso2.carbon.user.core.util.UserCoreUtil" %>
+<%@ page import="java.util.ResourceBundle" %>
 <script type="text/javascript">
     function forward() {
         location.href = "<%=forwardTo%>";

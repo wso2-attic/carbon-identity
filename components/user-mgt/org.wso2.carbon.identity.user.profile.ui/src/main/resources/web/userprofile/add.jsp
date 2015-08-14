@@ -91,8 +91,8 @@ function validateTextForIllegal(fld,fldName) {
 %>
 
 
-<%@page import="java.util.ResourceBundle" %>
-<%@ page import="java.net.URLEncoder" %>
+<%@page import="java.net.URLEncoder" %>
+<%@ page import="java.util.ResourceBundle" %>
 <fmt:bundle
         basename="org.wso2.carbon.identity.user.profile.ui.i18n.Resources">
     <carbon:breadcrumb label="add.profile"

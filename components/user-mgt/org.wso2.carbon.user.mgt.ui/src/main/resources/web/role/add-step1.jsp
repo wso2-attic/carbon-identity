@@ -23,11 +23,10 @@
 
 <%@page import="org.apache.axis2.context.ConfigurationContext"%>
 <%@page import="org.wso2.carbon.CarbonConstants"%>
-<%@page import="org.wso2.carbon.ui.CarbonUIMessage"%>
-<%@page import="org.wso2.carbon.ui.CarbonUIUtil" %>
+<%@page import="org.wso2.carbon.ui.CarbonUIUtil"%>
 <%@page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
 <%@page import="org.wso2.carbon.user.mgt.stub.types.carbon.UserRealmInfo" %>
-<%@ page import="org.wso2.carbon.user.mgt.stub.types.carbon.UserStoreInfo" %>
+<%@page import="org.wso2.carbon.user.mgt.stub.types.carbon.UserStoreInfo" %>
 <%@ page import="org.wso2.carbon.user.mgt.ui.UserAdminClient" %>
 <%@ page import="org.wso2.carbon.user.mgt.ui.UserAdminUIConstants" %>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
@@ -57,19 +56,23 @@ boolean internal = false;
 String BUNDLE = "org.wso2.carbon.userstore.ui.i18n.Resources";
 ResourceBundle resourceBundle = ResourceBundle.getBundle(BUNDLE, request.getLocale());
 try{
+    String cookie = (String) session.getAttribute(ServerConstants.ADMIN_SERVICE_COOKIE);
+    String backendServerURL = CarbonUIUtil.getServerURL(config.getServletContext(), session);
+    ConfigurationContext configContext =
+            (ConfigurationContext) config.getServletContext().getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
+    UserAdminClient client = new UserAdminClient(cookie, backendServerURL, configContext);
 
 	sharedRoleEnabled = (Boolean)session.getAttribute(UserAdminUIConstants.SHARED_ROLE_ENABLED);
+
+    if (sharedRoleEnabled == null) {
+        sharedRoleEnabled = client.isSharedRolesEnabled();
+    }
     roleType = request.getParameter("roleType");
-    internal = UserAdminUIConstants.INTERNAL_ROLE.equals(roleType);    
+    internal = UserAdminUIConstants.INTERNAL_ROLE.equals(roleType);
     sharedRoleEnabled = sharedRoleEnabled && !internal;
-    
+
     userRealmInfo = (UserRealmInfo)session.getAttribute(UserAdminUIConstants.USER_STORE_INFO);
     if(userRealmInfo == null){
-        String cookie = (String) session.getAttribute(ServerConstants.ADMIN_SERVICE_COOKIE);
-        String backendServerURL = CarbonUIUtil.getServerURL(config.getServletContext(), session);
-        ConfigurationContext configContext =
-            (ConfigurationContext) config.getServletContext().getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
-        UserAdminClient client = new UserAdminClient(cookie, backendServerURL, configContext);
         userRealmInfo = client.getUserRealmInfo();
         session.setAttribute(UserAdminUIConstants.USER_STORE_INFO, userRealmInfo);
     }
@@ -91,6 +94,7 @@ try{
     		}
     	}
     }
+    domainNames.add(UserAdminUIConstants.INTERNAL_DOMAIN.toUpperCase());
     
     if(domainNames.size()>0){
         if(primaryDomainName == null){
@@ -119,7 +123,7 @@ try{
 %>
 
 <fmt:bundle basename="org.wso2.carbon.userstore.ui.i18n.Resources">
-    <carbon:breadcrumb label="add.user.role"
+    <carbon:breadcrumb label="add-roles"
                        resourceBundle="org.wso2.carbon.userstore.ui.i18n.Resources"
                        topPage="false" request="<%=request%>"/>
 
@@ -196,7 +200,7 @@ try{
         }
 
         function doCancel() {
-            location.href = 'role-mgt.jsp?ordinal=1';
+            location.href = '../userstore/add-user-role.jsp';
         }
         
         function doNext() {
@@ -227,7 +231,7 @@ try{
         <%if(UserAdminUIConstants.INTERNAL_ROLE.equals(roleType)){%>
             <h2><fmt:message key="add.internal.user.role"/></h2>
         <%} else { %>
-            <h2><fmt:message key="add.user.role"/></h2>
+            <h2><fmt:message key="add-roles"/></h2>
         <%} %>
         <div id="workArea">
             <h3><fmt:message key="step.1.role"/></h3>

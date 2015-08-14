@@ -57,7 +57,6 @@ import org.wso2.carbon.identity.oauth2.model.AccessTokenDO;
 import org.wso2.carbon.identity.oauth2.token.OAuthTokenReqMessageContext;
 import org.wso2.carbon.identity.oauth2.util.OAuth2Util;
 import org.wso2.carbon.user.core.UserStoreException;
-import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import java.security.Key;
 import java.security.MessageDigest;
@@ -102,11 +101,11 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
     public String buildIDToken(OAuthTokenReqMessageContext request, OAuth2AccessTokenRespDTO tokenRespDTO)
             throws IdentityOAuth2Exception {
 
-        String issuer = config.getOpenIDConnectIDTokenIssuerIdentifier();
+        String issuer = OAuth2Util.getIDTokenIssuer();
         long lifetime = Integer.parseInt(config.getOpenIDConnectIDTokenExpiration());
         long curTime = Calendar.getInstance().getTimeInMillis() / 1000;
         // setting subject
-        String subject = request.getAuthorizedUser();
+        String subject = request.getAuthorizedUser().toString();
 
         if (!GrantType.AUTHORIZATION_CODE.toString().equals(request.getOauth2AccessTokenReqDTO().getGrantType()) &&
             !org.wso2.carbon.identity.oauth.common.GrantType.SAML20_BEARER.toString().equals(request
@@ -124,7 +123,6 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
                                                                                INBOUND_AUTH2_TYPE, tenantDomain);
                 serviceProvider = applicationMgtService.getApplicationExcludingFileBasedSPs(spName, tenantDomain);
             } catch (IdentityApplicationManagementException ex) {
-                log.error("Error while getting service provider information.", ex);
                 throw new IdentityOAuth2Exception("Error while getting service provider information.",
                                                   ex);
             }
@@ -133,16 +131,14 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
                 String claim = serviceProvider.getLocalAndOutBoundAuthenticationConfig().getSubjectClaimUri();
 
                 if (claim != null) {
-                    String username = request.getAuthorizedUser();
-                    String tenantUser = MultitenantUtils.getTenantAwareUsername(username);
-                    String domainName = MultitenantUtils.getTenantDomain(request.getAuthorizedUser());
+                    String username = request.getAuthorizedUser().toString();
+                    String tenantUser = request.getAuthorizedUser().getUserName();
+                    String domainName = request.getAuthorizedUser().getTenantDomain();
                     try {
-                        subject =
-                                IdentityTenantUtil.getRealm(domainName, username)
-                                        .getUserStoreManager()
+                        subject = IdentityTenantUtil.getRealm(domainName, username).getUserStoreManager()
                                         .getUserClaimValue(tenantUser, claim, null);
                         if (subject == null) {
-                            subject = request.getAuthorizedUser();
+                            subject = request.getAuthorizedUser().toString();
                         }
                     } catch (IdentityException e) {
                         String error = "Error occurred while getting user claim for domain " + domainName + ", " +
@@ -309,7 +305,7 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
         TokenMgtDAO tokenMgtDAO = new TokenMgtDAO();
 
         OAuthCache oauthCache = OAuthCache.getInstance(OAuthServerConfiguration.getInstance().getOAuthCacheTimeout());
-        String authorizedUser = request.getAuthorizedUser();
+        String authorizedUser = request.getAuthorizedUser().toString();
         boolean isUsernameCaseSensitive = OAuth2Util.isUsernameCaseSensitive(authorizedUser);
         if (!isUsernameCaseSensitive){
             authorizedUser = authorizedUser.toLowerCase();

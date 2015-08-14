@@ -21,6 +21,7 @@ import java.io.Serializable;
 
 public class OAuthAppDO implements Serializable {
 
+    private int id;
     private String oauthConsumerKey;
     private String oauthConsumerSecret;
     private String applicationName;
@@ -92,5 +93,13 @@ public class OAuthAppDO implements Serializable {
 
     public void setGrantTypes(String grantTypes) {
         this.grantTypes = grantTypes;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 }

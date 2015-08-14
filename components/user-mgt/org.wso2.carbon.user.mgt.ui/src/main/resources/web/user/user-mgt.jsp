@@ -20,7 +20,6 @@
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar" prefix="carbon" %>
 <%@ page import="org.apache.axis2.context.ConfigurationContext" %>
 <%@ page import="org.wso2.carbon.CarbonConstants" %>
-<%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
 <%@ page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
 <%@ page import="org.wso2.carbon.user.mgt.stub.types.carbon.ClaimValue" %>
@@ -182,7 +181,7 @@
             }
 
             if(userRealmInfo != null){
-                claimUris = userRealmInfo.getRequiredUserClaims();
+                claimUris = userRealmInfo.getDefaultUserClaims();
             }
 
             if (filter.length() > 0) {
@@ -541,13 +540,6 @@
                                 "/permission/admin/configure/security/usermgt/users")) {
             %>
             <table width="100%" border="0" cellpadding="0" cellspacing="0" style="margin-top:2px;">
-                <tr>
-                    <td class="addNewSecurity">
-                        <a href="add-step1.jsp" class="icon-link"
-                           style="background-image:url(images/add.gif);"><fmt:message
-                                key="add.new.user"/></a>
-                    </td>
-                </tr>
 
                 <%
                     if (!multipleUserStores && userRealmInfo.getBulkImportSupported()) {

@@ -28,7 +28,7 @@
             <order>60</order>
             <style-class>manage</style-class>
             <icon>../entitlement/images/policy.gif</icon>
-            <require-permission>/permission/admin/configure</require-permission>
+            <require-permission>/permission/admin/configure/entitlement/policy/view</require-permission>
         </menu>
 		<menu>         
             <id>policy_pap_menu</id>
@@ -40,7 +40,7 @@
             <order>5</order>
             <style-class>manage</style-class>
             <icon>../entitlement/images/policies.gif</icon>
-            <require-permission>/permission/admin/configure</require-permission>           
+            <require-permission>/permission/admin/configure/entitlement/policy/view</require-permission>
         </menu>
         <menu>
             <id>policy_publish_menu</id>
@@ -52,7 +52,7 @@
             <order>9</order>
             <style-class>manage</style-class>
             <icon>../entitlement/images/publish.gif</icon>
-            <require-permission>/permission/admin/configure</require-permission>
+            <require-permission>/permission/admin/configure/entitlement/policy/publish</require-permission>
         </menu>
 
         <!--  PDP -->
@@ -66,7 +66,7 @@
             <order>70</order>
             <style-class>manage</style-class>
             <icon>../entitlement/images/policy.gif</icon>
-            <require-permission>/permission/admin/configure</require-permission>
+            <require-permission>/permission/admin/configure/entitlement/pdp/view</require-permission>
         </menu>
         <menu>
             <id>pdp_policy_menu</id>
@@ -78,7 +78,7 @@
             <order>6</order>
             <style-class>manage</style-class>
             <icon>../entitlement/images/policies.gif</icon>
-            <require-permission>/permission/admin/configure</require-permission>
+            <require-permission>/permission/admin/configure/entitlement/pdp/view</require-permission>
         </menu>
 		<menu>
             <id>pdp_config_menu</id>
@@ -90,7 +90,7 @@
             <order>7</order>
             <style-class>manage</style-class>
             <icon>../entitlement/images/config.gif</icon>
-            <require-permission>/permission/admin/configure</require-permission>
+            <require-permission>/permission/admin/configure/entitlement/pdp/view</require-permission>
         </menu>
          <menu>
             <id>policy_search_menu</id>
@@ -136,9 +136,77 @@
     <FileUploadConfig>
         <Mapping>
             <Actions>
-                <Action>service</Action>
+                <Action>entitlement-policy</Action>
             </Actions>
             <Class>org.wso2.carbon.identity.entitlement.ui.client.EntitlementPolicyUploadExecutor</Class>
         </Mapping>
     </FileUploadConfig>
+
+    <ManagementPermissions>
+        <ManagementPermission>
+            <DisplayName>Entitlement</DisplayName>
+            <ResourceId>/permission/admin/configure/entitlement</ResourceId>
+        </ManagementPermission>
+        <ManagementPermission>
+            <DisplayName>Policy</DisplayName>
+            <ResourceId>/permission/admin/configure/entitlement/policy</ResourceId>
+        </ManagementPermission>
+        <ManagementPermission>
+            <DisplayName>View</DisplayName>
+            <ResourceId>/permission/admin/configure/entitlement/policy/view</ResourceId>
+        </ManagementPermission>
+        <ManagementPermission>
+            <DisplayName>Publish</DisplayName>
+            <ResourceId>/permission/admin/configure/entitlement/policy/publish</ResourceId>
+        </ManagementPermission>
+        <ManagementPermission>
+            <DisplayName>Manage</DisplayName>
+            <ResourceId>/permission/admin/configure/entitlement/policy/manage</ResourceId>
+        </ManagementPermission>
+        <ManagementPermission>
+            <DisplayName>Add</DisplayName>
+            <ResourceId>/permission/admin/configure/entitlement/policy/manage/add</ResourceId>
+        </ManagementPermission>
+        <ManagementPermission>
+            <DisplayName>Edit</DisplayName>
+            <ResourceId>/permission/admin/configure/entitlement/policy/manage/edit</ResourceId>
+        </ManagementPermission>
+        <ManagementPermission>
+            <DisplayName>Delete</DisplayName>
+            <ResourceId>/permission/admin/configure/entitlement/policy/manage/delete</ResourceId>
+        </ManagementPermission>
+        <ManagementPermission>
+            <DisplayName>Rollback</DisplayName>
+            <ResourceId>/permission/admin/configure/entitlement/policy/manage/rollback</ResourceId>
+        </ManagementPermission>
+        <ManagementPermission>
+            <DisplayName>Demote</DisplayName>
+            <ResourceId>/permission/admin/configure/entitlement/policy/manage/demote</ResourceId>
+        </ManagementPermission>
+        <ManagementPermission>
+            <DisplayName>Order</DisplayName>
+            <ResourceId>/permission/admin/configure/entitlement/policy/manage/order</ResourceId>
+        </ManagementPermission>
+        <ManagementPermission>
+            <DisplayName>Enable/Disable</DisplayName>
+            <ResourceId>/permission/admin/configure/entitlement/policy/manage/enable</ResourceId>
+        </ManagementPermission>
+        <ManagementPermission>
+            <DisplayName>Test</DisplayName>
+            <ResourceId>/permission/admin/configure/entitlement/policy/manage/test</ResourceId>
+        </ManagementPermission>
+        <ManagementPermission>
+            <DisplayName>PDP</DisplayName>
+            <ResourceId>/permission/admin/configure/entitlement/pdp</ResourceId>
+        </ManagementPermission>
+        <ManagementPermission>
+            <DisplayName>Manage</DisplayName>
+            <ResourceId>/permission/admin/configure/entitlement/pdp/manage</ResourceId>
+        </ManagementPermission>
+        <ManagementPermission>
+            <DisplayName>View</DisplayName>
+            <ResourceId>/permission/admin/configure/entitlement/pdp/view</ResourceId>
+        </ManagementPermission>
+    </ManagementPermissions>
+
 </component>

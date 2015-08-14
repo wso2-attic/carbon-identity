@@ -58,7 +58,6 @@ import org.wso2.carbon.identity.sso.saml.SAMLSSOConstants;
 import org.wso2.carbon.identity.sso.saml.builders.SignKeyDataHolder;
 import org.wso2.carbon.identity.sso.saml.dto.SAMLSSOAuthnReqDTO;
 import org.wso2.carbon.identity.sso.saml.util.SAMLSSOUtil;
-import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import java.util.Iterator;
 import java.util.Map;
@@ -104,7 +103,7 @@ public class DefaultSAMLAssertionBuilder implements SAMLAssertionBuilder {
             SubjectConfirmationData scData = new SubjectConfirmationDataBuilder().buildObject();
             scData.setRecipient(authReqDTO.getAssertionConsumerURL());
             scData.setNotOnOrAfter(notOnOrAfter);
-            if (!authReqDTO.isIdPInitSSO()) {
+            if (!authReqDTO.isIdPInitSSOEnabled()) {
                 scData.setInResponseTo(authReqDTO.getId());
             }
             subjectConfirmation.setSubjectConfirmationData(scData);
@@ -118,7 +117,7 @@ public class DefaultSAMLAssertionBuilder implements SAMLAssertionBuilder {
                     scData = new SubjectConfirmationDataBuilder().buildObject();
                     scData.setRecipient(recipient);
                     scData.setNotOnOrAfter(notOnOrAfter);
-                    if (!authReqDTO.isIdPInitSSO()) {
+                    if (!authReqDTO.isIdPInitSSOEnabled()) {
                         scData.setInResponseTo(authReqDTO.getId());
                     }
                     subjectConfirmation.setSubjectConfirmationData(scData);
