@@ -1674,7 +1674,7 @@ public class UserRealmProxy {
                 int newindex = Arrays.binarySearch(roleList, name);
                 if (newindex < 0) {
                     if (realm.getRealmConfiguration().getEveryOneRoleName().equalsIgnoreCase(name)) {
-                        log.info("Carbon everyone role can't be manipulated");
+                        log.warn("Carbon Internal/everyone role can't be manipulated");
                         continue;
                     }
                     delRoles.add(name);
