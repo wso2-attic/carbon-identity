@@ -251,6 +251,16 @@ public class SPInitLogoutRequestProcessor {
         }
     }
 
+    /**
+     * Builds the SAML error response and sets the compressed value to the reqValidationResponseDTO
+     *
+     * @param id
+     * @param status
+     * @param statMsg
+     * @param destination
+     * @return
+     * @throws IdentityException
+     */
     private SAMLSSOReqValidationResponseDTO buildErrorResponse(String id, String status, String statMsg,
                                                                String destination) throws IdentityException{
         SAMLSSOReqValidationResponseDTO reqValidationResponseDTO = new SAMLSSOReqValidationResponseDTO();
