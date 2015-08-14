@@ -339,7 +339,7 @@ public class SAMLSSOProviderServlet extends HttpServlet {
             } else {
                 //TODO send invalid response to SP
                 if (log.isDebugEnabled()) {
-                    log.debug("Invalid SAML SSO Request");
+                    log.debug("Invalid SAML SSO Request : " + samlRequest);
                 }
                 String errorResp = signInRespDTO.getResponse();
                 sendNotification(errorResp, SAMLSSOConstants.Notification.EXCEPTION_STATUS,
@@ -351,7 +351,7 @@ public class SAMLSSOProviderServlet extends HttpServlet {
                 sendToFrameworkForLogout(req, resp, signInRespDTO, relayState, sessionId, false, isPost);
             } else {
                 if (log.isDebugEnabled()) {
-                    log.debug("Invalid SAML SSO Logout Request");
+                    log.debug("Invalid SAML SSO Logout Request : " + samlRequest);
                 }
                 if (signInRespDTO.isLogoutFromAuthFramework()) {
                     sendToFrameworkForLogout(req, resp, null, null, sessionId, true, isPost);

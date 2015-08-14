@@ -160,16 +160,16 @@ public class TokenMgtDAO {
             connection = JDBCPersistenceManager.getInstance().getDBConnection();
             prepStmt = connection.prepareStatement(SQLQueries.STORE_AUTHORIZATION_CODE);
             prepStmt.setString(1, persistenceProcessor.getProcessedAuthzCode(authzCode));
-            prepStmt.setString(2, persistenceProcessor.getProcessedClientId(consumerKey));
-            prepStmt.setString(3, callbackUrl);
-            prepStmt.setString(4, OAuth2Util.buildScopeString(authzCodeDO.getScope()));
-            prepStmt.setString(5, authzCodeDO.getAuthorizedUser().getUserName());
-            prepStmt.setString(6, authzCodeDO.getAuthorizedUser().getUserStoreDomain());
+            prepStmt.setString(2, callbackUrl);
+            prepStmt.setString(3, OAuth2Util.buildScopeString(authzCodeDO.getScope()));
+            prepStmt.setString(4, authzCodeDO.getAuthorizedUser().getUserName());
+            prepStmt.setString(5, authzCodeDO.getAuthorizedUser().getUserStoreDomain());
             int tenantId = OAuth2Util.getTenantId(authzCodeDO.getAuthorizedUser().getTenantDomain());
-            prepStmt.setInt(7, tenantId);
-            prepStmt.setTimestamp(8, authzCodeDO.getIssuedTime(),
+            prepStmt.setInt(6, tenantId);
+            prepStmt.setTimestamp(7, authzCodeDO.getIssuedTime(),
                                   Calendar.getInstance(TimeZone.getTimeZone("UTC")));
-            prepStmt.setLong(9, authzCodeDO.getValidityPeriod());
+            prepStmt.setLong(8, authzCodeDO.getValidityPeriod());
+            prepStmt.setString(9, persistenceProcessor.getProcessedClientId(consumerKey));
             prepStmt.execute();
             connection.commit();
         } catch (IdentityException e) {
@@ -213,20 +213,20 @@ public class TokenMgtDAO {
             } else {
                 prepStmt.setString(2, accessTokenDO.getRefreshToken());
             }
-            prepStmt.setString(3, persistenceProcessor.getProcessedClientId(consumerKey));
-            prepStmt.setString(4, accessTokenDO.getAuthzUser().getUserName());
+            prepStmt.setString(3, accessTokenDO.getAuthzUser().getUserName());
             int tenantId = OAuth2Util.getTenantId(accessTokenDO.getAuthzUser().getTenantDomain());
-            prepStmt.setInt(5, tenantId);
-            prepStmt.setString(6, accessTokenDO.getAuthzUser().getUserStoreDomain());
-            prepStmt.setTimestamp(7, accessTokenDO.getIssuedTime(), Calendar.getInstance(TimeZone.getTimeZone("UTC")));
-            prepStmt.setTimestamp(8, accessTokenDO.getRefreshTokenIssuedTime(), Calendar.getInstance(TimeZone
+            prepStmt.setInt(4, tenantId);
+            prepStmt.setString(5, accessTokenDO.getAuthzUser().getUserStoreDomain());
+            prepStmt.setTimestamp(6, accessTokenDO.getIssuedTime(), Calendar.getInstance(TimeZone.getTimeZone("UTC")));
+            prepStmt.setTimestamp(7, accessTokenDO.getRefreshTokenIssuedTime(), Calendar.getInstance(TimeZone
                     .getTimeZone("UTC")));
-            prepStmt.setLong(9, accessTokenDO.getValidityPeriodInMillis());
-            prepStmt.setLong(10, accessTokenDO.getRefreshTokenValidityPeriodInMillis());
-            prepStmt.setString(11, OAuth2Util.hashScopes(accessTokenDO.getScope()));
-            prepStmt.setString(12, accessTokenDO.getTokenState());
-            prepStmt.setString(13, accessTokenDO.getTokenType());
-            prepStmt.setString(14, accessTokenDO.getTokenId());
+            prepStmt.setLong(8, accessTokenDO.getValidityPeriodInMillis());
+            prepStmt.setLong(9, accessTokenDO.getRefreshTokenValidityPeriodInMillis());
+            prepStmt.setString(10, OAuth2Util.hashScopes(accessTokenDO.getScope()));
+            prepStmt.setString(11, accessTokenDO.getTokenState());
+            prepStmt.setString(12, accessTokenDO.getTokenType());
+            prepStmt.setString(13, accessTokenDO.getTokenId());
+            prepStmt.setString(14, persistenceProcessor.getProcessedClientId(consumerKey));
             prepStmt.execute();
             String accessTokenId = accessTokenDO.getTokenId();
             prepStmt = connection.prepareStatement(sqlAddScopes);
