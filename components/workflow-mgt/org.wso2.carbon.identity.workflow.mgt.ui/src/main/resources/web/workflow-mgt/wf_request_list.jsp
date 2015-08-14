@@ -51,8 +51,6 @@
 
     //String loggedUser =  CarbonContext.getThreadLocalCarbonContext().getUsername();
     String loggedUser = (String)session.getAttribute("logged-user");
-    String tenant = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-    loggedUser = UserCoreUtil.addTenantDomainToEntry(loggedUser, tenant);
     String bundle = "org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources";
     ResourceBundle resourceBundle = ResourceBundle.getBundle(bundle, request.getLocale());
     WorkflowAdminServiceClient client;
@@ -142,6 +140,11 @@
     <script type="text/javascript" src="../carbon/admin/js/breadcrumbs.js"></script>
     <script type="text/javascript" src="../carbon/admin/js/cookies.js"></script>
     <script type="text/javascript" src="../carbon/admin/js/main.js"></script>
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+    <script src="//code.jquery.com/jquery-1.10.2.js"></script>
+    <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+    <link rel="stylesheet" href="/resources/demos/style.css">
+
     <script type="text/javascript">
         function doCancel() {
             location.href = 'list-workflows.jsp';
@@ -202,10 +205,110 @@
             }
         }
 
+        function getSelectedRequestType() {
+        }
+        function getSelectedStatusType() {
+        }
+        function searchRequests() {
+        }
+
+    </script>
+
+    <script>
+        $(function() {
+            $( "#from" ).datepicker({
+                defaultDate: "+1w",
+                changeMonth: true,
+                numberOfMonths: 1,
+                onClose: function( selectedDate ) {
+                    $( "#to" ).datepicker( "option", "minDate", selectedDate );
+                }
+            });
+            $( "#to" ).datepicker({
+                defaultDate: "+1w",
+                changeMonth: true,
+                numberOfMonths: 1,
+                onClose: function( selectedDate ) {
+                    $( "#from" ).datepicker( "option", "maxDate", selectedDate );
+                }
+            });
+        });
     </script>
 
     <div id="middle">
         <h2><fmt:message key='workflow.list'/></h2>
+
+        <form action="index.jsp" name="searchForm" method="post">
+            <table id="searchTable" name="searchTable" class="styledLeft" style="border:0;
+                                                !important margin-top:10px;margin-bottom:10px;">
+                <tr>
+                    <td>
+                        <table style="border:0; !important">
+                            <tbody>
+                            <tr style="border:0; !important">
+                                <td style="border:0; !important">
+                                    <nobr>
+                                        <fmt:message key="workflow.request.type"/>
+                                        <select name="requestTypeFilter" id="requestTypeFilter"
+                                                onchange="getSelectedRequestType();">
+                                            <option value="allTasks"
+                                                    selected="selected"><fmt:message key="allTasks"/></option>
+                                            <option value="myTasks"><fmt:message key="myTasks"/></option>
+                                        </select>
+                                    </nobr>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </td>
+
+                    <td>
+                        <table style="border:0; !important">
+                            <tbody>
+                            <tr style="border:0; !important">
+                                <td style="border:0; !important">
+                                    <nobr>
+                                        <fmt:message key="workflow.request.status"/>
+                                        <select name="requestTypeFilter" id="requestTypeFilter"
+                                                onchange="getSelectedStatusType();">
+                                            <option value="allTasks"
+                                                    selected="selected"><fmt:message key="allTasks"/></option>
+                                            <option value="pending"><fmt:message key="pending"/></option>
+                                            <option value="approved"><fmt:message key="approved"/></option>
+                                            <option value="rejected"><fmt:message key="rejected"/></option>
+                                            <option value="failed"><fmt:message key="failed"/></option>
+                                        </select>
+                                    </nobr>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </td>
+                    <td>
+                        <table style="border:0; !important">
+                            <tbody>
+                            <tr style="border:0; !important">
+                                <td style="border:0; !important">
+                                    <nobr>
+                                        <fmt:message key="workflow.request.createdAt"/>
+                                        <label for="from">From</label>
+                                        <input type="text" id="from" name="from">
+                                        <label for="to">to</label>
+                                        <input type="text" id="to" name="to">
+                                    </nobr>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </td>
+                    <td style="border:0; !important">
+                        <a class="icon-link" href="#" style="background-image: url(images/search-top.png);"
+                           onclick="searchRequests(); return false;"
+                           alt="<fmt:message key="search"/>"></a>
+                    </td>
+                </tr>
+            </table>
+        </form>
 
         <div id="workArea">
             <table class="styledLeft" id="servicesTable">
@@ -222,7 +325,7 @@
                 <tbody>
                 <%
                     for (WorkflowRequestDTO workflowReq : associationToDisplay) {
-                        if (workflowReq != null) {
+                        if (workflowReq != null ) {
                 %>
                 <tr>
                     <td><%=workflowReq.getEventType()%>

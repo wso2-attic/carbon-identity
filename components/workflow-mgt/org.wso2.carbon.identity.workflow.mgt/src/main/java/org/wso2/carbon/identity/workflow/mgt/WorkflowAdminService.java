@@ -35,6 +35,7 @@ import org.wso2.carbon.identity.workflow.mgt.exception.InternalWorkflowException
 import org.wso2.carbon.identity.workflow.mgt.exception.RuntimeWorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.util.WorkflowRequestStatus;
+import org.wso2.carbon.user.core.util.UserCoreUtil;
 
 import java.util.List;
 import java.util.UUID;
@@ -219,7 +220,10 @@ public class WorkflowAdminService {
      */
     public WorkflowRequestDTO[] getRequestsCreatedByUser(String user) throws WorkflowException {
 
-        return service.getRequestsCreatedByUser(user);
+
+        String tenant = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+        String fullyQualifiedUserName = UserCoreUtil.addTenantDomainToEntry(user, tenant);
+        return service.getRequestsCreatedByUser(fullyQualifiedUserName);
     }
 
     /**
