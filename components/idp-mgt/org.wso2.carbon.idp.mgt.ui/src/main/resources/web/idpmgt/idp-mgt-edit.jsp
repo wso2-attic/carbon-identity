@@ -40,6 +40,7 @@
 <%@ page import="java.util.List" %>
 <%@ page import="java.util.Map" %>
 <%@ page import="org.apache.commons.lang.StringUtils" %>
+<%@ page import="org.wso2.carbon.user.core.util.UserCoreUtil" %>
 <link href="css/idpmgt.css" rel="stylesheet" type="text/css" media="all"/>
 
 <carbon:breadcrumb label="identity.providers" resourceBundle="org.wso2.carbon.idp.mgt.ui.i18n.Resources"
@@ -3341,8 +3342,7 @@ function doValidation() {
                     <tr>
                         <td><input type="text" value="<%=roleMappings[i].getRemoteRole()%>" id="rolerowname_<%=i%>"
                                    name="rolerowname_<%=i%>"/></td>
-                        <td><input type="text" value="<%=roleMappings[i].getLocalRole().getUserStoreId()%>/<%=roleMappings[i].getLocalRole().getLocalRoleName()%>"
-                                   id="localrowname_<%=i%>" name="localrowname_<%=i%>"/></td>
+                        <td><input type="text" value="<%=UserCoreUtil.addDomainToName(roleMappings[i].getLocalRole().getLocalRoleName(), roleMappings[i].getLocalRole().getUserStoreId())%>" id="localrowname_<%=i%>" name="localrowname_<%=i%>"/></td>
                         <td>
                             <a title="<fmt:message key='delete.role'/>"
                                onclick="deleteRoleRow(this);return false;"
