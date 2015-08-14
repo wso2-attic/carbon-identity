@@ -74,12 +74,13 @@ public class EntitlementEngineCache {
                     try {
                         entitlementEngineCachingInterval = Long.parseLong(engineCachingInterval);
                     } catch (NumberFormatException e) {
-                        //Do nothing. value will remain as original
+                        log.warn("Invalid value for " + PDPConstants.ENTITLEMENT_ENGINE_CACHING_INTERVAL + ". Using " +
+                                 "default value " + entitlementEngineCachingInterval + " seconds.");
                     }
                 } else {
                     if (log.isDebugEnabled()) {
-                        log.debug("Entitlement.Engine.CachingInterval not set. Using default value " +
-                                entitlementEngineCachingInterval);
+                        log.debug(PDPConstants.ENTITLEMENT_ENGINE_CACHING_INTERVAL + " not set. Using default value " +
+                                  entitlementEngineCachingInterval + " seconds.");
                     }
                 }
                 cacheManager.removeCache(ENTITLEMENT_ENGINE_CACHE);
