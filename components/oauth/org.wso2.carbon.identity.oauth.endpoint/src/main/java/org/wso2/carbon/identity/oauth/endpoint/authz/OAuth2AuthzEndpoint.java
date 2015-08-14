@@ -259,8 +259,8 @@ public class OAuth2AuthzEndpoint {
                         }
                     }
                     String sessionKey = UUIDGenerator.generateUUID();
-                    if(statCookie ==null) {
-                        Cookie cookie=new Cookie(OAuthConstants.STATUSCOOKIE,sessionKey);
+                    if (statCookie == null) {
+                        Cookie cookie = new Cookie(OAuthConstants.STATUSCOOKIE, sessionKey);
                         return Response.status(HttpServletResponse.SC_FOUND).
                                 cookie(new NewCookie(cookie)).location(new URI(redirectURL + "&session=" + cookie.getValue())).build();
                     }
