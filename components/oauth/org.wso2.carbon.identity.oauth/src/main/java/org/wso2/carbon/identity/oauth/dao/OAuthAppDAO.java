@@ -176,6 +176,7 @@ public class OAuthAppDAO {
                     oauthApp.setOauthVersion(rSet.getString(4));
                     oauthApp.setCallbackUrl(rSet.getString(5));
                     oauthApp.setGrantTypes(rSet.getString(6));
+                    oauthApp.setId(rSet.getInt(7));
                     oauthApps.add(oauthApp);
                 }
             }
@@ -225,6 +226,7 @@ public class OAuthAppDAO {
                     oauthApp.setCallbackUrl(rSet.getString(5));
                     oauthApp.setTenantId(rSet.getInt(6));
                     oauthApp.setGrantTypes(rSet.getString(7));
+                    oauthApp.setId(rSet.getInt(8));
                     oauthApps.add(oauthApp);
                 }
             }
@@ -282,6 +284,7 @@ public class OAuthAppDAO {
                     oauthApp.setOauthVersion(rSet.getString(4));
                     oauthApp.setCallbackUrl(rSet.getString(5));
                     oauthApp.setGrantTypes(rSet.getString(6));
+                    oauthApp.setId(rSet.getInt(7));
                     oauthApps.add(oauthApp);
                 }
             }

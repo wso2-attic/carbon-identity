@@ -37,8 +37,7 @@ public class BasicAuthClientAuthHandler extends AbstractClientAuthHandler {
             OAuth2AccessTokenReqDTO oAuth2AccessTokenReqDTO =
                     tokReqMsgCtx.getOauth2AccessTokenReqDTO();
             try {
-                return OAuth2Util.authenticateClient(
-                        oAuth2AccessTokenReqDTO.getClientId(),
+                return OAuth2Util.authenticateClient(oAuth2AccessTokenReqDTO.getClientId(),
                         oAuth2AccessTokenReqDTO.getClientSecret());
             } catch (IdentityOAuthAdminException e) {
                 throw new IdentityOAuth2Exception("Error while authenticating client", e);
