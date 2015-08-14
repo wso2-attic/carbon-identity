@@ -3013,30 +3013,40 @@ function doValidation() {
                         </thead>
                         <tbody>
                         <tr>
-                            <td><%String issuerDN = "";
-                                if(certData.getIssuerDN()!=null){
-                                    issuerDN=certData.getIssuerDN();
-                                }%><%=issuerDN%>
+                            <td><%
+                                String issuerDN = "";
+                                if (certData.getIssuerDN() != null) {
+                                    issuerDN = certData.getIssuerDN();
+                                }
+                            %><%=issuerDN%>
                             </td>
-                            <td><%String subjectDN = "";
-                                if(certData.getSubjectDN()!=null){
-                                    subjectDN=certData.getSubjectDN();
-                                }%><%=subjectDN%>
+                            <td><%
+                                String subjectDN = "";
+                                if (certData.getSubjectDN() != null) {
+                                    subjectDN = certData.getSubjectDN();
+                                }
+                            %><%=subjectDN%>
                             </td>
-                            <td><%String notAfter = "";
-                                if(certData.getNotAfter()!=null){
-                                    notAfter=certData.getNotAfter();
-                                }%><%=notAfter%>
+                            <td><%
+                                String notAfter = "";
+                                if (certData.getNotAfter() != null) {
+                                    notAfter = certData.getNotAfter();
+                                }
+                            %><%=notAfter%>
                             </td>
-                            <td><%String notBefore = "";
-                                if(certData.getNotBefore()!=null){
-                                    notBefore=certData.getNotBefore();
-                                }%><%=notBefore%>
+                            <td><%
+                                String notBefore = "";
+                                if (certData.getNotBefore() != null) {
+                                    notBefore = certData.getNotBefore();
+                                }
+                            %><%=notBefore%>
                             </td>
-                            <td><%String serialNo = "";
-                                if(certData.getSerialNumber()!=null){
-                                    serialNo=certData.getSerialNumber().toString();
-                                }%><%=serialNo%>
+                            <td><%
+                                String serialNo = "";
+                                if (certData.getSerialNumber() != null) {
+                                    serialNo = certData.getSerialNumber().toString();
+                                }
+                            %><%=serialNo%>
                             </td>
                         </tr>
                         </tbody>
@@ -3642,17 +3652,17 @@ function doValidation() {
                                 <span style="display:inline-block" class="sectionHelp">
                                     <fmt:message key='logout.request.signed.help'/>
                                 </span>
-                </div>
-            </td>
-        </tr>
-        <tr>
-            <td class="leftCol-med labelField">
-                <label for="authnResponseSigned"><fmt:message key='authn.response.signed'/></label>
-            </td>
-            <td>
-                <div class="sectionCheckbox">
-                    <input id="authnResponseSigned" name="authnResponseSigned"
-                           type="checkbox" <%=authnResponseSignedChecked%>/>
+        </div>
+    </td>
+</tr>
+<tr>
+    <td class="leftCol-med labelField">
+        <label for="authnResponseSigned"><fmt:message key='authn.response.signed'/></label>
+    </td>
+    <td>
+        <div class="sectionCheckbox">
+            <input id="authnResponseSigned" name="authnResponseSigned"
+                   type="checkbox" <%=authnResponseSignedChecked%>/>
                                 <span style="display:inline-block" class="sectionHelp">
                                     <fmt:message key='authn.response.signed.help'/>
                                 </span>
@@ -3712,12 +3722,12 @@ function doValidation() {
 
                 <input id="samlQueryParam" name="samlQueryParam" type="text" value=<%=samlQueryParam%>>
 
-                <div class="sectionHelp">
-                    <fmt:message key='query.param.help'/>
-                </div>
-            </td>
-        </tr>
-    </table>
+        <div class="sectionHelp">
+            <fmt:message key='query.param.help'/>
+        </div>
+    </td>
+</tr>
+</table>
 </div>
 
 <h2 id="oauth2_head" class="sectionSeperator trigger active" style="background-color: beige;">
