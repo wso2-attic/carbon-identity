@@ -28,7 +28,14 @@ import org.wso2.carbon.identity.sso.agent.openid.AttributesRequestor;
 import org.wso2.carbon.identity.sso.agent.saml.SSOAgentCarbonX509Credential;
 import org.wso2.carbon.identity.sso.agent.saml.SSOAgentX509Credential;
 
-import javax.net.ssl.*;
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.TrustManagerFactory;
+import javax.net.ssl.X509TrustManager;
+import javax.net.ssl.SSLSocketFactory;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -403,39 +410,8 @@ public class SSOAgentConfig {
         try {
             // Get SSL context
             sc = SSLContext.getInstance("SSL");
-
-            if (!this.getEnableHostNameVerification()) {
-                // Create empty HostnameVerifier
-                HostnameVerifier hv = new HostnameVerifier() {
-                    public boolean verify(String urlHostName, SSLSession session) {
-                        return true;
-                    }
-                };
-                HttpsURLConnection.setDefaultHostnameVerifier(hv);
-            }
-
-            TrustManager[] trustManagers = null;
-
-            if (this.getEnableSSLVerification()) {
-                TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-                tmf.init(this.getKeyStore());
-                trustManagers = tmf.getTrustManagers();
-            } else {
-                // Create a trust manager that does not validate certificate chains
-                trustManagers = new TrustManager[] { new X509TrustManager() {
-                    public java.security.cert.X509Certificate[] getAcceptedIssuers() {
-                        return null;
-                    }
-
-                    public void checkClientTrusted(java.security.cert.X509Certificate[] certs,
-                                                   String authType) {
-                    }
-
-                    public void checkServerTrusted(java.security.cert.X509Certificate[] certs,
-                                                   String authType) {
-                    }
-                } };
-            }
+            doHostNameVerification();
+            TrustManager[] trustManagers = doSSLVerification();
 
             sc.init(null, trustManagers, new java.security.SecureRandom());
             SSLSocketFactory sslSocketFactory = sc.getSocketFactory();
@@ -580,6 +556,43 @@ public class SSOAgentConfig {
                 }
             }
         }
+    }
+
+    private void doHostNameVerification(){
+        if (!this.getEnableHostNameVerification()) {
+            // Create empty HostnameVerifier
+            HostnameVerifier hv = new HostnameVerifier() {
+                public boolean verify(String urlHostName, SSLSession session) {
+                    return true;
+                }
+            };
+            HttpsURLConnection.setDefaultHostnameVerifier(hv);
+        }
+    }
+
+    private TrustManager[] doSSLVerification() throws Exception {
+        TrustManager[] trustManagers = null;
+        if (this.getEnableSSLVerification()) {
+            TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+            tmf.init(this.getKeyStore());
+            trustManagers = tmf.getTrustManagers();
+        } else {
+            // Create a trust manager that does not validate certificate chains
+            trustManagers = new TrustManager[] { new X509TrustManager() {
+                public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+                    return null;
+                }
+
+                public void checkClientTrusted(java.security.cert.X509Certificate[] certs,
+                                               String authType) {
+                }
+
+                public void checkServerTrusted(java.security.cert.X509Certificate[] certs,
+                                               String authType) {
+                }
+            } };
+        }
+        return trustManagers;
     }
 
     public class SAML2 {
