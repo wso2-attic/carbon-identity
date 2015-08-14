@@ -3048,6 +3048,8 @@ function doValidation() {
                                 }
                             %><%=serialNo%>
                             </td>
+                            <td><%=certData.getVersion()%>
+                            </td>
                         </tr>
                         </tbody>
                     </table>
