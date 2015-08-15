@@ -20,6 +20,8 @@ package org.wso2.carbon.identity.oauth2.token.handlers.clientauth;
 
 import org.apache.axis2.util.JavaUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.oauth.common.OAuthConstants;
 import org.wso2.carbon.identity.oauth2.IdentityOAuth2Exception;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2AccessTokenReqDTO;
@@ -31,6 +33,7 @@ public abstract class AbstractClientAuthHandler implements ClientAuthenticationH
 
     protected Properties properties;
     protected String authConfig;
+    private static Log log = LogFactory.getLog(AbstractClientAuthHandler.class);
 
     @Override
     public void init(Properties properties) throws IdentityOAuth2Exception {
@@ -45,6 +48,10 @@ public abstract class AbstractClientAuthHandler implements ClientAuthenticationH
 
         if (StringUtils.isNotEmpty(oAuth2AccessTokenReqDTO.getClientId()) &&
                 StringUtils.isNotEmpty(oAuth2AccessTokenReqDTO.getClientSecret())) {
+            if (log.isDebugEnabled()) {
+                log.debug("Can authenticate with client ID and Secret." +
+                        " Client ID: "+ oAuth2AccessTokenReqDTO.getClientId());
+            }
             return true;
 
         } else {
@@ -55,8 +62,16 @@ public abstract class AbstractClientAuthHandler implements ClientAuthenticationH
                 authConfig = properties.getProperty(
                         OAuthConstants.CLIENT_AUTH_CREDENTIAL_VALIDATION);
 
+                if (log.isDebugEnabled()) {
+                    log.debug("Grant type : " + oAuth2AccessTokenReqDTO.getGrantType());
+                }
+
                 //If user has set strict validation to false, can authenticate without credentials
                 if (StringUtils.isNotEmpty(authConfig) && JavaUtils.isFalseExplicitly(authConfig)) {
+                    if (log.isDebugEnabled()) {
+                        log.debug("Client auth credential validation set to : " + authConfig + ". " +
+                                "can authenticate without client secret");
+                    }
                     return true;
                 }
             }
@@ -74,7 +89,16 @@ public abstract class AbstractClientAuthHandler implements ClientAuthenticationH
         if (StringUtils.isEmpty(oAuth2AccessTokenReqDTO.getClientSecret()) && org.wso2.carbon.identity.oauth.common
                 .GrantType.SAML20_BEARER.toString().equals(oAuth2AccessTokenReqDTO.getGrantType()) && JavaUtils
                 .isFalseExplicitly(authConfig)) {
+            if (log.isDebugEnabled()) {
+                log.debug("Grant type : " + oAuth2AccessTokenReqDTO.getGrantType() + " " +
+                        "Strict client validation set to : " + authConfig + " Authenticating without client secret");
+            }
             return true;
+        }
+
+        if (log.isDebugEnabled()) {
+            log.debug("Grant type : " + oAuth2AccessTokenReqDTO.getGrantType() + " " +
+                    "Strict client validation set to : " + authConfig);
         }
         return false;
     }
