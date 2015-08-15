@@ -453,21 +453,21 @@ public class UserAdmin {
      * org.wso2.carbon.user.mgt.TestClass#updateRolesOfUser(java.lang.String,
      * java.lang.String)
      */
-    public void updateRolesOfUser(String userName, String[] newUserList) throws UserAdminException {
+    public void updateRolesOfUser(String userName, String[] newRoleList) throws UserAdminException {
         String result = null;
 
         try {
-            getUserAdminProxy().updateRolesOfUser(userName, newUserList);
+            getUserAdminProxy().updateRolesOfUser(userName, newRoleList);
             result = SUCCESS;
         } catch (UserAdminException e) {
             result = FAILED;
             throw e;
         } finally {
             StringBuilder roles = new StringBuilder();
-            if (newUserList != null) {
-                for (int i = 0; i < newUserList.length; i++) {
-                    if (newUserList[i] != null) {
-                        roles.append(newUserList[i] + ",");
+            if (newRoleList != null) {
+                for (int i = 0; i < newRoleList.length; i++) {
+                    if (newRoleList[i] != null) {
+                        roles.append(newRoleList[i] + ",");
                     }
                 }
             }
