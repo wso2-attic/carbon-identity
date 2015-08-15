@@ -1,0 +1,27 @@
+<Status>
+<StatusCode Value="samlp:Success"></StatusCode>
+</Status>
+<Assertion xmlns="urn:oasis:names:tc:SAML:1.0:assertion" AssertionID="$assertionId" IssueInstant="$timestamp" Issuer="$issuer" MajorVersion="1" MinorVersion="1">
+  <Conditions NotBefore="$notBefore" NotOnOrAfter="$notAfter"> 
+    <AudienceRestrictionCondition>
+      <Audience>$audience</Audience>
+    </AudienceRestrictionCondition>
+  </Conditions>
+  <AttributeStatement>
+    <Subject>
+      <NameIdentifier>$username</NameIdentifier>
+      <SubjectConfirmation>
+        <ConfirmationMethod>urn:oasis:names:tc:SAML:1.0:cm:artifact</ConfirmationMethod>
+      </SubjectConfirmation>
+    </Subject>
+    $attributes
+  </AttributeStatement>
+  <AuthenticationStatement AuthenticationInstant="$timestamp" AuthenticationMethod="urn:oasis:names:tc:SAML:1.0:am:password">
+   <Subject>
+      <NameIdentifier>$username</NameIdentifier>
+      <SubjectConfirmation>
+        <ConfirmationMethod>urn:oasis:names:tc:SAML:1.0:cm:artifact</ConfirmationMethod>
+      </SubjectConfirmation>
+    </Subject>
+  </AuthenticationStatement>
+</Assertion>

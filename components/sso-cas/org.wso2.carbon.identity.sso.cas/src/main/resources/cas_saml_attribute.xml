@@ -1,0 +1,3 @@
+    <Attribute AttributeName="$attributeName" AttributeNamespace="http://www.ja-sig.org/products/cas/">
+      <AttributeValue>$attributeValue</AttributeValue>
+    </Attribute>
