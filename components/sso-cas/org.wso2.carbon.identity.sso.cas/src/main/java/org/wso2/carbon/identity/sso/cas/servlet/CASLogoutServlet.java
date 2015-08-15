@@ -27,6 +27,12 @@ import org.wso2.carbon.identity.sso.cas.handler.LogoutHandler;
 public class CASLogoutServlet extends HttpServlet {
 
 	private static final long serialVersionUID = -5182312441482721905L;
+	
+	private String tenantDomain = null;
+	
+	public CASLogoutServlet(String tenantDomain) {
+		this.tenantDomain = tenantDomain;
+	}
 
 	@Override
 	protected void doGet(HttpServletRequest httpServletRequest,
@@ -46,7 +52,7 @@ public class CASLogoutServlet extends HttpServlet {
 	private void handleRequest(HttpServletRequest req,
 			HttpServletResponse resp) throws ServletException,
 			IOException {
-		LogoutHandler handler = new LogoutHandler();
+		LogoutHandler handler = new LogoutHandler(tenantDomain);
 		handler.handle(req, resp);
 	}
 }

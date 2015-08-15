@@ -24,7 +24,7 @@ public class HandlerConstants {
 	public static final String PRE_CAS_LOGIN_PATH = CASEndpointConstants.LOGIN_PATH + POST_AUTH_REDIRECT_NAME_VALUE;
 	public static final String PRE_CAS_LOGIN_PATH_TEMPLATE = PRE_CAS_LOGIN_PATH + "%s" + POST_AUTH_SAML_LOGIN_NAME_VALUE;
 	public static final String POST_CAS_LOGIN_PATH_TEMPLATE = PRE_CAS_LOGIN_PATH_TEMPLATE + "%s";
-	public static final String COMMON_AUTH_REDIRECT_URL = "?relyingParty=%s&"+FrameworkConstants.SESSION_DATA_KEY+"=%s&type=samlsso&commonAuthCallerPath=%s&forceAuth=%s&passiveAuth=%s";
+	public static final String COMMON_AUTH_REDIRECT_URL = "?relyingParty=%s&"+FrameworkConstants.SESSION_DATA_KEY+"=%s&type=cassso&commonAuthCallerPath=%s&forceAuth=%s&passiveAuth=%s";
 
 	public static final String VALIDATION_RESPONSE_TEMPLATE = "<cas:serviceResponse xmlns:cas=\"http://www.yale.edu/tp/cas\">%s</cas:serviceResponse>";
 	

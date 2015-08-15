@@ -27,6 +27,12 @@ import org.wso2.carbon.ui.CarbonUIUtil;
 
 public class LogoutHandler {
 	private static Log log = LogFactory.getLog(LogoutHandler.class);
+	
+	private String tenantDomain = null;
+	
+	public LogoutHandler(String tenantDomain) {
+		this.tenantDomain = tenantDomain;
+	}
 
 	@SuppressWarnings("rawtypes")
 	public void handle(HttpServletRequest req, HttpServletResponse resp)
@@ -67,11 +73,11 @@ public class LogoutHandler {
 			String commonAuthURL = CarbonUIUtil.getAdminConsoleURL(req);
 
 			commonAuthURL = commonAuthURL.replace(
-					CASConfiguration.buildRelativePath("/logout/carbon/"),
+					CASConfiguration.buildTenantRelativePath(tenantDomain, "/logout/carbon/"),
 					HandlerConstants.COMMON_AUTH_ENDPOINT);
 			
 			String selfPath = URLEncoder.encode(
-					CASConfiguration.buildRelativePath("/logout?"
+					CASConfiguration.buildTenantRelativePath(tenantDomain, "/logout?"
 							+ buildLogoutReturnUrl(returnUrl, legacyLogoutDetected)
 							+ HandlerConstants.LOGOUT_COMPLETE_NAME_VALUE),
 							HandlerConstants.DEFAULT_ENCODING);
@@ -99,7 +105,7 @@ public class LogoutHandler {
 							.getAdminConsoleURL(req);
 
 					forcedCASLogoutUrl = forcedCASLogoutUrl.replace(
-							CASConfiguration.buildRelativePath("/logout/carbon/"), URLDecoder.decode(selfPath,
+							CASConfiguration.buildTenantRelativePath(tenantDomain, "/logout/carbon/"), URLDecoder.decode(selfPath,
 									HandlerConstants.DEFAULT_ENCODING));
 
 					resp.sendRedirect(forcedCASLogoutUrl);
@@ -119,9 +125,12 @@ public class LogoutHandler {
 				authenticationRequest.setCommonAuthCallerPath(selfPath);
 
 				authenticationRequest.setRelyingParty(serviceProviderName);
+				if( tenantDomain != null ) {
+					authenticationRequest.setTenantDomain(tenantDomain);
+				}
 
-				authenticationRequest.appendRequestQueryParams(req
-						.getParameterMap());
+//				authenticationRequest.appendRequestQueryParams(req
+//						.getParameterMap());
 				
 				// Add headers to AuthenticationRequestContext
 				for (Enumeration e = req.getHeaderNames(); e.hasMoreElements();) {
@@ -139,7 +148,7 @@ public class LogoutHandler {
 						+ buildLogoutReturnUrl(returnUrl, legacyLogoutDetected)
 						+ "&"
 						+ FrameworkConstants.SESSION_DATA_KEY + "="
-						+ sessionDataKey + "&type=samlsso"
+						+ sessionDataKey + "&type=cassso"
 						+ "&commonAuthCallerPath=" + selfPath
 						+ "&commonAuthLogout=true";
 				resp.sendRedirect(commonAuthURL + queryParams);
@@ -189,7 +198,7 @@ public class LogoutHandler {
 		// Proceed with session cleanup
 		CASLogoutSender.getInstance().logoutSession(ticketGrantingTicketId);
 
-		CASCookieUtil.removeTicketGrantingCookie(req, resp);
+		CASCookieUtil.removeTicketGrantingCookie(req, resp, tenantDomain);
 	}
 
 	private void sendLogoutResponse(HttpServletResponse resp,

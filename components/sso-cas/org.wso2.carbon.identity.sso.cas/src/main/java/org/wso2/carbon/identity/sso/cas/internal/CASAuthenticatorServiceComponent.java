@@ -33,7 +33,10 @@ import org.wso2.carbon.identity.sso.cas.servlet.CASServiceValidationServlet;
 import org.wso2.carbon.identity.sso.cas.servlet.CASValidationServlet;
 import org.wso2.carbon.identity.sso.cas.util.CASSSOUtil;
 import org.wso2.carbon.registry.core.service.RegistryService;
+import org.wso2.carbon.user.api.Tenant;
+import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.service.RealmService;
+import org.wso2.carbon.user.core.tenant.TenantManager;
 
 /**
  * @scr.component name="identity.sso.cas" immediate="true"
@@ -50,24 +53,42 @@ import org.wso2.carbon.user.core.service.RealmService;
  */
 public class CASAuthenticatorServiceComponent{
 
-
     private static Log log = LogFactory.getLog(CASAuthenticatorServiceComponent.class);
     
     protected void activate(ComponentContext ctxt) {
         HttpService httpService = CASSSOUtil.getHttpService();
-              
-        String casLoginPath = CASConfiguration.buildRelativePath(CASEndpointConstants.LOGIN_PATH);
-        String casProxyLoginPath = CASConfiguration.buildRelativePath(CASEndpointConstants.PROXY_LOGIN_PATH);
-        String casLogoutPath = CASConfiguration.buildRelativePath(CASEndpointConstants.LOGOUT_PATH);
-        String casValidatePath = CASConfiguration.buildRelativePath(CASEndpointConstants.VALIDATE_PATH);
-        String casProxyValidatePath = CASConfiguration.buildRelativePath(CASEndpointConstants.PROXY_VALIDATE_PATH);
-        String casServiceValidatePath = CASConfiguration.buildRelativePath(CASEndpointConstants.SERVICE_VALIDATE_PATH);
-        String casSamlValidatePath = CASConfiguration.buildRelativePath(CASEndpointConstants.SAML_VALIDATE_PATH);
+        
+        try {
+        	// Register super tenant domain
+        	addTenantServlets(httpService, null);
+        	
+        	TenantManager tenantManager = CASSSOUtil.getRealmService().getTenantManager();
+			for( Tenant tenant : tenantManager.getAllTenants() ) {
+				log.debug("Registering CAS servlets for "+tenant.getDomain());
+				addTenantServlets(httpService, tenant.getDomain());
+			}
+		} catch (UserStoreException e) {
+          String errMsg = "Error when registering CAS SSO Servlet via the HttpService.";
+          log.error(errMsg, e);
+          throw new RuntimeException(errMsg, e);
+		}
+        
+        log.info("CAS SSO bundle is activated");
+    }
+    
+    private void addTenantServlets(HttpService httpService, String tenantDomain) {
+        String casLoginPath = CASConfiguration.buildTenantRelativePath(tenantDomain, CASEndpointConstants.LOGIN_PATH);
+        String casProxyLoginPath = CASConfiguration.buildTenantRelativePath(tenantDomain, CASEndpointConstants.PROXY_LOGIN_PATH);
+        String casLogoutPath = CASConfiguration.buildTenantRelativePath(tenantDomain, CASEndpointConstants.LOGOUT_PATH);
+        String casValidatePath = CASConfiguration.buildTenantRelativePath(tenantDomain, CASEndpointConstants.VALIDATE_PATH);
+        String casProxyValidatePath = CASConfiguration.buildTenantRelativePath(tenantDomain, CASEndpointConstants.PROXY_VALIDATE_PATH);
+        String casServiceValidatePath = CASConfiguration.buildTenantRelativePath(tenantDomain, CASEndpointConstants.SERVICE_VALIDATE_PATH);
+        String casSamlValidatePath = CASConfiguration.buildTenantRelativePath(tenantDomain, CASEndpointConstants.SAML_VALIDATE_PATH);
         
         // Register CAS SSO servlets
-        Servlet casLoginServlet = new ContextPathServletAdaptor(new CASLoginServlet(), casLoginPath);
+        Servlet casLoginServlet = new ContextPathServletAdaptor(new CASLoginServlet(tenantDomain), casLoginPath);
         Servlet casProxyLoginServlet = new ContextPathServletAdaptor(new CASProxyLoginServlet(), casProxyLoginPath);
-        Servlet casLogoutServlet = new ContextPathServletAdaptor(new CASLogoutServlet(), casLogoutPath);
+        Servlet casLogoutServlet = new ContextPathServletAdaptor(new CASLogoutServlet(tenantDomain), casLogoutPath);
         Servlet casValidateServlet = new ContextPathServletAdaptor(new CASValidationServlet(), casValidatePath);
         Servlet casProxyValidateServlet = new ContextPathServletAdaptor(new CASProxyValidationServlet(), casProxyValidatePath);
         Servlet casServiceValidateServlet = new ContextPathServletAdaptor(new CASServiceValidationServlet(), casServiceValidatePath);
@@ -86,30 +107,28 @@ public class CASAuthenticatorServiceComponent{
             log.error(errMsg, e);
             throw new RuntimeException(errMsg, e);
         }
-        
-        log.info("Identity CAS SSO bundle is activated");
     }
 
     protected void deactivate(ComponentContext ctxt) {
         if (log.isDebugEnabled()) {
-            log.info("Identity CAS SSO bundle is deactivated");
+            log.info("CAS SSO bundle is deactivated");
         }
     }
 
     protected void setRegistryService(RegistryService registryService) {
         if (log.isDebugEnabled()) {
-            log.debug("RegistryService set in Identity CAS SSO bundle");
+            log.debug("RegistryService set in the CAS SSO bundle");
         }
         try {
         	CASSSOUtil.setRegistryService(registryService);
         } catch (Throwable e) {
-            log.error("Failed to get a reference to the Registry in CAS SSO bundle", e);
+            log.error("Failed to get a reference to the Registry in the CAS SSO bundle", e);
         }
     }
     
     protected void unsetRegistryService(RegistryService registryService) {
         if (log.isDebugEnabled()) {
-            log.debug("RegistryService unset in CAS SSO bundle");
+            log.debug("RegistryService unset in the CAS SSO bundle");
         }
         CASSSOUtil.setRegistryService(null);
     }

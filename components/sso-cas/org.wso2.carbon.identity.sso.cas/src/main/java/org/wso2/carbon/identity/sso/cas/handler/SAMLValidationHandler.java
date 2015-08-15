@@ -63,9 +63,11 @@ public class SAMLValidationHandler extends AbstractValidationHandler {
 						
 						ClaimMapping[] claimMapping = serviceProvider.getClaimConfig().getClaimMappings();
 
+						String sessionDataKey = serviceTicket.getParentTicket().getSessionDataKey();
+						
 						responseXml = buildSuccessResponse(
 								principal, requestId,
-								serviceProviderUrl, claimMapping);
+								serviceProviderUrl, claimMapping, sessionDataKey);
 					}
 				} else {
 					responseXml = buildFailureResponse(
@@ -116,14 +118,15 @@ public class SAMLValidationHandler extends AbstractValidationHandler {
 		}
 	}
 	
-	private String buildAttributeXml(ClaimMapping[] claimMapping, String username) throws IdentityException {
+	private String buildAttributeXml(ClaimMapping[] claimMapping, String username, String sessionDataKey) throws IdentityException {
 		StringBuffer claimsXml = new StringBuffer();
 		
 		Map<String, String> claims = CASSSOUtil
 				.getUserClaimValues(
 						username,
 						claimMapping,
-						null);
+						null,
+						sessionDataKey);
 
 		for (Map.Entry<String, String> entry : claims.entrySet()) {
 			claimsXml.append(
@@ -177,9 +180,9 @@ public class SAMLValidationHandler extends AbstractValidationHandler {
 	 * @return success response XML
 	 */
 	private String buildSuccessResponse(String userId, String requestId,
-			String serviceProviderUrl, ClaimMapping[] claimMapping) throws IdentityException {
+			String serviceProviderUrl, ClaimMapping[] claimMapping, String sessionDataKey) throws IdentityException {
 
-		String attributes = buildAttributeXml(claimMapping, userId);
+		String attributes = buildAttributeXml(claimMapping, userId, sessionDataKey);
 		
 		// Strip the domain prefix from the username for applications
 		// that rely on the raw uid

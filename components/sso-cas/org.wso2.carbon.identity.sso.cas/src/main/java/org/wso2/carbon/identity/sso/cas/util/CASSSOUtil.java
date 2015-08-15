@@ -22,8 +22,10 @@ import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.TimeZone;
 
 import org.apache.commons.logging.Log;
@@ -45,6 +47,9 @@ import org.wso2.carbon.identity.core.persistence.JDBCPersistenceManager;
 import org.wso2.carbon.identity.application.common.util.CharacterEncoder;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
 import org.wso2.carbon.identity.base.IdentityException;
+import org.wso2.carbon.identity.sso.cas.cache.LoginContextCache;
+import org.wso2.carbon.identity.sso.cas.cache.LoginContextCacheEntry;
+import org.wso2.carbon.identity.sso.cas.cache.LoginContextCacheKey;
 import org.wso2.carbon.identity.sso.cas.cache.ServiceTicketCache;
 import org.wso2.carbon.identity.sso.cas.cache.ServiceTicketCacheEntry;
 import org.wso2.carbon.identity.sso.cas.cache.ServiceTicketCacheKey;
@@ -54,6 +59,7 @@ import org.wso2.carbon.identity.sso.cas.cache.TicketGrantingTicketCacheKey;
 import org.wso2.carbon.identity.sso.cas.config.CASConfiguration;
 import org.wso2.carbon.identity.sso.cas.exception.ServiceProviderNotFoundException;
 import org.wso2.carbon.identity.sso.cas.exception.TicketNotFoundException;
+import org.wso2.carbon.identity.sso.cas.ticket.LoginContext;
 import org.wso2.carbon.identity.sso.cas.ticket.ServiceTicket;
 import org.wso2.carbon.identity.sso.cas.ticket.TicketGrantingTicket;
 import org.wso2.carbon.registry.core.service.RegistryService;
@@ -91,13 +97,19 @@ public class CASSSOUtil {
     public static String getServiceProviderNameByClientId(String serviceProviderUrl, String parameter, 
             String tenantDomain) throws IdentityApplicationManagementException {
 
-        int tenantID = -1234;
+        int tenantID = MultitenantConstants.SUPER_TENANT_ID;
 
         if (tenantDomain != null) {
             try {
                 tenantID = realmService
                         .getTenantManager().getTenantId(tenantDomain);
-                log.debug("getServiceProviderNameByClientId: tenantID updated to "+tenantID);
+                if( tenantID != -1 ) {
+                	log.debug("getServiceProviderNameByClientId: tenantID updated to "+tenantID);
+                } else {
+                	log.debug("getServiceProviderNameByClientId: tenant domain " + tenantDomain + " invalid");
+                	tenantID = MultitenantConstants.SUPER_TENANT_ID;
+                	tenantDomain = MultitenantConstants.SUPER_TENANT_DOMAIN_NAME;
+                }
             } catch (Exception ex) {
             	log.error(ex);
 			}
@@ -143,19 +155,25 @@ public class CASSSOUtil {
     
     public static ServiceProvider getServiceProviderByUrl(String serviceProviderUrl, String username) {
     	ServiceProvider serviceProvider = null;
+    	String tenantDomain = null;
+    	
+		if( username != null ) {
+			tenantDomain = MultitenantUtils.getTenantDomain(username);
+			log.debug("getServiceProviderByUrl: tenant="+tenantDomain);
+			serviceProvider = getServiceProviderByUrlAndTenant(serviceProviderUrl, tenantDomain);
+		}
+    	
+    	return serviceProvider;
+    }
+    
+    public static ServiceProvider getServiceProviderByUrlAndTenant(String serviceProviderUrl, String tenantDomain) {
+    	ServiceProvider serviceProvider = null;
     	
     	if( serviceProviderUrl == null || serviceProviderUrl.trim().length() == 0) {
     		log.error("CAS service provider not specified");
     	} else {
 
     		try {
-	    		String tenantDomain = null;
-	    		
-	    		if( username != null ) {
-	    			tenantDomain = MultitenantUtils.getTenantDomain(username);
-	    			log.debug("getServiceProviderByUrl: tenant="+tenantDomain);
-	    		}
-	 		
 	    		if( tenantDomain == null ) {
 	    			tenantDomain = MultitenantConstants.SUPER_TENANT_DOMAIN_NAME;
 	    		}
@@ -365,8 +383,8 @@ public class CASSSOUtil {
 		
 		return authResult;
     }
-    
-    public static Map<String, String> getUserClaimValues(String username, ClaimMapping[] claimMappings, String profile)
+        
+    public static Map<String, String> getUserClaimValues(String username, ClaimMapping[] claimMappings, String profile, String sessionDataKey)
             throws IdentityException {
         try {
         	List<String> requestedClaims = new ArrayList<String>();
@@ -382,33 +400,63 @@ public class CASSSOUtil {
 
         	// Get all supported claims
         	ClaimManager claimManager = userRealm.getClaimManager();
-            org.wso2.carbon.user.api.ClaimMapping[] mappings = claimManager.getAllSupportClaimMappingsByDefault();
+            org.wso2.carbon.user.api.ClaimMapping[] mappings = claimManager.getAllClaimMappings();//getAllSupportClaimMappingsByDefault();
 
             for( org.wso2.carbon.user.api.ClaimMapping claimMapping : mappings ) {
             	requestedClaims.add(claimMapping.getClaim().getClaimUri());
+            	log.debug("adding requested claim: "+claimMapping.getClaim().getClaimUri());
             }
         	
             // Get claim values for the user
-            UserStoreManager userStoreManager = userRealm.getUserStoreManager();
+            UserStoreManager userStoreManager = null;
+            boolean localAuthentication = false;
+            try {
+            	userStoreManager = userRealm.getUserStoreManager();
+            	localAuthentication = userStoreManager.isExistingUser(username);
+            } catch(Exception e) {
+            	// User came from federated authentciation
+            }
+            
             username = MultitenantUtils.getTenantAwareUsername(username);
             log.debug("getUserClaimValues: username="+username);
-            Map<String, String> localClaimValues = userStoreManager.getUserClaimValues(username, requestedClaims.toArray(new String[requestedClaims.size()]), profile);
+            Map<String, String> localClaimValues = new HashMap<String, String>();
+            
+            if( userStoreManager == null || !localAuthentication) {
+	            AuthenticationResult authResult = CASSSOUtil
+						.getAuthenticationResultFromCache(sessionDataKey);
+	            Map<ClaimMapping, String> userAttributes = authResult.getSubject().getUserAttributes();
+	            
+	            if( userAttributes != null ) {
+	            	log.info("user attributes not null");
+		            for( Entry<ClaimMapping, String> entry : userAttributes.entrySet()) {
+		            	log.debug(entry.getKey().getLocalClaim().getClaimUri() + " ==> " + entry.getValue() );
+		            		localClaimValues.put(entry.getKey().getLocalClaim().getClaimUri(), entry.getValue());
+		            }
+		            
+	            }
+            } else {
+	            	localClaimValues = userStoreManager.getUserClaimValues(username, requestedClaims.toArray(new String[requestedClaims.size()]), profile);
+            }
                       
             String localClaimValue = null;
             String localClaimUri = null;
             String remoteClaimUri = null;
+            String remoteClaimValue = null;
             
             // Remove the original claim URI and add the new mapped claim URI
             for( ClaimMapping claimMapping : claimMappings ) {
             	localClaimUri = claimMapping.getLocalClaim().getClaimUri();
             	localClaimValue = localClaimValues.get(localClaimUri);
             	remoteClaimUri = claimMapping.getRemoteClaim().getClaimUri();
-            	
-            	log.debug("getUserClaimValues: localClaimUri="+localClaimUri + " ==> localClaimValue="+localClaimValue+" ==> remoteClaimUri="+remoteClaimUri);
+            	remoteClaimValue = localClaimValues.get(remoteClaimUri);
+            	log.debug("getUserClaimValues: localClaimUri="+localClaimUri + " ==> localClaimValue="+localClaimValue+" ==> remoteClaimUri="+remoteClaimUri+" ==> remoteClaimValue="+remoteClaimValue);
             	
             	if( localClaimValue != null ) {
             		localClaimValues.remove(localClaimUri);
             		localClaimValues.put(remoteClaimUri, localClaimValue);
+            	} else if( remoteClaimValue != null ) {
+            		localClaimValues.remove(localClaimUri);
+            		localClaimValues.put(remoteClaimUri, remoteClaimValue);            		
             	}
             }
 
@@ -417,11 +465,15 @@ public class CASSSOUtil {
             	localClaimUri = claimMapping.getClaim().getClaimUri();
             	localClaimValue = localClaimValues.get(localClaimUri);
             	remoteClaimUri = claimMapping.getMappedAttribute();
+            	remoteClaimValue = localClaimValues.get(remoteClaimUri);
             	
             	// Avoid re-inserting a mapped claim
             	if( localClaimValue != null && !mappedClaims.contains(localClaimUri) ) {
             		localClaimValues.remove(localClaimUri);
             		localClaimValues.put(remoteClaimUri, localClaimValue);
+            	} else if( remoteClaimValue != null ) {
+            		localClaimValues.remove(localClaimUri);
+            		localClaimValues.put(remoteClaimUri, remoteClaimValue);            		
             	}
             }
             
@@ -446,6 +498,38 @@ public class CASSSOUtil {
                     "Error while retrieving claim values",
                     e);
 		}
+    }
+    
+    public static void addLoginContextToCache(String sessionDataKey, LoginContext loginContext) {
+    	LoginContextCacheKey cacheKey = new LoginContextCacheKey(sessionDataKey);
+    	LoginContextCacheEntry cacheEntry = new LoginContextCacheEntry();
+		cacheEntry.setLoginContext(loginContext);
+		LoginContextCache.getInstance(CASConfiguration.getCacheTimeout()).addToCache(cacheKey, cacheEntry);
+    }
+
+    public static LoginContext getLoginContextFromCache(String sessionDataKey) {
+    	LoginContextCacheKey cacheKey = new LoginContextCacheKey(sessionDataKey);
+    	CacheEntry cacheEntry = LoginContextCache.getInstance(CASConfiguration.getCacheTimeout()).getValueFromCache(cacheKey);
+		
+		LoginContext authResult = null;
+		
+		if (cacheEntry != null) {
+			LoginContextCacheEntry authResultCacheEntry = (LoginContextCacheEntry)cacheEntry;
+			authResult = authResultCacheEntry.getLoginContext();
+		} else {
+			log.debug("Cannot find LoginContext in the cache");
+		}
+		
+		return authResult;
+    }
+    
+    public static void removeLoginContextFromCache(String sessionDataKey) {
+    	LoginContextCacheKey cacheKey = new LoginContextCacheKey(sessionDataKey);
+		LoginContextCache.getInstance(CASConfiguration.getCacheTimeout()).clearCacheEntry(cacheKey);
+    }
+    
+    public static String getBooleanString(boolean value) {
+    	return (value) ? "true" : "false";
     }
     
     public static RegistryService getRegistryService() {

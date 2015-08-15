@@ -112,7 +112,9 @@ public class ServiceValidationHandler extends AbstractValidationHandler {
 
 					String principal = serviceTicket.getParentTicket().getPrincipal();
 										
-					String attributesXml = buildAttributesXml(principal, claimMapping);
+					String sessionDataKey = serviceTicket.getParentTicket().getSessionDataKey();
+				
+					String attributesXml = buildAttributesXml(principal, claimMapping, sessionDataKey);
 					
 					responseXml = buildSuccessResponse(principal, attributesXml, proxyGrantingIou, proxies);
 				}
@@ -191,14 +193,15 @@ public class ServiceValidationHandler extends AbstractValidationHandler {
         return proxyIou;
 	}
 	
-	private String buildAttributesXml(String username, ClaimMapping[] claimMapping) throws IdentityException {
+	private String buildAttributesXml(String username, ClaimMapping[] claimMapping, String sessionDataKey) throws IdentityException {
 		StringBuilder attributesXml = new StringBuilder();
 		
 		Map<String, String> claims = CASSSOUtil
 				.getUserClaimValues(
 						username,
 						claimMapping,
-						null);
+						null,
+						sessionDataKey);
 
 		
 		for (Map.Entry<String, String> entry : claims.entrySet()) {
@@ -236,8 +239,7 @@ public class ServiceValidationHandler extends AbstractValidationHandler {
 			String userAttributesXml, String proxyGrantingTicketId, List<String> proxies) {
 		StringBuilder responseAttributes = new StringBuilder();
 		
-		// Strip the domain prefix from the username for applications
-		// that rely on the raw uid
+		// Strip the domain prefix from the username for applications that rely on the raw uid
 		String rawUserId = UserCoreUtil.removeDomainFromName(userId);
 		
 		// user ID is always included

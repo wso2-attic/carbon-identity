@@ -61,18 +61,18 @@ public class CASCookieUtil {
    }
    
    public static void storeTicketGrantingCookie(String sessionId, HttpServletRequest req, HttpServletResponse resp,
-                                     int sessionTimeout) {
+                                     String tenantDomain) {
       Cookie ticketGrantingCookie = getTicketGrantingCookie(req);
       if (ticketGrantingCookie == null) {
           ticketGrantingCookie = new Cookie(CASCookieUtil.CAS_COOKIE_NAME, sessionId);
       }
       
-      ticketGrantingCookie.setPath( CASConfiguration.getBasePath() );
+      ticketGrantingCookie.setPath( CASConfiguration.getTenantBasePath(tenantDomain) );
       ticketGrantingCookie.setSecure(true);
       resp.addCookie(ticketGrantingCookie);
   } 
    
-   public static void removeTicketGrantingCookie(HttpServletRequest req, HttpServletResponse resp) {
+   public static void removeTicketGrantingCookie(HttpServletRequest req, HttpServletResponse resp, String tenantDomain) {
 		
  		Cookie[] cookies = req.getCookies();
        if (cookies != null) {
@@ -80,7 +80,7 @@ public class CASCookieUtil {
  				if (cookie.getName().equals(CASCookieUtil.CAS_COOKIE_NAME)) {
  					cookie.setMaxAge(0);
  					cookie.setValue("");
- 					cookie.setPath( CASConfiguration.getBasePath() );
+ 					cookie.setPath( CASConfiguration.getTenantBasePath(tenantDomain) );
  					cookie.setSecure(true);
  					resp.addCookie(cookie);
  					break;

@@ -83,6 +83,15 @@ public class CASConfiguration {
 		}
     }
     
+    public static String buildTenantRelativePath(String tenantDomain, String path) {
+    	if( tenantDomain != null && tenantDomain.trim().length() > 0 ) {
+    		return "/" + tenantDomain + buildRelativePath(path);	
+    	} else {
+    		return buildRelativePath(path);
+    	}
+    	
+    }
+    
 	public static String buildRelativePath(String path) {
 		if( path == null ) {
 			throw new NullPointerException("Relative path cannot be null");
@@ -97,6 +106,14 @@ public class CASConfiguration {
 		casContextPath += path;
 		
 		return casContextPath;
+	}
+	
+	public static String getTenantBasePath(String tenantDomain) {
+    	if( tenantDomain != null && tenantDomain.trim().length() > 0 ) {
+    		return "/" + tenantDomain + getBasePath();	
+    	} else {
+    		return getBasePath();
+    	}
 	}
 	
 	public static String getBasePath() {

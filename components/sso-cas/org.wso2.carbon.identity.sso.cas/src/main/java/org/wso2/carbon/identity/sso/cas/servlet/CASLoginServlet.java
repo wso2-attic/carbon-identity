@@ -24,9 +24,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.identity.sso.cas.config.CASConfiguration;
+import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkConstants;
 import org.wso2.carbon.identity.sso.cas.exception.TicketNotFoundException;
-import org.wso2.carbon.identity.sso.cas.handler.HandlerConstants;
 import org.wso2.carbon.identity.sso.cas.handler.PostLoginHandler;
 import org.wso2.carbon.identity.sso.cas.handler.PreLoginHandler;
 import org.wso2.carbon.identity.sso.cas.util.CASCookieUtil;
@@ -37,6 +36,12 @@ public class CASLoginServlet extends HttpServlet {
 	private static final long serialVersionUID = -5182312441482721905L;
 	private static Log log = LogFactory.getLog(CASLoginServlet.class);
 
+	private String tenantDomain = null;
+	
+	public CASLoginServlet(String tenantDomain) {
+		this.tenantDomain = tenantDomain;
+	}
+	
 	@Override
 	protected void doGet(HttpServletRequest httpServletRequest,
 			HttpServletResponse httpServletResponse) throws ServletException,
@@ -54,17 +59,16 @@ public class CASLoginServlet extends HttpServlet {
 			HttpServletResponse resp) throws ServletException,
 			IOException {
 		try {
-			if( !req.getRequestURI().startsWith(
-					CASConfiguration.buildRelativePath(HandlerConstants.PRE_CAS_LOGIN_PATH)) ) {
-				PreLoginHandler preLoginHandler = new PreLoginHandler();
+			if( req.getParameter(FrameworkConstants.SESSION_DATA_KEY) == null ) {
+				PreLoginHandler preLoginHandler = new PreLoginHandler(tenantDomain);
 				preLoginHandler.handle(req, resp);
 			} else {
-				PostLoginHandler postLoginHandler = new PostLoginHandler();
+				PostLoginHandler postLoginHandler = new PostLoginHandler(tenantDomain);
 				postLoginHandler.handle(req, resp);
 			}
 		} catch(TicketNotFoundException ex) {
 			// Remove the invalid cookie
-			CASCookieUtil.removeTicketGrantingCookie(req, resp);
+			CASCookieUtil.removeTicketGrantingCookie(req, resp, tenantDomain);
 			
 			log.debug("Removed CAS cookie and redirecting to: "+req.getRequestURL().append('?').append(req.getQueryString()));
 			
@@ -72,7 +76,7 @@ public class CASLoginServlet extends HttpServlet {
 		} catch(Exception ex) {	
 			log.debug(ex);
 			// Remove the invalid cookie
-			CASCookieUtil.removeTicketGrantingCookie(req, resp);
+			CASCookieUtil.removeTicketGrantingCookie(req, resp, tenantDomain);
 			
 			resp.getWriter().write(CASPageTemplates.getInstance().showLoginError("CAS login has failed due to an internal error", req.getLocale()));
 			
