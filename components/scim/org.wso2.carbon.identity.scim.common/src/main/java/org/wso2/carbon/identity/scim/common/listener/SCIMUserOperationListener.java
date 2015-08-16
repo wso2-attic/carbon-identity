@@ -26,10 +26,6 @@ import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.scim.common.group.SCIMGroupHandler;
 import org.wso2.carbon.identity.scim.common.utils.IdentitySCIMException;
-import org.wso2.carbon.identity.scim.common.utils.SCIMCommonConstants;
-import org.wso2.carbon.identity.scim.common.utils.SCIMCommonUtils;
-import org.wso2.carbon.user.api.ClaimManager;
-import org.wso2.carbon.user.api.ClaimMapping;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
@@ -38,10 +34,8 @@ import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.charon.core.schema.SCIMConstants;
 import org.wso2.charon.core.util.AttributeUtil;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -113,7 +107,6 @@ public class SCIMUserOperationListener implements UserOperationEventListener {
                                  Map<String, String> claims, String profile,
                                  UserStoreManager userStoreManager)
             throws UserStoreException {
-
         return true;
     }
 
