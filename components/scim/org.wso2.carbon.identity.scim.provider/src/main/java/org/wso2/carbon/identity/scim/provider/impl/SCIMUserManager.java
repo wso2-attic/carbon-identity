@@ -39,7 +39,6 @@ import org.wso2.carbon.identity.provisioning.ProvisioningEntity;
 import org.wso2.carbon.identity.provisioning.ProvisioningEntityType;
 import org.wso2.carbon.identity.provisioning.ProvisioningOperation;
 import org.wso2.carbon.identity.provisioning.listener.DefaultInboundUserProvisioningListener;
-import org.wso2.carbon.identity.scim.common.config.SCIMProvisioningConfigManager;
 import org.wso2.carbon.identity.scim.common.group.SCIMGroupHandler;
 import org.wso2.carbon.identity.scim.common.utils.AttributeMapper;
 import org.wso2.carbon.identity.scim.common.utils.IdentitySCIMException;
@@ -62,7 +61,6 @@ import org.wso2.charon.core.objects.AbstractSCIMObject;
 import org.wso2.charon.core.objects.Group;
 import org.wso2.charon.core.objects.SCIMObject;
 import org.wso2.charon.core.objects.User;
-import org.wso2.charon.core.provisioning.ProvisioningHandler;
 import org.wso2.charon.core.schema.SCIMConstants;
 
 import java.util.ArrayList;
@@ -72,8 +70,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public class SCIMUserManager implements UserManager {
     public static final String USER_NAME_STRING = "userName";
@@ -81,8 +77,6 @@ public class SCIMUserManager implements UserManager {
     private UserStoreManager carbonUM = null;
     private ClaimManager carbonClaimManager = null;
     private String consumerName;
-    //to make provisioning to other providers asynchronously happen.
-    private ExecutorService provisioningThreadPool = Executors.newCachedThreadPool();
 
     public SCIMUserManager(UserStoreManager carbonUserStoreManager, String userName,
                            ClaimManager claimManager) {
@@ -143,9 +137,6 @@ public class SCIMUserManager implements UserManager {
             throw new CharonException("Error retrieving User Store name. ", e);
         }
 
-        SCIMProvisioningConfigManager provisioningConfigManager =
-                SCIMProvisioningConfigManager.getInstance();
-
         try {
             //TODO: Start tenant flow at the scim authentication point
             PrivilegedCarbonContext.startTenantFlow();
@@ -154,17 +145,8 @@ public class SCIMUserManager implements UserManager {
             carbonContext.getTenantId(true);
 
             //if operating in dumb mode, do not persist the operation, only provision to providers
-            if (provisioningConfigManager.isDumbMode()) {
 
-                if (log.isDebugEnabled()) {
-                    log.debug("This instance is operating in dumb mode. " +
-                              "Hence, operation is not persisted, it will only be provisioned."
-                                + "provisioned user : " + user.getUserName());
-                }
-                this.provisionSCIMOperation(SCIMConstants.POST, user, SCIMConstants.USER_INT, null);
-
-            } else {
-                //else, persist in carbon user store
+                //Persist in carbon user store
                 if (log.isDebugEnabled()) {
                     log.debug("Creating user: " + user.getUserName());
                 }
@@ -190,9 +172,10 @@ public class SCIMUserManager implements UserManager {
                 carbonUM.addUser(user.getUserName(), user.getPassword(), null, claimsMap, null);
                 log.info("User: " + user.getUserName() + " is created through SCIM.");
 
-            }
         } catch (UserStoreException e) {
-            throw new CharonException("Error in adding the user: " + user.getUserName() + " to the user store..", e);
+            String errMsg = "Error in adding the user: " + user.getUserName() + " to the user store. ";
+            errMsg += e.getMessage();
+            throw new CharonException(errMsg, e);
         } finally {
             PrivilegedCarbonContext.endTenantFlow();
         }
@@ -347,19 +330,7 @@ public class SCIMUserManager implements UserManager {
 
     @Override
     public User updateUser(User user) throws CharonException {
-        SCIMProvisioningConfigManager provisioningConfigManager =
-                SCIMProvisioningConfigManager.getInstance();
-        //if operating in dumb mode, do not persist the operation, only provision to providers
-        if (provisioningConfigManager.isDumbMode()) {
 
-            if (log.isDebugEnabled()) {
-                log.debug("This instance is operating in dumb mode. " +
-                        "Hence, operation is not persisted, it will only be provisioned.");
-            }
-            this.provisionSCIMOperation(SCIMConstants.PUT, user, SCIMConstants.USER_INT, null);
-            return user;
-
-        } else {
             if (log.isDebugEnabled()) {
                 log.debug("Updating user: " + user.getUserName());
             }
@@ -421,26 +392,11 @@ public class SCIMUserManager implements UserManager {
             }
 
             return user;
-        }
     }
 
     @Override
     public User patchUser(User newUser, User oldUser, String[] attributesToDelete) throws CharonException {
 
-        SCIMProvisioningConfigManager provisioningConfigManager =
-                SCIMProvisioningConfigManager.getInstance();
-        //if operating in dumb mode, do not persist the operation, only provision to providers
-        if (provisioningConfigManager.isDumbMode()) {
-
-            if (log.isDebugEnabled()) {
-                log.debug("This instance is operating in dumb mode. " +
-                        "Hence, operation is not persisted, it will only be provisioned.");
-            }
-
-            this.provision(ProvisioningOperation.PATCH, newUser);
-            return newUser;
-
-        } else {
             if (log.isDebugEnabled()) {
                 log.debug("Updating user: " + newUser.getUserName());
             }
@@ -483,7 +439,6 @@ public class SCIMUserManager implements UserManager {
             }
 
             return newUser;
-        }
     }
 
     public User updateUser(List<Attribute> attributes) {
@@ -492,19 +447,7 @@ public class SCIMUserManager implements UserManager {
 
     @Override
     public void deleteUser(String userId) throws NotFoundException, CharonException {
-        SCIMProvisioningConfigManager provisioningConfigManager =
-                SCIMProvisioningConfigManager.getInstance();
 
-        //if operating in dumb mode, do not persist the operation, only provision to providers
-        if (provisioningConfigManager.isDumbMode()) {
-            if (log.isDebugEnabled()) {
-                log.debug("This instance is operating in dumb mode. " +
-                        "Hence, operation is not persisted, it will only be provisioned.");
-            }
-            User user = new User();
-            user.setUserName(userId);
-            this.provisionSCIMOperation(SCIMConstants.DELETE, user, SCIMConstants.USER_INT, null);
-        } else {
             if (log.isDebugEnabled()) {
                 log.debug("Deleting user: " + userId);
             }
@@ -539,23 +482,11 @@ public class SCIMUserManager implements UserManager {
             } catch (org.wso2.carbon.user.core.UserStoreException e) {
                 throw new CharonException("Error in deleting user: " + userName, e);
             }
-        }
     }
 
     @Override
     public Group createGroup(Group group) throws CharonException, DuplicateResourceException {
-        SCIMProvisioningConfigManager provisioningConfigManager =
-                SCIMProvisioningConfigManager.getInstance();
 
-        //if operating in dumb mode, do not persist the operation, only provision to providers
-        if (provisioningConfigManager.isDumbMode()) {
-            if (log.isDebugEnabled()) {
-                log.debug("This instance is operating in dumb mode. " +
-                        "Hence, operation is not persisted, it will only be provisioned.");
-            }
-            this.provisionSCIMOperation(SCIMConstants.POST, group, SCIMConstants.GROUP_INT, null);
-            return group;
-        } else {
             if (log.isDebugEnabled()) {
                 log.debug("Creating group: " + group.getDisplayName());
             }
@@ -654,7 +585,6 @@ public class SCIMUserManager implements UserManager {
             }
             //TODO:after the group is added, read it from user store and return
             return group;
-        }
     }
 
     @Override
@@ -767,29 +697,10 @@ public class SCIMUserManager implements UserManager {
 
     @Override
     public Group updateGroup(Group oldGroup, Group newGroup) throws CharonException {
-        SCIMProvisioningConfigManager provisioningConfigManager =
-                SCIMProvisioningConfigManager.getInstance();
 
         newGroup.setDisplayName(SCIMCommonUtils.getGroupNameWithDomain(newGroup.getDisplayName()));
         oldGroup.setDisplayName(SCIMCommonUtils.getGroupNameWithDomain(oldGroup.getDisplayName()));
 
-
-        //if operating in dumb mode, do not persist the operation, only provision to providers
-        if (provisioningConfigManager.isDumbMode()) {
-            if (log.isDebugEnabled()) {
-                log.debug("This instance is operating in dumb mode. " +
-                        "Hence, operation is not persisted, it will only be provisioned.");
-            }
-            //add old role name details.
-            Map<String, Object> additionalInformation = new HashMap<>();
-            additionalInformation.put(SCIMCommonConstants.IS_ROLE_NAME_CHANGED_ON_UPDATE, true);
-            additionalInformation.put(SCIMCommonConstants.OLD_GROUP_NAME, oldGroup.getDisplayName());
-
-            this.provisionSCIMOperation(SCIMConstants.PUT, newGroup, SCIMConstants.GROUP_INT,
-                    additionalInformation);
-            return newGroup;
-
-        } else {
             if (log.isDebugEnabled()) {
                 log.debug("Updating group: " + oldGroup.getDisplayName());
             }
@@ -908,7 +819,6 @@ public class SCIMUserManager implements UserManager {
                 throw new CharonException("Error occurred while updating old group : " + oldGroup.getDisplayName(), e);
             }
             return newGroup;
-        }
     }
 
     @Override
@@ -926,27 +836,7 @@ public class SCIMUserManager implements UserManager {
      */
     @Override
     public Group patchGroup(Group oldGroup, Group newGroup) throws CharonException {
-        SCIMProvisioningConfigManager provisioningConfigManager = SCIMProvisioningConfigManager.getInstance();
 
-        newGroup.setDisplayName(SCIMCommonUtils.getGroupNameWithDomain(newGroup.getDisplayName()));
-        oldGroup.setDisplayName(SCIMCommonUtils.getGroupNameWithDomain(oldGroup.getDisplayName()));
-
-        // if operating in dumb mode, do not persist the operation, only
-        // provision to providers
-        if (provisioningConfigManager.isDumbMode()) {
-            if (log.isDebugEnabled()) {
-                log.debug("This instance is operating in dumb mode. "
-                        + "Hence, operation is not persisted, it will only be provisioned.");
-            }
-            // add old role name details.
-            Map<String, Object> additionalInformation = new HashMap<>();
-            additionalInformation.put(SCIMCommonConstants.IS_ROLE_NAME_CHANGED_ON_UPDATE, true);
-            additionalInformation.put(SCIMCommonConstants.OLD_GROUP_NAME, oldGroup.getDisplayName());
-
-            this.provisionSCIMOperation(SCIMConstants.PUT, newGroup, SCIMConstants.GROUP_INT, additionalInformation);
-            return newGroup;
-
-        } else {
             if (log.isDebugEnabled()) {
                 log.debug("Updating group: " + oldGroup.getDisplayName());//add from group new name
             }
@@ -1084,23 +974,11 @@ public class SCIMUserManager implements UserManager {
                 throw new CharonException("Error in patching group", e);
             }
             return newGroup;
-        }
     }
 
     @Override
     public void deleteGroup(String groupId) throws NotFoundException, CharonException {
-        SCIMProvisioningConfigManager provisioningConfigManager =
-                SCIMProvisioningConfigManager.getInstance();
-        //if operating in dumb mode, do not persist the operation, only provision to providers
-        if (provisioningConfigManager.isDumbMode()) {
-            if (log.isDebugEnabled()) {
-                log.debug("This instance is operating in dumb mode. " +
-                        "Hence, operation is not persisted, it will only be provisioned.");
-            }
-            Group group = new Group();
-            group.setDisplayName(groupId);
-            this.provisionSCIMOperation(SCIMConstants.DELETE, group, SCIMConstants.GROUP_INT, null);
-        } else {
+
             if (log.isDebugEnabled()) {
                 log.debug("Deleting group: " + groupId);
             }
@@ -1129,7 +1007,6 @@ public class SCIMUserManager implements UserManager {
             } catch (UserStoreException | IdentitySCIMException e) {
                 throw new CharonException("Error occurred while deleting group " + groupId, e);
             }
-        }
     }
 
     private User getSCIMMetaUser(String userName) throws CharonException {
@@ -1246,48 +1123,6 @@ public class SCIMUserManager implements UserManager {
         return groupHandler.getGroupWithAttributes(group, groupName);
     }
 
-    /**
-     * Provision the SCIM operation received at SCIM endpoint. In SCIMUserOperationListener,
-     * we authorize the user who is performing the provisioning operation. But here, we do not need to
-     * authorize since it is already done when obtaining the user manager instance.
-     *
-     * @param provisioningMethod
-     * @param provisioningObject
-     * @param provisioningObjectType
-     * @throws CharonException
-     */
-    private void provisionSCIMOperation(int provisioningMethod, SCIMObject provisioningObject,
-                                        int provisioningObjectType, Map<String, Object> properties)
-            throws CharonException {
-        try {
-            if (log.isDebugEnabled()) {
-                log.debug("Server is operating in dumb mode. " +
-                        "Hence, operation is not persisted, it will only be provisioned.");
-            }
-            SCIMProvisioningConfigManager provisioningConfigManager =
-                    SCIMProvisioningConfigManager.getInstance();
-            //read the connectors
-            String[] provisioningHandlers = provisioningConfigManager.getProvisioningHandlers();
-            if (provisioningHandlers != null && provisioningHandlers.length != 0) {
-                //iterate configured set of connectors, initialize them, set properties and provision
-                for (String provisioningHandler : provisioningHandlers) {
-                    Class provisioningClass = Class.forName(provisioningHandler);
-                    ProvisioningHandler provisioningAgent = (ProvisioningHandler) provisioningClass.newInstance();
-                    provisioningAgent.setProvisioningConsumer(consumerName);
-                    provisioningAgent.setProvisioningMethod(provisioningMethod);
-                    provisioningAgent.setProvisioningObject(provisioningObject);
-                    provisioningAgent.setProvisioningObjectType(provisioningObjectType);
-                    provisioningAgent.setProperties(properties);
-                    provisioningThreadPool.submit(provisioningAgent);
-                }
-            } else {
-                throw new CharonException("Server is operating in dumb mode, " +
-                        "but no provisioning connectors are registered.");
-            }
-        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
-            throw new CharonException("Error in initializing provisioning handler", e);
-        }
-    }
 
     private void provision(ProvisioningOperation provisioningMethod, SCIMObject provisioningObject) throws CharonException {
 
