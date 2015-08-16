@@ -173,10 +173,9 @@ public class SCIMUserManager implements UserManager {
                 log.info("User: " + user.getUserName() + " is created through SCIM.");
 
         } catch (UserStoreException e) {
-            String errMsg = e.getMessage()+ " ";
-            errMsg += "Error in adding the user: " + user.getUserName() +
-                    " to the user store..";
-            throw new CharonException(errMsg,e);
+            String errMsg = "Error in adding the user: " + user.getUserName() + " to the user store. ";
+            errMsg += e.getMessage();
+            throw new CharonException(errMsg, e);
         } finally {
             PrivilegedCarbonContext.endTenantFlow();
         }

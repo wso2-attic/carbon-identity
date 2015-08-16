@@ -3013,15 +3013,40 @@ function doValidation() {
                         </thead>
                         <tbody>
                         <tr>
-                            <td><%=certData.getIssuerDN()%>
+                            <td><%
+                                String issuerDN = "";
+                                if (certData.getIssuerDN() != null) {
+                                    issuerDN = certData.getIssuerDN();
+                                }
+                            %><%=issuerDN%>
                             </td>
-                            <td><%=certData.getSubjectDN()%>
+                            <td><%
+                                String subjectDN = "";
+                                if (certData.getSubjectDN() != null) {
+                                    subjectDN = certData.getSubjectDN();
+                                }
+                            %><%=subjectDN%>
                             </td>
-                            <td><%=certData.getNotAfter()%>
+                            <td><%
+                                String notAfter = "";
+                                if (certData.getNotAfter() != null) {
+                                    notAfter = certData.getNotAfter();
+                                }
+                            %><%=notAfter%>
                             </td>
-                            <td><%=certData.getNotBefore()%>
+                            <td><%
+                                String notBefore = "";
+                                if (certData.getNotBefore() != null) {
+                                    notBefore = certData.getNotBefore();
+                                }
+                            %><%=notBefore%>
                             </td>
-                            <td><%=certData.getSerialNumber()%>
+                            <td><%
+                                String serialNo = "";
+                                if (certData.getSerialNumber() != null) {
+                                    serialNo = certData.getSerialNumber().toString();
+                                }
+                            %><%=serialNo%>
                             </td>
                             <td><%=certData.getVersion()%>
                             </td>
