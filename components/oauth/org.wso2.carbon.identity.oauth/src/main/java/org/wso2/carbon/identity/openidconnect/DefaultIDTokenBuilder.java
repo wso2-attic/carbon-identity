@@ -164,23 +164,24 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
         // Get access token issued time
         long accessTokenIssuedTime = getAccessTokenIssuedTime(tokenRespDTO.getAccessToken(), request) / 1000;
 
-        String digAlg = null;
+        String atHash = null;
         if(!JWSAlgorithm.NONE.getName().equals(signatureAlgorithm.getName())){
-            digAlg = mapDigestAlgorithm(signatureAlgorithm);
+            String digAlg = mapDigestAlgorithm(signatureAlgorithm);
+            MessageDigest md;
+            try {
+                md = MessageDigest.getInstance(digAlg);
+            } catch (NoSuchAlgorithmException e) {
+                throw new IdentityOAuth2Exception("Invalid Algorithm : " + digAlg);
+            }
+            md.update(tokenRespDTO.getAccessToken().getBytes(Charsets.UTF_8));
+            byte[] digest = md.digest();
+            byte[] leftmost = new byte[16];
+            for (int i = 0; i < 16; i++){
+                leftmost[i]=digest[i];
+            }
+            atHash = new String(Base64.encodeBase64URLSafe(leftmost), Charsets.UTF_8);
         }
-        MessageDigest md;
-        try {
-            md = MessageDigest.getInstance(digAlg);
-        } catch (NoSuchAlgorithmException e) {
-            throw new IdentityOAuth2Exception("Invalid Algorithm : " + digAlg);
-        }
-        md.update(tokenRespDTO.getAccessToken().getBytes(Charsets.UTF_8));
-        byte[] digest = md.digest();
-        byte[] leftmost = new byte[16];
-        for (int i = 0; i < 16; i++){
-            leftmost[i]=digest[i];
-        }
-        String atHash = new String(Base64.encodeBase64URLSafe(leftmost), Charsets.UTF_8);
+
 
         if (log.isDebugEnabled()) {
             StringBuilder stringBuilder = (new StringBuilder())
@@ -200,7 +201,10 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
                         .setAudience(request.getOauth2AccessTokenReqDTO().getClientId())
                         .setAuthorizedParty(request.getOauth2AccessTokenReqDTO().getClientId())
                         .setExpiration(curTime + lifetime).setAuthTime(accessTokenIssuedTime)
-                        .setAtHash(atHash).setIssuedAt(curTime);
+                        .setIssuedAt(curTime);
+        if(atHash != null){
+            builder.setAtHash(atHash);
+        }
         if (nonceValue != null) {
             builder.setNonce(nonceValue);
         }
