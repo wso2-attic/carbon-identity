@@ -22,6 +22,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.application.authentication.framework.config.ConfigurationFacade;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.stratos.common.beans.TenantInfoBean;
 import org.wso2.carbon.stratos.common.exception.StratosException;
 import org.wso2.carbon.stratos.common.listeners.TenantMgtListener;
@@ -102,7 +103,7 @@ public class AuthenticationEndpointTenantActivityListener implements TenantMgtLi
 
             if (!tenantDataReceiveURLs.isEmpty()) {
 
-                serverURL = CarbonUIUtil.getAdminConsoleURL(URL_ROOT).replace(CARBON_PATH, EMPTY_STRING);
+                serverURL = IdentityUtil.getServerURL("");
                 int index = 0;
 
                 for (String tenantDataReceiveUrl : tenantDataReceiveURLs) {
