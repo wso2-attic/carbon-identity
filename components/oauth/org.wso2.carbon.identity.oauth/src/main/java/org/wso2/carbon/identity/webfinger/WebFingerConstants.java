@@ -24,5 +24,14 @@ package org.wso2.carbon.identity.webfinger;
 
 public class WebFingerConstants {
     public static final String OPENID_CONNETCT_ISSUER_REL = "http://openid.net/specs/connect/1.0/issuer";
+    public static final String CONFIG_WEBFINGER_TAG = "WebFinger";
+    public static final String CONFIG_DEFAULT_SUBJECT = "Default";
+    public static final String CONFIG__WEBFINGER_CONFIG="Configuration";
+    public static final String CONFIG_LINK = "Link";
+    public static final String SUBJECT = "subject";
+    public static final String LINKS = "links";
+    public static final String REL = "rel";
+    public static final String HREF = "href";
+    public static final String RESOURCE = "resource";
     //public static final int RES_
 }

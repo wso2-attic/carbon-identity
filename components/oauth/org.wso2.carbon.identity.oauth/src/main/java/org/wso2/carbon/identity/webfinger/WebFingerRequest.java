@@ -18,11 +18,14 @@
 package org.wso2.carbon.identity.webfinger;
 
 
+import javax.servlet.http.HttpServletRequest;
+
 public class WebFingerRequest {
     private String rel;
     private String resource;
     private String host;
     private String userInfo;
+    private HttpServletRequest servletRequest;
     private int resourceType;
 
     public String getUserInfo() {
@@ -63,5 +66,13 @@ public class WebFingerRequest {
 
     public void setRel(String rel) {
         this.rel = rel;
+    }
+
+    public HttpServletRequest getServletRequest() {
+        return servletRequest;
+    }
+
+    public void setServletRequest(HttpServletRequest servletRequest) {
+        this.servletRequest = servletRequest;
     }
 }

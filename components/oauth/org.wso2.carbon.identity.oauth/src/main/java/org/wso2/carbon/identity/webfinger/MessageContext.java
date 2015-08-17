@@ -18,21 +18,17 @@
 package org.wso2.carbon.identity.webfinger;
 
 
-import javax.servlet.http.HttpServletRequest;
-
 class MessageContext {
     private WebFingerRequest request;
-    private HttpServletRequest servletRequest;
     private WebFingerResponse response;
-
-    public HttpServletRequest getServletRequest() {
-        return servletRequest;
+    public MessageContext(){
+        this.request = new WebFingerRequest();
+        this.response = new WebFingerResponse();
     }
-
-    public void setServletRequest(HttpServletRequest servletRequest) {
-        this.servletRequest = servletRequest;
+    public MessageContext(WebFingerRequest request){
+        this.request = request;
+        this.response = new WebFingerResponse();
     }
-
 
     public WebFingerRequest getRequest() {
         return request;

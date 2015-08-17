@@ -19,4 +19,6 @@ package org.wso2.carbon.identity.webfinger;
 
 
 public interface WebFingerResponseBuilder {
+    public String getOIDProviderIssuerString(WebFingerResponse webFingerResponse) throws
+            WebFingerEndPointException;
 }

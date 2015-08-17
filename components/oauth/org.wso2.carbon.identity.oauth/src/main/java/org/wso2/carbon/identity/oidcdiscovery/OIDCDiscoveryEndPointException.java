@@ -25,6 +25,7 @@ public class OIDCDiscoveryEndPointException extends Exception {
     public static final String ERROR_CODE_NO_OPENID_PROVIDER_FOUND = "no_configuration_found";
     public static final String ERROR_CODE_JSON_EXCEPTION = "json_error";
     public static final String ERROR_CODE_SERVER_ERROR = "server_error";
+    public static final String ERROR_CODE_INVALID_REQUEST = "invalid_request";
 
     private static final long serialVersionUID = -4449780649560053452L;
     private final String errorCode;

@@ -19,17 +19,20 @@ package org.wso2.carbon.identity.oauth.endpoint.webfinger;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.base.ServerConfigurationException;
 import org.wso2.carbon.identity.oauth.endpoint.util.EndpointUtil;
+import org.wso2.carbon.identity.oauth.endpoint.webfinger.impl.WebFingerJSOnResponseBuilder;
 import org.wso2.carbon.identity.webfinger.WebFingerEndPointException;
 import org.wso2.carbon.identity.webfinger.WebFingerProcessor;
+import org.wso2.carbon.identity.webfinger.WebFingerResponseBuilder;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 //Finalize this.
@@ -40,33 +43,26 @@ public class WebFingerEndPoint {
     public static final String OPENID_CONNETCT_ISSUER_REL = "http://openid.net/specs/connect/1.0/issuer";
 
     @GET
-    @Path("/.well-known/webfinger?resource={resource}&rel="+OPENID_CONNETCT_ISSUER_REL)
+    //@Path("/.well-known/webfinger?resource={resource}&rel=" + OPENID_CONNETCT_ISSUER_REL)
+    @Path("/.well-known/webfinger")
     @Produces("application/json")
-    public Response getOIDProviderIssuer(@Context HttpServletRequest request, @PathParam("resource") String
-            resource) {
+    public Response getOIDProviderIssuer(@Context HttpServletRequest request) {
         WebFingerProcessor processor = EndpointUtil.getWebFingerService();
         String response = null;
         try {
-            processor.validateRequest(request, resource, OPENID_CONNETCT_ISSUER_REL);
-            processor.getWebFingerResponse();
-        }catch(WebFingerEndPointException e){
+            processor.validateRequest(request, OPENID_CONNETCT_ISSUER_REL);
+            WebFingerResponseBuilder responseBuilder = new WebFingerJSOnResponseBuilder();
+            response = responseBuilder.getOIDProviderIssuerString(processor.getWebFingerResponse());
+        } catch (WebFingerEndPointException e) {
+
+
+        } catch (ServerConfigurationException e) {
 
 
         }
-//        try {
-//            processor.validateRequest(request, resource, rel);
-//            OIDProviderResponseBuilder responseBuilder = new OIDProviderJSONResponseBuilder();
-//             //response = responseBuilder.getOIDProviderConfigString(processor.getOIDProviderConfig
-//             //       ());
-//        } catch (OIDCDiscoveryEndPointException e) {
-//            //Response.ResponseBuilder errorResponse = Response.status(processor.handleError(e));
-//            //return errorResponse.entity(e.getMessage()).build();
-//        } catch (ServerConfigurationException e) {
-//            Response.ResponseBuilder errorResponse = Response.status(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-//            return errorResponse.entity("Error in reading configuration.").build();
-//        }
+
         Response.ResponseBuilder responseBuilder =
                 Response.status(HttpServletResponse.SC_OK);
-        return responseBuilder.entity(response).build();
+        return responseBuilder.entity(response).type(MediaType.APPLICATION_JSON_TYPE).build();
     }
 }

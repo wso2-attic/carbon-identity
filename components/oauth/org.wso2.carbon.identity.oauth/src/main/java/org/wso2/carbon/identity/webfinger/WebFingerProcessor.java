@@ -17,42 +17,108 @@
  */
 package org.wso2.carbon.identity.webfinger;
 
+import org.apache.axiom.om.OMElement;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.base.ServerConfigurationException;
+import org.wso2.carbon.identity.core.util.IdentityConfigParser;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.xml.namespace.QName;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 
 
 public class WebFingerProcessor {
     private static Log log = LogFactory.getLog(WebFingerProcessor.class);
     private static WebFingerProcessor webFingerProcessor = new WebFingerProcessor();
     private MessageContext context;
+
     private WebFingerProcessor() {
-        context = new MessageContext();
         if (log.isDebugEnabled()) {
             log.debug("Initializing OIDCProcessor for OpenID connect discovery processor.");
         }
     }
+
     public static WebFingerProcessor getInstance() {
         return webFingerProcessor;
     }
 
-    public void validateRequest(HttpServletRequest request, String resource, String rel) throws WebFingerEndPointException{
-        this.context.setServletRequest(request);
-        WebFingerRequest webFingerRequest = this.context.getRequest();
-        webFingerRequest.setRel(rel);
-        webFingerRequest.setResource(resource);
+    public void validateRequest(HttpServletRequest request, String rel) throws
+            WebFingerEndPointException {
+        this.context = new MessageContext();
         WebFingerRequestValidator validator = new DefaultWebFingerRequestValidator();
+        WebFingerRequest webFingerRequest = this.context.getRequest();
+        List<String> parameters = Collections.list(request.getParameterNames());
 
-        validator.validateRequest(this.context);
+        if (parameters.size() != 2 || !parameters.contains(WebFingerConstants.REL) || !parameters.contains
+                (WebFingerConstants.RESOURCE)) {
+            throw new WebFingerEndPointException(WebFingerEndPointException.ERROR_CODE_INVALID_REQUEST, "Bad Web " +
+                    "Finger request.");
+        }
 
+        webFingerRequest.setRel(request.getParameter(WebFingerConstants.REL));
+        webFingerRequest.setResource(request.getParameter(WebFingerConstants.RESOURCE));
+        webFingerRequest.setServletRequest(request);
+        validator.validateRequest(webFingerRequest);
 
     }
-    public WebFingerResponse getWebFingerResponse()throws WebFingerEndPointException{return new WebFingerResponse();}
-    private OIDProviderIssuer getOIDProviderIssuer() throws WebFingerEndPointException{
-        return new OIDProviderIssuer();
+
+    public WebFingerResponse getWebFingerResponse() throws WebFingerEndPointException, ServerConfigurationException {
+        if(this.context == null){
+            throw new WebFingerEndPointException(WebFingerEndPointException.ERROR_CODE_INVALID_REQUEST, "Error in " +
+                    "processing the request. Bad request parameters.");
+        }
+        WebFingerRequest request = this.context.getRequest();
+        WebFingerResponse response = this.context.getResponse();
+        IdentityConfigParser configParser = IdentityConfigParser.getInstance();
+        OMElement oidcElement = configParser.getConfigElement(WebFingerConstants.CONFIG_WEBFINGER_TAG);
+        if (oidcElement == null) {
+            throw new WebFingerEndPointException(WebFingerEndPointException
+                    .ERROR_CODE_NO_WEBFINGER_CONFIG, "No WebFinger settings set at the server.");
+        }
+        OMElement subjectElement = null;
+        String resource = request.getResource();
+        if (resource == null || resource.isEmpty()) {
+            resource = WebFingerConstants.CONFIG_DEFAULT_SUBJECT;
+        }
+        Iterator<OMElement> configurations = oidcElement.getChildrenWithName(getQNameWithIdentityNS
+                (WebFingerConstants.CONFIG__WEBFINGER_CONFIG));
+        while (configurations.hasNext()) {
+            OMElement configuration = configurations.next();
+            String subject = configuration.getAttributeValue(new QName("subject"));
+            if (subject.equals(resource)) {
+                response.setSubject(subject);
+                subjectElement = configuration;
+                break;
+            }
+        }
+        //Check whether to give a default OIDCProvider Issuer
+        if (subjectElement == null) {
+            throw new WebFingerEndPointException(WebFingerEndPointException.ERROR_CODE_INVALID_RESOURCE, "No " +
+                    "OpenID Provider Issuer for the provided resource.");
+        }
+        setLinksInResponse(request.getRel(), response, subjectElement);
+
+        return response;
     }
 
 
-    private void getSyntax(){}
+    private void setLinksInResponse(String rel, WebFingerResponse response, OMElement subjectElement) {
+        Iterator<OMElement> linkSet = subjectElement.getChildrenWithName(getQNameWithIdentityNS(WebFingerConstants
+                .CONFIG_LINK));
+        while(linkSet.hasNext()){
+            OMElement link = linkSet.next();
+            String attributeRel = link.getAttributeValue(new QName(WebFingerConstants.REL));
+            if(attributeRel.equals(rel)){
+                response.addLink(rel,link.getText());
+                response.addLink(rel,link.getText());
+            }
+        }
+    }
+
+    private QName getQNameWithIdentityNS(String localPart) {
+        return new QName(IdentityConfigParser.IDENTITY_DEFAULT_NAMESPACE, localPart);
+    }
 }

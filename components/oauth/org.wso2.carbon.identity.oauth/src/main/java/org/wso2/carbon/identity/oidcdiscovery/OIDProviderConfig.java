@@ -342,9 +342,11 @@ public class OIDProviderConfig {
         this.op_tos_uri = op_tos_uri;
     }
 
-    public static Map<String,Object> getConfigMap(OIDProviderConfig config){
+    public Map<String,Object> getConfigMap(){
         Map<String,Object> configMap = new HashMap<String,Object>();
-        configMap.put(DiscoveryConstants.ISSUER.toLowerCase(),config.getIssuer());
+        configMap.put(DiscoveryConstants.ISSUER.toLowerCase(),this.issuer);
+        //@TODO
+        //put all the fields into the map.
         return configMap;
     }
 

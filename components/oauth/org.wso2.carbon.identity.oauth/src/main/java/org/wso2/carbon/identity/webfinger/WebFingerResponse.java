@@ -18,11 +18,26 @@
 package org.wso2.carbon.identity.webfinger;
 
 
+import javax.xml.bind.annotation.*;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-
+import java.util.Map;
+@XmlAccessorType(XmlAccessType.FIELD)
+@XmlType(propOrder = {
+        "subject",
+        "links"
+})
+@XmlRootElement(name = "")
 public class WebFingerResponse {
+    @XmlElement(required = true)
     private String subject;
+    @XmlElement(required = true)
+    private List<WebLink> links;
 
+    public WebFingerResponse(){
+        links = new ArrayList<WebLink>();
+    }
     public List<WebLink> getLinks() {
         return links;
     }
@@ -39,5 +54,21 @@ public class WebFingerResponse {
         this.subject = subject;
     }
 
-    private List<WebLink> links;
+    public void addLink(String rel, String href){
+        WebLink link = new WebLink();
+        link.setRel(rel);
+        link.setHref(href);
+        this.links.add(link);
+    }
+    public Map<String,Object> getResponseMap(){
+        Map<String,Object> responseMap = new HashMap<String,Object>();
+        responseMap.put(WebFingerConstants.SUBJECT, this.subject);
+        Map<String,Object> linkMap = new HashMap<>();
+        for(WebLink link : links){
+            linkMap.put(WebFingerConstants.REL,link.getRel());
+            linkMap.put(WebFingerConstants.HREF,link.getHref());
+        }
+        responseMap.put(WebFingerConstants.LINKS, linkMap);
+        return responseMap;
+    }
 }

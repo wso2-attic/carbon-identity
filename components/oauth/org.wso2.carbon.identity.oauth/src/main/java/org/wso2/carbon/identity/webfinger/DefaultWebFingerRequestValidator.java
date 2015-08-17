@@ -19,10 +19,10 @@ package org.wso2.carbon.identity.webfinger;
 
 public class DefaultWebFingerRequestValidator implements WebFingerRequestValidator {
     @Override
-    public WebFingerRequest validateRequest(MessageContext context) throws WebFingerEndPointException {
-        return null;
+    public WebFingerRequest validateRequest(WebFingerRequest webFingerRequest) throws WebFingerEndPointException {
+        return webFingerRequest;
     }
-    private void normalizeResource(WebFingerRequest webFingerRequest) throws WebFingerEndPointException{
+    private void normalizeResource(String resource) throws WebFingerEndPointException{
         //set the host and userinfo of webfinger request
     }
 }

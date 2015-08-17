@@ -17,8 +17,6 @@
  */
 package org.wso2.carbon.identity.webfinger;
 
-import javax.servlet.http.HttpServletRequest;
-
 public interface WebFingerRequestValidator {
-    public WebFingerRequest validateRequest(MessageContext context) throws WebFingerEndPointException;
+    public WebFingerRequest validateRequest(WebFingerRequest webFingerRequest) throws WebFingerEndPointException;
 }

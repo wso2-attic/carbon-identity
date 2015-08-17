@@ -37,7 +37,6 @@ public class OIDCProcessor {
     private MessageContext context;
 
     private OIDCProcessor() {
-        this.context = new MessageContext();
         if (log.isDebugEnabled()) {
             log.debug("Initializing OIDCProcessor for OpenID connect discovery processor.");
         }
@@ -49,14 +48,19 @@ public class OIDCProcessor {
     }
 
 
-    public void validateRequest(HttpServletRequest request,String tenant) throws OIDCDiscoveryEndPointException {
+    public void validateRequest(HttpServletRequest request, String tenant) throws OIDCDiscoveryEndPointException {
+        this.context = new MessageContext();
         OIDProviderRequestValidator requestBuilder = new DefaultOIDProviderRequestValidator();
-        this.context.setRequest(requestBuilder.validateRequest(request,tenant));
+        this.context.setRequest(requestBuilder.validateRequest(request, tenant));
     }
 
     //Do we have to synchronize this method since we initialize MessageContext.
     public OIDProviderConfig getOIDProviderConfig() throws
             OIDCDiscoveryEndPointException, ServerConfigurationException {
+        if (this.context == null) {
+            throw new OIDCDiscoveryEndPointException(OIDCDiscoveryEndPointException.ERROR_CODE_INVALID_REQUEST,
+                    "Error in processing the request. Bad request parameters.");
+        }
         OIDProviderRequest request = this.context.getRequest();
         OIDProviderConfig providerConfig = this.context.getConfigurations();
         IdentityConfigParser configParser = IdentityConfigParser.getInstance();
@@ -86,7 +90,7 @@ public class OIDCProcessor {
             throw new OIDCDiscoveryEndPointException(OIDCDiscoveryEndPointException.ERROR_CODE_INVALID_TENANT, "No " +
                     "OpenID provider for the given tenant.");
         }
-        setParmaters(providerConfig,oidcTenantConfig);
+        setParmaters(providerConfig, oidcTenantConfig);
 
         return providerConfig;
     }
@@ -103,20 +107,23 @@ public class OIDCProcessor {
         if (log.isDebugEnabled()) {
             log.debug(error);
         }
-        return  HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
+        return HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
     }
+
     /**
-    * This method sets all the configuration parameters accordingly.
-     *Use this method to assign newly introduced parameters.
-    * */
-    private void setParmaters(OIDProviderConfig providerConfig,OMElement oidcTenantConfig){
+     * This method sets all the configuration parameters accordingly.
+     * Use this method to assign newly introduced parameters.
+     */
+    private void setParmaters(OIDProviderConfig providerConfig, OMElement oidcTenantConfig) {
 
         providerConfig.setIssuer(oidcTenantConfig.getFirstChildWithName(getQNameWithIdentityNS(DiscoveryConstants
                 .ISSUER)).getText());
-        providerConfig.setAuthorization_endpoint((oidcTenantConfig.getFirstChildWithName(getQNameWithIdentityNS(DiscoveryConstants
+        providerConfig.setAuthorization_endpoint((oidcTenantConfig.getFirstChildWithName(getQNameWithIdentityNS
+                (DiscoveryConstants
                 .AUTHORIZATION_ENDPOINT)).getText()));
 
     }
+
     private QName getQNameWithIdentityNS(String localPart) {
         return new QName(IdentityConfigParser.IDENTITY_DEFAULT_NAMESPACE, localPart);
     }

@@ -33,7 +33,7 @@ public class OIDProviderJSONResponseBuilder implements OIDProviderResponseBuilde
 
     public String getOIDProviderConfigString(OIDProviderConfig oidProviderConfig) throws
             OIDCDiscoveryEndPointException {
-        Map<String, Object> configs = oidProviderConfig.getConfigMap(oidProviderConfig);
+        Map<String, Object> configs = oidProviderConfig.getConfigMap();
         try {
             return JSONUtils.buildJSON(configs);
 
