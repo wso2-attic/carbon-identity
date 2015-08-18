@@ -35,7 +35,7 @@ import org.wso2.carbon.user.core.util.UserCoreUtil;
 
 import java.util.Map;
 
-public class UserOperationEventListenerImpl implements AbstractIdentityUserOperationEventListener {
+public class UserOperationEventListenerImpl extends AbstractIdentityUserOperationEventListener {
 
     private static final Log log = LogFactory.getLog(UserOperationEventListenerImpl.class);
 
