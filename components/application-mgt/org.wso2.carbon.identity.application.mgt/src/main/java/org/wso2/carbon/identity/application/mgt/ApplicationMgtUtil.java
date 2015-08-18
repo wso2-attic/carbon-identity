@@ -51,7 +51,7 @@ public class ApplicationMgtUtil {
     public static final String APPLICATION_ROOT_PERMISSION = "applications";
     public static final String PATH_CONSTANT = RegistryConstants.PATH_SEPARATOR;
     private static final List<String> paths = new ArrayList<String>();
-    public static final String APPLICATION_DOMAIN = "APPLICATION";
+    public static final String APPLICATION_DOMAIN = "Application";
     private static String applicationNode;
 
     private static Log log = LogFactory.getLog(ApplicationMgtUtil.class);
@@ -152,10 +152,8 @@ public class ApplicationMgtUtil {
                 log.debug("Creating application role : " + roleName + " and assign the user : " + Arrays.toString(user) + " to that role");
             }
 
-            AbstractUserStoreManager userStoreManager = (AbstractUserStoreManager) CarbonContext
-                    .getThreadLocalCarbonContext().getUserRealm().getUserStoreManager();
-
-            userStoreManager.addInternalRole(APPLICATION_DOMAIN, applicationName, user, null);
+            CarbonContext.getThreadLocalCarbonContext().getUserRealm().getUserStoreManager()
+                    .addRole(roleName, user, null);
         } catch (UserStoreException e) {
             throw new IdentityApplicationManagementException("Error while creating application", e);
         }
@@ -494,5 +492,12 @@ public class ApplicationMgtUtil {
 
         return CarbonConstants.UI_PERMISSION_NAME + RegistryConstants.PATH_SEPARATOR + APPLICATION_ROOT_PERMISSION;
 
+    }
+
+    private String addApplicationDomainName(String name){
+        if(name.indexOf("/") < 0) {
+            name = APPLICATION_DOMAIN + UserCoreConstants.DOMAIN_SEPARATOR + name;
+        }
+        return name;
     }
 }
