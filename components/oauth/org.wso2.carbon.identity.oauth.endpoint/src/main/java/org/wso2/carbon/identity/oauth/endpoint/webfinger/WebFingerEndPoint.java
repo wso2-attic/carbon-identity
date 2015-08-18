@@ -49,7 +49,7 @@ public class WebFingerEndPoint {
         WebFingerProcessor processor = EndpointUtil.getWebFingerService();
         String response;
         try {
-            processor.validateRequest(request, OPENID_CONNETCT_ISSUER_REL);
+            processor.validateRequest(request);
             WebFingerResponseBuilder responseBuilder = new WebFingerJSOnResponseBuilder();
             response = responseBuilder.getOIDProviderIssuerString(processor.getWebFingerResponse());
         } catch (WebFingerEndPointException e) {

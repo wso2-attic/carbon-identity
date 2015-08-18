@@ -46,7 +46,7 @@ public class WebFingerProcessor {
         return webFingerProcessor;
     }
 
-    public void validateRequest(HttpServletRequest request, String rel) throws
+    public void validateRequest(HttpServletRequest request) throws
             WebFingerEndPointException {
         this.context = new MessageContext();
         WebFingerRequestValidator validator = new DefaultWebFingerRequestValidator();
@@ -59,8 +59,10 @@ public class WebFingerProcessor {
                     "Finger request.");
         }
 
+        String resource = request.getParameter(WebFingerConstants.RESOURCE);
         webFingerRequest.setRel(request.getParameter(WebFingerConstants.REL));
-        webFingerRequest.setResource(request.getParameter(WebFingerConstants.RESOURCE));
+        webFingerRequest.setResource(resource);
+        URLNormalizer.normalizeResource(webFingerRequest);
         webFingerRequest.setServletRequest(request);
         validator.validateRequest(webFingerRequest);
 
@@ -80,17 +82,17 @@ public class WebFingerProcessor {
                     .ERROR_CODE_NO_WEBFINGER_CONFIG, "No WebFinger settings set at the server.");
         }
         OMElement subjectElement = null;
-        String resource = request.getResource();
-        if (resource == null || resource.isEmpty()) {
-            resource = WebFingerConstants.CONFIG_DEFAULT_SUBJECT;
+        String userInfo = request.getUserInfo();
+        if (userInfo == null || userInfo.isEmpty()) {
+            userInfo = WebFingerConstants.CONFIG_DEFAULT_SUBJECT;
         }
         Iterator<OMElement> configurations = oidcElement.getChildrenWithName(getQNameWithIdentityNS
                 (WebFingerConstants.CONFIG__WEBFINGER_CONFIG));
         while (configurations.hasNext()) {
             OMElement configuration = configurations.next();
-            String subject = configuration.getAttributeValue(new QName("subject"));
-            if (subject.equals(resource)) {
-                response.setSubject(subject);
+            String subject = configuration.getAttributeValue(new QName(WebFingerConstants.USERINFO));
+            if (subject.equals(userInfo)) {
+                response.setSubject(request.getResource());
                 subjectElement = configuration;
                 break;
             }
@@ -118,7 +120,6 @@ public class WebFingerProcessor {
             OMElement link = linkSet.next();
             String attributeRel = link.getAttributeValue(new QName(WebFingerConstants.REL));
             if(attributeRel.equals(rel)){
-                response.addLink(rel,link.getText());
                 response.addLink(rel,link.getText());
             }
         }

@@ -293,7 +293,7 @@
         </Configuration>
     </OpenIDConnectDiscovery>
     <WebFinger>
-        <Configuration subject="chamarap@wso2.com">
+        <Configuration userInfo="chamarap">
             <Link rel="http://openid.net/specs/connect/1.0/issuer">issuer.host.chamara.com</Link>
         </Configuration>
     </WebFinger>

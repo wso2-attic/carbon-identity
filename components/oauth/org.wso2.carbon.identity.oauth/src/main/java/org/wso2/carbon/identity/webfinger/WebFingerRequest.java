@@ -23,10 +23,59 @@ import javax.servlet.http.HttpServletRequest;
 public class WebFingerRequest {
     private String rel;
     private String resource;
-    private String host;
-    private String userInfo;
     private HttpServletRequest servletRequest;
     private int resourceType;
+
+    //URI components
+    private String uri;
+    private String scheme;
+    private String host;
+    private String userInfo;
+    private int port;
+    private String path;
+
+    public String getScheme() {
+        return scheme;
+    }
+
+    public void setScheme(String scheme) {
+        this.scheme = scheme;
+    }
+
+    public int getPort() {
+        return port;
+    }
+
+    public void setPort(int port) {
+        this.port = port;
+    }
+
+    public String getPath() {
+        return path;
+    }
+
+    public void setPath(String path) {
+        this.path = path;
+    }
+
+    public String getQuery() {
+        return query;
+    }
+
+    public void setQuery(String query) {
+        this.query = query;
+    }
+
+    public String getFragment() {
+        return fragment;
+    }
+
+    public void setFragment(String fragment) {
+        this.fragment = fragment;
+    }
+
+    private String query;
+    private String fragment;
 
     public String getUserInfo() {
         return userInfo;
@@ -74,5 +123,13 @@ public class WebFingerRequest {
 
     public void setServletRequest(HttpServletRequest servletRequest) {
         this.servletRequest = servletRequest;
+    }
+
+    public String getUri() {
+        return uri;
+    }
+
+    public void setUri(String uri) {
+        this.uri = uri;
     }
 }

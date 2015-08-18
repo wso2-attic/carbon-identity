@@ -29,6 +29,7 @@ public class WebFingerConstants {
     public static final String CONFIG__WEBFINGER_CONFIG="Configuration";
     public static final String CONFIG_LINK = "Link";
     public static final String SUBJECT = "subject";
+    public static final String USERINFO = "userInfo";
     public static final String LINKS = "links";
     public static final String REL = "rel";
     public static final String HREF = "href";
