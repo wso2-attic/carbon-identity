@@ -242,6 +242,25 @@
         }*/
     </script>
     <script type="text/javascript">
+        function validateTextForIllegal(fld) {
+            var legalChars = /[^a-zA-Z0-9.*_]/g;
+            if ((legalChars.test(fld))) {
+                return false;
+            } else {
+                return true;
+            }
+        }
+        function validateSearchText() {
+            if (!validateTextForIllegal(document.getElementsByName("org.wso2.carbon.role.filter")[0].value)) {
+                CARBON.showWarningDialog("Role name must be a non null string with following format, [a-zA-Z0-9._-|//]{3,30}$");
+                return false;
+            }
+            else {
+                $("#filterForm")[0].submit();
+            }
+        }
+    </script>
+    <script type="text/javascript">
 
         function updateUserGroup(role) {
                 var roleName = role;
@@ -254,7 +273,7 @@
 
         <div id="workArea">
 
-            <form name="filterForm" method="post" action="role-mgt.jsp">
+            <form name="filterForm" id="filterForm" method="post" action="role-mgt.jsp">
                 <table class="styledLeft noBorders">
 				<thead>
 					<tr>
@@ -294,7 +313,7 @@
                             <input type="text" name="<%=UserAdminUIConstants.ROLE_LIST_FILTER%>"
                                    value="<%=filter%>"/>
 
-                            <input class="button" type="submit"
+                            <input class="button" type="button" onclick="validateSearchText()"
                                    value="<fmt:message key="role.search"/>"/>
                         </td>
 
