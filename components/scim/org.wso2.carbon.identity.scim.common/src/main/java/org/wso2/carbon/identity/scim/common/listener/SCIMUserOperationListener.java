@@ -393,8 +393,11 @@ public class SCIMUserOperationListener implements UserOperationEventListener {
         } else {
             attributes = new HashMap<>();
         }
-        String id = UUID.randomUUID().toString();
-        attributes.put(SCIMConstants.ID_URI, id);
+
+        if (!attributes.containsKey(SCIMConstants.ID_URI)) {
+            String id = UUID.randomUUID().toString();
+            attributes.put(SCIMConstants.ID_URI, id);
+        }
 
         Date date = new Date();
         String createdDate = AttributeUtil.formatDateTime(date);
