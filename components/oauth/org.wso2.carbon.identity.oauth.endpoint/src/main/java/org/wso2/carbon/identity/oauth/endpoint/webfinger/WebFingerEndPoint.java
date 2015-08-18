@@ -43,22 +43,21 @@ public class WebFingerEndPoint {
     public static final String OPENID_CONNETCT_ISSUER_REL = "http://openid.net/specs/connect/1.0/issuer";
 
     @GET
-    //@Path("/.well-known/webfinger?resource={resource}&rel=" + OPENID_CONNETCT_ISSUER_REL)
     @Path("/.well-known/webfinger")
     @Produces("application/json")
     public Response getOIDProviderIssuer(@Context HttpServletRequest request) {
         WebFingerProcessor processor = EndpointUtil.getWebFingerService();
-        String response = null;
+        String response;
         try {
             processor.validateRequest(request, OPENID_CONNETCT_ISSUER_REL);
             WebFingerResponseBuilder responseBuilder = new WebFingerJSOnResponseBuilder();
             response = responseBuilder.getOIDProviderIssuerString(processor.getWebFingerResponse());
         } catch (WebFingerEndPointException e) {
-
-
+            Response.ResponseBuilder errorResponse = Response.status(processor.handleError(e));
+            return errorResponse.entity(e.getErrorMessage()).build();
         } catch (ServerConfigurationException e) {
-
-
+            Response.ResponseBuilder errorResponse = Response.status(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            return errorResponse.entity("Error in reading configuration.").build();
         }
 
         Response.ResponseBuilder responseBuilder =

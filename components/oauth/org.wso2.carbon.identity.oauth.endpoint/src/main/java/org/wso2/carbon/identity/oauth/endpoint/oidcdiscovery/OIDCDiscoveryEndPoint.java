@@ -66,7 +66,7 @@ public class OIDCDiscoveryEndPoint {
     @Path("/.well-known/openid-configuration")
     @Produces("application/json")
     public Response getOIDProviderConfiguration(@Context HttpServletRequest request) {
-        String response = null;
+        String response;
         OIDCProcessor processor = EndpointUtil.getOIDCService();
         try {
             processor.validateRequest(request,null);

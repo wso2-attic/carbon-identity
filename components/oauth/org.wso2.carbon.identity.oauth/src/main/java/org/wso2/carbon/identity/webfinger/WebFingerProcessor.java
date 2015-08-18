@@ -24,6 +24,7 @@ import org.wso2.carbon.base.ServerConfigurationException;
 import org.wso2.carbon.identity.core.util.IdentityConfigParser;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.xml.namespace.QName;
 import java.util.Collections;
 import java.util.Iterator;
@@ -104,7 +105,12 @@ public class WebFingerProcessor {
         return response;
     }
 
-
+    public int handleError(WebFingerEndPointException error) {
+        if (log.isDebugEnabled()) {
+            log.debug(error);
+        }
+        return HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
+    }
     private void setLinksInResponse(String rel, WebFingerResponse response, OMElement subjectElement) {
         Iterator<OMElement> linkSet = subjectElement.getChildrenWithName(getQNameWithIdentityNS(WebFingerConstants
                 .CONFIG_LINK));

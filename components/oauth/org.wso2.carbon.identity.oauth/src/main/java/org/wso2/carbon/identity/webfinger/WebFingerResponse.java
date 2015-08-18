@@ -18,21 +18,13 @@
 package org.wso2.carbon.identity.webfinger;
 
 
-import javax.xml.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-@XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(propOrder = {
-        "subject",
-        "links"
-})
-@XmlRootElement(name = "")
+
 public class WebFingerResponse {
-    @XmlElement(required = true)
     private String subject;
-    @XmlElement(required = true)
     private List<WebLink> links;
 
     public WebFingerResponse(){
@@ -40,10 +32,6 @@ public class WebFingerResponse {
     }
     public List<WebLink> getLinks() {
         return links;
-    }
-
-    public void setLinks(List<WebLink> links) {
-        this.links = links;
     }
 
     public String getSubject() {

@@ -17,18 +17,8 @@
  */
 package org.wso2.carbon.identity.webfinger;
 
-import javax.xml.bind.annotation.*;
-
-@XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(propOrder = {
-        "rel",
-        "href"
-})
-@XmlRootElement(name = "")
 public class WebLink {
-    @XmlElement(required = true)
     private String rel;
-    @XmlElement(required = true)
     private String href;
 
     public String getHref() {
