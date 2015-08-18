@@ -43,7 +43,7 @@
     String profileConfiguration = request.getParameter("profileConfiguration");
     String fromUserMgt = request.getParameter("fromUserMgt");
     String noOfProfiles = request.getParameter("noOfProfiles");
-    if(StringUtils.isBlank(username) || StringUtils.isBlank(profile) || StringUtils.isBlank(profileConfiguration)){
+    if(StringUtils.isBlank(username) || StringUtils.isBlank(profile)){
         String message = MessageFormat.format(resourceBundle.getString("error.while.updating.profile"), null);
         CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
 %>
