@@ -162,7 +162,6 @@ public class DefaultInboundUserProvisioningListener extends AbstractIdentityUser
         if (!isEnable(this.getClass().getName())) {
             return true;
         }
-        }
 
         try {
             Map<ClaimMapping, List<String>> outboundAttributes = new HashMap<>();
