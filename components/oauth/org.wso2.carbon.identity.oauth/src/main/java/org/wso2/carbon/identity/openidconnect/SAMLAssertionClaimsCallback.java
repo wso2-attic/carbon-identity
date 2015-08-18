@@ -28,12 +28,14 @@ import org.apache.oltu.openidconnect.as.messages.IDTokenBuilder;
 import org.opensaml.saml2.core.Assertion;
 import org.opensaml.saml2.core.Attribute;
 import org.opensaml.saml2.core.AttributeStatement;
+import org.wso2.carbon.claim.mgt.ClaimManagementException;
 import org.wso2.carbon.claim.mgt.ClaimManagerHandler;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
 import org.wso2.carbon.identity.application.common.model.ClaimMapping;
 import org.wso2.carbon.identity.application.common.model.ServiceProvider;
 import org.wso2.carbon.identity.application.mgt.ApplicationManagementService;
+import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
 import org.wso2.carbon.identity.oauth.cache.AuthorizationGrantCache;
 import org.wso2.carbon.identity.oauth.cache.AuthorizationGrantCacheEntry;
@@ -44,6 +46,7 @@ import org.wso2.carbon.identity.oauth2.internal.OAuth2ServiceComponentHolder;
 import org.wso2.carbon.identity.oauth2.token.OAuthTokenReqMessageContext;
 import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.core.UserRealm;
+import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
@@ -147,7 +150,8 @@ public class SAMLAssertionClaimsCallback implements CustomClaimsCallbackHandler 
             }
             try {
                 claims = getClaimsFromUserStore(requestMsgCtx);
-            } catch (Exception e) {
+            } catch (UserStoreException | IdentityException | ClaimManagementException |
+                    IdentityApplicationManagementException e) {
                 log.error("Error occurred while getting claims for user " + requestMsgCtx.getAuthorizedUser(), e);
             }
         } else {
@@ -181,7 +185,8 @@ public class SAMLAssertionClaimsCallback implements CustomClaimsCallbackHandler 
      * @throws Exception
      */
     private static Map<String, Object> getClaimsFromUserStore(OAuthTokenReqMessageContext requestMsgCtx)
-            throws Exception {
+            throws IdentityApplicationManagementException, IdentityException, UserStoreException,
+            ClaimManagementException {
 
         String username = requestMsgCtx.getAuthorizedUser().toString();
         String tenantDomain = requestMsgCtx.getAuthorizedUser().getTenantDomain();

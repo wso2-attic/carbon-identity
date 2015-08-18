@@ -60,7 +60,7 @@
         	forwardTo = "index.jsp";
         }
     } catch (Exception e) {
-    	String message = resourceBundle.getString("error.while.updating.user.profile");
+        String message = resourceBundle.getString("error.while.updating.profile.user");
         CarbonUIMessage.sendCarbonUIMessage(message,CarbonUIMessage.ERROR, request,e);
         forwardTo = "../admin/error.jsp";
     }

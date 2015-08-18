@@ -31,6 +31,7 @@ import org.wso2.carbon.identity.sso.saml.dto.SingleLogoutRequestDTO;
 import org.wso2.carbon.identity.sso.saml.session.SSOSessionPersistenceManager;
 import org.wso2.carbon.identity.sso.saml.session.SessionInfoData;
 import org.wso2.carbon.identity.sso.saml.util.SAMLSSOUtil;
+import org.wso2.carbon.user.api.UserStoreException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -111,7 +112,7 @@ public class IdPInitLogoutRequestProcessor {
                     validationResponseDTO.setReturnToURL(returnTo);
                 } else {
                     validationResponseDTO.setReturnToURL(serverURL.replace(
-                            SAMLSSOConstants.SAML_ENDPOINT, SAMLSSOConstants.DEFAULT_LOGOUT_LOCATION+ "?spEntityID="
+                            SAMLSSOConstants.SAML_ENDPOINT, SAMLSSOConstants.DEFAULT_LOGOUT_LOCATION + "?spEntityID="
                                                             + spEntityID));
                 }
                 validationResponseDTO.setIssuer(logoutReqIssuer.getIssuer());
@@ -150,7 +151,7 @@ public class IdPInitLogoutRequestProcessor {
                     new SingleLogoutRequestDTO[singleLogoutReqDTOs.size()]));
             validationResponseDTO.setValid(true);
 
-        } catch (Exception e) {
+        } catch (UserStoreException | IdentityException e) {
             throw new IdentityException(SAMLSSOConstants.Notification.IDP_SLO_VALIDATE_ERROR, e);
         }
         return validationResponseDTO;

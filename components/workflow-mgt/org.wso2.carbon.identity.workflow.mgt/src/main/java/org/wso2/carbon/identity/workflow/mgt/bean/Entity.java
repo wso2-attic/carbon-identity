@@ -22,9 +22,9 @@ public class Entity {
 
     private String entityId;
     private String entityType;
-    private String tenantId;
+    private int tenantId;
 
-    public Entity(String entityId, String entityType, String tenantId) {
+    public Entity(String entityId, String entityType, int tenantId) {
         this.entityId = entityId;
         this.entityType = entityType;
         this.tenantId = tenantId;
@@ -46,11 +46,11 @@ public class Entity {
         this.entityId = entityId;
     }
 
-    public String getTenantId() {
+    public int getTenantId() {
         return tenantId;
     }
 
-    public void setTenantId(String tenantId) {
+    public void setTenantId(int tenantId) {
         this.tenantId = tenantId;
     }
 }
