@@ -23,12 +23,12 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.identity.workflow.mgt.bean.AssociationDTO;
-import org.wso2.carbon.identity.workflow.mgt.bean.BPSProfileBean;
-import org.wso2.carbon.identity.workflow.mgt.bean.Parameter;
+import org.wso2.carbon.identity.workflow.mgt.bean.BPSProfileDTO;
+import org.wso2.carbon.identity.workflow.mgt.bean.ParameterDTO;
 import org.wso2.carbon.identity.workflow.mgt.bean.TemplateBean;
 import org.wso2.carbon.identity.workflow.mgt.bean.TemplateDTO;
 import org.wso2.carbon.identity.workflow.mgt.bean.TemplateImplDTO;
-import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowBean;
+import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowDTO;
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowEventDTO;
 import org.wso2.carbon.identity.workflow.mgt.exception.InternalWorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.exception.RuntimeWorkflowException;
@@ -66,21 +66,20 @@ public class WorkflowAdminService {
         return service.getTemplateImplDTO(template, implName);
     }
 
-    public void addBPSProfile(String profileName, String host, String user, String password, String callbackUser,
-                              String callbackPassword) throws WorkflowException {
+    public void addBPSProfile(BPSProfileDTO bpsProfileDTO) throws WorkflowException {
 
         try {
             int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
-            service.addBPSProfile(profileName, host, user, password, callbackUser, callbackPassword, tenantId);
+            service.addBPSProfile(bpsProfileDTO, tenantId);
         } catch (WorkflowException e) {
-            log.error("Server error when adding the profile " + profileName, e);
+            log.error("Server error when adding the profile " + bpsProfileDTO.getProfileName(), e);
             throw new WorkflowException("Server error occurred when adding the BPS profile");
         }
     }
 
-    public BPSProfileBean[] listBPSProfiles() throws WorkflowException {
+    public BPSProfileDTO[] listBPSProfiles() throws WorkflowException {
 
-        List<BPSProfileBean> bpsProfiles = null;
+        List<BPSProfileDTO> bpsProfiles = null;
         int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
         try {
             bpsProfiles = service.listBPSProfiles(tenantId);
@@ -89,9 +88,46 @@ public class WorkflowAdminService {
             throw new WorkflowException("Server error occurred when listing BPS profiles");
         }
         if (CollectionUtils.isEmpty(bpsProfiles)) {
-            return new BPSProfileBean[0];
+            return new BPSProfileDTO[0];
         }
-        return bpsProfiles.toArray(new BPSProfileBean[bpsProfiles.size()]);
+        return bpsProfiles.toArray(new BPSProfileDTO[bpsProfiles.size()]);
+    }
+
+    /**
+     * Reading BPS profile for given profile name and for current tenant
+     *
+     * @param bpsProfileName
+     * @return
+     * @throws WorkflowException
+     */
+    public BPSProfileDTO getBPSProfile(String bpsProfileName) throws WorkflowException {
+
+        BPSProfileDTO bpsProfileDTO = null ;
+        int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
+        try {
+            bpsProfileDTO = service.getBPSProfile(bpsProfileName, tenantId);
+        } catch (WorkflowException e) {
+            log.error("Server error when reading a BPS profile", e);
+            throw new WorkflowException("Server error occurred when reading a BPS profile");
+        }
+        return bpsProfileDTO;
+    }
+
+    /**
+     * update BPS profile for given data
+     *
+     * @param bpsProfileDTO
+     * @throws WorkflowException
+     */
+    public void updateBPSProfile(BPSProfileDTO bpsProfileDTO) throws WorkflowException {
+
+        int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
+        try {
+            service.updateBPSProfile(bpsProfileDTO, tenantId);
+        } catch (WorkflowException e) {
+            log.error("Server error when updating the BPS profile", e);
+            throw new WorkflowException("Server error occurred when updating the BPS profile");
+        }
     }
 
     public void removeBPSProfile(String profileName) throws WorkflowException {
@@ -107,18 +143,18 @@ public class WorkflowAdminService {
         }
     }
 
-    public void addWorkflow(String name, String description, String templateId, String templateImpl,
-                            Parameter[] templateParams, Parameter[] implParams) throws WorkflowException {
+    public void addWorkflow(WorkflowDTO workflowDTO, ParameterDTO[] templateParams, ParameterDTO[] implParams) throws WorkflowException {
 
         String id = UUID.randomUUID().toString();
         int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
         try {
-            service.addWorkflow(id, name, description, templateId, templateImpl, templateParams, implParams, tenantId);
+            workflowDTO.setWorkflowId(id);
+            service.addWorkflow(workflowDTO, templateParams, implParams, tenantId);
         } catch (RuntimeWorkflowException e) {
-            log.error("Error when adding workflow " + name, e);
+            log.error("Error when adding workflow " + workflowDTO.getWorkflowName(), e);
             throw new WorkflowException(e.getMessage());
         } catch (WorkflowException e) {
-            log.error("Server error when adding workflow " + name, e);
+            log.error("Server error when adding workflow " + workflowDTO.getWorkflowName(), e);
             throw new WorkflowException("Server error occurred when adding the workflow");
         }
     }
@@ -137,9 +173,24 @@ public class WorkflowAdminService {
         }
     }
 
-    public WorkflowBean[] listWorkflows() throws WorkflowException {
 
-        List<WorkflowBean> workflows;
+    public void changeAssociationState(String associationId, boolean isEnable)throws WorkflowException {
+        try {
+            service.changeAssociationState(associationId, isEnable);
+        } catch (RuntimeWorkflowException e) {
+            log.error("Error when changing an association ", e);
+            throw new WorkflowException(e.getMessage());
+        } catch (WorkflowException e) {
+            log.error("Server error when changing state of association ", e);
+            throw new WorkflowException("Server error occurred when changing the state of association");
+        }
+
+    }
+
+
+    public WorkflowDTO[] listWorkflows() throws WorkflowException {
+
+        List<WorkflowDTO> workflows;
         int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
         try {
             workflows = service.listWorkflows(tenantId);
@@ -148,9 +199,9 @@ public class WorkflowAdminService {
             throw new WorkflowException("Server error occurred when listing workflows");
         }
         if (CollectionUtils.isEmpty(workflows)) {
-            return new WorkflowBean[0];
+            return new WorkflowDTO[0];
         }
-        return workflows.toArray(new WorkflowBean[workflows.size()]);
+        return workflows.toArray(new WorkflowDTO[workflows.size()]);
     }
 
     public void removeWorkflow(String id) throws WorkflowException {

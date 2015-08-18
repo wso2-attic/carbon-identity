@@ -1,5 +1,5 @@
 <!--
-  ~ Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+  ~ Copyright (c) 2015 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
   ~
   ~ WSO2 Inc. licenses this file to you under the Apache License,
   ~ Version 2.0 (the "License"); you may not use this file except
@@ -16,15 +16,6 @@
   ~ under the License.
   -->
 
-<wsa:EndpointReference
-        xmlns:wsa="http://www.w3.org/2005/08/addressing"
-        >
-    <wsa:Address>${carbonHostName}/services/WorkflowCallbackService</wsa:Address>
-    <wsa:Metadata>
-        <id>SInvokeEPR</id>
-        <transport type="http">
-            <authorization-username>${carbonUserName}</authorization-username>
-            <authorization-password>${carbonUserPassword}</authorization-password>
-        </transport>
-    </wsa:Metadata>
+<wsa:EndpointReference xmlns:wsa="http://www.w3.org/2005/08/addressing">
+    <wsa:Address>${bpsHostName}/services/${htServiceName}Service</wsa:Address>
 </wsa:EndpointReference>

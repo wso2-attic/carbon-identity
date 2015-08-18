@@ -63,6 +63,20 @@
             CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
             forwardTo = "../admin/error.jsp";
         }
+    }else if (WorkflowUIConstants.ACTION_VALUE_ENABLE.equals(action) || WorkflowUIConstants.ACTION_VALUE_DISABLE.equals(action)) {
+        String associationId =
+                CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_ASSOCIATION_ID));
+        try {
+            if(WorkflowUIConstants.ACTION_VALUE_ENABLE.equals(action)){
+                client.enableAssociation(associationId);
+            }else{
+                client.disableAssociation(associationId);
+            }
+        } catch (WorkflowAdminServiceWorkflowException e) {
+            String message = resourceBundle.getString("workflow.error.association.add");
+            CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
+            forwardTo = "../admin/error.jsp";
+        }
     }
 %>
 <script type="text/javascript">
