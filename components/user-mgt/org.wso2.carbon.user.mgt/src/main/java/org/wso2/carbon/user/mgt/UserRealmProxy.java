@@ -65,15 +65,14 @@ import java.util.regex.Pattern;
 
 public class UserRealmProxy {
 
-    private static final Log log = LogFactory.getLog(UserRealmProxy.class);
-
-    private static final String APPLICATIONS_PATH = RegistryConstants.PATH_SEPARATOR
-            + CarbonConstants.UI_PERMISSION_NAME + RegistryConstants.PATH_SEPARATOR
-            + "applications";
-    private static final String DISAPLAY_NAME_CLAIM = "http://wso2.org/claims/displayName";
     public static final String FALSE = "false";
     public static final String PERMISSION = "/permission";
     public static final String PERMISSION_ADMIN = "/permission/admin";
+    private static final Log log = LogFactory.getLog(UserRealmProxy.class);
+    private static final String APPLICATIONS_PATH = RegistryConstants.PATH_SEPARATOR
+                                                    + CarbonConstants.UI_PERMISSION_NAME + RegistryConstants.PATH_SEPARATOR
+                                                    + "applications";
+    private static final String DISAPLAY_NAME_CLAIM = "http://wso2.org/claims/displayName";
     private UserRealm realm = null;
 
     public UserRealmProxy(UserRealm userRealm) {
@@ -99,7 +98,7 @@ public class UserRealmProxy {
 
             if (claimValue.getClaimURI() != null && claimValue.getValue() != null) {
                 usersWithClaim = realm.getUserStoreManager().getUserList(claimValue.getClaimURI(),
-                        claimValue.getValue(), null);
+                                                                         claimValue.getValue(), null);
             }
             int i = 0;
             FlaggedName[] flaggedNames = new FlaggedName[0];
@@ -184,7 +183,7 @@ public class UserRealmProxy {
                     flaggedNames[i].setItemDisplayName(user);
                 }
                 int index1 = flaggedNames[i].getItemName() != null
-                        ? flaggedNames[i].getItemName().indexOf(CarbonConstants.DOMAIN_SEPARATOR) : -1;
+                             ? flaggedNames[i].getItemName().indexOf(CarbonConstants.DOMAIN_SEPARATOR) : -1;
                 boolean domainProvided = index1 > 0;
                 String domain = domainProvided ? flaggedNames[i].getItemName().substring(0, index1) : null;
                 if (domain != null && !UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domain)) {
@@ -211,7 +210,7 @@ public class UserRealmProxy {
                 } else {
                     if (userCount.containsKey(UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME)) {
                         userCount.put(UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME,
-                                userCount.get(UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME) + 1);
+                                      userCount.get(UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME) + 1);
                     } else {
                         userCount.put(UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME, 1);
                     }
@@ -243,7 +242,7 @@ public class UserRealmProxy {
             for (int i = 0; i < domains.length; i++) {
                 if (UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME.equalsIgnoreCase(domains[i])) {
                     if (userCount.get(UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME).intValue() ==
-                            maxUserListCount.get(UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME).intValue()) {
+                        maxUserListCount.get(UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME).intValue()) {
                         isPrimaryExceeding = true;
                     }
                     continue;
@@ -280,7 +279,7 @@ public class UserRealmProxy {
             if (userStoreMan instanceof AbstractUserStoreManager) {
                 externalRoles =
                         ((AbstractUserStoreManager) userStoreMan).getSharedRoleNames(filter,
-                                maxLimit);
+                                                                                     maxLimit);
             } else {
                 throw new UserAdminException(
                         "Initialized User Store Manager is not capable of getting the shared roles");
@@ -304,10 +303,10 @@ public class UserRealmProxy {
 
                 if (domain != null && !UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domain)) {
                     if (secManager != null &&
-                            (secManager.isReadOnly() || (secManager.getRealmConfiguration()
-                                    .getUserStoreProperty(UserCoreConstants.RealmConfig.WRITE_GROUPS_ENABLED) != null &&
-                                    FALSE.equals(secManager.getRealmConfiguration().
-                                            getUserStoreProperty(UserCoreConstants.RealmConfig.WRITE_GROUPS_ENABLED))))) {
+                        (secManager.isReadOnly() || (secManager.getRealmConfiguration()
+                                                             .getUserStoreProperty(UserCoreConstants.RealmConfig.WRITE_GROUPS_ENABLED) != null &&
+                                                     FALSE.equals(secManager.getRealmConfiguration().
+                                                             getUserStoreProperty(UserCoreConstants.RealmConfig.WRITE_GROUPS_ENABLED))))) {
                         fName.setEditable(false);
                     } else {
                         fName.setEditable(true);
@@ -322,7 +321,7 @@ public class UserRealmProxy {
                 } else {
                     if (userCount.containsKey(UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME)) {
                         userCount.put(UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME,
-                                userCount.get(UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME) + 1);
+                                      userCount.get(UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME) + 1);
                     } else {
                         userCount.put(UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME, 1);
                     }
@@ -334,7 +333,7 @@ public class UserRealmProxy {
             boolean isPrimaryExceeding = false;
             Map<String, Integer> maxUserListCount = ((AbstractUserStoreManager) realm.
                     getUserStoreManager()).getMaxListCount(UserCoreConstants.
-                    RealmConfig.PROPERTY_MAX_ROLE_LIST);
+                                                                   RealmConfig.PROPERTY_MAX_ROLE_LIST);
             String[] domains = userCount.keySet().toArray(new String[userCount.keySet().size()]);
             for (int i = 0; i < domains.length; i++) {
                 if (UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME.equals(domains[i])) {
@@ -389,7 +388,7 @@ public class UserRealmProxy {
             String[] externalRoles;
             if (userStoreMan instanceof AbstractUserStoreManager) {
                 externalRoles = ((AbstractUserStoreManager) userStoreMan).getRoleNames(filter,
-                        maxLimit, true, true, true);
+                                                                                       maxLimit, true, true, true);
             } else {
                 externalRoles = userStoreMan.getRoleNames();
             }
@@ -410,16 +409,16 @@ public class UserRealmProxy {
 
                 if (domain != null && !UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domain)) {
                     if (secManager != null && (secManager.isReadOnly() ||
-                            (FALSE.equals(secManager.getRealmConfiguration().
-                                    getUserStoreProperty(UserCoreConstants.RealmConfig.WRITE_GROUPS_ENABLED))))) {
+                                               (FALSE.equals(secManager.getRealmConfiguration().
+                                                       getUserStoreProperty(UserCoreConstants.RealmConfig.WRITE_GROUPS_ENABLED))))) {
                         fName.setEditable(false);
                     } else {
                         fName.setEditable(true);
                     }
                 } else {
                     if (realm.getUserStoreManager().isReadOnly() ||
-                            (FALSE.equals(realm.getUserStoreManager().getRealmConfiguration().
-                                    getUserStoreProperty(UserCoreConstants.RealmConfig.WRITE_GROUPS_ENABLED)))) {
+                        (FALSE.equals(realm.getUserStoreManager().getRealmConfiguration().
+                                getUserStoreProperty(UserCoreConstants.RealmConfig.WRITE_GROUPS_ENABLED)))) {
                         fName.setEditable(false);
                     } else {
                         fName.setEditable(true);
@@ -434,7 +433,7 @@ public class UserRealmProxy {
                 } else {
                     if (userCount.containsKey(UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME)) {
                         userCount.put(UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME,
-                                userCount.get(UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME) + 1);
+                                      userCount.get(UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME) + 1);
                     } else {
                         userCount.put(UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME, 1);
                     }
@@ -442,16 +441,29 @@ public class UserRealmProxy {
                 flaggedNames.add(fName);
             }
 
+            String filteredDomain = null;
             // get hybrid roles
+            if (filter.contains(CarbonConstants.DOMAIN_SEPARATOR)) {
+                filteredDomain = filter.split(CarbonConstants.DOMAIN_SEPARATOR)[0];
+            }
+
             if (filter.startsWith(UserCoreConstants.INTERNAL_DOMAIN + CarbonConstants.DOMAIN_SEPARATOR)) {
                 filter = filter.substring(filter.indexOf(CarbonConstants.DOMAIN_SEPARATOR) + 1);
             }
+
             String[] hybridRoles = ((AbstractUserStoreManager) userStoreMan).getHybridRoles(filter);
 
             for (String hybridRole : hybridRoles) {
+                if (filteredDomain != null && !hybridRole.startsWith(filteredDomain)){
+                    continue;
+                }
                 FlaggedName fName = new FlaggedName();
                 fName.setItemName(hybridRole);
-                fName.setRoleType(UserMgtConstants.INTERNAL_ROLE);
+                if (hybridRole.startsWith(UserCoreConstants.INTERNAL_DOMAIN)) {
+                    fName.setRoleType(UserMgtConstants.INTERNAL_ROLE);
+                } else {
+                    fName.setRoleType("Application");
+                }
                 fName.setEditable(true);
                 flaggedNames.add(fName);
             }
@@ -515,15 +527,15 @@ public class UserRealmProxy {
 
             RealmConfiguration realmConfig = realm.getRealmConfiguration();
             if (realm.getAuthorizationManager().isUserAuthorized(userName,
-                    "/permission/admin/configure/security", CarbonConstants.UI_PERMISSION_ACTION) ||
-                    realm.getAuthorizationManager().isUserAuthorized(userName,
-                            "/permission/admin/configure/security/usermgt/users", CarbonConstants.UI_PERMISSION_ACTION)
-                    || realm.getAuthorizationManager().isUserAuthorized(userName,
-                    "/permission/admin/configure/security/usermgt/passwords",
-                    CarbonConstants.UI_PERMISSION_ACTION) ||
-                    realm.getAuthorizationManager().isUserAuthorized(userName,
-                            "/permission/admin/configure/security/usermgt/profiles",
-                            CarbonConstants.UI_PERMISSION_ACTION)) {
+                                                                 "/permission/admin/configure/security", CarbonConstants.UI_PERMISSION_ACTION) ||
+                realm.getAuthorizationManager().isUserAuthorized(userName,
+                                                                 "/permission/admin/configure/security/usermgt/users", CarbonConstants.UI_PERMISSION_ACTION)
+                || realm.getAuthorizationManager().isUserAuthorized(userName,
+                                                                    "/permission/admin/configure/security/usermgt/passwords",
+                                                                    CarbonConstants.UI_PERMISSION_ACTION) ||
+                realm.getAuthorizationManager().isUserAuthorized(userName,
+                                                                 "/permission/admin/configure/security/usermgt/profiles",
+                                                                 CarbonConstants.UI_PERMISSION_ACTION)) {
 
                 userRealmInfo.setAdminRole(realmConfig.getAdminRoleName());
                 userRealmInfo.setAdminUser(realmConfig.getAdminUserName());
@@ -631,14 +643,14 @@ public class UserRealmProxy {
             info.setReadOnly(manager.isReadOnly());
             info.setPasswordsExternallyManaged(realmConfig.isPasswordsExternallyManaged());
             info.setPasswordRegEx(realmConfig
-                    .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_JS_REG_EX));
+                                          .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_JS_REG_EX));
 
             info.setPasswordRegExViolationErrorMsg(realmConfig
-                    .getUserStoreProperty("PasswordJavaRegExViolationErrorMsg"));
+                                                           .getUserStoreProperty("PasswordJavaRegExViolationErrorMsg"));
             //TODO  Need to get value from UserCoreConstants.RealmConfig.PROPERTY_PASSWORD_ERROR_MSG
 
             info.setUsernameRegExViolationErrorMsg(realmConfig
-                    .getUserStoreProperty("UsernameJavaRegExViolationErrorMsg"));
+                                                           .getUserStoreProperty("UsernameJavaRegExViolationErrorMsg"));
             //TODO  Need to get value from UserCoreConstants.RealmConfig.PROPERTY_PASSWORD_ERROR_MSG
 
             info.setUserNameRegEx(
@@ -725,9 +737,9 @@ public class UserRealmProxy {
                 }
 
                 if (isRoleHasAdminPermission &&
-                        !adminUser.equalsIgnoreCase(loggedInUserName)) {
+                    !adminUser.equalsIgnoreCase(loggedInUserName)) {
                     log.warn("An attempt to assign user " + userName + " " +
-                            "to Admin permission role by user : " + loggedInUserName);
+                             "to Admin permission role by user : " + loggedInUserName);
                     throw new UserStoreException("You have not privilege to assign user to Admin permission role");
                 }
             }
@@ -754,7 +766,7 @@ public class UserRealmProxy {
             String loggedInUserName = getLoggedInUser();
             if (loggedInUserName != null && loggedInUserName.equalsIgnoreCase(userName)) {
                 log.warn("An attempt to change password with out providing old password : " +
-                        loggedInUserName);
+                         loggedInUserName);
                 throw new UserStoreException("An attempt to change password with out providing old password");
             }
             RealmConfiguration realmConfig = realm.getRealmConfiguration();
@@ -763,7 +775,7 @@ public class UserRealmProxy {
             }
             String adminUser = addPrimaryDomainIfNotExists(realmConfig.getAdminUserName());
             if (realmConfig.getAdminUserName().equalsIgnoreCase(userName) &&
-                    !adminUser.equalsIgnoreCase(loggedInUserName)) {
+                !adminUser.equalsIgnoreCase(loggedInUserName)) {
                 log.warn("An attempt to change password of Admin user by user : " + loggedInUserName);
                 throw new UserStoreException("You have not privilege to change password of Admin user");
             }
@@ -780,11 +792,11 @@ public class UserRealmProxy {
                 }
 
                 if (isUserHadAdminPermission &&
-                        !adminUser.equalsIgnoreCase(loggedInUserName)) {
+                    !adminUser.equalsIgnoreCase(loggedInUserName)) {
                     log.warn("An attempt to change password of user has admin permission by user : " +
-                            loggedInUserName);
+                             loggedInUserName);
                     throw new UserStoreException("You have not privilege to change password of user " +
-                            "has admin permission");
+                                                 "has admin permission");
                 }
             }
             realm.getUserStoreManager().updateCredentialByAdmin(userName, newPassword);
@@ -803,7 +815,7 @@ public class UserRealmProxy {
             RealmConfiguration realmConfig = realm.getRealmConfiguration();
             String adminUser = addPrimaryDomainIfNotExists(realmConfig.getAdminUserName());
             if (realmConfig.getAdminUserName().equalsIgnoreCase(userName) &&
-                    !adminUser.equalsIgnoreCase(loggedInUserName)) {
+                !adminUser.equalsIgnoreCase(loggedInUserName)) {
                 log.warn("An attempt to delete Admin user by user : " + loggedInUserName);
                 throw new UserStoreException("You have not privilege to delete Admin user");
             }
@@ -821,9 +833,9 @@ public class UserRealmProxy {
                 }
 
                 if (isUserHadAdminPermission &&
-                        !adminUser.equalsIgnoreCase(loggedInUserName)) {
+                    !adminUser.equalsIgnoreCase(loggedInUserName)) {
                     log.warn("An attempt to delete user user has Admin permission by user : " +
-                            loggedInUserName);
+                             loggedInUserName);
                     throw new UserStoreException("You have not privilege to delete user has Admin permission");
                 }
             }
@@ -853,14 +865,14 @@ public class UserRealmProxy {
             String loggedInUserName = addPrimaryDomainIfNotExists(getLoggedInUser());
             String adminUserName = addPrimaryDomainIfNotExists(realm.getRealmConfiguration().getAdminUserName());
             if (permissions != null &&
-                    !adminUserName.equalsIgnoreCase(loggedInUserName)) {
+                !adminUserName.equalsIgnoreCase(loggedInUserName)) {
                 Arrays.sort(permissions);
                 if (Arrays.binarySearch(permissions, PERMISSION_ADMIN) > -1 ||
-                        Arrays.binarySearch(permissions, "/permission/admin/") > -1 ||
-                        Arrays.binarySearch(permissions, PERMISSION) > -1 ||
-                        Arrays.binarySearch(permissions, "/permission/") > -1 ||
-                        Arrays.binarySearch(permissions, "/permission/protected") > -1 ||
-                        Arrays.binarySearch(permissions, "/permission/protected/") > -1) {
+                    Arrays.binarySearch(permissions, "/permission/admin/") > -1 ||
+                    Arrays.binarySearch(permissions, PERMISSION) > -1 ||
+                    Arrays.binarySearch(permissions, "/permission/") > -1 ||
+                    Arrays.binarySearch(permissions, "/permission/protected") > -1 ||
+                    Arrays.binarySearch(permissions, "/permission/protected/") > -1) {
                     log.warn("An attempt to create role with admin permission by user " + loggedInUserName);
                     throw new UserStoreException("You have not privilege to create a role with Admin permission");
                 }
@@ -882,12 +894,12 @@ public class UserRealmProxy {
             }
 
             if (!secManager.isReadOnly()
-                    && !FALSE.equals(secManager.getRealmConfiguration().
+                && !FALSE.equals(secManager.getRealmConfiguration().
                     getUserStoreProperty(UserCoreConstants.RealmConfig.WRITE_GROUPS_ENABLED))) {
                 usAdmin.addRole(roleName,
-                        userList,
-                        ManagementPermissionUtil.getRoleUIPermissions(roleName, permissions),
-                        isSharedRole);
+                                userList,
+                                ManagementPermissionUtil.getRoleUIPermissions(roleName, permissions),
+                                isSharedRole);
             } else {
                 throw new UserAdminException("Read only user store or Role creation is disabled");
             }
@@ -907,14 +919,14 @@ public class UserRealmProxy {
             String loggedInUserName = addPrimaryDomainIfNotExists(getLoggedInUser());
             String adminUser = addPrimaryDomainIfNotExists(realm.getRealmConfiguration().getAdminUserName());
             if (permissions != null &&
-                    !adminUser.equalsIgnoreCase(loggedInUserName)) {
+                !adminUser.equalsIgnoreCase(loggedInUserName)) {
                 Arrays.sort(permissions);
                 if (Arrays.binarySearch(permissions, PERMISSION_ADMIN) > -1 ||
-                        Arrays.binarySearch(permissions, "/permission/admin/") > -1 ||
-                        Arrays.binarySearch(permissions, PERMISSION) > -1 ||
-                        Arrays.binarySearch(permissions, "/permission/") > -1 ||
-                        Arrays.binarySearch(permissions, "/permission/protected") > -1 ||
-                        Arrays.binarySearch(permissions, "/permission/protected/") > -1) {
+                    Arrays.binarySearch(permissions, "/permission/admin/") > -1 ||
+                    Arrays.binarySearch(permissions, PERMISSION) > -1 ||
+                    Arrays.binarySearch(permissions, "/permission/") > -1 ||
+                    Arrays.binarySearch(permissions, "/permission/protected") > -1 ||
+                    Arrays.binarySearch(permissions, "/permission/protected/") > -1) {
                     log.warn("An attempt to create role with admin permission by user " + loggedInUserName);
                     throw new UserStoreException("You have not privilege to create a role with Admin permission");
                 }
@@ -923,13 +935,13 @@ public class UserRealmProxy {
             UserStoreManager usAdmin = realm.getUserStoreManager();
             if (usAdmin instanceof AbstractUserStoreManager) {
                 ((AbstractUserStoreManager) usAdmin).addRole(UserCoreConstants.INTERNAL_DOMAIN
-                        + UserCoreConstants.DOMAIN_SEPARATOR + roleName, userList, null, false);
+                                                             + UserCoreConstants.DOMAIN_SEPARATOR + roleName, userList, null, false);
             } else {
                 throw new UserStoreException("Internal role can not be created");
             }
             // adding permission with internal domain name
             ManagementPermissionUtil.updateRoleUIPermission(UserCoreConstants.INTERNAL_DOMAIN
-                    + UserCoreConstants.DOMAIN_SEPARATOR + roleName, permissions);
+                                                            + UserCoreConstants.DOMAIN_SEPARATOR + roleName, permissions);
         } catch (UserStoreException e) {
             log.error(e.getMessage(), e);
             throw new UserAdminException(e.getMessage(), e);
@@ -958,7 +970,7 @@ public class UserRealmProxy {
             }
 
             if (isRoleHasAdminPermission &&
-                    !adminUser.equalsIgnoreCase(loggedInUserName)) {
+                !adminUser.equalsIgnoreCase(loggedInUserName)) {
                 log.warn("An attempt to rename role with admin permission by user " + loggedInUserName);
                 throw new UserStoreException("You have not privilege to rename a role with Admin permission");
             }
@@ -990,7 +1002,7 @@ public class UserRealmProxy {
             }
 
             if (isRoleHasAdminPermission &&
-                    !adminUser.equalsIgnoreCase(loggedInUserName)) {
+                !adminUser.equalsIgnoreCase(loggedInUserName)) {
                 log.warn("An attempt to delete role with admin permission by user " + loggedInUserName);
                 throw new UserStoreException("You have not privilege to delete a role with Admin permission");
             }
@@ -1014,7 +1026,8 @@ public class UserRealmProxy {
             String domain = domainProvided ? roleName.substring(0, index) : null;
 
             if (domain != null && filter != null && !filter.toLowerCase().startsWith(domain.toLowerCase()) &&
-                    !UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domain)) {
+                !(UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domain)
+                  || "Application".equalsIgnoreCase(domain))) {
                 filter = domain + "/" + filter;
             }
 
@@ -1057,19 +1070,19 @@ public class UserRealmProxy {
                         fName.setItemName(anUsersOfRole);
                         fName.setItemDisplayName(anUsersOfRole);
                     }
-                    if (domain != null && !UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domain)) {
+                    if (domain != null && !(UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domain) || "Application".equalsIgnoreCase(domain))) {
                         if (usMan.getSecondaryUserStoreManager(domain) != null &&
-                                (usMan.getSecondaryUserStoreManager(domain).isReadOnly() ||
-                                        FALSE.equals(usMan.getSecondaryUserStoreManager(domain).getRealmConfiguration().
-                                                getUserStoreProperty(UserCoreConstants.RealmConfig.WRITE_GROUPS_ENABLED)))) {
+                            (usMan.getSecondaryUserStoreManager(domain).isReadOnly() ||
+                             FALSE.equals(usMan.getSecondaryUserStoreManager(domain).getRealmConfiguration().
+                                     getUserStoreProperty(UserCoreConstants.RealmConfig.WRITE_GROUPS_ENABLED)))) {
                             fName.setEditable(false);
                         } else {
                             fName.setEditable(true);
                         }
                     } else {
                         if (usMan.isReadOnly() || (usMan.getSecondaryUserStoreManager(domain) != null &&
-                                FALSE.equals(usMan.getRealmConfiguration().
-                                        getUserStoreProperty(UserCoreConstants.RealmConfig.WRITE_GROUPS_ENABLED)))) {
+                                                   FALSE.equals(usMan.getRealmConfiguration().
+                                                           getUserStoreProperty(UserCoreConstants.RealmConfig.WRITE_GROUPS_ENABLED)))) {
                             fName.setEditable(false);
                         } else {
                             fName.setEditable(true);
@@ -1084,7 +1097,7 @@ public class UserRealmProxy {
                     } else {
                         if (userCount.containsKey(UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME)) {
                             userCount.put(UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME,
-                                    userCount.get(UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME) + 1);
+                                          userCount.get(UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME) + 1);
                         } else {
                             userCount.put(UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME, 1);
                         }
@@ -1139,19 +1152,19 @@ public class UserRealmProxy {
                     //if only user name is present
                     fName.setItemName(userNames[i]);
                 }
-                if (domain != null && !UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domain)) {
+                if (domain != null && !(UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domain) || "Application".equalsIgnoreCase(domain))) {
                     if (usMan.getSecondaryUserStoreManager(domain) != null &&
-                            (usMan.getSecondaryUserStoreManager(domain).isReadOnly() ||
-                                    FALSE.equals(usMan.getSecondaryUserStoreManager(domain).getRealmConfiguration().
-                                            getUserStoreProperty(UserCoreConstants.RealmConfig.WRITE_GROUPS_ENABLED)))) {
+                        (usMan.getSecondaryUserStoreManager(domain).isReadOnly() ||
+                         FALSE.equals(usMan.getSecondaryUserStoreManager(domain).getRealmConfiguration().
+                                 getUserStoreProperty(UserCoreConstants.RealmConfig.WRITE_GROUPS_ENABLED)))) {
                         fName.setEditable(false);
                     } else {
                         fName.setEditable(true);
                     }
                 } else {
                     if (usMan.isReadOnly() || (usMan.getSecondaryUserStoreManager(domain) != null &&
-                            FALSE.equals(usMan.getRealmConfiguration().
-                                    getUserStoreProperty(UserCoreConstants.RealmConfig.WRITE_GROUPS_ENABLED)))) {
+                                               FALSE.equals(usMan.getRealmConfiguration().
+                                                       getUserStoreProperty(UserCoreConstants.RealmConfig.WRITE_GROUPS_ENABLED)))) {
                         fName.setEditable(false);
                     } else {
                         fName.setEditable(true);
@@ -1166,7 +1179,7 @@ public class UserRealmProxy {
                 } else {
                     if (userCount.containsKey(UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME)) {
                         userCount.put(UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME,
-                                userCount.get(UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME) + 1);
+                                      userCount.get(UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME) + 1);
                     } else {
                         userCount.put(UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME, 1);
                     }
@@ -1260,13 +1273,13 @@ public class UserRealmProxy {
                     if (hybridRoles != null && Arrays.binarySearch(hybridRoles, role) > -1) {
                         Matcher matcher = pattern.matcher(matchingRole);
                         if (!(matcher.matches() && (roleDomain == null ||
-                                filter.toLowerCase().startsWith(roleDomain.toLowerCase())))) {
+                                                    filter.toLowerCase().startsWith(roleDomain.toLowerCase())))) {
                             continue;
                         }
                     } else {
                         Matcher matcher = pattern.matcher(matchingRole);
                         if (!(matcher.matches() && (roleDomain == null ||
-                                filter.toLowerCase().startsWith(roleDomain.toLowerCase())))) {
+                                                    filter.toLowerCase().startsWith(roleDomain.toLowerCase())))) {
                             continue;
                         }
                     }
@@ -1276,11 +1289,11 @@ public class UserRealmProxy {
                     fName.setSelected(true);
                     if (domain != null && !UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domain)) {
                         if ((admin.getSecondaryUserStoreManager(domain).isReadOnly() ||
-                                (admin.getSecondaryUserStoreManager(domain).getRealmConfiguration().
-                                        getUserStoreProperty(UserCoreConstants.RealmConfig.WRITE_GROUPS_ENABLED) != null &&
-                                        admin.getSecondaryUserStoreManager(domain).getRealmConfiguration().
-                                                getUserStoreProperty(UserCoreConstants.RealmConfig.WRITE_GROUPS_ENABLED).equals(FALSE))) &&
-                                hybridRoles != null && Arrays.binarySearch(hybridRoles, role) < 0) {
+                             (admin.getSecondaryUserStoreManager(domain).getRealmConfiguration().
+                                     getUserStoreProperty(UserCoreConstants.RealmConfig.WRITE_GROUPS_ENABLED) != null &&
+                              admin.getSecondaryUserStoreManager(domain).getRealmConfiguration().
+                                      getUserStoreProperty(UserCoreConstants.RealmConfig.WRITE_GROUPS_ENABLED).equals(FALSE))) &&
+                            hybridRoles != null && Arrays.binarySearch(hybridRoles, role) < 0) {
 
                             fName.setEditable(false);
                         } else {
@@ -1289,9 +1302,9 @@ public class UserRealmProxy {
                     } else {
                         if ((admin.isReadOnly() || (admin.getRealmConfiguration().
                                 getUserStoreProperty(UserCoreConstants.RealmConfig.WRITE_GROUPS_ENABLED) != null &&
-                                FALSE.equals(admin.getRealmConfiguration().
-                                        getUserStoreProperty(UserCoreConstants.RealmConfig.WRITE_GROUPS_ENABLED)))) &&
-                                hybridRoles != null && Arrays.binarySearch(hybridRoles, role) < 0) {
+                                                    FALSE.equals(admin.getRealmConfiguration().
+                                                            getUserStoreProperty(UserCoreConstants.RealmConfig.WRITE_GROUPS_ENABLED)))) &&
+                            hybridRoles != null && Arrays.binarySearch(hybridRoles, role) < 0) {
                             fName.setEditable(false);
                         } else {
                             fName.setEditable(true);
@@ -1306,7 +1319,7 @@ public class UserRealmProxy {
                     } else {
                         if (userCount.containsKey(UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME)) {
                             userCount.put(UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME,
-                                    userCount.get(UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME) + 1);
+                                          userCount.get(UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME) + 1);
                         } else {
                             userCount.put(UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME, 1);
                         }
@@ -1358,10 +1371,10 @@ public class UserRealmProxy {
             } else {
                 // filter has a domain value
                 if (domain != null && filter.toLowerCase().startsWith(domain.toLowerCase() +
-                        CarbonConstants.DOMAIN_SEPARATOR)) {
+                                                                      CarbonConstants.DOMAIN_SEPARATOR)) {
                     if (admin instanceof AbstractUserStoreManager) {
                         externalRoles = ((AbstractUserStoreManager) admin).getRoleNames(filter, limit,
-                                true, true, true);
+                                                                                        true, true, true);
                     } else {
                         externalRoles = admin.getRoleNames();
                     }
@@ -1381,7 +1394,7 @@ public class UserRealmProxy {
 
                     if (admin instanceof AbstractUserStoreManager) {
                         externalRoles = ((AbstractUserStoreManager) admin).getRoleNames(filter, limit,
-                                true, true, true);
+                                                                                        true, true, true);
                     } else {
                         externalRoles = admin.getRoleNames();
                     }
@@ -1403,8 +1416,8 @@ public class UserRealmProxy {
                     if (domain != null) {
                         UserStoreManager secManager = admin.getSecondaryUserStoreManager(domain);
                         if (secManager.isReadOnly() ||
-                                FALSE.equals(secManager.getRealmConfiguration().
-                                        getUserStoreProperty(UserCoreConstants.RealmConfig.WRITE_GROUPS_ENABLED))) {
+                            FALSE.equals(secManager.getRealmConfiguration().
+                                    getUserStoreProperty(UserCoreConstants.RealmConfig.WRITE_GROUPS_ENABLED))) {
                             fname.setEditable(false);
                         } else {
                             fname.setEditable(true);
@@ -1426,7 +1439,7 @@ public class UserRealmProxy {
                     } else {
                         if (userCount.containsKey(UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME)) {
                             userCount.put(UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME,
-                                    userCount.get(UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME) + 1);
+                                          userCount.get(UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME) + 1);
                         } else {
                             userCount.put(UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME, 1);
                         }
@@ -1550,9 +1563,9 @@ public class UserRealmProxy {
             }
 
             if ((realmConfig.getAdminRoleName().equalsIgnoreCase(roleName) || isRoleHasAdminPermission) &&
-                    !adminUser.equalsIgnoreCase(loggedInUserName)) {
+                !adminUser.equalsIgnoreCase(loggedInUserName)) {
                 log.warn("An attempt to add or remove users from Admin role by user : "
-                        + loggedInUserName);
+                         + loggedInUserName);
                 throw new UserStoreException("Can not add or remove user from Admin permission role");
             }
 
@@ -1568,8 +1581,8 @@ public class UserRealmProxy {
                 delUsersArray = delUsers.toArray(new String[delUsers.size()]);
                 Arrays.sort(delUsersArray);
                 if (Arrays.binarySearch(delUsersArray, loggedInUserName) > -1
-                        && Arrays.binarySearch(users, loggedInUserName) > -1
-                        && !adminUser.equalsIgnoreCase(loggedInUserName)) {
+                    && Arrays.binarySearch(users, loggedInUserName) > -1
+                    && !adminUser.equalsIgnoreCase(loggedInUserName)) {
                     log.warn("An attempt to remove from role : " + roleName + " by user :" + loggedInUserName);
                     throw new UserStoreException("Can not remove yourself from role : " + roleName);
                 }
@@ -1640,17 +1653,17 @@ public class UserRealmProxy {
 
                 if (roles == null || Arrays.binarySearch(roles, realmConfig.getAdminRoleName()) < 0) {
                     if ((Arrays.binarySearch(roleList, realmConfig.getAdminRoleName()) > -1 ||
-                            (!isUserHasAdminPermission && adminPermissionRole != null)) &&
-                            !adminUser.equalsIgnoreCase(loggedInUserName)) {
+                         (!isUserHasAdminPermission && adminPermissionRole != null)) &&
+                        !adminUser.equalsIgnoreCase(loggedInUserName)) {
                         log.warn("An attempt to add users to Admin permission role by user : " +
-                                loggedInUserName);
+                                 loggedInUserName);
                         throw new UserStoreException("Can not add users to Admin permission role");
                     }
                 } else {
                     if (Arrays.binarySearch(roleList, realmConfig.getAdminRoleName()) < 0 &&
-                            !adminUser.equalsIgnoreCase(loggedInUserName)) {
+                        !adminUser.equalsIgnoreCase(loggedInUserName)) {
                         log.warn("An attempt to remove users from Admin role by user : " +
-                                loggedInUserName);
+                                 loggedInUserName);
                         throw new UserStoreException("Can not remove users from Admin role");
                     }
                 }
@@ -1684,7 +1697,7 @@ public class UserRealmProxy {
             }
 
             admin.updateRoleListOfUser(userName, delRoles.toArray(new String[delRoles.size()]),
-                    addRoles.toArray(new String[addRoles.size()]));
+                                       addRoles.toArray(new String[addRoles.size()]));
         } catch (UserStoreException e) {
             // previously logged so logging not needed
             throw new UserAdminException(e.getMessage(), e);
@@ -1721,22 +1734,22 @@ public class UserRealmProxy {
             RealmConfiguration realmConfig = realm.getRealmConfiguration();
             String adminUser = addPrimaryDomainIfNotExists(realmConfig.getAdminUserName());
             if ((realmConfig.getAdminRoleName().equalsIgnoreCase(roleName) ||
-                    isRoleHasAdminPermission) &&
-                    !adminUser.equalsIgnoreCase(loggedInUserName)) {
+                 isRoleHasAdminPermission) &&
+                !adminUser.equalsIgnoreCase(loggedInUserName)) {
                 log.warn("An attempt to add or remove users from Admin role by user : "
-                        + loggedInUserName);
+                         + loggedInUserName);
                 throw new UserStoreException("You have not privilege to add or remove user " +
-                        "from Admin permission role");
+                                             "from Admin permission role");
             }
 
             if (deleteUsers != null) {
                 Arrays.sort(deleteUsers);
                 if (realmConfig.getAdminRoleName().equalsIgnoreCase(roleName) &&
-                        Arrays.binarySearch(deleteUsers, realmConfig.getAdminUserName()) > -1) {
+                    Arrays.binarySearch(deleteUsers, realmConfig.getAdminUserName()) > -1) {
                     log.warn("An attempt to remove Admin user from Admin role by user : "
-                            + loggedInUserName);
+                             + loggedInUserName);
                     throw new UserStoreException("Can not remove Admin user " +
-                            "from Admin role");
+                                                 "from Admin role");
                 }
             }
 
@@ -1801,7 +1814,7 @@ public class UserRealmProxy {
 
             if (CarbonConstants.REGISTRY_ANONNYMOUS_USERNAME.equalsIgnoreCase(userName)) {
                 log.error("Security Alert! Carbon anonymous user is being manipulated by user "
-                        + loggedInUserName);
+                          + loggedInUserName);
                 throw new UserAdminException("Invalid data");
             }
 
@@ -1809,13 +1822,13 @@ public class UserRealmProxy {
                 for (String name : deletedRoles) {
                     if (realm.getRealmConfiguration().getEveryOneRoleName().equalsIgnoreCase(name)) {
                         log.error("Security Alert! Carbon everyone role is being manipulated by user "
-                                + loggedInUserName);
+                                  + loggedInUserName);
                         throw new UserAdminException("Invalid data");
                     }
                     if (realm.getRealmConfiguration().getAdminRoleName().equalsIgnoreCase(name) &&
-                            realm.getRealmConfiguration().getAdminUserName().equalsIgnoreCase(userName)) {
+                        realm.getRealmConfiguration().getAdminUserName().equalsIgnoreCase(userName)) {
                         log.error("Can not remove admin user from admin role "
-                                + loggedInUserName);
+                                  + loggedInUserName);
                         throw new UserAdminException("Can not remove admin user from admin role");
                     }
                 }
@@ -1842,7 +1855,7 @@ public class UserRealmProxy {
 
                         if (roleName.equalsIgnoreCase(realmConfig.getAdminRoleName())) {
                             log.warn("An attempt to add users to Admin permission role by user : " +
-                                    loggedInUserName);
+                                     loggedInUserName);
                             throw new UserStoreException("Can not add users to Admin permission role");
                         }
 
@@ -1860,7 +1873,7 @@ public class UserRealmProxy {
 
                     if (!isUserHadAdminPermission && isRoleHasAdminPermission) {
                         log.warn("An attempt to add users to Admin permission role by user : " +
-                                loggedInUserName);
+                                 loggedInUserName);
                         throw new UserStoreException("Can not add users to Admin permission role");
                     }
                 }
@@ -1884,7 +1897,7 @@ public class UserRealmProxy {
 
                     if (isUserHadAdminPermission && isRemoveRoleHasAdminPermission) {
                         log.warn("An attempt to remove users from Admin role by user : " +
-                                loggedInUserName);
+                                 loggedInUserName);
                         throw new UserStoreException("Can not remove users from Admin role");
                     }
                 }
@@ -1943,7 +1956,7 @@ public class UserRealmProxy {
                 }
 
                 nodeRoot = new UIPermissionNode(UserMgtConstants.UI_ADMIN_PERMISSION_ROOT,
-                        displayName);
+                                                displayName);
             }
 
             if (parent != null) {
@@ -1998,15 +2011,15 @@ public class UserRealmProxy {
                 }
 
                 nodeRoot = new UIPermissionNode(UserMgtConstants.UI_ADMIN_PERMISSION_ROOT,
-                        displayName);
+                                                displayName);
             }
 
             if (parent != null) {
                 buildUIPermissionNode(parent, nodeRoot, registry, tenentRegistry,
-                        realm.getAuthorizationManager(), roleName, null);
+                                      realm.getAuthorizationManager(), roleName, null);
             } else {
                 buildUIPermissionNode(regRoot, nodeRoot, registry, tenentRegistry,
-                        realm.getAuthorizationManager(), roleName, null);
+                                      realm.getAuthorizationManager(), roleName, null);
             }
 
             return nodeRoot;
@@ -2024,7 +2037,7 @@ public class UserRealmProxy {
         try {
             if (((AbstractUserStoreManager) realm.getUserStoreManager()).isOthersSharedRole(roleName)) {
                 throw new UserAdminException("Logged in user is not authorized to assign " +
-                        "permissions to a role belong to another tenant");
+                                             "permissions to a role belong to another tenant");
             }
             if (realm.getRealmConfiguration().getAdminRoleName().equalsIgnoreCase(roleName)) {
                 String msg = "UI permissions of Admin is not allowed to change";
@@ -2035,13 +2048,13 @@ public class UserRealmProxy {
             String loggedInUserName = addPrimaryDomainIfNotExists(getLoggedInUser());
             String adminUser = addPrimaryDomainIfNotExists(realm.getRealmConfiguration().getAdminUserName());
             if (rawResources != null &&
-                    !adminUser.equalsIgnoreCase(loggedInUserName)) {
+                !adminUser.equalsIgnoreCase(loggedInUserName)) {
                 Arrays.sort(rawResources);
                 if (Arrays.binarySearch(rawResources, PERMISSION_ADMIN) > -1 ||
-                        Arrays.binarySearch(rawResources, "/permission/protected") > -1 ||
-                        Arrays.binarySearch(rawResources, PERMISSION) > -1) {
+                    Arrays.binarySearch(rawResources, "/permission/protected") > -1 ||
+                    Arrays.binarySearch(rawResources, PERMISSION) > -1) {
                     log.warn("An attempt to Assign admin permission for role by user : " +
-                            loggedInUserName);
+                             loggedInUserName);
                     throw new UserStoreException("Can not assign Admin for permission role");
                 }
             }
@@ -2099,7 +2112,7 @@ public class UserRealmProxy {
             throw new UserAdminException(e.getMessage(), e);
         } catch (org.wso2.carbon.user.api.UserStoreException e) {
             log.error("Error while getting tenant user realm", e);
-            throw new UserAdminException("Error while getting tenant user realm" , e);
+            throw new UserAdminException("Error while getting tenant user realm", e);
         }
     }
 
@@ -2121,23 +2134,23 @@ public class UserRealmProxy {
         boolean isSelected = false;
         if (roleName != null) {
             isSelected = authMan.isRoleAuthorized(roleName, parentNode.getResourcePath(),
-                    UserMgtConstants.EXECUTE_ACTION);
+                                                  UserMgtConstants.EXECUTE_ACTION);
         } else if (userName != null) {
             isSelected = authMan.isUserAuthorized(userName, parentNode.getResourcePath(),
-                    UserMgtConstants.EXECUTE_ACTION);
+                                                  UserMgtConstants.EXECUTE_ACTION);
         }
         if (isSelected) {
             buildUIPermissionNodeAllSelected(parent, parentNode, registry, tenantRegistry);
             parentNode.setSelected(true);
         } else {
             buildUIPermissionNodeNotAllSelected(parent, parentNode, registry, tenantRegistry,
-                    authMan, roleName, userName);
+                                                authMan, roleName, userName);
         }
     }
 
     private void buildUIPermissionNodeAllSelected(Collection parent, UIPermissionNode parentNode,
                                                   Registry registry, Registry tenantRegistry) throws RegistryException,
-            UserStoreException {
+                                                                                                     UserStoreException {
 
         String[] children = parent.getChildren();
         UIPermissionNode[] childNodes = new UIPermissionNode[children.length];
@@ -2156,7 +2169,7 @@ public class UserRealmProxy {
             childNodes[i] = getUIPermissionNode(resource, true);
             if (resource instanceof Collection) {
                 buildUIPermissionNodeAllSelected((Collection) resource, childNodes[i], registry,
-                        tenantRegistry);
+                                                 tenantRegistry);
             }
         }
         parentNode.setNodeList(childNodes);
@@ -2185,15 +2198,15 @@ public class UserRealmProxy {
             boolean isSelected = false;
             if (roleName != null) {
                 isSelected = authMan.isRoleAuthorized(roleName, child,
-                        UserMgtConstants.EXECUTE_ACTION);
+                                                      UserMgtConstants.EXECUTE_ACTION);
             } else if (userName != null) {
                 isSelected = authMan.isUserAuthorized(userName, child,
-                        UserMgtConstants.EXECUTE_ACTION);
+                                                      UserMgtConstants.EXECUTE_ACTION);
             }
             childNodes[i] = getUIPermissionNode(resource, isSelected);
             if (resource instanceof Collection) {
                 buildUIPermissionNodeNotAllSelected((Collection) resource, childNodes[i],
-                        registry, tenantRegistry, authMan, roleName, userName);
+                                                    registry, tenantRegistry, authMan, roleName, userName);
             }
         }
         parentNode.setNodeList(childNodes);
@@ -2226,7 +2239,7 @@ public class UserRealmProxy {
             fName.setShared(((AbstractUserStoreManager) userStoreManager).isOthersSharedRole(entityName));
             if (fName.isShared()) {
                 fName.setItemDisplayName(UserCoreConstants.SHARED_ROLE_TENANT_SEPERATOR +
-                        fName.getItemName());
+                                         fName.getItemName());
             }
 
         } else {
