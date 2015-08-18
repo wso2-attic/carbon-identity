@@ -82,9 +82,7 @@ public class BPELApprovalDeployer implements TemplateInitializer {
         password = (String) initParams.get(WorkFlowConstants.TemplateConstants.AUTH_USER_PASSWORD);
         callBackUser = (String) initParams.get(WorkFlowConstants.TemplateConstants.CALLBACK_USER);
         callBackUserPassword = (String) initParams.get(WorkFlowConstants.TemplateConstants.CALLBACK_USER_PASSWORD);
-        htSubject = (String) initParams.get(WorkFlowConstants.TemplateConstants.HT_SUBJECT);
-        htBody = (String) initParams.get(WorkFlowConstants.TemplateConstants.HT_DESCRIPTION);
-        role = (String) initParams.get(WorkFlowConstants.TemplateConstants.SIMPLE_APPROVAL_ROLE_NAME);
+        role = "admin" ;//(String) initParams.get(WorkFlowConstants.TemplateConstants.SIMPLE_APPROVAL_USER_OR_ROLE_NAME);
 
 
         htName = processName + Constants.HT_SUFFIX;
@@ -165,8 +163,7 @@ public class BPELApprovalDeployer implements TemplateInitializer {
         placeHolderValues.put(Constants.CARBON_HOST_NAME, Constants.CARBON_HOST_URL);
         placeHolderValues.put(Constants.CARBON_CALLBACK_AUTH_USER, callBackUser);
         placeHolderValues.put(Constants.CARBON_CALLBACK_AUTH_PASSWORD, callBackUserPassword);
-        placeHolderValues.put(Constants.HT_SUBJECT, htSubject);
-        placeHolderValues.put(Constants.HT_DESCRIPTION, htBody);
+
         placeHolderValues.put(Constants.HT_OWNER_ROLE, role);
         placeHolderValues.put(Constants.HT_ADMIN_ROLE, role);
         return placeHolderValues;
@@ -194,13 +191,13 @@ public class BPELApprovalDeployer implements TemplateInitializer {
     private void generateProcessArtifact() throws IOException {
 
         Set<String> filesToAdd = new HashSet<>();
-        String taskWsdl = null; //to keep without deleting for human task
+        String taskWsdl, ws_humantask = null; //to keep without deleting for human task
         String resourceHomePath =
                 Constants.TEMPLATE_RESOURCE_LOCATION + File.separator + Constants.BPEL_RESOURCE_LOCATION +
                         File.separator + Constants.APPROVAL_SERVICE_RESOURCE_LOCATION + File.separator;
         String outputPath = System.getProperty(Constants.TEMP_DIR_PROPERTY) + File.separator;
         //process.wsdl
-        String outputFile = outputPath + processName + Constants.PROCESS_WSDL_FILE;
+        String outputFile = outputPath + processName + Constants.WSDL_EXT;
         removePlaceHolders(resourceHomePath + Constants.PROCESS_WSDL_FILE, outputFile);
         filesToAdd.add(outputFile);
         //process.bpel
@@ -212,7 +209,7 @@ public class BPELApprovalDeployer implements TemplateInitializer {
         removePlaceHolders(resourceHomePath + Constants.CALLBACK_WSDL_FILE, outputFile);
         filesToAdd.add(outputFile);
         //task.wsdl
-        outputFile = outputPath + htName + Constants.WSDL_EXT;
+        outputFile = outputPath + htName + Constants.SERVICE_TXT + Constants.WSDL_EXT;
         removePlaceHolders(resourceHomePath + Constants.TASK_WSDL_FILE, outputFile);
         filesToAdd.add(outputFile);
         taskWsdl = outputFile;
@@ -225,6 +222,22 @@ public class BPELApprovalDeployer implements TemplateInitializer {
         removePlaceHolders(resourceHomePath + Constants.DEPLOY_XML_FILE, outputFile);
         filesToAdd.add(outputFile);
 
+        //taskService.epr
+        outputFile = outputPath + Constants.TASK_SERVICE_EPR_FILE;
+        removePlaceHolders(resourceHomePath + Constants.TASK_SERVICE_EPR_FILE, outputFile);
+        filesToAdd.add(outputFile);
+
+        //ws-humantask.xsd
+        outputFile = outputPath + Constants.WS_HUMAN_TASK_XSD_FILE;
+        removePlaceHolders(resourceHomePath + Constants.WS_HUMAN_TASK_XSD_FILE, outputFile);
+        filesToAdd.add(outputFile);
+        ws_humantask = outputFile ;
+
+        //ws-humantask-types.xsd
+        outputFile = outputPath + Constants.WS_HUMAN_TASK_TYPE_XSD_FILE;
+        removePlaceHolders(resourceHomePath + Constants.WS_HUMAN_TASK_TYPE_XSD_FILE, outputFile);
+        filesToAdd.add(outputFile);
+
         FileOutputStream zipFOS =
                 new FileOutputStream(outputPath + processName + Constants.ZIP_EXT);
         ZipOutputStream zipOutputStream = new ZipOutputStream(zipFOS);
@@ -235,7 +248,7 @@ public class BPELApprovalDeployer implements TemplateInitializer {
         zipFOS.close();
         for (String fileName : filesToAdd) {
             File file = new File(fileName);
-            if (file.exists() && file.isFile() && !fileName.equals(taskWsdl)) {
+            if (file.exists() && file.isFile() && !fileName.equals(taskWsdl) && !fileName.equals(ws_humantask)) {
                 boolean deleteSuccess = file.delete();
                 if (!deleteSuccess) {
                     log.warn("Temporary file " + fileName + " deletion failed.");
@@ -266,21 +279,22 @@ public class BPELApprovalDeployer implements TemplateInitializer {
         if (!outputFileParent.exists()) {
             outputFileParent.mkdirs();
         }
-        removePlaceHolders(resourceHomePath + Constants.TASK_INPUT_JSP_FILE, outputFile);
+        removePlaceHolders(resourceHomePath + Constants.APPROVAL_JSP_LOCATION  + File.separator + Constants.TASK_INPUT_JSP_FILE, outputFile);
         filesToAdd.add(outputFile);
         //task-output.jsp
         outputFile =
                 outputPath + Constants.APPROVAL_JSP_LOCATION + File.separator + htName + Constants.OUTPUT_JSP_SUFFIX;
-        removePlaceHolders(resourceHomePath + Constants.TASK_OUTPUT_JSP_FILE, outputFile);
+        removePlaceHolders(resourceHomePath + Constants.APPROVAL_JSP_LOCATION  + File.separator + Constants.TASK_OUTPUT_JSP_FILE, outputFile);
         filesToAdd.add(outputFile);
         //task-response.jsp
         outputFile =
                 outputPath + Constants.APPROVAL_JSP_LOCATION + File.separator + htName + Constants.RESPONSE_JSP_SUFFIX;
-        removePlaceHolders(resourceHomePath + Constants.TASK_RESPONSE_JSP_FILE, outputFile);
+        removePlaceHolders(resourceHomePath + Constants.APPROVAL_JSP_LOCATION  + File.separator + Constants.TASK_RESPONSE_JSP_FILE, outputFile);
         filesToAdd.add(outputFile);
 
         //created from process
-        filesToAdd.add(outputPath + htName + Constants.WSDL_EXT);
+        filesToAdd.add(outputPath + htName + Constants.SERVICE_TXT + Constants.WSDL_EXT);
+        filesToAdd.add(outputPath + Constants.WS_HUMAN_TASK_XSD_FILE );
 
         FileOutputStream zipFOS =
                 new FileOutputStream(outputPath + htName + Constants.ZIP_EXT);
@@ -341,18 +355,21 @@ public class BPELApprovalDeployer implements TemplateInitializer {
         private static final String HT_OWNER_ROLE = "${htOwnerRole}";
         private static final String HT_ADMIN_ROLE = "${htAdminRole}";
 
-        private static final String PROCESS_BPEL_FILE = "Process.bpel";
-        private static final String PROCESS_WSDL_FILE = "Artifacts.wsdl";
-        private static final String TASK_WSDL_FILE = "TaskService.wsdl";
+        private static final String PROCESS_BPEL_FILE = "ApprovalProcess.bpel";
+        private static final String PROCESS_WSDL_FILE = "ApprovalProcessArtifacts.wsdl";
+        private static final String TASK_WSDL_FILE = "ApprovalTaskService.wsdl";
         private static final String CALLBACK_WSDL_FILE = "CallbackService.wsdl";
         private static final String CALLBACK_EPR_FILE = "callbackService.epr";
         private static final String DEPLOY_XML_FILE = "deploy.xml";
+        private static final String TASK_SERVICE_EPR_FILE = "taskService.epr";
+        private static final String WS_HUMAN_TASK_XSD_FILE = "ws-humantask.xsd";
+        private static final String WS_HUMAN_TASK_TYPE_XSD_FILE = "ws-humantask-types.xsd";
 
         private static final String HTCONFIG_XML_FILE = "htconfig.xml";
-        private static final String TASK_HT_FILE = "Task.ht";
-        private static final String TASK_INPUT_JSP_FILE = "Task-input.jsp";
-        private static final String TASK_OUTPUT_JSP_FILE = "Task-output.jsp";
-        private static final String TASK_RESPONSE_JSP_FILE = "Task-response.jsp";
+        private static final String TASK_HT_FILE = "ApprovalTask.ht";
+        private static final String TASK_INPUT_JSP_FILE = "ApprovalTask-input.jsp";
+        private static final String TASK_OUTPUT_JSP_FILE = "ApprovalTask-output.jsp";
+        private static final String TASK_RESPONSE_JSP_FILE = "ApprovalTask-response.jsp";
 
         private static final String TEMPLATE_RESOURCE_LOCATION = "templates";
         private static final String BPEL_RESOURCE_LOCATION = "bpel";
@@ -360,10 +377,12 @@ public class BPELApprovalDeployer implements TemplateInitializer {
         private static final String APPROVAL_SERVICE_RESOURCE_LOCATION = "SimpleApprovalService";
         private static final String APPROVAL_HT_RESOURCE_LOCATION = "SimpleApprovalTask";
         private static final String APPROVAL_JSP_LOCATION = "web";
+        private static final String SERVICE_TXT = "Service";
 
         private static final String WSDL_EXT = ".wsdl";
         private static final String BPEL_EXT = ".bpel";
         private static final String ZIP_EXT = ".zip";
+        private static final String XSD_EXT = ".xsd";
         private static final String HT_EXT = ".ht";
         private static final String HT_SUFFIX = "Task";
         private static final String INPUT_JSP_SUFFIX = "-input.jsp";

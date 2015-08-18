@@ -20,7 +20,7 @@
 <%@ page import="org.apache.commons.lang.StringUtils" %>
 <%@ page import="org.wso2.carbon.CarbonConstants" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.WorkflowAdminServiceWorkflowException" %>
-<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.Parameter" %>
+<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.ParameterDTO" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.WorkflowAdminServiceClient" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.WorkflowUIConstants" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
@@ -31,6 +31,7 @@
 <%@ page import="java.util.List" %>
 <%@ page import="java.util.Map" %>
 <%@ page import="java.util.ResourceBundle" %>
+<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.WorkflowDTO" %>
 
 <%
     String bundle = "org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources";
@@ -43,12 +44,19 @@
             (ConfigurationContext) config.getServletContext()
                     .getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
     WorkflowAdminServiceClient client = new WorkflowAdminServiceClient(cookie, backendServerURL, configContext);
+
+    String workflowName =
+            CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_WORKFLOW_NAME));
+
     String forwardTo = "list-workflows.jsp";
+
+    if(request.getParameter("path") != null && !request.getParameter("path").isEmpty()){
+        forwardTo = request.getParameter("path") + ".jsp?wizard=finish&" + WorkflowUIConstants.PARAM_WORKFLOW_NAME + "=" + workflowName;
+    }
 
 
     if (WorkflowUIConstants.ACTION_VALUE_ADD.equals(action)) {
-        String workflowName =
-                CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_WORKFLOW_NAME));
+
         String description =
                 CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_WORKFLOW_DESCRIPTION));
         String templateName =
@@ -56,19 +64,19 @@
         String templateImplName =
                 CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_TEMPLATE_IMPL));
         Map<String, String[]> parameterMap = request.getParameterMap();
-        List<Parameter> templateParams = new ArrayList<Parameter>();
-        List<Parameter> templateImplParams = new ArrayList<Parameter>();
+        List<ParameterDTO> templateParams = new ArrayList<ParameterDTO>();
+        List<ParameterDTO> templateImplParams = new ArrayList<ParameterDTO>();
         for (Map.Entry<String, String[]> paramEntry : parameterMap.entrySet()) {
 
             if (paramEntry.getKey() != null && paramEntry.getValue().length > 0) {
                 if (paramEntry.getKey().startsWith("p-")) {
-                    Parameter parameter = new Parameter();
+                    ParameterDTO parameter = new ParameterDTO();
                     parameter.setParamName(paramEntry.getKey().substring(2));   //length of "p-"
                     parameter.setParamValue(paramEntry.getValue()[0]);
                     templateParams.add(parameter);
                 }
                 if (paramEntry.getKey().startsWith("imp-")) {
-                    Parameter parameter = new Parameter();
+                    ParameterDTO parameter = new ParameterDTO();
                     parameter.setParamName(paramEntry.getKey().substring(4));   //length of "imp-"
                     parameter.setParamValue(paramEntry.getValue()[0]);
                     templateImplParams.add(parameter);
@@ -77,9 +85,13 @@
         }
 
         try {
+            WorkflowDTO workflowDTO = new WorkflowDTO();
+            workflowDTO.setWorkflowName(workflowName);
+            workflowDTO.setWorkflowDescription(description);
+            workflowDTO.setTemplateName(templateName);
+            workflowDTO.setImplementationName(templateImplName);
+            client.addWorkflow(workflowDTO, templateParams,templateImplParams);
 
-            client.addWorkflow(workflowName, description, templateName, templateImplName, templateParams,
-                    templateImplParams);
         } catch (WorkflowAdminServiceWorkflowException e) {
             String message = resourceBundle.getString("workflow.error.when.adding.workflow");
             CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);

@@ -39,6 +39,15 @@
 <%
     //    String username = CharacterEncoder.getSafeText(request.getParameter("username"));
 
+    String requestPath = "list-workflows";
+    if(request.getParameter("path") != null && !request.getParameter("path").isEmpty()){
+        requestPath = request.getParameter("path");
+    }
+    String wizard = "" ;
+    if(request.getParameter("wizard") != null && !request.getParameter("wizard").isEmpty()){
+        wizard = request.getParameter("wizard") ;
+    }
+
     String bundle = "org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources";
     ResourceBundle resourceBundle = ResourceBundle.getBundle(bundle, request.getLocale());
     String forwardTo = null;
@@ -82,6 +91,7 @@
     if (forwardTo != null) {
 %>
 <script type="text/javascript">
+
     function forward() {
         location.href = "<%=forwardTo%>";
     }
@@ -109,19 +119,33 @@
 
         function doCancel() {
             function cancel() {
-                location.href = "list-workflows.jsp";
+                location.href = '<%=requestPath%>.jsp?wizard=finish';
             }
 
             CARBON.showConfirmationDialog('<fmt:message key="confirmation.workflow.add.abort"/> ' + name + '?',
                     cancel, null);
         }
+
+        function submitPage(){
+            var workflowForm = document.getElementById("id_workflow");
+            workflowForm.submit();
+            //var templateList = document.getElementById("id_template");
+            //if(templateList.selectedIndex != 0){
+            //    workflowForm.submit();
+            //}else{
+            //    CARBON.showWarningDialog("<fmt:message key="workflow.warn.select.an.template"/>" , null ,null) ;
+            //}
+
+        }
+
     </script>
 
     <div id="middle">
         <h2><fmt:message key='workflow.add'/></h2>
 
         <div id="workArea">
-            <form method="post" name="serviceAdd" action="template-params.jsp">
+            <form id="id_workflow" method="post" name="serviceAdd" action="template-params.jsp">
+                <input type="hidden" name="path" value="<%=requestPath%>"/>
                 <table class="styledLeft">
                     <thead>
                     <tr>
@@ -147,31 +171,12 @@
                                             it will display those also if any--%>
                                     </td>
                                 </tr>
-                                <tr>
-                                    <td width="30%"><fmt:message key='workflow.template'/></td>
-                                    <td>
-                                        <select name="<%=WorkflowUIConstants.PARAM_WORKFLOW_TEMPLATE%>"
-                                                style="min-width: 30%">
-                                            <option value="" disabled selected><fmt:message key="select"/></option>
-                                            <%
-                                                for (TemplateBean template : templateList) {
-                                            %>
-                                            <option value="<%=template.getId()%>"
-                                                    <%=template.getId().equals(workflowTemplate) ? "selected" : ""%>>
-                                                <%=template.getName()%>
-                                            </option>
-                                            <%
-                                                }
-                                            %>
-                                        </select>
-                                    </td>
-                                </tr>
                             </table>
                         </td>
                     </tr>
                     <tr>
                         <td class="buttonRow">
-                            <input class="button" value="<fmt:message key="next"/>" type="submit"/>
+                            <input onclick="submitPage();" class="button" value="<fmt:message key="next"/>" type="button"/>
                             <input class="button" value="<fmt:message key="cancel"/>" type="button"
                                    onclick="doCancel();"/>
                         </td>

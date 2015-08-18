@@ -70,7 +70,8 @@ public class WorkFlowExecutorManager {
         OMElement xmlRequest = WorkflowRequestBuilder.buildXMLRequest(workFlowRequest);
         WorkflowDAO workflowDAO = new WorkflowDAO();
         List<WorkflowAssociationBean> associations =
-                workflowDAO.getWorkflowsForRequest(workFlowRequest.getEventType(), workFlowRequest.getTenantId());
+                workflowDAO.getWorkflowAssociationsForRequest(workFlowRequest.getEventType(), workFlowRequest
+                        .getTenantId());
         if (CollectionUtils.isEmpty(associations)) {
             handleCallback(workFlowRequest, WorkflowRequestStatus.SKIPPED.toString(), null);
             return;

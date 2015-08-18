@@ -27,5 +27,6 @@ public class WorkflowTemplateParamType {
     public static final String PASSWORD = "PASSWORD";
     public static final String USER_ROLE = "USER_ROLE";
     public static final String USER_NAME = "USER_NAME";
+    public static final String USER_NAME_OR_USER_ROLE = "USER_NAME_OR_USER_ROLE";
     public static final String BPS_PROFILE = "BPS_PROFILE";
 }
