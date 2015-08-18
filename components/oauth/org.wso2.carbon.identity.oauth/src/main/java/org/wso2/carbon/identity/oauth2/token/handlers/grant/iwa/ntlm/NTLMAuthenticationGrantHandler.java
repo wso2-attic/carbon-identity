@@ -27,6 +27,7 @@ import org.wso2.carbon.identity.oauth2.token.handlers.grant.AbstractAuthorizatio
 import org.wso2.carbon.identity.oauth2.token.handlers.grant.iwa.ntlm.util.SimpleFilterChain;
 import org.wso2.carbon.identity.oauth2.token.handlers.grant.iwa.ntlm.util.SimpleHttpRequest;
 import org.wso2.carbon.identity.oauth2.token.handlers.grant.iwa.ntlm.util.SimpleHttpResponse;
+import org.wso2.carbon.identity.oauth2.util.OAuth2Util;
 import waffle.servlet.NegotiateSecurityFilter;
 import waffle.util.Base64;
 import waffle.windows.auth.IWindowsCredentialsHandle;
@@ -110,7 +111,7 @@ public class NTLMAuthenticationGrantHandler extends AbstractAuthorizationGrantHa
                         }
                         String resourceOwnerUserNameWithDomain = WindowsAccountImpl.getCurrentUsername();
                         String resourceOwnerUserName = resourceOwnerUserNameWithDomain.split("\\\\")[1];
-                        tokReqMsgCtx.setAuthorizedUser(resourceOwnerUserName);
+                        tokReqMsgCtx.setAuthorizedUser(OAuth2Util.getUserFromUserName(resourceOwnerUserName));
                         break;
                     }
                     String continueToken = response.getHeader("WWW-Authenticate").

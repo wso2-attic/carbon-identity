@@ -70,15 +70,16 @@ public class SAMLSSOConfigAdmin {
         }
 
         serviceProviderDO.setIssuer(serviceProviderDTO.getIssuer());
-        serviceProviderDO.setAssertionConsumerUrl(serviceProviderDTO.getAssertionConsumerUrl());
+        serviceProviderDO.setAssertionConsumerUrls(serviceProviderDTO.getAssertionConsumerUrls());
+        serviceProviderDO.setDefaultAssertionConsumerUrl(serviceProviderDTO.getDefaultAssertionConsumerUrl());
         serviceProviderDO.setCertAlias(serviceProviderDTO.getCertAlias());
         serviceProviderDO.setDoSingleLogout(serviceProviderDTO.isDoSingleLogout());
+        serviceProviderDO.setSloResponseURL(serviceProviderDTO.getSloResponseURL());
+        serviceProviderDO.setSloRequestURL(serviceProviderDTO.getSloRequestURL());
         serviceProviderDO.setLoginPageURL(serviceProviderDTO.getLoginPageURL());
-        serviceProviderDO.setLogoutURL(serviceProviderDTO.getLogoutURL());
         serviceProviderDO.setDoSignResponse(serviceProviderDTO.isDoSignResponse());
         serviceProviderDO.setDoSignAssertions(serviceProviderDTO.isDoSignAssertions());
         serviceProviderDO.setNameIdClaimUri(serviceProviderDTO.getNameIdClaimUri());
-
 
         if (serviceProviderDTO.getNameIDFormat() == null) {
             serviceProviderDTO.setNameIDFormat(NameIdentifier.EMAIL);
@@ -112,6 +113,8 @@ public class SAMLSSOConfigAdmin {
             serviceProviderDO.setRequestedRecipients(serviceProviderDTO.getRequestedRecipients());
         }
         serviceProviderDO.setIdPInitSSOEnabled(serviceProviderDTO.isIdPInitSSOEnabled());
+        serviceProviderDO.setIdPInitSLOEnabled(serviceProviderDTO.isIdPInitSLOEnabled());
+        serviceProviderDO.setIdpInitSLOReturnToURLs(serviceProviderDTO.getIdpInitSLOReturnToURLs());
         serviceProviderDO.setDoEnableEncryptedAssertion(serviceProviderDTO.isDoEnableEncryptedAssertion());
         serviceProviderDO.setDoValidateSignatureInRequests(serviceProviderDTO.isDoValidateSignatureInRequests());
         IdentityPersistenceManager persistenceManager = IdentityPersistenceManager
@@ -142,7 +145,8 @@ public class SAMLSSOConfigAdmin {
                 SAMLSSOServiceProviderDO providerDO = providersSet[i];
                 SAMLSSOServiceProviderDTO providerDTO = new SAMLSSOServiceProviderDTO();
                 providerDTO.setIssuer(providerDO.getIssuer());
-                providerDTO.setAssertionConsumerUrl(providerDO.getAssertionConsumerUrl());
+                providerDTO.setAssertionConsumerUrls(providerDO.getAssertionConsumerUrls());
+                providerDTO.setDefaultAssertionConsumerUrl(providerDO.getDefaultAssertionConsumerUrl());
                 providerDTO.setCertAlias(providerDO.getCertAlias());
                 providerDTO.setAttributeConsumingServiceIndex(providerDO.getAttributeConsumingServiceIndex());
                 providerDTO.setDoSignResponse(providerDO.isDoSignResponse());
@@ -155,12 +159,8 @@ public class SAMLSSOConfigAdmin {
                     providerDTO.setLoginPageURL(providerDO.getLoginPageURL());
                 }
 
-                if (providerDO.getLogoutURL() == null || "null".equals(providerDO.getLogoutURL())) {
-                    providerDTO.setLogoutURL("");
-                } else {
-                    providerDTO.setLogoutURL(providerDO.getLogoutURL());
-                }
-
+                providerDTO.setSloResponseURL(providerDO.getSloResponseURL());
+                providerDTO.setSloRequestURL(providerDO.getSloRequestURL());
                 providerDTO.setRequestedClaims(providerDO.getRequestedClaims());
                 providerDTO.setRequestedAudiences(providerDO.getRequestedAudiences());
                 providerDTO.setRequestedRecipients(providerDO.getRequestedRecipients());
@@ -174,6 +174,8 @@ public class SAMLSSOConfigAdmin {
                 providerDTO.setNameIDFormat(providerDTO.getNameIDFormat().replace(":", "/"));
 
                 providerDTO.setIdPInitSSOEnabled(providerDO.isIdPInitSSOEnabled());
+                providerDTO.setIdPInitSLOEnabled(providerDO.isIdPInitSLOEnabled());
+                providerDTO.setIdpInitSLOReturnToURLs(providerDO.getIdpInitSLOReturnToURLs());
                 providerDTO.setDoEnableEncryptedAssertion(providerDO.isDoEnableEncryptedAssertion());
                 providerDTO.setDoValidateSignatureInRequests(providerDO.isDoValidateSignatureInRequests());
                 serviceProviders[i] = providerDTO;
