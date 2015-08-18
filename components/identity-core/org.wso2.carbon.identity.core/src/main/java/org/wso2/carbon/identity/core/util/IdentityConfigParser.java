@@ -23,6 +23,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.base.ServerConfigurationException;
 import org.wso2.carbon.identity.base.IdentityConstants;
+import org.wso2.carbon.identity.core.model.IdentityEventListener;
+import org.wso2.carbon.identity.core.model.IdentityEventListenerProperty;
 import org.wso2.carbon.utils.ServerConstants;
 import org.wso2.securevault.SecretResolver;
 import org.wso2.securevault.SecretResolverFactory;
@@ -43,7 +45,7 @@ public class IdentityConfigParser {
     public static final String IDENTITY_DEFAULT_NAMESPACE = "http://wso2.org/projects/carbon/carbon.xml";
     private static final String IDENTITY_CONFIG = "identity.xml";
     private static Map<String, Object> configuration = new HashMap<String, Object>();
-    private static Map<String, Map<String, Integer>> eventListenerOrderIds = new HashMap();
+    private static Map<String, IdentityEventListener> eventListenerConfiguration = new HashMap();
     private static IdentityConfigParser parser;
     private static SecretResolver secretResolver;
     // To enable attempted thread-safety using double-check locking
@@ -83,8 +85,8 @@ public class IdentityConfigParser {
         return configuration;
     }
 
-    public static Map<String, Map<String, Integer>> getEventListenerOrderIds() {
-        return eventListenerOrderIds;
+    public static Map<String, IdentityEventListener> getEventListenerConfiguration() {
+        return eventListenerConfiguration;
     }
 
     /**
@@ -176,15 +178,16 @@ public class IdentityConfigParser {
                             IdentityConstants.EVENT_LISTENER_NAME));
                     int order = Integer.parseInt(eventListenerElement.getAttributeValue(new QName(
                             IdentityConstants.EVENT_LISTENER_ORDER)));
+                    String enable = eventListenerElement.getAttributeValue(new QName(
+                            IdentityConstants.EVENT_LISTENER_ENABLE));
 
-                    if (eventListenerOrderIds.get(eventListenerType) == null) {
-                        Map<String, Integer> listerIdsMap = new HashMap<>();
-                        listerIdsMap.put(eventListenerName, order);
-                        eventListenerOrderIds.put(eventListenerType, listerIdsMap);
-                    } else {
-                        Map<String, Integer> listerIdsMap = eventListenerOrderIds.get(eventListenerType);
-                        listerIdsMap.put(eventListenerName, order);
-                    }
+                    String key = eventListenerType + "." + eventListenerName;
+                    IdentityEventListenerProperty identityEventListenerProperty = new IdentityEventListenerProperty
+                            (order, Boolean.parseBoolean(enable));
+                    IdentityEventListener identityEventListener = new IdentityEventListener(eventListenerType,
+                            eventListenerName, identityEventListenerProperty);
+                    eventListenerConfiguration.put(key, identityEventListener);
+
                 }
             }
 

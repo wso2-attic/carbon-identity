@@ -24,6 +24,7 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
+import org.wso2.carbon.identity.core.AbstractIdentityUserOperationEventListener;
 import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.scim.common.config.SCIMProvisioningConfigManager;
@@ -66,7 +67,7 @@ import java.util.concurrent.Executors;
  * For eg: when a user is created through UserAdmin API, we need to set some SCIM specific properties
  * as user attributes.
  */
-public class SCIMUserOperationListener implements UserOperationEventListener {
+public class SCIMUserOperationListener implements AbstractIdentityUserOperationEventListener {
 
     private static Log log = LogFactory.getLog(SCIMUserOperationListener.class);
 
@@ -76,7 +77,7 @@ public class SCIMUserOperationListener implements UserOperationEventListener {
 
     @Override
     public int getExecutionOrderId() {
-        int orderId = IdentityUtil.readEventListenerOrderIDs("UserOperationEventListener", "org.wso2.carbon.identity.scim.common.listener.SCIMUserOperationListener");
+        int orderId = getOrderId(SCIMUserOperationListener.class.getName());
         if (orderId != IdentityCoreConstants.EVENT_LISTENER_ORDER_ID) {
             return orderId;
         }
@@ -93,6 +94,10 @@ public class SCIMUserOperationListener implements UserOperationEventListener {
     public boolean doPostAuthenticate(String userName, boolean authenticated,
                                       UserStoreManager userStoreManager)
             throws UserStoreException {
+
+        if (!isEnable(this.getClass().getName())) {
+            return true;
+        }
         try {
             // If scim not enabled returns
             if (!userStoreManager.isSCIMEnabled()) {
@@ -131,6 +136,9 @@ public class SCIMUserOperationListener implements UserOperationEventListener {
                                  Map<String, String> claims, String profile,
                                  UserStoreManager userStoreManager)
             throws UserStoreException {
+        if (!isEnable(this.getClass().getName())) {
+            return true;
+        }
 
         try {
             // If scim not enabled returns
@@ -241,6 +249,10 @@ public class SCIMUserOperationListener implements UserOperationEventListener {
                                                  UserStoreManager userStoreManager)
             throws UserStoreException {
 
+        if (!isEnable(this.getClass().getName())) {
+            return true;
+        }
+
         try {
             // If scim not enabled returns
             if (!userStoreManager.isSCIMEnabled()) {
@@ -300,6 +312,10 @@ public class SCIMUserOperationListener implements UserOperationEventListener {
     @Override
     public boolean doPreDeleteUser(String userName, UserStoreManager userStoreManager)
             throws UserStoreException {
+
+        if (!isEnable(this.getClass().getName())) {
+            return true;
+        }
 
         try {
             // If scim not enabled returns
@@ -361,6 +377,10 @@ public class SCIMUserOperationListener implements UserOperationEventListener {
     public boolean doPostSetUserClaimValues(String userName, Map<String, String> claims,
                                             String profileName, UserStoreManager userStoreManager)
             throws UserStoreException {
+
+        if (!isEnable(this.getClass().getName())) {
+            return true;
+        }
 
         try {
             // If scim not enabled returns
@@ -474,6 +494,10 @@ public class SCIMUserOperationListener implements UserOperationEventListener {
                                  org.wso2.carbon.user.api.Permission[] permissions,
                                  UserStoreManager userStoreManager) throws UserStoreException {
 
+        if (!isEnable(this.getClass().getName())) {
+            return true;
+        }
+
         try {
             // If scim not enabled returns
             if (!userStoreManager.isSCIMEnabled()) {
@@ -535,6 +559,10 @@ public class SCIMUserOperationListener implements UserOperationEventListener {
     public boolean doPreDeleteRole(String roleName, UserStoreManager userStoreManager)
             throws UserStoreException {
 
+        if (!isEnable(this.getClass().getName())) {
+            return true;
+        }
+
         try {
             // If scim not enabled returns
             if (!userStoreManager.isSCIMEnabled()) {
@@ -594,6 +622,10 @@ public class SCIMUserOperationListener implements UserOperationEventListener {
     public boolean doPostUpdateRoleName(String roleName, String newRoleName,
                                         UserStoreManager userStoreManager)
             throws UserStoreException {
+
+        if (!isEnable(this.getClass().getName())) {
+            return true;
+        }
 
         try {
             // If scim not enabled returns
@@ -657,6 +689,10 @@ public class SCIMUserOperationListener implements UserOperationEventListener {
     public boolean doPostUpdateUserListOfRole(String roleName, String[] deletedUsers,
                                               String[] newUsers, UserStoreManager userStoreManager)
             throws UserStoreException {
+
+        if (!isEnable(this.getClass().getName())) {
+            return true;
+        }
 
         try {
             // If scim not enabled returns
