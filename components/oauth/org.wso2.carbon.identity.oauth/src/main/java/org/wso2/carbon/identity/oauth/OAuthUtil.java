@@ -23,12 +23,14 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.xml.security.utils.Base64;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
+import org.wso2.carbon.identity.application.common.model.User;
 import org.wso2.carbon.identity.oauth.cache.CacheKey;
 import org.wso2.carbon.identity.oauth.cache.OAuthCache;
 import org.wso2.carbon.identity.oauth.cache.OAuthCacheKey;
 import org.wso2.carbon.identity.oauth.config.OAuthServerConfiguration;
 import org.wso2.carbon.identity.oauth2.util.OAuth2Util;
 import org.wso2.carbon.registry.core.utils.UUIDGenerator;
+import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 import javax.crypto.Mac;
@@ -66,6 +68,20 @@ public final class OAuthUtil {
         } catch (Exception e) {
             throw new IdentityOAuthAdminException("Error when generating a random number.", e);
         }
+    }
+
+    public static void clearOAuthCache(String consumerKey, User authorizedUser) {
+
+        String user = UserCoreUtil.addDomainToName(authorizedUser.getUserName(), authorizedUser.getUserStoreDomain());
+        user = UserCoreUtil.addTenantDomainToEntry(user, authorizedUser.getTenantDomain());
+        clearOAuthCache(consumerKey, user);
+    }
+
+    public static void clearOAuthCache(String consumerKey, User authorizedUser, String scope) {
+
+        String user = UserCoreUtil.addDomainToName(authorizedUser.getUserName(), authorizedUser.getUserStoreDomain());
+        user = UserCoreUtil.addTenantDomainToEntry(user, authorizedUser.getTenantDomain());
+        clearOAuthCache(consumerKey, user, scope);
     }
 
     public static void clearOAuthCache(String consumerKey, String authorizedUser) {

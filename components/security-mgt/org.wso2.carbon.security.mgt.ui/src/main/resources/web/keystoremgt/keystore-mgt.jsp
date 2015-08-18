@@ -182,13 +182,6 @@
             <%
                 }
             %>
-        <table width="100%" border="0" cellpadding="0" cellspacing="0">
-            <tr>
-                <td>
-			<a href="add-keystore-step1.jsp" class="icon-link" style="background-image:url(images/add.gif);"><fmt:message key="add.new.keystore"/></a>
-                </td>
-            </tr>
-         </table>
     </div>
     </div>
     <script type="text/javascript">
