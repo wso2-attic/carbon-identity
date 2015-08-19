@@ -22,6 +22,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.CarbonContext;
+import org.wso2.carbon.core.util.CryptoException;
+import org.wso2.carbon.core.util.CryptoUtil;
 import org.wso2.carbon.identity.workflow.mgt.bean.AssociationDTO;
 import org.wso2.carbon.identity.workflow.mgt.bean.BPSProfileBean;
 import org.wso2.carbon.identity.workflow.mgt.bean.Entity;
@@ -44,10 +46,12 @@ import org.wso2.carbon.identity.workflow.mgt.exception.RuntimeWorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.internal.WorkflowServiceDataHolder;
 import org.wso2.carbon.identity.workflow.mgt.util.WorkFlowConstants;
+import org.wso2.carbon.identity.workflow.mgt.util.WorkflowTemplateParamType;
 
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -177,9 +181,7 @@ public class WorkflowService {
     }
 
     public void addBPSProfile(String profileName, String host, String user, String password, String callBackUser,
-                              String callbackPassword, int tenantId)
-            throws InternalWorkflowException {
-
+                              String callbackPassword, int tenantId) throws InternalWorkflowException {
         bpsProfileDAO.addProfile(profileName, host, user, password, callBackUser, callbackPassword, tenantId);
     }
 
@@ -262,7 +264,6 @@ public class WorkflowService {
     }
 
     public Map<String, Object> getBPSProfileParams(String profileName) throws WorkflowException {
-
         return bpsProfileDAO.getBPELProfileParams(profileName);
     }
 
@@ -313,14 +314,6 @@ public class WorkflowService {
             requestEntityRelationshipDAO.addRelationship(entities[i], requestId);
         }
     }
-
-    public List<String> listEntityNames(String wfOperationType, String wfStatus, String entityType) throws
-            InternalWorkflowException {
-        return requestEntityRelationshipDAO.getEntityNamesOfRequest(wfOperationType, wfStatus, entityType);
-    }
-
-
-
 
     /**
      * Check if a given entity has any pending workflow requests associated with it.
@@ -378,19 +371,20 @@ public class WorkflowService {
 
     }
 
-    public List<String> listEntityNames(String wfOperationType, String wfStatus, String entityType) throws
+    /**
+     * Retrieve List of associated Entity-types of the workflow requests.
+     *
+     * @param wfOperationType Operation Type of the Work-flow.
+     * @param wfStatus        Current Status of the Work-flow.
+     * @param entityType      Entity Type of the Work-flow.
+     * @param tenantID        Tenant ID of the currently Logged user.
+     * @return
+     * @throws InternalWorkflowException
+     */
+
+    public List<String> listEntityNames(String wfOperationType, String wfStatus, String entityType, int tenantID) throws
             InternalWorkflowException {
-        return requestEntityRelationshipDAO.getEntityNamesOfRequest(wfOperationType, wfStatus, entityType);
+        return requestEntityRelationshipDAO.getEntityNamesOfRequest(wfOperationType, wfStatus, entityType, tenantID);
     }
-
-
-
-
-    public List<String> listEntityNames(String wfOperationType, String wfStatus, String entityType) throws
-            InternalWorkflowException {
-        return requestEntityRelationshipDAO.getEntityNamesOfRequest(wfOperationType, wfStatus, entityType);
-    }
-
-
 
 }
