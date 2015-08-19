@@ -22,8 +22,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.CarbonContext;
-import org.wso2.carbon.core.util.CryptoException;
-import org.wso2.carbon.core.util.CryptoUtil;
 import org.wso2.carbon.identity.workflow.mgt.bean.AssociationDTO;
 import org.wso2.carbon.identity.workflow.mgt.bean.BPSProfileBean;
 import org.wso2.carbon.identity.workflow.mgt.bean.Entity;
@@ -46,12 +44,10 @@ import org.wso2.carbon.identity.workflow.mgt.exception.RuntimeWorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.internal.WorkflowServiceDataHolder;
 import org.wso2.carbon.identity.workflow.mgt.util.WorkFlowConstants;
-import org.wso2.carbon.identity.workflow.mgt.util.WorkflowTemplateParamType;
 
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -181,7 +177,8 @@ public class WorkflowService {
     }
 
     public void addBPSProfile(String profileName, String host, String user, String password, String callBackUser,
-                              String callbackPassword, int tenantId) throws InternalWorkflowException {
+                              String callbackPassword, int tenantId)
+            throws InternalWorkflowException {
         bpsProfileDAO.addProfile(profileName, host, user, password, callBackUser, callbackPassword, tenantId);
     }
 
@@ -264,6 +261,7 @@ public class WorkflowService {
     }
 
     public Map<String, Object> getBPSProfileParams(String profileName) throws WorkflowException {
+
         return bpsProfileDAO.getBPELProfileParams(profileName);
     }
 
