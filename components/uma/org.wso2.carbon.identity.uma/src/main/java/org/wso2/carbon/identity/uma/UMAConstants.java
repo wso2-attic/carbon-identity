@@ -105,8 +105,8 @@ public final class UMAConstants {
         private UMAErrorCodes(){}
     }
 
-
-    public static class OAuthResourceRegistration{
+    // Resource Set Registation API Constants
+    public class OAuthResourceSetRegistration {
 
         public static final String RESOURCE_SET_NAME = "name";
         public static final String RESOURCE_SET_TYPE = "type";
@@ -116,11 +116,39 @@ public final class UMAConstants {
         public static final String RESOURCE_SET_ID = "_id";
 
         public static final String RESOURCE_REG_RESPONSE_POLICY_URI = "user_access_policy_uri";
+        public static final String ERR_RESOURCE_SET_NOT_FOUND = "not_found";
 
-        private OAuthResourceRegistration(){}
+        private OAuthResourceSetRegistration(){}
     }
+
+
+    // OAuth introspection API constants
+    public static class OAuthIntrospectConstants {
+
+        public static final String TOKEN = "token";
+        public static final String TOKEN_TYPE_HINT = "token_type_hint";
+
+
+        public static final String RESP_FIELD_ACTIVE = "active";
+        public static final String RESP_FIELD_SCOPE = "scope";
+        public static final String RESP_FIELD_CLIENT_ID = "client_id";
+        public static final String RESP_FIELD_USER_ID = "user_id";
+        public static final String RESP_FIELD_TOKEN_TYPE = "token_type";
+
+        public static final String RESP_FIELD_EXP = "exp";
+        public static final String RESP_FIELD_IAT = "iat";
+        public static final String RESP_FIELD_NBF = "nbf";
+        public static final String RESP_FIELD_SUB = "sub";
+        public static final String RESP_FIELD_AUD = "aud";
+        public static final String RESP_FIELD_ISS = "iss";
+        public static final String RESP_FIELD_JTI = "jti";
+
+        private OAuthIntrospectConstants(){}
+    }
+
 
 
     private UMAConstants(){
     }
+
 }

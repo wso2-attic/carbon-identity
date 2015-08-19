@@ -23,11 +23,14 @@
 package org.wso2.carbon.identity.uma.model;
 
 import org.wso2.carbon.base.MultitenantConstants;
+import org.wso2.carbon.identity.application.common.model.User;
 import org.wso2.carbon.identity.uma.beans.protection.PermissionTicketReqBean;
 
 import java.sql.Timestamp;
 
 public class PermissionTicketDO {
+
+    private String ticket;
 
     private String resourceId;
 
@@ -38,16 +41,16 @@ public class PermissionTicketDO {
     private String expirationTime;
 
     // attributes not in the spec that need to persisted
-    private int tenantID = MultitenantConstants.SUPER_TENANT_ID;
+    private int tenantID;
 
-    private String authorizedUser;
+    private User authorizedUser;
 
     private String consumerKey;
 
     private Timestamp createdTime;
 
     public PermissionTicketDO(PermissionTicketReqBean permissionTicketReqBean) {
-        resourceId = permissionTicketReqBean.getResource_set_id();
+        resourceId = permissionTicketReqBean.getResourceSetId();
         scopes = permissionTicketReqBean.getScopes();
     }
 
@@ -94,11 +97,11 @@ public class PermissionTicketDO {
         this.tenantID = tenantID;
     }
 
-    public String getAuthorizedUser() {
+    public User getAuthorizedUser() {
         return authorizedUser;
     }
 
-    public void setAuthorizedUser(String authorizedUser) {
+    public void setAuthorizedUser(User authorizedUser) {
         this.authorizedUser = authorizedUser;
     }
 

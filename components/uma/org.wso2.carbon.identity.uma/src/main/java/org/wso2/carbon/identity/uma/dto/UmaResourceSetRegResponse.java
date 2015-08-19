@@ -23,16 +23,17 @@
 package org.wso2.carbon.identity.uma.dto;
 
 import com.google.gson.Gson;
+import org.wso2.carbon.identity.uma.UMAConstants;
 
 import java.util.List;
 
-public class UmaResourceSetRegistrationResponse extends UmaResponse{
+public class UmaResourceSetRegResponse extends UmaResponse{
 
-    protected UmaResourceSetRegistrationResponse(int responseStatus) {
+    protected UmaResourceSetRegResponse(int responseStatus) {
         super(responseStatus);
     }
 
-    public static UmaResponseBuilder status(int code) {
+    public static UmaResourceSetRegRespBuilder status(int code) {
         return new UmaResourceSetRegRespBuilder(code);
     }
 
@@ -48,6 +49,23 @@ public class UmaResourceSetRegistrationResponse extends UmaResponse{
             this.resourceSetIds = resourceSetIds;
             return this;
         }
+
+        public UmaResourceSetRegRespBuilder setResourceSetId(String resourceSetId){
+            this.setParam(UMAConstants.OAuthResourceSetRegistration.RESOURCE_SET_ID, resourceSetId);
+            return this;
+        }
+
+        public UmaResourceSetRegRespBuilder setResourceSetName(String resourceSetName){
+            this.setParam(UMAConstants.OAuthResourceSetRegistration.RESOURCE_SET_NAME, resourceSetName);
+            return this;
+        }
+
+        public UmaResourceSetRegRespBuilder setResourceType(String resourceType){
+            this.setParam(UMAConstants.OAuthResourceSetRegistration.RESOURCE_SET_TYPE, resourceType);
+            return this;
+        }
+
+
 
         @Override
         public UmaResponse buildJSONResponse() {

@@ -27,7 +27,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.uma.UMAConstants;
 import org.wso2.carbon.identity.uma.beans.protection.ResourceSetDescriptionBean;
-import org.wso2.carbon.identity.uma.dto.UmaResourceSetRegistrationRequest;
+import org.wso2.carbon.identity.uma.dto.UmaResourceSetRegRequest;
 import org.wso2.carbon.identity.uma.dto.UmaResponse;
 import org.wso2.carbon.identity.uma.endpoint.util.EndpointUtil;
 import org.wso2.carbon.identity.uma.exceptions.IdentityUMAException;
@@ -59,12 +59,12 @@ public class ResourceSetRegEndpoint {
 
 
         // create UMAResourceSetRegistration Request
-        UmaResourceSetRegistrationRequest umaResourceSetRegistrationRequest =
-                new UmaResourceSetRegistrationRequest(httpServletRequest, resourceSetDescription);
+        UmaResourceSetRegRequest umaResourceSetRegRequest =
+                new UmaResourceSetRegRequest(httpServletRequest, resourceSetDescription);
 
         // get the response
         UmaResponse umaResponse =
-                EndpointUtil.getUMAService().createResourceSet(umaResourceSetRegistrationRequest);
+                EndpointUtil.getUMAService().createResourceSet(umaResourceSetRegRequest);
 
         // build Servlet Response from UMAResponse
         return EndpointUtil.buildResponse(umaResponse);
@@ -87,13 +87,13 @@ public class ResourceSetRegEndpoint {
 
 
         // create UMAResourceSetRegistration Request
-        UmaResourceSetRegistrationRequest umaResourceSetRegistrationRequest =
-                new UmaResourceSetRegistrationRequest(httpServletRequest);
+        UmaResourceSetRegRequest umaResourceSetRegRequest =
+                new UmaResourceSetRegRequest(httpServletRequest);
 
-        umaResourceSetRegistrationRequest.setResourceId(resourceSetId);
+        umaResourceSetRegRequest.setResourceId(resourceSetId);
 
 
-        UmaResponse umaResponse = EndpointUtil.getUMAService().getResourceSet(umaResourceSetRegistrationRequest);
+        UmaResponse umaResponse = EndpointUtil.getUMAService().getResourceSet(umaResourceSetRegRequest);
 
         return EndpointUtil.buildResponse(umaResponse);
     }
@@ -117,12 +117,12 @@ public class ResourceSetRegEndpoint {
 
 
         // create UMAResourceSetRegistration Request
-        UmaResourceSetRegistrationRequest umaResourceSetRegistrationRequest =
-                new UmaResourceSetRegistrationRequest(httpServletRequest, resourceSetDescriptionBean);
-        umaResourceSetRegistrationRequest.setResourceId(resourceSetId);
+        UmaResourceSetRegRequest umaResourceSetRegRequest =
+                new UmaResourceSetRegRequest(httpServletRequest, resourceSetDescriptionBean);
+        umaResourceSetRegRequest.setResourceId(resourceSetId);
 
 
-        UmaResponse umaResponse = EndpointUtil.getUMAService().updateResourceSet(umaResourceSetRegistrationRequest);
+        UmaResponse umaResponse = EndpointUtil.getUMAService().updateResourceSet(umaResourceSetRegRequest);
         return EndpointUtil.buildResponse(umaResponse);
     }
 
@@ -142,12 +142,12 @@ public class ResourceSetRegEndpoint {
         }
 
         // create UMAResourceSetRegistration Request
-        UmaResourceSetRegistrationRequest umaResourceSetRegistrationRequest =
-                new UmaResourceSetRegistrationRequest(httpServletRequest);
+        UmaResourceSetRegRequest umaResourceSetRegRequest =
+                new UmaResourceSetRegRequest(httpServletRequest);
 
-        umaResourceSetRegistrationRequest.setResourceId(resourceSetId);
+        umaResourceSetRegRequest.setResourceId(resourceSetId);
 
-        UmaResponse umaResponse = EndpointUtil.getUMAService().deleteResourceSet(umaResourceSetRegistrationRequest);
+        UmaResponse umaResponse = EndpointUtil.getUMAService().deleteResourceSet(umaResourceSetRegRequest);
         return EndpointUtil.buildResponse(umaResponse);
     }
 
@@ -164,8 +164,8 @@ public class ResourceSetRegEndpoint {
             return EndpointUtil.buildOAuthErrorMessage(e.getMessage());
         }
 
-        UmaResourceSetRegistrationRequest umaResourceSetRegRequest =
-                new UmaResourceSetRegistrationRequest(httpServletRequest);
+        UmaResourceSetRegRequest umaResourceSetRegRequest =
+                new UmaResourceSetRegRequest(httpServletRequest);
 
         UmaResponse umaResponse =
                 EndpointUtil.getUMAService().getResoucreSetIds(umaResourceSetRegRequest);

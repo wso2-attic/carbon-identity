@@ -25,7 +25,13 @@ package org.wso2.carbon.identity.uma.endpoint.protection;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.identity.uma.UMAConstants;
 import org.wso2.carbon.identity.uma.beans.protection.PermissionTicketReqBean;
+import org.wso2.carbon.identity.uma.dto.UmaPermissionSetRegRequest;
+import org.wso2.carbon.identity.uma.dto.UmaPermissionSetRegResponse;
+import org.wso2.carbon.identity.uma.dto.UmaResponse;
+import org.wso2.carbon.identity.uma.endpoint.util.EndpointUtil;
+import org.wso2.carbon.identity.uma.exceptions.IdentityUMAException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.POST;
@@ -45,9 +51,29 @@ public class PermissionSetRegEndpoint {
     public Response issuePermissionTicket
             (@Context HttpServletRequest httpServletRequest, PermissionTicketReqBean ticketReqBean) {
 
-        log.info("hit issuePermissionTicket");
-        return Response.ok("Yahooooooooooooooooo").build();
+        // check the validity of the PAT
+        try {
+            validateAuthorization(httpServletRequest);
+        } catch (IdentityUMAException e) {
+            // build and error message and return
+            return EndpointUtil.buildOAuthErrorMessage(e.getMessage());
+        }
 
+        // create the UMA permission set request
+        UmaPermissionSetRegRequest umaPermissionSetRegRequest =
+                new UmaPermissionSetRegRequest(httpServletRequest,ticketReqBean);
+
+        // call the backend service
+        UmaResponse umaPermissionTicketReqResponse =
+                EndpointUtil.getUMAService().createPermissionTicket(umaPermissionSetRegRequest);
+
+
+        return EndpointUtil.buildResponse(umaPermissionTicketReqResponse);
+    }
+
+
+    private void validateAuthorization(HttpServletRequest httpServletRequest) throws IdentityUMAException {
+        EndpointUtil.checkAuthorization(httpServletRequest, UMAConstants.UMA_PROTECTION_API_SCOPE);
     }
 
 }

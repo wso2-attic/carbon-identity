@@ -26,17 +26,17 @@ import org.wso2.carbon.identity.uma.beans.protection.ResourceSetDescriptionBean;
 
 import javax.servlet.http.HttpServletRequest;
 
-public class UmaResourceSetRegistrationRequest extends UmaRequest{
+public class UmaResourceSetRegRequest extends UmaRequest{
 
     private ResourceSetDescriptionBean resourceSetDescription;
     private String resourceId;
 
 
-    public UmaResourceSetRegistrationRequest(HttpServletRequest httpServletRequest){
+    public UmaResourceSetRegRequest(HttpServletRequest httpServletRequest){
         super(httpServletRequest);
     }
 
-    public UmaResourceSetRegistrationRequest
+    public UmaResourceSetRegRequest
             (HttpServletRequest httpServletRequest, ResourceSetDescriptionBean resourceSetDescriptionBean) {
         super(httpServletRequest);
         this.resourceSetDescription = resourceSetDescriptionBean;

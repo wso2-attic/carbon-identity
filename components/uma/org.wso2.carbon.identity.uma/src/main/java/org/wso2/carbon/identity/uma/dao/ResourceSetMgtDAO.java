@@ -73,10 +73,8 @@ public class ResourceSetMgtDAO {
         Connection connection = null;
         try {
             connection = JDBCPersistenceManager.getInstance().getDBConnection();
-
             // persist the resource set description
             saveResourceSet(newResourceSetDO, connection, userStoreDomain);
-
             connection.commit();
 
         } catch (IdentityException | SQLException e) {
@@ -331,7 +329,7 @@ public class ResourceSetMgtDAO {
             int rowsAffected = prepStmt.executeUpdate();
             connection.commit();
 
-            return rowsAffected > 0 ?  true : false;
+            return rowsAffected > 0;
 
         } catch (IdentityException e) {
 
@@ -379,7 +377,7 @@ public class ResourceSetMgtDAO {
             int rowsAffected = prepStmt.executeUpdate();
             connection.commit();
 
-            return rowsAffected > 0 ?  true : false;
+            return rowsAffected > 0;
 
         } catch (IdentityException e) {
 

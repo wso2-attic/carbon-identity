@@ -32,9 +32,9 @@ public class UMAProtectionConstants {
     public static final String RESOURCE_SET_SCOPES = "scopes";
     public static final String RESOURCE_SET_ID = "_id";
 
-    public static final String RESOURCE_REG_RESPONSE_POLICY_URI = "user_access_policy_uri";
+    public static final String RESPONSE_POLICY_URI = "user_access_policy_uri";
 
-    public static final String ERROR_RESOURCE_SET_NOT_FOUND = "not_found";
+    public static final String ERR_RESOURCE_SET_NOT_FOUND = "not_found";
 
 
     private UMAProtectionConstants(){}

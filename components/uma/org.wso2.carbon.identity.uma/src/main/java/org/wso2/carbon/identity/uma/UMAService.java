@@ -23,7 +23,6 @@ package org.wso2.carbon.identity.uma;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.identity.oauth.common.OAuthConstants;
 import org.wso2.carbon.identity.oauth2.IdentityOAuth2Exception;
 import org.wso2.carbon.identity.oauth2.dao.TokenMgtDAO;
 import org.wso2.carbon.identity.oauth2.model.AccessTokenDO;
@@ -31,7 +30,6 @@ import org.wso2.carbon.identity.uma.dao.ResourceSetMgtDAO;
 import org.wso2.carbon.identity.uma.dto.*;
 import org.wso2.carbon.identity.uma.exceptions.IdentityUMAException;
 import org.wso2.carbon.identity.uma.model.ResourceSetDO;
-import org.wso2.carbon.identity.uma.util.OAuthIntrospectConstants;
 import org.wso2.carbon.identity.uma.dto.UmaOAuthIntropectResponse;
 import org.wso2.carbon.identity.uma.util.UMAUtil;
 
@@ -76,7 +74,7 @@ public class UMAService {
 
 
     public UmaResponse createResourceSet
-            (UmaResourceSetRegistrationRequest umaResourceSetRegistrationRequest){
+            (UmaResourceSetRegRequest umaResourceSetRegRequest){
 
         UmaResponse.UmaResponseBuilder builder;
 
@@ -84,10 +82,10 @@ public class UMAService {
         String resourceSetID = UUID.randomUUID().toString().replace("-","");
 
         ResourceSetDO resourceSetDO = new ResourceSetDO(
-                umaResourceSetRegistrationRequest.getResourceSetDescriptionBean()
+                umaResourceSetRegRequest.getResourceSetDescriptionBean()
         );
 
-        resourceSetDO.setConsumerKey(umaResourceSetRegistrationRequest.getConsumerKey());
+        resourceSetDO.setConsumerKey(umaResourceSetRegRequest.getConsumerKey());
         resourceSetDO.setResourceSetId(resourceSetID);
         resourceSetDO.setCreatedTime(new Timestamp(new Date().getTime()));
 
@@ -96,14 +94,14 @@ public class UMAService {
         try {
             resourceSetMgtDAO.saveResourceSetDescription(resourceSetDO,null);
 
-             builder = UmaResourceSetRegistrationResponse.status(HttpServletResponse.SC_CREATED)
-                            .setParam(UMAConstants.OAuthResourceRegistration.RESOURCE_SET_ID,
+             builder = UmaResourceSetRegResponse.status(HttpServletResponse.SC_CREATED)
+                            .setParam(UMAProtectionConstants.RESOURCE_SET_ID,
                                     resourceSetDO.getResourceSetId());
 
         } catch (IdentityUMAException e) {
            log.error(e.getMessage(),e);
 
-            builder =  UmaResourceSetRegistrationResponse.errorResponse(HttpServletResponse.SC_BAD_REQUEST)
+            builder =  UmaResourceSetRegResponse.errorResponse(HttpServletResponse.SC_BAD_REQUEST)
                             .setError("invalid_request");
         }
 
@@ -118,7 +116,7 @@ public class UMAService {
      * @param umaResourceSetRegRequest
      * @return
      */
-    public UmaResponse getResoucreSetIds(UmaResourceSetRegistrationRequest umaResourceSetRegRequest){
+    public UmaResponse getResoucreSetIds(UmaResourceSetRegRequest umaResourceSetRegRequest){
 
         UmaResponse.UmaResponseBuilder builder;
 
@@ -128,17 +126,17 @@ public class UMAService {
 
         try {
             List<String> ids = resourceSetMgtDAO.retrieveResourceSetIDs(consumerKey, userStoreDomain);
-            builder = UmaResourceSetRegistrationResponse.status(HttpServletResponse.SC_OK);
+            builder = UmaResourceSetRegResponse.status(HttpServletResponse.SC_OK);
 
             // set the resource set id list
-            ((UmaResourceSetRegistrationResponse.UmaResourceSetRegRespBuilder)builder).setResourceSetIds(ids);
+            ((UmaResourceSetRegResponse.UmaResourceSetRegRespBuilder)builder).setResourceSetIds(ids);
 
 
         } catch (IdentityUMAException e) {
             log.error("Error when retrieving registered resource sets for consumerKey : "+consumerKey,e);
 
             builder =
-                    UmaResourceSetRegistrationResponse.errorResponse(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                    UmaResourceSetRegResponse.errorResponse(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
 
         return builder.buildJSONResponse();
@@ -149,7 +147,7 @@ public class UMAService {
      * @param umaResourceSetRegRequest
      * @return
      */
-    public UmaResponse getResourceSet(UmaResourceSetRegistrationRequest umaResourceSetRegRequest){
+    public UmaResponse getResourceSet(UmaResourceSetRegRequest umaResourceSetRegRequest){
         UmaResponse.UmaResponseBuilder builder;
 
         ResourceSetMgtDAO resourceSetMgtDAO = new ResourceSetMgtDAO();
@@ -164,7 +162,7 @@ public class UMAService {
 
             if (resourceSetDO == null){
                 builder = UmaResponse.errorResponse(HttpServletResponse.SC_NOT_FOUND)
-                          .setError(UMAProtectionConstants.ERROR_RESOURCE_SET_NOT_FOUND);
+                          .setError(UMAProtectionConstants.ERR_RESOURCE_SET_NOT_FOUND);
             }else{
                 builder = UmaResponse.status(HttpServletResponse.SC_OK)
                           .setParam(UMAProtectionConstants.RESOURCE_SET_ID, resourceSetDO.getResourceSetId())
@@ -182,7 +180,7 @@ public class UMAService {
             log.error(errorMsg);
 
             builder =
-                    UmaResourceSetRegistrationResponse.errorResponse(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                    UmaResourceSetRegResponse.errorResponse(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
 
 
@@ -190,7 +188,7 @@ public class UMAService {
     }
 
 
-    public UmaResponse deleteResourceSet(UmaResourceSetRegistrationRequest umaResourceSetRegRequest){
+    public UmaResponse deleteResourceSet(UmaResourceSetRegRequest umaResourceSetRegRequest){
         UmaResponse.UmaResponseBuilder builder;
 
         ResourceSetMgtDAO resourceSetMgtDAO = new ResourceSetMgtDAO();
@@ -206,7 +204,7 @@ public class UMAService {
                 builder = UmaResponse.status(HttpServletResponse.SC_NO_CONTENT);
             }else{
                 builder = UmaResponse.errorResponse(HttpServletResponse.SC_NOT_FOUND)
-                                     .setError(UMAProtectionConstants.ERROR_RESOURCE_SET_NOT_FOUND);
+                                     .setError(UMAProtectionConstants.ERR_RESOURCE_SET_NOT_FOUND);
             }
 
         } catch (IdentityUMAException e) {
@@ -215,14 +213,14 @@ public class UMAService {
 
             log.error(errorMsg,e);
             builder =
-                    UmaResourceSetRegistrationResponse.errorResponse(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                    UmaResourceSetRegResponse.errorResponse(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
 
         return builder.buildJSONResponse();
     }
 
 
-    public UmaResponse updateResourceSet(UmaResourceSetRegistrationRequest umaResourceSetRegRequest){
+    public UmaResponse updateResourceSet(UmaResourceSetRegRequest umaResourceSetRegRequest){
         UmaResponse.UmaResponseBuilder builder;
 
         ResourceSetMgtDAO resourceSetMgtDAO = new ResourceSetMgtDAO();
@@ -248,7 +246,7 @@ public class UMAService {
             }else{
                 // we could not find the resource to update, hence this error message
                 builder = UmaResponse.errorResponse(HttpServletResponse.SC_NOT_FOUND)
-                        .setError(UMAProtectionConstants.ERROR_RESOURCE_SET_NOT_FOUND);
+                        .setError(UMAProtectionConstants.ERR_RESOURCE_SET_NOT_FOUND);
             }
 
         } catch (IdentityUMAException e) {
@@ -257,11 +255,27 @@ public class UMAService {
 
             log.error(errorMsg,e);
             builder =
-                    UmaResourceSetRegistrationResponse.errorResponse(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                    UmaResourceSetRegResponse.errorResponse(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
 
         return builder.buildJSONResponse();
     }
+
+
+    public UmaResponse createPermissionTicket(UmaPermissionSetRegRequest umaPermissionSetRegRequest){
+
+        // check whether the resource exists
+
+        // check whether requested scope is available for the resource
+
+        // generate the permission ticket string
+
+        // persist the permission ticket
+
+        // return the response
+        return null;
+    }
+
 
     public UmaResponse introspectToken(UmaRequest umaOAuthIntrospectRequest) throws IdentityUMAException {
 
@@ -270,7 +284,7 @@ public class UMAService {
 
         // retrieve the token identifier sent in the request
         String tokenIdentifier =
-                umaOAuthIntrospectRequest.getHttpServletRequest().getParameter(OAuthIntrospectConstants.TOKEN);
+                umaOAuthIntrospectRequest.getHttpServletRequest().getParameter(UMAConstants.OAuthIntrospectConstants.TOKEN);
 
         // if the token identifier is not available or empty throw an exception
         if (tokenIdentifier == null || StringUtils.isEmpty(tokenIdentifier)){
@@ -283,7 +297,7 @@ public class UMAService {
 
         // Retrieve the token type hint if one was provided by the client
         String tokenTypeHint =
-                umaOAuthIntrospectRequest.getHttpServletRequest().getParameter(OAuthIntrospectConstants.TOKEN_TYPE_HINT);
+                umaOAuthIntrospectRequest.getHttpServletRequest().getParameter(UMAConstants.OAuthIntrospectConstants.TOKEN_TYPE_HINT);
 
 
         TokenMgtDAO tokenMgtDAO = new TokenMgtDAO();

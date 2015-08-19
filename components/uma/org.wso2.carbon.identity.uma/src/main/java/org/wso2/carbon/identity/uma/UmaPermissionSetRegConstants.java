@@ -20,29 +20,18 @@
  *
  */
 
-package org.wso2.carbon.identity.uma.beans.protection;
+package org.wso2.carbon.identity.uma;
 
-public class PermissionTicketReqBean {
+public class UmaPermissionSetRegConstants {
 
-    private String resource_set_id;
-    private String[] scopes;
+    public static final String REQ_RESOURCE_SET_ID = "resource_set_id";
+    public static final String REQ_SCOPES = "scopes";
 
-    public PermissionTicketReqBean() {
-    }
+    public static final String RESP_TICKET = "ticket";
 
-    public String getResourceSetId() {
-        return resource_set_id;
-    }
+    public static final String ERR_INVALID_RESOURCE_SET_ID = "invalid_resource_set_id";
+    public static final String ERR_INVALID_SCOPE = "invalid_scope";
 
-    public void setResourceSetId(String resource_set_id) {
-        this.resource_set_id = resource_set_id;
-    }
 
-    public String[] getScopes() {
-        return scopes;
-    }
-
-    public void setScopes(String[] scopes) {
-        this.scopes = scopes;
-    }
+    private UmaPermissionSetRegConstants(){}
 }

@@ -20,29 +20,26 @@
  *
  */
 
-package org.wso2.carbon.identity.uma.beans.protection;
+package org.wso2.carbon.identity.uma.dto;
 
-public class PermissionTicketReqBean {
+public class UmaPermissionSetRegResponse extends UmaResponse {
 
-    private String resource_set_id;
-    private String[] scopes;
 
-    public PermissionTicketReqBean() {
+    protected UmaPermissionSetRegResponse(int responseStatus) {
+        super(responseStatus);
     }
 
-    public String getResourceSetId() {
-        return resource_set_id;
+
+    public static class UmaPermissionSetRegResponseBuilder extends UmaResponseBuilder{
+
+        public UmaPermissionSetRegResponseBuilder(int responseCode) {
+            super(responseCode);
+        }
+
+        public UmaPermissionSetRegResponseBuilder setPermissionTicket(String ticket){
+
+            return this;
+        }
     }
 
-    public void setResourceSetId(String resource_set_id) {
-        this.resource_set_id = resource_set_id;
-    }
-
-    public String[] getScopes() {
-        return scopes;
-    }
-
-    public void setScopes(String[] scopes) {
-        this.scopes = scopes;
-    }
 }

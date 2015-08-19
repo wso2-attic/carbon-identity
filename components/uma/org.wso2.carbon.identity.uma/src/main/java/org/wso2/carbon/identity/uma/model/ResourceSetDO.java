@@ -41,6 +41,7 @@ public class ResourceSetDO {
 
     private String iconURI;
 
+
     // attributes not in the spec that need to persisted
     private int tenantID = MultitenantConstants.SUPER_TENANT_ID;
 
