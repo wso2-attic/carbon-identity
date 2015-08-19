@@ -28,6 +28,7 @@ import org.wso2.carbon.identity.core.persistence.JDBCPersistenceManager;
 import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.idp.mgt.util.IdPManagementUtil;
+import org.wso2.carbon.user.core.util.DatabaseUtil;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -430,9 +431,6 @@ public class SessionDataStore {
                 resultSet = preparedStatement.executeQuery();
                 if (resultSet.next()) {
                     timestamp = resultSet.getTimestamp(1);
-                    if (preparedStatement != null) {
-                        preparedStatement.close();
-                    }
                 }
             } catch (SQLException e) {
                 //ignore
@@ -440,6 +438,15 @@ public class SessionDataStore {
             } catch (IdentityException e) {
                 //ignore
                 log.error("Error while obtaining the database connection", e);
+            } finally {
+                if(resultSet != null){
+                    try{
+                        resultSet.close();
+                    } catch (SQLException e){
+                        log.error("Error when closing the result set of session time stamps");
+                    }
+                }
+                DatabaseUtil.closeAllConnections(connection, preparedStatement);
             }
             return timestamp;
         } else {
