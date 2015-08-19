@@ -22,7 +22,7 @@ import org.apache.axiom.om.impl.builder.StAXOMBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.base.ServerConfigurationException;
-import org.wso2.carbon.utils.CarbonUtils;
+import org.wso2.carbon.identity.base.IdentityConstants;
 import org.wso2.carbon.utils.ServerConstants;
 import org.wso2.securevault.SecretResolver;
 import org.wso2.securevault.SecretResolverFactory;
@@ -34,11 +34,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Stack;
+import java.util.*;
 
 public class IdentityConfigParser {
 
@@ -47,6 +43,7 @@ public class IdentityConfigParser {
     public static final String IDENTITY_DEFAULT_NAMESPACE = "http://wso2.org/projects/carbon/carbon.xml";
     private static final String IDENTITY_CONFIG = "identity.xml";
     private static Map<String, Object> configuration = new HashMap<String, Object>();
+    private static Map<String, Map<String, Integer>> eventListenerOrderIds = new HashMap();
     private static IdentityConfigParser parser;
     private static SecretResolver secretResolver;
     // To enable attempted thread-safety using double-check locking
@@ -84,6 +81,10 @@ public class IdentityConfigParser {
 
     public Map<String, Object> getConfiguration() {
         return configuration;
+    }
+
+    public static Map<String, Map<String, Integer>> getEventListenerOrderIds() {
+        return eventListenerOrderIds;
     }
 
     /**
@@ -147,6 +148,7 @@ public class IdentityConfigParser {
             Stack<String> nameStack = new Stack<String>();
             secretResolver = SecretResolverFactory.create(rootElement, true);
             readChildElements(rootElement, nameStack);
+            buildEventListenerOrderIds();
 
         } finally {
             try {
@@ -156,6 +158,36 @@ public class IdentityConfigParser {
             } catch (IOException e) {
                 log.warn("Error closing the input stream.", e);
             }
+        }
+    }
+
+    private void buildEventListenerOrderIds() {
+        OMElement eventListenerOrderIDs = this.getConfigElement(IdentityConstants.EVENT_LISTENER_ORDER_IDS);
+        if (eventListenerOrderIDs != null) {
+            Iterator<OMElement> eventListener = eventListenerOrderIDs.getChildrenWithName(
+                    new QName(IdentityConfigParser.IDENTITY_DEFAULT_NAMESPACE, IdentityConstants.EVENT_LISTENER));
+
+            if (eventListener != null) {
+                while (eventListener.hasNext()) {
+                    OMElement eventListenerElement = eventListener.next();
+                    String eventListenerType = eventListenerElement.getAttributeValue(new QName(
+                            IdentityConstants.EVENT_LISTENER_TYPE));
+                    String eventListenerName = eventListenerElement.getAttributeValue(new QName(
+                            IdentityConstants.EVENT_LISTENER_NAME));
+                    int order = Integer.parseInt(eventListenerElement.getAttributeValue(new QName(
+                            IdentityConstants.EVENT_LISTENER_ORDER)));
+
+                    if (eventListenerOrderIds.get(eventListenerType) == null) {
+                        Map<String, Integer> listerIdsMap = new HashMap<>();
+                        listerIdsMap.put(eventListenerName, order);
+                        eventListenerOrderIds.put(eventListenerType, listerIdsMap);
+                    } else {
+                        Map<String, Integer> listerIdsMap = eventListenerOrderIds.get(eventListenerType);
+                        listerIdsMap.put(eventListenerName, order);
+                    }
+                }
+            }
+
         }
     }
 

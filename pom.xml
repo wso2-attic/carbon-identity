@@ -21,7 +21,7 @@
     <groupId>org.wso2.carbon.identity</groupId>
     <artifactId>carbon-identity</artifactId>
     <packaging>pom</packaging>
-    <version>4.5.4-SNAPSHOT</version>
+    <version>4.5.5-SNAPSHOT</version>
     <name>WSO2 Carbon - Platform Aggregator Pom</name>
     <url>http://wso2.org</url>
 
@@ -88,6 +88,7 @@
         <module>features/directory-server-manager</module>
         <module>features/sts</module>
         <module>features/user-mgt</module>
+        <module>features/user-mgt-workflow</module>
         <module>features/workflow-mgt</module>
     </modules>
 
@@ -927,7 +928,7 @@
                 <version>${carbon.identity.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.wso2.orbit.org.openid4java</groupId>
+                <groupId>org.openid4java.wso2</groupId>
                 <artifactId>openid4java-nodeps</artifactId>
                 <version>${openid4java.wso2.version}</version>
             </dependency>
@@ -1128,12 +1129,6 @@
                 <artifactId>org.wso2.carbon.identity.authenticator.iwa.stub</artifactId>
                 <version>${carbon.identity.version}</version>
             </dependency>
-            <dependency>
-                <groupId>waffle.apache.wso2</groupId>
-                <artifactId>waffle</artifactId>
-                <version>${waffle.wso2.version.range}</version>
-            </dependency>
-
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.identity.authenticator.saml2.sso</artifactId>
@@ -1656,7 +1651,11 @@
                 <artifactId>org.wso2.carbon.sts.stub</artifactId>
                 <version>${carbon.identity.version}</version>
             </dependency>
-
+            <dependency>
+                <groupId>org.wso2.carbon.identity</groupId>
+                <artifactId>org.wso2.carbon.user.mgt.workflow</artifactId>
+                <version>${carbon.identity.version}</version>
+            </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.identity.user.store.configuration.deployer</artifactId>
@@ -1693,11 +1692,6 @@
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.identity.workflow.mgt</artifactId>
-                <version>${carbon.identity.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.wso2.carbon.identity</groupId>
-                <artifactId>org.wso2.carbon.identity.workflow.mgt.impl</artifactId>
                 <version>${carbon.identity.version}</version>
             </dependency>
             <dependency>
@@ -1834,7 +1828,7 @@
         <carbon.commons.imp.pkg.version>[4.4.0, 4.5.0)</carbon.commons.imp.pkg.version>
 
         <!--Carbon identity version-->
-        <carbon.identity.version>4.5.4-SNAPSHOT</carbon.identity.version>
+        <carbon.identity.version>4.5.5-SNAPSHOT</carbon.identity.version>
         <carbon.identity.package.export.version>${carbon.identity.version}</carbon.identity.package.export.version>
         <carbon.identity.package.import.version.range>[4.5.0, 4.6.0)</carbon.identity.package.import.version.range>
 
@@ -1986,8 +1980,8 @@
         <charon.wso2.version.identity>2.0.1</charon.wso2.version.identity>
         <charon.core.imp.pkg.version.range>[2.0.1,2.1.0)</charon.core.imp.pkg.version.range>
         <openid4java.version>0.9.6</openid4java.version>
-        <openid4java.wso2.version>0.9.6.wso2v4</openid4java.wso2.version>
-        <openid4java.wso2.osgi.version.range>[0.9.6.wso2v4,0.10)</openid4java.wso2.osgi.version.range>
+        <openid4java.wso2.version>0.9.6.wso2v5</openid4java.wso2.version>
+        <openid4java.wso2.osgi.version.range>[0.9.6.wso2v5,0.10)</openid4java.wso2.osgi.version.range>
         <opensaml2.version>2.4.1.wso2v1</opensaml2.version>
         <opensaml.wso2.version>1.1.0.wso2v1</opensaml.wso2.version>
         <balana.version>1.0.1</balana.version>
@@ -2005,9 +1999,8 @@
         <hector-core.wso2.version>1.1.4.wso2v1</hector-core.wso2.version>
         <hector-core.imp.pkg.version.range>[1.1.4.wso2v1,1.2.0)</hector-core.imp.pkg.version.range>
         <codehaus.jettison.import.version.range>[0.0.0, 0.1.0)</codehaus.jettison.import.version.range>
-        <waffle.wso2.version.range>1.4.wso2v1</waffle.wso2.version.range>
-        <waffle.imp.pkg.version.range>[1.4.wso2v1, 1.5)</waffle.imp.pkg.version.range>
-        <waffle-jna.wso2.version>1.6.wso2v1</waffle-jna.wso2.version>
+        <waffle.imp.pkg.version.range>[1.6.wso2v2, 1.7)</waffle.imp.pkg.version.range>
+        <waffle-jna.wso2.version>1.6.wso2v2</waffle-jna.wso2.version>
         <waffle-jna.imp.pkg.version.range>[1.6.wso2v1, 1.7)</waffle-jna.imp.pkg.version.range>
         <tomcat.wso2.imp.pkg.version.range>[1.7.0,1.8.0)</tomcat.wso2.imp.pkg.version.range>
         <net.minidev.json.imp.pkg.version.range>[1.3.0, 1.4.0)</net.minidev.json.imp.pkg.version.range>

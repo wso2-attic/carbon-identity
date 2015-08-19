@@ -211,10 +211,10 @@ public class OAuthConsumerDAO {
             prepStmt = connection.prepareStatement(SQLQueries.OAuthConsumerDAOSQLQueries.ADD_OAUTH_REQ_TOKEN);
             prepStmt.setString(1, oauthToken);
             prepStmt.setString(2, oauthSecret);
-            prepStmt.setString(3, consumerKey);
-            prepStmt.setString(4, userCallback);
-            prepStmt.setString(5, scope);
-            prepStmt.setString(6, Boolean.toString(false));
+            prepStmt.setString(3, userCallback);
+            prepStmt.setString(4, scope);
+            prepStmt.setString(5, Boolean.toString(false));
+            prepStmt.setString(6, consumerKey);
 
             prepStmt.execute();
             connection.commit();

@@ -188,7 +188,7 @@ public class EndpointUtil {
      */
     public static String getLoginPageURL(String clientId, String sessionDataKey,
                                          boolean forceAuthenticate, boolean checkAuthentication, Set<String> scopes)
-            throws UnsupportedEncodingException {
+            throws IdentityOAuth2Exception {
 
         try {
             SessionDataCacheEntry entry = (SessionDataCacheEntry) SessionDataCache.getInstance(0)
@@ -215,7 +215,7 @@ public class EndpointUtil {
      */
     public static String getLoginPageURL(String clientId, String sessionDataKey,
                                          boolean forceAuthenticate, boolean checkAuthentication, Set<String> scopes,
-                                         Map<String, String[]> reqParams) throws UnsupportedEncodingException {
+                                         Map<String, String[]> reqParams) throws IdentityOAuth2Exception {
 
         try {
 
@@ -237,12 +237,7 @@ public class EndpointUtil {
             authenticationRequest.setForceAuth(forceAuthenticate);
             authenticationRequest.setPassiveAuth(checkAuthentication);
             authenticationRequest.setRelyingParty(clientId);
-            try {
-                authenticationRequest.setTenantDomain(OAuth2Util.getTenantDomain(tenantId));
-            } catch (IdentityOAuth2Exception e) {
-                log.error("Error while getting tenant domain from tenant id", e);
-                throw new UnsupportedEncodingException("Error while getting tenant domain from tenant id");
-            }
+            authenticationRequest.setTenantDomain(OAuth2Util.getTenantDomain(tenantId));
             authenticationRequest.setRequestQueryParams(reqParams);
 
             //Build an AuthenticationRequestCacheEntry which wraps AuthenticationRequestContext
