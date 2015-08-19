@@ -213,7 +213,7 @@
             List<String> list = new ArrayList<String>(Arrays.asList(domainNames));
             list.add(UserAdminUIConstants.ALL_DOMAINS);
             list.add(UserAdminUIConstants.INTERNAL_DOMAIN);
-            list.add("Application");
+            list.add(UserAdminUIConstants.APPLICATION_DOMAIN);
             domainNames = list.toArray(new String[list.size()]);
         }
     }
@@ -357,7 +357,7 @@
                     <%}%>--%>
                     <td>
                     <%if(!data.getShared()){ %>
-                    <% if(data.getItemName().equals(userRealmInfo.getAdminRole()) == false && data.getItemName().equals(userRealmInfo.getEveryOneRole()) == false && data.getEditable()){%>
+                    <% if(data.getItemName().equals(userRealmInfo.getAdminRole()) == false && data.getItemName().equals(userRealmInfo.getEveryOneRole()) == false && !data.getItemName().startsWith(UserAdminUIConstants.APPLICATION_DOMAIN) && data.getEditable()){%>
 <a href="#" onclick="updateUserGroup('<%=roleName%>')" class="icon-link" style="background-image:url(images/edit.gif);"><fmt:message key="rename"/></a>
                     <% }  %>
                     <% if(!data.getItemName().equals(userRealmInfo.getAdminRole())) {%>
@@ -374,7 +374,7 @@
                       <% } %>
                     <%if(!data.getShared()){ %>
 
-                    <% if(data.getItemName().equals(userRealmInfo.getAdminRole()) == false && data.getItemName().equals(userRealmInfo.getEveryOneRole()) == false && data.getEditable()){%>
+                    <% if(data.getItemName().equals(userRealmInfo.getAdminRole()) == false && data.getItemName().equals(userRealmInfo.getEveryOneRole()) == false && !data.getItemName().startsWith(UserAdminUIConstants.APPLICATION_DOMAIN) && data.getEditable()){%>
 <a href="#" onclick="deleteUserGroup('<%=roleName%>')" class="icon-link" style="background-image:url(images/delete.gif);"><fmt:message key="delete"/></a>
                     <% }}  %>
 
