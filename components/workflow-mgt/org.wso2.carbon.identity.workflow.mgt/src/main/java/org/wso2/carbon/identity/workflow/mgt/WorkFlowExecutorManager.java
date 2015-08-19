@@ -114,9 +114,10 @@ public class WorkFlowExecutorManager {
 
         if (request != null) {
             WorkflowRequestDAO workflowRequestDAO = new WorkflowRequestDAO();
+            String requestId = request.getUuid();
             if (workflowRequestDAO.retrieveStatusOfWorkflow(request.getUuid()).equals(WorkflowRequestStatus.DELETED
                     .toString())) {
-                log.info("Callback received for request which is already deleted by user.");
+                log.info("Callback received for request " + requestId + " which is already deleted by user. ");
                 return;
             }
             String eventId = request.getEventType();
@@ -124,7 +125,6 @@ public class WorkFlowExecutorManager {
             if (requestHandler == null) {
                 throw new InternalWorkflowException("No request handlers registered for the id: " + eventId);
             }
-            String requestId = request.getUuid();
             if (request.getTenantId() == MultitenantConstants.INVALID_TENANT_ID) {
                 throw new InternalWorkflowException(
                         "Invalid tenant id for request " + eventId + " with id" + requestId);

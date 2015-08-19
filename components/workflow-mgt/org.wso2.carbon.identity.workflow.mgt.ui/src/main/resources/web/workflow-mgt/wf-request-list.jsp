@@ -24,7 +24,6 @@
 <%@ page import="org.apache.commons.lang.StringUtils" %>
 <%@ page import="org.wso2.carbon.CarbonConstants" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.WorkflowAdminServiceWorkflowException" %>
-<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.AssociationDTO" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.WorkflowEventDTO" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.WorkflowAdminServiceClient" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.WorkflowUIConstants" %>
@@ -38,19 +37,21 @@
 <%@ page import="java.util.Map" %>
 <%@ page import="java.util.ResourceBundle" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.WorkflowRequestDTO" %>
-<%@ page import="org.wso2.carbon.context.CarbonContext" %>
-<%@ page import="org.wso2.carbon.user.core.util.UserCoreUtil" %>
-<%@ page import="org.wso2.carbon.context.PrivilegedCarbonContext" %>
+<jsp:include page="../dialog/display_messages.jsp"/>
 
-<script type="text/javascript" src="extensions/js/vui.js"></script>
-<script type="text/javascript" src="../extensions/core/js/vui.js"></script>
+<script type="text/javascript" src="js/vui.js"></script>
 <script type="text/javascript" src="../admin/js/main.js"></script>
 
 <%
-    //    String username = CharacterEncoder.getSafeText(request.getParameter("username"));
-
-    //String loggedUser =  CarbonContext.getThreadLocalCarbonContext().getUsername();
-    String loggedUser = (String)session.getAttribute("logged-user");
+    String taskTypeFilter =
+            CharacterEncoder.getSafeText(request.getParameter("requestTypeFilter"));
+    String statusToFilter = CharacterEncoder.getSafeText(request.getParameter("requestStatusFilter"));
+    String lowerBound =
+            CharacterEncoder.getSafeText(request.getParameter("createdAtFrom"));
+    String upperBound =
+            CharacterEncoder.getSafeText(request.getParameter("createdAtTo"));
+    String timeFilterCategory = CharacterEncoder.getSafeText(request.getParameter("timeCategoryToFilter"));
+    String loggedUser = (String) session.getAttribute("logged-user");
     String bundle = "org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources";
     ResourceBundle resourceBundle = ResourceBundle.getBundle(bundle, request.getLocale());
     WorkflowAdminServiceClient client;
@@ -81,7 +82,28 @@
         client = new WorkflowAdminServiceClient(cookie, backendServerURL, configContext);
         workflowId = CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_WORKFLOW_ID));
 
-        WorkflowRequestDTO[] requestList = client.getRequestsCreatedByUser(loggedUser);
+        if (taskTypeFilter == null) {
+            taskTypeFilter = "";
+        }
+        if (statusToFilter == null) {
+            statusToFilter = "";
+        }
+        if (lowerBound == null) {
+            lowerBound = "";
+        }
+        if (upperBound == null) {
+            upperBound = "";
+        }
+        if (timeFilterCategory == null) {
+            timeFilterCategory = "createdAt";
+        }
+        WorkflowRequestDTO[] requestList;
+
+        if (taskTypeFilter.equals("allTasks")) {
+            requestList = client.getAllRequests(lowerBound, upperBound, timeFilterCategory);
+        } else {
+            requestList = client.getRequestsCreatedByUser(loggedUser, lowerBound, upperBound, timeFilterCategory);
+        }
 
         if (requestList == null) {
             requestList = new WorkflowRequestDTO[0];
@@ -140,32 +162,22 @@
     <script type="text/javascript" src="../carbon/admin/js/breadcrumbs.js"></script>
     <script type="text/javascript" src="../carbon/admin/js/cookies.js"></script>
     <script type="text/javascript" src="../carbon/admin/js/main.js"></script>
+    <link rel="stylesheet" href="/carbon/styles/css/main.css">
     <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
     <script src="//code.jquery.com/jquery-1.10.2.js"></script>
     <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
-    <link rel="stylesheet" href="/resources/demos/style.css">
+
 
     <script type="text/javascript">
-        function doCancel() {
-            location.href = 'list-workflows.jsp';
-        }
-        function removeAssociation(id, event) {
+
+        function removeRequest(requestId) {
             function doDelete() {
-                location.href = 'update-workflow-finish.jsp?<%=WorkflowUIConstants.PARAM_ACTION%>=' +
-                        '<%=WorkflowUIConstants.ACTION_VALUE_DELETE_ASSOCIATION%>&' +
-                        '<%=WorkflowUIConstants.PARAM_ASSOCIATION_ID%>=' + id + '&' +
-                        '<%=WorkflowUIConstants.PARAM_WORKFLOW_ID%>=<%=workflowId%>';
+                location.href = 'wf-request-delete-finish.jsp?<%=WorkflowUIConstants.PARAM_REQUEST_ID%>=' +
+                        requestId;
             }
 
-            CARBON.showConfirmationDialog('<fmt:message key="confirmation.association.delete"/> ' + event + '?',
+            CARBON.showConfirmationDialog('<fmt:message key="confirmation.request.delete"/> ?',
                     doDelete, null);
-        }
-        function addAssociation() {
-            window.location = "add-association.jsp?<%=WorkflowUIConstants.PARAM_WORKFLOW_ID%>=<%=workflowId%>";
-        }
-
-        function doCancel() {
-            document.getElementById('addNew').style.display = 'none';
         }
     </script>
     <script type="text/javascript">
@@ -210,26 +222,29 @@
         function getSelectedStatusType() {
         }
         function searchRequests() {
+            document.searchForm.submit();
         }
 
     </script>
 
     <script>
-        $(function() {
-            $( "#from" ).datepicker({
+        $(function () {
+            $("#createdAtFrom").datepicker({
                 defaultDate: "+1w",
                 changeMonth: true,
                 numberOfMonths: 1,
-                onClose: function( selectedDate ) {
-                    $( "#to" ).datepicker( "option", "minDate", selectedDate );
+                onClose: function (selectedDate) {
+                    $("#createdAtTo").datepicker("option", "minDate",
+                            new Date($('#createdAtFrom').datepicker("getDate")));
                 }
             });
-            $( "#to" ).datepicker({
+            $("#createdAtTo").datepicker({
                 defaultDate: "+1w",
                 changeMonth: true,
                 numberOfMonths: 1,
-                onClose: function( selectedDate ) {
-                    $( "#from" ).datepicker( "option", "maxDate", selectedDate );
+                onClose: function (selectedDate) {
+                    $("#createdAtFrom").datepicker("option", "maxDate", new
+                            Date($('#createdAtTo').datepicker("getDate")));
                 }
             });
         });
@@ -238,7 +253,7 @@
     <div id="middle">
         <h2><fmt:message key='workflow.list'/></h2>
 
-        <form action="index.jsp" name="searchForm" method="post">
+        <form action="wf-request-list.jsp" name="searchForm" method="post">
             <table id="searchTable" name="searchTable" class="styledLeft" style="border:0;
                                                 !important margin-top:10px;margin-bottom:10px;">
                 <tr>
@@ -251,9 +266,15 @@
                                         <fmt:message key="workflow.request.type"/>
                                         <select name="requestTypeFilter" id="requestTypeFilter"
                                                 onchange="getSelectedRequestType();">
+                                            <% if (taskTypeFilter.equals("allTasks")) { %>
+                                            <option value="myTasks"><fmt:message key="myTasks"/></option>
                                             <option value="allTasks"
                                                     selected="selected"><fmt:message key="allTasks"/></option>
-                                            <option value="myTasks"><fmt:message key="myTasks"/></option>
+                                            <%} else {%>
+                                            <option value="myTasks"
+                                                    selected="selected"><fmt:message key="myTasks"/></option>
+                                            <option value="allTasks"><fmt:message key="allTasks"/></option>
+                                            <% } %>
                                         </select>
                                     </nobr>
                                 </td>
@@ -269,15 +290,66 @@
                                 <td style="border:0; !important">
                                     <nobr>
                                         <fmt:message key="workflow.request.status"/>
-                                        <select name="requestTypeFilter" id="requestTypeFilter"
+                                        <% if (statusToFilter.equals("PENDING")) { %>
+
+                                        <select name="requestStatusFilter" id="requestStatusFilter"
+                                                onchange="getSelectedStatusType();">
+                                            <option value="allTasks"><fmt:message key="allTasks"/></option>
+                                            <option value="PENDING"
+                                                    selected="selected"><fmt:message key="pending"/></option>
+                                            <option value="APPROVED"><fmt:message key="approved"/></option>
+                                            <option value="REJECTED"><fmt:message key="rejected"/></option>
+                                            <option value="FAILED"><fmt:message key="failed"/></option>
+                                        </select>
+
+                                        <%} else if (statusToFilter.equals("APPROVED")) { %>
+
+                                        <select name="requestStatusFilter" id="requestStatusFilter"
+                                                onchange="getSelectedStatusType();">
+                                            <option value="allTasks"><fmt:message key="allTasks"/></option>
+                                            <option value="PENDING"><fmt:message key="pending"/></option>
+                                            <option value="APPROVED"
+                                                    selected="selected"><fmt:message key="approved"/></option>
+                                            <option value="REJECTED"><fmt:message key="rejected"/></option>
+                                            <option value="FAILED"><fmt:message key="failed"/></option>
+                                        </select>
+
+                                        <%} else if (statusToFilter.equals("REJECTED")) { %>
+
+                                        <select name="requestStatusFilter" id="requestStatusFilter"
+                                                onchange="getSelectedStatusType();">
+                                            <option value="allTasks"><fmt:message key="allTasks"/></option>
+                                            <option value="PENDING"><fmt:message key="pending"/></option>
+                                            <option value="APPROVED"><fmt:message key="approved"/></option>
+                                            <option value="REJECTED"
+                                                    selected="selected"><fmt:message key="rejected"/></option>
+                                            <option value="FAILED"><fmt:message key="failed"/></option>
+                                        </select>
+
+                                        <%} else if (statusToFilter.equals("FAILED")) { %>
+
+                                        <select name="requestStatusFilter" id="requestStatusFilter"
+                                                onchange="getSelectedStatusType();">
+                                            <option value="allTasks"><fmt:message key="allTasks"/></option>
+                                            <option value="PENDING"><fmt:message key="pending"/></option>
+                                            <option value="APPROVED"><fmt:message key="approved"/></option>
+                                            <option value="REJECTED"><fmt:message key="rejected"/></option>
+                                            <option value="FAILED"
+                                                    selected="selected"><fmt:message key="failed"/></option>
+                                        </select>
+
+                                        <%} else { %>
+
+                                        <select name="requestStatusFilter" id="requestStatusFilter"
                                                 onchange="getSelectedStatusType();">
                                             <option value="allTasks"
                                                     selected="selected"><fmt:message key="allTasks"/></option>
-                                            <option value="pending"><fmt:message key="pending"/></option>
-                                            <option value="approved"><fmt:message key="approved"/></option>
-                                            <option value="rejected"><fmt:message key="rejected"/></option>
-                                            <option value="failed"><fmt:message key="failed"/></option>
+                                            <option value="PENDING"><fmt:message key="pending"/></option>
+                                            <option value="APPROVED"><fmt:message key="approved"/></option>
+                                            <option value="REJECTED"><fmt:message key="rejected"/></option>
+                                            <option value="FAILED"><fmt:message key="failed"/></option>
                                         </select>
+                                        <%}%>
                                     </nobr>
                                 </td>
                             </tr>
@@ -290,11 +362,38 @@
                             <tr style="border:0; !important">
                                 <td style="border:0; !important">
                                     <nobr>
-                                        <fmt:message key="workflow.request.createdAt"/>
-                                        <label for="from">From</label>
-                                        <input type="text" id="from" name="from">
-                                        <label for="to">to</label>
-                                        <input type="text" id="to" name="to">
+                                        <% if (timeFilterCategory.equals("updatedAt")) { %>
+                                        <select name="timeCategoryToFilter" id="timeCategoryToFilter"
+                                                onchange="getSelectedRequestType();">
+                                            <option value="createdAt"><fmt:message key="createdAt"/></option>
+                                            <option value="updatedAt"
+                                                    selected="selected"><fmt:message key="updatedAt"/></option>
+                                        </select>
+                                        <%} else { %>
+                                        <select name="timeCategoryToFilter" id="timeCategoryToFilter"
+                                                onchange="getSelectedRequestType();">
+                                            <option value="createdAt"
+                                                    selected="selected"><fmt:message key="createdAt"/></option>
+                                            <option value="updatedAt"><fmt:message key="updatedAt"/></option>
+                                        </select>
+                                        <%}%>
+
+                                    </nobr>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </td>
+                    <td>
+                        <table style="border:0; !important">
+                            <tbody>
+                            <tr style="border:0; !important">
+                                <td style="border:0; !important">
+                                    <nobr>
+                                        <label for="createdAtFrom">From</label>
+                                        <input type="text" id="createdAtFrom" name="createdAtFrom">
+                                        <label for="createdAtTo">to</label>
+                                        <input type="text" id="createdAtTo" name="createdAtTo">
                                     </nobr>
                                 </td>
                             </tr>
@@ -325,7 +424,8 @@
                 <tbody>
                 <%
                     for (WorkflowRequestDTO workflowReq : associationToDisplay) {
-                        if (workflowReq != null ) {
+                        if (workflowReq != null && (statusToFilter == null || statusToFilter == ""
+                                || statusToFilter.equals("allTasks") || workflowReq.getStatus().equals(statusToFilter))) {
                 %>
                 <tr>
                     <td><%=workflowReq.getEventType()%>
@@ -334,11 +434,20 @@
                     </td>
                     <td><%=workflowReq.getUpdatedAt()%>
                     </td>
+
                     <td><%=workflowReq.getStatus()%>
                     </td>
                     <td><%=workflowReq.getRequestParams()%>
                     </td>
                     <td>
+                        <% if (workflowReq.getStatus().equals("PENDING")) { %>
+                        <a title="<fmt:message key='workflow.request.delete.title'/>"
+                           onclick="removeRequest('<%=workflowReq.getRequestId()%>');return false;"
+                           href="#" style="background-image: url(images/delete.gif);"
+                           class="icon-link"><fmt:message key='delete'/></a>
+                        <% } else { %>
+
+                        <% } %>
                     </td>
                 </tr>
                 <%

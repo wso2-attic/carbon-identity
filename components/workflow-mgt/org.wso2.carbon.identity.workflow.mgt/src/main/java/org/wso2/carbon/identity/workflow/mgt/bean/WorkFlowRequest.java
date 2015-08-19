@@ -68,4 +68,18 @@ public class WorkFlowRequest implements Serializable {
                 ", workflowParameters=" + requestParameters + '\n' +
                 '}';
     }
+
+    public String getRequestParameterAsString() {
+
+        String requestParametersString = "{";
+        for (int i = 0; i < requestParameters.size(); i++) {
+            requestParametersString = requestParametersString + requestParameters.get(i).getName() + " : " +
+                    requestParameters.get(i).getValue();
+            if (i != requestParameters.size() - 1) {
+                requestParametersString = requestParametersString + ", \n";
+            }
+        }
+        requestParametersString = requestParametersString + "}";
+        return requestParametersString;
+    }
 }

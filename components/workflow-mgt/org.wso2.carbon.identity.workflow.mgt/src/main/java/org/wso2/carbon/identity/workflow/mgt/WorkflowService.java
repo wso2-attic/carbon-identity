@@ -51,7 +51,11 @@ import org.wso2.carbon.identity.workflow.mgt.util.WorkflowRequestStatus;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
+import java.sql.Timestamp;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -398,5 +402,37 @@ public class WorkflowService {
             workflowRequestDAO.updateStatusOfRequest(requestId, newState);
         }
         requestEntityRelationshipDAO.deleteRelationshipsOfRequest(requestId);
+    }
+
+    public WorkflowRequestDTO[] getRequestsFromFilter(String user, String beginDate, String endDate, String
+            dateCategory) throws WorkflowException {
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
+        Timestamp beginTime;
+        Timestamp endTime;
+
+        try {
+            Date parsedBeginDate = dateFormat.parse(beginDate);
+            beginTime = new java.sql.Timestamp(parsedBeginDate.getTime());
+        } catch (ParseException e) {
+            long millis = 0;
+            Date parsedBeginDate = new Date(millis);
+            beginTime = new java.sql.Timestamp(parsedBeginDate.getTime());
+        }
+        try {
+            Date parsedEndDate = dateFormat.parse(endDate);
+            endTime = new java.sql.Timestamp(parsedEndDate.getTime());
+        } catch (ParseException e) {
+            Date parsedEndDate = new Date();
+            endTime = new java.sql.Timestamp(parsedEndDate.getTime());
+        }
+        log.error(endTime);
+        log.error(beginTime);
+        if (StringUtils.isBlank(user)) {
+            return workflowRequestDAO.getRequestsFilteredByTime(beginTime, endTime, dateCategory);
+        } else {
+            return workflowRequestDAO.getRequestsOfUserFilteredByTime(user, beginTime, endTime, dateCategory);
+        }
+
     }
 }
