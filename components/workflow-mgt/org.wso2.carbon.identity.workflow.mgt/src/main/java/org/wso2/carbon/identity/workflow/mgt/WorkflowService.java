@@ -179,6 +179,7 @@ public class WorkflowService {
     public void addBPSProfile(String profileName, String host, String user, String password, String callBackUser,
                               String callbackPassword, int tenantId)
             throws InternalWorkflowException {
+
         bpsProfileDAO.addProfile(profileName, host, user, password, callBackUser, callbackPassword, tenantId);
     }
 
