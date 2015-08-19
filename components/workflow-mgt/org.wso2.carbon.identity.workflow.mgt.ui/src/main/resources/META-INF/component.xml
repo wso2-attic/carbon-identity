@@ -156,8 +156,6 @@
             <region>region4</region>
             <order>78</order>
             <style-class>manage</style-class>
-            <!--TODO change icon-->
-            <!--<icon>../workflow-mgt/images/claimmgt.gif</icon>-->
             <require-permission>/permission/admin/configure/security</require-permission>
         </menu>
     </menus>
