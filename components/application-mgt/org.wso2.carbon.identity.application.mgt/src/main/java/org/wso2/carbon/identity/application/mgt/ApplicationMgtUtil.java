@@ -51,7 +51,6 @@ public class ApplicationMgtUtil {
     public static final String APPLICATION_ROOT_PERMISSION = "applications";
     public static final String PATH_CONSTANT = RegistryConstants.PATH_SEPARATOR;
     private static final List<String> paths = new ArrayList<String>();
-    public static final String APPLICATION_DOMAIN = "Application";
     private static String applicationNode;
 
     private static Log log = LogFactory.getLog(ApplicationMgtUtil.class);
@@ -149,7 +148,8 @@ public class ApplicationMgtUtil {
         try {
             // create a role for the application and assign the user to that role.
             if (log.isDebugEnabled()) {
-                log.debug("Creating application role : " + roleName + " and assign the user : " + Arrays.toString(user) + " to that role");
+                log.debug("Creating application role : " + roleName + " and assign the user : "
+                          + Arrays.toString(user) + " to that role");
             }
 
             CarbonContext.getThreadLocalCarbonContext().getUserRealm().getUserStoreManager()
@@ -161,7 +161,7 @@ public class ApplicationMgtUtil {
     }
 
     private static String getAppRoleName(String applicationName) {
-        return APPLICATION_DOMAIN + UserCoreConstants.DOMAIN_SEPARATOR + applicationName;
+        return ApplicationConstants.APPLICATION_DOMAIN + UserCoreConstants.DOMAIN_SEPARATOR + applicationName;
     }
 
     /**
@@ -496,7 +496,7 @@ public class ApplicationMgtUtil {
 
     private String addApplicationDomainName(String name){
         if(name.indexOf("/") < 0) {
-            name = APPLICATION_DOMAIN + UserCoreConstants.DOMAIN_SEPARATOR + name;
+            name = ApplicationConstants.APPLICATION_DOMAIN + UserCoreConstants.DOMAIN_SEPARATOR + name;
         }
         return name;
     }
