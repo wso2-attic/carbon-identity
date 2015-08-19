@@ -252,10 +252,6 @@
                         openidQueryParam = queryParamProp.getValue();
                     }
 
-                    if (openIdUrlProp != null) {
-                        openIdUrl = openIdUrlProp.getValue();
-                    }
-
                     Property isOpenIdUserIdInClaimsProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
                             IdentityApplicationConstants.Authenticator.OpenID.IS_USER_ID_IN_CLAIMS);
                     if (isOpenIdUserIdInClaimsProp != null) {
