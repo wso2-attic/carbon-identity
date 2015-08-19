@@ -19,6 +19,7 @@ package org.wso2.carbon.identity.core.util;
 
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.impl.builder.StAXOMBuilder;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.base.ServerConfigurationException;
@@ -150,7 +151,7 @@ public class IdentityConfigParser {
             Stack<String> nameStack = new Stack<String>();
             secretResolver = SecretResolverFactory.create(rootElement, true);
             readChildElements(rootElement, nameStack);
-            buildEventListenerOrderIds();
+            buildEventListenerData();
 
         } finally {
             try {
@@ -163,10 +164,10 @@ public class IdentityConfigParser {
         }
     }
 
-    private void buildEventListenerOrderIds() {
-        OMElement eventListenerOrderIDs = this.getConfigElement(IdentityConstants.EVENT_LISTENER_ORDER_IDS);
-        if (eventListenerOrderIDs != null) {
-            Iterator<OMElement> eventListener = eventListenerOrderIDs.getChildrenWithName(
+    private void buildEventListenerData() throws IOException {
+        OMElement eventListeners = this.getConfigElement(IdentityConstants.EVENT_LISTENERS);
+        if (eventListeners != null) {
+            Iterator<OMElement> eventListener = eventListeners.getChildrenWithName(
                     new QName(IdentityConfigParser.IDENTITY_DEFAULT_NAMESPACE, IdentityConstants.EVENT_LISTENER));
 
             if (eventListener != null) {
@@ -181,9 +182,11 @@ public class IdentityConfigParser {
                     String enable = eventListenerElement.getAttributeValue(new QName(
                             IdentityConstants.EVENT_LISTENER_ENABLE));
 
+                    if (StringUtils.isBlank(eventListenerType) || StringUtils.isBlank(eventListenerName)) {
+                        throw new IOException("eventListenerType or eventListenerName is not defined correctly");
+                    }
                     String key = eventListenerType + "." + eventListenerName;
-                    IdentityEventListenerProperty identityEventListenerProperty = new IdentityEventListenerProperty
-                            (order, Boolean.parseBoolean(enable));
+                    IdentityEventListenerProperty identityEventListenerProperty = new IdentityEventListenerProperty(order, enable);
                     IdentityEventListener identityEventListener = new IdentityEventListener(eventListenerType,
                             eventListenerName, identityEventListenerProperty);
                     eventListenerConfiguration.put(key, identityEventListener);

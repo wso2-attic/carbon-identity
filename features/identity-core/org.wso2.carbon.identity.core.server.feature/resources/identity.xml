@@ -357,13 +357,15 @@
         <Capacity>100000</Capacity>
     </SessionContextCache-->
 
-    <Provisioning>
-        <EnableDefaultInboundUserProvisioningListener>true</EnableDefaultInboundUserProvisioningListener>
-    </Provisioning>
-
-
-    <!--<EventListenerOrderIDs>-->
-        <!--<EventListener type="UserOperationEventListener"-->
-                       <!--name="org.wso2.carbon.identity.workflow.mgt.impl.userstore.UserStoreActionListener" orderId="1"/>-->
-    <!--</EventListenerOrderIDs>-->
+    <EventListeners>
+        <EventListener type="UserOperationEventListener"
+                       name="org.wso2.carbon.identity.workflow.mgt.impl.userstore.UserStoreActionListener"
+                       orderId="10" enable="false"/>
+        <EventListener type="UserOperationEventListener" name="org.wso2.carbon.identity.mgt.IdentityMgtEventListener"
+                       orderId="50" enable="false"/>
+        <EventListener type="UserOperationEventListener" name="org.wso2.carbon.identity.oauth.listener.IdentityOathEventListener"
+                       orderId="60" enable="false"/>
+        <EventListener type="UserOperationEventListener" name="org.wso2.carbon.identity.provider.openid.listener.IdentityOpenIDUserEventListener"
+                       orderId="70" enable="false"/>
+    </EventListeners>
 </Server>

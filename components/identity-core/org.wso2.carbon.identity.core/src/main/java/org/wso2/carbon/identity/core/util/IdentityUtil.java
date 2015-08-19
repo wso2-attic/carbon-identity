@@ -133,7 +133,7 @@ public class IdentityUtil {
         if (identityEventListener != null) {
             return identityEventListener.getProperty();
         } else {
-            return new IdentityEventListenerProperty();
+            return new IdentityEventListenerProperty(IdentityCoreConstants.EVENT_LISTENER_ORDER_ID, "");
         }
     }
 
