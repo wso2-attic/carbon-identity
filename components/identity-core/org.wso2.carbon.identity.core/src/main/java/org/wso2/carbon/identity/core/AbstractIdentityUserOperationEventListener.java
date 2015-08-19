@@ -17,20 +17,25 @@
 */
 package org.wso2.carbon.identity.core;
 
+import org.apache.commons.lang.StringUtils;
 import org.wso2.carbon.identity.core.model.IdentityEventListenerProperty;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.user.core.common.AbstractUserOperationEventListener;
-import org.wso2.carbon.user.core.listener.UserOperationEventListener;
 
 public class AbstractIdentityUserOperationEventListener extends AbstractUserOperationEventListener {
     public boolean isEnable(String name) {
         IdentityEventListenerProperty identityEventListenerProperty = IdentityUtil.readEventListenerProperty
-                (UserOperationEventListener.class.getName(), name);
-        return identityEventListenerProperty.isEnable();
+                ("UserOperationEventListener", name);
+
+        if (StringUtils.isNotBlank(identityEventListenerProperty.getEnable())) {
+            return Boolean.parseBoolean(identityEventListenerProperty.getEnable());
+        } else {
+            return true;
+        }
     }
 
     public int getOrderId(String name) {
-        IdentityEventListenerProperty identityEventListenerProperty = IdentityUtil.readEventListenerProperty(UserOperationEventListener.class.getName(), name);
+        IdentityEventListenerProperty identityEventListenerProperty = IdentityUtil.readEventListenerProperty("UserOperationEventListener", name);
         return identityEventListenerProperty.getOrder();
     }
 }

@@ -18,21 +18,21 @@ package org.wso2.carbon.identity.core.model;
 public class IdentityEventListenerProperty {
 
     private int order;
-    private boolean enable;
+    private String enable;
 
     public IdentityEventListenerProperty() {
     }
 
-    public IdentityEventListenerProperty(int order, boolean enable) {
+    public IdentityEventListenerProperty(int order, String enable) {
         this.enable = enable;
         this.order = order;
     }
 
-    public boolean isEnable() {
+    public String getEnable() {
         return enable;
     }
 
-    public void setEnable(boolean enable) {
+    public void setEnable(String enable) {
         this.enable = enable;
     }
 
