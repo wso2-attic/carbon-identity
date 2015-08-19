@@ -50,21 +50,6 @@ public class AuthenticationEndpointTenantActivityListener implements TenantMgtLi
     private static final Log log = LogFactory.getLog(AuthenticationEndpointTenantActivityListener.class);
 
     /**
-     * URL Root
-     */
-    private static final String URL_ROOT = "/";
-
-    /**
-     * Carbon server URL path
-     */
-    private static final String CARBON_PATH = "/carbon/";
-
-    /**
-     * Empty string
-     */
-    private static final String EMPTY_STRING = "";
-
-    /**
      * Tenant list query parameter
      */
     private static final String TENANT_LIST_QUERY_PARAM = "tenantList";
