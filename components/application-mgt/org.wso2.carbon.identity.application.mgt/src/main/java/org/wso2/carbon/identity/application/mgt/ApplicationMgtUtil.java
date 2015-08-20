@@ -493,11 +493,4 @@ public class ApplicationMgtUtil {
         return CarbonConstants.UI_PERMISSION_NAME + RegistryConstants.PATH_SEPARATOR + APPLICATION_ROOT_PERMISSION;
 
     }
-
-    private String addApplicationDomainName(String name){
-        if(name.indexOf("/") < 0) {
-            name = ApplicationConstants.APPLICATION_DOMAIN + UserCoreConstants.DOMAIN_SEPARATOR + name;
-        }
-        return name;
-    }
 }
