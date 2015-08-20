@@ -22,7 +22,7 @@
     <parent>
         <groupId>org.wso2.carbon.identity</groupId>
         <artifactId>oauth</artifactId>
-        <version>4.5.4-SNAPSHOT</version>
+        <version>4.5.5-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -163,7 +163,6 @@
                             javax.crypto,
                             javax.crypto.spec,
                             javax.xml.namespace,
-                            javax.xml.parsers,
                             javax.management,
                             javax.naming.directory,
                             javax.security.auth.callback,
@@ -172,11 +171,8 @@
                             javax.servlet.http; version="${imp.pkg.version.javax.servlet}",
 
                             org.w3c.dom,
-                            org.xml.sax,
 
                             org.apache.juli.logging; resolution:=optional,
-                            org.apache.xerces.util; resolution:=optional,
-                            org.apache.xml.security.utils; version="${wss4j.xml.security.imp.pkg.version.range}",
 
                             org.apache.amber.oauth2.as.*; version="${amber.package.import.version.range}",
                             org.apache.amber.oauth2.common.*; version="${amber.package.import.version.range}",

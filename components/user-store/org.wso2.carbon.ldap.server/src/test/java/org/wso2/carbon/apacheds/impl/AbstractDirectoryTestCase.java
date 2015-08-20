@@ -155,7 +155,10 @@ public abstract class AbstractDirectoryTestCase extends TestCase {
         public void run() {
 
             try {
-                LDAPConfiguration config = new LDAPConfiguration();                
+                LDAPConfiguration config = new LDAPConfiguration();
+                // use a different port other than default port in order to make sure no bind exception occurs even
+                // if a product is up at test running time
+                config.setLdapPort(10388);
                 config.setWorkingDirectory(temDirectory);
                 ldapServer.init(config);
                 ldapServer.start();

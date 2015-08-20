@@ -31,6 +31,7 @@ import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.context.RegistryType;
 import org.wso2.carbon.core.RegistryResources;
+import org.wso2.carbon.directory.server.manager.DirectoryServerManager;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
 import org.wso2.carbon.identity.application.common.model.ApplicationBasicInfo;
 import org.wso2.carbon.identity.application.common.model.ApplicationPermission;
@@ -319,8 +320,14 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
                         OAuthApplicationDAO oathDAO = ApplicationMgtSystemConfig.getInstance().getOAuthOIDCClientDAO();
                         oathDAO.removeOAuthApplication(config.getInboundAuthKey());
 
-                    } else if (IdentityApplicationConstants.Authenticator.WSTrust.NAME.equalsIgnoreCase(
-                            config.getInboundAuthType()) && config.getInboundAuthKey() != null) {
+                    } else if ("kerberos".equalsIgnoreCase(config.getInboundAuthType()) && config.getInboundAuthKey()
+                            != null) {
+
+                        DirectoryServerManager directoryServerManager = new DirectoryServerManager();
+                        directoryServerManager.removeServer(config.getInboundAuthKey());
+
+                    } else if(IdentityApplicationConstants.Authenticator.WSTrust.NAME.equalsIgnoreCase(
+                                            config.getInboundAuthType()) && config.getInboundAuthKey() != null) {
                         try {
                             AxisService stsService = getAxisConfig().getService(ServerConstants.STS_NAME);
                             Parameter origParam =
@@ -334,7 +341,7 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
                                 samlConfig.getTrustedServices().remove(config.getInboundAuthKey());
                                 setSTSParameter(samlConfig);
                                 removeTrustedService(ServerConstants.STS_NAME, ServerConstants.STS_NAME,
-                                                     config.getInboundAuthKey());
+                                        config.getInboundAuthKey());
                             } else {
                                 throw new IdentityApplicationManagementException(
                                         "missing parameter : " + SAMLTokenIssuerConfig.SAML_ISSUER_CONFIG.getLocalPart());
