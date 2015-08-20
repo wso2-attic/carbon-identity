@@ -70,17 +70,17 @@ public class AuthenticationEndpoint extends HttpServlet {
                 return;
             }
 
-            if ((request.getParameter("type")).equals("samlsso")) {
+            if ("samlsso".equals(request.getParameter("type"))) {
                 loadPage = "samlsso_login.do";
-            } else if (request.getParameter("type").equals("openid")) {
+            } else if ("openid".equals(request.getParameter("type"))) {
                 loadPage = "openid_login.do";
-            } else if (request.getParameter("type").equals("passivests")) {
+            } else if ("passivests".equals(request.getParameter("type"))) {
                 loadPage = "passivests_login.do";
-            } else if (request.getParameter("type").equals("oauth2") || request.getParameter("type").equals("oidc")) {
+            } else if ("oauth2".equals(request.getParameter("type")) || "oidc".equals(request.getParameter("type"))) {
                 loadPage = "oauth2_login.do";
-            } else if (request.getParameter("type").equals("totp")) {
+            } else if ("totp".equals(request.getParameter("type"))) {
                 loadPage = "totp_login.do";
-            } else if (request.getParameter("type").equals("totp_error")) {
+            } else if ("totp_error".equals(request.getParameter("type"))) {
                 loadPage = "totp_error.do";
             }
             request.getRequestDispatcher(loadPage).forward(request, response);

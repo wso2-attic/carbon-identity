@@ -29,6 +29,7 @@ import org.wso2.carbon.identity.oauth2.dto.OAuth2ClientApplicationDTO;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2TokenValidationRequestDTO;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2TokenValidationResponseDTO;
 
+import java.rmi.RemoteException;
 import java.util.Map;
 
 /**
@@ -135,10 +136,10 @@ public class OAuthHandler implements TOTPAuthenticationHandler {
 						return true;
 					}
 				}
-			} catch (Exception e) {
-				log.error("Error when calling the remote service ",e);
-			}
-		}
+			} catch (RemoteException e) {
+                log.error("Error when calling the remote service", e);
+            }
+        }
 
 		return false;
 	}
@@ -161,7 +162,7 @@ public class OAuthHandler implements TOTPAuthenticationHandler {
 	 * @throws Exception
 	 */
 	private OAuth2ClientApplicationDTO validateAccessToken(String accessTokenIdentifier)
-			throws Exception {
+            throws RemoteException {
 
 		// if it is specified to use local authz server (i.e: local://services)
 		if (remoteServiceURL.startsWith(Constants.LOCAL_PREFIX)) {
@@ -198,10 +199,10 @@ public class OAuthHandler implements TOTPAuthenticationHandler {
 			return appDTO;
 		} catch (AxisFault axisFault) {
 			throw axisFault;
-		} catch (Exception exception) {
-			throw exception;
-		}
-	}
+		} catch (RemoteException e) {
+            throw e;
+        }
+    }
 
 	public void setDefaultPriority() {
 		priority = DEFAULT_PRIORITY;

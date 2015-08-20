@@ -22,22 +22,72 @@ import org.wso2.carbon.identity.totp.exception.TOTPException;
 
 
 public interface TOTPManager {
-
+    /***
+     * Generate the totp key for a local user
+     * @param username user name
+     * @return return TOTP Data transfer object
+     * @throws TOTPException
+     */
 	public TOTPDTO generateTOTPKeyLocal(String username) throws TOTPException;
 
+    /***
+     * Generate the totp key for an external user
+     * @param username user name
+     * @return return TOTP Data transfer object
+     * @throws TOTPException
+     */
 	public TOTPDTO generateTOTPKey(String username) throws TOTPException;
 
+    /***
+     * Generate the totp token for a local user
+     * @param username user name
+     * @return totp token
+     * @throws TOTPException
+     */
 	public String generateTOTPTokenLocal(String username) throws TOTPException;
 
+    /***
+     * Generate the totp token for an external user for a given secret key
+     * @param secretKey secret key
+     * @return totp token
+     * @throws TOTPException
+     */
 	public String generateTOTPToken(String secretKey) throws TOTPException;
 
+    /***
+     * Check whether totp is enabled for a given local user
+     * @param username user name
+     * @return true or false
+     * @throws TOTPException
+     */
 	public boolean isTOTPEnabledForLocalUser(String username) throws TOTPException;
 
+    /***
+     * is given token is valid for a local user
+     * @param token token
+     * @param username user name
+     * @return true or false
+     * @throws TOTPException
+     */
 	public boolean isValidTokenLocalUser(int token, String username) throws TOTPException;
 
+    /***
+     * is given token is valid for a given secret key
+     * @param token token
+     * @param secretKey secret key
+     * @return true or false
+     */
 	public boolean isValidToken(int token, String secretKey);
 
+    /***
+     * Get the supported encoding method
+     * @return String value of the encoding method
+     */
 	public String[] getSupportedEncodingMethods();
 
+    /***
+     * Get the supported hashing method
+     * @return String value of the hashing method
+     */
 	public String[] getSupportedHashingMethods();
 }

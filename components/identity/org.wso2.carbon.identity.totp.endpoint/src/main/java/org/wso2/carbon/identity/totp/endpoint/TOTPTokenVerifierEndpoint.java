@@ -48,25 +48,25 @@ public class TOTPTokenVerifierEndpoint {
         Hashtable<String, String> props = new Hashtable<String, String>();
 		TOTPManager totpManager = (TOTPManager) CarbonContext.getThreadLocalCarbonContext().getOSGiService
 				(TOTPManager.class, props);
-		String username = request.getParameter("username");
+		String username = CharacterEncoder.getSafeText(request.getParameter("username"));
 		int token = Integer.parseInt(CharacterEncoder.getSafeText(request.getParameter("token")));
 		boolean isvalid = false;
 		try {
-			isvalid = totpManager.isValidTokenLocalUser(token, username);
-			if (isvalid) {
-                if(log.isDebugEnabled()) {
+            isvalid = totpManager.isValidTokenLocalUser(token, username);
+            if (isvalid) {
+                if (log.isDebugEnabled()) {
                     log.debug("TOTP token is accepted");
                 }
-				return Response.status(Response.Status.ACCEPTED).type(MediaType.APPLICATION_JSON_TYPE)
-						.entity("Token is verified").build();
-			} else {
-                if(log.isDebugEnabled()) {
+                return Response.status(Response.Status.ACCEPTED).type(MediaType.APPLICATION_JSON_TYPE)
+                        .entity("Token is verified").build();
+            } else {
+                if (log.isDebugEnabled()) {
                     log.debug("TOTP token is not valid");
                 }
-				return Response.status(Response.Status.BAD_REQUEST).type(MediaType.APPLICATION_JSON_TYPE)
-						.entity("Token is not valid").build();
-			}
-		} catch (TOTPException e) {
+                return Response.status(Response.Status.BAD_REQUEST).type(MediaType.APPLICATION_JSON_TYPE)
+                        .entity("Token is not valid").build();
+            }
+        } catch (TOTPException e) {
 			log.error("Error when validating the token", e);
 			return Response.status(Response.Status.INTERNAL_SERVER_ERROR).type(MediaType.APPLICATION_JSON_TYPE)
 					.entity("Error while validating the token").build();
@@ -82,21 +82,21 @@ public class TOTPTokenVerifierEndpoint {
         Hashtable<String, String> props = new Hashtable<String, String>();
 		TOTPManager totpManager = (TOTPManager) CarbonContext.getThreadLocalCarbonContext().getOSGiService
 				(TOTPManager.class, props);
-		String secretKey = CharacterEncoder.getSafeText(request.getParameter("secretKey"));
-		int token = Integer.parseInt(CharacterEncoder.getSafeText(request.getParameter("token")));
+        String secretKey = CharacterEncoder.getSafeText(request.getParameter("secretKey"));
+        int token = Integer.parseInt(CharacterEncoder.getSafeText(request.getParameter("token")));
         if (totpManager.isValidToken(token, secretKey)) {
-            if(log.isDebugEnabled()) {
+            if (log.isDebugEnabled()) {
                 log.debug("TOTP token is accepted");
             }
-			return Response.status(Response.Status.ACCEPTED).type(MediaType.APPLICATION_JSON_TYPE)
-					.entity("Token is a verified").build();
-		} else {
-            if(log.isDebugEnabled()) {
+            return Response.status(Response.Status.ACCEPTED).type(MediaType.APPLICATION_JSON_TYPE)
+                    .entity("Token is a verified").build();
+        } else {
+            if (log.isDebugEnabled()) {
                 log.debug("TOTP token is not valid");
             }
-			return Response.status(Response.Status.BAD_REQUEST).type(MediaType.APPLICATION_JSON_TYPE)
-					.entity("Token is not valid").build();
-		}
-	}
+            return Response.status(Response.Status.BAD_REQUEST).type(MediaType.APPLICATION_JSON_TYPE)
+                    .entity("Token is not valid").build();
+        }
+    }
 
 }

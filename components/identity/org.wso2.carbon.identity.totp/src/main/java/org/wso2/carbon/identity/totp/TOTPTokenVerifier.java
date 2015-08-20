@@ -80,7 +80,7 @@ public class TOTPTokenVerifier {
 				encoding = KeyRepresentation.BASE64;
 			}
 		} catch (IdentityApplicationManagementException e) {
-			log.error("Error when reading the tenant encoding method");
+			log.error("Error when reading the tenant encoding method", e);
 		}
 
 		GoogleAuthenticatorConfig.GoogleAuthenticatorConfigBuilder gacb = new GoogleAuthenticatorConfig
@@ -94,7 +94,7 @@ public class TOTPTokenVerifier {
 			if (userRealm != null) {
 				UserStoreManager userStoreManager = userRealm.getUserStoreManager();
 				String secretkey = userStoreManager.getUserClaimValue(MultitenantUtils.getTenantAwareUsername
-						(username), Constants.SECRET_KEY, null);
+						(username), Constants.SECRET_KEY_CLAIM_URL, null);
 				return googleAuthenticator.authorize(secretkey, token);
 			} else {
 				throw new TOTPException("Cannot find the user realm for the given tenant domain : " + CarbonContext

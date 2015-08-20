@@ -74,12 +74,12 @@ public class TOTPManagerImpl implements TOTPManager {
 
 	@Override
 	public String[] getSupportedEncodingMethods() {
-		return new String[]{"Base32", "Base64"};
+		return new String[]{Constants.BASE32, Constants.BASE64};
 	}
 
 	@Override
 	public String[] getSupportedHashingMethods() {
-		return new String[]{"SHA-1", "MD5"};
+		return new String[]{Constants.SHA1, Constants.MD5};
 	}
 
 

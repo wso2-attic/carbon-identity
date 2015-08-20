@@ -94,17 +94,17 @@ public class TOTPTokenGenerator {
 			if (userRealm != null) {
 				UserStoreManager userStoreManager = userRealm.getUserStoreManager();
 				String secretKey = userStoreManager.getUserClaimValue(MultitenantUtils.getTenantAwareUsername
-						(username), Constants.SECRET_KEY, null);
+						(username), Constants.SECRET_KEY_CLAIM_URL, null);
 
 				byte[] secretkey;
-				String encoding = "Base32";
+				String encoding = Constants.BASE32;
 				try {
 					encoding = TOTPUtil.getEncodingMethod();
 				} catch (IdentityApplicationManagementException e) {
 					log.error("Error when fetching the encoding method");
 				}
 
-				if ("Base32".equals(encoding)) {
+				if (Constants.BASE32.equals(encoding)) {
 					Base32 codec32 = new Base32();
 					secretkey = codec32.decode(secretKey);
 				} else {

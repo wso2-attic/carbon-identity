@@ -90,12 +90,12 @@ public class TOTPKeyGenerator {
 			if (userRealm != null) {
 				UserStoreManager userStoreManager = userRealm.getUserStoreManager();
 				userStoreManager.setUserClaimValue(MultitenantUtils.getTenantAwareUsername(username), 
-				                                   Constants.SECRET_KEY, secretkey, null);
+				                                   Constants.SECRET_KEY_CLAIM_URL, secretkey, null);
 				userStoreManager.setUserClaimValue(MultitenantUtils.getTenantAwareUsername(username), 
-				                                   Constants.QR_CODE_URL, qrCodeURL, null);
+				                                   Constants.QR_CODE_CLAIM_URL, qrCodeURL, null);
 				String encoding = TOTPUtil.getEncodingMethod();
 				userStoreManager.setUserClaimValue(MultitenantUtils.getTenantAwareUsername(username), 
-				                                   Constants.Encoding, encoding, null);
+				                                   Constants.ENCODING_CLAIM_URL, encoding, null);
 			} else {
 				throw new TOTPException("Cannot find the user realm for the given tenant domain : " + tenantDomain);
 			}
@@ -128,11 +128,11 @@ public class TOTPKeyGenerator {
 
 				UserStoreManager userStoreManager = userRealm.getUserStoreManager();
 				userStoreManager.setUserClaimValue(MultitenantUtils.getTenantAwareUsername(username), 
-				                                   Constants.SECRET_KEY, "", null);
+				                                   Constants.SECRET_KEY_CLAIM_URL, "", null);
 				userStoreManager.setUserClaimValue(MultitenantUtils.getTenantAwareUsername(username), 
-				                                   Constants.QR_CODE_URL, "", null);
+				                                   Constants.QR_CODE_CLAIM_URL, "", null);
 				userStoreManager.setUserClaimValue(MultitenantUtils.getTenantAwareUsername(username), 
-				                                   Constants.Encoding, "", null);
+				                                   Constants.ENCODING_CLAIM_URL, "", null);
 				return true;
 			} else {
 				throw new TOTPException("Can not find the user realm for the given tenant domain : " + CarbonContext

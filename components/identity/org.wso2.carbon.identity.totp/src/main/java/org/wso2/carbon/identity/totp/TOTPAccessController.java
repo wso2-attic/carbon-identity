@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.identity.totp;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.CarbonContext;
@@ -60,29 +61,25 @@ public class TOTPAccessController {
 			if (userRealm != null) {
 				UserStoreManager userStoreManager = userRealm.getUserStoreManager();
 				String secretKey = userStoreManager.getUserClaimValue(MultitenantUtils.getTenantAwareUsername
-						(username), Constants.SECRET_KEY, null);
+						(username), Constants.SECRET_KEY_CLAIM_URL, null);
 				String currentEncoding = TOTPUtil.getEncodingMethod();
 				String storedEncoding = userStoreManager.getUserClaimValue(MultitenantUtils.getTenantAwareUsername
-						(username), Constants.Encoding, null);
+						(username), Constants.ENCODING_CLAIM_URL, null);
 
 				if (!currentEncoding.equals(storedEncoding)) {
 					userStoreManager.setUserClaimValue(MultitenantUtils.getTenantAwareUsername(username), 
-					                                   Constants.SECRET_KEY, "", null);
+					                                   Constants.SECRET_KEY_CLAIM_URL, "", null);
 					userStoreManager.setUserClaimValue(MultitenantUtils.getTenantAwareUsername(username), 
-					                                   Constants.QR_CODE_URL, "", null);
+					                                   Constants.QR_CODE_CLAIM_URL, "", null);
 					userStoreManager.setUserClaimValue(MultitenantUtils.getTenantAwareUsername(username), 
-					                                   Constants.Encoding, "Invalid", null);
+					                                   Constants.ENCODING_CLAIM_URL, "Invalid", null);
 					if (log.isDebugEnabled()) {
 						log.debug("TOTP user claims was cleared of the user : " + username);
 					}
 					return false;
 				}
 
-				if ("".equals(secretKey) || secretKey == null) {
-					return false;
-				} else {
-					return true;
-				}
+				return StringUtils.isNotBlank(secretKey);
 			} else {
 				throw new TOTPException("Cannot find the user realm for the given tenant domain : " + CarbonContext
 						.getThreadLocalCarbonContext().getTenantDomain());

@@ -46,10 +46,7 @@ public class BasicAuthHandler implements TOTPAuthenticationHandler {
 	public boolean canHandler(Request request) {
 
 		String authheader = request.getHeader(Constants.AUTHORIZATION_HEADER);
-		if (authheader != null && authheader.startsWith(Constants.BASIC_AUTH_HEADER)) {
-			return true;
-		}
-		return false;
+		return (authheader != null && authheader.startsWith(Constants.BASIC_AUTH_HEADER));
 	}
 
 	/**

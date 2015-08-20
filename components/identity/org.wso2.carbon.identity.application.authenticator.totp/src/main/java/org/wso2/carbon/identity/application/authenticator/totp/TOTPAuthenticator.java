@@ -46,10 +46,7 @@ public class TOTPAuthenticator extends AbstractApplicationAuthenticator
 
 		String token = CharacterEncoder.getSafeText(request.getParameter("token"));
 		String action = CharacterEncoder.getSafeText(request.getParameter("sendToken"));
-		if (token != null || action != null) {
-			return true;
-		}
-		return false;
+		return (token != null || action != null);
 	}
 
 	@Override

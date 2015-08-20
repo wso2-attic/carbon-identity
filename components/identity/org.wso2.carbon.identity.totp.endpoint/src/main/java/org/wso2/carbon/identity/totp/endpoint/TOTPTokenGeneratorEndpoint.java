@@ -44,7 +44,7 @@ public class TOTPTokenGeneratorEndpoint {
 	@Path("/local")
 	@Consumes("application/x-www-form-urlencoded")
 	@Produces("application/json")
-	public Response generateBuyUsername(@Context HttpServletRequest request) {
+	public Response generateByUsername(@Context HttpServletRequest request) {
         Hashtable<String, String> props = new Hashtable<String, String>();
 		TOTPManager totpManager = (TOTPManager) CarbonContext.getThreadLocalCarbonContext().getOSGiService
                 (TOTPManager.class, props);
@@ -69,7 +69,7 @@ public class TOTPTokenGeneratorEndpoint {
 		TOTPManager totpManager = (TOTPManager) CarbonContext.getThreadLocalCarbonContext().getOSGiService
 				(TOTPManager.class, props);
 		String secretKey = CharacterEncoder.getSafeText(request.getParameter("secretKey"));
-		String token = null;
+		String token;
 		try {
 			token = totpManager.generateTOTPToken(secretKey);
 			return Response.ok("{\"token\":\"" + token + "\"}", MediaType.APPLICATION_JSON_TYPE).build();
