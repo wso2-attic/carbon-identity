@@ -76,7 +76,7 @@ public class TOTPTokenVerifier {
 
 		KeyRepresentation encoding = KeyRepresentation.BASE32;
 		try {
-			if ("Base64".equals(TOTPUtil.getEncodingMethod())) {
+			if (Constants.BASE64.equals(TOTPUtil.getEncodingMethod())) {
 				encoding = KeyRepresentation.BASE64;
 			}
 		} catch (IdentityApplicationManagementException e) {
