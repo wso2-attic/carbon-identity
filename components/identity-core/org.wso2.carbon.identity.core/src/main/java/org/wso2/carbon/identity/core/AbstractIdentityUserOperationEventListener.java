@@ -18,24 +18,34 @@
 package org.wso2.carbon.identity.core;
 
 import org.apache.commons.lang.StringUtils;
-import org.wso2.carbon.identity.core.model.IdentityEventListenerProperty;
+import org.wso2.carbon.identity.core.model.IdentityEventListener;
+import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.user.core.common.AbstractUserOperationEventListener;
+import org.wso2.carbon.user.core.listener.UserOperationEventListener;
 
 public class AbstractIdentityUserOperationEventListener extends AbstractUserOperationEventListener {
     public boolean isEnable(String name) {
-        IdentityEventListenerProperty identityEventListenerProperty = IdentityUtil.readEventListenerProperty
-                ("UserOperationEventListener", name);
+        IdentityEventListener identityEventListener = IdentityUtil.readEventListenerProperty
+                (UserOperationEventListener.class.getName(), name);
 
-        if (StringUtils.isNotBlank(identityEventListenerProperty.getEnable())) {
-            return Boolean.parseBoolean(identityEventListenerProperty.getEnable());
+        if (identityEventListener == null) {
+            return true;
+        }
+
+        if (StringUtils.isNotBlank(identityEventListener.getEnable())) {
+            return Boolean.parseBoolean(identityEventListener.getEnable());
         } else {
             return true;
         }
     }
 
     public int getOrderId(String name) {
-        IdentityEventListenerProperty identityEventListenerProperty = IdentityUtil.readEventListenerProperty("UserOperationEventListener", name);
-        return identityEventListenerProperty.getOrder();
+        IdentityEventListener identityEventListener = IdentityUtil.readEventListenerProperty
+                (UserOperationEventListener.class.getName(), name);
+        if (identityEventListener == null) {
+            return IdentityCoreConstants.EVENT_LISTENER_ORDER_ID;
+        }
+        return identityEventListener.getOrder();
     }
 }

@@ -17,38 +17,38 @@ package org.wso2.carbon.identity.core.model;
 
 public class IdentityEventListener {
 
-    private String type;
-    private String name;
-    private IdentityEventListenerProperty property;
+    private int order;
+    private String enable;
+    private IdentityEventListenerConfigKey identityEventListenerConfigKey;
 
-    public IdentityEventListener(String type, String name, IdentityEventListenerProperty property) {
-        this.type = type;
-        this.name = name;
-        this.property = property;
+    public IdentityEventListener(String enable, int order, IdentityEventListenerConfigKey
+            identityEventListenerConfigKey) {
+        this.order = order;
+        this.enable = enable;
+        this.identityEventListenerConfigKey = identityEventListenerConfigKey;
     }
 
-    public String getType() {
-        return type;
+    public int getOrder() {
+        return order;
     }
 
-    public void setType(String type) {
-        this.type = type;
+    public void setOrder(int order) {
+        this.order = order;
     }
 
-    public String getName() {
-        return name;
-
+    public String getEnable() {
+        return enable;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setEnable(String enable) {
+        this.enable = enable;
     }
 
-    public IdentityEventListenerProperty getProperty() {
-        return property;
+    public IdentityEventListenerConfigKey getIdentityEventListenerConfigKey() {
+        return identityEventListenerConfigKey;
     }
 
-    public void setProperty(IdentityEventListenerProperty property) {
-        this.property = property;
+    public void setIdentityEventListenerConfigKey(IdentityEventListenerConfigKey identityEventListenerConfigKey) {
+        this.identityEventListenerConfigKey = identityEventListenerConfigKey;
     }
 }
