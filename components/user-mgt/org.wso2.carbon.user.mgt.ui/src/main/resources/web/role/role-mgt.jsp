@@ -328,6 +328,7 @@
                 %>
                 <tbody>
                 <%
+                    if(roles != null && roles.length > 0) {
                          for (FlaggedName data : roles) {
                             if (data != null) { //Confusing!!. Sometimes a null object comes. Maybe a bug in Axis!!
                                 if(CarbonConstants.REGISTRY_ANONNYMOUS_ROLE_NAME.equals(data.getItemName())) {
@@ -383,6 +384,7 @@
                 <%
                             }
                         }
+                    }
                %>
                 </tbody>
             </table>
@@ -435,20 +437,6 @@
                 }
             %>
 
-<table width="100%" border="0" cellpadding="0" cellspacing="0">
-    <% if (multipleUserStores || !userRealmInfo.getPrimaryUserStoreInfo().getReadOnly()) {%>
-            <tr>
-                <td>
-<a href="add-step1.jsp" class="icon-link" style="background-image:url(images/add.gif);"><fmt:message key="add.new.role"/></a>
-                </td>
-            </tr>
-<% } %>
-        <tr>
-                 <td>
-<a href="add-step1.jsp?roleType=<%=UserAdminUIConstants.INTERNAL_ROLE%>" class="icon-link" style="background-image:url(images/add.gif);"><fmt:message key="add.new.internal.role"/></a>
-</td>        
-    </tr>
-        </table>
         </div>
     </div>
     <script type="text/javascript">

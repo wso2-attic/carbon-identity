@@ -46,6 +46,7 @@ import org.opensaml.saml2.core.LogoutRequest;
 import org.opensaml.saml2.core.LogoutResponse;
 import org.opensaml.saml2.core.NameID;
 import org.opensaml.saml2.core.NameIDPolicy;
+import org.opensaml.saml2.core.NameIDType;
 import org.opensaml.saml2.core.RequestAbstractType;
 import org.opensaml.saml2.core.RequestedAuthnContext;
 import org.opensaml.saml2.core.Response;
@@ -78,7 +79,9 @@ import org.opensaml.xml.util.XMLHelper;
 import org.opensaml.xml.validation.ValidationException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.wso2.carbon.identity.application.authentication.framework.config.builder.FileBasedConfigurationBuilder;
 import org.wso2.carbon.identity.application.authentication.framework.context.AuthenticationContext;
+import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkConstants;
 import org.wso2.carbon.identity.application.authenticator.samlsso.exception.SAMLSSOException;
 import org.wso2.carbon.identity.application.authenticator.samlsso.util.CarbonEntityResolver;
 import org.wso2.carbon.identity.application.authenticator.samlsso.util.SSOConstants;
@@ -86,7 +89,9 @@ import org.wso2.carbon.identity.application.authenticator.samlsso.util.SSOUtils;
 import org.wso2.carbon.identity.application.common.model.ClaimMapping;
 import org.wso2.carbon.identity.application.common.model.IdentityProvider;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.ui.CarbonUIUtil;
+import org.wso2.carbon.base.MultitenantConstants;
 import org.xml.sax.SAXException;
 
 import javax.crypto.SecretKey;
@@ -113,6 +118,7 @@ public class DefaultSAML2SSOManager implements SAML2SSOManager {
     private static final String SECURITY_MANAGER_PROPERTY = Constants.XERCES_PROPERTY_PREFIX +
             Constants.SECURITY_MANAGER_PROPERTY;
     private static final int ENTITY_EXPANSION_LIMIT = 0;
+    private static final String SIGN_AUTH2_SAML_USING_SUPER_TENANT = "SignAuth2SAMLUsingSuperTenant";
     private static Log log = LogFactory.getLog(DefaultSAML2SSOManager.class);
     private static boolean bootStrapped = false;
     private IdentityProvider identityProvider = null;
@@ -176,10 +182,13 @@ public class DefaultSAML2SSOManager implements SAML2SSOManager {
         } else {
             String username = (String) request.getSession().getAttribute("logoutUsername");
             String sessionIndex = (String) request.getSession().getAttribute("logoutSessionIndex");
+            String nameQualifier = (String) request.getSession().getAttribute("nameQualifier");
+            String spNameQualifier = (String) request.getSession().getAttribute("spNameQualifier");
 
-            requestMessage = buildLogoutRequest(username, sessionIndex, loginPage);
+            requestMessage = buildLogoutRequest(username, sessionIndex, loginPage, nameQualifier, spNameQualifier);
         }
         String idpUrl = null;
+        boolean isSignAuth2SAMLUsingSuperTenant = false;
 
         String encodedRequestMessage = encodeRequestMessage(requestMessage);
         StringBuilder httpQueryString = new StringBuilder("SAMLRequest=" + encodedRequestMessage);
@@ -191,9 +200,18 @@ public class DefaultSAML2SSOManager implements SAML2SSOManager {
         }
 
         if (SSOUtils.isAuthnRequestSigned(properties)) {
-            SSOUtils.addSignatureToHTTPQueryString(context.getTenantDomain(), httpQueryString);
+            Map<String, String> parameterMap = FileBasedConfigurationBuilder.getInstance()
+                    .getAuthenticatorBean(SSOConstants.AUTHENTICATOR_NAME).getParameterMap();
+            if (parameterMap.size() > 0) {
+                isSignAuth2SAMLUsingSuperTenant = Boolean.parseBoolean(parameterMap.
+                        get(SIGN_AUTH2_SAML_USING_SUPER_TENANT));
+            }
+            if (isSignAuth2SAMLUsingSuperTenant) {
+                SSOUtils.addSignatureToHTTPQueryString(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME, httpQueryString);
+            } else {
+                SSOUtils.addSignatureToHTTPQueryString(context.getTenantDomain(), httpQueryString);
+            }
         }
-
         if (loginPage.indexOf("?") > -1) {
             idpUrl = loginPage.concat("&").concat(httpQueryString.toString());
         } else {
@@ -227,8 +245,10 @@ public class DefaultSAML2SSOManager implements SAML2SSOManager {
         } else {
             String username = (String) request.getSession().getAttribute("logoutUsername");
             String sessionIndex = (String) request.getSession().getAttribute("logoutSessionIndex");
+            String nameQualifier = (String) request.getSession().getAttribute("nameQualifier");
+            String spNameQualifier = (String) request.getSession().getAttribute("spNameQualifier");
 
-            requestMessage = buildLogoutRequest(username, sessionIndex, loginPage);
+            requestMessage = buildLogoutRequest(username, sessionIndex, loginPage, nameQualifier, spNameQualifier);
             if (SSOUtils.isLogoutRequestSigned(properties)) {
                 requestMessage = SSOUtils.setSignature((LogoutRequest) requestMessage,
                         XMLSignature.ALGO_ID_SIGNATURE_RSA,
@@ -359,6 +379,8 @@ public class DefaultSAML2SSOManager implements SAML2SSOManager {
 
         // Get the subject name from the Response Object and forward it to login_action.jsp
         String subject = null;
+        String nameQualifier = null;
+        String spNameQualifier = null;
         if (assertion.getSubject() != null && assertion.getSubject().getNameID() != null) {
             subject = assertion.getSubject().getNameID().getValue();
         }
@@ -368,6 +390,8 @@ public class DefaultSAML2SSOManager implements SAML2SSOManager {
         }
 
         request.getSession().setAttribute("username", subject); // get the subject
+        nameQualifier = assertion.getSubject().getNameID().getNameQualifier();
+        spNameQualifier = assertion.getSubject().getNameID().getSPNameQualifier();
 
         // validate audience restriction
         validateAudienceRestriction(assertion);
@@ -384,11 +408,13 @@ public class DefaultSAML2SSOManager implements SAML2SSOManager {
                 throw new SAMLSSOException("Single Logout is enabled but IdP Session ID not found in SAML Assertion");
             }
             request.getSession().setAttribute(SSOConstants.IDP_SESSION, sessionId);
+            request.getSession().setAttribute("nameQualifier", nameQualifier);
+            request.getSession().setAttribute("spNameQualifier", spNameQualifier);
         }
 
     }
 
-    private LogoutRequest buildLogoutRequest(String user, String sessionIndexStr, String idpUrl)
+    private LogoutRequest buildLogoutRequest(String user, String sessionIndexStr, String idpUrl, String nameQualifier, String spNameQualifier)
             throws SAMLSSOException {
 
         LogoutRequest logoutReq = new LogoutRequestBuilder().buildObject();
@@ -414,8 +440,10 @@ public class DefaultSAML2SSOManager implements SAML2SSOManager {
         logoutReq.setIssuer(issuer);
 
         NameID nameId = new NameIDBuilder().buildObject();
-        nameId.setFormat("urn:oasis:names:tc:SAML:2.0:nameid-format:unspecified");
+        nameId.setFormat(NameIDType.UNSPECIFIED);
         nameId.setValue(user);
+        nameId.setNameQualifier(nameQualifier);
+        nameId.setSPNameQualifier(spNameQualifier);
         logoutReq.setNameID(nameId);
 
         SessionIndex sessionIndex = new SessionIndexBuilder().buildObject();
@@ -476,8 +504,7 @@ public class DefaultSAML2SSOManager implements SAML2SSOManager {
         authRequest.setIssueInstant(issueInstant);
         authRequest.setProtocolBinding("urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST");
 
-        String acsUrl = CarbonUIUtil.getAdminConsoleURL(request);
-        acsUrl = acsUrl.replace("commonauth/carbon/", "commonauth");
+        String acsUrl =  IdentityUtil.getServerURL(FrameworkConstants.COMMONAUTH);
 
         authRequest.setAssertionConsumerServiceURL(acsUrl);
         authRequest.setIssuer(issuer);

@@ -178,7 +178,9 @@
         <tr>
             <td class="buttonRow">
                 <%
-                    if(!EntitlementPolicyConstants.ENTITLEMENT_CURRENT_VERSION.equals(selectedVersion)){
+                    if(!EntitlementPolicyConstants.ENTITLEMENT_CURRENT_VERSION.equals(selectedVersion) &&
+                            CarbonUIUtil.isUserAuthorized(request,
+                                    "/permission/admin/configure/entitlement/policy/manage/rollback")){
                 %>
                 <button class="button" onclick="submitForm(); return false;"><fmt:message key="rollaback"/></button>
                 <%

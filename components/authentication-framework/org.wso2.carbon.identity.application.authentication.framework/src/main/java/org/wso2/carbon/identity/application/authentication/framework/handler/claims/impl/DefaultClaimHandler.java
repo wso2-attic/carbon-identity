@@ -396,7 +396,7 @@ public class DefaultClaimHandler implements ClaimHandler {
                     .getSecondaryUserStoreManager(domain).getRealmConfiguration();
 
             String claimSeparator = realmConfiguration.getUserStoreProperty(MULTI_ATTRIBUTE_SEPARATOR);
-            if (claimSeparator != null && !claimSeparator.trim().isEmpty()) {
+            if (StringUtils.isNotBlank(claimSeparator)) {
                 spRequestedClaims.put(MULTI_ATTRIBUTE_SEPARATOR, claimSeparator);
             }
         }
