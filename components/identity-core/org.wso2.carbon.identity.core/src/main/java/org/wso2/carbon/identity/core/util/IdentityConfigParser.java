@@ -25,7 +25,7 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.base.ServerConfigurationException;
 import org.wso2.carbon.identity.base.IdentityConstants;
 import org.wso2.carbon.identity.core.model.IdentityEventListener;
-import org.wso2.carbon.identity.core.model.IdentityEventListenerProperty;
+import org.wso2.carbon.identity.core.model.IdentityEventListenerConfigKey;
 import org.wso2.carbon.utils.ServerConstants;
 import org.wso2.securevault.SecretResolver;
 import org.wso2.securevault.SecretResolverFactory;
@@ -46,7 +46,7 @@ public class IdentityConfigParser {
     public static final String IDENTITY_DEFAULT_NAMESPACE = "http://wso2.org/projects/carbon/carbon.xml";
     private static final String IDENTITY_CONFIG = "identity.xml";
     private static Map<String, Object> configuration = new HashMap<String, Object>();
-    private static Map<String, IdentityEventListener> eventListenerConfiguration = new HashMap();
+    private static Map<IdentityEventListenerConfigKey, IdentityEventListener> eventListenerConfiguration = new HashMap();
     private static IdentityConfigParser parser;
     private static SecretResolver secretResolver;
     // To enable attempted thread-safety using double-check locking
@@ -86,7 +86,7 @@ public class IdentityConfigParser {
         return configuration;
     }
 
-    public static Map<String, IdentityEventListener> getEventListenerConfiguration() {
+    public static Map<IdentityEventListenerConfigKey, IdentityEventListener> getEventListenerConfiguration() {
         return eventListenerConfiguration;
     }
 
@@ -185,11 +185,9 @@ public class IdentityConfigParser {
                     if (StringUtils.isBlank(eventListenerType) || StringUtils.isBlank(eventListenerName)) {
                         throw new IOException("eventListenerType or eventListenerName is not defined correctly");
                     }
-                    String key = eventListenerType + "." + eventListenerName;
-                    IdentityEventListenerProperty identityEventListenerProperty = new IdentityEventListenerProperty(order, enable);
-                    IdentityEventListener identityEventListener = new IdentityEventListener(eventListenerType,
-                            eventListenerName, identityEventListenerProperty);
-                    eventListenerConfiguration.put(key, identityEventListener);
+                    IdentityEventListenerConfigKey configKey = new IdentityEventListenerConfigKey(eventListenerType, eventListenerName);
+                    IdentityEventListener identityEventListener = new IdentityEventListener(enable, order, configKey);
+                    eventListenerConfiguration.put(configKey, identityEventListener);
 
                 }
             }

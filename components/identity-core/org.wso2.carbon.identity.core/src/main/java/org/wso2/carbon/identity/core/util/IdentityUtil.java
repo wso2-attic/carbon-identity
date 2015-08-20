@@ -43,7 +43,7 @@ import org.wso2.carbon.identity.base.IdentityRuntimeException;
 import org.wso2.carbon.identity.core.internal.IdentityCoreServiceComponent;
 import org.wso2.carbon.identity.core.model.IdentityErrorMsgContext;
 import org.wso2.carbon.identity.core.model.IdentityEventListener;
-import org.wso2.carbon.identity.core.model.IdentityEventListenerProperty;
+import org.wso2.carbon.identity.core.model.IdentityEventListenerConfigKey;
 import org.wso2.carbon.registry.core.utils.UUIDGenerator;
 import org.wso2.carbon.user.api.TenantManager;
 import org.wso2.carbon.user.api.UserStoreException;
@@ -80,7 +80,7 @@ public class IdentityUtil {
             'V', 'W', 'X', 'Y', 'Z'};
     private static Log log = LogFactory.getLog(IdentityUtil.class);
     private static Map<String, Object> configuration = new HashMap<String, Object>();
-    private static Map<String, IdentityEventListener> eventListenerConfiguration = new HashMap<>();
+    private static Map<IdentityEventListenerConfigKey, IdentityEventListener> eventListenerConfiguration = new HashMap<>();
     private static Document importerDoc = null;
     private static ThreadLocal<IdentityErrorMsgContext> IdentityError = new ThreadLocal<IdentityErrorMsgContext>();
     private static final String SECURITY_MANAGER_PROPERTY = Constants.XERCES_PROPERTY_PREFIX +
@@ -127,14 +127,10 @@ public class IdentityUtil {
         return (String) value;
     }
 
-    public static IdentityEventListenerProperty readEventListenerProperty(String type, String name) {
-        String key = type + "." + name;
-        IdentityEventListener identityEventListener = eventListenerConfiguration.get(key);
-        if (identityEventListener != null) {
-            return identityEventListener.getProperty();
-        } else {
-            return new IdentityEventListenerProperty(IdentityCoreConstants.EVENT_LISTENER_ORDER_ID, "");
-        }
+    public static IdentityEventListener readEventListenerProperty(String type, String name) {
+        IdentityEventListenerConfigKey identityEventListenerConfigKey = new IdentityEventListenerConfigKey(type, name);
+        IdentityEventListener identityEventListener = eventListenerConfiguration.get(identityEventListenerConfigKey);
+        return identityEventListener;
     }
 
     public static void populateProperties() throws ServerConfigurationException {
