@@ -1097,6 +1097,11 @@
                 <artifactId>org.wso2.carbon.captcha.mgt</artifactId>
                 <version>${carbon.captcha.mgt.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.identity</groupId>
+                <artifactId>org.wso2.carbon.identity.application.authentication.endpoint.util</artifactId>
+                <version>${carbon.identity.version}</version>
+            </dependency>
             <!--Components Dependencies Ends-->
 
             <!--Composite Feature Dependency-->
