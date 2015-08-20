@@ -1,3 +1,21 @@
+/*
+ * Copyright (c) 2013, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 package org.wso2.carbon.identity.application.authentication.framework.handler.provisioning.impl;
 
 import org.apache.commons.lang.StringUtils;
@@ -9,7 +27,6 @@ import org.wso2.carbon.core.util.PermissionUpdateUtil;
 import org.wso2.carbon.identity.application.authentication.framework.exception.FrameworkException;
 import org.wso2.carbon.identity.application.authentication.framework.handler.provisioning.ProvisioningHandler;
 import org.wso2.carbon.identity.application.authentication.framework.internal.FrameworkServiceComponent;
-import org.wso2.carbon.identity.application.common.model.ClaimMapping;
 import org.wso2.carbon.registry.core.service.RegistryService;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserRealm;
@@ -21,11 +38,17 @@ import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import java.math.BigInteger;
 import java.security.SecureRandom;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class DefaultProvisioningHandler implements ProvisioningHandler {
 
-    private static Log log = LogFactory.getLog(DefaultProvisioningHandler.class);
+    private static final Log log = LogFactory.getLog(DefaultProvisioningHandler.class);
     private static volatile DefaultProvisioningHandler instance;
     private SecureRandom random = new SecureRandom();
 
@@ -40,6 +63,7 @@ public class DefaultProvisioningHandler implements ProvisioningHandler {
         return instance;
     }
 
+    @Override
     public void handle(List<String> roles, String subject, Map<String, String> attributes,
                        String provisioningUserStoreId, String tenantDomain) throws FrameworkException {
 
@@ -49,25 +73,15 @@ public class DefaultProvisioningHandler implements ProvisioningHandler {
         try {
             int tenantId = realmService.getTenantManager().getTenantId(tenantDomain);
             UserRealm realm = AnonymousSessionUtil.getRealmByTenantDomain(registryService,
-                    realmService, tenantDomain);
+                                                                          realmService, tenantDomain);
 
-            String userstoreDomain = getUserStoreDomain(provisioningUserStoreId, realm);
+            String userStoreDomain = getUserStoreDomain(provisioningUserStoreId, realm);
 
             String username = MultitenantUtils.getTenantAwareUsername(subject);
 
-            UserStoreManager userstore = null;
-            if (userstoreDomain != null && !userstoreDomain.isEmpty()) {
-                userstore = realm.getUserStoreManager().getSecondaryUserStoreManager(
-                        userstoreDomain);
-            } else {
-                userstore = realm.getUserStoreManager();
-            }
+            UserStoreManager userStoreManager = getUserStoreManager(realm, userStoreDomain);
 
-            if (userstore == null) {
-                throw new FrameworkException("Specified user store is invalid");
-            }
-
-            // Remove userstore domain from username if the userstoreDomain is not primary
+            // Remove userStoreManager domain from username if the userStoreDomain is not primary
             if (realm.getUserStoreManager().getRealmConfiguration().isPrimary()) {
                 username = UserCoreUtil.removeDomainFromName(username);
             }
@@ -81,33 +95,20 @@ public class DefaultProvisioningHandler implements ProvisioningHandler {
 
             if (log.isDebugEnabled()) {
                 log.debug("User " + username + " contains roles : " + Arrays.toString(newRoles)
-                        + " going to be provisioned");
+                          + " going to be provisioned");
             }
 
             // addingRoles = newRoles AND allExistingRoles
-            Collection<String> addingRoles = new ArrayList<String>();
-            Collections.addAll(addingRoles, newRoles);
-            Collection<String> allExistingRoles = removeDomainFromNamesExcludeInternal(
-                    Arrays.asList(userstore.getRoleNames()));
-            addingRoles.retainAll(allExistingRoles);
+            Collection<String> addingRoles = getRolesToAdd(userStoreManager, newRoles);
 
-            Map<String, String> userClaims = new HashMap<String, String>();
-            if (attributes != null && !attributes.isEmpty()) {
-                for (Map.Entry<String, String> entry : attributes.entrySet()) {
-                    String claimURI = entry.getKey();
-                    String claimValue = entry.getValue();
-                    if (!(StringUtils.isEmpty(claimURI) || StringUtils.isEmpty(claimValue))) {
-                        userClaims.put(claimURI, claimURI);
-                    }
-                }
-            }
+            Map<String, String> userClaims = prepareClaimMappings(attributes);
 
-            if (userstore.isExistingUser(username)) {
+            if (userStoreManager.isExistingUser(username)) {
 
-                if (roles != null && roles.size() > 0) {
+                if (roles != null && !roles.isEmpty()) {
                     // Update user
-                    Collection<String> currentRolesList = Arrays.asList(userstore
-                            .getRoleListOfUser(username));
+                    Collection<String> currentRolesList = Arrays.asList(userStoreManager
+                                                                                .getRoleListOfUser(username));
                     // addingRoles = (newRoles AND existingRoles) - currentRolesList)
                     addingRoles.removeAll(currentRolesList);
 
@@ -121,63 +122,115 @@ public class DefaultProvisioningHandler implements ProvisioningHandler {
 
                     // TODO : Does it need to check this?
                     // Check for case whether superadmin login
-                    if (userstore.getRealmConfiguration().isPrimary()
-                            && username.equals(realm.getRealmConfiguration().getAdminUserName())) {
-                        if (log.isDebugEnabled()) {
-                            log.debug("Federated user's username is equal to super admin's username of local IdP.");
-                        }
+                    handleFederatedUserNameEqualsToSuperAdminUserName(realm, username, userStoreManager, deletingRoles);
 
-                        // Whether superadmin login without superadmin role is permitted
-                        if (deletingRoles
-                                .contains(realm.getRealmConfiguration().getAdminRoleName())) {
-                            if (log.isDebugEnabled()) {
-                                log.debug("Federated user doesn't have super admin role. Unable to sync roles, since super admin role cannot be unassingned from super admin user");
-                            }
-                            throw new FrameworkException(
-                                    "Federated user which having same username to super admin username of local IdP, trying login without having superadmin role assigned");
-                        }
-                    }
-
-                    if (log.isDebugEnabled()) {
-                        log.debug("Deleting roles : "
-                                + Arrays.toString(deletingRoles.toArray(new String[0]))
-                                + " and Adding roles : "
-                                + Arrays.toString(addingRoles.toArray(new String[0])));
-                    }
-                    userstore.updateRoleListOfUser(username, deletingRoles.toArray(new String[0]),
-                            addingRoles.toArray(new String[0]));
-                    if (log.isDebugEnabled()) {
-                        log.debug("Federated user: " + username
-                                + " is updated by authentication framework with roles : "
-                                + Arrays.toString(newRoles));
-                    }
+                    updateUserWithNewRoleSet(username, userStoreManager, newRoles, addingRoles, deletingRoles);
                 }
 
                 if (!userClaims.isEmpty()) {
-                    userstore.setUserClaimValues(username, userClaims, null);
+                    userStoreManager.setUserClaimValues(username, userClaims, null);
                 }
 
             } else {
 
-                userstore.addUser(username, generatePassword(username), addingRoles.toArray(new String[0]),
-                        userClaims, null);
+                userStoreManager.addUser(username, generatePassword(), addingRoles.toArray(
+                        new String[addingRoles.size()]), userClaims, null);
 
                 if (log.isDebugEnabled()) {
                     log.debug("Federated user: " + username
-                            + " is provisioned by authentication framework with roles : "
-                            + Arrays.toString(addingRoles.toArray(new String[0])));
+                              + " is provisioned by authentication framework with roles : "
+                              + Arrays.toString(addingRoles.toArray(new String[addingRoles.size()])));
                 }
             }
 
             PermissionUpdateUtil.updatePermissionTree(tenantId);
 
-        } catch (UserStoreException e) {
-            throw new FrameworkException("Error while provisioning user : " + subject, e);
-        } catch (org.wso2.carbon.user.api.UserStoreException e) {
-            throw new FrameworkException("Error while provisioning user : " + subject, e);
-        } catch (CarbonException e) {
+        } catch (org.wso2.carbon.user.api.UserStoreException | CarbonException e) {
             throw new FrameworkException("Error while provisioning user : " + subject, e);
         }
+    }
+
+    private void updateUserWithNewRoleSet(String username, UserStoreManager userStoreManager, String[] newRoles,
+                                          Collection<String> addingRoles, Collection<String> deletingRoles)
+            throws UserStoreException {
+        if (log.isDebugEnabled()) {
+            log.debug("Deleting roles : "
+                      + Arrays.toString(deletingRoles.toArray(new String[deletingRoles.size()]))
+                      + " and Adding roles : "
+                      + Arrays.toString(addingRoles.toArray(new String[addingRoles.size()])));
+        }
+        userStoreManager.updateRoleListOfUser(username, deletingRoles.toArray(new String[deletingRoles
+                                                      .size()]),
+                                              addingRoles.toArray(new String[addingRoles.size()]));
+        if (log.isDebugEnabled()) {
+            log.debug("Federated user: " + username
+                      + " is updated by authentication framework with roles : "
+                      + Arrays.toString(newRoles));
+        }
+    }
+
+    private void handleFederatedUserNameEqualsToSuperAdminUserName(UserRealm realm, String username,
+                                                                   UserStoreManager userStoreManager,
+                                                                   Collection<String> deletingRoles)
+            throws UserStoreException, FrameworkException {
+        if (userStoreManager.getRealmConfiguration().isPrimary()
+            && username.equals(realm.getRealmConfiguration().getAdminUserName())) {
+            if (log.isDebugEnabled()) {
+                log.debug("Federated user's username is equal to super admin's username of local IdP.");
+            }
+
+            // Whether superadmin login without superadmin role is permitted
+            if (deletingRoles
+                    .contains(realm.getRealmConfiguration().getAdminRoleName())) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Federated user doesn't have super admin role. Unable to sync roles, since" +
+                              " super admin role cannot be unassigned from super admin user");
+                }
+                throw new FrameworkException(
+                        "Federated user which having same username to super admin username of local IdP," +
+                        " trying login without having super admin role assigned");
+            }
+        }
+    }
+
+    private Map<String, String> prepareClaimMappings(Map<String, String> attributes) {
+        Map<String, String> userClaims = new HashMap<>();
+        if (attributes != null && !attributes.isEmpty()) {
+            for (Map.Entry<String, String> entry : attributes.entrySet()) {
+                String claimURI = entry.getKey();
+                String claimValue = entry.getValue();
+                if (!(StringUtils.isEmpty(claimURI) || StringUtils.isEmpty(claimValue))) {
+                    userClaims.put(claimURI, claimValue);
+                }
+            }
+        }
+        return userClaims;
+    }
+
+    private Collection<String> getRolesToAdd(UserStoreManager userStoreManager, String[] newRoles)
+            throws UserStoreException {
+        Collection<String> addingRoles = new ArrayList<>();
+        Collections.addAll(addingRoles, newRoles);
+        Collection<String> allExistingRoles = removeDomainFromNamesExcludeInternal(
+                Arrays.asList(userStoreManager.getRoleNames()));
+        addingRoles.retainAll(allExistingRoles);
+        return addingRoles;
+    }
+
+    private UserStoreManager getUserStoreManager(UserRealm realm, String userStoreDomain)
+            throws UserStoreException, FrameworkException {
+        UserStoreManager userStoreManager;
+        if (userStoreDomain != null && !userStoreDomain.isEmpty()) {
+            userStoreManager = realm.getUserStoreManager().getSecondaryUserStoreManager(
+                    userStoreDomain);
+        } else {
+            userStoreManager = realm.getUserStoreManager();
+        }
+
+        if (userStoreManager == null) {
+            throw new FrameworkException("Specified user store is invalid");
+        }
+        return userStoreManager;
     }
 
     /**
@@ -191,9 +244,9 @@ public class DefaultProvisioningHandler implements ProvisioningHandler {
 
         // If the any of above value is invalid, keep it empty to use primary userstore
         if (userStoreDomain != null
-                && realm.getUserStoreManager().getSecondaryUserStoreManager(userStoreDomain) == null) {
+            && realm.getUserStoreManager().getSecondaryUserStoreManager(userStoreDomain) == null) {
             throw new FrameworkException("Specified user store domain " + userStoreDomain
-                    + " is not valid.");
+                                         + " is not valid.");
         }
 
         return userStoreDomain;
@@ -202,36 +255,25 @@ public class DefaultProvisioningHandler implements ProvisioningHandler {
     /**
      * Generates (random) password for user to be provisioned
      *
-     * @param username
      * @return
      */
-    protected String generatePassword(String username) {
+    protected String generatePassword() {
         return new BigInteger(130, random).toString(32);
-    }
-
-    private String getUserStoreClaimValueFromMap(Map<ClaimMapping, String> claimMappingStringMap,
-                                                 String userStoreClaimURI) {
-
-        for (Map.Entry<ClaimMapping, String> entry : claimMappingStringMap.entrySet()) {
-            if (entry.getKey().getRemoteClaim().getClaimUri().equals(userStoreClaimURI)) {
-                return entry.getValue();
-            }
-        }
-        return null;
     }
 
     /**
      * remove user store domain from names except the domain 'Internal'
+     *
      * @param names
      * @return
      */
-    private List<String> removeDomainFromNamesExcludeInternal(List<String> names){
+    private List<String> removeDomainFromNamesExcludeInternal(List<String> names) {
         List<String> nameList = new ArrayList<String>();
-        for(String name:names){
+        for (String name : names) {
             String userStoreDomain = UserCoreUtil.extractDomainFromName(name);
-            if(UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(userStoreDomain)){
+            if (UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(userStoreDomain)) {
                 nameList.add(name);
-            }else{
+            } else {
                 nameList.add(UserCoreUtil.removeDomainFromName(name));
             }
         }

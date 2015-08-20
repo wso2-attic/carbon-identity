@@ -16,7 +16,7 @@
  ~ under the License.
  -->
 <component xmlns="http://products.wso2.org/carbon">
-	<menus>			
+    <menus>
 		<menu>
 			<id>identity_menu</id>
 			<i18n-key>component.identity</i18n-key>
@@ -28,26 +28,7 @@
 			<order>1</order>
 			<style-class>home</style-class>
         	</menu>
-        	<menu>
-			<id>my_identity_menu</id>
-			<i18n-key>component.my.identity</i18n-key>
-			<i18n-bundle>org.wso2.carbon.identity.menu.ui.i18n.Resources</i18n-bundle>
-			<parent-menu></parent-menu>
-			<link>#</link>
-	    		<region>region5</region>
-			<order>35</order>
-			<style-class>home</style-class>
-        	</menu>
-                <menu>^M
-                        <id>applications_menu</id>^M
-                        <i18n-key>component.applications</i18n-key>^M
-                        <i18n-bundle>org.wso2.carbon.identity.menu.ui.i18n.Resources</i18n-bundle>^M
-                        <parent-menu></parent-menu>^M
-                        <link>#</link>^M
-                        <region>region3</region>^M
-                        <order>7</order>^M
-                        <style-class>home</style-class>^M
-                </menu>^M
+
         	<menu>
 			<id>identity_entitlement_menu</id>
 			<i18n-key>component.entitlement.identity</i18n-key>

@@ -1,3 +1,21 @@
+/*
+ * Copyright (c) 2013, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 package org.wso2.carbon.identity.application.authentication.framework.handler.request.impl;
 
 import org.apache.commons.lang.StringUtils;
@@ -33,7 +51,7 @@ import java.net.URLDecoder;
  */
 public class DefaultRequestCoordinator implements RequestCoordinator {
 
-    private static Log log = LogFactory.getLog(DefaultRequestCoordinator.class);
+    private static final Log log = LogFactory.getLog(DefaultRequestCoordinator.class);
     private static volatile DefaultRequestCoordinator instance;
 
     public static DefaultRequestCoordinator getInstance() {
@@ -53,7 +71,7 @@ public class DefaultRequestCoordinator implements RequestCoordinator {
     public void handle(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
         try {
-            AuthenticationContext context = null;
+            AuthenticationContext context;
             AuthenticationRequestCacheEntry authRequest = null;
             String sessionDataKey = request.getParameter("sessionDataKey");
 
@@ -62,13 +80,24 @@ public class DefaultRequestCoordinator implements RequestCoordinator {
             // 'type' parameter should be present if so. This parameter contains
             // the request type (e.g. samlsso) set by the calling servlet.
             // TODO: use a different mechanism to determine the flow start.
-            if (request != null && request.getParameter("type") != null) {
+            if (request.getParameter("type") != null) {
                 // Retrieve AuthenticationRequestCache Entry which is stored stored from servlet.
-                AuthenticationRequestCacheKey cacheKey = new AuthenticationRequestCacheKey(
-                        sessionDataKey);
-                authRequest = (AuthenticationRequestCacheEntry) AuthenticationRequestCache
-                        .getInstance(0).getValueFromCache(cacheKey);
-                log.debug("retrieving authentication request from cache..");
+                if (sessionDataKey != null) {
+                    log.debug("retrieving authentication request from cache..");
+                    AuthenticationRequestCacheKey cacheKey = new AuthenticationRequestCacheKey(
+                            sessionDataKey);
+                    authRequest = (AuthenticationRequestCacheEntry) AuthenticationRequestCache
+                            .getInstance(0).getValueFromCache(cacheKey);
+                } else if (request.getParameter(FrameworkConstants.LOGOUT) == null ||
+                           !"true".equals(request.getParameter(FrameworkConstants.LOGOUT))) {
+
+                    // sessionDataKey is null and not a logout request
+                    if (log.isDebugEnabled()) {
+                        log.debug("Session data key is null in the request and not a logout request.");
+                    }
+
+                    FrameworkUtils.sendToRetryPage(request, response);
+                }
 
                 // if there is a cache entry, wrap the original request with params in cache entry
                 if (authRequest != null) {
@@ -84,16 +113,14 @@ public class DefaultRequestCoordinator implements RequestCoordinator {
                 context.setReturning(returning);
 
                 // if this is the flow start, store the original request in the context
-                if (!context.isReturning()) {
-                    if (authRequest != null) {
-                        context.setAuthenticationRequest(authRequest.getAuthenticationRequest());
-                    }
+                if (!context.isReturning() && authRequest != null) {
+                    context.setAuthenticationRequest(authRequest.getAuthenticationRequest());
                 }
 
 
                 if (!context.isLogoutRequest()) {
                     FrameworkUtils.getAuthenticationRequestHandler().handle(request, response,
-                            context);
+                                                                            context);
                 } else {
                     FrameworkUtils.getLogoutRequestHandler().handle(request, response, context);
                 }
@@ -112,8 +139,6 @@ public class DefaultRequestCoordinator implements RequestCoordinator {
         } catch (Throwable e) {
             log.error("Exception in Authentication Framework", e);
             FrameworkUtils.sendToRetryPage(request, response);
-        } finally {
-            //      FrameworkUtils.removeAuthenticationRequestFromCache(request.getParameter("sessionDataKey"));
         }
     }
 
@@ -140,14 +165,7 @@ public class DefaultRequestCoordinator implements RequestCoordinator {
 
         // "commonAuthCallerPath" - path of the calling servlet. This is the url
         // response should be sent to
-        String callerPath = request.getParameter(FrameworkConstants.RequestParams.CALLER_PATH);
-        try {
-            if (callerPath != null) {
-                callerPath = URLDecoder.decode(callerPath, "UTF-8");
-            }
-        } catch (UnsupportedEncodingException e) {
-            throw new FrameworkException(e.getMessage(), e);
-        }
+        String callerPath = getCallerPath(request);
 
         // "type" - type of the request. e.g. samlsso, openid, oauth, passivests
         String requestType = request.getParameter(FrameworkConstants.RequestParams.TYPE);
@@ -156,26 +174,7 @@ public class DefaultRequestCoordinator implements RequestCoordinator {
         String relyingParty = request.getParameter(FrameworkConstants.RequestParams.ISSUER);
 
         // tenant domain
-        String tenantDomain = request.getParameter(FrameworkConstants.RequestParams.TENANT_DOMAIN);
-
-        if (tenantDomain == null || tenantDomain.isEmpty() || tenantDomain.equals("null")) {
-
-            String tenantId = request.getParameter(FrameworkConstants.RequestParams.TENANT_ID);
-
-            if (tenantId != null && !tenantId.equals("-1234")) {
-                try {
-                    Tenant tenant = FrameworkServiceComponent.getRealmService().getTenantManager()
-                            .getTenant(Integer.valueOf(tenantId).intValue());
-                    if (tenant != null) {
-                        tenantDomain = tenant.getDomain();
-                    }
-                } catch (Exception e) {
-                    throw new FrameworkException(e.getMessage(), e);
-                }
-            } else {
-                tenantDomain = MultitenantConstants.SUPER_TENANT_DOMAIN_NAME;
-            }
-        }
+        String tenantDomain = getTenantDomain(request);
 
         // Store the request data sent by the caller
         AuthenticationContext context = new AuthenticationContext();
@@ -229,6 +228,42 @@ public class DefaultRequestCoordinator implements RequestCoordinator {
         return context;
     }
 
+    private String getCallerPath(HttpServletRequest request) throws FrameworkException {
+        String callerPath = request.getParameter(FrameworkConstants.RequestParams.CALLER_PATH);
+        try {
+            if (callerPath != null) {
+                callerPath = URLDecoder.decode(callerPath, "UTF-8");
+            }
+        } catch (UnsupportedEncodingException e) {
+            throw new FrameworkException(e.getMessage(), e);
+        }
+        return callerPath;
+    }
+
+    private String getTenantDomain(HttpServletRequest request) throws FrameworkException {
+        String tenantDomain = request.getParameter(FrameworkConstants.RequestParams.TENANT_DOMAIN);
+
+        if (tenantDomain == null || tenantDomain.isEmpty() || "null".equals(tenantDomain)) {
+
+            String tenantId = request.getParameter(FrameworkConstants.RequestParams.TENANT_ID);
+
+            if (tenantId != null && !"-1234".equals(tenantId)) {
+                try {
+                    Tenant tenant = FrameworkServiceComponent.getRealmService().getTenantManager()
+                            .getTenant(Integer.parseInt(tenantId));
+                    if (tenant != null) {
+                        tenantDomain = tenant.getDomain();
+                    }
+                } catch (Exception e) {
+                    throw new FrameworkException(e.getMessage(), e);
+                }
+            } else {
+                tenantDomain = MultitenantConstants.SUPER_TENANT_DOMAIN_NAME;
+            }
+        }
+        return tenantDomain;
+    }
+
     protected void findPreviousAuthenticatedSession(HttpServletRequest request,
                                                     AuthenticationContext context) throws FrameworkException {
 
@@ -245,12 +280,12 @@ public class DefaultRequestCoordinator implements RequestCoordinator {
 
             if (log.isDebugEnabled()) {
                 log.debug(FrameworkConstants.COMMONAUTH_COOKIE
-                        + " cookie is available with the value: " + cookie.getValue());
+                          + " cookie is available with the value: " + cookie.getValue());
             }
 
             // get the authentication details from the cache
             SessionContext sessionContext = FrameworkUtils.getSessionContextFromCache(cookie
-                    .getValue());
+                                                                                              .getValue());
 
             if (sessionContext != null) {
                 context.setSessionIdentifier(cookie.getValue());
@@ -267,13 +302,13 @@ public class DefaultRequestCoordinator implements RequestCoordinator {
 
                     if (log.isDebugEnabled()) {
                         log.debug("A previously authenticated sequence found for the SP: "
-                                + appName);
+                                  + appName);
                     }
 
                     context.setPreviousSessionFound(true);
                     sequenceConfig = previousAuthenticatedSeq;
                     AuthenticatedUser authenticatedUser = sequenceConfig.getAuthenticatedUser();
-                    String authenticatedUserTenantDomain = sequenceConfig.getAuthenticatedUserTenantDomain();
+                    String authenticatedUserTenantDomain = sequenceConfig.getAuthenticatedUser().getTenantDomain();
 
                     if (authenticatedUser != null) {
                         // set the user for the current authentication/logout flow

@@ -1,19 +1,17 @@
 /*
- * Copyright (c) 2005 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2005, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * WSO2 Inc. licenses this file to you under the Apache License,
- * Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package org.wso2.carbon.identity.authenticator.saml2.sso.common;
@@ -25,7 +23,12 @@ import org.apache.xerces.util.SecurityManager;
 import org.apache.xml.security.c14n.Canonicalizer;
 import org.opensaml.Configuration;
 import org.opensaml.DefaultBootstrap;
-import org.opensaml.saml2.core.*;
+import org.opensaml.saml2.core.Assertion;
+import org.opensaml.saml2.core.Attribute;
+import org.opensaml.saml2.core.AttributeStatement;
+import org.opensaml.saml2.core.AuthnRequest;
+import org.opensaml.saml2.core.LogoutRequest;
+import org.opensaml.saml2.core.Response;
 import org.opensaml.xml.ConfigurationException;
 import org.opensaml.xml.XMLObject;
 import org.opensaml.xml.XMLObjectBuilder;
@@ -34,7 +37,11 @@ import org.opensaml.xml.io.MarshallerFactory;
 import org.opensaml.xml.io.Unmarshaller;
 import org.opensaml.xml.io.UnmarshallerFactory;
 import org.opensaml.xml.security.x509.X509Credential;
-import org.opensaml.xml.signature.*;
+import org.opensaml.xml.signature.KeyInfo;
+import org.opensaml.xml.signature.Signature;
+import org.opensaml.xml.signature.Signer;
+import org.opensaml.xml.signature.X509Certificate;
+import org.opensaml.xml.signature.X509Data;
 import org.opensaml.xml.util.Base64;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -54,13 +61,21 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.security.cert.CertificateEncodingException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * This class contains all the utility methods required by SAML2 SSO Authenticator module.
  */
 public class Util {
+    private  Util(){
+
+    }
 
     private static final char[] charMapping = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j',
             'k', 'l', 'm', 'n', 'o', 'p'};
@@ -78,6 +93,7 @@ public class Util {
     private static String loginPage = "/carbon/admin/login.jsp";
     private static String landingPage = null;
     private static String externalLogoutPage = null;
+    private static boolean logoutSupportedIDP = false;
     private static String assertionConsumerServiceUrl = null;
     private static boolean initSuccess = false;
     private static Properties saml2IdpProperties = new Properties();
@@ -88,7 +104,7 @@ public class Util {
      *
      * @param authReqStr
      * @return Corresponding XMLObject which is a SAML2 object
-     * @throws org.wso2.carbon.identity.authenticator.saml2.sso.ui.SAML2SSOUIAuthenticatorException
+     * @throws SAML2SSOUIAuthenticatorException
      */
     public static XMLObject unmarshall(String authReqStr) throws SAML2SSOUIAuthenticatorException {
 
@@ -123,7 +139,7 @@ public class Util {
      *
      * @param xmlObject object that needs to serialized.
      * @return serialized object
-     * @throws org.wso2.carbon.identity.authenticator.saml2.sso.ui.SAML2SSOUIAuthenticatorException
+     * @throws SAML2SSOUIAuthenticatorException
      */
     public static String marshall(XMLObject xmlObject) throws SAML2SSOUIAuthenticatorException {
 
@@ -223,7 +239,7 @@ public class Util {
                 keyInfo.getX509Datas().add(data);
                 signature.setKeyInfo(keyInfo);
             } catch (CertificateEncodingException e) {
-                throw new SAML2SSOUIAuthenticatorException("errorGettingCert");
+                throw new SAML2SSOUIAuthenticatorException("errorGettingCert ",e);
             }
 
             authnRequest.setSignature(signature);
@@ -271,7 +287,7 @@ public class Util {
                 keyInfo.getX509Datas().add(data);
                 signature.setKeyInfo(keyInfo);
             } catch (CertificateEncodingException e) {
-                throw new Exception("errorGettingCert");
+                throw new Exception("errorGettingCert ",e);
             }
 
             logoutReq.setSignature(signature);
@@ -348,6 +364,7 @@ public class Util {
             loginPage = parameters.get(SAML2SSOAuthenticatorConstants.LOGIN_PAGE);
             landingPage = parameters.get(SAML2SSOAuthenticatorConstants.LANDING_PAGE);
             externalLogoutPage = parameters.get(SAML2SSOAuthenticatorConstants.EXTERNAL_LOGOUT_PAGE);
+            logoutSupportedIDP = Boolean.parseBoolean(parameters.get(SAML2SSOAuthenticatorConstants.LOGOUT_SUPPORTED_IDP));
             assertionConsumerServiceUrl = parameters.get(SAML2SSOAuthenticatorConstants.ASSERTION_CONSUMER_SERVICE_URL);
 
             initSuccess = true;
@@ -492,6 +509,15 @@ public class Util {
      */
     public static String getExternalLogoutPage() {
         return externalLogoutPage;
+    }
+
+    /**
+     * Returns whether IDP supported for logout or not
+     * used while redirecting to external logout page
+     * @return
+     */
+    public static boolean isLogoutSupportedIDP() {
+        return logoutSupportedIDP;
     }
 
     /**

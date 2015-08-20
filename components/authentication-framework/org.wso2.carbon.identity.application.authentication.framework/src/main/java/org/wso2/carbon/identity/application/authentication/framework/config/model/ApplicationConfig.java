@@ -1,12 +1,12 @@
 /*
- *  Copyright (c) 2005-2013, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2013, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- *  WSO2 Inc. licenses this file to you under the Apache License,
- *  Version 2.0 (the "License"); you may not use this file except
- *  in compliance with the License.
- *  You may obtain a copy of the License at
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -17,7 +17,13 @@
  */
 package org.wso2.carbon.identity.application.authentication.framework.config.model;
 
-import org.wso2.carbon.identity.application.common.model.*;
+import org.wso2.carbon.identity.application.common.model.ApplicationPermission;
+import org.wso2.carbon.identity.application.common.model.ClaimConfig;
+import org.wso2.carbon.identity.application.common.model.ClaimMapping;
+import org.wso2.carbon.identity.application.common.model.LocalAndOutboundAuthenticationConfig;
+import org.wso2.carbon.identity.application.common.model.PermissionsAndRoleConfig;
+import org.wso2.carbon.identity.application.common.model.RoleMapping;
+import org.wso2.carbon.identity.application.common.model.ServiceProvider;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -43,6 +49,8 @@ public class ApplicationConfig implements Serializable {
     private Map<String, String> roleMappings = new HashMap<String, String>();
     private Map<String, String> requestedClaims = new HashMap<String, String>();
     private boolean isSaaSApp;
+    private boolean useTenantDomainInLocalSubjectIdentifier = true;
+    private boolean useUserstoreDomainInLocalSubjectIdentifier = true;
 
     public ApplicationConfig(ServiceProvider application) {
         this.serviceProvider = application;
@@ -53,6 +61,9 @@ public class ApplicationConfig implements Serializable {
 
         if (outboundAuthConfig != null) {
             subjectClaimUri = outboundAuthConfig.getSubjectClaimUri();
+            setUseTenantDomainInLocalSubjectIdentifier(outboundAuthConfig.isUseTenantDomainInLocalSubjectIdentifier());
+            setUseUserstoreDomainInLocalSubjectIdentifier(outboundAuthConfig
+                    .isUseUserstoreDomainInLocalSubjectIdentifier());
         }
 
 
@@ -69,7 +80,7 @@ public class ApplicationConfig implements Serializable {
                 claimMappings = new HashMap<String, String>();
                 for (ClaimMapping claim : claimMapping) {
                     if (claim.getRemoteClaim() != null
-                            && claim.getRemoteClaim().getClaimUri() != null) {
+                        && claim.getRemoteClaim().getClaimUri() != null) {
                         if (claim.getLocalClaim() != null) {
                             claimMappings.put(claim.getRemoteClaim().getClaimUri(), claim
                                     .getLocalClaim().getClaimUri());
@@ -104,16 +115,16 @@ public class ApplicationConfig implements Serializable {
 
             for (int i = 0; i < permissionList.length; i++) {
                 ApplicationPermission permission = permissionList[i];
-                permissions[i++] = permission.getValue();
+                permissions[i] = permission.getValue();
             }
 
-            RoleMapping[] roleMappings = permissionRoleConfiguration.getRoleMappings();
+            RoleMapping[] tempRoleMappings = permissionRoleConfiguration.getRoleMappings();
 
-            if (roleMappings != null && roleMappings.length > 0) {
+            if (tempRoleMappings != null && tempRoleMappings.length > 0) {
                 this.roleMappings = new HashMap<String, String>();
-                for (RoleMapping roleMapping : roleMappings) {
+                for (RoleMapping roleMapping : tempRoleMappings) {
                     this.roleMappings.put(roleMapping.getLocalRole().getLocalRoleName(),
-                            roleMapping.getRemoteRole());
+                                          roleMapping.getRemoteRole());
                 }
             }
         }
@@ -144,11 +155,17 @@ public class ApplicationConfig implements Serializable {
     }
 
     public String[] getPermissions() {
-        return permissions;
+        if (permissions != null) {
+            return permissions.clone();
+        } else {
+            return new String[0];
+        }
     }
 
     public void setPermissions(String[] permissions) {
-        this.permissions = permissions;
+        if (permissions != null) {
+            this.permissions = permissions.clone();
+        }
     }
 
     public Map<String, String> getClaimMappings() {
@@ -207,4 +224,19 @@ public class ApplicationConfig implements Serializable {
         return isSaaSApp;
     }
 
+    public boolean isUseTenantDomainInLocalSubjectIdentifier() {
+        return useTenantDomainInLocalSubjectIdentifier;
+    }
+
+    public void setUseTenantDomainInLocalSubjectIdentifier(boolean useTenantDomainInLocalSubjectIdentifier) {
+        this.useTenantDomainInLocalSubjectIdentifier = useTenantDomainInLocalSubjectIdentifier;
+    }
+
+    public boolean isUseUserstoreDomainInLocalSubjectIdentifier() {
+        return useUserstoreDomainInLocalSubjectIdentifier;
+    }
+
+    public void setUseUserstoreDomainInLocalSubjectIdentifier(boolean useUserstoreDomainInLocalSubjectIdentifier) {
+        this.useUserstoreDomainInLocalSubjectIdentifier = useUserstoreDomainInLocalSubjectIdentifier;
+    }
 }

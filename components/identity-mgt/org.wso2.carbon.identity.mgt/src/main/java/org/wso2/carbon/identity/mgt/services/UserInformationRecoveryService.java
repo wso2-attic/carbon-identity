@@ -1,17 +1,19 @@
 /*
- * Copyright (c) WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package org.wso2.carbon.identity.mgt.services;
@@ -32,7 +34,13 @@ import org.wso2.carbon.identity.mgt.IdentityMgtServiceException;
 import org.wso2.carbon.identity.mgt.RecoveryProcessor;
 import org.wso2.carbon.identity.mgt.beans.VerificationBean;
 import org.wso2.carbon.identity.mgt.constants.IdentityMgtConstants;
-import org.wso2.carbon.identity.mgt.dto.*;
+import org.wso2.carbon.identity.mgt.dto.ChallengeQuestionDTO;
+import org.wso2.carbon.identity.mgt.dto.ChallengeQuestionIdsDTO;
+import org.wso2.carbon.identity.mgt.dto.NotificationDataDTO;
+import org.wso2.carbon.identity.mgt.dto.UserChallengesDTO;
+import org.wso2.carbon.identity.mgt.dto.UserDTO;
+import org.wso2.carbon.identity.mgt.dto.UserIdentityClaimDTO;
+import org.wso2.carbon.identity.mgt.dto.UserRecoveryDTO;
 import org.wso2.carbon.identity.mgt.internal.IdentityMgtServiceComponent;
 import org.wso2.carbon.identity.mgt.util.UserIdentityManagementUtil;
 import org.wso2.carbon.identity.mgt.util.Utils;
@@ -86,7 +94,7 @@ public class UserInformationRecoveryService {
             throws IdentityMgtServiceException {
 
         UserDTO userDTO;
-        VerificationBean bean = new VerificationBean();
+        VerificationBean bean;
         if (log.isDebugEnabled()) {
             log.debug("User verification request received with username : " + username);
         }
@@ -130,7 +138,7 @@ public class UserInformationRecoveryService {
 
         UserDTO userDTO = null;
         VerificationBean bean = null;
-        
+
         if (log.isDebugEnabled()) {
             log.debug("User recovery notification sending request received with username : " + username + " notification type :" + notificationType);
         }
@@ -193,7 +201,7 @@ public class UserInformationRecoveryService {
 
 
         } catch (IdentityException e) {
-            bean = handleError(VerificationBean.ERROR_CODE_UN_EXPECTED
+            bean = handleError(VerificationBean.ERROR_CODE_UNEXPECTED
                     + " Error when sending recovery message for user: " + username, e);
             return bean;
         } finally {
@@ -313,7 +321,7 @@ public class UserInformationRecoveryService {
             try {
                 tenantId = tenantManager.getTenantId(userDTO.getTenantDomain());
             } catch (UserStoreException e) {
-                log.warn("No Tenant id for tenant domain " + userDTO.getTenantDomain());
+                log.warn("No Tenant id for tenant domain " + userDTO.getTenantDomain(), e);
             }
 
             if (recoveryProcessor.verifyConfirmationCode(3, userDTO.getUserId(), confirmationCode).isVerified()) {
@@ -330,7 +338,7 @@ public class UserInformationRecoveryService {
             }
 
         } catch (Exception e) {
-            bean = handleError(VerificationBean.ERROR_CODE_UN_EXPECTED
+            bean = handleError(VerificationBean.ERROR_CODE_UNEXPECTED
                     + " Error while updating credential for user: " + username, e);
             return bean;
         } finally {
@@ -393,7 +401,7 @@ public class UserInformationRecoveryService {
             } else {
                 String msg = "Verification failed for user. Error : " + bean.getError();
                 log.error(msg);
-                idsDTO.setError(VerificationBean.ERROR_CODE_UN_EXPECTED + " " + msg);
+                idsDTO.setError(VerificationBean.ERROR_CODE_UNEXPECTED + " " + msg);
                 idsDTO.setKey("");
             }
         }finally {
@@ -499,9 +507,7 @@ public class UserInformationRecoveryService {
             log.debug("User challenge answer request received with username :" + userName);
         }
 
-        if (questionId != null && answer != null) {
-
-        } else {
+        if (questionId == null || answer == null) {
             String error = "No challenge question id provided for verification";
             bean.setError(error);
             if (log.isDebugEnabled()) {
@@ -614,7 +620,7 @@ public class UserInformationRecoveryService {
             return new UserIdentityClaimDTO[0];
         }
 
-        ArrayList<UserIdentityClaimDTO> claimList = new ArrayList<UserIdentityClaimDTO>();
+        List<UserIdentityClaimDTO> claimList = new ArrayList<UserIdentityClaimDTO>();
 
         for (int i = 0; i < claims.length; i++) {
             if (claims[i].getDisplayTag() != null
@@ -752,12 +758,20 @@ public class UserInformationRecoveryService {
             }
 
         } catch (Exception e) {
-            vBean = handleError(VerificationBean.ERROR_CODE_UN_EXPECTED
+            vBean = handleError(VerificationBean.ERROR_CODE_UNEXPECTED
                     + " Error retrieving the user store manager for the tenant", e);
             return vBean;
         }
 
         try {
+
+            if (userStoreManager == null) {
+                vBean = new VerificationBean();
+                vBean.setVerified(false);
+                vBean.setError(VerificationBean.ERROR_CODE_UNEXPECTED
+                        + " Error retrieving the user store manager for the tenant");
+                return vBean;
+            }
 
             Map<String, String> claimsMap = new HashMap<String, String>();
             for (UserIdentityClaimDTO userIdentityClaimDTO : claims) {
@@ -770,40 +784,28 @@ public class UserInformationRecoveryService {
             String identityRoleName = UserCoreConstants.INTERNAL_DOMAIN
                     + CarbonConstants.DOMAIN_SEPARATOR + IdentityConstants.IDENTITY_DEFAULT_ROLE;
 
-            try {
-                if (!userStoreManager.isExistingRole(identityRoleName, false)) {
-                    permission = new Permission("/permission/admin/login",
-                            UserMgtConstants.EXECUTE_ACTION);
-                    userStoreManager.addRole(identityRoleName, new String[]{userName},
-                            new Permission[]{permission}, false);
-                } else {
-                    userStoreManager.updateUserListOfRole(identityRoleName, new String[]{},
-                            new String[]{userName});
-                }
-            } catch (org.wso2.carbon.user.api.UserStoreException e) {
-                userStoreManager.deleteUser(userName);
-                vBean = handleError(VerificationBean.ERROR_CODE_UN_EXPECTED
-                        + " Error occurred while adding user : " + userName, e);
-                return vBean;
+            if (!userStoreManager.isExistingRole(identityRoleName, false)) {
+                permission = new Permission("/permission/admin/login",
+                        UserMgtConstants.EXECUTE_ACTION);
+                userStoreManager.addRole(identityRoleName, new String[]{userName},
+                        new Permission[]{permission}, false);
+            } else {
+                userStoreManager.updateUserListOfRole(identityRoleName, new String[]{},
+                        new String[]{userName});
             }
-        } catch (UserStoreException e) {
-            vBean = handleError(VerificationBean.ERROR_CODE_UN_EXPECTED
-                    + " Error occurred while adding user : " + userName, e);
-            return vBean;
-        }
 
-        IdentityMgtConfig config = IdentityMgtConfig.getInstance();
 
-        if (config.isListenerEnable() && config.isAuthPolicyAccountLockOnCreation()) {
-            UserDTO userDTO = new UserDTO(userName);
-            userDTO.setTenantId(tenantId);
+            IdentityMgtConfig config = IdentityMgtConfig.getInstance();
 
-            UserRecoveryDTO dto = new UserRecoveryDTO(userDTO);
-            dto.setNotification(IdentityMgtConstants.Notification.ACCOUNT_CONFORM);
-            dto.setNotificationType("EMAIL");
+            if (config.isListenerEnable() && config.isAuthPolicyAccountLockOnCreation()) {
+                UserDTO userDTO = new UserDTO(userName);
+                userDTO.setTenantId(tenantId);
 
-            RecoveryProcessor processor = IdentityMgtServiceComponent.getRecoveryProcessor();
-            try {
+                UserRecoveryDTO dto = new UserRecoveryDTO(userDTO);
+                dto.setNotification(IdentityMgtConstants.Notification.ACCOUNT_CONFORM);
+                dto.setNotificationType("EMAIL");
+
+                RecoveryProcessor processor = IdentityMgtServiceComponent.getRecoveryProcessor();
                 vBean = processor.updateConfirmationCode(1, userName, tenantId);
 
                 dto.setConfirmationCode(vBean.getKey());
@@ -815,14 +817,23 @@ public class UserInformationRecoveryService {
                     vBean.setNotificationData(notificationDto);
                 }
 
-            } catch (IdentityException e) {
-                vBean = handleError(VerificationBean.ERROR_CODE_UN_EXPECTED
-                        + " Error occurred while registering user : " + userName, e);
-                return vBean;
+            } else {
+                vBean.setVerified(true);
+            }
+        } catch (UserStoreException | IdentityException e) {
+            vBean = handleError(VerificationBean.ERROR_CODE_UNEXPECTED
+                    + " Error occurred while registering user : " + userName, e);
+            //Rollback if user exists
+            try {
+                if (userStoreManager.isExistingUser(userName)) {
+                    userStoreManager.deleteUser(userName);
+                }
+            } catch (org.wso2.carbon.user.core.UserStoreException e1) {
+                vBean = handleError(VerificationBean.ERROR_CODE_UNEXPECTED
+                        + " Error occurred while rollback registered user : " + userName, e);
             }
 
-        } else {
-            vBean.setVerified(true);
+            return vBean;
         }
 
         return vBean;
@@ -932,7 +943,7 @@ public class UserInformationRecoveryService {
         }
         return bean;
     }
-    
+
     private VerificationBean handleError(String error, Exception e) {
 
         VerificationBean bean = new VerificationBean();
@@ -943,7 +954,7 @@ public class UserInformationRecoveryService {
             log.error(error, e);
         } else {
             bean.setError(e.getMessage());
-            log.error(e);
+            log.error(e.getMessage(), e);
         }
 
         return bean;
@@ -958,7 +969,7 @@ public class UserInformationRecoveryService {
             log.error(error, e);
         } else {
             bean.setError(e.getMessage());
-            log.error(e);
+            log.error(e.getMessage(), e);
         }
 
         return bean;
@@ -973,7 +984,7 @@ public class UserInformationRecoveryService {
             log.error(error, e);
         } else {
             bean.setError(e.getMessage());
-            log.error(e);
+            log.error(e.getMessage(), e);
         }
 
         return bean;

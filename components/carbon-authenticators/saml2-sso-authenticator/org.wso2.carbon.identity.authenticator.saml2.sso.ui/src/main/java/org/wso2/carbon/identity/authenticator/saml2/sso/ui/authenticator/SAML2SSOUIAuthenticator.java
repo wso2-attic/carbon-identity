@@ -31,12 +31,13 @@ import org.wso2.carbon.core.security.AuthenticatorsConfiguration;
 import org.wso2.carbon.identity.authenticator.saml2.sso.common.SAML2SSOAuthenticatorConstants;
 import org.wso2.carbon.identity.authenticator.saml2.sso.common.SAML2SSOUIAuthenticatorException;
 import org.wso2.carbon.identity.authenticator.saml2.sso.common.Util;
-import org.wso2.carbon.identity.authenticator.saml2.sso.common.client.SAML2SSOAuthenticationClient;
+import org.wso2.carbon.identity.authenticator.saml2.sso.ui.client.SAML2SSOAuthenticationClient;
 import org.wso2.carbon.identity.authenticator.saml2.sso.ui.internal.SAML2SSOAuthFEDataHolder;
 import org.wso2.carbon.identity.authenticator.saml2.sso.ui.session.SSOSessionManager;
 import org.wso2.carbon.ui.AbstractCarbonUIAuthenticator;
 import org.wso2.carbon.ui.CarbonSSOSessionManager;
 import org.wso2.carbon.ui.CarbonUIUtil;
+import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.utils.ServerConstants;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
@@ -49,8 +50,10 @@ import java.util.Map;
 public class SAML2SSOUIAuthenticator extends AbstractCarbonUIAuthenticator {
 
     public static final Log log = LogFactory.getLog(SAML2SSOUIAuthenticator.class);
-    private static final int DEFAULT_PRIORITY_LEVEL = 50;
     private static final Log AUDIT_LOG = CarbonConstants.AUDIT_LOG;
+
+    private static final int DEFAULT_PRIORITY_LEVEL = 50;
+    private static final String AUTHENTICATOR_NAME = "SAML2SSOUIAuthenticator";
 
     public boolean canHandle(HttpServletRequest request) {
         String relayState = request.getParameter(SAML2SSOAuthenticatorConstants.HTTP_POST_PARAM_RELAY_STATE);
@@ -68,6 +71,8 @@ public class SAML2SSOUIAuthenticator extends AbstractCarbonUIAuthenticator {
 
     public void authenticate(HttpServletRequest request) throws AuthenticationException {
         boolean isAuthenticated = false;
+        String auditResult = SAML2SSOAuthenticatorConstants.AUDIT_RESULT_FAILED;
+
         HttpSession session = request.getSession();
         Response samlResponse = (Response) request.getAttribute(SAML2SSOAuthenticatorConstants.HTTP_ATTR_SAML2_RESP_TOKEN);
         String responseStr = request.getParameter(SAML2SSOAuthenticatorConstants.HTTP_POST_PARAM_SAML2_RESP);
@@ -105,6 +110,7 @@ public class SAML2SSOUIAuthenticator extends AbstractCarbonUIAuthenticator {
                     SSOSessionManager.getInstance().addSession(sessionId, request.getSession());
                 }
                 onSuccessAdminLogin(request, username);
+                auditResult = SAML2SSOAuthenticatorConstants.AUDIT_RESULT_SUCCESS;
             } else {
                 log.error("Authentication failed.");
             }
@@ -115,11 +121,16 @@ public class SAML2SSOUIAuthenticator extends AbstractCarbonUIAuthenticator {
             log.error("Error when creating SAML2SSOAuthenticationClient.", e);
             throw new AuthenticationException("Error when creating SAML2SSOAuthenticationClient.", e);
         }
-        if (AUDIT_LOG.isInfoEnabled()) {
+        if (username != null && username.trim().length() > 0 && AUDIT_LOG.isInfoEnabled()) {
             String tenantAwareUsername = MultitenantUtils.getTenantAwareUsername(username);
-            String tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-            AUDIT_LOG.info(String.format(SAML2SSOAuthenticatorConstants.AUDIT_MESSAGE, tenantAwareUsername + "@" + tenantDomain, "Login", "SAML2SSOUIAuthenticator", "",
-                    isAuthenticated ? SAML2SSOAuthenticatorConstants.AUDIT_SUCCESS : SAML2SSOAuthenticatorConstants.AUDIT_FAILED));
+            String tenantDomain = MultitenantUtils.getTenantDomain(username);
+
+            String auditInitiator = tenantAwareUsername + UserCoreConstants.TENANT_DOMAIN_COMBINER + tenantDomain;
+            String auditData = "";
+
+            AUDIT_LOG.info(String.format(SAML2SSOAuthenticatorConstants.AUDIT_MESSAGE,
+                    auditInitiator, SAML2SSOAuthenticatorConstants.AUDIT_ACTION_LOGIN, AUTHENTICATOR_NAME,
+                    auditData, auditResult));
         }
         if (!isAuthenticated) {
             throw new AuthenticationException("Authentication failure " + username);
@@ -127,6 +138,7 @@ public class SAML2SSOUIAuthenticator extends AbstractCarbonUIAuthenticator {
     }
 
     public void unauthenticate(Object o) throws Exception {
+        String auditResult = SAML2SSOAuthenticatorConstants.AUDIT_RESULT_FAILED;
         HttpServletRequest request = null;
         HttpSession session = null;
 
@@ -143,7 +155,6 @@ public class SAML2SSOUIAuthenticator extends AbstractCarbonUIAuthenticator {
                 .getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
 
         String backendServerURL = CarbonUIUtil.getServerURL(servletContext, session);
-        String result = SAML2SSOAuthenticatorConstants.AUDIT_FAILED;
         try {
             String cookie = (String) session.getAttribute(ServerConstants.ADMIN_SERVICE_AUTH_TOKEN);
             SAML2SSOAuthenticationClient authClient = new SAML2SSOAuthenticationClient(configContext,
@@ -151,34 +162,54 @@ public class SAML2SSOUIAuthenticator extends AbstractCarbonUIAuthenticator {
                     cookie,
                     session);
             authClient.logout(session);
-            result = SAML2SSOAuthenticatorConstants.AUDIT_SUCCESS;
-            log.info(username + "@" + PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain() + " successfully logged out");
-        } catch (Exception ignored) {
-            String msg = "Configuration context is null.";
-            log.error(msg);
-            throw new Exception(msg);
-        } finally {
-            if (AUDIT_LOG.isInfoEnabled()) {
-                String tenantAwareUsername = MultitenantUtils.getTenantAwareUsername(username);
-                String tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-                AUDIT_LOG.info(String.format(SAML2SSOAuthenticatorConstants.AUDIT_MESSAGE, tenantAwareUsername + "@" + tenantDomain, "Logout", "SAML2SSOUIAuthenticator",
-                        "", result));
-            }
-        }
-
 
 //        // memory cleanup : remove the invalid session from the invalid session list at the SSOSessionManager
 //        CarbonSSOSessionManager ssoSessionManager =
 //                    SAML2SSOAuthFEDataHolder.getInstance().getCarbonSSOSessionManager();
 //        ssoSessionManager.removeInvalidSession(session.getId());
 
-        if (request != null) {
-            // this attribute is used to avoid generate the logout request
-            request.setAttribute(SAML2SSOAuthenticatorConstants.HTTP_ATTR_IS_LOGOUT_REQ, Boolean.valueOf(true));
-            request.setAttribute(SAML2SSOAuthenticatorConstants.LOGGED_IN_USER, session.getAttribute(
-                    "logged-user"));
+            if (request != null) {
+                // this attribute is used to avoid generate the logout request
+                request.setAttribute(SAML2SSOAuthenticatorConstants.HTTP_ATTR_IS_LOGOUT_REQ, Boolean.valueOf(true));
+                request.setAttribute(SAML2SSOAuthenticatorConstants.LOGGED_IN_USER, session.getAttribute(
+                        "logged-user"));
 
-            request.setAttribute(SAML2SSOAuthenticatorConstants.EXTERNAL_LOGOUT_PAGE, Util.getExternalLogoutPage());
+                if(!Util.isLogoutSupportedIDP()) {
+                    request.setAttribute(SAML2SSOAuthenticatorConstants.EXTERNAL_LOGOUT_PAGE, Util.getExternalLogoutPage());
+                }
+            }
+
+            auditResult = SAML2SSOAuthenticatorConstants.AUDIT_RESULT_SUCCESS;
+
+            if(username != null && !"".equals(username.trim())
+                    && request != null && "true".equalsIgnoreCase(request.getParameter("logoutcomplete"))) {
+
+                if(session.getAttribute("tenantDomain") != null) {
+                    // Build username for authorized user login
+                    // username in the session is in tenantAware manner
+                    username = username + UserCoreConstants.TENANT_DOMAIN_COMBINER
+                            + PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+                } else {
+                    // Keep same username for unauthorized user login
+                }
+
+                log.info(username + " successfully logged out");
+            }
+        } catch (Exception ignored) {
+            String msg = "Configuration context is null.";
+            log.error(msg);
+            throw new Exception(msg);
+        } finally {
+            if (username != null && username.trim().length() > 0 && AUDIT_LOG.isInfoEnabled()
+                    && request != null && "true".equalsIgnoreCase(request.getParameter("logoutcomplete"))) {
+                // use the username built above (when printing info log)
+                String auditInitiator = username;
+                String auditData = "";
+
+                AUDIT_LOG.info(String.format(SAML2SSOAuthenticatorConstants.AUDIT_MESSAGE,
+                        auditInitiator, SAML2SSOAuthenticatorConstants.AUDIT_ACTION_LOGOUT, AUTHENTICATOR_NAME,
+                        auditData, auditResult));
+            }
         }
     }
 

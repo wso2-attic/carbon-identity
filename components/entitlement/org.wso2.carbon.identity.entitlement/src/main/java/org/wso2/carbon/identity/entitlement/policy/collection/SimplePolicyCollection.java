@@ -20,7 +20,12 @@ package org.wso2.carbon.identity.entitlement.policy.collection;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.balana.*;
+import org.wso2.balana.AbstractPolicy;
+import org.wso2.balana.MatchResult;
+import org.wso2.balana.Policy;
+import org.wso2.balana.PolicyReference;
+import org.wso2.balana.PolicySet;
+import org.wso2.balana.VersionConstraints;
 import org.wso2.balana.combine.PolicyCombiningAlgorithm;
 import org.wso2.balana.ctx.EvaluationCtx;
 import org.wso2.carbon.identity.entitlement.EntitlementException;
@@ -153,5 +158,21 @@ public class SimplePolicyCollection implements PolicyCollection {
     @Override
     public void setPolicyCombiningAlgorithm(PolicyCombiningAlgorithm algorithm) {
         this.combiningAlg = algorithm;
+    }
+
+    @Override
+    public boolean deletePolicy(String policyId) {
+
+        return this.policyCollection.remove(policyId) != null ;
+    }
+
+    @Override
+    public LinkedHashMap getPolicyMap() {
+        return this.policyCollection;
+    }
+
+    @Override
+    public void setPolicyMap(LinkedHashMap policyMap) {
+        this.policyCollection = policyMap ;
     }
 }

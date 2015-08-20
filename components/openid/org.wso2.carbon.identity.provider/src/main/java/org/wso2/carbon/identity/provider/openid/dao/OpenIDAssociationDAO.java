@@ -1,17 +1,19 @@
 /*
- * Copyright 2005-2008 WSO2, Inc. (http://wso2.com)
- * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright (c) 2005-2008, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package org.wso2.carbon.identity.provider.openid.dao;
@@ -30,7 +32,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-
 /**
  * The DAO used to access the identity database. This basically store, load and
  * remove associations from the database.
@@ -39,8 +40,16 @@ import java.sql.SQLException;
  */
 public class OpenIDAssociationDAO {
 
-    private static Log log = LogFactory.getLog(OpenIDAssociationDAO.class);
+    private static final Log log = LogFactory.getLog(OpenIDAssociationDAO.class);
     private String associationStore;
+
+    private static OpenIDAssociationDAO privateStore;
+    private static OpenIDAssociationDAO sharedStore;
+
+    static {
+        privateStore = new OpenIDAssociationDAO(OpenIDServerConstants.ASSOCIATION_STORE_TYPE_PRIVATE);
+        sharedStore = new OpenIDAssociationDAO(OpenIDServerConstants.ASSOCIATION_STORE_TYPE_SHARED);
+    }
 
     /**
      * Create the DAO with the identity database connection.
@@ -48,8 +57,16 @@ public class OpenIDAssociationDAO {
      * @param dbConnection
      * @param privateAssociations if this DAO stores private associations
      */
-    public OpenIDAssociationDAO(String storeType) {
+    private OpenIDAssociationDAO(String storeType) {
         associationStore = storeType;
+    }
+
+    public static OpenIDAssociationDAO getInstance(String storeType){
+        if(storeType.equals(OpenIDServerConstants.ASSOCIATION_STORE_TYPE_PRIVATE)){
+            return privateStore;
+        } else{
+            return sharedStore;
+        }
     }
 
     /**
@@ -58,7 +75,7 @@ public class OpenIDAssociationDAO {
      *
      * @param association
      */
-    public synchronized void storeAssociation(Association association) {
+    public void storeAssociation(Association association) {
 
         Connection connection = null;
         PreparedStatement prepStmt = null;
@@ -66,7 +83,7 @@ public class OpenIDAssociationDAO {
         try {
             connection = JDBCPersistenceManager.getInstance().getDBConnection();
 
-            if (!isAssociationExist(connection, association.getHandle())) {
+//            if (!isAssociationExist(connection, association.getHandle())) {
                 prepStmt = connection.prepareStatement(OpenIDSQLQueries.STORE_ASSOCIATION);
                 prepStmt.setString(1, association.getHandle());
                 prepStmt.setString(2, association.getType());
@@ -75,19 +92,14 @@ public class OpenIDAssociationDAO {
                 prepStmt.setString(5, associationStore);
                 prepStmt.execute();
                 connection.commit();
-                log.debug("Association " + association.getHandle() +
-                        " successfully stored in the database.");
-            } else {
-                log.debug("Association " + association.getHandle() +
-                        " already exist in the databse.");
-            }
-
-        } catch (SQLException e) {
+                log.debug("Association " + association.getHandle() + " successfully stored in the database.");
+//            } else {
+//                log.debug("Association " + association.getHandle() + " already exist in the database.");
+//            }
+            connection.commit();
+        } catch (SQLException | IdentityException e) {
             log.error("Failed to store the association " + association.getHandle() +
-                    ". Error while accessing the database. ", e);
-        } catch (IdentityException e) {
-            log.error("Failed to store the association " + association.getHandle() +
-                    ". Error while accessing the database. ", e);
+                      ". Error while accessing the database. ", e);
         } finally {
             IdentityDatabaseUtil.closeStatement(prepStmt);
             IdentityDatabaseUtil.closeConnection(connection);
@@ -100,7 +112,7 @@ public class OpenIDAssociationDAO {
      * @param handle
      * @return <code>Association</code>
      */
-    public synchronized Association loadAssociation(String handle) {
+    public Association loadAssociation(String handle) {
 
         Connection connection = null;
         PreparedStatement prepStmt = null;
@@ -116,11 +128,8 @@ public class OpenIDAssociationDAO {
                 log.debug("Loading association " + handle);
                 return buildAssociationObject(results);
             }
-
-        } catch (SQLException e) {
-            log.error("Failed to load the association " + handle +
-                    ". Error while accessing the database. ", e);
-        } catch (IdentityException e) {
+            connection.commit();
+        } catch (SQLException | IdentityException e) {
             log.error("Failed to load the association " + handle +
                     ". Error while accessing the database. ", e);
         } finally {
@@ -136,7 +145,7 @@ public class OpenIDAssociationDAO {
      *
      * @param handle
      */
-    public synchronized void removeAssociation(String handle) {
+    public void removeAssociation(String handle) {
 
         Connection connection = null;
         PreparedStatement prepStmt = null;
@@ -156,11 +165,9 @@ public class OpenIDAssociationDAO {
             }
 
         } catch (SQLException e) {
-            log.error("Failed to remove the association " + handle +
-                    ". Error while accessing the database. ", e);
+            log.error("Failed to remove the association " + handle + ". Error while accessing the database. ", e);
         } catch (IdentityException e) {
-            log.error("Failed to remove the association " + handle +
-                    ". Error while accessing the database. ", e);
+            log.error("Failed to remove the association " + handle + ". Error while accessing the database. ", e);
         } finally {
             IdentityDatabaseUtil.closeStatement(prepStmt);
             IdentityDatabaseUtil.closeConnection(connection);
@@ -174,7 +181,7 @@ public class OpenIDAssociationDAO {
      * @return boolean
      * @throws SQLException
      */
-    private synchronized boolean isAssociationExist(Connection connection, String handle) {
+    private boolean isAssociationExist(Connection connection, String handle) {
 
         PreparedStatement prepStmt = null;
         ResultSet results = null;
@@ -191,8 +198,7 @@ public class OpenIDAssociationDAO {
             }
 
         } catch (SQLException e) {
-            log.error("Failed to load the association " + handle +
-                    ". Error while accessing the database. ", e);
+            log.error("Failed to load the association " + handle + ". Error while accessing the database. ", e);
         } finally {
             IdentityDatabaseUtil.closeResultSet(results);
             IdentityDatabaseUtil.closeStatement(prepStmt);
@@ -222,20 +228,21 @@ public class OpenIDAssociationDAO {
             String assocStore = results.getString(5);
 
             // we check if params are missing
-            if (assocHandle == null || assocType == null || expireIn == null || macKey == null ||
-                    assocStore == null) {
+            if (assocHandle == null || assocType == null || expireIn == null || macKey == null || assocStore == null) {
                 log.error("Required data missing. Cannot build the Association object");
                 return null;
             }
 
             // Here we check if we are loading the correct associations
             if (associationStore.equals(OpenIDServerConstants.ASSOCIATION_STORE_TYPE_PRIVATE) &&
-                    assocStore.equals(OpenIDServerConstants.ASSOCIATION_STORE_TYPE_SHARED)) {
-                log.error("Invalid association data found. Tried to load a Private Association but found a Shared Association");
+                assocStore.equals(OpenIDServerConstants.ASSOCIATION_STORE_TYPE_SHARED)) {
+                log.error(
+                        "Invalid association data found. Tried to load a Private Association but found a Shared Association");
                 return null;
             } else if (associationStore.equals(OpenIDServerConstants.ASSOCIATION_STORE_TYPE_SHARED) &&
-                    assocStore.equals(OpenIDServerConstants.ASSOCIATION_STORE_TYPE_PRIVATE)) {
-                log.error("Invalid association data found. Tried to load a Shared Association but found a Private Association");
+                       assocStore.equals(OpenIDServerConstants.ASSOCIATION_STORE_TYPE_PRIVATE)) {
+                log.error(
+                        "Invalid association data found. Tried to load a Shared Association but found a Private Association");
                 return null;
             }
 
@@ -244,8 +251,7 @@ public class OpenIDAssociationDAO {
                 assoc = Association.createHmacSha1(assocHandle, Base64.decode(macKey), expireIn);
 
             } else if (Association.TYPE_HMAC_SHA256.equals(assocType)) {
-                assoc =
-                        Association.createHmacSha256(assocHandle, Base64.decode(macKey), expireIn);
+                assoc = Association.createHmacSha256(assocHandle, Base64.decode(macKey), expireIn);
 
             } else {
                 log.error("Invalid association type " + assocType + " loaded from database");
@@ -253,7 +259,8 @@ public class OpenIDAssociationDAO {
             }
 
         } catch (SQLException e) {
-            log.error("Failed to build the Association for " + assocHandle + ". Error while accessing the database.", e);
+            log.error("Failed to build the Association for " + assocHandle + ". Error while accessing the database.",
+                      e);
         } finally {
             IdentityDatabaseUtil.closeResultSet(results);
         }

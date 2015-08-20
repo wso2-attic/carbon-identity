@@ -1,20 +1,20 @@
 /*
-*Copyright (c) 2005-2013, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*WSO2 Inc. licenses this file to you under the Apache License,
-*Version 2.0 (the "License"); you may not use this file except
-*in compliance with the License.
-*You may obtain a copy of the License at
-*
-*http://www.apache.org/licenses/LICENSE-2.0
-*
-*Unless required by applicable law or agreed to in writing,
-*software distributed under the License is distributed on an
-*"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-*KIND, either express or implied.  See the License for the
-*specific language governing permissions and limitations
-*under the License.
-*/
+ * Copyright (c) 2013, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 
 package org.wso2.carbon.identity.oauth.dao;
 
@@ -45,7 +45,7 @@ public class OAuthConsumerDAO {
         try {
             persistenceProcessor = OAuthServerConfiguration.getInstance().getPersistenceProcessor();
         } catch (IdentityOAuth2Exception e) {
-            log.error("Error retrieving TokenPersistenceProcessor. Defaulting to PlainTextProcessor");
+            log.error("Error retrieving TokenPersistenceProcessor. Defaulting to PlainTextProcessor", e);
             persistenceProcessor = new PlainTextPersistenceProcessor();
         }
 
@@ -75,6 +75,7 @@ public class OAuthConsumerDAO {
             } else {
                 log.debug("Invalid Consumer Key : " + consumerKey);
             }
+            connection.commit();
         } catch (IdentityException e) {
             String errorMsg = "Error when getting an Identity Persistence Store instance.";
             log.error(errorMsg, e);
@@ -117,6 +118,7 @@ public class OAuthConsumerDAO {
             } else {
                 log.debug("Invalid client id : " + clientId + ", and consumer secret : " + clientSecret);
             }
+            connection.commit();
         } catch (IdentityException e) {
             String errorMsg = "Error when getting an Identity Persistence Store instance.";
             log.error(errorMsg, e);
@@ -160,6 +162,7 @@ public class OAuthConsumerDAO {
             prepStmt = connection.prepareStatement(sqlStmt);
             prepStmt.setString(1, token);
             resultSet = prepStmt.executeQuery();
+            connection.commit();
 
             if (resultSet.next()) {
                 tokenSecret = resultSet.getString(1);
@@ -208,10 +211,10 @@ public class OAuthConsumerDAO {
             prepStmt = connection.prepareStatement(SQLQueries.OAuthConsumerDAOSQLQueries.ADD_OAUTH_REQ_TOKEN);
             prepStmt.setString(1, oauthToken);
             prepStmt.setString(2, oauthSecret);
-            prepStmt.setString(3, consumerKey);
-            prepStmt.setString(4, userCallback);
-            prepStmt.setString(5, scope);
-            prepStmt.setString(6, Boolean.toString(false));
+            prepStmt.setString(3, userCallback);
+            prepStmt.setString(4, scope);
+            prepStmt.setString(5, Boolean.toString(false));
+            prepStmt.setString(6, consumerKey);
 
             prepStmt.execute();
             connection.commit();
@@ -248,7 +251,7 @@ public class OAuthConsumerDAO {
             prepStmt = connection.prepareStatement(SQLQueries.OAuthConsumerDAOSQLQueries.AUTHORIZE_REQ_TOKEN);
             prepStmt.setString(1, Boolean.toString(true));
             prepStmt.setString(2, oauthVerifier);
-            prepStmt.setString(3, userName.toLowerCase());
+            prepStmt.setString(3, userName);
             prepStmt.setString(4, oauthToken);
 
             prepStmt.execute();
@@ -298,7 +301,7 @@ public class OAuthConsumerDAO {
                 log.error("Invalid request token : " + oauthToken);
                 throw new IdentityException("Invalid request token. No such token issued.");
             }
-
+            connection.commit();
         } catch (IdentityException e) {
             String errorMsg = "Error when getting an Identity Persistence Store instance.";
             log.error(errorMsg, e);
@@ -332,7 +335,7 @@ public class OAuthConsumerDAO {
             issueAccessTokStmt.setString(2, accessTokenSecret);
             issueAccessTokStmt.setString(3, consumerKey);
             issueAccessTokStmt.setString(4, scope);
-            issueAccessTokStmt.setString(5, authorizedUser.toLowerCase());
+            issueAccessTokStmt.setString(5, authorizedUser);
             issueAccessTokStmt.execute();
 
             connection.commit();
@@ -381,6 +384,7 @@ public class OAuthConsumerDAO {
             } else {
                 throw new IdentityException("Invalid access token. No such token issued.");
             }
+            connection.commit();
         } catch (IdentityException e) {
             String errorMsg = "Error when getting an Identity Persistence Store instance.";
             log.error(errorMsg, e);
@@ -415,6 +419,7 @@ public class OAuthConsumerDAO {
             if (resultSet.next()) {
                 callbackURL = resultSet.getString(1);
             }
+            connection.commit();
         } catch (IdentityException e) {
             String errorMsg = "Error when getting an Identity Persistence Store instance.";
             log.error(errorMsg, e);
@@ -445,6 +450,7 @@ public class OAuthConsumerDAO {
             if (resultSet.next()) {
                 callbackURL = resultSet.getString(1);
             }
+            connection.commit();
         } catch (IdentityException e) {
             String errorMsg = "Error when getting an Identity Persistence Store instance.";
             log.error(errorMsg, e);

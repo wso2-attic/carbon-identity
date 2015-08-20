@@ -25,7 +25,11 @@ import org.wso2.carbon.identity.entitlement.ui.EntitlementPolicyConstants;
 import org.wso2.carbon.identity.entitlement.ui.dto.RequestDTO;
 import org.wso2.carbon.identity.entitlement.ui.dto.RowDTO;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * This is Util class which help to create a XACML policy

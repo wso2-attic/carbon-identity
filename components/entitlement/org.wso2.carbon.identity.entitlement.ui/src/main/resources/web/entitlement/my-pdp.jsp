@@ -19,17 +19,16 @@
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar" prefix="carbon" %>
 <%@ page import="org.apache.axis2.context.ConfigurationContext" %>
 <%@ page import="org.wso2.carbon.CarbonConstants" %>
-<%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
-<%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
-<%@ page import="org.wso2.carbon.utils.ServerConstants" %>
-<%@ page import="org.wso2.carbon.identity.entitlement.ui.client.EntitlementPolicyAdminServiceClient" %>
-<%@ page import="java.util.ResourceBundle"%>
-<jsp:include page="../dialog/display_messages.jsp"/>
-<%@ page import="java.lang.Exception" %>
 <%@ page import="org.wso2.carbon.identity.entitlement.stub.dto.PaginatedPolicySetDTO" %>
 <%@ page import="org.wso2.carbon.identity.entitlement.stub.dto.PolicyDTO" %>
 <%@ page import="org.wso2.carbon.identity.entitlement.ui.PolicyEditorConstants" %>
 <%@ page import="org.wso2.carbon.identity.entitlement.ui.client.EntitlementAdminServiceClient" %>
+<%@ page import="org.wso2.carbon.identity.entitlement.ui.client.EntitlementPolicyAdminServiceClient"%>
+<jsp:include page="../dialog/display_messages.jsp"/>
+<%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
+<%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
+<%@ page import="org.wso2.carbon.utils.ServerConstants" %>
+<%@ page import="java.util.ResourceBundle" %>
 
 <%
 
@@ -256,6 +255,9 @@
     <h2><fmt:message key='my.pdp.policy'/></h2>
     <div id="workArea">
 
+    <%
+        if (CarbonUIUtil.isUserAuthorized(request, "/permission/admin/configure/entitlement/policy/view")) {
+    %>
     <table class="styledLeft" style="margin-top:10px;margin-bottom:10px;">
         <tr>
             <td>
@@ -281,15 +283,24 @@
                 %>
                   </select>
                 </td>
+                <%
+                    if (CarbonUIUtil.isUserAuthorized(request, "/permission/admin/configure/entitlement/pdp/manage")) {
+                %>
                 <td style="border:0; !important">
                     <input type="button" class="button"  tabindex="4" value="Update"
                            onclick="setPolicyCombineAlgorithm();"/>
                 </td>
+                <%
+                    }
+                %>
                 </tr>
             </table>
             </td>
         </tr>
     </table>
+    <%
+        }
+    %>
 
     <form action="my-pdp.jsp" name="searchForm" method="post">
         <table id="searchTable" name="searchTable" class="styledLeft" style="border:0;
@@ -372,22 +383,42 @@
                         <%= policies[i].getPolicyType()%>
                     </nobr>
                 </td>
+
+                <%
+                    boolean canEnable = CarbonUIUtil.isUserAuthorized(request, "/permission/admin/configure/entitlement/policy/manage/enable");
+                    boolean canDemote = CarbonUIUtil.isUserAuthorized(request, "/permission/admin/configure/entitlement/policy/manage/demote");
+                    boolean canOrder = CarbonUIUtil.isUserAuthorized(request, "/permission/admin/configure/entitlement/policy/manage/order");
+                %>
+
                 <td width="60%">
-                    <% if (policies[i].getActive()) { %>
+                    <%
+                        if (canEnable) {
+                            if (policies[i].getActive()) {
+                    %>
                     <a title="<fmt:message key='disable.policy'/>"
                        onclick="disable('<%=policies[i].getPolicyId()%>');return false;"
                        href="#" style="background-image: url(images/disable.gif);" class="icon-link">
                         <fmt:message key='disable.policy'/></a>
-                    <% } else { %>
+                    <%
+                            } else {
+                    %>
                     <a title="<fmt:message key='enable.policy'/>"
                        onclick="enable('<%=policies[i].getPolicyId()%>');return false;"
                        href="#" style="background-image: url(images/enable.gif);" class="icon-link">
                         <fmt:message key='enable.policy'/></a>
-                    <% } %>
+                    <%
+                            }
+                        }
+                        if (canDemote) {
+                    %>
                     <a title="<fmt:message key='delete'/>"
                        onclick="deletePolicy('<%=policies[i].getPolicyId()%>');return false;"
                        href="#" style="background-image: url(images/delete.gif);" class="icon-link">
                         <fmt:message key='delete'/></a>
+                    <%
+                        }
+                        if (canOrder) {
+                    %>
                     <%--<div style="width:100%">--%>
                         <input style="float: left; display: none;margin-top:3px;"
                                id="order_edit<%=i%>" value="<%=policies[i].getPolicyOrder()%>">
@@ -407,6 +438,9 @@
                                 <fmt:message key="cancel"/>
                         </a>
                     <%--</div>--%>
+                    <%
+                        }
+                    %>
                 </td>
             </tr>
             <%} }

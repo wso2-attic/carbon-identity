@@ -25,9 +25,8 @@ import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.identity.application.authentication.framework.ApplicationAuthenticator;
 import org.wso2.carbon.identity.application.authenticator.fido.FIDOAuthenticator;
 import org.wso2.carbon.identity.application.authenticator.fido.u2f.U2FService;
+import org.wso2.carbon.identity.user.store.configuration.listener.UserStoreConfigListener;
 import org.wso2.carbon.user.core.service.RealmService;
-
-import java.util.Hashtable;
 
 /**
  * @scr.component name="identity.application.authenticator.fido.component" immediate="true"
@@ -44,25 +43,33 @@ public class FIDOAuthenticatorServiceComponent {
     protected void activate(ComponentContext context) {
         BundleContext bundleContext = context.getBundleContext();
         FIDOAuthenticator fidoAuthenticator = FIDOAuthenticator.getInstance();
-        Hashtable<String, String> props = new Hashtable<String, String>();
+
         try {
-            bundleContext.registerService(ApplicationAuthenticator.class.getName(), fidoAuthenticator, props);
+            bundleContext.registerService(ApplicationAuthenticator.class.getName(), fidoAuthenticator, null);
             if (log.isDebugEnabled()) {
                 log.debug("FIDOAuthenticator service is registered");
             }
-        } catch (Throwable e) {
-            log.fatal("Error registering FIDOAuthenticator service", e);
+        } catch (Exception e) {
+            log.error("Error registering FIDOAuthenticator service", e);
         }
 
         U2FService u2FService = U2FService.getInstance();
         try {
             bundleContext.registerService(U2FService.class, u2FService, null);
             if (log.isDebugEnabled()) {
-                log.debug("U2FService service is registered");
+                log.debug("U2FService is registered");
             }
-        } catch (Throwable e) {
-            log.fatal("Error registering U2FService service", e);
+        } catch (Exception e) {
+            log.error("Error registering U2FService ", e);
         }
+
+        UserStoreConfigListenerImpl userStoreConfigListener = new UserStoreConfigListenerImpl();
+        try {
+            bundleContext.registerService(UserStoreConfigListener.class.getName(), new UserStoreConfigListenerImpl(), null);
+        } catch (Exception e){
+            log.error("Error registering UserStoreConfigListener ", e);
+        }
+
     }
 
     protected void deactivate(ComponentContext context) {
@@ -72,12 +79,16 @@ public class FIDOAuthenticatorServiceComponent {
     }
 
     protected void setRealmService(RealmService realmService) {
-        log.debug("Setting the Realm Service");
+        if (log.isDebugEnabled()) {
+            log.debug("Setting the Realm Service");
+        }
         FIDOAuthenticatorServiceComponent.realmService = realmService;
     }
 
     protected void unsetRealmService(RealmService realmService) {
-        log.debug("UnSetting the Realm Service");
+        if (log.isDebugEnabled()) {
+            log.debug("UnSetting the Realm Service");
+        }
         FIDOAuthenticatorServiceComponent.realmService = null;
     }
 

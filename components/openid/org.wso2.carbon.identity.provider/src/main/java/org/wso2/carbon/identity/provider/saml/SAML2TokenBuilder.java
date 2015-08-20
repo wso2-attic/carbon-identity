@@ -1,20 +1,20 @@
 /*
-*  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ * Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package org.wso2.carbon.identity.provider.saml;
 
 import org.apache.commons.logging.Log;
@@ -23,7 +23,17 @@ import org.apache.rahas.RahasData;
 import org.apache.xml.security.c14n.Canonicalizer;
 import org.apache.xml.security.utils.Base64;
 import org.joda.time.DateTime;
-import org.opensaml.saml2.core.*;
+import org.opensaml.saml2.core.Assertion;
+import org.opensaml.saml2.core.Attribute;
+import org.opensaml.saml2.core.AttributeStatement;
+import org.opensaml.saml2.core.AttributeValue;
+import org.opensaml.saml2.core.Audience;
+import org.opensaml.saml2.core.AudienceRestriction;
+import org.opensaml.saml2.core.Conditions;
+import org.opensaml.saml2.core.Issuer;
+import org.opensaml.saml2.core.Subject;
+import org.opensaml.saml2.core.SubjectConfirmation;
+import org.opensaml.saml2.core.SubjectConfirmationData;
 import org.opensaml.xml.Configuration;
 import org.opensaml.xml.XMLObject;
 import org.opensaml.xml.XMLObjectBuilder;
@@ -36,7 +46,11 @@ import org.opensaml.xml.schema.XSString;
 import org.opensaml.xml.schema.impl.XSBase64BinaryBuilder;
 import org.opensaml.xml.schema.impl.XSStringBuilder;
 import org.opensaml.xml.security.x509.X509Credential;
-import org.opensaml.xml.signature.*;
+import org.opensaml.xml.signature.KeyInfo;
+import org.opensaml.xml.signature.Signature;
+import org.opensaml.xml.signature.Signer;
+import org.opensaml.xml.signature.X509Certificate;
+import org.opensaml.xml.signature.X509Data;
 import org.w3c.dom.Element;
 import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.identity.base.IdentityConstants;
@@ -54,7 +68,7 @@ import java.util.Map;
 public class SAML2TokenBuilder implements SAMLTokenBuilder {
 
     public static final String CONF_KEY = "urn:oasis:names:tc:SAML:2.0:cm:holder-of-key";
-    private static Log log = LogFactory.getLog(SAML2TokenBuilder.class);
+    private static final Log log = LogFactory.getLog(SAML2TokenBuilder.class);
     protected Assertion assertion = null;
     protected AttributeStatement attributeStmt = null;
     protected List<Signature> signatureList = new ArrayList<Signature>();
@@ -64,13 +78,12 @@ public class SAML2TokenBuilder implements SAMLTokenBuilder {
     protected static XMLObject buildXMLObject(QName objectQName) throws IdentityProviderException {
         XMLObjectBuilder builder = Configuration.getBuilderFactory().getBuilder(objectQName);
         if (builder == null) {
-            throw new IdentityProviderException("Unable to retrieve builder for object QName "
-                    + objectQName);
+            throw new IdentityProviderException("Unable to retrieve builder for object QName " + objectQName);
         }
-        return builder.buildObject(objectQName.getNamespaceURI(), objectQName.getLocalPart(),
-                objectQName.getPrefix());
+        return builder.buildObject(objectQName.getNamespaceURI(), objectQName.getLocalPart(), objectQName.getPrefix());
     }
 
+    @Override
     public void createStatement(GenericIdentityProviderData ipData, RahasData rahasData)
             throws IdentityProviderException {
         if (log.isDebugEnabled()) {
@@ -122,6 +135,7 @@ public class SAML2TokenBuilder implements SAMLTokenBuilder {
         }
     }
 
+    @Override
     public void createSAMLAssertion(DateTime notAfter, DateTime notBefore, String assertionId)
             throws IdentityProviderException {
         assertion = (Assertion) buildXMLObject(Assertion.DEFAULT_ELEMENT_NAME);
@@ -140,7 +154,8 @@ public class SAML2TokenBuilder implements SAMLTokenBuilder {
         if (appilesTo != null) {
             Audience audience = (Audience) buildXMLObject(Audience.DEFAULT_ELEMENT_NAME);
             audience.setAudienceURI(appilesTo);
-            AudienceRestriction audienceRestrictions = (AudienceRestriction) buildXMLObject(AudienceRestriction.DEFAULT_ELEMENT_NAME);
+            AudienceRestriction audienceRestrictions =
+                    (AudienceRestriction) buildXMLObject(AudienceRestriction.DEFAULT_ELEMENT_NAME);
             audienceRestrictions.getAudiences().add(audience);
 
             conditions.getAudienceRestrictions().add(audienceRestrictions);
@@ -152,8 +167,10 @@ public class SAML2TokenBuilder implements SAMLTokenBuilder {
         assertion.setID(assertionId);
 
         Subject subject = (Subject) buildXMLObject(Subject.DEFAULT_ELEMENT_NAME);
-        SubjectConfirmation subjectConf = (SubjectConfirmation) buildXMLObject(SubjectConfirmation.DEFAULT_ELEMENT_NAME);
-        SubjectConfirmationData confData = (SubjectConfirmationData) buildXMLObject(SubjectConfirmationData.DEFAULT_ELEMENT_NAME);
+        SubjectConfirmation subjectConf =
+                (SubjectConfirmation) buildXMLObject(SubjectConfirmation.DEFAULT_ELEMENT_NAME);
+        SubjectConfirmationData confData =
+                (SubjectConfirmationData) buildXMLObject(SubjectConfirmationData.DEFAULT_ELEMENT_NAME);
         confData.setAddress(CONF_KEY);
         subjectConf.setSubjectConfirmationData(confData);
         subject.getSubjectConfirmations().add(subjectConf);
@@ -161,8 +178,8 @@ public class SAML2TokenBuilder implements SAMLTokenBuilder {
 
     }
 
-    public void setSignature(String signatureAlgorithm, X509Credential cred)
-            throws IdentityProviderException {
+    @Override
+    public void setSignature(String signatureAlgorithm, X509Credential cred) throws IdentityProviderException {
         Signature signature = (Signature) buildXMLObject(Signature.DEFAULT_ELEMENT_NAME);
         signature.setSigningCredential(cred);
         signature.setSignatureAlgorithm(signatureAlgorithm);
@@ -178,13 +195,15 @@ public class SAML2TokenBuilder implements SAMLTokenBuilder {
             keyInfo.getX509Datas().add(data);
             signature.setKeyInfo(keyInfo);
         } catch (CertificateEncodingException e) {
-            throw new IdentityProviderException("errorGettingCert");
+            log.error("Failed to get encoded certificate", e);
+            throw new IdentityProviderException("Error while getting encoded certificate");
         }
 
         assertion.setSignature(signature);
         signatureList.add(signature);
     }
 
+    @Override
     public void marshellAndSign() throws IdentityProviderException {
         try {
             MarshallerFactory marshallerFactory = Configuration.getMarshallerFactory();
@@ -202,6 +221,7 @@ public class SAML2TokenBuilder implements SAMLTokenBuilder {
         }
     }
 
+    @Override
     public Element getSAMLasDOM() throws IdentityProviderException {
         return signedAssertion;
     }

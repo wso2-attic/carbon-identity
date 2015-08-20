@@ -15,18 +15,16 @@
 ~ specific language governing permissions and limitations
 ~ under the License.
 -->
-<%@ page import="org.apache.axis2.AxisFault"%>
-<%@ page import="org.wso2.carbon.CarbonConstants"%>
 <%@ page import="org.apache.axis2.context.ConfigurationContext"%>
-<%@ page import="org.wso2.carbon.ui.CarbonUIUtil"%>
-<%@ page import="org.wso2.carbon.ui.CarbonUIMessage"%>
+<%@ page import="org.wso2.carbon.CarbonConstants"%>
+<%@ page import="org.wso2.carbon.identity.tools.saml.validator.stub.types.ValidatedItemDTO"%>
+<%@ page import="org.wso2.carbon.identity.tools.saml.validator.ui.SAMLSSOUIUtil"%>
+<%@ page import="org.wso2.carbon.identity.tools.saml.validator.ui.client.SAMLSSOValidatorServiceClient"%>
 <%@ page
-	import="org.wso2.carbon.identity.tools.saml.validator.ui.client.SAMLSSOValidatorServiceClient"%>
+	import="org.wso2.carbon.ui.CarbonUIMessage"%>
+<%@ page import="org.wso2.carbon.ui.CarbonUIUtil"%>
 <%@ page import="org.wso2.carbon.utils.ServerConstants"%>
 <%@ page import="java.util.ResourceBundle"%>
-<%@ page import="org.wso2.carbon.identity.tools.saml.validator.ui.SAMLSSOUIUtil"%>
-<%@ page
-	import="org.wso2.carbon.identity.tools.saml.validator.stub.types.ValidatedItemDTO"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar"
 	prefix="carbon"%>

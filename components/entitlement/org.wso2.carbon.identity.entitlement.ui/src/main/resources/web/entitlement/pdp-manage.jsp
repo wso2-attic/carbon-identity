@@ -20,13 +20,11 @@
 	prefix="carbon"%>
 <%@ page import="org.apache.axis2.context.ConfigurationContext"%>
 <%@ page import="org.wso2.carbon.CarbonConstants"%>
-<%@ page import="org.wso2.carbon.ui.CarbonUIMessage"%>
-<%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
-<%@ page import="java.util.ResourceBundle" %>
-<%@page import="java.lang.Exception"%>
+<%@ page import="org.wso2.carbon.identity.entitlement.stub.dto.PDPDataHolder"%>
 <%@ page import="org.wso2.carbon.identity.entitlement.ui.client.EntitlementAdminServiceClient" %>
-<%@ page import="org.wso2.carbon.utils.ServerConstants" %>
-<%@ page import="org.wso2.carbon.identity.entitlement.stub.dto.*" %>
+<%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
+<%@page import="org.wso2.carbon.utils.ServerConstants"%>
+<%@ page import="java.util.ResourceBundle" %>
 <%
 
     PDPDataHolder pdpDataHolder = null;
@@ -115,7 +113,9 @@
 <div id="middle">
     <h2><fmt:message key="pdp.configuration"/></h2>
     <div id="workArea">
-
+        <%
+            if (CarbonUIUtil.isUserAuthorized(request, "/permission/admin/configure/entitlement/pdp/manage")) {
+        %>
         <table style="border:none; margin-bottom:10px">
             <tr>
                 <td>
@@ -132,6 +132,9 @@
                 </td>
             </tr>
         </table>
+        <%
+            }
+        %>
 
         <table  class="styledLeft"  style="width: 100%;margin-top:10px;">
             <thead>
@@ -150,9 +153,15 @@
                         <a onclick="viewFinder('<%=policyFinder%>', 'policy');return false;"
                         href="#" style="background-image: url(images/view.png);" class="icon-link">
                         <fmt:message key='view'/></a>
+                        <%
+                            if (CarbonUIUtil.isUserAuthorized(request, "/permission/admin/configure/entitlement/pdp/manage")) {
+                        %>
                         <a onclick="refreshFinder('<%=policyFinder%>', 'policy');return false;"
                         href="#" style="background-image: url(images/icon-refresh.gif);" class="icon-link">
                         <fmt:message key='refresh'/></a>
+                        <%
+                            }
+                        %>
                     </td>
                 </tr>
                 <%
@@ -179,9 +188,15 @@
                         <a onclick="viewFinder('<%=pipAttributeFinder%>', 'attribute');return false;"
                         href="#" style="background-image: url(images/view.png);" class="icon-link">
                         <fmt:message key='view'/></a>
+                        <%
+                            if (CarbonUIUtil.isUserAuthorized(request, "/permission/admin/configure/entitlement/pdp/manage")) {
+                        %>
                         <a onclick="refreshFinder('<%=pipAttributeFinder%>', 'attribute');return false;"
                         href="#" style="background-image: url(images/icon-refresh.gif);" class="icon-link">
                         <fmt:message key='refresh'/></a>
+                        <%
+                            }
+                        %>
                     </td>
                 </tr>
                 <%
@@ -208,9 +223,15 @@
                         <a onclick="viewFinder('<%=pipResourceFinder%>', 'resource');return false;"
                         href="#" style="background-image: url(images/view.png);" class="icon-link">
                         <fmt:message key='view'/></a>
+                        <%
+                            if (CarbonUIUtil.isUserAuthorized(request, "/permission/admin/configure/entitlement/pdp/manage")) {
+                        %>
                         <a onclick="refreshFinder('<%=pipResourceFinder%>', 'resource');return false;"
                         href="#" style="background-image: url(images/icon-refresh.gif);" class="icon-link">
                         <fmt:message key='refresh'/></a>
+                        <%
+                            }
+                        %>
                     </td>
                 </tr>
                 <%

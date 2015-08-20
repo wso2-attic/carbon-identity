@@ -1,23 +1,26 @@
 /*
- * Copyright (c) WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
  * You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package org.wso2.carbon.identity.mgt;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.mgt.constants.IdentityMgtConstants;
 import org.wso2.carbon.identity.mgt.mail.DefaultEmailSendingModule;
 import org.wso2.carbon.identity.mgt.password.DefaultPasswordGenerator;
@@ -30,10 +33,18 @@ import org.wso2.carbon.identity.mgt.store.UserRecoveryDataStore;
 import org.wso2.carbon.identity.mgt.store.UserStoreBasedIdentityDataStore;
 import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.core.jdbc.JDBCRealmConstants;
-import org.wso2.carbon.utils.CarbonUtils;
 
-import java.io.*;
-import java.util.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -78,6 +89,9 @@ public class IdentityMgtConfig {
     private List<String> notificationTypes = new ArrayList<String>();
     private String recoveryClaim;
     private PolicyRegistry policyRegistry = new PolicyRegistry();
+
+    protected Properties properties = new Properties();
+
     /*
      * Define the pattern of the configuration file. Assume following
      * pattern in config.
@@ -87,11 +101,10 @@ public class IdentityMgtConfig {
 
     public IdentityMgtConfig(RealmConfiguration configuration) {
 
-        Properties properties = new Properties();
         InputStream inStream = null;
 
-        File pipConfigXml = new File(CarbonUtils.getCarbonSecurityConfigDirPath(),
-                IdentityMgtConstants.PropertyConfig.CONFIG_FILE_NAME);
+        File pipConfigXml = new File(IdentityUtil.getIdentityConfigDirPath(), IdentityMgtConstants.PropertyConfig
+                .CONFIG_FILE_NAME);
         if (pipConfigXml.exists()) {
             try {
                 inStream = new FileInputStream(pipConfigXml);
@@ -112,54 +125,54 @@ public class IdentityMgtConfig {
         }
 
         try {
-            String notificationInternallyManaged = properties.
+            String notificationInternallyManagedProperty = properties.
                     getProperty(IdentityMgtConstants.PropertyConfig.NOTIFICATION_SEND_INTERNALLY);
-            if (notificationInternallyManaged != null) {
+            if (notificationInternallyManagedProperty != null) {
                 this.notificationInternallyManaged = Boolean.
-                        parseBoolean(notificationInternallyManaged.trim());
+                        parseBoolean(notificationInternallyManagedProperty.trim());
             }
 
-            String saasEnable = properties.getProperty(IdentityMgtConstants.PropertyConfig.USER_INFO_RECOVERY_SAA_SENABLE);
-            if(saasEnable != null){
-                this.saasEnable = Boolean.parseBoolean(saasEnable.trim());
+            String saasEnableProperty = properties.getProperty(IdentityMgtConstants.PropertyConfig.USER_INFO_RECOVERY_SAA_SENABLE);
+            if (saasEnableProperty != null) {
+                this.saasEnable = Boolean.parseBoolean(saasEnableProperty.trim());
             }
 
-            String listenerEnable = properties.
+            String listenerEnableProperty = properties.
                     getProperty(IdentityMgtConstants.PropertyConfig.IDENTITY_LISTENER_ENABLE);
-            if (listenerEnable != null) {
-                this.listenerEnable = Boolean.parseBoolean(listenerEnable.trim());
+            if (listenerEnableProperty != null) {
+                this.listenerEnable = Boolean.parseBoolean(listenerEnableProperty.trim());
             }
 
-            String notificationSending = properties.
+            String notificationSendingProperty = properties.
                     getProperty(IdentityMgtConstants.PropertyConfig.NOTIFICATION_SEND_ENABLE);
-            if (notificationSending != null) {
-                this.notificationSending = Boolean.parseBoolean(notificationSending.trim());
+            if (notificationSendingProperty != null) {
+                this.notificationSending = Boolean.parseBoolean(notificationSendingProperty.trim());
             }
 
-            String recoveryClaim = properties.
+            String recoveryClaimProperty = properties.
                     getProperty(IdentityMgtConstants.PropertyConfig.RECOVERY_CLAIM);
-            if (recoveryClaim != null) {
-                this.recoveryClaim = recoveryClaim.trim();
+            if (recoveryClaimProperty != null) {
+                this.recoveryClaim = recoveryClaimProperty.trim();
             }
 
 
-            String captchaVerificationInternallyManaged = properties.
+            String captchaVerificationInternallyManagedProperty = properties.
                     getProperty(IdentityMgtConstants.PropertyConfig.CAPTCHA_VERIFICATION_INTERNALLY);
-            if (captchaVerificationInternallyManaged != null) {
+            if (captchaVerificationInternallyManagedProperty != null) {
                 this.captchaVerificationInternallyManaged = Boolean.
-                        parseBoolean(captchaVerificationInternallyManaged.trim());
+                        parseBoolean(captchaVerificationInternallyManagedProperty.trim());
             }
 
-            String enableUserAccountVerification = properties.
+            String enableUserAccountVerificationProperty = properties.
                     getProperty(IdentityMgtConstants.PropertyConfig.ACCOUNT_VERIFICATION_ENABLE);
-            if (enableUserAccountVerification != null) {
-                this.enableUserAccountVerification = Boolean.parseBoolean(enableUserAccountVerification.trim());
+            if (enableUserAccountVerificationProperty != null) {
+                this.enableUserAccountVerification = Boolean.parseBoolean(enableUserAccountVerificationProperty.trim());
             }
 
-            String userAccountVerificationRole = properties.
+            String userAccountVerificationRoleProperty = properties.
                     getProperty(IdentityMgtConstants.PropertyConfig.ACCOUNT_VERIFICATION_ROLE);
-            if (userAccountVerificationRole != null && userAccountVerificationRole.trim().length() > 0) {
-                this.userAccountVerificationRole = userAccountVerificationRole;
+            if (userAccountVerificationRoleProperty != null && userAccountVerificationRoleProperty.trim().length() > 0) {
+                this.userAccountVerificationRole = userAccountVerificationRoleProperty;
             } else {
                 this.userAccountVerificationByUser = true;
             }
@@ -170,10 +183,10 @@ public class IdentityMgtConfig {
                 this.enableTemporaryPassword = Boolean.parseBoolean(allowTemporaryPasswordProperty.trim());
             }
 
-            String temporaryPasswordExpireTime = properties.
+            String temporaryPasswordExpireTimeProperty = properties.
                     getProperty(IdentityMgtConstants.PropertyConfig.TEMPORARY_PASSWORD_EXPIRE_TIME);
-            if (temporaryPasswordExpireTime != null) {
-                this.temporaryPasswordExpireTime = Integer.parseInt(temporaryPasswordExpireTime.trim());
+            if (temporaryPasswordExpireTimeProperty != null) {
+                this.temporaryPasswordExpireTime = Integer.parseInt(temporaryPasswordExpireTimeProperty.trim());
             }
 
             String defaultPasswordProperty = properties.
@@ -182,16 +195,16 @@ public class IdentityMgtConfig {
                 this.temporaryDefaultPassword = defaultPasswordProperty.trim();
             }
 
-            String temporaryPasswordOneTime = properties.
+            String temporaryPasswordOneTimeProperty = properties.
                     getProperty(IdentityMgtConstants.PropertyConfig.TEMPORARY_PASSWORD_ONETIME);
-            if (temporaryPasswordOneTime != null) {
-                this.temporaryPasswordOneTime = Boolean.parseBoolean(temporaryPasswordOneTime.trim());
+            if (temporaryPasswordOneTimeProperty != null) {
+                this.temporaryPasswordOneTime = Boolean.parseBoolean(temporaryPasswordOneTimeProperty.trim());
             }
 
-            String enableAuthPolicy = properties.
+            String enableAuthPolicyProperty = properties.
                     getProperty(IdentityMgtConstants.PropertyConfig.AUTH_POLICY_ENABLE);
-            if (enableAuthPolicy != null) {
-                this.enableAuthPolicy = Boolean.parseBoolean(enableAuthPolicy.trim());
+            if (enableAuthPolicyProperty != null) {
+                this.enableAuthPolicy = Boolean.parseBoolean(enableAuthPolicyProperty.trim());
             }
 
             String oneTimePasswordCheck = properties.
@@ -203,7 +216,7 @@ public class IdentityMgtConfig {
             String maxLoginAttemptProperty = properties.
                     getProperty(IdentityMgtConstants.PropertyConfig.AUTH_POLICY_ACCOUNT_LOCKING_FAIL_ATTEMPTS);
             if (maxLoginAttemptProperty != null) {
-                this.authPolicyMaxLoginAttempts = Integer.valueOf(maxLoginAttemptProperty.trim());
+                this.authPolicyMaxLoginAttempts = Integer.parseInt(maxLoginAttemptProperty.trim());
             }
 
             if (this.authPolicyMaxLoginAttempts == 0) {
@@ -217,70 +230,70 @@ public class IdentityMgtConfig {
                 this.authPolicyExpirePasswordCheck = Boolean.parseBoolean(expirePasswordCheck.trim());
             }
 
-            String authPolicyLockingTime = properties.
+            String authPolicyLockingTimeProperty = properties.
                     getProperty(IdentityMgtConstants.PropertyConfig.AUTH_POLICY_ACCOUNT_LOCKING_TIME);
-            if (authPolicyLockingTime != null) {
-                this.authPolicyLockingTime = Integer.parseInt(authPolicyLockingTime.trim());
+            if (authPolicyLockingTimeProperty != null) {
+                this.authPolicyLockingTime = Integer.parseInt(authPolicyLockingTimeProperty.trim());
             }
 
-            String authPolicyPasswordExpireTime = properties.
+            String authPolicyPasswordExpireTimeProperty = properties.
                     getProperty(IdentityMgtConstants.PropertyConfig.AUTH_POLICY_PASSWORD_EXPIRE_TIME);
-            if (authPolicyPasswordExpireTime != null) {
-                this.authPolicyPasswordExpireTime = Integer.parseInt(authPolicyPasswordExpireTime.trim());
+            if (authPolicyPasswordExpireTimeProperty != null) {
+                this.authPolicyPasswordExpireTime = Integer.parseInt(authPolicyPasswordExpireTimeProperty.trim());
             }
 
-            String notificationExpireTime = properties.
+            String notificationExpireTimeProperty = properties.
                     getProperty(IdentityMgtConstants.PropertyConfig.NOTIFICATION_LINK_EXPIRE_TIME);
-            if (notificationExpireTime != null) {
-                this.notificationExpireTime = Integer.parseInt(notificationExpireTime.trim());
+            if (notificationExpireTimeProperty != null) {
+                this.notificationExpireTime = Integer.parseInt(notificationExpireTimeProperty.trim());
             }
 
-            String authPolicyAccountLockCheck = properties.
+            String authPolicyAccountLockCheckProperty = properties.
                     getProperty(IdentityMgtConstants.PropertyConfig.AUTH_POLICY_ACCOUNT_LOCK);
-            if (authPolicyAccountLockCheck != null) {
-                this.authPolicyAccountLockCheck = Boolean.parseBoolean(authPolicyAccountLockCheck.trim());
+            if (authPolicyAccountLockCheckProperty != null) {
+                this.authPolicyAccountLockCheck = Boolean.parseBoolean(authPolicyAccountLockCheckProperty.trim());
             }
 
-            String authPolicyAccountExistCheck = properties.
+            String authPolicyAccountExistCheckProperty = properties.
                     getProperty(IdentityMgtConstants.PropertyConfig.AUTH_POLICY_ACCOUNT_EXIST);
-            if (authPolicyAccountExistCheck != null) {
-                this.authPolicyAccountExistCheck = Boolean.parseBoolean(authPolicyAccountExistCheck.trim());
+            if (authPolicyAccountExistCheckProperty != null) {
+                this.authPolicyAccountExistCheck = Boolean.parseBoolean(authPolicyAccountExistCheckProperty.trim());
             }
 
-            String authPolicyAccountLockOnFailure = properties.
+            String authPolicyAccountLockOnFailureProperty = properties.
                     getProperty(IdentityMgtConstants.PropertyConfig.AUTH_POLICY_LOCK_ON_FAILURE);
-            if (authPolicyAccountLockOnFailure != null) {
-                this.authPolicyAccountLockOnFailure = Boolean.parseBoolean(authPolicyAccountLockOnFailure.trim());
+            if (authPolicyAccountLockOnFailureProperty != null) {
+                this.authPolicyAccountLockOnFailure = Boolean.parseBoolean(authPolicyAccountLockOnFailureProperty.trim());
             }
 
-            String authPolicyAccountLockOnCreation = properties.
+            String authPolicyAccountLockOnCreationProperty = properties.
                     getProperty(IdentityMgtConstants.PropertyConfig.AUTH_POLICY_ACCOUNT_LOCK_ON_CREATION);
-            if (authPolicyAccountLockOnCreation != null) {
-                this.authPolicyAccountLockOnCreation = Boolean.parseBoolean(authPolicyAccountLockOnCreation.trim());
+            if (authPolicyAccountLockOnCreationProperty != null) {
+                this.authPolicyAccountLockOnCreation = Boolean.parseBoolean(authPolicyAccountLockOnCreationProperty.trim());
             }
 
-            String digsestFunction = configuration.getUserStoreProperties().get(JDBCRealmConstants.DIGEST_FUNCTION);
-            if (digsestFunction != null && digsestFunction.trim().length() > 0) {
-                this.digsestFunction = digsestFunction;
+            String digsestFunctionProperty = configuration.getUserStoreProperties().get(JDBCRealmConstants.DIGEST_FUNCTION);
+            if (digsestFunctionProperty != null && digsestFunctionProperty.trim().length() > 0) {
+                this.digsestFunction = digsestFunctionProperty;
             }
 
-            String challengeQuestionSeparator = properties.
+            String challengeQuestionSeparatorProperty = properties.
                     getProperty(IdentityMgtConstants.PropertyConfig.CHALLENGE_QUESTION_SEPARATOR);
-            if (challengeQuestionSeparator != null && challengeQuestionSeparator.trim().length() == 1) {
-                this.challengeQuestionSeparator = challengeQuestionSeparator.trim();
+            if (challengeQuestionSeparatorProperty != null && challengeQuestionSeparatorProperty.trim().length() == 1) {
+                this.challengeQuestionSeparator = challengeQuestionSeparatorProperty.trim();
             } else {
                 this.challengeQuestionSeparator = IdentityMgtConstants.LINE_SEPARATOR;
             }
 
-            String passwordGenerator = properties.
+            String passwordGeneratorProperty = properties.
                     getProperty(IdentityMgtConstants.PropertyConfig.EXTENSION_PASSWORD_GENERATOR);
-            if (passwordGenerator != null && passwordGenerator.trim().length() > 0) {
+            if (passwordGeneratorProperty != null && passwordGeneratorProperty.trim().length() > 0) {
                 try {
-                    Class clazz = Thread.currentThread().getContextClassLoader().loadClass(passwordGenerator);
+                    Class clazz = Thread.currentThread().getContextClassLoader().loadClass(passwordGeneratorProperty);
                     this.passwordGenerator = (RandomPasswordGenerator) clazz.newInstance();
                 } catch (Exception e) {
                     log.error("Error while loading random password generator class. " +
-                            "Default random password generator would be used", e);
+                              "Default random password generator would be used", e);
                 }
             }
 
@@ -292,7 +305,7 @@ public class IdentityMgtConfig {
                     this.identityDataStore = (UserIdentityDataStore) clazz.newInstance();
                 } catch (Exception e) {
                     log.error("Error while loading user identity data persist class. " + dataPersistModule +
-                            " Default module would be used", e);
+                              " Default module would be used", e);
                 }
             }
 
@@ -304,7 +317,7 @@ public class IdentityMgtConfig {
                     this.recoveryDataStore = (UserRecoveryDataStore) clazz.newInstance();
                 } catch (Exception e) {
                     log.error("Error while loading user recovery data persist class. " + dataPersistModule +
-                            " Default module would be used", e);
+                              " Default module would be used", e);
                 }
             }
 
@@ -315,7 +328,7 @@ public class IdentityMgtConfig {
                 if (module == null) {
                     break;
                 }
-                if (module != null && module.trim().length() > 0) {
+                if (module.trim().length() > 0) {
                     try {
                         Class clazz = Thread.currentThread().getContextClassLoader().loadClass(module);
                         NotificationSendingModule sendingModule = (NotificationSendingModule) clazz.newInstance();
@@ -325,7 +338,7 @@ public class IdentityMgtConfig {
                         } else {
                             if (notificationTypes.contains(type)) {
                                 log.error("Same Notification type can not be supported by more than " +
-                                        "one module. Module " + module + "  is not loaded.");
+                                          "one module. Module " + module + "  is not loaded.");
                             } else {
                                 notificationTypes.add(type);
                                 sendingModule.init();
@@ -548,14 +561,8 @@ public class IdentityMgtConfig {
                 this.policyRegistry.addPolicy((PolicyEnforcer) policy);
                 count++;
                 size--;
-            } catch (ClassNotFoundException e) {
-                log.error("Error while loading password policies " + className + " " + e.getMessage());
-            } catch (SecurityException e) {
-                log.error("Error while loading password policies " + className + " " + e.getMessage());
-            } catch (InstantiationException e) {
-                log.error("Error while loading password policies " + className + " " + e.getMessage());
-            } catch (IllegalAccessException e) {
-                log.error("Error while loading password policies " + className + " " + e.getMessage());
+            } catch (ClassNotFoundException | IllegalAccessException | InstantiationException | SecurityException e) {
+                log.error("Error while loading password policies " + className, e);
             }
         }
 
@@ -605,5 +612,17 @@ public class IdentityMgtConfig {
         }
 
         return keyValues;
+    }
+
+    public Properties getProperties() {
+        return properties;
+    }
+
+    public String getProperty(String key) {
+        return properties.getProperty(key);
+    }
+
+    public void setProperty(String key, String value) {
+        this.properties.setProperty(key, value);
     }
 }

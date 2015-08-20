@@ -1,31 +1,33 @@
 /*
-*Copyright (c) 2005-2013, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*WSO2 Inc. licenses this file to you under the Apache License,
-*Version 2.0 (the "License"); you may not use this file except
-*in compliance with the License.
-*You may obtain a copy of the License at
-*
-*http://www.apache.org/licenses/LICENSE-2.0
-*
-*Unless required by applicable law or agreed to in writing,
-*software distributed under the License is distributed on an
-*"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-*KIND, either express or implied.  See the License for the
-*specific language governing permissions and limitations
-*under the License.
-*/
+ * Copyright (c) 2013, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 
 package org.wso2.carbon.identity.oauth2.token.handlers.grant;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.oauth.cache.CacheKey;
 import org.wso2.carbon.identity.oauth.cache.OAuthCacheKey;
 import org.wso2.carbon.identity.oauth.config.OAuthServerConfiguration;
 import org.wso2.carbon.identity.oauth2.IdentityOAuth2Exception;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2AccessTokenReqDTO;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2AccessTokenRespDTO;
+import org.wso2.carbon.identity.oauth2.model.AccessTokenDO;
 import org.wso2.carbon.identity.oauth2.model.AuthzCodeDO;
 import org.wso2.carbon.identity.oauth2.token.OAuthTokenReqMessageContext;
 import org.wso2.carbon.identity.oauth2.util.OAuth2Util;
@@ -72,8 +74,7 @@ public class AuthorizationCodeGrantHandler extends AbstractAuthorizationGrantHan
 
         // authz Code is not available in cache. check the database
         if (authzCodeDO == null) {
-            authzCodeDO = tokenMgtDAO.validateAuthorizationCode(clientId,
-                    authorizationCode);
+            authzCodeDO = tokenMgtDAO.validateAuthorizationCode(clientId, authorizationCode);
         }
 
         //Check whether it is a valid grant
@@ -125,7 +126,7 @@ public class AuthorizationCodeGrantHandler extends AbstractAuthorizationGrantHan
             }
 
             // remove the authorization code from the database.
-            tokenMgtDAO.cleanUpAuthzCode(authorizationCode);
+            tokenMgtDAO.expireAuthzCode(authorizationCode);
             if (log.isDebugEnabled()) {
                 log.debug("Expired Authorization code : " + authorizationCode +
                         " issued for client " + clientId +
@@ -186,8 +187,6 @@ public class AuthorizationCodeGrantHandler extends AbstractAuthorizationGrantHan
                 log.debug("Cache was cleared for authorization code info for client id : " + clientId);
             }
         }
-        // remove the authz code from the database
-        tokenMgtDAO.cleanUpAuthzCode(authzCode);
 
         if (log.isDebugEnabled()) {
             log.debug("Authorization Code clean up completed for request from the Client, " +
@@ -202,6 +201,21 @@ public class AuthorizationCodeGrantHandler extends AbstractAuthorizationGrantHan
             throws IdentityOAuth2Exception {
         // authorization is handled when the authorization code was issued.
         return true;
+    }
+
+    @Override
+    protected void storeAccessToken(OAuth2AccessTokenReqDTO oAuth2AccessTokenReqDTO, String userStoreDomain,
+                                    AccessTokenDO newAccessTokenDO, String newAccessToken, AccessTokenDO
+                                                existingAccessTokenDO)
+            throws IdentityOAuth2Exception {
+        try {
+            newAccessTokenDO.setAuthorizationCode(oAuth2AccessTokenReqDTO.getAuthorizationCode());
+            tokenMgtDAO.storeAccessToken(newAccessToken, oAuth2AccessTokenReqDTO.getClientId(),
+                                         newAccessTokenDO, existingAccessTokenDO, userStoreDomain);
+        } catch (IdentityException e) {
+            throw new IdentityOAuth2Exception(
+                    "Error occurred while storing new access token : " + newAccessToken, e);
+        }
     }
 
 }

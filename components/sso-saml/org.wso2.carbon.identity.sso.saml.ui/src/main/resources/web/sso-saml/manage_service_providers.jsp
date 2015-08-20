@@ -1,5 +1,5 @@
 <!--
-~ Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+~ Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 ~
 ~ WSO2 Inc. licenses this file to you under the Apache License,
 ~ Version 2.0 (the "License"); you may not use this file except
@@ -23,14 +23,14 @@
 <%@ page import="org.wso2.carbon.identity.sso.saml.stub.types.SAMLSSOServiceProviderDTO" %>
 <%@ page import="org.wso2.carbon.identity.sso.saml.stub.types.SAMLSSOServiceProviderInfoDTO" %>
 <%@ page import="org.wso2.carbon.identity.sso.saml.ui.SAMLSSOUIConstants" %>
+<%@ page import="org.wso2.carbon.identity.sso.saml.ui.SAMLSSOUIUtil" %>
 <%@ page import="org.wso2.carbon.identity.sso.saml.ui.client.SAMLSSOConfigServiceClient" %>
-<%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
+<%@ page
+        import="org.wso2.carbon.ui.CarbonUIUtil" %>
 <%@ page
         import="org.wso2.carbon.utils.ServerConstants" %>
-<%@ page
-        import="java.util.ArrayList" %>
+<%@ page import="java.util.ArrayList" %>
 <%@ page import="java.util.Collections" %>
-<%@ page import="org.wso2.carbon.identity.sso.saml.ui.SAMLSSOUIUtil" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar"
            prefix="carbon" %>
@@ -209,7 +209,7 @@
                 <tr>
                     <td style="width:20%"><%=sp.getIssuer()%>
                     </td>
-                    <td><%=sp.getAssertionConsumerUrl()%>
+                    <td><%=sp.getDefaultAssertionConsumerUrl()%>
                     </td>
                     <td style="width:10%"><%=sp.getCertAlias() == null ? "" : sp.getCertAlias()%>
                     </td>

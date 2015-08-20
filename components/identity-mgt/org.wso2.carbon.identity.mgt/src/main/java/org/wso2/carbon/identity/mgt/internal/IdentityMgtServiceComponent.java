@@ -1,18 +1,21 @@
 /*
- * Copyright (c)  WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
+
 package org.wso2.carbon.identity.mgt.internal;
 
 import org.apache.axis2.engine.AxisObserver;
@@ -27,6 +30,8 @@ import org.wso2.carbon.identity.mgt.IdentityMgtEventListener;
 import org.wso2.carbon.identity.mgt.RecoveryProcessor;
 import org.wso2.carbon.identity.mgt.constants.IdentityMgtConstants;
 import org.wso2.carbon.identity.mgt.dto.ChallengeQuestionDTO;
+import org.wso2.carbon.identity.mgt.listener.UserOperationsNotificationListener;
+import org.wso2.carbon.identity.notification.mgt.NotificationSender;
 import org.wso2.carbon.registry.core.Collection;
 import org.wso2.carbon.registry.core.Registry;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
@@ -49,6 +54,10 @@ import java.util.List;
  * @scr.reference name="realm.service"
  * interface="org.wso2.carbon.user.core.service.RealmService"cardinality="1..1"
  * policy="dynamic" bind="setRealmService" unbind="unsetRealmService"
+ * @scr.reference name="carbon.identity.notification.mgt"
+ * interface="org.wso2.carbon.identity.notification.mgt.NotificationSender"
+ * cardinality="1..1" policy="dynamic" bind="setNotificationSender"
+ * unbind="unsetNotificationSender"
  */
 
 public class IdentityMgtServiceComponent {
@@ -60,9 +69,8 @@ public class IdentityMgtServiceComponent {
     private static RegistryService registryService;
 
     private static ConfigurationContextService configurationContextService;
-    private static IdentityMgtEventListener listener = null;
     private static RecoveryProcessor recoveryProcessor;
-    private ServiceRegistration serviceRegistration = null;
+    private static NotificationSender notificationSender;
 
     public static RealmService getRealmService() {
         return realmService;
@@ -112,7 +120,7 @@ public class IdentityMgtServiceComponent {
                 loadDefaultChallenges();
             }
         } catch (RegistryException e) {
-            log.error("Error while creating registry collection for org.wso2.carbon.identity.mgt component");
+            log.error("Error while creating registry collection for org.wso2.carbon.identity.mgt component", e);
         }
 
     }
@@ -121,7 +129,7 @@ public class IdentityMgtServiceComponent {
 
         List<ChallengeQuestionDTO> questionSetDTOs = new ArrayList<ChallengeQuestionDTO>();
 
-        for (String challenge : IdentityMgtConstants.SECRET_QUESTIONS_SET01) {
+        for (String challenge : IdentityMgtConstants.getSecretQuestionsSet01()) {
             ChallengeQuestionDTO dto = new ChallengeQuestionDTO();
             dto.setQuestion(challenge);
             dto.setPromoteQuestion(true);
@@ -129,7 +137,7 @@ public class IdentityMgtServiceComponent {
             questionSetDTOs.add(dto);
         }
 
-        for (String challenge : IdentityMgtConstants.SECRET_QUESTIONS_SET02) {
+        for (String challenge : IdentityMgtConstants.getSecretQuestionsSet02()) {
             ChallengeQuestionDTO dto = new ChallengeQuestionDTO();
             dto.setQuestion(challenge);
             dto.setPromoteQuestion(true);
@@ -153,33 +161,42 @@ public class IdentityMgtServiceComponent {
         context.getBundleContext().registerService(AxisObserver.class.getName(),
                 new IdentityMgtDeploymentInterceptor(), props);
         init();
-        if (IdentityMgtConfig.getInstance().isListenerEnable()) {
-            listener = new IdentityMgtEventListener();
-            serviceRegistration =
-                    context.getBundleContext().registerService(UserOperationEventListener.class.getName(),
-                            listener, null);
+
+        if (log.isDebugEnabled()) {
             log.debug("Identity Management Listener is enabled");
-        } else {
-            log.debug("Identity Management Listener is disabled");
         }
-        log.debug("Identity Management bundle is activated");
+
+        ServiceRegistration serviceRegistration = context.getBundleContext().registerService
+                (UserOperationEventListener.class.getName(), new IdentityMgtEventListener(), null);
+        if (serviceRegistration != null) {
+            if (log.isDebugEnabled()) {
+                log.debug("Identity Management - UserOperationEventListener registered.");
+            }
+        } else {
+            log.error("Identity Management - UserOperationEventListener could not be registered.");
+        }
+
+        UserOperationsNotificationListener notificationListener =
+                new UserOperationsNotificationListener();
+        ServiceRegistration userOperationNotificationSR = context.getBundleContext().registerService(
+                UserOperationEventListener.class.getName(), notificationListener, null);
+
+        if (userOperationNotificationSR != null) {
+            if (log.isDebugEnabled()) {
+                log.debug("Identity Management - UserOperationNotificationListener registered.");
+            }
+        } else {
+            log.error("Identity Management - UserOperationNotificationListener could not be registered.");
+        }
+
+        if(log.isDebugEnabled()) {
+            log.debug("Identity Management bundle is activated");
+        }
     }
 
     protected void deactivate(ComponentContext context) {
         log.debug("Identity Management bundle is de-activated");
     }
-
-//    protected void setCacheInvalidator(CacheInvalidator invalidator) {
-//        cacheInvalidator = invalidator;
-//    }
-//
-//    protected void removeCacheInvalidator(CacheInvalidator invalidator) {
-//        cacheInvalidator = null;
-//    }
-//
-//    public static CacheInvalidator getCacheInvalidator() {
-//    	return cacheInvalidator;
-//    }
 
     protected void unsetRegistryService(RegistryService registryService) {
         log.debug("UnSetting the Registry Service");
@@ -195,21 +212,23 @@ public class IdentityMgtServiceComponent {
         log.debug("UnSetting the  ConfigurationContext Service");
         IdentityMgtServiceComponent.configurationContextService = null;
     }
-//
-//    private static void processLockUsers() {
-//
-//        try{
-//            UserStoreManager manager = realmService.getBootstrapRealm().getUserStoreManager();
-//            String[] users = manager.getUserList(UserCoreConstants.ClaimTypeURIs.ACCOUNT_STATUS,
-//                                                            UserCoreConstants.USER_LOCKED, null);
-//
-//            for(String user : users){
-//                String userName = MultitenantUtils.getTenantAwareUsername(user);
-//                String tenantDomain = MultitenantUtils.getTenantDomain(user);
-//                Utils.lockUserAccount(userName, Utils.getTenantId(tenantDomain));
-//            }
-//        } catch (Exception e) {
-//            log.error("Error while locking user account of locked users", e);
-//        }
-//    }
+
+    protected void setNotificationSender(NotificationSender notificationSender) {
+        if (log.isDebugEnabled()) {
+            log.debug("Un-setting notification sender in Entitlement bundle");
+        }
+        this.notificationSender = notificationSender;
+    }
+
+    protected void unsetNotificationSender(NotificationSender notificationSender) {
+        if (log.isDebugEnabled()) {
+            log.debug("Setting notification sender in Entitlement bundle");
+        }
+        this.notificationSender = null;
+    }
+
+    public static NotificationSender getNotificationSender() {
+        return IdentityMgtServiceComponent.notificationSender;
+    }
+
 }

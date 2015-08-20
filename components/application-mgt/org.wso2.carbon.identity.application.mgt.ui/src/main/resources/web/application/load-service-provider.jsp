@@ -16,8 +16,7 @@
 ~ under the License.
 -->
 
-<%@page import="org.wso2.carbon.ui.util.CharacterEncoder"%>
-<%@ page import="org.apache.axis2.context.ConfigurationContext"%>
+<%@page import="org.apache.axis2.context.ConfigurationContext"%>
 <%@ page import="org.wso2.carbon.CarbonConstants"%>
 <%@ page import="org.wso2.carbon.identity.application.common.model.xsd.IdentityProvider"%>
 <%@ page import="org.wso2.carbon.identity.application.common.model.xsd.LocalAuthenticatorConfig"%>
@@ -25,8 +24,9 @@
 <%@ page import="org.wso2.carbon.identity.application.common.model.xsd.ServiceProvider"%>
 <%@ page import="org.wso2.carbon.identity.application.mgt.ui.client.ApplicationManagementServiceClient"%>
 <%@ page import="org.wso2.carbon.ui.CarbonUIMessage"%>
+<%@ page import="org.wso2.carbon.ui.CarbonUIUtil"%>
 <%@ page
-	import="org.wso2.carbon.ui.CarbonUIUtil"%>
+	import="org.wso2.carbon.ui.util.CharacterEncoder"%>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@ page import="java.util.ResourceBundle" %>
 

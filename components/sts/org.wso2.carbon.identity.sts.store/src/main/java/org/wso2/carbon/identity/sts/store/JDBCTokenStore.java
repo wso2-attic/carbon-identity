@@ -1,17 +1,19 @@
 /*
- * Copyright 2004,2005 The Apache Software Foundation.
+ * Copyright (c) 2005, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package org.wso2.carbon.identity.sts.store;
@@ -34,7 +36,7 @@ import java.util.concurrent.Executors;
 
 public class JDBCTokenStore implements TokenStorage {
 
-    private static Log log = LogFactory.getLog(JDBCTokenStore.class);
+    private static final Log log = LogFactory.getLog(JDBCTokenStore.class);
     private static int poolSize = 100;
     private static ExecutorService executorService = Executors.newFixedThreadPool(poolSize);
     private DBStsDAO dbStsDAO;
@@ -49,12 +51,8 @@ public class JDBCTokenStore implements TokenStorage {
      */
     public static Cache<String, SerializableToken> getTokenCache() {
 
-        CacheManager manager = Caching.getCacheManagerFactory()
-                .getCacheManager(STSMgtConstants.TOKEN_CACHE_MANAGER);
-        Cache<String, SerializableToken> tokenCache = manager
-                .getCache(STSMgtConstants.TOKEN_CACHE_ID);
-        return tokenCache;
-
+        CacheManager manager = Caching.getCacheManagerFactory().getCacheManager(STSMgtConstants.TOKEN_CACHE_MANAGER);
+        return manager.getCache(STSMgtConstants.TOKEN_CACHE_ID);
     }
 
     /**
@@ -83,12 +81,14 @@ public class JDBCTokenStore implements TokenStorage {
      * @return
      */
     private String getTokenId(String tokenId) {
+        String tokenIdVal = tokenId;
         if (tokenId != null && tokenId.startsWith("#")) {
-            tokenId = tokenId.substring(1);
+            tokenIdVal = tokenIdVal.substring(1);
         }
-        return tokenId;
+        return tokenIdVal;
     }
 
+    @Override
     public void add(Token token) throws TrustException {
         //put the Token to cache.
         Cache<String, SerializableToken> tokenCache = getTokenCache();
@@ -98,6 +98,7 @@ public class JDBCTokenStore implements TokenStorage {
         }
     }
 
+    @Override
     public void update(Token token) throws TrustException {
         initDao();
         dbStsDAO.updateToken(token);
@@ -109,88 +110,88 @@ public class JDBCTokenStore implements TokenStorage {
         }
     }
 
+    @Override
     public String[] getTokenIdentifiers() throws TrustException {
         initDao();
         return dbStsDAO.getAllTokenKeys();
     }
 
+    @Override
     public Token[] getExpiredTokens() throws TrustException {
         initDao();
         return dbStsDAO.getExpiredTokens(Token.EXPIRED);
     }
 
+    @Override
     public Token[] getValidTokens() throws TrustException {
         initDao();
-        return dbStsDAO.getValidTokens(new int[]{Token.ISSUED, Token.RENEWED});
+        return dbStsDAO.getValidTokens(new int[] { Token.ISSUED, Token.RENEWED });
     }
 
+    @Override
     public Token[] getRenewedTokens() throws TrustException {
         initDao();
         return dbStsDAO.getRenewedTokens(Token.RENEWED);
     }
 
+    @Override
     public Token[] getCancelledTokens() throws TrustException {
         initDao();
         return dbStsDAO.getCancelledTokens(Token.CANCELLED);
     }
 
+    @Override
     public Token getToken(String id) throws TrustException {
 
-        id = getTokenId(id);
+        String tokenId = getTokenId(id);
 
         Cache<String, SerializableToken> tokenCache = getTokenCache();
-        if (tokenCache != null && tokenCache.containsKey(id)) {
+        if (tokenCache != null && tokenCache.containsKey(tokenId)) {
             try {
-                return STSStoreUtils.getToken((SerializableToken) tokenCache.get(id));
+                return STSStoreUtils.getToken((SerializableToken) tokenCache.get(tokenId));
             } catch (XMLStreamException e) {
                 throw new TrustException("Failed to get Token from cache", e);
             }
         }
         initDao();
-        Token token = dbStsDAO.getToken(id);
+        Token token = dbStsDAO.getToken(tokenId);
 
         if (token == null) {
             log.debug("Token is not present in cache or database");
         }
 
         if (tokenCache != null && token != null) {
-            tokenCache.put(id, STSStoreUtils.getSerializableToken(token));
+            tokenCache.put(tokenId, STSStoreUtils.getSerializableToken(token));
         }
         return token;
     }
 
+    @Override
     public void removeToken(String id) throws TrustException {
-        id = getTokenId(id);
+        String tokenId = getTokenId(id);
         initDao();
-        dbStsDAO.removeToken(id);
+        dbStsDAO.removeToken(tokenId);
         //remove token from cache and send cache invalidation msg
         Cache<String, SerializableToken> tokenCache = getTokenCache();
-        if (tokenCache != null && tokenCache.containsKey(id)) {
-            tokenCache.remove(id);
-            // TODO ensure invalidate cache name is correct
-//            CacheInvalidator cacheInvalidator =
-//                    STSStoreComponent.getCacheInvalidator();
-//            try {
-//                cacheInvalidator.invalidateCache(STSConstants.KEY_ISSUER_CONFIG, id);
-//            } catch (CacheException e) {
-//                String msg = "Failed to invalidate token from cache";
-//                log.error(msg, e);
-//                throw new TrustException(msg, e);
-//            }
+        if (tokenCache != null && tokenCache.containsKey(tokenId)) {
+            tokenCache.remove(tokenId);
         }
     }
 
+    @Override
     public List<Token> getStorageTokens() throws TrustException {
         initDao();
         return dbStsDAO.getTokens();
     }
 
+    @Override
     public void handlePersistence(List<?> persistingTokens) throws TrustException {
         //TODO
         //If we have distributed caching mechanism, we don't need to store token immediately
         //in database. We can periodically take token from local cache and store to database.
     }
 
+    @Override
     public void handlePersistenceOnShutdown() throws TrustException {
         //TODO
         // If we don't immediately persist token to database,
@@ -219,7 +220,7 @@ public class JDBCTokenStore implements TokenStorage {
             try {
                 persist();
             } catch (TrustException e) {
-                log.error("Failed to persist token");
+                log.error("Failed to persist token", e);
             }
         }
 

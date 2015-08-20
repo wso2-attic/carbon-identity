@@ -88,6 +88,15 @@ public class IdentityConstants {
     public final static String IDENTITY_DEFAULT_ROLE = "identity";
     public final static String DEFAULT_SUPER_TENAT = "identity.cloud.wso2.com";
     public static String PPID_DISPLAY_VALUE = "Private personal identifier";
+
+    //Event Listeners attributes
+    public final static String EVENT_LISTENER_TYPE = "type";
+    public final static String EVENT_LISTENER_NAME = "name";
+    public final static String EVENT_LISTENER_ORDER = "orderId";
+    public final static String EVENT_LISTENER_ENABLE = "enable";
+    public final static String EVENT_LISTENERS = "EventListeners";
+    public final static String EVENT_LISTENER = "EventListener";
+
     private IdentityConstants() {
     }
 
@@ -114,6 +123,13 @@ public class IdentityConstants {
         public final static String OPENID_DISABLE_DUMB_MODE = "OpenID.DisableOpenIDDumbMode";
         public final static String OPENID_SESSION_TIMEOUT = "OpenID.SessionTimeout";
         public static final String ACCEPT_SAMLSSO_LOGIN = "OpenID.AcceptSAMLSSOLogin";
+
+        public static final String OPENID_PRIVATE_ASSOCIATION_STORE_CLASS = "OpenID.OpenIDPrivateAssociationStoreClass";
+        public static final String OPENID_ASSOCIATION_EXPIRY_TIME = "OpenID.OpenIDAssociationExpiryTime";
+
+        public static final String ENABLE_OPENID_ASSOCIATION_CLEANUP_TASK = "OpenID.EnableOpenIDAssociationCleanupTask";
+        public static final String OPENID_ASSOCIATION_CLEANUP_PERIOD = "OpenID.OpenIDAssociationCleanupPeriod";
+        public static final String OPENID_PRIVATE_ASSOCIATION_SERVER_KEY = "OpenID.OpenIDPrivateAssociationServerKey";
 
         public static final String ISSUER_POLICY = "Identity.IssuerPolicy";
         public static final String TOKEN_VALIDATE_POLICY = "Identity.TokenValidationPolicy";
@@ -163,7 +179,6 @@ public class IdentityConstants {
         public static final String SINGLE_LOGOUT_RETRY_COUNT = "SSOService.SingleLogoutRetryCount";
         public static final String SINGLE_LOGOUT_RETRY_INTERVAL = "SSOService.SingleLogoutRetryInterval";
         public static final String SSO_TENANT_PARTITIONING_ENABLED = "SSOService.TenantPartitioningEnabled";
-        public static final String SSO_SESSION_TIMEOUT = "SSOService.SessionTimeout";
         public static final String ACCEPT_OPENID_LOGIN = "SSOService.AcceptOpenIDLogin";
         public static final String SAML_RESPONSE_VALIDITY_PERIOD = "SSOService.SAMLResponseValidityPeriod";
 

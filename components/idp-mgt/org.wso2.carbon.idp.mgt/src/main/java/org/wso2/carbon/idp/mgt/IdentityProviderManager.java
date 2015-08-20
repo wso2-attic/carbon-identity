@@ -18,20 +18,33 @@
 
 package org.wso2.carbon.idp.mgt;
 
+import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.util.Base64;
-import org.apache.axis2.engine.AxisConfiguration;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
-import org.wso2.carbon.base.ServerConfiguration;
+import org.wso2.carbon.base.ServerConfigurationException;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.core.util.KeyStoreManager;
 import org.wso2.carbon.identity.application.common.ApplicationAuthenticatorService;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
 import org.wso2.carbon.identity.application.common.ProvisioningConnectorService;
-import org.wso2.carbon.identity.application.common.model.*;
+import org.wso2.carbon.identity.application.common.model.ClaimConfig;
+import org.wso2.carbon.identity.application.common.model.ClaimMapping;
+import org.wso2.carbon.identity.application.common.model.FederatedAuthenticatorConfig;
+import org.wso2.carbon.identity.application.common.model.IdentityProvider;
+import org.wso2.carbon.identity.application.common.model.LocalRole;
+import org.wso2.carbon.identity.application.common.model.PermissionsAndRoleConfig;
+import org.wso2.carbon.identity.application.common.model.Property;
+import org.wso2.carbon.identity.application.common.model.ProvisioningConnectorConfig;
+import org.wso2.carbon.identity.application.common.model.RoleMapping;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
+import org.wso2.carbon.identity.core.util.IdentityConfigParser;
+import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.idp.mgt.dao.CacheBackedIdPMgtDAO;
 import org.wso2.carbon.idp.mgt.dao.FileBasedIdPMgtDAO;
 import org.wso2.carbon.idp.mgt.dao.IdPManagementDAO;
@@ -40,19 +53,22 @@ import org.wso2.carbon.idp.mgt.util.IdPManagementConstants;
 import org.wso2.carbon.idp.mgt.util.IdPManagementUtil;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.api.UserStoreManager;
-import org.wso2.carbon.utils.CarbonUtils;
-import org.wso2.carbon.utils.NetworkUtils;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
-import java.net.SocketException;
 import java.security.KeyStore;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class IdentityProviderManager {
 
-    private static Log log = LogFactory.getLog(IdentityProviderManager.class);
+    private static final Log log = LogFactory.getLog(IdentityProviderManager.class);
 
     private static CacheBackedIdPMgtDAO dao = new CacheBackedIdPMgtDAO(new IdPManagementDAO());
 
@@ -105,47 +121,127 @@ public class IdentityProviderManager {
             tenantContext = MultitenantConstants.TENANT_AWARE_URL_PREFIX + "/" + tenantDomain + "/";
         }
 
-        String hostName = ServerConfiguration.getInstance().getFirstProperty("HostName");
+        String serverUrl = IdentityUtil.getServerURL("") + "/";
+
+        String openIdUrl = null;
+        String samlSSOUrl = null;
+        String samlLogoutUrl = null;
+        String oauth1RequestTokenUrl = null;
+        String oauth1AuthorizeUrl = null;
+        String oauth1AccessTokenUrl = null;
+        String oauth2AuthzEPUrl = null;
+        String oauth2TokenEPUrl = null;
+        String oauth2UserInfoEPUrl = null;
+        String passiveStsUrl = null;
+        String stsUrl = null;
+        String scimUserEndpoint = null;
+        String scimGroupsEndpoint = null;
 
         try {
-            if (hostName == null) {
-                hostName = NetworkUtils.getLocalHostname();
+            OMElement elem = IdentityConfigParser.getInstance().
+                    getConfigElement("OpenID.OpenIDServerUrl");
+            if(elem != null){
+                openIdUrl = elem.getText();
             }
-        } catch (SocketException e) {
-            throw new IdentityApplicationManagementException("Error while trying to read hostname.", e);
-        }
-
-        String mgtTransport = CarbonUtils.getManagementTransport();
-        AxisConfiguration axisConfiguration = IdPManagementServiceComponent
-                .getConfigurationContextService().getServerConfigContext().getAxisConfiguration();
-        int mgtTransportPort = CarbonUtils.getTransportProxyPort(axisConfiguration, mgtTransport);
-        if (mgtTransportPort <= 0) {
-            mgtTransportPort = CarbonUtils.getTransportPort(axisConfiguration, mgtTransport);
-        }
-        String serverUrl = mgtTransport + "://" + hostName.toLowerCase();
-        // If it's well known HTTPS port, skip adding port
-        if (mgtTransportPort != 443) {
-            serverUrl += ":" + mgtTransportPort;
-        }
-        // If ProxyContextPath is defined then append it
-        String proxyContextPath = ServerConfiguration.getInstance().getFirstProperty("ProxyContextPath");
-        if (proxyContextPath != null && !proxyContextPath.trim().isEmpty()){
-            if (proxyContextPath.charAt(0) == '/'){
-                serverUrl += proxyContextPath;
-            } else {
-                serverUrl += "/" + proxyContextPath;
+            elem = IdentityConfigParser.getInstance().
+                    getConfigElement("SSOService.IdentityProviderURL");
+            if(elem != null){
+                samlSSOUrl = elem.getText();
+                samlLogoutUrl = samlSSOUrl;
             }
+            elem = IdentityConfigParser.getInstance().
+                    getConfigElement("OAuth.OAuth1RequestTokenUrl");
+            if(elem != null){
+                oauth1RequestTokenUrl = elem.getText();
+            }
+            elem = IdentityConfigParser.getInstance().
+                    getConfigElement("OAuth.OAuth1AuthorizeUrl");
+            if(elem != null){
+                oauth1AuthorizeUrl = elem.getText();
+            }
+            elem = IdentityConfigParser.getInstance().
+                    getConfigElement("OAuth.OAuth1AccessTokenUrl");
+            if(elem != null){
+                oauth1AccessTokenUrl = elem.getText();
+            }
+            elem = IdentityConfigParser.getInstance().
+                    getConfigElement("OAuth.OAuth2AuthzEPUrl");
+            if(elem != null){
+                oauth2AuthzEPUrl = elem.getText();
+            }
+            elem = IdentityConfigParser.getInstance().
+                    getConfigElement("OAuth.OAuth2TokenEPUrl");
+            if(elem != null){
+                oauth2TokenEPUrl = elem.getText();
+            }
+            elem = IdentityConfigParser.getInstance().
+                    getConfigElement("OAuth.OAuth2UserInfoEPUrl");
+            if(elem != null){
+                oauth2UserInfoEPUrl = elem.getText();
+            }
+            elem = IdentityConfigParser.getInstance().
+                    getConfigElement("PassiveSTS.IdentityProviderURL");
+            if(elem != null){
+                passiveStsUrl = elem.getText();
+            }
+            elem = IdentityConfigParser.getInstance().
+                    getConfigElement("SecurityTokenService.IdentityProviderURL");
+            if(elem != null){
+                stsUrl = elem.getText();
+            }
+            elem = IdentityConfigParser.getInstance().
+                    getConfigElement("SCIM.UserEPUrl");
+            if(elem != null){
+                scimUserEndpoint = elem.getText();
+            }
+            elem = IdentityConfigParser.getInstance().
+                    getConfigElement("SCIM.GroupEPUrl");
+            if(elem != null){
+                scimGroupsEndpoint = elem.getText();
+            }
+        } catch (ServerConfigurationException e) {
+            log.error("Error occurred while reading OAuth URL configurations from identity.xml. Continuing with " +
+                    "default values.", e);
         }
-        serverUrl += "/";
-        String stsUrl = serverUrl + "services/" + tenantContext + "wso2carbon-sts";
-        String openIdUrl = serverUrl + "openid";
-        String samlSSOUrl = serverUrl + "samlsso";
-        String samlLogoutUrl = serverUrl + "samlsso";
-        String authzUrl = serverUrl + "oauth2/authz";
-        String tokenUrl = serverUrl + "oauth2/token";
-        String userUrl = serverUrl + "oauth2/userinfo";
-        String scimUserEndpoint = serverUrl + "wso2/scim/Users";
-        String scimGroupsEndpoint = serverUrl + "wso2/scim/Groups";
+        if(StringUtils.isBlank(openIdUrl)){
+            openIdUrl = serverUrl + "openid";
+        }
+        if(StringUtils.isBlank(samlSSOUrl)){
+            samlSSOUrl = serverUrl + "samlsso";
+        }
+        if(StringUtils.isBlank(samlLogoutUrl)){
+            samlLogoutUrl = serverUrl + "samlsso";
+        }
+        if(StringUtils.isBlank(oauth1RequestTokenUrl)){
+            oauth1RequestTokenUrl = serverUrl + "oauth/request-token";
+        }
+        if(StringUtils.isBlank(oauth1AuthorizeUrl)){
+            oauth1AuthorizeUrl = serverUrl + "oauth/authorize-url";
+        }
+        if(StringUtils.isBlank(oauth1AccessTokenUrl)){
+            oauth1AccessTokenUrl = serverUrl + "oauth/access-token";
+        }
+        if(StringUtils.isBlank(oauth2AuthzEPUrl)){
+            oauth2AuthzEPUrl = serverUrl + "oauth2/authorize";
+        }
+        if(StringUtils.isBlank(oauth2TokenEPUrl)){
+            oauth2TokenEPUrl = serverUrl + "oauth2/token";
+        }
+        if(StringUtils.isBlank(oauth2UserInfoEPUrl)){
+            oauth2UserInfoEPUrl = serverUrl + "oauth2/userinfo";
+        }
+        if(StringUtils.isBlank(passiveStsUrl)){
+            passiveStsUrl = serverUrl + "passivests";
+        }
+        if(StringUtils.isBlank(stsUrl)){
+            stsUrl = serverUrl + "services/" + tenantContext + "wso2carbon-sts";
+        }
+        if(StringUtils.isBlank(scimUserEndpoint)){
+            scimUserEndpoint = serverUrl + "wso2/scim/Users";
+        }
+        if(StringUtils.isBlank(scimGroupsEndpoint)){
+            scimGroupsEndpoint = serverUrl + "wso2/scim/Groups";
+        }
 
         IdentityProvider identityProvider = dao.getIdPByName(null,
                 IdentityApplicationConstants.RESIDENT_IDP_RESERVED_NAME,
@@ -163,9 +259,10 @@ public class IdentityProviderManager {
             throw new IdentityApplicationManagementException(
                     "Exception occurred while retrieving Tenant ID from Tenant Domain " + tenantDomain, e);
         }
-        KeyStoreManager keyStoreManager = KeyStoreManager.getInstance(tenantId);
         X509Certificate cert = null;
         try {
+            IdentityTenantUtil.initializeRegistry(tenantId, tenantDomain);
+            KeyStoreManager keyStoreManager = KeyStoreManager.getInstance(tenantId);
             if (!MultitenantConstants.SUPER_TENANT_DOMAIN_NAME.equals(tenantDomain)) {
                 // derive key store name
                 String ksName = tenantDomain.trim().replace(".", "-");
@@ -248,6 +345,38 @@ public class IdentityProviderManager {
         saml2SSOFedAuthn.setProperties(propertiesList.toArray(new Property[propertiesList.size()]));
         fedAuthnCofigs.add(saml2SSOFedAuthn);
 
+        FederatedAuthenticatorConfig oauth1FedAuthn = IdentityApplicationManagementUtil
+                .getFederatedAuthenticator(identityProvider.getFederatedAuthenticatorConfigs(),
+                        IdentityApplicationConstants.OAuth10A.NAME);
+        if (oauth1FedAuthn == null) {
+            oauth1FedAuthn = new FederatedAuthenticatorConfig();
+            oauth1FedAuthn.setName(IdentityApplicationConstants.OAuth10A.NAME);
+        }
+        propertiesList = new ArrayList<Property>(Arrays.asList(oauth1FedAuthn.getProperties()));
+        if (IdentityApplicationManagementUtil.getProperty(oauth1FedAuthn.getProperties(),
+                IdentityApplicationConstants.OAuth10A.OAUTH1_REQUEST_TOKEN_URL) == null) {
+            Property oauth1ReqTokUrlProp = new Property();
+            oauth1ReqTokUrlProp.setName(IdentityApplicationConstants.OAuth10A.OAUTH1_REQUEST_TOKEN_URL);
+            oauth1ReqTokUrlProp.setValue(oauth1RequestTokenUrl);
+            propertiesList.add(oauth1ReqTokUrlProp);
+        }
+        if (IdentityApplicationManagementUtil.getProperty(oauth1FedAuthn.getProperties(),
+                IdentityApplicationConstants.OAuth10A.OAUTH1_AUTHORIZE_URL) == null) {
+            Property oauth1AuthzUrlProp = new Property();
+            oauth1AuthzUrlProp.setName(IdentityApplicationConstants.OAuth10A.OAUTH1_AUTHORIZE_URL);
+            oauth1AuthzUrlProp.setValue(oauth1AuthorizeUrl);
+            propertiesList.add(oauth1AuthzUrlProp);
+        }
+        if (IdentityApplicationManagementUtil.getProperty(oauth1FedAuthn.getProperties(),
+                IdentityApplicationConstants.OAuth10A.OAUTH1_ACCESS_TOKEN_URL) == null) {
+            Property oauth1AccessTokUrlProp = new Property();
+            oauth1AccessTokUrlProp.setName(IdentityApplicationConstants.OAuth10A.OAUTH1_ACCESS_TOKEN_URL);
+            oauth1AccessTokUrlProp.setValue(oauth1AccessTokenUrl);
+            propertiesList.add(oauth1AccessTokUrlProp);
+        }
+        oauth1FedAuthn.setProperties(propertiesList.toArray(new Property[propertiesList.size()]));
+        fedAuthnCofigs.add(oauth1FedAuthn);
+
         FederatedAuthenticatorConfig oidcFedAuthn = IdentityApplicationManagementUtil
                 .getFederatedAuthenticator(identityProvider.getFederatedAuthenticatorConfigs(),
                         IdentityApplicationConstants.Authenticator.OIDC.NAME);
@@ -260,21 +389,21 @@ public class IdentityProviderManager {
                 IdentityApplicationConstants.Authenticator.OIDC.OAUTH2_AUTHZ_URL) == null) {
             Property authzUrlProp = new Property();
             authzUrlProp.setName(IdentityApplicationConstants.Authenticator.OIDC.OAUTH2_AUTHZ_URL);
-            authzUrlProp.setValue(authzUrl);
+            authzUrlProp.setValue(oauth2AuthzEPUrl);
             propertiesList.add(authzUrlProp);
         }
         if (IdentityApplicationManagementUtil.getProperty(oidcFedAuthn.getProperties(),
                 IdentityApplicationConstants.Authenticator.OIDC.OAUTH2_TOKEN_URL) == null) {
             Property tokenUrlProp = new Property();
             tokenUrlProp.setName(IdentityApplicationConstants.Authenticator.OIDC.OAUTH2_TOKEN_URL);
-            tokenUrlProp.setValue(tokenUrl);
+            tokenUrlProp.setValue(oauth2TokenEPUrl);
             propertiesList.add(tokenUrlProp);
         }
         if (IdentityApplicationManagementUtil.getProperty(oidcFedAuthn.getProperties(),
-                IdentityApplicationConstants.Authenticator.OIDC.USER_INFO_URL) == null) {
+                IdentityApplicationConstants.Authenticator.OIDC.OAUTH2_USER_INFO_EP_URL) == null) {
             Property userInfoUrlProp = new Property();
-            userInfoUrlProp.setName(IdentityApplicationConstants.Authenticator.OIDC.USER_INFO_URL);
-            userInfoUrlProp.setValue(userUrl);
+            userInfoUrlProp.setName(IdentityApplicationConstants.Authenticator.OIDC.OAUTH2_USER_INFO_EP_URL);
+            userInfoUrlProp.setValue(oauth2UserInfoEPUrl);
             propertiesList.add(userInfoUrlProp);
         }
         oidcFedAuthn.setProperties(propertiesList.toArray(new Property[propertiesList.size()]));
@@ -288,18 +417,90 @@ public class IdentityProviderManager {
             passiveSTSFedAuthn.setName(IdentityApplicationConstants.Authenticator.PassiveSTS.NAME);
         }
         propertiesList = new ArrayList<Property>(Arrays.asList(passiveSTSFedAuthn.getProperties()));
-        if (IdentityApplicationManagementUtil.getProperty(saml2SSOFedAuthn.getProperties(),
-                IdentityApplicationConstants.Authenticator.PassiveSTS.PASSIVE_STS_URL) == null) {
+        if (IdentityApplicationManagementUtil.getProperty(passiveSTSFedAuthn.getProperties(),
+                IdentityApplicationConstants.Authenticator.PassiveSTS.IDENTITY_PROVIDER_URL) == null) {
             Property passiveSTSUrlProp = new Property();
             passiveSTSUrlProp
-                    .setName(IdentityApplicationConstants.Authenticator.PassiveSTS.PASSIVE_STS_URL);
-            passiveSTSUrlProp.setValue(stsUrl);
+                    .setName(IdentityApplicationConstants.Authenticator.PassiveSTS.IDENTITY_PROVIDER_URL);
+            passiveSTSUrlProp.setValue(passiveStsUrl);
             propertiesList.add(passiveSTSUrlProp);
         }
-
         passiveSTSFedAuthn
                 .setProperties(propertiesList.toArray(new Property[propertiesList.size()]));
         fedAuthnCofigs.add(passiveSTSFedAuthn);
+
+        FederatedAuthenticatorConfig stsFedAuthn = IdentityApplicationManagementUtil
+                .getFederatedAuthenticator(identityProvider.getFederatedAuthenticatorConfigs(),
+                        IdentityApplicationConstants.Authenticator.WSTrust.NAME);
+        if (stsFedAuthn == null) {
+            stsFedAuthn = new FederatedAuthenticatorConfig();
+            stsFedAuthn.setName(IdentityApplicationConstants.Authenticator.WSTrust.NAME);
+        }
+        propertiesList = new ArrayList<Property>(Arrays.asList(stsFedAuthn.getProperties()));
+        if (IdentityApplicationManagementUtil.getProperty(stsFedAuthn.getProperties(),
+                IdentityApplicationConstants.Authenticator.WSTrust.IDENTITY_PROVIDER_URL) == null) {
+            Property stsUrlProp = new Property();
+            stsUrlProp.setName(IdentityApplicationConstants.Authenticator.WSTrust.IDENTITY_PROVIDER_URL);
+            stsUrlProp.setValue(stsUrl);
+            propertiesList.add(stsUrlProp);
+        }
+        stsFedAuthn
+                .setProperties(propertiesList.toArray(new Property[propertiesList.size()]));
+        fedAuthnCofigs.add(stsFedAuthn);
+
+        FederatedAuthenticatorConfig sessionTimeoutConfig = IdentityApplicationManagementUtil
+                .getFederatedAuthenticator(identityProvider.getFederatedAuthenticatorConfigs(),
+                        IdentityApplicationConstants.Authenticator.IDPProperties.NAME);
+        if(sessionTimeoutConfig == null){
+            sessionTimeoutConfig = new FederatedAuthenticatorConfig();
+            sessionTimeoutConfig.setName(IdentityApplicationConstants.Authenticator.IDPProperties.NAME);
+        }
+        propertiesList = new ArrayList<Property>(Arrays.asList(sessionTimeoutConfig.getProperties()));
+        if(IdentityApplicationManagementUtil.getProperty(sessionTimeoutConfig.getProperties(),
+                IdentityApplicationConstants.Authenticator.IDPProperties.SESSION_IDLE_TIME_OUT) == null){
+            Property sessionIdletimeOutProp = new Property();
+            sessionIdletimeOutProp.setName(IdentityApplicationConstants.Authenticator.IDPProperties.SESSION_IDLE_TIME_OUT);
+            String idleTimeout = IdentityUtil.getProperty("TimeConfig.SessionIdleTimeout");
+            if(StringUtils.isEmpty(idleTimeout)){
+                idleTimeout = IdentityApplicationConstants.Authenticator.IDPProperties.SESSION_IDLE_TIME_OUT_DEFAULT;
+            }else if(!StringUtils.isNumeric(idleTimeout)){
+                log.warn("SessionIdleTimeout in identity.xml should be a numeric value");
+                idleTimeout = IdentityApplicationConstants.Authenticator.IDPProperties.SESSION_IDLE_TIME_OUT_DEFAULT;
+            }
+            sessionIdletimeOutProp.setValue(idleTimeout);
+            propertiesList.add(sessionIdletimeOutProp);
+        }
+        if(IdentityApplicationManagementUtil.getProperty(sessionTimeoutConfig.getProperties(),
+                IdentityApplicationConstants.Authenticator.IDPProperties.REMEMBER_ME_TIME_OUT) == null){
+            Property rememberMeTimeOutProp = new Property();
+            rememberMeTimeOutProp.setName(IdentityApplicationConstants.Authenticator.IDPProperties.REMEMBER_ME_TIME_OUT);
+            String rememberMeTimeout = IdentityUtil.getProperty("TimeConfig.RememberMeTimeout");
+            if(StringUtils.isEmpty(rememberMeTimeout)){
+                rememberMeTimeout = IdentityApplicationConstants.Authenticator.IDPProperties.REMEMBER_ME_TIME_OUT_DEFAULT;
+            }else if(!StringUtils.isNumeric(rememberMeTimeout)){
+                log.warn("RememberMeTimeout in identity.xml should be a numeric value");
+                rememberMeTimeout = IdentityApplicationConstants.Authenticator.IDPProperties.REMEMBER_ME_TIME_OUT_DEFAULT;
+            }
+            rememberMeTimeOutProp.setValue(rememberMeTimeout);
+            propertiesList.add(rememberMeTimeOutProp);
+        }
+        if(IdentityApplicationManagementUtil.getProperty(sessionTimeoutConfig.getProperties(),
+                IdentityApplicationConstants.Authenticator.IDPProperties.CLEAN_UP_PERIOD) == null){
+            Property cleanUpPeriodProp = new Property();
+            cleanUpPeriodProp.setName(IdentityApplicationConstants.Authenticator.IDPProperties.CLEAN_UP_PERIOD);
+            String cleanUpPeriod = IdentityUtil.getProperty("TimeConfig.PersistanceCleanUpPeriod");
+            if(StringUtils.isEmpty(cleanUpPeriod)){
+                cleanUpPeriod = IdentityApplicationConstants.Authenticator.IDPProperties.CLEAN_UP_PERIOD_DEFAULT;
+            }else if(!StringUtils.isNumeric(cleanUpPeriod)){
+                log.warn("PersistanceCleanUpPeriod in identity.xml should be a numeric value");
+                cleanUpPeriod = IdentityApplicationConstants.Authenticator.IDPProperties.CLEAN_UP_PERIOD_DEFAULT;
+            }
+            cleanUpPeriodProp.setValue(cleanUpPeriod);
+            propertiesList.add(cleanUpPeriodProp);
+        }
+        sessionTimeoutConfig.setProperties(propertiesList.toArray(new Property[propertiesList.size()]));
+        fedAuthnCofigs.add(sessionTimeoutConfig);
+
         identityProvider.setFederatedAuthenticatorConfigs(fedAuthnCofigs
                 .toArray(new FederatedAuthenticatorConfig[fedAuthnCofigs.size()]));
 
@@ -344,8 +545,7 @@ public class IdentityProviderManager {
     public void addResidentIdP(IdentityProvider identityProvider, String tenantDomain)
             throws IdentityApplicationManagementException {
 
-        if (identityProvider.getHomeRealmId() == null
-                || identityProvider.getHomeRealmId().equals("")) {
+        if (StringUtils.isEmpty(identityProvider.getHomeRealmId())) {
             String msg = "Invalid argument: Resident Identity Provider Home Realm Identifier value is empty";
             log.error(msg);
             throw new IdentityApplicationManagementException(msg);
@@ -353,19 +553,19 @@ public class IdentityProviderManager {
         if (identityProvider.getFederatedAuthenticatorConfigs() == null) {
             identityProvider.setFederatedAuthenticatorConfigs(new FederatedAuthenticatorConfig[0]);
         }
-        FederatedAuthenticatorConfig fedAuthnConfig = IdentityApplicationManagementUtil
+        FederatedAuthenticatorConfig saml2SSOResidentAuthenticatorConfig = IdentityApplicationManagementUtil
                 .getFederatedAuthenticator(identityProvider.getFederatedAuthenticatorConfigs(),
                         IdentityApplicationConstants.Authenticator.SAML2SSO.NAME);
-        if (fedAuthnConfig == null) {
-            fedAuthnConfig = new FederatedAuthenticatorConfig();
-            fedAuthnConfig.setName(IdentityApplicationConstants.Authenticator.SAML2SSO.NAME);
+        if (saml2SSOResidentAuthenticatorConfig == null) {
+            saml2SSOResidentAuthenticatorConfig = new FederatedAuthenticatorConfig();
+            saml2SSOResidentAuthenticatorConfig.setName(IdentityApplicationConstants.Authenticator.SAML2SSO.NAME);
         }
-        if (fedAuthnConfig.getProperties() == null) {
-            fedAuthnConfig.setProperties(new Property[0]);
+        if (saml2SSOResidentAuthenticatorConfig.getProperties() == null) {
+            saml2SSOResidentAuthenticatorConfig.setProperties(new Property[0]);
         }
 
         boolean idPEntityIdAvailable = false;
-        for (Property property : fedAuthnConfig.getProperties()) {
+        for (Property property : saml2SSOResidentAuthenticatorConfig.getProperties()) {
             if (IdentityApplicationConstants.Authenticator.SAML2SSO.IDP_ENTITY_ID.equals(property.getName())) {
                 idPEntityIdAvailable = true;
             }
@@ -374,16 +574,68 @@ public class IdentityProviderManager {
             Property property = new Property();
             property.setName(IdentityApplicationConstants.Authenticator.SAML2SSO.IDP_ENTITY_ID);
             property.setValue(IdPManagementUtil.getResidentIdPEntityId());
-            if (fedAuthnConfig.getProperties().length > 0) {
-                List<Property> properties = Arrays.asList(fedAuthnConfig.getProperties());
+            if (saml2SSOResidentAuthenticatorConfig.getProperties().length > 0) {
+                List<Property> properties = Arrays.asList(saml2SSOResidentAuthenticatorConfig.getProperties());
                 properties.add(property);
-                fedAuthnConfig.setProperties((Property[]) properties.toArray());
+                saml2SSOResidentAuthenticatorConfig.setProperties((Property[]) properties.toArray());
             } else {
-                fedAuthnConfig.setProperties(new Property[]{property});
+                saml2SSOResidentAuthenticatorConfig.setProperties(new Property[]{property});
             }
         }
 
-        FederatedAuthenticatorConfig[] federatedAuthenticatorConfigs = {fedAuthnConfig};
+        FederatedAuthenticatorConfig idpPropertiesResidentAuthenticatorConfig = IdentityApplicationManagementUtil
+                .getFederatedAuthenticator(identityProvider.getFederatedAuthenticatorConfigs(),
+                        IdentityApplicationConstants.Authenticator.IDPProperties.NAME);
+        if(idpPropertiesResidentAuthenticatorConfig == null){
+            idpPropertiesResidentAuthenticatorConfig = new FederatedAuthenticatorConfig();
+            idpPropertiesResidentAuthenticatorConfig.setName(IdentityApplicationConstants.Authenticator.IDPProperties.NAME);
+        }
+        List<Property> propertiesList = new ArrayList<Property>(Arrays.asList(idpPropertiesResidentAuthenticatorConfig.getProperties()));
+        if(IdentityApplicationManagementUtil.getProperty(idpPropertiesResidentAuthenticatorConfig.getProperties(),
+                IdentityApplicationConstants.Authenticator.IDPProperties.SESSION_IDLE_TIME_OUT) == null){
+            Property sessionIdletimeOutProp = new Property();
+            sessionIdletimeOutProp.setName(IdentityApplicationConstants.Authenticator.IDPProperties.SESSION_IDLE_TIME_OUT);
+            String idleTimeout = IdentityUtil.getProperty("TimeConfig.SessionIdleTimeout");
+            if(StringUtils.isEmpty(idleTimeout)){
+                idleTimeout = IdentityApplicationConstants.Authenticator.IDPProperties.SESSION_IDLE_TIME_OUT_DEFAULT;
+            }else if(!StringUtils.isNumeric(idleTimeout)){
+                log.warn("SessionIdleTimeout in identity.xml should be a numeric value");
+                idleTimeout = IdentityApplicationConstants.Authenticator.IDPProperties.SESSION_IDLE_TIME_OUT_DEFAULT;
+            }
+            sessionIdletimeOutProp.setValue(idleTimeout);
+            propertiesList.add(sessionIdletimeOutProp);
+        }
+        if(IdentityApplicationManagementUtil.getProperty(idpPropertiesResidentAuthenticatorConfig.getProperties(),
+                IdentityApplicationConstants.Authenticator.IDPProperties.REMEMBER_ME_TIME_OUT) == null){
+            Property rememberMeTimeOutProp = new Property();
+            rememberMeTimeOutProp.setName(IdentityApplicationConstants.Authenticator.IDPProperties.REMEMBER_ME_TIME_OUT);
+            String rememberMeTimeout = IdentityUtil.getProperty("TimeConfig.RememberMeTimeout");
+            if(StringUtils.isEmpty(rememberMeTimeout)){
+                rememberMeTimeout = IdentityApplicationConstants.Authenticator.IDPProperties.REMEMBER_ME_TIME_OUT_DEFAULT;
+            }else if(!StringUtils.isNumeric(rememberMeTimeout)){
+                log.warn("RememberMeTimeout in identity.xml should be a numeric value");
+                rememberMeTimeout = IdentityApplicationConstants.Authenticator.IDPProperties.REMEMBER_ME_TIME_OUT_DEFAULT;
+            }
+            rememberMeTimeOutProp.setValue(rememberMeTimeout);
+            propertiesList.add(rememberMeTimeOutProp);
+        }
+        if(IdentityApplicationManagementUtil.getProperty(idpPropertiesResidentAuthenticatorConfig.getProperties(),
+                IdentityApplicationConstants.Authenticator.IDPProperties.CLEAN_UP_PERIOD) == null){
+            Property cleanUpPeriodProp = new Property();
+            cleanUpPeriodProp.setName(IdentityApplicationConstants.Authenticator.IDPProperties.CLEAN_UP_PERIOD);
+            String cleanUpPeriod = IdentityUtil.getProperty("TimeConfig.PersistanceCleanUpPeriod");
+            if(StringUtils.isEmpty(cleanUpPeriod)){
+                cleanUpPeriod = IdentityApplicationConstants.Authenticator.IDPProperties.CLEAN_UP_PERIOD_DEFAULT;
+            }else if(!StringUtils.isNumeric(cleanUpPeriod)){
+                log.warn("PersistanceCleanUpPeriod in identity.xml should be a numeric value");
+                cleanUpPeriod = IdentityApplicationConstants.Authenticator.IDPProperties.CLEAN_UP_PERIOD_DEFAULT;
+            }
+            cleanUpPeriodProp.setValue(cleanUpPeriod);
+            propertiesList.add(cleanUpPeriodProp);
+        }
+        idpPropertiesResidentAuthenticatorConfig.setProperties(propertiesList.toArray(new Property[propertiesList.size()]));
+
+        FederatedAuthenticatorConfig[] federatedAuthenticatorConfigs = {saml2SSOResidentAuthenticatorConfig, idpPropertiesResidentAuthenticatorConfig};
         identityProvider.setFederatedAuthenticatorConfigs(IdentityApplicationManagementUtil
                 .concatArrays(identityProvider.getFederatedAuthenticatorConfigs(), federatedAuthenticatorConfigs));
 
@@ -400,8 +652,7 @@ public class IdentityProviderManager {
     public void updateResidentIdP(IdentityProvider identityProvider, String tenantDomain)
             throws IdentityApplicationManagementException {
 
-        if (identityProvider.getHomeRealmId() == null
-                || identityProvider.getHomeRealmId().equals("")) {
+        if (StringUtils.isEmpty(identityProvider.getHomeRealmId())) {
             String msg = "Invalid argument: Resident Identity Provider Home Realm Identifier value is empty";
             log.error(msg);
             throw new IdentityApplicationManagementException(msg);
@@ -469,7 +720,7 @@ public class IdentityProviderManager {
                                          boolean ignoreFileBasedIdps) throws IdentityApplicationManagementException {
 
         int tenantId = getTenantIdOfDomain(tenantDomain);
-        if (idPName == null || idPName.equals("")) {
+        if (StringUtils.isEmpty(idPName)) {
             String msg = "Invalid argument: Identity Provider Name value is empty";
             log.error(msg);
             throw new IdentityApplicationManagementException(msg);
@@ -536,7 +787,8 @@ public class IdentityProviderManager {
             throws IdentityApplicationManagementException {
 
         int tenantId = getTenantIdOfDomain(tenantDomain);
-        if (property == null || property.equals("") || value == null || value.equals("")) {
+
+        if (StringUtils.isEmpty(property) || StringUtils.isEmpty(value)) {
             String msg = "Invalid argument: Authenticator property or property value is empty";
             log.error(msg);
             throw new IdentityApplicationManagementException(msg);
@@ -585,7 +837,7 @@ public class IdentityProviderManager {
             throws IdentityApplicationManagementException {
 
         int tenantId = getTenantIdOfDomain(tenantDomain);
-        if (realmId == null || realmId.equals("")) {
+        if (StringUtils.isEmpty(realmId)) {
             String msg = "Invalid argument: Identity Provider Home Realm Identifier value is empty";
             log.error(msg);
             throw new IdentityApplicationManagementException(msg);
@@ -627,10 +879,11 @@ public class IdentityProviderManager {
      * @throws IdentityApplicationManagementException Error when getting claim mappings
      */
     public Set<ClaimMapping> getMappedLocalClaims(String idPName, String tenantDomain,
-                                                  List<String> idPClaimURIs) throws IdentityApplicationManagementException {
+                                                  List<String> idPClaimURIs) throws
+            IdentityApplicationManagementException {
 
         int tenantId = getTenantIdOfDomain(tenantDomain);
-        if (idPName == null || idPName.equals("")) {
+        if (StringUtils.isEmpty(idPName)) {
             String msg = "Invalid argument: Identity Provider Name value is empty";
             log.error(msg);
             throw new IdentityApplicationManagementException(msg);
@@ -679,7 +932,8 @@ public class IdentityProviderManager {
      * @throws IdentityApplicationManagementException Error when getting claim mappings
      */
     public Map<String, String> getMappedLocalClaimsMap(String idPName, String tenantDomain,
-                                                       List<String> idPClaimURIs) throws IdentityApplicationManagementException {
+                                                       List<String> idPClaimURIs) throws
+            IdentityApplicationManagementException {
 
         Set<ClaimMapping> claimMappings = getMappedLocalClaims(idPName, tenantDomain, idPClaimURIs);
         Map<String, String> returnMap = new HashMap<String, String>();
@@ -699,10 +953,11 @@ public class IdentityProviderManager {
      * @throws IdentityApplicationManagementException Error when getting claim mappings
      */
     public Set<ClaimMapping> getMappedIdPClaims(String idPName, String tenantDomain,
-                                                List<String> localClaimURIs) throws IdentityApplicationManagementException {
+                                                List<String> localClaimURIs) throws
+            IdentityApplicationManagementException {
 
         int tenantId = getTenantIdOfDomain(tenantDomain);
-        if (idPName == null || idPName.equals("")) {
+        if (StringUtils.isEmpty(idPName)) {
             String msg = "Invalid argument: Identity Provider Name value is empty";
             log.error(msg);
             throw new IdentityApplicationManagementException(msg);
@@ -750,7 +1005,8 @@ public class IdentityProviderManager {
      * @throws IdentityApplicationManagementException Error when getting claim mappings
      */
     public Map<String, String> getMappedIdPClaimsMap(String idPName, String tenantDomain,
-                                                     List<String> localClaimURIs) throws IdentityApplicationManagementException {
+                                                     List<String> localClaimURIs) throws
+            IdentityApplicationManagementException {
 
         Set<ClaimMapping> claimMappings = getMappedIdPClaims(idPName, tenantDomain, localClaimURIs);
         Map<String, String> returnMap = new HashMap<String, String>();
@@ -774,7 +1030,7 @@ public class IdentityProviderManager {
 
         int tenantId = getTenantIdOfDomain(tenantDomain);
 
-        if (idPName == null || idPName.equals("")) {
+        if (StringUtils.isEmpty(idPName)) {
             String msg = "Invalid argument: Identity Provider Name value is empty";
             throw new IdentityApplicationManagementException(msg);
         }
@@ -842,7 +1098,7 @@ public class IdentityProviderManager {
                                               LocalRole[] localRoles) throws IdentityApplicationManagementException {
 
         int tenantId = getTenantIdOfDomain(tenantDomain);
-        if (idPName == null || idPName.equals("")) {
+        if (StringUtils.isEmpty(idPName)) {
             String msg = "Invalid argument: Identity Provider Name value is empty";
             log.error(msg);
             throw new IdentityApplicationManagementException(msg);
@@ -888,7 +1144,8 @@ public class IdentityProviderManager {
      * @throws IdentityApplicationManagementException Error when getting role mappings
      */
     public Map<LocalRole, String> getMappedIdPRolesMap(String idPName, String tenantDomain,
-                                                       LocalRole[] localRoles) throws IdentityApplicationManagementException {
+                                                       LocalRole[] localRoles) throws
+            IdentityApplicationManagementException {
 
         Set<RoleMapping> roleMappings = getMappedIdPRoles(idPName, tenantDomain, localRoles);
         Map<LocalRole, String> returnMap = new HashMap<LocalRole, String>();
@@ -932,8 +1189,7 @@ public class IdentityProviderManager {
 
         int tenantId = getTenantIdOfDomain(tenantDomain);
 
-        if (identityProvider.getIdentityProviderName() == null
-                || identityProvider.getIdentityProviderName().equals("")) {
+        if (StringUtils.isEmpty(identityProvider.getIdentityProviderName())) {
             String msg = "Invalid argument: Identity Provider Name value is empty";
             log.error(msg);
             throw new IdentityApplicationManagementException(msg);
@@ -961,10 +1217,8 @@ public class IdentityProviderManager {
                                 + CarbonConstants.DOMAIN_SEPARATOR
                                 + mapping.getLocalRole().getLocalRoleName();
                     }
-                    if (usm.isExistingRole(mapping.getLocalRole().getLocalRoleName())) {
+                    if (usm.isExistingRole(role)) {
                         // perfect
-                    } else if (usm.isExistingRole(mapping.getLocalRole().getLocalRoleName(), true)) {
-                        // also fine
                     } else {
                         String msg = "Cannot find tenant role " + role + " for tenant "
                                 + tenantDomain;
@@ -1001,7 +1255,7 @@ public class IdentityProviderManager {
             throws IdentityApplicationManagementException {
 
         int tenantId = getTenantIdOfDomain(tenantDomain);
-        if (idPName == null || idPName.equals("")) {
+        if (StringUtils.isEmpty(idPName)) {
             String msg = "Invalid argument: Identity Provider Name value is empty";
             log.error(msg);
             throw new IdentityApplicationManagementException(msg);
@@ -1034,7 +1288,7 @@ public class IdentityProviderManager {
 
         int tenantId = getTenantIdOfDomain(tenantDomain);
 
-        if (oldIdPName == null || oldIdPName.equals("")) {
+        if (StringUtils.isEmpty(oldIdPName)) {
             String msg = "Invalid argument: Existing Identity Provider Name value is empty";
             log.error(msg);
             throw new IdentityApplicationManagementException(msg);
@@ -1055,8 +1309,7 @@ public class IdentityProviderManager {
             throw new IdentityApplicationManagementException(msg);
         }
 
-        if (newIdentityProvider.getIdentityProviderName() == null
-                || newIdentityProvider.getIdentityProviderName().equals("")) {
+        if (StringUtils.isEmpty(newIdentityProvider.getIdentityProviderName())) {
             String msg = "Invalid argument: Identity Provider Name value is empty for \'newIdentityProvider\'";
             log.error(msg);
             throw new IdentityApplicationManagementException(msg);
@@ -1078,10 +1331,8 @@ public class IdentityProviderManager {
                     } else {
                         role = mapping.getLocalRole().getLocalRoleName();
                     }
-                    if (usm.isExistingRole(mapping.getLocalRole().getLocalRoleName())) {
+                    if (usm.isExistingRole(role)) {
                         // perfect
-                    } else if (usm.isExistingRole(mapping.getLocalRole().getLocalRoleName(), true)) {
-                        // also fine
                     } else {
                         String msg = "Cannot find tenant role " + role + " for tenant "
                                 + tenantDomain;
@@ -1090,8 +1341,8 @@ public class IdentityProviderManager {
                 } catch (UserStoreException e) {
                     String msg = "Error occurred while retrieving UserStoreManager for tenant "
                             + tenantDomain;
-                    log.error(msg);
-                    throw new IdentityApplicationManagementException(msg);
+                    log.error(msg,e);
+                    throw new IdentityApplicationManagementException(msg,e);
                 }
             }
         }
@@ -1114,10 +1365,10 @@ public class IdentityProviderManager {
             throws IdentityApplicationManagementException {
         List<FederatedAuthenticatorConfig> appConfig = ApplicationAuthenticatorService
                 .getInstance().getFederatedAuthenticators();
-        if (appConfig != null && appConfig.size() > 0) {
+        if (CollectionUtils.isNotEmpty(appConfig)) {
             return appConfig.toArray(new FederatedAuthenticatorConfig[appConfig.size()]);
         }
-        return null;
+        return new FederatedAuthenticatorConfig[0];
     }
 
     /**
@@ -1145,10 +1396,11 @@ public class IdentityProviderManager {
                     Property[] properties = authConfig.getProperties();
                     if (properties != null) {
                         for (Property property : properties) {
-                            if (IdentityApplicationConstants.Authenticator.SAML2SSO.IDP_ENTITY_ID.equals(property.getName())) {
+                            if (IdentityApplicationConstants.Authenticator.SAML2SSO.IDP_ENTITY_ID.equals(
+                                    property.getName())) {
                                 if (dao.isSimilarIdPEntityIdsAvailble(property.getValue(), tenantId)) {
-                                    String msg = "An Identity Provider Entity Id has already been registered with the name '" +
-                                            property.getValue() + "' for tenant '" + tenantDomain + "'";
+                                    String msg = "An Identity Provider Entity Id has already been registered with the " +
+                                            "name '" + property.getValue() + "' for tenant '" + tenantDomain + "'";
                                     throw new IdentityApplicationManagementException(msg);
                                 }
                                 return true;
@@ -1163,7 +1415,8 @@ public class IdentityProviderManager {
 
     private boolean validateUpdateOfIdPEntityId(FederatedAuthenticatorConfig[] currentFederatedAuthConfigs,
                                                 FederatedAuthenticatorConfig[] newFederatedAuthConfigs,
-                                                int tenantId, String tenantDomain) throws IdentityApplicationManagementException {
+                                                int tenantId, String tenantDomain)
+            throws IdentityApplicationManagementException {
         String currentIdentityProviderEntityId = null;
         if (currentFederatedAuthConfigs != null) {
             for (FederatedAuthenticatorConfig fedAuthnConfig : currentFederatedAuthConfigs) {
@@ -1172,7 +1425,8 @@ public class IdentityProviderManager {
                     Property[] properties = fedAuthnConfig.getProperties();
                     if (properties != null) {
                         for (Property property : properties) {
-                            if (IdentityApplicationConstants.Authenticator.SAML2SSO.IDP_ENTITY_ID.equals(property.getName())) {
+                            if (IdentityApplicationConstants.Authenticator.SAML2SSO.IDP_ENTITY_ID.equals
+                                    (property.getName())) {
                                 currentIdentityProviderEntityId = property.getValue();
                                 break;
                             }
@@ -1190,12 +1444,15 @@ public class IdentityProviderManager {
                     Property[] properties = fedAuthnConfig.getProperties();
                     if (properties != null) {
                         for (Property property : properties) {
-                            if (IdentityApplicationConstants.Authenticator.SAML2SSO.IDP_ENTITY_ID.equals(property.getName())) {
-                                if (currentIdentityProviderEntityId != null && currentIdentityProviderEntityId.equals(property.getValue())) {
+                            if (IdentityApplicationConstants.Authenticator.SAML2SSO.IDP_ENTITY_ID.equals(property.
+                                    getName())) {
+                                if (currentIdentityProviderEntityId != null && currentIdentityProviderEntityId.equals
+                                        (property.getValue())) {
                                     return true;
                                 } else {
                                     if (dao.isSimilarIdPEntityIdsAvailble(property.getValue(), tenantId)) {
-                                        String msg = "An Identity Provider Entity Id has already been registered with the name '" +
+                                        String msg = "An Identity Provider Entity Id has already been registered " +
+                                                "with the name '" +
                                                 property.getValue() + "' for tenant '" + tenantDomain + "'";
                                         throw new IdentityApplicationManagementException(msg);
                                     }

@@ -16,15 +16,14 @@
 */
 -->
 
-<%@ page import="org.wso2.carbon.identity.entitlement.ui.dto.SimplePolicyEditorDTO" %>
+<%@ page import="org.wso2.carbon.identity.entitlement.common.EntitlementConstants" %>
+<%@ page import="org.wso2.carbon.identity.entitlement.common.PolicyEditorEngine" %>
+<%@ page import="org.wso2.carbon.identity.entitlement.common.dto.PolicyEditorDataHolder" %>
 <%@ page import="org.wso2.carbon.identity.entitlement.ui.PolicyEditorConstants" %>
+<%@ page import="org.wso2.carbon.identity.entitlement.ui.dto.SimplePolicyEditorDTO" %>
 <%@ page import="org.wso2.carbon.identity.entitlement.ui.dto.SimplePolicyEditorElementDTO" %>
 <%@ page import="java.util.List" %>
 <%@ page import="java.util.Set" %>
-<%@ page import="java.util.HashSet" %>
-<%@ page import="org.wso2.carbon.identity.entitlement.common.dto.PolicyEditorDataHolder" %>
-<%@ page import="org.wso2.carbon.identity.entitlement.common.PolicyEditorEngine" %>
-<%@ page import="org.wso2.carbon.identity.entitlement.common.EntitlementConstants" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar" prefix="carbon" %>
 <jsp:useBean id="entitlementPolicyBean"

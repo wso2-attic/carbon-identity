@@ -1,25 +1,26 @@
 /*
-*Copyright (c) 2005-2013, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*WSO2 Inc. licenses this file to you under the Apache License,
-*Version 2.0 (the "License"); you may not use this file except
-*in compliance with the License.
-*You may obtain a copy of the License at
-*
-*http://www.apache.org/licenses/LICENSE-2.0
-*
-*Unless required by applicable law or agreed to in writing,
-*software distributed under the License is distributed on an
-*"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-*KIND, either express or implied.  See the License for the
-*specific language governing permissions and limitations
-*under the License.
-*/
+ * Copyright (c) 2013, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 
 package org.wso2.carbon.identity.oauth2.validators;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.identity.application.common.model.User;
 import org.wso2.carbon.identity.oauth.cache.CacheEntry;
 import org.wso2.carbon.identity.oauth.cache.CacheKey;
 import org.wso2.carbon.identity.oauth.cache.OAuthCache;
@@ -34,8 +35,9 @@ import org.wso2.carbon.identity.oauth2.dto.OAuth2TokenValidationRequestDTO;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2TokenValidationResponseDTO;
 import org.wso2.carbon.identity.oauth2.model.AccessTokenDO;
 import org.wso2.carbon.identity.oauth2.util.OAuth2Util;
+import org.wso2.carbon.user.core.util.UserCoreUtil;
 
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -48,7 +50,7 @@ public class TokenValidationHandler {
     AuthorizationContextTokenGenerator tokenGenerator = null;
     private Log log = LogFactory.getLog(TokenValidationHandler.class);
     private Map<String, OAuth2TokenValidator> tokenValidators =
-            new Hashtable<String, OAuth2TokenValidator>();
+            new HashMap<>();
     private TokenMgtDAO tokenMgtDAO = new TokenMgtDAO();
 
     private TokenValidationHandler() {
@@ -144,7 +146,9 @@ public class TokenValidationHandler {
 
         // incomplete token validation request
         if (accessToken == null) {
-            log.debug("Access Token is not present in the validation request");
+            if (log.isDebugEnabled()) {
+                log.debug("Access Token is not present in the validation request");
+            }
             responseDTO.setValid(false);
             responseDTO.setErrorMsg("Access Token is not present in the validation request");
             clientApp.setAccessTokenValidationResponse(responseDTO);
@@ -154,7 +158,9 @@ public class TokenValidationHandler {
         String accessTokenIdentifier = accessToken.getIdentifier();
         // incomplete token validation request
         if (accessTokenIdentifier == null) {
-            log.debug("Access token identifier is not present in the validation request");
+            if (log.isDebugEnabled()) {
+                log.debug("Access token identifier is not present in the validation request");
+            }
             responseDTO.setValid(false);
             responseDTO.setErrorMsg("Access token identifier is not present in the validation request");
             clientApp.setAccessTokenValidationResponse(responseDTO);
@@ -165,7 +171,9 @@ public class TokenValidationHandler {
 
         // There is no token validator for the provided token type.
         if (tokenValidator == null) {
-            log.debug("Unsupported access token type");
+            if (log.isDebugEnabled()) {
+                log.debug("Unsupported access token type : " + requestDTO.getAccessToken().getTokenType());
+            }
             responseDTO.setValid(false);
             responseDTO.setErrorMsg("Unsupported access token type");
             clientApp.setAccessTokenValidationResponse(responseDTO);
@@ -177,7 +185,7 @@ public class TokenValidationHandler {
         boolean cacheHit = false;
         // Check the cache, if caching is enabled.
         if (OAuthServerConfiguration.getInstance().isCacheEnabled()) {
-            OAuthCache oauthCache = OAuthCache.getInstance();
+            OAuthCache oauthCache = OAuthCache.getInstance(OAuthServerConfiguration.getInstance().getOAuthCacheTimeout());
             CacheKey cacheKey = new OAuthCacheKey(requestDTO.getAccessToken().getIdentifier());
             CacheEntry result = oauthCache.getValueFromCache(cacheKey);
             // cache hit, do the type check.
@@ -192,6 +200,9 @@ public class TokenValidationHandler {
 
             // No data retrieved due to invalid input.
             if (accessTokenDO == null) {
+                if (log.isDebugEnabled()){
+                    log.debug("Invalid access token : " + accessTokenIdentifier + ". Access token validation failed");
+                }
                 responseDTO.setValid(false);
                 responseDTO.setErrorMsg("Invalid input. Access token validation failed");
                 clientApp.setAccessTokenValidationResponse(responseDTO);
@@ -218,7 +229,7 @@ public class TokenValidationHandler {
 
         // Add the token back to the cache in the case of a cache miss
         if (OAuthServerConfiguration.getInstance().isCacheEnabled() && !cacheHit) {
-            OAuthCache oauthCache = OAuthCache.getInstance();
+            OAuthCache oauthCache = OAuthCache.getInstance(OAuthServerConfiguration.getInstance().getOAuthCacheTimeout());
             CacheKey cacheKey = new OAuthCacheKey(accessTokenIdentifier);
             oauthCache.addToCache(cacheKey, accessTokenDO);
             if (log.isDebugEnabled()) {
@@ -230,12 +241,14 @@ public class TokenValidationHandler {
         long expiryTime = OAuth2Util.getAccessTokenExpireMillis(accessTokenDO);
         if(OAuthConstants.USER_TYPE_FOR_USER_TOKEN.equals(accessTokenDO.getTokenType()) &&
                 OAuthServerConfiguration.getInstance().getUserAccessTokenValidityPeriodInSeconds() < 0){
-            responseDTO.setExpiryTime(Long.MAX_VALUE / 1000);
+            responseDTO.setExpiryTime(Long.MAX_VALUE);
         } else if (OAuthConstants.USER_TYPE_FOR_APPLICATION_TOKEN.equals(accessTokenDO.getTokenType()) &&
                     OAuthServerConfiguration.getInstance().getApplicationAccessTokenValidityPeriodInSeconds() < 0) {
-            responseDTO.setExpiryTime(Long.MAX_VALUE / 1000);
+            responseDTO.setExpiryTime(Long.MAX_VALUE);
         } else if(expiryTime > 0){
             responseDTO.setExpiryTime(expiryTime / 1000);
+        } else if (expiryTime < 0) {
+            responseDTO.setExpiryTime(Long.MAX_VALUE);
         }
 
         // Adding the AccessTokenDO as a context property for further use
@@ -246,7 +259,9 @@ public class TokenValidationHandler {
         boolean isValidAccessToken = tokenValidator.validateAccessToken(messageContext);
 
         if (!isValidAccessDelegation) {
-            log.debug("Invalid access delegation");
+            if (log.isDebugEnabled()) {
+                log.debug("Invalid access delegation");
+            }
             responseDTO.setValid(false);
             responseDTO.setErrorMsg("Invalid access delegation");
             clientApp.setAccessTokenValidationResponse(responseDTO);
@@ -254,7 +269,9 @@ public class TokenValidationHandler {
         }
 
         if (!isValidScope) {
-            log.debug("Scope validation failed");
+            if (log.isDebugEnabled()) {
+                log.debug("Scope validation failed");
+            }
             responseDTO.setValid(false);
             responseDTO.setErrorMsg("Scope validation failed");
             clientApp.setAccessTokenValidationResponse(responseDTO);
@@ -262,14 +279,19 @@ public class TokenValidationHandler {
         }
 
         if (!isValidAccessToken) {
-            log.debug("OAuth2 access token validation failed");
+            if (log.isDebugEnabled()) {
+                log.debug("OAuth2 access token " + accessTokenIdentifier + " validation failed");
+            }
             responseDTO.setValid(false);
             responseDTO.setErrorMsg("OAuth2 access token validation failed");
             clientApp.setAccessTokenValidationResponse(responseDTO);
             return clientApp;
         }
 
-        responseDTO.setAuthorizedUser(accessTokenDO.getAuthzUser());
+        User user = accessTokenDO.getAuthzUser();
+        String authzUser = UserCoreUtil.addDomainToName(user.getUserName(), user.getUserStoreDomain());
+        authzUser = UserCoreUtil.addTenantDomainToEntry(authzUser, user.getTenantDomain());
+        responseDTO.setAuthorizedUser(authzUser);
         responseDTO.setScope(accessTokenDO.getScope());
         responseDTO.setValid(true);
 

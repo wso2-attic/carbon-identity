@@ -16,15 +16,14 @@
 ~ under the License.
 -->
 
-<%@page import="org.wso2.carbon.ui.util.CharacterEncoder"%>
-<%@ page import="org.apache.axis2.context.ConfigurationContext"%>
+<%@page import="org.apache.axis2.context.ConfigurationContext"%>
 <%@ page import="org.wso2.carbon.CarbonConstants"%>
 <%@ page import="org.wso2.carbon.identity.application.common.model.xsd.ServiceProvider"%>
 <%@ page import="org.wso2.carbon.identity.application.mgt.ui.client.ApplicationManagementServiceClient"%>
 <%@ page import="org.wso2.carbon.ui.CarbonUIMessage"%>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil"%>
+<%@ page import="org.wso2.carbon.ui.util.CharacterEncoder"%>
 <%@ page import="org.wso2.carbon.utils.ServerConstants"%>
-<%@ page import="java.util.ResourceBundle"%>
 
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar"
@@ -42,9 +41,7 @@
 
 <fmt:bundle
 	basename="org.wso2.carbon.identity.application.mgt.ui.i18n.Resources">
-	<carbon:breadcrumb label="application.mgt"
-		resourceBundle="org.wso2.carbon.identity.application.mgt.ui.i18n.Resources"
-		topPage="true" request="<%=request%>" />
+    <carbon:breadcrumb label="application.mgt" topPage="true" request="<%=request%>"/>
 
 	<script type="text/javascript" src="../carbon/admin/js/breadcrumbs.js"></script>
 	<script type="text/javascript" src="../carbon/admin/js/cookies.js"></script>
@@ -54,9 +51,6 @@
 		String appid = CharacterEncoder.getSafeText(request.getParameter("spName"));
 		String description = CharacterEncoder.getSafeText(request.getParameter("sp-description"));
 
-	    String BUNDLE = "org.wso2.carbon.identity.application.mgt.ui.i18n.Resources";
-	    ResourceBundle resourceBundle = ResourceBundle.getBundle(BUNDLE, request.getLocale());
-			    
 	    if (appid != null && !"".equals(appid)) {
 		
 		ServiceProvider serviceProvider = new ServiceProvider();
@@ -78,8 +72,7 @@
 			</script>
 			<%
 		} catch (Exception e) {
-			String message = resourceBundle.getString("alert.error.while.adding.service.provider");
-			CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request, e);
+            CarbonUIMessage.sendCarbonUIMessage(e.getMessage(), CarbonUIMessage.ERROR, request, e);
 			%>
 			<script>
 				location.href = 'add-service-provider.jsp';

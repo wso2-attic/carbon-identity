@@ -1,17 +1,17 @@
 /*
  * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
- * 
+ *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the
+ * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
  * under the License.
  */
@@ -22,7 +22,11 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.core.AbstractAdmin;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
-import org.wso2.carbon.identity.application.common.model.*;
+import org.wso2.carbon.identity.application.common.model.ApplicationBasicInfo;
+import org.wso2.carbon.identity.application.common.model.IdentityProvider;
+import org.wso2.carbon.identity.application.common.model.LocalAuthenticatorConfig;
+import org.wso2.carbon.identity.application.common.model.RequestPathAuthenticatorConfig;
+import org.wso2.carbon.identity.application.common.model.ServiceProvider;
 
 /**
  * Application management admin service
@@ -45,8 +49,8 @@ public class ApplicationManagementAdminService extends AbstractAdmin {
      */
     public int createApplication(ServiceProvider serviceProvider)
             throws IdentityApplicationManagementException {
-        applicationMgtService = ApplicationManagementServiceImpl.getInstance();
-        return applicationMgtService.createApplication(serviceProvider);
+        applicationMgtService = ApplicationManagementService.getInstance();
+        return applicationMgtService.createApplication(serviceProvider, getTenantDomain(), getUsername());
     }
 
     /**
@@ -65,8 +69,8 @@ public class ApplicationManagementAdminService extends AbstractAdmin {
                     " does not have access to the application " + applicationName);
             throw new IdentityApplicationManagementException("User not authorized");
         }
-        applicationMgtService = ApplicationManagementServiceImpl.getInstance();
-        return applicationMgtService.getApplication(applicationName);
+        applicationMgtService = ApplicationManagementService.getInstance();
+        return applicationMgtService.getApplicationExcludingFileBasedSPs(applicationName, getTenantDomain());
     }
 
     /**
@@ -77,8 +81,8 @@ public class ApplicationManagementAdminService extends AbstractAdmin {
      */
     public ApplicationBasicInfo[] getAllApplicationBasicInfo()
             throws IdentityApplicationManagementException {
-        applicationMgtService = ApplicationManagementServiceImpl.getInstance();
-        return applicationMgtService.getAllApplicationBasicInfo();
+        applicationMgtService = ApplicationManagementService.getInstance();
+        return applicationMgtService.getAllApplicationBasicInfo(getTenantDomain(), getUsername());
     }
 
     /**
@@ -98,8 +102,8 @@ public class ApplicationManagementAdminService extends AbstractAdmin {
                     serviceProvider.getApplicationName());
             throw new IdentityApplicationManagementException("User not authorized");
         }
-        applicationMgtService = ApplicationManagementServiceImpl.getInstance();
-        applicationMgtService.updateApplication(serviceProvider);
+        applicationMgtService = ApplicationManagementService.getInstance();
+        applicationMgtService.updateApplication(serviceProvider, getTenantDomain(), getUsername());
     }
 
     /**
@@ -116,8 +120,8 @@ public class ApplicationManagementAdminService extends AbstractAdmin {
                     " does not have access to the application " + applicationName);
             throw new IdentityApplicationManagementException("User not authorized");
         }
-        applicationMgtService = ApplicationManagementServiceImpl.getInstance();
-        applicationMgtService.deleteApplication(applicationName);
+        applicationMgtService = ApplicationManagementService.getInstance();
+        applicationMgtService.deleteApplication(applicationName, getTenantDomain(), getUsername());
     }
 
     /**
@@ -129,8 +133,8 @@ public class ApplicationManagementAdminService extends AbstractAdmin {
      */
     public IdentityProvider getIdentityProvider(String federatedIdPName)
             throws IdentityApplicationManagementException {
-        applicationMgtService = ApplicationManagementServiceImpl.getInstance();
-        return applicationMgtService.getIdentityProvider(federatedIdPName);
+        applicationMgtService = ApplicationManagementService.getInstance();
+        return applicationMgtService.getIdentityProvider(federatedIdPName, getTenantDomain());
     }
 
     /**
@@ -141,8 +145,8 @@ public class ApplicationManagementAdminService extends AbstractAdmin {
      */
     public IdentityProvider[] getAllIdentityProviders()
             throws IdentityApplicationManagementException {
-        applicationMgtService = ApplicationManagementServiceImpl.getInstance();
-        return applicationMgtService.getAllIdentityProviders();
+        applicationMgtService = ApplicationManagementService.getInstance();
+        return applicationMgtService.getAllIdentityProviders(getTenantDomain());
     }
 
     /**
@@ -153,8 +157,8 @@ public class ApplicationManagementAdminService extends AbstractAdmin {
      */
     public LocalAuthenticatorConfig[] getAllLocalAuthenticators()
             throws IdentityApplicationManagementException {
-        applicationMgtService = ApplicationManagementServiceImpl.getInstance();
-        return applicationMgtService.getAllLocalAuthenticators();
+        applicationMgtService = ApplicationManagementService.getInstance();
+        return applicationMgtService.getAllLocalAuthenticators(getTenantDomain());
     }
 
     /**
@@ -165,8 +169,8 @@ public class ApplicationManagementAdminService extends AbstractAdmin {
      */
     public RequestPathAuthenticatorConfig[] getAllRequestPathAuthenticators()
             throws IdentityApplicationManagementException {
-        applicationMgtService = ApplicationManagementServiceImpl.getInstance();
-        return applicationMgtService.getAllRequestPathAuthenticators();
+        applicationMgtService = ApplicationManagementService.getInstance();
+        return applicationMgtService.getAllRequestPathAuthenticators(getTenantDomain());
     }
 
     /**
@@ -176,8 +180,8 @@ public class ApplicationManagementAdminService extends AbstractAdmin {
      * @throws org.wso2.carbon.identity.application.common.IdentityApplicationManagementException
      */
     public String[] getAllLocalClaimUris() throws IdentityApplicationManagementException {
-        applicationMgtService = ApplicationManagementServiceImpl.getInstance();
-        return applicationMgtService.getAllLocalClaimUris();
+        applicationMgtService = ApplicationManagementService.getInstance();
+        return applicationMgtService.getAllLocalClaimUris(getTenantDomain());
     }
 
 }

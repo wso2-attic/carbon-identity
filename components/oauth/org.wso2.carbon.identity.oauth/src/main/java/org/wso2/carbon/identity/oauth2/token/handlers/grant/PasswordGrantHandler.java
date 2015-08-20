@@ -1,31 +1,34 @@
 /*
-*Copyright (c) 2005-2013, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*WSO2 Inc. licenses this file to you under the Apache License,
-*Version 2.0 (the "License"); you may not use this file except
-*in compliance with the License.
-*You may obtain a copy of the License at
-*
-*http://www.apache.org/licenses/LICENSE-2.0
-*
-*Unless required by applicable law or agreed to in writing,
-*software distributed under the License is distributed on an
-*"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-*KIND, either express or implied.  See the License for the
-*specific language governing permissions and limitations
-*under the License.
-*/
+ * Copyright (c) 2013, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 
 package org.wso2.carbon.identity.oauth2.token.handlers.grant;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
+import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
+import org.wso2.carbon.identity.application.common.model.ServiceProvider;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.oauth.internal.OAuthComponentServiceHolder;
 import org.wso2.carbon.identity.oauth2.IdentityOAuth2Exception;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2AccessTokenReqDTO;
+import org.wso2.carbon.identity.oauth2.internal.OAuth2ServiceComponentHolder;
 import org.wso2.carbon.identity.oauth2.token.OAuthTokenReqMessageContext;
 import org.wso2.carbon.identity.oauth2.util.OAuth2Util;
 import org.wso2.carbon.user.api.UserStoreException;
@@ -53,10 +56,27 @@ public class PasswordGrantHandler extends AbstractAuthorizationGrantHandler {
 
         OAuth2AccessTokenReqDTO oAuth2AccessTokenReqDTO = tokReqMsgCtx.getOauth2AccessTokenReqDTO();
         String username = oAuth2AccessTokenReqDTO.getResourceOwnerUsername();
+        String userTenantDomain = MultitenantUtils.getTenantDomain(username);
+        String clientId = oAuth2AccessTokenReqDTO.getClientId();
+        String tenantDomain = oAuth2AccessTokenReqDTO.getTenantDomain();
+        ServiceProvider serviceProvider = null;
+        try {
+            serviceProvider = OAuth2ServiceComponentHolder.getApplicationMgtService().getServiceProviderByClientId(
+                    clientId, "oauth2", tenantDomain);
+        } catch (IdentityApplicationManagementException e) {
+            throw new IdentityOAuth2Exception("Error occurred while retrieving OAuth2 application data for client id " +
+                    clientId, e);
+        }
+        if(!serviceProvider.isSaasApp() && !userTenantDomain.equals(tenantDomain)){
+            if(log.isDebugEnabled()) {
+                log.debug("Non-SaaS service provider tenant domain is not same as user tenant domain; " +
+                        tenantDomain + " != " + userTenantDomain);
+            }
+            return false;
 
-        String tenantDomain = MultitenantUtils.getTenantDomain(username);
+        }
         String tenantAwareUserName = MultitenantUtils.getTenantAwareUsername(username);
-        username = tenantAwareUserName + "@" + tenantDomain;
+        username = tenantAwareUserName + "@" + userTenantDomain;
         int tenantId;
         try {
             tenantId = IdentityUtil.getTenantIdOFUser(username);
@@ -96,12 +116,11 @@ public class PasswordGrantHandler extends AbstractAuthorizationGrantHandler {
             //throw new IdentityOAuth2Exception("Error when authenticating the user credentials", e);
         }
         if (authStatus) {
-            if (username.indexOf(CarbonConstants.DOMAIN_SEPARATOR) < 0) {
-                if (UserCoreUtil.getDomainFromThreadLocal() != null && !UserCoreUtil.getDomainFromThreadLocal().equals("")) {
-                    username = UserCoreUtil.getDomainFromThreadLocal() + CarbonConstants.DOMAIN_SEPARATOR + username;
-                }
+            if (username.indexOf(CarbonConstants.DOMAIN_SEPARATOR) < 0 && UserCoreUtil.getDomainFromThreadLocal() !=
+                    null && !"".equals(UserCoreUtil.getDomainFromThreadLocal())) {
+                username = UserCoreUtil.getDomainFromThreadLocal() + CarbonConstants.DOMAIN_SEPARATOR + username;
             }
-            tokReqMsgCtx.setAuthorizedUser(username);
+            tokReqMsgCtx.setAuthorizedUser(OAuth2Util.getUserFromUserName(username));
             tokReqMsgCtx.setScope(oAuth2AccessTokenReqDTO.getScope());
         }
 

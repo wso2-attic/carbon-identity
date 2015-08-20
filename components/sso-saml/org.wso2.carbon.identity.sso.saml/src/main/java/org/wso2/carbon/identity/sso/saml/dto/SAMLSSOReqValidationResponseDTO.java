@@ -1,20 +1,20 @@
 /*
-*  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package org.wso2.carbon.identity.sso.saml.dto;
 
 import java.io.Serializable;
@@ -39,6 +39,9 @@ public class SAMLSSOReqValidationResponseDTO implements Serializable {
     private String destination;
     private SingleLogoutRequestDTO[] logoutRespDTO;
     private boolean isIdPInitSSO;
+    private boolean logoutFromAuthFramework;
+    private boolean isIdPInitSLO;
+    private String returnToURL;
 
     public boolean isValid() {
         return isValid;
@@ -97,11 +100,18 @@ public class SAMLSSOReqValidationResponseDTO implements Serializable {
     }
 
     public SingleLogoutRequestDTO[] getLogoutRespDTO() {
-        return logoutRespDTO;
+        if (logoutRespDTO == null) {
+            return new SingleLogoutRequestDTO[0];
+        }
+        return logoutRespDTO.clone();
     }
 
     public void setLogoutRespDTO(SingleLogoutRequestDTO[] logoutRespDTO) {
-        this.logoutRespDTO = logoutRespDTO;
+        if (logoutRespDTO == null) {
+            this.logoutRespDTO = new SingleLogoutRequestDTO[0];
+        } else {
+            this.logoutRespDTO = logoutRespDTO.clone();
+        }
     }
 
     public String getLogoutResponse() {
@@ -206,5 +216,29 @@ public class SAMLSSOReqValidationResponseDTO implements Serializable {
 
     public void setForceAuthn(boolean isForceAuthn) {
         this.isForceAuthn = isForceAuthn;
+    }
+
+    public boolean isLogoutFromAuthFramework() {
+        return logoutFromAuthFramework;
+    }
+
+    public void setLogoutFromAuthFramework(boolean logoutFromAuthFramework) {
+        this.logoutFromAuthFramework = logoutFromAuthFramework;
+    }
+
+    public boolean isIdPInitSLO() {
+        return isIdPInitSLO;
+    }
+
+    public void setIdPInitSLO(boolean isIdPInitSLO) {
+        this.isIdPInitSLO = isIdPInitSLO;
+    }
+
+    public String getReturnToURL() {
+        return returnToURL;
+    }
+
+    public void setReturnToURL(String returnToURL) {
+        this.returnToURL = returnToURL;
     }
 }
