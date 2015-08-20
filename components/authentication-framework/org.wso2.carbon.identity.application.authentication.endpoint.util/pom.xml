@@ -81,7 +81,8 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
                         <Export-Package>
-                            org.wso2.carbon.identity.application.authentication.endpoint.util.*
+                            org.wso2.carbon.identity.application.authentication.endpoint.util.*;
+                            version=${carbon.identity.package.export.version}
                         </Export-Package>
                         <Import-Package>
                             javax.servlet.*; version="${imp.pkg.version.javax.servlet}",
