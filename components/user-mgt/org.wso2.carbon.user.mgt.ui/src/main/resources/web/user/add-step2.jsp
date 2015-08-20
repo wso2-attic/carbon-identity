@@ -22,7 +22,6 @@
 <%@page session="true" %>
 <%@page import="org.wso2.carbon.CarbonConstants" %>
 <%@page import="org.wso2.carbon.ui.CarbonUIUtil" %>
-<%@page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
 <%@page import="org.wso2.carbon.user.mgt.stub.types.carbon.FlaggedName" %>
 <%@page import="org.wso2.carbon.user.mgt.stub.types.carbon.UserRealmInfo" %>
 <%@page import="org.wso2.carbon.user.mgt.ui.PaginatedNamesBean" %>
@@ -32,7 +31,6 @@
 <%@page import="org.wso2.carbon.user.mgt.ui.UserAdminUIConstants" %>
 <%@ page import="org.wso2.carbon.user.mgt.ui.Util" %>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
-<%@ page import="java.net.URLEncoder" %>
 <%@ page import="java.text.MessageFormat" %>
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="java.util.Arrays" %>
@@ -40,6 +38,7 @@
 <%@ page import="java.util.List" %>
 <%@ page import="java.util.Map" %>
 <%@ page import="java.util.ResourceBundle" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 
 
 <script type="text/javascript" src="../userstore/extensions/js/vui.js"></script>
@@ -193,7 +192,7 @@
         function doPaginate(page, pageNumberParameterName, pageNumber){
             var form = document.createElement("form");
             form.setAttribute("method", "POST");
-            form.setAttribute("action", page + "?" + pageNumberParameterName + "=" + pageNumber + "&username=" + '<%=URLEncoder.encode(userName,"UTF-8")%>');
+            form.setAttribute("action", page + "?" + pageNumberParameterName + "=" + pageNumber + "&username=" + '<%=Encode.forJavaScriptBlock(Encode.forUriComponent(userName))%>');
             var selectedRolesStr = "";
             $("input[type='checkbox']:checked").each(function(index){
                 if(!$(this).is(":disabled")){
@@ -243,12 +242,13 @@
         <div id="workArea">
             <h3><fmt:message key="step.2.user"/></h3>
             
-            <form name="filterForm" method="post" action="add-step2.jsp?username=<%=URLEncoder.encode(userName,"UTF-8")%>">
+            <form name="filterForm" method="post" action="add-step2.jsp?username=<%=Encode.forUriComponent(userName)%>">
                 <table class="normal" style="width:100%">
                     <tr>
                         <td style="white-space:nowrap" class="leftCol-med"><fmt:message key="list.roles"/></td>
                         <td class="leftCol-small">
-                           <input type="text" name="<%=UserAdminUIConstants.USER_LIST_ASSIGN_ROLE_FILTER%>" value="<%=filter%>"/>
+                           <input type="text" name="<%=UserAdminUIConstants.USER_LIST_ASSIGN_ROLE_FILTER%>"
+                                  value="<%=Encode.forHtmlAttribute(filter)%>"/>
                         </td>
                         <td style="text-align:left;">
                         <input class="button" type="submit" value="<fmt:message key="user.search"/>" />
@@ -263,7 +263,7 @@
                               numberOfPages="<%=numberOfPages%>"
                               noOfPageLinksToDisplay="<%=noOfPageLinksToDisplay%>"
                               page="add-step2.jsp" pageNumberParameterName="pageNumber"
-                              parameters="<%="username="+URLEncoder.encode(userName,"UTF-8")%>"/>
+                              parameters="<%="username=" + Encode.forHtmlAttribute(userName)%>"/>
             
             <form method="post" action="add-finish.jsp" onsubmit="return doValidation();" name="edit_users" id="edit_users">
                 <table class="styledLeft">
@@ -325,9 +325,11 @@
                                                 doCheck = "checked=\"checked\"";
                                             }
                             %>
-                                <input type="checkbox" name="userRoles"
-                                       value="<%=name.getItemName()%>" <%=doCheck%> <%=doEdit%> /><%=CharacterEncoder.getSafeText(name.getItemName())%>
-                                <input type="hidden" name="shownUsers" value="<%=CharacterEncoder.getSafeText(name.getItemName())%>"/><br/>
+                            <input type="checkbox" name="userRoles"
+                                   value="<%=Encode.forHtmlAttribute(name.getItemName())%>" <%=doCheck%> <%=doEdit%> />
+                            <%=Encode.forHtml(name.getItemName())%>
+                            <input type="hidden" name="shownUsers"
+                                   value="<%=Encode.forHtmlAttribute(name.getItemName())%>"/><br/>
                             <%
                                             }
                                         }
@@ -345,7 +347,7 @@
                                       numberOfPages="<%=numberOfPages%>"
                                       noOfPageLinksToDisplay="<%=noOfPageLinksToDisplay%>"
                                       page="add-step2.jsp" pageNumberParameterName="pageNumber"
-                                      parameters="<%="username="+URLEncoder.encode(userName,"UTF-8")%>"/>
+                                      parameters="<%="username=" + Encode.forHtmlAttribute(userName)%>"/>
                     <%
                         if (roles != null) {
                             if(roles.length > 0){
@@ -368,7 +370,7 @@
                                             message = resourceBundle.getString("more.roles.primary");
                                         }
                     %>
-                    <strong><%=message%></strong>
+                    <strong><%=Encode.forHtml(message)%></strong>
                     <%
                     }else if(exceededDomains.getItemDisplayName() != null && !exceededDomains.getItemDisplayName().equals("")){
                         String[] domains = exceededDomains.getItemDisplayName().split(":");
@@ -383,7 +385,7 @@
                         }
                         message = resourceBundle.getString("more.roles").replace("{0}",arg);
                     %>
-                    <strong><%=message%></strong>
+                    <strong><%=Encode.forHtml(message)%></strong>
                     <%
                                     }
                                 }
@@ -412,7 +414,7 @@
         function doSelectAllRetrieved() {
             var form = document.createElement("form");
             form.setAttribute("method", "POST");
-            form.setAttribute("action", "add-step2.jsp?pageNumber=" + <%=pageNumber%> + "&username=" + '<%=URLEncoder.encode(userName,"UTF-8")%>');
+            form.setAttribute("action", "add-step2.jsp?pageNumber=" + <%=pageNumber%> + "&username=" + '<%=Encode.forJavaScript(Encode.forUriComponent(userName))%>');
             var selectedRolesElem = document.createElement("input");
             selectedRolesElem.setAttribute("type", "hidden");
             selectedRolesElem.setAttribute("name", "selectedRoles");
@@ -426,7 +428,7 @@
         function doUnSelectAllRetrieved() {
             var form = document.createElement("form");
             form.setAttribute("method", "POST");
-            form.setAttribute("action", "add-step2.jsp?pageNumber=" + <%=pageNumber%> + "&username=" + '<%=URLEncoder.encode(userName,"UTF-8")%>');
+            form.setAttribute("action", "add-step2.jsp?pageNumber=" + <%=pageNumber%> + "&username=" + '<%=Encode.forJavaScript(Encode.forUriComponent(userName))%>');
             var unselectedRolesElem = document.createElement("input");
             unselectedRolesElem.setAttribute("type", "hidden");
             unselectedRolesElem.setAttribute("name", "unselectedRoles");

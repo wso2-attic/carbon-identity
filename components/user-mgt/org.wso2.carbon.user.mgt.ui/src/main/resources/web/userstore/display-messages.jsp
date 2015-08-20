@@ -16,7 +16,7 @@
    under the License.
   --%>
 
-<%@page import="org.wso2.carbon.ui.util.CharacterEncoder"%>
+<%@ page import="org.owasp.encoder.Encode" %>
 <jsp:include page="../dialog/display_messages.jsp"/>
 
 <script type="text/javascript">
@@ -28,27 +28,27 @@
     <%
     } else {
     %>
-    msgId = '<%=CharacterEncoder.getSafeText(request.getParameter("msgId"))%>';
+    msgId = '<%=Encode.forJavaScriptBlock(request.getParameter("msgId"))%>';
     <%
     }
     %>
 </script>
 <%
 
-    if (CharacterEncoder.getSafeText(request.getParameter("errorMessage")) != null) {
+    if (request.getParameter("errorMessage") != null) {
 %>
 <script type="text/javascript">
     jQuery(document).ready(function(){ if (getCookie(msgId) == null) {
-        CARBON.showErrorDialog("<%=CharacterEncoder.getSafeText(request.getParameter("errorMessage"))%>");
+        CARBON.showErrorDialog("<%=Encode.forJavaScriptBlock(request.getParameter("errorMessage"))%>");
         setCookie(msgId, 'true');
     }})
 </script>
 <%
-} else if (CharacterEncoder.getSafeText(request.getParameter("message")) != null) {
+} else if (request.getParameter("message") != null) {
 %>
 <script type="text/javascript">
     jQuery(document).ready(function(){ if (getCookie(msgId) == null) {
-        CARBON.showInfoDialog("<%=CharacterEncoder.getSafeText(request.getParameter("message"))%>");
+        CARBON.showInfoDialog("<%=Encode.forJavaScriptBlock(request.getParameter("message"))%>");
         setCookie(msgId, 'true');
     }});
 </script>

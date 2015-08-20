@@ -22,7 +22,6 @@
 <%@page import="org.wso2.carbon.CarbonConstants" %>
 <%@page import="org.wso2.carbon.ui.CarbonUIMessage" %>
 <%@page import="org.wso2.carbon.ui.CarbonUIUtil" %>
-<%@page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
 <%@page import="org.wso2.carbon.user.mgt.common.IUserAdmin" %>
 
 <%@page import="org.wso2.carbon.user.mgt.ui.UserAdminClient" %>
@@ -31,6 +30,7 @@
 <jsp:include page="../dialog/display_messages.jsp"/>
 
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 
 
 <%!String[] datas = null;%>
@@ -95,15 +95,16 @@
                 	if (datas != null) {
                                         for (String data : datas) {
                                             if (data != null) { //Confusing!!. Sometimes a null object comes. Maybe a bug in Axis!!
-                                			String roleName = CharacterEncoder.getSafeText(data);
+                                			String roleName = data;
                 %>
                 <tr>
-                    <td><%=roleName%>
+                    <td><%=Encode.forHtml(roleName)%>
                     </td>
                     <td><fmt:message key="external"/></td>
                     <td>
-                    	<a href="../role/view-role.jsp?roleName=<%=roleName%>&userType=external" class="icon-link" style="background-image:url(../admin/images/view.gif);"><fmt:message key="view"/></a>
-                    	<a href="../role/edit-permissions.jsp?roleName=<%=roleName%>&userType=external" class="icon-link" style="background-image:url(../admin/images/application_edit.gif);"><fmt:message key="edit.permissions"/></a>
+                    	<a href="../role/view-role.jsp?roleName=<%=Encode.forUriComponent(roleName)%>&userType=external"
+                           class="icon-link" style="background-image:url(../admin/images/view.gif);"><fmt:message key="view"/></a>
+                    	<a href="../role/edit-permissions.jsp?roleName=<%=Encode.forUriComponent(roleName)%>&userType=external" class="icon-link" style="background-image:url(../admin/images/application_edit.gif);"><fmt:message key="edit.permissions"/></a>
                 </tr>
                 <%
                 	}
@@ -115,17 +116,20 @@
                 	if (internalDatas != null) {
                                         for (String data : internalDatas) {
                                             if (data != null) { //Confusing!!. Sometimes a null object comes. Maybe a bug in Axis!!
-                                            	String roleName = CharacterEncoder.getSafeText(data);
+                                            	String roleName = data;
                 %>
                 <tr>
-                    <td><%=roleName%>
+                    <td><%=Encode.forHtml(roleName)%>
                     </td>
                     <td><fmt:message key="internal"/></td>
                     <td>
-                    	<a href="../role/view-role.jsp?roleName=<%=roleName%>&userType=special" class="icon-link" style="background-image:url(../admin/images/view.gif);"><fmt:message key="view"/></a>
-                    	<a href="../role/edit-permissions.jsp?roleName=<%=roleName%>&userType=special" class="icon-link" style="background-image:url(../admin/images/application_edit.gif);"><fmt:message key="edit.permissions"/></a>
-                    	<a href="../role/edit-users.jsp?roleName=<%=roleName%>&userType=special" class="icon-link" style="background-image:url(../admin/images/application_edit.gif);"><fmt:message key="edit.users"/></a>
-                    	<a href="#" onclick="deleteUserGroup('<%=roleName%>')" class="icon-link" style="background-image:url(../admin/images/cancel.gif);"><fmt:message key="delete"/></a>
+                    	<a href="../role/view-role.jsp?roleName=<%=Encode.forUriComponent(roleName)%>&userType=special"
+                           class="icon-link" style="background-image:url(../admin/images/view.gif);"><fmt:message key="view"/></a>
+                    	<a href="../role/edit-permissions.jsp?roleName=<%=Encode.forUriComponent(roleName)%>&userType=special" class="icon-link" style="background-image:url(../admin/images/application_edit.gif);"><fmt:message key="edit.permissions"/></a>
+                    	<a href="../role/edit-users.jsp?roleName=<%=Encode.forUriComponent(roleName)%>&userType=special" class="icon-link" style="background-image:url(../admin/images/application_edit.gif);"><fmt:message key="edit.users"/></a>
+                    	<a href="#" onclick="deleteUserGroup('<%=Encode.forJavaScriptAttribute(roleName)%>')"
+                           class="icon-link"
+                           style="background-image:url(../admin/images/cancel.gif);"><fmt:message key="delete"/></a>
                     </td>
                 </tr>
                 <%

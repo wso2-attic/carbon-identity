@@ -22,7 +22,6 @@
 <%@page import="org.apache.commons.lang.StringUtils" %>
 <%@page import="org.wso2.carbon.CarbonConstants"%>
 <%@page import="org.wso2.carbon.ui.CarbonUIUtil"%>
-<%@page import="org.wso2.carbon.ui.util.CharacterEncoder"%>
 <%@page import="org.wso2.carbon.user.mgt.stub.types.carbon.UserRealmInfo" %>
 <%@ page import="org.wso2.carbon.user.mgt.stub.types.carbon.UserStoreInfo" %>
 <%@ page import="org.wso2.carbon.user.mgt.ui.UserAdminClient" %>
@@ -32,6 +31,7 @@
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="java.util.List" %>
 <%@ page import="java.util.ResourceBundle" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 <jsp:useBean id="userBean"
              type="org.wso2.carbon.user.mgt.ui.UserBean"
              class="org.wso2.carbon.user.mgt.ui.UserBean" scope="session"/>
@@ -87,7 +87,7 @@ try{
         }
     }
 
-    selectedDomain = CharacterEncoder.getSafeText(userBean.getDomain());
+    selectedDomain = userBean.getDomain();
     if(selectedDomain == null || selectedDomain.trim().length() == 0){
         selectedDomain = primaryDomainName;
     }    
@@ -144,8 +144,8 @@ try{
         
         var e = document.getElementById("domain");
 
-		var passwordRegEx = "<%=userStoreInfo.getPasswordRegEx()%>";
-		var usrRegEx = "<%=userStoreInfo.getUserNameRegEx()%>";
+		var passwordRegEx = "<%=Encode.forJavaScriptBlock(userStoreInfo.getPasswordRegEx())%>";
+		var usrRegEx = "<%=Encode.forJavaScriptBlock(userStoreInfo.getUserNameRegEx())%>";
         
         if (e != null) {
         
@@ -187,7 +187,7 @@ try{
                        }
                    %>
 
-                CARBON.showWarningDialog("<%=usernameErrorMessage%>");
+                CARBON.showWarningDialog("<%=Encode.forJavaScriptBlock(usernameErrorMessage)%>");
 
             } else if (reason == "Empty string") {
             	CARBON.showWarningDialog("<fmt:message key="enter.user.name.empty"/>");
@@ -218,7 +218,7 @@ try{
                         }
                     %>
 
-                    CARBON.showWarningDialog("<%=passwordErrorMessage%>");
+                    CARBON.showWarningDialog("<%=Encode.forJavaScriptBlock(passwordErrorMessage)%>");
                 }
                 return false;
             }
@@ -297,10 +297,12 @@ try{
         <h3><fmt:message key="step.1.user"/></h3>
 
         <form method="post" action="add-finish.jsp" name="dataForm"  onsubmit="return doValidation();">
-        
-         <input type="hidden"  id="pwd_primary_null" name="pwd_primary_null" value=<%=userRealmInfo.getPrimaryUserStoreInfo().getPasswordRegEx()%>>    
-         <input type="hidden" id="usr_primary_null" name="usr_primary_null" value=<%=userRealmInfo.getPrimaryUserStoreInfo().getUserNameRegEx()%>>             
-                    
+
+            <input type="hidden" id="pwd_primary_null" name="pwd_primary_null"
+                   value=<%=Encode.forHtmlAttribute(userRealmInfo.getPrimaryUserStoreInfo().getPasswordRegEx())%>>
+            <input type="hidden" id="usr_primary_null" name="usr_primary_null"
+                   value=<%=Encode.forHtmlAttribute(userRealmInfo.getPrimaryUserStoreInfo().getUserNameRegEx())%>>
+
             <%
             
             allUserStoreInfo = userRealmInfo.getUserStoresInfo();
@@ -311,10 +313,16 @@ try{
              			String usrRegEx = allUserStoreInfo[i].getUserNameRegEx();
              			if (allUserStoreInfo[i].getDomainName()!=null) {
              %>
-                 <input type="hidden"  id="pwd_<%=allUserStoreInfo[i].getDomainName().toUpperCase()%>" name="pwd_<%=allUserStoreInfo[i].getDomainName().toUpperCase()%>" value=<%=pwdRegEx%>>    
-                 <input type="hidden" id="usr_<%=allUserStoreInfo[i].getDomainName().toUpperCase()%>" name="usr_<%=allUserStoreInfo[i].getDomainName().toUpperCase()%>" value=<%=usrRegEx%>>             
-                          
-             <%         }
+            <input type="hidden"
+                   id="pwd_<%=Encode.forHtmlAttribute(allUserStoreInfo[i].getDomainName().toUpperCase())%>"
+                   name="pwd_<%=Encode.forHtmlAttribute(allUserStoreInfo[i].getDomainName().toUpperCase())%>"
+                   value=<%=Encode.forHtmlAttribute(pwdRegEx)%>>
+            <input type="hidden"
+                   id="usr_<%=Encode.forHtmlAttribute(allUserStoreInfo[i].getDomainName().toUpperCase())%>"
+                   name="usr_<%=Encode.forHtmlAttribute(allUserStoreInfo[i].getDomainName().toUpperCase())%>"
+                   value=<%=Encode.forHtmlAttribute(usrRegEx)%>>
+
+            <%         }
 
             		}
             	}
@@ -341,11 +349,15 @@ try{
                                     for(String domainName : domainNames) {
                                         if(selectedDomain.equals(domainName)) {
                                 %>
-                                    <option selected="selected" value="<%=domainName%>"><%=domainName%></option>
+                                <option selected="selected" value="<%=Encode.forHtmlAttribute(domainName)%>">
+                                    <%=Encode.forHtmlContent(domainName)%>
+                                </option>
                                 <%
                                         } else {
                                 %>
-                                    <option value="<%=domainName%>"><%=domainName%></option>
+                                <option value="<%=Encode.forHtmlAttribute(domainName)%>">
+                                    <%=Encode.forHtmlContent(domainName)%>
+                                </option>
                                 <%
                                         }
                                     }

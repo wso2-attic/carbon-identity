@@ -22,7 +22,6 @@
 <%@page import="org.apache.axis2.context.ConfigurationContext" %>
 <%@page import="org.wso2.carbon.CarbonConstants" %>
 <%@page import="org.wso2.carbon.ui.CarbonUIUtil" %>
-<%@page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
 <%@page import="org.wso2.carbon.user.mgt.stub.types.carbon.FlaggedName" %>
 <%@page import="org.wso2.carbon.user.mgt.stub.types.carbon.UserRealmInfo" %>
 <%@page import="org.wso2.carbon.user.mgt.ui.PaginatedNamesBean" %>
@@ -30,7 +29,6 @@
 <%@ page import="org.wso2.carbon.user.mgt.ui.UserAdminUIConstants" %>
 <%@ page import="org.wso2.carbon.user.mgt.ui.Util" %>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
-<%@ page import="java.net.URLEncoder" %>
 <%@ page import="java.text.MessageFormat" %>
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="java.util.Arrays" %>
@@ -38,6 +36,7 @@
 <%@ page import="java.util.List" %>
 <%@ page import="java.util.Map" %>
 <%@ page import="java.util.ResourceBundle" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 <script type="text/javascript" src="../userstore/extensions/js/vui.js"></script>
 <script type="text/javascript" src="../admin/js/main.js"></script>
 <jsp:include page="../dialog/display_messages.jsp"/>
@@ -112,8 +111,8 @@
     }
 
     UserRealmInfo userRealmInfo = (UserRealmInfo) session.getAttribute(UserAdminUIConstants.USER_STORE_INFO);
-    String userName = CharacterEncoder.getSafeText(request.getParameter("username"));
-    String disPlayName = CharacterEncoder.getSafeText(request.getParameter("disPlayName"));
+    String userName = request.getParameter("username");
+    String disPlayName = request.getParameter("disPlayName");
     if(disPlayName == null || disPlayName.trim().length() == 0){
         disPlayName = (String)session.getAttribute(UserAdminUIConstants.USER_DISPLAY_NAME);
         if(disPlayName == null || disPlayName.trim().length() == 0){
@@ -231,7 +230,7 @@
     function doPaginate(page, pageNumberParameterName, pageNumber){
         var form = document.createElement("form");
         form.setAttribute("method", "POST");
-        form.setAttribute("action", page + "?" + pageNumberParameterName + "=" + pageNumber + "&username=" + '<%=URLEncoder.encode(userName,"UTF-8")%>');
+        form.setAttribute("action", page + "?" + pageNumberParameterName + "=" + pageNumber + "&username=" + '<%=Encode.forJavaScript(Encode.forUriComponent(userName))%>');
         var selectedRolesStr = "";
         $("input[type='checkbox']:checked").each(function(index){
             if(!$(this).is(":disabled")){
@@ -267,7 +266,7 @@
     function doSelectAllRetrieved() {
         var form = document.createElement("form");
         form.setAttribute("method", "POST");
-        form.setAttribute("action", "edit-user-roles.jsp?pageNumber=" + <%=pageNumber%> + "&username=" + '<%=URLEncoder.encode(userName,"UTF-8")%>');
+        form.setAttribute("action", "edit-user-roles.jsp?pageNumber=" + <%=pageNumber%> + "&username=" + '<%=Encode.forJavaScript(Encode.forUriComponent(userName))%>');
         var selectedRolesElem = document.createElement("input");
         selectedRolesElem.setAttribute("type", "hidden");
         selectedRolesElem.setAttribute("name", "selectedRoles");
@@ -281,7 +280,7 @@
     function doUnSelectAllRetrieved() {
         var form = document.createElement("form");
         form.setAttribute("method", "POST");
-        form.setAttribute("action", "edit-user-roles.jsp?pageNumber=" + <%=pageNumber%> + "&username=" + '<%=URLEncoder.encode(userName,"UTF-8")%>');
+        form.setAttribute("action", "edit-user-roles.jsp?pageNumber=" + <%=pageNumber%> + "&username=" + '<%=Encode.forJavaScript(Encode.forUriComponent(userName))%>');
         var unselectedRolesElem = document.createElement("input");
         unselectedRolesElem.setAttribute("type", "hidden");
         unselectedRolesElem.setAttribute("name", "unselectedRoles");
@@ -295,7 +294,7 @@
 
 
 <div id="middle">
-    <h2><fmt:message key="roles.list.in.user"/> <%=disPlayName%>
+    <h2><fmt:message key="roles.list.in.user"/> <%=Encode.forHtml(disPlayName)%>
     </h2>
 
     <script type="text/javascript">
@@ -312,13 +311,13 @@
 
     </script>
     <div id="workArea">
-        <form name="filterForm" method="post" action="edit-user-roles.jsp?username=<%=URLEncoder.encode(userName,"UTF-8")%>" >
+        <form name="filterForm" method="post" action="edit-user-roles.jsp?username=<%=Encode.forUriComponent(userName)%>" >
             <table class="normal">
                 <tr>
                     <td><fmt:message key="list.roles"/></td>
                     <td>
                         <input type="text" name="<%=UserAdminUIConstants.USER_LIST_UNASSIGNED_ROLE_FILTER%>"
-                               value="<%=filter%>"/>
+                               value="<%=Encode.forHtmlAttribute(filter)%>"/>
                     </td>
                     <td>
                         <input class="button" type="submit"
@@ -331,10 +330,11 @@
 
         <form method="post" action="edit-user-roles-finish.jsp?pageNumber=<%=pageNumber%>" onsubmit="return doValidation();"
               name="edit_users" id="edit_users">
-            <input type="hidden" id="username" name="username" value="<%=userName%>"/>
+            <input type="hidden" id="username" name="username" value="<%=Encode.forHtmlAttribute(userName)%>"/>
             <input type="hidden" id="logout" name="logout" value="false"/>
             <input type="hidden" id="finish" name="finish" value="false"/>
-            <div class="sectionHelp"><fmt:message key="role.edit.help"/> <strong><%=userName%></strong></div>
+            <div class="sectionHelp"><fmt:message key="role.edit.help"/>
+                <strong><%=Encode.forHtml(userName)%></strong></div>
 
             <table class="styledLeft">
                 <thead>
@@ -349,7 +349,7 @@
                                       numberOfPages="<%=numberOfPages%>"
                                       noOfPageLinksToDisplay="<%=noOfPageLinksToDisplay%>"
                                       page="edit-user-roles.jsp" pageNumberParameterName="pageNumber"
-                                      parameters="<%="username="+URLEncoder.encode(userName,"UTF-8")%>"/>
+                                      parameters="<%="username=" + Encode.forHtmlAttribute(userName)%>"/>
                             <%
                                 if ( roles != null && roles.length > 0) {
                             %>
@@ -404,22 +404,27 @@
                                       <tr>
                                           <td>
                                               <label>
-                                                <input type="checkbox" name="selectedRoles" value="<%=name.getItemName()%>" <%=doEdit%> <%=doCheck%>/> <%=CharacterEncoder.getSafeText(name.getItemName())%>
+                                                  <input type="checkbox" name="selectedRoles"
+                                                         value="<%=Encode.forHtmlAttribute(name.getItemName())%>" <%=doEdit%> <%=doCheck%>/>
+                                                  <%=Encode.forHtmlContent(name.getItemName())%>
                                                 <%if (!name.getEditable()) { %> <%="(Read-Only)"%> <% } %>
-                                                <input type="hidden" name="shownRoles" value="<%=CharacterEncoder.getSafeText(name.getItemName())%>"/>
+                                                  <input type="hidden" name="shownRoles"
+                                                         value="<%=Encode.forHtmlAttribute(name.getItemName())%>"/>
                                               </label>
                                           </td>
                                           <td>
                                               <% if(!userRealmInfo.getAdminRole().equals(name.getItemName())) {%>
                                                   <a style="background-image:url(images/edit.gif);"
                                                      class="icon-link"
-                                                     href="../role/edit-permissions.jsp?roleName=<%=name.getItemName()%>&prevPage=edit&prevUser=<%=URLEncoder.encode(userName,"UTF-8")%>&prevPageNumber=<%=pageNumber%>"><fmt:message key="edit.permissions"/>
+                                                     href="../role/edit-permissions.jsp?roleName=<%=Encode.forUriComponent(name.getItemName())%>&prevPage=edit&prevUser=<%=Encode.forUriComponent(userName)%>&prevPageNumber=<%=pageNumber%>"><fmt:message
+                                                          key="edit.permissions"/>
                                                   </a>
                                               <% } %>
                                               <% if(!userRealmInfo.getEveryOneRole().equals(name.getItemName())) {%>
                                                   <a style="background-image:url(images/view.gif);"
                                                      class="icon-link"
-                                                     href="../role/view-users.jsp?roleName=<%=name.getItemName()%>&prevPage=edit&prevUser=<%=URLEncoder.encode(userName,"UTF-8")%>&prevPageNumber=<%=pageNumber%>&<%=UserAdminUIConstants.ROLE_READ_ONLY%>=<%if (!name.getEditable()) { %>true<% }else{ %>false<% } %>"><fmt:message key="view.users"/>
+                                                     href="../role/view-users.jsp?roleName=<%=Encode.forUriComponent(name.getItemName())%>&prevPage=edit&prevUser=<%=Encode.forUriComponent(userName)%>&prevPageNumber=<%=pageNumber%>&<%=UserAdminUIConstants.ROLE_READ_ONLY%>=<%if (!name.getEditable()) { %>true<% }else{ %>false<% } %>"><fmt:message
+                                                          key="view.users"/>
                                                   </a>
                                               <% } %>
                                           </td>
@@ -435,7 +440,7 @@
                                   numberOfPages="<%=numberOfPages%>"
                                   noOfPageLinksToDisplay="<%=noOfPageLinksToDisplay%>"
                                   page="edit-user-roles.jsp" pageNumberParameterName="pageNumber"
-                                  parameters="<%="username="+URLEncoder.encode(userName,"UTF-8")%>"/>
+                                  parameters="<%="username=" + Encode.forHtmlAttribute(userName)%>"/>
                 <%
                     if (roles != null && roles.length > 0 && exceededDomains != null) {
                         if(exceededDomains.getItemName() != null || exceededDomains.getItemDisplayName() != null){
@@ -457,7 +462,7 @@
                                     message = resourceBundle.getString("more.roles.primary");
                                 }
             %>
-            <strong><%=message%></strong>
+            <strong><%=Encode.forHtml(message)%></strong>
             <%
             }else if(exceededDomains.getItemDisplayName() != null && !exceededDomains.getItemDisplayName().equals("")){
                 String[] domains = exceededDomains.getItemDisplayName().split(":");
@@ -472,7 +477,7 @@
                 }
                 message = resourceBundle.getString("more.roles").replace("{0}",arg);
             %>
-            <strong><%=message%></strong>
+            <strong><%=Encode.forHtml(message)%></strong>
             <%
                             }
                         }

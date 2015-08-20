@@ -24,7 +24,6 @@
 <%@page import="org.apache.axis2.context.ConfigurationContext"%>
 <%@page import="org.wso2.carbon.CarbonConstants"%>
 <%@page import="org.wso2.carbon.ui.CarbonUIUtil"%>
-<%@page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
 <%@page import="org.wso2.carbon.user.mgt.stub.types.carbon.UserRealmInfo" %>
 <%@page import="org.wso2.carbon.user.mgt.stub.types.carbon.UserStoreInfo" %>
 <%@ page import="org.wso2.carbon.user.mgt.ui.UserAdminClient" %>
@@ -34,6 +33,7 @@
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="java.util.List" %>
 <%@ page import="java.util.ResourceBundle" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 
 
 <script type="text/javascript" src="../userstore/extensions/js/vui.js"></script>
@@ -103,7 +103,7 @@ try{
         }
     }
 
-    selectedDomain = CharacterEncoder.getSafeText(roleBean.getDomain());
+    selectedDomain = roleBean.getDomain();
     if(selectedDomain == null || selectedDomain.trim().length() == 0){
         selectedDomain = primaryDomainName;
     }
@@ -166,7 +166,7 @@ try{
         function doValidation() {
         	
             var e = document.getElementById("domain");
-            var roleRegEx = "<%=userStoreInfo.getRoleNameRegEx()%>";
+            var roleRegEx = "<%=Encode.forJavaScriptBlock(userStoreInfo.getRoleNameRegEx())%>";
             if (e != null) {
          		var selectedDomainValue = e.options[e.selectedIndex].text.toUpperCase()
          		var rl = "role_";
@@ -236,8 +236,9 @@ try{
         <div id="workArea">
             <h3><fmt:message key="step.1.role"/></h3>
             <form method="post" name="addRoleForm" onsubmit="return doValidation();" action="add-finish.jsp">
-            
-           <input type="hidden"  id="role_primary_null" name="role_primary_null" value=<%=userStoreInfo.getRoleNameRegEx()%>>                              
+
+                <input type="hidden" id="role_primary_null" name="role_primary_null"
+                       value='<%=Encode.forHtmlAttribute(userStoreInfo.getRoleNameRegEx())%>'>
             
             
             <%
@@ -249,7 +250,9 @@ try{
             			String roleRegEx = allUserStoreInfo[i].getRoleNameRegEx();
             			if (allUserStoreInfo[i].getDomainName()!=null) {
              %>
-                 <input type="hidden"  id="role_<%=allUserStoreInfo[i].getDomainName().toUpperCase()%>" name="role_<%=allUserStoreInfo[i].getDomainName().toUpperCase()%>" value=<%=roleRegEx%>>                              
+                 <input type="hidden"  id="role_<%=Encode.forHtmlAttribute(allUserStoreInfo[i].getDomainName().toUpperCase())%>"
+                        name="role_<%=Encode.forHtmlAttribute(allUserStoreInfo[i].getDomainName().toUpperCase())%>"
+                        value='<%=Encode.forHtmlAttribute(roleRegEx)%>'>
              <%         }
 
             		}
@@ -278,11 +281,16 @@ try{
                                             for(String domainName : domainNames) {
                                                 if( selectedDomain.equals(domainName)) {
                                         %>
-                                            <option selected="selected" value="<%=domainName%>"><%=domainName%></option>
+                                        <option selected="selected"
+                                                value="<%=Encode.forHtmlAttribute(domainName)%>">
+                                            <%=Encode.forHtmlContent(domainName)%>
+                                        </option>
                                         <%
                                                 } else {
                                         %>
-                                            <option value="<%=domainName%>"><%=domainName%></option>
+                                        <option value="<%=Encode.forHtmlAttribute(domainName)%>">
+                                            <%=Encode.forHtmlContent(domainName)%>
+                                        </option>
                                         <%
                                                 }
                                             }
@@ -303,7 +311,8 @@ try{
 											<label for="sharedRoleBox">&nbsp;<fmt:message
 													key="shared.role" /></label>
 										</c:if></td>
-									<td><input type="hidden" name="roleType" value="<%=roleType%>"/></td>
+                                    <td><input type="hidden" name="roleType"
+                                               value="<%=Encode.forHtmlAttribute(roleType)%>"/></td>
                                 </tr>
                             </table>
                             <!-- normal table -->

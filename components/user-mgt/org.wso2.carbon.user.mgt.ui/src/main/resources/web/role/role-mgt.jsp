@@ -21,7 +21,6 @@
 <%@ page import="org.apache.axis2.context.ConfigurationContext" %>
 <%@page import="org.wso2.carbon.CarbonConstants" %>
 <%@page import="org.wso2.carbon.ui.CarbonUIUtil" %>
-<%@page import="org.wso2.carbon.ui.util.CharacterEncoder"%>
 <%@page import="org.wso2.carbon.user.mgt.stub.types.carbon.FlaggedName" %>
 <%@page import="org.wso2.carbon.user.mgt.stub.types.carbon.UserRealmInfo" %>
 <%@ page import="org.wso2.carbon.user.mgt.ui.PaginatedNamesBean" %>
@@ -36,6 +35,7 @@
 <%@ page import="java.util.List" %>
 <%@ page import="java.util.Map" %>
 <%@ page import="java.util.ResourceBundle" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 <script type="text/javascript" src="../userstore/extensions/js/vui.js"></script>
 <script type="text/javascript" src="../admin/js/main.js"></script>
 <jsp:include page="../dialog/display_messages.jsp"/>
@@ -272,11 +272,15 @@
                                 for(String domainName : domainNames) {
                                     if(selectedDomain.equals(domainName)) {
                             %>
-                                <option selected="selected" value="<%=domainName%>"><%=domainName%></option>
+                            <option selected="selected" value="<%=Encode.forHtmlAttribute(domainName)%>">
+                                <%=Encode.forHtmlContent(domainName)%>
+                            </option>
                             <%
                                     } else {
                             %>
-                                <option value="<%=domainName%>"><%=domainName%></option>
+                            <option value="<%=Encode.forHtmlAttribute(domainName)%>">
+                                <%=Encode.forHtmlContent(domainName)%>
+                            </option>
                             <%
                                     }
                                 }
@@ -292,7 +296,7 @@
                         <td class="leftCol-big" style="padding-right: 0 !important;"><fmt:message key="list.roles"/></td>
                         <td>
                             <input type="text" name="<%=UserAdminUIConstants.ROLE_LIST_FILTER%>"
-                                   value="<%=filter%>"/>
+                                   value="<%=Encode.forHtmlAttribute(filter)%>"/>
 
                             <input class="button" type="submit"
                                    value="<fmt:message key="role.search"/>"/>
@@ -337,14 +341,14 @@
                                         !userRealmInfo.getAdminUser().equals(currentUser)){
                                     continue;
                                 }
-                            String roleName = CharacterEncoder.getSafeText(data.getItemName());
-                            String disPlayName = CharacterEncoder.getSafeText(data.getItemDisplayName());
+                            String roleName = data.getItemName();
+                            String disPlayName = data.getItemDisplayName();
                             if(disPlayName == null){
                                 disPlayName = roleName;
                             }
                 %>
                 <tr>
-                    <td><%=disPlayName%>
+                    <td><%=Encode.forHtmlContent(disPlayName)%>
                         <%if(!data.getEditable()){ %> <%="(Read-Only)"%> <% } %>
                     </td>
                    <%-- <%if(hasMultipleUserStores){%>
@@ -357,24 +361,27 @@
                     <td>
                     <%if(!data.getShared()){ %>
                     <% if(data.getItemName().equals(userRealmInfo.getAdminRole()) == false && data.getItemName().equals(userRealmInfo.getEveryOneRole()) == false && data.getEditable()){%>
-<a href="#" onclick="updateUserGroup('<%=roleName%>')" class="icon-link" style="background-image:url(images/edit.gif);"><fmt:message key="rename"/></a>
+<a href="#" onclick="updateUserGroup('<%=Encode.forJavaScriptAttribute(roleName)%>')" class="icon-link"
+   style="background-image:url(images/edit.gif);"><fmt:message key="rename"/></a>
                     <% }  %>
                     <% if(!data.getItemName().equals(userRealmInfo.getAdminRole())) {%>
-<a href="edit-permissions.jsp?roleName=<%=roleName%>" class="icon-link" style="background-image:url(images/edit.gif);"><fmt:message key="edit.permissions"/></a>
+<a href="edit-permissions.jsp?roleName=<%=Encode.forUriComponent(roleName)%>" class="icon-link"
+   style="background-image:url(images/edit.gif);"><fmt:message key="edit.permissions"/></a>
                     <% }
                     }%>
                     
                     <% if (!userRealmInfo.getEveryOneRole().equals(data.getItemName()) && data.getEditable()) { %>
-<a href="edit-users.jsp?roleName=<%=roleName%>&<%=UserAdminUIConstants.ROLE_READ_ONLY%>=<%=!data.getEditable()%>" class="icon-link" style="background-image:url(images/edit.gif);"><fmt:message key="edit.users"/></a>
+<a href="edit-users.jsp?roleName=<%=Encode.forUriComponent(roleName)%>&<%=UserAdminUIConstants.ROLE_READ_ONLY%>=<%=!data.getEditable()%>" class="icon-link" style="background-image:url(images/edit.gif);"><fmt:message key="edit.users"/></a>
                     <% } %>
                      <% if (!userRealmInfo.getEveryOneRole().equals(data.getItemName())) { %>
-                        <a href="view-users.jsp?roleName=<%=roleName%>&<%=UserAdminUIConstants.ROLE_READ_ONLY%>=<%=!data.getEditable()%>"
+                        <a href="view-users.jsp?roleName=<%=Encode.forUriComponent(roleName)%>&<%=UserAdminUIConstants.ROLE_READ_ONLY%>=<%=!data.getEditable()%>"
                            class="icon-link" style="background-image:url(images/view.gif);"><fmt:message key="view.users"/></a>
                       <% } %>
                     <%if(!data.getShared()){ %>
 
                     <% if(data.getItemName().equals(userRealmInfo.getAdminRole()) == false && data.getItemName().equals(userRealmInfo.getEveryOneRole()) == false && data.getEditable()){%>
-<a href="#" onclick="deleteUserGroup('<%=roleName%>')" class="icon-link" style="background-image:url(images/delete.gif);"><fmt:message key="delete"/></a>
+<a href="#" onclick="deleteUserGroup('<%=Encode.forJavaScriptAttribute(roleName)%>')" class="icon-link"
+   style="background-image:url(images/delete.gif);"><fmt:message key="delete"/></a>
                     <% }}  %>
 
                     </td>
@@ -413,7 +420,7 @@
                                 message = resourceBundle.getString("more.roles.primary");
                             }
         %>
-        <strong><%=message%></strong>
+        <strong><%=Encode.forHtml(message)%></strong>
         <%
         }else if(exceededDomains.getItemDisplayName() != null && !exceededDomains.getItemDisplayName().equals("")){
             String[] domains = exceededDomains.getItemDisplayName().split(":");
@@ -428,7 +435,7 @@
             }
             message = resourceBundle.getString("more.roles").replace("{0}",arg);
         %>
-        <strong><%=message%></strong>
+        <strong><%=Encode.forHtml(message)%></strong>
         <%
                         }
                     }
