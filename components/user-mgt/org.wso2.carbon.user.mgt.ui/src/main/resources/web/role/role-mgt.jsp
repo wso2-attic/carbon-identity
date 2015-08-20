@@ -374,7 +374,7 @@
                       <% } %>
                     <%if(!data.getShared()){ %>
 
-                    <% if(data.getItemName().equals(userRealmInfo.getAdminRole()) == false && data.getItemName().equals(userRealmInfo.getEveryOneRole()) == false && !data.getItemName().startsWith(UserAdminUIConstants.APPLICATION_DOMAIN) && data.getEditable()){%>
+                    <% if(data.getItemName().equals(userRealmInfo.getAdminRole()) == false && data.getItemName().equals(userRealmInfo.getEveryOneRole()) == false && !data.getItemName().startsWith(UserAdminUIConstants.rAPPLICATION_DOMAIN) && data.getEditable()){%>
 <a href="#" onclick="deleteUserGroup('<%=roleName%>')" class="icon-link" style="background-image:url(images/delete.gif);"><fmt:message key="delete"/></a>
                     <% }}  %>
 
