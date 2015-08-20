@@ -19,7 +19,13 @@ package org.wso2.carbon.identity.entitlement.pap.store;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.balana.*;
+import org.wso2.balana.AbstractPolicy;
+import org.wso2.balana.MatchResult;
+import org.wso2.balana.Policy;
+import org.wso2.balana.PolicyMetaData;
+import org.wso2.balana.PolicyReference;
+import org.wso2.balana.PolicySet;
+import org.wso2.balana.VersionConstraints;
 import org.wso2.balana.combine.PolicyCombiningAlgorithm;
 import org.wso2.balana.combine.xacml2.OnlyOneApplicablePolicyAlg;
 import org.wso2.balana.ctx.EvaluationCtx;

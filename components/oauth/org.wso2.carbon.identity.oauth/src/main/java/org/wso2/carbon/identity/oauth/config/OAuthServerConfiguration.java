@@ -1,13 +1,13 @@
 /*
- * Copyright (c) 2005-2013, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
- * 
+ * Copyright (c) 2013, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -48,7 +48,16 @@ import org.wso2.carbon.utils.CarbonUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.xml.namespace.QName;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 
 /**
  * Runtime representation of the OAuth Configuration as configured through
@@ -72,11 +81,21 @@ public class OAuthServerConfiguration {
             "org.wso2.carbon.identity.oauth2.token.handlers.grant.iwa.ntlm.NTLMAuthenticationGrantHandler";
     private static Log log = LogFactory.getLog(OAuthServerConfiguration.class);
     private static OAuthServerConfiguration instance;
+    private static String oauth1RequestTokenUrl = null;
+    private static String oauth1AuthorizeUrl = null;
+    private static String oauth1AccessTokenUrl = null;
+    private static String oauth2AuthzEPUrl = null;
+    private static String oauth2TokenEPUrl = null;
+    private static String oauth2UserInfoEPUrl = null;
     private long authorizationCodeValidityPeriodInSeconds = 300;
     private long userAccessTokenValidityPeriodInSeconds = 3600;
     private long applicationAccessTokenValidityPeriodInSeconds = 3600;
-    private long refreshTokenValidityPeriodInSeconds = 24 * 3600;
+    private long refreshTokenValidityPeriodInSeconds = 24L * 3600;
     private long timeStampSkewInSeconds = 300;
+    private int sessionDataCacheTimeout = -1;
+    private int authorizationGrantCacheTimeout = -1;
+    private int appInfoCacheTimeout = -1;
+    private int claimCacheTimeout = -1;
     private String tokenPersistenceProcessorClassName = "org.wso2.carbon.identity.oauth.tokenprocessor.PlainTextPersistenceProcessor";
     private boolean cacheEnabled = true;
     private boolean isRefreshTokenRenewalEnabled = true;
@@ -84,19 +103,19 @@ public class OAuthServerConfiguration {
     private boolean accessTokenPartitioningEnabled = false;
     private String accessTokenPartitioningDomains = null;
     private TokenPersistenceProcessor persistenceProcessor = null;
-    private Set<OAuthCallbackHandlerMetaData> callbackHandlerMetaData = new HashSet<OAuthCallbackHandlerMetaData>();
-    private Map<String, String> supportedGrantTypeClassNames = new Hashtable<String, String>();
+    private Set<OAuthCallbackHandlerMetaData> callbackHandlerMetaData = new HashSet<>();
+    private Map<String, String> supportedGrantTypeClassNames = new HashMap<>();
     private Map<String, AuthorizationGrantHandler> supportedGrantTypes;
-    private Map<String, String> supportedGrantTypeValidatorNames = new Hashtable<String, String>();
+    private Map<String, String> supportedGrantTypeValidatorNames = new HashMap<>();
     private Map<String, Class<? extends OAuthValidator<HttpServletRequest>>> supportedGrantTypeValidators;
-    private Map<String, String> supportedResponseTypeClassNames = new Hashtable<String, String>();
+    private Map<String, String> supportedResponseTypeClassNames = new HashMap<>();
     private Map<String, ResponseTypeHandler> supportedResponseTypes;
     private String[] supportedClaims = null;
-    private Map<String, Properties> supportedClientAuthHandlerData = new Hashtable<String, Properties>();
+    private Map<String, Properties> supportedClientAuthHandlerData = new HashMap<>();
     private List<ClientAuthenticationHandler> supportedClientAuthHandlers;
     private String saml2TokenCallbackHandlerName = null;
     private SAML2TokenCallbackHandler saml2TokenCallbackHandler = null;
-    private Map<String, String> tokenValidatorClassNames = new HashMap<String, String>();
+    private Map<String, String> tokenValidatorClassNames = new HashMap();
     private boolean isAuthContextTokGenEnabled = false;
     private String tokenGeneratorImplClass = "org.wso2.carbon.identity.oauth2.token.JWTTokenGenerator";
     private String claimsRetrieverImplClass = "org.wso2.carbon.identity.oauth2.token.DefaultClaimsRetriever";
@@ -108,7 +127,7 @@ public class OAuthServerConfiguration {
     private String openIDConnectIDTokenCustomClaimsHanlderClassName = "org.wso2.carbon.identity.openidconnect.SAMLAssertionClaimsCallback";
     private IDTokenBuilder openIDConnectIDTokenBuilder = null;
     private CustomClaimsCallbackHandler openidConnectIDTokenCustomClaimsCallbackHandler = null;
-    private String openIDConnectIDTokenIssuerIdentifier = "OIDCAuthzServer";
+    private String openIDConnectIDTokenIssuerIdentifier = null;
     private String openIDConnectIDTokenSubClaim = "http://wso2.org/claims/fullname";
     private String openIDConnectSkipUserConsent = "true";
     private String openIDConnectIDTokenExpiration = "300";
@@ -164,6 +183,9 @@ public class OAuthServerConfiguration {
             // read default timeout periods
             parseDefaultValidityPeriods(oauthElem);
 
+            // read OAuth URLs
+            parseOAuthURLs(oauthElem);
+
             // read caching configurations
             parseCachingConfiguration(oauthElem);
 
@@ -211,6 +233,30 @@ public class OAuthServerConfiguration {
         return callbackHandlerMetaData;
     }
 
+    public String getOAuth1RequestTokenUrl() {
+        return oauth1RequestTokenUrl;
+    }
+
+    public String getOAuth1AuthorizeUrl() {
+        return oauth1AuthorizeUrl;
+    }
+
+    public String getOAuth1AccessTokenUrl() {
+        return oauth1AccessTokenUrl;
+    }
+
+    public String getOAuth2AuthzEPUrl() {
+        return oauth2AuthzEPUrl;
+    }
+
+    public String getOAuth2TokenEPUrl() {
+        return oauth2TokenEPUrl;
+    }
+
+    public String getOauth2UserInfoEPUrl() {
+        return oauth2UserInfoEPUrl;
+    }
+
     public long getAuthorizationCodeValidityPeriodInSeconds() {
         return authorizationCodeValidityPeriodInSeconds;
     }
@@ -221,6 +267,27 @@ public class OAuthServerConfiguration {
 
     public long getApplicationAccessTokenValidityPeriodInSeconds() {
         return applicationAccessTokenValidityPeriodInSeconds;
+    }
+
+    public int getOAuthCacheTimeout() {
+        return (int)Math.max(authorizationCodeValidityPeriodInSeconds,
+                Math.max(userAccessTokenValidityPeriodInSeconds, applicationAccessTokenValidityPeriodInSeconds));
+    }
+
+    public int getSessionDataCacheTimeout() {
+        return sessionDataCacheTimeout;
+    }
+
+    public int getAuthorizationGrantCacheTimeout() {
+        return authorizationGrantCacheTimeout;
+    }
+
+    public int getAppInfoCacheTimeout() {
+        return appInfoCacheTimeout;
+    }
+
+    public int getClaimCacheTimeout(){
+        return claimCacheTimeout;
     }
 
     public long getRefreshTokenValidityPeriodInSeconds() {
@@ -250,13 +317,13 @@ public class OAuthServerConfiguration {
                             authzGrantHandler = (AuthorizationGrantHandler) Class.forName(entry.getValue()).newInstance();
                             authzGrantHandler.init();
                         } catch (InstantiationException e) {
-                            log.error("Error instantiating " + entry.getValue());
+                            log.error("Error instantiating " + entry.getValue(), e);
                         } catch (IllegalAccessException e) {
-                            log.error("Illegal access to " + entry.getValue());
+                            log.error("Illegal access to " + entry.getValue(), e);
                         } catch (ClassNotFoundException e) {
-                            log.error("Cannot find class: " + entry.getValue());
+                            log.error("Cannot find class: " + entry.getValue(), e);
                         } catch (IdentityOAuth2Exception e) {
-                            log.error("Error while initializing " + entry.getValue());
+                            log.error("Error while initializing " + entry.getValue(), e);
                         }
                         supportedGrantTypes.put(entry.getKey(), authzGrantHandler);
                     }
@@ -333,13 +400,13 @@ public class OAuthServerConfiguration {
                             responseTypeHandler = (ResponseTypeHandler) Class.forName(entry.getValue()).newInstance();
                             responseTypeHandler.init();
                         } catch (InstantiationException e) {
-                            log.error("Error instantiating " + entry.getValue());
+                            log.error("Error instantiating " + entry.getValue(), e);
                         } catch (IllegalAccessException e) {
-                            log.error("Illegal access to " + entry.getValue());
+                            log.error("Illegal access to " + entry.getValue(), e);
                         } catch (ClassNotFoundException e) {
-                            log.error("Cannot find class: " + entry.getValue());
+                            log.error("Cannot find class: " + entry.getValue(), e);
                         } catch (IdentityOAuth2Exception e) {
-                            log.error("Error while initializing " + entry.getValue());
+                            log.error("Error while initializing " + entry.getValue(), e);
                         }
                         supportedResponseTypes.put(entry.getKey(), responseTypeHandler);
                     }
@@ -370,13 +437,13 @@ public class OAuthServerConfiguration {
                             //Exceptions necessarily don't have to break the flow since there are cases
                             //runnable without client auth handlers
                             } catch (InstantiationException e) {
-                                log.error("Error instantiating " + entry);
+                                log.error("Error instantiating " + entry, e);
                             } catch (IllegalAccessException e) {
-                                log.error("Illegal access to " + entry);
+                                log.error("Illegal access to " + entry, e);
                             } catch (ClassNotFoundException e) {
-                                log.error("Cannot find class: " + entry);
+                                log.error("Cannot find class: " + entry, e);
                             } catch (IdentityOAuth2Exception e) {
-                                log.error("Error while initializing " + entry);
+                                log.error("Error while initializing " + entry, e);
                             }
                     }
                 }
@@ -387,7 +454,7 @@ public class OAuthServerConfiguration {
 
     public SAML2TokenCallbackHandler getSAML2TokenCallbackHandler() {
 
-        if (saml2TokenCallbackHandlerName == null || saml2TokenCallbackHandlerName.equals("")) {
+        if (StringUtils.isBlank(saml2TokenCallbackHandlerName)) {
             return null;
         }
         if (saml2TokenCallbackHandler == null) {
@@ -621,7 +688,7 @@ public class OAuthServerConfiguration {
         Iterator validators = tokenValidators.getChildrenWithLocalName(ConfigElements.TOKEN_VALIDATOR);
         if (validators != null) {
             for (; validators.hasNext(); ) {
-                OMElement validator = ((OMElement) validators.next());
+                OMElement validator = (OMElement) validators.next();
                 if (validator != null) {
                     String clazzName = validator.getAttributeValue(new QName(ConfigElements.TOKEN_CLASS_ATTR));
                     String type = validator.getAttributeValue(new QName(ConfigElements.TOKEN_TYPE_ATTR));
@@ -743,6 +810,30 @@ public class OAuthServerConfiguration {
             timeStampSkewInSeconds = Long.parseLong(timeStampSkewElem.getText());
         }
 
+        OMElement appInfoCacheTimeoutElem = oauthConfigElem.getFirstChildWithName(
+                getQNameWithIdentityNS(ConfigElements.APP_INFO_CACHE_TIMEOUT));
+        if(appInfoCacheTimeoutElem!=null){
+            appInfoCacheTimeout = Integer.parseInt(appInfoCacheTimeoutElem.getText());
+        }
+
+        OMElement authorizationGrantCacheTimeoutElem = oauthConfigElem.getFirstChildWithName(
+                getQNameWithIdentityNS(ConfigElements.AUTHORIZATION_GRANT_CACHE_TIMEOUT));
+        if(appInfoCacheTimeoutElem!=null){
+            authorizationGrantCacheTimeout = Integer.parseInt(authorizationGrantCacheTimeoutElem.getText());
+        }
+
+        OMElement sessionDataCacheTimeoutElem = oauthConfigElem.getFirstChildWithName(
+                getQNameWithIdentityNS(ConfigElements.SESSION_DATA_CACHE_TIMEOUT));
+        if(appInfoCacheTimeoutElem!=null){
+            sessionDataCacheTimeout = Integer.parseInt(sessionDataCacheTimeoutElem.getText());
+        }
+
+        OMElement claimCacheTimeoutElem = oauthConfigElem.getFirstChildWithName(
+                getQNameWithIdentityNS(ConfigElements.AUTHORIZATION_GRANT_CACHE_TIMEOUT));
+        if(appInfoCacheTimeoutElem!=null){
+            claimCacheTimeout = Integer.parseInt(claimCacheTimeoutElem.getText());
+        }
+
         if (log.isDebugEnabled()) {
             if (authzCodeTimeoutElem == null) {
                 log.debug("\"Authorization Code Default Timeout\" element was not available "
@@ -769,6 +860,52 @@ public class OAuthServerConfiguration {
                         applicationAccessTokenValidityPeriodInSeconds + "ms.");
                 log.debug("Refresh Token validity period is set to " + refreshTokenValidityPeriodInSeconds + "s.");
                 log.debug("Default TimestampSkew is set to " + timeStampSkewInSeconds + "ms.");
+            }
+        }
+    }
+
+    private void parseOAuthURLs(OMElement oauthConfigElem) {
+
+        OMElement elem = oauthConfigElem.getFirstChildWithName(getQNameWithIdentityNS(
+                ConfigElements.OAUTH1_REQUEST_TOKEN_URL));
+        if(elem != null){
+            if(StringUtils.isNotBlank(elem.getText())) {
+                oauth1RequestTokenUrl = elem.getText();
+            }
+        }
+        elem = oauthConfigElem.getFirstChildWithName(getQNameWithIdentityNS(
+                ConfigElements.OAUTH1_AUTHORIZE_URL));
+        if(elem != null){
+            if(StringUtils.isNotBlank(elem.getText())) {
+                oauth1AuthorizeUrl = elem.getText();
+            }
+        }
+        elem = oauthConfigElem.getFirstChildWithName(getQNameWithIdentityNS(
+                ConfigElements.OAUTH1_ACCESS_TOKEN_URL));
+        if(elem != null){
+            if(StringUtils.isNotBlank(elem.getText())) {
+                oauth1AccessTokenUrl = elem.getText();
+            }
+        }
+        elem = oauthConfigElem.getFirstChildWithName(getQNameWithIdentityNS(
+                ConfigElements.OAUTH2_AUTHZ_EP_URL));
+        if(elem != null){
+            if(StringUtils.isNotBlank(elem.getText())) {
+                oauth2AuthzEPUrl = elem.getText();
+            }
+        }
+        elem = oauthConfigElem.getFirstChildWithName(getQNameWithIdentityNS(
+                ConfigElements.OAUTH2_TOKEN_EP_URL));
+        if(elem != null){
+            if(StringUtils.isNotBlank(elem.getText())) {
+                oauth2TokenEPUrl = elem.getText();
+            }
+        }
+        elem = oauthConfigElem.getFirstChildWithName(getQNameWithIdentityNS(
+                ConfigElements.OAUTH2_USERINFO_EP_URL));
+        if(elem != null){
+            if(StringUtils.isNotBlank(elem.getText())) {
+                oauth2UserInfoEPUrl = elem.getText();
             }
         }
     }
@@ -843,7 +980,7 @@ public class OAuthServerConfiguration {
 
         OMElement persistenceprocessorConfigElem =
                 oauthConfigElem.getFirstChildWithName(getQNameWithIdentityNS(ConfigElements.TOKEN_PERSISTENCE_PROCESSOR));
-        if (persistenceprocessorConfigElem != null && !persistenceprocessorConfigElem.getText().trim().equals("")) {
+        if (persistenceprocessorConfigElem != null && !"".equals(persistenceprocessorConfigElem.getText().trim())) {
             tokenPersistenceProcessorClassName = persistenceprocessorConfigElem.getText().trim();
         }
 
@@ -898,7 +1035,7 @@ public class OAuthServerConfiguration {
             log.warn("\'SupportedGrantTypes\' element not configured in identity.xml. " +
                     "Therefore instantiating default grant type handlers");
 
-            Map<String, String> defaultGrantTypes = new Hashtable<String, String>(5);
+            Map<String, String> defaultGrantTypes = new HashMap<>(5);
             defaultGrantTypes.put(GrantType.AUTHORIZATION_CODE.toString(), AUTHORIZATION_CODE_GRANT_HANDLER_CLASS);
             defaultGrantTypes.put(GrantType.CLIENT_CREDENTIALS.toString(), CLIENT_CREDENTIALS_GRANT_HANDLER_CLASS);
             defaultGrantTypes.put(GrantType.PASSWORD.toString(), PASSWORD_GRANT_HANDLER_CLASS);
@@ -941,8 +1078,8 @@ public class OAuthServerConfiguration {
                 if (responseTypeHandlerImplClassElement != null) {
                     responseTypeHandlerImplClass = responseTypeHandlerImplClassElement.getText();
                 }
-                if (responseTypeName != null && !responseTypeName.equals("") &&
-                        responseTypeHandlerImplClass != null && !responseTypeHandlerImplClass.equals("")) {
+                if (responseTypeName != null && !"".equals(responseTypeName) &&
+                        responseTypeHandlerImplClass != null && !"".equals(responseTypeHandlerImplClass)) {
                     supportedResponseTypeClassNames.put(responseTypeName, responseTypeHandlerImplClass);
                 }
             }
@@ -951,7 +1088,7 @@ public class OAuthServerConfiguration {
             log.warn("\'SupportedResponseTypes\' element not configured in identity.xml. " +
                     "Therefore instantiating default response type handlers");
 
-            Map<String, String> defaultResponseTypes = new Hashtable<String, String>(2);
+            Map<String, String> defaultResponseTypes = new HashMap<>(2);
             defaultResponseTypes.put(ResponseType.CODE.toString(), "org.wso2.carbon.identity.oauth2.authz.handlers.CodeResponseTypeHandler");
             defaultResponseTypes.put(ResponseType.TOKEN.toString(), "org.wso2.carbon.identity.oauth2.authz.handlers.TokenResponseTypeHandler");
             supportedResponseTypeClassNames.putAll(defaultResponseTypes);
@@ -1008,7 +1145,7 @@ public class OAuthServerConfiguration {
             log.warn("\'SupportedClientAuthMethods\' element not configured in identity.xml. " +
                     "Therefore instantiating default client authentication handlers");
 
-            Map<String, Properties> defaultClientAuthHandlers = new Hashtable<String, Properties>(1);
+            Map<String, Properties> defaultClientAuthHandlers = new HashMap<>(1);
             defaultClientAuthHandlers.put(
                     ConfigElements.DEFAULT_CLIENT_AUTHENTICATOR, new Properties());
             supportedClientAuthHandlerData.putAll(defaultClientAuthHandlers);
@@ -1028,7 +1165,7 @@ public class OAuthServerConfiguration {
         if (saml2GrantElement != null) {
             saml2TokenHandlerElement = saml2GrantElement.getFirstChildWithName(getQNameWithIdentityNS(ConfigElements.SAML2_TOKEN_HANDLER));
         }
-        if (saml2TokenHandlerElement != null && !saml2TokenHandlerElement.getText().trim().equals("")) {
+        if (saml2TokenHandlerElement != null && !"".equals(saml2TokenHandlerElement.getText().trim())) {
             saml2TokenCallbackHandlerName = saml2TokenHandlerElement.getText().trim();
         }
     }
@@ -1148,7 +1285,7 @@ public class OAuthServerConfiguration {
                 if (log.isDebugEnabled()) {
                     log.debug("Supported Claims : " + supportedClaimStr);
                 }
-                if (supportedClaimStr != null && !supportedClaimStr.equals("")) {
+                if (StringUtils.isNotEmpty(supportedClaimStr)) {
                     supportedClaims = supportedClaimStr.split(",");
                 }
             }
@@ -1167,6 +1304,14 @@ public class OAuthServerConfiguration {
      * Localpart names for the OAuth configuration in identity.xml.
      */
     private class ConfigElements {
+
+        // URLs
+        public static final String OAUTH1_REQUEST_TOKEN_URL = "OAuth1RequestTokenUrl";
+        public static final String OAUTH1_AUTHORIZE_URL = "OAuth1AuthorizeUrl";
+        public static final String OAUTH1_ACCESS_TOKEN_URL = "OAuth1AccessTokenUrl";
+        public static final String OAUTH2_AUTHZ_EP_URL = "OAuth2AuthzEPUrl";
+        public static final String OAUTH2_TOKEN_EP_URL = "OAuth2TokenEPUrl";
+        public static final String OAUTH2_USERINFO_EP_URL = "OAuth2UserInfoEPUrl";
 
         // JWT Generator
         public static final String AUTHORIZATION_CONTEXT_TOKEN_GENERATION = "AuthorizationContextTokenGeneration";
@@ -1216,6 +1361,9 @@ public class OAuthServerConfiguration {
         private static final String USER_ACCESS_TOKEN_DEFAULT_VALIDITY_PERIOD = "UserAccessTokenDefaultValidityPeriod";
         private static final String APPLICATION_ACCESS_TOKEN_VALIDATION_PERIOD = "AccessTokenDefaultValidityPeriod";
         private static final String REFRESH_TOKEN_VALIDITY_PERIOD = "RefreshTokenValidityPeriod";
+        private static final String APP_INFO_CACHE_TIMEOUT = "AppInfoCacheTimeout";
+        private static final String AUTHORIZATION_GRANT_CACHE_TIMEOUT = "AuthorizationGrantCacheTimeout";
+        private static final String SESSION_DATA_CACHE_TIMEOUT = "SessionDataCacheTimeout";
         // Enable/Disable cache
         private static final String ENABLE_CACHE = "EnableOAuthCache";
         // Enable/Disable refresh token renewal on each refresh_token grant request

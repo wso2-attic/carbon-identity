@@ -1,29 +1,31 @@
 /*
-*Copyright (c) 2005-2013, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*WSO2 Inc. licenses this file to you under the Apache License,
-*Version 2.0 (the "License"); you may not use this file except
-*in compliance with the License.
-*You may obtain a copy of the License at
-*
-*http://www.apache.org/licenses/LICENSE-2.0
-*
-*Unless required by applicable law or agreed to in writing,
-*software distributed under the License is distributed on an
-*"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-*KIND, either express or implied.  See the License for the
-*specific language governing permissions and limitations
-*under the License.
-*/
+ * Copyright (c) 2013, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 
 package org.wso2.carbon.identity.oauth;
 
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.core.AbstractAdmin;
+import org.wso2.carbon.identity.application.common.model.User;
 import org.wso2.carbon.identity.core.model.OAuthAppDO;
 import org.wso2.carbon.identity.oauth.cache.AppInfoCache;
 import org.wso2.carbon.identity.oauth.cache.OAuthCache;
@@ -40,15 +42,23 @@ import org.wso2.carbon.identity.oauth2.IdentityOAuth2Exception;
 import org.wso2.carbon.identity.oauth2.dao.TokenMgtDAO;
 import org.wso2.carbon.identity.oauth2.model.AccessTokenDO;
 import org.wso2.carbon.identity.oauth2.util.OAuth2Util;
+import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class OAuthAdminService extends AbstractAdmin {
 
+    public static final String IMPLICIT = "implicit";
+    public static final String AUTHORIZATION_CODE = "authorization_code";
     private static List<String> allowedGrants = null;
     protected Log log = LogFactory.getLog(OAuthAdminService.class);
-    private AppInfoCache appInfoCache = AppInfoCache.getInstance();
+    private AppInfoCache appInfoCache = AppInfoCache.getInstance(OAuthServerConfiguration.getInstance().
+                                                                                            getAppInfoCacheTimeout());
 
     /**
      * Registers an consumer secret against the logged in user. A given user can only have a single
@@ -58,7 +68,7 @@ public class OAuthAdminService extends AbstractAdmin {
      * @return An array containing the consumer key and the consumer secret correspondingly.
      * @throws Exception Error when persisting the data in the persistence store.
      */
-    public String[] registerOAuthConsumer() throws Exception {
+    public String[] registerOAuthConsumer() throws IdentityOAuthAdminException {
 
         String loggedInUser = CarbonContext.getThreadLocalCarbonContext().getUsername();
 
@@ -79,7 +89,7 @@ public class OAuthAdminService extends AbstractAdmin {
      * information of the user
      * @throws Exception Error when reading the data from the persistence store.
      */
-    public OAuthConsumerAppDTO[] getAllOAuthApplicationData() throws Exception {
+    public OAuthConsumerAppDTO[] getAllOAuthApplicationData() throws IdentityOAuthAdminException {
 
         String userName = CarbonContext.getThreadLocalCarbonContext().getUsername();
         OAuthConsumerAppDTO[] dtos = new OAuthConsumerAppDTO[0];
@@ -88,7 +98,7 @@ public class OAuthAdminService extends AbstractAdmin {
             if (log.isErrorEnabled()) {
                 log.debug("User not logged in");
             }
-            throw new Exception("User not logged in");
+            throw new IdentityOAuthAdminException("User not logged in");
         }
 
         String tenantUser = MultitenantUtils.getTenantAwareUsername(userName);
@@ -122,19 +132,24 @@ public class OAuthAdminService extends AbstractAdmin {
      * @return <code>OAuthConsumerAppDTO</code> with application information
      * @throws Exception Error when reading application information from persistence store.
      */
-    public OAuthConsumerAppDTO getOAuthApplicationData(String consumerKey) throws Exception {
+    public OAuthConsumerAppDTO getOAuthApplicationData(String consumerKey) throws IdentityOAuthAdminException {
         OAuthConsumerAppDTO dto = new OAuthConsumerAppDTO();
         OAuthAppDAO dao = new OAuthAppDAO();
-        OAuthAppDO app = dao.getAppInformation(consumerKey);
-        if (app != null) {
-            dto.setApplicationName(app.getApplicationName());
-            dto.setCallbackUrl(app.getCallbackUrl());
-            dto.setOauthConsumerKey(app.getOauthConsumerKey());
-            dto.setOauthConsumerSecret(app.getOauthConsumerSecret());
-            dto.setOAuthVersion(app.getOauthVersion());
-            dto.setGrantTypes(app.getGrantTypes());
+        try {
+            OAuthAppDO app = dao.getAppInformation(consumerKey);
+            if (app != null) {
+                dto.setApplicationName(app.getApplicationName());
+                dto.setCallbackUrl(app.getCallbackUrl());
+                dto.setOauthConsumerKey(app.getOauthConsumerKey());
+                dto.setOauthConsumerSecret(app.getOauthConsumerSecret());
+                dto.setOAuthVersion(app.getOauthVersion());
+                dto.setGrantTypes(app.getGrantTypes());
+            }
+            return dto;
+        } catch (InvalidOAuthClientException | IdentityOAuth2Exception e) {
+            throw new IdentityOAuthAdminException("Error while retrieving the app information using consumer key", e);
         }
-        return dto;
+
     }
 
     /**
@@ -144,19 +159,23 @@ public class OAuthAdminService extends AbstractAdmin {
      * @return <code>OAuthConsumerAppDTO</code> with application information
      * @throws Exception Error when reading application information from persistence store.
      */
-    public OAuthConsumerAppDTO getOAuthApplicationDataByAppName(String appName) throws Exception {
+    public OAuthConsumerAppDTO getOAuthApplicationDataByAppName(String appName) throws IdentityOAuthAdminException {
         OAuthConsumerAppDTO dto = new OAuthConsumerAppDTO();
         OAuthAppDAO dao = new OAuthAppDAO();
-        OAuthAppDO app = dao.getAppInformationByAppName(appName);
-        if (app != null) {
-            dto.setApplicationName(app.getApplicationName());
-            dto.setCallbackUrl(app.getCallbackUrl());
-            dto.setOauthConsumerKey(app.getOauthConsumerKey());
-            dto.setOauthConsumerSecret(app.getOauthConsumerSecret());
-            dto.setOAuthVersion(app.getOauthVersion());
-            dto.setGrantTypes(app.getGrantTypes());
+        try {
+            OAuthAppDO app = dao.getAppInformationByAppName(appName);
+            if (app != null) {
+                dto.setApplicationName(app.getApplicationName());
+                dto.setCallbackUrl(app.getCallbackUrl());
+                dto.setOauthConsumerKey(app.getOauthConsumerKey());
+                dto.setOauthConsumerSecret(app.getOauthConsumerSecret());
+                dto.setOAuthVersion(app.getOauthVersion());
+                dto.setGrantTypes(app.getGrantTypes());
+            }
+            return dto;
+        }catch (InvalidOAuthClientException | IdentityOAuth2Exception e){
+            throw new IdentityOAuthAdminException("Error while retrieving the app information by app name", e);
         }
-        return dto;
     }
 
     /**
@@ -165,7 +184,7 @@ public class OAuthAdminService extends AbstractAdmin {
      * @param application <code>OAuthConsumerAppDTO</code> with application information
      * @throws Exception Error when persisting the application information to the persistence store
      */
-    public void registerOAuthApplicationData(OAuthConsumerAppDTO application) throws Exception {
+    public void registerOAuthApplicationData(OAuthConsumerAppDTO application) throws IdentityOAuthAdminException{
         String userName = CarbonContext.getThreadLocalCarbonContext().getUsername();
         if (userName != null) {
             String tenantUser = MultitenantUtils.getTenantAwareUsername(userName);
@@ -175,10 +194,9 @@ public class OAuthAdminService extends AbstractAdmin {
             OAuthAppDO app = new OAuthAppDO();
             if (application != null) {
                 app.setApplicationName(application.getApplicationName());
-                if (application.getGrantTypes().contains("authorization_code") || application.getGrantTypes().contains("implicit")) {
-                    if (application.getCallbackUrl() == null || application.getCallbackUrl().equals("")) {
-                        throw new IdentityOAuthAdminException("Callback Url is required for Code or Implicit grant types");
-                    }
+                if ((application.getGrantTypes().contains(AUTHORIZATION_CODE) || application.getGrantTypes()
+                        .contains(IMPLICIT)) && StringUtils.isEmpty(application.getCallbackUrl())) {
+                    throw new IdentityOAuthAdminException("Callback Url is required for Code or Implicit grant types");
                 }
                 app.setCallbackUrl(application.getCallbackUrl());
                 if (application.getOauthConsumerKey() == null) {
@@ -190,14 +208,19 @@ public class OAuthAdminService extends AbstractAdmin {
                 }
                 String applicationUser = application.getUsername();
                 if (applicationUser != null && applicationUser.trim().length() > 0) {
-                    if (CarbonContext.getThreadLocalCarbonContext().getUserRealm().
-                            getUserStoreManager().isExistingUser(application.getUsername())) {
-                        tenantUser = applicationUser;
-                    } else {
-                        log.warn("OAuth application registrant user name " + applicationUser +
-                                " does not exist in the user store. Using logged-in user name " + tenantUser +
-                                " as registrant name");
+                    try {
+                        if (CarbonContext.getThreadLocalCarbonContext().getUserRealm().
+                                getUserStoreManager().isExistingUser(application.getUsername())) {
+                            tenantUser = applicationUser;
+                        } else {
+                            log.warn("OAuth application registrant user name " + applicationUser +
+                                    " does not exist in the user store. Using logged-in user name " + tenantUser +
+                                    " as registrant name");
+                        }
+                    } catch (UserStoreException e) {
+                        throw new IdentityOAuthAdminException("Error while retrieving the user store manager", e);
                     }
+
                 }
                 app.setUserName(tenantUser);
                 app.setTenantId(tenantId);
@@ -207,14 +230,14 @@ public class OAuthAdminService extends AbstractAdmin {
                     app.setOauthVersion(OAuthConstants.OAuthVersions.VERSION_2);
                 }
                 if (OAuthConstants.OAuthVersions.VERSION_2.equals(application.getOAuthVersion())) {
-                    List<String> allowedGrants = new ArrayList<String>(Arrays.asList(getAllowedGrantTypes()));
+                    List<String> allowedGrants = new ArrayList<>(Arrays.asList(getAllowedGrantTypes()));
                     String[] requestGrants = application.getGrantTypes().split("\\s");
                     for (String requestedGrant : requestGrants) {
-                        if (requestedGrant.trim().equals("")) {
+                        if ("".equals(requestedGrant.trim())) {
                             continue;
                         }
                         if (!allowedGrants.contains(requestedGrant)) {
-                            throw new Exception(requestedGrant + " not allowed");
+                            throw new IdentityOAuthAdminException(requestedGrant + " not allowed");
                         }
                     }
                     app.setGrantTypes(application.getGrantTypes());
@@ -233,7 +256,7 @@ public class OAuthAdminService extends AbstractAdmin {
      * @param consumerAppDTO <code>OAuthConsumerAppDTO</code> with updated application information
      * @throws IdentityOAuthAdminException Error when updating the underlying identity persistence store.
      */
-    public void updateConsumerApplication(OAuthConsumerAppDTO consumerAppDTO) throws Exception {
+    public void updateConsumerApplication(OAuthConsumerAppDTO consumerAppDTO) throws IdentityOAuthAdminException {
         String userName = CarbonContext.getThreadLocalCarbonContext().getUsername();
         String tenantAwareUsername = MultitenantUtils.getTenantAwareUsername(userName);
         int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
@@ -246,14 +269,14 @@ public class OAuthAdminService extends AbstractAdmin {
         oauthappdo.setCallbackUrl(consumerAppDTO.getCallbackUrl());
         oauthappdo.setApplicationName(consumerAppDTO.getApplicationName());
         if (OAuthConstants.OAuthVersions.VERSION_2.equals(consumerAppDTO.getOAuthVersion())) {
-            List<String> allowedGrants = new ArrayList<String>(Arrays.asList(getAllowedGrantTypes()));
+            List<String> allowedGrants = new ArrayList<>(Arrays.asList(getAllowedGrantTypes()));
             String[] requestGrants = consumerAppDTO.getGrantTypes().split("\\s");
             for (String requestedGrant : requestGrants) {
-                if (requestedGrant.trim().equals("")) {
+                if ("".equals(requestedGrant.trim())) {
                     continue;
                 }
                 if (!allowedGrants.contains(requestedGrant)) {
-                    throw new Exception(requestedGrant + " not allowed");
+                    throw new IdentityOAuthAdminException(requestedGrant + " not allowed");
                 }
             }
             oauthappdo.setGrantTypes(consumerAppDTO.getGrantTypes());
@@ -270,12 +293,12 @@ public class OAuthAdminService extends AbstractAdmin {
      * @param consumerKey Consumer Key
      * @throws Exception Error when removing the consumer information from the database.
      */
-    public void removeOAuthApplicationData(String consumerKey) throws Exception {
+    public void removeOAuthApplicationData(String consumerKey) throws IdentityOAuthAdminException {
         OAuthAppDAO dao = new OAuthAppDAO();
         dao.removeConsumerApplication(consumerKey);
         // remove client credentials from cache
         if (OAuthServerConfiguration.getInstance().isCacheEnabled()) {
-            OAuthCache.getInstance().clearCacheEntry(new OAuthCacheKey(consumerKey));
+            OAuthCache.getInstance(0).clearCacheEntry(new OAuthCacheKey(consumerKey));
             appInfoCache.clearCacheEntry(consumerKey);
             if (log.isDebugEnabled()) {
                 log.debug("Client credentials are removed from the cache.");
@@ -296,7 +319,6 @@ public class OAuthAdminService extends AbstractAdmin {
         String tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
         String tenantAwareUserName = PrivilegedCarbonContext.getThreadLocalCarbonContext().getUsername();
         String username = tenantAwareUserName + "@" + tenantDomain;
-        username = username.toLowerCase();
 
         String userStoreDomain = null;
         if (OAuth2Util.checkAccessTokenPartitioningEnabled() && OAuth2Util.checkUserNameAssertionEnabled()) {
@@ -336,34 +358,32 @@ public class OAuthAdminService extends AbstractAdmin {
                     try {
                         scopedToken = tokenMgtDAO.retrieveLatestAccessToken(
                                 clientId, username, userStoreDomain, scopeString, true);
-                        if(scopedToken != null){
-                            if(!distinctClientUserScopeCombo.contains(clientId+":"+username)){
-                                OAuthConsumerAppDTO appDTO = new OAuthConsumerAppDTO();
-                                OAuthAppDO appDO = null;
-                                try {
-                                    appDO = appDAO.getAppInformation(scopedToken.getConsumerKey());
-                                    appDTO.setOauthConsumerKey(scopedToken.getConsumerKey());
-                                    appDTO.setApplicationName(appDO.getApplicationName());
-                                    appDTO.setUsername(appDO.getUserName());
-                                    appDTO.setGrantTypes(appDO.getGrantTypes());
-                                    appDTOs.add(appDTO);
-                                } catch (InvalidOAuthClientException e) {
-                                    String errorMsg = "Invalid Client ID : " + scopedToken.getConsumerKey();
-                                    log.error(errorMsg, e);
-                                    throw new IdentityOAuthAdminException(errorMsg, e);
-                                } catch (IdentityOAuth2Exception e) {
-                                    String errorMsg = "Error occurred while retrieving app information " +
-                                            "for Client ID : " + scopedToken.getConsumerKey();
-                                    log.error(errorMsg, e);
-                                    throw new IdentityOAuthAdminException(errorMsg, e);
-                                }
-                                distinctClientUserScopeCombo.add(clientId+":"+username);
+                        if(scopedToken != null && !distinctClientUserScopeCombo.contains(clientId+":"+username)){
+                            OAuthConsumerAppDTO appDTO = new OAuthConsumerAppDTO();
+                            OAuthAppDO appDO;
+                            try {
+                                appDO = appDAO.getAppInformation(scopedToken.getConsumerKey());
+                                appDTO.setOauthConsumerKey(scopedToken.getConsumerKey());
+                                appDTO.setApplicationName(appDO.getApplicationName());
+                                appDTO.setUsername(appDO.getUserName());
+                                appDTO.setGrantTypes(appDO.getGrantTypes());
+                                appDTOs.add(appDTO);
+                            } catch (InvalidOAuthClientException e) {
+                                String errorMsg = "Invalid Client ID : " + scopedToken.getConsumerKey();
+                                log.error(errorMsg, e);
+                                throw new IdentityOAuthAdminException(errorMsg, e);
+                            } catch (IdentityOAuth2Exception e) {
+                                String errorMsg = "Error occurred while retrieving app information " +
+                                        "for Client ID : " + scopedToken.getConsumerKey();
+                                log.error(errorMsg, e);
+                                throw new IdentityOAuthAdminException(errorMsg, e);
                             }
+                            distinctClientUserScopeCombo.add(clientId+":"+username);
+
                         }
                     } catch (IdentityOAuth2Exception e) {
-                        String errorMsg = "Error occurred while retrieving latest " +
-                                "access token issued for Client ID : " + clientId +
-                                ", User ID : " + username + " and Scope : " + scopeString;
+                        String errorMsg = "Error occurred while retrieving latest access token issued for Client ID :" +
+                                " " + clientId + ", User ID : " + username + " and Scope : " + scopeString;
                         log.error(errorMsg, e);
                         throw new IdentityOAuthAdminException(errorMsg, e);
                     }
@@ -387,7 +407,6 @@ public class OAuthAdminService extends AbstractAdmin {
             String tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
             String tenantAwareUserName = PrivilegedCarbonContext.getThreadLocalCarbonContext().getUsername();
             String userName = tenantAwareUserName + "@" + tenantDomain;
-            userName = userName.toLowerCase();
 
             String userStoreDomain = null;
             if (OAuth2Util.checkAccessTokenPartitioningEnabled() &&
@@ -414,11 +433,14 @@ public class OAuthAdminService extends AbstractAdmin {
                             log.error(errorMsg, e);
                             throw new IdentityOAuthAdminException(errorMsg, e);
                         }
+                        User authzUser;
                         for (AccessTokenDO accessTokenDO : accessTokenDOs) {
                             //Clear cache with AccessTokenDO
-                            OAuthUtil.clearOAuthCache(accessTokenDO.getConsumerKey(), accessTokenDO.getAuthzUser(),
+                            authzUser = accessTokenDO.getAuthzUser();
+
+                            OAuthUtil.clearOAuthCache(accessTokenDO.getConsumerKey(), authzUser,
                                     OAuth2Util.buildScopeString(accessTokenDO.getScope()));
-                            OAuthUtil.clearOAuthCache(accessTokenDO.getConsumerKey(), accessTokenDO.getAuthzUser());
+                            OAuthUtil.clearOAuthCache(accessTokenDO.getConsumerKey(), authzUser);
                             OAuthUtil.clearOAuthCache(accessTokenDO.getAccessToken());
                             AccessTokenDO scopedToken = null;
                             try {
@@ -437,14 +459,23 @@ public class OAuthAdminService extends AbstractAdmin {
                             if (scopedToken != null) {
                                 //Revoking token from database
                                 try {
-                                    tokenMgtDAO.revokeToken(scopedToken.getAccessToken());
+                                    tokenMgtDAO.revokeTokens(new String[]{scopedToken.getAccessToken()});
                                 } catch (IdentityOAuth2Exception e) {
-                                    String errorMsg = "Error occurred while revoking " +
-                                            "Access Token : " + scopedToken.getAccessToken();
+                                    String errorMsg = "Error occurred while revoking " + "Access Token : " +
+                                            scopedToken.getAccessToken();
                                     log.error(errorMsg, e);
                                     throw new IdentityOAuthAdminException(errorMsg, e);
                                 }
                             }
+                        }
+
+                        try {
+                            tokenMgtDAO.revokeOAuthConsentByApplicationAndUser(userName, appName);
+                        } catch (IdentityOAuth2Exception e) {
+                            String errorMsg = "Error occurred while removing OAuth Consent of Application " + appName +
+                                              " of user " + userName;
+                            log.error(errorMsg, e);
+                            throw new IdentityOAuthAdminException(errorMsg, e);
                         }
                     }
                 }
@@ -464,7 +495,7 @@ public class OAuthAdminService extends AbstractAdmin {
             allowedGrants = new ArrayList();
             allowedGrants.addAll(OAuthServerConfiguration.getInstance().getSupportedGrantTypes().keySet());
             if (OAuthServerConfiguration.getInstance().getSupportedResponseTypes().containsKey("token")) {
-                allowedGrants.add("implicit");
+                allowedGrants.add(IMPLICIT);
             }
         }
         return allowedGrants.toArray(new String[allowedGrants.size()]);

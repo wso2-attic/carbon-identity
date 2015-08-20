@@ -1,23 +1,25 @@
 /*
-*  Copyright (c) WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ * Copyright (c) 2007, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package org.wso2.carbon.identity.provider;
 
 import org.apache.axiom.om.OMElement;
+import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.rahas.RahasConstants;
@@ -38,81 +40,88 @@ import org.wso2.carbon.identity.base.IdentityConstants;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.IdentityClaimManager;
 import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
+import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.claim.Claim;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import javax.xml.namespace.QName;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.StringTokenizer;
 
 public class AttributeCallbackHandler implements SAMLCallbackHandler {
 
-    private static Log log = LogFactory.getLog(AttributeCallbackHandler.class);
+    private static final Log log = LogFactory.getLog(AttributeCallbackHandler.class);
+    private static final String MULTI_ATTRIBUTE_SEPARATOR = "MultiAttributeSeparator";
     protected Map<String, RequestedClaimData> requestedClaims = new HashMap<String, RequestedClaimData>();
     protected Map<String, String> requestedClaimValues = new HashMap<String, String>();
-
-    private static final String MULTI_ATTRIBUTE_SEPARATOR = "MultiAttributeSeparator";
-
+    protected Map<String, Claim> supportedClaims = new HashMap<String, Claim>();
     private String userAttributeSeparator = ",";
 
-    protected Map<String, Claim> supportedClaims = new HashMap<String, Claim>();
-
+    @Override
     public void handle(SAMLCallback callback) throws SAMLException {
         SAMLAttributeCallback attrCallback = null;
         RahasData data = null;
         OMElement claimElem = null;
         String userIdentifier = null;
-        String splitArr[] = null;
+        String[] splitArr = null;
         IdentityAttributeService[] attributeCallbackServices = null;
 
-        try {
-            if (callback instanceof SAMLAttributeCallback) {
-                attrCallback = (SAMLAttributeCallback) callback;
-                data = attrCallback.getData();
-                claimElem = data.getClaimElem();
-                userIdentifier = data.getPrincipal().getName();
+        if (callback instanceof SAMLAttributeCallback) {
+            attrCallback = (SAMLAttributeCallback) callback;
+            data = attrCallback.getData();
+            claimElem = data.getClaimElem();
+            userIdentifier = data.getPrincipal().getName();
 
-                if (userIdentifier != null) {
+            if (userIdentifier != null) {
                     /*Extract 'Common Name' as the user id if authenticated
                       via X.509 certificates*/
-                    splitArr = userIdentifier.split(",")[0].split("=");
-                    if (splitArr.length == 2) {
-                        userIdentifier = splitArr[1];
-                    }
-                }
-
-                loadClaims(claimElem, userIdentifier);
-                processClaimData(data, claimElem);
-                populateClaimValues(userIdentifier, attrCallback);
-
-                attributeCallbackServices = IdentityAttributeServiceStore.getAttributeServices();
-                for (int i = 0; i < attributeCallbackServices.length; i++) {
-                    try {
-                        attributeCallbackServices[i].handle(attrCallback);
-                    } catch (Exception e) {
-                        log.error("Error occuerd while calling attribute callback", e);
-                    }
-                }
-
-                if (RahasConstants.TOK_TYPE_SAML_20.equals(data.getTokenType())) {
-                    if (attrCallback.getSAML2Attributes() == null
-                            || attrCallback.getSAML2Attributes().length == 0) {
-                        attrCallback.addAttributes(getSAML2Attribute("Name", "Colombo",
-                                "https://rahas.apache.org/saml/attrns"));
-                    }
-                } else {
-                    if (attrCallback.getAttributes() == null
-                            || attrCallback.getAttributes().length == 0) {
-                        SAMLAttribute attribute = new SAMLAttribute("Name",
-                                "https://rahas.apache.org/saml/attrns", null, -1, Arrays
-                                .asList(new String[]{"Colombo/Rahas"}));
-                        attrCallback.addAttributes(attribute);
-                    }
+                splitArr = userIdentifier.split(",")[0].split("=");
+                if (splitArr.length == 2) {
+                    userIdentifier = splitArr[1];
                 }
             }
-        } catch (Exception e) {
-            log.error("Error occuerd while populating claim data", e);
+
+            try {
+                processClaimData(data, claimElem);
+                if (MapUtils.isEmpty(requestedClaimValues)) {
+                    loadClaims(claimElem, userIdentifier);
+                }
+                populateClaimValues(userIdentifier, attrCallback);
+            } catch (IdentityProviderException e) {
+                log.error("Error occurred while populating claim data", e);
+            }
+
+            attributeCallbackServices = IdentityAttributeServiceStore.getAttributeServices();
+            for (int i = 0; i < attributeCallbackServices.length; i++) {
+                try {
+                    attributeCallbackServices[i].handle(attrCallback);
+                } catch (Exception e) {
+                    log.error("Error occurred while calling attribute callback", e);
+                }
+            }
+
+            if (RahasConstants.TOK_TYPE_SAML_20.equals(data.getTokenType())) {
+                if (attrCallback.getSAML2Attributes() == null
+                        || attrCallback.getSAML2Attributes().length == 0) {
+                    attrCallback.addAttributes(getSAML2Attribute("Name", "Colombo",
+                            "https://rahas.apache.org/saml/attrns"));
+                }
+            } else {
+                if (attrCallback.getAttributes() == null
+                        || attrCallback.getAttributes().length == 0) {
+                    SAMLAttribute attribute = new SAMLAttribute("Name",
+                            "https://rahas.apache.org/saml/attrns", null, -1, Arrays
+                            .asList(new String[]{"Colombo/Rahas"}));
+                    attrCallback.addAttributes(attribute);
+                }
+            }
         }
     }
 
@@ -124,15 +133,13 @@ public class AttributeCallbackHandler implements SAMLCallbackHandler {
         XSString stringValue = null;
 
         builderFactory = Configuration.getBuilderFactory();
-        attrBuilder = (SAMLObjectBuilder<Attribute>) builderFactory
-                .getBuilder(Attribute.DEFAULT_ELEMENT_NAME);
+        attrBuilder = (SAMLObjectBuilder<Attribute>) builderFactory.getBuilder(Attribute.DEFAULT_ELEMENT_NAME);
         attribute = attrBuilder.buildObject();
         attribute.setName(name);
         attribute.setNameFormat(namespace);
 
         attributeValueBuilder = (XSStringBuilder) builderFactory.getBuilder(XSString.TYPE_NAME);
-        stringValue = attributeValueBuilder.buildObject(AttributeValue.DEFAULT_ELEMENT_NAME,
-                XSString.TYPE_NAME);
+        stringValue = attributeValueBuilder.buildObject(AttributeValue.DEFAULT_ELEMENT_NAME, XSString.TYPE_NAME);
         stringValue.setValue(value);
         attribute.getAttributeValues().add(stringValue);
         return attribute;
@@ -151,8 +158,8 @@ public class AttributeCallbackHandler implements SAMLCallbackHandler {
         String claimDialect = null;
 
         if (claimsElement.getNamespace() != null) {
-            claimDialect = claimsElement.
-                    getAttributeValue(new QName(claimsElement.getNamespace().getNamespaceURI(), "Dialect"));
+            claimDialect = claimsElement
+                    .getAttributeValue(new QName(claimsElement.getNamespace().getNamespaceURI(), "Dialect"));
         }
 
         if (claimDialect == null || claimDialect.trim().length() == 0) {
@@ -165,8 +172,8 @@ public class AttributeCallbackHandler implements SAMLCallbackHandler {
 
         try {
             claimManager = IdentityClaimManager.getInstance();
-            claims = claimManager.getAllSupportedClaims(claimDialect,
-                    IdentityTenantUtil.getRealm(null, userIdentifier));
+            claims =
+                    claimManager.getAllSupportedClaims(claimDialect, IdentityTenantUtil.getRealm(null, userIdentifier));
             for (int i = 0; i < claims.length; i++) {
                 Claim temp = claims[i];
                 supportedClaims.put(temp.getClaimUri(), temp);
@@ -189,7 +196,7 @@ public class AttributeCallbackHandler implements SAMLCallbackHandler {
         try {
             claimManager = IdentityClaimManager.getInstance();
             claims = claimManager.getAllSupportedClaims(UserCoreConstants.DEFAULT_CARBON_DIALECT,
-                    IdentityTenantUtil.getRealm(null, userIdentifier));
+                                                        IdentityTenantUtil.getRealm(null, userIdentifier));
             for (int i = 0; i < claims.length; i++) {
                 Claim temp = claims[i];
                 supportedClaims.put(temp.getClaimUri(), temp);
@@ -205,8 +212,7 @@ public class AttributeCallbackHandler implements SAMLCallbackHandler {
      * @param claims
      * @throws IdentityProviderException
      */
-    protected void processClaimData(RahasData rahasData, OMElement claims)
-            throws IdentityProviderException {
+    protected void processClaimData(RahasData rahasData, OMElement claims) throws IdentityProviderException {
 
         if (claims == null) {
             return;
@@ -217,8 +223,8 @@ public class AttributeCallbackHandler implements SAMLCallbackHandler {
         }
 
         Iterator iterator = null;
-        iterator = claims.getChildrenWithName(new QName(IdentityConstants.NS,
-                IdentityConstants.LocalNames.IDENTITY_CLAIM_TYPE));
+        iterator = claims.getChildrenWithName(
+                new QName(IdentityConstants.NS, IdentityConstants.LocalNames.IDENTITY_CLAIM_TYPE));
 
         while (iterator.hasNext()) {
             OMElement omElem = null;
@@ -232,12 +238,11 @@ public class AttributeCallbackHandler implements SAMLCallbackHandler {
 
             if (uriClaim == null) {
                 log.error("Empty claim uri found while procession claim data");
-                throw new IdentityProviderException(
-                        "Empty claim uri found while procession claim data");
+                throw new IdentityProviderException("Empty claim uri found while procession claim data");
             }
 
             if (uriClaim.startsWith("{") && uriClaim.endsWith("}")
-                    && uriClaim.lastIndexOf("|") == uriClaim.indexOf("|")) {
+                && uriClaim.lastIndexOf("|") == uriClaim.indexOf("|")) {
                 String tmpUri = uriClaim;
                 uriClaim = uriClaim.substring(1, uriClaim.indexOf("|"));
                 String claimValue = tmpUri.substring(tmpUri.indexOf("|") + 1, tmpUri.length() - 1);
@@ -246,8 +251,8 @@ public class AttributeCallbackHandler implements SAMLCallbackHandler {
 
             claim.setUri(uriClaim);
             optional = (omElem.getAttributeValue(new QName(null, "Optional")));
-            if (optional != null) {
-                claim.setBOptional((optional.equals("true")) ? true : false);
+            if (StringUtils.isNotBlank(optional)) {
+                claim.setBOptional("true".equals(optional));
             } else {
                 claim.setBOptional(true);
             }
@@ -269,20 +274,13 @@ public class AttributeCallbackHandler implements SAMLCallbackHandler {
             return;
         }
 
-        try {
-            connector = IdentityTenantUtil.getRealm(null, userIdentifier).getUserStoreManager();
-        } catch (Exception e) {
-            log.error("Error while instantiating IdentityUserStore", e);
-            throw new IdentityProviderException("Error while instantiating IdentityUserStore", e);
-        }
-
         // get the column names for the URIs
         Iterator<RequestedClaimData> ite = requestedClaims.values().iterator();
         List<String> claimList = new ArrayList<String>();
         rahasData = callback.getData();
 
         while (ite.hasNext()) {
-            RequestedClaimData claim = (RequestedClaimData) ite.next();
+            RequestedClaimData claim = ite.next();
             if (claim != null && !claim.getUri().equals(IdentityConstants.CLAIM_PPID)) {
                 claimList.add(claim.getUri());
             }
@@ -293,10 +291,15 @@ public class AttributeCallbackHandler implements SAMLCallbackHandler {
         Map<String, String> mapValues = null;
 
         try {
-            if (requestedClaimValues.size() == 0) {
-                mapValues = connector.getUserClaimValues(
-                        MultitenantUtils.getTenantAwareUsername(userId),
-                        claimList.toArray(claimArray), null);
+            if (MapUtils.isEmpty(requestedClaimValues)) {
+                try {
+                    connector = IdentityTenantUtil.getRealm(null, userIdentifier).getUserStoreManager();
+                    mapValues = connector.getUserClaimValues(
+                            MultitenantUtils.getTenantAwareUsername(userId),
+                            claimList.toArray(claimArray), null);
+                } catch (UserStoreException e) {
+                    throw new IdentityProviderException("Error while instantiating IdentityUserStore", e);
+                }
             } else {
                 mapValues = requestedClaimValues;
             }
@@ -306,7 +309,7 @@ public class AttributeCallbackHandler implements SAMLCallbackHandler {
                 userAttributeSeparator = claimSeparator;
                 mapValues.remove(MULTI_ATTRIBUTE_SEPARATOR);
             }
-			
+
             ite = requestedClaims.values().iterator();
             while (ite.hasNext()) {
                 SAMLAttribute attribute = null;
@@ -316,7 +319,7 @@ public class AttributeCallbackHandler implements SAMLCallbackHandler {
                 if (claimData.getValue() != null) {
                     if (RahasConstants.TOK_TYPE_SAML_20.equals(rahasData.getTokenType())) {
                         saml2Attribute = getSAML2Attribute(claimData.getUri(),
-                                claimData.getValue(), claimData.getUri());
+                                                           claimData.getValue(), claimData.getUri());
                         callback.addAttributes(saml2Attribute);
                     } else {
                         String name;
@@ -337,7 +340,7 @@ public class AttributeCallbackHandler implements SAMLCallbackHandler {
 
                         List<String> values = new ArrayList<String>();
 
-                        if(claimData.getValue().contains(userAttributeSeparator)){
+                        if (claimData.getValue().contains(userAttributeSeparator)) {
                             StringTokenizer st = new StringTokenizer(claimData.getValue(), userAttributeSeparator);
                             while (st.hasMoreElements()) {
                                 String attValue = st.nextElement().toString();
@@ -350,7 +353,7 @@ public class AttributeCallbackHandler implements SAMLCallbackHandler {
                         }
 
                         attribute = new SAMLAttribute(name, nameSpace, null, -1, values);
-                        callback.addAttributes(attribute);                        
+                        callback.addAttributes(attribute);
                     }
                 }
             }

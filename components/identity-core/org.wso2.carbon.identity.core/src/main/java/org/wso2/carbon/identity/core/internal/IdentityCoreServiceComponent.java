@@ -21,16 +21,16 @@ import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.identity.base.IdentityConstants;
+import org.wso2.carbon.identity.core.persistence.JDBCPersistenceManager;
 import org.wso2.carbon.identity.core.util.IdentityCoreInitializedEvent;
 import org.wso2.carbon.identity.core.util.IdentityCoreInitializedEventImpl;
-import org.wso2.carbon.identity.core.persistence.JDBCPersistenceManager;
-import org.wso2.carbon.identity.core.um.listener.IdentityUserMgtListener;
 import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.registry.core.service.RegistryService;
+import org.wso2.carbon.registry.core.service.TenantRegistryLoader;
 import org.wso2.carbon.security.config.SecurityConfigAdmin;
-import org.wso2.carbon.user.core.listener.UserStoreManagerListener;
 import org.wso2.carbon.user.core.service.RealmService;
+import org.wso2.carbon.utils.ConfigurationContextService;
 
 /**
  * @scr.component name="identity.core.component" immediate="true"
@@ -38,6 +38,10 @@ import org.wso2.carbon.user.core.service.RealmService;
  * interface="org.wso2.carbon.security.config.SecurityConfigAdmin" cardinality="1..1"
  * policy="dynamic" bind="setSecurityConfigAdminService"
  * unbind="unsetSecurityConfigAdminService"
+ * @scr.reference name="config.context.service"
+ * interface="org.wso2.carbon.utils.ConfigurationContextService" cardinality="1..1"
+ * policy="dynamic" bind="setConfigurationContextService"
+ * unbind="unsetConfigurationContextService"
  * @scr.reference name="registry.service"
  * interface="org.wso2.carbon.registry.core.service.RegistryService"
  * cardinality="1..1" policy="dynamic" bind="setRegistryService"
@@ -45,12 +49,16 @@ import org.wso2.carbon.user.core.service.RealmService;
  * @scr.reference name="user.realmservice.default"
  * interface="org.wso2.carbon.user.core.service.RealmService" cardinality="1..1"
  * policy="dynamic" bind="setRealmService" unbind="unsetRealmService"
+ * @scr.reference name="registry.loader.default"
+ * interface="org.wso2.carbon.registry.core.service.TenantRegistryLoader"
+ * cardinality="1..1" policy="dynamic" bind="setTenantRegistryLoader" unbind="unsetTenantRegistryLoader"
  */
 
 public class IdentityCoreServiceComponent {
     private static Log log = LogFactory.getLog(IdentityCoreServiceComponent.class);
 
     private static BundleContext bundleContext = null;
+    private static ConfigurationContextService configurationContextService = null;
 
     public IdentityCoreServiceComponent() {
     }
@@ -63,19 +71,13 @@ public class IdentityCoreServiceComponent {
      * @param ctxt
      */
     protected void activate(ComponentContext ctxt) {
+        IdentityTenantUtil.setBundleContext(ctxt.getBundleContext());
         if (log.isDebugEnabled()) {
             log.debug("Identity Core bundle is activated");
         }
         try {
             IdentityUtil.populateProperties();
-            IdentityUserMgtListener userMgtListener = new IdentityUserMgtListener();
-            ctxt.getBundleContext().registerService(UserStoreManagerListener.class.getName(), userMgtListener, null);
             bundleContext = ctxt.getBundleContext();
-
-            // Register initialize service To guarantee the activation order. Component which is referring this service will wait until
-            // this component activated.
-            ctxt.getBundleContext().registerService(IdentityCoreInitializedEvent.class.getName(),
-                                                    new IdentityCoreInitializedEventImpl(), null);
 
             // Identity database schema creation can be avoided by setting
             // JDBCPersistenceManager.SkipDBSchemaCreation property to "true".
@@ -87,18 +89,23 @@ public class IdentityCoreServiceComponent {
             if (("true".equals(skipSchemaCreation))) {
                 // This ideally should be an info log but in API Manager it could be confusing to say
                 // DB initialization was skipped, because DB initialization is done by apimgt components
-                log.debug("Identity Provider Database initialization attempt was skipped since '" +
-                        IdentityConstants.ServerConfig.SKIP_DB_SCHEMA_CREATION + "' property has been set to \'true\'");
+                if (log.isDebugEnabled()) {
+                    log.debug("Identity Provider Database initialization attempt was skipped since '" +
+                              IdentityConstants.ServerConfig.SKIP_DB_SCHEMA_CREATION + "' property has been set to \'true\'");
+                }
             } else if (System.getProperty("setup") == null) {
-                log.info("Identity Database schema initialization check was skipped since " +
-                        "\'setup\' variable was not given during startup");
+                if (log.isDebugEnabled()) {
+                    log.debug("Identity Database schema initialization check was skipped since " +
+                              "\'setup\' variable was not given during startup");
+                }
             } else {
                 jdbcPersistenceManager.initializeDatabase();
             }
 
-            //taking the service registration after DB initialization.
-            ctxt.getBundleContext().registerService(IdentityUtil.class.getName(),
-                    new IdentityUtil(), null);
+            // Register initialize service To guarantee the activation order. Component which is referring this
+            // service will wait until this component activated.
+            ctxt.getBundleContext().registerService(IdentityCoreInitializedEvent.class.getName(),
+                                                    new IdentityCoreInitializedEventImpl(), null);
 
         } catch (Throwable e) {
             log.error("Error occurred while populating identity configuration properties", e);
@@ -109,6 +116,7 @@ public class IdentityCoreServiceComponent {
      * @param ctxt
      */
     protected void deactivate(ComponentContext ctxt) {
+        IdentityTenantUtil.setBundleContext(null);
         if (log.isDebugEnabled()) {
             log.debug("Identity Core bundle is deactivated");
         }
@@ -152,6 +160,41 @@ public class IdentityCoreServiceComponent {
         if (log.isDebugEnabled()) {
             log.debug("SecurityConfigAdmin unset in Identity Core bundle");
         }
+    }
+
+    protected void setTenantRegistryLoader(TenantRegistryLoader tenantRegistryLoader) {
+        if (log.isDebugEnabled()) {
+            log.debug("Tenant Registry Loader is set in the SAML SSO bundle");
+        }
+        IdentityTenantUtil.setTenantRegistryLoader(tenantRegistryLoader);
+    }
+
+    protected void unsetTenantRegistryLoader(TenantRegistryLoader tenantRegistryLoader) {
+        if (log.isDebugEnabled()) {
+            log.debug("Tenant Registry Loader is unset in the SAML SSO bundle");
+        }
+        IdentityTenantUtil.setTenantRegistryLoader(null);
+    }
+
+    /**
+     * @return
+     */
+    public static ConfigurationContextService getConfigurationContextService() {
+        return configurationContextService;
+    }
+
+    /**
+     * @param service
+     */
+    protected void setConfigurationContextService(ConfigurationContextService service) {
+        configurationContextService = service;
+    }
+
+    /**
+     * @param service
+     */
+    protected void unsetConfigurationContextService(ConfigurationContextService service) {
+        configurationContextService = null;
     }
 
 }

@@ -19,7 +19,7 @@
     <parent>
         <groupId>org.wso2.carbon.identity</groupId>
         <artifactId>saml2-sso-authenticator</artifactId>
-        <version>4.5.1-SNAPSHOT</version>
+        <version>4.5.5-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -114,9 +114,6 @@
                             org.wso2.carbon.identity.authenticator.saml2.sso.common.*;
                             version="${carbon.identity.package.export.version}"
                         </Export-Package>
-                        <Embed-Dependency>
-                            org.wso2.carbon.identity.authenticator.saml2.sso.stub;scope=compile|runtime;inline=true
-                        </Embed-Dependency>
                         <Carbon-Component>UIBundle</Carbon-Component>
                     </instructions>
                 </configuration>

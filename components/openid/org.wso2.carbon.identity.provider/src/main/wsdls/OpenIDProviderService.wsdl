@@ -1,739 +1,773 @@
 <!--
- ~ Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
- ~
- ~ WSO2 Inc. licenses this file to you under the Apache License,
- ~ Version 2.0 (the "License"); you may not use this file except
- ~ in compliance with the License.
- ~ You may obtain a copy of the License at
- ~
- ~    http://www.apache.org/licenses/LICENSE-2.0
- ~
- ~ Unless required by applicable law or agreed to in writing,
- ~ software distributed under the License is distributed on an
- ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- ~ KIND, either express or implied.  See the License for the
- ~ specific language governing permissions and limitations
- ~ under the License.
- -->
-<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:axis2="http://provider.identity.carbon.wso2.org" xmlns:ns1="http://org.apache.axis2/xsd" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:ax258="http://provider.identity.carbon.wso2.org/xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:ax256="http://dto.provider.identity.carbon.wso2.org/xsd" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://provider.identity.carbon.wso2.org">
+  ~ Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+  ~
+  ~  WSO2 Inc. licenses this file to you under the Apache License,
+  ~  Version 2.0 (the "License"); you may not use this file except
+  ~  in compliance with the License.
+  ~  You may obtain a copy of the License at
+  ~
+  ~    http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied.  See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:axis2="http://provider.identity.carbon.wso2.org"
+                  xmlns:ns1="http://org.apache.axis2/xsd" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl"
+                  xmlns:http="http://schemas.xmlsoap.org/wsdl/http/"
+                  xmlns:ax258="http://provider.identity.carbon.wso2.org/xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+                  xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+                  xmlns:ax256="http://dto.provider.identity.carbon.wso2.org/xsd"
+                  xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/"
+                  xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/"
+                  targetNamespace="http://provider.identity.carbon.wso2.org">
     <wsdl:documentation>OpenIDProviderService</wsdl:documentation>
     <wsdl:types>
-        <xs:schema xmlns:ax257="http://dto.provider.identity.carbon.wso2.org/xsd" xmlns:ns="http://org.apache.axis2/xsd" xmlns:ax260="http://provider.identity.carbon.wso2.org/xsd" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://org.apache.axis2/xsd">
-            <xs:import namespace="http://dto.provider.identity.carbon.wso2.org/xsd" />
-            <xs:import namespace="http://provider.identity.carbon.wso2.org/xsd" />
+        <xs:schema xmlns:ns="http://org.apache.axis2/xsd"
+                   attributeFormDefault="qualified"
+                   elementFormDefault="qualified" targetNamespace="http://org.apache.axis2/xsd">
+            <xs:import namespace="http://dto.provider.identity.carbon.wso2.org/xsd"/>
+            <xs:import namespace="http://provider.identity.carbon.wso2.org/xsd"/>
             <xs:complexType name="Exception">
                 <xs:sequence>
-                    <xs:element minOccurs="0" name="Exception" nillable="true" type="xs:anyType" />
+                    <xs:element minOccurs="0" name="Exception" nillable="true" type="xs:anyType"/>
                 </xs:sequence>
             </xs:complexType>
             <xs:element name="Exception">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element minOccurs="0" name="Exception" nillable="true" type="ns:Exception" />
+                        <xs:element minOccurs="0" name="Exception" nillable="true" type="ns:Exception"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
             <xs:element name="verify">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="params" nillable="true" type="ax256:OpenIDParameterDTO" />
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="params" nillable="true"
+                                    type="ax256:OpenIDParameterDTO"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
             <xs:element name="verifyResponse">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element minOccurs="0" name="return" nillable="true" type="xs:string" />
+                        <xs:element minOccurs="0" name="return" nillable="true" type="xs:string"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
             <xs:element name="signInWithInfoCard">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element minOccurs="0" name="infocard" nillable="true" type="ax256:InfoCardDTO" />
+                        <xs:element minOccurs="0" name="infocard" nillable="true" type="ax256:InfoCardDTO"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
             <xs:element name="signInWithInfoCardResponse">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element minOccurs="0" name="return" nillable="true" type="ax256:InfoCardSignInDTO" />
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ax256:InfoCardSignInDTO"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
             <xs:element name="IdentityProviderException">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element minOccurs="0" name="IdentityProviderException" nillable="true" type="ax258:IdentityProviderException" />
+                        <xs:element minOccurs="0" name="IdentityProviderException" nillable="true"
+                                    type="ax258:IdentityProviderException"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
             <xs:element name="retrievePapeInfo">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element minOccurs="0" name="dto" nillable="true" type="ax256:PapeInfoRequestDTO" />
+                        <xs:element minOccurs="0" name="dto" nillable="true" type="ax256:PapeInfoRequestDTO"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
             <xs:element name="retrievePapeInfoResponse">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element minOccurs="0" name="return" nillable="true" type="ax256:PapeInfoResponseDTO" />
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ax256:PapeInfoResponseDTO"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
             <xs:element name="getUserProfiles">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element minOccurs="0" name="openId" nillable="true" type="xs:string" />
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="requredClaims" nillable="true" type="ax256:OpenIDParameterDTO" />
+                        <xs:element minOccurs="0" name="openId" nillable="true" type="xs:string"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="requredClaims" nillable="true"
+                                    type="ax256:OpenIDParameterDTO"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
             <xs:element name="getUserProfilesResponse">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="ax256:OpenIDUserProfileDTO" />
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true"
+                                    type="ax256:OpenIDUserProfileDTO"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
             <xs:element name="getOpenIDProviderInfo">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element minOccurs="0" name="userName" nillable="true" type="xs:string" />
+                        <xs:element minOccurs="0" name="userName" nillable="true" type="xs:string"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
             <xs:element name="getOpenIDProviderInfoResponse">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element minOccurs="0" name="return" nillable="true" type="ax256:OpenIDProviderInfoDTO" />
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ax256:OpenIDProviderInfoDTO"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
             <xs:element name="getOpenIDAuthResponse">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element minOccurs="0" name="request" nillable="true" type="ax256:OpenIDAuthRequestDTO" />
+                        <xs:element minOccurs="0" name="request" nillable="true" type="ax256:OpenIDAuthRequestDTO"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
             <xs:element name="getOpenIDAuthResponseResponse">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element minOccurs="0" name="return" nillable="true" type="ax256:OpenIDAuthResponseDTO" />
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ax256:OpenIDAuthResponseDTO"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
             <xs:element name="getOpenIDAssociationResponse">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="params" nillable="true" type="ax256:OpenIDParameterDTO" />
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="params" nillable="true"
+                                    type="ax256:OpenIDParameterDTO"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
             <xs:element name="getOpenIDAssociationResponseResponse">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element minOccurs="0" name="return" nillable="true" type="xs:string" />
+                        <xs:element minOccurs="0" name="return" nillable="true" type="xs:string"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
             <xs:element name="getClaimValues">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element minOccurs="0" name="openId" nillable="true" type="xs:string" />
-                        <xs:element minOccurs="0" name="profileId" nillable="true" type="xs:string" />
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="requredClaims" nillable="true" type="ax256:OpenIDParameterDTO" />
+                        <xs:element minOccurs="0" name="openId" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="profileId" nillable="true" type="xs:string"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="requredClaims" nillable="true"
+                                    type="ax256:OpenIDParameterDTO"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
             <xs:element name="getClaimValuesResponse">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="ax256:OpenIDClaimDTO" />
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true"
+                                    type="ax256:OpenIDClaimDTO"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
             <xs:element name="doXMPPBasedMultiFactorAuthForInfocard">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element minOccurs="0" name="userId" nillable="true" type="xs:string" />
+                        <xs:element minOccurs="0" name="userId" nillable="true" type="xs:string"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
             <xs:element name="doXMPPBasedMultiFactorAuthForInfocardResponse">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element minOccurs="0" name="return" type="xs:boolean" />
+                        <xs:element minOccurs="0" name="return" type="xs:boolean"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
             <xs:element name="authenticateWithOpenID">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element minOccurs="0" name="openID" nillable="true" type="xs:string" />
-                        <xs:element minOccurs="0" name="password" nillable="true" type="xs:string" />
+                        <xs:element minOccurs="0" name="openID" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="password" nillable="true" type="xs:string"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
             <xs:element name="authenticateWithOpenIDResponse">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element minOccurs="0" name="return" type="xs:boolean" />
+                        <xs:element minOccurs="0" name="return" type="xs:boolean"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
         </xs:schema>
-        <xs:schema attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://dto.provider.identity.carbon.wso2.org/xsd">
+        <xs:schema attributeFormDefault="qualified" elementFormDefault="qualified"
+                   targetNamespace="http://dto.provider.identity.carbon.wso2.org/xsd">
             <xs:complexType name="OpenIDParameterDTO">
                 <xs:all>
-                    <xs:element minOccurs="0" name="name" nillable="true" type="xs:string" />
-                    <xs:element minOccurs="0" name="value" nillable="true" type="xs:string" />
+                    <xs:element minOccurs="0" name="name" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="value" nillable="true" type="xs:string"/>
                 </xs:all>
             </xs:complexType>
             <xs:complexType name="InfoCardDTO">
                 <xs:all>
-                    <xs:element minOccurs="0" name="openId" nillable="true" type="xs:string" />
-                    <xs:element minOccurs="0" name="xmlToken" nillable="true" type="xs:string" />
+                    <xs:element minOccurs="0" name="openId" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="xmlToken" nillable="true" type="xs:string"/>
                 </xs:all>
             </xs:complexType>
             <xs:complexType name="InfoCardSignInDTO">
                 <xs:all>
-                    <xs:element minOccurs="0" name="authenticated" type="xs:boolean" />
-                    <xs:element minOccurs="0" name="ppid" nillable="true" type="xs:string" />
-                    <xs:element minOccurs="0" name="userID" nillable="true" type="xs:string" />
+                    <xs:element minOccurs="0" name="authenticated" type="xs:boolean"/>
+                    <xs:element minOccurs="0" name="ppid" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="userID" nillable="true" type="xs:string"/>
                 </xs:all>
             </xs:complexType>
             <xs:complexType name="PapeInfoRequestDTO">
                 <xs:all>
-                    <xs:element minOccurs="0" name="openID" nillable="true" type="xs:string" />
-                    <xs:element maxOccurs="unbounded" minOccurs="0" name="paramList" nillable="true" type="ax256:OpenIDParameterDTO" />
+                    <xs:element minOccurs="0" name="openID" nillable="true" type="xs:string"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="paramList" nillable="true"
+                                type="ax256:OpenIDParameterDTO"/>
                 </xs:all>
             </xs:complexType>
             <xs:complexType name="PapeInfoResponseDTO">
                 <xs:all>
-                    <xs:element maxOccurs="unbounded" minOccurs="0" name="policies" nillable="true" type="ax256:OpenIDParameterDTO" />
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="policies" nillable="true"
+                                type="ax256:OpenIDParameterDTO"/>
                 </xs:all>
             </xs:complexType>
             <xs:complexType name="OpenIDUserProfileDTO">
                 <xs:all>
-                    <xs:element maxOccurs="unbounded" minOccurs="0" name="claimSet" nillable="true" type="ax256:OpenIDClaimDTO" />
-                    <xs:element minOccurs="0" name="profileName" nillable="true" type="xs:string" />
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="claimSet" nillable="true"
+                                type="ax256:OpenIDClaimDTO"/>
+                    <xs:element minOccurs="0" name="profileName" nillable="true" type="xs:string"/>
                 </xs:all>
             </xs:complexType>
             <xs:complexType name="OpenIDClaimDTO">
                 <xs:all>
-                    <xs:element minOccurs="0" name="claimUri" nillable="true" type="xs:string" />
-                    <xs:element minOccurs="0" name="claimValue" nillable="true" type="xs:string" />
-                    <xs:element minOccurs="0" name="description" nillable="true" type="xs:string" />
-                    <xs:element minOccurs="0" name="displayTag" nillable="true" type="xs:string" />
-                    <xs:element minOccurs="0" name="enabled" type="xs:boolean" />
+                    <xs:element minOccurs="0" name="claimUri" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="claimValue" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="description" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="displayTag" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="enabled" type="xs:boolean"/>
                 </xs:all>
             </xs:complexType>
             <xs:complexType name="OpenIDProviderInfoDTO">
                 <xs:all>
-                    <xs:element minOccurs="0" name="openID" nillable="true" type="xs:string" />
-                    <xs:element minOccurs="0" name="openIDProviderServerUrl" nillable="true" type="xs:string" />
-                    <xs:element minOccurs="0" name="userExist" type="xs:boolean" />
+                    <xs:element minOccurs="0" name="openID" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="openIDProviderServerUrl" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="userExist" type="xs:boolean"/>
                 </xs:all>
             </xs:complexType>
             <xs:complexType name="OpenIDAuthRequestDTO">
                 <xs:all>
-                    <xs:element minOccurs="0" name="authenticated" type="xs:boolean" />
-                    <xs:element minOccurs="0" name="multiFactorAuthRequested" type="xs:boolean" />
-                    <xs:element minOccurs="0" name="opLocalId" nillable="true" type="xs:string" />
-                    <xs:element minOccurs="0" name="openID" nillable="true" type="xs:string" />
-                    <xs:element maxOccurs="unbounded" minOccurs="0" name="params" nillable="true" type="ax256:OpenIDParameterDTO" />
-                    <xs:element minOccurs="0" name="phishiingResistanceAuthRequest" type="xs:boolean" />
-                    <xs:element minOccurs="0" name="profileName" nillable="true" type="xs:string" />
-                    <xs:element minOccurs="0" name="userSelectedClaimedId" nillable="true" type="xs:string" />
+                    <xs:element minOccurs="0" name="authenticated" type="xs:boolean"/>
+                    <xs:element minOccurs="0" name="multiFactorAuthRequested" type="xs:boolean"/>
+                    <xs:element minOccurs="0" name="opLocalId" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="openID" nillable="true" type="xs:string"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="params" nillable="true"
+                                type="ax256:OpenIDParameterDTO"/>
+                    <xs:element minOccurs="0" name="phishiingResistanceAuthRequest" type="xs:boolean"/>
+                    <xs:element minOccurs="0" name="profileName" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="userSelectedClaimedId" nillable="true" type="xs:string"/>
                 </xs:all>
             </xs:complexType>
             <xs:complexType name="OpenIDAuthResponseDTO">
                 <xs:all>
-                    <xs:element minOccurs="0" name="destinationUrl" nillable="true" type="xs:string" />
-                    <xs:element minOccurs="0" name="validated" type="xs:boolean" />
+                    <xs:element minOccurs="0" name="destinationUrl" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="validated" type="xs:boolean"/>
                 </xs:all>
             </xs:complexType>
         </xs:schema>
-        <xs:schema xmlns:ax259="http://org.apache.axis2/xsd" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://provider.identity.carbon.wso2.org/xsd">
-            <xs:import namespace="http://org.apache.axis2/xsd" />
+        <xs:schema xmlns:ax259="http://org.apache.axis2/xsd" attributeFormDefault="qualified"
+                   elementFormDefault="qualified" targetNamespace="http://provider.identity.carbon.wso2.org/xsd">
+            <xs:import namespace="http://org.apache.axis2/xsd"/>
             <xs:complexType name="IdentityProviderException">
                 <xs:complexContent>
                     <xs:extension base="ax259:Exception">
-                        <xs:sequence />
+                        <xs:sequence/>
                     </xs:extension>
                 </xs:complexContent>
             </xs:complexType>
         </xs:schema>
     </wsdl:types>
     <wsdl:message name="getClaimValuesRequest">
-        <wsdl:part name="parameters" element="ns1:getClaimValues" />
+        <wsdl:part name="parameters" element="ns1:getClaimValues"/>
     </wsdl:message>
     <wsdl:message name="getClaimValuesResponse">
-        <wsdl:part name="parameters" element="ns1:getClaimValuesResponse" />
+        <wsdl:part name="parameters" element="ns1:getClaimValuesResponse"/>
     </wsdl:message>
     <wsdl:message name="Exception">
-        <wsdl:part name="parameters" element="ns1:Exception" />
+        <wsdl:part name="parameters" element="ns1:Exception"/>
     </wsdl:message>
     <wsdl:message name="retrievePapeInfoRequest">
-        <wsdl:part name="parameters" element="ns1:retrievePapeInfo" />
+        <wsdl:part name="parameters" element="ns1:retrievePapeInfo"/>
     </wsdl:message>
     <wsdl:message name="retrievePapeInfoResponse">
-        <wsdl:part name="parameters" element="ns1:retrievePapeInfoResponse" />
+        <wsdl:part name="parameters" element="ns1:retrievePapeInfoResponse"/>
     </wsdl:message>
     <wsdl:message name="IdentityProviderException">
-        <wsdl:part name="parameters" element="ns1:IdentityProviderException" />
+        <wsdl:part name="parameters" element="ns1:IdentityProviderException"/>
     </wsdl:message>
     <wsdl:message name="getOpenIDAuthResponseRequest">
-        <wsdl:part name="parameters" element="ns1:getOpenIDAuthResponse" />
+        <wsdl:part name="parameters" element="ns1:getOpenIDAuthResponse"/>
     </wsdl:message>
     <wsdl:message name="getOpenIDAuthResponseResponse">
-        <wsdl:part name="parameters" element="ns1:getOpenIDAuthResponseResponse" />
+        <wsdl:part name="parameters" element="ns1:getOpenIDAuthResponseResponse"/>
     </wsdl:message>
     <wsdl:message name="doXMPPBasedMultiFactorAuthForInfocardRequest">
-        <wsdl:part name="parameters" element="ns1:doXMPPBasedMultiFactorAuthForInfocard" />
+        <wsdl:part name="parameters" element="ns1:doXMPPBasedMultiFactorAuthForInfocard"/>
     </wsdl:message>
     <wsdl:message name="doXMPPBasedMultiFactorAuthForInfocardResponse">
-        <wsdl:part name="parameters" element="ns1:doXMPPBasedMultiFactorAuthForInfocardResponse" />
+        <wsdl:part name="parameters" element="ns1:doXMPPBasedMultiFactorAuthForInfocardResponse"/>
     </wsdl:message>
     <wsdl:message name="signInWithInfoCardRequest">
-        <wsdl:part name="parameters" element="ns1:signInWithInfoCard" />
+        <wsdl:part name="parameters" element="ns1:signInWithInfoCard"/>
     </wsdl:message>
     <wsdl:message name="signInWithInfoCardResponse">
-        <wsdl:part name="parameters" element="ns1:signInWithInfoCardResponse" />
+        <wsdl:part name="parameters" element="ns1:signInWithInfoCardResponse"/>
     </wsdl:message>
     <wsdl:message name="getOpenIDAssociationResponseRequest">
-        <wsdl:part name="parameters" element="ns1:getOpenIDAssociationResponse" />
+        <wsdl:part name="parameters" element="ns1:getOpenIDAssociationResponse"/>
     </wsdl:message>
     <wsdl:message name="getOpenIDAssociationResponseResponse">
-        <wsdl:part name="parameters" element="ns1:getOpenIDAssociationResponseResponse" />
+        <wsdl:part name="parameters" element="ns1:getOpenIDAssociationResponseResponse"/>
     </wsdl:message>
     <wsdl:message name="verifyRequest">
-        <wsdl:part name="parameters" element="ns1:verify" />
+        <wsdl:part name="parameters" element="ns1:verify"/>
     </wsdl:message>
     <wsdl:message name="verifyResponse">
-        <wsdl:part name="parameters" element="ns1:verifyResponse" />
+        <wsdl:part name="parameters" element="ns1:verifyResponse"/>
     </wsdl:message>
     <wsdl:message name="getOpenIDProviderInfoRequest">
-        <wsdl:part name="parameters" element="ns1:getOpenIDProviderInfo" />
+        <wsdl:part name="parameters" element="ns1:getOpenIDProviderInfo"/>
     </wsdl:message>
     <wsdl:message name="getOpenIDProviderInfoResponse">
-        <wsdl:part name="parameters" element="ns1:getOpenIDProviderInfoResponse" />
+        <wsdl:part name="parameters" element="ns1:getOpenIDProviderInfoResponse"/>
     </wsdl:message>
     <wsdl:message name="getUserProfilesRequest">
-        <wsdl:part name="parameters" element="ns1:getUserProfiles" />
+        <wsdl:part name="parameters" element="ns1:getUserProfiles"/>
     </wsdl:message>
     <wsdl:message name="getUserProfilesResponse">
-        <wsdl:part name="parameters" element="ns1:getUserProfilesResponse" />
+        <wsdl:part name="parameters" element="ns1:getUserProfilesResponse"/>
     </wsdl:message>
     <wsdl:message name="authenticateWithOpenIDRequest">
-        <wsdl:part name="parameters" element="ns1:authenticateWithOpenID" />
+        <wsdl:part name="parameters" element="ns1:authenticateWithOpenID"/>
     </wsdl:message>
     <wsdl:message name="authenticateWithOpenIDResponse">
-        <wsdl:part name="parameters" element="ns1:authenticateWithOpenIDResponse" />
+        <wsdl:part name="parameters" element="ns1:authenticateWithOpenIDResponse"/>
     </wsdl:message>
     <wsdl:portType name="OpenIDProviderServicePortType">
         <wsdl:operation name="getClaimValues">
-            <wsdl:input message="axis2:getClaimValuesRequest" wsaw:Action="urn:getClaimValues" />
-            <wsdl:output message="axis2:getClaimValuesResponse" wsaw:Action="urn:getClaimValuesResponse" />
-            <wsdl:fault message="axis2:Exception" name="Exception" wsaw:Action="urn:getClaimValuesException" />
+            <wsdl:input message="axis2:getClaimValuesRequest" wsaw:Action="urn:getClaimValues"/>
+            <wsdl:output message="axis2:getClaimValuesResponse" wsaw:Action="urn:getClaimValuesResponse"/>
+            <wsdl:fault message="axis2:Exception" name="Exception" wsaw:Action="urn:getClaimValuesException"/>
         </wsdl:operation>
         <wsdl:operation name="retrievePapeInfo">
-            <wsdl:input message="axis2:retrievePapeInfoRequest" wsaw:Action="urn:retrievePapeInfo" />
-            <wsdl:output message="axis2:retrievePapeInfoResponse" wsaw:Action="urn:retrievePapeInfoResponse" />
-            <wsdl:fault message="axis2:IdentityProviderException" name="IdentityProviderException" wsaw:Action="urn:retrievePapeInfoIdentityProviderException" />
+            <wsdl:input message="axis2:retrievePapeInfoRequest" wsaw:Action="urn:retrievePapeInfo"/>
+            <wsdl:output message="axis2:retrievePapeInfoResponse" wsaw:Action="urn:retrievePapeInfoResponse"/>
+            <wsdl:fault message="axis2:IdentityProviderException" name="IdentityProviderException"
+                        wsaw:Action="urn:retrievePapeInfoIdentityProviderException"/>
         </wsdl:operation>
         <wsdl:operation name="getOpenIDAuthResponse">
-            <wsdl:input message="axis2:getOpenIDAuthResponseRequest" wsaw:Action="urn:getOpenIDAuthResponse" />
-            <wsdl:output message="axis2:getOpenIDAuthResponseResponse" wsaw:Action="urn:getOpenIDAuthResponseResponse" />
-            <wsdl:fault message="axis2:Exception" name="Exception" wsaw:Action="urn:getOpenIDAuthResponseException" />
+            <wsdl:input message="axis2:getOpenIDAuthResponseRequest" wsaw:Action="urn:getOpenIDAuthResponse"/>
+            <wsdl:output message="axis2:getOpenIDAuthResponseResponse" wsaw:Action="urn:getOpenIDAuthResponseResponse"/>
+            <wsdl:fault message="axis2:Exception" name="Exception" wsaw:Action="urn:getOpenIDAuthResponseException"/>
         </wsdl:operation>
         <wsdl:operation name="doXMPPBasedMultiFactorAuthForInfocard">
-            <wsdl:input message="axis2:doXMPPBasedMultiFactorAuthForInfocardRequest" wsaw:Action="urn:doXMPPBasedMultiFactorAuthForInfocard" />
-            <wsdl:output message="axis2:doXMPPBasedMultiFactorAuthForInfocardResponse" wsaw:Action="urn:doXMPPBasedMultiFactorAuthForInfocardResponse" />
-            <wsdl:fault message="axis2:Exception" name="Exception" wsaw:Action="urn:doXMPPBasedMultiFactorAuthForInfocardException" />
+            <wsdl:input message="axis2:doXMPPBasedMultiFactorAuthForInfocardRequest"
+                        wsaw:Action="urn:doXMPPBasedMultiFactorAuthForInfocard"/>
+            <wsdl:output message="axis2:doXMPPBasedMultiFactorAuthForInfocardResponse"
+                         wsaw:Action="urn:doXMPPBasedMultiFactorAuthForInfocardResponse"/>
+            <wsdl:fault message="axis2:Exception" name="Exception"
+                        wsaw:Action="urn:doXMPPBasedMultiFactorAuthForInfocardException"/>
         </wsdl:operation>
         <wsdl:operation name="signInWithInfoCard">
-            <wsdl:input message="axis2:signInWithInfoCardRequest" wsaw:Action="urn:signInWithInfoCard" />
-            <wsdl:output message="axis2:signInWithInfoCardResponse" wsaw:Action="urn:signInWithInfoCardResponse" />
-            <wsdl:fault message="axis2:Exception" name="Exception" wsaw:Action="urn:signInWithInfoCardException" />
+            <wsdl:input message="axis2:signInWithInfoCardRequest" wsaw:Action="urn:signInWithInfoCard"/>
+            <wsdl:output message="axis2:signInWithInfoCardResponse" wsaw:Action="urn:signInWithInfoCardResponse"/>
+            <wsdl:fault message="axis2:Exception" name="Exception" wsaw:Action="urn:signInWithInfoCardException"/>
         </wsdl:operation>
         <wsdl:operation name="getOpenIDAssociationResponse">
-            <wsdl:input message="axis2:getOpenIDAssociationResponseRequest" wsaw:Action="urn:getOpenIDAssociationResponse" />
-            <wsdl:output message="axis2:getOpenIDAssociationResponseResponse" wsaw:Action="urn:getOpenIDAssociationResponseResponse" />
-            <wsdl:fault message="axis2:Exception" name="Exception" wsaw:Action="urn:getOpenIDAssociationResponseException" />
+            <wsdl:input message="axis2:getOpenIDAssociationResponseRequest"
+                        wsaw:Action="urn:getOpenIDAssociationResponse"/>
+            <wsdl:output message="axis2:getOpenIDAssociationResponseResponse"
+                         wsaw:Action="urn:getOpenIDAssociationResponseResponse"/>
+            <wsdl:fault message="axis2:Exception" name="Exception"
+                        wsaw:Action="urn:getOpenIDAssociationResponseException"/>
         </wsdl:operation>
         <wsdl:operation name="verify">
-            <wsdl:input message="axis2:verifyRequest" wsaw:Action="urn:verify" />
-            <wsdl:output message="axis2:verifyResponse" wsaw:Action="urn:verifyResponse" />
-            <wsdl:fault message="axis2:Exception" name="Exception" wsaw:Action="urn:verifyException" />
+            <wsdl:input message="axis2:verifyRequest" wsaw:Action="urn:verify"/>
+            <wsdl:output message="axis2:verifyResponse" wsaw:Action="urn:verifyResponse"/>
+            <wsdl:fault message="axis2:Exception" name="Exception" wsaw:Action="urn:verifyException"/>
         </wsdl:operation>
         <wsdl:operation name="getOpenIDProviderInfo">
-            <wsdl:input message="axis2:getOpenIDProviderInfoRequest" wsaw:Action="urn:getOpenIDProviderInfo" />
-            <wsdl:output message="axis2:getOpenIDProviderInfoResponse" wsaw:Action="urn:getOpenIDProviderInfoResponse" />
-            <wsdl:fault message="axis2:Exception" name="Exception" wsaw:Action="urn:getOpenIDProviderInfoException" />
+            <wsdl:input message="axis2:getOpenIDProviderInfoRequest" wsaw:Action="urn:getOpenIDProviderInfo"/>
+            <wsdl:output message="axis2:getOpenIDProviderInfoResponse" wsaw:Action="urn:getOpenIDProviderInfoResponse"/>
+            <wsdl:fault message="axis2:Exception" name="Exception" wsaw:Action="urn:getOpenIDProviderInfoException"/>
         </wsdl:operation>
         <wsdl:operation name="getUserProfiles">
-            <wsdl:input message="axis2:getUserProfilesRequest" wsaw:Action="urn:getUserProfiles" />
-            <wsdl:output message="axis2:getUserProfilesResponse" wsaw:Action="urn:getUserProfilesResponse" />
-            <wsdl:fault message="axis2:Exception" name="Exception" wsaw:Action="urn:getUserProfilesException" />
+            <wsdl:input message="axis2:getUserProfilesRequest" wsaw:Action="urn:getUserProfiles"/>
+            <wsdl:output message="axis2:getUserProfilesResponse" wsaw:Action="urn:getUserProfilesResponse"/>
+            <wsdl:fault message="axis2:Exception" name="Exception" wsaw:Action="urn:getUserProfilesException"/>
         </wsdl:operation>
         <wsdl:operation name="authenticateWithOpenID">
-            <wsdl:input message="axis2:authenticateWithOpenIDRequest" wsaw:Action="urn:authenticateWithOpenID" />
-            <wsdl:output message="axis2:authenticateWithOpenIDResponse" wsaw:Action="urn:authenticateWithOpenIDResponse" />
-            <wsdl:fault message="axis2:Exception" name="Exception" wsaw:Action="urn:authenticateWithOpenIDException" />
+            <wsdl:input message="axis2:authenticateWithOpenIDRequest" wsaw:Action="urn:authenticateWithOpenID"/>
+            <wsdl:output message="axis2:authenticateWithOpenIDResponse"
+                         wsaw:Action="urn:authenticateWithOpenIDResponse"/>
+            <wsdl:fault message="axis2:Exception" name="Exception" wsaw:Action="urn:authenticateWithOpenIDException"/>
         </wsdl:operation>
     </wsdl:portType>
     <wsdl:binding name="OpenIDProviderServiceSoap11Binding" type="axis2:OpenIDProviderServicePortType">
-        <soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document" />
+        <soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
         <wsdl:operation name="getClaimValues">
-            <soap:operation soapAction="urn:getClaimValues" style="document" />
+            <soap:operation soapAction="urn:getClaimValues" style="document"/>
             <wsdl:input>
-                <soap:body use="literal" />
+                <soap:body use="literal"/>
             </wsdl:input>
             <wsdl:output>
-                <soap:body use="literal" />
+                <soap:body use="literal"/>
             </wsdl:output>
             <wsdl:fault name="Exception">
-                <soap:fault use="literal" name="Exception" />
+                <soap:fault use="literal" name="Exception"/>
             </wsdl:fault>
         </wsdl:operation>
         <wsdl:operation name="retrievePapeInfo">
-            <soap:operation soapAction="urn:retrievePapeInfo" style="document" />
+            <soap:operation soapAction="urn:retrievePapeInfo" style="document"/>
             <wsdl:input>
-                <soap:body use="literal" />
+                <soap:body use="literal"/>
             </wsdl:input>
             <wsdl:output>
-                <soap:body use="literal" />
+                <soap:body use="literal"/>
             </wsdl:output>
             <wsdl:fault name="IdentityProviderException">
-                <soap:fault use="literal" name="IdentityProviderException" />
+                <soap:fault use="literal" name="IdentityProviderException"/>
             </wsdl:fault>
         </wsdl:operation>
         <wsdl:operation name="getOpenIDAuthResponse">
-            <soap:operation soapAction="urn:getOpenIDAuthResponse" style="document" />
+            <soap:operation soapAction="urn:getOpenIDAuthResponse" style="document"/>
             <wsdl:input>
-                <soap:body use="literal" />
+                <soap:body use="literal"/>
             </wsdl:input>
             <wsdl:output>
-                <soap:body use="literal" />
+                <soap:body use="literal"/>
             </wsdl:output>
             <wsdl:fault name="Exception">
-                <soap:fault use="literal" name="Exception" />
+                <soap:fault use="literal" name="Exception"/>
             </wsdl:fault>
         </wsdl:operation>
         <wsdl:operation name="signInWithInfoCard">
-            <soap:operation soapAction="urn:signInWithInfoCard" style="document" />
+            <soap:operation soapAction="urn:signInWithInfoCard" style="document"/>
             <wsdl:input>
-                <soap:body use="literal" />
+                <soap:body use="literal"/>
             </wsdl:input>
             <wsdl:output>
-                <soap:body use="literal" />
+                <soap:body use="literal"/>
             </wsdl:output>
             <wsdl:fault name="Exception">
-                <soap:fault use="literal" name="Exception" />
+                <soap:fault use="literal" name="Exception"/>
             </wsdl:fault>
         </wsdl:operation>
         <wsdl:operation name="doXMPPBasedMultiFactorAuthForInfocard">
-            <soap:operation soapAction="urn:doXMPPBasedMultiFactorAuthForInfocard" style="document" />
+            <soap:operation soapAction="urn:doXMPPBasedMultiFactorAuthForInfocard" style="document"/>
             <wsdl:input>
-                <soap:body use="literal" />
+                <soap:body use="literal"/>
             </wsdl:input>
             <wsdl:output>
-                <soap:body use="literal" />
+                <soap:body use="literal"/>
             </wsdl:output>
             <wsdl:fault name="Exception">
-                <soap:fault use="literal" name="Exception" />
+                <soap:fault use="literal" name="Exception"/>
             </wsdl:fault>
         </wsdl:operation>
         <wsdl:operation name="getOpenIDAssociationResponse">
-            <soap:operation soapAction="urn:getOpenIDAssociationResponse" style="document" />
+            <soap:operation soapAction="urn:getOpenIDAssociationResponse" style="document"/>
             <wsdl:input>
-                <soap:body use="literal" />
+                <soap:body use="literal"/>
             </wsdl:input>
             <wsdl:output>
-                <soap:body use="literal" />
+                <soap:body use="literal"/>
             </wsdl:output>
             <wsdl:fault name="Exception">
-                <soap:fault use="literal" name="Exception" />
+                <soap:fault use="literal" name="Exception"/>
             </wsdl:fault>
         </wsdl:operation>
         <wsdl:operation name="verify">
-            <soap:operation soapAction="urn:verify" style="document" />
+            <soap:operation soapAction="urn:verify" style="document"/>
             <wsdl:input>
-                <soap:body use="literal" />
+                <soap:body use="literal"/>
             </wsdl:input>
             <wsdl:output>
-                <soap:body use="literal" />
+                <soap:body use="literal"/>
             </wsdl:output>
             <wsdl:fault name="Exception">
-                <soap:fault use="literal" name="Exception" />
+                <soap:fault use="literal" name="Exception"/>
             </wsdl:fault>
         </wsdl:operation>
         <wsdl:operation name="getOpenIDProviderInfo">
-            <soap:operation soapAction="urn:getOpenIDProviderInfo" style="document" />
+            <soap:operation soapAction="urn:getOpenIDProviderInfo" style="document"/>
             <wsdl:input>
-                <soap:body use="literal" />
+                <soap:body use="literal"/>
             </wsdl:input>
             <wsdl:output>
-                <soap:body use="literal" />
+                <soap:body use="literal"/>
             </wsdl:output>
             <wsdl:fault name="Exception">
-                <soap:fault use="literal" name="Exception" />
+                <soap:fault use="literal" name="Exception"/>
             </wsdl:fault>
         </wsdl:operation>
         <wsdl:operation name="authenticateWithOpenID">
-            <soap:operation soapAction="urn:authenticateWithOpenID" style="document" />
+            <soap:operation soapAction="urn:authenticateWithOpenID" style="document"/>
             <wsdl:input>
-                <soap:body use="literal" />
+                <soap:body use="literal"/>
             </wsdl:input>
             <wsdl:output>
-                <soap:body use="literal" />
+                <soap:body use="literal"/>
             </wsdl:output>
             <wsdl:fault name="Exception">
-                <soap:fault use="literal" name="Exception" />
+                <soap:fault use="literal" name="Exception"/>
             </wsdl:fault>
         </wsdl:operation>
         <wsdl:operation name="getUserProfiles">
-            <soap:operation soapAction="urn:getUserProfiles" style="document" />
+            <soap:operation soapAction="urn:getUserProfiles" style="document"/>
             <wsdl:input>
-                <soap:body use="literal" />
+                <soap:body use="literal"/>
             </wsdl:input>
             <wsdl:output>
-                <soap:body use="literal" />
+                <soap:body use="literal"/>
             </wsdl:output>
             <wsdl:fault name="Exception">
-                <soap:fault use="literal" name="Exception" />
+                <soap:fault use="literal" name="Exception"/>
             </wsdl:fault>
         </wsdl:operation>
     </wsdl:binding>
     <wsdl:binding name="OpenIDProviderServiceSoap12Binding" type="axis2:OpenIDProviderServicePortType">
-        <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" style="document" />
+        <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
         <wsdl:operation name="getClaimValues">
-            <soap12:operation soapAction="urn:getClaimValues" style="document" />
+            <soap12:operation soapAction="urn:getClaimValues" style="document"/>
             <wsdl:input>
-                <soap12:body use="literal" />
+                <soap12:body use="literal"/>
             </wsdl:input>
             <wsdl:output>
-                <soap12:body use="literal" />
+                <soap12:body use="literal"/>
             </wsdl:output>
             <wsdl:fault name="Exception">
-                <soap12:fault use="literal" name="Exception" />
+                <soap12:fault use="literal" name="Exception"/>
             </wsdl:fault>
         </wsdl:operation>
         <wsdl:operation name="retrievePapeInfo">
-            <soap12:operation soapAction="urn:retrievePapeInfo" style="document" />
+            <soap12:operation soapAction="urn:retrievePapeInfo" style="document"/>
             <wsdl:input>
-                <soap12:body use="literal" />
+                <soap12:body use="literal"/>
             </wsdl:input>
             <wsdl:output>
-                <soap12:body use="literal" />
+                <soap12:body use="literal"/>
             </wsdl:output>
             <wsdl:fault name="IdentityProviderException">
-                <soap12:fault use="literal" name="IdentityProviderException" />
+                <soap12:fault use="literal" name="IdentityProviderException"/>
             </wsdl:fault>
         </wsdl:operation>
         <wsdl:operation name="getOpenIDAuthResponse">
-            <soap12:operation soapAction="urn:getOpenIDAuthResponse" style="document" />
+            <soap12:operation soapAction="urn:getOpenIDAuthResponse" style="document"/>
             <wsdl:input>
-                <soap12:body use="literal" />
+                <soap12:body use="literal"/>
             </wsdl:input>
             <wsdl:output>
-                <soap12:body use="literal" />
+                <soap12:body use="literal"/>
             </wsdl:output>
             <wsdl:fault name="Exception">
-                <soap12:fault use="literal" name="Exception" />
+                <soap12:fault use="literal" name="Exception"/>
             </wsdl:fault>
         </wsdl:operation>
         <wsdl:operation name="signInWithInfoCard">
-            <soap12:operation soapAction="urn:signInWithInfoCard" style="document" />
+            <soap12:operation soapAction="urn:signInWithInfoCard" style="document"/>
             <wsdl:input>
-                <soap12:body use="literal" />
+                <soap12:body use="literal"/>
             </wsdl:input>
             <wsdl:output>
-                <soap12:body use="literal" />
+                <soap12:body use="literal"/>
             </wsdl:output>
             <wsdl:fault name="Exception">
-                <soap12:fault use="literal" name="Exception" />
+                <soap12:fault use="literal" name="Exception"/>
             </wsdl:fault>
         </wsdl:operation>
         <wsdl:operation name="doXMPPBasedMultiFactorAuthForInfocard">
-            <soap12:operation soapAction="urn:doXMPPBasedMultiFactorAuthForInfocard" style="document" />
+            <soap12:operation soapAction="urn:doXMPPBasedMultiFactorAuthForInfocard" style="document"/>
             <wsdl:input>
-                <soap12:body use="literal" />
+                <soap12:body use="literal"/>
             </wsdl:input>
             <wsdl:output>
-                <soap12:body use="literal" />
+                <soap12:body use="literal"/>
             </wsdl:output>
             <wsdl:fault name="Exception">
-                <soap12:fault use="literal" name="Exception" />
+                <soap12:fault use="literal" name="Exception"/>
             </wsdl:fault>
         </wsdl:operation>
         <wsdl:operation name="getOpenIDAssociationResponse">
-            <soap12:operation soapAction="urn:getOpenIDAssociationResponse" style="document" />
+            <soap12:operation soapAction="urn:getOpenIDAssociationResponse" style="document"/>
             <wsdl:input>
-                <soap12:body use="literal" />
+                <soap12:body use="literal"/>
             </wsdl:input>
             <wsdl:output>
-                <soap12:body use="literal" />
+                <soap12:body use="literal"/>
             </wsdl:output>
             <wsdl:fault name="Exception">
-                <soap12:fault use="literal" name="Exception" />
+                <soap12:fault use="literal" name="Exception"/>
             </wsdl:fault>
         </wsdl:operation>
         <wsdl:operation name="verify">
-            <soap12:operation soapAction="urn:verify" style="document" />
+            <soap12:operation soapAction="urn:verify" style="document"/>
             <wsdl:input>
-                <soap12:body use="literal" />
+                <soap12:body use="literal"/>
             </wsdl:input>
             <wsdl:output>
-                <soap12:body use="literal" />
+                <soap12:body use="literal"/>
             </wsdl:output>
             <wsdl:fault name="Exception">
-                <soap12:fault use="literal" name="Exception" />
+                <soap12:fault use="literal" name="Exception"/>
             </wsdl:fault>
         </wsdl:operation>
         <wsdl:operation name="getOpenIDProviderInfo">
-            <soap12:operation soapAction="urn:getOpenIDProviderInfo" style="document" />
+            <soap12:operation soapAction="urn:getOpenIDProviderInfo" style="document"/>
             <wsdl:input>
-                <soap12:body use="literal" />
+                <soap12:body use="literal"/>
             </wsdl:input>
             <wsdl:output>
-                <soap12:body use="literal" />
+                <soap12:body use="literal"/>
             </wsdl:output>
             <wsdl:fault name="Exception">
-                <soap12:fault use="literal" name="Exception" />
+                <soap12:fault use="literal" name="Exception"/>
             </wsdl:fault>
         </wsdl:operation>
         <wsdl:operation name="authenticateWithOpenID">
-            <soap12:operation soapAction="urn:authenticateWithOpenID" style="document" />
+            <soap12:operation soapAction="urn:authenticateWithOpenID" style="document"/>
             <wsdl:input>
-                <soap12:body use="literal" />
+                <soap12:body use="literal"/>
             </wsdl:input>
             <wsdl:output>
-                <soap12:body use="literal" />
+                <soap12:body use="literal"/>
             </wsdl:output>
             <wsdl:fault name="Exception">
-                <soap12:fault use="literal" name="Exception" />
+                <soap12:fault use="literal" name="Exception"/>
             </wsdl:fault>
         </wsdl:operation>
         <wsdl:operation name="getUserProfiles">
-            <soap12:operation soapAction="urn:getUserProfiles" style="document" />
+            <soap12:operation soapAction="urn:getUserProfiles" style="document"/>
             <wsdl:input>
-                <soap12:body use="literal" />
+                <soap12:body use="literal"/>
             </wsdl:input>
             <wsdl:output>
-                <soap12:body use="literal" />
+                <soap12:body use="literal"/>
             </wsdl:output>
             <wsdl:fault name="Exception">
-                <soap12:fault use="literal" name="Exception" />
+                <soap12:fault use="literal" name="Exception"/>
             </wsdl:fault>
         </wsdl:operation>
     </wsdl:binding>
     <wsdl:binding name="OpenIDProviderServiceHttpBinding" type="axis2:OpenIDProviderServicePortType">
-        <http:binding verb="POST" />
+        <http:binding verb="POST"/>
         <wsdl:operation name="getClaimValues">
-            <http:operation location="getClaimValues" />
+            <http:operation location="getClaimValues"/>
             <wsdl:input>
-                <mime:content type="text/xml" part="getClaimValues" />
+                <mime:content type="text/xml" part="getClaimValues"/>
             </wsdl:input>
             <wsdl:output>
-                <mime:content type="text/xml" part="getClaimValues" />
+                <mime:content type="text/xml" part="getClaimValues"/>
             </wsdl:output>
         </wsdl:operation>
         <wsdl:operation name="retrievePapeInfo">
-            <http:operation location="retrievePapeInfo" />
+            <http:operation location="retrievePapeInfo"/>
             <wsdl:input>
-                <mime:content type="text/xml" part="retrievePapeInfo" />
+                <mime:content type="text/xml" part="retrievePapeInfo"/>
             </wsdl:input>
             <wsdl:output>
-                <mime:content type="text/xml" part="retrievePapeInfo" />
+                <mime:content type="text/xml" part="retrievePapeInfo"/>
             </wsdl:output>
         </wsdl:operation>
         <wsdl:operation name="getOpenIDAuthResponse">
-            <http:operation location="getOpenIDAuthResponse" />
+            <http:operation location="getOpenIDAuthResponse"/>
             <wsdl:input>
-                <mime:content type="text/xml" part="getOpenIDAuthResponse" />
+                <mime:content type="text/xml" part="getOpenIDAuthResponse"/>
             </wsdl:input>
             <wsdl:output>
-                <mime:content type="text/xml" part="getOpenIDAuthResponse" />
+                <mime:content type="text/xml" part="getOpenIDAuthResponse"/>
             </wsdl:output>
         </wsdl:operation>
         <wsdl:operation name="signInWithInfoCard">
-            <http:operation location="signInWithInfoCard" />
+            <http:operation location="signInWithInfoCard"/>
             <wsdl:input>
-                <mime:content type="text/xml" part="signInWithInfoCard" />
+                <mime:content type="text/xml" part="signInWithInfoCard"/>
             </wsdl:input>
             <wsdl:output>
-                <mime:content type="text/xml" part="signInWithInfoCard" />
+                <mime:content type="text/xml" part="signInWithInfoCard"/>
             </wsdl:output>
         </wsdl:operation>
         <wsdl:operation name="doXMPPBasedMultiFactorAuthForInfocard">
-            <http:operation location="doXMPPBasedMultiFactorAuthForInfocard" />
+            <http:operation location="doXMPPBasedMultiFactorAuthForInfocard"/>
             <wsdl:input>
-                <mime:content type="text/xml" part="doXMPPBasedMultiFactorAuthForInfocard" />
+                <mime:content type="text/xml" part="doXMPPBasedMultiFactorAuthForInfocard"/>
             </wsdl:input>
             <wsdl:output>
-                <mime:content type="text/xml" part="doXMPPBasedMultiFactorAuthForInfocard" />
+                <mime:content type="text/xml" part="doXMPPBasedMultiFactorAuthForInfocard"/>
             </wsdl:output>
         </wsdl:operation>
         <wsdl:operation name="getOpenIDAssociationResponse">
-            <http:operation location="getOpenIDAssociationResponse" />
+            <http:operation location="getOpenIDAssociationResponse"/>
             <wsdl:input>
-                <mime:content type="text/xml" part="getOpenIDAssociationResponse" />
+                <mime:content type="text/xml" part="getOpenIDAssociationResponse"/>
             </wsdl:input>
             <wsdl:output>
-                <mime:content type="text/xml" part="getOpenIDAssociationResponse" />
+                <mime:content type="text/xml" part="getOpenIDAssociationResponse"/>
             </wsdl:output>
         </wsdl:operation>
         <wsdl:operation name="verify">
-            <http:operation location="verify" />
+            <http:operation location="verify"/>
             <wsdl:input>
-                <mime:content type="text/xml" part="verify" />
+                <mime:content type="text/xml" part="verify"/>
             </wsdl:input>
             <wsdl:output>
-                <mime:content type="text/xml" part="verify" />
+                <mime:content type="text/xml" part="verify"/>
             </wsdl:output>
         </wsdl:operation>
         <wsdl:operation name="getOpenIDProviderInfo">
-            <http:operation location="getOpenIDProviderInfo" />
+            <http:operation location="getOpenIDProviderInfo"/>
             <wsdl:input>
-                <mime:content type="text/xml" part="getOpenIDProviderInfo" />
+                <mime:content type="text/xml" part="getOpenIDProviderInfo"/>
             </wsdl:input>
             <wsdl:output>
-                <mime:content type="text/xml" part="getOpenIDProviderInfo" />
+                <mime:content type="text/xml" part="getOpenIDProviderInfo"/>
             </wsdl:output>
         </wsdl:operation>
         <wsdl:operation name="authenticateWithOpenID">
-            <http:operation location="authenticateWithOpenID" />
+            <http:operation location="authenticateWithOpenID"/>
             <wsdl:input>
-                <mime:content type="text/xml" part="authenticateWithOpenID" />
+                <mime:content type="text/xml" part="authenticateWithOpenID"/>
             </wsdl:input>
             <wsdl:output>
-                <mime:content type="text/xml" part="authenticateWithOpenID" />
+                <mime:content type="text/xml" part="authenticateWithOpenID"/>
             </wsdl:output>
         </wsdl:operation>
         <wsdl:operation name="getUserProfiles">
-            <http:operation location="getUserProfiles" />
+            <http:operation location="getUserProfiles"/>
             <wsdl:input>
-                <mime:content type="text/xml" part="getUserProfiles" />
+                <mime:content type="text/xml" part="getUserProfiles"/>
             </wsdl:input>
             <wsdl:output>
-                <mime:content type="text/xml" part="getUserProfiles" />
+                <mime:content type="text/xml" part="getUserProfiles"/>
             </wsdl:output>
         </wsdl:operation>
     </wsdl:binding>
     <wsdl:service name="OpenIDProviderService">
         <wsdl:port name="OpenIDProviderServiceHttpsSoap11Endpoint" binding="axis2:OpenIDProviderServiceSoap11Binding">
-            <soap:address location="https://localhost:9443/services/OpenIDProviderService.OpenIDProviderServiceHttpsSoap11Endpoint/" />
+            <soap:address
+                    location="https://localhost:9443/services/OpenIDProviderService.OpenIDProviderServiceHttpsSoap11Endpoint/"/>
         </wsdl:port>
         <wsdl:port name="OpenIDProviderServiceHttpsSoap12Endpoint" binding="axis2:OpenIDProviderServiceSoap12Binding">
-            <soap12:address location="https://localhost:9443/services/OpenIDProviderService.OpenIDProviderServiceHttpsSoap12Endpoint/" />
+            <soap12:address
+                    location="https://localhost:9443/services/OpenIDProviderService.OpenIDProviderServiceHttpsSoap12Endpoint/"/>
         </wsdl:port>
         <wsdl:port name="OpenIDProviderServiceHttpsEndpoint" binding="axis2:OpenIDProviderServiceHttpBinding">
-            <http:address location="https://localhost:9443/services/OpenIDProviderService.OpenIDProviderServiceHttpsEndpoint/" />
+            <http:address
+                    location="https://localhost:9443/services/OpenIDProviderService.OpenIDProviderServiceHttpsEndpoint/"/>
         </wsdl:port>
     </wsdl:service>
 </wsdl:definitions>

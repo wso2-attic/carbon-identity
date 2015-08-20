@@ -1,5 +1,5 @@
 <!--
- ~ Copyright (c) 2005-2013, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ ~ Copyright (c) 2013, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  ~
  ~ WSO2 Inc. licenses this file to you under the Apache License,
  ~ Version 2.0 (the "License"); you may not use this file except
@@ -18,8 +18,8 @@
 
 <%@ page import="org.apache.axis2.context.ConfigurationContext"%>
 <%@ page import="org.wso2.carbon.CarbonConstants"%>
-<%@ page import="org.wso2.carbon.identity.oauth.stub.dto.OAuthConsumerAppDTO"%>
 <%@ page import="org.wso2.carbon.identity.oauth.common.OAuthConstants"%>
+<%@ page import="org.wso2.carbon.identity.oauth.stub.dto.OAuthConsumerAppDTO"%>
 <%@ page import="org.wso2.carbon.identity.oauth.ui.client.OAuthAdminClient"%>
 <%@ page import="org.wso2.carbon.ui.CarbonUIMessage"%>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil"%>
@@ -47,7 +47,8 @@
     String grantPassword = CharacterEncoder.getSafeText(request.getParameter("grant_password"));
     String grantClient = CharacterEncoder.getSafeText(request.getParameter("grant_client"));
     String grantRefresh = CharacterEncoder.getSafeText(request.getParameter("grant_refresh"));
-    String grantSAML = CharacterEncoder.getSafeText(request.getParameter("grant_saml"));
+    String grantSAML1 = CharacterEncoder.getSafeText(request.getParameter("grant_saml1"));
+    String grantSAML2 = CharacterEncoder.getSafeText(request.getParameter("grant_saml2"));
     String grantNTLM = CharacterEncoder.getSafeText(request.getParameter("grant_ntlm"));
     String grants = null;
    	StringBuffer buff = new StringBuffer();
@@ -66,9 +67,12 @@
 	if (grantRefresh != null) {
 		buff.append(grantRefresh + " ");
 	}
-	if (grantSAML != null) {
-		buff.append(grantSAML+" ");
+	if (grantSAML1 != null) {
+		buff.append(grantSAML1+" ");
 	}
+	if (grantSAML2 != null) {
+    	buff.append(grantSAML2+" ");
+    }
     if (grantNTLM != null) {
 		buff.append(grantNTLM);
 	}

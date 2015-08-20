@@ -19,6 +19,7 @@
 package org.wso2.carbon.identity.notification.mgt.json;
 
 import org.apache.axiom.om.util.Base64;
+import org.apache.commons.io.Charsets;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -176,7 +177,7 @@ public class JsonMessageModule extends AbstractNotificationSendingModule {
     @Override
     public boolean isSubscribed(PublisherEvent publisherEvent) throws NotificationManagementException {
 
-        return (publisherEvent != null && subscriptionMap.containsKey(publisherEvent.getEventName()));
+        return publisherEvent != null && subscriptionMap.containsKey(publisherEvent.getEventName());
     }
 
     /**
@@ -189,7 +190,7 @@ public class JsonMessageModule extends AbstractNotificationSendingModule {
     private String getBase64EncodedBasicAuthHeader(String username, String password) {
 
         String concatenatedCredential = username + ":" + password;
-        byte[] byteValue = concatenatedCredential.getBytes();
+        byte[] byteValue = concatenatedCredential.getBytes(Charsets.UTF_8);
         String encodedAuthHeader = Base64.encode(byteValue);
         encodedAuthHeader = "Basic " + encodedAuthHeader;
         return encodedAuthHeader;

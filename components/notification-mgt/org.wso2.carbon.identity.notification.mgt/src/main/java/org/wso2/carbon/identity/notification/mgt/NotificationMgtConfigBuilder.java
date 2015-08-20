@@ -27,9 +27,18 @@ import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.securevault.SecretResolver;
 import org.wso2.securevault.SecretResolverFactory;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
 
 /**
@@ -88,8 +97,8 @@ public class NotificationMgtConfigBuilder {
         InputStream inStream = null;
 
         // Open the default configuration file in carbon conf directory path .
-        File MessageMgtPropertyFile = new File(CarbonUtils.getCarbonConfigDirPath(),
-                NotificationMgtConstants.MODULE_CONFIG_FILE);
+        File MessageMgtPropertyFile = new File(CarbonUtils.getCarbonConfigDirPath() + File.separator + "identity" +
+                File.separator, NotificationMgtConstants.MODULE_CONFIG_FILE);
 
         try {
             // If the configuration exists in the carbon conf directory, read properties from there

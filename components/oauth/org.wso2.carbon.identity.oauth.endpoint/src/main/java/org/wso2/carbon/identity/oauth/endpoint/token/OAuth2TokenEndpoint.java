@@ -1,20 +1,20 @@
 /*
-*Copyright (c) 2005-2013, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*WSO2 Inc. licenses this file to you under the Apache License,
-*Version 2.0 (the "License"); you may not use this file except
-*in compliance with the License.
-*You may obtain a copy of the License at
-*
-*http://www.apache.org/licenses/LICENSE-2.0
-*
-*Unless required by applicable law or agreed to in writing,
-*software distributed under the License is distributed on an
-*"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-*KIND, either express or implied.  See the License for the
-*specific language governing permissions and limitations
-*under the License.
-*/
+ * Copyright (c) 2013, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 
 package org.wso2.carbon.identity.oauth.endpoint.token;
 
@@ -56,7 +56,8 @@ import java.util.Enumeration;
 @Path("/token")
 public class OAuth2TokenEndpoint {
 
-    private static Log log = LogFactory.getLog(OAuth2TokenEndpoint.class);
+    private static final Log log = LogFactory.getLog(OAuth2TokenEndpoint.class);
+    public static final String BEARER = "Bearer";
 
     @POST
     @Path("/")
@@ -83,12 +84,18 @@ public class OAuth2TokenEndpoint {
             if (request.getHeader(OAuthConstants.HTTP_REQ_HEADER_AUTHZ) != null) {
 
                 try {
-                    String[] clientCredentials = EndpointUtil
-                            .extractCredentialsFromAuthzHeader(request.getHeader(OAuthConstants.HTTP_REQ_HEADER_AUTHZ));
+                    String[] clientCredentials = EndpointUtil.extractCredentialsFromAuthzHeader(
+                            request.getHeader(OAuthConstants.HTTP_REQ_HEADER_AUTHZ));
 
                     // The client MUST NOT use more than one authentication method in each request
                     if (paramMap.containsKey(OAuth.OAUTH_CLIENT_ID)
                             && paramMap.containsKey(OAuth.OAUTH_CLIENT_SECRET)) {
+                        return handleBasicAuthFailure();
+                    }
+
+                    //If a client sends an invalid base64 encoded clientid:clientsecret value, it results in this
+                    //array to only contain 1 element. This happens on specific errors though.
+                    if (clientCredentials.length != 2) {
                         return handleBasicAuthFailure();
                     }
 
@@ -98,6 +105,7 @@ public class OAuth2TokenEndpoint {
 
                 } catch (OAuthClientException e) {
                     // malformed credential string is considered as an auth failure.
+                    log.error("Error while extracting credentials from authorization header", e);
                     return handleBasicAuthFailure();
                 }
             }
@@ -139,7 +147,7 @@ public class OAuth2TokenEndpoint {
                             .setAccessToken(oauth2AccessTokenResp.getAccessToken())
                             .setRefreshToken(oauth2AccessTokenResp.getRefreshToken())
                             .setExpiresIn(Long.toString(oauth2AccessTokenResp.getExpiresIn()))
-                            .setTokenType("Bearer");
+                            .setTokenType(BEARER);
                     oAuthRespBuilder.setScope(oauth2AccessTokenResp.getAuthorizedScopes());
 
                     // OpenID Connect ID token
@@ -167,18 +175,11 @@ public class OAuth2TokenEndpoint {
                 }
 
             } catch (OAuthProblemException e) {
-                log.debug(e.getError());
+                log.error("Error while creating the Carbon OAuth token request", e);
                 OAuthResponse res = OAuthASResponse
                         .errorResponse(HttpServletResponse.SC_BAD_REQUEST).error(e)
                         .buildJSONMessage();
                 return Response.status(res.getResponseStatus()).entity(res.getBody()).build();
-            } catch (OAuthClientException e) {
-                OAuthResponse response = OAuthASResponse
-                        .errorResponse(HttpServletResponse.SC_INTERNAL_SERVER_ERROR)
-                        .setError(OAuth2ErrorCodes.SERVER_ERROR)
-                        .setErrorDescription(e.getMessage()).buildJSONMessage();
-                return Response.status(response.getResponseStatus()).entity(response.getBody())
-                        .build();
             }
 
         } finally {
@@ -197,27 +198,30 @@ public class OAuth2TokenEndpoint {
     }
 
     private void logAccessTokenRequest(HttpServletRequest request) {
-        log.debug("Received a request : " + request.getRequestURI());
-        // log the headers.
-        log.debug("----------logging request headers.----------");
-        Enumeration headerNames = request.getHeaderNames();
-        while (headerNames.hasMoreElements()) {
-            String headerName = (String) headerNames.nextElement();
-            Enumeration headers = request.getHeaders(headerName);
-            while (headers.hasMoreElements()) {
-                log.debug(headerName + " : " + headers.nextElement());
+
+        if (log.isDebugEnabled()){
+            log.debug("Received a request : " + request.getRequestURI());
+            // log the headers.
+            log.debug("----------logging request headers.----------");
+
+            Enumeration headerNames = request.getHeaderNames();
+            while (headerNames.hasMoreElements()) {
+                String headerName = (String) headerNames.nextElement();
+                Enumeration headers = request.getHeaders(headerName);
+                while (headers.hasMoreElements()) {
+                    log.debug(headerName + " : " + headers.nextElement());
+                }
             }
+            // log the parameters.
+            log.debug("----------logging request parameters.----------");
+            log.debug(OAuth.OAUTH_GRANT_TYPE + " - " + request.getParameter(OAuth.OAUTH_GRANT_TYPE));
+            log.debug(OAuth.OAUTH_CLIENT_ID + " - " + request.getParameter(OAuth.OAUTH_CLIENT_ID));
+            log.debug(OAuth.OAUTH_CODE + " - " + request.getParameter(OAuth.OAUTH_CODE));
+            log.debug(OAuth.OAUTH_REDIRECT_URI + " - " + request.getParameter(OAuth.OAUTH_REDIRECT_URI));
         }
-        // log the parameters.
-        log.debug("----------logging request parameters.----------");
-        log.debug(OAuth.OAUTH_GRANT_TYPE + " - " + request.getParameter(OAuth.OAUTH_GRANT_TYPE));
-        log.debug(OAuth.OAUTH_CLIENT_ID + " - " + request.getParameter(OAuth.OAUTH_CLIENT_ID));
-        log.debug(OAuth.OAUTH_CODE + " - " + request.getParameter(OAuth.OAUTH_CODE));
-        log.debug(OAuth.OAUTH_REDIRECT_URI + " - " + request.getParameter(OAuth.OAUTH_REDIRECT_URI));
     }
 
-    private OAuth2AccessTokenRespDTO getAccessToken(CarbonOAuthTokenRequest oauthRequest)
-            throws OAuthClientException {
+    private OAuth2AccessTokenRespDTO getAccessToken(CarbonOAuthTokenRequest oauthRequest) {
 
         OAuth2AccessTokenReqDTO tokenReqDTO = new OAuth2AccessTokenReqDTO();
         String grantType = oauthRequest.getGrantType();
@@ -232,7 +236,7 @@ public class OAuth2TokenEndpoint {
         if (GrantType.AUTHORIZATION_CODE.toString().equals(grantType)) {
             tokenReqDTO.setAuthorizationCode(oauthRequest.getCode());
         } else if (GrantType.PASSWORD.toString().equals(grantType)) {
-            tokenReqDTO.setResourceOwnerUsername(oauthRequest.getUsername().toLowerCase());
+            tokenReqDTO.setResourceOwnerUsername(oauthRequest.getUsername());
             tokenReqDTO.setResourceOwnerPassword(oauthRequest.getPassword());
         } else if (GrantType.REFRESH_TOKEN.toString().equals(grantType)) {
             tokenReqDTO.setRefreshToken(oauthRequest.getRefreshToken());

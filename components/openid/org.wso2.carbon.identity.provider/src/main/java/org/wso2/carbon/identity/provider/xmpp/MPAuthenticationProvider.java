@@ -1,25 +1,32 @@
 /*
- * Copyright 2005-2007 WSO2, Inc. (http://wso2.com)
+ * Copyright (c) 2005-2007, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
-
 
 package org.wso2.carbon.identity.provider.xmpp;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.jivesoftware.smack.*;
+import org.jivesoftware.smack.Chat;
+import org.jivesoftware.smack.ChatManager;
+import org.jivesoftware.smack.ConnectionConfiguration;
+import org.jivesoftware.smack.Roster;
+import org.jivesoftware.smack.RosterEntry;
+import org.jivesoftware.smack.XMPPConnection;
+import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.filter.AndFilter;
 import org.jivesoftware.smack.filter.FromContainsFilter;
 import org.jivesoftware.smack.filter.PacketFilter;
@@ -34,13 +41,12 @@ import java.util.Collection;
 
 public class MPAuthenticationProvider {
 
-    protected Log log = LogFactory.getLog(MPAuthenticationProvider.class);
+    private static final Log log = LogFactory.getLog(MPAuthenticationProvider.class);
 
     private String userXmppId;
     private String userPIN;
     private boolean isPINEnabled;
     private boolean pinDisabledResponse = true;
-
 
     /**
      * @param xmppSettingsDO
@@ -63,16 +69,14 @@ public class MPAuthenticationProvider {
         //connecting to the server
         boolean connectionStatus = connect(connection);
         if (!connectionStatus) {
-            if (log.isInfoEnabled()) {
-                log.info("Failed to connect to the Server");
-            }
+            log.info("Failed to connect to the Server");
             return false;
         }
 
         //signing in
         boolean loginStatus = login(connection);
         if (!loginStatus) {
-            System.out.println("login failed");
+            log.info("login failed");
             return false;
         }
 
@@ -86,9 +90,7 @@ public class MPAuthenticationProvider {
         }
 
         if (!isAvailable) {
-            if (log.isInfoEnabled()) {
-                log.info("user is not online");
-            }
+            log.info("user is not online");
             return false;
         }
 
@@ -108,17 +110,13 @@ public class MPAuthenticationProvider {
      * @return XMPPConnection
      */
     private XMPPConnection createConnection() {
-        String xmppServer = IdentityUtil
-                .getProperty(IdentityConstants.ServerConfig.XMPP_SETTINGS_SERVER);
-        int xmppPort = new Integer(IdentityUtil
-                .getProperty(IdentityConstants.ServerConfig.XMPP_SETTINGS_PORT));
-        String xmppExt = IdentityUtil
-                .getProperty(IdentityConstants.ServerConfig.XMPP_SETTINGS_EXT);
+        String xmppServer = IdentityUtil.getProperty(IdentityConstants.ServerConfig.XMPP_SETTINGS_SERVER);
+        int xmppPort = Integer.parseInt(IdentityUtil.getProperty(IdentityConstants.ServerConfig.XMPP_SETTINGS_PORT));
+        String xmppExt = IdentityUtil.getProperty(IdentityConstants.ServerConfig.XMPP_SETTINGS_EXT);
 
         ConnectionConfiguration config = new ConnectionConfiguration(xmppServer, xmppPort, xmppExt);
         config.setSASLAuthenticationEnabled(true);
-        XMPPConnection connection = new XMPPConnection(config);
-        return connection;
+        return new XMPPConnection(config);
     }
 
     /**
@@ -166,10 +164,8 @@ public class MPAuthenticationProvider {
      * @return
      */
     public boolean login(XMPPConnection connection) {
-        String userName = IdentityUtil
-                .getProperty(IdentityConstants.ServerConfig.XMPP_SETTINGS_USERNAME);
-        String password = IdentityUtil
-                .getProperty(IdentityConstants.ServerConfig.XMPP_SETTINGS_PASSWORD);
+        String userName = IdentityUtil.getProperty(IdentityConstants.ServerConfig.XMPP_SETTINGS_USERNAME);
+        String password = IdentityUtil.getProperty(IdentityConstants.ServerConfig.XMPP_SETTINGS_PASSWORD);
         for (int i = 0; i < 3; i++) {
             try {
                 connection.login(userName, password, null);
@@ -230,7 +226,7 @@ public class MPAuthenticationProvider {
                 isAvailable = true;
             }
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            log.error("Error while checking user availability", e);
         } finally {
             roster.removeRosterListener(listener);
         }
@@ -255,8 +251,8 @@ public class MPAuthenticationProvider {
 
                 ChatManager chatManager = connection.getChatManager();
                 Chat chat = chatManager.createChat(userName, null);
-                PacketFilter filter = new AndFilter(new PacketTypeFilter(Message.class),
-                        new FromContainsFilter(userName));
+                PacketFilter filter =
+                        new AndFilter(new PacketTypeFilter(Message.class), new FromContainsFilter(userName));
                 XmppResponseListener chatListener = new XmppResponseListener();
                 connection.addPacketListener(chatListener, filter);
 
@@ -275,14 +271,11 @@ public class MPAuthenticationProvider {
                     response = chatListener.getResponse();
 
                     if (response != null) {
-                        if (userPIN.contentEquals(response.trim())) {
-                            return true;
-                        } else {
-                            return false;
-                        }
+                        return userPIN.contentEquals(response.trim());
                     }
                 } else {
-                    chat.sendMessage("You are about to get authenticated for your OpenID. Do you want to continue: [Yes] or [No]");
+                    chat.sendMessage(
+                            "You are about to get authenticated for your OpenID. Do you want to continue: [Yes] or [No]");
 
                     if (log.isInfoEnabled()) {
                         log.info("User PIN is sent to the user and awaiting for the response.");
@@ -295,9 +288,9 @@ public class MPAuthenticationProvider {
                     response = chatListener.getResponse();
 
                     if (response != null) {
-                        if (response.trim().toUpperCase().equals("YES")) {
+                        if ("YES".equalsIgnoreCase(response.trim())) {
                             return true;
-                        } else if (response.trim().toUpperCase().equals("NO")) {
+                        } else if ("NO".equalsIgnoreCase(response.trim())) {
                             return false;
                         } else {
                             pinDisabledResponse = false;
@@ -307,7 +300,7 @@ public class MPAuthenticationProvider {
                 }
 
             } catch (Exception e) {
-                e.printStackTrace();
+                log.error("Error while getting user response", e);
             }
         } else {
             return false;

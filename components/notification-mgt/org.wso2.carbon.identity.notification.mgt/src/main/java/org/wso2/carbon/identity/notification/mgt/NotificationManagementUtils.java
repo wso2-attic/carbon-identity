@@ -36,6 +36,9 @@ public class NotificationManagementUtils {
 
     private static final Log log = LogFactory.getLog(NotificationMgtConfigBuilder.class);
 
+    private NotificationManagementUtils() {
+    }
+
     /**
      * Returns a set of properties which has keys starting with the given prefix
      *

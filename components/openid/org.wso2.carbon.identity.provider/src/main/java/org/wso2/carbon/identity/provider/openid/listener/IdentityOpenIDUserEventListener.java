@@ -1,10 +1,10 @@
 /*
  * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * WSO2 Inc. licenses this file to you under the Apache License,
- * Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License.
- * You may obtain a copy of the License at
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
  *
  *    http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -20,27 +20,39 @@ package org.wso2.carbon.identity.provider.openid.listener;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.base.IdentityException;
+import org.wso2.carbon.identity.core.AbstractIdentityUserOperationEventListener;
 import org.wso2.carbon.identity.core.model.OpenIDUserRPDO;
+import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.provider.openid.dao.OpenIDUserRPDAO;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.common.AbstractUserOperationEventListener;
 
-public class IdentityOpenIDUserEventListener extends AbstractUserOperationEventListener {
+public class IdentityOpenIDUserEventListener extends AbstractIdentityUserOperationEventListener {
 
-    private static Log log = LogFactory.getLog(IdentityOpenIDUserEventListener.class);
+    private static final Log log = LogFactory.getLog(IdentityOpenIDUserEventListener.class);
 
     @Override
     public int getExecutionOrderId() {
-        return 1502;
+        int orderId = getOrderId(IdentityOpenIDUserEventListener.class.getName());
+        if (orderId != IdentityCoreConstants.EVENT_LISTENER_ORDER_ID) {
+            return orderId;
+        }
+        return 70;
     }
 
     @Override
-    public boolean doPreDeleteUser(String userName, UserStoreManager userStoreManager)
-            throws UserStoreException {
+    public boolean doPreDeleteUser(String userName, UserStoreManager userStoreManager) throws UserStoreException {
+
+        if (!isEnable(this.getClass().getName())) {
+            return true;
+        }
+
         if (log.isDebugEnabled()) {
             log.debug("Clearing OpenID related information of the user : " + userName);
         }
+
         try {
             deleteUsersRPs(userName);
         } catch (IdentityException e) {
@@ -48,7 +60,6 @@ public class IdentityOpenIDUserEventListener extends AbstractUserOperationEventL
         }
         return true;
     }
-
 
     /**
      * Function to delete all RPs registered to the user in the database

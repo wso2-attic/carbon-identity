@@ -1,23 +1,24 @@
 /*
-*  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.wso2.carbon.identity.authenticator.saml2.sso.common;
 
 public final class SAML2SSOAuthenticatorConstants {
+    private SAML2SSOAuthenticatorConstants(){
+
+    }
     public static final String AUTHENTICATOR_NAME = "SAML2SSOAuthenticator";
 
     public static final String SAML2_NAME_ID_POLICY_TRANSIENT = "urn:oasis:names:tc:SAML:2.0:nameid-format:transient";
@@ -51,6 +52,7 @@ public final class SAML2SSOAuthenticatorConstants {
     public static final String LOGIN_PAGE = "LoginPage";
     public static final String LANDING_PAGE = "LandingPage";
     public static final String EXTERNAL_LOGOUT_PAGE = "ExternalLogoutPage";
+    public static final String LOGOUT_SUPPORTED_IDP = "LogoutSupportedIDP";
     public static final String ASSERTION_CONSUMER_SERVICE_URL = "AssertionConsumerServiceURL";
     public static final String ASSERTION_CONSUMER_URL = "AssertionConsumerServiceURL";
     public static final String FEDERATION_CONFIG = "FederationConfig";
@@ -59,10 +61,15 @@ public final class SAML2SSOAuthenticatorConstants {
     public static final String LOGIN_ATTRIBUTE_NAME = "LoginAttributeName";
     public static final String IDENTITY_PROVIDER_SLO_SERVICE_URL = "IdentityProviderSLOServiceURL";
     public static final String AUDIT_MESSAGE = "Initiator : %s | Action : %s | Target : %s | Data : { %s } | Result : %s ";
-    public static final String AUDIT_SUCCESS = "Success";
-    public static final String AUDIT_FAILED = "Failed";
+    public static final String AUDIT_ACTION_LOGIN = "Login";
+    public static final String AUDIT_ACTION_LOGOUT = "Logout";
+    public static final String AUDIT_RESULT_SUCCESS = "Success";
+    public static final String AUDIT_RESULT_FAILED = "Failed";
 
     public static final class ErrorMessageConstants {
+        private ErrorMessageConstants(){
+
+        }
         public static final String RESPONSE_NOT_PRESENT = "response.not.present";
         public static final String RESPONSE_INVALID = "response.invalid";
         public static final String RESPONSE_MALFORMED = "response.malformed";

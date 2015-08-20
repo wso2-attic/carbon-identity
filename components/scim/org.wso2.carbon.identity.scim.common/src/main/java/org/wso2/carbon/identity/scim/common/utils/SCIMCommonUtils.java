@@ -1,31 +1,28 @@
 /*
-*  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 package org.wso2.carbon.identity.scim.common.utils;
 
+import org.apache.commons.lang.StringUtils;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
-import org.wso2.carbon.identity.scim.common.config.SCIMProviderDTO;
 import org.wso2.carbon.user.core.UserCoreConstants;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * This class is to be used as a Util class for SCIM common things.
@@ -33,20 +30,17 @@ import java.util.Map;
  */
 public class SCIMCommonUtils {
 
-    public static final String SCIM_CLAIM_DIALECT = "urn:scim:schemas:core:1.0";
-    //this is temporary - until persisted in DB
-    public static Map<String, List<SCIMProviderDTO>> providers =
-            new HashMap<String, List<SCIMProviderDTO>>();
     private static String scimGroupLocation;
     private static String scimUserLocation;
-    /*Since we need perform provisioning through UserOperationEventListeenr implementation -
-
-    * SCIMUserOperationListener- there can be cases where multiple methods in the listener are
-* called for same operation - such as when adding a user with claims, both postAddUserListener
-* as well as setClaimValuesListener are called. But we do not need setClaimValuesLister to be
-* called at user creation - it is supposed to do provisioning at user update. So we make use of
-* this thread local variable to skip the second lister.
-* */
+    /**
+     * Since we need perform provisioning through UserOperationEventListeenr implementation -
+     *
+     * SCIMUserOperationListener- there can be cases where multiple methods in the listener are
+     * called for same operation - such as when adding a user with claims, both postAddUserListener
+     * as well as setClaimValuesListener are called. But we do not need setClaimValuesLister to be
+     * called at user creation - it is supposed to do provisioning at user update. So we make use of
+     * this thread local variable to skip the second lister.
+     */
     private static ThreadLocal threadLocalToSkipSetUserClaimsListeners = new ThreadLocal();
     /**
      * Provisioning to other providers is initiated at SCIMUserOperationListener which is invoked
@@ -55,6 +49,8 @@ public class SCIMCommonUtils {
      * Therefore we need this thread local to signal the SCIMUserOperationListener to take the decision.
      */
     private static ThreadLocal threadLocalIsManagedThroughSCIMEP = new ThreadLocal();
+
+    private SCIMCommonUtils(){}
 
     public static void init() {
         //to initialize scim urls once.
@@ -158,10 +154,11 @@ public class SCIMCommonUtils {
         if (index > 0) {
             // Using the short-circuit. User name comes with the domain name.
             String domain = groupName.substring(0, index);
-            if (UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME.equals(domain)) {
+            if (StringUtils.equals(UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME, domain)) {
                 return groupName.substring(index + 1);
             }
         }
         return groupName;
     }
+
 }

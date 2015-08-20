@@ -1,34 +1,33 @@
 /*
- *Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- *WSO2 Inc. licenses this file to you under the Apache License,
- *Version 2.0 (the "License"); you may not use this file except
- *in compliance with the License.
- *You may obtain a copy of the License at
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *Unless required by applicable law or agreed to in writing,
- *software distributed under the License is distributed on an
- *"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *KIND, either express or implied.  See the License for the
- *specific language governing permissions and limitations
- *under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package org.wso2.carbon.identity.application.common.model;
 
 import org.apache.axiom.om.OMElement;
+import org.apache.commons.collections.CollectionUtils;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 public class LocalAndOutboundAuthenticationConfig implements Serializable {
 
-    /**
-     *
-     */
     private static final long serialVersionUID = -932772940989929376L;
 
     private AuthenticationStep[] authenticationSteps = new AuthenticationStep[0];
@@ -37,6 +36,8 @@ public class LocalAndOutboundAuthenticationConfig implements Serializable {
     private AuthenticationStep authenticationStepForAttributes;
     private boolean alwaysSendBackAuthenticatedListOfIdPs;
     private String subjectClaimUri;
+    private boolean useTenantDomainInLocalSubjectIdentifier = true;
+    private boolean useUserstoreDomainInLocalSubjectIdentifier = true;
 
     /*
      * <LocalAndOutboundAuthenticationConfig> <AuthenticationSteps></AuthenticationSteps>
@@ -48,7 +49,8 @@ public class LocalAndOutboundAuthenticationConfig implements Serializable {
     public static LocalAndOutboundAuthenticationConfig build(
             OMElement localAndOutboundAuthenticationConfigOM) {
 
-        LocalAndOutboundAuthenticationConfig localAndOutboundAuthenticationConfig = new LocalAndOutboundAuthenticationConfig();
+        LocalAndOutboundAuthenticationConfig localAndOutboundAuthenticationConfig = new
+                LocalAndOutboundAuthenticationConfig();
 
         if (localAndOutboundAuthenticationConfigOM == null) {
             return localAndOutboundAuthenticationConfig;
@@ -59,10 +61,10 @@ public class LocalAndOutboundAuthenticationConfig implements Serializable {
         while (iter.hasNext()) {
             OMElement member = (OMElement) iter.next();
 
-            if (member.getLocalName().equals("AuthenticationSteps")) {
+            if ("AuthenticationSteps".equals(member.getLocalName())) {
 
                 Iterator<?> authenticationStepsIter = member.getChildElements();
-                ArrayList<AuthenticationStep> authenticationStepsArrList = new ArrayList<AuthenticationStep>();
+                List<AuthenticationStep> authenticationStepsArrList = new ArrayList<AuthenticationStep>();
 
                 if (authenticationStepsIter != null) {
                     while (authenticationStepsIter.hasNext()) {
@@ -76,31 +78,40 @@ public class LocalAndOutboundAuthenticationConfig implements Serializable {
                     }
                 }
 
-                if (authenticationStepsArrList.size() > 0) {
+                if (CollectionUtils.isNotEmpty(authenticationStepsArrList)) {
                     AuthenticationStep[] authenticationStepsArr = authenticationStepsArrList
                             .toArray(new AuthenticationStep[0]);
                     localAndOutboundAuthenticationConfig
                             .setAuthenticationSteps(authenticationStepsArr);
                 }
 
-            } else if (member.getLocalName().equals("AuthenticationType")) {
+
+            } else if ("AuthenticationType".equals(member.getLocalName())) {
                 localAndOutboundAuthenticationConfig.setAuthenticationType(member.getText());
-            } else if (member.getLocalName().equals("AuthenticationStepForSubject")) {
+            } else if ("AuthenticationStepForSubject".equals(member.getLocalName())) {
                 AuthenticationStep authStep = AuthenticationStep.build(member);
                 if (authStep != null) {
                     localAndOutboundAuthenticationConfig.setAuthenticationStepForSubject(authStep);
                 }
-            } else if (member.getLocalName().equals("AuthenticationStepForAttributes")) {
+            } else if ("AuthenticationStepForAttributes".equals(member.getLocalName())) {
                 AuthenticationStep authStep = AuthenticationStep.build(member);
                 if (authStep != null) {
                     localAndOutboundAuthenticationConfig
                             .setAuthenticationStepForAttributes(authStep);
                 }
-            } else if (member.getLocalName().equals("alwaysSendBackAuthenticatedListOfIdPs")) {
+            } else if ("alwaysSendBackAuthenticatedListOfIdPs".equals(member.getLocalName())) {
                 if (member.getText() != null && "true".equals(member.getText())) {
                     localAndOutboundAuthenticationConfig.setAlwaysSendBackAuthenticatedListOfIdPs(true);
                 }
-            } else if (member.getLocalName().equals("subjectClaimUri")) {
+            } else if ("UseUserstoreDomainInUsername".equals(member.getLocalName())) {
+                if (member.getText() != null && "false".equals(member.getText())) {
+                    localAndOutboundAuthenticationConfig.setUseUserstoreDomainInLocalSubjectIdentifier(false);
+                }
+            } else if ("UseTenantDomainInUsername".equals(member.getLocalName())) {
+                if (member.getText() != null && "false".equals(member.getText())) {
+                    localAndOutboundAuthenticationConfig.setUseTenantDomainInLocalSubjectIdentifier(false);
+                }
+            } else if ("subjectClaimUri".equals(member.getLocalName())) {
                 localAndOutboundAuthenticationConfig.setSubjectClaimUri(member.getText());
             }
         }
@@ -193,4 +204,19 @@ public class LocalAndOutboundAuthenticationConfig implements Serializable {
         this.subjectClaimUri = subjectClaimUri;
     }
 
+    public boolean isUseTenantDomainInLocalSubjectIdentifier() {
+        return useTenantDomainInLocalSubjectIdentifier;
+    }
+
+    public void setUseTenantDomainInLocalSubjectIdentifier(boolean useTenantDomainInLocalSubjectIdentifier) {
+        this.useTenantDomainInLocalSubjectIdentifier = useTenantDomainInLocalSubjectIdentifier;
+    }
+
+    public boolean isUseUserstoreDomainInLocalSubjectIdentifier() {
+        return useUserstoreDomainInLocalSubjectIdentifier;
+    }
+
+    public void setUseUserstoreDomainInLocalSubjectIdentifier(boolean useUserstoreDomainInLocalSubjectIdentifier) {
+        this.useUserstoreDomainInLocalSubjectIdentifier = useUserstoreDomainInLocalSubjectIdentifier;
+    }
 }

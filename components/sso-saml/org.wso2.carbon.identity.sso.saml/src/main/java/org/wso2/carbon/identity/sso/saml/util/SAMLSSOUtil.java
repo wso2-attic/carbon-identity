@@ -1,22 +1,23 @@
 /*
- * Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
- * 
+ * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
  * WSO2 Inc. licenses this file to you under the Apache License,
- * Version 2.0 (the "License"); you may not use this file except
+ *  Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the
+ * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
  * under the License.
  */
 package org.wso2.carbon.identity.sso.saml.util;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.xerces.impl.Constants;
@@ -24,22 +25,27 @@ import org.apache.xerces.util.SecurityManager;
 import org.joda.time.DateTime;
 import org.opensaml.Configuration;
 import org.opensaml.DefaultBootstrap;
-import org.opensaml.saml2.core.*;
+import org.opensaml.saml2.core.Assertion;
+import org.opensaml.saml2.core.EncryptedAssertion;
+import org.opensaml.saml2.core.Issuer;
+import org.opensaml.saml2.core.LogoutRequest;
+import org.opensaml.saml2.core.LogoutResponse;
+import org.opensaml.saml2.core.RequestAbstractType;
+import org.opensaml.saml2.core.Response;
 import org.opensaml.saml2.core.impl.AuthnRequestImpl;
 import org.opensaml.saml2.core.impl.IssuerBuilder;
 import org.opensaml.xml.ConfigurationException;
 import org.opensaml.xml.XMLObject;
-import org.opensaml.xml.XMLObjectBuilder;
 import org.opensaml.xml.io.Marshaller;
 import org.opensaml.xml.io.MarshallerFactory;
 import org.opensaml.xml.io.Unmarshaller;
 import org.opensaml.xml.io.UnmarshallerFactory;
 import org.opensaml.xml.security.SecurityException;
 import org.opensaml.xml.security.x509.X509Credential;
+import org.opensaml.xml.signature.SignableXMLObject;
 import org.opensaml.xml.util.Base64;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.http.HttpService;
-import org.osgi.util.tracker.ServiceTracker;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.bootstrap.DOMImplementationRegistry;
@@ -59,6 +65,7 @@ import org.wso2.carbon.identity.base.IdentityConstants;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.model.SAMLSSOServiceProviderDO;
 import org.wso2.carbon.identity.core.persistence.IdentityPersistenceManager;
+import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.sso.saml.SAMLSSOConstants;
 import org.wso2.carbon.identity.sso.saml.SSOServiceProviderConfigManager;
@@ -74,37 +81,55 @@ import org.wso2.carbon.identity.sso.saml.exception.IdentitySAML2SSOException;
 import org.wso2.carbon.identity.sso.saml.session.SSOSessionPersistenceManager;
 import org.wso2.carbon.identity.sso.saml.validators.SAML2HTTPRedirectSignatureValidator;
 import org.wso2.carbon.idp.mgt.IdentityProviderManager;
-import org.wso2.carbon.registry.api.RegistryException;
 import org.wso2.carbon.registry.core.Registry;
 import org.wso2.carbon.registry.core.service.RegistryService;
 import org.wso2.carbon.registry.core.service.TenantRegistryLoader;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.service.RealmService;
-import org.wso2.carbon.utils.AuthenticationObserver;
 import org.wso2.carbon.utils.ConfigurationContextService;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 import javax.xml.XMLConstants;
-import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import java.io.*;
-import java.net.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.security.KeyStore;
-import java.util.*;
-import java.util.zip.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.Set;
+import java.util.zip.DataFormatException;
+import java.util.zip.Deflater;
+import java.util.zip.DeflaterOutputStream;
+import java.util.zip.Inflater;
+import java.util.zip.InflaterInputStream;
 
 public class SAMLSSOUtil {
 
     private static final char[] charMapping = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j',
             'k', 'l', 'm', 'n', 'o', 'p'};
-    private static final Set<Character> UNRESERVED_CHARACTERS = new HashSet<Character>();
-    private static final ThreadLocal<Boolean> isSaaSApplication = new ThreadLocal<Boolean>();
-    private static final ThreadLocal<String> userTenantDomainThreadLocal = new ThreadLocal<String>();
+    private static final Set<Character> UNRESERVED_CHARACTERS = new HashSet<>();
+    private static final ThreadLocal<Boolean> isSaaSApplication = new ThreadLocal<>();
+    private static final ThreadLocal<String> userTenantDomainThreadLocal = new ThreadLocal<>();
     private static final String DefaultAssertionBuilder = "org.wso2.carbon.identity.sso.saml.builders.assertion.DefaultSAMLAssertionBuilder";
     private static final String SECURITY_MANAGER_PROPERTY = Constants.XERCES_PROPERTY_PREFIX +
             Constants.SECURITY_MANAGER_PROPERTY;
     private static final int ENTITY_EXPANSION_LIMIT = 0;
+
     static {
         for (char c = 'a'; c <= 'z'; c++)
             UNRESERVED_CHARACTERS.add(Character.valueOf(c));
@@ -120,6 +145,7 @@ public class SAMLSSOUtil {
         UNRESERVED_CHARACTERS.add(Character.valueOf('_'));
         UNRESERVED_CHARACTERS.add(Character.valueOf('~'));
     }
+
     private static Log log = LogFactory.getLog(SAMLSSOUtil.class);
     private static RegistryService registryService;
     private static TenantRegistryLoader tenantRegistryLoader;
@@ -137,6 +163,9 @@ public class SAMLSSOUtil {
     private static SSOSigner ssoSigner = null;
     private static SAML2HTTPRedirectSignatureValidator samlHTTPRedirectSignatureValidator = null;
     private static ThreadLocal tenantDomainInThreadLocal = new ThreadLocal();
+
+    private SAMLSSOUtil() {
+    }
 
     public static boolean isSaaSApplication() {
 
@@ -175,7 +204,7 @@ public class SAMLSSOUtil {
     public static void setUserTenantDomain(String tenantDomain) throws UserStoreException, IdentityException {
 
         tenantDomain = validateTenantDomain(tenantDomain);
-        if(tenantDomain != null){
+        if (tenantDomain != null) {
             userTenantDomainThreadLocal.set(tenantDomain);
         }
     }
@@ -254,7 +283,7 @@ public class SAMLSSOUtil {
 
             DocumentBuilder docBuilder = documentBuilderFactory.newDocumentBuilder();
             docBuilder.setEntityResolver(new CarbonEntityResolver());
-            inputStream = new ByteArrayInputStream(authReqStr.trim().getBytes());
+            inputStream = new ByteArrayInputStream(authReqStr.trim().getBytes(StandardCharsets.UTF_8));
             Document document = docBuilder.parse(inputStream);
             Element element = document.getDocumentElement();
             UnmarshallerFactory unmarshallerFactory = Configuration.getUnmarshallerFactory();
@@ -270,7 +299,7 @@ public class SAMLSSOUtil {
                 try {
                     inputStream.close();
                 } catch (IOException e) {
-                    log.error("Error while closing the stream");
+                    log.error("Error while closing the stream", e);
                 }
             }
         }
@@ -301,7 +330,7 @@ public class SAMLSSOUtil {
             LSOutput output = impl.createLSOutput();
             output.setByteStream(byteArrayOutputStrm);
             writer.write(element, output);
-            return byteArrayOutputStrm.toString();
+            return byteArrayOutputStrm.toString("UTF-8");
         } catch (Exception e) {
             log.error("Error Serializing the SAML Response");
             throw new IdentityException("Error Serializing the SAML Response", e);
@@ -310,7 +339,7 @@ public class SAMLSSOUtil {
                 try {
                     byteArrayOutputStrm.close();
                 } catch (IOException e) {
-                    log.error("Error while closing the stream");
+                    log.error("Error while closing the stream", e);
                 }
             }
         }
@@ -325,7 +354,7 @@ public class SAMLSSOUtil {
     public static String encode(String xmlString) {
         // Encoding the message
         String encodedRequestMessage =
-                Base64.encodeBytes(xmlString.getBytes(),
+                Base64.encodeBytes(xmlString.getBytes(StandardCharsets.UTF_8),
                         Base64.DONT_BREAK_LINES);
         return encodedRequestMessage.trim();
     }
@@ -362,19 +391,19 @@ public class SAMLSSOUtil {
                 return decodedString;
 
             } catch (DataFormatException e) {
-                ByteArrayInputStream bais = new ByteArrayInputStream(base64DecodedByteArray);
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                InflaterInputStream iis = new InflaterInputStream(bais);
+                ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(base64DecodedByteArray);
+                ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                InflaterInputStream iis = new InflaterInputStream(byteArrayInputStream);
                 byte[] buf = new byte[1024];
                 int count = iis.read(buf);
                 while (count != -1) {
-                    baos.write(buf, 0, count);
+                    byteArrayOutputStream.write(buf, 0, count);
                     count = iis.read(buf);
                 }
                 iis.close();
-                String decodedStr = new String(baos.toByteArray());
+                String decodedStr = new String(byteArrayOutputStream.toByteArray(), StandardCharsets.UTF_8);
                 if (log.isDebugEnabled()) {
-                    log.debug("Request message " + decodedStr);
+                    log.debug("Request message " + decodedStr, e);
                 }
                 return decodedStr;
             }
@@ -412,28 +441,39 @@ public class SAMLSSOUtil {
      */
     public static Issuer getIssuer() throws IdentityException {
 
+        return getIssuerFromTenantDomain(getTenantDomainFromThreadLocal());
+    }
+
+    public static Issuer getIssuerFromTenantDomain(String tenantDomain) throws IdentityException {
+
         Issuer issuer = new IssuerBuilder().buildObject();
         String idPEntityId = null;
         IdentityProvider identityProvider;
         int tenantId;
-        String tenantDomain = getTenantDomainFromThreadLocal();
-        if(tenantDomain == null || tenantDomain.equals("null")){
+
+        if (StringUtils.isEmpty(tenantDomain) || "null".equals(tenantDomain)) {
             tenantDomain = MultitenantConstants.SUPER_TENANT_DOMAIN_NAME;
-        }
-        try {
-            tenantId = realmService.getTenantManager().getTenantId(tenantDomain);
-        } catch(UserStoreException e){
-            String errorMsg = "Error getting the tenant ID for the tenant domain : " + tenantDomain;
-            throw new IdentityException(errorMsg, e);
+            tenantId = MultitenantConstants.SUPER_TENANT_ID;
+        } else {
+            try {
+                tenantId = SAMLSSOUtil.getRealmService().getTenantManager().getTenantId(tenantDomain);
+            } catch (UserStoreException e) {
+                throw new IdentityException("Error occurred while retrieving tenant id from tenant domain", e);
+            }
+
+            if(MultitenantConstants.INVALID_TENANT_ID == tenantId) {
+                throw new IdentityException("Invalid tenant domain - '" + tenantDomain + "'" );
+            }
         }
 
-        initializeRegistry(tenantId, tenantDomain);
+        IdentityTenantUtil.initializeRegistry(tenantId, tenantDomain);
 
         try {
             identityProvider = IdentityProviderManager.getInstance().getResidentIdP(tenantDomain);
         } catch (IdentityApplicationManagementException e) {
             throw new IdentityException(
-                    "Error occurred while retrieving Resident Identity Provider information for tenant " + tenantDomain);
+                    "Error occurred while retrieving Resident Identity Provider information for tenant " +
+                    tenantDomain, e);
         }
         FederatedAuthenticatorConfig[] authnConfigs = identityProvider.getFederatedAuthenticatorConfigs();
         for (FederatedAuthenticatorConfig config : authnConfigs) {
@@ -461,6 +501,20 @@ public class SAMLSSOUtil {
         }
     }
 
+    /**
+     * Sign the SAML Assertion
+     *
+     * @param response
+     * @param signatureAlgorithm
+     * @param cred
+     * @return
+     * @throws IdentityException
+     */
+    public static Assertion setSignature(Assertion response, String signatureAlgorithm,
+                                         X509Credential cred) throws IdentityException {
+
+        return (Assertion) doSetSignature(response, signatureAlgorithm, cred);
+    }
 
     /**
      * Sign the SAML Response message
@@ -473,7 +527,8 @@ public class SAMLSSOUtil {
      */
     public static Response setSignature(Response response, String signatureAlgorithm,
                                         X509Credential cred) throws IdentityException {
-        return (Response) signResponse(response, signatureAlgorithm, cred);
+
+        return (Response) doSetSignature(response, signatureAlgorithm, cred);
     }
 
     /**
@@ -487,105 +542,59 @@ public class SAMLSSOUtil {
      */
     public static LogoutResponse setSignature(LogoutResponse response, String signatureAlgorithm,
                                               X509Credential cred) throws IdentityException {
-        return (LogoutResponse) signResponse(response, signatureAlgorithm, cred);
+
+        return (LogoutResponse) doSetSignature(response, signatureAlgorithm, cred);
     }
 
     /**
-     * Generic method to sign both both SAML Response and SAML LogoutResponse
+     *  Sign SAML Logout Request message
      *
-     * @param response
+     * @param request
      * @param signatureAlgorithm
      * @param cred
      * @return
      * @throws IdentityException
      */
-    private static StatusResponseType signResponse(StatusResponseType response, String signatureAlgorithm,
-                                                   X509Credential cred) throws IdentityException {
+    public static LogoutRequest setSignature(LogoutRequest request, String signatureAlgorithm,
+                                             X509Credential cred) throws IdentityException {
 
-        doBootstrap();
-        try {
-
-            synchronized (Runtime.getRuntime().getClass()) {
-                ssoSigner = (SSOSigner) Class.forName(IdentityUtil.getProperty(
-                        "SSOService.SAMLSSOSigner").trim()).newInstance();
-                ssoSigner.init();
-            }
-
-            return ssoSigner.doSignResponse(response, signatureAlgorithm, cred);
-
-        } catch (ClassNotFoundException e) {
-            throw new IdentityException("Class not found: "
-                    + IdentityUtil.getProperty("SSOService.SAMLSSOSigner"), e);
-        } catch (InstantiationException e) {
-            throw new IdentityException("Error while instantiating class: "
-                    + IdentityUtil.getProperty("SSOService.SAMLSSOSigner"), e);
-        } catch (IllegalAccessException e) {
-            throw new IdentityException("Illegal access to class: "
-                    + IdentityUtil.getProperty("SSOService.SAMLSSOSigner"), e);
-        } catch (Exception e) {
-            throw new IdentityException("Error while signing the SAML Response message.", e);
-        }
-
+        return (LogoutRequest) doSetSignature(request, signatureAlgorithm, cred);
     }
 
-    public static Assertion setSignature(Assertion assertion, String signatureAlgorithm,
-                                         X509Credential cred) throws IdentityException {
-        doBootstrap();
-        try {
+    /**
+     * Generic method to sign SAML Logout Request
+     *
+     * @param request
+     * @param signatureAlgorithm
+     * @param cred
+     * @return
+     * @throws IdentityException
+     */
+    private static SignableXMLObject doSetSignature(SignableXMLObject request, String signatureAlgorithm,
+                                                  X509Credential cred) throws IdentityException {
 
-            synchronized (Runtime.getRuntime().getClass()) {
-                ssoSigner = (SSOSigner) Class.forName(IdentityUtil.getProperty(
-                        "SSOService.SAMLSSOSigner").trim()).newInstance();
-                ssoSigner.init();
+            doBootstrap();
+            try {
+                synchronized (Runtime.getRuntime().getClass()) {
+                    ssoSigner = (SSOSigner) Class.forName(IdentityUtil.getProperty(
+                            "SSOService.SAMLSSOSigner").trim()).newInstance();
+                    ssoSigner.init();
+                }
+
+                return ssoSigner.setSignature(request, signatureAlgorithm, cred);
+
+            } catch (ClassNotFoundException e) {
+                throw new IdentityException("Class not found: "
+                                            + IdentityUtil.getProperty("SSOService.SAMLSSOSigner"), e);
+            } catch (InstantiationException e) {
+                throw new IdentityException("Error while instantiating class: "
+                                            + IdentityUtil.getProperty("SSOService.SAMLSSOSigner"), e);
+            } catch (IllegalAccessException e) {
+                throw new IdentityException("Illegal access to class: "
+                                            + IdentityUtil.getProperty("SSOService.SAMLSSOSigner"), e);
+            } catch (Exception e) {
+                throw new IdentityException("Error while signing the XML object.", e);
             }
-
-            return ssoSigner.doSetSignature(assertion, signatureAlgorithm, cred);
-//            Signature signature = (Signature) buildXMLObject(Signature.DEFAULT_ELEMENT_NAME);
-//            signature.setSigningCredential(cred);
-//            signature.setSignatureAlgorithm(signatureAlgorithm);
-//            signature.setCanonicalizationAlgorithm(Canonicalizer.ALGO_ID_C14N_EXCL_OMIT_COMMENTS);
-//
-//            try {
-//                KeyInfo keyInfo = (KeyInfo) buildXMLObject(KeyInfo.DEFAULT_ELEMENT_NAME);
-//                X509Data data = (X509Data) buildXMLObject(X509Data.DEFAULT_ELEMENT_NAME);
-//                X509Certificate cert = (X509Certificate) buildXMLObject(X509Certificate.DEFAULT_ELEMENT_NAME);
-//                String value = org.apache.xml.security.utils.Base64.encode(cred
-//                        .getEntityCertificate().getEncoded());
-//                cert.setValue(value);
-//                data.getX509Certificates().add(cert);
-//                keyInfo.getX509Datas().add(data);
-//                signature.setKeyInfo(keyInfo);
-//            } catch (CertificateEncodingException e) {
-//                throw new IdentityException("errorGettingCert");
-//            }
-//
-//            assertion.setSignature(signature);
-//
-//            List<Signature> signatureList = new ArrayList<Signature>();
-//            signatureList.add(signature);
-//
-//            // Marshall and Sign
-//            MarshallerFactory marshallerFactory = org.opensaml.xml.Configuration
-//                    .getMarshallerFactory();
-//            Marshaller marshaller = marshallerFactory.getMarshaller(assertion);
-//
-//            marshaller.marshall(assertion);
-//
-//            org.apache.xml.security.Init.init();
-//            Signer.signObjects(signatureList);
-//            return assertion;
-        } catch (ClassNotFoundException e) {
-            throw new IdentityException("Class not found: "
-                    + IdentityUtil.getProperty("SSOService.SAMLSSOSigner"), e);
-        } catch (InstantiationException e) {
-            throw new IdentityException("Error while instantiating class: "
-                    + IdentityUtil.getProperty("SSOService.SAMLSSOSigner"), e);
-        } catch (IllegalAccessException e) {
-            throw new IdentityException("Illegal access to class: "
-                    + IdentityUtil.getProperty("SSOService.SAMLSSOSigner"), e);
-        } catch (Exception e) {
-            throw new IdentityException("Error while signing the SAML Response message.", e);
-        }
     }
 
     public static EncryptedAssertion setEncryptedAssertion(Assertion assertion, String encryptionAlgorithm,
@@ -600,24 +609,6 @@ public class SAMLSSOUtil {
                 ssoEncrypter.init();
             }
             return ssoEncrypter.doEncryptedAssertion(assertion, cred, alias, encryptionAlgorithm);
-//
-//            Credential symmetricCredential = SecurityHelper.getSimpleCredential(
-//                    SecurityHelper.generateSymmetricKey(EncryptionConstants.ALGO_ID_BLOCKCIPHER_AES256));
-//
-//            EncryptionParameters encParams = new EncryptionParameters();
-//            encParams.setAlgorithm(EncryptionConstants.ALGO_ID_BLOCKCIPHER_AES256);
-//            encParams.setEncryptionCredential(symmetricCredential);
-//
-//            KeyEncryptionParameters keyEncryptionParameters = new KeyEncryptionParameters();
-//            keyEncryptionParameters.setAlgorithm(EncryptionConstants.ALGO_ID_KEYTRANSPORT_RSA15);
-//            keyEncryptionParameters.setEncryptionCredential(cred);
-//
-//            Encrypter encrypter = new Encrypter(encParams, keyEncryptionParameters);
-//            encrypter.setKeyPlacement(Encrypter.KeyPlacement.INLINE);
-//
-//            EncryptedAssertion encrypted = encrypter.encrypt(assertion);
-////            response.getEncryptedAssertions().add(encrypted);
-//            return encrypted;
         } catch (ClassNotFoundException e) {
             throw new IdentityException("Class not found: "
                     + IdentityUtil.getProperty("SSOService.SAMLSSOEncrypter"), e);
@@ -639,11 +630,13 @@ public class SAMLSSOUtil {
         String assertionBuilderClass = null;
         try {
             assertionBuilderClass = IdentityUtil.getProperty("SSOService.SAMLSSOAssertionBuilder").trim();
-            if (assertionBuilderClass == null || assertionBuilderClass.equals("")) {
+            if (StringUtils.isBlank(assertionBuilderClass)) {
                 assertionBuilderClass = DefaultAssertionBuilder;
             }
         } catch (Exception e) {
-            log.debug("SAMLSSOAssertionBuilder configuration is set to default builder ");
+            if (log.isDebugEnabled()) {
+                log.debug("SAMLSSOAssertionBuilder configuration is set to default builder ", e);
+            }
             assertionBuilderClass = DefaultAssertionBuilder;
         }
 
@@ -667,26 +660,6 @@ public class SAMLSSOUtil {
         } catch (Exception e) {
             throw new IdentityException("Error while building the saml assertion", e);
         }
-    }
-
-
-    /**
-     * Builds SAML Elements
-     *
-     * @param objectQName
-     * @return
-     * @throws IdentityException
-     */
-    private static XMLObject buildXMLObject(QName objectQName) throws IdentityException {
-        XMLObjectBuilder builder =
-                org.opensaml.xml.Configuration.getBuilderFactory()
-                        .getBuilder(objectQName);
-        if (builder == null) {
-            throw new IdentityException("Unable to retrieve builder for object QName " +
-                    objectQName);
-        }
-        return builder.buildObject(objectQName.getNamespaceURI(), objectQName.getLocalPart(),
-                objectQName.getPrefix());
     }
 
     public static String createID() {
@@ -714,7 +687,7 @@ public class SAMLSSOUtil {
      */
     public static String generateKSNameFromDomainName(String tenantDomain) {
         String ksName = tenantDomain.trim().replace(".", "-");
-        return (ksName + ".jks");
+        return ksName + ".jks";
     }
 
     /**
@@ -729,7 +702,7 @@ public class SAMLSSOUtil {
     public static X509CredentialImpl getX509CredentialImplForTenant(String tenantDomain, String alias)
             throws IdentitySAML2SSOException {
 
-        if(tenantDomain == null || tenantDomain.trim().isEmpty() || alias == null || alias.trim().isEmpty()){
+        if (tenantDomain == null || tenantDomain.trim().isEmpty() || alias == null || alias.trim().isEmpty()) {
             throw new IllegalArgumentException("Invalid parameters; domain name : " + tenantDomain + ", " +
                     "alias : " + alias);
         }
@@ -775,9 +748,10 @@ public class SAMLSSOUtil {
      */
     public static boolean validateAuthnRequestSignature(SAMLSSOAuthnReqDTO authnReqDTO) {
 
-        log.debug("Validating SAML Request signature");
+        if (log.isDebugEnabled()) {
+            log.debug("Validating SAML Request signature");
+        }
 
-        //String domainName = MultitenantUtils.getTenantDomain(authnReqDTO.getUser());
         String domainName = authnReqDTO.getTenantDomain();
         if (authnReqDTO.isStratosDeployment()) {
             domainName = MultitenantConstants.SUPER_TENANT_DOMAIN_NAME;
@@ -795,8 +769,9 @@ public class SAMLSSOUtil {
 
             request = (RequestAbstractType) SAMLSSOUtil.unmarshall(decodedReq);
         } catch (IdentityException e) {
-            log.warn("Signature Validation failed for the SAMLRequest : Failed to unmarshall the SAML Assertion");
-            log.debug(e);
+            if (log.isDebugEnabled()) {
+                log.debug("Signature Validation failed for the SAMLRequest : Failed to unmarshall the SAML Assertion", e);
+            }
         }
 
         try {
@@ -809,8 +784,9 @@ public class SAMLSSOUtil {
                 return validateXMLSignature(request, alias, domainName);
             }
         } catch (IdentityException e) {
-            log.warn("Signature Validation failed for the SAMLRequest : Failed to validate the SAML Assertion");
-            log.debug(e);
+            if (log.isDebugEnabled()) {
+                log.debug("Signature Validation failed for the SAMLRequest : Failed to validate the SAML Assertion", e);
+            }
             return false;
         }
     }
@@ -864,7 +840,7 @@ public class SAMLSSOUtil {
             return false;
         } catch (IdentitySAML2SSOException e) {
             log.warn("Signature validation failed for the SAML Message : Failed to construct the X509CredentialImpl for the alias " +
-                    alias);
+                    alias, e);
             return false;
         } catch (ClassNotFoundException e) {
             throw new IdentityException("Class not found: "
@@ -902,14 +878,16 @@ public class SAMLSSOUtil {
                     ssoSigner.init();
                 }
 
-                return ssoSigner.doValidateXMLSignature(request, cred, alias);
-            } catch (IdentitySAML2SSOException ignore) {
-                log.warn("Signature validation failed for the SAML Message : Failed to construct the X509CredentialImpl for the alias " +
-                        alias);
-                log.debug(ignore);
-            } catch (IdentityException ignore) {
-                log.warn("Signature Validation Failed for the SAML Assertion : Signature is invalid.");
-                log.debug(ignore);
+                return ssoSigner.validateXMLSignature(request, cred, alias);
+            } catch (IdentitySAML2SSOException e) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Signature validation failed for the SAML Message : Failed to construct the X509CredentialImpl for the alias " +
+                            alias, e);
+                }
+            } catch (IdentityException e) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Signature Validation Failed for the SAML Assertion : Signature is invalid.", e);
+                }
             } catch (ClassNotFoundException e) {
                 throw new IdentityException("Class not found: "
                         + IdentityUtil.getProperty("SSOService.SAMLSSOSigner"), e);
@@ -920,7 +898,9 @@ public class SAMLSSOUtil {
                 throw new IdentityException("Illegal access to class: "
                         + IdentityUtil.getProperty("SSOService.SAMLSSOSigner"), e);
             } catch (Exception e) {
-
+                if (log.isDebugEnabled()) {
+                    log.debug("Error while validating XML signature.", e);
+                }
             }
         }
         return isSignatureValid;
@@ -946,12 +926,12 @@ public class SAMLSSOUtil {
             IdentityPersistenceManager persistenceManager =
                     IdentityPersistenceManager.getPersistanceManager();
 
-            Registry registry = (Registry)PrivilegedCarbonContext.getThreadLocalCarbonContext().
+            Registry registry = (Registry) PrivilegedCarbonContext.getThreadLocalCarbonContext().
                     getRegistry(RegistryType.SYSTEM_CONFIGURATION);
             spDO = persistenceManager.getServiceProvider(registry, authnReqDTO.getIssuer());
         }
 
-        if (!authnReqDTO.isIdPInitSSO()) {
+        if (!authnReqDTO.isIdPInitSSOEnabled()) {
 
             AuthnRequestImpl request = null;
 
@@ -961,22 +941,35 @@ public class SAMLSSOUtil {
             } catch (IdentityException e) {
                 request = (AuthnRequestImpl) SAMLSSOUtil.unmarshall(SAMLSSOUtil
                         .decodeForPost(authnReqDTO.getRequestMessageString()));
+                if (log.isDebugEnabled()) {
+                    log.debug("Error while decoding authentication request.", e);
+                }
             }
 
             if (request.getAttributeConsumingServiceIndex() == null) {
-                if (authnReqDTO.getAttributeConsumingServiceIndex() != 0) {
-                    index = authnReqDTO.getAttributeConsumingServiceIndex();
-                    spDO.setAttributeConsumingServiceIndex(String.valueOf(index));
+                //SP has not provide a AttributeConsumingServiceIndex in the authnReqDTO
+                if (StringUtils.isNotBlank(spDO.getAttributeConsumingServiceIndex())) {
+                    if (spDO.isEnableAttributesByDefault()) {
+                        index = Integer.parseInt(spDO.getAttributeConsumingServiceIndex());
+                    } else {
+                        return null;
+                    }
                 } else {
-                    return null; // not requesting for attributes
+                    return null;
                 }
             } else {
+                //SP has provide a AttributeConsumingServiceIndex in the authnReqDTO
                 index = request.getAttributeConsumingServiceIndex();
             }
         } else {
-            index = authnReqDTO.getAttributeConsumingServiceIndex();
-            if (index != 0) {
-                spDO.setAttributeConsumingServiceIndex(String.valueOf(index));
+            if (StringUtils.isNotBlank(spDO.getAttributeConsumingServiceIndex())) {
+                if (spDO.isEnableAttributesByDefault()) {
+                    index = Integer.parseInt(spDO.getAttributeConsumingServiceIndex());
+                } else {
+                    return null;
+                }
+            } else {
+                return null;
             }
 
         }
@@ -989,8 +982,10 @@ public class SAMLSSOUtil {
         if (spDO.getAttributeConsumingServiceIndex() == null ||
                 "".equals(spDO.getAttributeConsumingServiceIndex()) ||
                 index != Integer.parseInt(spDO.getAttributeConsumingServiceIndex())) {
-            log.debug("Invalid AttributeConsumingServiceIndex in AuthnRequest");
-            return null;
+            if (log.isDebugEnabled()) {
+                log.debug("Invalid AttributeConsumingServiceIndex in AuthnRequest");
+            }
+            return Collections.emptyMap();
         }
 
         Map<String, String> claimsMap = new HashMap<String, String>();
@@ -1012,15 +1007,15 @@ public class SAMLSSOUtil {
      * @return decoded response
      * @throws IdentityException
      */
-    public static String buildErrorResponse(String id, List<String> statusCodes, String statusMsg) throws IdentityException {
+    public static String buildErrorResponse(String id, List<String> statusCodes, String statusMsg, String destination)
+            throws IdentityException {
         ErrorResponseBuilder respBuilder = new ErrorResponseBuilder();
-        Response response = respBuilder.buildResponse(id, statusCodes, statusMsg);
+        Response response = respBuilder.buildResponse(id, statusCodes, statusMsg, destination);
         return SAMLSSOUtil.encode(SAMLSSOUtil.marshall(response));
     }
 
     public static int getSAMLResponseValidityPeriod() {
-        if (IdentityUtil.getProperty(IdentityConstants.ServerConfig.SAML_RESPONSE_VALIDITY_PERIOD) != null &&
-                !IdentityUtil.getProperty(IdentityConstants.ServerConfig.SAML_RESPONSE_VALIDITY_PERIOD).trim().equals("")) {
+        if (StringUtils.isNotBlank(IdentityUtil.getProperty(IdentityConstants.ServerConfig.SAML_RESPONSE_VALIDITY_PERIOD))) {
             return Integer.parseInt(IdentityUtil.getProperty(
                     IdentityConstants.ServerConfig.SAML_RESPONSE_VALIDITY_PERIOD).trim());
         } else {
@@ -1079,6 +1074,10 @@ public class SAMLSSOUtil {
      */
     public static boolean isHttpSuccessStatusCode(int status) {
         return status >= 200 && status < 300;
+    }
+
+    public static boolean isHttpRedirectStatusCode(int status) {
+        return status == 302 || status == 303;
     }
 
     public static String getUserNameFromOpenID(String openid) throws IdentityException {
@@ -1146,7 +1145,7 @@ public class SAMLSSOUtil {
             return null;
 
         int len = text.length();
-        StringBuffer normalized = new StringBuffer(len);
+        StringBuilder normalized = new StringBuilder(len);
 
         for (int i = 0; i < len; i++) {
             char current = text.charAt(i);
@@ -1161,6 +1160,9 @@ public class SAMLSSOUtil {
                         normalized.append(percentCode);
                 } catch (UnsupportedEncodingException e) {
                     normalized.append(percentCode);
+                    if (log.isDebugEnabled()) {
+                        log.debug("Unsupported Encoding exception while decoding percent code.", e);
+                    }
                 }
                 i += 2;
             } else {
@@ -1183,7 +1185,7 @@ public class SAMLSSOUtil {
     public static void setTenantDomainInThreadLocal(String tenantDomain) throws UserStoreException, IdentityException {
 
         tenantDomain = validateTenantDomain(tenantDomain);
-        if(tenantDomain != null){
+        if (tenantDomain != null) {
             SAMLSSOUtil.tenantDomainInThreadLocal.set(tenantDomain);
         }
     }
@@ -1203,11 +1205,11 @@ public class SAMLSSOUtil {
 
     public static String validateTenantDomain(String tenantDomain) throws UserStoreException, IdentityException {
 
-        if(tenantDomain != null && !tenantDomain.trim().isEmpty() && !"null".equalsIgnoreCase(tenantDomain.trim())) {
+        if (tenantDomain != null && !tenantDomain.trim().isEmpty() && !"null".equalsIgnoreCase(tenantDomain.trim())) {
             int tenantID = SAMLSSOUtil.getRealmService().getTenantManager().getTenantId(tenantDomain);
-            if(tenantID == -1){
+            if (tenantID == -1) {
                 String message = "Invalid tenant domain : " + tenantDomain;
-                if(log.isDebugEnabled()){
+                if (log.isDebugEnabled()) {
                     log.debug(message);
                 }
                 throw new IdentityException(message);
@@ -1220,21 +1222,21 @@ public class SAMLSSOUtil {
 
     /**
      * build the error response
+     *
      * @param status
      * @param message
      * @return decoded response
      * @throws org.wso2.carbon.identity.base.IdentityException
      */
-    public static String buildErrorResponse(String status, String message)
+    public static String buildErrorResponse(String status, String message, String destination)
             throws IdentityException, IOException {
+
         ErrorResponseBuilder respBuilder = new ErrorResponseBuilder();
         List<String> statusCodeList = new ArrayList<String>();
         statusCodeList.add(status);
-        Response response = respBuilder.buildResponse(null, statusCodeList, message);
+        Response response = respBuilder.buildResponse(null, statusCodeList, message, destination);
         String resp = SAMLSSOUtil.marshall(response);
-
         return compressResponse(resp);
-
     }
 
     /**
@@ -1245,48 +1247,15 @@ public class SAMLSSOUtil {
      * @throws IOException
      */
     public static String compressResponse(String response) throws IOException {
+
         Deflater deflater = new Deflater(Deflater.DEFLATED, true);
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         DeflaterOutputStream deflaterOutputStream = new DeflaterOutputStream(byteArrayOutputStream, deflater);
-        deflaterOutputStream.write(response.getBytes());
-        deflaterOutputStream.close();
-        return Base64.encodeBytes(byteArrayOutputStream.toByteArray(), Base64.DONT_BREAK_LINES);
-    }
-
-    public static void initializeRegistry(int tenantId, String tenantDomain) throws IdentityException {
-
-        if (tenantId != MultitenantConstants.SUPER_TENANT_ID) {
-            try {
-                PrivilegedCarbonContext.startTenantFlow();
-                PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
-                carbonContext.setTenantDomain(tenantDomain, true);
-                BundleContext bundleContext = SAMLSSOUtil.getBundleContext();
-                if (bundleContext != null) {
-                    ServiceTracker tracker = new ServiceTracker(bundleContext, AuthenticationObserver.class.getName(), null);
-                    tracker.open();
-                    Object[] services = tracker.getServices();
-                    if (services != null) {
-                        for (Object service : services) {
-                            ((AuthenticationObserver) service).startedAuthentication(tenantId);
-                        }
-                    }
-                    tracker.close();
-                    try {
-                        SAMLSSOUtil.getTenantRegistryLoader().loadTenantRegistry(tenantId);
-                    } catch (RegistryException e) {
-                        throw new IdentityException("Error loading tenant registry for tenant domain " + tenantDomain, e);
-                    }
-                    try {
-                        registryService.getGovernanceSystemRegistry(tenantId);
-                    } catch (RegistryException e) {
-                        throw new IdentityException("Error obtaining governance system registry for tenant domain " +
-                                tenantDomain, e);
-                    }
-                }
-            } finally {
-                PrivilegedCarbonContext.endTenantFlow();
-            }
+        try {
+            deflaterOutputStream.write(response.getBytes(StandardCharsets.UTF_8));
+            return Base64.encodeBytes(byteArrayOutputStream.toByteArray(), Base64.DONT_BREAK_LINES);
+        } finally {
+            deflaterOutputStream.close();
         }
     }
-
 }

@@ -20,8 +20,6 @@ package org.wso2.carbon.identity.entitlement;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.identity.entitlement.cache.DecisionInvalidationCache;
-import org.wso2.carbon.identity.entitlement.cache.EntitlementPolicyInvalidationCache;
 import org.wso2.carbon.identity.entitlement.dto.PDPDataHolder;
 import org.wso2.carbon.identity.entitlement.dto.PIPFinderDataHolder;
 import org.wso2.carbon.identity.entitlement.dto.PolicyFinderDataHolder;
@@ -29,17 +27,26 @@ import org.wso2.carbon.identity.entitlement.internal.EntitlementServiceComponent
 import org.wso2.carbon.identity.entitlement.pap.EntitlementAdminEngine;
 import org.wso2.carbon.identity.entitlement.pap.store.PAPPolicyFinder;
 import org.wso2.carbon.identity.entitlement.pdp.EntitlementEngine;
-import org.wso2.carbon.identity.entitlement.pip.*;
+import org.wso2.carbon.identity.entitlement.pip.AbstractPIPAttributeFinder;
+import org.wso2.carbon.identity.entitlement.pip.CarbonAttributeFinder;
+import org.wso2.carbon.identity.entitlement.pip.CarbonResourceFinder;
+import org.wso2.carbon.identity.entitlement.pip.PIPAttributeFinder;
+import org.wso2.carbon.identity.entitlement.pip.PIPResourceFinder;
 import org.wso2.carbon.identity.entitlement.policy.finder.PolicyFinderModule;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 
 /**
  * Entitlement PDP related admin services are exposed
  */
 public class EntitlementAdminService {
 
-    private static Log log = LogFactory.getLog(EntitlementAdminService.class);
+	private static Log log = LogFactory.getLog(EntitlementAdminService.class);
 
     /**
      * Clears the decision cache.
@@ -47,7 +54,7 @@ public class EntitlementAdminService {
      * @throws EntitlementException throws
      */
     public void clearDecisionCache() throws EntitlementException {
-        DecisionInvalidationCache.getInstance().invalidateCache();
+        EntitlementEngine.getInstance().clearDecisionCache();
         if (log.isDebugEnabled()) {
             log.debug("Decision Caching is cleared by using admin service");
         }
@@ -59,7 +66,7 @@ public class EntitlementAdminService {
      * @throws EntitlementException throws
      */
     public void clearPolicyCache() throws EntitlementException {
-        EntitlementPolicyInvalidationCache.getInstance().invalidateCache();
+        EntitlementEngine.getInstance().getPolicyCache().invalidateCache();
         if (log.isDebugEnabled()) {
             log.debug("Decision Caching is cleared by using admin service");
         }
@@ -310,8 +317,7 @@ public class EntitlementAdminService {
                         EntitlementEngine.getInstance().getCarbonPolicyFinder().init();
                         // need to re init all policy finder modules in the cluster.
                         // therefore calling invalidation cache
-                        DecisionInvalidationCache.getInstance().invalidateCache();
-                        EntitlementPolicyInvalidationCache.getInstance().invalidateCache();
+                        EntitlementEngine.getInstance().clearDecisionCache();
                     } catch (Exception e) {
                         throw new EntitlementException("Error while refreshing attribute finder - " +
                                 policyFinder);

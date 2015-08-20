@@ -1,12 +1,12 @@
 /*
- *  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- *  WSO2 Inc. licenses this file to you under the Apache License,
- *  Version 2.0 (the "License"); you may not use this file except
- *  in compliance with the License.
- *  You may obtain a copy of the License at
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -60,7 +60,7 @@ public class IWAAuthenticator extends AbstractAuthenticator {
             RealmService realmService = IWABEDataHolder.getInstance().getRealmService();
 
             String tenantDomain = MultitenantUtils.getTenantDomain(windowsLoggedInUser);
-            windowsLoggedInUser = MultitenantUtils.getTenantAwareUsername(windowsLoggedInUser);
+            String loggedInUser = MultitenantUtils.getTenantAwareUsername(windowsLoggedInUser);
 
             tenantId = realmService.getTenantManager().getTenantId(tenantDomain);
 
@@ -68,30 +68,30 @@ public class IWAAuthenticator extends AbstractAuthenticator {
                     realmService, tenantDomain);
 
             try {
-                doAuthentication(windowsLoggedInUser, tenantId,
+                doAuthentication(loggedInUser, tenantId,
                         MessageContext.getCurrentMessageContext());
 
             } catch (AuthenticationFailureException e) {
-                CarbonAuthenticationUtil.onFailedAdminLogin(httpSession, windowsLoggedInUser,
+                CarbonAuthenticationUtil.onFailedAdminLogin(httpSession, loggedInUser,
                         tenantId, remoteAddress, "Data");
                 log.error(e.getMessage(), e);
                 return false;
             }
 
             boolean isAuthorized = realm.getAuthorizationManager().isUserAuthorized(
-                    windowsLoggedInUser, "/permission/admin/login",
+                    loggedInUser, "/permission/admin/login",
                     CarbonConstants.UI_PERMISSION_ACTION);
 
             if (isAuthorized) {
-                CarbonAuthenticationUtil.onSuccessAdminLogin(httpSession, windowsLoggedInUser,
+                CarbonAuthenticationUtil.onSuccessAdminLogin(httpSession, loggedInUser,
                         tenantId, tenantDomain, remoteAddress);
                 if (log.isDebugEnabled()) {
-                    log.debug(windowsLoggedInUser + " logged in from IP address " + remoteAddress);
+                    log.debug(loggedInUser + " logged in from IP address " + remoteAddress);
                 }
                 return true;
             } else {
                 CarbonAuthenticationUtil
-                        .onFailedAdminLogin(httpSession, windowsLoggedInUser, tenantId,
+                        .onFailedAdminLogin(httpSession, loggedInUser, tenantId,
                                 remoteAddress, "User is not authorized to login using delegation");
                 return false;
             }
@@ -160,6 +160,9 @@ public class IWAAuthenticator extends AbstractAuthenticator {
                 throw new AuthenticationFailureException(
                         AuthenticationFailureException.AuthenticationFailureReason.INVALID_USER_NAME,
                         userNameInRequest);
+            }else{
+                // Set this attribute if authenticated, This will cause canHandle to return true
+                getHttpSession().setAttribute(IWA_USER_NAME,userName);
             }
 
         } catch (org.wso2.carbon.user.api.UserStoreException e) {

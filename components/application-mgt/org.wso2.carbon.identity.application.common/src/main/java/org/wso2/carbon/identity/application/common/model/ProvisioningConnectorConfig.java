@@ -1,31 +1,34 @@
 /*
- *Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- *WSO2 Inc. licenses this file to you under the Apache License,
- *Version 2.0 (the "License"); you may not use this file except
- *in compliance with the License.
- *You may obtain a copy of the License at
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *Unless required by applicable law or agreed to in writing,
- *software distributed under the License is distributed on an
- *"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *KIND, either express or implied.  See the License for the
- *specific language governing permissions and limitations
- *under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package org.wso2.carbon.identity.application.common.model;
 
 import org.apache.axiom.om.OMElement;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
+import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
 
 public class ProvisioningConnectorConfig implements Serializable {
 
@@ -43,7 +46,8 @@ public class ProvisioningConnectorConfig implements Serializable {
          * <ProvisioningConnectorConfig> <Name></Name> <ProvisioningProperties></ProvisioningProperties>
          * </ProvisioningConnectorConfig>
          */
-    public static ProvisioningConnectorConfig build(OMElement provisioningConnectorConfigOM) {
+    public static ProvisioningConnectorConfig build(OMElement provisioningConnectorConfigOM) throws
+            IdentityApplicationManagementException{
         ProvisioningConnectorConfig provisioningConnectorConfig = new ProvisioningConnectorConfig();
 
         Iterator<?> iter = provisioningConnectorConfigOM.getChildElements();
@@ -52,9 +56,9 @@ public class ProvisioningConnectorConfig implements Serializable {
             OMElement element = (OMElement) (iter.next());
             String elementName = element.getLocalName();
 
-            if (elementName.equals("ProvisioningProperties")) {
+            if ("ProvisioningProperties".equals(elementName)) {
                 Iterator<?> propertiesIter = element.getChildElements();
-                ArrayList<Property> propertiesArrList = new ArrayList<Property>();
+                List<Property> propertiesArrList = new ArrayList<Property>();
 
                 if (propertiesIter != null) {
                     while (propertiesIter.hasNext()) {
@@ -63,17 +67,21 @@ public class ProvisioningConnectorConfig implements Serializable {
                     }
                 }
 
-                if (propertiesArrList.size() > 0) {
+                if (CollectionUtils.isNotEmpty(propertiesArrList)) {
                     Property[] propertiesArr = propertiesArrList.toArray(new Property[0]);
                     provisioningConnectorConfig.setProvisioningProperties(propertiesArr);
                 }
             }
 
-            if (elementName.equals("Name")) {
+            if ("Name".equals(elementName)) {
                 provisioningConnectorConfig.setName(element.getText());
             }
         }
 
+        if(StringUtils.isBlank(provisioningConnectorConfig.getName())){
+            throw new IdentityApplicationManagementException("No configured name found for " +
+                    "ProvisioningConnectorConfig");
+        }
         return provisioningConnectorConfig;
     }
 
@@ -144,13 +152,17 @@ public class ProvisioningConnectorConfig implements Serializable {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof ProvisioningConnectorConfig)) return false;
+        if (!(o instanceof ProvisioningConnectorConfig))
+            return false;
 
         ProvisioningConnectorConfig that = (ProvisioningConnectorConfig) o;
 
-        if (!StringUtils.equals(name, that.name)) return false;
-        if (!Arrays.equals(provisioningProperties, that.provisioningProperties)) return false;
-
+        if (!StringUtils.equals(name, that.name)) {
+            return false;
+        }
+        if (!Arrays.equals(provisioningProperties, that.provisioningProperties)) {
+            return false;
+        }
         return true;
     }
 

@@ -18,22 +18,22 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar"
            prefix="carbon" %>
-<%@page import="org.wso2.carbon.utils.ServerConstants" %>
-<%@page import="org.wso2.carbon.ui.CarbonUIUtil" %>
 <%@page import="org.apache.axis2.context.ConfigurationContext" %>
 <%@page import="org.wso2.carbon.CarbonConstants" %>
-<%@page import="org.wso2.carbon.CarbonError" %>
+<%@page import="org.wso2.carbon.identity.user.profile.stub.types.UserFieldDTO" %>
+<%@page import="org.wso2.carbon.identity.user.profile.stub.types.UserProfileDTO" %>
 <%@page import="org.wso2.carbon.identity.user.profile.ui.client.UserProfileCient" %>
-<%@page import="java.lang.Exception" %>
-<%@page import="java.util.ResourceBundle"%>
-<%@page import="java.net.URLEncoder" %>
-<%@ page import="org.wso2.carbon.user.mgt.ui.Util" %>
-<%@page import="org.wso2.carbon.ui.util.CharacterEncoder"%><script type="text/javascript" src="extensions/js/vui.js"></script>
+<%@page import="org.wso2.carbon.ui.CarbonUIMessage" %>
+<%@page import="org.wso2.carbon.ui.CarbonUIUtil" %>
+<%@page import="org.wso2.carbon.ui.util.CharacterEncoder"%>
+<%@page import="org.wso2.carbon.user.mgt.ui.Util" %>
+<%@ page import="org.wso2.carbon.utils.ServerConstants" %>
+<%@page import="java.net.URLEncoder"%><script type="text/javascript" src="extensions/js/vui.js"></script>
 <script type="text/javascript" src="../extensions/core/js/vui.js"></script>
 <script type="text/javascript" src="../admin/js/main.js"></script>
 
 <jsp:include page="../dialog/display_messages.jsp"/>
-<%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
+<%@ page import="java.util.ResourceBundle" %>
 
 <%
     boolean readOnlyUserStore = false;
@@ -100,10 +100,14 @@
 <script type="text/javascript">
 </script>
 
+<!-- Set checkbox checked/unchecked value to hidden textbox value -->
+<script type="text/javascript">
+    function setBooleanValueToTextBox(element)
+    {
+        document.getElementById(element.value).value = element.checked;
+    }
+</script>
 
-<%@page import="org.wso2.carbon.user.core.UserCoreConstants" %>
-<%@ page import="org.wso2.carbon.identity.user.profile.stub.types.UserProfileDTO" %>
-<%@ page import="org.wso2.carbon.identity.user.profile.stub.types.UserFieldDTO" %>
 <fmt:bundle basename="org.wso2.carbon.identity.user.profile.ui.i18n.Resources">
     <carbon:breadcrumb label="update.profile"
                        resourceBundle="org.wso2.carbon.identity.user.profile.ui.i18n.Resources"
@@ -256,9 +260,13 @@
                                             // assume as boolean value. But actually this must be sent from backend.
                                             // will fix for next release.
 		                         %>
-                                            <td><input id="<%=userFields[i].getClaimUri()%>" name="<%=userFields[i].getClaimUri()%>"
-                                             class="text-box-big" type="checkbox" value="true" <%if(Boolean.parseBoolean(value)){%> checked="checked" <%}%> ></td>
-
+                                <td>
+                                    <input class="text-box-big" type="checkbox" onclick="setBooleanValueToTextBox(this)"
+                                            <%if (Boolean.parseBoolean(value)) {%> checked="checked" <%}%>
+                                           value="<%=userFields[i].getClaimUri()%>"/>
+                                    <input id="<%=userFields[i].getClaimUri()%>" name="<%=userFields[i].getClaimUri()%>"
+                                           type="hidden" value="<%=value%>"/>
+                                </td>
 		                         <%
                                         } else {
                                  %>

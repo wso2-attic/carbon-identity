@@ -17,20 +17,20 @@
  -->
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar"  prefix="carbon" %>
-<%@page import="org.wso2.carbon.utils.ServerConstants" %>
-<%@page import="org.wso2.carbon.ui.CarbonUIUtil" %>
 <%@page import="org.apache.axis2.context.ConfigurationContext" %>
 <%@page import="org.wso2.carbon.CarbonConstants" %>
-<%@page import="org.wso2.carbon.CarbonError" %>
+<%@page import="org.wso2.carbon.identity.user.profile.stub.types.UserFieldDTO" %>
+<%@page import="org.wso2.carbon.identity.user.profile.stub.types.UserProfileDTO" %>
 <%@page import="org.wso2.carbon.identity.user.profile.ui.client.UserProfileCient" %>
-<%@page import="java.lang.Exception" %>
-<%@page import="java.util.ResourceBundle"%>
-<%@page import="org.wso2.carbon.ui.util.CharacterEncoder"%><script type="text/javascript" src="extensions/js/vui.js"></script>
+<%@page import="org.wso2.carbon.ui.CarbonUIMessage" %>
+<%@page import="org.wso2.carbon.ui.CarbonUIUtil" %>
+<%@page import="org.wso2.carbon.ui.util.CharacterEncoder"%>
+<%@page import="org.wso2.carbon.user.core.UserCoreConstants"%><script type="text/javascript" src="extensions/js/vui.js"></script>
 <script type="text/javascript" src="../extensions/core/js/vui.js"></script>
 <script type="text/javascript" src="../admin/js/main.js"></script>
 
 <jsp:include page="../dialog/display_messages.jsp"/>
-<%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
+<%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 
 <%
     String username = CharacterEncoder.getSafeText((String) request.getParameter("username"));
@@ -91,9 +91,8 @@ function validateTextForIllegal(fld,fldName) {
 %>
 
 
-<%@page import="org.wso2.carbon.user.core.UserCoreConstants" %>
-<%@ page import="org.wso2.carbon.identity.user.profile.stub.types.UserFieldDTO" %>
-<%@ page import="org.wso2.carbon.identity.user.profile.stub.types.UserProfileDTO" %>
+<%@page import="java.net.URLEncoder" %>
+<%@ page import="java.util.ResourceBundle" %>
 <fmt:bundle
         basename="org.wso2.carbon.identity.user.profile.ui.i18n.Resources">
     <carbon:breadcrumb label="add.profile"
@@ -249,7 +248,7 @@ function validateTextForIllegal(fld,fldName) {
                             <input name="addprofile" type="button" class="button" value="<fmt:message key='add'/>" onclick="validate();"/>
                             <input type="button" class="button"
                                   <%if ("true".equals(fromUserMgt)) {%>
-                                   onclick="javascript:location.href='index.jsp?username=<%=URLEncoder.encode(username)%>&fromUserMgt=true'"
+                                   onclick="javascript:location.href='index.jsp?username=<%=URLEncoder.encode(username, "UTF-8")%>&fromUserMgt=true'"
                                   <%}else{%>
                                    onclick="javascript:location.href='index.jsp?region=region5&item=userprofiles_menu&ordinal=0'"
                                   <%}%>

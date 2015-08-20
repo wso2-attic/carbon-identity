@@ -16,12 +16,12 @@
 ~ under the License.
 -->
 
-<%@page import="org.wso2.carbon.identity.application.common.model.idp.xsd.ProvisioningConnectorConfig"%>
+<%@page import="org.wso2.carbon.identity.application.common.model.idp.xsd.FederatedAuthenticatorConfig"%>
 <%@ page import="org.wso2.carbon.identity.application.common.model.idp.xsd.IdentityProvider" %>
-<%@ page import="org.wso2.carbon.identity.application.common.model.idp.xsd.FederatedAuthenticatorConfig" %>
 <%@ page import="org.wso2.carbon.identity.application.common.model.idp.xsd.Property" %>
-<%@ page import="org.wso2.carbon.idp.mgt.ui.util.IdPManagementUIUtil" %>
+<%@ page import="org.wso2.carbon.identity.application.common.model.idp.xsd.ProvisioningConnectorConfig" %>
 <%@ page import="org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants" %>
+<%@ page import="org.wso2.carbon.idp.mgt.ui.util.IdPManagementUIUtil" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="carbon" uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar"%>
 
@@ -39,10 +39,16 @@
     String idPEntityId = null;
     String samlSSOUrl = null;
     String samlSLOUrl = null;
+    String oauth1RequestTokenUrl = null;
+    String oauth1AuthorizeUrl = null;
+    String oauth1AccessTokenUrl = null;
     String authzUrl = null;
     String tokenUrl = null;
     String userInfoUrl = null;
     String passiveSTSUrl = null;
+    String stsUrl = null;
+    String sessionIdleTimeout = null;
+    String rememberMeTimeout = null;
     FederatedAuthenticatorConfig[] federatedAuthenticators = residentIdentityProvider.getFederatedAuthenticatorConfigs();
     for(FederatedAuthenticatorConfig federatedAuthenticator : federatedAuthenticators){
         Property[] properties = federatedAuthenticator.getProperties();
@@ -56,16 +62,32 @@
                     IdentityApplicationConstants.Authenticator.SAML2SSO.SSO_URL).getValue();
             samlSLOUrl = IdPManagementUIUtil.getProperty(properties,
                     IdentityApplicationConstants.Authenticator.SAML2SSO.LOGOUT_REQ_URL).getValue();
+        } else if(IdentityApplicationConstants.OAuth10A.NAME.equals(federatedAuthenticator.getName())){
+            oauth1RequestTokenUrl = IdPManagementUIUtil.getProperty(properties,
+                    IdentityApplicationConstants.OAuth10A.OAUTH1_REQUEST_TOKEN_URL).getValue();
+            oauth1AuthorizeUrl = IdPManagementUIUtil.getProperty(properties,
+                    IdentityApplicationConstants.OAuth10A.OAUTH1_AUTHORIZE_URL).getValue();
+            oauth1AccessTokenUrl = IdPManagementUIUtil.getProperty(properties,
+                    IdentityApplicationConstants.OAuth10A.OAUTH1_ACCESS_TOKEN_URL).getValue();
         } else if(IdentityApplicationConstants.Authenticator.OIDC.NAME.equals(federatedAuthenticator.getName())){
             authzUrl = IdPManagementUIUtil.getProperty(properties,
                     IdentityApplicationConstants.Authenticator.OIDC.OAUTH2_AUTHZ_URL).getValue();
             tokenUrl = IdPManagementUIUtil.getProperty(properties,
                     IdentityApplicationConstants.Authenticator.OIDC.OAUTH2_TOKEN_URL).getValue();
             userInfoUrl = IdPManagementUIUtil.getProperty(properties,
-                    IdentityApplicationConstants.Authenticator.OIDC.USER_INFO_URL).getValue();
+                    IdentityApplicationConstants.Authenticator.OIDC.OAUTH2_USER_INFO_EP_URL).getValue();
         } else if(IdentityApplicationConstants.Authenticator.PassiveSTS.NAME.equals(federatedAuthenticator.getName())){
             passiveSTSUrl = IdPManagementUIUtil.getProperty(properties,
-                    IdentityApplicationConstants.Authenticator.PassiveSTS.PASSIVE_STS_URL).getValue();
+                    IdentityApplicationConstants.Authenticator.PassiveSTS.IDENTITY_PROVIDER_URL).getValue();
+        } else if(IdentityApplicationConstants.Authenticator.WSTrust.NAME.equals(federatedAuthenticator.getName())){
+            stsUrl = IdPManagementUIUtil.getProperty(properties,
+                    IdentityApplicationConstants.Authenticator.WSTrust.IDENTITY_PROVIDER_URL).getValue();
+        } else if(IdentityApplicationConstants.Authenticator.IDPProperties.NAME.equals(federatedAuthenticator.getName())){
+            sessionIdleTimeout = IdPManagementUIUtil.getProperty(properties,
+                    IdentityApplicationConstants.Authenticator.IDPProperties.SESSION_IDLE_TIME_OUT).getValue();
+            rememberMeTimeout = IdPManagementUIUtil.
+                    getProperty(properties,
+                            IdentityApplicationConstants.Authenticator.IDPProperties.REMEMBER_ME_TIME_OUT).getValue();
         }
     }
     String scimUserEp = null;
@@ -104,7 +126,7 @@ jQuery(document).ready(function(){
         jQuery(this).next().slideToggle("fast");
         return false; //Prevent the browser jump to the link anchor
     })
-    
+
 })
 
     initSections("");
@@ -151,13 +173,31 @@ jQuery(document).ready(function(){
                                 </div>
                             </td>
                         </tr>
+                        <tr>
+                            <td class="leftCol-med labelField"><fmt:message key='idle.session.timeout'/>:</td>
+                            <td>
+                                <input id="sessionIdleTimeout" name="sessionIdleTimeout" type="text" value="<%=sessionIdleTimeout%>" autofocus/>
+                                <div class="sectionHelp">
+                                    <fmt:message key='idle.session.timeout.help'/>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="leftCol-med labelField"><fmt:message key='remember.me.timeout'/>:</td>
+                            <td>
+                                <input id="rememberMeTimeout" name="rememberMeTimeout" type="text" value="<%=rememberMeTimeout%>" autofocus/>
+                                <div class="sectionHelp">
+                                    <fmt:message key='remember.me.timeout.help'/>
+                                </div>
+                            </td>
+                        </tr>
                     </table>
-                    
+
                     <h2 id="authenticationconfighead"  class="sectionSeperator trigger active" >
                 		<a href="#">Inbound Authentication Configuration</a>
             		</h2>
             		<div class="toggle_container sectionSub" style="margin-bottom:10px;display:none" id="authenticationconfig">
-                    
+
                     <h2 id="openidconfighead"  class="sectionSeperator trigger active" style="background-color: beige;">
                 		<a href="#"><fmt:message key='openid.config'/></a>
             		</h2>
@@ -169,12 +209,12 @@ jQuery(document).ready(function(){
                         </tr>
                     </table>
                     </div>
-                    
+
                     <h2 id="saml2confighead"  class="sectionSeperator trigger active" style="background-color: beige;">
                 		<a href="#"><fmt:message key='saml2.web.sso.config'/></a>
             		</h2>
             		<div class="toggle_container sectionSub" style="margin-bottom:10px;display:none" id="saml2config">
-                    
+
                     <table class="carbonFormTable">
                         <tr>
                             <td class="leftCol-med labelField"><fmt:message key='idp.entity.id'/>:</td>
@@ -195,12 +235,33 @@ jQuery(document).ready(function(){
                         </tr>
                     </table>
                     </div>
-                    
+
+                    <h2 id="oauth1confighead"  class="sectionSeperator trigger active" style="background-color: beige;">
+                        <a href="#"><fmt:message key='oauth1.config'/></a>
+                    </h2>
+                    <div class="toggle_container sectionSub" style="margin-bottom:10px;display:none" id="oauth1config">
+
+                        <table class="carbonFormTable">
+                            <tr>
+                                <td class="leftCol-med labelField"><fmt:message key='oauth1.request.endpoint'/>:</td>
+                                <td><%=oauth1RequestTokenUrl%></td>
+                            </tr>
+                            <tr>
+                                <td class="leftCol-med labelField"><fmt:message key='oauth1.authz.endpoint'/>:</td>
+                                <td><%=oauth1AuthorizeUrl%></td>
+                            </tr>
+                            <tr>
+                                <td class="leftCol-med labelField"><fmt:message key='oauth1.access.endpoint'/>:</td>
+                                <td><%=oauth1AccessTokenUrl%></td>
+                            </tr>
+                        </table>
+                    </div>
+
                     <h2 id="oidcconfighead"  class="sectionSeperator trigger active" style="background-color: beige;">
                 		<a href="#"><fmt:message key='oidc.config'/></a>
             		</h2>
             		<div class="toggle_container sectionSub" style="margin-bottom:10px;display:none" id="oidcconfig">
-                    
+
                     <table class="carbonFormTable">
                         <tr>
                             <td class="leftCol-med labelField"><fmt:message key='authz.endpoint'/>:</td>
@@ -216,43 +277,48 @@ jQuery(document).ready(function(){
                         </tr>
                     </table>
                     </div>
-                    
-                     <h2 id="passivestsconfighead"  class="sectionSeperator trigger active" style="background-color: beige;">
+
+                    <h2 id="passivestsconfighead"  class="sectionSeperator trigger active" style="background-color: beige;">
                 		<a href="#"><fmt:message key='passive.sts.local.config'/></a>
             		</h2>
             		<div class="toggle_container sectionSub" style="margin-bottom:10px;display:none" id="passivestsconfig">
-                    
                     <table class="carbonFormTable">
                         <tr>
-                            <td>
-                                <div style="height:30px;">
-                                    <a href="javascript:document.location.href='../securityconfig/index.jsp?serviceName=wso2carbon-sts'"
-                                       class="icon-link"
-                                       style="background-image:url(images/configure.gif);margin-left: 0"><fmt:message key='apply.security.policy'/></a>
-                                </div>
-                            </td>
-                            
-                            </tr>
-                            <tr>
-                            <td>
-                                <div style="height:30px;">
-                                    <a href="javascript:document.location.href='<%=passiveSTSUrl+"?wsdl"%>'"
-                                       class="icon-link"
-                                       style="background-image:url(images/sts.gif);margin-left: 0"><%=passiveSTSUrl%>
-                                    </a>
-                                </div>
-                            </td>
-       
+                            <td class="leftCol-med labelField"><fmt:message key='passive.sts.url'/>:</td>
+                            <td><%=passiveSTSUrl%></td>
                         </tr>
-              
                     </table>
                     </div>
+
+                        <h2 id="stsconfighead"  class="sectionSeperator trigger active" style="background-color: beige;">
+                            <a href="#"><fmt:message key='sts.local.config'/></a>
+                        </h2>
+                        <div class="toggle_container sectionSub" style="margin-bottom:10px;display:none" id="stsconfig">
+                            <table class="carbonFormTable">
+                                <tr>
+                                    <td class="leftCol-med labelField" style="padding-top: 5px"><fmt:message key='sts.url'/>:</td>
+                                    <td>
+                                        <a href="javascript:document.location.href='<%=stsUrl+"?wsdl"%>'"
+                                           class="icon-link"
+                                           style="background-image:url(images/sts.gif);margin-left: 0"><%=stsUrl%>
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <a href="javascript:document.location.href='../securityconfig/index.jsp?serviceName=wso2carbon-sts'"
+                                           class="icon-link"
+                                           style="background-image:url(images/configure.gif);margin-right: 300px">
+                                            <fmt:message key='apply.security.policy'/>
+                                        </a>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
                 </div>
-                
+
                     <h2 id="inboundprovisioningconfighead"  class="sectionSeperator trigger active">
                 		<a href="#">Inbound Provisioning Configuration</a>
             		</h2>
-            		<div class="toggle_container sectionSub" style="margin-bottom:10px;display:none" id="inboundprovisioningconfig"> 
+            		<div class="toggle_container sectionSub" style="margin-bottom:10px;display:none" id="inboundprovisioningconfig">
             		  <table class="carbonFormTable">
                         <tr>
                             <td class="leftCol-med labelField"><fmt:message key='scim.user.endpoint'/>:</td>
@@ -263,8 +329,8 @@ jQuery(document).ready(function(){
                             <td><%=scimGroupEp%></td>
                         </tr>
                     </table>
-            		
-            		</div>               
+
+            		</div>
                 </div>
                 <div class="buttonRow">
                     <input type="button" value="<fmt:message key='update'/>" onclick="idpMgtUpdate();"/>

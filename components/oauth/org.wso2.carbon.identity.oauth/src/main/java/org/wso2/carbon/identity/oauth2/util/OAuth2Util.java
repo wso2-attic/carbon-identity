@@ -1,28 +1,32 @@
 /*
- *Copyright (c) 2005-2013, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2013, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- *WSO2 Inc. licenses this file to you under the Apache License,
- *Version 2.0 (the "License"); you may not use this file except
- *in compliance with the License.
- *You may obtain a copy of the License at
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *Unless required by applicable law or agreed to in writing,
- *software distributed under the License is distributed on an
- *"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *KIND, either express or implied.  See the License for the
- *specific language governing permissions and limitations
- *under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package org.wso2.carbon.identity.oauth2.util;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.io.Charsets;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.identity.application.common.model.User;
 import org.wso2.carbon.identity.core.model.OAuthAppDO;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.oauth.IdentityOAuthAdminException;
 import org.wso2.carbon.identity.oauth.cache.CacheEntry;
 import org.wso2.carbon.identity.oauth.cache.OAuthCache;
@@ -37,7 +41,10 @@ import org.wso2.carbon.identity.oauth2.IdentityOAuth2Exception;
 import org.wso2.carbon.identity.oauth2.model.AccessTokenDO;
 import org.wso2.carbon.identity.oauth2.model.ClientCredentialDO;
 import org.wso2.carbon.user.api.UserStoreException;
+import org.wso2.carbon.user.core.UserCoreConstants;
+import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.service.RealmService;
+import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import java.sql.Timestamp;
@@ -50,12 +57,16 @@ import java.util.TreeMap;
  */
 public class OAuth2Util {
 
+    public static final String IMPLICIT = "implicit";
     private static Log log = LogFactory.getLog(OAuth2Util.class);
     private static boolean cacheEnabled = OAuthServerConfiguration.getInstance().isCacheEnabled();
-    private static OAuthCache cache = OAuthCache.getInstance();
+    private static OAuthCache cache = OAuthCache.getInstance(OAuthServerConfiguration.getInstance().getOAuthCacheTimeout());
     private static long timestampSkew = OAuthServerConfiguration.getInstance().getTimeStampSkewInSeconds() * 1000;
-    private static ThreadLocal<Integer> clientTenatId = new ThreadLocal<Integer>();
+    private static ThreadLocal<Integer> clientTenatId = new ThreadLocal<>();
 
+    private OAuth2Util(){
+
+    }
 
     /**
      * @return
@@ -89,8 +100,8 @@ public class OAuth2Util {
      * @return Comma separated list of scopes
      */
     public static String buildScopeString(String[] scopes) {
-        StringBuilder scopeString = new StringBuilder("");
         if (scopes != null) {
+            StringBuilder scopeString = new StringBuilder("");
             Arrays.sort(scopes);
             for (int i = 0; i < scopes.length; i++) {
                 scopeString.append(scopes[i].trim());
@@ -98,8 +109,9 @@ public class OAuth2Util {
                     scopeString.append(" ");
                 }
             }
+            return scopeString.toString();
         }
-        return scopeString.toString();
+        return null;
     }
 
     /**
@@ -107,11 +119,11 @@ public class OAuth2Util {
      * @return
      */
     public static String[] buildScopeArray(String scopeStr) {
-        if (scopeStr != null) {
+        if (StringUtils.isNotBlank(scopeStr)) {
             scopeStr = scopeStr.trim();
             return scopeStr.split("\\s");
         }
-        return null;
+        return new String[0];
     }
 
     /**
@@ -166,10 +178,8 @@ public class OAuth2Util {
                 if (StringUtils.isNotEmpty(grantTypesString) && StringUtils.isNotEmpty(grantTypesString.trim())) {
                     String[] grantTypes = grantTypesString.split(",");
                     for (String grantType : grantTypes) {
-                        if (StringUtils.isNotEmpty(grantType) && StringUtils.isNotEmpty(grantType.trim())) {
-                            if (!"implicit".equals(grantType.trim())) {
-                                isOnlyImplicit = false;
-                            }
+                        if (StringUtils.isNotBlank(grantType) && !IMPLICIT.equals(grantType.trim())) {
+                            isOnlyImplicit = false;
                         }
                     }
                 }
@@ -219,6 +229,7 @@ public class OAuth2Util {
 
         boolean cacheHit = false;
         String username = null;
+        boolean isUsernameCaseSensitive = OAuth2Util.isUsernameCaseSensitive(username);
 
         if (OAuth2Util.authenticateClient(clientId, clientSecretProvided)) {
             // check cache
@@ -239,7 +250,9 @@ public class OAuth2Util {
                 // Cache miss
                 OAuthConsumerDAO oAuthConsumerDAO = new OAuthConsumerDAO();
                 username = oAuthConsumerDAO.getAuthenticatedUsername(clientId, clientSecretProvided);
-                log.debug("Username fetch from the database");
+                if (log.isDebugEnabled()) {
+                    log.debug("Username fetch from the database");
+                }
             }
 
             if (username != null && cacheEnabled && !cacheHit) {
@@ -249,8 +262,15 @@ public class OAuth2Util {
                  * own cache key and cache entry class every time we need to put something to it? Ideal solution is
                  * to have a generalized way of caching a key:value pair
                  */
-                cache.addToCache(new OAuthCacheKey(clientId + ":" + username), new ClientCredentialDO(username));
-                log.debug("Caching username : " + username);
+                if (isUsernameCaseSensitive){
+                    cache.addToCache(new OAuthCacheKey(clientId + ":" + username), new ClientCredentialDO(username));
+                }else {
+                    cache.addToCache(new OAuthCacheKey(clientId + ":" + username.toLowerCase()), new ClientCredentialDO(username));
+                }
+                if (log.isDebugEnabled()){
+                    log.debug("Caching username : " + username);
+                }
+
             }
         }
         return username;
@@ -269,7 +289,6 @@ public class OAuth2Util {
 
     public static AccessTokenDO validateAccessTokenDO(AccessTokenDO accessTokenDO) {
 
-        //long validityPeriod = accessTokenDO.getValidityPeriod() * 1000;
         long validityPeriodMillis = accessTokenDO.getValidityPeriodInMillis();
         long issuedTime = accessTokenDO.getIssuedTime().getTime();
         long currentTime = System.currentTimeMillis();
@@ -343,7 +362,7 @@ public class OAuth2Util {
             throws IdentityOAuth2Exception {
         String userStoreDomain = null;
         String userId;
-        String decodedKey = new String(Base64.decodeBase64(apiKey.getBytes()));
+        String decodedKey = new String(Base64.decodeBase64(apiKey.getBytes(Charsets.UTF_8)), Charsets.UTF_8);
         String[] tmpArr = decodedKey.split(":");
         if (tmpArr != null) {
             userId = tmpArr[1];
@@ -381,7 +400,7 @@ public class OAuth2Util {
 
     public static String getUserIdFromAccessToken(String apiKey) {
         String userId = null;
-        String decodedKey = new String(Base64.decodeBase64(apiKey.getBytes()));
+        String decodedKey = new String(Base64.decodeBase64(apiKey.getBytes(Charsets.UTF_8)), Charsets.UTF_8);
         String[] tmpArr = decodedKey.split(":");
         if (tmpArr != null) {
             userId = tmpArr[1];
@@ -461,6 +480,12 @@ public class OAuth2Util {
         }
         long currentTime;
         long validityPeriodMillis = accessTokenDO.getValidityPeriodInMillis();
+
+        if (validityPeriodMillis < 0) {
+            log.debug("Access Token : " + accessTokenDO.getAccessToken() + " has infinite lifetime");
+            return -1;
+        }
+
         long issuedTime = accessTokenDO.getIssuedTime().getTime();
         currentTime = System.currentTimeMillis();
         long validityMillis = issuedTime + validityPeriodMillis - (currentTime + timestampSkew);
@@ -477,7 +502,7 @@ public class OAuth2Util {
             return realmService.getTenantManager().getTenantId(tenantDomain);
         } catch (UserStoreException e) {
             String error = "Error in obtaining tenant ID from tenant domain : " + tenantDomain;
-            throw new IdentityOAuth2Exception(error);
+            throw new IdentityOAuth2Exception(error, e);
         }
     }
 
@@ -487,7 +512,7 @@ public class OAuth2Util {
             return realmService.getTenantManager().getDomain(tenantId);
         } catch (UserStoreException e) {
             String error = "Error in obtaining tenant domain from tenant ID : " + tenantId;
-            throw new IdentityOAuth2Exception(error);
+            throw new IdentityOAuth2Exception(error, e);
         }
     }
 
@@ -497,4 +522,127 @@ public class OAuth2Util {
         return getTenantId(domainName);
     }
 
+    public static String hashScopes(String[] scope){
+        if (scope.length > 0){
+            return DigestUtils.md5Hex(OAuth2Util.buildScopeString(scope));
+        } else {
+            return null;
+        }
+
+    }
+
+    public static String hashScopes(String scope){
+        if (StringUtils.isNotBlank(scope)) {
+            //first converted to an array to sort the scopes
+            return DigestUtils.md5Hex(OAuth2Util.buildScopeString(buildScopeArray(scope)));
+        } else {
+           return null;
+        }
+    }
+
+    public static boolean isUsernameCaseSensitive(String username) {
+        boolean isUsernameCaseSensitive = false;
+        try {
+            String tenantDomain = MultitenantUtils.getTenantDomain(username);
+            int tenantId = OAuthComponentServiceHolder.getRealmService().getTenantManager().getTenantId(tenantDomain);
+
+            UserStoreManager userStoreManager = (UserStoreManager) OAuthComponentServiceHolder.getRealmService()
+                    .getTenantUserRealm(tenantId).getUserStoreManager();
+            UserStoreManager UserAvailableUserStoreManager = userStoreManager.getSecondaryUserStoreManager
+                    (UserCoreUtil.extractDomainFromName(username));
+            String caseInsensitiveUsername = UserAvailableUserStoreManager.getRealmConfiguration().getUserStoreProperty("CaseInsensitiveUsername");
+            if (caseInsensitiveUsername != null) {
+                isUsernameCaseSensitive = !Boolean.parseBoolean(caseInsensitiveUsername);
+            }
+        } catch (UserStoreException e) {
+            if (log.isDebugEnabled()){
+                log.debug("Error while reading user store property CaseInsensitiveUsername. Considering as false.");
+            }
+        }
+        return isUsernameCaseSensitive;
+    }
+
+    public static String getDomainFromName(String name) {
+        int index;
+        if ((index = name.indexOf("/")) > 0) {
+            String domain = name.substring(0, index);
+            return domain;
+        }
+        return UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME;
+    }
+
+    public static User getUserFromUserName(String username) throws IllegalArgumentException{
+        if (StringUtils.isNotBlank(username)) {
+            String tenantDomain = MultitenantUtils.getTenantDomain(username);
+            String tenantAwareUsername = MultitenantUtils.getTenantAwareUsername(username);
+            String tenantAwareUsernameWithNoUserDomain = UserCoreUtil.removeDomainFromName(tenantAwareUsername);
+            String userStoreDomain = UserCoreUtil.extractDomainFromName(username).toUpperCase();
+            User user = new User();
+            user.setUserName(tenantAwareUsernameWithNoUserDomain);
+            user.setTenantDomain(tenantDomain);
+            user.setUserStoreDomain(userStoreDomain);
+
+            return user;
+        }
+        throw  new IllegalArgumentException("Cannot create user from empty user name");
+    }
+
+    public static String getIDTokenIssuer() {
+        String issuer = OAuthServerConfiguration.getInstance().getOpenIDConnectIDTokenIssuerIdentifier();
+        if (StringUtils.isBlank(issuer)) {
+            issuer = OAuthURL.getOAuth2TokenEPUrl();
+        }
+        return issuer;
+    }
+
+    public static class OAuthURL {
+
+        public static String getOAuth1RequestTokenUrl() {
+            String oauth1RequestTokenUrl = OAuthServerConfiguration.getInstance().getOAuth1RequestTokenUrl();
+            if(StringUtils.isBlank(oauth1RequestTokenUrl)){
+                oauth1RequestTokenUrl = IdentityUtil.getServerURL("oauth/request-token");
+            }
+            return oauth1RequestTokenUrl;
+        }
+
+        public static String getOAuth1AuthorizeUrl() {
+            String oauth1AuthorizeUrl = OAuthServerConfiguration.getInstance().getOAuth1AuthorizeUrl();
+            if(StringUtils.isBlank(oauth1AuthorizeUrl)){
+                oauth1AuthorizeUrl = IdentityUtil.getServerURL("oauth/authorize-url");
+            }
+            return oauth1AuthorizeUrl;
+        }
+
+        public static String getOAuth1AccessTokenUrl() {
+            String oauth1AccessTokenUrl = OAuthServerConfiguration.getInstance().getOAuth1AccessTokenUrl();
+            if(StringUtils.isBlank(oauth1AccessTokenUrl)){
+                oauth1AccessTokenUrl = IdentityUtil.getServerURL("oauth/access-token");
+            }
+            return oauth1AccessTokenUrl;
+        }
+
+        public static String getOAuth2AuthzEPUrl() {
+            String oauth2AuthzEPUrl = OAuthServerConfiguration.getInstance().getOAuth2AuthzEPUrl();
+            if(StringUtils.isBlank(oauth2AuthzEPUrl)){
+                oauth2AuthzEPUrl = IdentityUtil.getServerURL("oauth2/authorize");
+            }
+            return oauth2AuthzEPUrl;
+        }
+
+        public static String getOAuth2TokenEPUrl() {
+            String oauth2TokenEPUrl = OAuthServerConfiguration.getInstance().getOAuth2TokenEPUrl();
+            if(StringUtils.isBlank(oauth2TokenEPUrl)){
+                oauth2TokenEPUrl = IdentityUtil.getServerURL("oauth2/token");
+            }
+            return oauth2TokenEPUrl;
+        }
+
+        public static String getOAuth2UserInfoEPUrl() {
+            String oauth2UserInfoEPUrl = OAuthServerConfiguration.getInstance().getOauth2UserInfoEPUrl();
+            if(StringUtils.isBlank(oauth2UserInfoEPUrl)){
+                oauth2UserInfoEPUrl = IdentityUtil.getServerURL("oauth2/userinfo");
+            }
+            return oauth2UserInfoEPUrl;
+        }
+    }
 }

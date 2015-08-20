@@ -1,19 +1,19 @@
 /*
- *Copyright (c) 2005-2013, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2013, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- *WSO2 Inc. licenses this file to you under the Apache License,
- *Version 2.0 (the "License"); you may not use this file except
- *in compliance with the License.
- *You may obtain a copy of the License at
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
- *Unless required by applicable law or agreed to in writing,
- *software distributed under the License is distributed on an
- *"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *KIND, either express or implied.  See the License for the
- *specific language governing permissions and limitations
- *under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 package org.wso2.carbon.identity.application.authenticator.oidc;
 
@@ -39,6 +39,7 @@ import org.wso2.carbon.identity.application.authentication.framework.util.Framew
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkUtils;
 import org.wso2.carbon.identity.application.common.model.ClaimMapping;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.ui.CarbonUIUtil;
 
 import javax.servlet.http.HttpServletRequest;
@@ -67,7 +68,7 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
                 && OIDCAuthenticatorConstants.LOGIN_TYPE.equals(getLoginType(request))) {
             return true;
         } else if (request.getParameter(OIDCAuthenticatorConstants.OAUTH2_PARAM_STATE) != null &&
-                   request.getParameter(OIDCAuthenticatorConstants.OAUTH2_ERROR) != null) {
+                request.getParameter(OIDCAuthenticatorConstants.OAUTH2_ERROR) != null) {
             //if sends error like access_denied
             return true;
         }
@@ -154,8 +155,7 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
                 String callbackurl = getCallbackUrl(authenticatorProperties);
 
                 if (callbackurl == null) {
-                    callbackurl = CarbonUIUtil.getAdminConsoleURL(request);
-                    callbackurl = callbackurl.replace("commonauth/carbon/", "commonauth");
+                    callbackurl = IdentityUtil.getServerURL(FrameworkConstants.COMMONAUTH);
                 }
 
                 String state = context.getContextIdentifier() + ","
@@ -265,8 +265,7 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
             String callbackurl = getCallbackUrl(authenticatorProperties);
 
             if (callbackurl == null) {
-                callbackurl = CarbonUIUtil.getAdminConsoleURL(request);
-                callbackurl = callbackurl.replace("commonauth/carbon/", "commonauth");
+                callbackurl = IdentityUtil.getServerURL(FrameworkConstants.COMMONAUTH);
             }
 
             @SuppressWarnings({"unchecked"})
@@ -280,31 +279,13 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
             OAuthAuthzResponse authzResponse = OAuthAuthzResponse.oauthCodeAuthzResponse(request);
             String code = authzResponse.getCode();
 
-            OAuthClientRequest accessRequest;
-            try {
-                accessRequest = OAuthClientRequest.tokenLocation(tokenEndPoint)
-                        .setGrantType(GrantType.AUTHORIZATION_CODE).setClientId(clientId)
-                        .setClientSecret(clientSecret).setRedirectURI(callbackurl).setCode(code)
-                        .buildBodyMessage();
-
-            } catch (OAuthSystemException e) {
-                if (log.isDebugEnabled()) {
-                    log.debug("Exception while building request for request access token", e);
-                }
-                throw new AuthenticationFailedException(e.getMessage(), e);
-            }
+            OAuthClientRequest accessRequest = null;
+            accessRequest = getaccessRequest(tokenEndPoint, clientId, code, clientSecret, callbackurl);
 
             // create OAuth client that uses custom http client under the hood
             OAuthClient oAuthClient = new OAuthClient(new URLConnectionClient());
-            OAuthClientResponse oAuthResponse;
-            try {
-                oAuthResponse = oAuthClient.accessToken(accessRequest);
-            } catch (OAuthSystemException e) {
-                if (log.isDebugEnabled()) {
-                    log.debug("Exception while requesting access token", e);
-                }
-                throw new AuthenticationFailedException(e.getMessage(), e);
-            }
+            OAuthClientResponse oAuthResponse = null;
+            oAuthResponse = getOauthResponse(oAuthClient, accessRequest);
 
             // TODO : return access token and id token to framework
             String accessToken = oAuthResponse.getParam(OIDCAuthenticatorConstants.ACCESS_TOKEN);
@@ -345,8 +326,10 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
                         if ("true".equalsIgnoreCase(isSubjectInClaimsProp)) {
                             authenticatedUser = getSubjectFromUserIDClaimURI(context);
                             if (authenticatedUser == null) {
-                                log.warn("Subject claim could not be found amongst subject attributes. " +
-                                        "Defaulting to sub attribute in IDToken.");
+                                if (log.isDebugEnabled()) {
+                                    log.debug("Subject claim could not be found amongst subject attributes. " +
+                                            "Defaulting to sub attribute in IDToken.");
+                                }
                             }
                         }
                         if (authenticatedUser == null) {
@@ -384,6 +367,40 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
             log.error(e.getMessage(), e);
             throw new AuthenticationFailedException(e.getMessage(), e);
         }
+    }
+
+    private OAuthClientRequest getaccessRequest(String tokenEndPoint, String clientId, String code, String clientSecret, String callbackurl) throws AuthenticationFailedException {
+        OAuthClientRequest accessRequest = null;
+        try {
+            accessRequest = OAuthClientRequest.tokenLocation(tokenEndPoint)
+                    .setGrantType(GrantType.AUTHORIZATION_CODE).setClientId(clientId)
+                    .setClientSecret(clientSecret).setRedirectURI(callbackurl).setCode(code)
+                    .buildBodyMessage();
+
+        } catch (OAuthSystemException e) {
+            if (log.isDebugEnabled()) {
+                log.debug("Exception while building request for request access token", e);
+            }
+            throw new AuthenticationFailedException(e.getMessage(), e);
+        }
+        return accessRequest;
+    }
+
+    private OAuthClientResponse getOauthResponse(OAuthClient oAuthClient, OAuthClientRequest accessRequest) throws AuthenticationFailedException {
+        OAuthClientResponse oAuthResponse = null;
+        try {
+            oAuthResponse = oAuthClient.accessToken(accessRequest);
+        } catch (OAuthSystemException e) {
+            if (log.isDebugEnabled()) {
+                log.debug("Exception while requesting access token", e);
+            }
+            throw new AuthenticationFailedException(e.getMessage(), e);
+        } catch (OAuthProblemException e) {
+            if (log.isDebugEnabled()) {
+                log.debug("Exception while requesting access token", e);
+            }
+        }
+        return oAuthResponse;
     }
 
     @Override
@@ -433,7 +450,9 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
         try {
             subject = FrameworkUtils.getFederatedSubjectFromClaims(context, getClaimDialectURI());
         } catch (Exception e) {
-            log.warn("Couldn't find the subject claim from claim mappings ");
+            if(log.isDebugEnabled()) {
+                log.debug("Couldn't find the subject claim from claim mappings ", e);
+            }
         }
         return subject;
     }

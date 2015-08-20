@@ -1,12 +1,12 @@
 /*
- *  Copyright (c) WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- *  WSO2 Inc. licenses this file to you under the Apache License,
- *  Version 2.0 (the "License"); you may not use this file except
- *  in compliance with the License.
- *  You may obtain a copy of the License at
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -51,6 +51,7 @@ import java.util.Map;
 public class SAMLSSOAuthenticator extends AbstractApplicationAuthenticator implements FederatedApplicationAuthenticator {
 
     private static final long serialVersionUID = -8097512332218044859L;
+    public static final String AS_REQUEST = "AS_REQUEST";
 
     private static Log log = LogFactory.getLog(SAMLSSOAuthenticator.class);
 
@@ -85,11 +86,11 @@ public class SAMLSSOAuthenticator extends AbstractApplicationAuthenticator imple
                     .get(IdentityApplicationConstants.Authenticator.SAML2SSO.REQUEST_METHOD);
 
             if (requestMethod != null && requestMethod.trim().length() != 0) {
-                if (requestMethod.equalsIgnoreCase("POST")) {
+                if (SSOConstants.POST.equalsIgnoreCase(requestMethod)) {
                     isPost = true;
-                } else if (requestMethod.equalsIgnoreCase("REDIRECT")) {
+                } else if (SSOConstants.REDIRECT.equalsIgnoreCase(requestMethod)) {
                     isPost = false;
-                } else if (requestMethod.equalsIgnoreCase("AS_REQUEST")) {
+                } else if (AS_REQUEST.equalsIgnoreCase(requestMethod)) {
                     isPost = context.getAuthenticationRequest().isPost();
                 }
             } else {
@@ -105,36 +106,42 @@ public class SAMLSSOAuthenticator extends AbstractApplicationAuthenticator imple
                 saml2SSOManager.init(context.getTenantDomain(), context.getAuthenticatorProperties(),
                         context.getExternalIdP().getIdentityProvider());
                 ssoUrl = saml2SSOManager.buildRequest(request, false, false, idpURL, context);
+                generateAuthenticationRequest(request, response, ssoUrl, authenticatorProperties);
 
-                try {
-                    String domain = request.getParameter("domain");
-
-                    if (domain != null) {
-                        ssoUrl = ssoUrl + "&fidp=" + domain;
-                    }
-
-                    if (authenticatorProperties != null) {
-                        String queryString = authenticatorProperties
-                                .get(FrameworkConstants.QUERY_PARAMS);
-                        if (queryString != null) {
-                            if (!queryString.startsWith("&")) {
-                                ssoUrl = ssoUrl + "&" + queryString;
-                            } else {
-                                ssoUrl = ssoUrl + queryString;
-                            }
-                        }
-                    }
-                    response.sendRedirect(ssoUrl);
-                } catch (IOException e) {
-                    throw new AuthenticationFailedException(
-                            "Error while sending the redirect to federated SAML IdP", e);
-                }
             }
         } catch (SAMLSSOException e) {
             throw new AuthenticationFailedException(e.getMessage(), e);
         }
 
         return;
+    }
+
+    private void generateAuthenticationRequest(HttpServletRequest request, HttpServletResponse response,
+                                               String ssoUrl, Map<String, String> authenticatorProperties)
+            throws AuthenticationFailedException {
+        try {
+            String domain = request.getParameter("domain");
+
+            if (domain != null) {
+                ssoUrl = ssoUrl + "&fidp=" + domain;
+            }
+
+            if (authenticatorProperties != null) {
+                String queryString = authenticatorProperties
+                        .get(FrameworkConstants.QUERY_PARAMS);
+                if (queryString != null) {
+                    if (!queryString.startsWith("&")) {
+                        ssoUrl = ssoUrl + "&" + queryString;
+                    } else {
+                        ssoUrl = ssoUrl + queryString;
+                    }
+                }
+            }
+            response.sendRedirect(ssoUrl);
+        } catch (IOException e) {
+            throw new AuthenticationFailedException(
+                    "Error while sending the redirect to federated SAML IdP", e);
+        }
     }
 
     @Override
@@ -151,6 +158,7 @@ public class SAMLSSOAuthenticator extends AbstractApplicationAuthenticator imple
                     .getSession(false).getAttribute("samlssoAttributes");
 
             String subject = null;
+            String idpSubject = null;
             String isSubjectInClaimsProp = context.getAuthenticatorProperties().get(
                     IdentityApplicationConstants.Authenticator.SAML2SSO.IS_USER_ID_IN_CLAIMS);
             if ("true".equalsIgnoreCase(isSubjectInClaimsProp)) {
@@ -161,14 +169,17 @@ public class SAMLSSOAuthenticator extends AbstractApplicationAuthenticator imple
                             "Defaulting to Name Identifier.");
                 }
             }
+            idpSubject = (String) request.getSession().getAttribute("username");
             if (subject == null) {
-                subject = (String) request.getSession().getAttribute("username");
+                subject = idpSubject;
             }
             if (subject == null) {
                 throw new SAMLSSOException("Cannot find federated User Identifier");
             }
 
             Object sessionIndexObj = request.getSession(false).getAttribute(SSOConstants.IDP_SESSION);
+            String nameQualifier = (String) request.getSession().getAttribute("nameQualifier");
+            String spNameQualifier = (String) request.getSession().getAttribute("spNameQualifier");
             String sessionIndex = null;
 
             if (sessionIndexObj != null) {
@@ -178,6 +189,8 @@ public class SAMLSSOAuthenticator extends AbstractApplicationAuthenticator imple
             StateInfo stateInfoDO = new StateInfo();
             stateInfoDO.setSessionIndex(sessionIndex);
             stateInfoDO.setSubject(subject);
+            stateInfoDO.setNameQualifier(nameQualifier);
+            stateInfoDO.setSpNameQualifier(spNameQualifier);
             context.setStateInfo(stateInfoDO);
 
             AuthenticatedUser authenticatedUser =
@@ -259,6 +272,10 @@ public class SAMLSSOAuthenticator extends AbstractApplicationAuthenticator imple
                         ((StateInfo) stateInfo).getSessionIndex());
                 request.getSession().setAttribute("logoutUsername",
                         ((StateInfo) stateInfo).getSubject());
+                request.getSession().setAttribute("nameQualifier",
+                        ((StateInfo) stateInfo).getNameQualifier());
+                request.getSession().setAttribute("spNameQualifier",
+                        ((StateInfo) stateInfo).getSpNameQualifier());
             }
 
             try {
@@ -274,11 +291,11 @@ public class SAMLSSOAuthenticator extends AbstractApplicationAuthenticator imple
                         .get(IdentityApplicationConstants.Authenticator.SAML2SSO.REQUEST_METHOD);
 
                 if (requestMethod != null && requestMethod.trim().length() != 0) {
-                    if (requestMethod.equalsIgnoreCase("POST")) {
+                    if ("POST".equalsIgnoreCase(requestMethod)) {
                         isPost = true;
-                    } else if (requestMethod.equalsIgnoreCase("REDIRECT")) {
+                    } else if ("REDIRECT".equalsIgnoreCase(requestMethod)) {
                         isPost = false;
-                    } else if (requestMethod.equalsIgnoreCase("AS_REQUEST")) {
+                    } else if ("AS_REQUEST".equalsIgnoreCase(requestMethod)) {
                         isPost = context.getAuthenticationRequest().isPost();
                     }
                 } else {
@@ -306,6 +323,7 @@ public class SAMLSSOAuthenticator extends AbstractApplicationAuthenticator imple
     protected void processLogoutResponse(HttpServletRequest request,
                                          HttpServletResponse response, AuthenticationContext context)
             throws LogoutFailedException {
+        throw new UnsupportedOperationException();
     }
 
     private void sendPostRequest(HttpServletRequest request, HttpServletResponse response,

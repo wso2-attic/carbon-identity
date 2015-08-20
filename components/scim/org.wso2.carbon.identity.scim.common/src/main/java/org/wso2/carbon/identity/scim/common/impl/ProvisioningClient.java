@@ -1,28 +1,37 @@
 /*
-*  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 package org.wso2.carbon.identity.scim.common.impl;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
-import org.apache.commons.httpclient.methods.*;
+import org.apache.commons.httpclient.methods.DeleteMethod;
+import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.httpclient.methods.PutMethod;
+import org.apache.commons.httpclient.methods.RequestEntity;
+import org.apache.commons.httpclient.methods.StringRequestEntity;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.scim.common.utils.BasicAuthUtil;
+import org.wso2.carbon.identity.scim.common.utils.IdentitySCIMException;
 import org.wso2.carbon.identity.scim.common.utils.SCIMCommonConstants;
 import org.wso2.charon.core.client.SCIMClient;
 import org.wso2.charon.core.config.SCIMConfigConstants;
@@ -30,7 +39,11 @@ import org.wso2.charon.core.config.SCIMProvider;
 import org.wso2.charon.core.exceptions.AbstractCharonException;
 import org.wso2.charon.core.exceptions.BadRequestException;
 import org.wso2.charon.core.exceptions.CharonException;
-import org.wso2.charon.core.objects.*;
+import org.wso2.charon.core.objects.AbstractSCIMObject;
+import org.wso2.charon.core.objects.Group;
+import org.wso2.charon.core.objects.ListedResource;
+import org.wso2.charon.core.objects.SCIMObject;
+import org.wso2.charon.core.objects.User;
 import org.wso2.charon.core.schema.SCIMConstants;
 import org.wso2.charon.core.util.CopyUtil;
 
@@ -92,15 +105,15 @@ public class ProvisioningClient implements Runnable {
      * Provision the SCIM User Object passed to the provisioning client in the constructor, to the
      * SCIM Provider whose details are also sent at the initialization.
      */
-    public void provisionCreateUser() {
-        String userId = null;
+    public void provisionCreateUser() throws IdentitySCIMException {
+        String userName = null;
         try {
             //encode payload using SCIMClient API.
             SCIMClient scimClient = new SCIMClient();
 
             //get provider details
             String userEPURL = provider.getProperty(SCIMConfigConstants.ELEMENT_NAME_USER_ENDPOINT);
-            String userName = provider.getProperty(SCIMConfigConstants.ELEMENT_NAME_USERNAME);
+            userName = provider.getProperty(SCIMConfigConstants.ELEMENT_NAME_USERNAME);
             String password = provider.getProperty(SCIMConfigConstants.ELEMENT_NAME_PASSWORD);
             String contentType = provider.getProperty(SCIMConstants.CONTENT_TYPE_HEADER);
 
@@ -146,34 +159,24 @@ public class ProvisioningClient implements Runnable {
             }
 
         } catch (CharonException e) {
-            logger.error("Error in encoding the object to be provisioned.");
-            logger.error(e.getDescription());
-            e.printStackTrace();
+            throw new IdentitySCIMException(
+                    "Error in encoding the object to be provisioned for user with id: " + userName, e);
         } catch (UnsupportedEncodingException e) {
-            logger.error("Error in creating request for provisioning");
-            logger.error(e.getMessage());
-            e.printStackTrace();
-        } catch (HttpException e) {
-            logger.error("Error in invoking provisioning operation for the user with id: " + userId);
-            logger.error(e.getMessage());
-            e.printStackTrace();
-        } catch (BadRequestException e) {
-            logger.error("Error in invoking provisioning operation for the user with id: " + userId);
-            logger.error(e.getDescription());
-            e.printStackTrace();
-        } catch (IOException e) {
-            logger.error("Error in invoking provisioning operation for the user with id: " + userId);
-            logger.error(e.getMessage());
-            e.printStackTrace();
+            throw new IdentitySCIMException("Error in creating request for provisioning the user with id: " + userName,
+                                            e);
+        } catch (IOException | BadRequestException e) {
+            throw new IdentitySCIMException(
+                    "Error in invoking provisioning operation for the user with id: " + userName, e);
         }
     }
 
-    public void provisionDeleteUser() {
+    public void provisionDeleteUser() throws IdentitySCIMException {
+        String userName = null;
 
         try {
             //get provider details
             String userEPURL = provider.getProperty(SCIMConfigConstants.ELEMENT_NAME_USER_ENDPOINT);
-            String userName = provider.getProperty(SCIMConfigConstants.ELEMENT_NAME_USERNAME);
+            userName = provider.getProperty(SCIMConfigConstants.ELEMENT_NAME_USERNAME);
             String password = provider.getProperty(SCIMConfigConstants.ELEMENT_NAME_PASSWORD);
             String contentType = provider.getProperty(SCIMConstants.CONTENT_TYPE_HEADER);
 
@@ -237,30 +240,17 @@ public class ProvisioningClient implements Runnable {
                                 response, SCIMConstants.identifyFormat(contentType));
                 logger.error(exception.getDescription());
             }
-        } catch (CharonException e) {
-            logger.error("Error in provisioning 'delete user' operation.");
-            logger.error(e.getDescription());
-            e.printStackTrace();
-        } catch (HttpException e) {
-            logger.error("Error in provisioning 'delete user' operation.");
-            logger.error(e.getMessage());
-            e.printStackTrace();
-        } catch (IOException e) {
-            logger.error("Error in provisioning 'delete user' operation.");
-            logger.error(e.getMessage());
-            e.printStackTrace();
-        } catch (BadRequestException e) {
-            logger.error("Error in provisioning 'delete user' operation.");
-            logger.error(e.getDescription());
-            e.printStackTrace();
+        } catch (CharonException | IOException | BadRequestException e) {
+            throw new IdentitySCIMException("Error in provisioning 'delete user' operation for user :" + userName, e);
         }
     }
 
-    public void provisionUpdateUser() {
+    public void provisionUpdateUser() throws IdentitySCIMException {
+        String userName = null;
         try {
             //get provider details
             String userEPURL = provider.getProperty(SCIMConfigConstants.ELEMENT_NAME_USER_ENDPOINT);
-            String userName = provider.getProperty(SCIMConfigConstants.ELEMENT_NAME_USERNAME);
+            userName = provider.getProperty(SCIMConfigConstants.ELEMENT_NAME_USERNAME);
             String password = provider.getProperty(SCIMConfigConstants.ELEMENT_NAME_PASSWORD);
             String contentType = provider.getProperty(SCIMConstants.CONTENT_TYPE_HEADER);
 
@@ -336,31 +326,114 @@ public class ProvisioningClient implements Runnable {
                 logger.error(exception.getDescription());
             }
         } catch (CharonException e) {
-            logger.error("Error in provisioning 'update user' operation.");
-            logger.error(e.getDescription());
-            e.printStackTrace();
+            throw new IdentitySCIMException("Error in provisioning 'update user' operation for user :" + userName);
         } catch (HttpException e) {
-            logger.error("Error in provisioning 'update user' operation.");
-            logger.error(e.getMessage());
-            e.printStackTrace();
+            throw new IdentitySCIMException("Error in provisioning 'update user' operation for user :" + userName);
         } catch (IOException e) {
-            logger.error("Error in provisioning 'update user' operation.");
-            logger.error(e.getMessage());
-            e.printStackTrace();
+            throw new IdentitySCIMException("Error in provisioning 'update user' operation for user :" + userName);
         } catch (BadRequestException e) {
-            logger.error("Error in provisioning 'update user' operation.");
-            logger.error(e.getDescription());
-            e.printStackTrace();
+            throw new IdentitySCIMException("Error in provisioning 'update user' operation for user :" + userName);
         }
 
     }
 
-    public void provisionCreateGroup() {
+    public void provisionPatchUser() throws IdentitySCIMException {
+        String userName = null;
+        try {
+            //get provider details
+            String userEPURL = provider.getProperty(SCIMConfigConstants.ELEMENT_NAME_USER_ENDPOINT);
+            userName = provider.getProperty(SCIMConfigConstants.ELEMENT_NAME_USERNAME);
+            String password = provider.getProperty(SCIMConfigConstants.ELEMENT_NAME_PASSWORD);
+            String contentType = provider.getProperty(SCIMConstants.CONTENT_TYPE_HEADER);
+
+            if (StringUtils.isEmpty(contentType)) {
+                contentType = SCIMConstants.APPLICATION_JSON;
+            }
+
+            /*get the userId of the user being provisioned from the particular provider by filtering
+              with user name*/
+            GetMethod getMethod = new GetMethod(userEPURL);
+            //add filter query parameter
+            getMethod.setQueryString(USER_FILTER + ((User) scimObject).getUserName());
+            //add authorization headers
+            getMethod.addRequestHeader(SCIMConstants.AUTHORIZATION_HEADER,
+                    BasicAuthUtil.getBase64EncodedBasicAuthHeader(userName, password));
+
+            //create http client
+            HttpClient httpFilterClient = new HttpClient();
+            //send the request
+            int responseStatus = httpFilterClient.executeMethod(getMethod);
+
+            String response = getMethod.getResponseBodyAsString();
+            if (logger.isDebugEnabled()) {
+                logger.debug("SCIM - filter operation inside 'delete user' provisioning " +
+                        "returned with response code: " + responseStatus);
+                logger.debug("Filter User Response: " + response);
+            }
+            SCIMClient scimClient = new SCIMClient();
+            if (scimClient.evaluateResponseStatus(responseStatus)) {
+                //decode the response to extract the userId.
+                ListedResource listedResource = scimClient.decodeSCIMResponseWithListedResource(
+                        response, SCIMConstants.identifyFormat(contentType), objectType);
+                List<SCIMObject> users = listedResource.getScimObjects();
+                String userId = null;
+                //we expect only one user in the list
+                for (SCIMObject user : users) {
+                    userId = ((User) user).getId();
+                    if (StringUtils.isEmpty(userId)) {
+                        logger.error("Trying to update a user entry which doesn't support SCIM. " +
+                                "Usually internal carbon User entries such as admin role doesn't support SCIM attributes.");
+                        return;
+                    }
+                }
+                String url = userEPURL + "/" + userId;
+                PostMethod patchMethod = new PostMethod(url) {
+                    @Override
+                    public String getName() {
+                        return "PATCH";
+                    }
+                };
+
+                patchMethod.addRequestHeader(
+                        SCIMConstants.AUTHORIZATION_HEADER,
+                        BasicAuthUtil.getBase64EncodedBasicAuthHeader(userName, password));
+                String encodedUser = scimClient.encodeSCIMObject(
+                        (AbstractSCIMObject) scimObject, SCIMConstants.identifyFormat(contentType));
+                RequestEntity putRequestEntity = new StringRequestEntity(
+                        encodedUser, contentType, null);
+                patchMethod.setRequestEntity(putRequestEntity);
+
+                HttpClient httpUpdateClient = new HttpClient();
+                int updateResponseStatus = httpUpdateClient.executeMethod(patchMethod);
+                String updateResponse = patchMethod.getResponseBodyAsString();
+                logger.info("SCIM - update user operation returned with response code: " +
+                        updateResponseStatus);
+                if (!scimClient.evaluateResponseStatus(updateResponseStatus)) {
+                    //decode scim exception and extract the specific error message.
+                    AbstractCharonException exception =
+                            scimClient.decodeSCIMException(
+                                    updateResponse, SCIMConstants.identifyFormat(contentType));
+                    logger.error(exception.getDescription());
+                }
+            } else {
+                //decode scim exception and extract the specific error message.
+                AbstractCharonException exception =
+                        scimClient.decodeSCIMException(
+                                response, SCIMConstants.identifyFormat(contentType));
+                logger.error(exception.getDescription());
+            }
+        } catch (CharonException | IOException | BadRequestException e) {
+            throw new IdentitySCIMException("Error in provisioning 'update user' operation for user :" + userName, e);
+        }
+    }
+
+    public void provisionCreateGroup() throws IdentitySCIMException {
+        String userName = null;
         try {
             //get provider details
             String userEPURL = provider.getProperty(SCIMConfigConstants.ELEMENT_NAME_USER_ENDPOINT);
             String groupEPURL = provider.getProperty(SCIMConfigConstants.ELEMENT_NAME_GROUP_ENDPOINT);
-            String userName = provider.getProperty(SCIMConfigConstants.ELEMENT_NAME_USERNAME);
+            userName = provider.getProperty(SCIMConfigConstants.ELEMENT_NAME_USERNAME);
             String password = provider.getProperty(SCIMConfigConstants.ELEMENT_NAME_PASSWORD);
             String contentType = provider.getProperty(SCIMConstants.CONTENT_TYPE_HEADER);
 
@@ -372,7 +445,8 @@ public class ProvisioningClient implements Runnable {
             List<String> users = ((Group) scimObject).getMembersWithDisplayName();
 
             Group copiedGroup = null;
-            if (users != null && users.size() != 0) {
+
+            if (CollectionUtils.isNotEmpty(users)) {
                 //create a deep copy of the group since we are going to update the member ids
                 copiedGroup = (Group) CopyUtil.deepCopy(scimObject);
                 //delete existing members in the group since we are going to update it with
@@ -459,34 +533,17 @@ public class ProvisioningClient implements Runnable {
                         scimClient.decodeSCIMException(postResponse, SCIMConstants.JSON);
                 logger.error(exception.getDescription());
             }
-        } catch (BadRequestException e) {
-            logger.error("Error in provisioning 'create group' operation.");
-            logger.error(e.getDescription());
-            e.printStackTrace();
-        } catch (HttpException e) {
-            logger.error("Error in provisioning 'create group' operation.");
-            logger.error(e.getMessage());
-            e.printStackTrace();
-        } catch (UnsupportedEncodingException e) {
-            logger.error("Error in provisioning 'create group' operation.");
-            logger.error(e.getMessage());
-            e.printStackTrace();
-        } catch (IOException e) {
-            logger.error("Error in provisioning 'create group' operation.");
-            logger.error(e.getMessage());
-            e.printStackTrace();
-        } catch (CharonException e) {
-            logger.error("Error in provisioning 'create group' operation.");
-            logger.error(e.getDescription());
-            e.printStackTrace();
+        } catch (BadRequestException | IOException | CharonException e) {
+            throw new IdentitySCIMException("Error in provisioning 'create group' operation for user :" + userName, e);
         }
     }
 
-    public void provisionDeleteGroup() {
+    public void provisionDeleteGroup() throws IdentitySCIMException {
+        String userName = null;
         try {
             //get provider details
             String groupEPURL = provider.getProperty(SCIMConfigConstants.ELEMENT_NAME_GROUP_ENDPOINT);
-            String userName = provider.getProperty(SCIMConfigConstants.ELEMENT_NAME_USERNAME);
+            userName = provider.getProperty(SCIMConfigConstants.ELEMENT_NAME_USERNAME);
             String password = provider.getProperty(SCIMConfigConstants.ELEMENT_NAME_PASSWORD);
             String contentType = provider.getProperty(SCIMConstants.CONTENT_TYPE_HEADER);
 
@@ -550,31 +607,18 @@ public class ProvisioningClient implements Runnable {
                                 response, SCIMConstants.identifyFormat(contentType));
                 logger.error(exception.getDescription());
             }
-        } catch (CharonException e) {
-            logger.error("Error in provisioning 'delete group' operation.");
-            logger.error(e.getDescription());
-            e.printStackTrace();
-        } catch (HttpException e) {
-            logger.error("Error in provisioning 'delete group' operation.");
-            logger.error(e.getMessage());
-            e.printStackTrace();
-        } catch (IOException e) {
-            logger.error("Error in provisioning 'delete group' operation.");
-            logger.error(e.getMessage());
-            e.printStackTrace();
-        } catch (BadRequestException e) {
-            logger.error("Error in provisioning 'delete group' operation.");
-            logger.error(e.getDescription());
-            e.printStackTrace();
+        } catch (CharonException | IOException | BadRequestException e) {
+            throw new IdentitySCIMException("Error in provisioning 'delete group' operation for user :" + userName, e);
         }
     }
 
-    public void provisionUpdateGroup() {
+    public void provisionUpdateGroup() throws IdentitySCIMException {
+        String userName = null;
         try {
             //get provider details
             String groupEPURL = provider.getProperty(SCIMConfigConstants.ELEMENT_NAME_GROUP_ENDPOINT);
             String userEPURL = provider.getProperty(SCIMConfigConstants.ELEMENT_NAME_USER_ENDPOINT);
-            String userName = provider.getProperty(SCIMConfigConstants.ELEMENT_NAME_USERNAME);
+            userName = provider.getProperty(SCIMConfigConstants.ELEMENT_NAME_USERNAME);
             String password = provider.getProperty(SCIMConfigConstants.ELEMENT_NAME_PASSWORD);
             String contentType = provider.getProperty(SCIMConstants.CONTENT_TYPE_HEADER);
 
@@ -629,7 +673,8 @@ public class ProvisioningClient implements Runnable {
                 List<String> users = ((Group) scimObject).getMembersWithDisplayName();
 
                 Group copiedGroup = null;
-                if (users != null && users.size() != 0) {
+
+                if (CollectionUtils.isNotEmpty(users)) {
                     //create a deep copy of the group since we are going to update the member ids
                     copiedGroup = (Group) CopyUtil.deepCopy(scimObject);
                     //delete existing members in the group since we are going to update it with
@@ -705,22 +750,8 @@ public class ProvisioningClient implements Runnable {
                                 response, SCIMConstants.identifyFormat(contentType));
                 logger.error(exception.getDescription());
             }
-        } catch (CharonException e) {
-            logger.error("Error in provisioning 'delete group' operation.");
-            logger.error(e.getDescription());
-            e.printStackTrace();
-        } catch (HttpException e) {
-            logger.error("Error in provisioning 'delete group' operation.");
-            logger.error(e.getMessage());
-            e.printStackTrace();
-        } catch (IOException e) {
-            logger.error("Error in provisioning 'delete group' operation.");
-            logger.error(e.getMessage());
-            e.printStackTrace();
-        } catch (BadRequestException e) {
-            logger.error("Error in provisioning 'delete group' operation.");
-            logger.error(e.getDescription());
-            e.printStackTrace();
+        } catch (CharonException | IOException | BadRequestException e) {
+            throw new IdentitySCIMException("Error in provisioning 'delete group' operation for user :" + userName, e);
         }
     }
 
@@ -735,31 +766,40 @@ public class ProvisioningClient implements Runnable {
      *
      * @see Thread#run()
      */
+    @Override
     public void run() {
-        if (SCIMConstants.USER_INT == objectType) {
-            switch (provisioningMethod) {
-                case SCIMConstants.DELETE:
-                    provisionDeleteUser();
-                    break;
-                case SCIMConstants.POST:
-                    provisionCreateUser();
-                    break;
-                case SCIMConstants.PUT:
-                    provisionUpdateUser();
-                    break;
+        try {
+            if (SCIMConstants.USER_INT == objectType) {
+                switch (provisioningMethod) {
+                    case SCIMConstants.DELETE:
+                        provisionDeleteUser();
+                        break;
+                    case SCIMConstants.POST:
+                        provisionCreateUser();
+                        break;
+                    case SCIMConstants.PUT:
+                        provisionUpdateUser();
+                        break;
+                    default:
+                        break;
+                }
+            } else if (SCIMConstants.GROUP_INT == objectType) {
+                switch (provisioningMethod) {
+                    case SCIMConstants.DELETE:
+                        provisionDeleteGroup();
+                        break;
+                    case SCIMConstants.POST:
+                        provisionCreateGroup();
+                        break;
+                    case SCIMConstants.PUT:
+                        provisionUpdateGroup();
+                        break;
+                    default:
+                        break;
+                }
             }
-        } else if (SCIMConstants.GROUP_INT == objectType) {
-            switch (provisioningMethod) {
-                case SCIMConstants.DELETE:
-                    provisionDeleteGroup();
-                    break;
-                case SCIMConstants.POST:
-                    provisionCreateGroup();
-                    break;
-                case SCIMConstants.PUT:
-                    provisionUpdateGroup();
-                    break;
-            }
+        } catch (IdentitySCIMException e) {
+            logger.error("Error occurred while user provisioning", e);
         }
     }
 }

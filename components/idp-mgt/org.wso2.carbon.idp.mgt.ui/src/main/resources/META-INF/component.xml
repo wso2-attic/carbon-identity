@@ -24,7 +24,7 @@
             <parent-menu>identity_menu</parent-menu>
             <link>#</link>
             <region>region1</region>
-            <order>2</order>
+            <order>5</order>
             <style-class>manage</style-class>
             <icon>../idpmgt/images/trust.png</icon>
             <require-permission>/permission/admin/manage</require-permission>

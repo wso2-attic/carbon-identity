@@ -1,23 +1,26 @@
 /*
-*  Copyright (c) WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ *
+ */
 
 package org.wso2.carbon.identity.sso.agent.bean;
 
+import org.apache.commons.lang.StringUtils;
 import org.opensaml.common.xml.SAMLConstants;
 import org.wso2.carbon.identity.sso.agent.SSOAgentConstants;
 import org.wso2.carbon.identity.sso.agent.SSOAgentException;
@@ -25,13 +28,32 @@ import org.wso2.carbon.identity.sso.agent.openid.AttributesRequestor;
 import org.wso2.carbon.identity.sso.agent.saml.SSOAgentCarbonX509Credential;
 import org.wso2.carbon.identity.sso.agent.saml.SSOAgentX509Credential;
 
-import java.util.*;
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.TrustManagerFactory;
+import javax.net.ssl.X509TrustManager;
+import javax.net.ssl.SSLSocketFactory;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.security.KeyStore;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class SSOAgentConfig {
 
-    private static Logger LOGGER = Logger.getLogger(SSOAgentConstants.LOGGER_NAME);
+    private static final Logger LOGGER = Logger.getLogger(SSOAgentConstants.LOGGER_NAME);
 
     private Boolean isSAML2SSOLoginEnabled = false;
     private Boolean isOpenIdLoginEnabled = false;
@@ -47,6 +69,24 @@ public class SSOAgentConfig {
     private SAML2 saml2 = new SAML2();
     private OpenID openId = new OpenID();
     private OAuth2 oauth2 = new OAuth2();
+    private String requestQueryParameters;
+    private Boolean enableHostNameVerification = false;
+    private Boolean enableSSLVerification = false;
+    private InputStream keyStoreStream;
+    private String keyStorePassword;
+    private KeyStore keyStore;
+
+    public Boolean getEnableHostNameVerification() {
+        return enableHostNameVerification;
+    }
+
+    public Boolean getEnableSSLVerification() {
+        return enableSSLVerification;
+    }
+
+    public String getRequestQueryParameters() {
+        return requestQueryParameters;
+    }
 
     public Boolean isSAML2SSOLoginEnabled() {
         return isSAML2SSOLoginEnabled;
@@ -124,8 +164,44 @@ public class SSOAgentConfig {
         this.isOAuth2SAML2GrantEnabled = isOAuth2SAML2GrantEnabled;
     }
 
+    private InputStream getKeyStoreStream() {
+        return keyStoreStream;
+    }
+
+    public void setKeyStoreStream(InputStream keyStoreStream) {
+        if (this.keyStoreStream == null) {
+            this.keyStoreStream = keyStoreStream;
+        }
+    }
+
+    private String getKeyStorePassword() {
+        return keyStorePassword;
+    }
+
+    public void setKeyStorePassword(String keyStorePassword) {
+        this.keyStorePassword = keyStorePassword;
+    }
+
+    public KeyStore getKeyStore() throws org.wso2.carbon.identity.sso.agent.exception.SSOAgentException {
+        if (keyStore == null) {
+            setKeyStore(readKeyStore(getKeyStoreStream(), getKeyStorePassword()));
+        }
+        return keyStore;
+    }
+
+    public void setKeyStore(KeyStore keyStore) {
+        this.keyStore = keyStore;
+    }
     public void initConfig(Properties properties) throws SSOAgentException {
 
+        requestQueryParameters = properties.getProperty("SAML.Request.Query.Param");
+        if (properties.getProperty("SSL.EnableSSLVerification") != null) {
+            enableSSLVerification = Boolean.parseBoolean(properties.getProperty("SSL.EnableSSLVerification"));
+        }
+        if (properties.getProperty("SSL.EnableSSLHostNameVerification") != null) {
+            enableHostNameVerification =
+                    Boolean.parseBoolean(properties.getProperty("SSL.EnableSSLHostNameVerification"));
+        }
         String isSAML2SSOLoginEnabledString = properties.getProperty(
                 SSOAgentConstants.SSOAgentConfig.ENABLE_SAML2_SSO_LOGIN);
         if (isSAML2SSOLoginEnabledString != null) {
@@ -162,7 +238,7 @@ public class SSOAgentConfig {
                 SSOAgentConstants.SSOAgentConfig.OAUTH2_SAML2_GRANT_URL);
 
         String skipURIsString = properties.getProperty(SSOAgentConstants.SSOAgentConfig.SKIP_URIS);
-        if (skipURIsString != null && !skipURIsString.isEmpty()) {
+        if (!StringUtils.isBlank(skipURIsString)) {
             String[] skipURIArray = skipURIsString.split(",");
             for (String skipURI : skipURIArray) {
                 skipURIs.add(skipURI);
@@ -170,7 +246,7 @@ public class SSOAgentConfig {
         }
 
         String queryParamsString = properties.getProperty(SSOAgentConstants.SSOAgentConfig.QUERY_PARAMS);
-        if (queryParamsString != null && !queryParamsString.isEmpty()) {
+        if (!StringUtils.isBlank(queryParamsString)) {
             String[] queryParamsArray = queryParamsString.split("&");
             Map<String, List<String>> queryParamMap = new HashMap<String, List<String>>();
             if (queryParamsArray.length > 0) {
@@ -282,7 +358,7 @@ public class SSOAgentConfig {
         String isForceAuthnString = properties.getProperty(
                 SSOAgentConstants.SSOAgentConfig.SAML2.IS_FORCE_AUTHN);
         if (isForceAuthnString != null) {
-            saml2.isForceAuthn = Boolean.parseBoolean(properties.getProperty(isForceAuthnString));
+            saml2.isForceAuthn = Boolean.parseBoolean(isForceAuthnString);
         } else {
             LOGGER.log(Level.FINE, "\'" + SSOAgentConstants.SSOAgentConfig.SAML2.IS_FORCE_AUTHN +
                     "\' not configured. Defaulting to \'false\'");
@@ -320,6 +396,29 @@ public class SSOAgentConfig {
             LOGGER.log(Level.FINE, "\'" + SSOAgentConstants.SSOAgentConfig.OpenID.ENABLE_DUMB_MODE +
                     "\' not configured. Defaulting to \'false\'");
             openId.isDumbModeEnabled = false;
+        }
+        if (properties.getProperty("KeyStore") != null) {
+            try {
+                keyStoreStream = new FileInputStream(properties.getProperty("KeyStore"));
+            } catch (FileNotFoundException e) {
+                throw new SSOAgentException("Cannot find file " + properties.getProperty("KeyStore"), e);
+            }
+        }
+        keyStorePassword = properties.getProperty("KeyStorePassword");
+
+        SSLContext sc;
+        try {
+            // Get SSL context
+            sc = SSLContext.getInstance("SSL");
+            doHostNameVerification();
+            TrustManager[] trustManagers = doSSLVerification();
+
+            sc.init(null, trustManagers, new java.security.SecureRandom());
+            SSLSocketFactory sslSocketFactory = sc.getSocketFactory();
+            HttpsURLConnection.setDefaultSSLSocketFactory(sslSocketFactory);
+
+        } catch (Exception e) {
+            throw new SSOAgentException("An error in initializing SSL Context");
         }
     }
 
@@ -423,6 +522,77 @@ public class SSOAgentConfig {
             throw new SSOAgentException("OAuth2 Client Secret not configured");
         }
 
+    }
+
+    /**
+     * get the key store instance
+     *
+     * @param is            KeyStore InputStream
+     * @param storePassword password of key store
+     * @return KeyStore instant
+     * @throws org.wso2.carbon.identity.sso.agent.exception.SSOAgentException if fails to load key store
+     */
+    private KeyStore readKeyStore(InputStream is, String storePassword) throws
+                                                                               org.wso2.carbon.identity.sso.agent.exception.SSOAgentException {
+
+        if (storePassword == null) {
+            throw new org.wso2.carbon.identity.sso.agent.exception.SSOAgentException("KeyStore password can not be null");
+        }
+
+        try {
+            KeyStore keyStore = KeyStore.getInstance("JKS");
+            keyStore.load(is, storePassword.toCharArray());
+            return keyStore;
+        } catch (Exception e) {
+
+            throw new org.wso2.carbon.identity.sso.agent.exception.SSOAgentException("Error while loading key store file", e);
+        } finally {
+            if (is != null) {
+                try {
+                    is.close();
+                } catch (IOException ignored) {
+
+                    throw new org.wso2.carbon.identity.sso.agent.exception.SSOAgentException("Error while closing input stream of key store", ignored);
+                }
+            }
+        }
+    }
+
+    private void doHostNameVerification(){
+        if (!this.getEnableHostNameVerification()) {
+            // Create empty HostnameVerifier
+            HostnameVerifier hv = new HostnameVerifier() {
+                public boolean verify(String urlHostName, SSLSession session) {
+                    return true;
+                }
+            };
+            HttpsURLConnection.setDefaultHostnameVerifier(hv);
+        }
+    }
+
+    private TrustManager[] doSSLVerification() throws Exception {
+        TrustManager[] trustManagers = null;
+        if (this.getEnableSSLVerification()) {
+            TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+            tmf.init(this.getKeyStore());
+            trustManagers = tmf.getTrustManagers();
+        } else {
+            // Create a trust manager that does not validate certificate chains
+            trustManagers = new TrustManager[] { new X509TrustManager() {
+                public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+                    return null;
+                }
+
+                public void checkClientTrusted(java.security.cert.X509Certificate[] certs,
+                                               String authType) {
+                }
+
+                public void checkServerTrusted(java.security.cert.X509Certificate[] certs,
+                                               String authType) {
+                }
+            } };
+        }
+        return trustManagers;
     }
 
     public class SAML2 {

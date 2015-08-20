@@ -1,17 +1,19 @@
 /*
- * Copyright 2005-2008 WSO2, Inc. (http://wso2.com)
- * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright (c) 2005-2008, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package org.wso2.carbon.identity.provider.openid;
@@ -36,15 +38,13 @@ import java.util.Random;
  *
  * @author WSO2 Inc.
  */
-public class OpenIDServerAssociationStore extends
-        InMemoryServerAssociationStore {
+public class OpenIDServerAssociationStore extends InMemoryServerAssociationStore {
 
-    private static Log log = LogFactory
-            .getLog(OpenIDServerAssociationStore.class);
+    private static final Log log = LogFactory.getLog(OpenIDServerAssociationStore.class);
     private int storeId = 0;
     private String timestamp;
     private int counter;
-    private OpenIDAssociationCache cache;
+    private volatile OpenIDAssociationCache cache;
     private OpenIDAssociationDAO dao;
 
     /**
@@ -58,7 +58,8 @@ public class OpenIDServerAssociationStore extends
         timestamp = Long.toString(new Date().getTime());
         counter = 0;
         cache = OpenIDAssociationCache.getCacheInstance();
-        dao = new OpenIDAssociationDAO(associationsType);
+        // get singleton dao
+        dao = OpenIDAssociationDAO.getInstance(associationsType);
     }
 
     /**
@@ -68,16 +69,19 @@ public class OpenIDServerAssociationStore extends
      * @param expiryIn date
      * @return <code>Association</code>
      */
-    public synchronized Association generate(String type, int expiryIn)
+    @Override
+    public Association generate(String type, int expiryIn)
             throws AssociationException {
-        String handle = storeId + timestamp + "-" + counter++;
+        String handle = storeId + timestamp + "-" + getCounter();
         final Association association = Association.generate(type, handle, expiryIn);
         cache.addToCache(association);
         // Asynchronous write to database
         Thread thread = new Thread() {
+            @Override
             public void run() {
-                log.debug("Stroing association " + association.getHandle()
-                        + " in the database.");
+                if(log.isDebugEnabled()) {
+                    log.debug("Storing association " + association.getHandle() + " in the database.");
+                }
                 dao.storeAssociation(association);
             }
         };
@@ -86,12 +90,21 @@ public class OpenIDServerAssociationStore extends
     }
 
     /**
+     *
+     * @return
+     */
+    private synchronized int getCounter(){
+        return counter++;
+    }
+
+    /**
      * First try to load from the memory, in case of failure look in the db.
      *
      * @param handle
      * @return <code>Association<code>
      */
-    public synchronized Association load(String handle) {
+    @Override
+    public Association load(String handle) {
 
         boolean chacheMiss = false;
 
@@ -100,15 +113,18 @@ public class OpenIDServerAssociationStore extends
 
         // if failed, look in the database
         if (association == null) {
-            log.debug("Association " + handle
-                    + " not found in cache. Loading from the database.");
+            if(log.isDebugEnabled()) {
+                log.debug("Association " + handle + " not found in cache. Loading from the database.");
+            }
             association = dao.loadAssociation(handle);
             chacheMiss = true;
         }
 
         // no association found for the given handle
         if (association == null) {
-            log.debug("Association " + handle + " not found in the database.");
+            if(log.isDebugEnabled()) {
+                log.debug("Association " + handle + " not found in the database.");
+            }
             return null;
         }
 
@@ -129,17 +145,20 @@ public class OpenIDServerAssociationStore extends
     /**
      * Removes the association from the memory and db.
      */
-    public synchronized void remove(final String handle) {
+    @Override
+    public void remove(final String handle) {
 
         // we are not removing from cache
         // because it will cost a database call
         // for a cache miss. Associations are self validating tokens
-        // cache.removeCacheEntry(handle);
 
         // removing from the database
         Thread thread = new Thread() {
+            @Override
             public void run() {
-                log.debug("Removing the association" + handle + " from the database");
+                if(log.isDebugEnabled()) {
+                    log.debug("Removing the association" + handle + " from the database");
+                }
                 dao.removeAssociation(handle);
             }
         };

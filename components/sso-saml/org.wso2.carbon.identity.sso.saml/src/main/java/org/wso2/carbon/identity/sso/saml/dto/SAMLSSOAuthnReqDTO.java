@@ -1,12 +1,12 @@
 /*
- *  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- *  WSO2 Inc. licenses this file to you under the Apache License,
+ * WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
- *  in compliance with the License.
- *  You may obtain a copy of the License at
+ * in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -29,12 +29,14 @@ public class SAMLSSOAuthnReqDTO implements Serializable {
     private String issuer;
     private String subject;
     private String assertionConsumerURL;
+    private String[] assertionConsumerURLs;
     private String id;
     private String claim;
     private String audience;
     private String recipient;
     private String nameIDFormat;
-    private String logoutURL;
+    private String sloResponseURL;
+    private String sloRequestURL;
     private String loginPageURL;
     private String rpSessionId;
     private String requestMessageString;
@@ -46,11 +48,12 @@ public class SAMLSSOAuthnReqDTO implements Serializable {
     private boolean doSingleLogout;
     private boolean doSignResponse;
     private boolean doSignAssertions;
-    private boolean useFullyQualifiedUsernameAsSubject;
     private boolean isStratosDeployment = false;
     private int attributeConsumingServiceIndex;
     private String nameIdClaimUri;
-    private boolean isIdPInitSSO;
+    private boolean idPInitSSOEnabled;
+    private boolean idPInitSLOEnabled;
+    private String[] idpInitSLOReturnToURLs;
     private boolean doEnableEncryptedAssertion;
     private boolean doValidateSignatureInRequests;
     private Map<String, String> claimMapping = null;
@@ -170,21 +173,12 @@ public class SAMLSSOAuthnReqDTO implements Serializable {
         this.recipient = recipient;
     }
 
-    public String getLogoutURL() {
-        return logoutURL;
+    public String getSloResponseURL() {
+        return sloResponseURL;
     }
 
-    public void setLogoutURL(String logoutURL) {
-        this.logoutURL = logoutURL;
-    }
-
-    public boolean getUseFullyQualifiedUsernameAsSubject() {
-        return useFullyQualifiedUsernameAsSubject;
-    }
-
-    public void setUseFullyQualifiedUsernameAsSubject(
-            boolean useFullyQualifiedUsernameAsSubject) {
-        this.useFullyQualifiedUsernameAsSubject = useFullyQualifiedUsernameAsSubject;
+    public void setSloResponseURL(String sloResponseURL) {
+        this.sloResponseURL = sloResponseURL;
     }
 
     public boolean isDoSingleLogout() {
@@ -234,27 +228,48 @@ public class SAMLSSOAuthnReqDTO implements Serializable {
     }
 
     public String[] getRequestedClaims() {
-        return requestedClaims;
+        if (requestedClaims == null) {
+            return new String[0];
+        }
+        return requestedClaims.clone();
     }
 
     public void setRequestedClaims(String[] requestedClaims) {
-        this.requestedClaims = requestedClaims;
+        if (requestedClaims == null) {
+            this.requestedClaims = new String[0];
+        } else {
+            this.requestedClaims = requestedClaims.clone();
+        }
     }
 
     public String[] getRequestedAudiences() {
-        return requestedAudiences;
+        if (requestedAudiences == null) {
+            return new String[0];
+        }
+        return requestedAudiences.clone();
     }
 
     public void setRequestedAudiences(String[] requestedAudiences) {
-        this.requestedAudiences = requestedAudiences;
+        if (requestedAudiences == null) {
+            this.requestedAudiences = new String[0];
+        } else {
+            this.requestedAudiences = requestedAudiences.clone();
+        }
     }
 
     public String[] getRequestedRecipients() {
-        return requestedRecipients;
+        if (requestedRecipients == null) {
+            return new String[0];
+        }
+        return requestedRecipients.clone();
     }
 
     public void setRequestedRecipients(String[] requestedRecipients) {
-        this.requestedRecipients = requestedRecipients;
+        if (requestedRecipients == null) {
+            this.requestedRecipients = new String[0];
+        } else {
+            this.requestedRecipients = requestedRecipients.clone();
+        }
     }
 
     public boolean isStratosDeployment() {
@@ -307,12 +322,12 @@ public class SAMLSSOAuthnReqDTO implements Serializable {
         this.destination = destination;
     }
 
-    public boolean isIdPInitSSO() {
-        return isIdPInitSSO;
+    public boolean isIdPInitSSOEnabled() {
+        return idPInitSSOEnabled;
     }
 
-    public void setIdPInitSSO(boolean isIdPInitSSO) {
-        this.isIdPInitSSO = isIdPInitSSO;
+    public void setIdPInitSSOEnabled(boolean isIdPInitSSO) {
+        this.idPInitSSOEnabled = isIdPInitSSO;
     }
 
     public boolean isDoEnableEncryptedAssertion() {
@@ -348,4 +363,35 @@ public class SAMLSSOAuthnReqDTO implements Serializable {
         this.tenantDomain = tenantDomain;
     }
 
+    public boolean isIdPInitSLOEnabled() {
+        return idPInitSLOEnabled;
+    }
+
+    public void setIdPInitSLOEnabled(boolean idPInitSLOEnabled) {
+        this.idPInitSLOEnabled = idPInitSLOEnabled;
+    }
+
+    public String[] getAssertionConsumerURLs() {
+        return assertionConsumerURLs;
+    }
+
+    public void setAssertionConsumerURLs(String[] assertionConsumerURLs) {
+        this.assertionConsumerURLs = assertionConsumerURLs;
+    }
+
+    public String[] getIdpInitSLOReturnToURLs() {
+        return idpInitSLOReturnToURLs;
+    }
+
+    public void setIdpInitSLOReturnToURLs(String[] idpInitSLOReturnToURLs) {
+        this.idpInitSLOReturnToURLs = idpInitSLOReturnToURLs;
+    }
+
+    public String getSloRequestURL() {
+        return sloRequestURL;
+    }
+
+    public void setSloRequestURL(String sloRequestURL) {
+        this.sloRequestURL = sloRequestURL;
+    }
 }

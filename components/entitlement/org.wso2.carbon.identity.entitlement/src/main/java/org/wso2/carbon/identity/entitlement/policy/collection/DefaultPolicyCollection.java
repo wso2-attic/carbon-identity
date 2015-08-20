@@ -19,7 +19,15 @@ package org.wso2.carbon.identity.entitlement.policy.collection;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.balana.*;
+import org.wso2.balana.AbstractPolicy;
+import org.wso2.balana.AbstractTarget;
+import org.wso2.balana.MatchResult;
+import org.wso2.balana.Policy;
+import org.wso2.balana.PolicyReference;
+import org.wso2.balana.PolicySet;
+import org.wso2.balana.TargetMatch;
+import org.wso2.balana.VersionConstraints;
+import org.wso2.balana.XACMLConstants;
 import org.wso2.balana.combine.PolicyCombiningAlgorithm;
 import org.wso2.balana.ctx.EvaluationCtx;
 import org.wso2.balana.ctx.Status;
@@ -30,7 +38,13 @@ import org.wso2.carbon.identity.entitlement.EntitlementLRUCache;
 
 import java.io.Serializable;
 import java.net.URI;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.Properties;
+import java.util.StringTokenizer;
+import java.util.TreeSet;
 
 public class DefaultPolicyCollection implements PolicyCollection {
 
@@ -376,5 +390,18 @@ public class DefaultPolicyCollection implements PolicyCollection {
             // are in fact equal
             return 0;
         }
+    }
+@Override
+    public boolean deletePolicy(String policyId) {
+        return false;
+    }
+@Override
+    public LinkedHashMap getPolicyMap() {
+        return this.policies;
+    }
+
+    @Override
+    public void setPolicyMap(LinkedHashMap policyMap) {
+        this.policies = policyMap ;
     }
 }

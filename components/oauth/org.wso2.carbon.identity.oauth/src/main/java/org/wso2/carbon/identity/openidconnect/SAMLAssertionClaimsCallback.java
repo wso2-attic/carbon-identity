@@ -1,13 +1,13 @@
 /*
- * Copyright (c) 2005-2013, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
- * 
+ * Copyright (c) 2013, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -19,26 +19,34 @@ package org.wso2.carbon.identity.openidconnect;
 
 import net.minidev.json.JSONArray;
 import org.apache.amber.oauth2.common.exception.OAuthSystemException;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.oltu.openidconnect.as.messages.IDTokenBuilder;
 import org.opensaml.saml2.core.Assertion;
 import org.opensaml.saml2.core.Attribute;
 import org.opensaml.saml2.core.AttributeStatement;
+import org.wso2.carbon.claim.mgt.ClaimManagementException;
 import org.wso2.carbon.claim.mgt.ClaimManagerHandler;
+import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
 import org.wso2.carbon.identity.application.common.model.ClaimMapping;
 import org.wso2.carbon.identity.application.common.model.ServiceProvider;
 import org.wso2.carbon.identity.application.mgt.ApplicationManagementService;
+import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
 import org.wso2.carbon.identity.oauth.cache.AuthorizationGrantCache;
 import org.wso2.carbon.identity.oauth.cache.AuthorizationGrantCacheEntry;
 import org.wso2.carbon.identity.oauth.cache.AuthorizationGrantCacheKey;
 import org.wso2.carbon.identity.oauth.common.OAuthConstants;
+import org.wso2.carbon.identity.oauth.config.OAuthServerConfiguration;
 import org.wso2.carbon.identity.oauth2.internal.OAuth2ServiceComponentHolder;
 import org.wso2.carbon.identity.oauth2.token.OAuthTokenReqMessageContext;
 import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.core.UserRealm;
+import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
@@ -70,11 +78,11 @@ public class SAMLAssertionClaimsCallback implements CustomClaimsCallbackHandler 
 
         if (assertion != null) {
             List<AttributeStatement> list = assertion.getAttributeStatements();
-            if (list.size() > 0) {
-                Iterator<Attribute> attribIterator = assertion.getAttributeStatements().get(0).getAttributes()
+            if (CollectionUtils.isNotEmpty(list)) {
+                Iterator<Attribute> attributeIterator = list.get(0).getAttributes()
                         .iterator();
-                while (attribIterator.hasNext()) {
-                    Attribute attribute = attribIterator.next();
+                while (attributeIterator.hasNext()) {
+                    Attribute attribute = attributeIterator.next();
                     String value = attribute.getAttributeValues().get(0).getDOM().getTextContent();
                     builder.setClaim(attribute.getName(), value);
                     if (log.isDebugEnabled()) {
@@ -103,9 +111,9 @@ public class SAMLAssertionClaimsCallback implements CustomClaimsCallbackHandler 
                     if (userAttributeSeparator != null && value.contains(userAttributeSeparator)) {
                         StringTokenizer st = new StringTokenizer(value, userAttributeSeparator);
                         while (st.hasMoreElements()) {
-                            String attValue = st.nextElement().toString();
-                            if (attValue != null && attValue.trim().length() > 0) {
-                                values.add(attValue);
+                            String attributeValue = st.nextElement().toString();
+                            if (StringUtils.isNotBlank(attributeValue)) {
+                                values.add(attributeValue);
                             }
                         }
                     } else {
@@ -114,9 +122,8 @@ public class SAMLAssertionClaimsCallback implements CustomClaimsCallbackHandler 
                     builder.setClaim(entry.getKey(), values.toJSONString());
                 }
             } catch (OAuthSystemException e) {
-                log.error(
-                        "Error occurred while adding claims of " + requestMsgCtx.getAuthorizedUser() + " to id token.",
-                        e);
+                log.error("Error occurred while adding claims of " + requestMsgCtx.getAuthorizedUser() +
+                                " to id token.", e);
             }
         }
     }
@@ -133,17 +140,18 @@ public class SAMLAssertionClaimsCallback implements CustomClaimsCallbackHandler 
 
         Map<ClaimMapping, String> userAttributes =
                 getUserAttributesFromCache(requestMsgCtx.getProperty(OAuthConstants.ACCESS_TOKEN).toString());
-        Map<String, Object> claims = Collections.EMPTY_MAP;
+        Map<String, Object> claims = Collections.emptyMap();
 
         // If subject claim uri is null, we get the actual user name of the logged in user.
-        if ((userAttributes == null || userAttributes.isEmpty()) && (getSubjectClaimUri(requestMsgCtx) == null)) {
+        if (MapUtils.isEmpty(userAttributes) && (getSubjectClaimUri(requestMsgCtx) == null)) {
             if (log.isDebugEnabled()) {
                 log.debug("User attributes not found in cache. Trying to retrieve attribute for user " + requestMsgCtx
                         .getAuthorizedUser());
             }
             try {
                 claims = getClaimsFromUserStore(requestMsgCtx);
-            } catch (Exception e) {
+            } catch (UserStoreException | IdentityException | ClaimManagementException |
+                    IdentityApplicationManagementException e) {
                 log.error("Error occurred while getting claims for user " + requestMsgCtx.getAuthorizedUser(), e);
             }
         } else {
@@ -160,10 +168,10 @@ public class SAMLAssertionClaimsCallback implements CustomClaimsCallbackHandler 
      */
     private Map<String, Object> getClaimsMap(Map<ClaimMapping, String> userAttributes) {
 
-        Map<String, Object> claims = new HashMap<String, Object>();
-        if (userAttributes != null && userAttributes.size() > 0) {
-            for (ClaimMapping claimMapping : userAttributes.keySet()) {
-                claims.put(claimMapping.getRemoteClaim().getClaimUri(), userAttributes.get(claimMapping));
+        Map<String, Object> claims = new HashMap();
+        if (MapUtils.isNotEmpty(userAttributes)) {
+            for (Map.Entry<ClaimMapping, String> entry : userAttributes.entrySet()) {
+                claims.put(entry.getKey().getRemoteClaim().getClaimUri(), entry.getValue());
             }
         }
         return claims;
@@ -177,10 +185,11 @@ public class SAMLAssertionClaimsCallback implements CustomClaimsCallbackHandler 
      * @throws Exception
      */
     private static Map<String, Object> getClaimsFromUserStore(OAuthTokenReqMessageContext requestMsgCtx)
-            throws Exception {
+            throws IdentityApplicationManagementException, IdentityException, UserStoreException,
+            ClaimManagementException {
 
-        String username = requestMsgCtx.getAuthorizedUser();
-        String tenantDomain = MultitenantUtils.getTenantDomain(requestMsgCtx.getAuthorizedUser());
+        String username = requestMsgCtx.getAuthorizedUser().toString();
+        String tenantDomain = requestMsgCtx.getAuthorizedUser().getTenantDomain();
 
         UserRealm realm;
         List<String> claimURIList = new ArrayList<String>();
@@ -189,8 +198,9 @@ public class SAMLAssertionClaimsCallback implements CustomClaimsCallbackHandler 
         ApplicationManagementService applicationMgtService = OAuth2ServiceComponentHolder.getApplicationMgtService();
         String spName = applicationMgtService
                 .getServiceProviderNameByClientId(requestMsgCtx.getOauth2AccessTokenReqDTO().getClientId(),
-                                                  INBOUND_AUTH2_TYPE);
-        ServiceProvider serviceProvider = applicationMgtService.getApplication(spName);
+                                                  INBOUND_AUTH2_TYPE, tenantDomain);
+        ServiceProvider serviceProvider = applicationMgtService.getApplicationExcludingFileBasedSPs(spName,
+                                                                                                    tenantDomain);
         if (serviceProvider == null) {
             return mappedAppClaims;
         }
@@ -199,7 +209,7 @@ public class SAMLAssertionClaimsCallback implements CustomClaimsCallbackHandler 
         if (realm == null) {
             log.warn("No valid tenant domain provider. Empty claim returned back for tenant " + tenantDomain
                      + " and user " + username);
-            return new HashMap<String, Object>();
+            return new HashMap<>();
         }
 
         Map<String, String> spToLocalClaimMappings;
@@ -229,8 +239,8 @@ public class SAMLAssertionClaimsCallback implements CustomClaimsCallbackHandler 
                 log.debug("Number of user claims retrieved from user store: " + userClaims.size());
             }
 
-            if (userClaims == null || userClaims.size() == 0) {
-                return new HashMap<String, Object>();
+            if (MapUtils.isEmpty(userClaims)) {
+                return new HashMap<>();
             }
 
             for (Iterator<Map.Entry<String, String>> iterator = spToLocalClaimMappings.entrySet().iterator(); iterator
@@ -266,8 +276,9 @@ public class SAMLAssertionClaimsCallback implements CustomClaimsCallbackHandler 
     private Map<ClaimMapping, String> getUserAttributesFromCache(String accessToken) {
 
         AuthorizationGrantCacheKey cacheKey = new AuthorizationGrantCacheKey(accessToken);
-        AuthorizationGrantCacheEntry cacheEntry = (AuthorizationGrantCacheEntry) AuthorizationGrantCache.getInstance()
-                .getValueFromCache(cacheKey);
+        AuthorizationGrantCacheEntry cacheEntry = (AuthorizationGrantCacheEntry) AuthorizationGrantCache.
+                getInstance(OAuthServerConfiguration.getInstance().getAuthorizationGrantCacheTimeout())
+                                                                                        .getValueFromCache(cacheKey);
         if (cacheEntry == null) {
             return new HashMap<ClaimMapping, String>();
         }
@@ -279,9 +290,11 @@ public class SAMLAssertionClaimsCallback implements CustomClaimsCallbackHandler 
                 .getApplicationMgtService();
         ServiceProvider serviceProvider = null;
         try {
+            String tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
             String spName = applicationMgtService.getServiceProviderNameByClientId(request.getOauth2AccessTokenReqDTO()
-                                                                                           .getClientId(), INBOUND_AUTH2_TYPE);
-            serviceProvider = applicationMgtService.getApplication(spName);
+                                                                                           .getClientId(),
+                                                                                   INBOUND_AUTH2_TYPE, tenantDomain);
+            serviceProvider = applicationMgtService.getApplicationExcludingFileBasedSPs(spName, tenantDomain);
             if (serviceProvider != null) {
                 return serviceProvider.getLocalAndOutBoundAuthenticationConfig().getSubjectClaimUri();
             }

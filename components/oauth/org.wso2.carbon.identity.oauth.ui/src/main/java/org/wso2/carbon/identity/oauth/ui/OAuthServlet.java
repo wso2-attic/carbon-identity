@@ -21,6 +21,7 @@ package org.wso2.carbon.identity.oauth.ui;
 import org.apache.axis2.context.ConfigurationContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.oauth.common.OAuthConstants;
 import org.wso2.carbon.identity.oauth.stub.OAuthServiceAuthenticationException;
 import org.wso2.carbon.identity.oauth.stub.types.Parameters;
@@ -52,6 +53,7 @@ public class OAuthServlet extends HttpServlet {
      * @see javax.servlet.http.HttpServlet#service(javax.servlet.http.HttpServletRequest,
      * javax.servlet.http.HttpServletResponse)
      */
+    @Override
     protected void service(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
 
@@ -101,10 +103,7 @@ public class OAuthServlet extends HttpServlet {
                     req.getSession().setAttribute("oauth_req_token", params.getOauthToken());
                     req.getSession().setAttribute("oauth_scope", metadata.getScope());
                     req.getSession().setAttribute("oauth_app_name", metadata.getAppName());
-                    String loginPage = CarbonUIUtil.getAdminConsoleURL(req)
-                            + "oauth/oauth-login.jsp";
-                    loginPage = loginPage.replace("/oauth/carbon/oauth/", "/carbon/oauth/");
-                    resp.sendRedirect(loginPage);
+                    resp.sendRedirect(IdentityUtil.getServerURL("/carbon/oauth/oauth-login.jsp"));
                 }
             } else if (requestType.indexOf(OAuthConstants.OAuth10AEndpoints.ACCESS_TOKEN_URL) > -1) {
                 // The Request Token and Token Secret MUST be exchanged for an Access Token and
@@ -151,7 +150,7 @@ public class OAuthServlet extends HttpServlet {
             splitChar = "&";
         }
 
-        StringBuffer nonAuthParams = new StringBuffer();
+        StringBuilder nonAuthParams = new StringBuilder();
 
         if (authHeader != null) {
             if (authHeader.startsWith("OAuth ") || authHeader.startsWith("oauth ")) {

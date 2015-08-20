@@ -22,12 +22,30 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.wso2.balana.*;
-import org.wso2.balana.attr.*;
+import org.wso2.balana.AbstractPolicy;
+import org.wso2.balana.Balana;
+import org.wso2.balana.ParsingException;
+import org.wso2.balana.Policy;
+import org.wso2.balana.PolicySet;
+import org.wso2.balana.XACMLConstants;
+import org.wso2.balana.attr.AttributeValue;
+import org.wso2.balana.attr.BooleanAttribute;
+import org.wso2.balana.attr.DateAttribute;
+import org.wso2.balana.attr.DateTimeAttribute;
+import org.wso2.balana.attr.DoubleAttribute;
+import org.wso2.balana.attr.HexBinaryAttribute;
+import org.wso2.balana.attr.IntegerAttribute;
+import org.wso2.balana.attr.StringAttribute;
+import org.wso2.balana.attr.TimeAttribute;
 import org.wso2.balana.combine.PolicyCombiningAlgorithm;
 import org.wso2.balana.combine.xacml2.FirstApplicablePolicyAlg;
 import org.wso2.balana.combine.xacml2.OnlyOneApplicablePolicyAlg;
-import org.wso2.balana.combine.xacml3.*;
+import org.wso2.balana.combine.xacml3.DenyOverridesPolicyAlg;
+import org.wso2.balana.combine.xacml3.DenyUnlessPermitPolicyAlg;
+import org.wso2.balana.combine.xacml3.OrderedDenyOverridesPolicyAlg;
+import org.wso2.balana.combine.xacml3.OrderedPermitOverridesPolicyAlg;
+import org.wso2.balana.combine.xacml3.PermitOverridesPolicyAlg;
+import org.wso2.balana.combine.xacml3.PermitUnlessDenyPolicyAlg;
 import org.wso2.balana.ctx.AbstractRequestCtx;
 import org.wso2.balana.ctx.Attribute;
 import org.wso2.balana.xacml3.Attributes;
@@ -65,7 +83,11 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.DateFormat;
 import java.text.ParseException;
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 
 /**
  * Provides utility functionalities used across different classes.
@@ -355,7 +377,7 @@ public class EntitlementUtil {
 
         File policyFolder = new File(CarbonUtils.getCarbonHome() + File.separator
                 + "repository" + File.separator + "resources" + File.separator
-                + "security" + File.separator + "policies" + File.separator + "xacml"
+                + "identity" + File.separator + "policies" + File.separator + "xacml"
                 + File.separator + "default");
 
         if (policyFolder.exists()) {

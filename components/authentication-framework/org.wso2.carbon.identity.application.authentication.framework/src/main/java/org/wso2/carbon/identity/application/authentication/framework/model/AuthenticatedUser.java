@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2013, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- *  WSO2 Inc. licenses this file to you under the Apache License,
- *  Version 2.0 (the "License"); you may not use this file except
- *  in compliance with the License.
- *  You may obtain a copy of the License at
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -43,7 +43,7 @@ public class AuthenticatedUser extends User {
     private static final long serialVersionUID = -5424950669928062109L;
 
     private String authenticatedSubjectIdentifier;
-    private Map<ClaimMapping, String> userAttributes = new HashMap<ClaimMapping, String>();
+    private Map<ClaimMapping, String> userAttributes = new HashMap<>();
 
     /**
      * Instantiates an AuthenticatedUser
@@ -64,46 +64,6 @@ public class AuthenticatedUser extends User {
         this.userName = authenticatedUser.getUserName();
         this.userStoreDomain = authenticatedUser.getUserStoreDomain();
         this.userAttributes.putAll(authenticatedUser.getUserAttributes());
-    }
-
-    /**
-     * Returns the authenticated subject identifier.
-     * For a locally authenticated user, subject
-     * identifier is as below.
-     * <userstore_domain>/<username>@<tenant_domain>.
-     *
-     * @return the authenticated subject identifier
-     */
-    public String getAuthenticatedSubjectIdentifier() {
-        return authenticatedSubjectIdentifier;
-    }
-
-    /**
-     * Sets the authenticated subject identifier.
-     *
-     * @param authenticatedSubjectIdentifier the authenticated subject identifier
-     */
-    public void setAuthenticatedSubjectIdentifier(String authenticatedSubjectIdentifier) {
-        this.authenticatedSubjectIdentifier = authenticatedSubjectIdentifier;
-    }
-
-    /**
-     * Returns the user attributes of the authenticated user as a map.
-     * The map holds the respective ClaimMapping object as the key and the attribute as the value.
-     *
-     * @return a map of ClaimMapping to attribute value
-     */
-    public Map<ClaimMapping, String> getUserAttributes() {
-        return userAttributes;
-    }
-
-    /**
-     * Sets the user attributes of the authenticated user.
-     *
-     * @param userAttributes a map of ClaimMapping to attribute value
-     */
-    public void setUserAttributes(Map<ClaimMapping, String> userAttributes) {
-        this.userAttributes = userAttributes;
     }
 
     /**
@@ -166,5 +126,56 @@ public class AuthenticatedUser extends User {
         authenticatedUser.setAuthenticatedSubjectIdentifier(authenticatedSubjectIdentifier);
 
         return authenticatedUser;
+    }
+
+    /**
+     * Returns the authenticated subject identifier.
+     * For a locally authenticated user, subject
+     * identifier is as below.
+     * <userstore_domain>/<username>@<tenant_domain>.
+     *
+     * @return the authenticated subject identifier
+     */
+    public String getAuthenticatedSubjectIdentifier() {
+        return authenticatedSubjectIdentifier;
+    }
+
+    /**
+     * Sets the authenticated subject identifier.
+     *
+     * @param authenticatedSubjectIdentifier the authenticated subject identifier
+     */
+    public void setAuthenticatedSubjectIdentifier(String authenticatedSubjectIdentifier) {
+        this.authenticatedSubjectIdentifier = authenticatedSubjectIdentifier;
+    }
+
+    /**
+     * Returns the user attributes of the authenticated user as a map.
+     * The map holds the respective ClaimMapping object as the key and the attribute as the value.
+     *
+     * @return a map of ClaimMapping to attribute value
+     */
+    public Map<ClaimMapping, String> getUserAttributes() {
+        return userAttributes;
+    }
+
+    /**
+     * Sets the user attributes of the authenticated user.
+     *
+     * @param userAttributes a map of ClaimMapping to attribute value
+     */
+    public void setUserAttributes(Map<ClaimMapping, String> userAttributes) {
+        this.userAttributes = userAttributes;
+    }
+
+    public String getUsernameAsSubjectIdentifier(boolean useUserstoreDomainInLocalSubjectIdentifier, boolean useTenantDomainInLocalSubjectIdentifier){
+        String userName = this.userName;
+        if (useUserstoreDomainInLocalSubjectIdentifier && userStoreDomain != null){
+            userName = userStoreDomain + "/" + userName;
+        }
+        if (useTenantDomainInLocalSubjectIdentifier && tenantDomain != null) {
+            userName = userName + "@" + tenantDomain;
+        }
+        return userName;
     }
 }

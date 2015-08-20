@@ -1,5 +1,5 @@
 <!--
- ~ Copyright (c) 2005-2013, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ ~ Copyright (c) 2013, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  ~
  ~ WSO2 Inc. licenses this file to you under the Apache License,
  ~ Version 2.0 (the "License"); you may not use this file except
@@ -18,8 +18,8 @@
 
 <%@ page import="org.apache.axis2.context.ConfigurationContext"%>
 <%@ page import="org.wso2.carbon.CarbonConstants"%>
-<%@ page import="org.wso2.carbon.identity.oauth.stub.types.Parameters"%>
 <%@ page import="org.wso2.carbon.identity.oauth.common.OAuthConstants"%>
+<%@ page import="org.wso2.carbon.identity.oauth.stub.types.Parameters"%>
 <%@ page import="org.wso2.carbon.identity.oauth.ui.client.OAuthServiceClient"%>
 <%@ page import="org.wso2.carbon.ui.CarbonUIMessage"%>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil"%>
@@ -27,6 +27,7 @@
 <%@ page import="org.wso2.carbon.utils.ServerConstants"%>
 
 <%@ page import="java.util.ResourceBundle"%>
+<%@ page import="org.wso2.carbon.identity.core.util.IdentityUtil" %>
 
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar" prefix="carbon"%>
@@ -63,8 +64,7 @@
     } catch (Exception e) {
     	String message = resourceBundle.getString("auth.error");
     	CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request,e);
-		String loginPage = CarbonUIUtil.getAdminConsoleURL(request) + "oauth/oauth-login.jsp";
-		forwardTo = loginPage.replace("/oauth/carbon/oauth/","/carbon/oauth/" );
+		forwardTo = IdentityUtil.getServerURL("/carbon/oauth/oauth-login.jsp");
     }
 %>
 

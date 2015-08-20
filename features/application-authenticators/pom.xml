@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.wso2.carbon.identity</groupId>
         <artifactId>carbon-identity</artifactId>
-        <version>4.5.1-SNAPSHOT</version>
+        <version>4.5.5-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -34,7 +34,7 @@
     <modules>
         <module>basic-auth</module>
         <module>basicauth-request-path-auth</module>
-        <module>facebook</module>
+        <module>social</module>
         <module>iwa</module>
         <module>oauth-request-path-auth</module>
         <module>oidc</module>
@@ -42,7 +42,6 @@
         <module>passive-sts</module>
         <module>samlsso</module>
         <module>fido</module>
-        <module>google</module>
     </modules>
 
 </project>

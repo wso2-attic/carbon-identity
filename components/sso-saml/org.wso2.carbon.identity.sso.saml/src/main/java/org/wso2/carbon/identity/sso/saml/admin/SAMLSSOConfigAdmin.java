@@ -1,17 +1,19 @@
 /*
- * Copyright 2005-2007 WSO2, Inc. (http://wso2.com)
+ * Copyright (c) 2007, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
  * You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package org.wso2.carbon.identity.sso.saml.admin;
@@ -55,7 +57,7 @@ public class SAMLSSOConfigAdmin {
 
         SAMLSSOServiceProviderDO serviceProviderDO = new SAMLSSOServiceProviderDO();
 
-        if (serviceProviderDTO.getIssuer() == null || serviceProviderDTO.getIssuer().equals("")) {
+        if (serviceProviderDTO.getIssuer() == null || "".equals(serviceProviderDTO.getIssuer())) {
             String message = "A value for the Issuer is mandatory";
             log.error(message);
             throw new IdentityException(message);
@@ -68,16 +70,16 @@ public class SAMLSSOConfigAdmin {
         }
 
         serviceProviderDO.setIssuer(serviceProviderDTO.getIssuer());
-        serviceProviderDO.setAssertionConsumerUrl(serviceProviderDTO.getAssertionConsumerUrl());
+        serviceProviderDO.setAssertionConsumerUrls(serviceProviderDTO.getAssertionConsumerUrls());
+        serviceProviderDO.setDefaultAssertionConsumerUrl(serviceProviderDTO.getDefaultAssertionConsumerUrl());
         serviceProviderDO.setCertAlias(serviceProviderDTO.getCertAlias());
-        serviceProviderDO.setUseFullyQualifiedUsername(serviceProviderDTO.isUseFullyQualifiedUsername());
         serviceProviderDO.setDoSingleLogout(serviceProviderDTO.isDoSingleLogout());
+        serviceProviderDO.setSloResponseURL(serviceProviderDTO.getSloResponseURL());
+        serviceProviderDO.setSloRequestURL(serviceProviderDTO.getSloRequestURL());
         serviceProviderDO.setLoginPageURL(serviceProviderDTO.getLoginPageURL());
-        serviceProviderDO.setLogoutURL(serviceProviderDTO.getLogoutURL());
         serviceProviderDO.setDoSignResponse(serviceProviderDTO.isDoSignResponse());
         serviceProviderDO.setDoSignAssertions(serviceProviderDTO.isDoSignAssertions());
         serviceProviderDO.setNameIdClaimUri(serviceProviderDTO.getNameIdClaimUri());
-        serviceProviderDO.setEnableAttributesByDefault(serviceProviderDTO.isEnableAttributesByDefault());
 
         if (serviceProviderDTO.getNameIDFormat() == null) {
             serviceProviderDTO.setNameIDFormat(NameIdentifier.EMAIL);
@@ -95,8 +97,13 @@ public class SAMLSSOConfigAdmin {
             } else {
                 serviceProviderDO.setAttributeConsumingServiceIndex(Integer.toString(IdentityUtil.getRandomInteger()));
             }
+            serviceProviderDO.setEnableAttributesByDefault(serviceProviderDTO.isEnableAttributesByDefault());
         } else {
             serviceProviderDO.setAttributeConsumingServiceIndex("");
+            if (serviceProviderDO.isEnableAttributesByDefault()) {
+                log.warn("Enable Attribute Profile must be selected to activate it by default. EnableAttributesByDefault will be disabled.");
+            }
+            serviceProviderDO.setEnableAttributesByDefault(false);
         }
 
         if (serviceProviderDTO.getRequestedAudiences() != null && serviceProviderDTO.getRequestedAudiences().length != 0) {
@@ -106,6 +113,8 @@ public class SAMLSSOConfigAdmin {
             serviceProviderDO.setRequestedRecipients(serviceProviderDTO.getRequestedRecipients());
         }
         serviceProviderDO.setIdPInitSSOEnabled(serviceProviderDTO.isIdPInitSSOEnabled());
+        serviceProviderDO.setIdPInitSLOEnabled(serviceProviderDTO.isIdPInitSLOEnabled());
+        serviceProviderDO.setIdpInitSLOReturnToURLs(serviceProviderDTO.getIdpInitSLOReturnToURLs());
         serviceProviderDO.setDoEnableEncryptedAssertion(serviceProviderDTO.isDoEnableEncryptedAssertion());
         serviceProviderDO.setDoValidateSignatureInRequests(serviceProviderDTO.isDoValidateSignatureInRequests());
         IdentityPersistenceManager persistenceManager = IdentityPersistenceManager
@@ -136,10 +145,10 @@ public class SAMLSSOConfigAdmin {
                 SAMLSSOServiceProviderDO providerDO = providersSet[i];
                 SAMLSSOServiceProviderDTO providerDTO = new SAMLSSOServiceProviderDTO();
                 providerDTO.setIssuer(providerDO.getIssuer());
-                providerDTO.setAssertionConsumerUrl(providerDO.getAssertionConsumerUrl());
+                providerDTO.setAssertionConsumerUrls(providerDO.getAssertionConsumerUrls());
+                providerDTO.setDefaultAssertionConsumerUrl(providerDO.getDefaultAssertionConsumerUrl());
                 providerDTO.setCertAlias(providerDO.getCertAlias());
                 providerDTO.setAttributeConsumingServiceIndex(providerDO.getAttributeConsumingServiceIndex());
-                providerDTO.setUseFullyQualifiedUsername(providerDO.isUseFullyQualifiedUsername());
                 providerDTO.setDoSignResponse(providerDO.isDoSignResponse());
                 providerDTO.setDoSignAssertions(providerDO.isDoSignAssertions());
                 providerDTO.setDoSingleLogout(providerDO.isDoSingleLogout());
@@ -150,12 +159,8 @@ public class SAMLSSOConfigAdmin {
                     providerDTO.setLoginPageURL(providerDO.getLoginPageURL());
                 }
 
-                if (providerDO.getLogoutURL() == null || "null".equals(providerDO.getLogoutURL())) {
-                    providerDTO.setLogoutURL("");
-                } else {
-                    providerDTO.setLogoutURL(providerDO.getLogoutURL());
-                }
-
+                providerDTO.setSloResponseURL(providerDO.getSloResponseURL());
+                providerDTO.setSloRequestURL(providerDO.getSloRequestURL());
                 providerDTO.setRequestedClaims(providerDO.getRequestedClaims());
                 providerDTO.setRequestedAudiences(providerDO.getRequestedAudiences());
                 providerDTO.setRequestedRecipients(providerDO.getRequestedRecipients());
@@ -169,6 +174,8 @@ public class SAMLSSOConfigAdmin {
                 providerDTO.setNameIDFormat(providerDTO.getNameIDFormat().replace(":", "/"));
 
                 providerDTO.setIdPInitSSOEnabled(providerDO.isIdPInitSSOEnabled());
+                providerDTO.setIdPInitSLOEnabled(providerDO.isIdPInitSLOEnabled());
+                providerDTO.setIdpInitSLOReturnToURLs(providerDO.getIdpInitSLOReturnToURLs());
                 providerDTO.setDoEnableEncryptedAssertion(providerDO.isDoEnableEncryptedAssertion());
                 providerDTO.setDoValidateSignatureInRequests(providerDO.isDoValidateSignatureInRequests());
                 serviceProviders[i] = providerDTO;

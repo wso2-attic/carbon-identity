@@ -1,21 +1,21 @@
 /*
- *  Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- *  WSO2 Inc. licenses this file to you under the Apache License,
- *  Version 2.0 (the "License"); you may not use this file except
- *  in compliance with the License.
- *  You may obtain a copy of the License at
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *  http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing,
- *  software distributed under the License is distributed on an
- *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *  KIND, either express or implied.  See the License for the
- *  specific language governing permissions and limitations
- *  under the License.
- *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
+
 package org.wso2.carbon.identity.provisioning.connector.google;
 
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
@@ -29,11 +29,19 @@ import com.google.api.services.admin.directory.model.User;
 import com.google.api.services.admin.directory.model.UserName;
 import com.google.api.services.admin.directory.model.Users;
 import org.apache.axiom.util.base64.Base64Utils;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.application.common.model.Property;
-import org.wso2.carbon.identity.provisioning.*;
+import org.wso2.carbon.identity.provisioning.AbstractOutboundProvisioningConnector;
+import org.wso2.carbon.identity.provisioning.IdentityProvisioningConstants;
+import org.wso2.carbon.identity.provisioning.IdentityProvisioningException;
+import org.wso2.carbon.identity.provisioning.ProvisionedIdentifier;
+import org.wso2.carbon.identity.provisioning.ProvisioningEntity;
+import org.wso2.carbon.identity.provisioning.ProvisioningEntityType;
+import org.wso2.carbon.identity.provisioning.ProvisioningOperation;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -41,7 +49,12 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.security.GeneralSecurityException;
 import java.security.SecureRandom;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+
 
 public class GoogleProvisioningConnector extends AbstractOutboundProvisioningConnector {
 
@@ -62,7 +75,7 @@ public class GoogleProvisioningConnector extends AbstractOutboundProvisioningCon
         if (provisioningProperties != null && provisioningProperties.length > 0) {
             for (Property property : provisioningProperties) {
 
-                if (property.getName().equals("google_prov_private_key")) {
+                if (GoogleConnectorConstants.PRIVATE_KEY.equals(property.getName())) {
                     try {
                         byte[] decodedBytes = Base64Utils.decode(property.getValue());
                         googlePrvKey = new File("googlePrvKey");
@@ -75,11 +88,12 @@ public class GoogleProvisioningConnector extends AbstractOutboundProvisioningCon
                     }
                 }
                 configs.put(property.getName(), property.getValue());
+
                 if (IdentityProvisioningConstants.JIT_PROVISIONING_ENABLED.equals(property
-                        .getName())) {
-                    if ("1".equals(property.getValue())) {
-                        jitProvisioningEnabled = true;
-                    }
+                                                                                          .getName()) && "1".equals(property.getValue())) {
+                    jitProvisioningEnabled = true;
+
+
                 }
             }
         }
@@ -95,9 +109,6 @@ public class GoogleProvisioningConnector extends AbstractOutboundProvisioningCon
     }
 
     @Override
-    /**
-     *
-     */
     public ProvisionedIdentifier provision(ProvisioningEntity provisioningEntity)
             throws IdentityProvisioningException {
 
@@ -161,17 +172,14 @@ public class GoogleProvisioningConnector extends AbstractOutboundProvisioningCon
                         provisionedIdentifier.getIdentifier(), updateUser);
                 request.execute();
 
-            } catch (GoogleJsonResponseException e) {
-                throw new IdentityProvisioningException("Error while updating Google user : "
-                        + provisioningEntity.getEntityName(), e);
             } catch (IOException e) {
                 throw new IdentityProvisioningException("Error while updating Google user : "
-                        + provisioningEntity.getEntityName(), e);
+                                                        + provisioningEntity.getEntityName(), e);
             }
 
             if (isDebugEnabled) {
                 log.debug("updating user :" + provisioningEntity.getEntityName()
-                        + " with the primaryEmail : " + provisionedIdentifier.getIdentifier());
+                          + " with the primaryEmail : " + provisionedIdentifier.getIdentifier());
             }
         } else {
             throw new IdentityProvisioningException(
@@ -200,16 +208,12 @@ public class GoogleProvisioningConnector extends AbstractOutboundProvisioningCon
                 log.debug("New google user to be created : " + newUser.toPrettyString());
             }
 
-            // listUsers("");
             Directory.Users.Insert request = getDirectoryService().users().insert(newUser);
             createdUser = request.execute();
 
-        } catch (GoogleJsonResponseException e) {
-            throw new IdentityProvisioningException("Error while creating user : "
-                    + provisioningEntity.getEntityName(), e);
         } catch (IOException e) {
             throw new IdentityProvisioningException("Error while creating user : "
-                    + provisioningEntity.getEntityName(), e);
+                                                    + provisioningEntity.getEntityName(), e);
         }
 
         if (isDebugEnabled) {
@@ -246,17 +250,21 @@ public class GoogleProvisioningConnector extends AbstractOutboundProvisioningCon
                         provisionedIdentifier.getIdentifier());
                 request.execute();
 
-            } catch (GoogleJsonResponseException e) {
-                throw new IdentityProvisioningException("Error while deleting Google user : "
-                        + provisioningEntity.getEntityName(), e);
             } catch (IOException e) {
-                throw new IdentityProvisioningException("Error while deleting Google user : "
-                        + provisioningEntity.getEntityName(), e);
+                if (((GoogleJsonResponseException) e).getStatusCode() == 404) {
+                    log.warn("Exception while deleting user from google. User may be already deleted from google");
+                    if (log.isDebugEnabled()) {
+                        log.debug("Exception while deleting user from google. User may be already deleted from google", e);
+                    }
+                } else {
+                    throw new IdentityProvisioningException("Error while deleting Google user : "
+                                                            + provisioningEntity.getEntityName(), e);
+                }
             }
 
             if (isDebugEnabled) {
                 log.debug("Deleted user :" + provisioningEntity.getEntityName()
-                        + " with the primaryEmail : " + provisionedIdentifier.getIdentifier());
+                          + " with the primaryEmail : " + provisionedIdentifier.getIdentifier());
             }
         } else {
             throw new IdentityProvisioningException(
@@ -279,7 +287,7 @@ public class GoogleProvisioningConnector extends AbstractOutboundProvisioningCon
         }
 
         StringBuilder sb = new StringBuilder();
-        List<User> allUsers = new ArrayList<User>();
+        List<User> allUsers = new ArrayList<>();
         Directory.Users.List request;
         try {
             request = getDirectoryService().users().list().setCustomer("my_customer");
@@ -317,7 +325,6 @@ public class GoogleProvisioningConnector extends AbstractOutboundProvisioningCon
      * Build and returns a Directory service object authorized with the service accounts that act on
      * behalf of the given user.
      *
-     * @param userEmail The email of the user.
      * @return Directory service object that is ready to make requests.
      * @throws IdentityProvisioningException
      */
@@ -347,7 +354,7 @@ public class GoogleProvisioningConnector extends AbstractOutboundProvisioningCon
         if (isDebugEnabled) {
             log.debug("serviceAccountId" + serviceAccountId);
             log.debug("setServiceAccountScopes"
-                    + Arrays.asList(DirectoryScopes.ADMIN_DIRECTORY_USER));
+                      + Arrays.asList(DirectoryScopes.ADMIN_DIRECTORY_USER));
             log.debug("setServiceAccountUser" + serviceAccountUser);
         }
 
@@ -364,12 +371,9 @@ public class GoogleProvisioningConnector extends AbstractOutboundProvisioningCon
                     .setHttpRequestInitializer(credential).setApplicationName(applicationName)
                     .build();
 
-        } catch (GeneralSecurityException e) {
+        } catch (GeneralSecurityException | IOException e) {
             throw new IdentityProvisioningException("Error while obtaining connection from google",
-                    e);
-        } catch (IOException e) {
-            throw new IdentityProvisioningException("Error while obtaining connection from google",
-                    e);
+                                                    e);
         }
 
         if (log.isDebugEnabled()) {
@@ -391,7 +395,7 @@ public class GoogleProvisioningConnector extends AbstractOutboundProvisioningCon
         List<String> wso2IsUsernames = getUserNames(provisioningEntity.getAttributes());
         String wso2IsUsername = null;
 
-        if (wso2IsUsernames != null && wso2IsUsernames.size() > 0) {
+        if (CollectionUtils.isNotEmpty(wso2IsUsernames)) {
             // first element must be the user name.
             wso2IsUsername = wso2IsUsernames.get(0);
         }
@@ -410,7 +414,7 @@ public class GoogleProvisioningConnector extends AbstractOutboundProvisioningCon
         String userIdClaimUriKey = "userIdClaimUri";
 
         Map<String, String> requiredAttributes = getSingleValuedClaims(provisioningEntity
-                .getAttributes());
+                                                                               .getAttributes());
 
         /** Provisioning Pattern */
         String provisioningPattern = this.configHolder.getValue(provisioningPatternKey);
@@ -422,7 +426,7 @@ public class GoogleProvisioningConnector extends AbstractOutboundProvisioningCon
 
         String userId = provisioningEntity.getEntityName();
 
-        if (userIdClaimURL != null && !StringUtils.isEmpty(requiredAttributes.get(userIdClaimURL))) {
+        if (StringUtils.isNotBlank(requiredAttributes.get(userIdClaimURL))) {
             userId = requiredAttributes.get(userIdClaimURL);
         }
 
@@ -430,23 +434,23 @@ public class GoogleProvisioningConnector extends AbstractOutboundProvisioningCon
 
         if (provisioningPattern != null) {
             userIdFromPattern = buildUserId(provisioningEntity, provisioningPattern,
-                    provisioningSeparator, idpName);
+                                            provisioningSeparator, idpName);
         }
 
-        if (!StringUtils.isEmpty(userIdFromPattern)) {
+        if (StringUtils.isNotBlank(userIdFromPattern)) {
             userId = userIdFromPattern;
         }
 
-        if (!StringUtils.isEmpty(provisioningDomain) && !userId.endsWith(provisioningDomain)) {
+        if (StringUtils.isNotBlank(provisioningDomain) && !userId.endsWith(provisioningDomain)) {
             userId = userId.replaceAll("@", ".").concat("@").concat(provisioningDomain);
         }
 
         // Set given name
         String givenNameClaim = this.configHolder.getValue(givenNameClaimKey);
         String givenNameValue = requiredAttributes.get(givenNameClaim);
-        if (givenNameValue == null || givenNameValue.isEmpty()) {
+        if (StringUtils.isBlank(givenNameValue)) {
             String defaultGivenNameValue = this.configHolder.getValue(defaultGivenNameKey);
-            if (defaultGivenNameValue != null && !defaultGivenNameValue.isEmpty()) {
+            if (StringUtils.isNotBlank(defaultGivenNameValue)) {
                 givenNameValue = defaultGivenNameValue;
             } else {
                 givenNameValue = wso2IsUsername;
@@ -460,9 +464,9 @@ public class GoogleProvisioningConnector extends AbstractOutboundProvisioningCon
         // Set family name
         String familyNameClaim = this.configHolder.getValue(familyNameClaimKey);
         String familyNameValue = requiredAttributes.get(familyNameClaim);
-        if (familyNameValue == null || familyNameValue.isEmpty()) {
+        if (StringUtils.isBlank(familyNameValue)) {
             String defaultFamilyNameValue = this.configHolder.getValue(defaultFamilyNameKey);
-            if (defaultFamilyNameValue != null && !defaultFamilyNameValue.isEmpty()) {
+            if (StringUtils.isNotBlank(defaultFamilyNameValue)) {
                 familyNameValue = defaultFamilyNameValue;
             } else {
                 familyNameValue = wso2IsUsername;
@@ -504,18 +508,18 @@ public class GoogleProvisioningConnector extends AbstractOutboundProvisioningCon
         String givenNameClaimKey = "google_prov_givenname_claim_dropdown";
 
         Map<String, String> requiredAttributes = getSingleValuedClaims(provisioningEntity
-                .getAttributes());
+                                                                               .getAttributes());
 
-        if (requiredAttributes.size() == 0) {
+        if (MapUtils.isEmpty(requiredAttributes)) {
             return null;
         }
 
         // Set given name
         String givenNameClaim = this.configHolder.getValue(givenNameClaimKey);
         String givenNameValue = requiredAttributes.get(givenNameClaim);
-        if (givenNameValue == null || givenNameValue.isEmpty()) {
+        if (StringUtils.isBlank(givenNameValue)) {
             String defaultGivenNameValue = this.configHolder.getValue(defaultGivenNameKey);
-            if (defaultGivenNameValue != null && !defaultGivenNameValue.isEmpty()) {
+            if (StringUtils.isNotBlank(defaultGivenNameValue)) {
                 givenNameValue = defaultGivenNameValue;
             }
         }
@@ -527,9 +531,9 @@ public class GoogleProvisioningConnector extends AbstractOutboundProvisioningCon
         // Set family name
         String familyNameClaim = this.configHolder.getValue(familyNameClaimKey);
         String familyNameValue = requiredAttributes.get(familyNameClaim);
-        if (familyNameValue == null || familyNameValue.isEmpty()) {
+        if (StringUtils.isBlank(familyNameValue)) {
             String defaultFamilyNameValue = this.configHolder.getValue(defaultFamilyNameKey);
-            if (defaultFamilyNameValue != null && !defaultFamilyNameValue.isEmpty()) {
+            if (StringUtils.isNotBlank(defaultFamilyNameValue)) {
                 familyNameValue = defaultFamilyNameValue;
             }
         }
@@ -547,7 +551,6 @@ public class GoogleProvisioningConnector extends AbstractOutboundProvisioningCon
     /**
      * Generates (random) password for user to be provisioned
      *
-     * @param username
      * @return
      */
     protected String generatePassword() {

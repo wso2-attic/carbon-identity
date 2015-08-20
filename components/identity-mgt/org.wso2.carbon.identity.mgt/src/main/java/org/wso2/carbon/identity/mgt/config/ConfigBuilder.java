@@ -1,35 +1,40 @@
 /*
- *  Copyright (c) WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- *  WSO2 Inc. licenses this file to you under the Apache License,
+ * WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
- *  in compliance with the License.
- *  You may obtain a copy of the License at
+ * in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *  http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing,
- *  software distributed under the License is distributed on an
- *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *  KIND, either express or implied.  See the License for the
- *  specific language governing permissions and limitations
- *  under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
+
 package org.wso2.carbon.identity.mgt.config;
 
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.impl.builder.StAXOMBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.identity.mgt.IdentityMgtConfigException;
 import org.wso2.carbon.identity.mgt.constants.IdentityMgtConstants;
-import org.wso2.carbon.identity.mgt.mail.EmailConfig;
 import org.wso2.carbon.utils.CarbonUtils;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Iterator;
 
 /**
@@ -63,7 +68,7 @@ public class ConfigBuilder {
      * @return
      * @throws Exception
      */
-    public Config loadConfiguration(ConfigType configType, StorageType stype, int tenantId) throws Exception {
+    public Config loadConfiguration(ConfigType configType, StorageType stype, int tenantId) throws IdentityMgtConfigException {
         Config config = null;
 
         switch (stype) {
@@ -82,7 +87,7 @@ public class ConfigBuilder {
                     case CREDENTIALMGT:
                         break;
                     default:
-                        throw new Exception("Configuration type not supported");
+                        throw new IdentityMgtConfigException("Configuration type not supported");
                 }
                 break;
             case DB:
@@ -90,7 +95,7 @@ public class ConfigBuilder {
             case FILE:
                 break;
             default:
-                throw new Exception("Configuration storage type not supported");
+                throw new IdentityMgtConfigException("Configuration storage type not supported");
         }
 
         return config;
@@ -104,7 +109,7 @@ public class ConfigBuilder {
      * @param config
      * @throws Exception
      */
-    public void saveConfiguration(StorageType stype, int tenantId, Config config) throws Exception {
+    public void saveConfiguration(StorageType stype, int tenantId, Config config) throws IdentityMgtConfigException {
 
         switch (stype) {
             case REGISTRY:
@@ -114,7 +119,7 @@ public class ConfigBuilder {
                     cm.setResourcePath(EMAIL_TEMPLATE_PATH);
                     cm.saveConfig(config, tenantId);
                 } else {
-                    throw new Exception("Configuration type not supported");
+                    throw new IdentityMgtConfigException("Configuration type not supported");
                 }
 
                 break;
@@ -159,22 +164,22 @@ public class ConfigBuilder {
                 }
 
             }
-        } catch (XMLStreamException e) {
-            log.warn("Error while loading email config. using default configuration");
-        } catch (FileNotFoundException e) {
-            log.warn("Error while loading email config. using default configuration");
+        } catch (XMLStreamException | FileNotFoundException e) {
+            log.warn("Error while loading email config. using default configuration", e);
         } finally {
             try {
                 if (parser != null) {
                     parser.close();
                 }
+            } catch (XMLStreamException e) {
+                log.error("Error while closing XML stream", e);
+            }
+            try {
                 if (stream != null) {
                     stream.close();
                 }
-            } catch (XMLStreamException e) {
-                log.error("Error while closing XML stream");
             } catch (IOException e) {
-                log.error("Error while closing input stream");
+                log.error("Error while closing input stream", e);
             }
         }
         return emailConfig;
@@ -184,7 +189,6 @@ public class ConfigBuilder {
 
     private String loadEmailConfig(OMElement configElement) {
         StringBuilder emailTemplate = new StringBuilder();
-        EmailConfig config = new EmailConfig();
         Iterator it = configElement.getChildElements();
         while (it.hasNext()) {
             OMElement element = (OMElement) it.next();
@@ -196,10 +200,6 @@ public class ConfigBuilder {
             } else if ("footer".equals(element.getLocalName())) {
                 emailTemplate.append("|");
                 emailTemplate.append(element.getText());
-            } else if ("targetEpr".equals(element.getLocalName())) {
-//				config.setTargetEpr(element.getText());
-            } else if ("redirectPath".equals(element.getLocalName())) {
-//				config.setRedirectPath(element.getText());
             }
         }
         return emailTemplate.toString();

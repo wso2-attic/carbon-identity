@@ -1,17 +1,17 @@
 /*
  * Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
- * 
- * WSO2 Inc. licenses this file to you under the Apache License,
- * Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License.
- * You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the
+ * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
  * under the License.
  */
@@ -34,7 +34,8 @@ import org.wso2.carbon.identity.application.common.model.ClaimMapping;
 import org.wso2.carbon.identity.base.IdentityConstants;
 import org.wso2.carbon.identity.base.IdentityConstants.OpenId;
 import org.wso2.carbon.identity.base.IdentityException;
-import org.wso2.carbon.identity.provider.OpenIDProviderService;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
+import org.wso2.carbon.identity.provider.IdentityProviderException;
 import org.wso2.carbon.identity.provider.dto.OpenIDAuthRequestDTO;
 import org.wso2.carbon.identity.provider.dto.OpenIDAuthResponseDTO;
 import org.wso2.carbon.identity.provider.dto.OpenIDParameterDTO;
@@ -51,6 +52,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Enumeration;
 import java.util.Map;
@@ -71,13 +73,11 @@ import java.util.Map;
 public class OpenIDHandler {
 
     private static final String TRUE = "true";
-    private static final String NULL = "null";
     // Guaranteed to be thread safe
     private static OpenIDHandler provider;
-    private static Log log = LogFactory.getLog(OpenIDHandler.class);
+    private static final Log log = LogFactory.getLog(OpenIDHandler.class);
     private String frontEndUrl;
     private String opAddress;
-    private OpenIDProviderService openIDProviderService = new OpenIDProviderService();
 
     /**
      * Configure the OpenID Provider's end-point URL
@@ -129,14 +129,14 @@ public class OpenIDHandler {
     public String processRequest(HttpServletRequest request, HttpServletResponse response)
             throws IdentityException {
         // check if a logout request
-        if (request.getParameter(OpenIDConstants.RequestParameter.LOGOU_URL) != null) {
+        if (request.getParameter(OpenIDConstants.RequestParameter.LOGOUT_URL) != null) {
             return handleSingleLogout(request, response);
         }
 
         // check if a request from the login page
-        if ((request.getAttribute("nonlogin") == null && request.getParameter("sessionDataKey") != null)) {
-
-            handleRequestFromLoginPage(request, response, null);
+        if (request.getAttribute(OpenIDConstants.RequestParameter.NON_LOGIN) == null && request.getParameter
+                (OpenIDConstants.RequestParameter.SESSION_DATA_KEY) != null) {
+            handleRequestFromLoginPage(request, response);
 
         } else { // this is a request from the client or from the consent page
 
@@ -180,13 +180,14 @@ public class OpenIDHandler {
                 }
 
             } catch (Exception e) {
+                log.error("Failed to process OpenID client request", e);
                 responseText = getErrorResponseText(e.getMessage());
             }
 
             try { // Return the result to the user.
                 directResponse(response, responseText);
             } catch (IOException e) {
-                log.error(e.getMessage());
+                log.error("Failed to redirect OpenID response", e);
                 throw new IdentityException("OpenID redirect reponse failed");
             }
         }
@@ -213,10 +214,7 @@ public class OpenIDHandler {
             directResponse(response, getErrorResponseText("Invalid OpenID message"));
             return null;
         }
-        mode =
-                paramList.hasParameter(OpenId.ATTR_MODE)
-                        ? paramList.getParameterValue(OpenId.ATTR_MODE)
-                        : null;
+        mode = paramList.hasParameter(OpenId.ATTR_MODE) ? paramList.getParameterValue(OpenId.ATTR_MODE) : null;
         if (log.isDebugEnabled()) {
             log.debug("OpenID authentication mode :" + mode);
         }
@@ -234,7 +232,7 @@ public class OpenIDHandler {
     private ParameterList getParameterList(HttpServletRequest request) {
 
         if (OpenId.AUTHENTICATED.equals(request.getSession().getAttribute(OpenId.ACTION)) ||
-                OpenId.CANCEL.equals(request.getSession().getAttribute(OpenId.ACTION))) {
+            OpenId.CANCEL.equals(request.getSession().getAttribute(OpenId.ACTION))) {
             // not the first visit, get from the session
             return (ParameterList) request.getSession().getAttribute(OpenId.PARAM_LIST);
 
@@ -254,8 +252,7 @@ public class OpenIDHandler {
      */
     private String handleSingleLogout(HttpServletRequest request, HttpServletResponse response) {
 
-        log.info("OpenID Single Logout for " +
-                request.getSession().getAttribute("authenticatedOpenID"));
+        log.info("OpenID Single Logout for " + request.getSession().getAttribute("authenticatedOpenID"));
 
         // removing the authenticated user from the session
         request.getSession().setAttribute("authenticatedOpenID", null);
@@ -266,7 +263,7 @@ public class OpenIDHandler {
             Cookie curCookie = null;
             for (int x = 0; x < cookies.length; x++) {
                 curCookie = cookies[x];
-                if (curCookie.getName().equalsIgnoreCase("openidtoken")) {
+                if ("openidtoken".equalsIgnoreCase(curCookie.getName())) {
                     curCookie.setMaxAge(0);// removing the cookie
                     response.addCookie(curCookie);
                     break;
@@ -274,7 +271,7 @@ public class OpenIDHandler {
             }
         }
         // TODO : Must invalidate the cookie from backend too
-        return (String) request.getParameter("logoutUrl");
+        return request.getParameter("logoutUrl");
     }
 
     /**
@@ -288,17 +285,17 @@ public class OpenIDHandler {
      * @param request
      * @param params
      * @param client
-     * @throws Exception
+     * @throws IdentityProviderException
      */
-    private String checkSetupOrImmediate(HttpServletRequest request, HttpServletResponse response, ParameterList params, OpenIDAdminClient client)
-            throws Exception {
+    private String checkSetupOrImmediate(HttpServletRequest request, HttpServletResponse response, ParameterList params,
+                                         OpenIDAdminClient client) throws IdentityProviderException {
         boolean authenticated = false;
         String profileName = null;
         HttpSession session = request.getSession();
 
         String claimedID = params.getParameterValue(IdentityConstants.OpenId.ATTR_IDENTITY);
         if (claimedID == null) {
-            throw new IdentityException("Required attribute openid.identity is missing");
+            throw new IdentityProviderException("Required attribute openid.identity is missing");
         }
 
         if (claimedID.endsWith("/openid/")) {
@@ -351,7 +348,11 @@ public class OpenIDHandler {
              */
             session.setAttribute(IdentityConstants.OpenId.PARAM_LIST, params);
 
-            return getLoginPageUrl(claimedID, request, response, params);
+            try {
+                return getLoginPageUrl(claimedID, request, params);
+            } catch (IdentityException | IOException e) {
+                throw new IdentityProviderException("Failed to get login page url", e);
+            }
         }
 
         OpenIDAuthRequestDTO openIDAuthRequest = new OpenIDAuthRequestDTO();
@@ -377,12 +378,17 @@ public class OpenIDHandler {
 
         // setting the user claims received from the framework
         if (session.getAttribute(OpenIDConstants.AUTHENTICATION_RESULT) != null) {
-            AuthenticationResult authResult = (AuthenticationResult) session.getAttribute(OpenIDConstants.AUTHENTICATION_RESULT);
+            AuthenticationResult authResult =
+                    (AuthenticationResult) session.getAttribute(OpenIDConstants.AUTHENTICATION_RESULT);
             openIDAuthRequest.setResponseClaims(authResult.getSubject().getUserAttributes());
             String authenticatedIdPs = authResult.getAuthenticatedIdPs();
 
             if (authenticatedIdPs != null && !authenticatedIdPs.isEmpty()) {
-                authenticatedIdPsParam = "&AuthenticatedIdPs=" + URLEncoder.encode(authenticatedIdPs, "UTF-8");
+                try {
+                    authenticatedIdPsParam = "&AuthenticatedIdPs=" + URLEncoder.encode(authenticatedIdPs, "UTF-8");
+                } catch (UnsupportedEncodingException e) {
+                    throw new IdentityProviderException("Url encoding failed", e);
+                }
             }
         }
 
@@ -404,18 +410,18 @@ public class OpenIDHandler {
      * @param client
      * @param
      * @param session
-     * @throws Exception
+     * @throws IdentityProviderException
      */
     private void updateRPInfo(String openId, String profileName, ParameterList params,
-                              OpenIDAdminClient client, HttpSession session) throws Exception {
+                              OpenIDAdminClient client, HttpSession session) throws IdentityProviderException {
 
         if (!client.isOpenIDUserApprovalBypassEnabled()) {
 
-            boolean alwaysApprovedRp = (Boolean.parseBoolean((String) session
-                    .getAttribute(OpenIDConstants.SessionAttribute.USER_APPROVED_ALWAYS)));
+            boolean alwaysApprovedRp = Boolean.parseBoolean((String) session.getAttribute(
+                    OpenIDConstants.SessionAttribute.USER_APPROVED_ALWAYS));
 
             client.updateOpenIDUserRPInfo(params.getParameterValue(IdentityConstants.OpenId.ATTR_RETURN_TO),
-                    alwaysApprovedRp, profileName, openId);
+                                          alwaysApprovedRp, profileName, openId);
 
         }
     }
@@ -431,42 +437,8 @@ public class OpenIDHandler {
      * @throws IdentityException
      * @throws IOException
      */
-    private String getLoginPageUrl(String claimedID, HttpServletRequest request,
-                                   HttpServletResponse response, ParameterList params)
-            throws IdentityException,
-            IOException {
-        String loginPageUrl = frontEndUrl;
-
-        // checking for the OpenID remember me cookie
-//		Cookie[] cookies = request.getCookies();
-//		String token = null;
-//		if (cookies != null) {
-//			Cookie curCookie = null;
-//			for (Cookie cookie : cookies) {
-//				curCookie = cookie;
-//				params.getParameterValue(IdentityConstants.OpenId.ATTR_RETURN_TO);
-//				if (curCookie.getName().equalsIgnoreCase(OpenIDConstants.Cookie.OPENID_TOKEN)) {
-//					token = curCookie.getValue();
-//					break;
-//				}
-//			}
-//		}
-
-        // if cookie found
-//        if (token != null
-//                && !NULL.equals(token)
-//                || (claimedID.equals(request.getSession(false).getAttribute(
-//                        OpenIDConstants.SessionAttribute.AUTHENTICATED_OPENID)))) {
-//
-//            /*
-//             * We are setting the request's openid identifier to the session
-//             * here.
-//             */
-//            request.getSession(false).setAttribute(OpenIDConstants.SessionAttribute.OPENID, claimedID);
-//            handleRequestFromLoginPage(request, response, token);
-//            return null;
-//
-//        } 
+    private String getLoginPageUrl(String claimedID, HttpServletRequest request, ParameterList params)
+            throws IdentityException, IOException {
             
         /*
          * We are setting the request's openid identifier to the session
@@ -474,9 +446,7 @@ public class OpenIDHandler {
          */
         request.getSession().setAttribute(OpenIDConstants.SessionAttribute.OPENID, claimedID);
 
-        String commonAuthURL = OpenIDUtil.getAdminConsoleURL(request);
-        commonAuthURL = commonAuthURL.replace(FrameworkConstants.CARBON + "/",
-                FrameworkConstants.COMMONAUTH);
+        String commonAuthURL = IdentityUtil.getServerURL(FrameworkConstants.COMMONAUTH);
         String selfPath = URLEncoder.encode("/" + FrameworkConstants.OPENID_SERVER, "UTF-8");
         String sessionDataKey = UUIDGenerator.generateUUID();
 
@@ -486,26 +456,29 @@ public class OpenIDHandler {
         authenticationRequest.setRelyingParty(getRelyingParty(request));
         authenticationRequest.setCommonAuthCallerPath(selfPath);
         String username = null;
+        String tenantDomain = null;
         if (params.getParameterValue(FrameworkConstants.OPENID_IDENTITY) != null) {
-            username = OpenIDUtil.getUserName(params.getParameterValue(FrameworkConstants
-                    .OPENID_IDENTITY));
-            authenticationRequest.addRequestQueryParam(FrameworkConstants.USERNAME,
-                    new String[]{username});
+            username = OpenIDUtil.getUserName(params.getParameterValue(FrameworkConstants.OPENID_IDENTITY));
+            authenticationRequest.addRequestQueryParam(FrameworkConstants.USERNAME, new String[] { username });
+        }
+        if (params.getParameterValue(FrameworkConstants.RequestParams.TENANT_DOMAIN) != null) {
+            tenantDomain = params.getParameterValue(FrameworkConstants.RequestParams.TENANT_DOMAIN);
+            authenticationRequest.setTenantDomain(tenantDomain);
         }
 
         boolean forceAuthenticate = false;
         if (!claimedID.endsWith("/openid/")) {
-            String authenticatedUser = (String) request.getSession().getAttribute(
-                    OpenIDConstants.SessionAttribute.AUTHENTICATED_OPENID);
+            String authenticatedUser =
+                    (String) request.getSession().getAttribute(OpenIDConstants.SessionAttribute.AUTHENTICATED_OPENID);
             if (log.isDebugEnabled()) {
                 log.debug("claimedID : " + claimedID + ", authenticated user : " + authenticatedUser);
             }
             if (authenticatedUser != null && !"".equals(authenticatedUser.trim())
-                    && !claimedID.equals(authenticatedUser.trim())) {
+                && !claimedID.equals(authenticatedUser.trim())) {
                 if (log.isDebugEnabled()) {
                     log.debug("Overriding previously authenticated OpenID : " + authenticatedUser
-                            + " with the OpenID in the current request :" + claimedID
-                            + " and setting forceAuthenticate.");
+                              + " with the OpenID in the current request :" + claimedID
+                              + " and setting forceAuthenticate.");
                 }
                 forceAuthenticate = true;
             }
@@ -518,20 +491,19 @@ public class OpenIDHandler {
             authenticationRequest.addHeader(headerName, request.getHeader(headerName));
         }
 
-        AuthenticationRequestCacheEntry authRequest = new AuthenticationRequestCacheEntry
-                (authenticationRequest);
+        AuthenticationRequestCacheEntry authRequest = new AuthenticationRequestCacheEntry(authenticationRequest);
         FrameworkUtils.addAuthenticationRequestToCache(sessionDataKey, authRequest,
-                request.getSession().getMaxInactiveInterval());
+                                                       request.getSession().getMaxInactiveInterval());
         StringBuilder queryStringBuilder = new StringBuilder();
         queryStringBuilder.append(commonAuthURL).
                 append("?").
-                append(FrameworkConstants.SESSION_DATA_KEY).
-                append("=").
-                append(sessionDataKey).
-                append("&").
-                append(FrameworkConstants.RequestParams.TYPE).
-                append("=").
-                append(FrameworkConstants.RequestType.CLAIM_TYPE_OPENID);
+                                  append(FrameworkConstants.SESSION_DATA_KEY).
+                                  append("=").
+                                  append(sessionDataKey).
+                                  append("&").
+                                  append(FrameworkConstants.RequestParams.TYPE).
+                                  append("=").
+                                  append(FrameworkConstants.RequestType.CLAIM_TYPE_OPENID);
         // reading the authorization header for request path authentication
         FrameworkUtils.setRequestPathCredentials(request);
 
@@ -569,16 +541,10 @@ public class OpenIDHandler {
         }
     }
 
-    private void handleRequestFromLoginPage(HttpServletRequest req, HttpServletResponse resp, String rememberMeCookie) throws IdentityException {
+    private void handleRequestFromLoginPage(HttpServletRequest req, HttpServletResponse resp) throws IdentityException {
 
         try {
             HttpSession session = req.getSession();
-
-            boolean isRemembered = false;
-
-            if (req.getParameter("chkRemember") != null && req.getParameter("chkRemember").equals("on")) {
-                isRemembered = true;
-            }
 
             String claimedID = (String) session.getAttribute(OpenIDConstants.RequestParameter.OPENID);
 
@@ -601,14 +567,14 @@ public class OpenIDHandler {
                     session.setAttribute(OpenIDConstants.AUTHENTICATION_RESULT, authnResult);
                 }
 
-                String authenticatedUserName = (String) session
-                        .getAttribute(OpenIDConstants.SessionAttribute.USERNAME);
+                String authenticatedUserName = (String) session.getAttribute(OpenIDConstants.SessionAttribute.USERNAME);
 
                 // setting the authenticated user in the session
                 if (userName != null && !"".equals(userName.trim())) {
 
                     if (authenticatedUserName != null && authenticatedUserName.equals(userName)) {
-                        log.debug("Username in request is different from the authenticated username in the session. Starting new session ");
+                        log.debug(
+                                "Username in request is different from the authenticated username in the session. Starting new session ");
                         session.removeAttribute(OpenIDConstants.SessionAttribute.USERNAME);
                     }
 
@@ -617,7 +583,7 @@ public class OpenIDHandler {
                 }
 
                 // set the username from the session
-                if ((userName == null || "".equals(userName.trim()))) {
+                if (userName == null || "".equals(userName.trim())) {
                     userName = authenticatedUserName;
                 }
             }
@@ -628,7 +594,8 @@ public class OpenIDHandler {
             boolean isAuthenticated = false;
 
             // if the user is already authenticated, then the openid should be in the session
-            String authenticatedOpenID = (String) session.getAttribute(OpenIDConstants.SessionAttribute.AUTHENTICATED_OPENID);
+            String authenticatedOpenID =
+                    (String) session.getAttribute(OpenIDConstants.SessionAttribute.AUTHENTICATED_OPENID);
 
             // if they are the same, then user is already logged in
             if (authenticatedOpenID != null && authenticatedOpenID.equals(claimedID)) {
@@ -636,27 +603,9 @@ public class OpenIDHandler {
             }
 
             OpenIDAdminClient client = OpenIDUtil.getOpenIDAdminClient(session);
-			
-			/*OpenIDRememberMeDTO rememberMeDTO = new OpenIDRememberMeDTO();*/
 
-            if (!isAuthenticated) {
-				
-				/*if (rememberMeCookie != null) {
-					rememberMeDTO = openIDProviderService.authenticateWithRememberMeCookie(claimedID.trim(), req.getRemoteAddr(), rememberMeCookie);
-					isAuthenticated = rememberMeDTO.isAuthenticated();
-				}*/
-
-                if (!isAuthenticated) {
-
-                    if (authnResult != null) {
-                        isAuthenticated = authnResult.isAuthenticated();
-						
-						/*if (isAuthenticated && isRemembered) {
-							rememberMeDTO = openIDProviderService.handleRememberMe(claimedID.trim(), req.getRemoteAddr());
-						}*/
-                    }
-
-                }
+            if (!isAuthenticated && authnResult != null) {
+                isAuthenticated = authnResult.isAuthenticated();
             }
 
             if (isAuthenticated) {
@@ -667,14 +616,10 @@ public class OpenIDHandler {
                 // check for the <OpenIDSkipUserConsent> in the identity.xml
                 if (client.isOpenIDUserApprovalBypassEnabled()) {
 
-                    session.setAttribute(OpenIDConstants.SessionAttribute.ACTION, IdentityConstants.OpenId.AUTHENTICATED);
+                    session.setAttribute(OpenIDConstants.SessionAttribute.ACTION,
+                                         IdentityConstants.OpenId.AUTHENTICATED);
                     session.setAttribute(OpenIDConstants.SessionAttribute.USER_APPROVED, "true");
                     session.setAttribute(OpenIDConstants.SessionAttribute.SELECTED_PROFILE, "default");
-
-                    /*if (rememberMeDTO.getNewCookieValue() != null) {
-                        OpenIDUtil.setCookie(OpenIDConstants.Cookie.OPENID_TOKEN, rememberMeDTO.getNewCookieValue(),
-                                client.getOpenIDSessionTimeout(), "/", "", true, resp);
-                    }*/
 
                     req.setAttribute("nonlogin", "true");
                     RequestDispatcher dispatcher = req.getRequestDispatcher("../../openidserver");
@@ -685,17 +630,12 @@ public class OpenIDHandler {
                     String[] rpInfo = client.getOpenIDUserRPInfo(claimedID, ((ParameterList) session
                             .getAttribute(OpenId.PARAM_LIST)).getParameterValue(OpenId.ATTR_RETURN_TO));
 
-                    if (rpInfo[0].equals("true")) { // approve always
-                        session.setAttribute(OpenIDConstants.SessionAttribute.ACTION, IdentityConstants.OpenId.AUTHENTICATED);
+                    if ("true".equals(rpInfo[0])) { // approve always
+                        session.setAttribute(OpenIDConstants.SessionAttribute.ACTION,
+                                             IdentityConstants.OpenId.AUTHENTICATED);
                         session.setAttribute(OpenIDConstants.SessionAttribute.USER_APPROVED, "true");
                         session.setAttribute(OpenIDConstants.SessionAttribute.USER_APPROVED_ALWAYS, "true");
                         session.setAttribute(OpenIDConstants.SessionAttribute.SELECTED_PROFILE, rpInfo[1]);
-
-                        /*if (rememberMeDTO.getNewCookieValue() != null) {
-                            OpenIDUtil.setCookie(OpenIDConstants.Cookie.OPENID_TOKEN,
-                                    rememberMeDTO.getNewCookieValue(), client.getOpenIDSessionTimeout(), "/", "",
-                                    true, resp);
-                        }*/
 
                         req.setAttribute("nonlogin", "true");
                         RequestDispatcher dispatcher = req.getRequestDispatcher("../../openidserver");
@@ -704,14 +644,8 @@ public class OpenIDHandler {
                     } else {
                         // no approval found of the user, so ask for it.
 
-                        session.setAttribute(OpenIDConstants.SessionAttribute.ACTION, IdentityConstants.OpenId.AUTHENTICATED);
-					    
-					    /*if (rememberMeDTO.getNewCookieValue() != null) {
-                            OpenIDUtil.setCookie(OpenIDConstants.Cookie.OPENID_TOKEN,
-                                    rememberMeDTO.getNewCookieValue(), client.getOpenIDSessionTimeout(), "/", "",
-                                    true, resp);
-                        }*/
-
+                        session.setAttribute(OpenIDConstants.SessionAttribute.ACTION,
+                                             IdentityConstants.OpenId.AUTHENTICATED);
                         sendToApprovalPage(req, resp);
                     }
                 }
@@ -723,11 +657,10 @@ public class OpenIDHandler {
                 session.removeAttribute(OpenIDConstants.SessionAttribute.AUTHENTICATED_OPENID);
 
                 // sending to the login page
-                String frontEndUrl = OpenIDUtil.getAdminConsoleURL(req);
-                frontEndUrl = frontEndUrl.replace("carbon/", "authenticationendpoint/openid_login.do");
+                String openIdEndpointUrl = IdentityUtil.getServerURL("/authenticationendpoint/openid_login.do");
 
-                resp.sendRedirect(frontEndUrl
-                        + OpenIDUtil.getLoginPageQueryParams((ParameterList) req.getSession().getAttribute(
+                resp.sendRedirect(openIdEndpointUrl
+                                  + OpenIDUtil.getLoginPageQueryParams((ParameterList) req.getSession().getAttribute(
                         OpenId.PARAM_LIST)) + "&errorMsg=error.while.user.auth");
             }
         } catch (Exception e) {
@@ -756,16 +689,19 @@ public class OpenIDHandler {
         Map<ClaimMapping, String> userAttributes = authnResult.getSubject().getUserAttributes();
 
         out.println("<input type='hidden' name='openid.identity' value='" +
-                session.getAttribute(OpenIDConstants.SessionAttribute.AUTHENTICATED_OPENID) + "'>");
+                    session.getAttribute(OpenIDConstants.SessionAttribute.AUTHENTICATED_OPENID) + "'>");
         out.println("<input type='hidden' name='openid.return_to' value='" +
-                ((ParameterList) session.getAttribute(OpenId.PARAM_LIST)).getParameterValue(OpenId.ATTR_RETURN_TO) + "'>");
+                    ((ParameterList) session.getAttribute(OpenId.PARAM_LIST)).getParameterValue(OpenId.ATTR_RETURN_TO) +
+                    "'>");
 
         if (userAttributes != null) {
             for (ClaimMapping claimMapping : userAttributes.keySet()) {
                 String value = userAttributes.get(claimMapping);
                 if (value != null) {
-                    out.println("<input type='hidden' name='claimTag' value='" + claimMapping.getLocalClaim().getClaimUri() + "'>");
-                    out.println("<input type='hidden' name='claimValue' value='" + userAttributes.get(claimMapping) + "'>");
+                    out.println("<input type='hidden' name='claimTag' value='" +
+                                claimMapping.getLocalClaim().getClaimUri() + "'>");
+                    out.println(
+                            "<input type='hidden' name='claimValue' value='" + userAttributes.get(claimMapping) + "'>");
                 }
             }
         }

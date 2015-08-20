@@ -1,20 +1,21 @@
 /*
-*  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 package org.wso2.carbon.identity.sso.saml.admin;
 
 import org.apache.commons.logging.Log;
@@ -23,14 +24,15 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.wso2.carbon.identity.core.model.SAMLSSOServiceProviderDO;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.sso.saml.SAMLSSOConstants;
 import org.wso2.carbon.identity.sso.saml.SSOServiceProviderConfigManager;
-import org.wso2.carbon.utils.CarbonUtils;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This class reads the Service Providers info from sso-idp-config.xml and add them to the
@@ -82,12 +84,12 @@ public class FileBasedConfigManager {
     private SAMLSSOServiceProviderDO[] readServiceProvidersFromFile() {
         Document document = null;
         try {
-            String configFilePath = CarbonUtils.getCarbonSecurityConfigDirPath() + File.separator + "sso-idp-config.xml";
+            String configFilePath = IdentityUtil.getIdentityConfigDirPath() + File.separator + "sso-idp-config.xml";
 
             if (!isFileExisting(configFilePath)) {
-                log.warn("sso-idp-config.xml does not exist in the 'conf' directory. The system may" +
-                        "depend on the service providers added through the UI.");
-                return null;
+                log.warn("sso-idp-config.xml does not exist in the "+IdentityUtil.getIdentityConfigDirPath() +
+                        " directory. The system may depend on the service providers added through the UI.");
+                return new SAMLSSOServiceProviderDO[0];
             }
 
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -95,7 +97,7 @@ public class FileBasedConfigManager {
             document = builder.parse(configFilePath);
         } catch (Exception e) {
             log.error("Error reading Service Providers from sso-idp-config.xml", e);
-            return null;
+            return new SAMLSSOServiceProviderDO[0];
         }
 
         Element element = document.getDocumentElement();
@@ -112,27 +114,29 @@ public class FileBasedConfigManager {
             Element elem = (Element) nodeSet.item(i);
             SAMLSSOServiceProviderDO spDO = new SAMLSSOServiceProviderDO();
             spDO.setIssuer(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.ISSUER));
-            spDO.setAssertionConsumerUrl(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.ASSERTION_CONSUMER_URL));
+            spDO.setAssertionConsumerUrls(getTextValueList(elem, SAMLSSOConstants.FileBasedSPConfig.ACS_URLS));
+            spDO.setDefaultAssertionConsumerUrl(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.DEFAULT_ACS_URL));
             spDO.setLoginPageURL(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.CUSTOM_LOGIN_PAGE));
             if ((getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.USE_FULLY_QUALIFY_USER_NAME)) != null) {
                 fullQualifyUserName = Boolean.valueOf(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.USE_FULLY_QUALIFY_USER_NAME));
             }
             if ((getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.SINGLE_LOGOUT)) != null) {
                 singleLogout = Boolean.valueOf(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.SINGLE_LOGOUT));
-                spDO.setLogoutURL(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.LOGOUT_URL));
+                spDO.setSloResponseURL(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.SLO_RESPONSE_URL));
+                spDO.setSloRequestURL(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.SLO_REQUEST_URL));
             }
             if ((getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.SIGN_ASSERTION)) != null) {
                 signAssertion = Boolean.valueOf(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.SIGN_ASSERTION));
             }
-            if((getTextValue(elem , SAMLSSOConstants.FileBasedSPConfig.SIG_VALIDATION)) != null){
-                validateSignature = Boolean.valueOf(getTextValue(elem , SAMLSSOConstants.FileBasedSPConfig.SIG_VALIDATION));
+            if ((getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.SIG_VALIDATION)) != null) {
+                validateSignature = Boolean.valueOf(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.SIG_VALIDATION));
             }
             if ((getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.ENCRYPT_ASSERTION)) != null) {
                 encryptAssertion = Boolean.valueOf(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.ENCRYPT_ASSERTION));
             }
-            if(validateSignature || encryptAssertion){
+            if (validateSignature || encryptAssertion) {
                 certAlias = getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.CERT_ALIAS);
-                if(certAlias == null){
+                if (certAlias == null) {
                     log.warn("Certificate alias for Signature verification or Assertion encryption not specified. " +
                             "Defaulting to \'wso2carbon\'");
                     certAlias = "wso2carbon";
@@ -144,18 +148,21 @@ public class FileBasedConfigManager {
                 }
                 spDO.setEnableAttributesByDefault(Boolean.valueOf(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.INCLUDE_ATTRIBUTE)));
             }
-            if (Boolean.valueOf(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.AUDIENCE_RESTRICTION))) {
-                if (elem.getElementsByTagName(SAMLSSOConstants.FileBasedSPConfig.AUDIENCE_LIST) != null) {
-                    spDO.setRequestedAudiences(getTextValueList(elem, SAMLSSOConstants.FileBasedSPConfig.AUDIENCE));
-                }
+            if (Boolean.valueOf(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.AUDIENCE_RESTRICTION)) && elem.getElementsByTagName(SAMLSSOConstants.FileBasedSPConfig.AUDIENCE_LIST) != null) {
+                spDO.setRequestedAudiences(getTextValueList(elem, SAMLSSOConstants.FileBasedSPConfig.AUDIENCE));
             }
-            if (Boolean.valueOf(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.RECIPIENT_VALIDATION))) {
-                if (elem.getElementsByTagName(SAMLSSOConstants.FileBasedSPConfig.RECIPIENT_LIST) != null) {
-                    spDO.setRequestedRecipients(getTextValueList(elem, SAMLSSOConstants.FileBasedSPConfig.RECIPIENT));
+            if (Boolean.valueOf(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.RECIPIENT_VALIDATION)) && elem.getElementsByTagName(SAMLSSOConstants.FileBasedSPConfig.RECIPIENT_LIST) != null) {
+                spDO.setRequestedRecipients(getTextValueList(elem, SAMLSSOConstants.FileBasedSPConfig.RECIPIENT));
+            }
+
+            if (Boolean.valueOf(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.ENABLE_IDP_INIT_SLO))) {
+                spDO.setIdPInitSLOEnabled(true);
+                if (elem.getElementsByTagName(SAMLSSOConstants.FileBasedSPConfig.RETURN_TO_URL_LIST) != null) {
+                    spDO.setIdpInitSLOReturnToURLs(getTextValueList(elem, SAMLSSOConstants.FileBasedSPConfig
+                            .RETURN_TO_URL_LIST));
                 }
             }
 
-            spDO.setUseFullyQualifiedUsername(fullQualifyUserName);
             spDO.setDoSingleLogout(singleLogout);
             spDO.setDoSignAssertions(signAssertion);
             spDO.setDoValidateSignatureInRequests(validateSignature);
@@ -191,8 +198,8 @@ public class FileBasedConfigManager {
         return textVal;
     }
 
-    private ArrayList<String> getTextValueList(Element element, String tagName) {
-        ArrayList<String> textValList = new ArrayList<String>();
+    private List<String> getTextValueList(Element element, String tagName) {
+        List<String> textValList = new ArrayList<>();
         NodeList nl = element.getElementsByTagName(tagName);
         if (nl != null && nl.getLength() > 0) {
             for (int i = 0; i < nl.getLength(); i++) {

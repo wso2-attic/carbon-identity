@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2014 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -29,6 +29,7 @@ import org.wso2.carbon.identity.application.authentication.framework.exception.A
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticatedUser;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkUtils;
 import org.wso2.carbon.identity.application.authenticator.iwa.servlet.IWAServelet;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.ui.CarbonUIUtil;
 import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
@@ -118,9 +119,8 @@ public class IWAAuthenticator extends AbstractApplicationAuthenticator implement
             throws AuthenticationFailedException {
         String iwaURL = null;
         try {
-            iwaURL = CarbonUIUtil.getAdminConsoleURL(request).replace(IWAConstants.COMMON_AUTH_EP,
-                    IWAConstants.IWA_AUTH_EP) + "?" + IWAConstants.IWA_PARAM_STATE + "=" + URLEncoder.encode(ctx,
-                    IWAConstants.UTF_8);
+            iwaURL = IdentityUtil.getServerURL(IWAConstants.IWA_AUTH_EP) + "?" + IWAConstants.IWA_PARAM_STATE + "=" +
+                     URLEncoder.encode(ctx, IWAConstants.UTF_8);
             response.sendRedirect(response.encodeRedirectURL(iwaURL));
         } catch (IOException e) {
             log.error("Error when sending to the login page :" + iwaURL, e);

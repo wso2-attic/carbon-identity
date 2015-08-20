@@ -1,3 +1,21 @@
+/*
+ * Copyright (c) 2013, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 package org.wso2.carbon.identity.application.authentication.framework.handler.step.impl;
 
 import org.apache.commons.logging.Log;
@@ -28,7 +46,7 @@ import java.util.Map;
 
 public class DefaultStepHandler implements StepHandler {
 
-    private static Log log = LogFactory.getLog(DefaultStepHandler.class);
+    private static final Log log = LogFactory.getLog(DefaultStepHandler.class);
     private static volatile DefaultStepHandler instance;
 
     public static DefaultStepHandler getInstance() {
@@ -44,17 +62,23 @@ public class DefaultStepHandler implements StepHandler {
         return instance;
     }
 
+    @Override
     public void handle(HttpServletRequest request, HttpServletResponse response,
                        AuthenticationContext context) throws FrameworkException {
 
         StepConfig stepConfig = context.getSequenceConfig().getStepMap()
                 .get(context.getCurrentStep());
+
         List<AuthenticatorConfig> authConfigList = stepConfig.getAuthenticatorList();
+
         String authenticatorNames = FrameworkUtils.getAuthenticatorIdPMappingString(authConfigList);
+
         String redirectURL = ConfigurationFacade.getInstance().getAuthenticationEndpointURL();
+
         String fidp = request.getParameter(FrameworkConstants.RequestParams.FEDERATED_IDP);
 
         Map<String, AuthenticatedIdPData> authenticatedIdPs = context.getPreviousAuthenticatedIdPs();
+
         Map<String, AuthenticatorConfig> authenticatedStepIdps = FrameworkUtils
                 .getAuthenticatedStepIdPs(stepConfig, authenticatedIdPs);
 
@@ -80,7 +104,7 @@ public class DefaultStepHandler implements StepHandler {
         } else if (context.isReturning()) {
             // if this is a request from the multi-option page
             if (request.getParameter(FrameworkConstants.RequestParams.AUTHENTICATOR) != null
-                    && !request.getParameter(FrameworkConstants.RequestParams.AUTHENTICATOR)
+                && !request.getParameter(FrameworkConstants.RequestParams.AUTHENTICATOR)
                     .isEmpty()) {
                 handleRequestFromLoginPage(request, response, context);
                 return;
@@ -99,8 +123,8 @@ public class DefaultStepHandler implements StepHandler {
 
             try {
                 response.sendRedirect(redirectURL
-                        + ("?" + context.getContextIdIncludedQueryParams()) + "&authenticators="
-                        + authenticatorNames + "&hrd=true");
+                                      + ("?" + context.getContextIdIncludedQueryParams()) + "&authenticators="
+                                      + authenticatorNames + "&hrd=true");
             } catch (IOException e) {
                 throw new FrameworkException(e.getMessage(), e);
             }
@@ -154,7 +178,7 @@ public class DefaultStepHandler implements StepHandler {
 
                 if (!sendToPage) {
                     // call directly
-                    if (authenticatorConfig.getIdpNames().size() > 0) {
+                    if (!authenticatorConfig.getIdpNames().isEmpty()) {
 
                         if (log.isDebugEnabled()) {
                             log.debug("Step contains only a single IdP. Going to call it directly");
@@ -162,8 +186,8 @@ public class DefaultStepHandler implements StepHandler {
 
                         // set the IdP to be called in the context
                         context.setExternalIdP(ConfigurationFacade.getInstance()
-                                .getIdPConfigByName(authenticatorConfig.getIdpNames().get(0),
-                                        context.getTenantDomain()));
+                                                       .getIdPConfigByName(authenticatorConfig.getIdpNames().get(0),
+                                                                           context.getTenantDomain()));
                     }
 
                     doAuthentication(request, response, context, authenticatorConfig);
@@ -183,8 +207,8 @@ public class DefaultStepHandler implements StepHandler {
 
                     try {
                         response.sendRedirect(redirectURL
-                                + ("?" + context.getContextIdIncludedQueryParams())
-                                + "&authenticators=" + authenticatorNames + retryParam);
+                                              + ("?" + context.getContextIdIncludedQueryParams())
+                                              + "&authenticators=" + authenticatorNames + retryParam);
                     } catch (IOException e) {
                         throw new FrameworkException(e.getMessage(), e);
                     }
@@ -196,7 +220,8 @@ public class DefaultStepHandler implements StepHandler {
     }
 
     protected void handleHomeRealmDiscovery(HttpServletRequest request,
-                                            HttpServletResponse response, AuthenticationContext context) throws FrameworkException {
+                                            HttpServletResponse response, AuthenticationContext context)
+            throws FrameworkException {
 
         if (log.isDebugEnabled()) {
             log.debug("Request contains fidp parameter. Initiating Home Realm Discovery");
@@ -220,8 +245,8 @@ public class DefaultStepHandler implements StepHandler {
             //SP hasn't specified a domain. We assume it wants to get the domain from the user
             try {
                 response.sendRedirect(redirectURL
-                        + ("?" + context.getContextIdIncludedQueryParams()) + "&authenticators="
-                        + authenticatorNames + "&hrd=true");
+                                      + ("?" + context.getContextIdIncludedQueryParams()) + "&authenticators="
+                                      + authenticatorNames + "&hrd=true");
             } catch (IOException e) {
                 throw new FrameworkException(e.getMessage(), e);
             }
@@ -250,15 +275,13 @@ public class DefaultStepHandler implements StepHandler {
             Map<String, AuthenticatorConfig> authenticatedStepIdps = FrameworkUtils
                     .getAuthenticatedStepIdPs(stepConfig, authenticatedIdPs);
 
-            if (authenticatedStepIdps.containsKey(idpName)) {
-
-                if (!context.isForceAuthenticate() && !context.isReAuthenticate()) {
-                    // skip the step if this is a normal request
-                    AuthenticatedIdPData authenticatedIdPData = authenticatedIdPs.get(idpName);
-                    populateStepConfigWithAuthenticationDetails(stepConfig, authenticatedIdPData);
-                    stepConfig.setCompleted(true);
-                    return;
-                }
+            if (authenticatedStepIdps.containsKey(idpName) && !context.isForceAuthenticate() && !context
+                    .isReAuthenticate()) {
+                // skip the step if this is a normal request
+                AuthenticatedIdPData authenticatedIdPData = authenticatedIdPs.get(idpName);
+                populateStepConfigWithAuthenticationDetails(stepConfig, authenticatedIdPData);
+                stepConfig.setCompleted(true);
+                return;
             }
 
             // try to find an authenticator of the current step, that is mapped to the IdP
@@ -280,18 +303,19 @@ public class DefaultStepHandler implements StepHandler {
 
         try {
             response.sendRedirect(redirectURL + ("?" + context.getContextIdIncludedQueryParams())
-                    + "&authenticators=" + authenticatorNames + "&authFailure=true"
-                    + "&authFailureMsg=" + errorMsg + "&hrd=true");
+                                  + "&authenticators=" + authenticatorNames + "&authFailure=true"
+                                  + "&authFailureMsg=" + errorMsg + "&hrd=true");
         } catch (IOException e) {
             throw new FrameworkException(e.getMessage(), e);
         }
     }
 
     protected void handleRequestFromLoginPage(HttpServletRequest request,
-                                              HttpServletResponse response, AuthenticationContext context) throws FrameworkException {
+                                              HttpServletResponse response, AuthenticationContext context)
+            throws FrameworkException {
 
         if (log.isDebugEnabled()) {
-            log.debug("Recieved a request from the multi option page");
+            log.debug("Relieved a request from the multi option page");
         }
 
         SequenceConfig sequenceConfig = context.getSequenceConfig();
@@ -347,7 +371,7 @@ public class DefaultStepHandler implements StepHandler {
 
             // Call authenticate if canHandle
             if (authenticator != null && authenticator.canHandle(request)
-                    && (context.getCurrentAuthenticator() == null || authenticator.getName()
+                && (context.getCurrentAuthenticator() == null || authenticator.getName()
                     .equals(context.getCurrentAuthenticator()))) {
                 isNoneCanHandle = false;
 
@@ -417,12 +441,14 @@ public class DefaultStepHandler implements StepHandler {
             //add authenticated idp data to the session wise map
             context.getCurrentAuthenticatedIdPs().put(idpName, authenticatedIdPData);
 
-        } catch (AuthenticationFailedException e) {
-            if (e instanceof InvalidCredentialsException) {
-                log.warn("A login attempt was failed due to invalid credentials");
-            } else {
-                log.error(e.getMessage(), e);
+        } catch (InvalidCredentialsException e) {
+            if (log.isDebugEnabled()) {
+                log.debug("InvalidCredentialsException", e);
             }
+            log.warn("A login attempt was failed due to invalid credentials");
+            context.setRequestAuthenticated(false);
+        } catch (AuthenticationFailedException e) {
+            log.error(e.getMessage(), e);
             context.setRequestAuthenticated(false);
         } catch (LogoutFailedException e) {
             throw new FrameworkException(e.getMessage(), e);

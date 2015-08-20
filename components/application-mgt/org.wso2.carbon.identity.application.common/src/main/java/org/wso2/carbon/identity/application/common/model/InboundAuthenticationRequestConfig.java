@@ -1,27 +1,33 @@
 /*
- *Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- *WSO2 Inc. licenses this file to you under the Apache License,
- *Version 2.0 (the "License"); you may not use this file except
- *in compliance with the License.
- *You may obtain a copy of the License at
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *Unless required by applicable law or agreed to in writing,
- *software distributed under the License is distributed on an
- *"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *KIND, either express or implied.  See the License for the
- *specific language governing permissions and limitations
- *under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package org.wso2.carbon.identity.application.common.model;
 
 import org.apache.axiom.om.OMElement;
+import org.apache.commons.collections.CollectionUtils;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
 public class InboundAuthenticationRequestConfig implements Serializable {
 
@@ -54,13 +60,14 @@ public class InboundAuthenticationRequestConfig implements Serializable {
         while (members.hasNext()) {
             OMElement member = (OMElement) members.next();
 
-            if (member.getLocalName().equalsIgnoreCase("InboundAuthKey")) {
+
+            if ("InboundAuthKey".equalsIgnoreCase(member.getLocalName())) {
                 inboundAuthenticationRequestConfig.setInboundAuthKey(member.getText());
-            } else if (member.getLocalName().equalsIgnoreCase("InboundAuthType")) {
+            } else if ("InboundAuthType".equalsIgnoreCase(member.getLocalName())) {
                 inboundAuthenticationRequestConfig.setInboundAuthType(member.getText());
-            } else if (member.getLocalName().equalsIgnoreCase("Properties")) {
+            } else if ("Properties".equalsIgnoreCase(member.getLocalName())) {
                 Iterator<?> propertiesIter = member.getChildElements();
-                ArrayList<Property> propertiesArrList = new ArrayList<Property>();
+                List<Property> propertiesArrList = new ArrayList<Property>();
 
                 if (propertiesIter != null) {
                     while (propertiesIter.hasNext()) {
@@ -71,8 +78,7 @@ public class InboundAuthenticationRequestConfig implements Serializable {
                         }
                     }
                 }
-
-                if (propertiesArrList.size() > 0) {
+                if (CollectionUtils.isNotEmpty(propertiesArrList)) {
                     Property[] propertiesArr = propertiesArrList.toArray(new Property[0]);
                     inboundAuthenticationRequestConfig.setProperties(propertiesArr);
                 }

@@ -1,29 +1,36 @@
 /*
- *Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- *WSO2 Inc. licenses this file to you under the Apache License,
- *Version 2.0 (the "License"); you may not use this file except
- *in compliance with the License.
- *You may obtain a copy of the License at
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *Unless required by applicable law or agreed to in writing,
- *software distributed under the License is distributed on an
- *"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *KIND, either express or implied.  See the License for the
- *specific language governing permissions and limitations
- *under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package org.wso2.carbon.identity.application.common.model;
 
 import org.apache.axiom.om.OMElement;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
 public class IdentityProvider implements Serializable {
 
@@ -32,7 +39,7 @@ public class IdentityProvider implements Serializable {
      */
     private static final long serialVersionUID = 3348487050533568857L;
 
-    private static Log log = LogFactory.getLog(IdentityProvider.class);
+    private static final Log log = LogFactory.getLog(IdentityProvider.class);
 
     private String identityProviderName;
     private String identityProviderDescription;
@@ -65,30 +72,31 @@ public class IdentityProvider implements Serializable {
                 if (element.getText() != null) {
                     identityProvider.setIdentityProviderName(element.getText());
                 } else {
-                    log.error("Identity provider not loaded from the file system. Identity provider name must be not null.");
+                    log.error("Identity provider not loaded from the file system. Identity provider name must be " +
+                            "not null.");
                     return null;
                 }
-            } else if (elementName.equals("IdentityProviderDescription")) {
+            } else if ("IdentityProviderDescription".equals(elementName)) {
                 identityProvider.setIdentityProviderDescription(element.getText());
-            } else if (elementName.equals("Alias")) {
+            } else if ("Alias".equals(elementName)) {
                 identityProvider.setAlias(element.getText());
-            } else if (elementName.equals("IsPrimary")) {
+            } else if ("IsPrimary".equals(elementName)) {
                 if (element.getText() != null && element.getText().trim().length() > 0) {
                     identityProvider.setPrimary(Boolean.parseBoolean(element.getText()));
                 }
-            } else if (elementName.equals("IsEnabled")) {
+            } else if ("IsEnabled".equals(elementName)) {
                 if (element.getText() != null && element.getText().trim().length() > 0) {
                     identityProvider.setEnable((Boolean.parseBoolean(element.getText())));
                 }
-            } else if (elementName.equals("IsFederationHub")) {
+            } else if ("IsFederationHub".equals(elementName)) {
                 if (element.getText() != null && element.getText().trim().length() > 0) {
                     identityProvider.setFederationHub(Boolean.parseBoolean(element.getText()));
                 }
-            } else if (elementName.equals("HomeRealmId")) {
+            } else if ("HomeRealmId".equals(elementName)) {
                 identityProvider.setHomeRealmId(element.getText());
-            } else if (elementName.equals("ProvisioningRole")) {
+            } else if ("ProvisioningRole".equals(elementName)) {
                 identityProvider.setProvisioningRole(element.getText());
-            } else if (elementName.equals("FederatedAuthenticatorConfigs")) {
+            } else if ("FederatedAuthenticatorConfigs".equals(elementName)) {
 
                 Iterator<?> federatedAuthenticatorConfigsIter = element.getChildElements();
 
@@ -96,7 +104,7 @@ public class IdentityProvider implements Serializable {
                     continue;
                 }
 
-                ArrayList<FederatedAuthenticatorConfig> federatedAuthenticatorConfigsArrList;
+                List<FederatedAuthenticatorConfig> federatedAuthenticatorConfigsArrList;
                 federatedAuthenticatorConfigsArrList = new ArrayList<FederatedAuthenticatorConfig>();
 
                 while (federatedAuthenticatorConfigsIter.hasNext()) {
@@ -117,10 +125,10 @@ public class IdentityProvider implements Serializable {
                     identityProvider
                             .setFederatedAuthenticatorConfigs(federatedAuthenticatorConfigsArr);
                 }
-            } else if (elementName.equals("DefaultAuthenticatorConfig")) {
+            } else if ("DefaultAuthenticatorConfig".equals(elementName)) {
                 identityProvider.setDefaultAuthenticatorConfig(FederatedAuthenticatorConfig
                         .build(element.getFirstElement()));
-            } else if (elementName.equals("ProvisioningConnectorConfigs")) {
+            } else if ("ProvisioningConnectorConfigs".equals(elementName)) {
 
                 Iterator<?> provisioningConnectorConfigsIter = element.getChildElements();
 
@@ -128,37 +136,50 @@ public class IdentityProvider implements Serializable {
                     continue;
                 }
 
-                ArrayList<ProvisioningConnectorConfig> provisioningConnectorConfigsArrList;
+                List<ProvisioningConnectorConfig> provisioningConnectorConfigsArrList;
                 provisioningConnectorConfigsArrList = new ArrayList<ProvisioningConnectorConfig>();
 
                 while (provisioningConnectorConfigsIter.hasNext()) {
                     OMElement provisioningConnectorConfigsElement = (OMElement) (provisioningConnectorConfigsIter
                             .next());
-                    ProvisioningConnectorConfig proConConfig = ProvisioningConnectorConfig
-                            .build(provisioningConnectorConfigsElement);
+                    ProvisioningConnectorConfig proConConfig = null;
+                    try {
+                        proConConfig = ProvisioningConnectorConfig
+                                .build(provisioningConnectorConfigsElement);
+                    } catch (IdentityApplicationManagementException e) {
+                        log.error("Error while building provisioningConnectorConfig for IDP " + identityProvider
+                                .getIdentityProviderName() + ". Cause : " + e.getMessage() + ". Building rest of the " +
+                                "IDP configs");
+                    }
                     if (proConConfig != null) {
                         provisioningConnectorConfigsArrList.add(proConConfig);
                     }
                 }
 
-                if (provisioningConnectorConfigsArrList.size() > 0) {
+                if (CollectionUtils.isNotEmpty(provisioningConnectorConfigsArrList)) {
                     ProvisioningConnectorConfig[] provisioningConnectorConfigsArr;
                     provisioningConnectorConfigsArr = provisioningConnectorConfigsArrList
                             .toArray(new ProvisioningConnectorConfig[0]);
                     identityProvider
                             .setProvisioningConnectorConfigs(provisioningConnectorConfigsArr);
                 }
-            } else if (elementName.equals("DefaultProvisioningConnectorConfig")) {
-                identityProvider.setDefaultProvisioningConnectorConfig(ProvisioningConnectorConfig
-                        .build(element));
-            } else if (elementName.equals("ClaimConfig")) {
+            } else if ("DefaultProvisioningConnectorConfig".equals(elementName)) {
+                try {
+                    identityProvider.setDefaultProvisioningConnectorConfig(ProvisioningConnectorConfig
+                            .build(element));
+                } catch (IdentityApplicationManagementException e) {
+                    log.error("Error while building default provisioningConnectorConfig for IDP " + identityProvider
+                            .getIdentityProviderName() + ". Cause : " + e.getMessage() + ". Building rest of the " +
+                            "IDP configs");
+                }
+            } else if ("ClaimConfig".equals(elementName)) {
                 identityProvider.setClaimConfig(ClaimConfig.build(element));
-            } else if (elementName.equals("Certificate")) {
+            } else if ("Certificate".equals(elementName)) {
                 identityProvider.setCertificate(element.getText());
-            } else if (elementName.equals("PermissionAndRoleConfig")) {
+            } else if ("PermissionAndRoleConfig".equals(elementName)) {
                 identityProvider
                         .setPermissionAndRoleConfig(PermissionsAndRoleConfig.build(element));
-            } else if (elementName.equals("JustInTimeProvisioningConfig")) {
+            } else if ("JustInTimeProvisioningConfig".equals(elementName)) {
                 identityProvider.setJustInTimeProvisioningConfig(JustInTimeProvisioningConfig
                         .build(element));
             }
@@ -451,7 +472,8 @@ public class IdentityProvider implements Serializable {
 
         IdentityProvider that = (IdentityProvider) o;
 
-        if (identityProviderName != null ? !identityProviderName.equals(that.identityProviderName) : that.identityProviderName != null)
+        if (identityProviderName != null ? !identityProviderName.equals(that.identityProviderName) :
+                that.identityProviderName != null)
             return false;
 
         return true;

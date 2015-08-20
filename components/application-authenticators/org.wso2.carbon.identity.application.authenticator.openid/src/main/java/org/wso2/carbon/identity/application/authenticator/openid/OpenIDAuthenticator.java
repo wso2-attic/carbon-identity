@@ -1,3 +1,20 @@
+/*
+ * Copyright (c) 2013, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package org.wso2.carbon.identity.application.authenticator.openid;
 
 import org.apache.commons.logging.Log;
@@ -34,7 +51,7 @@ public class OpenIDAuthenticator extends AbstractApplicationAuthenticator implem
             log.trace("Inside canHandle()");
         }
 
-        String opeidMode = request.getParameter("openid.mode");
+        String opeidMode = request.getParameter(OpenIDAuthenticatorConstants.MODE);
         if (opeidMode != null && !"checkid_immediate".equals(opeidMode)
                 && !"checkid_setup".equals(opeidMode) && !"check_authentication".equals(opeidMode)) {
             return true;
@@ -54,6 +71,10 @@ public class OpenIDAuthenticator extends AbstractApplicationAuthenticator implem
             try {
 
                 Map<String, String> authenticatorProperties = context.getAuthenticatorProperties();
+
+                if(authenticatorProperties != null){
+                    setOpenIDServerUrl(authenticatorProperties);
+                }
 
                 if (getOpenIDServerUrl() != null) {
                     // this is useful in case someone wants to overrode the default OpenID
@@ -151,7 +172,7 @@ public class OpenIDAuthenticator extends AbstractApplicationAuthenticator implem
             log.trace("Inside getContextIdentifier()");
         }
 
-        return request.getParameter("sessionDataKey");
+        return request.getParameter(OpenIDAuthenticatorConstants.SESSION_DATA_KEY);
     }
 
     private OpenIDManager getNewOpenIDManagerInstance() {
@@ -183,17 +204,17 @@ public class OpenIDAuthenticator extends AbstractApplicationAuthenticator implem
 
     @Override
     public String getClaimDialectURI() {
-        return "http://axschema.org";
+        return OpenIDAuthenticatorConstants.CLAIM_DIALECT_URI;
     }
 
     @Override
     public String getFriendlyName() {
-        return "openid";
+        return OpenIDAuthenticatorConstants.AUTHENTICATOR_FRIENDLY_NAME;
     }
 
     @Override
     public String getName() {
-        return "OpenIDAuthenticator";
+        return OpenIDAuthenticatorConstants.AUTHENTICATOR_NAME;
     }
 
     /**
@@ -204,6 +225,13 @@ public class OpenIDAuthenticator extends AbstractApplicationAuthenticator implem
     }
 
     /**
+     *
+     * @param authenticatorProperties
+     */
+    protected void setOpenIDServerUrl(Map<String, String> authenticatorProperties){
+    }
+
+    /**
      * @subject
      */
     protected String getSubjectFromUserIDClaimURI(AuthenticationContext context) {
@@ -211,7 +239,9 @@ public class OpenIDAuthenticator extends AbstractApplicationAuthenticator implem
         try {
             subject = FrameworkUtils.getFederatedSubjectFromClaims(context, getClaimDialectURI());
         } catch (Exception e) {
-            log.warn("Couldn't find the subject claim from claim mappings ");
+            if(log.isDebugEnabled()) {
+                log.debug("Couldn't find the subject claim from claim mappings " + e);
+            }
         }
         return subject;
     }

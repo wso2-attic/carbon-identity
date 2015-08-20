@@ -1,23 +1,25 @@
 /*
- *  Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- *  WSO2 Inc. licenses this file to you under the Apache License,
- *  Version 2.0 (the "License"); you may not use this file except
- *  in compliance with the License.
- *  You may obtain a copy of the License at
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *  http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing,
- *  software distributed under the License is distributed on an
- *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *  KIND, either express or implied.  See the License for the
- *  specific language governing permissions and limitations
- *  under the License.
- *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
+
 package org.wso2.carbon.identity.provisioning;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonException;
@@ -25,16 +27,21 @@ import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.core.util.AnonymousSessionUtil;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
-import org.wso2.carbon.identity.application.common.model.*;
+import org.wso2.carbon.identity.application.common.model.ClaimMapping;
+import org.wso2.carbon.identity.application.common.model.IdentityProvider;
+import org.wso2.carbon.identity.application.common.model.OutboundProvisioningConfig;
+import org.wso2.carbon.identity.application.common.model.Property;
+import org.wso2.carbon.identity.application.common.model.ProvisioningConnectorConfig;
+import org.wso2.carbon.identity.application.common.model.RoleMapping;
+import org.wso2.carbon.identity.application.common.model.ServiceProvider;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
-import org.wso2.carbon.identity.application.mgt.ApplicationInfoProvider;
+import org.wso2.carbon.identity.application.mgt.ApplicationManagementService;
 import org.wso2.carbon.identity.provisioning.cache.ServiceProviderProvisioningConnectorCache;
 import org.wso2.carbon.identity.provisioning.cache.ServiceProviderProvisioningConnectorCacheEntry;
 import org.wso2.carbon.identity.provisioning.cache.ServiceProviderProvisioningConnectorCacheKey;
 import org.wso2.carbon.identity.provisioning.dao.CacheBackedProvisioningMgtDAO;
 import org.wso2.carbon.identity.provisioning.dao.ProvisioningManagementDAO;
 import org.wso2.carbon.identity.provisioning.internal.IdentityProvisionServiceComponent;
-import org.wso2.carbon.identity.provisioning.listener.DefaultInboundUserProvisioningListener;
 import org.wso2.carbon.idp.mgt.IdentityProviderManager;
 import org.wso2.carbon.idp.mgt.util.IdPManagementUtil;
 import org.wso2.carbon.registry.core.service.RegistryService;
@@ -48,7 +55,12 @@ import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 import java.util.AbstractMap.SimpleEntry;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -107,7 +119,7 @@ public class OutboundProvisioningManager {
     private Map<String, RuntimeProvisioningConfig> getOutboundProvisioningConnectors(
             ServiceProvider serviceProvider, String tenantDomainName) throws IdentityProvisioningException {
 
-        Map<String, RuntimeProvisioningConfig> connectors = new HashMap<String, RuntimeProvisioningConfig>();
+        Map<String, RuntimeProvisioningConfig> connectors = new HashMap<>();
 
         // maintain the provisioning connector cache in the super tenant.
         // at the time of provisioning there may not be an authenticated user in the system -
@@ -216,7 +228,7 @@ public class OutboundProvisioningManager {
                         if (connector != null) {
                             RuntimeProvisioningConfig proConfig = new RuntimeProvisioningConfig();
                             proConfig
-                                    .setProvisioningConnectorEntry(new SimpleEntry<String, AbstractOutboundProvisioningConnector>(
+                                    .setProvisioningConnectorEntry(new SimpleEntry<>(
                                             connectorType, connector));
                             proConfig.setBlocking(defaultConnector.isBlocking());
                             connectors.put(fIdP.getIdentityProviderName(), proConfig);
@@ -333,7 +345,7 @@ public class OutboundProvisioningManager {
                     userIdClaimURL.setValue("");
                 }
 
-                ArrayList<Property> provisioningPropertiesList = new ArrayList<Property>(Arrays.asList(provisioningProperties));
+                List<Property> provisioningPropertiesList = new ArrayList<>(Arrays.asList(provisioningProperties));
 
                 provisioningPropertiesList.add(userIdClaimURL);
 
@@ -367,7 +379,7 @@ public class OutboundProvisioningManager {
             // get details about the service provider.any in-bound provisioning request via
             // the SOAP based API (or the management console) - or SCIM API with HTTP Basic
             // Authentication is considered as coming from the local service provider.
-            ServiceProvider serviceProvider = ApplicationInfoProvider.getInstance()
+            ServiceProvider serviceProvider = ApplicationManagementService.getInstance()
                     .getServiceProvider(serviceProviderIdentifier, tenantDomainName);
 
             if (serviceProvider == null) {
@@ -392,7 +404,7 @@ public class OutboundProvisioningManager {
 
             ExecutorService executors = null;
 
-            if (connectors.size() > 0) {
+            if (MapUtils.isNotEmpty(connectors)) {
                 executors = Executors.newFixedThreadPool(connectors.size());
             }
 
@@ -423,7 +435,7 @@ public class OutboundProvisioningManager {
                 if (outboundClaimDialect == null
                         && (provisioningIdp.getClaimConfig() == null || provisioningIdp
                         .getClaimConfig().isLocalClaimDialect())) {
-                    outboundClaimDialect = DefaultInboundUserProvisioningListener.WSO2_CARBON_DIALECT;
+                    outboundClaimDialect = IdentityProvisioningConstants.WSO2_CARBON_DIALECT;
                 }
 
                 ClaimMapping[] idpClaimMappings = null;
@@ -557,16 +569,10 @@ public class OutboundProvisioningManager {
                 executors.shutdown();
             }
 
-        } catch (CarbonException e) {
+        } catch (CarbonException | IdentityApplicationManagementException | UserStoreException e) {
             throw new IdentityProvisioningException("Error occurred while checking for user " +
                     "provisioning", e);
-        } catch (IdentityApplicationManagementException e) {
-            throw new IdentityProvisioningException("Error occured while checking for provision " +
-                    "entity identifier provisioning", e);
-        } catch (UserStoreException e) {
-            throw new IdentityProvisioningException(e.getMessage(), e);
         }
-
     }
 
     private void executeOutboundProvisioning(ProvisioningEntity provisioningEntity, ExecutorService executors, String connectorType,
@@ -587,12 +593,7 @@ public class OutboundProvisioningManager {
                     //DO Rollback
                 }
             } catch (Exception e) { //call() of Callable interface throws this exception
-                if (executors != null) {
-                    executors.shutdown();
-                }
-                throw new IdentityProvisioningException
-                        (generateMessageOnFailureProvisioningOperation(idPName,
-                                connectorType, provisioningEntity));
+                handleException(idPName, connectorType, provisioningEntity, executors, e);
             }
         }
     }
@@ -601,11 +602,11 @@ public class OutboundProvisioningManager {
                                                             String tenantDomain, ProvisioningOperation operation,
                                                             String userName) throws CarbonException,
             UserStoreException {
-        Map<ClaimMapping, List<String>> outboundAttributes = new HashMap<ClaimMapping, List<String>>();
+        Map<ClaimMapping, List<String>> outboundAttributes = new HashMap<>();
 
         if (userName != null) {
             outboundAttributes.put(ClaimMapping.build(
-                            IdentityProvisioningConstants.USERNAME_CLAIM_URI, null, null, false),
+                    IdentityProvisioningConstants.USERNAME_CLAIM_URI, null, null, false),
                     Arrays.asList(new String[]{userName}));
         }
         List<String> roleListOfUser = getUserRoles(userName, tenantDomain);
@@ -641,7 +642,7 @@ public class OutboundProvisioningManager {
                     " For operation = " + provisioningEntity.getOperation() + " " +
                     "failed  ";
 
-            log.debug(errMsg);
+            log.error(errMsg);
         }
         return "Provisioning failed for IDP = " + idPName + " " +
                 "with Entity name=" + provisioningEntity.getEntityName();
@@ -661,17 +662,17 @@ public class OutboundProvisioningManager {
 
         List<String> userGroups = getGroupNames(provisioningEntity.getAttributes());
 
-        if (userGroups == null || userGroups.size() == 0) {
+        if (CollectionUtils.isEmpty(userGroups)) {
             return;
         }
 
-        Map<String, String> mappedRoles = new HashMap<String, String>();
+        Map<String, String> mappedRoles = new HashMap<>();
 
         for (RoleMapping mapping : idPRoleMapping) {
             mappedRoles.put(mapping.getLocalRole().getLocalRoleName(), mapping.getRemoteRole());
         }
 
-        List<String> mappedUserGroups = new ArrayList<String>();
+        List<String> mappedUserGroups = new ArrayList<>();
 
         for (Iterator<String> iterator = userGroups.iterator(); iterator.hasNext(); ) {
             String userGroup = iterator.next();
@@ -762,7 +763,7 @@ public class OutboundProvisioningManager {
         List<String> userList = ProvisioningUtil.getClaimValues(attributeMap,
                 IdentityProvisioningConstants.USERNAME_CLAIM_URI, null);
 
-        if (userList != null && userList.size() > 0) {
+        if (CollectionUtils.isNotEmpty(userList)) {
             return userList.get(0);
         }
 
@@ -851,7 +852,7 @@ public class OutboundProvisioningManager {
     private Map<String, String> getUserClaims(String userName, String tenantDomain) throws CarbonException,
             UserStoreException {
 
-        Map<String, String> inboundAttributes = new HashMap<String, String>();
+        Map<String, String> inboundAttributes = new HashMap<>();
 
         RegistryService registryService = IdentityProvisionServiceComponent.getRegistryService();
         RealmService realmService = IdentityProvisionServiceComponent.getRealmService();
@@ -897,5 +898,22 @@ public class OutboundProvisioningManager {
             return domain;
         }
         return UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME;
+    }
+
+    /**
+     * introduce extendability for handling provisioning exceptions
+     *
+     * @param idPName
+     * @param connectorType
+     * @param provisioningEntity
+     * @param executors
+     * @param e
+     */
+    protected void handleException(String idPName, String connectorType, ProvisioningEntity provisioningEntity,
+                                   ExecutorService executors, Exception e) {
+
+        if (log.isDebugEnabled()) {
+            log.debug(generateMessageOnFailureProvisioningOperation(idPName, connectorType, provisioningEntity), e);
+        }
     }
 }

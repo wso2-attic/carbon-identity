@@ -18,7 +18,15 @@
 package org.wso2.carbon.identity.sts.passive;
 
 import org.apache.axiom.om.OMAbstractFactory;
-import org.apache.axiom.soap.*;
+import org.apache.axiom.soap.SOAPEnvelope;
+import org.apache.axiom.soap.SOAPFactory;
+import org.apache.axiom.soap.SOAPFault;
+import org.apache.axiom.soap.SOAPFaultCode;
+import org.apache.axiom.soap.SOAPFaultDetail;
+import org.apache.axiom.soap.SOAPFaultReason;
+import org.apache.axiom.soap.SOAPFaultSubCode;
+import org.apache.axiom.soap.SOAPFaultText;
+import org.apache.axiom.soap.SOAPFaultValue;
 import org.apache.axis2.context.MessageContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -28,7 +36,7 @@ import org.wso2.carbon.identity.application.common.IdentityApplicationManagement
 import org.wso2.carbon.identity.application.common.model.InboundAuthenticationRequestConfig;
 import org.wso2.carbon.identity.application.common.model.Property;
 import org.wso2.carbon.identity.application.common.model.ServiceProvider;
-import org.wso2.carbon.identity.application.mgt.ApplicationInfoProvider;
+import org.wso2.carbon.identity.application.mgt.ApplicationManagementService;
 import org.wso2.carbon.identity.sts.passive.internal.RegistryBasedTrustedServiceStore;
 import org.wso2.carbon.identity.sts.passive.processors.RequestProcessor;
 
@@ -199,13 +207,16 @@ public class PassiveSTSService {
         }
         ServiceProvider sp = null;
         try {
-//            String tenantDomain = MultitenantUtils.getTenantDomain(request.getUserName());
-            String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+            String tenantDomain = request.getTenantDomain();
+            if (tenantDomain ==null || tenantDomain.trim().length() == 0) {
+                tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+                request.setTenantDomain(tenantDomain);
+            }
             if(log.isDebugEnabled()) {
                 log.debug("Retrieving wreply url for : " + realm + " in tenant : " + tenantDomain);
             }
-            sp = ApplicationInfoProvider.getInstance().
-                    getServiceProviderByClienId(realm, "passivests", tenantDomain);
+            sp = ApplicationManagementService.getInstance().
+                    getServiceProviderByClientId(realm, "passivests", tenantDomain);
         } catch (IdentityApplicationManagementException e) {
             log.error("Error while retrieving Service Provider corresponding to Realm : " + realm +
                     ". Skip setting ReplyTo URL from Realm (Service Provider config)", e);

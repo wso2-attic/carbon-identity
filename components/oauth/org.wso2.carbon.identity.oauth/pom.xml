@@ -22,7 +22,7 @@
     <parent>
         <groupId>org.wso2.carbon.identity</groupId>
         <artifactId>oauth</artifactId>
-        <version>4.5.1-SNAPSHOT</version>
+        <version>4.5.5-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -34,6 +34,10 @@
     <url>http://wso2.org</url>
 
     <dependencies>
+        <dependency>
+            <groupId>commons-lang.wso2</groupId>
+            <artifactId>commons-lang</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.logging</artifactId>
@@ -130,6 +134,7 @@
             <groupId>org.wso2.carbon.identity</groupId>
             <artifactId>org.wso2.carbon.identity.application.authentication.framework</artifactId>
         </dependency>
+
     </dependencies>
 
     <build>
@@ -158,7 +163,6 @@
                             javax.crypto,
                             javax.crypto.spec,
                             javax.xml.namespace,
-                            javax.xml.parsers,
                             javax.management,
                             javax.naming.directory,
                             javax.security.auth.callback,
@@ -167,11 +171,8 @@
                             javax.servlet.http; version="${imp.pkg.version.javax.servlet}",
 
                             org.w3c.dom,
-                            org.xml.sax,
 
                             org.apache.juli.logging; resolution:=optional,
-                            org.apache.xerces.util; resolution:=optional,
-                            org.apache.xml.security.utils; version="${wss4j.xml.security.imp.pkg.version.range}",
 
                             org.apache.amber.oauth2.as.*; version="${amber.package.import.version.range}",
                             org.apache.amber.oauth2.common.*; version="${amber.package.import.version.range}",
@@ -217,7 +218,7 @@
                             version="${carbon.identity.package.import.version.range}",
                             org.wso2.carbon.identity.application.common.*;
                             version="${carbon.identity.package.import.version.range}",
-                            org.wso2.carbon.identity.application.authentication.framework.model;
+                            org.wso2.carbon.identity.application.authentication.framework.*;
                             version="${carbon.identity.package.import.version.range}",
 
                             org.wso2.carbon.base; version="${carbon.base.imp.pkg.version.range}",

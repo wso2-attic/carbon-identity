@@ -17,12 +17,12 @@
  */
 package org.wso2.carbon.identity.application.authenticator.fido.util;
 
-import org.apache.commons.logging.Log;
 import org.wso2.carbon.CarbonConstants;
+import org.wso2.carbon.identity.application.authenticator.fido.exception.FIDOAuthenticatorServerException;
 import org.wso2.carbon.identity.application.authenticator.fido.internal.FIDOAuthenticatorServiceComponent;
 import org.wso2.carbon.user.api.UserStoreException;
+import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.service.RealmService;
-import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -30,11 +30,8 @@ import javax.servlet.http.HttpServletRequest;
  * FIDOUtil class for FIDO authentication component.
  */
 public class FIDOUtil {
-	public static void logTrace(String msg, Log log) {
-		if (log.isTraceEnabled()) {
-			log.trace(msg);
-		}
-	}
+    private FIDOUtil() {
+    }
 
 	public static String getOrigin(HttpServletRequest request) {
 
@@ -42,36 +39,14 @@ public class FIDOUtil {
 		       request.getServerPort();
 	}
 
-    public static int getTenantID(String tenantDomain) throws UserStoreException {
-
-        RealmService realmService = null;
-        int tenantId;
-        realmService = FIDOAuthenticatorServiceComponent.getRealmService();
-            tenantId = realmService.getTenantManager().getTenantId(tenantDomain);
-        return tenantId;
+    public static String getUniqueUsername(HttpServletRequest request, String username) {
+        return request.getServerName() + "/" + username;
     }
-
-	public static String getSafeText(String text) {
-		if (text == null) {
-			return text;
-		}
-		text = text.trim();
-		if (text.indexOf('<') > -1) {
-			text = text.replace("<", "&lt;");
-		}
-		if (text.indexOf('>') > -1) {
-			text = text.replace(">", "&gt;");
-		}
-		return text;
-	}
-	public static String getUniqueUsername(HttpServletRequest request, String username){
-		return request.getServerName() + "/" + username;
-	}
 
     public static String getDomainName(String username) {
         int index = username.indexOf(CarbonConstants.DOMAIN_SEPARATOR);
         if (index < 0) {
-            return FIDOAuthenticatorConstants.PRIMARY_USER_DOMAIN;
+            return UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME;
         }
         return username.substring(0, index);
     }

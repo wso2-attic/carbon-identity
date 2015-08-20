@@ -34,7 +34,11 @@ import org.wso2.carbon.identity.entitlement.policy.store.PolicyStoreManageModule
 import org.wso2.carbon.identity.entitlement.policy.version.PolicyVersionManager;
 
 import javax.xml.validation.Schema;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
 /**
  * keeps track of the configuration found in entitlement-config.xml

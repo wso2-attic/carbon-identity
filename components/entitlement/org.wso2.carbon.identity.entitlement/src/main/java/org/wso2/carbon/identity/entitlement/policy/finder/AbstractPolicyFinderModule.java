@@ -21,13 +21,19 @@ package org.wso2.carbon.identity.entitlement.policy.finder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.entitlement.PolicyOrderComparator;
-import org.wso2.carbon.identity.entitlement.cache.DecisionInvalidationCache;
-import org.wso2.carbon.identity.entitlement.cache.EntitlementPolicyInvalidationCache;
 import org.wso2.carbon.identity.entitlement.dto.AttributeDTO;
 import org.wso2.carbon.identity.entitlement.dto.PolicyStoreDTO;
 import org.wso2.carbon.identity.entitlement.pap.EntitlementAdminEngine;
+import org.wso2.carbon.identity.entitlement.pap.store.PAPPolicyStore;
+import org.wso2.carbon.identity.entitlement.pap.store.PAPPolicyStoreReader;
+import org.wso2.carbon.identity.entitlement.pdp.EntitlementEngine;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Abstract implementation of a policy finder module. This can be easily extended by any module
@@ -40,9 +46,21 @@ public abstract class AbstractPolicyFinderModule implements PolicyFinderModule {
     /**
      * This method must be called by the module when its policies are updated
      */
+    public static void invalidateCache(String policyId, String action) {
+
+        PAPPolicyStore policyStore = new PAPPolicyStore();
+        PAPPolicyStoreReader reader = new PAPPolicyStoreReader(policyStore);
+
+        EntitlementEngine.getInstance().getPolicyCache().invalidateCache(policyId, action);
+
+
+        EntitlementEngine.getInstance().clearDecisionCache();
+
+    }
+
     public static void invalidateCache() {
-        DecisionInvalidationCache.getInstance().invalidateCache();
-        EntitlementPolicyInvalidationCache.getInstance().invalidateCache();
+        EntitlementEngine.getInstance().clearDecisionCache();
+        EntitlementEngine.getInstance().getPolicyCache().invalidateCache();
     }
 
     @Override

@@ -1,24 +1,28 @@
 /*
  *  Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- *  WSO2 Inc. licenses this file to you under the Apache License,
- *  Version 2.0 (the "License"); you may not use this file except
- *  in compliance with the License.
- *  You may obtain a copy of the License at
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *  http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing,
- *  software distributed under the License is distributed on an
- *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *  KIND, either express or implied.  See the License for the
- *  specific language governing permissions and limitations
- *  under the License.
- *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
+
 package org.wso2.carbon.identity.provisioning.connector.salesforce;
 
-import org.apache.commons.httpclient.*;
+import org.apache.commons.httpclient.Header;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpMethodBase;
+import org.apache.commons.httpclient.HttpStatus;
+import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
@@ -31,9 +35,19 @@ import org.json.JSONObject;
 import org.json.JSONTokener;
 import org.wso2.carbon.identity.application.common.model.Property;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
-import org.wso2.carbon.identity.provisioning.*;
+import org.wso2.carbon.identity.provisioning.AbstractOutboundProvisioningConnector;
+import org.wso2.carbon.identity.provisioning.IdentityProvisioningConstants;
+import org.wso2.carbon.identity.provisioning.IdentityProvisioningException;
+import org.wso2.carbon.identity.provisioning.ProvisionedIdentifier;
+import org.wso2.carbon.identity.provisioning.ProvisioningEntity;
+import org.wso2.carbon.identity.provisioning.ProvisioningEntityType;
+import org.wso2.carbon.identity.provisioning.ProvisioningOperation;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -57,10 +71,8 @@ public class SalesforceProvisioningConnector extends AbstractOutboundProvisionin
             for (Property property : provisioningProperties) {
                 configs.put(property.getName(), property.getValue());
                 if (IdentityProvisioningConstants.JIT_PROVISIONING_ENABLED.equals(property
-                        .getName())) {
-                    if ("1".equals(property.getValue())) {
-                        jitProvisioningEnabled = true;
-                    }
+                        .getName()) && "1".equals(property.getValue())) {
+                    jitProvisioningEnabled = true;
                 }
             }
         }
@@ -143,7 +155,7 @@ public class SalesforceProvisioningConnector extends AbstractOutboundProvisionin
             String provisioningDomain = this.configHolder.getValue(provisioningDomainKey);
             String userId = provisioningEntity.getEntityName();
 
-            if (userIdClaimURL != null && !StringUtils.isEmpty(requiredAttributes.get(userIdClaimURL))) {
+            if (StringUtils.isNotBlank(requiredAttributes.get(userIdClaimURL))) {
                 userId = requiredAttributes.get(userIdClaimURL);
             }
 
@@ -153,10 +165,10 @@ public class SalesforceProvisioningConnector extends AbstractOutboundProvisionin
                 userIdFromPattern = buildUserId(provisioningEntity, provisioningPattern,
                         provisioningSeparator, idpName);
             }
-            if (!StringUtils.isEmpty(userIdFromPattern)) {
+            if (StringUtils.isNotBlank(userIdFromPattern)) {
                 userId = userIdFromPattern;
             }
-            if (!StringUtils.isEmpty(provisioningDomain) && !userId.endsWith(provisioningDomain)) {
+            if (StringUtils.isNotBlank(provisioningDomain) && !userId.endsWith(provisioningDomain)) {
                 userId = userId.replaceAll("@", ".").concat("@").concat(provisioningDomain);
             }
             requiredAttributes.put(SalesforceConnectorConstants.USERNAME_ATTRIBUTE, userId);
@@ -244,15 +256,8 @@ public class SalesforceProvisioningConnector extends AbstractOutboundProvisionin
                     log.debug("Error response : " + readResponse(post));
                 }
             }
-        } catch (HttpException e) {
-            log.error("Error in invoking provisioning operation for the user");
-            throw new IdentityProvisioningException(e);
-        } catch (IOException e) {
-            log.error("Error in invoking provisioning operation for the user");
-            throw new IdentityProvisioningException(e);
-        } catch (JSONException e) {
-            log.error("Error in decoding response to JSON");
-            throw new IdentityProvisioningException(e);
+        } catch (IOException | JSONException e) {
+            throw new IdentityProvisioningException("Error in invoking provisioning operation for the user", e);
         } finally {
             post.releaseConnection();
         }
@@ -268,7 +273,7 @@ public class SalesforceProvisioningConnector extends AbstractOutboundProvisionin
         InputStream is = post.getResponseBodyAsStream();
         BufferedReader rd = new BufferedReader(new InputStreamReader(is));
         String line;
-        StringBuffer response = new StringBuffer();
+        StringBuilder response = new StringBuilder();
         while ((line = rd.readLine()) != null) {
             response.append(line);
             response.append('\r');
@@ -336,9 +341,6 @@ public class SalesforceProvisioningConnector extends AbstractOutboundProvisionin
                     }
                 }
 
-            } catch (HttpException e) {
-                log.error("Error in invoking provisioning request");
-                throw new IdentityProvisioningException(e);
             } catch (IOException e) {
                 log.error("Error in invoking provisioning request");
                 throw new IdentityProvisioningException(e);
@@ -363,7 +365,7 @@ public class SalesforceProvisioningConnector extends AbstractOutboundProvisionin
         boolean isDebugEnabled = log.isDebugEnabled();
 
         String accessToken = authenticate();
-        if (accessToken != null && !accessToken.isEmpty()) {
+        if (StringUtils.isNotBlank(accessToken)) {
             httpMethod.setRequestHeader(SalesforceConnectorConstants.AUTHORIZATION_HEADER_NAME,
                     SalesforceConnectorConstants.AUTHORIZATION_HEADER_OAUTH + " " + accessToken);
 
@@ -391,7 +393,7 @@ public class SalesforceProvisioningConnector extends AbstractOutboundProvisionin
 
         String url = configHolder.getValue(SalesforceConnectorConstants.PropertyConfig.OAUTH2_TOKEN_ENDPOINT);
 
-        PostMethod post = new PostMethod(url != null && !url.isEmpty() ?
+        PostMethod post = new PostMethod(StringUtils.isNotBlank(url) ?
                 url : IdentityApplicationConstants.SF_OAUTH2_TOKEN_ENDPOINT);
 
         post.addParameter(SalesforceConnectorConstants.CLIENT_ID,
@@ -437,11 +439,8 @@ public class SalesforceProvisioningConnector extends AbstractOutboundProvisionin
                 log.error("recieved response status code :" + post.getStatusCode() + " text : "
                         + post.getStatusText());
             }
-        } catch (JSONException e) {
+        } catch (JSONException | IOException e) {
             throw new IdentityProvisioningException("Error in decoding response to JSON", e);
-        } catch (IOException e) {
-            throw new IdentityProvisioningException(
-                    "Error in invoking authentication operation. Check your network connection", e);
         } finally {
             post.releaseConnection();
         }
@@ -502,9 +501,8 @@ public class SalesforceProvisioningConnector extends AbstractOutboundProvisionin
         }
         boolean isDebugEnabled = log.isDebugEnabled();
 
-        if (query == null || query.isEmpty()) {
-            query = SalesforceProvisioningConnectorConfig.SALESFORCE_LIST_USER_SIMPLE_QUERY;
-            // SalesforceProvisioningConnectorConfig.SALESFORCE_LIST_USER_FULL_QUERY;
+        if (StringUtils.isBlank(query)) {
+            query = SalesforceConnectorDBQueries.SALESFORCE_LIST_USER_SIMPLE_QUERY;
         }
 
         HttpClient httpclient = new HttpClient();
@@ -538,29 +536,6 @@ public class SalesforceProvisioningConnector extends AbstractOutboundProvisionin
                             + results.getJSONObject(i).getString("LastName") + ", "
                             + results.getJSONObject(i).getString("Name") + ", "
                             + results.getJSONObject(i).getString("ProfileId") + ", "
-
-                            // +
-                            // results.getJSONObject(i).getString("EmailEncodingKey")
-                            // + ", "
-                            // +
-                            // results.getJSONObject(i).getString("LanguageLocaleKey")
-                            // + ", "
-                            // +
-                            // results.getJSONObject(i).getString("LocaleSidKey")
-                            // + ", "
-                            // +
-                            // results.getJSONObject(i).getString("TimeZoneSidKey")
-                            // + ", "
-                            // +
-                            // results.getJSONObject(i).getString("UserPermissionsCallCenterAutoLogin")
-                            // + ", "
-                            // +
-                            // results.getJSONObject(i).getString("UserPermissionsMarketingUser")
-                            // + ", "
-                            // +
-                            // results.getJSONObject(i).getString("UserPermissionsOfflineUser")
-                            // + ", "
-
                             + results.getJSONObject(i).getString("Username") + "\n");
                 }
                 sb.append("\n");
@@ -568,15 +543,10 @@ public class SalesforceProvisioningConnector extends AbstractOutboundProvisionin
                 log.error("recieved response status code:" + get.getStatusCode() + " text : "
                         + get.getStatusText());
             }
-        } catch (JSONException e) {
-            log.error("Error in decoding response to JSON");
-            throw new IdentityProvisioningException(e);
-        } catch (HttpException e) {
+        } catch (JSONException | IOException e) {
             log.error("Error in invoking provisioning operation for the user listing");
             throw new IdentityProvisioningException(e);
-        } catch (IOException e) {
-            throw new IdentityProvisioningException(e);
-        } finally {
+        }finally {
             get.releaseConnection();
         }
 

@@ -1,33 +1,38 @@
 /*
-*  Copyright (c) WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 
 package org.wso2.carbon.sts;
 
 import org.apache.axiom.om.OMElement;
 import org.apache.axis2.AxisFault;
 import org.apache.axis2.context.ConfigurationContext;
-import org.apache.axis2.deployment.*;
+import org.apache.axis2.deployment.DeploymentConstants;
+import org.apache.axis2.deployment.DeploymentEngine;
+import org.apache.axis2.deployment.DescriptionBuilder;
+import org.apache.axis2.deployment.ServiceBuilder;
+import org.apache.axis2.deployment.ServiceGroupBuilder;
 import org.apache.axis2.deployment.repository.util.ArchiveReader;
 import org.apache.axis2.deployment.repository.util.DeploymentFileData;
 import org.apache.axis2.description.AxisOperation;
 import org.apache.axis2.description.AxisService;
 import org.apache.axis2.description.AxisServiceGroup;
 import org.apache.axis2.engine.AxisConfiguration;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.Bundle;
@@ -39,9 +44,17 @@ import org.wso2.carbon.utils.deployment.Axis2ServiceRegistry;
 import org.wso2.carbon.utils.deployment.BundleClassLoader;
 
 import javax.xml.stream.XMLStreamException;
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Dictionary;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Iterator;
 
 /**
  * This deploys a wso2carbon-sts service when tenant is loaded.
@@ -71,6 +84,9 @@ public class STSDeploymentListener extends AbstractAxis2ConfigurationContextObse
             service = configContext.getAxisConfiguration().getService("wso2carbon-sts");
         } catch (AxisFault axisFault) {
             // just ignore service is not in axis2 configuration
+            if (log.isDebugEnabled()) {
+                log.debug("wso2carbon-sts service is not available", axisFault);
+            }
         }
 
         // creating service if it is null
@@ -84,13 +100,12 @@ public class STSDeploymentListener extends AbstractAxis2ConfigurationContextObse
                     configContext.getAxisConfiguration().addServiceGroup(serviceGroup);
                 } catch (AxisFault axisFault) {
                     log.error("Error occurs while adding wso2carbon-sts service group in to axis2" +
-                            "configuration of tenant " +
-                            CarbonContext.getThreadLocalCarbonContext().getTenantId(), axisFault);
+                              "configuration of tenant " +
+                              CarbonContext.getThreadLocalCarbonContext().getTenantId(), axisFault);
                 }
             }
         }
     }
-
 
     private AxisServiceGroup createService(Bundle bundle, ConfigurationContext configContext) {
 
@@ -101,8 +116,7 @@ public class STSDeploymentListener extends AbstractAxis2ConfigurationContextObse
         if (enumeration != null && enumeration.hasMoreElements()) {
             try {
                 serviceGroup = new AxisServiceGroup(axisConfiguration);
-                ClassLoader loader =
-                        new BundleClassLoader(bundle, Axis2ServiceRegistry.class.getClassLoader());
+                ClassLoader loader = new BundleClassLoader(bundle, Axis2ServiceRegistry.class.getClassLoader());
                 URL url = (URL) enumeration.nextElement();
                 Dictionary headers = bundle.getHeaders();
                 String bundleSymbolicName = (String) headers.get("Bundle-SymbolicName");
@@ -113,7 +127,7 @@ public class STSDeploymentListener extends AbstractAxis2ConfigurationContextObse
                 OMElement rootElement = builder.buildOM();
                 String elementName = rootElement.getLocalName();
                 HashMap<String, AxisService> wsdlServicesMap = processWSDL(bundle);
-                if (wsdlServicesMap != null && wsdlServicesMap.size() > 0) {
+                if (MapUtils.isNotEmpty(wsdlServicesMap)) {
                     for (AxisService service : wsdlServicesMap.values()) {
                         Iterator<AxisOperation> operations = service.getOperations();
                         while (operations.hasNext()) {
@@ -132,23 +146,22 @@ public class STSDeploymentListener extends AbstractAxis2ConfigurationContextObse
                     ArrayList<AxisService> serviceList = new ArrayList<AxisService>();
                     serviceList.add(service);
                     DeploymentEngine.addServiceGroup(serviceGroup,
-                            serviceList,
-                            null,
-                            null,
-                            axisConfiguration);
+                                                     serviceList,
+                                                     null,
+                                                     null,
+                                                     axisConfiguration);
                     if (log.isDebugEnabled()) {
                         log.debug("Deployed wso2carbon-sts service");
                     }
                 } else if (DeploymentConstants.TAG_SERVICE_GROUP.equals(elementName)) {
                     ServiceGroupBuilder groupBuilder =
-                            new ServiceGroupBuilder(rootElement, wsdlServicesMap,
-                                    configContext);
+                            new ServiceGroupBuilder(rootElement, wsdlServicesMap, configContext);
                     ArrayList<? extends AxisService> serviceList = groupBuilder.populateServiceGroup(serviceGroup);
                     DeploymentEngine.addServiceGroup(serviceGroup,
-                            serviceList,
-                            null,
-                            null,
-                            axisConfiguration);
+                                                     serviceList,
+                                                     null,
+                                                     null,
+                                                     axisConfiguration);
                     if (log.isDebugEnabled()) {
                         log.debug("Deployed wso2carbon-sts service group ");
                     }
@@ -156,19 +169,18 @@ public class STSDeploymentListener extends AbstractAxis2ConfigurationContextObse
 
             } catch (AxisFault axisFault) {
                 log.error("Error occur while deploying wso2carbon-sts service for tenant " +
-                        CarbonContext.getThreadLocalCarbonContext().getTenantId(), axisFault);
+                          CarbonContext.getThreadLocalCarbonContext().getTenantId(), axisFault);
             } catch (XMLStreamException e) {
                 log.error("Error occur while deploying wso2carbon-sts service for tenant " +
-                        CarbonContext.getThreadLocalCarbonContext().getTenantId(), e);
+                          CarbonContext.getThreadLocalCarbonContext().getTenantId(), e);
             } catch (IOException e) {
                 log.error("Error occur while deploying wso2carbon-sts service for tenant " +
-                        CarbonContext.getThreadLocalCarbonContext().getTenantId(), e);
+                          CarbonContext.getThreadLocalCarbonContext().getTenantId(), e);
             }
         }
 
         return serviceGroup;
     }
-
 
     private HashMap processWSDL(Bundle bundle) throws IOException, XMLStreamException {
         Enumeration enumeration = bundle.findEntries("META-INF", "*.wsdl", true);
@@ -191,7 +203,7 @@ public class STSDeploymentListener extends AbstractAxis2ConfigurationContextObse
         File bundleFile;
         URL bundleURL = new URL(bundleLocation);
 
-        if (bundleURL.getProtocol().equals("file")) {
+        if ("file".equals(bundleURL.getProtocol())) {
             bundleFile = new File(bundleURL.getFile());
         } else {
             InputStream bundleStream = bundleURL.openStream();

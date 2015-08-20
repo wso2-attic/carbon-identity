@@ -18,28 +18,26 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar"
 	prefix="carbon"%>
-<%@page import="org.wso2.carbon.utils.ServerConstants"%>
-<%@page import="org.wso2.carbon.ui.CarbonUIUtil"%>
 <%@page import="org.apache.axis2.context.ConfigurationContext"%>
+<%@page import="org.apache.commons.lang.StringUtils"%>
 <%@page import="org.wso2.carbon.CarbonConstants"%>
-<%@page import="org.wso2.carbon.CarbonError"%>
+<%@page import="org.wso2.carbon.identity.user.profile.stub.types.UserProfileDTO"%>
 <%@page import="org.wso2.carbon.identity.user.profile.ui.client.UserProfileCient"%>
-<%@page import="java.lang.Exception"%>
-<%@page import="java.util.ResourceBundle"%>
+<%@page import="org.wso2.carbon.ui.CarbonUIMessage"%>
+<%@page import="org.wso2.carbon.ui.CarbonUIUtil"%>
 <%@page import="org.wso2.carbon.ui.util.CharacterEncoder"%>
-<%@ page import="org.wso2.carbon.user.mgt.ui.Util" %>
+<%@page import="org.wso2.carbon.user.mgt.stub.types.carbon.UserRealmInfo"%>
+<%@ page import="org.wso2.carbon.user.mgt.stub.types.carbon.UserStoreInfo" %>
 <script type="text/javascript" src="extensions/js/vui.js"></script>
 <script type="text/javascript" src="../extensions/core/js/vui.js"></script>
 <script type="text/javascript" src="../admin/js/main.js"></script>
 
-<%@ page import="org.wso2.carbon.ui.CarbonUIMessage"%>
-<%@page import="org.wso2.carbon.user.core.UserCoreConstants"%>
-<%@ page import="org.wso2.carbon.identity.user.profile.stub.types.UserProfileDTO" %>
-<%@ page import="org.wso2.carbon.user.mgt.stub.types.carbon.UserRealmInfo" %>
-<%@ page import="org.wso2.carbon.user.mgt.ui.UserAdminUIConstants" %>
-<%@ page import="org.wso2.carbon.user.mgt.ui.UserAdminClient" %>
-<%@ page import="org.wso2.carbon.user.mgt.stub.types.carbon.UserStoreInfo" %>
-<%@page import="java.net.URLEncoder" %>
+<%@ page import="org.wso2.carbon.user.mgt.ui.UserAdminClient"%>
+<%@page import="org.wso2.carbon.user.mgt.ui.UserAdminUIConstants"%>
+<%@ page import="org.wso2.carbon.user.mgt.ui.Util" %>
+<%@ page import="org.wso2.carbon.utils.ServerConstants" %>
+<%@ page import="java.net.URLEncoder" %>
+<%@ page import="java.util.ResourceBundle" %>
 
 <%
     boolean readOnlyUserStore = false;
@@ -81,9 +79,11 @@
 
         //read the domain of the user
         String userDomain = UserProfileCient.extractDomainFromName(Util.decodeHTMLCharacters(username));
-        if (userDomain != null) {
-            //i.e primary
+        if (StringUtils.isNotBlank(userDomain)) {
             multipleProfilesEnabled = client.isAddProfileEnabledForDomain(userDomain);
+        } else {
+            multipleProfilesEnabled = client.isAddProfileEnabledForDomain("");
+
         }
 
         //get user store manager config
