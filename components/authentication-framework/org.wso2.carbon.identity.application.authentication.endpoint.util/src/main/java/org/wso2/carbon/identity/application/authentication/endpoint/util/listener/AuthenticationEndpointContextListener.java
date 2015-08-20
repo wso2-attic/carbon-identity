@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.carbon.identity.application.authentication.endpoint.listener;
+package org.wso2.carbon.identity.application.authentication.endpoint.util.listener;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
