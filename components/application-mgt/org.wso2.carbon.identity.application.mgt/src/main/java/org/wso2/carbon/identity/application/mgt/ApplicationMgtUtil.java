@@ -68,7 +68,7 @@ public class ApplicationMgtUtil {
             int i = 0;
             for (String permissionString : permissions) {
                 permissionSet[i] = new org.wso2.carbon.user.api.Permission(applicationName + "\\"
-                                                                           + permissionString, "ui.execute");
+                        + permissionString, "ui.execute");
             }
         }
         return permissionSet;
@@ -140,7 +140,6 @@ public class ApplicationMgtUtil {
      * @throws IdentityApplicationManagementException
      */
     public static void createAppRole(String applicationName) throws IdentityApplicationManagementException {
-
         String roleName = getAppRoleName(applicationName);
         String qualifiedUsername = CarbonContext.getThreadLocalCarbonContext().getUsername();
         String[] user = {qualifiedUsername};
@@ -151,7 +150,6 @@ public class ApplicationMgtUtil {
                 log.debug("Creating application role : " + roleName + " and assign the user : "
                           + Arrays.toString(user) + " to that role");
             }
-
             CarbonContext.getThreadLocalCarbonContext().getUserRealm().getUserStoreManager()
                     .addRole(roleName, user, null);
         } catch (UserStoreException e) {
@@ -193,7 +191,7 @@ public class ApplicationMgtUtil {
 
         if (log.isDebugEnabled()) {
             log.debug("Renaming application role : " + UserCoreUtil.addInternalDomainName(oldName)
-                      + " to new role : " + UserCoreUtil.addInternalDomainName(newName));
+                    + " to new role : " + UserCoreUtil.addInternalDomainName(newName));
         }
         CarbonContext.getThreadLocalCarbonContext().getUserRealm().getUserStoreManager()
                 .updateRoleName(UserCoreUtil.addInternalDomainName(oldName), UserCoreUtil.addInternalDomainName(newName));
@@ -228,7 +226,7 @@ public class ApplicationMgtUtil {
             addPermission(loadPermissions.toArray(new ApplicationPermission[loadPermissions.size()]), tenantGovReg);
         } catch (RegistryException e) {
             throw new IdentityApplicationManagementException("Error while renaming permission node "
-                                                             + oldName + "to " + newName, e);
+                    + oldName + "to " + newName, e);
         }
     }
 
@@ -252,7 +250,7 @@ public class ApplicationMgtUtil {
                         (UserRealm) CarbonContext.getThreadLocalCarbonContext().getUserRealm();
                 if (!realm.getAuthorizationManager()
                         .isUserAuthorized(loggedInUser, permissionResourcePath,
-                                          UserMgtConstants.EXECUTE_ACTION)) {
+                                UserMgtConstants.EXECUTE_ACTION)) {
                     //Logged in user is not authorized to create the permission.
                     // Temporarily change the user to the admin for creating the permission
                     PrivilegedCarbonContext.getThreadLocalCarbonContext().setUsername(
@@ -323,7 +321,7 @@ public class ApplicationMgtUtil {
 
             // new permissions are null. deleting all permissions case
             if ((childern != null && childern.length > 0)
-                && (permissions == null || permissions.length == 0)) { // there are permissions
+                    && (permissions == null || permissions.length == 0)) { // there are permissions
                 tenantGovReg.delete(applicationNode);
             }
 
@@ -351,7 +349,7 @@ public class ApplicationMgtUtil {
     }
 
     private static void addPermission(ApplicationPermission[] permissions, Registry tenantGovReg) throws
-                                                                                                  RegistryException {
+            RegistryException {
         for (ApplicationPermission permission : permissions) {
             String permissionValue = permission.getValue();
 
