@@ -42,6 +42,8 @@ import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.base.IdentityRuntimeException;
 import org.wso2.carbon.identity.core.internal.IdentityCoreServiceComponent;
 import org.wso2.carbon.identity.core.model.IdentityErrorMsgContext;
+import org.wso2.carbon.identity.core.model.IdentityEventListener;
+import org.wso2.carbon.identity.core.model.IdentityEventListenerConfigKey;
 import org.wso2.carbon.registry.core.utils.UUIDGenerator;
 import org.wso2.carbon.user.api.TenantManager;
 import org.wso2.carbon.user.api.UserStoreException;
@@ -78,7 +80,7 @@ public class IdentityUtil {
             'V', 'W', 'X', 'Y', 'Z'};
     private static Log log = LogFactory.getLog(IdentityUtil.class);
     private static Map<String, Object> configuration = new HashMap<String, Object>();
-    private static Map<String, Map<String, Integer>> eventListenerOrderIds = new HashMap<>();
+    private static Map<IdentityEventListenerConfigKey, IdentityEventListener> eventListenerConfiguration = new HashMap<>();
     private static Document importerDoc = null;
     private static ThreadLocal<IdentityErrorMsgContext> IdentityError = new ThreadLocal<IdentityErrorMsgContext>();
     private static final String SECURITY_MANAGER_PROPERTY = Constants.XERCES_PROPERTY_PREFIX +
@@ -125,18 +127,15 @@ public class IdentityUtil {
         return (String) value;
     }
 
-    public static int readEventListenerOrderIDs(String type, String name) {
-        Map<String, Integer> eventListenerMap = eventListenerOrderIds.get(type);
-        if (eventListenerMap != null && !eventListenerMap.isEmpty()) {
-            return eventListenerMap.get(name);
-        } else {
-            return IdentityCoreConstants.EVENT_LISTENER_ORDER_ID;
-        }
+    public static IdentityEventListener readEventListenerProperty(String type, String name) {
+        IdentityEventListenerConfigKey identityEventListenerConfigKey = new IdentityEventListenerConfigKey(type, name);
+        IdentityEventListener identityEventListener = eventListenerConfiguration.get(identityEventListenerConfigKey);
+        return identityEventListener;
     }
 
     public static void populateProperties() throws ServerConfigurationException {
         configuration = IdentityConfigParser.getInstance().getConfiguration();
-        eventListenerOrderIds = IdentityConfigParser.getInstance().getEventListenerOrderIds();
+        eventListenerConfiguration = IdentityConfigParser.getInstance().getEventListenerConfiguration();
     }
 
     public static String getPPIDDisplayValue(String value) throws Exception {
