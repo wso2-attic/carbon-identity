@@ -43,6 +43,7 @@ public class SQLConstants {
     public static final String PARAM_NAME_COLUMN = "PARAM_NAME";
     public static final String PARAM_VALUE_COLUMN = "PARAM_VALUE";
     public static final String ASSOCIATION_NAME_COLUMN = "ASSOC_NAME";
+    public static final String ASSOCIATION_IS_ENABLED = "IS_ENABLED";
 
     public static final String REQUEST_UUID_COLUMN = "UUID";
     public static final String REQUEST_OPERATION_TYPE_COLUMN = "OPERATION_TYPE";
@@ -52,8 +53,9 @@ public class SQLConstants {
     public static final String REQUEST_ID_COLUMN = "REQUEST_ID";
 
 
-    public static final String ADD_WORKFLOW_REQUEST_QUERY = "INSERT INTO WF_REQUEST(UUID, CREATED_BY, OPERATION_TYPE," +
-            " CREATED_AT, UPDATED_AT, REQUEST, STATUS) VALUES (?, ?, ?, ?, ?, ?, ?)";
+    public static final String ADD_WORKFLOW_REQUEST_QUERY =
+            "INSERT INTO WF_REQUEST(UUID, CREATED_BY, OPERATION_TYPE, CREATED_AT, UPDATED_AT, REQUEST, STATUS) VALUES" +
+            " (?, ?, ?, ?, ?, ?, ?)";
 
     public static final String GET_WORKFLOW_REQUEST_QUERY = "SELECT UUID, REQUEST, STATUS FROM WF_REQUEST WHERE UUID" +
             " = ?";
@@ -72,19 +74,36 @@ public class SQLConstants {
     public static final String GET_ASSOCIATIONS_FOR_EVENT_QUERY = "SELECT WF_WORKFLOW_ASSOCIATION.WORKFLOW_ID, " +
             "WF_WORKFLOW.TEMPLATE_ID, WF_WORKFLOW.IMPL_ID, WF_WORKFLOW_ASSOCIATION.ASSOC_CONDITION FROM WF_WORKFLOW, " +
             "WF_WORKFLOW_ASSOCIATION WHERE WF_WORKFLOW_ASSOCIATION.EVENT_ID = ? AND WF_WORKFLOW_ASSOCIATION" +
-            ".WORKFLOW_ID = WF_WORKFLOW.ID AND WF_WORKFLOW.TENANT_ID = ?";
+            ".WORKFLOW_ID = WF_WORKFLOW.ID AND WF_WORKFLOW.TENANT_ID = ? AND WF_WORKFLOW_ASSOCIATION.IS_ENABLED = '1'";
 
     public static final String GET_ASSOCIATIONS_FOR_WORKFLOW_QUERY = "SELECT WF_WORKFLOW.WF_NAME, " +
-            "WF_WORKFLOW_ASSOCIATION.ID, WF_WORKFLOW_ASSOCIATION.ASSOC_NAME, WF_WORKFLOW_ASSOCIATION.EVENT_ID, " +
-            "WF_WORKFLOW_ASSOCIATION.ASSOC_CONDITION FROM WF_WORKFLOW, WF_WORKFLOW_ASSOCIATION WHERE WF_WORKFLOW.ID =" +
-            " WF_WORKFLOW_ASSOCIATION.WORKFLOW_ID AND WF_WORKFLOW.ID = ?";
+                                                                     "WF_WORKFLOW_ASSOCIATION.ID, " +
+                                                                     "WF_WORKFLOW_ASSOCIATION.ASSOC_NAME, " +
+                                                                     "WF_WORKFLOW_ASSOCIATION.EVENT_ID, " +
+                                                                     "WF_WORKFLOW_ASSOCIATION.ASSOC_CONDITION, " +
+                                                                     "WF_WORKFLOW_ASSOCIATION.IS_ENABLED FROM " +
+                                                                     "WF_WORKFLOW, WF_WORKFLOW_ASSOCIATION WHERE " +
+                                                                     "WF_WORKFLOW.ID =" +
+                                                                     " WF_WORKFLOW_ASSOCIATION.WORKFLOW_ID AND " +
+                                                                     "WF_WORKFLOW.ID = ?";
 
     public static final String GET_ALL_ASSOCIATIONS_QUERY = "SELECT WF_WORKFLOW.WF_NAME, WF_WORKFLOW_ASSOCIATION.ID, " +
-            "WF_WORKFLOW_ASSOCIATION.ASSOC_NAME, WF_WORKFLOW_ASSOCIATION.EVENT_ID, WF_WORKFLOW_ASSOCIATION" +
-            ".ASSOC_CONDITION FROM WF_WORKFLOW,WF_WORKFLOW_ASSOCIATION WHERE WF_WORKFLOW.ID = WF_WORKFLOW_ASSOCIATION" +
-            ".WORKFLOW_ID";
+                                                            "WF_WORKFLOW_ASSOCIATION.ASSOC_NAME, " +
+                                                            "WF_WORKFLOW_ASSOCIATION.EVENT_ID, " +
+                                                            "WF_WORKFLOW_ASSOCIATION" +
+                                                            ".ASSOC_CONDITION , WF_WORKFLOW_ASSOCIATION.IS_ENABLED " +
+                                                            "FROM WF_WORKFLOW,WF_WORKFLOW_ASSOCIATION WHERE " +
+                                                            "WF_WORKFLOW.ID = WF_WORKFLOW_ASSOCIATION" +
+                                                            ".WORKFLOW_ID";
 
     public static final String DELETE_ASSOCIATION_QUERY = "DELETE FROM WF_WORKFLOW_ASSOCIATION WHERE ID = ?";
+
+    public static final String GET_ASSOCIATION_FOR_ASSOC_ID_QUERY =
+            "SELECT WF_WORKFLOW.WF_NAME, WF_WORKFLOW_ASSOCIATION.ID, WF_WORKFLOW_ASSOCIATION.ASSOC_NAME, " +
+            "WF_WORKFLOW_ASSOCIATION.EVENT_ID," +
+            " WF_WORKFLOW_ASSOCIATION.ASSOC_CONDITION , WF_WORKFLOW_ASSOCIATION.IS_ENABLED, WF_WORKFLOW_ASSOCIATION" +
+            ".WORKFLOW_ID FROM WF_WORKFLOW, WF_WORKFLOW_ASSOCIATION WHERE WF_WORKFLOW_ASSOCIATION.ID = ? AND  " +
+            "WF_WORKFLOW.ID = WF_WORKFLOW_ASSOCIATION.WORKFLOW_ID";
 
     public static final String GET_WORKFLOW_PARAMS = "SELECT PARAM_NAME, PARAM_VALUE FROM WF_WORKFLOW_CONFIG_PARAM " +
             "WHERE WORKFLOW_ID = ?";
@@ -94,6 +113,10 @@ public class SQLConstants {
     public static final String ASSOCIATE_WF_TO_EVENT = "INSERT INTO WF_WORKFLOW_ASSOCIATION(EVENT_ID, " +
             "ASSOC_NAME, ASSOC_CONDITION, WORKFLOW_ID) VALUES (?, ?, ?, ?)";
 
+    public static final String UPDATE_ASSOCIATE_WF_TO_EVENT = "UPDATE WF_WORKFLOW_ASSOCIATION SET EVENT_ID=?, " +
+                                                              "ASSOC_NAME=?, ASSOC_CONDITION=?, WORKFLOW_ID=?, " +
+                                                              "IS_ENABLED=? WHERE ID = ? ";
+
     public static final String LIST_WORKFLOWS_QUERY = "SELECT ID, WF_NAME, DESCRIPTION, TEMPLATE_ID, IMPL_ID FROM " +
             "WF_WORKFLOW WHERE TENANT_ID = ? ORDER BY WF_NAME";
 
@@ -102,8 +125,17 @@ public class SQLConstants {
             "INSERT INTO WF_BPS_PROFILE(PROFILE_NAME, HOST_URL, USERNAME, PASSWORD, CALLBACK_USERNAME," +
                     " CALLBACK_PASSWORD, TENANT_ID) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
+    public static final String UPDATE_BPS_PROFILE_QUERY =
+            "UPDATE WF_BPS_PROFILE SET HOST_URL=?, USERNAME=?, PASSWORD=?, CALLBACK_USERNAME=?, " +
+            "CALLBACK_PASSWORD=? WHERE TENANT_ID=? AND PROFILE_NAME=?";
+
     public static final String GET_BPS_PROFILE_QUERY = "SELECT HOST_URL, USERNAME, PASSWORD, " +
             "CALLBACK_USERNAME, CALLBACK_PASSWORD FROM WF_BPS_PROFILE WHERE PROFILE_NAME = ?";
+
+    public static final String GET_BPS_PROFILE_FOR_TENANT_QUERY = "SELECT HOST_URL, USERNAME,PASSWORD,  " +
+                                                                  "CALLBACK_USERNAME, CALLBACK_PASSWORD FROM " +
+                                                                  "WF_BPS_PROFILE WHERE PROFILE_NAME = ? AND " +
+                                                                  "TENANT_ID = ? ";
 
     public static final String LIST_BPS_PROFILES_QUERY =
             "SELECT PROFILE_NAME, HOST_URL, USERNAME, CALLBACK_USERNAME FROM " +
