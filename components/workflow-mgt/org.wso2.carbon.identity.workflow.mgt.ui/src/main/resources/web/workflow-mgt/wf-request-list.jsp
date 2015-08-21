@@ -442,6 +442,10 @@
                     <td><%=workflowReq.getRequestParams()%>
                     </td>
                     <td>
+                        <a title="<fmt:message key='workflow.request.list.title'/>"
+                           onclick="listWorkflows('<%=workflowReq.getRequestId()%>');return false;"
+                           href="#" style="background-image: url(images/list.png);"
+                           class="icon-link"><fmt:message key='workflows'/></a>
                         <% if (workflowReq.getStatus().equals("PENDING")) { %>
                         <a title="<fmt:message key='workflow.request.delete.title'/>"
                            onclick="removeRequest('<%=workflowReq.getRequestId()%>');return false;"
@@ -450,10 +454,6 @@
                         <% } else { %>
 
                         <% } %>
-                        <a title="<fmt:message key='workflow.request.list.title'/>"
-                           onclick="listWorkflows('<%=workflowReq.getRequestId()%>');return false;"
-                           href="#" style="background-image: url(images/list.png);"
-                           class="icon-link"><fmt:message key='workflows'/></a>
                     </td>
                 </tr>
                 <%
