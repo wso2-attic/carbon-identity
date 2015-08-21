@@ -47,7 +47,6 @@
 
 <script type="text/javascript" src="../userstore/extensions/js/vui.js"></script>
 <script type="text/javascript" src="../admin/js/main.js"></script>
-<jsp:include page="../dialog/display_messages.jsp"/>
 
 <%
     }
@@ -329,7 +328,7 @@
         var resultTable = "" ;
         if(category == "users"){
 
-            resultTable = '<table class="styledLeft" id="userTable"><thead>';
+            resultTable = '<table class="styledLeft noBorders" id="userTable"><thead>';
             resultTable += '<tr>';
             resultTable += '<th>Select</th>';
             resultTable += '<th>UserName</th>';
@@ -347,10 +346,15 @@
             }
             resultTable += '</tbody>';
             resultTable += '</table>';
+            resultTable += '<table>';
+            resultTable += '<tr>';
+            resultTable += '<td colspan="2" align="left"><input type="button" value="Add Selected Items" name="addItems" onclick="addSelectedItems();" /></td>';
+            resultTable += '</tr>';
+            resultTable += '</table>';
 
         }else if(category == "roles"){
 
-            resultTable = '<table class="styledLeft" id="userTable"><thead>';
+            resultTable = '<table class="styledLeft noBorders" id="userTable"><thead>';
             resultTable += '<tr>';
             resultTable += '<th>Select</th>';
             resultTable += '<th>RoleName</th>';
@@ -368,6 +372,11 @@
             }
             resultTable += '</tbody>';
             resultTable += '</table>';
+            resultTable += '<table>';
+            resultTable += '<tr>';
+            resultTable += '<td colspan="2" align="left"><input type="button" value="Add Selected Items" name="addItems" onclick="addSelectedItems();" /></td>';
+            resultTable += '</tr>';
+            resultTable += '</table>';
 
         }
 
@@ -383,16 +392,28 @@
 
     }
 
-    function changeCategory(){
+    function changeCategory(category,init){
 
         $('#'+navigatorHolder).empty();
         $('#'+resultHolder).empty();
 
+        if(category == "users"){
+            $("#id_claim_attribute").show();
+        }else{
+            $("#id_claim_attribute").hide();
+        }
+
+
     }
 
-    function loadCategory(category){
-        $('input:radio[name=radio_user_role][value='+category+']').attr('checked', true);
-        changeCategory();
+    function loadCategory(category,init){
+
+        if(init){
+            $('input:radio[name=radio_user_role][value=roles]').prop('checked', true);
+        }else{
+            $('input:radio[name=radio_user_role][value='+category+']').prop('checked', true);
+        }
+        changeCategory(category,init);
     }
 
     function addSelectedItems(){
@@ -499,6 +520,13 @@
 
 
 </script>
+
+<style>
+    .LargeHeader{
+        font-size: large;
+    }
+
+</style>
 <fmt:bundle basename="org.wso2.carbon.userstore.ui.i18n.Resources">
     <carbon:breadcrumb label="users"
                        resourceBundle="org.wso2.carbon.userstore.ui.i18n.Resources"
@@ -526,24 +554,17 @@
 
     <div id="middle">
 
-        <div>
-            <input onclick="changeCategory();" type="radio" id="id_radio_user" name="radio_user_role" value="users" checked="checked"><label for="id_radio_user">User Search</label>
-            <input onclick="changeCategory();" type="radio" id="id_radio_role" name="radio_user_role" value="roles"><label for="id_radio_role">Role Search</label>
+        <div class="LargeHeader">
+            <input onclick="changeCategory('roles',false);" type="radio" id="id_radio_role" name="radio_user_role" value="roles"><label for="id_radio_role"><fmt:message key="role.search"/></label>
+            <input onclick="changeCategory('users',false);" type="radio" id="id_radio_user" name="radio_user_role" value="users" checked="checked"><label for="id_radio_user"><fmt:message key="user.search"/></label>
         </div>
 
-        <h2 id="id_header"><fmt:message key="users"/></h2>
 
         <div id="workArea">
             <form id="id_search" name="filterForm" method="post" action="user-mgt.jsp">
 
                 <table class="styledLeft noBorders">
-				<thead>
-					<tr>
-						<th colspan="2"><fmt:message key="user.search"/></th>
-					</tr>
-				</thead>
 				<tbody>
-
                 <%
                    if(domainNames != null && domainNames.length > 0){
                 %>
@@ -580,7 +601,7 @@
                                    value="<fmt:message key="user.search"/>"/>
                         </td>
                     </tr>
-                    <tr>
+                    <tr id="id_claim_attribute">
                         <td><fmt:message key="claim.uri"/></td>
                         <td><select id="claimUri" name="claimUri">
                             <option value="Select" selected="selected">Select</option>
@@ -619,7 +640,7 @@
 
         </div>
     </div>
-    <input type="button" value="Add Selected Items" name="addItems" onclick="addSelectedItems();" />
+
 
 </fmt:bundle>
 

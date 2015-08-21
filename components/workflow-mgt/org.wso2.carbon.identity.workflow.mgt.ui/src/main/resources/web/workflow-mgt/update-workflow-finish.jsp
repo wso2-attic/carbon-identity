@@ -33,6 +33,7 @@
 <%@ page import="java.util.ResourceBundle" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.WorkflowDTO" %>
 
+
 <%
     String bundle = "org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources";
     ResourceBundle resourceBundle = ResourceBundle.getBundle(bundle, request.getLocale());
@@ -57,29 +58,41 @@
 
     if (WorkflowUIConstants.ACTION_VALUE_ADD.equals(action)) {
 
+
+        Map<String, String> attribMap =
+                (Map<String, String>) session.getAttribute(WorkflowUIConstants.ATTRIB_WORKFLOW_WIZARD);
+
+        workflowName =
+                CharacterEncoder.getSafeText(attribMap.get(WorkflowUIConstants.PARAM_WORKFLOW_NAME));
         String description =
-                CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_WORKFLOW_DESCRIPTION));
+                CharacterEncoder.getSafeText(attribMap.get(WorkflowUIConstants.PARAM_WORKFLOW_DESCRIPTION));
         String templateName =
-                CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_WORKFLOW_TEMPLATE));
+                CharacterEncoder.getSafeText(attribMap.get(WorkflowUIConstants.PARAM_WORKFLOW_TEMPLATE));
         String templateImplName =
-                CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_TEMPLATE_IMPL));
+                CharacterEncoder.getSafeText(attribMap.get(WorkflowUIConstants.PARAM_TEMPLATE_IMPL));
+
         Map<String, String[]> parameterMap = request.getParameterMap();
         List<ParameterDTO> templateParams = new ArrayList<ParameterDTO>();
         List<ParameterDTO> templateImplParams = new ArrayList<ParameterDTO>();
         for (Map.Entry<String, String[]> paramEntry : parameterMap.entrySet()) {
 
             if (paramEntry.getKey() != null && paramEntry.getValue().length > 0) {
-                if (paramEntry.getKey().startsWith("p-")) {
-                    ParameterDTO parameter = new ParameterDTO();
-                    parameter.setParamName(paramEntry.getKey().substring(2));   //length of "p-"
-                    parameter.setParamValue(paramEntry.getValue()[0]);
-                    templateParams.add(parameter);
-                }
                 if (paramEntry.getKey().startsWith("imp-")) {
                     ParameterDTO parameter = new ParameterDTO();
                     parameter.setParamName(paramEntry.getKey().substring(4));   //length of "imp-"
                     parameter.setParamValue(paramEntry.getValue()[0]);
                     templateImplParams.add(parameter);
+                }
+            }
+        }
+        for (Map.Entry<String, String> paramEntry : attribMap.entrySet()) {
+
+            if (paramEntry.getKey() != null && paramEntry.getValue()!=null) {
+                if (paramEntry.getKey().startsWith("p-")) {
+                    ParameterDTO parameter = new ParameterDTO();
+                    parameter.setParamName(paramEntry.getKey().substring(2));   //length of "p-"
+                    parameter.setParamValue(paramEntry.getValue());
+                    templateParams.add(parameter);
                 }
             }
         }

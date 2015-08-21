@@ -17,93 +17,42 @@
   --%>
 
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
-<%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar"
-           prefix="carbon" %>
-<%@ page import="org.apache.axis2.AxisFault" %>
-<%@ page import="org.apache.axis2.context.ConfigurationContext" %>
-<%@ page import="org.wso2.carbon.CarbonConstants" %>
-<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.TemplateBean" %>
-<%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.WorkflowAdminServiceClient" %>
+<%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar" prefix="carbon" %>
+
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.WorkflowUIConstants" %>
-<%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
-<%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
-<%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@ page import="java.util.HashMap" %>
 <%@ page import="java.util.Map" %>
-<%@ page import="java.util.ResourceBundle" %>
 <%@ page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
+
 <script type="text/javascript" src="extensions/js/vui.js"></script>
 <script type="text/javascript" src="../extensions/core/js/vui.js"></script>
 <script type="text/javascript" src="../admin/js/main.js"></script>
 
 <%
-    //    String username = CharacterEncoder.getSafeText(request.getParameter("username"));
-
     String requestPath = "list-workflows";
+    //'path' parameter to use to track parent wizard path if this wizard trigger by another wizard
     if(request.getParameter("path") != null && !request.getParameter("path").isEmpty()){
         requestPath = request.getParameter("path");
     }
-    String wizard = "" ;
-    if(request.getParameter("wizard") != null && !request.getParameter("wizard").isEmpty()){
-        wizard = request.getParameter("wizard") ;
-    }
 
-    String bundle = "org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources";
-    ResourceBundle resourceBundle = ResourceBundle.getBundle(bundle, request.getLocale());
-    String forwardTo = null;
-    WorkflowAdminServiceClient client;
-    TemplateBean[] templateList = null;
     String workflowName = null;
     String workflowDescription = null;
-    String workflowTemplate = null;
+
     String action = CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_ACTION));
-    try {
-        String cookie = (String) session.getAttribute(ServerConstants.ADMIN_SERVICE_COOKIE);
-        String backendServerURL = CarbonUIUtil.getServerURL(config.getServletContext(), session);
-        ConfigurationContext configContext =
-                (ConfigurationContext) config.getServletContext()
-                        .getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
-        client = new WorkflowAdminServiceClient(cookie, backendServerURL, configContext);
-        templateList = client.listTemplates();
-        if (templateList == null) {
-            templateList = new TemplateBean[0];
-        }
 
-        if (session.getAttribute(WorkflowUIConstants.ATTRIB_WORKFLOW_WIZARD) != null &&
-                session.getAttribute(WorkflowUIConstants.ATTRIB_WORKFLOW_WIZARD) instanceof Map &&
-                WorkflowUIConstants.ACTION_VALUE_BACK.equals(action)) {
-            Map<String, String> attribMap =
-                    (Map<String, String>) session.getAttribute(WorkflowUIConstants.ATTRIB_WORKFLOW_WIZARD);
-            workflowName = attribMap.get(WorkflowUIConstants.PARAM_WORKFLOW_NAME);
-            workflowDescription = attribMap.get(WorkflowUIConstants.PARAM_WORKFLOW_DESCRIPTION);
-            workflowTemplate = attribMap.get(WorkflowUIConstants.PARAM_WORKFLOW_TEMPLATE);
-        } else {
-            session.setAttribute(WorkflowUIConstants.ATTRIB_WORKFLOW_WIZARD, new HashMap<String, String>());
-        }
-    } catch (AxisFault e) {
-        String message = resourceBundle.getString("workflow.error.when.initiating.service.client");
-        CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
-        forwardTo = "../admin/error.jsp";
+    if (session.getAttribute(WorkflowUIConstants.ATTRIB_WORKFLOW_WIZARD) != null &&
+        session.getAttribute(WorkflowUIConstants.ATTRIB_WORKFLOW_WIZARD) instanceof Map &&
+        WorkflowUIConstants.ACTION_VALUE_BACK.equals(action)) {
+        Map<String, String> attribMap =
+                (Map<String, String>) session.getAttribute(WorkflowUIConstants.ATTRIB_WORKFLOW_WIZARD);
+        workflowName = attribMap.get(WorkflowUIConstants.PARAM_WORKFLOW_NAME);
+        workflowDescription = attribMap.get(WorkflowUIConstants.PARAM_WORKFLOW_DESCRIPTION);
+    } else {
+        session.setAttribute(WorkflowUIConstants.ATTRIB_WORKFLOW_WIZARD, new HashMap<String, String>());
     }
 %>
 
-<%
-    if (forwardTo != null) {
-%>
-<script type="text/javascript">
 
-    function forward() {
-        location.href = "<%=forwardTo%>";
-    }
-</script>
-
-<script type="text/javascript">
-    forward();
-</script>
-<%
-        return;
-    }
-%>
 
 <fmt:bundle basename="org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources">
     <carbon:breadcrumb
@@ -121,21 +70,16 @@
             function cancel() {
                 location.href = '<%=requestPath%>.jsp?wizard=finish';
             }
-
-            CARBON.showConfirmationDialog('<fmt:message key="confirmation.workflow.add.abort"/> ' + name + '?',
-                    cancel, null);
+            CARBON.showConfirmationDialog('<fmt:message key="confirmation.workflow.add.abort"/> ' + name + '?', cancel, null);
         }
 
         function submitPage(){
             var workflowForm = document.getElementById("id_workflow");
-            workflowForm.submit();
-            //var templateList = document.getElementById("id_template");
-            //if(templateList.selectedIndex != 0){
-            //    workflowForm.submit();
-            //}else{
-            //    CARBON.showWarningDialog("<fmt:message key="workflow.warn.select.an.template"/>" , null ,null) ;
-            //}
-
+            if($('#id_workflow_name').val().length > 0){
+                workflowForm.submit();
+            }else{
+                CARBON.showWarningDialog("<fmt:message key="workflow.error.empty.workflow.name"/>" , null ,null) ;
+            }
         }
 
     </script>
@@ -156,19 +100,15 @@
                         <td class="formRow">
                             <table class="normal">
                                 <tr>
-                                    <td width="30%"><fmt:message key='workflow.name'/></td>
-                                    <td><input type="text" name="<%=WorkflowUIConstants.PARAM_WORKFLOW_NAME%>"
-                                               value="<%=workflowName != null ? workflowName : ""%>"
-                                               style="min-width: 30%"/>
+                                    <td width="130px"><fmt:message key='workflow.name'/></td>
+                                    <td>
+                                        <input size="30" id="id_workflow_name" type="text" name="<%=WorkflowUIConstants.PARAM_WORKFLOW_NAME%>" value="<%=workflowName != null ? workflowName : ""%>" style="min-width: 30%"/>
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td width="30%"><fmt:message key='workflow.description'/></td>
-                                    <td><textarea name="<%=WorkflowUIConstants.PARAM_WORKFLOW_DESCRIPTION%>"
-                                                  style="min-width: 30%"
-                                            ><%=workflowDescription != null ? workflowDescription : ""%></textarea>
-                                            <%--do not leave any space/newlines between textarea start and close tags,
-                                            it will display those also if any--%>
+                                    <td><fmt:message key='workflow.description'/></td>
+                                    <td>
+                                        <textarea name="<%=WorkflowUIConstants.PARAM_WORKFLOW_DESCRIPTION%>" cols="60" rows="4"><%=workflowDescription != null ? workflowDescription : ""%></textarea>
                                     </td>
                                 </tr>
                             </table>
@@ -177,8 +117,7 @@
                     <tr>
                         <td class="buttonRow">
                             <input onclick="submitPage();" class="button" value="<fmt:message key="next"/>" type="button"/>
-                            <input class="button" value="<fmt:message key="cancel"/>" type="button"
-                                   onclick="doCancel();"/>
+                            <input class="button" value="<fmt:message key="cancel"/>" type="button" onclick="doCancel();"/>
                         </td>
                     </tr>
                 </table>
