@@ -29,6 +29,9 @@ public class WorkflowUIConstants {
     public static final String ACTION_VALUE_EDIT = "edit";
     public static final String ACTION_VALUE_DEPLOY = "deploy";
     public static final String ACTION_VALUE_DELETE = "delete";
+    public static final String ACTION_VALUE_UPDATE = "update";
+    public static final String ACTION_VALUE_ENABLE = "enable";
+    public static final String ACTION_VALUE_DISABLE = "disable";
     public static final String ACTION_VALUE_DELETE_ASSOCIATION = "deleteAssociation";
     public static final String ACTION_VALUE_ADD_ASSOCIATION = "addAssociation";
 
@@ -43,6 +46,7 @@ public class WorkflowUIConstants {
     public static final String PARAM_WORKFLOW_TEMPLATE = "workflowTemplate";
     public static final String VALUE_EXISTING_SERVICE = "EXISTING";
     public static final String PARAM_OPERATION = "operation";
+    public static final String PARAM_OPERATION_CATEGORY = "opertaionCategory";
 
     public static final String PARAM_BPS_PROFILE_NAME = "bpsProfileName";
     public static final String PARAM_BPS_HOST = "bpsHost";
@@ -75,5 +79,6 @@ public class WorkflowUIConstants {
         public static final String USER_ROLE = "USER_ROLE";
         public static final String USER_NAME = "USER_NAME";
         public static final String BPS_PROFILE = "BPS_PROFILE";
+        public static final String USER_NAME_OR_USER_ROLE = "USER_NAME_OR_USER_ROLE";
     }
 }
