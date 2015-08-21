@@ -20,6 +20,7 @@ package org.wso2.carbon.user.mgt.workflow.userstore;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.identity.core.AbstractIdentityUserOperationEventListener;
 import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
@@ -31,13 +32,13 @@ import org.wso2.carbon.user.core.common.AbstractUserOperationEventListener;
 
 import java.util.Map;
 
-public class UserStoreActionListener extends AbstractUserOperationEventListener {
+public class UserStoreActionListener extends AbstractIdentityUserOperationEventListener {
 
     private static Log log = LogFactory.getLog(UserStoreActionListener.class);
 
     @Override
     public int getExecutionOrderId() {
-        int orderId = IdentityUtil.readEventListenerOrderIDs("UserOperationEventListener", "org.wso2.carbon.identity.workflow.mgt.impl.userstore.UserStoreActionListener");
+        int orderId = getOrderId(UserStoreActionListener.class.getName());
         if (orderId != IdentityCoreConstants.EVENT_LISTENER_ORDER_ID) {
             return orderId;
         }
@@ -47,6 +48,10 @@ public class UserStoreActionListener extends AbstractUserOperationEventListener 
     @Override
     public boolean doPreAddUser(String userName, Object credential, String[] roleList, Map<String, String> claims,
                                 String profile, UserStoreManager userStoreManager) throws UserStoreException {
+        if (!isEnable(this.getClass().getName())) {
+            return true;
+        }
+
         try {
             String domain = userStoreManager.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig
                     .PROPERTY_DOMAIN_NAME);
@@ -82,6 +87,10 @@ public class UserStoreActionListener extends AbstractUserOperationEventListener 
 
     @Override
     public boolean doPreDeleteUser(String userName, UserStoreManager userStoreManager) throws UserStoreException {
+        if (!isEnable(this.getClass().getName())) {
+            return true;
+        }
+
         String domain = userStoreManager.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig
                 .PROPERTY_DOMAIN_NAME);
         try {
@@ -95,6 +104,10 @@ public class UserStoreActionListener extends AbstractUserOperationEventListener 
     @Override
     public boolean doPreSetUserClaimValue(String userName, String claimURI, String claimValue, String profileName,
                                           UserStoreManager userStoreManager) throws UserStoreException {
+        if (!isEnable(this.getClass().getName())) {
+            return true;
+        }
+
         String domain = userStoreManager.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig
                 .PROPERTY_DOMAIN_NAME);
         try {
@@ -109,6 +122,10 @@ public class UserStoreActionListener extends AbstractUserOperationEventListener 
     @Override
     public boolean doPreSetUserClaimValues(String userName, Map<String, String> claims, String profileName,
                                            UserStoreManager userStoreManager) throws UserStoreException {
+        if (!isEnable(this.getClass().getName())) {
+            return true;
+        }
+
         String domain = userStoreManager.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig
                 .PROPERTY_DOMAIN_NAME);
         try {
@@ -123,6 +140,10 @@ public class UserStoreActionListener extends AbstractUserOperationEventListener 
     @Override
     public boolean doPreDeleteUserClaimValues(String userName, String[] claims, String profileName, UserStoreManager
             userStoreManager) throws UserStoreException {
+        if (!isEnable(this.getClass().getName())) {
+            return true;
+        }
+
         String domain = userStoreManager.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig
                 .PROPERTY_DOMAIN_NAME);
         try {
@@ -137,6 +158,10 @@ public class UserStoreActionListener extends AbstractUserOperationEventListener 
     @Override
     public boolean doPreDeleteUserClaimValue(String userName, String claimURI, String profileName,
                                              UserStoreManager userStoreManager) throws UserStoreException {
+        if (!isEnable(this.getClass().getName())) {
+            return true;
+        }
+
         String domain = userStoreManager.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig
                 .PROPERTY_DOMAIN_NAME);
         try {
@@ -151,6 +176,10 @@ public class UserStoreActionListener extends AbstractUserOperationEventListener 
     @Override
     public boolean doPreAddRole(String roleName, String[] userList, Permission[] permissions, UserStoreManager
             userStoreManager) throws UserStoreException {
+        if (!isEnable(this.getClass().getName())) {
+            return true;
+        }
+
         String domain = userStoreManager.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig
                 .PROPERTY_DOMAIN_NAME);
         try {
@@ -163,6 +192,10 @@ public class UserStoreActionListener extends AbstractUserOperationEventListener 
 
     @Override
     public boolean doPreDeleteRole(String roleName, UserStoreManager userStoreManager) throws UserStoreException {
+        if (!isEnable(this.getClass().getName())) {
+            return true;
+        }
+
         String domain = userStoreManager.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig
                 .PROPERTY_DOMAIN_NAME);
         try {
@@ -176,6 +209,10 @@ public class UserStoreActionListener extends AbstractUserOperationEventListener 
     @Override
     public boolean doPreUpdateRoleName(String roleName, String newRoleName, UserStoreManager userStoreManager) throws
             UserStoreException {
+        if (!isEnable(this.getClass().getName())) {
+            return true;
+        }
+
         String domain = userStoreManager.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig
                 .PROPERTY_DOMAIN_NAME);
         try {
@@ -190,6 +227,10 @@ public class UserStoreActionListener extends AbstractUserOperationEventListener 
     @Override
     public boolean doPreUpdateUserListOfRole(String roleName, String[] deletedUsers, String[] newUsers, UserStoreManager
             userStoreManager) throws UserStoreException {
+        if (!isEnable(this.getClass().getName())) {
+            return true;
+        }
+
         String domain = userStoreManager.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig
                 .PROPERTY_DOMAIN_NAME);
         try {
@@ -204,6 +245,10 @@ public class UserStoreActionListener extends AbstractUserOperationEventListener 
     @Override
     public boolean doPreUpdateRoleListOfUser(String userName, String[] deletedRoles, String[] newRoles, UserStoreManager
             userStoreManager) throws UserStoreException {
+        if (!isEnable(this.getClass().getName())) {
+            return true;
+        }
+
         String domain = userStoreManager.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig
                 .PROPERTY_DOMAIN_NAME);
         try {

@@ -21,7 +21,7 @@ package org.wso2.carbon.identity.workflow.mgt.bean;
 import java.io.Serializable;
 import java.util.List;
 
-public class WorkFlowRequest implements Serializable {
+public class WorkFlowRequest implements Serializable, Cloneable {
     private String uuid;
     private String eventType;
     private int tenantId;
@@ -67,5 +67,25 @@ public class WorkFlowRequest implements Serializable {
                 ", tenantId=" + tenantId + '\n' +
                 ", workflowParameters=" + requestParameters + '\n' +
                 '}';
+    }
+
+    public String getRequestParameterAsString() {
+
+        String requestParametersString = "{";
+        for (int i = 0; i < requestParameters.size(); i++) {
+            requestParametersString = requestParametersString + requestParameters.get(i).getName() + " : " +
+                    requestParameters.get(i).getValue();
+            if (i != requestParameters.size() - 1) {
+                requestParametersString = requestParametersString + ", \n";
+            }
+        }
+        requestParametersString = requestParametersString + "}";
+        return requestParametersString;
+    }
+
+    @Override
+    public WorkFlowRequest clone() throws CloneNotSupportedException {
+
+        return (WorkFlowRequest) (super.clone());
     }
 }
