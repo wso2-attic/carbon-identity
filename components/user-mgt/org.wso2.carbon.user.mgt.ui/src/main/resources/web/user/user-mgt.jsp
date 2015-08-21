@@ -1,19 +1,19 @@
 <%--
-  Copyright (c) 2015 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-
-   WSO2 Inc. licenses this file to you under the Apache License,
-   Version 2.0 (the "License"); you may not use this file except
-   in compliance with the License.
-   You may obtain a copy of the License at
-
-   http://www.apache.org/licenses/LICENSE-2.0
-
-   Unless required by applicable law or agreed to in writing,
-   software distributed under the License is distributed on an
-   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-   KIND, either express or implied.  See the License for the
-   specific language governing permissions and limitations
-   under the License.
+  ~ Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+  ~
+  ~ WSO2 Inc. licenses this file to you under the Apache License,
+  ~ Version 2.0 (the "License"); you may not use this file except
+  ~ in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied.  See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
   --%>
 
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
@@ -37,6 +37,11 @@
 <%@ page import="java.util.List" %>
 <%@ page import="java.util.Map" %>
 <%@ page import="java.util.ResourceBundle" %>
+<%@ page import="org.wso2.carbon.user.mgt.workflow.ui.UserManagementWorkflowServiceClient" %>
+<%@ page import="java.util.Set" %>
+<%@ page import="java.util.Iterator" %>
+<%@ page import="java.util.LinkedHashSet" %>
+<%@ page import="org.wso2.carbon.context.CarbonContext" %>
 <script type="text/javascript" src="../userstore/extensions/js/vui.js"></script>
 <script type="text/javascript" src="../admin/js/main.js"></script>
 
@@ -50,7 +55,7 @@
     boolean showFilterMessage = false;
     boolean multipleUserStores = false;
     String forwardTo = "user-mgt.jsp";
-               
+
     FlaggedName[] datas = null;
     FlaggedName exceededDomains = null;
     String[] claimUris = null;
@@ -60,10 +65,15 @@
     int cachePages = 3;
     int noOfPageLinksToDisplay = 5;
     int numberOfPages = 0;
-    Map<Integer, PaginatedNamesBean>  flaggedNameMap = null;
+    Map<Integer, PaginatedNamesBean> flaggedNameMap = null;
+    Set<String> workFlowAddPendingUsers = null;
+    Set<String> workFlowDeletePendingUsers = null;
+    Set<FlaggedName> activeUserList = null;
+    Set<FlaggedName> showDeletePendingUsers = new LinkedHashSet<FlaggedName>();
+    String inActiveUserMessage = "No Actions are allowed for the Workflow Pending Users";
 
     String BUNDLE = "org.wso2.carbon.userstore.ui.i18n.Resources";
-    ResourceBundle resourceBundle = ResourceBundle.getBundle(BUNDLE, request.getLocale());    
+    ResourceBundle resourceBundle = ResourceBundle.getBundle(BUNDLE, request.getLocale());
 
     // remove session data
     session.removeAttribute("userBean");
@@ -77,9 +87,9 @@
     session.removeAttribute(UserAdminUIConstants.USER_LIST_ASSIGN_ROLE_FILTER);
     session.removeAttribute(UserAdminUIConstants.USER_LIST_UNASSIGNED_ROLE_FILTER);
     session.removeAttribute(UserAdminUIConstants.USER_LIST_VIEW_ROLE_FILTER);
-	session.removeAttribute(UserAdminUIConstants.USER_LIST_CACHE);
+    session.removeAttribute(UserAdminUIConstants.USER_LIST_CACHE);
 
-     // retrieve session attributes
+    // retrieve session attributes
     String currentUser = (String) session.getAttribute("logged-user");
     UserRealmInfo userRealmInfo = (UserRealmInfo) session.getAttribute(UserAdminUIConstants.USER_STORE_INFO);
     if (userRealmInfo != null) {
@@ -91,12 +101,12 @@
     if (claimUri == null || claimUri.length() == 0) {
         claimUri = (java.lang.String) session.getAttribute(UserAdminUIConstants.USER_CLAIM_FILTER);
     }
-    session.setAttribute(UserAdminUIConstants.USER_CLAIM_FILTER,claimUri);
+    session.setAttribute(UserAdminUIConstants.USER_CLAIM_FILTER, claimUri);
     exceededDomains = (FlaggedName) session.getAttribute(UserAdminUIConstants.USER_LIST_CACHE_EXCEEDED);
 
     //  search filter
     String selectedDomain = request.getParameter("domain");
-    if(selectedDomain == null || selectedDomain.trim().length() == 0){
+    if (selectedDomain == null || selectedDomain.trim().length() == 0) {
         selectedDomain = (String) session.getAttribute(UserAdminUIConstants.USER_LIST_DOMAIN_FILTER);
         if (selectedDomain == null || selectedDomain.trim().length() == 0) {
             selectedDomain = UserAdminUIConstants.ALL_DOMAINS;
@@ -114,7 +124,7 @@
             filter = "*";
         }
     } else {
-        if(filter.contains(UserAdminUIConstants.DOMAIN_SEPARATOR)){
+        if (filter.contains(UserAdminUIConstants.DOMAIN_SEPARATOR)) {
             selectedDomain = UserAdminUIConstants.ALL_DOMAINS;
             session.removeAttribute(UserAdminUIConstants.USER_LIST_DOMAIN_FILTER);
         }
@@ -122,7 +132,7 @@
     }
     String userDomainSelector;
     String modifiedFilter = filter.trim();
-    if(!UserAdminUIConstants.ALL_DOMAINS.equalsIgnoreCase(selectedDomain)){
+    if (!UserAdminUIConstants.ALL_DOMAINS.equalsIgnoreCase(selectedDomain)) {
         modifiedFilter = selectedDomain + UserAdminUIConstants.DOMAIN_SEPARATOR + filter;
         modifiedFilter = modifiedFilter.trim();
         userDomainSelector = selectedDomain + UserAdminUIConstants.DOMAIN_SEPARATOR + "*";
@@ -138,7 +148,7 @@
         pageNumberStr = "0";
     }
 
-    if(userRealmInfo != null){
+    if (userRealmInfo != null) {
         claimUris = userRealmInfo.getRequiredUserClaims();
     }
 
@@ -147,13 +157,13 @@
     } catch (NumberFormatException ignored) {
         // page number format exception
     }
-    
-    flaggedNameMap  = (Map<Integer, PaginatedNamesBean>) session.getAttribute(UserAdminUIConstants.USER_LIST_CACHE);
-    if(flaggedNameMap != null){
+
+    flaggedNameMap = (Map<Integer, PaginatedNamesBean>) session.getAttribute(UserAdminUIConstants.USER_LIST_CACHE);
+    if (flaggedNameMap != null) {
         PaginatedNamesBean bean = flaggedNameMap.get(pageNumber);
-        if(bean != null){
+        if (bean != null) {
             users = bean.getNames();
-            if(users != null && users.length > 0){
+            if (users != null && users.length > 0) {
                 numberOfPages = bean.getNumberOfPages();
                 doUserList = false;
             }
@@ -170,17 +180,19 @@
             java.lang.String cookie = (java.lang.String) session
                     .getAttribute(ServerConstants.ADMIN_SERVICE_COOKIE);
             java.lang.String backendServerURL = CarbonUIUtil.getServerURL(config.getServletContext(),
-                                                                          session);
+                    session);
             ConfigurationContext configContext = (ConfigurationContext) config
                     .getServletContext()
                     .getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
-            UserAdminClient client =  new UserAdminClient(cookie, backendServerURL, configContext);
+            UserAdminClient client = new UserAdminClient(cookie, backendServerURL, configContext);
+            UserManagementWorkflowServiceClient UserMgtClient = new
+                    UserManagementWorkflowServiceClient(cookie, backendServerURL, configContext);
             if (userRealmInfo == null) {
                 userRealmInfo = client.getUserRealmInfo();
                 session.setAttribute(UserAdminUIConstants.USER_STORE_INFO, userRealmInfo);
             }
 
-            if(userRealmInfo != null){
+            if (userRealmInfo != null) {
                 claimUris = userRealmInfo.getDefaultUserClaims();
             }
 
@@ -200,44 +212,67 @@
                     session.removeAttribute(UserAdminUIConstants.USER_LIST_FILTER);
                     showFilterMessage = true;
                 }
-
-                if(dataList != null){
+                if (dataList != null) {
                     flaggedNameMap = new HashMap<Integer, PaginatedNamesBean>();
                     int max = pageNumber + cachePages;
-                    for(int i = (pageNumber - cachePages); i < max ; i++){
-                        if(i < 0){
+                    for (int i = (pageNumber - cachePages); i < max; i++) {
+                        if (i < 0) {
                             max++;
                             continue;
                         }
-                        PaginatedNamesBean bean  =  Util.retrievePaginatedFlaggedName(i,dataList);
+                        PaginatedNamesBean bean = Util.retrievePaginatedFlaggedName(i, dataList);
                         flaggedNameMap.put(i, bean);
-                        if(bean.getNumberOfPages() == i + 1){
+                        if (bean.getNumberOfPages() == i + 1) {
                             break;
                         }
                     }
                     users = flaggedNameMap.get(pageNumber).getNames();
+                    activeUserList = new LinkedHashSet<FlaggedName>(Arrays.asList(users));
                     numberOfPages = flaggedNameMap.get(pageNumber).getNumberOfPages();
                     session.setAttribute(UserAdminUIConstants.USER_LIST_CACHE, flaggedNameMap);
+
                 }
             }
-            
+            if (CarbonUIUtil.isContextRegistered(config, "/usermgt-workflow/")) {
+
+                String[] AddPendingUsersList = UserMgtClient.
+                        listAllEntityNames("ADD_USER", "PENDING", "USER");
+                workFlowAddPendingUsers = new LinkedHashSet<String>(Arrays.asList(AddPendingUsersList));
+
+                String[] DeletePendingUsersList = UserMgtClient.
+                        listAllEntityNames("DELETE_USER", "PENDING", "USER");
+                workFlowDeletePendingUsers = new LinkedHashSet<String>(Arrays.asList(DeletePendingUsersList));
+
+                for (Iterator<FlaggedName> iterator = activeUserList.iterator(); iterator.hasNext(); ) {
+                    FlaggedName flaggedName = iterator.next();
+                    if (flaggedName == null) {
+                        continue;
+                    }
+                    String userName = CharacterEncoder.getSafeText(flaggedName.getItemName());
+                    if (workFlowDeletePendingUsers.contains(userName)) {
+                        showDeletePendingUsers.add(flaggedName);
+                        iterator.remove();
+                    }
+                }
+            }
+
         } catch (Exception e) {
-            String message =  MessageFormat.format(resourceBundle.getString("error.while.user.filtered"),
+            String message = MessageFormat.format(resourceBundle.getString("error.while.user.filtered"),
                     e.getMessage());
 %>
-        <script type="text/javascript">
+<script type="text/javascript">
 
-            jQuery(document).ready(function () {
-                CARBON.showErrorDialog('<%=message%>', null);
-            });
-        </script>
+    jQuery(document).ready(function () {
+        CARBON.showErrorDialog('<%=message%>', null);
+    });
+</script>
 <%
         }
     }
 
-    if(userRealmInfo != null){
+    if (userRealmInfo != null) {
         domainNames = userRealmInfo.getDomainNames();
-        if(domainNames != null){
+        if (domainNames != null) {
             List<String> list = new ArrayList<String>(Arrays.asList(domainNames));
             list.add(UserAdminUIConstants.ALL_DOMAINS);
             domainNames = list.toArray(new String[list.size()]);
@@ -273,45 +308,49 @@
         <div id="workArea">
             <form name="filterForm" method="post" action="user-mgt.jsp">
                 <table class="styledLeft noBorders">
-				<thead>
-					<tr>
-						<th colspan="2"><fmt:message key="user.search"/></th>
-					</tr>
-				</thead>
-				<tbody>
+                    <thead>
+                    <tr>
+                        <th colspan="2"><fmt:message key="user.search"/></th>
+                    </tr>
+                    </thead>
+                    <tbody>
 
-                <%
-                   if(domainNames != null && domainNames.length > 0){
-                %>
-                <tr>
-                    <td class="leftCol-big" style="padding-right: 0 !important;"><fmt:message key="select.domain.search"/></td>
-                    <td><select id="domain" name="domain">
-                        <%
-                            for(String domainName : domainNames) {
-                                if(selectedDomain.equals(domainName)) {
-                        %>
-                            <option selected="selected" value="<%=domainName%>"><%=domainName%></option>
-                        <%
-                                } else {
-                        %>
-                            <option value="<%=domainName%>"><%=domainName%></option>
-                        <%
+                    <%
+                        if (domainNames != null && domainNames.length > 0) {
+                    %>
+                    <tr>
+                        <td class="leftCol-big" style="padding-right: 0 !important;"><fmt:message
+                                key="select.domain.search"/></td>
+                        <td><select id="domain" name="domain">
+                            <%
+                                for (String domainName : domainNames) {
+                                    if (selectedDomain.equals(domainName)) {
+                            %>
+                            <option selected="selected" value="<%=domainName%>"><%=domainName%>
+                            </option>
+                            <%
+                            } else {
+                            %>
+                            <option value="<%=domainName%>"><%=domainName%>
+                            </option>
+                            <%
+                                    }
                                 }
-                            }
-                        %>
-                    </select>
-                    </td>
-                </tr>
-                <%
-                    }
-                %>
+                            %>
+                        </select>
+                        </td>
+                    </tr>
+                    <%
+                        }
+                    %>
 
                     <tr>
-                        <td class="leftCol-big" style="padding-right: 0 !important;"><fmt:message key="list.users"/></td>
+                        <td class="leftCol-big" style="padding-right: 0 !important;"><fmt:message
+                                key="list.users"/></td>
                         <td>
                             <input type="text" name="<%=UserAdminUIConstants.USER_LIST_FILTER%>"
                                    value="<%=filter%>"/>
-                      
+
                             <input class="button" type="submit"
                                    value="<fmt:message key="user.search"/>"/>
                         </td>
@@ -321,16 +360,18 @@
                         <td><select id="claimUri" name="claimUri">
                             <option value="Select" selected="selected">Select</option>
                             <%
-                                if(claimUris != null){
+                                if (claimUris != null) {
 
-                                    for(String claim : claimUris) {
-                                        if(claimUri != null && claim.equals(claimUri)) {
+                                    for (String claim : claimUris) {
+                                        if (claimUri != null && claim.equals(claimUri)) {
                             %>
-                                    <option selected="selected" value="<%=claim%>"><%=claim%></option>
+                            <option selected="selected" value="<%=claim%>"><%=claim%>
+                            </option>
                             <%
-                                        } else {
+                            } else {
                             %>
-                                    <option value="<%=claim%>"><%=claim%></option>
+                            <option value="<%=claim%>"><%=claim%>
+                            </option>
                             <%
                                         }
                                     }
@@ -352,7 +393,7 @@
             <table class="styledLeft" id="userTable">
 
                 <%
-                    if (users != null && users.length > 0) {
+                    if (activeUserList != null && activeUserList.size() > 0) {
                 %>
                 <thead>
                 <tr>
@@ -365,58 +406,61 @@
                 %>
                 <tbody>
                 <%
-                    if (users != null) {
-                        for (int i=0;i<users.length;i++) {
-                            if (users[i] != null) { //Confusing!!. Sometimes a null object comes. Maybe a bug Axis!!
-                                if (users[i].getItemName().equals(CarbonConstants.REGISTRY_ANONNYMOUS_USERNAME)) {
+                    if (activeUserList != null) {
+                        for (Iterator<FlaggedName> iterator = activeUserList.iterator(); iterator.hasNext(); ) {
+                            FlaggedName flaggedName = iterator.next();
+                            if (flaggedName != null) { //Confusing!!. Sometimes a null object comes. Maybe a bug Axis!!
+                                if (flaggedName.getItemName().equals(CarbonConstants.REGISTRY_ANONNYMOUS_USERNAME)) {
                                     continue;
                                 }
-                                String  userName = CharacterEncoder.getSafeText(users[i].getItemName());
-                                String disPlayName = CharacterEncoder.getSafeText(users[i].getItemDisplayName());
-                                if(disPlayName == null || disPlayName.trim().length() == 0){
+                                String userName = CharacterEncoder.getSafeText(flaggedName.getItemName());
+                                String disPlayName = CharacterEncoder.getSafeText(flaggedName.getItemDisplayName());
+                                if (disPlayName == null || disPlayName.trim().length() == 0) {
                                     disPlayName = userName;
                                 }
                 %>
                 <tr>
                     <td><%=disPlayName%>
-                        <%if(!users[i].getEditable()){ %> <%="(Read-Only)"%> <% } %>
+                        <%if (!flaggedName.getEditable()) { %> <%="(Read-Only)"%> <% } %>
                     </td>
                     <td>
 
                         <%
-                            if(userRealmInfo.getAdminUser().equals(Util.decodeHTMLCharacters(userName)) &&
-                                    !userRealmInfo.getAdminUser().equals(currentUser)){
+                            if (userRealmInfo.getAdminUser().equals(Util.decodeHTMLCharacters(userName)) &&
+                                    !userRealmInfo.getAdminUser().equals(currentUser)) {
                                 continue;
                             }
                         %>
                         <%
                             if (!Util.getUserStoreInfoForUser(Util.decodeHTMLCharacters(userName), userRealmInfo).getPasswordsExternallyManaged() &&      // TODO
-                                CarbonUIUtil.isUserAuthorized(request,
-                                         "/permission/admin/configure/security/usermgt/passwords") &&
-                                    users[i].getEditable()) { //if passwords are managed externally do not allow to change passwords.
-                            	if(Util.decodeHTMLCharacters(userName).equals(currentUser)){
+                                    CarbonUIUtil.isUserAuthorized(request,
+                                            "/permission/admin/configure/security/usermgt/passwords") &&
+                                    flaggedName.getEditable()) { //if passwords are managed externally do not allow to change passwords.
+                                if (Util.decodeHTMLCharacters(userName).equals(currentUser)) {
                         %>
                         <a href="change-passwd.jsp?isUserChange=true&returnPath=user-mgt.jsp" class="icon-link"
                            style="background-image:url(../admin/images/edit.gif);"><fmt:message
                                 key="change.password"/></a>
-                                
-                        <% 
-                            	}else{
+
+                        <%
+                        } else {
                         %>
-                        
-                        <a href="change-passwd.jsp?username=<%=java.net.URLEncoder.encode(userName,"UTF-8")%>&disPlayName=<%=java.net.URLEncoder.encode(disPlayName,"UTF-8")%>" class="icon-link"
+
+                        <a href="change-passwd.jsp?username=<%=java.net.URLEncoder.encode(userName,"UTF-8")%>&disPlayName=<%=java.net.URLEncoder.encode(disPlayName,"UTF-8")%>"
+                           class="icon-link"
                            style="background-image:url(../admin/images/edit.gif);"><fmt:message
                                 key="change.password"/></a>
                         <%
-                            	}
+                                }
                             }
                         %>
 
                         <%
-                            if(CarbonUIUtil.isUserAuthorized(request, "/permission/admin/configure/security")){
+                            if (CarbonUIUtil.isUserAuthorized(request, "/permission/admin/configure/security")) {
                         %>
                         <a href="edit-user-roles.jsp?username=<%=
-                        java.net.URLEncoder.encode(userName,"UTF-8")%>&disPlayName=<%=java.net.URLEncoder.encode(disPlayName,"UTF-8")%>" class="icon-link"
+                        java.net.URLEncoder.encode(userName,"UTF-8")%>&disPlayName=<%=java.net.URLEncoder.encode(disPlayName,"UTF-8")%>"
+                           class="icon-link"
                            style="background-image:url(../admin/images/edit.gif);"><fmt:message
                                 key="edit.roles"/></a>
                         <%
@@ -424,9 +468,10 @@
                         %>
 
                         <%
-                            if(CarbonUIUtil.isUserAuthorized(request, "/permission/admin/configure/security")){
+                            if (CarbonUIUtil.isUserAuthorized(request, "/permission/admin/configure/security")) {
                         %>
-                        <a href="view-roles.jsp?username=<%=java.net.URLEncoder.encode(userName,"UTF-8")%>&disPlayName=<%=java.net.URLEncoder.encode(disPlayName,"UTF-8")%>" class="icon-link"
+                        <a href="view-roles.jsp?username=<%=java.net.URLEncoder.encode(userName,"UTF-8")%>&disPlayName=<%=java.net.URLEncoder.encode(disPlayName,"UTF-8")%>"
+                           class="icon-link"
                            style="background-image:url(images/view.gif);"><fmt:message
                                 key="view.roles"/></a>
                         <%
@@ -436,40 +481,41 @@
 
                         <%
                             if (CarbonUIUtil.isUserAuthorized(request,
-                                "/permission/admin/configure/security/usermgt/users") && !Util.decodeHTMLCharacters(userName).equals(currentUser)
-                                && !Util.decodeHTMLCharacters(userName).equals(userRealmInfo.getAdminUser()) &&
-                                    users[i].getEditable()) {
+                                    "/permission/admin/configure/security/usermgt/users") && !Util.decodeHTMLCharacters(userName).equals(currentUser)
+                                    && !Util.decodeHTMLCharacters(userName).equals(userRealmInfo.getAdminUser()) &&
+                                    flaggedName.getEditable()) {
                         %>
-                        <a href="#" onclick="deleteUser('<%=java.net.URLEncoder.encode(userName,"UTF-8")%>')" class="icon-link"
+                        <a href="#" onclick="deleteUser('<%=java.net.URLEncoder.encode(userName,"UTF-8")%>')"
+                           class="icon-link"
                            style="background-image:url(images/delete.gif);"><fmt:message
                                 key="delete"/></a>
                         <%
-                                }
+                            }
                         %>
 
 
                         <%
-                            if (CarbonUIUtil.isContextRegistered(config, "/identity-authorization/" ) &&
+                            if (CarbonUIUtil.isContextRegistered(config, "/identity-authorization/") &&
                                     CarbonUIUtil.isUserAuthorized(request, "/permission/admin/configure/security/")) {
                         %>
-                            <a href="../identity-authorization/permission-root.jsp?userName=<%=java.net.URLEncoder.encode(userName,"UTF-8")%>&fromUserMgt=true"
-                               class="icon-link"
-                               style="background-image:url(../admin/images/edit.gif);"><fmt:message key="authorization"/></a>
+                        <a href="../identity-authorization/permission-root.jsp?userName=<%=java.net.URLEncoder.encode(userName,"UTF-8")%>&fromUserMgt=true"
+                           class="icon-link"
+                           style="background-image:url(../admin/images/edit.gif);"><fmt:message
+                                key="authorization"/></a>
                         <%
                             }
-                         %>
-
+                        %>
 
 
                         <%
                             if (CarbonUIUtil.isContextRegistered(config, "/userprofile/")
-                                && CarbonUIUtil.isUserAuthorized(request,
-                                                                 "/permission/admin/configure/security/usermgt/profiles")) {
+                                    && CarbonUIUtil.isUserAuthorized(request,
+                                    "/permission/admin/configure/security/usermgt/profiles")) {
                         %>
                         <a href="../userprofile/index.jsp?username=<%=java.net.URLEncoder.encode(userName,"UTF-8")%>&disPlayName=<%=java.net.URLEncoder.encode(disPlayName,"UTF-8")%>&fromUserMgt=true"
                            class="icon-link"
                            style="background-image:url(../userprofile/images/my-prof.gif);">User
-                                                                                            Profile</a>
+                            Profile</a>
                         <%
                             }
                         %>
@@ -481,6 +527,138 @@
                         }
                     }
                 %>
+
+                <%
+                    if (showDeletePendingUsers != null) {
+                        for (Iterator<FlaggedName> iterator = showDeletePendingUsers.iterator(); iterator.hasNext(); ) {
+                            FlaggedName flaggedName = iterator.next();
+                            if (flaggedName != null) { //Confusing!!. Sometimes a null object comes. Maybe a bug Axis!!
+                                if (flaggedName.getItemName().equals(CarbonConstants.REGISTRY_ANONNYMOUS_USERNAME)) {
+                                    continue;
+                                }
+                                String userName = CharacterEncoder.getSafeText(flaggedName.getItemName());
+                                String disPlayName = CharacterEncoder.getSafeText(flaggedName.getItemDisplayName()) +
+                                        " " + "[Pending Users for Delete]";
+                                if (disPlayName == null || disPlayName.trim().length() == 0) {
+                                    disPlayName = userName;
+                                }
+                %>
+                <tr>
+                    <td><%=disPlayName%>
+                        <%if (!flaggedName.getEditable()) { %> <%="(Read-Only)"%> <% } %>
+                    </td>
+                    <td>
+
+                        <%
+                            if (userRealmInfo.getAdminUser().equals(Util.decodeHTMLCharacters(userName)) &&
+                                    !userRealmInfo.getAdminUser().equals(currentUser)) {
+                                continue;
+                            }
+                        %>
+                        <%
+                            if (!Util.getUserStoreInfoForUser(Util.decodeHTMLCharacters(userName), userRealmInfo).getPasswordsExternallyManaged() &&      // TODO
+                                    CarbonUIUtil.isUserAuthorized(request,
+                                            "/permission/admin/configure/security/usermgt/passwords") &&
+                                    flaggedName.getEditable()) { //if passwords are managed externally do not allow to change passwords.
+                                if (Util.decodeHTMLCharacters(userName).equals(currentUser)) {
+                        %>
+                        <a href="change-passwd.jsp?isUserChange=true&returnPath=user-mgt.jsp" class="icon-link"
+                           style="background-image:url(../admin/images/edit.gif);"><fmt:message
+                                key="change.password"/></a>
+
+                        <%
+                        } else {
+                        %>
+
+                        <a href="change-passwd.jsp?username=<%=java.net.URLEncoder.encode(userName,"UTF-8")%>&disPlayName=<%=java.net.URLEncoder.encode(disPlayName,"UTF-8")%>"
+                           class="icon-link"
+                           style="background-image:url(../admin/images/edit.gif);"><fmt:message
+                                key="change.password"/></a>
+                        <%
+                                }
+                            }
+                        %>
+
+                        <%
+                            if (CarbonUIUtil.isUserAuthorized(request, "/permission/admin/configure/security")) {
+                        %>
+                        <a href="edit-user-roles.jsp?username=<%=
+                        java.net.URLEncoder.encode(userName,"UTF-8")%>&disPlayName=<%=java.net.URLEncoder.encode(disPlayName,"UTF-8")%>"
+                           class="icon-link"
+                           style="background-image:url(../admin/images/edit.gif);"><fmt:message
+                                key="edit.roles"/></a>
+                        <%
+                            }
+                        %>
+
+                        <%
+                            if (CarbonUIUtil.isUserAuthorized(request, "/permission/admin/configure/security")) {
+                        %>
+                        <a href="view-roles.jsp?username=<%=java.net.URLEncoder.encode(userName,"UTF-8")%>&disPlayName=<%=java.net.URLEncoder.encode(disPlayName,"UTF-8")%>"
+                           class="icon-link"
+                           style="background-image:url(images/view.gif);"><fmt:message
+                                key="view.roles"/></a>
+                        <%
+                            }
+                        %>
+
+                        <%
+                            if (CarbonUIUtil.isContextRegistered(config, "/identity-authorization/") &&
+                                    CarbonUIUtil.isUserAuthorized(request, "/permission/admin/configure/security/")) {
+                        %>
+                        <a href="../identity-authorization/permission-root.jsp?userName=<%=java.net.URLEncoder.encode(userName,"UTF-8")%>&fromUserMgt=true"
+                           class="icon-link"
+                           style="background-image:url(../admin/images/edit.gif);"><fmt:message
+                                key="authorization"/></a>
+                        <%
+                            }
+                        %>
+
+
+                        <%
+                            if (CarbonUIUtil.isContextRegistered(config, "/userprofile/")
+                                    && CarbonUIUtil.isUserAuthorized(request,
+                                    "/permission/admin/configure/security/usermgt/profiles")) {
+                        %>
+                        <a href="../userprofile/index.jsp?username=<%=java.net.URLEncoder.encode(userName,"UTF-8")%>&disPlayName=<%=java.net.URLEncoder.encode(disPlayName,"UTF-8")%>&fromUserMgt=true"
+                           class="icon-link"
+                           style="background-image:url(../userprofile/images/my-prof.gif);">User
+                            Profile</a>
+                        <%
+                            }
+                        %>
+
+                    </td>
+                </tr>
+                <%
+                            }
+                        }
+                    }
+                %>
+
+                <%
+                    if (workFlowAddPendingUsers != null) {
+                        for (Iterator<String> iterator = workFlowAddPendingUsers.iterator(); iterator.hasNext(); ) {
+                            String user = iterator.next();
+                            if (user != null) { //Confusing!!. Sometimes a null object comes. Maybe a bug Axis!!
+                                if (user.equals(CarbonConstants.REGISTRY_ANONNYMOUS_USERNAME)) {
+                                    continue;
+                                }
+                                String disPlayName = user + " " + "[Pending Users for Add]";
+                %>
+                <tr>
+                    <td><%=disPlayName%>
+                    </td>
+                    <td>
+                        <%=inActiveUserMessage%>
+                    </td>
+                </tr>
+                <%
+                            }
+                        }
+                    }
+                %>
+
                 </tbody>
             </table>
             <carbon:paginator pageNumber="<%=pageNumber%>"
@@ -491,45 +669,47 @@
             <p>&nbsp;</p>
 
             <%
-                if (users != null && users.length > 0 && exceededDomains != null) {
-                    if(exceededDomains.getItemName() != null || exceededDomains.getItemDisplayName() != null){
+                if (activeUserList.size() > 0 && exceededDomains != null) {
+                    if (exceededDomains.getItemName() != null || exceededDomains.getItemDisplayName() != null) {
                         String message = null;
-                        if(exceededDomains.getItemName() != null && exceededDomains.getItemName().equals("true")){
-                            if(exceededDomains.getItemDisplayName() != null && !exceededDomains.getItemDisplayName().equals("")){
+                        if (exceededDomains.getItemName() != null && exceededDomains.getItemName().equals("true")) {
+                            if (exceededDomains.getItemDisplayName() != null && !exceededDomains.getItemDisplayName().equals("")) {
                                 String arg = "";
                                 String[] domains = exceededDomains.getItemDisplayName().split(":");
-                                for(int i=0;i<domains.length;i++){
-                                    arg += "\'"+domains[i]+"\'";
-                                    if(i < domains.length - 2){
+                                for (int i = 0; i < domains.length; i++) {
+                                    arg += "\'" + domains[i] + "\'";
+                                    if (i < domains.length - 2) {
                                         arg += ", ";
-                                    }else if(i == domains.length - 2){
+                                    } else if (i == domains.length - 2) {
                                         arg += " and ";
                                     }
                                 }
-                                message = resourceBundle.getString("more.users.others").replace("{0}",arg);
-                            } else{
+                                message = resourceBundle.getString("more.users.others").replace("{0}", arg);
+                            } else {
                                 message = resourceBundle.getString("more.users.primary");
                             }
-        %>
-                <strong><%=message%></strong>
-        <%
-                        }else if(exceededDomains.getItemDisplayName() != null && !exceededDomains.getItemDisplayName().equals("")){
-                            String[] domains = exceededDomains.getItemDisplayName().split(":");
-                            String arg = "";
-                            for(int i=0;i<domains.length;i++){
-                                arg += "\'"+domains[i]+"\'";
-                                if(i < domains.length - 2){
-                                    arg += ", ";
-                                }else if(i == domains.length - 2){
-                                    arg += " and ";
-                                }
-                            }
-                            message = resourceBundle.getString("more.users").replace("{0}",arg);
-        %>
-                <strong><%=message%></strong>
-        <%
+            %>
+            <strong><%=message%>
+            </strong>
+            <%
+            } else if (exceededDomains.getItemDisplayName() != null && !exceededDomains.getItemDisplayName().equals("")) {
+                String[] domains = exceededDomains.getItemDisplayName().split(":");
+                String arg = "";
+                for (int i = 0; i < domains.length; i++) {
+                    arg += "\'" + domains[i] + "\'";
+                    if (i < domains.length - 2) {
+                        arg += ", ";
+                    } else if (i == domains.length - 2) {
+                        arg += " and ";
+                    }
+                }
+                message = resourceBundle.getString("more.users").replace("{0}", arg);
+            %>
+            <strong><%=message%>
+            </strong>
+            <%
                         }
-                     }
+                    }
                 }
             %>
 
@@ -537,7 +717,7 @@
                 if ((multipleUserStores || !userRealmInfo.getPrimaryUserStoreInfo().getReadOnly())
                         && userRealmInfo.getPrimaryUserStoreInfo().getExternalIdP() == null
                         && CarbonUIUtil.isUserAuthorized(request,
-                                "/permission/admin/configure/security/usermgt/users")) {
+                        "/permission/admin/configure/security/usermgt/users")) {
             %>
             <table width="100%" border="0" cellpadding="0" cellspacing="0" style="margin-top:2px;">
 

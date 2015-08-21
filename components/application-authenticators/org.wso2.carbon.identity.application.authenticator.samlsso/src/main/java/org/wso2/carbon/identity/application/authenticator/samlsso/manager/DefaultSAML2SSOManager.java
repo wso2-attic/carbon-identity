@@ -81,6 +81,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.wso2.carbon.identity.application.authentication.framework.config.builder.FileBasedConfigurationBuilder;
 import org.wso2.carbon.identity.application.authentication.framework.context.AuthenticationContext;
+import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkConstants;
 import org.wso2.carbon.identity.application.authenticator.samlsso.exception.SAMLSSOException;
 import org.wso2.carbon.identity.application.authenticator.samlsso.util.CarbonEntityResolver;
 import org.wso2.carbon.identity.application.authenticator.samlsso.util.SSOConstants;
@@ -88,6 +89,7 @@ import org.wso2.carbon.identity.application.authenticator.samlsso.util.SSOUtils;
 import org.wso2.carbon.identity.application.common.model.ClaimMapping;
 import org.wso2.carbon.identity.application.common.model.IdentityProvider;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.ui.CarbonUIUtil;
 import org.wso2.carbon.base.MultitenantConstants;
 import org.xml.sax.SAXException;
@@ -502,8 +504,7 @@ public class DefaultSAML2SSOManager implements SAML2SSOManager {
         authRequest.setIssueInstant(issueInstant);
         authRequest.setProtocolBinding("urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST");
 
-        String acsUrl = CarbonUIUtil.getAdminConsoleURL(request);
-        acsUrl = acsUrl.replace("commonauth/carbon/", "commonauth");
+        String acsUrl =  IdentityUtil.getServerURL(FrameworkConstants.COMMONAUTH);
 
         authRequest.setAssertionConsumerServiceURL(acsUrl);
         authRequest.setIssuer(issuer);

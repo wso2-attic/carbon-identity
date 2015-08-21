@@ -20,6 +20,7 @@ package org.wso2.carbon.identity.oauth.ui.util;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.oauth.common.OAuthConstants;
 import org.wso2.carbon.identity.oauth.stub.dto.OAuthConsumerAppDTO;
 import org.wso2.carbon.ui.CarbonUIUtil;
@@ -46,10 +47,8 @@ public class OAuthUIUtil {
      * @return Absolute endpoint URL.
      */
     public static String getAbsoluteEndpointURL(String endpointType, String oauthVersion, HttpServletRequest request) {
-        // derive the hostname:port from the admin console url
-        String adminConsoleURL = CarbonUIUtil.getAdminConsoleURL(request);
-        String endpointURL = adminConsoleURL.substring(0, adminConsoleURL.indexOf("/carbon"));
 
+        String endpointURL = IdentityUtil.getServerURL("");
 
         // get the servlet context from the OAuth version.
         String oauthServletContext = "/oauth2";

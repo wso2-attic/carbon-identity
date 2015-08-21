@@ -72,7 +72,7 @@ public class DefaultBPELExecutor implements WorkFlowExecutor {
     public void execute(WorkFlowRequest workFlowRequest) throws WorkflowException {
 
         validateExecutionParams();
-        OMElement requestBody = WorkflowRequestBuilder.buildXMLRequest(workFlowRequest);
+        OMElement requestBody = WorkflowRequestBuilder.buildXMLRequest(workFlowRequest, this.initParams);
         try {
             callService(requestBody);
         } catch (AxisFault axisFault) {
