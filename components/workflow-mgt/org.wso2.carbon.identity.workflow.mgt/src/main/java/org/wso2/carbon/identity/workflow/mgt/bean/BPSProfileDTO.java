@@ -18,11 +18,17 @@
 
 package org.wso2.carbon.identity.workflow.mgt.bean;
 
-public class BPSProfileBean {
+/**
+ * BPSProfileDTO represent a BPS server and user credentilas.
+ *
+ */
+public class BPSProfileDTO {
     private String profileName;
     private String host;
     private String username;
+    private String password;
     private String callbackUser;
+    private String callbackPassword;
 
     public String getProfileName() {
         return profileName;
@@ -56,5 +62,21 @@ public class BPSProfileBean {
     public void setCallbackUser(String callbackUser) {
 
         this.callbackUser = callbackUser;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getCallbackPassword() {
+        return callbackPassword;
+    }
+
+    public void setCallbackPassword(String callbackPassword) {
+        this.callbackPassword = callbackPassword;
     }
 }

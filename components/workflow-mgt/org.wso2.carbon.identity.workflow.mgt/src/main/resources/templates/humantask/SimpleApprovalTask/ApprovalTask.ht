@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <!--
   ~ Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
   ~
@@ -17,9 +16,9 @@
   ~ specific language governing permissions and limitations
   ~ under the License.
   -->
-
 <htd:humanInteractions
         xmlns:htd="http://docs.oasis-open.org/ns/bpel4people/ws-humantask/200803"
+        xmlns:htt="http://docs.oasis-open.org/ns/bpel4people/ws-humantask/types/200803"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xmlns:xsd="http://www.w3.org/2001/XMLSchema"
         xmlns:htdef="http://ht.bpel.mgt.workflow.identity.carbon.wso2.org/wsdl"
@@ -31,7 +30,7 @@
         Human task for request approvals
     </htd:documentation>
 
-    <htd:import importType="http://schemas.xmlsoap.org/wsdl/" location="${htServiceName}.wsdl"
+    <htd:import importType="http://schemas.xmlsoap.org/wsdl/" location="${htServiceName}Service.wsdl"
                 namespace="http://ht.bpel.mgt.workflow.identity.carbon.wso2.org/wsdl"/>
 
     <htd:logicalPeopleGroups>
@@ -67,16 +66,14 @@
 
             <htd:peopleAssignments>
                 <htd:potentialOwners>
-                    <htd:from logicalPeopleGroup="taskUser">
-                        <htd:argument name="role">
-                            ${htOwnerRole}
-                        </htd:argument>
+                    <htd:from>
+                        htd:getInput("ApprovalRequest")//assignees
                     </htd:from>
                 </htd:potentialOwners>
                 <htd:businessAdministrators>
                     <htd:from logicalPeopleGroup="taskAdmin">
                         <htd:argument name="role">
-                            ${htAdminRole}
+                            ${htOwnerRole}
                         </htd:argument>
                     </htd:from>
                 </htd:businessAdministrators>

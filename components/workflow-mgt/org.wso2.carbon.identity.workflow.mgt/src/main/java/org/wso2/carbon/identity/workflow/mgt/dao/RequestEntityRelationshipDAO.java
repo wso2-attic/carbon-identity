@@ -28,6 +28,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class RequestEntityRelationshipDAO {
 
@@ -99,7 +101,7 @@ public class RequestEntityRelationshipDAO {
         Connection connection = null;
         PreparedStatement prepStmt = null;
         String query = SQLConstants.GET_PENDING_RELATIONSHIPS_OF_ENTITY;
-        ResultSet resultSet;
+        ResultSet resultSet = null;
         try {
             connection = IdentityDatabaseUtil.getDBConnection();
             prepStmt = connection.prepareStatement(query);
@@ -117,7 +119,7 @@ public class RequestEntityRelationshipDAO {
         } catch (SQLException e) {
             throw new InternalWorkflowException("Error when executing the sql query", e);
         } finally {
-            IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
+            IdentityDatabaseUtil.closeAllConnections(connection, resultSet, prepStmt);
         }
         return false;
     }
@@ -136,7 +138,7 @@ public class RequestEntityRelationshipDAO {
         Connection connection = null;
         PreparedStatement prepStmt = null;
         String query = SQLConstants.GET_PENDING_RELATIONSHIPS_OF_GIVEN_TYPE_FOR_ENTITY;
-        ResultSet resultSet;
+        ResultSet resultSet = null;
         try {
             connection = IdentityDatabaseUtil.getDBConnection();
             prepStmt = connection.prepareStatement(query);
@@ -155,7 +157,7 @@ public class RequestEntityRelationshipDAO {
         } catch (SQLException e) {
             throw new InternalWorkflowException("Error when executing the sql query", e);
         } finally {
-            IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
+            IdentityDatabaseUtil.closeAllConnections(connection, resultSet, prepStmt);
         }
         return false;
     }
@@ -173,7 +175,7 @@ public class RequestEntityRelationshipDAO {
         Connection connection = null;
         PreparedStatement prepStmt = null;
         String query = SQLConstants.GET_REQUESTS_OF_TWO_ENTITIES;
-        ResultSet resultSet;
+        ResultSet resultSet = null;
         try {
             connection = IdentityDatabaseUtil.getDBConnection();
             prepStmt = connection.prepareStatement(query);
@@ -193,10 +195,52 @@ public class RequestEntityRelationshipDAO {
         } catch (SQLException e) {
             throw new InternalWorkflowException("Error when executing the sql query", e);
         } finally {
-            IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
+            IdentityDatabaseUtil.closeAllConnections(connection, resultSet, prepStmt);
         }
 
         return false;
+    }
+
+    /**
+     * Retrieve List of associated Entity-types of the workflow requests.
+     *
+     * @param wfOperationType Operation Type of the Work-flow.
+     * @param wfStatus        Current Status of the Work-flow.
+     * @param entityType      Entity Type of the Work-flow.
+     * @param tenantID        Tenant ID of the currently Logged user.
+     * @return
+     * @throws InternalWorkflowException
+     */
+    public List<String> getEntityNamesOfRequest(String wfOperationType, String wfStatus, String entityType, int tenantID)
+            throws InternalWorkflowException {
+
+        Connection connection = null;
+        PreparedStatement prepStmt = null;
+        ResultSet resultSet = null;
+        String query = SQLConstants.GET_REQUEST_ENTITY_NAMES;
+        List<String> entityNames = new ArrayList<String>();
+
+        try {
+            connection = IdentityDatabaseUtil.getDBConnection();
+            prepStmt = connection.prepareStatement(query);
+            prepStmt.setString(1, wfOperationType);
+            prepStmt.setString(2, wfStatus);
+            prepStmt.setString(3, entityType);
+            prepStmt.setInt(4, tenantID);
+            resultSet = prepStmt.executeQuery();
+            while (resultSet.next()) {
+                String entityName = resultSet.getString(SQLConstants.ENTITY_NAME_COLUMN);
+                entityNames.add(entityName);
+            }
+
+        } catch (IdentityException e) {
+            throw new InternalWorkflowException("Error occurred when connecting to the Identity Database.", e);
+        } catch (SQLException e) {
+            throw new InternalWorkflowException("Error occurred when executing the sql query", e);
+        } finally {
+            IdentityDatabaseUtil.closeAllConnections(connection, resultSet, prepStmt);
+        }
+        return entityNames;
     }
 
 }

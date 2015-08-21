@@ -18,13 +18,12 @@
 
 package org.wso2.carbon.identity.workflow.mgt.bean;
 
-public class WorkflowBean {
+public class WorkflowRequestAssociationDTO {
 
     private String workflowId;
     private String workflowName;
-    private String workflowDescription;
-    private String templateName;
-    private String implementationName;
+    private String lastUpdatedTime;
+    private String status;
 
     public String getWorkflowId() {
         return workflowId;
@@ -42,27 +41,19 @@ public class WorkflowBean {
         this.workflowName = workflowName;
     }
 
-    public String getWorkflowDescription() {
-        return workflowDescription;
+    public String getLastUpdatedTime() {
+        return lastUpdatedTime;
     }
 
-    public void setWorkflowDescription(String workflowDescription) {
-        this.workflowDescription = workflowDescription;
+    public void setLastUpdatedTime(String lastUpdatedTime) {
+        this.lastUpdatedTime = lastUpdatedTime;
     }
 
-    public String getTemplateName() {
-        return templateName;
+    public String getStatus() {
+        return status;
     }
 
-    public void setTemplateName(String templateName) {
-        this.templateName = templateName;
-    }
-
-    public String getImplementationName() {
-        return implementationName;
-    }
-
-    public void setImplementationName(String implementationName) {
-        this.implementationName = implementationName;
+    public void setStatus(String status) {
+        this.status = status;
     }
 }
