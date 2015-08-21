@@ -86,7 +86,8 @@
                         </Import-Package>
                         <Export-Package>
                             !org.wso2.carbon.user.mgt.workflow.internal,
-                            org.wso2.carbon.user.mgt.workflow.userstore;version="${carbon.identity.package.export.version}"
+                            org.wso2.carbon.user.mgt.workflow.userstore;version="${carbon.identity.package.export.version}",
+                            org.wso2.carbon.user.mgt.workflow.*
                         </Export-Package>
                     </instructions>
                 </configuration>
