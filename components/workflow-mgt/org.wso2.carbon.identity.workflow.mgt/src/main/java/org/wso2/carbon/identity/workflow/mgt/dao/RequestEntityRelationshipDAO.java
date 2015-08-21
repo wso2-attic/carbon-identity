@@ -101,7 +101,7 @@ public class RequestEntityRelationshipDAO {
         Connection connection = null;
         PreparedStatement prepStmt = null;
         String query = SQLConstants.GET_PENDING_RELATIONSHIPS_OF_ENTITY;
-        ResultSet resultSet;
+        ResultSet resultSet = null;
         try {
             connection = IdentityDatabaseUtil.getDBConnection();
             prepStmt = connection.prepareStatement(query);
@@ -119,7 +119,7 @@ public class RequestEntityRelationshipDAO {
         } catch (SQLException e) {
             throw new InternalWorkflowException("Error when executing the sql query", e);
         } finally {
-            IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
+            IdentityDatabaseUtil.closeAllConnections(connection, resultSet, prepStmt);
         }
         return false;
     }
@@ -138,7 +138,7 @@ public class RequestEntityRelationshipDAO {
         Connection connection = null;
         PreparedStatement prepStmt = null;
         String query = SQLConstants.GET_PENDING_RELATIONSHIPS_OF_GIVEN_TYPE_FOR_ENTITY;
-        ResultSet resultSet;
+        ResultSet resultSet = null;
         try {
             connection = IdentityDatabaseUtil.getDBConnection();
             prepStmt = connection.prepareStatement(query);
@@ -157,7 +157,7 @@ public class RequestEntityRelationshipDAO {
         } catch (SQLException e) {
             throw new InternalWorkflowException("Error when executing the sql query", e);
         } finally {
-            IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
+            IdentityDatabaseUtil.closeAllConnections(connection, resultSet, prepStmt);
         }
         return false;
     }
@@ -175,7 +175,7 @@ public class RequestEntityRelationshipDAO {
         Connection connection = null;
         PreparedStatement prepStmt = null;
         String query = SQLConstants.GET_REQUESTS_OF_TWO_ENTITIES;
-        ResultSet resultSet;
+        ResultSet resultSet = null;
         try {
             connection = IdentityDatabaseUtil.getDBConnection();
             prepStmt = connection.prepareStatement(query);
@@ -195,7 +195,7 @@ public class RequestEntityRelationshipDAO {
         } catch (SQLException e) {
             throw new InternalWorkflowException("Error when executing the sql query", e);
         } finally {
-            IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
+            IdentityDatabaseUtil.closeAllConnections(connection, resultSet, prepStmt);
         }
 
         return false;
