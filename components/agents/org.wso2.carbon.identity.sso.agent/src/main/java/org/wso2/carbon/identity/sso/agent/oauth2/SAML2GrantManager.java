@@ -27,6 +27,7 @@ import org.wso2.carbon.identity.sso.agent.SSOAgentException;
 import org.wso2.carbon.identity.sso.agent.bean.LoggedInSessionBean;
 import org.wso2.carbon.identity.sso.agent.bean.SSOAgentConfig;
 
+import javax.net.ssl.HttpsURLConnection;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
@@ -57,12 +58,16 @@ public class SAML2GrantManager {
 
         String clientLogin = ssoAgentConfig.getOAuth2().getClientId() + ":" +
                 ssoAgentConfig.getOAuth2().getClientSecret();
-
-        String accessTokenResponse = executePost(
-                "grant_type=" + SSOAgentConstants.OAuth2.SAML2_BEARER_GRANT_TYPE + "&assertion=" +
-                        URLEncoder.encode(Base64.encodeBytes(
-                                samlAssertionString.getBytes(Charset.forName("UTF-8"))).replaceAll("\n", "")),
-                Base64.encodeBytes(clientLogin.getBytes(Charset.forName("UTF-8"))).replace("\n", ""));
+        String queryParam = "grant_type=" + SSOAgentConstants.OAuth2.SAML2_BEARER_GRANT_TYPE + "&assertion=" +
+                            URLEncoder.encode(Base64.encodeBytes(
+                                    samlAssertionString.getBytes(Charset.forName("UTF-8"))).replaceAll("\n", ""));
+        String additionalQueryParam = ssoAgentConfig.getRequestQueryParameters();
+        if (additionalQueryParam != null) {
+            queryParam = queryParam + additionalQueryParam;
+        }
+        String accessTokenResponse = executePost(queryParam,
+                                                 Base64.encodeBytes(clientLogin.getBytes(Charset.forName("UTF-8")))
+                                                       .replace("\n", ""));
 
         Gson gson = new Gson();
         LoggedInSessionBean.AccessTokenResponseBean accessTokenResp =
@@ -82,7 +87,11 @@ public class SAML2GrantManager {
 
             //Create connection
             url = new URL(ssoAgentConfig.getOAuth2().getTokenURL());
-            connection = (HttpURLConnection) url.openConnection();
+            if(ssoAgentConfig.getEnableSSLVerification()){
+                connection = (HttpsURLConnection) url.openConnection();
+            } else{
+                connection = (HttpURLConnection) url.openConnection();
+            }
             connection.setRequestMethod("POST");
             connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
             connection.setRequestProperty("Authorization", "Basic " + basicAuthHeader);

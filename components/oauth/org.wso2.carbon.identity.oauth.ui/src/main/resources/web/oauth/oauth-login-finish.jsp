@@ -27,6 +27,7 @@
 <%@ page import="org.wso2.carbon.utils.ServerConstants"%>
 
 <%@ page import="java.util.ResourceBundle"%>
+<%@ page import="org.wso2.carbon.identity.core.util.IdentityUtil" %>
 
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar" prefix="carbon"%>
@@ -63,8 +64,7 @@
     } catch (Exception e) {
     	String message = resourceBundle.getString("auth.error");
     	CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request,e);
-		String loginPage = CarbonUIUtil.getAdminConsoleURL(request) + "oauth/oauth-login.jsp";
-		forwardTo = loginPage.replace("/oauth/carbon/oauth/","/carbon/oauth/" );
+		forwardTo = IdentityUtil.getServerURL("/carbon/oauth/oauth-login.jsp");
     }
 %>
 
