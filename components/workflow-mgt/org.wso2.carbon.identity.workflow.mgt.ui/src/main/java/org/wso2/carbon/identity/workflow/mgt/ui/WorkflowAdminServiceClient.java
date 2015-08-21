@@ -24,6 +24,8 @@ import org.apache.axis2.client.ServiceClient;
 import org.apache.axis2.context.ConfigurationContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.identity.workflow.mgt.stub.bean.WorkflowRequestAssociationDTO;
+import org.wso2.carbon.identity.workflow.mgt.stub.bean.WorkflowRequestDTO;
 import org.wso2.carbon.identity.workflow.mgt.stub.WorkflowAdminServiceStub;
 import org.wso2.carbon.identity.workflow.mgt.stub.WorkflowAdminServiceWorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.stub.bean.AssociationDTO;
@@ -267,6 +269,37 @@ public class WorkflowAdminServiceClient {
     public WorkflowEventDTO getEvent(String id) throws RemoteException {
 
         return stub.getEvent(id);
+    }
+
+    public WorkflowRequestDTO[] getRequestsCreatedByUser(String user, String beginDate, String endDate, String
+            dateCategory) throws RemoteException, WorkflowAdminServiceWorkflowException {
+
+        WorkflowRequestDTO[] requestDTOs = stub.getRequestsCreatedByUser(user, beginDate, endDate, dateCategory);
+        if (requestDTOs == null) {
+            requestDTOs = new WorkflowRequestDTO[0];
+        }
+        return requestDTOs;
+
+    }
+
+    public WorkflowRequestDTO[] getAllRequests(String beginDate, String endDate, String dateCategory) throws
+            RemoteException, WorkflowAdminServiceWorkflowException {
+
+        WorkflowRequestDTO[] requestDTOs = stub.getRequestsInFilter(beginDate, endDate, dateCategory);
+        if (requestDTOs == null) {
+            requestDTOs = new WorkflowRequestDTO[0];
+        }
+        return requestDTOs;
+    }
+
+    public void deleteRequest(String requestId) throws WorkflowAdminServiceWorkflowException, RemoteException {
+        stub.deleteWorkflowRequest(requestId);
+    }
+
+    public WorkflowRequestAssociationDTO[] getWorkflowsOfRequest(String requestId) throws
+            WorkflowAdminServiceWorkflowException, RemoteException {
+
+        return stub.getWorkflowsOfRequest(requestId);
     }
 
 }

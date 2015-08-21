@@ -36,7 +36,11 @@ import org.wso2.carbon.identity.workflow.mgt.bean.TemplateDTO;
 import org.wso2.carbon.identity.workflow.mgt.bean.TemplateImplDTO;
 import org.wso2.carbon.identity.workflow.mgt.bean.TemplateParameterDef;
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowEventDTO;
+import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowRequestAssociationDTO;
 import org.wso2.carbon.identity.workflow.mgt.dao.RequestEntityRelationshipDAO;
+import org.wso2.carbon.identity.workflow.mgt.dao.WorkflowRequestAssociationDAO;
+import org.wso2.carbon.identity.workflow.mgt.dao.WorkflowRequestDAO;
+import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowRequestDTO;
 import org.wso2.carbon.identity.workflow.mgt.template.AbstractWorkflowTemplate;
 import org.wso2.carbon.identity.workflow.mgt.template.AbstractWorkflowTemplateImpl;
 import org.wso2.carbon.identity.workflow.mgt.extension.WorkflowRequestHandler;
@@ -47,11 +51,16 @@ import org.wso2.carbon.identity.workflow.mgt.exception.RuntimeWorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.internal.WorkflowServiceDataHolder;
 import org.wso2.carbon.identity.workflow.mgt.util.WorkFlowConstants;
+import org.wso2.carbon.identity.workflow.mgt.util.WorkflowRequestStatus;
 
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
+import java.sql.Timestamp;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -64,6 +73,8 @@ public class WorkflowService {
     WorkflowDAO workflowDAO = new WorkflowDAO();
     BPSProfileDAO bpsProfileDAO = new BPSProfileDAO();
     RequestEntityRelationshipDAO requestEntityRelationshipDAO = new RequestEntityRelationshipDAO();
+    WorkflowRequestDAO workflowRequestDAO = new WorkflowRequestDAO();
+    WorkflowRequestAssociationDAO workflowRequestAssociationDAO = new WorkflowRequestAssociationDAO();
 
     public List<WorkflowEventDTO> listWorkflowEvents() {
 
@@ -392,6 +403,84 @@ public class WorkflowService {
             return true;
         } else {
             return false;
+        }
+
+    }
+
+    /**
+     * Returns array of requests initiated by a user.
+     *
+     * @param user
+     * @return
+     * @throws WorkflowException
+     */
+    public WorkflowRequestDTO[] getRequestsCreatedByUser(String user) throws WorkflowException {
+
+        return workflowRequestDAO.getRequestsOfUser(user);
+    }
+
+    /**
+     * Get list of workflows of a request
+     *
+     * @param requestId
+     * @return
+     * @throws WorkflowException
+     */
+    public WorkflowRequestAssociationDTO[] getWorkflowsOfRequest(String requestId) throws WorkflowException {
+
+        return workflowRequestAssociationDAO.getWorkflowsOfRequest(requestId);
+    }
+
+    /**
+     * Update state of a existing workflow request
+     *
+     * @param requestId
+     * @param newState
+     * @throws WorkflowException
+     */
+    public void updateStatusOfRequest(String requestId, String newState) throws WorkflowException {
+        if (WorkflowRequestStatus.DELETED.toString().equals(newState)) {
+            workflowRequestDAO.updateStatusOfRequest(requestId, newState);
+        }
+        requestEntityRelationshipDAO.deleteRelationshipsOfRequest(requestId);
+    }
+
+    /**
+     * get requests list according to createdUser, createdTime, and lastUpdatedTime
+     *
+     * @param user
+     * @param beginDate
+     * @param endDate
+     * @param dateCategory
+     * @return
+     * @throws WorkflowException
+     */
+    public WorkflowRequestDTO[] getRequestsFromFilter(String user, String beginDate, String endDate, String
+            dateCategory) throws WorkflowException {
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
+        Timestamp beginTime;
+        Timestamp endTime;
+
+        try {
+            Date parsedBeginDate = dateFormat.parse(beginDate);
+            beginTime = new java.sql.Timestamp(parsedBeginDate.getTime());
+        } catch (ParseException e) {
+            long millis = 0;
+            Date parsedBeginDate = new Date(millis);
+            beginTime = new java.sql.Timestamp(parsedBeginDate.getTime());
+        }
+        try {
+            Date parsedEndDate = dateFormat.parse(endDate);
+            endTime = new java.sql.Timestamp(parsedEndDate.getTime());
+        } catch (ParseException e) {
+            Date parsedEndDate = new Date();
+            endTime = new java.sql.Timestamp(parsedEndDate.getTime());
+        }
+        if (StringUtils.isBlank(user)) {
+            return workflowRequestDAO.getRequestsFilteredByTime(beginTime, endTime, dateCategory);
+        } else {
+            return workflowRequestDAO.getRequestsOfUserFilteredByTime(user, beginTime, endTime, dateCategory);
         }
 
     }

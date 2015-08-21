@@ -64,11 +64,12 @@ public class WorkflowUIConstants {
     public static final String PARAM_CARBON_AUTH_USER = "carbonUser";
     public static final String PARAM_CARBON_AUTH_PASSWORD = "carbonUserPassword";
 
+    public static final String PARAM_REQUEST_ID = "requestId";
 
     public static final String PARAM_PAGE_NUMBER = "pageNumber";
     public static final int RESULTS_PER_PAGE = 20;
 
-    public static class ParamTypes{
+    public static class ParamTypes {
         public static final String INTEGER = "INTEGER";
         public static final String DOUBLE = "DOUBLE";
         public static final String STRING = "STRING";
