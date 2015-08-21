@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.wso2.carbon.identity</groupId>
         <artifactId>carbon-identity</artifactId>
-        <version>4.5.4-SNAPSHOT</version>
+        <version>4.5.5-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -79,8 +79,6 @@
                         </Import-Package>
                         <Export-Package>
                             org.wso2.carbon.identity.tomcat.valve.*;
-                            <!--!org.wso2.carbon.identity.uma.internal,-->
-                            <!--org.wso2.carbon.identity.uma.*; version="${carbon.identity.package.export.version}",-->
                         </Export-Package>
                         <DynamicImport-Package>*</DynamicImport-Package>
                     </instructions>

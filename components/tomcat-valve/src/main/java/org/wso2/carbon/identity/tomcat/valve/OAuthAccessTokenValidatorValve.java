@@ -10,11 +10,14 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.oauth2.OAuth2TokenValidationService;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2ClientApplicationDTO;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2TokenValidationRequestDTO;
+import org.wso2.carbon.identity.oauth2.dto.OAuth2TokenValidationResponseDTO;
 
 import javax.servlet.ServletException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Enumeration;
+
+import static org.wso2.carbon.identity.oauth2.dto.OAuth2TokenValidationResponseDTO.*;
 
 public class OAuthAccessTokenValidatorValve extends ValveBase{
 
@@ -23,7 +26,10 @@ public class OAuthAccessTokenValidatorValve extends ValveBase{
     public static final String AUTHORIZATION_HEADER = "Authorization";
     public static final String BEARER_HEADER_KEYWORD = "Bearer";
     public static final String BEARER_TOKEN_TYPE = "bearer";
+
     public static final String OAUTH_VALIDATION_RESPONSE = "oauth.access.token.validation.response";
+    public static final String OAUTH_ACCESS_TOKEN = "oauth.access.token";
+
 
 
     // By Default No endpoint is protected
@@ -86,9 +92,11 @@ public class OAuthAccessTokenValidatorValve extends ValveBase{
 
                         OAuth2ClientApplicationDTO clientApplicationDTO = validateAccessToken(accessToken);
 
+
                         // set the OAuth access token validation response and the consumer key
                         // within the OAuth2ClientApplicationDTO as an attribute
                         request.setAttribute(OAUTH_VALIDATION_RESPONSE, clientApplicationDTO);
+                        request.setAttribute(OAUTH_ACCESS_TOKEN,accessToken);
 
                         if (log.isDebugEnabled()) {
                             log.debug("OAuth access token validation completed for " + accessToken);

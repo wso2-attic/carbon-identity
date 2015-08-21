@@ -23,132 +23,146 @@
 package org.wso2.carbon.identity.uma.model;
 
 import org.wso2.carbon.base.MultitenantConstants;
+import org.wso2.carbon.identity.uma.UMAConstants;
 import org.wso2.carbon.identity.uma.beans.protection.ResourceSetDescriptionBean;
 
 import java.sql.Timestamp;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ResourceSetDO {
 
+    private static final String PROPERTY_CREATED_TIME = "CREATED_TIME";
+
+    // resource set keys (mentioned in the spec)
+    private static final String PROPERTY_NAME = UMAConstants.OAuthResourceSetRegistration.RESOURCE_SET_NAME;
+    private static final String PROPERTY_URI= UMAConstants.OAuthResourceSetRegistration.RESOURCE_SET_URI;
+    private static final String PROPERTY_TYPE = UMAConstants.OAuthResourceSetRegistration.RESOURCE_SET_TYPE;
+    private static final String PROPERTY_SCOPES = UMAConstants.OAuthResourceSetRegistration.RESOURCE_SET_SCOPES;
+    private static final String PROPERTY_ICON_URI = UMAConstants.OAuthResourceSetRegistration.RESOURCE_SET_ICON_URI;
+
+
     private String resourceSetId;
 
-    private String name;
+    private Map<String,Object> metadata = new HashMap<>();
 
-    private String URI;
-
-    private String type;
-
-    private String[] scopes;
-
-    private String iconURI;
-
-
-    // attributes not in the spec that need to persisted
-    private int tenantID = MultitenantConstants.SUPER_TENANT_ID;
-
-    private String authorizedUser;
-
-    private String consumerKey;
-
-    private Timestamp createdTime;
-
-
-    public ResourceSetDO(ResourceSetDescriptionBean resourceSetDescriptionBean) {
-        name = resourceSetDescriptionBean.getName();
-        URI = resourceSetDescriptionBean.getUri();
-        type = resourceSetDescriptionBean.getType();
-        scopes = resourceSetDescriptionBean.getScopes();
-        iconURI = resourceSetDescriptionBean.getIcon_uri();
-    }
-
-    public ResourceSetDO(String name, String URI, String type, String[] scopes, String iconURI) {
-        this.name = name;
-        this.URI = URI;
-        this.type = type;
-        this.scopes = scopes;
-        this.iconURI = iconURI;
-    }
+    private String tokenId;
 
     public ResourceSetDO() {
 
     }
 
-    public String getResourceSetId() {
-        return resourceSetId;
+    /**
+     * Constructor to create a ResourceSetDO from a ResourceSetDescriptionBean object
+     *
+     * @param resourceSetDescriptionBean ResourceSetDescriptionBean is created at run time by JAX-RS with the JSON params
+     * passed to the API
+     */
+    public ResourceSetDO(ResourceSetDescriptionBean resourceSetDescriptionBean) {
+        this.setName(resourceSetDescriptionBean.getName());
+        this.setURI(resourceSetDescriptionBean.getUri());
+        this.setType(resourceSetDescriptionBean.getType());
+        this.setScopes(resourceSetDescriptionBean.getScopes());
+        this.setIconURI(resourceSetDescriptionBean.getIcon_uri());
+    }
+
+
+    public ResourceSetDO(String name, String URI, String type, String[] scopes, String iconURI) {
+        this.setName(name);
+        this.setURI(URI);
+        this.setType(type);
+        this.setScopes(scopes);
+        this.setIconURI(iconURI);
+    }
+
+    public void setName(String name) {
+        if (name != null){
+            metadata.put(PROPERTY_NAME, name);
+        }
+    }
+
+    public void setURI(String URI) {
+        if (URI != null){
+            metadata.put(PROPERTY_URI, URI);
+        }
+    }
+
+    public void setType(String type) {
+        if (type != null){
+            metadata.put(PROPERTY_TYPE, type);
+        }
+    }
+
+    public void setScopes(String[] scopes) {
+        if (scopes != null && scopes.length != 0){
+            metadata.put(PROPERTY_SCOPES, scopes);
+        }
+    }
+
+    public void setIconURI(String iconURI) {
+        if (iconURI != null){
+            metadata.put(PROPERTY_ICON_URI, iconURI);
+        }
+    }
+
+    public void setCreatedTime(Timestamp createdTime) {
+        if (createdTime != null){
+            metadata.put(PROPERTY_CREATED_TIME, createdTime+"");
+        }
+    }
+
+    public void setTokenId(String tokenId) {
+        this.tokenId = tokenId;
     }
 
     public void setResourceSetId(String resourceSetId) {
         this.resourceSetId = resourceSetId;
     }
 
-    public String getName() {
-        return name;
+
+    public String getResourceSetId() {
+        return resourceSetId;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
 
-    public String getURI() {
-        return URI;
-    }
-
-    public void setURI(String uri) {
-        this.URI = uri;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
-    }
-
-    public String[] getScopes() {
-        return scopes;
-    }
-
-    public void setScopes(String[] scopes) {
-        this.scopes = scopes;
-    }
-
-    public String getIconURI() {
-        return iconURI;
-    }
-
-    public void setIconURI(String iconURI) {
-        this.iconURI = iconURI;
-    }
-
-    public int getTenantID() {
-        return tenantID;
-    }
-
-    public void setTenantID(int tenantID) {
-        this.tenantID = tenantID;
-    }
-
-    public String getAuthorizedUser() {
-        return authorizedUser;
-    }
-
-    public void setAuthorizedUser(String authorizedUser) {
-        this.authorizedUser = authorizedUser;
-    }
-
-    public String getConsumerKey() {
-        return consumerKey;
-    }
-
-    public void setConsumerKey(String consumerKey) {
-        this.consumerKey = consumerKey;
+    public String getTokenId() {
+        return tokenId;
     }
 
     public Timestamp getCreatedTime() {
-        return createdTime;
+        Timestamp timestamp = null;
+
+        if(metadata.containsKey(PROPERTY_CREATED_TIME)){
+            String time = (String) metadata.get(PROPERTY_CREATED_TIME);
+            timestamp = new Timestamp(Long.parseLong(time));
+        }
+
+        return timestamp;
     }
 
-    public void setCreatedTime(Timestamp createdTime) {
-        this.createdTime = createdTime;
+
+    // getters for meta data stored in the map
+    public String getName() {
+        return metadata.containsKey(PROPERTY_NAME) ? (String) metadata.get(PROPERTY_NAME) : null;
+    }
+
+    public String getURI() {
+        return metadata.containsKey(PROPERTY_URI) ? (String) metadata.get(PROPERTY_URI) : null;
+    }
+
+    public String getType() {
+        return metadata.containsKey(PROPERTY_TYPE) ? (String) metadata.get(PROPERTY_TYPE) : null;
+    }
+
+    public String[] getScopes() {
+        return metadata.containsKey(PROPERTY_SCOPES) ? (String[]) metadata.get(PROPERTY_SCOPES) : null;
+    }
+
+    public String getIconURI() {
+        return metadata.containsKey(PROPERTY_ICON_URI) ? (String) metadata.get(PROPERTY_ICON_URI) : null;
+    }
+
+    public Map<String, Object> getMetadata() {
+        return metadata;
     }
 }

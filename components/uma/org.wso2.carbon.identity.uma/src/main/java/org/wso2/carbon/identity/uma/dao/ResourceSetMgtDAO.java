@@ -28,6 +28,7 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.persistence.JDBCPersistenceManager;
 import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
+import org.wso2.carbon.identity.uma.UMAConstants;
 import org.wso2.carbon.identity.uma.exceptions.IdentityUMAException;
 import org.wso2.carbon.identity.uma.model.ResourceSetDO;
 import org.wso2.carbon.identity.uma.util.UMAUtil;
@@ -46,6 +47,7 @@ public class ResourceSetMgtDAO {
 
     // table to store the resource set descriptions
     private static final String IDN_UMA_PROTECTION_RESOURCE_SET = "IDN_UMA_RESOURCE_SET";
+    private static final String RESOURCE_SET_SCOPES = UMAConstants.OAuthResourceSetRegistration.RESOURCE_SET_SCOPES;
 
     private static final String DEFAULT_TIME_ZONE = "UTC";
     // thread pool size
@@ -99,32 +101,79 @@ public class ResourceSetMgtDAO {
 
         PreparedStatement preparedStatement;
 
+        String resourceSetTable = SQLQueries.RESOURCE_SET_TABLE;
+
+        if (StringUtils.isNotBlank(userStoreDomain)) {
+            resourceSetTable = resourceSetTable + "_" + userStoreDomain;
+        }
+
         // get the SQL with the table name corrected
-        String sql = getCorrectedSQL(SQLQueries.INSERT_RESOURCE_SET,userStoreDomain);
+        String sql = SQLQueries.INSERT_RESOURCE_SET.replaceAll("\\$resourceSetRegTable",resourceSetTable);
+        String sqlAddScopes = SQLQueries.INSERT_RESOURCE_SET_SCOPE;
+
+        String resourceSetId =  resourceSetDO.getResourceSetId();
+        String accessTokenId = resourceSetDO.getTokenId();
+
+        if (accessTokenId == null || StringUtils.isEmpty(accessTokenId)){
+            throw new IdentityUMAException("AccessTokenId cannot be null");
+        }
 
         try {
 
             preparedStatement = connection.prepareStatement(sql);
 
-            // fill in the params for the query
-            preparedStatement.setString(1, resourceSetDO.getResourceSetId());
-            preparedStatement.setString(2,resourceSetDO.getName());
-            preparedStatement.setString(3, resourceSetDO.getURI());
-            preparedStatement.setString(4, resourceSetDO.getType());
-            preparedStatement.setString(5, resourceSetDO.getIconURI());
-            preparedStatement.setString(6, resourceSetDO.getAuthorizedUser());
-            preparedStatement.setString(7, resourceSetDO.getConsumerKey());
-            preparedStatement.setString(8, UMAUtil.buildScopeString(resourceSetDO.getScopes()));
-            preparedStatement.setTimestamp
-                    (9, resourceSetDO.getCreatedTime(), Calendar.getInstance(TimeZone.getTimeZone(DEFAULT_TIME_ZONE)));
+            Map<String,Object> metaData = resourceSetDO.getMetadata();
 
-            preparedStatement.execute();
+            for (Map.Entry<String,Object> metaDataEntry : metaData.entrySet()){
+                // if the key is scopes we skip it since we will deal with them later
+                if(StringUtils.equals(metaDataEntry.getKey(),RESOURCE_SET_SCOPES)){
+                    continue;
+                }
+
+                preparedStatement.setString(1,resourceSetId);
+                preparedStatement.setString(2,metaDataEntry.getKey());
+                preparedStatement.setString(3, (String) metaDataEntry.getValue());
+                preparedStatement.setString(4,resourceSetDO.getTokenId());
+
+                preparedStatement.addBatch();
+
+            }
+            // execute to persist the metadata
+            preparedStatement.executeBatch();
+
+
+            if (resourceSetDO.getScopes() != null){
+                preparedStatement = connection.prepareStatement(sqlAddScopes);
+
+
+                for (String scope : resourceSetDO.getScopes()){
+                    preparedStatement.setString(1,resourceSetId);
+                    preparedStatement.setString(2,scope);
+                    preparedStatement.addBatch();
+                }
+
+                preparedStatement.executeBatch();
+            }
+
+//            // fill in the params for the query
+//            preparedStatement.setString(1, resourceSetDO.getResourceSetId());
+//            preparedStatement.setString(2,resourceSetDO.getName());
+//            preparedStatement.setString(3, resourceSetDO.getURI());
+//            preparedStatement.setString(4, resourceSetDO.getType());
+//            preparedStatement.setString(5, resourceSetDO.getIconURI());
+//            preparedStatement.setString(6, resourceSetDO.getAuthorizedUser());
+//            preparedStatement.setString(7, resourceSetDO.getConsumerKey());
+//            preparedStatement.setString(8, UMAUtil.buildScopeString(resourceSetDO.getScopes()));
+//            preparedStatement.setTimestamp
+//                    (9, resourceSetDO.getCreatedTime(), Calendar.getInstance(TimeZone.getTimeZone(DEFAULT_TIME_ZONE)));
+//
+//            preparedStatement.execute();
+
 
         } catch (SQLIntegrityConstraintViolationException ex){
 
-            String errorMsg = "Access Token for consumer key : " + resourceSetDO.getConsumerKey() + ", user : " +
-                    resourceSetDO.getAuthorizedUser() + " and scope : " +
-                    UMAUtil.buildScopeString(resourceSetDO.getScopes()) + "already exists";
+            String errorMsg = "ResourceSet with ID: "+resourceSetId+" and scopes: "+
+                    UMAUtil.buildScopeString(resourceSetDO.getScopes())+" already exists";
             throw new IdentityUMAException(errorMsg, ex);
 
         }catch (DataTruncation e) {
@@ -139,279 +188,261 @@ public class ResourceSetMgtDAO {
 
     }
 
+//
+//
+//    public Set<ResourceSetDO> retrieveResourceSets(String consumerKey, String userStoreDomain) throws IdentityUMAException {
+//
+//        Connection connection;
+//
+//        try {
+//            connection = JDBCPersistenceManager.getInstance().getDBConnection();
+//        } catch (IdentityException e) {
+//
+//            throw new IdentityUMAException("Error occurred while getting Identity persistence " +
+//                    "store connection", e);
+//        }
+//
+//        PreparedStatement prepStmt = null;
+//        ResultSet resultSet = null;
+//        Map<String, ResourceSetDO> resourceSetDOMap = new HashMap<>();
+//
+//        String sql = addUserStoreDomainToSQL(SQLQueries.GET_ALL_RESOURCE_SETS, userStoreDomain);
+//
+//        try {
+//
+//            prepStmt = connection.prepareStatement(sql);
+//            prepStmt.setString(1,consumerKey);
+//
+//            resultSet = prepStmt.executeQuery();
+//
+//            while (resultSet.next()){
+//
+//                String resourceSetId = resultSet.getString(1);
+//
+//                if (resourceSetDOMap.get(resourceSetId) == null) {
+//
+//                    String name = resultSet.getString(2);
+//                    String URI = resultSet.getString(3);
+//                    String type = resultSet.getString(4);
+//                    String iconURI = resultSet.getString(5);
+//                    String authorizedUser = resultSet.getString(6);
+//                    String resourceSetConsumerKey = resultSet.getString(7);
+//                    String[] resourceSetScope = UMAUtil.buildScopeArray(resultSet.getString(8));
+//                    Timestamp createdTime = resultSet.getTimestamp(9);
+//
+//                    ResourceSetDO resourceSetDO = new ResourceSetDO(name, URI, type, resourceSetScope, iconURI);
+//                    resourceSetDO.setIconURI(iconURI);
+//                    resourceSetDO.setAuthorizedUser(authorizedUser);
+//                    resourceSetDO.setConsumerKey(resourceSetConsumerKey);
+//                    resourceSetDO.setCreatedTime(createdTime);
+//
+//                    resourceSetDOMap.put(resourceSetId,resourceSetDO);
+//                }
+//            }
+//
+//            connection.commit();
+//        } catch (SQLException e) {
+//            String errorMsg = "Error occurred while retrieving registred resource sets for " +
+//                    "Client ID : " + consumerKey;
+//            throw new IdentityUMAException(errorMsg, e);
+//        }finally {
+//            IdentityDatabaseUtil.closeAllConnections(connection,resultSet,prepStmt);
+//        }
+//
+//        return new HashSet<>(resourceSetDOMap.values());
+//    }
+//
+//    /**
+//     *  Retrieve all the resource set IDs registred for a particular consumerKey
+//     * @param consumerKey
+//     * @param userStoreDomain
+//     * @return
+//     * @throws IdentityUMAException
+//     */
+//    public List<String> retrieveResourceSetIDs(String consumerKey, String userStoreDomain) throws IdentityUMAException {
+//        Connection connection;
+//
+//        try {
+//            connection = JDBCPersistenceManager.getInstance().getDBConnection();
+//        } catch (IdentityException e) {
+//
+//            throw new IdentityUMAException("Error occurred while getting Identity persistence " +
+//                    "store connection", e);
+//        }
+//
+//        PreparedStatement prepStmt = null;
+//        ResultSet resultSet = null;
+//        List<String> resourceSetIdList = new ArrayList<>();
+//
+//
+//        String sql = addUserStoreDomainToSQL(SQLQueries.GET_ALL_RESOURCE_SET_IDS, userStoreDomain);
+//
+//        try {
+//            prepStmt = connection.prepareStatement(sql);
+//            prepStmt.setString(1,consumerKey);
+//
+//            resultSet = prepStmt.executeQuery();
+//
+//            while (resultSet.next()){
+//                String resourceSetId = resultSet.getString(1);
+//
+//                if (StringUtils.isNotEmpty(resourceSetId) && !resourceSetIdList.contains(resourceSetId)){
+//                    resourceSetIdList.add(resourceSetId);
+//                }
+//            }
+//
+//            connection.commit();
+//        } catch (SQLException e) {
+//            String errorMsg = "Error occurred while retrieving registered resource set IDs " +
+//                    "Client ID : " + consumerKey;
+//
+//            throw new IdentityUMAException(errorMsg, e);
+//        }finally {
+//            IdentityDatabaseUtil.closeAllConnections(connection, resultSet, prepStmt);
+//        }
+//
+//        return resourceSetIdList;
+//    }
+//
+//    /**
+//     *
+//     * @param resourceSetId
+//     * @param consumerKey
+//     * @param userStoreDomain
+//     * @return
+//     * @throws IdentityUMAException
+//     */
+//    public ResourceSetDO retrieveResourceSet(String resourceSetId, String consumerKey, String userStoreDomain) throws IdentityUMAException {
+//
+//        Connection connection = null;
+//        PreparedStatement prepStmt = null;
+//        ResultSet resultSet = null;
+//        ResourceSetDO resourceSetDO = null;
+//
+//        String sql = addUserStoreDomainToSQL(SQLQueries.GET_RESOURCE_SET_FROM_ID, userStoreDomain);
+//
+//        try {
+//            connection = JDBCPersistenceManager.getInstance().getDBConnection();
+//
+//            prepStmt = connection.prepareStatement(sql);
+//            prepStmt.setString(1,resourceSetId);
+//
+//            resultSet = prepStmt.executeQuery();
+//
+//            if (resultSet.next()){
+//                    String name = resultSet.getString(2);
+//                    String URI = resultSet.getString(3);
+//                    String type = resultSet.getString(4);
+//                    String iconURI = resultSet.getString(5);
+//                    String authorizedUser = resultSet.getString(6);
+//                    String resourceSetConsumerKey = resultSet.getString(7);
+//                    String[] resourceSetScope = UMAUtil.buildScopeArray(resultSet.getString(8));
+//                    Timestamp createdTime = resultSet.getTimestamp(9);
+//
+//                    resourceSetDO = new ResourceSetDO(name, URI, type, resourceSetScope, iconURI);
+//                    resourceSetDO.setResourceSetId(resourceSetId);
+//                    resourceSetDO.setIconURI(iconURI);
+//                    resourceSetDO.setAuthorizedUser(authorizedUser);
+//                    resourceSetDO.setConsumerKey(resourceSetConsumerKey);
+//                    resourceSetDO.setCreatedTime(createdTime);
+//            }
+//
+//            connection.commit();
+//        } catch (SQLException e) {
+//            String errorMsg = "Error occurred while retrieving resource set with ID : " +resourceSetId
+//                    + " registered with Client ID : " + consumerKey;
+//            throw new IdentityUMAException(errorMsg, e);
+//        } catch (IdentityException e) {
+//            throw new IdentityUMAException("Error occurred while getting Identity persistence " +
+//                    "store connection", e);
+//        } finally {
+//            IdentityDatabaseUtil.closeAllConnections(connection, resultSet, prepStmt);
+//        }
+//
+//        return resourceSetDO;
+//    }
+//
+//
+//
+//    public boolean removeResourceSet(String resourceSetId, String consumerKey, String userStoreDomain) throws IdentityUMAException {
+//
+//        Connection connection = null;
+//        PreparedStatement prepStmt = null;
+//        String sql = addUserStoreDomainToSQL(SQLQueries.DELETE_RESOURCE_SET_FROM_ID, userStoreDomain);
+//
+//        try {
+//            connection = JDBCPersistenceManager.getInstance().getDBConnection();
+//
+//            prepStmt = connection.prepareStatement(sql);
+//            prepStmt.setString(1, resourceSetId);
+//            int rowsAffected = prepStmt.executeUpdate();
+//            connection.commit();
+//
+//            return rowsAffected > 0;
+//
+//        } catch (IdentityException e) {
+//
+//            throw new IdentityUMAException("Error occurred while getting Identity persistence " +
+//                    "store connection", e);
+//
+//        } catch (SQLException e) {
+//
+//            String errorMsg = "Error occurred while deleting resource set with ID : " +resourceSetId
+//                    + " registered with Client ID : " + consumerKey;
+//            throw new IdentityUMAException(errorMsg, e);
+//
+//        }finally {
+//            IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
+//        }
+//
+//    }
+//
+//
+//    public boolean updateResourceSet
+//            (String resourceSetId,ResourceSetDO newResourceSetDO, String consumerKey, String userStoreDomain) throws IdentityUMAException {
+//
+//        Connection connection = null;
+//        PreparedStatement prepStmt = null;
+//        String sql = addUserStoreDomainToSQL(SQLQueries.UPDATE_RESOURCE_SET, userStoreDomain);
+//
+//        try {
+//            connection = JDBCPersistenceManager.getInstance().getDBConnection();
+//
+//            prepStmt = connection.prepareStatement(sql);
+//
+//            String name = newResourceSetDO.getName();
+//            String URI = newResourceSetDO.getURI();
+//            String type = newResourceSetDO.getType();
+//            String iconURI = newResourceSetDO.getIconURI();
+//            String scopes = UMAUtil.buildScopeString(newResourceSetDO.getScopes());
+//
+//            prepStmt.setString(1,name);
+//            prepStmt.setString(2,URI);
+//            prepStmt.setString(3,type);
+//            prepStmt.setString(4,iconURI);
+//            prepStmt.setString(5,scopes);
+//            prepStmt.setString(6,resourceSetId);
+//
+//            int rowsAffected = prepStmt.executeUpdate();
+//            connection.commit();
+//
+//            return rowsAffected > 0;
+//
+//        } catch (IdentityException e) {
+//
+//            throw new IdentityUMAException("Error occurred while getting Identity persistence " +
+//                    "store connection", e);
+//
+//        } catch (SQLException e) {
+//
+//            String errorMsg = "Error occurred while update resource set with ID : " +resourceSetId
+//                    + " registered with Client ID : " + consumerKey;
+//            throw new IdentityUMAException(errorMsg, e);
+//
+//        }finally {
+//            IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
+//        }
+//    }
 
 
-    public Set<ResourceSetDO> retrieveResourceSets(String consumerKey, String userStoreDomain) throws IdentityUMAException {
-
-        Connection connection;
-
-        try {
-            connection = JDBCPersistenceManager.getInstance().getDBConnection();
-        } catch (IdentityException e) {
-
-            throw new IdentityUMAException("Error occurred while getting Identity persistence " +
-                    "store connection", e);
-        }
-
-        PreparedStatement prepStmt = null;
-        ResultSet resultSet = null;
-        Map<String, ResourceSetDO> resourceSetDOMap = new HashMap<>();
-
-        String sql = getCorrectedSQL(SQLQueries.GET_ALL_RESOURCE_SETS, userStoreDomain);
-
-        try {
-
-            prepStmt = connection.prepareStatement(sql);
-            prepStmt.setString(1,consumerKey);
-
-            resultSet = prepStmt.executeQuery();
-
-            while (resultSet.next()){
-
-                String resourceSetId = resultSet.getString(1);
-
-                if (resourceSetDOMap.get(resourceSetId) == null) {
-
-                    String name = resultSet.getString(2);
-                    String URI = resultSet.getString(3);
-                    String type = resultSet.getString(4);
-                    String iconURI = resultSet.getString(5);
-                    String authorizedUser = resultSet.getString(6);
-                    String resourceSetConsumerKey = resultSet.getString(7);
-                    String[] resourceSetScope = UMAUtil.buildScopeArray(resultSet.getString(8));
-                    Timestamp createdTime = resultSet.getTimestamp(9);
-
-                    ResourceSetDO resourceSetDO = new ResourceSetDO(name, URI, type, resourceSetScope, iconURI);
-                    resourceSetDO.setIconURI(iconURI);
-                    resourceSetDO.setAuthorizedUser(authorizedUser);
-                    resourceSetDO.setConsumerKey(resourceSetConsumerKey);
-                    resourceSetDO.setCreatedTime(createdTime);
-
-                    resourceSetDOMap.put(resourceSetId,resourceSetDO);
-                }
-            }
-
-            connection.commit();
-        } catch (SQLException e) {
-            String errorMsg = "Error occurred while retrieving registred resource sets for " +
-                    "Client ID : " + consumerKey;
-            throw new IdentityUMAException(errorMsg, e);
-        }finally {
-            IdentityDatabaseUtil.closeAllConnections(connection,resultSet,prepStmt);
-        }
-
-        return new HashSet<>(resourceSetDOMap.values());
-    }
-
-    /**
-     *  Retrieve all the resource set IDs registred for a particular consumerKey
-     * @param consumerKey
-     * @param userStoreDomain
-     * @return
-     * @throws IdentityUMAException
-     */
-    public List<String> retrieveResourceSetIDs(String consumerKey, String userStoreDomain) throws IdentityUMAException {
-        Connection connection;
-
-        try {
-            connection = JDBCPersistenceManager.getInstance().getDBConnection();
-        } catch (IdentityException e) {
-
-            throw new IdentityUMAException("Error occurred while getting Identity persistence " +
-                    "store connection", e);
-        }
-
-        PreparedStatement prepStmt = null;
-        ResultSet resultSet = null;
-        List<String> resourceSetIdList = new ArrayList<>();
-
-
-        String sql = getCorrectedSQL(SQLQueries.GET_ALL_RESOURCE_SET_IDS, userStoreDomain);
-
-        try {
-            prepStmt = connection.prepareStatement(sql);
-            prepStmt.setString(1,consumerKey);
-
-            resultSet = prepStmt.executeQuery();
-
-            while (resultSet.next()){
-                String resourceSetId = resultSet.getString(1);
-
-                if (StringUtils.isNotEmpty(resourceSetId) && !resourceSetIdList.contains(resourceSetId)){
-                    resourceSetIdList.add(resourceSetId);
-                }
-            }
-
-            connection.commit();
-        } catch (SQLException e) {
-            String errorMsg = "Error occurred while retrieving registered resource set IDs " +
-                    "Client ID : " + consumerKey;
-
-            throw new IdentityUMAException(errorMsg, e);
-        }finally {
-            IdentityDatabaseUtil.closeAllConnections(connection, resultSet, prepStmt);
-        }
-
-        return resourceSetIdList;
-    }
-
-    /**
-     *
-     * @param resourceSetId
-     * @param consumerKey
-     * @param userStoreDomain
-     * @return
-     * @throws IdentityUMAException
-     */
-    public ResourceSetDO retrieveResourceSet(String resourceSetId, String consumerKey, String userStoreDomain) throws IdentityUMAException {
-
-        Connection connection = null;
-        PreparedStatement prepStmt = null;
-        ResultSet resultSet = null;
-        ResourceSetDO resourceSetDO = null;
-
-        String sql = getCorrectedSQL(SQLQueries.GET_RESOURCE_SET_FROM_ID,userStoreDomain);
-
-        try {
-            connection = JDBCPersistenceManager.getInstance().getDBConnection();
-
-            prepStmt = connection.prepareStatement(sql);
-            prepStmt.setString(1,resourceSetId);
-
-            resultSet = prepStmt.executeQuery();
-
-            if (resultSet.next()){
-                    String name = resultSet.getString(2);
-                    String URI = resultSet.getString(3);
-                    String type = resultSet.getString(4);
-                    String iconURI = resultSet.getString(5);
-                    String authorizedUser = resultSet.getString(6);
-                    String resourceSetConsumerKey = resultSet.getString(7);
-                    String[] resourceSetScope = UMAUtil.buildScopeArray(resultSet.getString(8));
-                    Timestamp createdTime = resultSet.getTimestamp(9);
-
-                    resourceSetDO = new ResourceSetDO(name, URI, type, resourceSetScope, iconURI);
-                    resourceSetDO.setResourceSetId(resourceSetId);
-                    resourceSetDO.setIconURI(iconURI);
-                    resourceSetDO.setAuthorizedUser(authorizedUser);
-                    resourceSetDO.setConsumerKey(resourceSetConsumerKey);
-                    resourceSetDO.setCreatedTime(createdTime);
-            }
-
-            connection.commit();
-        } catch (SQLException e) {
-            String errorMsg = "Error occurred while retrieving resource set with ID : " +resourceSetId
-                    + " registered with Client ID : " + consumerKey;
-            throw new IdentityUMAException(errorMsg, e);
-        } catch (IdentityException e) {
-            throw new IdentityUMAException("Error occurred while getting Identity persistence " +
-                    "store connection", e);
-        } finally {
-            IdentityDatabaseUtil.closeAllConnections(connection, resultSet, prepStmt);
-        }
-
-        return resourceSetDO;
-    }
-
-
-
-    public boolean removeResourceSet(String resourceSetId, String consumerKey, String userStoreDomain) throws IdentityUMAException {
-
-        Connection connection = null;
-        PreparedStatement prepStmt = null;
-        String sql = getCorrectedSQL(SQLQueries.DELETE_RESOURCE_SET_FROM_ID,userStoreDomain);
-
-        try {
-            connection = JDBCPersistenceManager.getInstance().getDBConnection();
-
-            prepStmt = connection.prepareStatement(sql);
-            prepStmt.setString(1, resourceSetId);
-            int rowsAffected = prepStmt.executeUpdate();
-            connection.commit();
-
-            return rowsAffected > 0;
-
-        } catch (IdentityException e) {
-
-            throw new IdentityUMAException("Error occurred while getting Identity persistence " +
-                    "store connection", e);
-
-        } catch (SQLException e) {
-
-            String errorMsg = "Error occurred while deleting resource set with ID : " +resourceSetId
-                    + " registered with Client ID : " + consumerKey;
-            throw new IdentityUMAException(errorMsg, e);
-
-        }finally {
-            IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
-        }
-
-    }
-
-
-    public boolean updateResourceSet
-            (String resourceSetId,ResourceSetDO newResourceSetDO, String consumerKey, String userStoreDomain) throws IdentityUMAException {
-
-        Connection connection = null;
-        PreparedStatement prepStmt = null;
-        String sql = getCorrectedSQL(SQLQueries.UPDATE_RESOURCE_SET,userStoreDomain);
-
-        try {
-            connection = JDBCPersistenceManager.getInstance().getDBConnection();
-
-            prepStmt = connection.prepareStatement(sql);
-
-            String name = newResourceSetDO.getName();
-            String URI = newResourceSetDO.getURI();
-            String type = newResourceSetDO.getType();
-            String iconURI = newResourceSetDO.getIconURI();
-            String scopes = UMAUtil.buildScopeString(newResourceSetDO.getScopes());
-
-            prepStmt.setString(1,name);
-            prepStmt.setString(2,URI);
-            prepStmt.setString(3,type);
-            prepStmt.setString(4,iconURI);
-            prepStmt.setString(5,scopes);
-            prepStmt.setString(6,resourceSetId);
-
-            int rowsAffected = prepStmt.executeUpdate();
-            connection.commit();
-
-            return rowsAffected > 0;
-
-        } catch (IdentityException e) {
-
-            throw new IdentityUMAException("Error occurred while getting Identity persistence " +
-                    "store connection", e);
-
-        } catch (SQLException e) {
-
-            String errorMsg = "Error occurred while update resource set with ID : " +resourceSetId
-                    + " registered with Client ID : " + consumerKey;
-            throw new IdentityUMAException(errorMsg, e);
-
-        }finally {
-            IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
-        }
-    }
-
-
-
-
-    /**
-     *  Util method to correct the table name in the query if a userStoreDomain is defined
-     * @param sql Original SQL String
-     * @param userStoreDomain
-     * @return corrected SQL string ie. SQL with the table name corrected
-     */
-    private String getCorrectedSQL(String sql, String userStoreDomain){
-
-        String resourceSetRegTable = IDN_UMA_PROTECTION_RESOURCE_SET;
-
-        if (userStoreDomain != null && StringUtils.isNotEmpty(userStoreDomain)){
-            resourceSetRegTable = resourceSetRegTable + "_" + userStoreDomain;
-        }
-
-        return sql.replaceAll("\\$resourceSetRegTable", resourceSetRegTable);
-    }
 }

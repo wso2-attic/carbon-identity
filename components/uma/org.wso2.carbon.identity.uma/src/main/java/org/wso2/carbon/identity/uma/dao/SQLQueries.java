@@ -24,13 +24,16 @@ package org.wso2.carbon.identity.uma.dao;
 
 public class SQLQueries {
 
-    public static final String INSERT_RESOURCE_SET =
-            "INSERT INTO $resourceSetRegTable(RESOURCE_SET_ID, NAME, URI, TYPE, ICON_URI," +
-                    "AUTHZ_USER, CONSUMER_KEY, RESOURCE_SET_SCOPE_HASH, TIME_CREATED) " +
-                    "VALUES (?,?,?,?,?,?,?,?,?)";
+    public static final String RESOURCE_SET_TABLE = "IDN_UMA_RESOURCE_SET";
+    public static final String RESOURCE_SET_SCOPE_TABLE = "IDN_UMA_RESOURCE_SCOPE_ASSOCIATION";
 
-    public static final String INSERT_RESOURCE_SET_SCOPE = "INSERT INTO $resourceSetScopeTable (RESOURCE_SET_ID, " +
-            "RESOURCE_SET_SCOPE) VALUES (?,?)";
+
+    public static final String INSERT_RESOURCE_SET =
+            "INSERT INTO $resourceSetRegTable(RESOURCE_SET_ID, PROPERTY_KEY, PROPERTY_VALUE, TOKEN_ID) " +
+                    "VALUES (?,?,?,?)";
+
+    public static final String INSERT_RESOURCE_SET_SCOPE =
+            "INSERT INTO IDN_UMA_RESOURCE_SCOPE_ASSOCIATION(RESOURCE_SET_ID,SCOPE) VALUES (?,?)";
 
     public static final String UPDATE_RESOURCE_SET =
             "UPDATE $resourceSetRegTable SET NAME=?, URI=?, TYPE=?, ICON_URI=?," +

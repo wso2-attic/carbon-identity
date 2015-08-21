@@ -35,6 +35,8 @@ import java.util.List;
 public class UmaRequest {
 
     private static final String OAUTH_TOKEN_VALIDATION_RESPONSE = "oauth.access.token.validation.response";
+    private static final String OAUTH_ACCESS_TOKEN = "oauth.access.token";
+
 
     protected HttpServletRequest httpServletRequest;
 
@@ -45,6 +47,8 @@ public class UmaRequest {
     protected int tenantID;
 
     protected String consumerKey;
+
+    protected String accessToken;
 
     protected User authorizedUser;
 
@@ -83,6 +87,11 @@ public class UmaRequest {
 
             String userName = applicationDTO.getAccessTokenValidationResponse().getAuthorizedUser();
             authorizedUser = UMAUtil.getUserFromUserName(userName);
+
+        }
+
+        if (httpServletRequest.getAttribute(OAUTH_ACCESS_TOKEN) != null){
+            accessToken = (String)httpServletRequest.getAttribute(OAUTH_ACCESS_TOKEN);
         }
     }
 
@@ -112,5 +121,9 @@ public class UmaRequest {
 
     public User getAuthorizedUser() {
         return authorizedUser;
+    }
+
+    public String getAccessToken() {
+        return accessToken;
     }
 }
