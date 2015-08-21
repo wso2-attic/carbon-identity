@@ -442,16 +442,29 @@ public class UserRealmProxy {
                 flaggedNames.add(fName);
             }
 
+            String filteredDomain = null;
             // get hybrid roles
+            if (filter.contains(CarbonConstants.DOMAIN_SEPARATOR)) {
+                filteredDomain = filter.split(CarbonConstants.DOMAIN_SEPARATOR)[0];
+            }
+
             if (filter.startsWith(UserCoreConstants.INTERNAL_DOMAIN + CarbonConstants.DOMAIN_SEPARATOR)) {
                 filter = filter.substring(filter.indexOf(CarbonConstants.DOMAIN_SEPARATOR) + 1);
             }
+
             String[] hybridRoles = ((AbstractUserStoreManager) userStoreMan).getHybridRoles(filter);
 
             for (String hybridRole : hybridRoles) {
+                if (filteredDomain != null && !hybridRole.startsWith(filteredDomain)) {
+                    continue;
+                }
                 FlaggedName fName = new FlaggedName();
                 fName.setItemName(hybridRole);
-                fName.setRoleType(UserMgtConstants.INTERNAL_ROLE);
+                if (hybridRole.startsWith(UserCoreConstants.INTERNAL_DOMAIN)) {
+                    fName.setRoleType(UserMgtConstants.INTERNAL_ROLE);
+                } else {
+                    fName.setRoleType(UserMgtConstants.APPLICATION_DOMAIN);
+                }
                 fName.setEditable(true);
                 flaggedNames.add(fName);
             }
@@ -1014,7 +1027,8 @@ public class UserRealmProxy {
             String domain = domainProvided ? roleName.substring(0, index) : null;
 
             if (domain != null && filter != null && !filter.toLowerCase().startsWith(domain.toLowerCase()) &&
-                    !UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domain)) {
+                !(UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domain)
+                  || UserMgtConstants.APPLICATION_DOMAIN.equalsIgnoreCase(domain))) {
                 filter = domain + "/" + filter;
             }
 
@@ -1057,7 +1071,8 @@ public class UserRealmProxy {
                         fName.setItemName(anUsersOfRole);
                         fName.setItemDisplayName(anUsersOfRole);
                     }
-                    if (domain != null && !UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domain)) {
+                    if (domain != null && !(UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domain)
+                                            || UserMgtConstants.APPLICATION_DOMAIN.equalsIgnoreCase(domain))) {
                         if (usMan.getSecondaryUserStoreManager(domain) != null &&
                                 (usMan.getSecondaryUserStoreManager(domain).isReadOnly() ||
                                         FALSE.equals(usMan.getSecondaryUserStoreManager(domain).getRealmConfiguration().
@@ -1139,7 +1154,8 @@ public class UserRealmProxy {
                     //if only user name is present
                     fName.setItemName(userNames[i]);
                 }
-                if (domain != null && !UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domain)) {
+                if (domain != null && !(UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domain) ||
+                                        UserMgtConstants.APPLICATION_DOMAIN.equalsIgnoreCase(domain))) {
                     if (usMan.getSecondaryUserStoreManager(domain) != null &&
                             (usMan.getSecondaryUserStoreManager(domain).isReadOnly() ||
                                     FALSE.equals(usMan.getSecondaryUserStoreManager(domain).getRealmConfiguration().
