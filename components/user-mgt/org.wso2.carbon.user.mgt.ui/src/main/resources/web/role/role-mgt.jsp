@@ -328,6 +328,7 @@
                 %>
                 <tbody>
                 <%
+                    if(roles != null && roles.length > 0) {
                          for (FlaggedName data : roles) {
                             if (data != null) { //Confusing!!. Sometimes a null object comes. Maybe a bug in Axis!!
                                 if(CarbonConstants.REGISTRY_ANONNYMOUS_ROLE_NAME.equals(data.getItemName())) {
@@ -383,6 +384,7 @@
                 <%
                             }
                         }
+                    }
                %>
                 </tbody>
             </table>

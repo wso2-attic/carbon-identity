@@ -21,6 +21,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openid4java.util.OpenID4JavaUtils;
 import org.wso2.carbon.identity.base.IdentityException;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.provider.openid.handlers.OpenIDHandler;
 import org.wso2.carbon.identity.provider.openid.util.OpenIDUtil;
 
@@ -42,8 +43,7 @@ public class OpenIDProviderServlet extends HttpServlet {
     protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
         try{
-            String frontEndUrl = OpenIDUtil.getAdminConsoleURL(req);
-            frontEndUrl = frontEndUrl.replace("carbon/", "authenticationendpoint/openid_login.do");
+            String frontEndUrl = IdentityUtil.getServerURL("/authenticationendpoint/openid_login.do");
             OpenIDHandler provider = OpenIDHandler.getInstance(null);
             provider.setFrontEndUrl(frontEndUrl);
             String response = null;

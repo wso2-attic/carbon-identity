@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.carbon.identity.application.authentication.endpoint;
+package org.wso2.carbon.identity.application.authentication.endpoint.util;
 
 public class Constants {
 

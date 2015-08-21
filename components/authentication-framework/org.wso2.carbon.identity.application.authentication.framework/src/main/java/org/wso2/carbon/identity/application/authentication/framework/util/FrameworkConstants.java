@@ -43,7 +43,6 @@ public abstract class FrameworkConstants {
     public static final String SAML_REQUEST = "SAMLRequest";
     public static final String SIGNATURE = "Signature";
     public static final String COMMONAUTH = "commonauth";
-    public static final String CARBON = "carbon";
     public static final String PASSIVE_STS = "passivests";
     public static final String OPENID_SERVER = "openidserver";
     public static final String OAUTH2 = "oauth2";
