@@ -30,47 +30,50 @@ import org.wso2.carbon.identity.workflow.mgt.bean.TemplateDTO;
 import org.wso2.carbon.identity.workflow.mgt.bean.TemplateImplDTO;
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowDTO;
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowEventDTO;
+import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowRequestAssociationDTO;
+import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowRequestDTO;
 import org.wso2.carbon.identity.workflow.mgt.exception.InternalWorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.exception.RuntimeWorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
+import org.wso2.carbon.identity.workflow.mgt.util.WorkflowRequestStatus;
+import org.wso2.carbon.user.core.util.UserCoreUtil;
 
 import java.util.List;
 import java.util.UUID;
 
-@SuppressWarnings("unused")
 public class WorkflowAdminService {
 
     private static Log log = LogFactory.getLog(WorkflowAdminService.class);
 
-    private WorkflowService service = new WorkflowService();
+    private WorkflowService workflowService = new WorkflowService();
 
     public WorkflowEventDTO[] listWorkflowEvents() {
 
-        List<WorkflowEventDTO> events = service.listWorkflowEvents();
+        List<WorkflowEventDTO> events = workflowService.listWorkflowEvents();
         return events.toArray(new WorkflowEventDTO[events.size()]);
     }
 
     public TemplateBean[] listWorkflowTemplates() {
 
-        List<TemplateBean> templates = service.listWorkflowTemplates();
+        List<TemplateBean> templates = workflowService.listWorkflowTemplates();
         return templates.toArray(new TemplateBean[templates.size()]);
     }
 
     public TemplateDTO getTemplateDTO(String templateName) {
 
-        return service.getTemplateDTO(templateName);
+        return workflowService.getTemplateDTO(templateName);
     }
 
     public TemplateImplDTO getTemplateImplDTO(String template, String implName) {
 
-        return service.getTemplateImplDTO(template, implName);
+        return workflowService.getTemplateImplDTO(template, implName);
     }
 
     public void addBPSProfile(BPSProfileDTO bpsProfileDTO) throws WorkflowException {
 
         try {
             int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
-            service.addBPSProfile(bpsProfileDTO, tenantId);
+            workflowService.addBPSProfile(bpsProfileDTO, tenantId);
         } catch (WorkflowException e) {
             log.error("Server error when adding the profile " + bpsProfileDTO.getProfileName(), e);
             throw new WorkflowException("Server error occurred when adding the BPS profile");
@@ -82,7 +85,7 @@ public class WorkflowAdminService {
         List<BPSProfileDTO> bpsProfiles = null;
         int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
         try {
-            bpsProfiles = service.listBPSProfiles(tenantId);
+            bpsProfiles = workflowService.listBPSProfiles(tenantId);
         } catch (WorkflowException e) {
             log.error("Server error when listing BPS profiles", e);
             throw new WorkflowException("Server error occurred when listing BPS profiles");
@@ -105,7 +108,7 @@ public class WorkflowAdminService {
         BPSProfileDTO bpsProfileDTO = null ;
         int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
         try {
-            bpsProfileDTO = service.getBPSProfile(bpsProfileName, tenantId);
+            bpsProfileDTO = workflowService.getBPSProfile(bpsProfileName, tenantId);
         } catch (WorkflowException e) {
             log.error("Server error when reading a BPS profile", e);
             throw new WorkflowException("Server error occurred when reading a BPS profile");
@@ -123,7 +126,7 @@ public class WorkflowAdminService {
 
         int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
         try {
-            service.updateBPSProfile(bpsProfileDTO, tenantId);
+            workflowService.updateBPSProfile(bpsProfileDTO, tenantId);
         } catch (WorkflowException e) {
             log.error("Server error when updating the BPS profile", e);
             throw new WorkflowException("Server error occurred when updating the BPS profile");
@@ -133,7 +136,7 @@ public class WorkflowAdminService {
     public void removeBPSProfile(String profileName) throws WorkflowException {
 
         try {
-            service.removeBPSProfile(profileName);
+            workflowService.removeBPSProfile(profileName);
         } catch (RuntimeWorkflowException e) {
             log.error("Error when removing workflow " + profileName, e);
             throw new WorkflowException(e.getMessage());
@@ -149,7 +152,8 @@ public class WorkflowAdminService {
         int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
         try {
             workflowDTO.setWorkflowId(id);
-            service.addWorkflow(workflowDTO, templateParams, implParams, tenantId);
+            workflowService.addWorkflow(workflowDTO, templateParams, implParams, tenantId);
+
         } catch (RuntimeWorkflowException e) {
             log.error("Error when adding workflow " + workflowDTO.getWorkflowName(), e);
             throw new WorkflowException(e.getMessage());
@@ -163,7 +167,7 @@ public class WorkflowAdminService {
             WorkflowException {
 
         try {
-            service.addAssociation(associationName, workflowId, eventId, condition);
+            workflowService.addAssociation(associationName, workflowId, eventId, condition);
         } catch (RuntimeWorkflowException e) {
             log.error("Error when adding association " + associationName, e);
             throw new WorkflowException(e.getMessage());
@@ -176,7 +180,7 @@ public class WorkflowAdminService {
 
     public void changeAssociationState(String associationId, boolean isEnable)throws WorkflowException {
         try {
-            service.changeAssociationState(associationId, isEnable);
+            workflowService.changeAssociationState(associationId, isEnable);
         } catch (RuntimeWorkflowException e) {
             log.error("Error when changing an association ", e);
             throw new WorkflowException(e.getMessage());
@@ -193,7 +197,7 @@ public class WorkflowAdminService {
         List<WorkflowDTO> workflows;
         int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
         try {
-            workflows = service.listWorkflows(tenantId);
+            workflows = workflowService.listWorkflows(tenantId);
         } catch (InternalWorkflowException e) {
             log.error("Server error when listing workflows", e);
             throw new WorkflowException("Server error occurred when listing workflows");
@@ -207,7 +211,7 @@ public class WorkflowAdminService {
     public void removeWorkflow(String id) throws WorkflowException {
 
         try {
-            service.removeWorkflow(id);
+            workflowService.removeWorkflow(id);
         } catch (InternalWorkflowException e) {
             log.error("Server error when removing workflow " + id, e);
             throw new WorkflowException("Server error occurred when removing workflow");
@@ -217,7 +221,7 @@ public class WorkflowAdminService {
     public void removeAssociation(String associationId) throws WorkflowException {
 
         try {
-            service.removeAssociation(Integer.parseInt(associationId));
+            workflowService.removeAssociation(Integer.parseInt(associationId));
         } catch (InternalWorkflowException e) {
             log.error("Server error when removing association " + associationId, e);
             throw new WorkflowException("Server error occurred when removing association");
@@ -228,7 +232,7 @@ public class WorkflowAdminService {
 
         List<AssociationDTO> associations;
         try {
-            associations = service.getAssociationsForWorkflow(workflowId);
+            associations = workflowService.getAssociationsForWorkflow(workflowId);
         } catch (InternalWorkflowException e) {
             log.error("Server error when listing associations for workflow id:" + workflowId, e);
             throw new WorkflowException("Server error when listing associations");
@@ -243,7 +247,7 @@ public class WorkflowAdminService {
 
         List<AssociationDTO> associations;
         try {
-            associations = service.listAllAssociations();
+            associations = workflowService.listAllAssociations();
         } catch (InternalWorkflowException e) {
             log.error("Server error when listing all associations", e);
             throw new WorkflowException("Server error when listing associations");
@@ -256,6 +260,65 @@ public class WorkflowAdminService {
 
     public WorkflowEventDTO getEvent(String eventId) {
 
-        return service.getEvent(eventId);
+        return workflowService.getEvent(eventId);
     }
+
+    /**
+     * Returns array of requests initiated by a user.
+     *
+     * @param user
+     * @param beginDate
+     * @param endDate
+     * @param dateCategory
+     * @return
+     * @throws WorkflowException
+     */
+    public WorkflowRequestDTO[] getRequestsCreatedByUser(String user, String beginDate, String endDate, String
+            dateCategory) throws WorkflowException {
+
+
+        String tenant = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+        String fullyQualifiedUserName = UserCoreUtil.addTenantDomainToEntry(user, tenant);
+        return workflowService.getRequestsFromFilter(fullyQualifiedUserName, beginDate, endDate, dateCategory);
+    }
+
+    /**
+     * Return array of requests according to createdAt and updatedAt filter
+     *
+     * @param beginDate
+     * @param endDate
+     * @param dateCategory
+     * @return
+     * @throws WorkflowException
+     */
+    public WorkflowRequestDTO[] getRequestsInFilter(String beginDate, String endDate, String
+            dateCategory) throws WorkflowException {
+
+        return workflowService.getRequestsFromFilter("", beginDate, endDate, dateCategory);
+    }
+
+    /**
+     * Move Workflow request to DELETED state.
+     *
+     * @param requestId
+     * @throws WorkflowException
+     */
+    public void deleteWorkflowRequest(String requestId) throws WorkflowException {
+
+        workflowService.updateStatusOfRequest(requestId, WorkflowRequestStatus.DELETED.toString());
+    }
+
+    /**
+     * Get workflows of a request.
+     *
+     * @param requestId
+     * @return
+     * @throws WorkflowException
+     */
+    public WorkflowRequestAssociationDTO[] getWorkflowsOfRequest(String requestId) throws WorkflowException {
+
+        return workflowService.getWorkflowsOfRequest(requestId);
+    }
+
+
 }
