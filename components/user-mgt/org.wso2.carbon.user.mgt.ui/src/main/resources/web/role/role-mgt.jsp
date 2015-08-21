@@ -47,6 +47,7 @@
 <%
     String BUNDLE = "org.wso2.carbon.userstore.ui.i18n.Resources";
     ResourceBundle resourceBundle = ResourceBundle.getBundle(BUNDLE, request.getLocale());
+
     boolean error = false;
     boolean newFilter = false;
     boolean doRoleList = true;
@@ -55,7 +56,7 @@
     List<FlaggedName> datasList= null;
     FlaggedName[] roles = null;
     FlaggedName exceededDomains = null;
-    String[] domainNames = null;
+    String[] domainNames = null;    
     int pageNumber = 0;
     int cachePages = 3;
     int noOfPageLinksToDisplay = 5;
@@ -66,7 +67,7 @@
     Set<String> workFlowDeletePendingRoles = null;
     Set<FlaggedName> activeRoleList = null;
     Set<FlaggedName> showDeletePendingRoles = new LinkedHashSet<FlaggedName>();
-    String inActiveRolesMessage = "No Actions are allowed for the Workflow Pending Users";
+    String inActiveRolesMessage = "No Actions are allowed for the Workflow Pending Roles";
 
     // clear session data
     session.removeAttribute("roleBean");
@@ -92,8 +93,9 @@
     } else {
         newFilter = true;
     }
-    session.setAttribute(UserAdminUIConstants.ROLE_LIST_DOMAIN_FILTER, selectedDomain.trim());
 
+    session.setAttribute(UserAdminUIConstants.ROLE_LIST_DOMAIN_FILTER, selectedDomain.trim());
+    
     String filter = request.getParameter(UserAdminUIConstants.ROLE_LIST_FILTER);
     if (filter == null || filter.trim().length() == 0) {
         filter = (String) session.getAttribute(UserAdminUIConstants.ROLE_LIST_FILTER);
@@ -107,12 +109,16 @@
         }
         newFilter = true;
     }
+
+
     String modifiedFilter = filter.trim();
     if(!UserAdminUIConstants.ALL_DOMAINS.equalsIgnoreCase(selectedDomain)){
         modifiedFilter = selectedDomain + UserAdminUIConstants.DOMAIN_SEPARATOR + filter;
         modifiedFilter = modifiedFilter.trim();
     }
+
     session.setAttribute(UserAdminUIConstants.ROLE_LIST_FILTER, filter.trim());
+
     String currentUser = (String) session.getAttribute("logged-user");
     userRealmInfo = (UserRealmInfo)session.getAttribute(UserAdminUIConstants.USER_STORE_INFO);
     if (userRealmInfo != null) {
@@ -120,16 +126,19 @@
     }
     String errorAttribute = (String) session.getAttribute(UserAdminUIConstants.DO_ROLE_LIST);
     exceededDomains = (FlaggedName) session.getAttribute(UserAdminUIConstants.ROLE_LIST_CACHE_EXCEEDED);
+
     // check page number
     String pageNumberStr = request.getParameter("pageNumber");
     if (pageNumberStr == null) {
         pageNumberStr = "0";
     }
+
     try {
         pageNumber = Integer.parseInt(pageNumberStr);
     } catch (NumberFormatException ignored) {
         // page number format exception
     }
+
     flaggedNameMap  = (Map<Integer, PaginatedNamesBean>) session.getAttribute(UserAdminUIConstants.ROLE_LIST_CACHE);
     if(flaggedNameMap != null){
         PaginatedNamesBean bean = flaggedNameMap.get(pageNumber);
@@ -141,11 +150,14 @@
             }
         }
     }
+
     if (errorAttribute != null) {
         error = true;
         session.removeAttribute(UserAdminUIConstants.DO_ROLE_LIST);
     }
+
     if ((doRoleList || newFilter) && !error) {
+
         try {
             String cookie = (String) session.getAttribute(ServerConstants.ADMIN_SERVICE_COOKIE);
             String backendServerURL = CarbonUIUtil.getServerURL(config.getServletContext(), session);
@@ -157,6 +169,7 @@
 
             boolean sharedRoleEnabled = client.isSharedRolesEnabled();
             session.setAttribute(UserAdminUIConstants.SHARED_ROLE_ENABLED, sharedRoleEnabled);
+
             if (filter.length() > 0) {
                 FlaggedName[] datas = client.getAllRolesNames(modifiedFilter, -1);
                 datasList = new ArrayList<FlaggedName>(Arrays.asList(datas));
@@ -172,6 +185,7 @@
                 userRealmInfo = client.getUserRealmInfo();
                 session.setAttribute(UserAdminUIConstants.USER_STORE_INFO, userRealmInfo);
             }
+
             if(datasList != null){
                 flaggedNameMap = new HashMap<Integer, PaginatedNamesBean>();
                 int max = pageNumber + cachePages;
@@ -222,6 +236,7 @@
                     e.getMessage());
 %>
 <script type="text/javascript">
+
     jQuery(document).ready(function () {
         CARBON.showErrorDialog('<%=message%>', null);
     });
@@ -229,6 +244,7 @@
 <%
         }
     }
+
     if(userRealmInfo != null){
         domainNames = userRealmInfo.getDomainNames();
         if(domainNames != null){
@@ -240,11 +256,12 @@
     }
 %>
 <fmt:bundle basename="org.wso2.carbon.userstore.ui.i18n.Resources">
-    <carbon:breadcrumb label="roles"
-                       resourceBundle="org.wso2.carbon.userstore.ui.i18n.Resources"
-                       topPage="false" request="<%=request%>" />
-
+<carbon:breadcrumb label="roles"
+		resourceBundle="org.wso2.carbon.userstore.ui.i18n.Resources"
+		topPage="false" request="<%=request%>" />
+		
     <script type="text/javascript">
+
         function deleteUserGroup(role) {
             function doDelete(){
                 var roleName = role;
@@ -252,20 +269,23 @@
             }
             CARBON.showConfirmationDialog('<fmt:message key="confirm.delete.role"/> ' + role + '?', doDelete, null);
         }
+
         <%if (showFilterMessage) {%>
         jQuery(document).ready(function () {
             CARBON.showInfoDialog('<fmt:message key="no.roles.filtered"/>', null, null);
         });
         <%}%>
         /*function doDelete(){
-         location.href = 'delete-role.jsp?roleName=' + this.role+'&userType=internal';
-         }*/
+            location.href = 'delete-role.jsp?roleName=' + this.role+'&userType=internal';
+        }*/
     </script>
     <script type="text/javascript">
+
         function updateUserGroup(role) {
-            var roleName = role;
-            location.href = 'rename-role.jsp?roleName=' + roleName;
+                var roleName = role;
+                location.href = 'rename-role.jsp?roleName=' + roleName;
         }
+
     </script>
     <div id="middle">
         <h2><fmt:message key="roles"/></h2>
@@ -274,14 +294,14 @@
 
             <form name="filterForm" method="post" action="role-mgt.jsp">
                 <table class="styledLeft noBorders">
-                    <thead>
-                    <tr>
-                        <th colspan="2"><fmt:message key="role.search"/></th>
-                    </tr>
-                    </thead>
-                    <tbody>
+				<thead>
+					<tr>
+						<th colspan="2"><fmt:message key="role.search"/></th>
+					</tr>
+				</thead>
+				<tbody>
                     <%
-                        if(domainNames != null && domainNames.length > 0){
+                       if(domainNames != null && domainNames.length > 0){
                     %>
                     <tr>
                         <td class="leftCol-big" style="padding-right: 0 !important;"><fmt:message key="select.domain.search"/></td>
@@ -290,11 +310,11 @@
                                 for(String domainName : domainNames) {
                                     if(selectedDomain.equals(domainName)) {
                             %>
-                            <option selected="selected" value="<%=domainName%>"><%=domainName%></option>
+                                <option selected="selected" value="<%=domainName%>"><%=domainName%></option>
                             <%
-                            } else {
+                                    } else {
                             %>
-                            <option value="<%=domainName%>"><%=domainName%></option>
+                                <option value="<%=domainName%>"><%=domainName%></option>
                             <%
                                     }
                                 }
@@ -317,7 +337,7 @@
                         </td>
 
                     </tr>
-                    </tbody>
+				</tbody>
                 </table>
             </form>
             <p>&nbsp;</p>
@@ -334,10 +354,10 @@
                 <thead>
                 <tr>
                     <th><fmt:message key="name"/></th>
-                        <%--<%if(hasMultipleUserStores){%>
-                        <th><fmt:message key="domainName"/></th>
-                        <%}
-                        %>--%>
+                    <%--<%if(hasMultipleUserStores){%>
+                    <th><fmt:message key="domainName"/></th>
+                    <%}
+                    %>--%>
                     <th><fmt:message key="actions"/></th>
                 </tr>
                 </thead>
@@ -353,8 +373,8 @@
                                 if (CarbonConstants.REGISTRY_ANONNYMOUS_ROLE_NAME.equals(flaggedName.getItemName())) {
                                     continue;
                                 }
-                                if (userRealmInfo.getAdminRole().equals(flaggedName.getItemName()) &&
-                                        !userRealmInfo.getAdminUser().equals(currentUser)) {
+                                if(userRealmInfo.getAdminRole().equals(flaggedName.getItemName()) &&
+                                        !userRealmInfo.getAdminUser().equals(currentUser)){
                                     continue;
                                 }
                                 String roleName = CharacterEncoder.getSafeText(flaggedName.getItemName());
@@ -367,13 +387,13 @@
                     <td><%=disPlayName%>
                         <%if (!flaggedName.getEditable()) { %> <%="(Read-Only)"%> <% } %>
                     </td>
-                        <%-- <%if(hasMultipleUserStores){%>
-                             <td>
-                                 <%if(data.getDomainName() != null){%>
-                                 <%data.getDomainName();%>
-                                 <%} %>
-                             </td>
-                         <%}%>--%>
+                   <%-- <%if(hasMultipleUserStores){%>
+                    	<td>
+                            <%if(data.getDomainName() != null){%>
+                            <%data.getDomainName();%>
+                            <%} %>
+                        </td>
+                    <%}%>--%>
                     <td>
                         <%if (!flaggedName.getShared()) { %>
                         <% if (flaggedName.getItemName().equals(userRealmInfo.getAdminRole()) == false && flaggedName.getItemName().equals(userRealmInfo.getEveryOneRole()) == false && flaggedName.getEditable()) {%>
@@ -430,7 +450,7 @@
                                 if (disPlayName == null) {
                                     disPlayName = roleName;
                                 }
-                                String disPlayRoleName = disPlayName + " " + "[Pending Users for Delete]";
+                                String disPlayRoleName = disPlayName + " " + "[Pending Roles for Delete]";
                 %>
                 <tr>
                     <td><%=disPlayRoleName%>
@@ -483,7 +503,7 @@
                                 if (role.equals(CarbonConstants.REGISTRY_ANONNYMOUS_USERNAME)) {
                                     continue;
                                 }
-                                String disPlayName = role + " " + "[Pending Users for Add]";
+                                String disPlayName = role + " " + "[Pending Roles for Add]";
                 %>
                 <tr>
                     <td><%=disPlayName%>
@@ -497,7 +517,6 @@
                         }
                     }
                 %>
-
                 </tbody>
             </table>
 

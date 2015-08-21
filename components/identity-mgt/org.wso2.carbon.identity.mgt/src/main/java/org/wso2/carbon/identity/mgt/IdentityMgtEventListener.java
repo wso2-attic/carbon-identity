@@ -22,6 +22,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.base.IdentityException;
+import org.wso2.carbon.identity.core.AbstractIdentityUserOperationEventListener;
 import org.wso2.carbon.identity.core.model.IdentityErrorMsgContext;
 import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
@@ -67,7 +68,7 @@ import java.util.Map.Entry;
  * additional operations
  * for some of the core user management operations
  */
-public class IdentityMgtEventListener extends AbstractUserOperationEventListener {
+public class IdentityMgtEventListener extends AbstractIdentityUserOperationEventListener {
 
     /*
      * The thread local variable to hold data with scope only to that variable.
@@ -136,7 +137,7 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
      */
     @Override
     public int getExecutionOrderId() {
-        int orderId = IdentityUtil.readEventListenerOrderIDs("UserOperationEventListener", "org.wso2.carbon.identity.mgt.IdentityMgtEventListener");
+        int orderId = getOrderId(IdentityMgtEventListener.class.getName());
         if (orderId != IdentityCoreConstants.EVENT_LISTENER_ORDER_ID) {
             return orderId;
         }
@@ -151,6 +152,9 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
     @Override
     public boolean doPreAuthenticate(String userName, Object credential,
                                      UserStoreManager userStoreManager) throws UserStoreException {
+        if (!isEnable(this.getClass().getName())) {
+            return true;
+        }
 
         // Top level try and finally blocks are used to unset thread local variables
         try {
@@ -239,6 +243,9 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
     @Override
     public boolean doPostAuthenticate(String userName, boolean authenticated,
                                       UserStoreManager userStoreManager) throws UserStoreException {
+        if (!isEnable(this.getClass().getName())) {
+            return true;
+        }
 
         // Top level try and finally blocks are used to unset thread local variables
         try {
@@ -448,6 +455,10 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
                                 Map<String, String> claims, String profile,
                                 UserStoreManager userStoreManager) throws UserStoreException {
 
+        if (!isEnable(this.getClass().getName())) {
+            return true;
+        }
+
         if (log.isDebugEnabled()) {
             log.debug("Pre add user is called in IdentityMgtEventListener");
         }
@@ -533,6 +544,10 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
     public boolean doPostAddUser(String userName, Object credential, String[] roleList,
                                  Map<String, String> claims, String profile,
                                  UserStoreManager userStoreManager) throws UserStoreException {
+
+        if (!isEnable(this.getClass().getName())) {
+            return true;
+        }
 
         // Top level try and finally blocks are used to unset thread local variables
         try {
@@ -660,6 +675,10 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
 	public boolean doPreUpdateCredential(String userName, Object newCredential,
             Object oldCredential, UserStoreManager userStoreManager) throws UserStoreException {
 
+        if (!isEnable(this.getClass().getName())) {
+            return true;
+        }
+
         if (log.isDebugEnabled()) {
             log.debug("Pre update credential is called in IdentityMgtEventListener");
         }
@@ -693,6 +712,10 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
 	@Override
     public boolean doPreUpdateCredentialByAdmin(String userName, Object newCredential,
             UserStoreManager userStoreManager) throws UserStoreException {
+
+        if (!isEnable(this.getClass().getName())) {
+            return true;
+        }
 
         if (log.isDebugEnabled()) {
             log.debug("Pre update credential by admin is called in IdentityMgtEventListener");
@@ -758,6 +781,9 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
     public boolean doPreSetUserClaimValue(String userName, String claimURI, String claimValue,
                                           String profileName, UserStoreManager userStoreManager)
             throws UserStoreException {
+        if (!isEnable(this.getClass().getName())) {
+            return true;
+        }
 
         IdentityMgtConfig config = IdentityMgtConfig.getInstance();
         if (!config.isListenerEnable()) {
@@ -784,6 +810,10 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
     public boolean doPreSetUserClaimValues(String userName, Map<String, String> claims,
                                            String profileName, UserStoreManager userStoreManager)
             throws UserStoreException {
+
+        if (!isEnable(this.getClass().getName())) {
+            return true;
+        }
 
         // Top level try and finally blocks are used to unset thread local variables
         try {
@@ -837,6 +867,10 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
     public boolean doPostDeleteUser(String userName, UserStoreManager userStoreManager)
             throws UserStoreException {
 
+        if (!isEnable(this.getClass().getName())) {
+            return true;
+        }
+
         IdentityMgtConfig config = IdentityMgtConfig.getInstance();
         if (!config.isListenerEnable()) {
             return true;
@@ -876,6 +910,10 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
                                             Map<String, String> claimMap,
                                             UserStoreManager storeManager)
             throws UserStoreException {
+
+        if (!isEnable(this.getClass().getName())) {
+            return true;
+        }
 
         IdentityMgtConfig config = IdentityMgtConfig.getInstance();
         if (!config.isListenerEnable()) {
@@ -929,6 +967,10 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
     @Override
     public boolean doPostUpdateCredential(String userName, Object credential, UserStoreManager userStoreManager)
             throws UserStoreException {
+
+        if (!isEnable(this.getClass().getName())) {
+            return true;
+        }
 
         // Top level try and finally blocks are used to unset thread local variables
         try {

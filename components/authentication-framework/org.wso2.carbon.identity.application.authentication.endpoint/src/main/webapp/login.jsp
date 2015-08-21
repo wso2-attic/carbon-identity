@@ -16,7 +16,7 @@
   ~ under the License.
   --%>
 
-<%@page import="org.wso2.carbon.identity.application.authentication.endpoint.Constants" %>
+<%@page import="org.wso2.carbon.identity.application.authentication.endpoint.util.Constants" %>
 <%@page import="java.util.ArrayList" %>
 <%@page import="java.util.Arrays" %>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>

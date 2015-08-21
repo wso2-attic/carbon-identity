@@ -21,6 +21,7 @@ package org.wso2.carbon.identity.oauth.listener;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
+import org.wso2.carbon.identity.core.AbstractIdentityUserOperationEventListener;
 import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.oauth.OAuthUtil;
@@ -38,7 +39,7 @@ import java.util.Set;
  * additional operations
  * for some of the core user management operations
  */
-public class IdentityOathEventListener extends AbstractUserOperationEventListener {
+public class IdentityOathEventListener extends AbstractIdentityUserOperationEventListener {
     private static final Log log = LogFactory.getLog(IdentityOathEventListener.class);
 
     /**
@@ -46,7 +47,7 @@ public class IdentityOathEventListener extends AbstractUserOperationEventListene
      */
     @Override
     public int getExecutionOrderId() {
-        int orderId = IdentityUtil.readEventListenerOrderIDs("UserOperationEventListener", "org.wso2.carbon.identity.oauth.listener.IdentityOathEventListener");
+        int orderId = getOrderId(IdentityOathEventListener.class.getName());
         if (orderId != IdentityCoreConstants.EVENT_LISTENER_ORDER_ID) {
             return orderId;
         }
@@ -60,6 +61,10 @@ public class IdentityOathEventListener extends AbstractUserOperationEventListene
     public boolean doPreDeleteUser(java.lang.String username,
                                    org.wso2.carbon.user.core.UserStoreManager userStoreManager)
             throws org.wso2.carbon.user.core.UserStoreException {
+
+        if (!isEnable(this.getClass().getName())) {
+            return true;
+        }
 
         TokenMgtDAO tokenMgtDAO = new TokenMgtDAO();
 

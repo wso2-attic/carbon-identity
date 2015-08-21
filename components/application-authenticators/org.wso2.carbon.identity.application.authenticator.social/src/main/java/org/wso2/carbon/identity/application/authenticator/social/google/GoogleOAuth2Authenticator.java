@@ -34,11 +34,13 @@ import org.codehaus.jettison.json.JSONException;
 import org.wso2.carbon.identity.application.authentication.framework.context.AuthenticationContext;
 import org.wso2.carbon.identity.application.authentication.framework.exception.AuthenticationFailedException;
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticatedUser;
+import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkConstants;
 import org.wso2.carbon.identity.application.authenticator.oidc.OIDCAuthenticatorConstants;
 import org.wso2.carbon.identity.application.authenticator.oidc.OpenIDConnectAuthenticator;
 import org.wso2.carbon.identity.application.common.model.ClaimMapping;
 import org.wso2.carbon.identity.application.common.model.Property;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.ui.CarbonUIUtil;
 
 import javax.servlet.http.HttpServletRequest;
@@ -119,8 +121,7 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
                 }
 
                 if (callBackUrl == null) {
-                    callBackUrl = CarbonUIUtil.getAdminConsoleURL(request);
-                    callBackUrl = callBackUrl.replace("commonauth/carbon/", "commonauth");
+                    callBackUrl = IdentityUtil.getServerURL(FrameworkConstants.COMMONAUTH);
                 }
 
                 String state = context.getContextIdentifier() + "," + OIDCAuthenticatorConstants.LOGIN_TYPE;
@@ -321,8 +322,7 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
             log.debug("callBackUrl : " + callBackUrl);
 
             if (callBackUrl == null) {
-                callBackUrl = CarbonUIUtil.getAdminConsoleURL(request);
-                callBackUrl = callBackUrl.replace("commonauth/carbon/", "commonauth");
+                callBackUrl = IdentityUtil.getServerURL(FrameworkConstants.COMMONAUTH);
             }
 
             @SuppressWarnings({"unchecked"})
