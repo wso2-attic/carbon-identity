@@ -58,6 +58,7 @@
         <module>org.wso2.carbon.identity.tools.saml.validator.stub</module>
         <module>org.wso2.carbon.identity.user.account.association.stub</module>
         <module>org.wso2.carbon.user.mgt.stub</module>
+        <module>org.wso2.carbon.user.mgt.workflow.stub</module>
         <module>org.wso2.carbon.identity.workflow.mgt.stub</module>
         <module>org.wso2.carbon.identity.workflow.mgt.bps.stub</module>
     </modules>

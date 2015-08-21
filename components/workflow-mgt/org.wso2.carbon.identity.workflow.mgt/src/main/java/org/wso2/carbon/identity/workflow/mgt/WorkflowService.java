@@ -484,4 +484,21 @@ public class WorkflowService {
         }
 
     }
+
+    /**
+     * Retrieve List of associated Entity-types of the workflow requests.
+     *
+     * @param wfOperationType Operation Type of the Work-flow.
+     * @param wfStatus        Current Status of the Work-flow.
+     * @param entityType      Entity Type of the Work-flow.
+     * @param tenantID        Tenant ID of the currently Logged user.
+     * @return
+     * @throws InternalWorkflowException
+     */
+
+    public List<String> listEntityNames(String wfOperationType, String wfStatus, String entityType, int tenantID) throws
+            InternalWorkflowException {
+        return requestEntityRelationshipDAO.getEntityNamesOfRequest(wfOperationType, wfStatus, entityType, tenantID);
+    }
+
 }
