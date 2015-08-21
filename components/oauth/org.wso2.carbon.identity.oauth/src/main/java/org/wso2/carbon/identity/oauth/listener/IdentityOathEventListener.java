@@ -21,12 +21,16 @@ package org.wso2.carbon.identity.oauth.listener;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
+import org.wso2.carbon.identity.core.AbstractIdentityUserOperationEventListener;
+import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.oauth.OAuthUtil;
 import org.wso2.carbon.identity.oauth2.IdentityOAuth2Exception;
 import org.wso2.carbon.identity.oauth2.dao.TokenMgtDAO;
 import org.wso2.carbon.identity.oauth2.model.AccessTokenDO;
 import org.wso2.carbon.identity.oauth2.util.OAuth2Util;
 import org.wso2.carbon.user.core.common.AbstractUserOperationEventListener;
+import org.wso2.carbon.user.core.util.UserCoreUtil;
 
 import java.util.Set;
 
@@ -35,7 +39,7 @@ import java.util.Set;
  * additional operations
  * for some of the core user management operations
  */
-public class IdentityOathEventListener extends AbstractUserOperationEventListener {
+public class IdentityOathEventListener extends AbstractIdentityUserOperationEventListener {
     private static final Log log = LogFactory.getLog(IdentityOathEventListener.class);
 
     /**
@@ -43,7 +47,11 @@ public class IdentityOathEventListener extends AbstractUserOperationEventListene
      */
     @Override
     public int getExecutionOrderId() {
-        return 1501;
+        int orderId = getOrderId(IdentityOathEventListener.class.getName());
+        if (orderId != IdentityCoreConstants.EVENT_LISTENER_ORDER_ID) {
+            return orderId;
+        }
+        return 60;
     }
 
     /**
@@ -54,12 +62,22 @@ public class IdentityOathEventListener extends AbstractUserOperationEventListene
                                    org.wso2.carbon.user.core.UserStoreManager userStoreManager)
             throws org.wso2.carbon.user.core.UserStoreException {
 
+        if (!isEnable(this.getClass().getName())) {
+            return true;
+        }
+
         TokenMgtDAO tokenMgtDAO = new TokenMgtDAO();
 
+        String userStoreDomain = UserCoreUtil.getDomainName(userStoreManager.getRealmConfiguration());
         String tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-        username = (username + "@" + tenantDomain);
 
-        String userStoreDomain = null;
+        username = UserCoreUtil.addDomainToName(username, userStoreDomain);
+        username = UserCoreUtil.addTenantDomainToEntry(username, tenantDomain);
+        username = username.toLowerCase();
+
+        /* This userStoreDomain variable is used for access token table partitioning. So it is set to null when access
+        token table partitioning is not enabled.*/
+        userStoreDomain = null;
         if (OAuth2Util.checkAccessTokenPartitioningEnabled() && OAuth2Util.checkUserNameAssertionEnabled()) {
             try {
                 userStoreDomain = OAuth2Util.getUserStoreDomainFromUserId(username);
@@ -111,7 +129,7 @@ public class IdentityOathEventListener extends AbstractUserOperationEventListene
                 if (scopedToken != null) {
                     try {
                         //Revoking token from database
-                        tokenMgtDAO.revokeToken(scopedToken.getAccessToken());
+                        tokenMgtDAO.revokeTokens(new String[]{scopedToken.getAccessToken()});
                     } catch (IdentityOAuth2Exception e) {
                         String errorMsg = "Error occurred while revoking " +
                                 "Access Token : " + scopedToken.getAccessToken();

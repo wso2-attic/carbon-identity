@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.identity.application.mgt.dao.impl;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
@@ -313,7 +314,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
         }
 
         // only if the application has been renamed
-        if (!applicationName.equals(storedAppName)) {
+        if (!StringUtils.equals(applicationName, storedAppName)) {
             // rename the role
             ApplicationMgtUtil.renameRole(storedAppName, applicationName);
             if (debugMode) {
@@ -1236,11 +1237,11 @@ public class ApplicationDAOImpl implements ApplicationDAO {
                 localAndOutboundAuthenticationConfig.setAlwaysSendBackAuthenticatedListOfIdPs("1"
                         .equals(basicAppDataResultSet.getString(12)));
                 localAndOutboundAuthenticationConfig.setSubjectClaimUri(basicAppDataResultSet
-                        .getString(13));
+                        .getString(15));
                 serviceProvider
                         .setLocalAndOutBoundAuthenticationConfig(localAndOutboundAuthenticationConfig);
 
-                serviceProvider.setSaasApp("1".equals(basicAppDataResultSet.getString(14)));
+                serviceProvider.setSaasApp("1".equals(basicAppDataResultSet.getString(16)));
 
                 if (debugMode) {
                     log.debug("ApplicationID: " + serviceProvider.getApplicationID()

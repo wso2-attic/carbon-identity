@@ -21,6 +21,9 @@ package org.wso2.carbon.identity.user.account.association.internal;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.identity.core.AbstractIdentityUserOperationEventListener;
+import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.user.account.association.dao.UserAccountAssociationDAO;
 import org.wso2.carbon.identity.user.account.association.exception.UserAccountAssociationException;
 import org.wso2.carbon.identity.user.account.association.util.UserAccountAssociationConstants;
@@ -32,14 +35,18 @@ import org.wso2.carbon.user.core.util.UserCoreUtil;
 
 import java.util.Map;
 
-public class UserOperationEventListenerImpl implements UserOperationEventListener {
+public class UserOperationEventListenerImpl extends AbstractIdentityUserOperationEventListener {
 
     private static final Log log = LogFactory.getLog(UserOperationEventListenerImpl.class);
 
-    private static final int EXEC_ORDER = 22;
+    private static final int EXEC_ORDER = 40;
 
     @Override
     public int getExecutionOrderId() {
+        int orderId = getOrderId(UserOperationEventListenerImpl.class.getName());
+        if (orderId != IdentityCoreConstants.EVENT_LISTENER_ORDER_ID) {
+            return orderId;
+        }
         return EXEC_ORDER;
     }
 
@@ -92,6 +99,9 @@ public class UserOperationEventListenerImpl implements UserOperationEventListene
 
     @Override
     public boolean doPreDeleteUser(String userName, UserStoreManager userStoreManager) throws UserStoreException {
+        if (!isEnable(this.getClass().getName())) {
+            return true;
+        }
 
         String domainName = UserCoreUtil.getDomainName(userStoreManager.getRealmConfiguration());
         if (StringUtils.isBlank(domainName)) {

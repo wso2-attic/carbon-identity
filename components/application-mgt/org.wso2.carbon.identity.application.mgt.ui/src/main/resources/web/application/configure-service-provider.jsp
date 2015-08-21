@@ -85,9 +85,24 @@ location.href = 'list-service-provider.jsp';
     	appBean.deleteSAMLIssuer();
         isNeedToUpdate = true;
     }
-    
+
 	samlIssuerName = appBean.getSAMLIssuer();
-	
+
+
+	String kerberosServicePrinciple = CharacterEncoder.getSafeText(request.getParameter("kerberos"));
+
+
+	if (kerberosServicePrinciple != null && "update".equals(action)){
+		appBean.setKerberosServiceName(kerberosServicePrinciple);
+		isNeedToUpdate = true;
+	}
+
+	if (kerberosServicePrinciple != null && "delete".equals(action)){
+		appBean.deleteKerberosApp();
+		isNeedToUpdate = true;
+	}
+
+
     String attributeConsumingServiceIndex = CharacterEncoder.getSafeText(request.getParameter("attrConServIndex"));
 	if(attributeConsumingServiceIndex != null){
 		appBean.setAttributeConsumingServiceIndex(attributeConsumingServiceIndex);
@@ -360,7 +375,17 @@ var roleMappinRowID = -1;
 			document.getElementById("saml_link").href="#"
 		}
 	}
-    
+
+	function onKerberosClick() {
+		var spName = document.getElementById("spName").value;
+		if( spName != '') {
+			updateBeanAndRedirect("../servicestore/add-step1.jsp?spName="+spName);
+		} else {
+			CARBON.showWarningDialog('<fmt:message key="alert.please.provide.service.provider.id"/>');
+			document.getElementById("kerberos_link").href="#"
+		}
+	}
+
 	function onOauthClick() {
 		var spName = document.getElementById("spName").value;
 		if( spName != '') {
@@ -968,7 +993,8 @@ var roleMappinRowID = -1;
                 <a href="#"><fmt:message key="title.config.app.authentication"/></a>
             </h2>
             
-            <%if (display!=null && (display.equals("oauthapp") || display.equals("samlIssuer")  || display.equals("serviceName") )) { %>
+            <%if (display!=null && (display.equals("oauthapp") || display.equals("samlIssuer")  ||
+					display.equals("serviceName") || display.equals("kerberos") )) { %>
                   <div class="toggle_container sectionSub" style="margin-bottom:10px;" id="inbound_auth_request_div">
             <%} else { %>
                   <div class="toggle_container sectionSub" style="margin-bottom:10px;display:none;" id="inbound_auth_request_div">           
@@ -1089,53 +1115,39 @@ var roleMappinRowID = -1;
                     </tr>
                     </table>
                     </div>
-            <h2 id="wst.config.head" class="sectionSeperator trigger active" style="background-color: beige;">
-                <a href="#"><fmt:message key="title.config.sts.config"/></a>
-               	<% if(appBean.getWstrustSP() != null) { %>
-                	<div class="enablelogo"><img src="images/ok.png"  width="16" height="16"></div>
-                <%} %>
-            </h2>
-            <%if (display!=null && display.equals("serviceName")) { %>                                    
-               <div class="toggle_container sectionSub" style="margin-bottom:10px;" id="wst.config.div">
-            <% } else { %>
-               <div class="toggle_container sectionSub" style="margin-bottom:10px;display:none;" id="wst.config.div">            
-            <%} %>
-                  <table class="carbonFormTable">
-                    
-                    <tr>
-                    	<td>
-                    	    <%
-	                    		if(appBean.getWstrustSP() == null) {
-	                    	%>
-	                        <a id="sts_link" class="icon-link" onclick="onSTSClick()">
-							 <fmt:message key='auth.configure' /></a>
-							 <%
-							 	} else {
-							 %>
-							 <div style="clear:both"></div>
-							 <table class="styledLeft" id="samlTable">
-                                <thead><tr><th class="leftCol-med">Audience</th><th><fmt:message key='application.info.oauthoidc.action'/></th></tr></thead>
-                                <tbody>
-                                <tr>
-                                	<td><%=appBean.getWstrustSP()%></td>
-                                	<td style="white-space: nowrap;">
-                                		<a title="Edit Audience" onclick="updateBeanAndRedirect('../generic-sts/sts.jsp?spName=<%=spName%>&&spAudience=<%=appBean.getWstrustSP()%>&spAction=spEdit');"  class="icon-link" style="background-image: url(../admin/images/edit.gif)">Edit</a>
-                                	    <a title="Delete Audience" onclick="updateBeanAndRedirect('../generic-sts/remove-trusted-service.jsp?action=delete&appName=<%=spName%>&endpointaddrs=<%=appBean.getWstrustSP()%>');" class="icon-link" style="background-image: url(images/delete.gif)"> Delete </a>
-                                	</td>
-                                </tr>
-                                </tbody>
-                                </table>
-							 <%
-							 	}
-							 %>
-							<div style="clear:both"></div>
-                        </td>
-                    </tr>
-                   
-                  </table>
-            </div>
-            
-             <h2 id="passive.sts.config.head" class="sectionSeperator trigger active" style="background-color: beige;">
+
+
+				<h2 id="openid.config.head" class="sectionSeperator trigger active" style="background-color: beige;">
+					<a href="#">OpenID Configuration</a>
+					<div class="enablelogo"><img src="images/ok.png"  width="16" height="16"></div>
+				</h2>
+				<div class="toggle_container sectionSub" style="margin-bottom:10px;display:none;" id="openid.config.div">
+					<table class="carbonFormTable">
+
+						<tr>
+							<td style="width:15%" class="leftCol-med labelField">
+								<fmt:message key='application.openid.realm'/>:
+							</td>
+							<td>
+								<%
+									if(appBean.getOpenIDRealm() != null) {
+								%>
+								<input style="width:50%" id="openidRealm" name="openidRealm" type="text" value="<%=appBean.getOpenIDRealm()%>" autofocus/>
+								<% } else { %>
+								<input style="width:50%" id="openidRealm" name="openidRealm" type="text" value="<%=appBean.getServiceProvider().getApplicationName()%>" autofocus/>
+								<% } %>
+								<div class="sectionHelp">
+									<fmt:message key='help.openid'/>
+								</div>
+							</td>
+
+						</tr>
+
+					</table>
+				</div>
+
+
+				<h2 id="passive.sts.config.head" class="sectionSeperator trigger active" style="background-color: beige;">
                 <a href="#">WS-Federation (Passive) Configuration</a>
                 <div class="enablelogo"><img src="images/ok.png"  width="16" height="16"></div>
             </h2>
@@ -1181,37 +1193,117 @@ var roleMappinRowID = -1;
                    
                   </table>
             </div>
-            
-            <h2 id="openid.config.head" class="sectionSeperator trigger active" style="background-color: beige;">
-                <a href="#">OpenID Configuration</a>
-                <div class="enablelogo"><img src="images/ok.png"  width="16" height="16"></div>
-            </h2>
-            <div class="toggle_container sectionSub" style="margin-bottom:10px;display:none;" id="openid.config.div">
-                  <table class="carbonFormTable">
-                    
-                    <tr>
-                        <td style="width:15%" class="leftCol-med labelField">
-                    		<fmt:message key='application.openid.realm'/>:
-                    	</td>
-                    	<td>
-                    	    <%
-	                    		if(appBean.getOpenIDRealm() != null) {
-	                    	%>	                    
-                            <input style="width:50%" id="openidRealm" name="openidRealm" type="text" value="<%=appBean.getOpenIDRealm()%>" autofocus/>
-                            <% } else { %>
-                            <input style="width:50%" id="openidRealm" name="openidRealm" type="text" value="<%=appBean.getServiceProvider().getApplicationName()%>" autofocus/>
-                            <% } %>
-                          <div class="sectionHelp">
-                                <fmt:message key='help.openid'/>
-                            </div>
-                        </td>
-                        
-                    </tr>
-                   
-                  </table>
-            </div>
-                  
-            </div>
+
+				<h2 id="wst.config.head" class="sectionSeperator trigger active" style="background-color: beige;">
+					<a href="#"><fmt:message key="title.config.sts.config"/></a>
+					<% if(appBean.getWstrustSP() != null) { %>
+					<div class="enablelogo"><img src="images/ok.png"  width="16" height="16"></div>
+					<%} %>
+				</h2>
+						<%if (display!=null && display.equals("serviceName")) { %>
+				<div class="toggle_container sectionSub" style="margin-bottom:10px;" id="wst.config.div">
+					<% } else { %>
+					<div class="toggle_container sectionSub" style="margin-bottom:10px;display:none;" id="wst.config.div">
+						<%} %>
+						<table class="carbonFormTable">
+
+							<tr>
+								<td>
+									<%
+										if(appBean.getWstrustSP() == null) {
+									%>
+									<a id="sts_link" class="icon-link" onclick="onSTSClick()">
+										<fmt:message key='auth.configure' /></a>
+									<%
+									} else {
+									%>
+									<div style="clear:both"></div>
+									<table class="styledLeft" id="samlTable">
+										<thead><tr><th class="leftCol-med">Audience</th><th><fmt:message key='application.info.oauthoidc.action'/></th></tr></thead>
+										<tbody>
+										<tr>
+											<td><%=appBean.getWstrustSP()%></td>
+											<td style="white-space: nowrap;">
+												<a title="Edit Audience" onclick="updateBeanAndRedirect('../generic-sts/sts.jsp?spName=<%=spName%>&&spAudience=<%=appBean.getWstrustSP()%>&spAction=spEdit');"  class="icon-link" style="background-image: url(../admin/images/edit.gif)">Edit</a>
+												<a title="Delete Audience" onclick="updateBeanAndRedirect('../generic-sts/remove-trusted-service.jsp?action=delete&appName=<%=spName%>&endpointaddrs=<%=appBean.getWstrustSP()%>');" class="icon-link" style="background-image: url(images/delete.gif)"> Delete </a>
+											</td>
+										</tr>
+										</tbody>
+									</table>
+									<%
+										}
+									%>
+									<div style="clear:both"></div>
+								</td>
+							</tr>
+
+						</table>
+					</div>
+
+				   <h2 id="kerberos.kdc.head" class="sectionSeperator trigger active"
+					   style="background-color: beige;">
+					   <a href="#">Kerberos KDC</a>
+
+					  <% if(appBean.getKerberosServiceName() != null) { %>
+					   		<div class="enablelogo"><img src="images/ok.png"  width="16" height="16"></div>
+					   <% } %>
+				   </h2>
+
+					<%if (display!=null && display.equals("kerberos")) { %>
+						<div class="toggle_container sectionSub" style="margin-bottom:10px;" id="kerberos.config.div">
+					<%} else { %>
+						<div class="toggle_container sectionSub" style="margin-bottom:10px;display:none;"
+								 id="kerberos.config.div">
+					<%} %>
+
+					   <table class="carbonFormTable">
+
+						   <tr>
+							   <td>
+								   <%
+									   if(appBean.getKerberosServiceName() == null) {
+								   %>
+								   <a id="kerberos_link" class="icon-link" onclick="onKerberosClick()"><fmt:message
+										   key='auth.configure' /></a>
+
+								   <% } else { %>
+								   <div style="clear:both"></div>
+								   <table class="styledLeft" id="kerberosTable">
+									   <thead>
+									   <tr>
+										   <th class="leftCol-big"><fmt:message  key='title.table.kerberos.config'/></th>
+										   <th><fmt:message key='application.info.kerberos.action'/></th>
+									   </tr>
+									   </thead>
+
+									   <tbody>
+									   <tr>
+										   <td><%=appBean.getKerberosServiceName()%>
+										   </td>
+										   <td style="white-space: nowrap;">
+											   <a title="Change Password"
+												  onclick="updateBeanAndRedirect('../servicestore/change-passwd.jsp?SPAction=changePWr&spnName=<%=appBean.getKerberosServiceName()%>&spName=<%=spName%>');"
+												  class="icon-link"
+												  style="background-image: url(../admin/images/edit.gif)">Change Password</a>
+											   <a title="Delete"
+												  onclick="updateBeanAndRedirect('../servicestore/delete-finish.jsp?SPAction=delete&spnName=<%=appBean.getKerberosServiceName()%>&spName=<%=spName%>');"
+												  class="icon-link" style="background-image: url(images/delete.gif)">
+												   Delete </a>
+										   </td>
+									   </tr>
+									   </tbody>
+								   </table>
+								   <%
+									   }
+								   %>
+							   </td>
+
+						   </tr>
+
+					   </table>
+				   </div>
+
+			   </div>
             
              <h2 id="app_authentication_advance_head"  class="sectionSeperator trigger active">
                		<a href="#"><fmt:message key="outbound.title.config.app.authentication.type"/></a>

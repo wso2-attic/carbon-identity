@@ -16,6 +16,7 @@
 
 package org.wso2.carbon.identity.tools.saml.validator.processors;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opensaml.common.SAMLVersion;
@@ -28,6 +29,7 @@ import org.wso2.carbon.identity.base.IdentityConstants;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.model.SAMLSSOServiceProviderDO;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
+import org.wso2.carbon.identity.sso.saml.SAMLSSOConstants;
 import org.wso2.carbon.identity.sso.saml.util.SAMLSSOUtil;
 import org.wso2.carbon.identity.tools.saml.validator.dto.ValidatedItemDTO;
 import org.wso2.carbon.identity.tools.saml.validator.util.SAMLValidatorConstants;
@@ -175,6 +177,9 @@ public class SAMLAuthnRequestValidator {
 
             // Validate Destination
             String idPUrl = IdentityUtil.getProperty(IdentityConstants.ServerConfig.SSO_IDP_URL);
+            if(StringUtils.isBlank(idPUrl)) {
+                idPUrl = IdentityUtil.getServerURL(SAMLSSOConstants.SAMLSSO_URL);
+            }
 
             if (authnRequest.getDestination() != null &&
                     idPUrl.equals(authnRequest.getDestination())) {

@@ -27,6 +27,9 @@
 <%@ page import="java.text.MessageFormat" %>
 <%@ page import="java.util.Map" %>
 <%@ page import="java.util.ResourceBundle" %>
+<%@ page import="org.wso2.carbon.user.core.UserCoreConstants" %>
+<%@ page import="org.wso2.carbon.user.core.util.UserCoreUtil" %>
+
 <jsp:useBean id="roleBean" type="org.wso2.carbon.user.mgt.ui.RoleBean"
              class="org.wso2.carbon.user.mgt.ui.RoleBean" scope="session"/>
 <jsp:setProperty name="roleBean" property="*" />
@@ -39,6 +42,10 @@
     try {
         roleName = CharacterEncoder.getSafeText(roleBean.getRoleName());
         roleType = roleBean.getRoleType();
+        if ((roleType == null || "null".equals(roleType)) &&
+                UserCoreConstants.INTERNAL_USERSTORE.equalsIgnoreCase(UserCoreUtil.extractDomainFromName(roleName))) {
+            roleType = UserCoreConstants.INTERNAL_USERSTORE;
+        }
         boolean isSharedRole = roleBean.getSharedRole() != null && !roleBean.getSharedRole().isEmpty(); 
         String cookie = (String) session.getAttribute(ServerConstants.ADMIN_SERVICE_COOKIE);
         String backendServerURL = CarbonUIUtil.getServerURL(config.getServletContext(), session);
@@ -48,8 +55,8 @@
 
         roleBean.addRoleUsers((Map<String, Boolean>) session.getAttribute("checkedUsersMap"));
 
-        if(UserAdminUIConstants.INTERNAL_ROLE.equals(roleType)){
-            client.addInternalRole(roleName, roleBean.getRoleUsers(),
+        if(UserAdminUIConstants.INTERNAL_ROLE.equalsIgnoreCase(roleType)){
+            client.addInternalRole(UserCoreUtil.removeDomainFromName(roleName), roleBean.getRoleUsers(),
                                                                 roleBean.getSelectedPermissions());
         } else {
             client.addRole(roleName, roleBean.getRoleUsers(), roleBean.getSelectedPermissions(), isSharedRole);

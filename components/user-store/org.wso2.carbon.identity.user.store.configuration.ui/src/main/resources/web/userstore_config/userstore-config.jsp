@@ -53,8 +53,8 @@
     private Property[] optionals;
     private Property[] advancedProperties;
     private String forwardTo;
-    private String domain;
-    private String className;
+    private String domain = "0";
+    private String className = "0";
     private Boolean isEditing;
     private int isBoolean;
     private String existingDomains;
@@ -83,7 +83,7 @@
     int rank;
     String[] classApplies = new String[0];
 
-    if (className.equals("0")) {
+    if ("0".equals(className)) {
         selectedClassApplied = request.getParameter("classApplied");       //add
         isEditing = false;
     } else {
@@ -111,7 +111,7 @@
     }
     existingDomains = "[" + existingDomains + "\"PRIMARY\"]";
 
-    if (!domain.equals("0")) {
+    if (!"0".equals(domain)) {
 
         //Get the defined properties of user store manager
         Map<String, String> tempProperties = UserStoreMgtDataKeeper.getUserStoreManager(domain);
@@ -335,7 +335,7 @@
 </script>
 
 <div id="middle">
-<h2><fmt:message key="user.store.manager.configuration"/></h2>
+<h2><fmt:message key="add-user.store.manager.configuration"/></h2>
 
 <div id="workArea">
 <form id="dataForm" name="dataForm" method="post" action="">

@@ -36,7 +36,6 @@ import org.wso2.carbon.identity.authenticator.saml2.sso.common.Util;
 import org.wso2.carbon.identity.authenticator.saml2.sso.ui.authenticator.SAML2SSOUIAuthenticator;
 import org.wso2.carbon.identity.authenticator.saml2.sso.ui.client.SAMLSSOServiceClient;
 import org.wso2.carbon.identity.authenticator.saml2.sso.ui.session.SSOSessionManager;
-import org.wso2.carbon.identity.sso.saml.stub.IdentityException;
 import org.wso2.carbon.identity.sso.saml.stub.types.SAMLSSOAuthnReqDTO;
 import org.wso2.carbon.identity.sso.saml.stub.types.SAMLSSOReqValidationResponseDTO;
 import org.wso2.carbon.identity.sso.saml.stub.types.SAMLSSORespDTO;
@@ -139,9 +138,6 @@ public class SSOAssertionConsumerService extends HttpServlet {
         } catch (SAML2SSOUIAuthenticatorException e) {
             log.error("Error when processing the SAML Assertion in the request.", e);
             handleMalformedResponses(req, resp, SAML2SSOAuthenticatorConstants.ErrorMessageConstants.RESPONSE_MALFORMED);
-        } catch (IdentityException e) {
-            log.error("Error when processing the Federated SAML Assertion in the request.", e);
-            handleMalformedResponses(req, resp, SAML2SSOAuthenticatorConstants.ErrorMessageConstants.RESPONSE_MALFORMED);
         }
     }
 
@@ -153,11 +149,10 @@ public class SSOAssertionConsumerService extends HttpServlet {
      * @param samlObject SAML Response object
      * @throws ServletException  Error when redirecting
      * @throws IOException       Error when redirecting
-     * @throws IdentityException
      */
     private void handleSAMLResponses(HttpServletRequest req, HttpServletResponse resp,
                                      XMLObject samlObject)
-            throws ServletException, IOException, SAML2SSOUIAuthenticatorException, IdentityException {
+            throws ServletException, IOException, SAML2SSOUIAuthenticatorException {
         Response samlResponse;
         samlResponse = (Response) samlObject;
         List<Assertion> assertions = samlResponse.getAssertions();
@@ -167,6 +162,20 @@ public class SSOAssertionConsumerService extends HttpServlet {
         }
 
         if (assertion == null) {
+
+            // This condition would succeed if Passive Login Request was sent because SP session has timed out
+            if (samlResponse.getStatus() != null &&
+                    samlResponse.getStatus().getStatusCode() != null &&
+                    samlResponse.getStatus().getStatusCode().getValue().equals("urn:oasis:names:tc:SAML:2.0:status:Responder") &&
+                    samlResponse.getStatus().getStatusCode().getStatusCode() != null &&
+                    samlResponse.getStatus().getStatusCode().getStatusCode().getValue().equals("urn:oasis:names:tc:SAML:2.0:status:NoPassive")) {
+
+                RequestDispatcher requestDispatcher = req.getRequestDispatcher("/carbon/admin/login.jsp");
+                requestDispatcher.forward(req, resp);
+                return;
+
+            }
+
             if (samlResponse.getStatus() != null &&
                     samlResponse.getStatus().getStatusMessage() != null) {
                 log.error(samlResponse.getStatus().getStatusMessage().getMessage());
@@ -327,8 +336,8 @@ public class SSOAssertionConsumerService extends HttpServlet {
     private void handleFederatedSAMLRequest(HttpServletRequest req, HttpServletResponse resp,
                                             String ssoTokenID, String samlRequest,
                                             String relayState, String authMode, Subject subject,
-                                            String rpSessionId) throws IdentityException,
-            IOException, ServletException {
+                                            String rpSessionId)
+            throws IOException, ServletException, SAML2SSOUIAuthenticatorException {
         // Instantiate the service client.
         HttpSession session = req.getSession();
         String serverURL = CarbonUIUtil.getServerURL(session.getServletContext(), session);
@@ -362,8 +371,8 @@ public class SSOAssertionConsumerService extends HttpServlet {
 
     private void handleRequestFromLoginPage(HttpServletRequest req, HttpServletResponse resp,
                                             String ssoTokenID, String assertionConsumerUrl, String id, String issuer, String userName, String subject,
-                                            String rpSession, String requestMsgString, String relayState) throws IdentityException, IOException,
-            ServletException {
+                                            String rpSession, String requestMsgString, String relayState)
+            throws IOException, ServletException, SAML2SSOUIAuthenticatorException {
         HttpSession session = req.getSession();
 
         // instantiate the service client
@@ -378,7 +387,8 @@ public class SSOAssertionConsumerService extends HttpServlet {
         authnReqDTO.setAssertionConsumerURL(assertionConsumerUrl);
         authnReqDTO.setId(id);
         authnReqDTO.setIssuer(issuer);
-        authnReqDTO.setUsername(userName);
+        //TODO FIX NEED TO BE DONE
+        authnReqDTO.setUser(null);
         authnReqDTO.setPassword("federated_idp_login");
         authnReqDTO.setSubject(subject);
         authnReqDTO.setRpSessionId(rpSession);
