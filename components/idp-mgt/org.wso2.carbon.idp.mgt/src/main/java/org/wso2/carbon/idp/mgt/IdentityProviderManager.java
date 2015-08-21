@@ -1469,4 +1469,14 @@ public class IdentityProviderManager {
         return true;
     }
 
+    public FederatedAuthenticatorConfig getFederatedAuthenticatorConfig(String idpName, String tenantDomain) {
+        FederatedAuthenticatorConfig federatedAuthenticatorConfig = null;
+        try {
+            federatedAuthenticatorConfig = dao.getFederatedAuthenticatorConfig(null, idpName, getTenantIdOfDomain(tenantDomain), tenantDomain);
+        } catch (IdentityApplicationManagementException e) {
+            e.printStackTrace();
+        }
+        return federatedAuthenticatorConfig;
+    }
+
 }
