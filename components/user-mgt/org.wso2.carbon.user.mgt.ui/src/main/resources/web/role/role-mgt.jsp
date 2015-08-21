@@ -251,6 +251,7 @@
             List<String> list = new ArrayList<String>(Arrays.asList(domainNames));
             list.add(UserAdminUIConstants.ALL_DOMAINS);
             list.add(UserAdminUIConstants.INTERNAL_DOMAIN);
+//            list.add(UserAdminUIConstants.APPLICATION_DOMAIN);
             domainNames = list.toArray(new String[list.size()]);
         }
     }
@@ -396,7 +397,7 @@
                     <%}%>--%>
                     <td>
                         <%if (!flaggedName.getShared()) { %>
-                        <% if (flaggedName.getItemName().equals(userRealmInfo.getAdminRole()) == false && flaggedName.getItemName().equals(userRealmInfo.getEveryOneRole()) == false && flaggedName.getEditable()) {%>
+                        <% if (flaggedName.getItemName().equals(userRealmInfo.getAdminRole()) == false && flaggedName.getItemName().equals(userRealmInfo.getEveryOneRole()) == false && !flaggedName.getItemName().startsWith(UserAdminUIConstants.APPLICATION_DOMAIN) && flaggedName.getEditable()) {%>
                         <a href="#" onclick="updateUserGroup('<%=roleName%>')" class="icon-link"
                            style="background-image:url(images/edit.gif);"><fmt:message key="rename"/></a>
                         <% } %>
@@ -418,7 +419,7 @@
                         <% } %>
                         <%if (!flaggedName.getShared()) { %>
 
-                        <% if (flaggedName.getItemName().equals(userRealmInfo.getAdminRole()) == false && flaggedName.getItemName().equals(userRealmInfo.getEveryOneRole()) == false && flaggedName.getEditable()) {%>
+                        <% if (flaggedName.getItemName().equals(userRealmInfo.getAdminRole()) == false && flaggedName.getItemName().equals(userRealmInfo.getEveryOneRole()) == false && !flaggedName.getItemName().startsWith(UserAdminUIConstants.APPLICATION_DOMAIN) && flaggedName.getEditable()) {%>
                         <a href="#" onclick="deleteUserGroup('<%=roleName%>')" class="icon-link"
                            style="background-image:url(images/delete.gif);"><fmt:message key="delete"/></a>
                         <% }
