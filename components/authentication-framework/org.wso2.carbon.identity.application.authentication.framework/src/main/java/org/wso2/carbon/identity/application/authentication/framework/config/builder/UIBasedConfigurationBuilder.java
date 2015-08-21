@@ -174,13 +174,13 @@ public class UIBasedConfigurationBuilder {
                         .getDefaultAuthenticatorConfig();
                 // for each authenticator in the idp
                 FederatedAuthenticatorConfig currentFederatedAuthenticator = null;
+                String actualAuthenticatorName;
                 try {
                     currentFederatedAuthenticator = IdentityProviderManager.getInstance()
                             .getFederatedAuthenticatorConfig(federatedIDP.getIdentityProviderName(), tenantDomain);
                 } catch (IdentityApplicationManagementException e) {
                     log.error("Error in loading current default authenticator of idp :" + federatedIDP.getIdentityProviderName() , e);
                 }
-                String actualAuthenticatorName;
 
                 if(StringUtils.equals(currentFederatedAuthenticator.getName(), federatedAuthenticator.getName())){
                     actualAuthenticatorName = federatedAuthenticator.getName();
