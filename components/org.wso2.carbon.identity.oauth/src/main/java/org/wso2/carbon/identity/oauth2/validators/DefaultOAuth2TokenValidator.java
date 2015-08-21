@@ -44,14 +44,15 @@ public class DefaultOAuth2TokenValidator implements OAuth2TokenValidator {
         OAuth2ScopeValidator scopeValidator = OAuthServerConfiguration.getInstance().getoAuth2ScopeValidator();
 
         //If a scope validator is engaged through the configuration
-        if (scopeValidator instanceof OAuth2ScopeValidator && messageContext.getRequestDTO().getContext() != null) {
+        if (scopeValidator instanceof OAuth2ScopeValidator && messageContext.getRequestDTO() != null
+            && messageContext.getRequestDTO().getContext() != null) {
             String resource = null;
 
             //Iterate the array of context params to find the 'resource' context param.
-            for(OAuth2TokenValidationRequestDTO.TokenValidationContextParam resourceParam :
-                    messageContext.getRequestDTO().getContext()){
+            for (OAuth2TokenValidationRequestDTO.TokenValidationContextParam resourceParam :
+                    messageContext.getRequestDTO().getContext()) {
                 //If the context param is the resource that is being accessed
-                if(resourceParam != null && "resource".equals(resourceParam.getKey())){
+                if (resourceParam != null && "resource".equals(resourceParam.getKey())) {
                     resource = resourceParam.getValue();
                     break;
                 }
@@ -60,7 +61,7 @@ public class DefaultOAuth2TokenValidator implements OAuth2TokenValidator {
             //Return True if there is no resource to validate the token against
             //OR if the token has a valid scope to access the resource. False otherwise.
             return resource == null ||
-                   scopeValidator.validateScope((AccessTokenDO)messageContext.getProperty("AccessTokenDO"),resource);
+                   scopeValidator.validateScope((AccessTokenDO) messageContext.getProperty("AccessTokenDO"), resource);
         }
         return true;
     }
@@ -68,7 +69,7 @@ public class DefaultOAuth2TokenValidator implements OAuth2TokenValidator {
     // For validation of token profile specific items.
     // E.g. validation of HMAC signature in HMAC token profile
     public boolean validateAccessToken(OAuth2TokenValidationMessageContext validationReqDTO)
-            throws IdentityOAuth2Exception{
+            throws IdentityOAuth2Exception {
 
         // With bearer token we don't validate anything apart from access delegation and scopes
         return true;
