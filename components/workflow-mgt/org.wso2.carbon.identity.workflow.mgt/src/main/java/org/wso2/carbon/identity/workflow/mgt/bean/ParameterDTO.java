@@ -18,7 +18,7 @@
 
 package org.wso2.carbon.identity.workflow.mgt.bean;
 
-public class Parameter {
+public class ParameterDTO {
 
     private String paramName;
     private String paramValue;
