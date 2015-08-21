@@ -36,23 +36,29 @@
 <%@ page import="java.util.ResourceBundle" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.TemplateDTO" %>
 
+
 <%
     String requestPath = "list-workflows";
     if(request.getParameter("path") != null && !request.getParameter("path").isEmpty()){
         requestPath = request.getParameter("path");
     }
+    boolean isSelf = false;
+    if(StringUtils.isNotBlank(request.getParameter("self")) && request.getParameter("self").equals("true")){
+        isSelf =  true ;
+    }
 
-    String workflowName = CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_WORKFLOW_NAME));
     String template = null ;
     String templateImpl = CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_TEMPLATE_IMPL));
-    String description =
-            CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_WORKFLOW_DESCRIPTION));
+
+
     WorkflowAdminServiceClient client;
     String bundle = "org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources";
     ResourceBundle resourceBundle = ResourceBundle.getBundle(bundle, request.getLocale());
+
     String forwardTo = null;
     TemplateImplDTO templateImplDTO = null;
     TemplateDTO templateDTO = null;
+
 
     if (session.getAttribute(WorkflowUIConstants.ATTRIB_WORKFLOW_WIZARD) != null &&
             session.getAttribute(WorkflowUIConstants.ATTRIB_WORKFLOW_WIZARD) instanceof Map) {
@@ -61,25 +67,28 @@
 
         template = attribMap.get(WorkflowUIConstants.PARAM_WORKFLOW_TEMPLATE);
 
-        //removing existing session params
-        for (Iterator<Map.Entry<String, String>> iterator = attribMap.entrySet().iterator(); iterator.hasNext(); ) {
-            Map.Entry<String, String> entry = iterator.next();
-            if (entry.getKey().startsWith("p-")) {
-                iterator.remove();
+        if(!isSelf){
+
+            //removing existing session params
+            for (Iterator<Map.Entry<String, String>> iterator = attribMap.entrySet().iterator(); iterator.hasNext(); ) {
+                Map.Entry<String, String> entry = iterator.next();
+                if (entry.getKey().startsWith("p-")) {
+                    iterator.remove();
+                }
             }
-        }
-
-
-        //setting params from previous page
-
-        Map<String, String[]> parameterMap = request.getParameterMap();
-        for (Map.Entry<String, String[]> paramEntry : parameterMap.entrySet()) {
-            if (StringUtils.startsWith(paramEntry.getKey(), "p-") &&
+            //setting params from previous page
+            Map<String, String[]> parameterMap = request.getParameterMap();
+            for (Map.Entry<String, String[]> paramEntry : parameterMap.entrySet()) {
+                if (StringUtils.startsWith(paramEntry.getKey(), "p-") &&
                     paramEntry.getValue() != null && paramEntry.getValue().length > 0) {
-                String paramValue = CharacterEncoder.getSafeText(paramEntry.getValue()[0]);
-                attribMap.put(paramEntry.getKey(), paramValue);
+                    String paramValue = CharacterEncoder.getSafeText(paramEntry.getValue()[0]);
+                    attribMap.put(paramEntry.getKey(), paramValue);
+                }
             }
+        }else{
+            attribMap.put(WorkflowUIConstants.PARAM_TEMPLATE_IMPL,templateImpl);
         }
+
     }
 
     BPSProfileDTO[] bpsProfiles = new BPSProfileDTO[0];
@@ -90,6 +99,7 @@
                 (ConfigurationContext) config.getServletContext()
                         .getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
         client = new WorkflowAdminServiceClient(cookie, backendServerURL, configContext);
+
         templateDTO = client.getTemplate(template);
 
         if(templateImpl != null) {
@@ -102,18 +112,20 @@
         forwardTo = "../admin/error.jsp";
     }
 %>
+
+
 <%
     if (forwardTo != null) {
 %>
-<script type="text/javascript">
-    function forward() {
-        location.href = "<%=forwardTo%>";
-    }
-</script>
+    <script type="text/javascript">
+        function forward() {
+            location.href = "<%=forwardTo%>";
+        }
+    </script>
 
-<script type="text/javascript">
-    forward();
-</script>
+    <script type="text/javascript">
+        forward();
+    </script>
 <%
         return;
     }
@@ -155,11 +167,14 @@
         <div id="workArea">
 
             <form id="id_param_template_impl" method="post" name="serviceAdd" action="template-impl-params.jsp">
+                <input type="hidden" name="path" value="<%=requestPath%>"/>
+                <input type="hidden" name="self" value="true"/>
                 <table class="normal">
                     <tr>
                         <td><fmt:message key='workflow.deployment.type'/></td>
                         <td>
                             <select onchange="selectTemplate();" name="<%=WorkflowUIConstants.PARAM_TEMPLATE_IMPL%>">
+                                <option value="" disabled selected><fmt:message key="select"/></option>
                                 <%
                                     for (TemplateImplDTO impl : templateDTO.getImplementations()) {
                                 %>
@@ -177,19 +192,12 @@
 
 
             </form>
-            <%
-                if(templateImpl != null){
-            %>
+
 
             <form id="param-form" method="post" name="serviceAdd" action="update-workflow-finish.jsp">
                 <input type="hidden" name="path" value="<%=requestPath%>"/>
-                <input type="hidden" name="<%=WorkflowUIConstants.PARAM_ACTION%>"
-                       value="<%=WorkflowUIConstants.ACTION_VALUE_ADD%>">
-                <input type="hidden" name="<%=WorkflowUIConstants.PARAM_WORKFLOW_TEMPLATE%>" value="<%=template%>">
-                <input type="hidden" name="<%=WorkflowUIConstants.PARAM_WORKFLOW_DESCRIPTION%>"
-                       value="<%=description%>">
-                <input type="hidden" name="<%=WorkflowUIConstants.PARAM_TEMPLATE_IMPL%>" value="<%=templateImpl%>">
-                <input type="hidden" name="<%=WorkflowUIConstants.PARAM_WORKFLOW_NAME%>" value="<%=workflowName%>">
+                <input type="hidden" name="<%=WorkflowUIConstants.PARAM_ACTION%>" value="<%=WorkflowUIConstants.ACTION_VALUE_ADD%>">
+                <!--
                 <%
                     Map<String, String[]> parameterMap = request.getParameterMap();
                     for (Map.Entry<String, String[]> paramEntry : parameterMap.entrySet()) {
@@ -197,11 +205,16 @@
                                 paramEntry.getValue() != null && paramEntry.getValue().length > 0) {
                             String paramValue = CharacterEncoder.getSafeText(paramEntry.getValue()[0]);
                 %>
-                    <%--The params will only have one value, hence using 0th element--%>
-                <input type="hidden" name="<%=paramEntry.getKey()%>" value="<%=paramValue%>">
+                    <input type="hidden" name="<%=paramEntry.getKey()%>" value="<%=paramValue%>">
                 <%
                         }
                     }
+                %>
+
+                -->
+
+                <%
+                    if(templateImpl != null){
                 %>
                 <table class="styledLeft">
                     <thead>
@@ -288,31 +301,13 @@
                         </td>
                     </tr>
                 </table>
+                <%
+                    }
+                %>
+
                 <br/>
             </form>
 
-
-            <script type="text/javascript">
-                autosubmit = true;
-                <%
-                    for (TemplateParameterDef parameter : templateImplDTO.getImplementationParams()) {
-                        if (parameter != null) {
-                        %>
-                autosubmit = false;
-                <%
-                            break;
-                        }
-                    }
-                %>
-                if (autosubmit) {
-                    document.getElementById("param-form").submit(); //auto submitting since there are no params
-                }
-            </script>
-
-
-            <%
-                }
-            %>
         </div>
 
     </div>

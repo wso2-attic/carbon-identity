@@ -22,7 +22,6 @@
 <%@ page import="org.wso2.carbon.CarbonConstants" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.BPSProfileDTO" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.TemplateDTO" %>
-<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.TemplateImplDTO" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.TemplateParameterDef" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.WorkflowAdminServiceClient" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.WorkflowUIConstants" %>
@@ -34,57 +33,63 @@
 <%@ page import="java.util.Map" %>
 <%@ page import="java.util.ResourceBundle" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.TemplateBean" %>
+<%@ page import="org.apache.commons.lang.StringUtils" %>
 
 <%
     String requestPath = "list-workflows";
+    //'path' parameter to use to track parent wizard path if this wizard trigger by another wizard
     if(request.getParameter("path") != null && !request.getParameter("path").isEmpty()){
         requestPath = request.getParameter("path")  ;
     }
+    boolean isSelf = false;
+    if(StringUtils.isNotBlank(request.getParameter("self")) && request.getParameter("self").equals("true")){
+        isSelf =  true ;
+    }
 
-    String workflowName = CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_WORKFLOW_NAME));
+
+
     String template = CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_WORKFLOW_TEMPLATE));
-    String description =
-            CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_WORKFLOW_DESCRIPTION));
     Map<String, String> templateParams = new HashMap<String, String>();
 
-    TemplateBean[] templateList = null;
-    String templateImpl = null;
+    Map<String, String> attribMap = null ;
+
     if (session.getAttribute(WorkflowUIConstants.ATTRIB_WORKFLOW_WIZARD) != null &&
             session.getAttribute(WorkflowUIConstants.ATTRIB_WORKFLOW_WIZARD) instanceof Map) {
-        Map<String, String> attribMap =
-                (Map<String, String>) session.getAttribute(WorkflowUIConstants.ATTRIB_WORKFLOW_WIZARD);
+        attribMap = (Map<String, String>) session.getAttribute(WorkflowUIConstants.ATTRIB_WORKFLOW_WIZARD);
         //setting params from previous page
-        if (workflowName == null) {
-            workflowName = attribMap.get(WorkflowUIConstants.PARAM_WORKFLOW_NAME);
-        } else {
-            attribMap.put(WorkflowUIConstants.PARAM_WORKFLOW_NAME, workflowName);
-        }
-
         if (template == null) {
             template = attribMap.get(WorkflowUIConstants.PARAM_WORKFLOW_TEMPLATE);
         } else {
             attribMap.put(WorkflowUIConstants.PARAM_WORKFLOW_TEMPLATE, template);
         }
-
-        if (description == null) {
-            description = attribMap.get(WorkflowUIConstants.PARAM_WORKFLOW_DESCRIPTION);
-        } else {
-            attribMap.put(WorkflowUIConstants.PARAM_WORKFLOW_DESCRIPTION, description);
-        }
-
         for (Map.Entry<String, String> entry : attribMap.entrySet()) {
             if (entry.getKey().startsWith("p-")) {
                 templateParams.put(entry.getKey(), entry.getValue());
             }
         }
-        templateImpl = attribMap.get(WorkflowUIConstants.PARAM_TEMPLATE_IMPL);
+    }else{
         session.setAttribute(WorkflowUIConstants.ATTRIB_WORKFLOW_WIZARD, attribMap);
+    }
+
+    if (!isSelf) {
+        String workflowName =
+                CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_WORKFLOW_NAME));
+        String description =
+                CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_WORKFLOW_DESCRIPTION));
+        if (workflowName != null) {
+            attribMap.put(WorkflowUIConstants.PARAM_WORKFLOW_NAME, workflowName);
+        }
+        if (description != null) {
+            attribMap.put(WorkflowUIConstants.PARAM_WORKFLOW_DESCRIPTION, description);
+        }
     }
 
     WorkflowAdminServiceClient client;
     String bundle = "org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources";
     ResourceBundle resourceBundle = ResourceBundle.getBundle(bundle, request.getLocale());
     String forwardTo = null;
+
+    TemplateBean[] templateList = null;
     TemplateDTO templateDTO = null;
     BPSProfileDTO[] bpsProfiles = new BPSProfileDTO[0];
 
@@ -112,18 +117,20 @@
         forwardTo = "../admin/error.jsp";
     }
 %>
+
+
 <%
     if (forwardTo != null) {
 %>
-<script type="text/javascript">
-    function forward() {
-        location.href = "<%=forwardTo%>";
-    }
-</script>
+    <script type="text/javascript">
+        function forward() {
+            location.href = "<%=forwardTo%>";
+        }
+    </script>
 
-<script type="text/javascript">
-    forward();
-</script>
+    <script type="text/javascript">
+        forward();
+    </script>
 <%
         return;
     }
@@ -139,24 +146,45 @@
     <script type="text/javascript" src="../carbon/admin/js/breadcrumbs.js"></script>
     <script type="text/javascript" src="../carbon/admin/js/cookies.js"></script>
     <script type="text/javascript" src="../carbon/admin/js/main.js"></script>
+
+    <!-- Override carbon jquery from latest release of it, because this tokenizer support for latest one -->
+    <script type="text/javascript" src="js/jquery-1.11.3.js"></script>
+    <script type="text/javascript" src="js/tokenizer.js"></script>
+    <link rel="stylesheet" type="text/css" href="css/input_style.css">
+
+    <style>
+
+        .tknz-wrapper {
+            width: 96%;
+            height: 54px;
+            margin: 5px;
+            padding: 5px;
+            overflow: auto;
+            color: #fefefe;
+            background: #fefefe;
+            font-family: "Courier", Times, sans-serif;
+            border: solid 1px #DFDFDF;
+        }
+
+    </style>
+
     <script type="text/javascript">
+
         function goBack() {
-            location.href =
-                    "add-workflow.jsp?<%=WorkflowUIConstants.PARAM_ACTION%>=<%=WorkflowUIConstants.ACTION_VALUE_BACK%>";
+            location.href = "add-workflow.jsp?<%=WorkflowUIConstants.PARAM_ACTION%>=<%=WorkflowUIConstants.ACTION_VALUE_BACK%>";
         }
 
         function doCancel() {
             function cancel() {
                 location.href = '<%=requestPath%>.jsp?wizard=finish';
             }
-
-            CARBON.showConfirmationDialog('<fmt:message key="confirmation.workflow.add.abort"/> ' + name + '?',
-                    cancel, null);
+            CARBON.showConfirmationDialog('<fmt:message key="confirmation.workflow.add.abort"/> ' + name + '?', cancel, null);
         }
 
 
         var stepOrder = 0;
         jQuery(document).ready(function(){
+
             jQuery('h2.trigger').click(function(){
                 if (jQuery(this).next().is(":visible")) {
                     this.className = "active trigger step_heads";
@@ -166,27 +194,50 @@
                 jQuery(this).next().slideToggle("fast");
                 return false; //Prevent the browser jump to the link anchor
             });
+
             jQuery('#stepsAddLink').click(function(){
                 stepOrder++;
-                jQuery('#stepsConfRow').append(jQuery('<div id="div_step_head_'+stepOrder+'" style="border:solid 1px #ccc;padding: 10px;"><h2 id="step_head_'+stepOrder+'" class="sectionSeperator trigger active step_heads" style="background-color: beige; clear: both;">' +
-                                                      '<input type="hidden" value="'+stepOrder+'" name="approve_step" id="approve_step">' +
-                                                      '<a class="step_order_header" href="#">Step '+stepOrder+'</a>' +
-                                                      '<a onclick="deleteStep(this);return false;" href="#" class="icon-link" style="background-image: url(images/delete.gif);float:right;width: 9px;"></a>' +
-                                                      '</h2>' +
-                                                      '<table><tr><td colspan="2" id="users_step_head_'+stepOrder+'"></td></tr><tr><td>Users</td><td><textarea onclick="moveSearchController(\''+stepOrder+'\',\'users\');" name="p-step-'+stepOrder+'-users" id="p-step-'+stepOrder+'-users" rows="3" cols="100"></textarea></td></tr>' +
-                                                      '<tr><td colspan="2" id="roles_step_head_'+stepOrder+'"></td></tr><tr><td>Roles</td><td><textarea onclick="moveSearchController(\''+stepOrder+'\',\'roles\');" name="p-step-'+stepOrder+'-roles" id="p-step-'+stepOrder+'-roles" rows="3" cols="100"></textarea></td></tr>' +
-                                                      '</table></div>'));
+                jQuery('#stepsConfRow').append(jQuery('<div id="div_step_head_'+stepOrder+'" style="border:solid 1px #ccc;padding: 10px;">' +
+                                                        '<h2 id="step_head_'+stepOrder+'" class="sectionSeperator trigger active step_heads" style="background-color: beige; clear: both;">' +
+                                                            '<input type="hidden" value="'+stepOrder+'" name="approve_step" id="approve_step">' +
+                                                            '<a class="step_order_header" href="#">Step '+stepOrder+'</a>' +
+                                                            '<a onclick="deleteStep(this);return false;" href="#" class="icon-link" style="background-image: url(images/delete.gif);float:right;width: 9px;"></a>' +
+                                                        '</h2>' +
+                                                          '<table style="width:100%;">' +
+                                                              '<tr><td colspan="2" id="search_step_head_'+stepOrder+'"></td></tr>' +
+                                                              '<tr><td width="40px">Roles</td><td onclick="moveSearchController(\''+stepOrder+'\',\'roles\', false);"><input   name="p-step-'+stepOrder+'-roles" id="p-step-'+stepOrder+'-roles"  type="text" class="tokenizer_'+stepOrder+'"/></td></tr>' +
+                                                              '<tr><td>Users</td><td onclick="moveSearchController(\''+stepOrder+'\',\'users\', false);"><input  name="p-step-'+stepOrder+'-users" id="p-step-'+stepOrder+'-users" type="text" class="tokenizer_'+stepOrder+'"/></td></tr>' +
+                                                          '</table>' +
+                                                      '</div>'));
+
+                //Move search component to selected step
+                moveSearchController(stepOrder, "roles", true)
+
+                //Init tokanizer for users and roles inputs in given step.
+                initInputs("p-step-"+stepOrder+"-roles");
+                initInputs("p-step-"+stepOrder+"-users");
+
+
+
             });
+
 
         });
 
-        function moveSearchController(step, category){
+        function initInputs(id){
+            $("#" + id).tokenizer({
+                label: ''
+            });
+        }
 
-            $("#id_search_controller").detach().appendTo("#"+category+"_step_head_"+step);
+
+        function moveSearchController(step, category, init){
+
+            $("#id_search_controller").detach().appendTo("#search_step_head_"+step);
             $("#id_search_controller").show();
             $("#currentstep").val(step);
 
-            loadCategory(category);
+            loadCategory(category, init);
         }
 
 
@@ -223,93 +274,88 @@
             }
         }
 
+
         function getSelectedItems(allList, category){
             if(allList!=null && allList.length!=0) {
                 var currentStep = $("#currentstep").val();
                 var currentValues = $("#p-step-" + currentStep + "-" + category).val();
-                if (currentValues == null || currentValues == "") {
-                    $("#p-step-" + currentStep + "-" + category).val(allList);
-                } else {
-                    var currentItems = currentValues.split(",");
-
-                    for(var i=0;i<allList.length;i++){
-                        var newItem = allList[i];
-                        var tmp = newItem ;
-                        for(var j=0;j<currentItems.length;j++){
-                            var currentItem = currentItems[j];
-                            if(newItem == currentItem){
-                                tmp = null ;
-                                break;
-                            }
-                        }
-                        if(tmp!=null){
-                            currentValues = currentValues + "," + tmp ;
-                        }
-                    }
-                    $("#p-step-" + currentStep + "-" + category).val(currentValues);
+                for(var i=0;i<allList.length;i++) {
+                    var newItem = allList[i];
+                    $("#p-step-" + currentStep + "-" + category).tokenizer('push',newItem);
                 }
+                var newValues = $("#p-step-" + currentStep + "-" + category).tokenizer('get');
 
             }
 
+
         }
+
 
         function selectTemplate(){
             var workflowForm = document.getElementById("id_workflow_template");
             workflowForm.submit();
         }
 
+        function nextWizard(){
+
+            for(var currentStep=1;currentStep<=stepOrder ; currentStep++){
+                var newValues = $("#p-step-" + currentStep + "-users" ).tokenizer('get');
+                $("#p-step-" + currentStep + "-users").val(newValues);
+                newValues = $("#p-step-" + currentStep + "-roles" ).tokenizer('get');
+                $("#p-step-" + currentStep + "-roles").val(newValues);
+            }
+
+            var nextWizardForm = document.getElementById("id_nextwizard");
+            nextWizardForm.submit();
+        }
+
     </script>
 
     <div id="middle">
+
         <h2><fmt:message key='workflow.add'/></h2>
 
         <div id="workArea">
-            <table border="1">
-                <tr>
-                    <td>
-                        <form id="id_workflow_template" method="post" name="serviceAdd" action="template-params.jsp">
-                            <input type="hidden" name="path" value="<%=requestPath%>"/>
+
+            <form id="id_workflow_template" method="post" name="serviceAdd" action="template-params.jsp">
+                <input type="hidden" name="path" value="<%=requestPath%>"/>
+                <input type="hidden" name="self" value="true"/>
+                <table border="1">
+                    <tr>
+                        <td width="60px"><fmt:message key='workflow.template'/></td>
+                        <td>
                             <select onchange="selectTemplate();" id="id_template" name="<%=WorkflowUIConstants.PARAM_WORKFLOW_TEMPLATE%>"
                                     style="min-width: 30%">
-                                <option value="" disabled selected><fmt:message key="select"/></option>
+                                    <option value="" selected><fmt:message key="select"/></option>
                                 <%
                                     for (TemplateBean templateTmp : templateList) {
                                 %>
-                                <option value="<%=templateTmp.getId()%>"
-                                        <%=templateTmp.getId().equals(template) ? "selected" : ""%>>
-                                    <%=templateTmp.getName()%>
-                                </option>
+                                    <option value="<%=templateTmp.getId()%>"
+                                            <%=templateTmp.getId().equals(template) ? "selected" : ""%>>
+                                        <%=templateTmp.getName()%>
+                                    </option>
                                 <%
                                     }
                                 %>
                             </select>
-                        </form>
-                    </td>
-                </tr>
-            </table>
+                        </td>
+                    </tr>
+                </table>
+            </form>
 
+            </br>
 
             <%
                 if(template != null ){
             %>
-            <form method="post" name="serviceAdd" action="template-impl-params.jsp">
+            <form method="post" name="serviceAdd" id="id_nextwizard" action="template-impl-params.jsp">
                 <input type="hidden" name="path" value="<%=requestPath%>"/>
-                <input type="hidden" name="<%=WorkflowUIConstants.PARAM_WORKFLOW_TEMPLATE%>" value="<%=template%>">
-                <input type="hidden" name="<%=WorkflowUIConstants.PARAM_WORKFLOW_NAME%>" value="<%=workflowName%>">
-                <input type="hidden" name="<%=WorkflowUIConstants.PARAM_WORKFLOW_DESCRIPTION%>"
-                       value="<%=description%>">
                 <table class="styledLeft">
                     <thead>
                     <tr>
                         <th><fmt:message key="workflow.details"/></th>
                     </tr>
                     </thead>
-                    <tr>
-                        <td width="30%"><fmt:message key='workflow.template'/></td>
-                        <td>
-
-                        </td>
-                    </tr>
                     <tr>
                         <td class="formRow">
                             <table class="normal" style="width: 100%;">
@@ -368,15 +414,13 @@
                                     </select>
                                     </td>
                                     <%
-                                    } else if (WorkflowUIConstants.ParamTypes.USER_NAME_OR_USER_ROLE
-                                            .equals(parameter.getParamType())) {
+                                    } else if (WorkflowUIConstants.ParamTypes.USER_NAME_OR_USER_ROLE.equals(parameter.getParamType())) {
                                     %>
                                     <td>
-                                       <a id="stepsAddLink" class="icon-link" style="float:none;margin-left:0; padding-bottom:10px;"><fmt:message key='workflow.template.button.add.step'/></a>
-                                        <div style="margin-bottom:10px;width: 75%" id="stepsConfRow">
-
-                                        </div>
-
+                                       <a id="stepsAddLink" class="icon-link" style="float:none;margin-left:0; padding-bottom:10px;">
+                                           <fmt:message key='workflow.template.button.add.step'/>
+                                       </a>
+                                       <div style="margin-bottom:10px;width: 60%" id="stepsConfRow"></div>
                                     </td>
                                     <%
                                     } else {
@@ -405,7 +449,7 @@
                                     <%
 
                                             }
-//                            todo:handle 'required' value
+                                        //todo:handle 'required' value
 
                                         }
                                     %>
@@ -425,7 +469,7 @@
                     <tr>
                         <td class="buttonRow">
                             <input class="button" value="<fmt:message key="back"/>" type="button" onclick="goBack();">
-                            <input class="button" value="<fmt:message key="next"/>" type="submit"/>
+                            <input class="button" value="<fmt:message key="next"/>" type="button" onclick="nextWizard();"/>
                             <input class="button" value="<fmt:message key="cancel"/>" type="button"
                                    onclick="doCancel();"/>
                         </td>
@@ -438,6 +482,9 @@
             %>
         </div>
     </div>
+
+
+    <!-- Using general search component, we have added for user/role search -->
     <div id="id_search_controller_base">
         <div id="id_search_controller" style="display:none;">
             <input type="hidden" id="currentstep" name="currentstep" value=""/>
@@ -448,12 +495,8 @@
                     <jsp:param name="function-get-all-items" value="getSelectedItems"/>
                 </jsp:include>
             </div>
-            <div id="id-result-holder">
-
-            </div>
-            <div id="id-navigator-holder">
-
-            </div>
+            <div id="id-result-holder"></div>
+            <div id="id-navigator-holder"></div>
         </div>
     </div>
 
