@@ -19,6 +19,8 @@
 package org.wso2.carbon.identity.application.authentication.framework.config.builder;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.identity.application.authentication.framework.ApplicationAuthenticator;
 import org.wso2.carbon.identity.application.authentication.framework.config.model.ApplicationConfig;
@@ -42,6 +44,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UIBasedConfigurationBuilder {
+
+    private static final Log log = LogFactory.getLog(UIBasedConfigurationBuilder.class);
 
     private static volatile UIBasedConfigurationBuilder instance;
 
@@ -169,8 +173,13 @@ public class UIBasedConfigurationBuilder {
                 FederatedAuthenticatorConfig federatedAuthenticator = federatedIDP
                         .getDefaultAuthenticatorConfig();
                 // for each authenticator in the idp
-                FederatedAuthenticatorConfig currentFederatedAuthenticator = IdentityProviderManager.getInstance()
-                        .getFederatedAuthenticatorConfig(federatedIDP.getIdentityProviderName(), tenantDomain);
+                FederatedAuthenticatorConfig currentFederatedAuthenticator = null;
+                try {
+                    currentFederatedAuthenticator = IdentityProviderManager.getInstance()
+                            .getFederatedAuthenticatorConfig(federatedIDP.getIdentityProviderName(), tenantDomain);
+                } catch (IdentityApplicationManagementException e) {
+                    log.error("Error in loading current default authenticator of idp :" + federatedIDP.getIdentityProviderName() , e);
+                }
                 String actualAuthenticatorName;
 
                 if(StringUtils.equals(currentFederatedAuthenticator.getName(), federatedAuthenticator.getName())){
