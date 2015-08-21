@@ -93,7 +93,8 @@ public class IdentityConstants {
     public final static String EVENT_LISTENER_TYPE = "type";
     public final static String EVENT_LISTENER_NAME = "name";
     public final static String EVENT_LISTENER_ORDER = "orderId";
-    public final static String EVENT_LISTENER_ORDER_IDS = "EventListenerOrderIDs";
+    public final static String EVENT_LISTENER_ENABLE = "enable";
+    public final static String EVENT_LISTENERS = "EventListeners";
     public final static String EVENT_LISTENER = "EventListener";
 
     private IdentityConstants() {

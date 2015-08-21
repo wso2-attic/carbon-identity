@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.identity.application.mgt.dao.impl;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
@@ -313,7 +314,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
         }
 
         // only if the application has been renamed
-        if (!applicationName.equals(storedAppName)) {
+        if (!StringUtils.equals(applicationName, storedAppName)) {
             // rename the role
             ApplicationMgtUtil.renameRole(storedAppName, applicationName);
             if (debugMode) {

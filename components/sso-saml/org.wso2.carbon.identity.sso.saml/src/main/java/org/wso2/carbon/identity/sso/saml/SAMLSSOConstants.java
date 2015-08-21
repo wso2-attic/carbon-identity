@@ -53,8 +53,9 @@ public class SAMLSSOConstants {
     public static final String LOGIN_PAGE = "customLoginPage";
     public static final String CLAIM_DIALECT_URL = "http://wso2.org/claims";
     public static final String SAML_ENDPOINT = "samlsso/carbon/";
-    public static final String DEFAULT_LOGOUT_LOCATION = "authenticationendpoint/samlsso_logout.do";
+    public static final String DEFAULT_LOGOUT_LOCATION = "/authenticationendpoint/samlsso_logout.do";
     public static final String SAMLSSO_URL = "/samlsso";
+    public static final String NOTIFICATION_ENDPOINT ="/authenticationendpoint/samlsso_notification.do";
 
     private SAMLSSOConstants() {
     }

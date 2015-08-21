@@ -22,12 +22,7 @@ import org.apache.commons.lang.StringUtils;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
-import org.wso2.carbon.identity.scim.common.config.SCIMProviderDTO;
 import org.wso2.carbon.user.core.UserCoreConstants;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * This class is to be used as a Util class for SCIM common things.
@@ -35,9 +30,6 @@ import java.util.Map;
  */
 public class SCIMCommonUtils {
 
-    //this is temporary - until persisted in DB
-    private static Map<String, List<SCIMProviderDTO>> providers =
-            new HashMap<>();
     private static String scimGroupLocation;
     private static String scimUserLocation;
     /**
@@ -169,11 +161,4 @@ public class SCIMCommonUtils {
         return groupName;
     }
 
-    public static Map<String, List<SCIMProviderDTO>> getProviders() {
-        return providers;
-    }
-
-    public static void setProviders(Map<String, List<SCIMProviderDTO>> providers) {
-        SCIMCommonUtils.providers = providers;
-    }
 }

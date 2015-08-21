@@ -298,7 +298,6 @@ public class AttributeCallbackHandler implements SAMLCallbackHandler {
                             MultitenantUtils.getTenantAwareUsername(userId),
                             claimList.toArray(claimArray), null);
                 } catch (UserStoreException e) {
-                    log.error("Error while instantiating IdentityUserStore", e);
                     throw new IdentityProviderException("Error while instantiating IdentityUserStore", e);
                 }
             } else {

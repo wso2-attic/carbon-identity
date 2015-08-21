@@ -64,8 +64,8 @@
             <artifactId>org.wso2.carbon.identity.base</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon.identity</groupId>
-            <artifactId>org.wso2.carbon.identity.authenticator.iwa.stub</artifactId>
+            <groupId>com.github.dblock.waffle.wso2</groupId>
+            <artifactId>waffle-jna</artifactId>
         </dependency>
     </dependencies>
 

@@ -27,6 +27,7 @@ import org.openid4java.message.ParameterList;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.identity.base.IdentityException;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.provider.IdentityProviderException;
 import org.wso2.carbon.identity.provider.dto.OpenIDParameterDTO;
 import org.wso2.carbon.identity.provider.openid.OpenIDConstants;
@@ -264,21 +265,13 @@ public class OpenIDUtil {
             tenant = null;
         }
 
-        String frontEndUrl = getAdminConsoleURL(request) + relativeUrl;
+        String frontEndUrl = IdentityUtil.getServerURL("/carbon/") + relativeUrl;
 
         if (tenant != null && tenant.trim().length() > 0) {
             return frontEndUrl.replace("/carbon/", "/t/" + tenant + "/carbon/");
         }
 
         return frontEndUrl;
-    }
-
-    public static String getAdminConsoleURL(HttpServletRequest request) {
-        String url = CarbonUIUtil.getAdminConsoleURL(request);
-        if (url.indexOf("/openidserver/") != -1) {
-            url = url.replace("/openidserver", "");
-        }
-        return url;
     }
 
     /**
