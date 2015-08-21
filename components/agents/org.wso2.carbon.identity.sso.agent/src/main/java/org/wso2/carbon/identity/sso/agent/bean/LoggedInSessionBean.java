@@ -21,12 +21,14 @@
 package org.wso2.carbon.identity.sso.agent.bean;
 
 import com.google.gson.Gson;
+import com.google.gson.annotations.SerializedName;
 import org.openid4java.discovery.DiscoveryInformation;
 import org.opensaml.saml2.core.Assertion;
 import org.opensaml.saml2.core.Response;
 import org.wso2.carbon.identity.sso.agent.SSOAgentException;
 import org.wso2.carbon.identity.sso.agent.util.SSOAgentUtils;
 
+import javax.xml.bind.annotation.XmlAttribute;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.List;
@@ -56,12 +58,20 @@ public class LoggedInSessionBean implements Serializable{
 
     public static class AccessTokenResponseBean implements Serializable{
 
+        @XmlAttribute(name="access_token")
+        @SerializedName("access_token")
         private String accessToken;
 
+        @XmlAttribute(name="refresh_token")
+        @SerializedName("refresh_token")
         private String refreshToken;
 
+        @XmlAttribute(name="token_type")
+        @SerializedName("token_type")
         private String tokenType;
 
+        @XmlAttribute(name="expires_in")
+        @SerializedName("expires_in")
         private String expiresIn;
 
         public String getAccessToken() {

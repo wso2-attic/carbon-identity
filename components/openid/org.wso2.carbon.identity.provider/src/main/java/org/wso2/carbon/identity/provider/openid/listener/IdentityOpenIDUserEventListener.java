@@ -20,6 +20,7 @@ package org.wso2.carbon.identity.provider.openid.listener;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.base.IdentityException;
+import org.wso2.carbon.identity.core.AbstractIdentityUserOperationEventListener;
 import org.wso2.carbon.identity.core.model.OpenIDUserRPDO;
 import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
@@ -28,13 +29,13 @@ import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.common.AbstractUserOperationEventListener;
 
-public class IdentityOpenIDUserEventListener extends AbstractUserOperationEventListener {
+public class IdentityOpenIDUserEventListener extends AbstractIdentityUserOperationEventListener {
 
     private static final Log log = LogFactory.getLog(IdentityOpenIDUserEventListener.class);
 
     @Override
     public int getExecutionOrderId() {
-        int orderId = IdentityUtil.readEventListenerOrderIDs("UserOperationEventListener", "org.wso2.carbon.identity.provider.openid.listener.IdentityOpenIDUserEventListener");
+        int orderId = getOrderId(IdentityOpenIDUserEventListener.class.getName());
         if (orderId != IdentityCoreConstants.EVENT_LISTENER_ORDER_ID) {
             return orderId;
         }
@@ -43,9 +44,15 @@ public class IdentityOpenIDUserEventListener extends AbstractUserOperationEventL
 
     @Override
     public boolean doPreDeleteUser(String userName, UserStoreManager userStoreManager) throws UserStoreException {
+
+        if (!isEnable(this.getClass().getName())) {
+            return true;
+        }
+
         if (log.isDebugEnabled()) {
             log.debug("Clearing OpenID related information of the user : " + userName);
         }
+
         try {
             deleteUsersRPs(userName);
         } catch (IdentityException e) {

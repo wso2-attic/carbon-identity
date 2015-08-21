@@ -42,8 +42,8 @@
             <artifactId>org.wso2.carbon.identity.authenticator.iwa.stub</artifactId>
         </dependency>
         <dependency>
-            <groupId>waffle.apache.wso2</groupId>
-            <artifactId>waffle</artifactId>
+            <groupId>com.github.dblock.waffle.wso2</groupId>
+            <artifactId>waffle-jna</artifactId>
         </dependency>
     </dependencies>
 
@@ -74,7 +74,7 @@
                                 </bundleDef>
                                 <bundleDef>org.wso2.carbon.identity:org.wso2.carbon.identity.authenticator.iwa.stub
                                 </bundleDef>
-                                <bundleDef>waffle.apache.wso2:waffle</bundleDef>
+                                <bundleDef>com.github.dblock.waffle.wso2:waffle-jna</bundleDef>
                             </bundles>
                             <importFeatures>
                                 <importFeatureDef>org.wso2.carbon.core:${carbon.kernel.version}</importFeatureDef>
