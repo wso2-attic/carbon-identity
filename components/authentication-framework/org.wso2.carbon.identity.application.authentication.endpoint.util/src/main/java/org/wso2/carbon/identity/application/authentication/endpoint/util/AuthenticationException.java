@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.carbon.identity.application.authentication.endpoint;
+package org.wso2.carbon.identity.application.authentication.endpoint.util;
 
 public class AuthenticationException extends Exception {
     public AuthenticationException() {

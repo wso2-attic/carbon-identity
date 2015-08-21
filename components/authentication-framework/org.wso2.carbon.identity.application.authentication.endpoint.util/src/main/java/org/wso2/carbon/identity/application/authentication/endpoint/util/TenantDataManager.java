@@ -25,7 +25,7 @@ import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.wso2.carbon.identity.application.authentication.endpoint.AuthenticationException;
+import org.wso2.carbon.identity.application.authentication.endpoint.util.AuthenticationException;
 import org.wso2.securevault.SecretResolver;
 import org.wso2.securevault.SecretResolverFactory;
 import org.xml.sax.InputSource;
@@ -167,7 +167,7 @@ public class TenantDataManager {
      *
      * @param path File path
      * @return Absolute file path
-     * @throws IOException
+     * @throws java.io.IOException
      */
     private static String buildFilePath(String path) throws IOException {
 

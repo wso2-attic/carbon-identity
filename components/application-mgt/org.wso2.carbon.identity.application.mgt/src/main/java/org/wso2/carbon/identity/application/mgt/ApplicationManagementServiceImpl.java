@@ -24,6 +24,7 @@ import org.apache.axis2.description.AxisService;
 import org.apache.axis2.description.Parameter;
 import org.apache.axis2.engine.AxisConfiguration;
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.rahas.impl.SAMLTokenIssuerConfig;
@@ -224,7 +225,7 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
                     .getRegistry(RegistryType.USER_GOVERNANCE);
 
             boolean exist = tenantGovReg.resourceExists(applicationNode);
-            if (exist && !storedAppName.equals(serviceProvider.getApplicationName())) {
+            if (exist && !StringUtils.equals(storedAppName, serviceProvider.getApplicationName())) {
                 ApplicationMgtUtil.renameAppPermissionPathNode(storedAppName, serviceProvider.getApplicationName());
             }
 

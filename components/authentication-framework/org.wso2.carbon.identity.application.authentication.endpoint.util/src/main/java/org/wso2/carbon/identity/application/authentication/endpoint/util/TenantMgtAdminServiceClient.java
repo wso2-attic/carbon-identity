@@ -21,7 +21,7 @@ package org.wso2.carbon.identity.application.authentication.endpoint.util;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.identity.application.authentication.endpoint.AuthenticationException;
+import org.wso2.carbon.identity.application.authentication.endpoint.util.AuthenticationException;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
@@ -232,7 +232,7 @@ public class TenantMgtAdminServiceClient {
      * @param message      Message sent to the URL
      * @param requestProps Request properties
      * @return Received data
-     * @throws IOException
+     * @throws java.io.IOException
      */
     public static String sendPostRequest(String backendURL, String message, Map<String, String> requestProps) {
         OutputStream outputStream = null;
