@@ -243,4 +243,13 @@ public class IdentityConfigParser {
         return rootElement.getFirstChildWithName(new QName(IDENTITY_DEFAULT_NAMESPACE, localPart));
     }
 
+    /**
+     * Returns the QName with the identity name space
+     *
+     * @param localPart local part name
+     * @return relevant QName
+     * */
+    public QName getQNameWithIdentityNS(String localPart) {
+        return new QName(IdentityConfigParser.IDENTITY_DEFAULT_NAMESPACE, localPart);
+    }
 }

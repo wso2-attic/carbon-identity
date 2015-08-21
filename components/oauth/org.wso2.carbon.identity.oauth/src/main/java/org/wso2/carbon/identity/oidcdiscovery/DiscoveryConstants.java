@@ -192,4 +192,8 @@ op_tos_uri
     public static final String REQUIRE_REQUEST_URI_REGISTRATION="Require_request_uri_registration";
     public static final String OP_POLICY_URI="OP_policy_uri";
     public static final String OP_TOS_URI="OP_tos_uri";
+
+    public static final String CONFIG_ELEM_OIDC = "OpenIDConnectDiscovery";
+    public static final String CONFIG_ELEM_OIDCCONFIG = "Configuration";
+    public static final String CONFIG_DEFAULT_NAME = "default";
 }

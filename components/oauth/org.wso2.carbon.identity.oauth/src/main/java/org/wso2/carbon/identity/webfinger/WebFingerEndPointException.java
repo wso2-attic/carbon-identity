@@ -19,10 +19,6 @@ package org.wso2.carbon.identity.webfinger;
 
 
 public class WebFingerEndPointException extends Exception{
-    public static final String ERROR_CODE_NO_WEBFINGER_CONFIG = "webfinger_configurations_not_set";
-    public static final String ERROR_CODE_INVALID_RESOURCE = "invalid_resource";
-    public static final String ERROR_CODE_JSON_EXCEPTION = "json_exception";
-    public static final String ERROR_CODE_INVALID_REQUEST = "invalid_request";
 
     private static final long serialVersionUID = -4449780649560035452L;
     private final String errorCode;

@@ -23,12 +23,13 @@ import org.apache.commons.logging.LogFactory;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 import org.wso2.carbon.identity.webfinger.*;
+import org.wso2.carbon.identity.webfinger.builders.ResponseBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class WebFingerJSOnResponseBuilder implements WebFingerResponseBuilder {
-    private static final Log log = LogFactory.getLog(WebFingerJSOnResponseBuilder.class);
+public class JSOnResponseBuilder implements ResponseBuilder {
+    private static final Log log = LogFactory.getLog(JSOnResponseBuilder.class);
     @Override
     public String getOIDProviderIssuerString(WebFingerResponse webFingerResponse) throws WebFingerEndPointException {
         try {
@@ -49,7 +50,7 @@ public class WebFingerJSOnResponseBuilder implements WebFingerResponseBuilder {
             if (log.isDebugEnabled()) {
                 log.debug("Error while generating the response JSON", e);
             }
-            throw new WebFingerEndPointException(WebFingerEndPointException.ERROR_CODE_JSON_EXCEPTION, "Error" +
+            throw new WebFingerEndPointException(WebFingerConstants.ERROR_CODE_JSON_EXCEPTION, "Error" +
                     " while generating the response JSON");
         }
     }

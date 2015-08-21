@@ -21,7 +21,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.ComponentContext;
-import org.wso2.carbon.identity.oidcdiscovery.DefaultOIDProviderRequestValidator;
+import org.wso2.carbon.identity.oidcdiscovery.builders.DefaultOIDProviderRequestBuilder;
 import org.wso2.carbon.identity.oidcdiscovery.OIDCProcessor;
 /**
  * @scr.component name="identity.oidcdiscovery.component" immediate="true"
@@ -44,7 +44,7 @@ public class OIDCDiscoveryServiceComponent {
         //Registering OAuth2Service as a OSGIService
         bundleContext = context.getBundleContext();
         bundleContext.registerService(OIDCProcessor.class.getName(), OIDCProcessor.getInstance(), null);
-        bundleContext.registerService(DefaultOIDProviderRequestValidator.class.getName(),new DefaultOIDProviderRequestValidator(),null);
+        bundleContext.registerService(DefaultOIDProviderRequestBuilder.class.getName(),new DefaultOIDProviderRequestBuilder(),null);
         // exposing server configuration as a service
         if (log.isDebugEnabled()) {
             log.debug("Identity OIDCDiscovery bundle is activated");

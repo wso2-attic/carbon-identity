@@ -24,7 +24,6 @@ public class WebFingerRequest {
     private String rel;
     private String resource;
     private HttpServletRequest servletRequest;
-    private int resourceType;
 
     //URI components
     private String uri;
@@ -33,6 +32,8 @@ public class WebFingerRequest {
     private String userInfo;
     private int port;
     private String path;
+    private String query;
+    private String fragment;
 
     public String getScheme() {
         return scheme;
@@ -74,23 +75,12 @@ public class WebFingerRequest {
         this.fragment = fragment;
     }
 
-    private String query;
-    private String fragment;
-
     public String getUserInfo() {
         return userInfo;
     }
 
     public void setUserInfo(String userInfo) {
         this.userInfo = userInfo;
-    }
-
-    public int getResourceType() {
-        return resourceType;
-    }
-
-    public void setResourceType(int resourceType) {
-        this.resourceType = resourceType;
     }
 
     public String getHost() {

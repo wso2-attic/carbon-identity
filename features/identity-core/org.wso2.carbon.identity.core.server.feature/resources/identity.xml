@@ -256,7 +256,7 @@
         </Configuration>
         <Configuration name="chamara">
             <Issuer>Chamara</Issuer>
-            <Authorization_endpoint></Authorization_endpoint>
+            <Authorization_endpoint>endpoint.example</Authorization_endpoint>
             <Token_endpoint></Token_endpoint>
             <Userinfo_endpoint></Userinfo_endpoint>
             <Jwks_uri></Jwks_uri>
@@ -292,11 +292,9 @@
             <OP_tos_uri></OP_tos_uri>
         </Configuration>
     </OpenIDConnectDiscovery>
-    <WebFinger>
-        <Configuration userInfo="chamarap">
-            <Link rel="http://openid.net/specs/connect/1.0/issuer">issuer.host.chamara.com</Link>
-        </Configuration>
-    </WebFinger>
+    <!--<WebFinger>-->
+            <!--<Link rel="http://openid.net/specs/connect/1.0/issuer">wso2.com</Link>-->
+    <!--</WebFinger>-->
     <MultifactorAuthentication>
         <XMPPSettings>
             <XMPPConfig>

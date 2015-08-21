@@ -39,8 +39,8 @@ import org.wso2.carbon.identity.oauth2.OAuth2Service;
 import org.wso2.carbon.identity.oauth2.OAuth2TokenValidationService;
 import org.wso2.carbon.identity.oauth2.model.OAuth2Parameters;
 import org.wso2.carbon.identity.oauth2.util.OAuth2Util;
+import org.wso2.carbon.identity.oidcdiscovery.builders.DefaultOIDProviderRequestBuilder;
 import org.wso2.carbon.identity.oidcdiscovery.OIDCProcessor;
-import org.wso2.carbon.identity.oidcdiscovery.DefaultOIDProviderRequestValidator;
 import org.wso2.carbon.identity.webfinger.WebFingerProcessor;
 import org.wso2.carbon.ui.CarbonUIUtil;
 import org.wso2.carbon.ui.util.CharacterEncoder;
@@ -70,13 +70,13 @@ public class EndpointUtil {
     }
 
     /**
-     * Returns the {@code OIDProviderRequestValidator} instance
+     * Returns the {@code OIDProviderRequestBuilder} instance
      *
      * @return
      */
-    public static DefaultOIDProviderRequestValidator getOIDProviderRequestValidator() {
-        return (DefaultOIDProviderRequestValidator) PrivilegedCarbonContext.getThreadLocalCarbonContext().getOSGiService
-                (DefaultOIDProviderRequestValidator.class);
+    public static DefaultOIDProviderRequestBuilder getOIDProviderRequestValidator() {
+        return (DefaultOIDProviderRequestBuilder) PrivilegedCarbonContext.getThreadLocalCarbonContext().getOSGiService
+                (DefaultOIDProviderRequestBuilder.class);
     }
 
     /**

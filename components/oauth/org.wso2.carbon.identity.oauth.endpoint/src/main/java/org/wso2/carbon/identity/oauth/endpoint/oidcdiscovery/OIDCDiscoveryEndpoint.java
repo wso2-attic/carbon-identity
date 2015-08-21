@@ -24,7 +24,7 @@ import org.wso2.carbon.identity.oauth.endpoint.oidcdiscovery.impl.OIDProviderJSO
 import org.wso2.carbon.identity.oauth.endpoint.util.EndpointUtil;
 import org.wso2.carbon.identity.oidcdiscovery.OIDCDiscoveryEndPointException;
 import org.wso2.carbon.identity.oidcdiscovery.OIDCProcessor;
-import org.wso2.carbon.identity.oidcdiscovery.OIDProviderResponseBuilder;
+import org.wso2.carbon.identity.oidcdiscovery.builders.OIDProviderResponseBuilder;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -36,21 +36,31 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 
 @Path("/oidcdiscovery")
-public class OIDCDiscoveryEndPoint {
+public class OIDCDiscoveryEndpoint {
 
-    private static final Log log = LogFactory.getLog(OIDCDiscoveryEndPoint.class);
+    private static final Log log = LogFactory.getLog(OIDCDiscoveryEndpoint.class);
 
     @GET
     @Path("{tenant}/.well-known/openid-configuration")
     @Produces("application/json")
-    public Response getOIDProviderConfiguration(@Context HttpServletRequest request,@PathParam("tenant") String tenant) {
+    public Response getOIDProviderConfiguration(@Context HttpServletRequest request, @PathParam("tenant") String
+            tenant) {
+        return this.getResponse(request,tenant);
+    }
+
+    @GET
+    @Path("/.well-known/openid-configuration")
+    @Produces("application/json")
+    public Response getOIDProviderConfiguration(@Context HttpServletRequest request) {
+        return this.getResponse(request,null);
+    }
+
+    private Response getResponse(HttpServletRequest request, String tenant){
         String response = null;
         OIDCProcessor processor = EndpointUtil.getOIDCService();
         try {
-            processor.validateRequest(request,tenant);
             OIDProviderResponseBuilder responseBuilder = new OIDProviderJSONResponseBuilder();
-            response = responseBuilder.getOIDProviderConfigString(processor.getOIDProviderConfig
-                    ());
+            response = responseBuilder.getOIDProviderConfigString(processor.getResponse(request,tenant));
         } catch (OIDCDiscoveryEndPointException e) {
             Response.ResponseBuilder errorResponse = Response.status(processor.handleError(e));
             return errorResponse.entity(e.getMessage()).build();
@@ -58,31 +68,7 @@ public class OIDCDiscoveryEndPoint {
             Response.ResponseBuilder errorResponse = Response.status(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             return errorResponse.entity("Error in reading configuration.").build();
         }
-        Response.ResponseBuilder responseBuilder =
-                Response.status(HttpServletResponse.SC_OK);
+        Response.ResponseBuilder responseBuilder = Response.status(HttpServletResponse.SC_OK);
         return responseBuilder.entity(response).build();
     }
-    @GET
-    @Path("/.well-known/openid-configuration")
-    @Produces("application/json")
-    public Response getOIDProviderConfiguration(@Context HttpServletRequest request) {
-        String response;
-        OIDCProcessor processor = EndpointUtil.getOIDCService();
-        try {
-            processor.validateRequest(request,null);
-            OIDProviderResponseBuilder responseBuilder = new OIDProviderJSONResponseBuilder();
-            response = responseBuilder.getOIDProviderConfigString(processor.getOIDProviderConfig
-                    ());
-        } catch (OIDCDiscoveryEndPointException e) {
-            Response.ResponseBuilder errorResponse = Response.status(processor.handleError(e));
-            return errorResponse.entity(e.getErrorMessage()).build();
-        } catch (ServerConfigurationException e) {
-            Response.ResponseBuilder errorResponse = Response.status(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            return errorResponse.entity("Error in reading configuration.").build();
-        }
-        Response.ResponseBuilder responseBuilder =
-                Response.status(HttpServletResponse.SC_OK);
-        return responseBuilder.entity(response).build();
-    }
-
 }

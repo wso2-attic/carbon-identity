@@ -3,23 +3,23 @@ package org.wso2.carbon.identity.oidcdiscovery;
 
 class MessageContext {
 
-    private OIDProviderConfig configurations;
+    private OIDProviderConfigResponse configurations;
 
     private OIDProviderRequest request;
 
     public MessageContext(){
         this.request = new OIDProviderRequest();
-        this.configurations = new OIDProviderConfig();
+        this.configurations = new OIDProviderConfigResponse();
     }
     public MessageContext(OIDProviderRequest request){
         this.request = request;
-        this.configurations = new OIDProviderConfig();
+        this.configurations = new OIDProviderConfigResponse();
     }
-    public void setConfigurations(OIDProviderConfig configurations) {
+    public void setConfigurations(OIDProviderConfigResponse configurations) {
         this.configurations = configurations;
     }
 
-    public OIDProviderConfig getConfigurations() {
+    public OIDProviderConfigResponse getConfigurations() {
         return configurations;
     }
 

@@ -17,24 +17,22 @@
  */
 package org.wso2.carbon.identity.webfinger;
 
-import org.apache.axiom.om.OMElement;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.base.ServerConfigurationException;
-import org.wso2.carbon.identity.core.util.IdentityConfigParser;
+import org.wso2.carbon.identity.webfinger.builders.DefaultWebFingerRequestBuilder;
+import org.wso2.carbon.identity.webfinger.builders.WebFingerRequestBuilder;
+import org.wso2.carbon.identity.webfinger.builders.WebFingerResponseBuilder;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.xml.namespace.QName;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
 
-
+/**
+ * Singleton class to process the webfinger request.
+ * */
 public class WebFingerProcessor {
     private static Log log = LogFactory.getLog(WebFingerProcessor.class);
     private static WebFingerProcessor webFingerProcessor = new WebFingerProcessor();
-    private MessageContext context;
 
     private WebFingerProcessor() {
         if (log.isDebugEnabled()) {
@@ -46,86 +44,32 @@ public class WebFingerProcessor {
         return webFingerProcessor;
     }
 
-    public void validateRequest(HttpServletRequest request) throws
-            WebFingerEndPointException {
-        this.context = new MessageContext();
-        WebFingerRequestValidator validator = new DefaultWebFingerRequestValidator();
-        WebFingerRequest webFingerRequest = this.context.getRequest();
-        List<String> parameters = Collections.list(request.getParameterNames());
-
-        if (parameters.size() != 2 || !parameters.contains(WebFingerConstants.REL) || !parameters.contains
-                (WebFingerConstants.RESOURCE)) {
-            throw new WebFingerEndPointException(WebFingerEndPointException.ERROR_CODE_INVALID_REQUEST, "Bad Web " +
-                    "Finger request.");
-        }
-
-        String resource = request.getParameter(WebFingerConstants.RESOURCE);
-        webFingerRequest.setRel(request.getParameter(WebFingerConstants.REL));
-        webFingerRequest.setResource(resource);
-        URLNormalizer.normalizeResource(webFingerRequest);
-        webFingerRequest.setServletRequest(request);
-        validator.validateRequest(webFingerRequest);
-
-    }
-
-    public WebFingerResponse getWebFingerResponse() throws WebFingerEndPointException, ServerConfigurationException {
-        if(this.context == null){
-            throw new WebFingerEndPointException(WebFingerEndPointException.ERROR_CODE_INVALID_REQUEST, "Error in " +
-                    "processing the request. Bad request parameters.");
-        }
-        WebFingerRequest request = this.context.getRequest();
-        WebFingerResponse response = this.context.getResponse();
-        IdentityConfigParser configParser = IdentityConfigParser.getInstance();
-        OMElement oidcElement = configParser.getConfigElement(WebFingerConstants.CONFIG_WEBFINGER_TAG);
-        if (oidcElement == null) {
-            throw new WebFingerEndPointException(WebFingerEndPointException
-                    .ERROR_CODE_NO_WEBFINGER_CONFIG, "No WebFinger settings set at the server.");
-        }
-        OMElement subjectElement = null;
-        String userInfo = request.getUserInfo();
-        if (userInfo == null || userInfo.isEmpty()) {
-            userInfo = WebFingerConstants.CONFIG_DEFAULT_SUBJECT;
-        }
-        Iterator<OMElement> configurations = oidcElement.getChildrenWithName(getQNameWithIdentityNS
-                (WebFingerConstants.CONFIG__WEBFINGER_CONFIG));
-        while (configurations.hasNext()) {
-            OMElement configuration = configurations.next();
-            String subject = configuration.getAttributeValue(new QName(WebFingerConstants.USERINFO));
-            if (subject.equals(userInfo)) {
-                response.setSubject(request.getResource());
-                subjectElement = configuration;
-                break;
-            }
-        }
-        //Check whether to give a default OIDCProvider Issuer
-        if (subjectElement == null) {
-            throw new WebFingerEndPointException(WebFingerEndPointException.ERROR_CODE_INVALID_RESOURCE, "No " +
-                    "OpenID Provider Issuer for the provided resource.");
-        }
-        setLinksInResponse(request.getRel(), response, subjectElement);
-
-        return response;
+    public WebFingerResponse getResponse(HttpServletRequest request) throws WebFingerEndPointException,
+            ServerConfigurationException {
+        WebFingerRequestBuilder requestBuilder = new DefaultWebFingerRequestBuilder();
+        WebFingerRequest requestObject = requestBuilder.buildRequest(request);
+        WebFingerResponseBuilder responseBuilder = new WebFingerResponseBuilder();
+        return responseBuilder.buildWebFingerResponse(requestObject);
     }
 
     public int handleError(WebFingerEndPointException error) {
         if (log.isDebugEnabled()) {
             log.debug(error);
         }
-        return HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
-    }
-    private void setLinksInResponse(String rel, WebFingerResponse response, OMElement subjectElement) {
-        Iterator<OMElement> linkSet = subjectElement.getChildrenWithName(getQNameWithIdentityNS(WebFingerConstants
-                .CONFIG_LINK));
-        while(linkSet.hasNext()){
-            OMElement link = linkSet.next();
-            String attributeRel = link.getAttributeValue(new QName(WebFingerConstants.REL));
-            if(attributeRel.equals(rel)){
-                response.addLink(rel,link.getText());
-            }
+        String errorCode = error.getErrorCode();
+        if (errorCode.equals(WebFingerConstants.ERROR_CODE_INVALID_REQUEST)) {
+            return HttpServletResponse.SC_BAD_REQUEST;
+        } else if (errorCode.equals(WebFingerConstants.ERROR_CODE_INVALID_RESOURCE)) {
+            return HttpServletResponse.SC_NOT_FOUND;
+        } else if (errorCode.equals(WebFingerConstants.ERROR_CODE_JSON_EXCEPTION)) {
+            return HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE;
+        } else if (errorCode.equals(WebFingerConstants.ERROR_CODE_NO_WEBFINGER_CONFIG)) {
+           return HttpServletResponse.SC_NOT_FOUND;
+        } else {
+            return HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
         }
+
     }
 
-    private QName getQNameWithIdentityNS(String localPart) {
-        return new QName(IdentityConfigParser.IDENTITY_DEFAULT_NAMESPACE, localPart);
-    }
+
 }

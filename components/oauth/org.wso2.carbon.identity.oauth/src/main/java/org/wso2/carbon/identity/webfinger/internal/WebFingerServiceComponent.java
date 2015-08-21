@@ -44,7 +44,7 @@ public class WebFingerServiceComponent {
     protected void activate(ComponentContext context) {
         bundleContext = context.getBundleContext();
         bundleContext.registerService(WebFingerProcessor.class.getName(), WebFingerProcessor.getInstance(), null);
-        //bundleContext.registerService(DefaultOIDProviderRequestValidator.class.getName(),new DefaultOIDProviderRequestValidator(),null);
+        //bundleContext.registerService(DefaultOIDProviderRequestBuilder.class.getName(),new DefaultOIDProviderRequestBuilder(),null);
         // exposing server configuration as a service
         if (log.isDebugEnabled()) {
             log.debug("OpenID WebFinger bundle is activated.");

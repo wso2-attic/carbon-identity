@@ -34,5 +34,10 @@ public class WebFingerConstants {
     public static final String REL = "rel";
     public static final String HREF = "href";
     public static final String RESOURCE = "resource";
+    public static final String ERROR_CODE_NO_WEBFINGER_CONFIG = "webfinger_configurations_not_set";
+    public static final String ERROR_CODE_INVALID_RESOURCE = "invalid_resource";
+    public static final String ERROR_CODE_JSON_EXCEPTION = "json_exception";
+    public static final String ERROR_CODE_INVALID_REQUEST = "invalid_request";
+    public static final String OPENID_CONNECT_ENDPOINT = "/oauth2/oidcdiscovery";
     //public static final int RES_
 }

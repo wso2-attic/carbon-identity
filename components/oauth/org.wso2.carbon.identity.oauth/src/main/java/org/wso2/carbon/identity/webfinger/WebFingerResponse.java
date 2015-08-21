@@ -19,9 +19,7 @@ package org.wso2.carbon.identity.webfinger;
 
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class WebFingerResponse {
     private String subject;
@@ -48,15 +46,5 @@ public class WebFingerResponse {
         link.setHref(href);
         this.links.add(link);
     }
-    public Map<String,Object> getResponseMap(){
-        Map<String,Object> responseMap = new HashMap<String,Object>();
-        responseMap.put(WebFingerConstants.SUBJECT, this.subject);
-        Map<String,Object> linkMap = new HashMap<>();
-        for(WebLink link : links){
-            linkMap.put(WebFingerConstants.REL,link.getRel());
-            linkMap.put(WebFingerConstants.HREF,link.getHref());
-        }
-        responseMap.put(WebFingerConstants.LINKS, linkMap);
-        return responseMap;
-    }
+    
 }

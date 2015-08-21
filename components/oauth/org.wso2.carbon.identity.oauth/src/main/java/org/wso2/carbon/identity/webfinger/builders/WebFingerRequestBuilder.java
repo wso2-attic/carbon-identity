@@ -15,8 +15,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.carbon.identity.webfinger;
+package org.wso2.carbon.identity.webfinger.builders;
 
-public interface WebFingerRequestValidator {
-    public WebFingerRequest validateRequest(WebFingerRequest webFingerRequest) throws WebFingerEndPointException;
+import org.wso2.carbon.identity.webfinger.WebFingerEndPointException;
+import org.wso2.carbon.identity.webfinger.WebFingerRequest;
+
+import javax.servlet.http.HttpServletRequest;
+
+public interface WebFingerRequestBuilder {
+    public WebFingerRequest buildRequest(HttpServletRequest request) throws WebFingerEndPointException;
 }

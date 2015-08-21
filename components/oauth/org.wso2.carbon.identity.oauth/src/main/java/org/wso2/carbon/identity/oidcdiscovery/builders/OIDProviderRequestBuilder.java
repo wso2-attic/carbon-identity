@@ -15,12 +15,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.carbon.identity.oidcdiscovery;
+package org.wso2.carbon.identity.oidcdiscovery.builders;
+
+import org.wso2.carbon.identity.oidcdiscovery.OIDCDiscoveryEndPointException;
+import org.wso2.carbon.identity.oidcdiscovery.OIDProviderRequest;
 
 import javax.servlet.http.HttpServletRequest;
 
-public interface OIDProviderRequestValidator {
+public interface OIDProviderRequestBuilder {
 
-    public OIDProviderRequest validateRequest(HttpServletRequest request, String tenant) throws OIDCDiscoveryEndPointException;
+    public OIDProviderRequest buildRequest(HttpServletRequest request, String tenant) throws OIDCDiscoveryEndPointException;
 
 }

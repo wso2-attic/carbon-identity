@@ -15,30 +15,28 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.carbon.identity.oidcdiscovery;
+package org.wso2.carbon.identity.oidcdiscovery.builders;
 
-import org.wso2.carbon.ui.util.CharacterEncoder;
+import org.wso2.carbon.identity.oidcdiscovery.DiscoveryConstants;
+import org.wso2.carbon.identity.oidcdiscovery.OIDCDiscoveryEndPointException;
+import org.wso2.carbon.identity.oidcdiscovery.OIDProviderRequest;
 
 import javax.servlet.http.HttpServletRequest;
 
 
-public class DefaultOIDProviderRequestValidator implements OIDProviderRequestValidator {
-
-    public static final String OPENID_CONFIGURATION_RESOURCE = "/.well-known/openid-configuration";
+public class DefaultOIDProviderRequestBuilder implements OIDProviderRequestBuilder {
 
     @Override
-    public OIDProviderRequest validateRequest(HttpServletRequest request, String tenant) throws
+    public OIDProviderRequest buildRequest(HttpServletRequest request, String tenant) throws
             OIDCDiscoveryEndPointException {
-        try {
-            OIDProviderRequest requestObject = new OIDProviderRequest();
-            requestObject.setUri(CharacterEncoder.getSafeText(request.getRequestURI()).trim());
+        OIDProviderRequest requestObject = new OIDProviderRequest();
+        requestObject.setUri(request.getRequestURI());
+        if (tenant != null && !tenant.isEmpty()) {
             requestObject.setTenant(tenant);
-            return requestObject;
-        } catch (Exception e) {
-            throw new OIDCDiscoveryEndPointException(OIDCDiscoveryEndPointException.ERROR_CODE_SERVER_ERROR,
-                    "Internal error occured. Please try again.");
+        } else {
+            requestObject.setTenant(DiscoveryConstants.CONFIG_DEFAULT_NAME);
         }
-
+        return requestObject;
     }
 
 

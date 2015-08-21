@@ -22,8 +22,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.codehaus.jettison.json.JSONException;
 import org.wso2.carbon.identity.oidcdiscovery.OIDCDiscoveryEndPointException;
-import org.wso2.carbon.identity.oidcdiscovery.OIDProviderConfig;
-import org.wso2.carbon.identity.oidcdiscovery.OIDProviderResponseBuilder;
+import org.wso2.carbon.identity.oidcdiscovery.OIDProviderConfigResponse;
+import org.wso2.carbon.identity.oidcdiscovery.builders.OIDProviderResponseBuilder;
 
 import java.util.Map;
 
@@ -31,10 +31,12 @@ import java.util.Map;
 public class OIDProviderJSONResponseBuilder implements OIDProviderResponseBuilder {
     private static final Log log = LogFactory.getLog(OIDProviderResponseBuilder.class);
 
-    public String getOIDProviderConfigString(OIDProviderConfig oidProviderConfig) throws
+    public String getOIDProviderConfigString(OIDProviderConfigResponse oidProviderConfigResponse) throws
             OIDCDiscoveryEndPointException {
-        Map<String, Object> configs = oidProviderConfig.getConfigMap();
+        Map<String, Object> configs = oidProviderConfigResponse.getConfigMap();
         try {
+            //TODO
+            //Remove org.apache.amber.oauth2.common.utils.JSONUtils
             return JSONUtils.buildJSON(configs);
 
         } catch (JSONException e) {

@@ -15,14 +15,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.carbon.identity.webfinger;
+package org.wso2.carbon.identity.webfinger.builders;
 
-public class DefaultWebFingerRequestValidator implements WebFingerRequestValidator {
-    @Override
-    public WebFingerRequest validateRequest(WebFingerRequest webFingerRequest) throws WebFingerEndPointException {
-        return webFingerRequest;
-    }
-    private void normalizeResource(String resource) throws WebFingerEndPointException{
-        //set the host and userinfo of webfinger request
-    }
+
+import org.wso2.carbon.identity.webfinger.WebFingerEndPointException;
+import org.wso2.carbon.identity.webfinger.WebFingerResponse;
+
+public interface ResponseBuilder {
+    public String getOIDProviderIssuerString(WebFingerResponse webFingerResponse) throws
+            WebFingerEndPointException;
 }
