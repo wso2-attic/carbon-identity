@@ -23,7 +23,7 @@
 <%@ page import="org.apache.axis2.context.ConfigurationContext" %>
 <%@ page import="org.wso2.carbon.CarbonConstants" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.WorkflowAdminServiceWorkflowException" %>
-<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.WorkflowBean" %>
+<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.WorkflowDTO" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.WorkflowAdminServiceClient" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.WorkflowUIConstants" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
@@ -43,8 +43,7 @@
     ResourceBundle resourceBundle = ResourceBundle.getBundle(bundle, request.getLocale());
     WorkflowAdminServiceClient client;
     String forwardTo = null;
-    WorkflowBean[] workflows = null;
-    WorkflowBean[] workflowsToDisplay = new WorkflowBean[0];
+    WorkflowDTO[] workflowsToDisplay = new WorkflowDTO[0];
     String paginationValue = "region=region1&item=workflow_services_list_menu";
 
     String pageNumber = CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_PAGE_NUMBER));
@@ -71,16 +70,16 @@
                         .getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
         client = new WorkflowAdminServiceClient(cookie, backendServerURL, configContext);
 
-        workflows = client.listWorkflows();
+        WorkflowDTO[] workflows = client.listWorkflows();
         if (workflows == null) {
-            workflows = new WorkflowBean[0];
+            workflows = new WorkflowDTO[0];
         }
 
         numberOfPages = (int) Math.ceil((double) workflows.length / WorkflowUIConstants.RESULTS_PER_PAGE);
 
         int startIndex = pageNumberInt * WorkflowUIConstants.RESULTS_PER_PAGE;
         int endIndex = (pageNumberInt + 1) * WorkflowUIConstants.RESULTS_PER_PAGE;
-        workflowsToDisplay = new WorkflowBean[WorkflowUIConstants.RESULTS_PER_PAGE];
+        workflowsToDisplay = new WorkflowDTO[WorkflowUIConstants.RESULTS_PER_PAGE];
 
         for (int i = startIndex, j = 0; i < endIndex && i < workflows.length; i++, j++) {
             workflowsToDisplay[j] = workflows[i];
@@ -136,7 +135,7 @@
     </script>
 
     <div id="middle">
-        <h2><fmt:message key='workflow.mgt'/></h2>
+        <h2><fmt:message key='workflow.list'/></h2>
 
         <div id="workArea">
 
@@ -151,14 +150,17 @@
                 </tr>
                 </thead>
                 <tbody>
-                <%  if(workflows != null && workflows.length > 0) {
-                    for (WorkflowBean workflow : workflowsToDisplay) {
+                <%
+                    for (WorkflowDTO workflow : workflowsToDisplay) {
                         if (workflow != null) {
 
                 %>
                 <tr>
                     <td>
-                        <a href="view-workflow.jsp?<%=WorkflowUIConstants.PARAM_WORKFLOW_ID%>=<%=workflow.getWorkflowId()%>">
+                        <!--a href="view-workflow.jsp?<%=WorkflowUIConstants.PARAM_WORKFLOW_ID%>=<%=workflow.getWorkflowId()%>">
+                            <%=workflow.getWorkflowName()%>
+                        </a-->
+                        <a href="#">
                             <%=workflow.getWorkflowName()%>
                         </a>
                     </td>
@@ -176,16 +178,9 @@
                            class="icon-link"><fmt:message key='delete'/></a>
                     </td>
                 </tr>
-                        <%
+                <%
                         }
                     }
-                     }else { %>
-                <tbody>
-                <tr>
-                    <td colspan="5"><i>No Workflows registered</i></td>
-                </tr>
-                </tbody>
-                <% }
                 %>
                 </tbody>
             </table>
@@ -199,4 +194,5 @@
             <br/>
         </div>
     </div>
+
 </fmt:bundle>

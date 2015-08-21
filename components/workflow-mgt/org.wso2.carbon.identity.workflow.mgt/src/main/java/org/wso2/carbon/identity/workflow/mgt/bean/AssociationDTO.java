@@ -23,9 +23,12 @@ public class AssociationDTO {
     private String associationId;
     private String associationName;
     private String workflowName;
+    private String workflowId ;
     private String eventName;
     private String eventId;
     private String condition;
+    private String eventCategory ;
+    private boolean enabled ;
 
     public String getAssociationId() {
 
@@ -85,5 +88,29 @@ public class AssociationDTO {
     public void setWorkflowName(String workflowName) {
 
         this.workflowName = workflowName;
+    }
+
+    public String getEventCategory() {
+        return eventCategory;
+    }
+
+    public void setEventCategory(String eventCategory) {
+        this.eventCategory = eventCategory;
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+
+    public String getWorkflowId() {
+        return workflowId;
+    }
+
+    public void setWorkflowId(String workflowId) {
+        this.workflowId = workflowId;
     }
 }

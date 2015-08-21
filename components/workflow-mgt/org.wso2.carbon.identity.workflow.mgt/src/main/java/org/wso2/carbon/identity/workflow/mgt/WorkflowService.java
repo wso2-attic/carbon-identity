@@ -22,16 +22,19 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.CarbonContext;
+import org.wso2.carbon.identity.workflow.mgt.bean.BPSProfileDTO;
+import org.wso2.carbon.identity.workflow.mgt.bean.ParameterDTO;
+import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowAssociationBean;
+import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowDTO;
+import org.wso2.carbon.identity.workflow.mgt.template.AbstractWorkflowTemplate;
+import org.wso2.carbon.identity.workflow.mgt.template.AbstractWorkflowTemplateImpl;
+import org.wso2.carbon.identity.workflow.mgt.extension.WorkflowRequestHandler;
 import org.wso2.carbon.identity.workflow.mgt.bean.AssociationDTO;
-import org.wso2.carbon.identity.workflow.mgt.bean.BPSProfileBean;
 import org.wso2.carbon.identity.workflow.mgt.bean.Entity;
-import org.wso2.carbon.identity.workflow.mgt.bean.Parameter;
 import org.wso2.carbon.identity.workflow.mgt.bean.TemplateBean;
 import org.wso2.carbon.identity.workflow.mgt.bean.TemplateDTO;
 import org.wso2.carbon.identity.workflow.mgt.bean.TemplateImplDTO;
 import org.wso2.carbon.identity.workflow.mgt.bean.TemplateParameterDef;
-import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowAssociationBean;
-import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowBean;
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowEventDTO;
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowRequestAssociationDTO;
 import org.wso2.carbon.identity.workflow.mgt.dao.RequestEntityRelationshipDAO;
@@ -87,16 +90,16 @@ public class WorkflowService {
                 eventDTO.setEventCategory(requestHandler.getCategory());
                 //note: parameters are not set at here in list operation. It's set only at get operation
                 if (requestHandler.getParamDefinitions() != null) {
-                    Parameter[] parameters = new Parameter[requestHandler.getParamDefinitions().size()];
+                    ParameterDTO[] parameterDTOs = new ParameterDTO[requestHandler.getParamDefinitions().size()];
                     int i = 0;
                     for (Map.Entry<String, String> paramEntry : requestHandler.getParamDefinitions().entrySet()) {
-                        Parameter parameter = new Parameter();
-                        parameter.setParamName(paramEntry.getKey());
-                        parameter.setParamValue(paramEntry.getValue());
-                        parameters[i] = parameter;
+                        ParameterDTO parameterDTO = new ParameterDTO();
+                        parameterDTO.setParamName(paramEntry.getKey());
+                        parameterDTO.setParamValue(paramEntry.getValue());
+                        parameterDTOs[i] = parameterDTO;
                         i++;
                     }
-                    eventDTO.setParameters(parameters);
+                    eventDTO.setParameterDTOs(parameterDTOs);
                 }
                 eventList.add(eventDTO);
             }
@@ -114,16 +117,16 @@ public class WorkflowService {
             eventDTO.setEventDescription(requestHandler.getDescription());
             eventDTO.setEventCategory(requestHandler.getCategory());
             if (requestHandler.getParamDefinitions() != null) {
-                Parameter[] parameters = new Parameter[requestHandler.getParamDefinitions().size()];
+                ParameterDTO[] parameterDTOs = new ParameterDTO[requestHandler.getParamDefinitions().size()];
                 int i = 0;
                 for (Map.Entry<String, String> paramEntry : requestHandler.getParamDefinitions().entrySet()) {
-                    Parameter parameter = new Parameter();
-                    parameter.setParamName(paramEntry.getKey());
-                    parameter.setParamValue(paramEntry.getValue());
-                    parameters[i] = parameter;
+                    ParameterDTO parameterDTO = new ParameterDTO();
+                    parameterDTO.setParamName(paramEntry.getKey());
+                    parameterDTO.setParamValue(paramEntry.getValue());
+                    parameterDTOs[i] = parameterDTO;
                     i++;
                 }
-                eventDTO.setParameters(parameters);
+                eventDTO.setParameterDTOs(parameterDTOs);
             }
             return eventDTO;
         }
@@ -187,14 +190,13 @@ public class WorkflowService {
         return null;
     }
 
-    public void addBPSProfile(String profileName, String host, String user, String password, String callBackUser,
-                              String callbackPassword, int tenantId)
+    public void addBPSProfile(BPSProfileDTO bpsProfileDTO, int tenantId)
             throws InternalWorkflowException {
 
-        bpsProfileDAO.addProfile(profileName, host, user, password, callBackUser, callbackPassword, tenantId);
+        bpsProfileDAO.addProfile(bpsProfileDTO, tenantId);
     }
 
-    public List<BPSProfileBean> listBPSProfiles(int tenantId) throws WorkflowException {
+    public List<BPSProfileDTO> listBPSProfiles(int tenantId) throws WorkflowException {
 
         return bpsProfileDAO.listBPSProfiles(tenantId);
     }
@@ -204,25 +206,25 @@ public class WorkflowService {
         bpsProfileDAO.removeBPSProfile(profileName);
     }
 
-    public void addWorkflow(String id, String name, String description, String templateId, String templateImpl,
-                            Parameter[] templateParams, Parameter[] implParams, int tenantId) throws WorkflowException {
+    public void addWorkflow(WorkflowDTO workflowDTO,
+                            ParameterDTO[] templateParams, ParameterDTO[] implParams, int tenantId) throws WorkflowException {
 
-        workflowDAO.addWorkflow(id, name, description, templateId, templateImpl, tenantId);
+        workflowDAO.addWorkflow(workflowDTO, tenantId);
         Map<String, Object> paramMap = new HashMap<>();
         if (templateParams != null) {
-            for (Parameter param : templateParams) {
+            for (ParameterDTO param : templateParams) {
                 paramMap.put(param.getParamName(), param.getParamValue());
             }
         }
         if (implParams != null) {
-            for (Parameter param : implParams) {
+            for (ParameterDTO param : implParams) {
                 paramMap.put(param.getParamName(), param.getParamValue());
             }
         }
-        paramMap.put(WorkFlowConstants.TemplateConstants.WORKFLOW_NAME, name);
-        workflowDAO.addWorkflowParams(id, paramMap);
+        paramMap.put(WorkFlowConstants.TemplateConstants.WORKFLOW_NAME, workflowDTO.getWorkflowName());
+        workflowDAO.addWorkflowParams(workflowDTO.getWorkflowId(), paramMap);
         AbstractWorkflowTemplateImpl templateImplementation =
-                WorkflowServiceDataHolder.getInstance().getTemplateImplementation(templateId, templateImpl);
+                WorkflowServiceDataHolder.getInstance().getTemplateImplementation(workflowDTO.getTemplateName(), workflowDTO.getImplementationName());
         //deploying the template
         templateImplementation.deploy(paramMap);
     }
@@ -257,7 +259,7 @@ public class WorkflowService {
         }
     }
 
-    public List<WorkflowBean> listWorkflows(int tenantId) throws WorkflowException {
+    public List<WorkflowDTO> listWorkflows(int tenantId) throws WorkflowException {
 
         return workflowDAO.listWorkflows(tenantId);
     }
@@ -275,6 +277,22 @@ public class WorkflowService {
     public Map<String, Object> getBPSProfileParams(String profileName) throws WorkflowException {
 
         return bpsProfileDAO.getBPELProfileParams(profileName);
+    }
+
+    public BPSProfileDTO getBPSProfile(String profileName, int tenantId) throws WorkflowException {
+
+        return bpsProfileDAO.getBPSProfile(profileName, tenantId, false);
+    }
+
+    public void updateBPSProfile(BPSProfileDTO bpsProfileDTO, int tenantId) throws WorkflowException {
+        BPSProfileDTO currentBpsProfile =  bpsProfileDAO.getBPSProfile(bpsProfileDTO.getProfileName(), tenantId,true);
+        if(bpsProfileDTO.getPassword()==null || bpsProfileDTO.getPassword().isEmpty()){
+            bpsProfileDTO.setPassword(currentBpsProfile.getPassword());
+        }
+        if(bpsProfileDTO.getCallbackPassword()==null || bpsProfileDTO.getCallbackPassword().isEmpty()){
+            bpsProfileDTO.setCallbackPassword(currentBpsProfile.getCallbackPassword());
+        }
+        bpsProfileDAO.updateProfile(bpsProfileDTO, tenantId);
     }
 
     public List<AssociationDTO> getAssociationsForWorkflow(String workflowId) throws WorkflowException {
@@ -311,7 +329,15 @@ public class WorkflowService {
         return associations;
     }
 
-    /**
+    public void changeAssociationState(String associationId, boolean isEnable) throws WorkflowException {
+
+        AssociationDTO association = workflowDAO.getAssociation(associationId);
+        association.setEnabled(isEnable);
+        workflowDAO.updateAssociation(association);
+    }
+
+
+/**
      * Add a new relationship between a workflow request and an entity.
      *
      * @param requestId
@@ -371,7 +397,7 @@ public class WorkflowService {
      */
     public boolean eventEngagedWithWorkflows(String eventType) throws InternalWorkflowException {
 
-        List<WorkflowAssociationBean> associations = workflowDAO.getWorkflowsForRequest(eventType, CarbonContext
+        List<WorkflowAssociationBean> associations = workflowDAO.getWorkflowAssociationsForRequest(eventType, CarbonContext
                 .getThreadLocalCarbonContext().getTenantId());
         if (associations.size() > 0) {
             return true;
