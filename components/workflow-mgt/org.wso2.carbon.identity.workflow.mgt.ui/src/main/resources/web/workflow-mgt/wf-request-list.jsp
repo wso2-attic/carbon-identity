@@ -58,6 +58,7 @@
     WorkflowAdminServiceClient client;
     String forwardTo = null;
     WorkflowRequestDTO[] associationToDisplay = new WorkflowRequestDTO[0];
+    WorkflowRequestDTO[] requestList = null;
     String paginationValue = "region=region1";
 
     String pageNumber = CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_PAGE_NUMBER));
@@ -96,7 +97,7 @@
         if (timeFilterCategory == null) {
             timeFilterCategory = "createdAt";
         }
-        WorkflowRequestDTO[] requestList;
+
 
         if (taskTypeFilter.equals("allTasks")) {
             requestList = client.getAllRequests(lowerBound, upperBound, timeFilterCategory);
@@ -423,9 +424,10 @@
                 </thead>
                 <tbody>
                 <%
-                    for (WorkflowRequestDTO workflowReq : associationToDisplay) {
-                        if (workflowReq != null && (statusToFilter == null || statusToFilter == ""
-                                || statusToFilter.equals("allTasks") || workflowReq.getStatus().equals(statusToFilter))) {
+                    if (requestList != null && requestList.length > 0) {
+                        for (WorkflowRequestDTO workflowReq : associationToDisplay) {
+                            if (workflowReq != null && (statusToFilter == null || statusToFilter == ""
+                                    || statusToFilter.equals("allTasks") || workflowReq.getStatus().equals(statusToFilter))) {
                 %>
                 <tr>
                     <td><%=workflowReq.getEventType()%>
@@ -455,8 +457,13 @@
                     </td>
                 </tr>
                 <%
+                            }
                         }
-                    }
+                    } else { %>
+                <tr>
+                    <td colspan="6"><i>No requests found.</i></td>
+                </tr>
+                <% }
                 %>
                 </tbody>
             </table>
