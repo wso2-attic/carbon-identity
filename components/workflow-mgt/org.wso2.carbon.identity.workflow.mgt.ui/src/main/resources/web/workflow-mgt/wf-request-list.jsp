@@ -63,7 +63,6 @@
     String pageNumber = CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_PAGE_NUMBER));
     int pageNumberInt = 0;
     int numberOfPages = 0;
-    String workflowId = StringUtils.EMPTY;
     WorkflowEventDTO[] workflowEvents;
     Map<String, List<WorkflowEventDTO>> events = new HashMap<String, List<WorkflowEventDTO>>();
 
@@ -81,7 +80,6 @@
                 (ConfigurationContext) config.getServletContext()
                         .getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
         client = new WorkflowAdminServiceClient(cookie, backendServerURL, configContext);
-        workflowId = CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_WORKFLOW_ID));
 
         if (taskTypeFilter == null) {
             taskTypeFilter = "";
@@ -164,9 +162,6 @@
     <script type="text/javascript" src="../carbon/admin/js/cookies.js"></script>
     <script type="text/javascript" src="../carbon/admin/js/main.js"></script>
     <link rel="stylesheet" href="/carbon/styles/css/main.css">
-    <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
-    <script src="//code.jquery.com/jquery-1.10.2.js"></script>
-    <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
 
 
     <script type="text/javascript">
@@ -179,6 +174,10 @@
 
             CARBON.showConfirmationDialog('<fmt:message key="confirmation.request.delete"/> ?',
                     doDelete, null);
+        }
+        function listWorkflows(requestId) {
+            location.href = 'wf-workflows-of-request.jsp?<%=WorkflowUIConstants.PARAM_REQUEST_ID%>=' +
+                    requestId;
         }
     </script>
     <script type="text/javascript">
@@ -252,7 +251,7 @@
     </script>
 
     <div id="middle">
-        <h2><fmt:message key='workflow.list'/></h2>
+        <h2><fmt:message key='request.list'/></h2>
 
         <form action="wf-request-list.jsp" name="searchForm" method="post">
             <table id="searchTable" name="searchTable" class="styledLeft" style="border:0;
@@ -449,6 +448,10 @@
                         <% } else { %>
 
                         <% } %>
+                        <a title="<fmt:message key='workflow.request.list.title'/>"
+                           onclick="listWorkflows('<%=workflowReq.getRequestId()%>');return false;"
+                           href="#" style="background-image: url(images/list.png);"
+                           class="icon-link"><fmt:message key='workflows'/></a>
                     </td>
                 </tr>
                 <%
@@ -459,7 +462,7 @@
             </table>
             <carbon:paginator pageNumber="<%=pageNumberInt%>"
                               numberOfPages="<%=numberOfPages%>"
-                              page="view-workflow.jsp"
+                              page="wf-request-list.jsp"
                               pageNumberParameterName="<%=WorkflowUIConstants.PARAM_PAGE_NUMBER%>"
                               resourceBundle="org.wso2.carbon.security.ui.i18n.Resources"
                               parameters="<%=paginationValue%>"

@@ -39,7 +39,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class WorkflowRequestDAO {
 
@@ -368,6 +367,33 @@ public class WorkflowRequestDAO {
             throw new InternalWorkflowException("Error when deserializing a workflow request.", e);
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, resultSet, prepStmt);
+        }
+    }
+
+    /**
+     * update last updated time of a request
+     *
+     * @param requestId
+     * @throws InternalWorkflowException
+     */
+    public void updateLastUpdatedTimeOfRequest(String requestId) throws InternalWorkflowException {
+
+        Connection connection = null;
+        PreparedStatement prepStmt = null;
+        String query = SQLConstants.UPDATE_UPDATED_AT_OF_REQUEST;
+        try {
+            connection = IdentityDatabaseUtil.getDBConnection();
+            prepStmt = connection.prepareStatement(query);
+            prepStmt.setTimestamp(1, new Timestamp(System.currentTimeMillis()));
+            prepStmt.setString(2, requestId);
+            prepStmt.execute();
+            connection.commit();
+        } catch (IdentityException e) {
+            throw new InternalWorkflowException("Error when connecting to the Identity Database.", e);
+        } catch (SQLException e) {
+            throw new InternalWorkflowException("Error when executing the sql query:" + query, e);
+        } finally {
+            IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
         }
     }
 

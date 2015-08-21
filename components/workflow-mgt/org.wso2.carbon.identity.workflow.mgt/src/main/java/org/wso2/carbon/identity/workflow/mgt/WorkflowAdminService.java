@@ -30,6 +30,7 @@ import org.wso2.carbon.identity.workflow.mgt.bean.TemplateDTO;
 import org.wso2.carbon.identity.workflow.mgt.bean.TemplateImplDTO;
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowBean;
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowEventDTO;
+import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowRequestAssociationDTO;
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowRequestDTO;
 import org.wso2.carbon.identity.workflow.mgt.exception.InternalWorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.exception.RuntimeWorkflowException;
@@ -216,6 +217,9 @@ public class WorkflowAdminService {
      * Returns array of requests initiated by a user.
      *
      * @param user
+     * @param beginDate
+     * @param endDate
+     * @param dateCategory
      * @return
      * @throws WorkflowException
      */
@@ -252,6 +256,18 @@ public class WorkflowAdminService {
     public void deleteWorkflowRequest(String requestId) throws WorkflowException {
 
         osgiService.updateStatusOfRequest(requestId, WorkflowRequestStatus.DELETED.toString());
+    }
+
+    /**
+     * Get workflows of a request.
+     *
+     * @param requestId
+     * @return
+     * @throws WorkflowException
+     */
+    public WorkflowRequestAssociationDTO[] getWorkflowsOfRequest(String requestId) throws WorkflowException {
+
+        return osgiService.getWorkflowsOfRequest(requestId);
     }
 
 

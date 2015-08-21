@@ -24,6 +24,7 @@ import org.apache.axis2.client.ServiceClient;
 import org.apache.axis2.context.ConfigurationContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.identity.workflow.mgt.stub.bean.WorkflowRequestAssociationDTO;
 import org.wso2.carbon.identity.workflow.mgt.stub.bean.WorkflowRequestDTO;
 import org.wso2.carbon.identity.workflow.mgt.stub.WorkflowAdminServiceStub;
 import org.wso2.carbon.identity.workflow.mgt.stub.WorkflowAdminServiceWorkflowException;
@@ -210,6 +211,12 @@ public class WorkflowAdminServiceClient {
 
     public void deleteRequest(String requestId) throws WorkflowAdminServiceWorkflowException, RemoteException {
         stub.deleteWorkflowRequest(requestId);
+    }
+
+    public WorkflowRequestAssociationDTO[] getWorkflowsOfRequest(String requestId) throws
+            WorkflowAdminServiceWorkflowException, RemoteException {
+
+        return stub.getWorkflowsOfRequest(requestId);
     }
 
 }

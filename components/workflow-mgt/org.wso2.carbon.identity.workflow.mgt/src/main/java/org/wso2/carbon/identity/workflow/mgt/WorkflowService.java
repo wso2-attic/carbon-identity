@@ -33,7 +33,9 @@ import org.wso2.carbon.identity.workflow.mgt.bean.TemplateParameterDef;
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowAssociationBean;
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowBean;
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowEventDTO;
+import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowRequestAssociationDTO;
 import org.wso2.carbon.identity.workflow.mgt.dao.RequestEntityRelationshipDAO;
+import org.wso2.carbon.identity.workflow.mgt.dao.WorkflowRequestAssociationDAO;
 import org.wso2.carbon.identity.workflow.mgt.dao.WorkflowRequestDAO;
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowRequestDTO;
 import org.wso2.carbon.identity.workflow.mgt.template.AbstractWorkflowTemplate;
@@ -69,6 +71,7 @@ public class WorkflowService {
     BPSProfileDAO bpsProfileDAO = new BPSProfileDAO();
     RequestEntityRelationshipDAO requestEntityRelationshipDAO = new RequestEntityRelationshipDAO();
     WorkflowRequestDAO workflowRequestDAO = new WorkflowRequestDAO();
+    WorkflowRequestAssociationDAO workflowRequestAssociationDAO = new WorkflowRequestAssociationDAO();
 
     public List<WorkflowEventDTO> listWorkflowEvents() {
 
@@ -391,6 +394,18 @@ public class WorkflowService {
     }
 
     /**
+     * Get list of workflows of a request
+     *
+     * @param requestId
+     * @return
+     * @throws WorkflowException
+     */
+    public WorkflowRequestAssociationDTO[] getWorkflowsOfRequest(String requestId) throws WorkflowException {
+
+        return workflowRequestAssociationDAO.getWorkflowsOfRequest(requestId);
+    }
+
+    /**
      * Update state of a existing workflow request
      *
      * @param requestId
@@ -404,6 +419,16 @@ public class WorkflowService {
         requestEntityRelationshipDAO.deleteRelationshipsOfRequest(requestId);
     }
 
+    /**
+     * get requests list according to createdUser, createdTime, and lastUpdatedTime
+     *
+     * @param user
+     * @param beginDate
+     * @param endDate
+     * @param dateCategory
+     * @return
+     * @throws WorkflowException
+     */
     public WorkflowRequestDTO[] getRequestsFromFilter(String user, String beginDate, String endDate, String
             dateCategory) throws WorkflowException {
 
@@ -426,8 +451,6 @@ public class WorkflowService {
             Date parsedEndDate = new Date();
             endTime = new java.sql.Timestamp(parsedEndDate.getTime());
         }
-        log.error(endTime);
-        log.error(beginTime);
         if (StringUtils.isBlank(user)) {
             return workflowRequestDAO.getRequestsFilteredByTime(beginTime, endTime, dateCategory);
         } else {
