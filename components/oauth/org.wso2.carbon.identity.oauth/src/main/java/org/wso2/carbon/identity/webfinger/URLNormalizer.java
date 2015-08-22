@@ -31,7 +31,6 @@ public class URLNormalizer {
 
     private static final Log log = LogFactory.getLog(URLNormalizer.class);
 
-    // pattern used to parse user input; we can't use the built-in java URI parser
     private static final Pattern pattern = Pattern.compile("^" +
                     "((https|acct|http|mailto|tel|device):(//)?)?" + // scheme
                     "(" +
@@ -59,8 +58,6 @@ public class URLNormalizer {
      * @return the WebFingerRequest, after assigning the relevant fields to the properties in the WebFingerRequest
      */
     public static WebFingerRequest normalizeResource(WebFingerRequest request) throws WebFingerEndPointException {
-        // try to parse the resource URI
-        // NOTE: we can't use the Java built-in URI class because it doesn't split the parts appropriately
         String identifier = request.getResource();
         if (Strings.isNullOrEmpty(identifier)) {
             log.warn("Can't normalize null or empty URI: " + identifier);

@@ -91,13 +91,16 @@ public class WebFingerResponseBuilder {
      * @resource resource parameter in the web finger request
      */
     private WebFingerResponse getIssuerFromServerURL(String resource) throws IdentityException {
-        String issuer = IdentityUtil.getServerURL();
+        String issuer = IdentityUtil.getServerURL("");
         if (issuer == null || issuer.isEmpty()) {
             return null;
         }
+        issuer = issuer + WebFingerConstants.OPENID_CONNECT_ENDPOINT;
+        //TODO
+        //get the tenant using the user and append from here.
         WebFingerResponse response = new WebFingerResponse();
         response.setSubject(resource);
-        response.addLink(WebFingerConstants.OPENID_CONNETCT_ISSUER_REL, issuer+WebFingerConstants.OPENID_CONNECT_ENDPOINT);
+        response.addLink(WebFingerConstants.OPENID_CONNETCT_ISSUER_REL, issuer);
         return response;
     }
 }
