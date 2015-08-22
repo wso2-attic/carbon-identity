@@ -273,7 +273,15 @@
 
     function doCancel(){
         preSubmit();
-        document.attributeValueForm.action = "<%=returnPage%>.jsp?ruleId=" + '<%=ruleId%>';
+        <%
+        String cancelReturnPage=returnPage;
+
+        if(!returnPage.contains(".jsp")){
+           cancelReturnPage = cancelReturnPage+".jsp";
+        }
+
+        %>
+        document.attributeValueForm.action = "<%= cancelReturnPage%>?ruleId=" + '<%=ruleId%>';
         document.attributeValueForm.submit();
     }
 
