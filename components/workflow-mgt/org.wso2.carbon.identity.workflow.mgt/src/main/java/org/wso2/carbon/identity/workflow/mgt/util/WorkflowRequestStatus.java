@@ -45,6 +45,16 @@ public enum WorkflowRequestStatus {
     REJECTED,
 
     /**
+     * The request is failed at callback.
+     */
+    FAILED,
+
+    /**
+     * The request is deleted by requested user.
+     */
+    DELETED,
+
+    /**
      * The request failed at the executor.
      */
     UNDEFINED

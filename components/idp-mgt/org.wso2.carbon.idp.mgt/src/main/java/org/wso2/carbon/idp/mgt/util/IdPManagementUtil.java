@@ -104,7 +104,7 @@ public class IdPManagementUtil {
                             IdentityApplicationConstants.Authenticator.IDPProperties.NAME);
             Property property = IdentityApplicationManagementUtil.getProperty(federatedAuthenticatorConfig.getProperties()
                     , timeOutPropertyName);
-            timeout = Integer.parseInt(property.getValue());
+            timeout = Integer.parseInt(property.getValue()) * 60;
         } catch (IdentityApplicationManagementException e) {
             log.error("Error when accessing the IdentityProviderManager for tenant : " +tenantDomain, e);
         }

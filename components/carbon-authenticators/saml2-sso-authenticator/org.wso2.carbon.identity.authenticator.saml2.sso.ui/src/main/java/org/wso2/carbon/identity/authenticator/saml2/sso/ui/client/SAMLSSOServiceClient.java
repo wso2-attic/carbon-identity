@@ -23,7 +23,7 @@ import org.apache.axis2.client.ServiceClient;
 import org.apache.axis2.context.ConfigurationContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.identity.sso.saml.stub.IdentityException;
+import org.wso2.carbon.identity.authenticator.saml2.sso.common.SAML2SSOUIAuthenticatorException;
 import org.wso2.carbon.identity.sso.saml.stub.IdentitySAMLSSOServiceStub;
 import org.wso2.carbon.identity.sso.saml.stub.types.SAMLSSOAuthnReqDTO;
 import org.wso2.carbon.identity.sso.saml.stub.types.SAMLSSOReqValidationResponseDTO;
@@ -47,35 +47,36 @@ public class SAMLSSOServiceClient {
      * @param rpSessionId
      * @param authnMode
      * @return
-     * @throws IdentityException
+     * @throws SAML2SSOUIAuthenticatorException
      */
     public SAMLSSOReqValidationResponseDTO validate(String samlReq, String queryString,
                                                     String sessionId, String rpSessionId,
                                                     String authnMode, boolean isPost)
-            throws IdentityException {
+            throws SAML2SSOUIAuthenticatorException {
         try {
             return stub.validateSPInitSSORequest(samlReq, queryString, sessionId, rpSessionId, authnMode, isPost);
         } catch (Exception e) {
             log.error("Error validating the Authentication Request", e);
-            throw new IdentityException("Error in parsing authentication request", e);
+            throw new SAML2SSOUIAuthenticatorException("Error in parsing authentication request", e);
         }
     }
 
-    public SAMLSSORespDTO authenticate(SAMLSSOAuthnReqDTO authnReqDTO, String sessionId) throws IdentityException {
+    public SAMLSSORespDTO authenticate(SAMLSSOAuthnReqDTO authnReqDTO, String sessionId) throws SAML2SSOUIAuthenticatorException {
         try {
-            return stub.authenticate(authnReqDTO, sessionId);
+            // TODO FIX THIS - ADDED ONLY TO BUILD THE COMPONENT
+            return stub.authenticate(authnReqDTO, sessionId, false, null, null);
         } catch (Exception e) {
             log.error("Error authenticating the user.", e);
-            throw new IdentityException("Authentication Failure", e);
+            throw new SAML2SSOUIAuthenticatorException("Authentication Failure", e);
         }
     }
 
-    public SAMLSSOReqValidationResponseDTO doSingleLogout(String sessionId) throws IdentityException {
+    public SAMLSSOReqValidationResponseDTO doSingleLogout(String sessionId) throws SAML2SSOUIAuthenticatorException {
         try {
             return stub.doSingleLogout(sessionId);
         } catch (Exception ex) {
             log.error("Error performing single logout.", ex);
-            throw new IdentityException("Error performing Single Logout", ex);
+            throw new SAML2SSOUIAuthenticatorException("Error performing Single Logout", ex);
         }
     }
 }

@@ -27,6 +27,7 @@
 <%@page import="java.text.MessageFormat" %>
 
 <%
+    String spName = request.getParameter("spName");
     String servicePrincipleName = request.getParameter("spnName");
 
     String forwardTo = "index.jsp";
@@ -35,6 +36,7 @@
     ResourceBundle resourceBundle = ResourceBundle.getBundle(BUNDLE, request.getLocale());
 
     DirectoryServerManagerClient serverManager = null;
+    boolean isError = false;
 
     try {
 
@@ -59,6 +61,7 @@
         CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.INFO, request);
 
     } catch (Exception e) {
+        isError = true;
         String message = MessageFormat.format(resourceBundle.getString(e.getMessage()),
                 new Object[]{servicePrincipleName});
         CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
@@ -68,10 +71,23 @@
 
 
 <%@page import="java.util.ResourceBundle" %>
-<script type="text/javascript">
-    function forward() {
-        location.href = "<%=forwardTo%>";
-    }
+<script>
+
+    <%
+    boolean qpplicationComponentFound = CarbonUIUtil.isContextRegistered(config, "/application/");
+    if (qpplicationComponentFound) {
+        if (!isError) {
+    %>
+    location.href =
+            '../application/configure-service-provider.jsp?action=delete&display=kerberos&spName=<%=spName%>&kerberos&=<%=servicePrincipleName%>';
+    <%  } else { %>
+    location.href = '../application/configure-service-provider.jsp?action=cancel&display=kerberos&spName=<%=spName%>';
+    <%
+        }
+    }else {
+    %>
+    location.href = '<%=forwardTo%>';
+    <% } %>
 </script>
 
 <script type="text/javascript">

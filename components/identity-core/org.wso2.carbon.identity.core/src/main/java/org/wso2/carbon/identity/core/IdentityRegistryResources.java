@@ -123,10 +123,13 @@ public class IdentityRegistryResources {
     //SAML SSO
     public final static String PROP_SAML_SSO_ISSUER = "Issuer";
     public final static String PROP_SAML_SSO_ASSERTION_CONS_URL = "SAMLSSOAssertionConsumerURL";
+    public final static String PROP_SAML_SSO_ASSERTION_CONS_URLS = "SAMLSSOAssertionConsumerURLs";
+    public final static String PROP_DEFAULT_SAML_SSO_ASSERTION_CONS_URL = "DefaultSAMLSSOAssertionConsumerURL";
     public final static String PROP_SAML_SSO_ISSUER_CERT_ALIAS = "IssuerCertAlias";
     public final static String PROP_SAML_SSO_USE_FULLY_QUALIFIED_USERNAME_AS_SUBJECT = "useFullyQualifiedUsername";
     public final static String PROP_SAML_SSO_DO_SINGLE_LOGOUT = "doSingleLogout";
-    public final static String PROP_SAML_SSO_LOGOUT_URL = "logoutURL";
+    public final static String PROP_SAML_SLO_RESPONSE_URL = "sloResponseURL";
+    public final static String PROP_SAML_SLO_REQUEST_URL = "sloRequestURL";
     public final static String PROP_SAML_SSO_LOGIN_PAGE_URL = "loginPageURL";
     public final static String PROP_SAML_SSO_DO_SIGN_RESPONSE = "doSignResponse";
     public final static String PROP_SAML_SSO_DO_SIGN_ASSERTIONS = "doSignAssertions";
@@ -141,6 +144,8 @@ public class IdentityRegistryResources {
     public static final String PROP_SAML_SSO_NAMEID_CLAIMURI = "NameIDClaimUri";
     public static final String PROP_SAML_SSO_NAMEID_FORMAT = "NameIDFormat";
     public static final String PROP_SAML_SSO_IDP_INIT_SSO_ENABLED = "IdPInitSSOEnabled";
+    public static final String PROP_SAML_SLO_IDP_INIT_SLO_ENABLED = "IdPInitSLOEnabled";
+    public static final String PROP_SAML_IDP_INIT_SLO_RETURN_URLS = "IdPInitiatedSLOReturnToURLs";
     public static final String PROP_SAML_SSO_ENABLE_ENCRYPTED_ASSERTION = "doEnableEncryptedAssertion";
     public static final String PROP_SAML_SSO_VALIDATE_SIGNATURE_IN_REQUESTS = "doValidateSignatureInRequests";
 

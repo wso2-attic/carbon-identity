@@ -116,13 +116,29 @@
                     doDelete, null);
         }
 
+        function changeState(id, name, action) {
+            function onChangeState() {
+                location.href = 'update-association-finish.jsp?<%=WorkflowUIConstants.PARAM_ACTION%>=' +
+                                action + '&<%=WorkflowUIConstants.PARAM_ASSOCIATION_ID%>=' + id;
+            }
+            if(action == '<%=WorkflowUIConstants.ACTION_VALUE_ENABLE%>'){
+                CARBON.showConfirmationDialog('<fmt:message key="confirmation.association.enable"/> ',
+                                              onChangeState, null);
+            }else{
+                CARBON.showConfirmationDialog('<fmt:message key="confirmation.association.disable"/> ',
+                                              onChangeState, null);
+            }
+
+        }
+
+
         function addAssociation() {
             window.location = "add-association.jsp";
         }
     </script>
 
     <div id="middle">
-        <h2><fmt:message key='workflow.list'/></h2>
+        <h2><fmt:message key='workflow.association.list'/></h2>
 
         <div id="workArea">
             <a title="<fmt:message key='workflow.service.association.add'/>"
@@ -135,15 +151,14 @@
                     <th width="30%"><fmt:message key="workflow.service.associate.event"/></th>
                     <th width="15%"><fmt:message key="workflow.name"/></th>
                     <th><fmt:message key="actions"/></th>
+                    <th></th>
                 </tr>
                 </thead>
                 <tbody>
                 <%
                     for (AssociationDTO association : associationsToDisplay) {
                         if (association != null) {
-
                 %>
-                <tr>
                     <td>
                         <%=association.getAssociationName()%>
                     </td>
@@ -157,6 +172,25 @@
                                    '<%=association.getAssociationName()%>');return false;"
                            href="#" style="background-image: url(images/delete.gif);"
                            class="icon-link"><fmt:message key='delete'/></a>
+                    </td>
+                    <td>
+                        <% if(association.getEnabled()){ %>
+
+                        <a title="<fmt:message key='workflow.service.association.state.disable'/>"
+                           onclick="changeState('<%=association.getAssociationId()%>',
+                                   '<%=association.getAssociationName()%>','<%=WorkflowUIConstants.ACTION_VALUE_DISABLE%>');return false;"
+                           class="icon-link" href="#" style="background-image: url(images/disable.gif);"><fmt:message key='disable'/></a>
+
+                        <% }else{ %>
+
+                        <a title="<fmt:message key='workflow.service.association.state.enable'/>"
+                           onclick="changeState('<%=association.getAssociationId()%>',
+                                   '<%=association.getAssociationName()%>','<%=WorkflowUIConstants.ACTION_VALUE_ENABLE%>');return false;"
+                           class="icon-link" href="#" style="background-image: url(images/enable.gif);"><fmt:message key='enable'/></a>
+
+                        <%
+                            }
+                        %>
                     </td>
                 </tr>
                 <%

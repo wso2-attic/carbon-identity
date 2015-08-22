@@ -24,7 +24,7 @@ public class WorkflowEventDTO {
     private String eventFriendlyName;
     private String eventDescription;
     private String eventCategory;
-    private Parameter[] parameters;
+    private ParameterDTO[] parameterDTOs;
 
     public String getEventId() {
         return eventId;
@@ -50,12 +50,12 @@ public class WorkflowEventDTO {
         this.eventCategory = eventCategory;
     }
 
-    public Parameter[] getParameters() {
-        return parameters;
+    public ParameterDTO[] getParameterDTOs() {
+        return parameterDTOs;
     }
 
-    public void setParameters(Parameter[] parameters) {
-        this.parameters = parameters;
+    public void setParameterDTOs(ParameterDTO[] parameterDTOs) {
+        this.parameterDTOs = parameterDTOs;
     }
 
     public String getEventDescription() {

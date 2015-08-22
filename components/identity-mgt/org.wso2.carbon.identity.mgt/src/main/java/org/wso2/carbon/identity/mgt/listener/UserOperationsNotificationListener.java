@@ -20,6 +20,9 @@ package org.wso2.carbon.identity.mgt.listener;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.identity.core.AbstractIdentityUserOperationEventListener;
+import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.mgt.internal.IdentityMgtServiceComponent;
 import org.wso2.carbon.identity.notification.mgt.NotificationManagementException;
 import org.wso2.carbon.identity.notification.mgt.NotificationSender;
@@ -35,7 +38,7 @@ import java.util.Map;
  * this listener fires message sending module, So that registered modules with registered events
  * will send messages to endpoints.
  */
-public class UserOperationsNotificationListener extends AbstractUserOperationEventListener {
+public class UserOperationsNotificationListener extends AbstractIdentityUserOperationEventListener {
 
     private static final Log log = LogFactory.getLog(UserOperationsNotificationListener.class);
     private final String eventName = "userOperation";
@@ -46,7 +49,11 @@ public class UserOperationsNotificationListener extends AbstractUserOperationEve
 
     @Override
     public int getExecutionOrderId() {
-        return 1503;
+        int orderId = getOrderId(UserOperationsNotificationListener.class.getName());
+        if (orderId != IdentityCoreConstants.EVENT_LISTENER_ORDER_ID) {
+            return orderId;
+        }
+        return 80;
     }
 
     /**
@@ -62,6 +69,9 @@ public class UserOperationsNotificationListener extends AbstractUserOperationEve
     @Override
     public boolean doPostDeleteUser(String username, UserStoreManager userStoreManager)
             throws UserStoreException {
+        if (!isEnable(this.getClass().getName())) {
+            return true;
+        }
 
         if (log.isDebugEnabled()) {
             log.debug("Sending user delete notification for user " + username);
@@ -84,6 +94,10 @@ public class UserOperationsNotificationListener extends AbstractUserOperationEve
     @Override
     public boolean doPostDeleteUserClaimValues(String username, UserStoreManager userStoreManager)
             throws UserStoreException {
+
+        if (!isEnable(this.getClass().getName())) {
+            return true;
+        }
 
         if (log.isDebugEnabled()) {
             log.debug("Sending user claim value update notification for user " + username);
@@ -108,6 +122,10 @@ public class UserOperationsNotificationListener extends AbstractUserOperationEve
     public boolean doPostDeleteUserClaimValue(String username, UserStoreManager userStoreManager)
             throws UserStoreException {
 
+        if (!isEnable(this.getClass().getName())) {
+            return true;
+        }
+
         if (log.isDebugEnabled()) {
             log.debug("Sending user delete update notification for user " + username);
         }
@@ -131,6 +149,9 @@ public class UserOperationsNotificationListener extends AbstractUserOperationEve
                                               String[] deletedRoles, String[] newRoles,
                                               UserStoreManager userStoreManager)
             throws UserStoreException {
+        if (!isEnable(this.getClass().getName())) {
+            return true;
+        }
 
         if (log.isDebugEnabled()) {
             log.debug("Sending user role list update notification for user " + username);
@@ -156,6 +177,9 @@ public class UserOperationsNotificationListener extends AbstractUserOperationEve
                                             Map<String, String> claims, String profileName,
                                             UserStoreManager userStoreManager)
             throws UserStoreException {
+        if (!isEnable(this.getClass().getName())) {
+            return true;
+        }
 
         if (log.isDebugEnabled()) {
             log.debug("Sending user claim values update notification for user " + username);

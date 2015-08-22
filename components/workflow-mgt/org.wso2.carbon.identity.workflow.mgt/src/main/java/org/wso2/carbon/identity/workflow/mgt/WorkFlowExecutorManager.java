@@ -21,11 +21,15 @@ package org.wso2.carbon.identity.workflow.mgt;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.xpath.AXIOMXPath;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jaxen.JaxenException;
 import org.wso2.carbon.base.MultitenantConstants;
+import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
+import org.wso2.carbon.identity.workflow.mgt.dao.RequestEntityRelationshipDAO;
+import org.wso2.carbon.identity.workflow.mgt.dao.WorkflowRequestAssociationDAO;
 import org.wso2.carbon.identity.workflow.mgt.template.AbstractWorkflowTemplateImpl;
 import org.wso2.carbon.identity.workflow.mgt.extension.WorkflowRequestHandler;
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkFlowRequest;
@@ -38,7 +42,9 @@ import org.wso2.carbon.identity.workflow.mgt.internal.WorkflowServiceDataHolder;
 import org.wso2.carbon.identity.workflow.mgt.util.WorkflowRequestBuilder;
 import org.wso2.carbon.identity.workflow.mgt.util.WorkflowRequestStatus;
 import org.wso2.carbon.user.api.UserStoreException;
+import org.wso2.carbon.user.core.util.UserCoreUtil;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -60,13 +66,17 @@ public class WorkFlowExecutorManager {
 
     public void executeWorkflow(WorkFlowRequest workFlowRequest) throws WorkflowException {
 
-        workFlowRequest.setUuid(UUID.randomUUID().toString());
+        WorkflowRequestAssociationDAO workflowRequestAssociationDAO = new WorkflowRequestAssociationDAO();
+        if (StringUtils.isBlank(workFlowRequest.getUuid())) {
+            workFlowRequest.setUuid(UUID.randomUUID().toString());
+        }
         OMElement xmlRequest = WorkflowRequestBuilder.buildXMLRequest(workFlowRequest);
         WorkflowDAO workflowDAO = new WorkflowDAO();
         List<WorkflowAssociationBean> associations =
-                workflowDAO.getWorkflowsForRequest(workFlowRequest.getEventType(),workFlowRequest.getTenantId());
+                workflowDAO.getWorkflowAssociationsForRequest(workFlowRequest.getEventType(), workFlowRequest
+                        .getTenantId());
         if (CollectionUtils.isEmpty(associations)) {
-            handleCallback(workFlowRequest, WorkflowRequestStatus.SKIPPED.toString(), null);
+            handleCallback(workFlowRequest, WorkflowRequestStatus.SKIPPED.toString(), null, "");
             return;
         }
         boolean workflowEngaged = false;
@@ -76,34 +86,58 @@ public class WorkFlowExecutorManager {
                 AXIOMXPath axiomxPath = new AXIOMXPath(association.getCondition());
                 if (axiomxPath.booleanValueOf(xmlRequest)) {
                     workflowEngaged = true;
-                    if(!requestSaved){
+                    if (!requestSaved) {
                         WorkflowRequestDAO requestDAO = new WorkflowRequestDAO();
-                        requestDAO.addWorkflowEntry(workFlowRequest);
+                        String tenant = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+                        String currentUser = CarbonContext.getThreadLocalCarbonContext().getUsername();
+                        String fullyQualifiedName = UserCoreUtil.addTenantDomainToEntry(currentUser, tenant);
+                        requestDAO.addWorkflowEntry(workFlowRequest, fullyQualifiedName);
                         requestSaved = true;
                     }
+                    String relationshipId = UUID.randomUUID().toString();
+                    WorkFlowRequest requestToSend = workFlowRequest.clone();
+                    requestToSend.setUuid(relationshipId);
                     AbstractWorkflowTemplateImpl templateImplementation = WorkflowServiceDataHolder.getInstance()
                             .getTemplateImplementation(association.getTemplateId(), association.getImplId());
                     Map<String, Object> workflowParams = workflowDAO.getWorkflowParams(association.getWorkflowId());
                     templateImplementation.initializeExecutor(workflowParams);
-                    templateImplementation.execute(workFlowRequest);
+                    templateImplementation.execute(requestToSend);
+                    workflowRequestAssociationDAO.addNewRelationship(relationshipId, association.getWorkflowId(),
+                            workFlowRequest.getUuid(), WorkflowRequestStatus.PENDING.toString());
                 }
             } catch (JaxenException e) {
                 if (log.isDebugEnabled()) {
                     log.debug("Error when executing the xpath expression:" + association.getCondition() + " , on " +
                             xmlRequest, e);
                 }
+            } catch (CloneNotSupportedException e) {
+                log.error("Error while cloning workflowRequest object at executor manager.", e);
             }
         }
 
-        if(!workflowEngaged){
-            handleCallback(workFlowRequest, WorkflowRequestStatus.SKIPPED.toString(), null);
+        if (!workflowEngaged) {
+            handleCallback(workFlowRequest, WorkflowRequestStatus.SKIPPED.toString(), null, "");
         }
     }
 
-    private void handleCallback(WorkFlowRequest request, String status, Map<String, Object> additionalParams)
-            throws WorkflowException {
+    private void handleCallback(WorkFlowRequest request, String status, Map<String, Object> additionalParams, String
+            requestWorkflowId) throws WorkflowException {
 
+        WorkflowRequestAssociationDAO workflowRequestAssociationDAO = new WorkflowRequestAssociationDAO();
         if (request != null) {
+            WorkflowRequestDAO workflowRequestDAO = new WorkflowRequestDAO();
+            String requestId = request.getUuid();
+            if (StringUtils.isNotBlank(requestWorkflowId) && workflowRequestDAO.retrieveStatusOfWorkflow(request
+                    .getUuid()).equals(WorkflowRequestStatus.DELETED.toString())) {
+                log.info("Callback received for request " + requestId + " which is already deleted by user. ");
+                return;
+            }
+            workflowRequestAssociationDAO.updateStatusOfRelationship(requestWorkflowId, status);
+            workflowRequestDAO.updateLastUpdatedTimeOfRequest(requestId);
+            if (status.equals(WorkflowRequestStatus.APPROVED.toString()) && !isAllWorkflowsCompleted
+                    (workflowRequestAssociationDAO, requestId)) {
+                return;
+            }
             String eventId = request.getEventType();
             WorkflowRequestHandler requestHandler = WorkflowServiceDataHolder.getInstance().getRequestHandler(eventId);
             if (requestHandler == null) {
@@ -111,7 +145,7 @@ public class WorkFlowExecutorManager {
             }
             if (request.getTenantId() == MultitenantConstants.INVALID_TENANT_ID) {
                 throw new InternalWorkflowException(
-                        "Invalid tenant id for request " + eventId + " with id" + request.getUuid());
+                        "Invalid tenant id for request " + eventId + " with id" + requestId);
             }
             PrivilegedCarbonContext.startTenantFlow();
             PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext
@@ -122,9 +156,12 @@ public class WorkFlowExecutorManager {
                 carbonContext.setTenantId(request.getTenantId());
                 carbonContext.setTenantDomain(tenantDomain);
                 requestHandler.onWorkflowCompletion(status, request, additionalParams);
+                updateDBAtWorkflowCompletion(requestId, status);
             } catch (WorkflowException e) {
+                updateDBAtWorkflowCompletion(requestId, WorkflowRequestStatus.FAILED.toString());
                 throw e;
             } catch (UserStoreException e) {
+                updateDBAtWorkflowCompletion(requestId, WorkflowRequestStatus.FAILED.toString());
                 throw new InternalWorkflowException("Error when getting tenant domain for tenant id " + request
                         .getTenantId());
             } finally {
@@ -133,11 +170,40 @@ public class WorkFlowExecutorManager {
         }
     }
 
+    private boolean isAllWorkflowsCompleted(WorkflowRequestAssociationDAO workflowRequestAssociationDAO, String
+            requestId) throws InternalWorkflowException {
+        List<String> statesOfRequest = workflowRequestAssociationDAO.getWorkflowStatesOfRequest(requestId);
+        for (int i = 0; i < statesOfRequest.size(); i++) {
+            if (!statesOfRequest.get(i).equals(WorkflowRequestStatus.APPROVED.toString())) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public void handleCallback(String uuid, String status, Map<String, Object> additionalParams)
             throws WorkflowException {
 
+        WorkflowRequestAssociationDAO workflowRequestAssociationDAO = new WorkflowRequestAssociationDAO();
+        String requestId = workflowRequestAssociationDAO.getRequestIdOfRelationship(uuid);
         WorkflowRequestDAO requestDAO = new WorkflowRequestDAO();
-        WorkFlowRequest request = requestDAO.retrieveWorkflow(uuid);
-        handleCallback(request, status, additionalParams);
+        WorkFlowRequest request = requestDAO.retrieveWorkflow(requestId);
+        handleCallback(request, status, additionalParams, uuid);
+    }
+
+    /**
+     * Update the state and delete relationships of request at workflow completion.
+     *
+     * @param requestId
+     * @param status
+     * @throws InternalWorkflowException
+     */
+    private void updateDBAtWorkflowCompletion(String requestId, String status) throws InternalWorkflowException {
+
+
+        RequestEntityRelationshipDAO requestEntityRelationshipDAO = new RequestEntityRelationshipDAO();
+        WorkflowRequestDAO workflowRequestDAO = new WorkflowRequestDAO();
+        requestEntityRelationshipDAO.deleteRelationshipsOfRequest(requestId);
+        workflowRequestDAO.updateStatusOfRequest(requestId, status);
     }
 }

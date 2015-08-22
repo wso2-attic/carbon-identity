@@ -25,6 +25,7 @@ public class IdentityCoreConstants {
     public static final int DEFAULT_HTTPS_PORT = 443;
     public static final String UTF_8 = "UTF-8";
     public static final String UTC = "UTC";
+    public static final int EVENT_LISTENER_ORDER_ID = -1;
 
     private IdentityCoreConstants(){
     }
