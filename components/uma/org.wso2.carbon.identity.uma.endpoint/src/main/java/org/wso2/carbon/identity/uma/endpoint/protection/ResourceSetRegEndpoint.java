@@ -29,6 +29,7 @@ import org.wso2.carbon.identity.uma.endpoint.util.EndpointUtil;
 import org.wso2.carbon.identity.uma.exceptions.IdentityUMAException;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
@@ -53,47 +54,52 @@ public class ResourceSetRegEndpoint {
             return EndpointUtil.buildOAuthErrorMessage(e.getMessage());
         }
 
-
         // create UMAResourceSetRegistration Request
         UmaResourceSetRegRequest umaResourceSetRegRequest =
                 new UmaResourceSetRegRequest(httpServletRequest, resourceSetDescription);
 
         // get the response
-        UmaResponse umaResponse =
-                EndpointUtil.getUMAService().createResourceSet(umaResourceSetRegRequest);
+        UmaResponse umaResponse;
+        try {
+            umaResponse = EndpointUtil.getUMAService().createResourceSet(umaResourceSetRegRequest);
+        } catch (IdentityUMAException e) {
+            umaResponse = UmaResponse.errorResponse(HttpServletResponse.SC_BAD_REQUEST)
+                    .setError(e.getMessage()).buildJSONResponse();
+        }
 
         // build Servlet Response from UMAResponse
         return EndpointUtil.buildResponse(umaResponse);
     }
-//
-//    @GET
-//    @Path("/{rsid}")
-//    public Response getResourceSet
-//            (@Context HttpServletRequest httpServletRequest, @PathParam("rsid") String resourceSetId) {
-//
-//
-//        try {
-//            //  Check Authorization to access the API
-//            validateAuthorization(httpServletRequest);
-//
-//        } catch (IdentityUMAException e) {
-//            // build and error message and return
-//            return EndpointUtil.buildOAuthErrorMessage(e.getMessage());
-//        }
-//
-//
-//        // create UMAResourceSetRegistration Request
-//        UmaResourceSetRegRequest umaResourceSetRegRequest =
-//                new UmaResourceSetRegRequest(httpServletRequest);
-//
-//        umaResourceSetRegRequest.setResourceId(resourceSetId);
-//
-//
-//        UmaResponse umaResponse = EndpointUtil.getUMAService().getResourceSet(umaResourceSetRegRequest);
-//
-//        return EndpointUtil.buildResponse(umaResponse);
-//    }
-//
+
+    @GET
+    @Path("/{rsid}")
+    public Response getResourceSet
+            (@Context HttpServletRequest httpServletRequest, @PathParam("rsid") String resourceSetId) {
+
+
+        try {
+            //  Check Authorization to access the API
+            validateAuthorization(httpServletRequest);
+
+        } catch (IdentityUMAException e) {
+            // build and error message and return
+            return EndpointUtil.buildOAuthErrorMessage(e.getMessage());
+        }
+
+        // create UMAResourceSetRegistration Request
+        UmaResourceSetRegRequest umaResourceSetRegRequest = new UmaResourceSetRegRequest(httpServletRequest);
+        umaResourceSetRegRequest.setResourceId(resourceSetId);
+
+        UmaResponse umaResponse;
+        try {
+            umaResponse = EndpointUtil.getUMAService().getResourceSet(umaResourceSetRegRequest);
+        } catch (IdentityUMAException e) {
+            umaResponse = UmaResponse.errorResponse(e.getErrorStatus()).setError(e.getMessage()).buildJSONResponse();
+        }
+
+        return EndpointUtil.buildResponse(umaResponse);
+    }
+
 //    @PUT
 //    @Path("/{rsid}")
 //    @Consumes("application/json")
@@ -121,53 +127,64 @@ public class ResourceSetRegEndpoint {
 //        UmaResponse umaResponse = EndpointUtil.getUMAService().updateResourceSet(umaResourceSetRegRequest);
 //        return EndpointUtil.buildResponse(umaResponse);
 //    }
-//
-//
-//    @DELETE
-//    @Path("/{rsid}")
-//    public Response deleteResourceSet
-//            (@Context HttpServletRequest httpServletRequest, @PathParam("rsid") String resourceSetId) {
-//
-//        try {
-//            //  Check Authorization to access the API
-//            validateAuthorization(httpServletRequest);
-//
-//        } catch (IdentityUMAException e) {
-//            // build and error message and return
-//            return EndpointUtil.buildOAuthErrorMessage(e.getMessage());
-//        }
-//
-//        // create UMAResourceSetRegistration Request
-//        UmaResourceSetRegRequest umaResourceSetRegRequest =
-//                new UmaResourceSetRegRequest(httpServletRequest);
-//
-//        umaResourceSetRegRequest.setResourceId(resourceSetId);
-//
-//        UmaResponse umaResponse = EndpointUtil.getUMAService().deleteResourceSet(umaResourceSetRegRequest);
-//        return EndpointUtil.buildResponse(umaResponse);
-//    }
-//
-//
-//    @GET
-//    @Path("/")
-//    public Response listResourceSets
-//            (@Context HttpServletRequest httpServletRequest) {
-//
-//        // check Authorization
-//        try {
-//            validateAuthorization(httpServletRequest);
-//        } catch (IdentityUMAException e) {
-//            return EndpointUtil.buildOAuthErrorMessage(e.getMessage());
-//        }
-//
-//        UmaResourceSetRegRequest umaResourceSetRegRequest =
-//                new UmaResourceSetRegRequest(httpServletRequest);
-//
-//        UmaResponse umaResponse =
-//                EndpointUtil.getUMAService().getResourceSetIds(umaResourceSetRegRequest);
-//
-//        return EndpointUtil.buildResponse(umaResponse);
-//    }
+
+
+    @DELETE
+    @Path("/{rsid}")
+    public Response deleteResourceSet
+            (@Context HttpServletRequest httpServletRequest, @PathParam("rsid") String resourceSetId) {
+
+        try {
+            //  Check Authorization to access the API
+            validateAuthorization(httpServletRequest);
+
+        } catch (IdentityUMAException e) {
+            // build and error message and return
+            return EndpointUtil.buildOAuthErrorMessage(e.getMessage());
+        }
+
+        // create UMAResourceSetRegistration Request
+        UmaResourceSetRegRequest umaResourceSetRegRequest =
+                new UmaResourceSetRegRequest(httpServletRequest);
+
+        umaResourceSetRegRequest.setResourceId(resourceSetId);
+
+        UmaResponse umaResponse;
+        try {
+            umaResponse = EndpointUtil.getUMAService().deleteResourceSet(umaResourceSetRegRequest);
+        } catch (IdentityUMAException e) {
+            umaResponse = UmaResponse.errorResponse(HttpServletResponse.SC_INTERNAL_SERVER_ERROR)
+                    .setError(e.getMessage()).buildJSONResponse();
+
+        }
+        return EndpointUtil.buildResponse(umaResponse);
+    }
+
+
+    @GET
+    @Path("/")
+    public Response listResourceSets
+            (@Context HttpServletRequest httpServletRequest) {
+
+        // check Authorization
+        try {
+            validateAuthorization(httpServletRequest);
+        } catch (IdentityUMAException e) {
+            return EndpointUtil.buildOAuthErrorMessage(e.getMessage());
+        }
+
+        UmaResourceSetRegRequest umaResourceSetRegRequest =
+                new UmaResourceSetRegRequest(httpServletRequest);
+
+        UmaResponse umaResponse;
+        try {
+            umaResponse = EndpointUtil.getUMAService().getResourceSetIds(umaResourceSetRegRequest);
+        } catch (IdentityUMAException e) {
+            umaResponse = UmaResponse.errorResponse(e.getErrorStatus()).setError(e.getMessage()).buildJSONResponse();
+        }
+
+        return EndpointUtil.buildResponse(umaResponse);
+    }
 
 
     private void validateAuthorization(HttpServletRequest httpServletRequest) throws IdentityUMAException {

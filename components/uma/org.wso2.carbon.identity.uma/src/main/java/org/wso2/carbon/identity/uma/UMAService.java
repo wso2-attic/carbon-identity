@@ -71,51 +71,53 @@ public class UMAService {
     }
 
 
-    public UmaResponse createResourceSet
-            (UmaResourceSetRegRequest umaResourceSetRegRequest){
+    public UmaResponse createResourceSet(UmaResourceSetRegRequest umaResourceSetRegRequest) throws IdentityUMAException {
 
         UmaResponse.UmaResponseBuilder builder;
 
         // generate a unique string
         String resourceSetID = UUID.randomUUID().toString().replace("-","");
 
-        ResourceSetDO resourceSetDO = new ResourceSetDO(
-                umaResourceSetRegRequest.getResourceSetDescriptionBean()
-        );
-
+        // create the DO using the bean from the request
+        ResourceSetDO resourceSetDO = new ResourceSetDO(umaResourceSetRegRequest.getResourceSetDescriptionBean());
 
         resourceSetDO.setResourceSetId(resourceSetID);
-        resourceSetDO.setCreatedTime(new Timestamp(new Date().getTime()));
+        resourceSetDO.setTimeCreated(new Timestamp(new Date().getTime()));
 
-        TokenMgtDAO tokenMgtDAO = new TokenMgtDAO();
         String accessToken =  umaResourceSetRegRequest.getAccessToken();
 
         // we need to set the access token ID of the access token used to create the resource set
         // so that we can associate it with the user who authorized the access token
         String accessTokenId = null;
         try {
-            AccessTokenDO accessTokenDO = tokenMgtDAO.retrieveAccessToken(accessToken,false);
-            accessTokenId = accessTokenDO.getTokenId();
+            accessTokenId = getAccessTokenId(accessToken,false);
         } catch (IdentityOAuth2Exception e) {
             log.error("Unable to retrieve the access token ID for the access token identifier : "+accessToken);
+            throw new IdentityUMAException("Unable to retrieve the token ID for the access token used to create resource");
         }
 
         resourceSetDO.setTokenId(accessTokenId);
-
         ResourceSetMgtDAO resourceSetMgtDAO = new ResourceSetMgtDAO();
 
         try {
             resourceSetMgtDAO.saveResourceSetDescription(resourceSetDO,null);
 
-             builder = UmaResourceSetRegResponse.status(HttpServletResponse.SC_CREATED)
+            builder = UmaResourceSetRegResponse.status(HttpServletResponse.SC_CREATED)
                             .setParam(UMAProtectionConstants.RESOURCE_SET_ID,
                                     resourceSetDO.getResourceSetId());
 
-        } catch (IdentityUMAException e) {
-           log.error(e.getMessage(),e);
+            if (log.isDebugEnabled()){
+                log.debug("ResourceSet Successfully registered with ID : "+resourceSetID);
+            }
 
-            builder =  UmaResourceSetRegResponse.errorResponse(HttpServletResponse.SC_BAD_REQUEST)
-                            .setError("invalid_request");
+        } catch (IdentityUMAException e) {
+            log.error(e.getMessage(),e);
+
+            IdentityUMAException identityUMAException = new IdentityUMAException("invalid_request",e);
+            identityUMAException.setErrorStatus(HttpServletResponse.SC_BAD_REQUEST);
+            identityUMAException.setErrorCode("invalid_request");
+
+            throw identityUMAException;
         }
 
 
@@ -123,116 +125,143 @@ public class UMAService {
 
     }
 
-//
-//    /**
-//     *
-//     * @param umaResourceSetRegRequest
-//     * @return
-//     */
-//    public UmaResponse getResourceSetIds(UmaResourceSetRegRequest umaResourceSetRegRequest){
-//
-//        UmaResponse.UmaResponseBuilder builder;
-//
-//        ResourceSetMgtDAO resourceSetMgtDAO = new ResourceSetMgtDAO();
-//        String consumerKey = umaResourceSetRegRequest.getConsumerKey();
-//        String userStoreDomain = null;
-//
-//        try {
-//            List<String> ids = resourceSetMgtDAO.retrieveResourceSetIDs(consumerKey, userStoreDomain);
-//            builder = UmaResourceSetRegResponse.status(HttpServletResponse.SC_OK);
-//
-//            // set the resource set id list
-//            ((UmaResourceSetRegResponse.UmaResourceSetRegRespBuilder)builder).setResourceSetIds(ids);
-//
-//
-//        } catch (IdentityUMAException e) {
-//            log.error("Error when retrieving registered resource sets for consumerKey : "+consumerKey,e);
-//
-//            builder =
-//                    UmaResourceSetRegResponse.errorResponse(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-//        }
-//
-//        return builder.buildJSONResponse();
-//    }
-//
-//    /**
-//     *
-//     * @param umaResourceSetRegRequest
-//     * @return
-//     */
-//    public UmaResponse getResourceSet(UmaResourceSetRegRequest umaResourceSetRegRequest){
-//        UmaResponse.UmaResponseBuilder builder;
-//
-//        ResourceSetMgtDAO resourceSetMgtDAO = new ResourceSetMgtDAO();
-//
-//        String resourceSetId = umaResourceSetRegRequest.getResourceId();
-//        String consumerKey = umaResourceSetRegRequest.getConsumerKey();
-//        String userStoreDomain = null;
-//
-//        try {
-//            ResourceSetDO resourceSetDO =
-//                    resourceSetMgtDAO.retrieveResourceSet(resourceSetId, consumerKey, userStoreDomain);
-//
-//            if (resourceSetDO == null){
-//                builder = UmaResponse.errorResponse(HttpServletResponse.SC_NOT_FOUND)
-//                          .setError(UMAProtectionConstants.ERR_RESOURCE_SET_NOT_FOUND);
-//            }else{
-//                builder = UmaResponse.status(HttpServletResponse.SC_OK)
-//                          .setParam(UMAProtectionConstants.RESOURCE_SET_ID, resourceSetDO.getResourceSetId())
-//                          .setParam(UMAProtectionConstants.RESOURCE_SET_NAME, resourceSetDO.getName())
-//                          .setParam(UMAProtectionConstants.RESOURCE_SET_URI, resourceSetDO.getURI())
-//                          .setParam(UMAProtectionConstants.RESOURCE_SET_TYPE, resourceSetDO.getType())
-//                          .setParam(UMAProtectionConstants.RESOURCE_SET_SCOPES, resourceSetDO.getScopes())
-//                          .setParam(UMAProtectionConstants.RESOURCE_SET_ICON_URI, resourceSetDO.getIconURI());
-//            }
-//
-//        } catch (IdentityUMAException e) {
-//           String errorMsg =  "Error when retrieving resource set description for resourceSetId : "+resourceSetId
-//                   +" for consumerKey : "+consumerKey;
-//
-//            log.error(errorMsg);
-//
-//            builder =
-//                    UmaResourceSetRegResponse.errorResponse(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-//        }
-//
-//
-//        return builder.buildJSONResponse();
-//    }
-//
-//
-//    public UmaResponse deleteResourceSet(UmaResourceSetRegRequest umaResourceSetRegRequest){
-//        UmaResponse.UmaResponseBuilder builder;
-//
-//        ResourceSetMgtDAO resourceSetMgtDAO = new ResourceSetMgtDAO();
-//
-//        String resourceSetId = umaResourceSetRegRequest.getResourceId();
-//        String consumerKey = umaResourceSetRegRequest.getConsumerKey();
-//        String userStoreDomain = null;
-//
-//        try {
-//            boolean isSuccessFul =resourceSetMgtDAO.removeResourceSet(resourceSetId, consumerKey, userStoreDomain);
-//
-//            if (isSuccessFul){
-//                builder = UmaResponse.status(HttpServletResponse.SC_NO_CONTENT);
-//            }else{
-//                builder = UmaResponse.errorResponse(HttpServletResponse.SC_NOT_FOUND)
-//                                     .setError(UMAProtectionConstants.ERR_RESOURCE_SET_NOT_FOUND);
-//            }
-//
-//        } catch (IdentityUMAException e) {
-//            String errorMsg =  "Error when deleting resource set description with resourceSetId : "+resourceSetId
-//                    +" for consumerKey : "+consumerKey;
-//
-//            log.error(errorMsg,e);
-//            builder =
-//                    UmaResourceSetRegResponse.errorResponse(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-//        }
-//
-//        return builder.buildJSONResponse();
-//    }
-//
-//
+
+    /**
+     *
+     * @param umaResourceSetRegRequest
+     * @return
+     */
+    public UmaResponse getResourceSetIds(UmaResourceSetRegRequest umaResourceSetRegRequest) throws IdentityUMAException {
+
+        UmaResourceSetRegResponse.UmaResourceSetRegRespBuilder builder;
+
+
+        ResourceSetMgtDAO resourceSetMgtDAO = new ResourceSetMgtDAO();
+        String userStoreDomain = null;
+        String accessToken = umaResourceSetRegRequest.getAccessToken();
+
+        try {
+            String accessTokenId = getAccessTokenId(accessToken,false);
+
+            List<String> ids = resourceSetMgtDAO.retrieveResourceSetIDs(accessTokenId, userStoreDomain);
+
+            if (log.isDebugEnabled()){
+                log.debug("ResourceSet IDs retrieved successfully using tokenID: "+accessTokenId);
+            }
+
+            builder = UmaResourceSetRegResponse.status(HttpServletResponse.SC_OK);
+            // set the resource set id list
+            builder.setResourceSetIds(ids);
+
+        } catch (IdentityUMAException e) {
+            log.error("Error when retrieving registered resource sets for user : ", e);
+            IdentityUMAException identityUMAException =
+                    new IdentityUMAException("Error when retrieving registered resource sets for user : ");
+
+            identityUMAException.setErrorStatus(HttpServletResponse.SC_BAD_REQUEST);
+            identityUMAException.setErrorDetails("Unable to retrieve resource sets");
+            throw identityUMAException;
+
+        } catch (IdentityOAuth2Exception e) {
+            log.error("Unable to retrieve the access token ID for the access token identifier : " + accessToken);
+
+            IdentityUMAException identityUMAException =
+                    new IdentityUMAException("Unable to retrieve the token ID for access token used to create resource");
+            identityUMAException.setErrorStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            identityUMAException.setErrorDetails("Unable to retrieve resource sets");
+
+            throw identityUMAException;
+        }
+
+        return builder.buildJSONResponse();
+    }
+
+    /**
+     *
+     * @param umaResourceSetRegRequest
+     * @return
+     */
+    public UmaResponse getResourceSet(UmaResourceSetRegRequest umaResourceSetRegRequest) throws IdentityUMAException {
+        UmaResponse.UmaResponseBuilder builder;
+
+        ResourceSetMgtDAO resourceSetMgtDAO = new ResourceSetMgtDAO();
+
+        String resourceSetId = umaResourceSetRegRequest.getResourceId();
+        String userStoreDomain = null;
+
+        try {
+            ResourceSetDO resourceSetDO =
+                    resourceSetMgtDAO.retrieveResourceSet(resourceSetId, userStoreDomain);
+
+            if (resourceSetDO == null){
+                if (log.isDebugEnabled()){
+                    log.debug("No ResourceSet found for resourceSetId: "+resourceSetId);
+                }
+                builder = UmaResponse.errorResponse(HttpServletResponse.SC_NOT_FOUND)
+                          .setError(UMAProtectionConstants.ERR_RESOURCE_SET_NOT_FOUND);
+            }else{
+                builder = UmaResponse.status(HttpServletResponse.SC_OK)
+                          .setParam(UMAProtectionConstants.RESOURCE_SET_ID, resourceSetDO.getResourceSetId())
+                          .setParam(UMAProtectionConstants.RESOURCE_SET_NAME, resourceSetDO.getName())
+                          .setParam(UMAProtectionConstants.RESOURCE_SET_URI, resourceSetDO.getURI())
+                          .setParam(UMAProtectionConstants.RESOURCE_SET_TYPE, resourceSetDO.getType())
+                          .setParam(UMAProtectionConstants.RESOURCE_SET_SCOPES, resourceSetDO.getScopes())
+                          .setParam(UMAProtectionConstants.RESOURCE_SET_ICON_URI, resourceSetDO.getIconURI());
+            }
+
+        } catch (IdentityUMAException e) {
+            String errorMsg =  "Error when retrieving resource set description for resourceSetId : "+resourceSetId
+                   +" for consumerKey : <>";
+            e.setErrorStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            throw e;
+        }
+
+        UmaResponse response = builder.buildJSONResponse();
+        if (log.isDebugEnabled()){
+            log.debug("ResourceSet found for resourceSetId: "+resourceSetId+"\n"+response.getBody());
+        }
+        return response;
+    }
+
+
+    public UmaResponse deleteResourceSet(UmaResourceSetRegRequest umaResourceSetRegRequest) throws IdentityUMAException {
+        UmaResponse.UmaResponseBuilder builder;
+
+        ResourceSetMgtDAO resourceSetMgtDAO = new ResourceSetMgtDAO();
+
+        String resourceSetId = umaResourceSetRegRequest.getResourceId();
+        String userStoreDomain = null;
+
+        try {
+            boolean isSuccessFul =resourceSetMgtDAO.removeResourceSet(resourceSetId,userStoreDomain);
+
+            if (isSuccessFul){
+                builder = UmaResponse.status(HttpServletResponse.SC_NO_CONTENT);
+
+                if (log.isDebugEnabled()){
+                    log.debug("Resource with ID: "+resourceSetId+" deleted successfully");
+                }
+            }else{
+                builder = UmaResponse.errorResponse(HttpServletResponse.SC_NOT_FOUND)
+                                     .setError(UMAProtectionConstants.ERR_RESOURCE_SET_NOT_FOUND);
+
+                if (log.isDebugEnabled()){
+                    log.debug("Unable to find resource set with ID: "+resourceSetId+" to delete");
+                }
+            }
+
+        } catch (IdentityUMAException e) {
+            String errorMsg =  "Error when deleting resource set description with resourceSetId : "+resourceSetId;
+
+            log.error(errorMsg,e);
+            throw new IdentityUMAException(errorMsg,e);
+
+        }
+
+        return builder.buildJSONResponse();
+    }
+
+
 //    public UmaResponse updateResourceSet(UmaResourceSetRegRequest umaResourceSetRegRequest){
 //        UmaResponse.UmaResponseBuilder builder;
 //
@@ -323,6 +352,10 @@ public class UMAService {
             if (accessTokenDO == null){
                 // since the access token is not in an active state, send a response with active property equal to
                 // false as said in the spec
+                if (log.isDebugEnabled()){
+                    log.debug("Access Token with identifier: "+tokenIdentifier+" not found or not in active state ");
+                }
+
                 builder.setActive(false);
                 return builder.buildJSONResponse();
             }
@@ -334,8 +367,9 @@ public class UMAService {
                 // set the scopes of the token if available
                 builder.setScope(UMAUtil.buildScopeString(accessTokenDO.getScope()));
             }
+
             if (accessTokenDO.getConsumerKey() != null){
-                builder.setClientId(accessTokenDO.getAccessToken());
+                builder.setClientId(accessTokenDO.getConsumerKey());
             }
             if (accessTokenDO.getAuthzUser() != null){
                 String userName = accessTokenDO.getAuthzUser().getUserName();
@@ -346,6 +380,7 @@ public class UMAService {
             if (accessTokenDO.getTokenType() != null){
                 builder.setTokenType(accessTokenDO.getTokenType());
             }
+
             if (accessTokenDO.getIssuedTime() != null){
                 long issuedTimeInSeconds = accessTokenDO.getIssuedTime().getTime()/ 1000;
                 builder.setIssuedAt(issuedTimeInSeconds);
@@ -360,16 +395,36 @@ public class UMAService {
 
             // set the string identifier of the token
             if (accessTokenDO.getTokenId() != null){
-                builder.setTokenId(accessTokenDO.getTokenId());
+                builder.setTokenId(accessTokenDO.getAccessToken());
+            }
+
+            UmaResponse response = builder.buildJSONResponse();
+
+            if (log.isDebugEnabled()){
+                log.debug("Token with identifier: "+tokenIdentifier+" introspected successfully\n"+response.getBody());
             }
 
             // build the response
-            return builder.buildJSONResponse();
+            return response;
 
         } catch (IdentityOAuth2Exception e) {
             throw new IdentityUMAException(e.getMessage(),e);
         }
 
+    }
+
+
+    /**
+     *  Util method to get the AccessTokenId from an accessToken identifier String
+     * @param tokenIdentifier Access Token string
+     * @param includeExpired boolean flag to decide whether to include expired tokens in the the search
+     * @return
+     */
+    private String getAccessTokenId(String tokenIdentifier, boolean includeExpired) throws IdentityOAuth2Exception {
+        TokenMgtDAO tokenMgtDAO = new TokenMgtDAO();
+
+        AccessTokenDO accessTokenDO = tokenMgtDAO.retrieveAccessToken(tokenIdentifier,false);
+        return accessTokenDO != null ? accessTokenDO.getTokenId() : null;
     }
 
 }

@@ -40,9 +40,12 @@ public class ResourceSetDO {
 
     private String resourceSetId;
 
-    private Map<String,Object> metadata = new HashMap<>();
+    private Timestamp timeCreated;
 
     private String tokenId;
+
+    private Map<String,Object> metadata = new HashMap<>();
+
 
     public ResourceSetDO() {
 
@@ -71,10 +74,43 @@ public class ResourceSetDO {
         this.setIconURI(iconURI);
     }
 
+    public Timestamp getTimeCreated() {
+        return timeCreated;
+    }
+
+    public void setTimeCreated(Timestamp timeCreated) {
+        this.timeCreated = timeCreated;
+    }
+
+    public String getResourceSetId() {
+        return resourceSetId;
+    }
+
+    public void setResourceSetId(String resourceSetId) {
+        this.resourceSetId = resourceSetId;
+    }
+
+    public String getTokenId() {
+        return tokenId;
+    }
+
+    public void setTokenId(String tokenId) {
+        this.tokenId = tokenId;
+    }
+
+    // getters for meta data stored in the map
+    public String getName() {
+        return metadata.containsKey(PROPERTY_NAME) ? (String) metadata.get(PROPERTY_NAME) : null;
+    }
+
     public void setName(String name) {
         if (name != null){
             metadata.put(PROPERTY_NAME, name);
         }
+    }
+
+    public String getURI() {
+        return metadata.containsKey(PROPERTY_URI) ? (String) metadata.get(PROPERTY_URI) : null;
     }
 
     public void setURI(String URI) {
@@ -83,10 +119,18 @@ public class ResourceSetDO {
         }
     }
 
+    public String getType() {
+        return metadata.containsKey(PROPERTY_TYPE) ? (String) metadata.get(PROPERTY_TYPE) : null;
+    }
+
     public void setType(String type) {
         if (type != null){
             metadata.put(PROPERTY_TYPE, type);
         }
+    }
+
+    public String[] getScopes() {
+        return metadata.containsKey(PROPERTY_SCOPES) ? (String[]) metadata.get(PROPERTY_SCOPES) : null;
     }
 
     public void setScopes(String[] scopes) {
@@ -95,70 +139,21 @@ public class ResourceSetDO {
         }
     }
 
+    public String getIconURI() {
+        return metadata.containsKey(PROPERTY_ICON_URI) ? (String) metadata.get(PROPERTY_ICON_URI) : null;
+    }
+
     public void setIconURI(String iconURI) {
         if (iconURI != null){
             metadata.put(PROPERTY_ICON_URI, iconURI);
         }
     }
 
-    public void setCreatedTime(Timestamp createdTime) {
-        if (createdTime != null){
-            metadata.put(PROPERTY_CREATED_TIME, createdTime+"");
-        }
-    }
-
-    public void setTokenId(String tokenId) {
-        this.tokenId = tokenId;
-    }
-
-    public void setResourceSetId(String resourceSetId) {
-        this.resourceSetId = resourceSetId;
-    }
-
-
-    public String getResourceSetId() {
-        return resourceSetId;
-    }
-
-
-    public String getTokenId() {
-        return tokenId;
-    }
-
-    public Timestamp getCreatedTime() {
-        Timestamp timestamp = null;
-
-        if(metadata.containsKey(PROPERTY_CREATED_TIME)){
-            String time = (String) metadata.get(PROPERTY_CREATED_TIME);
-            timestamp = new Timestamp(Long.parseLong(time));
-        }
-
-        return timestamp;
-    }
-
-
-    // getters for meta data stored in the map
-    public String getName() {
-        return metadata.containsKey(PROPERTY_NAME) ? (String) metadata.get(PROPERTY_NAME) : null;
-    }
-
-    public String getURI() {
-        return metadata.containsKey(PROPERTY_URI) ? (String) metadata.get(PROPERTY_URI) : null;
-    }
-
-    public String getType() {
-        return metadata.containsKey(PROPERTY_TYPE) ? (String) metadata.get(PROPERTY_TYPE) : null;
-    }
-
-    public String[] getScopes() {
-        return metadata.containsKey(PROPERTY_SCOPES) ? (String[]) metadata.get(PROPERTY_SCOPES) : null;
-    }
-
-    public String getIconURI() {
-        return metadata.containsKey(PROPERTY_ICON_URI) ? (String) metadata.get(PROPERTY_ICON_URI) : null;
-    }
-
     public Map<String, Object> getMetadata() {
         return metadata;
+    }
+
+    public void setMetadata(Map<String, Object> metadata) {
+        this.metadata = metadata;
     }
 }

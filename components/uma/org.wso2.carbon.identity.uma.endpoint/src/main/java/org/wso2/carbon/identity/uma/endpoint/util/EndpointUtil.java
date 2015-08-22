@@ -157,9 +157,9 @@ public class EndpointUtil {
                 UmaResponse.errorResponse(HttpServletResponse.SC_UNAUTHORIZED)
                           .setError(OAuth2ErrorCodes.ACCESS_DENIED);
 
-        if (errorMsg!= null && StringUtils.isNotEmpty(errorMsg)){
-                          errorResponseBuilder.setErrorDescription(errorMsg);
-        }
+//        if (errorMsg!= null && StringUtils.isNotEmpty(errorMsg)){
+//                          errorResponseBuilder.setErrorDescription(errorMsg);
+//        }
 
         UmaResponse umaResponse = errorResponseBuilder.buildJSONResponse();
 
