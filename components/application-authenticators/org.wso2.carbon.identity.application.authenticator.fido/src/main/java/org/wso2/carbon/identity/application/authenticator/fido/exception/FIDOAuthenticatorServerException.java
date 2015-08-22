@@ -20,10 +20,6 @@ package org.wso2.carbon.identity.application.authenticator.fido.exception;
 
 public class FIDOAuthenticatorServerException extends FIDOAuthenticatorException {
 
-    public FIDOAuthenticatorServerException(){
-        super();
-    }
-
     public FIDOAuthenticatorServerException(String message){
         super(message);
     }
