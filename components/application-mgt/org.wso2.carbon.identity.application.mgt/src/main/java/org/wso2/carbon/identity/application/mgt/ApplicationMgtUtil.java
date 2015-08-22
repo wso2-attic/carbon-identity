@@ -35,7 +35,9 @@ import org.wso2.carbon.registry.api.RegistryException;
 import org.wso2.carbon.registry.api.Resource;
 import org.wso2.carbon.registry.core.RegistryConstants;
 import org.wso2.carbon.user.api.UserStoreException;
+import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserRealm;
+import org.wso2.carbon.user.core.common.AbstractUserStoreManager;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.user.mgt.UserMgtConstants;
 
@@ -93,13 +95,12 @@ public class ApplicationMgtUtil {
      */
     public static boolean isUserAuthorized(String applicationName) throws IdentityApplicationManagementException {
         String user = CarbonContext.getThreadLocalCarbonContext().getUsername();
-        String applicationRoleName = UserCoreUtil.addInternalDomainName(applicationName);
+        String applicationRoleName = getAppRoleName(applicationName);
 
         try {
             if (log.isDebugEnabled()) {
                 log.debug("Checking whether user has role : " + applicationRoleName + " by retrieving role list of " +
-                        "user " +
-                        ": " + user);
+                          "user : " + user);
             }
             String[] userRoles = CarbonContext.getThreadLocalCarbonContext().getUserRealm()
                     .getUserStoreManager().getRoleListOfUser(user);
@@ -139,14 +140,15 @@ public class ApplicationMgtUtil {
      * @throws IdentityApplicationManagementException
      */
     public static void createAppRole(String applicationName) throws IdentityApplicationManagementException {
-        String roleName = UserCoreUtil.addInternalDomainName(applicationName);
+        String roleName = getAppRoleName(applicationName);
         String qualifiedUsername = CarbonContext.getThreadLocalCarbonContext().getUsername();
         String[] user = {qualifiedUsername};
 
         try {
             // create a role for the application and assign the user to that role.
             if (log.isDebugEnabled()) {
-                log.debug("Creating application role : " + roleName + " and assign the user : " + Arrays.toString(user) + " to that role");
+                log.debug("Creating application role : " + roleName + " and assign the user : "
+                          + Arrays.toString(user) + " to that role");
             }
             CarbonContext.getThreadLocalCarbonContext().getUserRealm().getUserStoreManager()
                     .addRole(roleName, user, null);
@@ -156,6 +158,11 @@ public class ApplicationMgtUtil {
 
     }
 
+    private static String getAppRoleName(String applicationName) {
+//        return ApplicationConstants.APPLICATION_DOMAIN + UserCoreConstants.DOMAIN_SEPARATOR + applicationName;
+        return UserCoreConstants.INTERNAL_DOMAIN + UserCoreConstants.DOMAIN_SEPARATOR + applicationName;
+    }
+
     /**
      * Delete the role of the app
      *
@@ -163,7 +170,7 @@ public class ApplicationMgtUtil {
      * @throws IdentityApplicationManagementException
      */
     public static void deleteAppRole(String applicationName) throws IdentityApplicationManagementException {
-        String roleName = UserCoreUtil.addInternalDomainName(applicationName);
+        String roleName = getAppRoleName(applicationName);
 
         try {
             if (log.isDebugEnabled()) {
@@ -187,12 +194,8 @@ public class ApplicationMgtUtil {
             log.debug("Renaming application role : " + UserCoreUtil.addInternalDomainName(oldName)
                     + " to new role : " + UserCoreUtil.addInternalDomainName(newName));
         }
-        CarbonContext
-                .getThreadLocalCarbonContext()
-                .getUserRealm()
-                .getUserStoreManager()
-                .updateRoleName(UserCoreUtil.addInternalDomainName(oldName),
-                        UserCoreUtil.addInternalDomainName(newName));
+        CarbonContext.getThreadLocalCarbonContext().getUserRealm().getUserStoreManager()
+                .updateRoleName(UserCoreUtil.addInternalDomainName(oldName), UserCoreUtil.addInternalDomainName(newName));
 
     }
 

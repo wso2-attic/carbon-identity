@@ -103,12 +103,12 @@ public class ThriftAuthenticationConfigParser {
                 }
             } else {
 
-                File identityConfigXml = new File(CarbonUtils.getCarbonConfigDirPath(), IDENTITY_CONFIG);
+                File identityConfigXml = new File(CarbonUtils.getCarbonConfigDirPath() + File.separator + "identity" +
+                        File.separator + IDENTITY_CONFIG);
                 if (identityConfigXml.exists()) {
                     inStream = new FileInputStream(identityConfigXml);
                 }
             }
-
             if (inStream == null) {
                 String message = "Thrift Authentication configuration not found. Cause - " + warningMessage;
                 if (log.isDebugEnabled()) {

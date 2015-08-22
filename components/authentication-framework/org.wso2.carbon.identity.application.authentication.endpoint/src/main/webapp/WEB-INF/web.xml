@@ -48,7 +48,7 @@
     <!-- *************** End of Global configurations ********************** -->
     <filter>
         <filter-name>AuthenticationEndpointFilter</filter-name>
-        <filter-class>org.wso2.carbon.identity.application.authentication.endpoint.AuthenticationEndpointFilter</filter-class>
+        <filter-class>org.wso2.carbon.identity.application.authentication.endpoint.util.filter.AuthenticationEndpointFilter</filter-class>
     </filter>
 
     <filter-mapping>
@@ -58,7 +58,7 @@
 
     <listener>
         <listener-class>
-            org.wso2.carbon.identity.application.authentication.endpoint.listener.AuthenticationEndpointContextListener
+            org.wso2.carbon.identity.application.authentication.endpoint.util.listener.AuthenticationEndpointContextListener
         </listener-class>
     </listener>
 
@@ -90,6 +90,11 @@
     <servlet>
         <servlet-name>samlsso_login.do</servlet-name>
         <jsp-file>/login.jsp</jsp-file>
+    </servlet>
+
+    <servlet>
+        <servlet-name>samlsso_logout.do</servlet-name>
+        <jsp-file>/logout.jsp</jsp-file>
     </servlet>
 
     <servlet>
@@ -150,6 +155,11 @@
     <servlet-mapping>
         <servlet-name>samlsso_login.do</servlet-name>
         <url-pattern>/samlsso_login.do</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>samlsso_logout.do</servlet-name>
+        <url-pattern>/samlsso_logout.do</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>

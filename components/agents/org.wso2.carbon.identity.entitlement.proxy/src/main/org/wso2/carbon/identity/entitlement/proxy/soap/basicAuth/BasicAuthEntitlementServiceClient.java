@@ -37,6 +37,7 @@ import org.wso2.carbon.identity.entitlement.proxy.AbstractEntitlementServiceClie
 import org.wso2.carbon.identity.entitlement.proxy.Attribute;
 import org.wso2.carbon.identity.entitlement.proxy.ProxyConstants;
 import org.wso2.carbon.identity.entitlement.proxy.XACMLRequetBuilder;
+import org.wso2.carbon.identity.entitlement.proxy.exception.EntitlementProxyException;
 import org.wso2.carbon.identity.entitlement.proxy.soap.util.EntitlementServiceStubFactory;
 import org.wso2.carbon.identity.entitlement.stub.EntitlementServiceStub;
 import org.wso2.carbon.identity.entitlement.stub.dto.EntitledAttributesDTO;
@@ -242,13 +243,12 @@ public class BasicAuthEntitlementServiceClient extends AbstractEntitlementServic
     private EntitlementServiceStub getEntitlementStub(String serverUrl) throws Exception {
 
         if (configurationContext == null) {
-            throw new Exception("Cannot initialize EntitlementServiceStub with null Axis2 configuration context.");
+            throw new EntitlementProxyException("Cannot initialize EntitlementServiceStub with null Axis2 " +
+                                                "configuration context.");
         }
         if (serviceStubPool == null) {
-            serviceStubPool = new GenericObjectPool(new EntitlementServiceStubFactory(configurationContext,
-                    serverUrl +
-                            ENTITLEMENT_SERVICE_NAME,
-                    authenticator));
+            serviceStubPool = new GenericObjectPool(new EntitlementServiceStubFactory(
+                            configurationContext, serverUrl + ENTITLEMENT_SERVICE_NAME, authenticator));
         }
         return (EntitlementServiceStub) serviceStubPool.borrowObject();
     }

@@ -41,7 +41,7 @@
             <order>1</order>
             <style-class>manage</style-class>
             <icon>../userstore/images/add.gif</icon>
-            <require-permission>/permission/admin/login</require-permission>
+            <require-permission>/permission/admin/configure/security/usermgt/users</require-permission>
         </menu>
 
         <menu>
@@ -65,5 +65,13 @@
             </tiles>
         </bypass>
     </framework-configuration>
+    <servlets>
+        <servlet id="UserAndRoleMgt">
+            <servlet-name>userandrolemgtservice</servlet-name>
+            <url-pattern>/userandrolemgtservice</url-pattern>
+            <display-name>UserAndRoleManagement</display-name>
+            <servlet-class>org.wso2.carbon.user.mgt.ui.servlet.UserAndRoleManagementServlet</servlet-class>
+        </servlet>
+    </servlets>
 
 </component>

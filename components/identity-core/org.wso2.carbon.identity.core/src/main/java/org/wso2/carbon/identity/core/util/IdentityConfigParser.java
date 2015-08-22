@@ -19,10 +19,13 @@ package org.wso2.carbon.identity.core.util;
 
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.impl.builder.StAXOMBuilder;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.base.ServerConfigurationException;
-import org.wso2.carbon.utils.CarbonUtils;
+import org.wso2.carbon.identity.base.IdentityConstants;
+import org.wso2.carbon.identity.core.model.IdentityEventListener;
+import org.wso2.carbon.identity.core.model.IdentityEventListenerConfigKey;
 import org.wso2.carbon.utils.ServerConstants;
 import org.wso2.securevault.SecretResolver;
 import org.wso2.securevault.SecretResolverFactory;
@@ -34,11 +37,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Stack;
+import java.util.*;
 
 public class IdentityConfigParser {
 
@@ -47,6 +46,7 @@ public class IdentityConfigParser {
     public static final String IDENTITY_DEFAULT_NAMESPACE = "http://wso2.org/projects/carbon/carbon.xml";
     private static final String IDENTITY_CONFIG = "identity.xml";
     private static Map<String, Object> configuration = new HashMap<String, Object>();
+    private static Map<IdentityEventListenerConfigKey, IdentityEventListener> eventListenerConfiguration = new HashMap();
     private static IdentityConfigParser parser;
     private static SecretResolver secretResolver;
     // To enable attempted thread-safety using double-check locking
@@ -86,6 +86,10 @@ public class IdentityConfigParser {
         return configuration;
     }
 
+    public static Map<IdentityEventListenerConfigKey, IdentityEventListener> getEventListenerConfiguration() {
+        return eventListenerConfiguration;
+    }
+
     /**
      * @return
      * @throws XMLStreamException
@@ -104,7 +108,7 @@ public class IdentityConfigParser {
                 }
             } else {
 
-                File identityConfigXml = new File(CarbonUtils.getCarbonConfigDirPath(), IDENTITY_CONFIG);
+                File identityConfigXml = new File(IdentityUtil.getIdentityConfigDirPath(), IDENTITY_CONFIG);
                 if (identityConfigXml.exists()) {
                     inStream = new FileInputStream(identityConfigXml);
                 }
@@ -147,6 +151,7 @@ public class IdentityConfigParser {
             Stack<String> nameStack = new Stack<String>();
             secretResolver = SecretResolverFactory.create(rootElement, true);
             readChildElements(rootElement, nameStack);
+            buildEventListenerData();
 
         } finally {
             try {
@@ -156,6 +161,37 @@ public class IdentityConfigParser {
             } catch (IOException e) {
                 log.warn("Error closing the input stream.", e);
             }
+        }
+    }
+
+    private void buildEventListenerData() throws IOException {
+        OMElement eventListeners = this.getConfigElement(IdentityConstants.EVENT_LISTENERS);
+        if (eventListeners != null) {
+            Iterator<OMElement> eventListener = eventListeners.getChildrenWithName(
+                    new QName(IdentityConfigParser.IDENTITY_DEFAULT_NAMESPACE, IdentityConstants.EVENT_LISTENER));
+
+            if (eventListener != null) {
+                while (eventListener.hasNext()) {
+                    OMElement eventListenerElement = eventListener.next();
+                    String eventListenerType = eventListenerElement.getAttributeValue(new QName(
+                            IdentityConstants.EVENT_LISTENER_TYPE));
+                    String eventListenerName = eventListenerElement.getAttributeValue(new QName(
+                            IdentityConstants.EVENT_LISTENER_NAME));
+                    int order = Integer.parseInt(eventListenerElement.getAttributeValue(new QName(
+                            IdentityConstants.EVENT_LISTENER_ORDER)));
+                    String enable = eventListenerElement.getAttributeValue(new QName(
+                            IdentityConstants.EVENT_LISTENER_ENABLE));
+
+                    if (StringUtils.isBlank(eventListenerType) || StringUtils.isBlank(eventListenerName)) {
+                        throw new IOException("eventListenerType or eventListenerName is not defined correctly");
+                    }
+                    IdentityEventListenerConfigKey configKey = new IdentityEventListenerConfigKey(eventListenerType, eventListenerName);
+                    IdentityEventListener identityEventListener = new IdentityEventListener(enable, order, configKey);
+                    eventListenerConfiguration.put(configKey, identityEventListener);
+
+                }
+            }
+
         }
     }
 

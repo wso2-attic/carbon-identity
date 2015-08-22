@@ -25,6 +25,7 @@ public class SCIMProviderConstants {
     public static final String PROPERTY_NAME_USERNAME = "UserName";
     public static final String PROPERTY_NAME_PASSWORD = "Password";
 
+    public static final String ELEMENT_NAME_SCIM = "SCIM";
     public static final String ELEMENT_NAME_SCIM_AUTHENTICATORS = "SCIMAuthenticators";
     public static final String ELEMENT_NAME_AUTHENTICATOR = "Authenticator";
     public static final String ELEMENT_NAME_PROPERTY = "Property";

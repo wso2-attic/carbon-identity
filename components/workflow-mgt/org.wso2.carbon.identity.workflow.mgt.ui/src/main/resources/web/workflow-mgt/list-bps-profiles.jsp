@@ -2,7 +2,7 @@
 <%@ taglib prefix="carbon" uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar" %>
 <%@ page import="org.apache.axis2.context.ConfigurationContext" %>
 <%@ page import="org.wso2.carbon.CarbonConstants" %>
-<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.BPSProfileBean" %>
+<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.BPSProfileDTO" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.WorkflowAdminServiceClient" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.WorkflowUIConstants" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
@@ -40,13 +40,13 @@
     String forwardTo = null;
     int pageNumberInt = 0;
     int numberOfPages = 0;
-    BPSProfileBean[] profilesToDisplay = new BPSProfileBean[0];
+    BPSProfileDTO[] profilesToDisplay = new BPSProfileDTO[0];
 
     try {
         WorkflowAdminServiceClient client = new WorkflowAdminServiceClient(cookie, backendServerURL, configContext);
-        BPSProfileBean[] bpsProfiles = client.listBPSProfiles();
+        BPSProfileDTO[] bpsProfiles = client.listBPSProfiles();
         if (bpsProfiles == null) {
-            bpsProfiles = new BPSProfileBean[0];
+            bpsProfiles = new BPSProfileDTO[0];
         }
         String serviceAlias = null;
         paginationValue = "region=region1&item=workflow_services_list_menu";
@@ -64,7 +64,7 @@
         int startIndex = pageNumberInt * WorkflowUIConstants.RESULTS_PER_PAGE;
         int endIndex = (pageNumberInt + 1) * WorkflowUIConstants.RESULTS_PER_PAGE;
 
-        profilesToDisplay = new BPSProfileBean[WorkflowUIConstants.RESULTS_PER_PAGE];
+        profilesToDisplay = new BPSProfileDTO[WorkflowUIConstants.RESULTS_PER_PAGE];
 
         for (int i = startIndex, j = 0; i < endIndex && i < bpsProfiles.length; i++, j++) {
             profilesToDisplay[j] = bpsProfiles[i];
@@ -116,6 +116,9 @@
             CARBON.showConfirmationDialog('<fmt:message key="confirmation.bpel.profile.delete"/> ' + profileName + '?',
                     doDelete, null);
         }
+        function editProfile(profileName){
+            location.href = 'update-bps-profile.jsp?<%=WorkflowUIConstants.PARAM_BPS_PROFILE_NAME%>='+  profileName;
+        }
     </script>
 
     <div id="middle">
@@ -134,7 +137,7 @@
                 </thead>
                 <tbody>
                 <%
-                    for (BPSProfileBean profile : profilesToDisplay) {
+                    for (BPSProfileDTO profile : profilesToDisplay) {
                         if (profile != null) {
 
                 %>
@@ -150,6 +153,10 @@
                            onclick="removeProfile('<%=profile.getProfileName()%>');return false;"
                            href="#" style="background-image: url(images/delete.gif);"
                            class="icon-link"><fmt:message key='delete'/></a>
+                        <a title="<fmt:message key='workflow.bps.profile.edit.title'/>"
+                           onclick="editProfile('<%=profile.getProfileName()%>');return false;"
+                           href="#" style="background-image: url(images/edit.gif);"
+                           class="icon-link"><fmt:message key='edit'/></a>
                     </td>
                 </tr>
                 <%

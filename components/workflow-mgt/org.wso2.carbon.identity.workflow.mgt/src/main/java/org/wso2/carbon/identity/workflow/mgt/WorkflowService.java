@@ -21,18 +21,29 @@ package org.wso2.carbon.identity.workflow.mgt;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.context.CarbonContext;
+import org.wso2.carbon.identity.workflow.mgt.bean.BPSProfileDTO;
+import org.wso2.carbon.identity.workflow.mgt.bean.ParameterDTO;
+import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowAssociationBean;
+import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowDTO;
 import org.wso2.carbon.identity.workflow.mgt.template.AbstractWorkflowTemplate;
 import org.wso2.carbon.identity.workflow.mgt.template.AbstractWorkflowTemplateImpl;
 import org.wso2.carbon.identity.workflow.mgt.extension.WorkflowRequestHandler;
 import org.wso2.carbon.identity.workflow.mgt.bean.AssociationDTO;
-import org.wso2.carbon.identity.workflow.mgt.bean.BPSProfileBean;
-import org.wso2.carbon.identity.workflow.mgt.bean.Parameter;
+import org.wso2.carbon.identity.workflow.mgt.bean.Entity;
 import org.wso2.carbon.identity.workflow.mgt.bean.TemplateBean;
 import org.wso2.carbon.identity.workflow.mgt.bean.TemplateDTO;
 import org.wso2.carbon.identity.workflow.mgt.bean.TemplateImplDTO;
 import org.wso2.carbon.identity.workflow.mgt.bean.TemplateParameterDef;
-import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowBean;
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowEventDTO;
+import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowRequestAssociationDTO;
+import org.wso2.carbon.identity.workflow.mgt.dao.RequestEntityRelationshipDAO;
+import org.wso2.carbon.identity.workflow.mgt.dao.WorkflowRequestAssociationDAO;
+import org.wso2.carbon.identity.workflow.mgt.dao.WorkflowRequestDAO;
+import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowRequestDTO;
+import org.wso2.carbon.identity.workflow.mgt.template.AbstractWorkflowTemplate;
+import org.wso2.carbon.identity.workflow.mgt.template.AbstractWorkflowTemplateImpl;
+import org.wso2.carbon.identity.workflow.mgt.extension.WorkflowRequestHandler;
 import org.wso2.carbon.identity.workflow.mgt.dao.BPSProfileDAO;
 import org.wso2.carbon.identity.workflow.mgt.dao.WorkflowDAO;
 import org.wso2.carbon.identity.workflow.mgt.exception.InternalWorkflowException;
@@ -40,11 +51,16 @@ import org.wso2.carbon.identity.workflow.mgt.exception.RuntimeWorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.internal.WorkflowServiceDataHolder;
 import org.wso2.carbon.identity.workflow.mgt.util.WorkFlowConstants;
+import org.wso2.carbon.identity.workflow.mgt.util.WorkflowRequestStatus;
 
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
+import java.sql.Timestamp;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -56,6 +72,9 @@ public class WorkflowService {
 
     WorkflowDAO workflowDAO = new WorkflowDAO();
     BPSProfileDAO bpsProfileDAO = new BPSProfileDAO();
+    RequestEntityRelationshipDAO requestEntityRelationshipDAO = new RequestEntityRelationshipDAO();
+    WorkflowRequestDAO workflowRequestDAO = new WorkflowRequestDAO();
+    WorkflowRequestAssociationDAO workflowRequestAssociationDAO = new WorkflowRequestAssociationDAO();
 
     public List<WorkflowEventDTO> listWorkflowEvents() {
 
@@ -71,16 +90,16 @@ public class WorkflowService {
                 eventDTO.setEventCategory(requestHandler.getCategory());
                 //note: parameters are not set at here in list operation. It's set only at get operation
                 if (requestHandler.getParamDefinitions() != null) {
-                    Parameter[] parameters = new Parameter[requestHandler.getParamDefinitions().size()];
+                    ParameterDTO[] parameterDTOs = new ParameterDTO[requestHandler.getParamDefinitions().size()];
                     int i = 0;
                     for (Map.Entry<String, String> paramEntry : requestHandler.getParamDefinitions().entrySet()) {
-                        Parameter parameter = new Parameter();
-                        parameter.setParamName(paramEntry.getKey());
-                        parameter.setParamValue(paramEntry.getValue());
-                        parameters[i] = parameter;
+                        ParameterDTO parameterDTO = new ParameterDTO();
+                        parameterDTO.setParamName(paramEntry.getKey());
+                        parameterDTO.setParamValue(paramEntry.getValue());
+                        parameterDTOs[i] = parameterDTO;
                         i++;
                     }
-                    eventDTO.setParameters(parameters);
+                    eventDTO.setParameterDTOs(parameterDTOs);
                 }
                 eventList.add(eventDTO);
             }
@@ -98,16 +117,16 @@ public class WorkflowService {
             eventDTO.setEventDescription(requestHandler.getDescription());
             eventDTO.setEventCategory(requestHandler.getCategory());
             if (requestHandler.getParamDefinitions() != null) {
-                Parameter[] parameters = new Parameter[requestHandler.getParamDefinitions().size()];
+                ParameterDTO[] parameterDTOs = new ParameterDTO[requestHandler.getParamDefinitions().size()];
                 int i = 0;
                 for (Map.Entry<String, String> paramEntry : requestHandler.getParamDefinitions().entrySet()) {
-                    Parameter parameter = new Parameter();
-                    parameter.setParamName(paramEntry.getKey());
-                    parameter.setParamValue(paramEntry.getValue());
-                    parameters[i] = parameter;
+                    ParameterDTO parameterDTO = new ParameterDTO();
+                    parameterDTO.setParamName(paramEntry.getKey());
+                    parameterDTO.setParamValue(paramEntry.getValue());
+                    parameterDTOs[i] = parameterDTO;
                     i++;
                 }
-                eventDTO.setParameters(parameters);
+                eventDTO.setParameterDTOs(parameterDTOs);
             }
             return eventDTO;
         }
@@ -171,14 +190,13 @@ public class WorkflowService {
         return null;
     }
 
-    public void addBPSProfile(String profileName, String host, String user, String password, String callBackUser,
-                              String callbackPassword, int tenantId)
+    public void addBPSProfile(BPSProfileDTO bpsProfileDTO, int tenantId)
             throws InternalWorkflowException {
 
-        bpsProfileDAO.addProfile(profileName, host, user, password, callBackUser, callbackPassword, tenantId);
+        bpsProfileDAO.addProfile(bpsProfileDTO, tenantId);
     }
 
-    public List<BPSProfileBean> listBPSProfiles(int tenantId) throws WorkflowException {
+    public List<BPSProfileDTO> listBPSProfiles(int tenantId) throws WorkflowException {
 
         return bpsProfileDAO.listBPSProfiles(tenantId);
     }
@@ -188,25 +206,25 @@ public class WorkflowService {
         bpsProfileDAO.removeBPSProfile(profileName);
     }
 
-    public void addWorkflow(String id, String name, String description, String templateId, String templateImpl,
-                            Parameter[] templateParams, Parameter[] implParams, int tenantId) throws WorkflowException {
+    public void addWorkflow(WorkflowDTO workflowDTO,
+                            ParameterDTO[] templateParams, ParameterDTO[] implParams, int tenantId) throws WorkflowException {
 
-        workflowDAO.addWorkflow(id, name, description, templateId, templateImpl, tenantId);
+        workflowDAO.addWorkflow(workflowDTO, tenantId);
         Map<String, Object> paramMap = new HashMap<>();
         if (templateParams != null) {
-            for (Parameter param : templateParams) {
+            for (ParameterDTO param : templateParams) {
                 paramMap.put(param.getParamName(), param.getParamValue());
             }
         }
         if (implParams != null) {
-            for (Parameter param : implParams) {
+            for (ParameterDTO param : implParams) {
                 paramMap.put(param.getParamName(), param.getParamValue());
             }
         }
-        paramMap.put(WorkFlowConstants.TemplateConstants.WORKFLOW_NAME, name);
-        workflowDAO.addWorkflowParams(id, paramMap);
+        paramMap.put(WorkFlowConstants.TemplateConstants.WORKFLOW_NAME, workflowDTO.getWorkflowName());
+        workflowDAO.addWorkflowParams(workflowDTO.getWorkflowId(), paramMap);
         AbstractWorkflowTemplateImpl templateImplementation =
-                WorkflowServiceDataHolder.getInstance().getTemplateImplementation(templateId, templateImpl);
+                WorkflowServiceDataHolder.getInstance().getTemplateImplementation(workflowDTO.getTemplateName(), workflowDTO.getImplementationName());
         //deploying the template
         templateImplementation.deploy(paramMap);
     }
@@ -241,7 +259,7 @@ public class WorkflowService {
         }
     }
 
-    public List<WorkflowBean> listWorkflows(int tenantId) throws WorkflowException {
+    public List<WorkflowDTO> listWorkflows(int tenantId) throws WorkflowException {
 
         return workflowDAO.listWorkflows(tenantId);
     }
@@ -259,6 +277,22 @@ public class WorkflowService {
     public Map<String, Object> getBPSProfileParams(String profileName) throws WorkflowException {
 
         return bpsProfileDAO.getBPELProfileParams(profileName);
+    }
+
+    public BPSProfileDTO getBPSProfile(String profileName, int tenantId) throws WorkflowException {
+
+        return bpsProfileDAO.getBPSProfile(profileName, tenantId, false);
+    }
+
+    public void updateBPSProfile(BPSProfileDTO bpsProfileDTO, int tenantId) throws WorkflowException {
+        BPSProfileDTO currentBpsProfile =  bpsProfileDAO.getBPSProfile(bpsProfileDTO.getProfileName(), tenantId,true);
+        if(bpsProfileDTO.getPassword()==null || bpsProfileDTO.getPassword().isEmpty()){
+            bpsProfileDTO.setPassword(currentBpsProfile.getPassword());
+        }
+        if(bpsProfileDTO.getCallbackPassword()==null || bpsProfileDTO.getCallbackPassword().isEmpty()){
+            bpsProfileDTO.setCallbackPassword(currentBpsProfile.getCallbackPassword());
+        }
+        bpsProfileDAO.updateProfile(bpsProfileDTO, tenantId);
     }
 
     public List<AssociationDTO> getAssociationsForWorkflow(String workflowId) throws WorkflowException {
@@ -294,4 +328,177 @@ public class WorkflowService {
         }
         return associations;
     }
+
+    public void changeAssociationState(String associationId, boolean isEnable) throws WorkflowException {
+
+        AssociationDTO association = workflowDAO.getAssociation(associationId);
+        association.setEnabled(isEnable);
+        workflowDAO.updateAssociation(association);
+    }
+
+
+/**
+     * Add a new relationship between a workflow request and an entity.
+     *
+     * @param requestId
+     * @param entities
+     * @throws InternalWorkflowException
+     */
+    public void addRequestEntityRelationships(String requestId, Entity[] entities) throws InternalWorkflowException {
+
+        for (int i = 0; i < entities.length; i++) {
+            requestEntityRelationshipDAO.addRelationship(entities[i], requestId);
+        }
+    }
+
+    /**
+     * Check if a given entity has any pending workflow requests associated with it.
+     *
+     * @param entity
+     * @return
+     * @throws InternalWorkflowException
+     */
+    public boolean entityHasPendingWorkflows(Entity entity) throws InternalWorkflowException {
+        return requestEntityRelationshipDAO.entityHasPendingWorkflows(entity);
+    }
+
+    /**
+     * Check if a given entity as any pending workflows of a given type associated with it.
+     *
+     * @param entity
+     * @param requestType
+     * @return
+     * @throws InternalWorkflowException
+     */
+    public boolean entityHasPendingWorkflowsOfType(Entity entity, String requestType) throws
+            InternalWorkflowException {
+        return requestEntityRelationshipDAO.entityHasPendingWorkflowsOfType(entity, requestType);
+    }
+
+    /**
+     * Check if there are any requests the associated with both entities.
+     *
+     * @param entity1
+     * @param entity2
+     * @return
+     * @throws InternalWorkflowException
+     */
+    public boolean areTwoEntitiesRelated(Entity entity1, Entity entity2) throws
+            InternalWorkflowException {
+        return requestEntityRelationshipDAO.twoEntitiesAreRelated(entity1, entity2);
+    }
+
+    /**
+     * Check if an operation is engaged with a workflow or not.
+     *
+     * @param eventType
+     * @return
+     * @throws InternalWorkflowException
+     */
+    public boolean eventEngagedWithWorkflows(String eventType) throws InternalWorkflowException {
+
+        List<WorkflowAssociationBean> associations = workflowDAO.getWorkflowAssociationsForRequest(eventType, CarbonContext
+                .getThreadLocalCarbonContext().getTenantId());
+        if (associations.size() > 0) {
+            return true;
+        } else {
+            return false;
+        }
+
+    }
+
+    /**
+     * Returns array of requests initiated by a user.
+     *
+     * @param user
+     * @return
+     * @throws WorkflowException
+     */
+    public WorkflowRequestDTO[] getRequestsCreatedByUser(String user) throws WorkflowException {
+
+        return workflowRequestDAO.getRequestsOfUser(user);
+    }
+
+    /**
+     * Get list of workflows of a request
+     *
+     * @param requestId
+     * @return
+     * @throws WorkflowException
+     */
+    public WorkflowRequestAssociationDTO[] getWorkflowsOfRequest(String requestId) throws WorkflowException {
+
+        return workflowRequestAssociationDAO.getWorkflowsOfRequest(requestId);
+    }
+
+    /**
+     * Update state of a existing workflow request
+     *
+     * @param requestId
+     * @param newState
+     * @throws WorkflowException
+     */
+    public void updateStatusOfRequest(String requestId, String newState) throws WorkflowException {
+        if (WorkflowRequestStatus.DELETED.toString().equals(newState)) {
+            workflowRequestDAO.updateStatusOfRequest(requestId, newState);
+        }
+        requestEntityRelationshipDAO.deleteRelationshipsOfRequest(requestId);
+    }
+
+    /**
+     * get requests list according to createdUser, createdTime, and lastUpdatedTime
+     *
+     * @param user
+     * @param beginDate
+     * @param endDate
+     * @param dateCategory
+     * @return
+     * @throws WorkflowException
+     */
+    public WorkflowRequestDTO[] getRequestsFromFilter(String user, String beginDate, String endDate, String
+            dateCategory) throws WorkflowException {
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
+        Timestamp beginTime;
+        Timestamp endTime;
+
+        try {
+            Date parsedBeginDate = dateFormat.parse(beginDate);
+            beginTime = new java.sql.Timestamp(parsedBeginDate.getTime());
+        } catch (ParseException e) {
+            long millis = 0;
+            Date parsedBeginDate = new Date(millis);
+            beginTime = new java.sql.Timestamp(parsedBeginDate.getTime());
+        }
+        try {
+            Date parsedEndDate = dateFormat.parse(endDate);
+            endTime = new java.sql.Timestamp(parsedEndDate.getTime());
+        } catch (ParseException e) {
+            Date parsedEndDate = new Date();
+            endTime = new java.sql.Timestamp(parsedEndDate.getTime());
+        }
+        if (StringUtils.isBlank(user)) {
+            return workflowRequestDAO.getRequestsFilteredByTime(beginTime, endTime, dateCategory);
+        } else {
+            return workflowRequestDAO.getRequestsOfUserFilteredByTime(user, beginTime, endTime, dateCategory);
+        }
+
+    }
+
+    /**
+     * Retrieve List of associated Entity-types of the workflow requests.
+     *
+     * @param wfOperationType Operation Type of the Work-flow.
+     * @param wfStatus        Current Status of the Work-flow.
+     * @param entityType      Entity Type of the Work-flow.
+     * @param tenantID        Tenant ID of the currently Logged user.
+     * @return
+     * @throws InternalWorkflowException
+     */
+
+    public List<String> listEntityNames(String wfOperationType, String wfStatus, String entityType, int tenantID) throws
+            InternalWorkflowException {
+        return requestEntityRelationshipDAO.getEntityNamesOfRequest(wfOperationType, wfStatus, entityType, tenantID);
+    }
+
 }

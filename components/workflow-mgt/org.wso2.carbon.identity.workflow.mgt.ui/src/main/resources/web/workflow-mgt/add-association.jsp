@@ -23,8 +23,9 @@
 <%@ page import="org.apache.axis2.context.ConfigurationContext" %>
 <%@ page import="org.apache.commons.lang.StringUtils" %>
 <%@ page import="org.wso2.carbon.CarbonConstants" %>
-<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.Parameter" %>
-<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.WorkflowBean" %>
+<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.AssociationDTO" %>
+<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.ParameterDTO" %>
+<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.WorkflowDTO" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.WorkflowEventDTO" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.WorkflowAdminServiceClient" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.WorkflowUIConstants" %>
@@ -45,12 +46,43 @@
 <%
     //    String username = CharacterEncoder.getSafeText(request.getParameter("username"));
 
+    String wizard = request.getParameter("wizard");
+    String forwardTo = null;
+    AssociationDTO associationDTO = new AssociationDTO();
+    String workflowName = "" ;
+
+    String workflowId = CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_WORKFLOW_ID));
+
+    if("start".equals(wizard)){
+
+
+        String name = CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_ASSOCIATION_NAME));
+        String operation = CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_OPERATION));
+        String operationCategory =
+                CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_OPERATION_CATEGORY));
+        String condition =
+                CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_ASSOCIATION_CONDITION));
+        associationDTO = new AssociationDTO();
+        associationDTO.setAssociationName(name);
+        associationDTO.setEventName(operation);
+        associationDTO.setCondition(condition);
+        associationDTO.setEventCategory(operationCategory);
+
+        session.setAttribute("add-association", associationDTO);
+        forwardTo = "add-workflow.jsp?path=add-association" ;
+
+    }else if("finish".equals(wizard)){
+        associationDTO = (AssociationDTO)session.getAttribute("add-association");
+        workflowName = CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_WORKFLOW_NAME));
+    }else{
+
+    }
+
     String bundle = "org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources";
     ResourceBundle resourceBundle = ResourceBundle.getBundle(bundle, request.getLocale());
     WorkflowAdminServiceClient client = null;
-    String forwardTo = null;
 
-    String workflowId = CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_WORKFLOW_ID));
+
     WorkflowEventDTO[] workflowEvents = null;
     Map<String, List<WorkflowEventDTO>> events = new HashMap<String, List<WorkflowEventDTO>>();
 
@@ -93,17 +125,19 @@
         return;
     }
 %>
+
+
 <fmt:bundle basename="org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources">
     <carbon:breadcrumb label="workflow.mgt"
                        resourceBundle="org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources"
                        topPage="true" request="<%=request%>"/>
-
     <script type="text/javascript" src="../carbon/admin/js/breadcrumbs.js"></script>
     <script type="text/javascript" src="../carbon/admin/js/cookies.js"></script>
     <script type="text/javascript" src="../carbon/admin/js/main.js"></script>
     <script type="text/javascript">
         var eventsObj = {};
         var lastSelectedCategory = '';
+
         <%
             for (Map.Entry<String,List<WorkflowEventDTO>> eventCategory : events.entrySet()) {
             %>
@@ -162,14 +196,14 @@
         %>
         paramDefs["<%=event.getEventId()%>"] = {};
         <%
-                for (Parameter parameter : event.getParameters()) {
+                for (ParameterDTO parameter : event.getParameterDTOs()) {
                     if(parameter!=null){
 
             %>
         paramDefs["<%=event.getEventId()%>"]["<%=parameter.getParamName()%>"] = "<%=parameter.getParamValue()%>";
         <%
                     }else {
-                    System.out.println(event.getEventId()+" "+event.getParameters().length);
+                    System.out.println(event.getEventId()+" "+event.getParameterDTOs().length);
                     }
                 }
             }
@@ -308,16 +342,156 @@
             }
         }
 
+        function changeWorkFlow(){
+
+            var workflowList = document.getElementById("id_<%=WorkflowUIConstants.PARAM_WORKFLOW_ID%>");
+            var selectedValue = workflowList[workflowList.selectedIndex].value;
+            if(selectedValue == "create_new_workflow"){
+                var add_association_form = document.getElementById("id_form_add_association");
+                add_association_form.action = "add-association.jsp?wizard=start";
+                add_association_form.submit();
+            }
+        }
+
+        function addAssociation(){
+            var form_add_association = document.getElementById("id_form_add_association");
+            var input_association_name = document.getElementById("id_<%=WorkflowUIConstants.PARAM_ASSOCIATION_NAME%>");
+            if(input_association_name.value.length == 0){
+                CARBON.showErrorDialog('<fmt:message key="workflow.error.empty.association.name"/>', null, null);
+                return;
+            }
+
+            var select_category_dropdown = document.getElementById("categoryDropdown");
+            if(select_category_dropdown.selectedIndex == 0){
+                CARBON.showErrorDialog('<fmt:message key="workflow.error.not.select.operation.category"/>', null, null);
+                return;
+            }
+
+            var select_operation_name = document.getElementById("actionDropdown");
+            if(select_operation_name.selectedIndex == 0){
+                CARBON.showErrorDialog('<fmt:message key="workflow.error.not.select.operation.name"/>', null, null);
+                return;
+            }
+
+            var select_workflow = document.getElementById("id_<%=WorkflowUIConstants.PARAM_WORKFLOW_ID%>");
+            if(select_workflow.selectedIndex == 0){
+                CARBON.showErrorDialog('<fmt:message key="workflow.error.not.select.workflow"/>', null, null);
+                return;
+            }
+
+            var ret = generateXpath();
+            if(!ret){
+                return false;
+            }
+
+
+
+            form_add_association.submit();
+        }
+
+
     </script>
 
     <div id="middle">
-        <h2><fmt:message key='workflow.list'/></h2>
+        <h2><fmt:message key='workflow.service.association.add'/></h2>
 
         <div id="workArea">
             <div id="addNew">
-                <form action="update-association-finish.jsp" method="post" onsubmit="return generateXpath();">
+                <form id="id_form_add_association" action="update-association-finish.jsp" method="post">
                     <input type="hidden" name="<%=WorkflowUIConstants.PARAM_ACTION%>"
                            value="<%=WorkflowUIConstants.ACTION_VALUE_ADD%>">
+
+
+
+                    <table class="styledLeft noBorders" style="margin-top: 10px">
+                        <thead>
+                        <tr>
+                            <th colspan="2">
+                                <fmt:message key="workflow.service.association.details">
+                                </fmt:message>
+                            </th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td width="30%"><fmt:message key="workflow.service.association.name"/></td>
+                            <td>
+                                <%
+                                    if(associationDTO != null && associationDTO.getAssociationName() != null && !associationDTO.getAssociationName().isEmpty()){
+                                %>
+                                        <input type="text" name="<%=WorkflowUIConstants.PARAM_ASSOCIATION_NAME%>" id="id_<%=WorkflowUIConstants.PARAM_ASSOCIATION_NAME%>" style="min-width: 30%;" value="<%=associationDTO.getAssociationName()%>">
+                                <%
+                                    }else{
+                                %>
+                                        <input type="text" name="<%=WorkflowUIConstants.PARAM_ASSOCIATION_NAME%>" id="id_<%=WorkflowUIConstants.PARAM_ASSOCIATION_NAME%>" style="min-width: 30%;" value="">
+                                <%
+                                    }
+                                %>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td width="30%"><fmt:message key='workflow.operation.category'/></td>
+                            <td>
+                                <select id="categoryDropdown" onchange="updateActions();" style="min-width: 30%;" name="<%=WorkflowUIConstants.PARAM_OPERATION_CATEGORY%>">
+                                    <option  selected value=""><fmt:message key="select"/></option>
+                                    <%
+                                        for (String key : events.keySet()) {
+                                            if(key.equals(associationDTO.getEventCategory())){
+                                    %>
+                                                <option selected value="<%=key%>"><%=key%>
+                                                </option>
+                                    <%
+                                            }else{
+                                    %>
+                                                <option  value="<%=key%>"><%=key%>
+                                                </option>
+                                    <%
+                                            }
+                                        }
+                                    %>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td width="30%">
+                                <fmt:message key='workflow.operation.name'/>
+                            </td>
+                            <td>
+                                <select id="actionDropdown" onchange="updateParams();" style="min-width: 30%;" name="<%=WorkflowUIConstants.PARAM_OPERATION%>" class="enableOnCategorySel">
+                                    <option  selected value=""><fmt:message key="select"/></option>
+                                    <%
+                                        if(associationDTO != null && associationDTO.getEventCategory() != null && !associationDTO.getEventCategory().isEmpty()){
+                                            for (Map.Entry<String,List<WorkflowEventDTO>> eventCategory : events.entrySet()) {
+                                                if(eventCategory.getKey().equals(associationDTO.getEventCategory())){
+                                                    for (WorkflowEventDTO event : eventCategory.getValue()) {
+                                                        if(event.getEventId().equals(associationDTO.getEventName())){
+                                    %>
+                                                            <option selected value="<%=event.getEventId()%>"><%=event.getEventId()%>
+                                    <%
+                                                        }else{
+                                    %>
+                                                            <option value="<%=event.getEventId()%>"><%=event.getEventId()%>
+                                    <%
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }else{
+                                    %>
+
+                                    <%
+                                        }
+                                    %>
+                                </select>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+
+
+
+
 
                     <table class="styledLeft noBorders" style="margin-top: 10px">
                         <thead>
@@ -328,62 +502,19 @@
                             </th>
                         </tr>
                         </thead>
-                        <tbody>
-                        <tr>
-                            <td width="30%"><fmt:message key="workflow.service.association.name"/></td>
-                            <td><input type="text" name="<%=WorkflowUIConstants.PARAM_ASSOCIATION_NAME%>"
-                                       style="min-width: 30%;">
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <td width="30%"><fmt:message key='workflow.operation.category'/></td>
-                            <td>
-                                <select id="categoryDropdown" onchange="updateActions();" style="min-width: 30%;">
-                                    <option disabled selected value=""><fmt:message key="select"/></option>
-                                    <%
-                                        for (String key : events.keySet()) {
-                                    %>
-                                    <option value="<%=key%>"><%=key%>
-                                    </option>
-                                    <%
-                                        }
-                                    %>
-                                </select>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td width="30%"><fmt:message key='workflow.operation.name'/></td>
-                            <td><select id="actionDropdown" onchange="updateParams();" style="min-width: 30%;"
-                                        name="<%=WorkflowUIConstants.PARAM_OPERATION%>" disabled
-                                        class="enableOnCategorySel"></select>
-                            </td>
-                        </tr>
-                        </tbody>
-                    </table>
-                    <table class="styledLeft noBorders" style="margin-top: 10px">
-                        <thead>
-                        <tr>
-                            <th colspan="2">
-                                <fmt:message key="workflow.service.association.details">
-                                </fmt:message>
-                            </th>
-                        </tr>
-                        </thead>
                         <tr>
                             <td width="30%">
                                 <fmt:message key="workflow.select"/>
                             </td>
                             <td>
-                                <select name="<%=WorkflowUIConstants.PARAM_WORKFLOW_ID%>" style="min-width: 30%;"
-                                        disabled class="enableOnOperationSel">
-                                    <option disabled selected value=""><fmt:message key="select"/></option>
-
+                                <select id="id_<%=WorkflowUIConstants.PARAM_WORKFLOW_ID%>" onchange="changeWorkFlow();" name="<%=WorkflowUIConstants.PARAM_WORKFLOW_ID%>" style="min-width: 30%;">
+                                    <option value=""><fmt:message key="select"/></option>
+                                    <option value="create_new_workflow">Create New WorkFlow...</option>
                                     <%
-                                        for (WorkflowBean workflowBean : client.listWorkflows()) {
+                                        for (WorkflowDTO workflowBean : client.listWorkflows()) {
                                             if (workflowBean != null) {
                                                 boolean select = false;
-                                                if (StringUtils.equals(workflowId, workflowBean.getWorkflowId())) {
+                                                if (StringUtils.equals(workflowId, workflowBean.getWorkflowId()) || StringUtils.equals(workflowName, workflowBean.getWorkflowName())) {
                                                     select = true;
                                                 }
                                     %>
@@ -401,14 +532,14 @@
                         </tr>
                         <tr>
                             <td colspan="2">
-                                <input type="radio" name="conditionType" value="applyToAll" disabled checked="checked"
+                                <input type="radio" name="conditionType" value="applyToAll"  checked="checked"
                                        onclick="handleRadioInput(this);" class="enableOnOperationSel">
                                 Apply to all Requests
                             </td>
                         </tr>
                         <tr>
                             <td colspan="2">
-                                <input type="radio" name="conditionType" value="applyIf" disabled
+                                <input type="radio" name="conditionType" value="applyIf"
                                        class="enableOnOperationSel" onclick="handleRadioInput(this);">
                                 Apply if,
                             </td>
@@ -421,10 +552,10 @@
                                             <select id="paramSelect" onchange="updateOperator()"></select>
                                         </td>
                                         <td>
-                                            <select id="operationSelect" disabled="disabled"></select>
+                                            <select id="operationSelect" disabled=""></select>
                                         </td>
                                         <td>
-                                            <input id="val1" type="text" disabled="disabled"/>
+                                            <input id="val1" type="text" disabled=""/>
                                         </td>
                                     </tr>
                                 </table>
@@ -450,10 +581,15 @@
                             </td>
                         </tr>
                     </table>
+
+
+
+
+
                     <table class="styledLeft noBorders" style="margin-top: 10px">
                         <tr>
                             <td class="buttonRow">
-                                <input class="button" value="<fmt:message key="add"/>" type="submit"/>
+                                <input id="id_add_association" onclick="addAssociation();" class="button" value="<fmt:message key="add"/>" type="button"/>
                                 <input class="button" value="<fmt:message key="cancel"/>" type="button"
                                        onclick="doCancel();"/>
                             </td>

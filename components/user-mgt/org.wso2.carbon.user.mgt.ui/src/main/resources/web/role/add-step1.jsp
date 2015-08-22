@@ -123,7 +123,7 @@ try{
 %>
 
 <fmt:bundle basename="org.wso2.carbon.userstore.ui.i18n.Resources">
-    <carbon:breadcrumb label="add.user.role"
+    <carbon:breadcrumb label="add-roles"
                        resourceBundle="org.wso2.carbon.userstore.ui.i18n.Resources"
                        topPage="false" request="<%=request%>"/>
 
@@ -231,7 +231,7 @@ try{
         <%if(UserAdminUIConstants.INTERNAL_ROLE.equals(roleType)){%>
             <h2><fmt:message key="add.internal.user.role"/></h2>
         <%} else { %>
-            <h2><fmt:message key="add.user.role"/></h2>
+            <h2><fmt:message key="add-roles"/></h2>
         <%} %>
         <div id="workArea">
             <h3><fmt:message key="step.1.role"/></h3>
