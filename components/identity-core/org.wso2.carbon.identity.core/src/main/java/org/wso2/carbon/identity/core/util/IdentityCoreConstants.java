@@ -21,6 +21,8 @@ package org.wso2.carbon.identity.core.util;
 public class IdentityCoreConstants {
 
     public static final String HOST_NAME = "HostName";
+    public static final String PORTS_OFFSET = "Ports.Offset";
+
     public static final String PROXY_CONTEXT_PATH = "ProxyContextPath";
     public static final int DEFAULT_HTTPS_PORT = 443;
     public static final String UTF_8 = "UTF-8";
