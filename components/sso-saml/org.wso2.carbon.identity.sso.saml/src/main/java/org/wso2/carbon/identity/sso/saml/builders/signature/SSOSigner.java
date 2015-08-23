@@ -18,9 +18,7 @@
 package org.wso2.carbon.identity.sso.saml.builders.signature;
 
 
-import org.opensaml.saml2.core.Assertion;
 import org.opensaml.saml2.core.RequestAbstractType;
-import org.opensaml.saml2.core.StatusResponseType;
 import org.opensaml.xml.security.x509.X509Credential;
 import org.opensaml.xml.signature.SignableXMLObject;
 import org.wso2.carbon.identity.base.IdentityException;

@@ -26,7 +26,6 @@ import org.wso2.carbon.identity.workflow.mgt.WorkflowService;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 import org.wso2.carbon.user.mgt.workflow.internal.IdentityWorkflowDataHolder;
 
-import java.util.Collections;
 import java.util.List;
 
 public class UserManagementWorkflowService {
