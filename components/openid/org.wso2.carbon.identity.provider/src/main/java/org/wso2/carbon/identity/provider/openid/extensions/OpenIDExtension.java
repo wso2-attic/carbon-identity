@@ -26,7 +26,6 @@ import org.wso2.carbon.identity.provider.IdentityProviderException;
 import org.wso2.carbon.identity.provider.dto.OpenIDAuthRequestDTO;
 import org.wso2.carbon.identity.provider.dto.OpenIDClaimDTO;
 
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

@@ -40,7 +40,7 @@ public class ConfigurationFacade {
 
     public ConfigurationFacade() {
         // Read the default config from the files
-        FileBasedConfigurationBuilder.getInstance().build();
+        FileBasedConfigurationBuilder.getInstance();
     }
 
     public static ConfigurationFacade getInstance() {
