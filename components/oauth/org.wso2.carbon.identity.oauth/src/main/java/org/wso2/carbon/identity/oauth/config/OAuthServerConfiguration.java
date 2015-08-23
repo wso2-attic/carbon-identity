@@ -32,6 +32,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.base.ServerConfigurationException;
 import org.wso2.carbon.identity.core.util.IdentityConfigParser;
+import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
 import org.wso2.carbon.identity.oauth.common.OAuthConstants;
 import org.wso2.carbon.identity.oauth.common.SAML2GrantValidator;
 import org.wso2.carbon.identity.oauth.tokenprocessor.PlainTextPersistenceProcessor;
@@ -495,7 +496,7 @@ public class OAuthServerConfiguration {
     }
 
     private QName getQNameWithIdentityNS(String localPart) {
-        return new QName(IdentityConfigParser.IDENTITY_DEFAULT_NAMESPACE, localPart);
+        return new QName(IdentityCoreConstants.IDENTITY_DEFAULT_NAMESPACE, localPart);
     }
 
     public boolean isAuthContextTokGenEnabled() {

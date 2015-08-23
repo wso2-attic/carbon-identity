@@ -43,6 +43,10 @@
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon.identity</groupId>
+            <artifactId>org.wso2.carbon.identity.application.common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.identity</groupId>
             <artifactId>org.wso2.carbon.security.mgt.server.feature</artifactId>
             <type>zip</type>
         </dependency>
@@ -99,6 +103,7 @@
                             <bundles>
                                 <bundleDef>org.wso2.carbon.identity:org.wso2.carbon.identity.base</bundleDef>
                                 <bundleDef>org.wso2.carbon.identity:org.wso2.carbon.identity.core</bundleDef>
+                                <bundleDef>org.wso2.carbon.identity:org.wso2.carbon.identity.application.common</bundleDef>
                             </bundles>
                             <importFeatures>
                                 <importFeatureDef>org.wso2.carbon.core:${carbon.kernel.version}</importFeatureDef>

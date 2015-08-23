@@ -34,10 +34,6 @@
     <dependencies>
         <dependency>
             <groupId>org.wso2.carbon.identity</groupId>
-            <artifactId>org.wso2.carbon.identity.application.common</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon.identity</groupId>
             <artifactId>org.wso2.carbon.identity.application.mgt</artifactId>
         </dependency>
         <dependency>
@@ -75,7 +71,6 @@
                                 </properties>
                             </adviceFile>
                             <bundles>
-                                <bundleDef>org.wso2.carbon.identity:org.wso2.carbon.identity.application.common</bundleDef>
                                 <bundleDef>org.wso2.carbon.identity:org.wso2.carbon.identity.application.mgt</bundleDef>
                             </bundles>
                             <importFeatures>
