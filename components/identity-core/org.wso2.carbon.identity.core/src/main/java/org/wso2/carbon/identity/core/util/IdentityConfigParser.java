@@ -277,8 +277,7 @@ public class IdentityConfigParser {
      * @return Corresponding OMElement
      */
     public OMElement getConfigElement(String localPart) {
-        return rootElement.getFirstChildWithName(new QName(IdentityCoreConstants.IDENTITY_DEFAULT_NAMESPACE,
-                localPart));
+        return rootElement.getFirstChildWithName(new QName(IdentityCoreConstants.IDENTITY_DEFAULT_NAMESPACE,localPart));
     }
 
 }

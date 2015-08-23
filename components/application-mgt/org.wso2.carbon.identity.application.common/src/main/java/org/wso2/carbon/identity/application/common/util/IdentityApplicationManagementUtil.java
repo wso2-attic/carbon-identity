@@ -861,8 +861,7 @@ public class IdentityApplicationManagementUtil {
      * @return
      */
     public static QName getQNameWithIdentityApplicationNS(String localPart) {
-        return new QName(IdentityApplicationConstants.APPLICATION_AUTHENTICATION_DEFAULT_NAMESPACE,
-                localPart);
+        return new QName(IdentityApplicationConstants.APPLICATION_AUTHENTICATION_DEFAULT_NAMESPACE, localPart);
     }
 
     /**
