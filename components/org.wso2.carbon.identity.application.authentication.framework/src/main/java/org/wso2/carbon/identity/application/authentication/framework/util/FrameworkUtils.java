@@ -110,7 +110,7 @@ public class FrameworkUtils {
 
         AuthenticationRequestCacheEntry authRequest = null;
         AuthenticationRequestCacheKey cacheKey = new AuthenticationRequestCacheKey(key);
-        Object cacheEntryObj = AuthenticationRequestCache.getInstance(0).getValueFromCache(cacheKey);
+        Object cacheEntryObj = AuthenticationRequestCache.getInstance(maxInactiveInterval).getValueFromCache(cacheKey);
 
         if (cacheEntryObj != null) {
             authRequest = (AuthenticationRequestCacheEntry) cacheEntryObj;
@@ -127,7 +127,7 @@ public class FrameworkUtils {
 
         if (key != null) {
             AuthenticationRequestCacheKey cacheKey = new AuthenticationRequestCacheKey(key);
-            AuthenticationRequestCache.getInstance(0).clearCacheEntry(cacheKey);
+            AuthenticationRequestCache.getInstance(maxInactiveInterval).clearCacheEntry(cacheKey);
         }
     }
 
@@ -564,7 +564,7 @@ public class FrameworkUtils {
 
         SessionContext sessionContext = null;
         SessionContextCacheKey cacheKey = new SessionContextCacheKey(key);
-        Object cacheEntryObj = SessionContextCache.getInstance(0).getValueFromCache(cacheKey);
+        Object cacheEntryObj = SessionContextCache.getInstance(maxInactiveInterval).getValueFromCache(cacheKey);
 
         if (cacheEntryObj != null) {
             sessionContext = ((SessionContextCacheEntry) cacheEntryObj).getContext();
@@ -580,7 +580,7 @@ public class FrameworkUtils {
 
         if (key != null) {
             SessionContextCacheKey cacheKey = new SessionContextCacheKey(key);
-            SessionContextCache.getInstance(0).clearCacheEntry(cacheKey);
+            SessionContextCache.getInstance(maxInactiveInterval).clearCacheEntry(cacheKey);
         }
     }
 
@@ -591,7 +591,7 @@ public class FrameworkUtils {
 
         if (key != null) {
             AuthenticationContextCacheKey cacheKey = new AuthenticationContextCacheKey(key);
-            AuthenticationContextCache.getInstance(0).clearCacheEntry(cacheKey);
+            AuthenticationContextCache.getInstance(maxInactiveInterval).clearCacheEntry(cacheKey);
         }
     }
 
@@ -603,7 +603,7 @@ public class FrameworkUtils {
 
         AuthenticationContext authnContext = null;
         AuthenticationContextCacheKey cacheKey = new AuthenticationContextCacheKey(contextId);
-        Object cacheEntryObj = AuthenticationContextCache.getInstance(0)
+        Object cacheEntryObj = AuthenticationContextCache.getInstance(maxInactiveInterval)
                 .getValueFromCache(cacheKey);
 
         if (cacheEntryObj != null) {
