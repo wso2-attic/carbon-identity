@@ -87,8 +87,9 @@ public class BaseCache<K extends Serializable, V extends Serializable> {
                             cacheManager.removeCache(cacheName);
                             stringCacheBuilder = cacheManager.<String, V>createCacheBuilder(cacheName).
                                     setExpiry(CacheConfiguration.ExpiryType.ACCESSED,
-                                            new CacheConfiguration
-                                                    .Duration(TimeUnit.SECONDS, cacheTimeout)).
+                                            new CacheConfiguration.Duration(TimeUnit.SECONDS, cacheTimeout)).
+                                    setExpiry(CacheConfiguration.ExpiryType.MODIFIED,
+                                            new CacheConfiguration.Duration(TimeUnit.SECONDS, cacheTimeout)).
                                     setStoreByValue(false);
                             cache = stringCacheBuilder.build();
                             if (capacity != 0) {
@@ -133,8 +134,9 @@ public class BaseCache<K extends Serializable, V extends Serializable> {
                             cacheManager.removeCache(cacheName);
                             cacheBuilder = cacheManager.<K, V>createCacheBuilder(cacheName).
                                     setExpiry(CacheConfiguration.ExpiryType.ACCESSED,
-                                            new CacheConfiguration
-                                                    .Duration(TimeUnit.SECONDS, cacheTimeout)).
+                                            new CacheConfiguration.Duration(TimeUnit.SECONDS, cacheTimeout)).
+                                    setExpiry(CacheConfiguration.ExpiryType.MODIFIED,
+                                            new CacheConfiguration.Duration(TimeUnit.SECONDS, cacheTimeout)).
                                     setStoreByValue(false);
                             cache = cacheBuilder.build();
                             if (capacity != 0) {

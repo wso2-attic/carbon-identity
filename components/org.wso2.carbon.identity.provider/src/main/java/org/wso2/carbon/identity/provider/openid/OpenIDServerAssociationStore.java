@@ -1,12 +1,12 @@
 /*
  * Copyright 2005-2008 WSO2, Inc. (http://wso2.com)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,9 +16,6 @@
 
 package org.wso2.carbon.identity.provider.openid;
 
-import java.util.Date;
-import java.util.Random;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openid4java.association.Association;
@@ -27,51 +24,62 @@ import org.openid4java.server.InMemoryServerAssociationStore;
 import org.wso2.carbon.identity.provider.openid.cache.OpenIDAssociationCache;
 import org.wso2.carbon.identity.provider.openid.dao.OpenIDAssociationDAO;
 
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.util.Date;
+
 /**
  * This is the custom AssociationStore. Uses super's methods to generate
  * associations. However this class persist the associations in the identity
  * database. In the case of loading an association it will first look in the
  * super and if fails, it will look in the database. The database may be shared
  * in a clustered environment.
- * 
+ *
  * @author WSO2 Inc.
- * 
+ *
  */
 public class OpenIDServerAssociationStore extends
 		InMemoryServerAssociationStore {
 
-	private int storeId = 0;
-	private String timestamp;
-	private int counter;
-	private OpenIDAssociationCache cache;
-	private OpenIDAssociationDAO dao;
+    private static final Log log = LogFactory.getLog(OpenIDServerAssociationStore.class);
+    private static final String SHA_1_PRNG = "SHA1PRNG";
+    private int storeId = 0;
+    private String timestamp;
+    private int counter;
+    private OpenIDAssociationCache cache;
+    private OpenIDAssociationDAO dao;
 
-	private static Log log = LogFactory
-			.getLog(OpenIDServerAssociationStore.class);
-
-	/**
-	 * Here we instantiate a DAO to access the identity database.
-	 * 
-	 * @param dbConnection
-	 * @param privateAssociations
-	 *            if this association store stores private associations
-	 */
-	public OpenIDServerAssociationStore(String associationsType) {
-		storeId = new Random().nextInt(9999);
-		timestamp = Long.toString(new Date().getTime());
-		counter = 0;
-		cache = OpenIDAssociationCache.getCacheInstance();
-		dao = new OpenIDAssociationDAO(associationsType);
-	}
+    /**
+     * Here we instantiate a DAO to access the identity database.
+     *
+     * @param dbConnection
+     * @param privateAssociations if this association store stores private associations
+     */
+    public OpenIDServerAssociationStore(String associationsType) {
+        try {
+            SecureRandom secureRandom = SecureRandom.getInstance(SHA_1_PRNG);
+            storeId = secureRandom.nextInt(9999);
+        } catch (NoSuchAlgorithmException e) {
+            // Ignore Exception.
+            // The SHA_1_PRNG algorithm is provided.
+            if (log.isDebugEnabled()) {
+                log.debug("Ignoring NoSuchAlgorithmException. The SHA1PRNG algorithm is provided.", e);
+            }
+        }
+        timestamp = Long.toString(new Date().getTime());
+        counter = 0;
+        cache = OpenIDAssociationCache.getCacheInstance();
+        dao = new OpenIDAssociationDAO(associationsType);
+    }
 
 	/**
 	 * Super will generate the association and it will be persisted by the DAO.
-	 * 
+	 *
 	 * @param type
 	 *            association type defined in the OpenID 2.0
 	 * @param expiryIn
 	 *            date
-	 * @return <code>Association</code>           
+	 * @return <code>Association</code>
 	 */
 	public synchronized Association generate(String type, int expiryIn)
 			throws AssociationException {

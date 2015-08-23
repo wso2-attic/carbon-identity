@@ -153,8 +153,8 @@ public class OAuthAppDAO {
 			
             connection = JDBCPersistenceManager.getInstance().getDBConnection();
 			prepStmt = connection.prepareStatement(SQLQueries.OAuthAppDAOSQLQueries.GET_APPS_OF_USER_WITH_TENANTAWARE_OR_TENANTUNAWARE_USERNAME);
-            prepStmt.setString(1, tenantAwareUserName);
-            prepStmt.setString(2, tenantUnawareUserName);
+            prepStmt.setString(1, tenantAwareUserName.toLowerCase());
+            prepStmt.setString(2, tenantUnawareUserName.toLowerCase());
             prepStmt.setInt(3, tenantId);
 
             rSet = prepStmt.executeQuery();
