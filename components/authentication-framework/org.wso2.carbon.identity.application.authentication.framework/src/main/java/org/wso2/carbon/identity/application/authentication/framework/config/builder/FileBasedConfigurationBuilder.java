@@ -31,8 +31,10 @@ import org.wso2.carbon.identity.application.authentication.framework.config.mode
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkConstants;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkUtils;
 import org.wso2.carbon.identity.application.common.model.IdentityProvider;
+import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
+import org.wso2.carbon.utils.ServerConstants;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
@@ -40,11 +42,13 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Stack;
 
 /**
  * Application Authenticators Framework configuration reader.
@@ -52,7 +56,10 @@ import java.util.Map;
 public class FileBasedConfigurationBuilder {
 
     private static final Log log = LogFactory.getLog(FileBasedConfigurationBuilder.class);
-    private static FileBasedConfigurationBuilder instance;
+    private static volatile FileBasedConfigurationBuilder instance;
+    private static String configFilePath;
+    private static OMElement rootElement;
+    private static Map<String, Object> configuration = new HashMap<String, Object>();
 
     private String authenticationEndpointURL;
 
@@ -80,77 +87,190 @@ public class FileBasedConfigurationBuilder {
 
     public static FileBasedConfigurationBuilder getInstance() {
         if (instance == null) {
-            instance = new FileBasedConfigurationBuilder();
+            synchronized (FileBasedConfigurationBuilder.class){
+                if(instance == null) {
+                    instance = new FileBasedConfigurationBuilder();
+                }
+            }
         }
-
         return instance;
+    }
+
+    public static FileBasedConfigurationBuilder getInstance(String filePath) {
+        configFilePath = filePath;
+        return getInstance();
+    }
+
+    /**
+     * Returns the element with the provided local part
+     *
+     * @param localPart local part name
+     * @return Corresponding OMElement
+     */
+    public OMElement getConfigElement(String localPart) {
+        return rootElement.getFirstChildWithName(
+                IdentityApplicationManagementUtil.getQNameWithIdentityApplicationNS(localPart));
+    }
+
+    public Map<String, Object> getConfiguration() {
+        return configuration;
+    }
+
+    private FileBasedConfigurationBuilder(){
+        buildConfiguration();
     }
 
     /**
      * Read the authenticator info from the file and populate the in-memory model
      */
-    public void build() {
+    private void buildConfiguration() {
 
-        String authenticatorsFilePath = IdentityUtil.getIdentityConfigDirPath() + File.separator + FrameworkConstants
-                .Config.AUTHENTICATORS_FILE_NAME;
-        FileInputStream fileInputStream = null;
-
+        InputStream inStream = null;
+        File configFile = null;
         try {
-            fileInputStream = new FileInputStream(new File(authenticatorsFilePath));
-            OMElement documentElement = new StAXOMBuilder(fileInputStream).getDocumentElement();
+            if (configFilePath != null) {
+                configFile = new File(configFilePath);
+            } else {
+                configFile = new File(IdentityUtil.getIdentityConfigDirPath(),
+                        IdentityApplicationConstants.APPLICATION_AUTHENTICATION_CONGIG);
+            }
+            if (configFile.exists()) {
+                inStream = new FileInputStream(configFile);
+            }
+            if (inStream == null) {
+                String message = "Identity Application Authentication Framework configuration not found";
+                log.error(message);
+                throw new FileNotFoundException(message);
+            }
+            StAXOMBuilder builder = new StAXOMBuilder(inStream);
+            rootElement = builder.getDocumentElement();
+            Stack<String> nameStack = new Stack<String>();
+            readChildElements(rootElement, nameStack);
 
             //########### Read Authentication Endpoint URL ###########
-            readAuthenticationEndpointURL(documentElement);
+            readAuthenticationEndpointURL(rootElement);
 
             //########### Read tenant data listener URLs ###########
-            readTenantDataListenerURLs(documentElement);
+            readTenantDataListenerURLs(rootElement);
 
             //########### Read tenant domain dropdown enabled value ###########
-            readTenantDomainDropdownEnabledValue(documentElement);
+            readTenantDomainDropdownEnabledValue(rootElement);
 
             //########### Read Proxy Mode ###########
-            readProxyModes(documentElement);
+            readProxyModes(rootElement);
 
             //########### Read Maximum Login Attempt Count ###########
-            readMaximumLoginAttemptCount(documentElement);
+            readMaximumLoginAttemptCount(rootElement);
 
             // ########### Read Authentication Endpoint Query Params ###########
-            readAuthenticationEndpointQueryParams(documentElement);
+            readAuthenticationEndpointQueryParams(rootElement);
 
             //########### Read Extension Points ###########
-            readExtensionPoints(documentElement);
+            readExtensionPoints(rootElement);
 
             //########### Read Cache Timeouts ###########
-            readCacheTimeouts(documentElement);
+            readCacheTimeouts(rootElement);
 
             //########### Read Authenticator Name Mappings ###########
-            readAuthenticatorNameMappings(documentElement);
+            readAuthenticatorNameMappings(rootElement);
 
             //########### Read Authenticator Configs ###########
-            readAuthenticatorConfigs(documentElement);
+            readAuthenticatorConfigs(rootElement);
 
             //########### Read IdP Configs ###########
-            readIdpConfigs(documentElement);
+            readIdpConfigs(rootElement);
 
             //########### Read Sequence Configs ###########
-            readSequenceConfigs(documentElement);
+            readSequenceConfigs(rootElement);
 
         } catch (FileNotFoundException e) {
-            log.error(FrameworkConstants.Config.AUTHENTICATORS_FILE_NAME + " file is not available", e);
+            log.error(IdentityApplicationConstants.APPLICATION_AUTHENTICATION_CONGIG + " file is not available", e);
         } catch (XMLStreamException e) {
-            log.error("Error reading the " + FrameworkConstants.Config.AUTHENTICATORS_FILE_NAME, e);
+            log.error("Error reading the " + IdentityApplicationConstants.APPLICATION_AUTHENTICATION_CONGIG, e);
         } finally {
             try {
-                if (fileInputStream != null) {
-                    fileInputStream.close();
+                if (inStream != null) {
+                    inStream.close();
                 }
             } catch (IOException e) {
-                if (log.isDebugEnabled()) {
-                    log.debug("IOException stack trace skipped in WARN log ", e);
-                }
-                log.warn("Unable to close the file input stream created for " + FrameworkConstants.Config.AUTHENTICATORS_FILE_NAME);
+                log.error("Error occurred while closing the FileInputStream after reading " +
+                        "Identity Application Authentication Framework configuration", e);
             }
         }
+    }
+
+    private void readChildElements(OMElement serverConfig, Stack<String> nameStack) {
+
+        for (Iterator childElements = serverConfig.getChildElements(); childElements.hasNext(); ) {
+            OMElement element = (OMElement) childElements.next();
+            nameStack.push(element.getLocalName());
+            if (elementHasText(element)) {
+                String key = getKey(nameStack);
+                Object currentObject = configuration.get(key);
+                String value = replaceSystemProperty(element.getText());
+                if (currentObject == null) {
+                    configuration.put(key, value);
+                } else if (currentObject instanceof ArrayList) {
+                    List<String> list = (ArrayList) currentObject;
+                    if (!list.contains(value)) {
+                        list.add(value);
+                    }
+                } else {
+                    if (!value.equals(currentObject)) {
+                        List arrayList = new ArrayList(2);
+                        arrayList.add(currentObject);
+                        arrayList.add(value);
+                        configuration.put(key, arrayList);
+                    }
+                }
+            }
+            readChildElements(element, nameStack);
+            nameStack.pop();
+        }
+    }
+
+    private String getKey(Stack<String> nameStack) {
+
+        StringBuilder key = new StringBuilder();
+        for (int i = 0; i < nameStack.size(); i++) {
+            String name = nameStack.elementAt(i);
+            key.append(name).append(".");
+        }
+        key.deleteCharAt(key.lastIndexOf("."));
+        return key.toString();
+    }
+
+    private boolean elementHasText(OMElement element) {
+
+        String text = element.getText();
+        return text != null && text.trim().length() != 0;
+    }
+
+    private String replaceSystemProperty(String text) {
+
+        int indexOfStartingChars = -1;
+        int indexOfClosingBrace;
+        String tmpText = null;
+        // The following condition deals with properties.
+        // Properties are specified as ${system.property},
+        // and are assumed to be System properties
+        while (indexOfStartingChars < text.indexOf("${")
+                && (indexOfStartingChars = text.indexOf("${")) != -1
+                && (indexOfClosingBrace = text.indexOf("}")) != -1) { // Is a property used?
+            String sysProp = text.substring(indexOfStartingChars + 2, indexOfClosingBrace);
+            String propValue = System.getProperty(sysProp);
+            if (propValue != null) {
+                tmpText = text.substring(0, indexOfStartingChars) + propValue
+                        + text.substring(indexOfClosingBrace + 1);
+            }
+
+            if ((ServerConstants.CARBON_HOME).equals(sysProp) &&
+                    (".").equals(System.getProperty(ServerConstants.CARBON_HOME))) {
+                tmpText = new File(".").getAbsolutePath() + File.separator + text;
+
+            }
+        }
+        return tmpText;
     }
 
     private void readSequenceConfigs(OMElement documentElement) {
