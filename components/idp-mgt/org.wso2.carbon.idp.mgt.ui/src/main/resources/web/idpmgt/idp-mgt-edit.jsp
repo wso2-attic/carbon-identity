@@ -731,8 +731,7 @@
         oidcQueryParam = "";
     }
     if (idPAlias == null) {
-        idPAlias = IdPManagementUIUtil.getOAuth2TokenEPURL(request);
-        ;
+        idPAlias = tokenUrl;
     }
     String provisionStaticDropdownDisabled = "";
     String provisionDynamicDropdownDisabled = "";
@@ -766,9 +765,6 @@
             openIdDefaultDisabled = "disabled=\'disabled\'";
         }
     }
-    if (openIdUrl == null) {
-        openIdUrl = IdPManagementUIUtil.getOpenIDUrl(request);
-    }
     String saml2SSOEnabledChecked = "";
     String saml2SSODefaultDisabled = "";
     if (identityProvider != null) {
@@ -790,9 +786,6 @@
     }
     if (spEntityId == null) {
         spEntityId = "";
-    }
-    if (ssoUrl == null) {
-        ssoUrl = IdPManagementUIUtil.getSAML2SSOUrl(request);
     }
     String authnRequestSignedChecked = "";
     if (identityProvider != null) {
@@ -853,12 +846,6 @@
             oidcDefaultDisabled = "disabled=\'disabled\'";
         }
     }
-    if (authzUrl == null) {
-        authzUrl = IdPManagementUIUtil.getOAuth2AuthzEPURL(request);
-    }
-    if (tokenUrl == null) {
-        tokenUrl = IdPManagementUIUtil.getOAuth2TokenEPURL(request);
-    }
     if (clientId == null) {
         clientId = "";
     }
@@ -883,9 +870,6 @@
     }
     if (passiveSTSRealm == null) {
         passiveSTSRealm = "";
-    }
-    if (passiveSTSUrl == null) {
-        passiveSTSUrl = IdPManagementUIUtil.getPassiveSTSURL(request);
     }
     String fbAuthEnabledChecked = "";
     String fbAuthDefaultDisabled = "";
