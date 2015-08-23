@@ -52,6 +52,8 @@
     String grantSAML1 = CharacterEncoder.getSafeText(request.getParameter("grant_saml1"));
     String grantSAML2 = CharacterEncoder.getSafeText(request.getParameter("grant_saml2"));
     String grantNTLM = CharacterEncoder.getSafeText(request.getParameter("grant_ntlm"));
+    String grantAppToken = CharacterEncoder.getSafeText(request.getParameter("grant_apptoken"));
+
     String grants = null;
    	StringBuffer buff = new StringBuffer();
 	if (grantCode != null) {
@@ -76,8 +78,12 @@
     		buff.append(grantSAML2+ " ");
     }
     if (grantNTLM != null) {
-		buff.append(grantNTLM);
-	}
+        buff.append(grantNTLM + " ");
+    }
+    if (grantAppToken != null) {
+        buff.append(grantAppToken);
+    }
+
 	grants = buff.toString();
 	String forwardTo = "index.jsp";
     String BUNDLE = "org.wso2.carbon.identity.oauth.ui.i18n.Resources";
