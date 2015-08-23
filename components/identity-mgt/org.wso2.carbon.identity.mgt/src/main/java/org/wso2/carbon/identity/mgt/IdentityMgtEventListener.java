@@ -52,7 +52,6 @@ import org.wso2.carbon.registry.core.session.UserRegistry;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
-import org.wso2.carbon.user.core.common.AbstractUserOperationEventListener;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 
 import java.util.Calendar;

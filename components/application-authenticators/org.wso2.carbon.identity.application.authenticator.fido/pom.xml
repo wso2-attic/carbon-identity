@@ -73,6 +73,8 @@
                             org.bouncycastle.*; version="${bcprov.version}",
                             org.w3c.dom.*,
                             org.wso2.carbon.context; version="${carbon.kernel.package.import.version.range}",
+                            org.wso2.carbon.identity.application.common.*;
+                            version="${carbon.identity.package.import.version.range}",
                             org.wso2.carbon.identity.application.authentication.framework.*;
                             version="${carbon.identity.package.import.version.range}",
                             org.wso2.carbon.identity.base; version="${carbon.identity.package.import.version.range}",
