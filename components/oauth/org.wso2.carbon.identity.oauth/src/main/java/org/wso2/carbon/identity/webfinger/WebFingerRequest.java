@@ -30,6 +30,8 @@ public class WebFingerRequest {
     private String scheme;
     private String host;
     private String userInfo;
+    private String userName;
+    private String tenant;
     private int port;
     private String path;
     private String query;
@@ -121,5 +123,20 @@ public class WebFingerRequest {
 
     public void setUri(String uri) {
         this.uri = uri;
+    }
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
+    public String getTenant() {
+        return tenant;
+    }
+
+    public void setTenant(String tenant) {
+        this.tenant = tenant;
     }
 }

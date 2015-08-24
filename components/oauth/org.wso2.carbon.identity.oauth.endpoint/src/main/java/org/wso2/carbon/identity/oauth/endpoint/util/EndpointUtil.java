@@ -35,15 +35,14 @@ import org.wso2.carbon.identity.oauth.cache.SessionDataCacheKey;
 import org.wso2.carbon.identity.oauth.common.OAuthConstants;
 import org.wso2.carbon.identity.oauth.common.exception.OAuthClientException;
 import org.wso2.carbon.identity.oauth.config.OAuthServerConfiguration;
+import org.wso2.carbon.identity.oauth.oidcdiscovery.OIDCProcessor;
+import org.wso2.carbon.identity.oauth.oidcdiscovery.builders.DefaultOIDProviderRequestBuilder;
 import org.wso2.carbon.identity.oauth2.IdentityOAuth2Exception;
 import org.wso2.carbon.identity.oauth2.OAuth2Service;
 import org.wso2.carbon.identity.oauth2.OAuth2TokenValidationService;
 import org.wso2.carbon.identity.oauth2.model.OAuth2Parameters;
 import org.wso2.carbon.identity.oauth2.util.OAuth2Util;
-import org.wso2.carbon.identity.oidcdiscovery.builders.DefaultOIDProviderRequestBuilder;
-import org.wso2.carbon.identity.oidcdiscovery.OIDCProcessor;
 import org.wso2.carbon.identity.webfinger.WebFingerProcessor;
-import org.wso2.carbon.ui.CarbonUIUtil;
 import org.wso2.carbon.ui.util.CharacterEncoder;
 
 import java.io.UnsupportedEncodingException;
