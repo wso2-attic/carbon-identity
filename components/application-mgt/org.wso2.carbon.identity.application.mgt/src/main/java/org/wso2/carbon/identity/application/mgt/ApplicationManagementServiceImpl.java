@@ -68,6 +68,7 @@ import org.wso2.carbon.utils.ServerConstants;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -452,7 +453,9 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
             for (ClaimMapping claimMap : claimMappings) {
                 claimUris.add(claimMap.getClaim().getClaimUri());
             }
-            return claimUris.toArray(new String[claimUris.size()]);
+            String[] allLocalClaimUris = (claimUris.toArray(new String[claimUris.size()]));
+            Arrays.sort(allLocalClaimUris);
+            return allLocalClaimUris;
         } catch (Exception e) {
             String error = "Error while reading system claims";
             log.error(error, e);
