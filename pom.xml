@@ -1252,7 +1252,7 @@
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
-                <artifactId>org.wso2.carbon.identity.oauth.oidcdiscovery</artifactId>
+                <artifactId>org.wso2.carbon.identity.discovery</artifactId>
                 <version>${carbon.identity.version}</version>
             </dependency>
             <dependency>

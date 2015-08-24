@@ -21,9 +21,9 @@ import org.apache.amber.oauth2.common.utils.JSONUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.codehaus.jettison.json.JSONException;
-import org.wso2.carbon.identity.oauth.oidcdiscovery.OIDCDiscoveryEndPointException;
-import org.wso2.carbon.identity.oauth.oidcdiscovery.OIDProviderConfigResponse;
-import org.wso2.carbon.identity.oauth.oidcdiscovery.builders.OIDProviderResponseBuilder;
+import org.wso2.carbon.identity.discovery.OIDCDiscoveryEndPointException;
+import org.wso2.carbon.identity.discovery.OIDProviderConfigResponse;
+import org.wso2.carbon.identity.discovery.builders.OIDProviderResponseBuilder;
 
 import java.util.Map;
 
