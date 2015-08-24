@@ -718,7 +718,9 @@ public class SCIMUserManager implements UserManager {
                           .equals(UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME))) {
             String userStoreDomain = UserCoreUtil.extractDomainFromName(oldGroup.getDisplayName());
             newGroup.setDisplayName(UserCoreUtil.addDomainToName(newGroup.getDisplayName(), userStoreDomain));
-            newGroup = addDomainToUserMembers(newGroup, userStoreDomain);
+            if (newGroup.getMembers() != null && !(newGroup.getMembers().isEmpty())) {
+                newGroup = addDomainToUserMembers(newGroup, userStoreDomain);
+            }
         }
         newGroup.setDisplayName(SCIMCommonUtils.getGroupNameWithDomain(newGroup.getDisplayName()));
         oldGroup.setDisplayName(SCIMCommonUtils.getGroupNameWithDomain(oldGroup.getDisplayName()));
@@ -923,7 +925,9 @@ public class SCIMUserManager implements UserManager {
                     String userStoreDomain = UserCoreUtil.extractDomainFromName(oldGroup.getDisplayName());
                     newGroup.setDisplayName(
                             UserCoreUtil.addDomainToName(newGroup.getDisplayName(), userStoreDomain));
-                    newGroup = addDomainToUserMembers(newGroup, userStoreDomain);
+                    if (newGroup.getMembers() != null && !newGroup.getMembers().isEmpty()) {
+                        newGroup = addDomainToUserMembers(newGroup, userStoreDomain);
+                    }
                 }
 
                 // we do not update Identity_SCIM DB here since it is updated in
@@ -1260,23 +1264,36 @@ public class SCIMUserManager implements UserManager {
             return group;
         }
 
-        List<String> membersDisplayNamesWithoutDomain = group.getMembersWithDisplayName();
-        List<String> membersDisplayNamesWithDomain = new ArrayList<String>();
+        Map<String, String> userMembers = mergeSCIMIDsWithDisplayNames(group);
 
+        //remove all existing user members to add user members with user store domain
         for (String memberId : membersId) {
             group.removeMember(memberId);
         }
 
-        if (membersDisplayNamesWithoutDomain != null) {
-            for (String memberDisplayNameWithoutDomain : membersDisplayNamesWithoutDomain) {
-                membersDisplayNamesWithDomain
-                        .add(UserCoreUtil.addDomainToName(memberDisplayNameWithoutDomain, userStoreDomain));
-            }
+        //add user members with user store domain
+        for (Map.Entry<String, String> entry : userMembers.entrySet()) {
+            group.setMember(entry.getKey(), UserCoreUtil.addDomainToName(entry.getValue(), userStoreDomain));
         }
 
-        for (int i = 0; i < membersId.size(); i++) {
-            group.setMember(membersId.get(i), membersDisplayNamesWithDomain.get(i));
-        }
         return group;
+    }
+
+    /**
+     * In current charon implementation there is no way to associate SCIM ID with display name for user member, hence
+     * adding association to map
+     *
+     * @param group
+     * @return
+     * @throws CharonException
+     */
+    private Map<String, String> mergeSCIMIDsWithDisplayNames(Group group) throws CharonException {
+        List<String> membersId = group.getMembers();
+        List<String> membersDisplayNames = group.getMembersWithDisplayName();
+        Map<String, String> userMembers = new HashMap<>();
+        for (int i = 0; i < membersId.size(); i++) {
+            userMembers.put(membersId.get(i), membersDisplayNames.get(i));
+        }
+        return userMembers;
     }
 }
