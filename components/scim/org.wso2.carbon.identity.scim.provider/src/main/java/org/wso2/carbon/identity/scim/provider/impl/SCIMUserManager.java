@@ -1256,17 +1256,15 @@ public class SCIMUserManager implements UserManager {
     private Group addDomainToUserMembers(Group group, String userStoreDomain) throws CharonException {
         List<String> membersId = group.getMembers();
 
-        if (StringUtils.isBlank(userStoreDomain) || membersId.isEmpty()) {
+        if (StringUtils.isBlank(userStoreDomain) || membersId == null || membersId.isEmpty()) {
             return group;
         }
 
         List<String> membersDisplayNamesWithoutDomain = group.getMembersWithDisplayName();
         List<String> membersDisplayNamesWithDomain = new ArrayList<String>();
 
-        if (membersId != null) {
-            for (String memberId : membersId) {
-                group.removeMember(memberId);
-            }
+        for (String memberId : membersId) {
+            group.removeMember(memberId);
         }
 
         if (membersDisplayNamesWithoutDomain != null) {
@@ -1276,10 +1274,8 @@ public class SCIMUserManager implements UserManager {
             }
         }
 
-        if (membersId != null) {
-            for (int i = 0; i < membersId.size(); i++) {
-                group.setMember(membersId.get(i), membersDisplayNamesWithDomain.get(i));
-            }
+        for (int i = 0; i < membersId.size(); i++) {
+            group.setMember(membersId.get(i), membersDisplayNamesWithDomain.get(i));
         }
         return group;
     }
