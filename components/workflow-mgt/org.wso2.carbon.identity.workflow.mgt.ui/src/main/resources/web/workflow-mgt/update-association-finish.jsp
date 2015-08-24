@@ -44,8 +44,7 @@
         String workflowId = CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_WORKFLOW_ID));
         String name = CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_ASSOCIATION_NAME));
         String operation = CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_OPERATION));
-        String condition =
-                CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_ASSOCIATION_CONDITION));
+        String condition = request.getParameter(WorkflowUIConstants.PARAM_ASSOCIATION_CONDITION);
         try {
             client.addAssociation(workflowId, name, operation, condition);
         } catch (WorkflowAdminServiceWorkflowException e) {
