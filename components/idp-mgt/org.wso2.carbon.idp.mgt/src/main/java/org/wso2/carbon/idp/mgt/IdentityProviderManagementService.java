@@ -33,6 +33,7 @@ import org.wso2.carbon.idp.mgt.util.IdPManagementConstants;
 import org.wso2.carbon.user.api.ClaimMapping;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class IdentityProviderManagementService extends AbstractAdmin {
@@ -180,7 +181,6 @@ public class IdentityProviderManagementService extends AbstractAdmin {
      * @throws IdentityApplicationManagementException
      */
     public String[] getAllLocalClaimUris() throws IdentityApplicationManagementException {
-
         try {
             String claimDialect = LOCAL_DEFAULT_CLAIM_DIALECT;
             ClaimMapping[] claimMappings = CarbonContext.getThreadLocalCarbonContext()
@@ -189,7 +189,9 @@ public class IdentityProviderManagementService extends AbstractAdmin {
             for (ClaimMapping claimMap : claimMappings) {
                 claimUris.add(claimMap.getClaim().getClaimUri());
             }
-            return claimUris.toArray(new String[claimUris.size()]);
+            String[] allLocalClaimUris = claimUris.toArray(new String[claimUris.size()]);
+            Arrays.sort(allLocalClaimUris);
+            return allLocalClaimUris;
         } catch (Exception e) {
             String message = "Error while reading system claims";
             log.error(message, e);
