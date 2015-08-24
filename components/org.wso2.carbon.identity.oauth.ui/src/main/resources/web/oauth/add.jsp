@@ -178,11 +178,7 @@
                                                 %><tr><label><input type="checkbox" id="grant_saml" name="grant_saml" value="urn:ietf:params:oauth:grant-type:saml2-bearer" checked="checked"/>SAML</label></tr><%
                                             }if(allowedGrants.contains("iwa:ntlm")){
                                                 %><tr><label><input type="checkbox" id="grant_ntlm" name="grant_ntlm" value="iwa:ntlm" checked="checked"/>IWA-NTLM</label></tr><%
-                                            }if(allowedGrants.contains("application_token")){
-                                                %><tr><label><input type="checkbox" id="grant_apptoken"
-                                                                    name="grant_apptoken" value="application_token" checked
-                                        ="checked"/>Application Token</label></tr><%
-                                    }
+                                            }
                                         } catch (Exception e){
                                             String message = resourceBundle.getString("error.while.getting.allowed.grants") + " : " + e.getMessage();
                                             CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request, e);
