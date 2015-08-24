@@ -50,6 +50,7 @@
     String grantSAML1 = CharacterEncoder.getSafeText(request.getParameter("grant_saml1"));
     String grantSAML2 = CharacterEncoder.getSafeText(request.getParameter("grant_saml2"));
     String grantNTLM = CharacterEncoder.getSafeText(request.getParameter("grant_ntlm"));
+    String grantApplication = CharacterEncoder.getSafeText(request.getParameter("grant_apptoken"));
     String grants = null;
    	StringBuffer buff = new StringBuffer();
 	if (grantCode != null) {
@@ -74,46 +75,50 @@
     	buff.append(grantSAML2+" ");
     }
     if (grantNTLM != null) {
-		buff.append(grantNTLM);
-	}
-	grants = buff.toString();
-	// -- end setting grants
-	String forwardTo = "index.jsp";
-	String BUNDLE = "org.wso2.carbon.identity.oauth.ui.i18n.Resources";
-	ResourceBundle resourceBundle = ResourceBundle.getBundle(BUNDLE, request.getLocale());
-	OAuthConsumerAppDTO app = new OAuthConsumerAppDTO();
-	
-	String spName = (String) session.getAttribute("application-sp-name");
-	session.removeAttribute("application-sp-name");
-	boolean isError = false;
-	OAuthConsumerAppDTO consumerApp = null;
+        buff.append(grantNTLM + " ");
+    }
+    if (grantApplication != null) {
+        buff.append(grantApplication);
+    }
 
-	try {
+    grants = buff.toString();
+    // -- end setting grants
+    String forwardTo = "index.jsp";
+    String BUNDLE = "org.wso2.carbon.identity.oauth.ui.i18n.Resources";
+    ResourceBundle resourceBundle = ResourceBundle.getBundle(BUNDLE, request.getLocale());
+    OAuthConsumerAppDTO app = new OAuthConsumerAppDTO();
 
-		String cookie = (String) session.getAttribute(ServerConstants.ADMIN_SERVICE_COOKIE);
-		String backendServerURL = CarbonUIUtil.getServerURL(config.getServletContext(), session);
-		ConfigurationContext configContext =
-		                                     (ConfigurationContext) config.getServletContext()
-		                                                                  .getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
-		OAuthAdminClient client = new OAuthAdminClient(cookie, backendServerURL, configContext);
-		app.setApplicationName(applicationName);
-		app.setCallbackUrl(callback);
-		app.setOAuthVersion(oauthVersion);
-        if(OAuthConstants.OAuthVersions.VERSION_2.equals(oauthVersion)){
+    String spName = (String) session.getAttribute("application-sp-name");
+    session.removeAttribute("application-sp-name");
+    boolean isError = false;
+    OAuthConsumerAppDTO consumerApp = null;
+
+    try {
+
+        String cookie = (String) session.getAttribute(ServerConstants.ADMIN_SERVICE_COOKIE);
+        String backendServerURL = CarbonUIUtil.getServerURL(config.getServletContext(), session);
+        ConfigurationContext configContext =
+                (ConfigurationContext) config.getServletContext()
+                        .getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
+        OAuthAdminClient client = new OAuthAdminClient(cookie, backendServerURL, configContext);
+        app.setApplicationName(applicationName);
+        app.setCallbackUrl(callback);
+        app.setOAuthVersion(oauthVersion);
+        if (OAuthConstants.OAuthVersions.VERSION_2.equals(oauthVersion)) {
             app.setGrantTypes(grants);
         }
-		client.registerOAuthApplicationData(app);
-		
-		consumerApp = client.getOAuthApplicationDataByAppName(applicationName);
-		
-		String message = resourceBundle.getString("app.added.successfully");
-		CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.INFO, request);
+        client.registerOAuthApplicationData(app);
 
-	} catch (Exception e) {
-		isError = true;
-		String message = resourceBundle.getString("error.while.adding.app") + " : " + e.getMessage();
-		CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request, e);
-	}
+        consumerApp = client.getOAuthApplicationDataByAppName(applicationName);
+
+        String message = resourceBundle.getString("app.added.successfully");
+        CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.INFO, request);
+
+    } catch (Exception e) {
+        isError = true;
+        String message = resourceBundle.getString("error.while.adding.app") + " : " + e.getMessage();
+        CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request, e);
+    }
 %>
 
 <script>
