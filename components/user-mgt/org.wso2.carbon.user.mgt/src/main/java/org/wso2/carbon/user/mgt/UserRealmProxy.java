@@ -19,6 +19,7 @@
 package org.wso2.carbon.user.mgt;
 
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
@@ -543,7 +544,9 @@ public class UserRealmProxy {
                 userRealmInfo.setEveryOneRole(realmConfig.getEveryOneRoleName());
                 ClaimMapping[] defaultClaims = realm.getClaimManager().
                         getAllClaimMappings(UserCoreConstants.DEFAULT_CARBON_DIALECT);
-
+                if (ArrayUtils.isNotEmpty(defaultClaims)) {
+                    Arrays.sort(defaultClaims, new ClaimMappingsComparator());
+                }
                 List<String> fullClaimList = new ArrayList<String>();
                 List<String> requiredClaimsList = new ArrayList<String>();
                 List<String> defaultClaimList = new ArrayList<String>();
@@ -2268,5 +2271,13 @@ public class UserRealmProxy {
         System.arraycopy(o2, 0, ret, o1.length, o2.length);
 
         return ret;
+    }
+
+    private class ClaimMappingsComparator implements Comparator<ClaimMapping> {
+
+        @Override
+        public int compare(ClaimMapping o1, ClaimMapping o2) {
+            return o1.getClaim().getClaimUri().compareTo(o2.getClaim().getClaimUri());
+        }
     }
 }
