@@ -26,6 +26,7 @@ import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * This encapsulates the user's data that is related user's login information
@@ -52,6 +53,14 @@ public class UserIdentityClaimsDO implements Serializable {
     private Map<String, String> userIdentityDataMap = new HashMap<String, String>();
     private char[] temporaryPassword = null;
     private String confirmationCode = null;
+
+    // key: timestamp
+    // value: encrypted password
+    private Map<Long, Object> usedPasswordMap = new TreeMap<Long, Object>();
+    private boolean authPolicyReusePasswordCheck;
+    private int passwordReuseFrequency;
+    private int passwordReuseTime;
+    private String saltValue;
 
     public UserIdentityClaimsDO(String userName) {
         this.userName = userName;
@@ -288,6 +297,26 @@ public class UserIdentityClaimsDO implements Serializable {
 
     public void setConfirmationCode(String confirmationCode) {
         this.confirmationCode = confirmationCode;
+    }
+
+    public void setUsedPasswordMap(Map<Long, Object> usedPasswordMap) {
+        this.usedPasswordMap = usedPasswordMap;
+    }
+
+    public Map<Long, Object> getUsedPasswordMap() {
+        return usedPasswordMap;
+    }
+
+    public int getPasswordReuseFrequency() {
+        return passwordReuseFrequency;
+    }
+
+    public void setSaltValue(String saltValue) {
+        this.saltValue = saltValue;
+    }
+
+    public String getSaltValue() {
+        return saltValue;
     }
 
     /**

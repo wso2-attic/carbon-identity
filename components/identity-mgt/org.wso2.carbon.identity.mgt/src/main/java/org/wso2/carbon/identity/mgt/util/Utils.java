@@ -29,6 +29,7 @@ import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.mgt.IdentityMgtConfig;
 import org.wso2.carbon.identity.mgt.constants.IdentityMgtConstants;
 import org.wso2.carbon.identity.mgt.dto.UserDTO;
+import org.wso2.carbon.identity.mgt.IdentityMgtConfig;
 import org.wso2.carbon.identity.mgt.internal.IdentityMgtServiceComponent;
 import org.wso2.carbon.registry.core.RegistryConstants;
 import org.wso2.carbon.registry.core.Resource;
@@ -381,5 +382,24 @@ public class Utils {
 
         return PolicyEngine.getPolicy(new ByteArrayInputStream(policyString.getBytes()));
 
+    }
+
+    public static String encryptPassword(String password, String saltValue, IdentityMgtConfig config) throws UserStoreException {
+
+        try {
+            String digestInput = password;
+            if (saltValue != null) {
+                digestInput = password + saltValue;
+            }
+            String digestFunction = config.getEncryptionAlgo();
+
+            MessageDigest dgst = MessageDigest.getInstance(digestFunction);
+            byte[] byteValue = dgst.digest(digestInput.getBytes());
+            password = Base64.encode(byteValue);
+
+            return password;
+        } catch (NoSuchAlgorithmException e) {
+            throw new org.wso2.carbon.user.core.UserStoreException(e.getMessage(), e);
+        }
     }
 }

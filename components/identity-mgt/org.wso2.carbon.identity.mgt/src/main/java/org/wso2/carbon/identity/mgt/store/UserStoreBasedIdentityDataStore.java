@@ -58,6 +58,7 @@ public class UserStoreBasedIdentityDataStore extends InMemoryIdentityDataStore {
 
         UserIdentityClaimsDO newIdentityClaimDO = new UserIdentityClaimsDO(userIdentityDTO.getUserName(),
                 userIdentityDTO.getUserDataMap());
+        newIdentityClaimDO.setUsedPasswordMap(userIdentityDTO.getUsedPasswordMap());
         super.store(newIdentityClaimDO, userStoreManager);
 
         if (userIdentityDTO.getUserName() == null) {

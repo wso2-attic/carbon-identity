@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.identity.mgt;
 
+import org.apache.axiom.om.util.Base64;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -54,12 +55,15 @@ import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Random;
 
 
 /**
@@ -80,6 +84,7 @@ public class IdentityMgtEventListener extends AbstractIdentityUserOperationEvent
             return new HashMap<String, Object>();
         }
     };
+    Random random = new SecureRandom();
     private static final Log log = LogFactory.getLog(IdentityMgtEventListener.class);
     private static final String EMPTY_PASSWORD_USED = "EmptyPasswordUsed";
     private static final String USER_IDENTITY_DO = "UserIdentityDO";
@@ -575,6 +580,17 @@ public class IdentityMgtEventListener extends AbstractIdentityUserOperationEvent
                 // reading the value from the thread local
                 UserIdentityClaimsDO userIdentityClaimsDO = (UserIdentityClaimsDO) threadLocalProperties.get().get(USER_IDENTITY_DO);
 
+                byte[] bytes = new byte[16];
+                random.nextBytes(bytes);
+                String saltValue = Base64.encode(bytes);
+                userIdentityClaimsDO.setSaltValue(saltValue);
+                String encryptedPassword = null;
+                try {
+                    encryptedPassword = Utils.encryptPassword((String) credential, saltValue, config);
+                } catch (org.wso2.carbon.user.api.UserStoreException e) {
+                    String msg = "Error in adding password";
+                    throw new UserStoreException(msg, e);
+                }
 
                 if (config.isEnableUserAccountVerification() && threadLocalProperties.get().containsKey(EMPTY_PASSWORD_USED)) {
 
@@ -588,6 +604,10 @@ public class IdentityMgtEventListener extends AbstractIdentityUserOperationEvent
 
                     // store identity data
                     userIdentityClaimsDO.setAccountLock(false).setPasswordTimeStamp(System.currentTimeMillis());
+                    long currentTime = System.currentTimeMillis();
+                    // store the changed password with time stamp
+                    userIdentityClaimsDO.getUsedPasswordMap().put(currentTime, encryptedPassword);
+
                     try {
                         module.store(userIdentityClaimsDO, userStoreManager);
                     } catch (IdentityException e) {
@@ -644,6 +664,7 @@ public class IdentityMgtEventListener extends AbstractIdentityUserOperationEvent
                     // accounts are locked. Admin should unlock
                     userIdentityClaimsDO.setAccountLock(true);
                     userIdentityClaimsDO.setPasswordTimeStamp(System.currentTimeMillis());
+                    userIdentityClaimsDO.getUsedPasswordMap().put(System.currentTimeMillis(), encryptedPassword);
                     try {
                         config.getIdentityDataStore().store(userIdentityClaimsDO, userStoreManager);
                     } catch (IdentityException e) {
@@ -662,6 +683,7 @@ public class IdentityMgtEventListener extends AbstractIdentityUserOperationEvent
                         if (log.isDebugEnabled()) {
                             log.debug("Storing identity-mgt claims since they are available in the addUser request");
                         }
+                        userIdentityClaimsDO.getUsedPasswordMap().put(System.currentTimeMillis(), encryptedPassword);
                         module.store(userIdentityClaimsDO, userStoreManager);
                     } catch (IdentityException e) {
                         //roleback user
@@ -707,6 +729,62 @@ public class IdentityMgtEventListener extends AbstractIdentityUserOperationEvent
                             .length() > 0))) {
                 policyRegistry.enforcePasswordPolicies(newCredential.toString(), userName);
 
+            }
+
+            UserIdentityClaimsDO userIdentityDTO = module.load(userName, userStoreManager);
+
+            if (userIdentityDTO == null) {
+                userIdentityDTO = new UserIdentityClaimsDO(userName);
+            }
+
+            // Do not timestamp if OTP enabled.
+            boolean userOTPEnabled = userIdentityDTO.getOneTimeLogin();
+            long currentTime = Calendar.getInstance().getTimeInMillis();
+
+            String saltValue = userIdentityDTO.getSaltValue();
+            if (saltValue == null) {
+                byte[] bytes = new byte[16];
+                random.nextBytes(bytes);
+                saltValue = Base64.encode(bytes);
+                userIdentityDTO.setSaltValue(saltValue);
+            }
+            String encryptedPassword = null;
+            try {
+                encryptedPassword = Utils.encryptPassword((String) newCredential, saltValue, config);
+            } catch (org.wso2.carbon.user.api.UserStoreException e) {
+                String msg = "Error in adding password";
+                throw new UserStoreException(msg, e);
+            }
+
+
+            if (config.isAuthPolicyReusePasswordCheck() && !userOTPEnabled && (!userStoreManager.isReadOnly())) {
+
+                String eventName = "PRE_UPDATE_CREDENTIAL";
+
+                HashMap<String, Object> properties = new HashMap<String, Object>();
+                properties.put("UserIdentityDTO", userIdentityDTO);
+                properties.put("IdentityMgtConfig", config);
+                properties.put("credential", encryptedPassword);
+                properties.put("userName", userName);
+                properties.put("userStoreManager", userStoreManager);
+                properties.put("module", module);
+                properties.put("currentTime", currentTime);
+
+                IdentityMgtEvent identityMgtEvent = new IdentityMgtEvent(eventName, properties);
+                identityMgtService.handleEvent(identityMgtEvent);
+            }
+
+            // put newly changed password to usedPasswordMap
+            userIdentityDTO.getUsedPasswordMap().put(currentTime, encryptedPassword);
+
+            try {
+                // Store the new timestamp after change password
+                module.store(userIdentityDTO, userStoreManager);
+
+            } catch (IdentityException e) {
+
+                throw new UserStoreException(
+                        "Error while saving user store data for user (Password Reuse): " + userName);
             }
 
         } catch (PolicyViolationException pe) {
