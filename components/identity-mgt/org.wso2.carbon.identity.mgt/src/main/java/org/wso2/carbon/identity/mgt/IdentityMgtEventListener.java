@@ -375,7 +375,20 @@ public class IdentityMgtEventListener extends AbstractIdentityUserOperationEvent
                     boolean isUserExistInCurrentDomain = userStoreManager.isExistingUser(usernameWithDomain);
 
                     if (isUserExistInCurrentDomain) {
-                        userIdentityDTO.setFailAttempts();
+
+                        long currentTime = Calendar.getInstance().getTimeInMillis();
+                        long lastFailAttemptTime = userIdentityDTO.getLastFailAttemptTime();
+                        long timeGapBetweenFailAttempts = currentTime - lastFailAttemptTime;
+
+                        long failAttemptExpireTime = (config.getAuthPolicyLoginAttemptsExpireTime())*24*60*1000;
+
+                        if(lastFailAttemptTime!=0 && timeGapBetweenFailAttempts> failAttemptExpireTime){
+                            userIdentityDTO.setFailAttempts(0);
+                        }
+                        else{
+                            userIdentityDTO.setFailAttempts();
+                            userIdentityDTO.setLastFailAttemptTime(currentTime);
+                        }
 
                         if (userIdentityDTO.getFailAttempts() >= config.getAuthPolicyMaxLoginAttempts()) {
                             log.info("User, " + userName + " has exceed the max failed login attempts. " +
