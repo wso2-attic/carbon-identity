@@ -18,7 +18,7 @@
 
 package org.wso2.carbon.identity.workflow.mgt.bean;
 
-public class WorkflowBean {
+public class WorkflowDTO {
 
     private String workflowId;
     private String workflowName;

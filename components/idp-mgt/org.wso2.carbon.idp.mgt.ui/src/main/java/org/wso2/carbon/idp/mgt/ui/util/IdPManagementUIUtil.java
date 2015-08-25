@@ -41,8 +41,6 @@ import org.wso2.carbon.identity.application.common.model.idp.xsd.Property;
 import org.wso2.carbon.identity.application.common.model.idp.xsd.ProvisioningConnectorConfig;
 import org.wso2.carbon.identity.application.common.model.idp.xsd.RoleMapping;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
-import org.wso2.carbon.identity.core.util.IdentityUtil;
-import org.wso2.carbon.ui.CarbonUIUtil;
 
 import javax.servlet.http.HttpServletRequest;
 import java.net.MalformedURLException;
@@ -80,26 +78,6 @@ public class IdPManagementUIUtil {
             return false;
         }
         return true;
-    }
-
-    public static String getOpenIDUrl(HttpServletRequest request) {
-        return IdentityUtil.getServerURL("/openid/");
-    }
-
-    public static String getSAML2SSOUrl(HttpServletRequest request) {
-        return IdentityUtil.getServerURL("/samlsso/");
-    }
-
-    public static String getOAuth2AuthzEPURL(HttpServletRequest request) {
-        return IdentityUtil.getServerURL("/oauth2/authorize/");
-    }
-
-    public static String getOAuth2TokenEPURL(HttpServletRequest request) {
-        return IdentityUtil.getServerURL("/oauth2/token/");
-    }
-
-    public static String getPassiveSTSURL(HttpServletRequest request) {
-        return IdentityUtil.getServerURL("/passivests/");
     }
 
     /**

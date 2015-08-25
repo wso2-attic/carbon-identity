@@ -42,7 +42,10 @@ import org.wso2.carbon.identity.oauth2.OAuth2Service;
 import org.wso2.carbon.identity.oauth2.OAuth2TokenValidationService;
 import org.wso2.carbon.identity.oauth2.model.OAuth2Parameters;
 import org.wso2.carbon.identity.oauth2.util.OAuth2Util;
+<<<<<<< HEAD
 import org.wso2.carbon.identity.webfinger.WebFingerProcessor;
+=======
+>>>>>>> 5be404eae3482f11990b888ddce958d529a3019a
 import org.wso2.carbon.ui.util.CharacterEncoder;
 
 import java.io.UnsupportedEncodingException;

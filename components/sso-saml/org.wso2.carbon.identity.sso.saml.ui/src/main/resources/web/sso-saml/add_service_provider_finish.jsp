@@ -16,17 +16,16 @@
 ~ under the License.
 -->
 <%@page import="org.apache.axis2.context.ConfigurationContext"%>
+<%@ page import="org.apache.commons.lang.StringUtils" %>
 <%@ page import="org.wso2.carbon.CarbonConstants" %>
 <%@ page import="org.wso2.carbon.identity.sso.saml.stub.types.SAMLSSOServiceProviderDTO" %>
 <%@ page import="org.wso2.carbon.identity.sso.saml.ui.SAMLSSOUIConstants" %>
-<%@ page import="org.wso2.carbon.identity.sso.saml.ui.SAMLSSOUIUtil" %>
+<%@page import="org.wso2.carbon.identity.sso.saml.ui.SAMLSSOUIUtil" %>
 <%@page import="org.wso2.carbon.identity.sso.saml.ui.client.SAMLSSOConfigServiceClient" %>
-<%@page import="org.wso2.carbon.ui.CarbonUIMessage" %>
+<%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@ page import="java.util.ResourceBundle" %>
-<%@ page import="java.util.Arrays" %>
-<%@ page import="org.apache.commons.lang.StringUtils" %>
 
 <jsp:useBean id="samlSsoServuceProviderConfigBean"
              type="org.wso2.carbon.identity.sso.saml.ui.SAMLSSOProviderConfigBean"

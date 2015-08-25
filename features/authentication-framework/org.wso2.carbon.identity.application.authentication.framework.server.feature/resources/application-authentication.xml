@@ -106,14 +106,6 @@
 			</Step>
 		</Sequence>
 	</Sequences>
-
-	<ServiceProvidersManagement>
-                <ApplicationDAO>org.wso2.carbon.identity.application.mgt.dao.impl.ApplicationDAOImpl</ApplicationDAO>
-                <OAuthOIDCClientDAO>org.wso2.carbon.identity.application.mgt.dao.impl.OAuthApplicationDAOImpl</OAuthOIDCClientDAO>
-                <SAMLClientDAO>org.wso2.carbon.identity.application.mgt.dao.impl.SAMLApplicationDAOImpl</SAMLClientDAO>
-                <SystemIDPDAO>org.wso2.carbon.identity.application.mgt.dao.impl.IdentityProviderDAOImpl</SystemIDPDAO>
-                <ClaimDialect>http://wso2.org/claims</ClaimDialect>
-        </ServiceProvidersManagement>
 	
 	<!-- 
         	AuthenticationEndpointQueryParams are the request parameters 

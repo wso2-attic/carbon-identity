@@ -18,7 +18,8 @@
 package org.wso2.carbon.identity.base;
 
 /**
- * For unavoidable server errors. To reduce code cluttering due to checked exceptions
+ * Used for creating internal/server exceptions that cannot be handled.
+ * Also reduces code cluttering due to checked exceptions.
  */
 public class IdentityRuntimeException extends RuntimeException {
 

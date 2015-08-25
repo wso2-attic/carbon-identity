@@ -80,7 +80,8 @@
                     userStoreDTO.setClassName(className);
                     userStoreDTO.setProperties(propertyList.toArray(new PropertyDTO[propertyList.size()]));
 
-                    if(domain != null && domain != "") {
+                    if(domain != null && domain != "" && !domain.equalsIgnoreCase(UserAdminUIConstants.INTERNAL_DOMAIN)
+                       && !domain.equalsIgnoreCase(UserAdminUIConstants.APPLICATION_DOMAIN)) {
         	            if(previousDomain != null && previousDomain != "") {
         	                    // This is an update
         	                    if(previousDomain != domain) {

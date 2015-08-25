@@ -22,6 +22,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.core.AbstractIdentityUserOperationEventListener;
+import org.wso2.carbon.identity.core.model.IdentityErrorMsgContext;
 import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.oauth.OAuthUtil;
@@ -29,9 +30,12 @@ import org.wso2.carbon.identity.oauth2.IdentityOAuth2Exception;
 import org.wso2.carbon.identity.oauth2.dao.TokenMgtDAO;
 import org.wso2.carbon.identity.oauth2.model.AccessTokenDO;
 import org.wso2.carbon.identity.oauth2.util.OAuth2Util;
-import org.wso2.carbon.user.core.common.AbstractUserOperationEventListener;
+import org.wso2.carbon.user.core.UserCoreConstants;
+import org.wso2.carbon.user.core.UserStoreException;
+import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -65,7 +69,41 @@ public class IdentityOathEventListener extends AbstractIdentityUserOperationEven
         if (!isEnable(this.getClass().getName())) {
             return true;
         }
+        return revokeTokens(username, userStoreManager);
 
+    }
+
+    @Override
+    public boolean doPostSetUserClaimValues(String userName, Map<String, String> claims, String profileName,
+                                            UserStoreManager userStoreManager) {
+
+        if (!isEnable(this.getClass().getName())) {
+            return true;
+        }
+        return revokeTokensOfLockedUser(userName, userStoreManager);
+    }
+
+    @Override
+    public boolean doPostAuthenticate(String userName, boolean authenticated, UserStoreManager userStoreManager)
+            throws UserStoreException {
+
+        if (!isEnable(this.getClass().getName())) {
+            return true;
+        }
+        return revokeTokensOfLockedUser(userName, userStoreManager);
+    }
+
+    private boolean revokeTokensOfLockedUser(String userName, UserStoreManager userStoreManager){
+
+        IdentityErrorMsgContext errorContext = IdentityUtil.getIdentityErrorMsg();
+
+        if (errorContext != null && errorContext.getErrorCode() == UserCoreConstants.ErrorCode.USER_IS_LOCKED){
+            return revokeTokens(userName, userStoreManager);
+        }
+        return true;
+    }
+
+    private boolean revokeTokens(String username, UserStoreManager userStoreManager){
         TokenMgtDAO tokenMgtDAO = new TokenMgtDAO();
 
         String userStoreDomain = UserCoreUtil.getDomainName(userStoreManager.getRealmConfiguration());

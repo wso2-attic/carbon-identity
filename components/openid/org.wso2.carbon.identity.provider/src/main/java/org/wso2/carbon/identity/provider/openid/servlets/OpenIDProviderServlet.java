@@ -23,7 +23,6 @@ import org.openid4java.util.OpenID4JavaUtils;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.provider.openid.handlers.OpenIDHandler;
-import org.wso2.carbon.identity.provider.openid.util.OpenIDUtil;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
