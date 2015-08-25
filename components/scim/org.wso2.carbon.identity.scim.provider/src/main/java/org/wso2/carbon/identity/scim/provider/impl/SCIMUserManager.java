@@ -102,7 +102,11 @@ public class SCIMUserManager implements UserManager {
                 threadLocalSP.setBulkUserAdd(true);
             }
 
-            String userStoreName = getUserStoreDomainFromSP();
+            String userStoreName = null;
+
+            if (!UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME.equals(getUserStoreDomainFromSP())) {
+                userStoreName = getUserStoreDomainFromSP();
+            }
 
             StringBuilder userName = new StringBuilder();
 
@@ -332,8 +336,9 @@ public class SCIMUserManager implements UserManager {
                 try {
                     if (UserCoreUtil.extractDomainFromName(user.getUserName())
                                     .equals(UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME) &&
-                        getUserStoreDomainFromSP() != null) {
-                        user.setUserName(
+                        getUserStoreDomainFromSP() != null &&
+                        !UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME.equals(getUserStoreDomainFromSP())) {
+                            user.setUserName(
                                 UserCoreUtil.addDomainToName(user.getUserName(), getUserStoreDomainFromSP()));
                     }
                 } catch (IdentityApplicationManagementException e) {
@@ -500,7 +505,8 @@ public class SCIMUserManager implements UserManager {
                     if (originalName.indexOf(CarbonConstants.DOMAIN_SEPARATOR) > 0) {
                         roleNameWithDomain = originalName;
                         domainName = originalName.split(UserCoreConstants.DOMAIN_SEPARATOR)[0];
-                    } else if (getUserStoreDomainFromSP() != null) {
+                    } else if (getUserStoreDomainFromSP() != null &&
+                               !UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME.equals(getUserStoreDomainFromSP())) {
                         domainName = getUserStoreDomainFromSP();
                         roleNameWithDomain = UserCoreUtil.addDomainToName(originalName, domainName);
 
@@ -1251,7 +1257,8 @@ public class SCIMUserManager implements UserManager {
                     threadLocalSP.getServiceProviderName(), threadLocalSP.getTenantDomain());
         }
 
-        if (serviceProvider != null && serviceProvider.getInboundProvisioningConfig() != null) {
+        if (serviceProvider != null && serviceProvider.getInboundProvisioningConfig() != null &&
+            !StringUtils.isBlank(serviceProvider.getInboundProvisioningConfig().getProvisioningUserStore())) {
             return serviceProvider.getInboundProvisioningConfig().getProvisioningUserStore();
         }
         return null;
