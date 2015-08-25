@@ -29,19 +29,18 @@
 <%@ page import="org.wso2.carbon.user.mgt.ui.UserAdminClient" %>
 <%@ page import="org.wso2.carbon.user.mgt.ui.UserAdminUIConstants" %>
 <%@ page import="org.wso2.carbon.user.mgt.ui.Util" %>
+<%@ page import="org.wso2.carbon.user.mgt.workflow.ui.UserManagementWorkflowServiceClient" %>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@ page import="java.text.MessageFormat" %>
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="java.util.Arrays" %>
 <%@ page import="java.util.HashMap" %>
+<%@ page import="java.util.Iterator" %>
+<%@ page import="java.util.LinkedHashSet" %>
 <%@ page import="java.util.List" %>
 <%@ page import="java.util.Map" %>
 <%@ page import="java.util.ResourceBundle" %>
-<%@ page import="org.wso2.carbon.user.mgt.workflow.ui.UserManagementWorkflowServiceClient" %>
 <%@ page import="java.util.Set" %>
-<%@ page import="java.util.Iterator" %>
-<%@ page import="java.util.LinkedHashSet" %>
-<%@ page import="org.wso2.carbon.context.CarbonContext" %>
 <script type="text/javascript" src="../userstore/extensions/js/vui.js"></script>
 <script type="text/javascript" src="../admin/js/main.js"></script>
 
@@ -426,9 +425,17 @@
                     <td>
 
                         <%
-                            if (userRealmInfo.getAdminUser().equals(Util.decodeHTMLCharacters(userName)) &&
-                                    !userRealmInfo.getAdminUser().equals(currentUser)) {
-                                continue;
+                            if (userRealmInfo.getAdminUser().equals(Util.decodeHTMLCharacters(userName))) {
+                                if (Util.getUserStoreInfoForUser(Util.decodeHTMLCharacters(currentUser),
+                                        userRealmInfo).getCaseSensitiveUsername()) {
+                                    if (!userRealmInfo.getAdminUser().equals(currentUser)) {
+                                        continue;
+                                    }
+                                } else {
+                                    if (!userRealmInfo.getAdminUser().equalsIgnoreCase(currentUser)) {
+                                        continue;
+                                    }
+                                }
                             }
                         %>
                         <%
