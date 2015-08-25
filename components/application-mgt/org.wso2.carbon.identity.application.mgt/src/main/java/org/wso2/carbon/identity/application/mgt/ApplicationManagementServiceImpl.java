@@ -454,7 +454,9 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
                 claimUris.add(claimMap.getClaim().getClaimUri());
             }
             String[] allLocalClaimUris = (claimUris.toArray(new String[claimUris.size()]));
-            Arrays.sort(allLocalClaimUris);
+            if (ArrayUtils.isNotEmpty(allLocalClaimUris)) {
+                Arrays.sort(allLocalClaimUris);
+            }
             return allLocalClaimUris;
         } catch (Exception e) {
             String error = "Error while reading system claims";
