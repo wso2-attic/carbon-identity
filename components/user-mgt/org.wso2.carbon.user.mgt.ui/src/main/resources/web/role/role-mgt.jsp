@@ -223,7 +223,7 @@
                         if (flaggedName == null) {
                             continue;
                         }
-                        String roleName = CharacterEncoder.getSafeText(flaggedName.getItemName());
+                        String roleName = flaggedName.getItemName();
                         if (workFlowDeletePendingRoles.contains(roleName)) {
                             showDeletePendingRoles.add(flaggedName);
                             iterator.remove();
@@ -402,29 +402,31 @@
                     <td>
                         <%if (!flaggedName.getShared()) { %>
                         <% if (flaggedName.getItemName().equals(userRealmInfo.getAdminRole()) == false && flaggedName.getItemName().equals(userRealmInfo.getEveryOneRole()) == false && !flaggedName.getItemName().startsWith(UserAdminUIConstants.APPLICATION_DOMAIN) && flaggedName.getEditable()) {%>
-                        <a href="#" onclick="updateUserGroup('<%=roleName%>')" class="icon-link"
+                        <a href="#" onclick="updateUserGroup('<%=Encode.forJavaScriptAttribute(roleName)%>')"
+                           class="icon-link"
                            style="background-image:url(images/edit.gif);"><fmt:message key="rename"/></a>
                         <% } %>
                         <% if (!flaggedName.getItemName().equals(userRealmInfo.getAdminRole())) {%>
-                        <a href="edit-permissions.jsp?roleName=<%=roleName%>" class="icon-link"
+                        <a href="edit-permissions.jsp?roleName=<%=Encode.forUriComponent(roleName)%>" class="icon-link"
                            style="background-image:url(images/edit.gif);"><fmt:message key="edit.permissions"/></a>
                         <% }
                         }%>
 
                         <% if (!userRealmInfo.getEveryOneRole().equals(flaggedName.getItemName()) && flaggedName.getEditable()) { %>
-                        <a href="edit-users.jsp?roleName=<%=roleName%>&<%=UserAdminUIConstants.ROLE_READ_ONLY%>=<%=!flaggedName.getEditable()%>"
+                        <a href="edit-users.jsp?roleName=<%=Encode.forUriComponent(roleName)%>&<%=UserAdminUIConstants.ROLE_READ_ONLY%>=<%=!flaggedName.getEditable()%>"
                            class="icon-link" style="background-image:url(images/edit.gif);"><fmt:message
                                 key="edit.users"/></a>
                         <% } %>
                         <% if (!userRealmInfo.getEveryOneRole().equals(flaggedName.getItemName())) { %>
-                        <a href="view-users.jsp?roleName=<%=roleName%>&<%=UserAdminUIConstants.ROLE_READ_ONLY%>=<%=!flaggedName.getEditable()%>"
+                        <a href="view-users.jsp?roleName=<%=Encode.forUriComponent(roleName)%>&<%=UserAdminUIConstants.ROLE_READ_ONLY%>=<%=!flaggedName.getEditable()%>"
                            class="icon-link" style="background-image:url(images/view.gif);"><fmt:message
                                 key="view.users"/></a>
                         <% } %>
                         <%if (!flaggedName.getShared()) { %>
 
                         <% if (flaggedName.getItemName().equals(userRealmInfo.getAdminRole()) == false && flaggedName.getItemName().equals(userRealmInfo.getEveryOneRole()) == false && !flaggedName.getItemName().startsWith(UserAdminUIConstants.APPLICATION_DOMAIN) && flaggedName.getEditable()) {%>
-                        <a href="#" onclick="deleteUserGroup('<%=roleName%>')" class="icon-link"
+                        <a href="#" onclick="deleteUserGroup('<%=Encode.forJavaScriptAttribute(roleName)%>')"
+                           class="icon-link"
                            style="background-image:url(images/delete.gif);"><fmt:message key="delete"/></a>
                         <% }
                         } %>
@@ -450,15 +452,15 @@
                                         !userRealmInfo.getAdminUser().equals(currentUser)) {
                                     continue;
                                 }
-                                String roleName = CharacterEncoder.getSafeText(flaggedName.getItemName());
-                                String disPlayName = CharacterEncoder.getSafeText(flaggedName.getItemDisplayName());
+                                String roleName = flaggedName.getItemName();
+                                String disPlayName = flaggedName.getItemDisplayName();
                                 if (disPlayName == null) {
                                     disPlayName = roleName;
                                 }
                                 String disPlayRoleName = disPlayName + " " + "[Pending Roles for Delete]";
                 %>
                 <tr>
-                    <td><%=disPlayRoleName%>
+                    <td><%=Encode.forHtml(disPlayRoleName)%>
                         <%if (!flaggedName.getEditable()) { %> <%="(Read-Only)"%> <% } %>
                     </td>
                         <%-- <%if(hasMultipleUserStores){%>
@@ -475,18 +477,18 @@
                            style="background-image:url(images/edit.gif);"><fmt:message key="rename"/></a>
                         <% } %>
                         <% if (!flaggedName.getItemName().equals(userRealmInfo.getAdminRole())) {%>
-                        <a href="edit-permissions.jsp?roleName=<%=roleName%>" class="icon-link"
+                        <a href="edit-permissions.jsp?roleName=<%=Encode.forUriComponent(roleName)%>" class="icon-link"
                            style="background-image:url(images/edit.gif);"><fmt:message key="edit.permissions"/></a>
                         <% }
                         }%>
 
                         <% if (!userRealmInfo.getEveryOneRole().equals(flaggedName.getItemName()) && flaggedName.getEditable()) { %>
-                        <a href="edit-users.jsp?roleName=<%=roleName%>&<%=UserAdminUIConstants.ROLE_READ_ONLY%>=<%=!flaggedName.getEditable()%>"
+                        <a href="edit-users.jsp?roleName=<%=Encode.forUriComponent(roleName)%>&<%=UserAdminUIConstants.ROLE_READ_ONLY%>=<%=!flaggedName.getEditable()%>"
                            class="icon-link" style="background-image:url(images/edit.gif);"><fmt:message
                                 key="edit.users"/></a>
                         <% } %>
                         <% if (!userRealmInfo.getEveryOneRole().equals(flaggedName.getItemName())) { %>
-                        <a href="view-users.jsp?roleName=<%=roleName%>&<%=UserAdminUIConstants.ROLE_READ_ONLY%>=<%=!flaggedName.getEditable()%>"
+                        <a href="view-users.jsp?roleName=<%=Encode.forUriComponent(roleName)%>&<%=UserAdminUIConstants.ROLE_READ_ONLY%>=<%=!flaggedName.getEditable()%>"
                            class="icon-link" style="background-image:url(images/view.gif);"><fmt:message
                                 key="view.users"/></a>
                         <% } %>
@@ -511,10 +513,10 @@
                                 String disPlayName = role + " " + "[Pending Roles for Add]";
                 %>
                 <tr>
-                    <td><%=disPlayName%>
+                    <td><%=Encode.forHtml(disPlayName)%>
                     </td>
                     <td>
-                        <%=inActiveRolesMessage%>
+                        <%=Encode.forHtml(inActiveRolesMessage)%>
                     </td>
                 </tr>
                 <%

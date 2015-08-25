@@ -41,6 +41,7 @@
 <%@ page import="java.util.Map" %>
 <%@ page import="java.util.ResourceBundle" %>
 <%@ page import="java.util.Set" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 <script type="text/javascript" src="../userstore/extensions/js/vui.js"></script>
 <script type="text/javascript" src="../admin/js/main.js"></script>
 
@@ -247,7 +248,7 @@
                     if (flaggedName == null) {
                         continue;
                     }
-                    String userName = CharacterEncoder.getSafeText(flaggedName.getItemName());
+                    String userName = flaggedName.getItemName();
                     if (workFlowDeletePendingUsers.contains(userName)) {
                         showDeletePendingUsers.add(flaggedName);
                         iterator.remove();
@@ -508,7 +509,7 @@
                                     && CarbonUIUtil.isUserAuthorized(request,
                                     "/permission/admin/configure/security/usermgt/profiles")) {
                         %>
-                        <a href="../userprofile/index.jsp?username=<%=java.net.URLEncoder.encode(userName,"UTF-8")%>&disPlayName=<%=java.net.URLEncoder.encode(disPlayName,"UTF-8")%>&fromUserMgt=true"
+                        <a href="../userprofile/index.jsp?username=<%=Encode.forUriComponent(userName)%>&disPlayName=<%=Encode.forUriComponent(disPlayName)%>&fromUserMgt=true"
                            class="icon-link"
                            style="background-image:url(../userprofile/images/my-prof.gif);">User
                             Profile</a>
@@ -532,15 +533,15 @@
                                 if (flaggedName.getItemName().equals(CarbonConstants.REGISTRY_ANONNYMOUS_USERNAME)) {
                                     continue;
                                 }
-                                String userName = CharacterEncoder.getSafeText(flaggedName.getItemName());
-                                String disPlayName = CharacterEncoder.getSafeText(flaggedName.getItemDisplayName()) +
+                                String userName = flaggedName.getItemName();
+                                String disPlayName = flaggedName.getItemDisplayName() +
                                         " " + "[Pending Users for Delete]";
                                 if (disPlayName == null || disPlayName.trim().length() == 0) {
                                     disPlayName = userName;
                                 }
                 %>
                 <tr>
-                    <td><%=disPlayName%>
+                    <td><%=Encode.forHtml(disPlayName)%>
                         <%if (!flaggedName.getEditable()) { %> <%="(Read-Only)"%> <% } %>
                     </td>
                     <td>
@@ -566,7 +567,7 @@
                         } else {
                         %>
 
-                        <a href="change-passwd.jsp?username=<%=java.net.URLEncoder.encode(userName,"UTF-8")%>&disPlayName=<%=java.net.URLEncoder.encode(disPlayName,"UTF-8")%>"
+                        <a href="change-passwd.jsp?username=<%=Encode.forUriComponent(userName)%>&disPlayName=<%=Encode.forUriComponent(disPlayName)%>"
                            class="icon-link"
                            style="background-image:url(../admin/images/edit.gif);"><fmt:message
                                 key="change.password"/></a>
@@ -578,8 +579,7 @@
                         <%
                             if (CarbonUIUtil.isUserAuthorized(request, "/permission/admin/configure/security")) {
                         %>
-                        <a href="edit-user-roles.jsp?username=<%=
-                        java.net.URLEncoder.encode(userName,"UTF-8")%>&disPlayName=<%=java.net.URLEncoder.encode(disPlayName,"UTF-8")%>"
+                        <a href="edit-user-roles.jsp?username=<%=Encode.forUriComponent(userName)%>&disPlayName=<%=Encode.forUriComponent(disPlayName)%>"
                            class="icon-link"
                            style="background-image:url(../admin/images/edit.gif);"><fmt:message
                                 key="edit.roles"/></a>
@@ -590,7 +590,7 @@
                         <%
                             if (CarbonUIUtil.isUserAuthorized(request, "/permission/admin/configure/security")) {
                         %>
-                        <a href="view-roles.jsp?username=<%=java.net.URLEncoder.encode(userName,"UTF-8")%>&disPlayName=<%=java.net.URLEncoder.encode(disPlayName,"UTF-8")%>"
+                        <a href="view-roles.jsp?username=<%=Encode.forUriComponent(userName)%>&disPlayName=<%=Encode.forUriComponent(disPlayName)%>"
                            class="icon-link"
                            style="background-image:url(images/view.gif);"><fmt:message
                                 key="view.roles"/></a>
@@ -602,7 +602,7 @@
                             if (CarbonUIUtil.isContextRegistered(config, "/identity-authorization/") &&
                                     CarbonUIUtil.isUserAuthorized(request, "/permission/admin/configure/security/")) {
                         %>
-                        <a href="../identity-authorization/permission-root.jsp?userName=<%=java.net.URLEncoder.encode(userName,"UTF-8")%>&fromUserMgt=true"
+                        <a href="../identity-authorization/permission-root.jsp?userName=<%=Encode.forUriComponent(userName)%>&fromUserMgt=true"
                            class="icon-link"
                            style="background-image:url(../admin/images/edit.gif);"><fmt:message
                                 key="authorization"/></a>
@@ -642,10 +642,10 @@
                                 String disPlayName = user + " " + "[Pending Users for Add]";
                 %>
                 <tr>
-                    <td><%=disPlayName%>
+                    <td><%=Encode.forHtml(disPlayName)%>
                     </td>
                     <td>
-                        <%=inActiveUserMessage%>
+                        <%=Encode.forHtml(inActiveUserMessage)%>
                     </td>
                 </tr>
                 <%
