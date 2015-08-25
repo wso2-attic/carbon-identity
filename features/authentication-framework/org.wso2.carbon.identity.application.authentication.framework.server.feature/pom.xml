@@ -40,7 +40,7 @@
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon.identity</groupId>
-            <artifactId>org.wso2.carbon.identity.application.common</artifactId>
+            <artifactId>org.wso2.carbon.identity.application.authentication.endpoint.util</artifactId>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon.identity</groupId>
@@ -122,12 +122,14 @@
                                 <bundleDef>
                                     org.wso2.carbon.identity:org.wso2.carbon.identity.application.authentication.framework
                                 </bundleDef>
-                                <bundleDef>org.wso2.carbon.identity:org.wso2.carbon.identity.application.common
+                                <bundleDef>
+                                    org.wso2.carbon.identity:org.wso2.carbon.identity.application.authentication.endpoint.util
                                 </bundleDef>
                             </bundles>
                             <importFeatures>
                                 <importFeatureDef>org.wso2.carbon.core:${carbon.kernel.version}</importFeatureDef>
                                 <importFeatureDef>org.wso2.carbon.tenant.mgt.common.server:${carbon.commons.version}</importFeatureDef>
+                                <importFeatureDef>org.wso2.carbon.identity.core.server:${carbon.identity.version}</importFeatureDef>
                                 <importFeatureDef>org.wso2.carbon.claim.mgt:${carbon.identity.version}</importFeatureDef>
                                 <importFeatureDef>org.wso2.carbon.identity.application.mgt.server:${carbon.identity.version}</importFeatureDef>
                                 <importFeatureDef>org.wso2.carbon.identity.user.profile.server:${carbon.identity.version}</importFeatureDef>
@@ -137,7 +139,6 @@
                     </execution>
                 </executions>
             </plugin>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>

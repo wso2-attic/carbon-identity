@@ -79,7 +79,10 @@ import org.opensaml.xml.util.XMLHelper;
 import org.opensaml.xml.validation.ValidationException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.wso2.carbon.base.MultitenantConstants;
+import org.wso2.carbon.identity.application.authentication.framework.config.builder.FileBasedConfigurationBuilder;
 import org.wso2.carbon.identity.application.authentication.framework.context.AuthenticationContext;
+import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkConstants;
 import org.wso2.carbon.identity.application.authenticator.samlsso.exception.SAMLSSOException;
 import org.wso2.carbon.identity.application.authenticator.samlsso.util.CarbonEntityResolver;
 import org.wso2.carbon.identity.application.authenticator.samlsso.util.SSOConstants;
@@ -87,7 +90,7 @@ import org.wso2.carbon.identity.application.authenticator.samlsso.util.SSOUtils;
 import org.wso2.carbon.identity.application.common.model.ClaimMapping;
 import org.wso2.carbon.identity.application.common.model.IdentityProvider;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
-import org.wso2.carbon.ui.CarbonUIUtil;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.xml.sax.SAXException;
 
 import javax.crypto.SecretKey;
@@ -114,6 +117,7 @@ public class DefaultSAML2SSOManager implements SAML2SSOManager {
     private static final String SECURITY_MANAGER_PROPERTY = Constants.XERCES_PROPERTY_PREFIX +
             Constants.SECURITY_MANAGER_PROPERTY;
     private static final int ENTITY_EXPANSION_LIMIT = 0;
+    private static final String SIGN_AUTH2_SAML_USING_SUPER_TENANT = "SignAuth2SAMLUsingSuperTenant";
     private static Log log = LogFactory.getLog(DefaultSAML2SSOManager.class);
     private static boolean bootStrapped = false;
     private IdentityProvider identityProvider = null;
@@ -183,6 +187,7 @@ public class DefaultSAML2SSOManager implements SAML2SSOManager {
             requestMessage = buildLogoutRequest(username, sessionIndex, loginPage, nameQualifier, spNameQualifier);
         }
         String idpUrl = null;
+        boolean isSignAuth2SAMLUsingSuperTenant = false;
 
         String encodedRequestMessage = encodeRequestMessage(requestMessage);
         StringBuilder httpQueryString = new StringBuilder("SAMLRequest=" + encodedRequestMessage);
@@ -194,9 +199,18 @@ public class DefaultSAML2SSOManager implements SAML2SSOManager {
         }
 
         if (SSOUtils.isAuthnRequestSigned(properties)) {
-            SSOUtils.addSignatureToHTTPQueryString(context.getTenantDomain(), httpQueryString);
+            Map<String, String> parameterMap = FileBasedConfigurationBuilder.getInstance()
+                    .getAuthenticatorBean(SSOConstants.AUTHENTICATOR_NAME).getParameterMap();
+            if (parameterMap.size() > 0) {
+                isSignAuth2SAMLUsingSuperTenant = Boolean.parseBoolean(parameterMap.
+                        get(SIGN_AUTH2_SAML_USING_SUPER_TENANT));
+            }
+            if (isSignAuth2SAMLUsingSuperTenant) {
+                SSOUtils.addSignatureToHTTPQueryString(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME, httpQueryString);
+            } else {
+                SSOUtils.addSignatureToHTTPQueryString(context.getTenantDomain(), httpQueryString);
+            }
         }
-
         if (loginPage.indexOf("?") > -1) {
             idpUrl = loginPage.concat("&").concat(httpQueryString.toString());
         } else {
@@ -489,8 +503,7 @@ public class DefaultSAML2SSOManager implements SAML2SSOManager {
         authRequest.setIssueInstant(issueInstant);
         authRequest.setProtocolBinding("urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST");
 
-        String acsUrl = CarbonUIUtil.getAdminConsoleURL(request);
-        acsUrl = acsUrl.replace("commonauth/carbon/", "commonauth");
+        String acsUrl =  IdentityUtil.getServerURL(FrameworkConstants.COMMONAUTH);
 
         authRequest.setAssertionConsumerServiceURL(acsUrl);
         authRequest.setIssuer(issuer);

@@ -53,6 +53,14 @@
             <artifactId>org.wso2.carbon.user.mgt.stub</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.wso2.carbon.identity</groupId>
+            <artifactId>org.wso2.carbon.user.mgt.workflow.ui</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.wso2.orbit.org.owasp.encoder</groupId>
             <artifactId>encoder</artifactId>
         </dependency>
@@ -90,6 +98,7 @@
                             org.wso2.carbon.userstore.ui.*
                          </Export-Package>
                          <Carbon-Component>UIBundle</Carbon-Component>
+                         <DynamicImport-Package>*</DynamicImport-Package>
                      </instructions>
                 </configuration>
             </plugin>

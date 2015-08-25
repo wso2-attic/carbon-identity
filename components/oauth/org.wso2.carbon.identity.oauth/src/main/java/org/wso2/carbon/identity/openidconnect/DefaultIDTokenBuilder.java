@@ -83,8 +83,12 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
     private static final String SHA256_WITH_EC = "SHA256withEC";
     private static final String SHA384_WITH_EC = "SHA384withEC";
     private static final String SHA512_WITH_EC = "SHA512withEC";
+    private static final String SHA256 = "SHA-256";
+    private static final String SHA384 = "SHA-384";
+    private static final String SHA512 = "SHA-512";
     private static final String AUTHORIZATION_CODE = "AuthorizationCode";
     private static final String INBOUND_AUTH2_TYPE = "oauth2";
+
     private static final Log log = LogFactory.getLog(DefaultIDTokenBuilder.class);
     private static Map<Integer, Key> privateKeys = new ConcurrentHashMap<>();
     private OAuthServerConfiguration config = null;
@@ -164,23 +168,30 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
         // Get access token issued time
         long accessTokenIssuedTime = getAccessTokenIssuedTime(tokenRespDTO.getAccessToken(), request) / 1000;
 
-        String digAlg = null;
+        String atHash = null;
         if(!JWSAlgorithm.NONE.getName().equals(signatureAlgorithm.getName())){
-            digAlg = mapDigestAlgorithm(signatureAlgorithm);
+            String digAlg = mapDigestAlgorithm(signatureAlgorithm);
+            MessageDigest md;
+            try {
+                md = MessageDigest.getInstance(digAlg);
+            } catch (NoSuchAlgorithmException e) {
+                throw new IdentityOAuth2Exception("Invalid Algorithm : " + digAlg);
+            }
+            md.update(tokenRespDTO.getAccessToken().getBytes(Charsets.UTF_8));
+            byte[] digest = md.digest();
+            int leftHalfBytes = 16;
+            if(SHA384.equals(digAlg)){
+                leftHalfBytes = 24;
+            } else if(SHA512.equals(digAlg)){
+                leftHalfBytes = 32;
+            }
+            byte[] leftmost = new byte[leftHalfBytes];
+            for (int i = 0; i < leftHalfBytes; i++){
+                leftmost[i]=digest[i];
+            }
+            atHash = new String(Base64.encodeBase64URLSafe(leftmost), Charsets.UTF_8);
         }
-        MessageDigest md;
-        try {
-            md = MessageDigest.getInstance(digAlg);
-        } catch (NoSuchAlgorithmException e) {
-            throw new IdentityOAuth2Exception("Invalid Algorithm : " + digAlg);
-        }
-        md.update(tokenRespDTO.getAccessToken().getBytes(Charsets.UTF_8));
-        byte[] digest = md.digest();
-        byte[] leftmost = new byte[16];
-        for (int i = 0; i < 16; i++){
-            leftmost[i]=digest[i];
-        }
-        String atHash = new String(Base64.encodeBase64URLSafe(leftmost), Charsets.UTF_8);
+
 
         if (log.isDebugEnabled()) {
             StringBuilder stringBuilder = (new StringBuilder())
@@ -200,7 +211,10 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
                         .setAudience(request.getOauth2AccessTokenReqDTO().getClientId())
                         .setAuthorizedParty(request.getOauth2AccessTokenReqDTO().getClientId())
                         .setExpiration(curTime + lifetime).setAuthTime(accessTokenIssuedTime)
-                        .setAtHash(atHash).setIssuedAt(curTime);
+                        .setIssuedAt(curTime);
+        if(atHash != null){
+            builder.setAtHash(atHash);
+        }
         if (nonceValue != null) {
             builder.setNonce(nonceValue);
         }
@@ -405,13 +419,13 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
 
         if (JWSAlgorithm.RS256.equals(signatureAlgorithm) || JWSAlgorithm.HS256.equals(signatureAlgorithm) ||
             JWSAlgorithm.ES256.equals(signatureAlgorithm)) {
-            return "SHA-256";
+            return SHA256;
         } else if (JWSAlgorithm.RS384.equals(signatureAlgorithm) || JWSAlgorithm.HS384.equals(signatureAlgorithm) ||
                    JWSAlgorithm.ES384.equals(signatureAlgorithm)) {
-            return "SHA-384";
+            return SHA384;
         } else if (JWSAlgorithm.RS512.equals(signatureAlgorithm) || JWSAlgorithm.HS512.equals(signatureAlgorithm) ||
                    JWSAlgorithm.ES512.equals(signatureAlgorithm)) {
-            return "SHA-512";
+            return SHA512;
         }
         throw new RuntimeException("Cannot map Signature Algorithm in identity.xml to hashing algorithm");
     }

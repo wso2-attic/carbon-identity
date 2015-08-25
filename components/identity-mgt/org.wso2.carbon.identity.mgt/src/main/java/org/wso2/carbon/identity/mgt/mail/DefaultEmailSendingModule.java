@@ -80,8 +80,7 @@ public class DefaultEmailSendingModule extends AbstractEmailSendingModule {
             if (notificationData != null) {
                 String tenantDomain = notificationData.getDomainName();
                 PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
-                carbonContext.setTenantDomain(tenantDomain);
-                carbonContext.getTenantId(true);
+                carbonContext.setTenantDomain(tenantDomain, true);
             } else {
                 if (log.isDebugEnabled()) {
                     log.debug("notification data not found. Tenant might not be loaded correctly");

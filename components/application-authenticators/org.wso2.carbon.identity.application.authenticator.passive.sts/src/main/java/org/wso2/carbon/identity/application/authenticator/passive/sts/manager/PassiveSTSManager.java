@@ -41,6 +41,7 @@ import org.w3c.dom.NodeList;
 import org.wso2.carbon.identity.application.authentication.framework.config.model.ExternalIdPConfig;
 import org.wso2.carbon.identity.application.authentication.framework.context.AuthenticationContext;
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticatedUser;
+import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkConstants;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkUtils;
 import org.wso2.carbon.identity.application.authenticator.passive.sts.exception.PassiveSTSException;
 import org.wso2.carbon.identity.application.authenticator.passive.sts.util.CarbonEntityResolver;
@@ -48,7 +49,7 @@ import org.wso2.carbon.identity.application.authenticator.passive.sts.util.Passi
 import org.wso2.carbon.identity.application.common.model.Claim;
 import org.wso2.carbon.identity.application.common.model.ClaimMapping;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
-import org.wso2.carbon.ui.CarbonUIUtil;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.xml.sax.SAXException;
 
 import javax.servlet.http.HttpServletRequest;
@@ -119,8 +120,7 @@ public class PassiveSTSManager {
                                String contextIdentifier, Map<String, String> authenticationProperties)
             throws PassiveSTSException {
 
-        String replyUrl = CarbonUIUtil.getAdminConsoleURL(request);
-        replyUrl = replyUrl.replace("commonauth/carbon/", "commonauth");
+        String replyUrl = IdentityUtil.getServerURL(FrameworkConstants.COMMONAUTH);
         String action = "wsignin1.0";
         String realm = authenticationProperties.get(PassiveSTSConstants.REALM_ID);
         String redirectUrl = loginPage + "?wa=" + action + "&wreply=" + replyUrl + "&wtrealm=" + realm;

@@ -16,7 +16,7 @@
   ~ under the License.
   -->
 
-<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:ns1="http://org.apache.axis2/xsd" xmlns:ns="http://manager.server.directory.carbon.wso2.org" xmlns:ax222="http://manager.server.directory.carbon.wso2.org/xsd" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:ax224="http://common.manager.server.directory.carbon.wso2.org/xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://manager.server.directory.carbon.wso2.org">
+<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:ns="http://manager.server.directory.carbon.wso2.org" xmlns:ax222="http://manager.server.directory.carbon.wso2.org/xsd" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:ax224="http://common.manager.server.directory.carbon.wso2.org/xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://manager.server.directory.carbon.wso2.org">
     <wsdl:documentation>DirectoryServerManager</wsdl:documentation>
     <wsdl:types>
         <xs:schema attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://manager.server.directory.carbon.wso2.org/xsd">
@@ -34,7 +34,8 @@
                 </xs:sequence>
             </xs:complexType>
         </xs:schema>
-        <xs:schema xmlns:ax223="http://manager.server.directory.carbon.wso2.org/xsd" xmlns:ax225="http://common.manager.server.directory.carbon.wso2.org/xsd" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://manager.server.directory.carbon.wso2.org">
+        <xs:schema attributeFormDefault="qualified" elementFormDefault="qualified"
+                   targetNamespace="http://manager.server.directory.carbon.wso2.org">
 
             <xs:import namespace="http://manager.server.directory.carbon.wso2.org/xsd" />
             <xs:import namespace="http://common.manager.server.directory.carbon.wso2.org/xsd" />

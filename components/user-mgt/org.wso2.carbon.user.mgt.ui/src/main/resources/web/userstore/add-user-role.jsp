@@ -24,7 +24,7 @@
 <%@page import="org.wso2.carbon.ui.CarbonUIUtil" %>
 <%@ page import="org.wso2.carbon.user.mgt.stub.types.carbon.UserRealmInfo" %>
 
-<%@ page import="org.wso2.carbon.user.mgt.ui.UserAdminClient" %>
+<%@page import="org.wso2.carbon.user.mgt.ui.UserAdminClient" %>
 <%@ page import="org.wso2.carbon.user.mgt.ui.UserAdminUIConstants" %>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 <script type="text/javascript" src="extensions/core/js/vui.js"></script>
