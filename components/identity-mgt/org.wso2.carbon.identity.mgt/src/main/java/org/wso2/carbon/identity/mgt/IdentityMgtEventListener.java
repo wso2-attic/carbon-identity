@@ -754,6 +754,11 @@ public class IdentityMgtEventListener extends AbstractIdentityUserOperationEvent
                 random.nextBytes(bytes);
                 saltValue = Base64.encode(bytes);
                 userIdentityDTO.setSaltValue(saltValue);
+                try {
+                    module.store(userIdentityDTO, userStoreManager);
+                } catch (IdentityException e) {
+                    throw new UserStoreException("Error in storing user data", e);
+                }
             }
             String encryptedPassword = null;
             try {

@@ -399,7 +399,7 @@ public class Utils {
 
             return password;
         } catch (NoSuchAlgorithmException e) {
-            throw new org.wso2.carbon.user.core.UserStoreException(e.getMessage(), e);
+            throw new UserStoreException(e.getMessage(), e);
         }
     }
 }
