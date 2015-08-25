@@ -37,6 +37,7 @@
 <%@ page import="java.util.List" %>
 <%@ page import="java.util.Map" %>
 <%@ page import="java.util.ResourceBundle" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 
 <%
     String isAJAXRequest = request.getParameter("ajax");
@@ -274,8 +275,8 @@
 
 <script>
 
-    var navigatorHolder = '<%=navigatorHolder%>';
-    var resultHolder = '<%=resultHolder%>';
+    var navigatorHolder = '<%=Encode.forJavaScript(navigatorHolder)%>';
+    var resultHolder = '<%=Encode.forJavaScript(resultHolder)%>';
 
     function search(pageNumber){
         if(!pageNumber){
@@ -307,7 +308,7 @@
         registerNavigateEvent = registerNavigateParam ;
     }
 
-    var registerGetSelectedItem = <%= functionForGetAllItems %> ;
+    var registerGetSelectedItem = <%= Encode.forJavaScript(functionForGetAllItems) %> ;
 
 
 
@@ -574,11 +575,14 @@
                             for(String domainName : domainNames) {
                                 if(selectedDomain.equals(domainName)) {
                         %>
-                            <option selected="selected" value="<%=domainName%>"><%=domainName%></option>
+                        <option selected="selected" value="<%=Encode.forHtmlAttribute(domainName)%>"><%=Encode
+                                .forHtmlContent(domainName)%>
+                        </option>
                         <%
                                 } else {
                         %>
-                            <option value="<%=domainName%>"><%=domainName%></option>
+                        <option value="<%=Encode.forHtmlAttribute(domainName)%>"><%=Encode.forHtmlContent(domainName)%>
+                        </option>
                         <%
                                 }
                             }
@@ -594,7 +598,7 @@
                         <td class="leftCol-big" style="padding-right: 0 !important;"><fmt:message key="list.users"/></td>
                         <td>
                             <input type="text" name="<%=UserAdminUIConstants.USER_LIST_FILTER%>"
-                                   value="<%=filter%>"/>
+                                   value="<%=Encode.forHtmlAttribute(filter)%>"/>
                       
                             <input onclick="search();" class="button" type="button"
                                    value="<fmt:message key="user.search"/>"/>
@@ -610,11 +614,15 @@
                                     for(String claim : claimUris) {
                                         if(claimUri != null && claim.equals(claimUri)) {
                             %>
-                                    <option selected="selected" value="<%=claim%>"><%=claim%></option>
+                                            <option selected="selected" value="<%=Encode.forHtmlAttribute(claim)%>">
+                                                <%=Encode.forHtmlContent(claim)%>
+                                            </option>
                             <%
                                         } else {
                             %>
-                                    <option value="<%=claim%>"><%=claim%></option>
+                                            <option value="<%=Encode.forHtmlAttribute(claim)%>">
+                                                <%=Encode.forHtmlContent(claim)%>
+                                            </option>
                             <%
                                         }
                                     }

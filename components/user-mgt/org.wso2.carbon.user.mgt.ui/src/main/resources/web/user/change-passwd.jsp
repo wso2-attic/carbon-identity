@@ -46,7 +46,7 @@
         returnPath = request.getParameter("returnPath");
         cancelPath = returnPath;
     } else {
-        username = CharacterEncoder.getSafeText(request.getParameter("username"));
+        username = request.getParameter("username");
         cancelPath = "user-mgt.jsp?ordinal=1";
     }
     

@@ -98,7 +98,6 @@
                             org.wso2.carbon.userstore.ui.*
                          </Export-Package>
                          <Carbon-Component>UIBundle</Carbon-Component>
-                         <DynamicImport-Package>*</DynamicImport-Package>
                      </instructions>
                 </configuration>
             </plugin>
