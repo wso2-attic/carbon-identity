@@ -543,7 +543,7 @@ public class UserRealmProxy {
                 userRealmInfo.setEveryOneRole(realmConfig.getEveryOneRoleName());
                 ClaimMapping[] defaultClaims = realm.getClaimManager().
                         getAllClaimMappings(UserCoreConstants.DEFAULT_CARBON_DIALECT);
-
+                Arrays.sort(defaultClaims, new ClaimMappingsComparator());
                 List<String> fullClaimList = new ArrayList<String>();
                 List<String> requiredClaimsList = new ArrayList<String>();
                 List<String> defaultClaimList = new ArrayList<String>();
@@ -2268,5 +2268,15 @@ public class UserRealmProxy {
         System.arraycopy(o2, 0, ret, o1.length, o2.length);
 
         return ret;
+    }
+
+    public class ClaimMappingsComparator implements Comparator<ClaimMapping> {
+
+        @Override
+        public int compare(ClaimMapping o1, ClaimMapping o2) {
+            ClaimMapping dto1 = (ClaimMapping) o1;
+            ClaimMapping dto2 = (ClaimMapping) o2;
+            return dto1.getClaim().getClaimUri().compareTo(dto2.getClaim().getClaimUri());
+        }
     }
 }

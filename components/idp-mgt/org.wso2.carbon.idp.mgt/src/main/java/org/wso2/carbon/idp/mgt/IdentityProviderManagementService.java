@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.idp.mgt;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -190,7 +191,9 @@ public class IdentityProviderManagementService extends AbstractAdmin {
                 claimUris.add(claimMap.getClaim().getClaimUri());
             }
             String[] allLocalClaimUris = claimUris.toArray(new String[claimUris.size()]);
-            Arrays.sort(allLocalClaimUris);
+            if (ArrayUtils.isNotEmpty(allLocalClaimUris)) {
+                Arrays.sort(allLocalClaimUris);
+            }
             return allLocalClaimUris;
         } catch (Exception e) {
             String message = "Error while reading system claims";
