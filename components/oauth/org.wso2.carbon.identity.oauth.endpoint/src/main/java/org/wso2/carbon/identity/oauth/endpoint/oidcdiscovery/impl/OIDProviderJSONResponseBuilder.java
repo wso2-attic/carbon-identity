@@ -17,10 +17,9 @@
  */
 package org.wso2.carbon.identity.oauth.endpoint.oidcdiscovery.impl;
 
-import org.apache.amber.oauth2.common.utils.JSONUtils;
+import com.google.gson.Gson;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.codehaus.jettison.json.JSONException;
 import org.wso2.carbon.identity.discovery.OIDCDiscoveryEndPointException;
 import org.wso2.carbon.identity.discovery.OIDProviderConfigResponse;
 import org.wso2.carbon.identity.discovery.builders.OIDProviderResponseBuilder;
@@ -34,19 +33,7 @@ public class OIDProviderJSONResponseBuilder implements OIDProviderResponseBuilde
     public String getOIDProviderConfigString(OIDProviderConfigResponse oidProviderConfigResponse) throws
             OIDCDiscoveryEndPointException {
         Map<String, Object> configs = oidProviderConfigResponse.getConfigMap();
-        try {
-            //TODO
-            //Remove org.apache.amber.oauth2.common.utils.JSONUtils
-            return JSONUtils.buildJSON(configs);
-
-        } catch (JSONException e) {
-            if (log.isDebugEnabled()) {
-                log.debug("Error while generating the response JSON", e);
-            }
-            throw new OIDCDiscoveryEndPointException(OIDCDiscoveryEndPointException.ERROR_CODE_JSON_EXCEPTION, "Error" +
-                    " while generating the response JSON");
-        }
-
+        return new Gson().toJson(configs);
     }
 
 }

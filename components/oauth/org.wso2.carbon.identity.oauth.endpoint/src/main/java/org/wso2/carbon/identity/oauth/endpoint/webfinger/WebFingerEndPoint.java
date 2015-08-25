@@ -21,7 +21,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.base.ServerConfigurationException;
 import org.wso2.carbon.identity.oauth.endpoint.util.EndpointUtil;
-import org.wso2.carbon.identity.oauth.endpoint.webfinger.impl.JSOnResponseBuilder;
+import org.wso2.carbon.identity.oauth.endpoint.webfinger.impl.JSONResponseBuilder;
 import org.wso2.carbon.identity.webfinger.WebFingerEndPointException;
 import org.wso2.carbon.identity.webfinger.WebFingerProcessor;
 import org.wso2.carbon.identity.webfinger.builders.ResponseBuilder;
@@ -48,7 +48,7 @@ public class WebFingerEndPoint {
         WebFingerProcessor processor = EndpointUtil.getWebFingerService();
         String response;
         try {
-            ResponseBuilder responseBuilder = new JSOnResponseBuilder();
+            ResponseBuilder responseBuilder = new JSONResponseBuilder();
             response = responseBuilder.getOIDProviderIssuerString(processor.getResponse(request));
         } catch (WebFingerEndPointException e) {
             Response.ResponseBuilder errorResponse = Response.status(processor.handleError(e));
