@@ -711,7 +711,8 @@ public class IdentityMgtEventListener extends AbstractIdentityUserOperationEvent
      */
     @Override
     public boolean doPreUpdateCredential(String userName, Object newCredential,
-                                         Object oldCredential, UserStoreManager userStoreManager) throws UserStoreException {
+                                         Object oldCredential, UserStoreManager userStoreManager)
+            throws UserStoreException {
 
         if (!isEnable(this.getClass().getName())) {
             return true;
@@ -813,7 +814,8 @@ public class IdentityMgtEventListener extends AbstractIdentityUserOperationEvent
      */
     @Override
     public boolean doPreUpdateCredentialByAdmin(String userName, Object newCredential,
-                                                UserStoreManager userStoreManager) throws UserStoreException {
+                                                UserStoreManager userStoreManager)
+            throws UserStoreException {
 
         if (!isEnable(this.getClass().getName())) {
             return true;
@@ -1067,7 +1069,8 @@ public class IdentityMgtEventListener extends AbstractIdentityUserOperationEvent
     }
 
     @Override
-    public boolean doPostUpdateCredential(String userName, Object credential, UserStoreManager userStoreManager) throws UserStoreException {
+    public boolean doPostUpdateCredential(String userName, Object credential, UserStoreManager userStoreManager)
+           throws UserStoreException {
 
         return true;
     }
