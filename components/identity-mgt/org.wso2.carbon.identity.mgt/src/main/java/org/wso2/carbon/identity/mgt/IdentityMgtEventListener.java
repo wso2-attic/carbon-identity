@@ -816,8 +816,8 @@ public class IdentityMgtEventListener extends AbstractIdentityUserOperationEvent
         IdentityUtil.clearIdentityErrorMsg();
         boolean accountLocked = Boolean.parseBoolean(claims.get(UserIdentityDataStore.ACCOUNT_LOCK));
         if (accountLocked) {
-            IdentityErrorMsgContext customErrorMessageContext = new IdentityErrorMsgContext(UserCoreConstants.ErrorCode.USER_IS_LOCKED,
-                    -1, -1);
+            IdentityErrorMsgContext customErrorMessageContext = new IdentityErrorMsgContext(UserCoreConstants
+                    .ErrorCode.USER_IS_LOCKED);
             IdentityUtil.setIdentityErrorMsg(customErrorMessageContext);
         }
 
