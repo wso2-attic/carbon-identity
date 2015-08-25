@@ -20,18 +20,23 @@ package org.wso2.carbon.identity.uma.model;
 
 import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.identity.application.common.model.User;
+import org.wso2.carbon.identity.oauth2.model.AccessTokenDO;
 import org.wso2.carbon.identity.uma.beans.protection.PermissionTicketReqBean;
 
 import java.sql.Timestamp;
 
 public class PermissionTicketDO {
 
+    private AccessTokenDO accessTokenDO;
+
+    // Unique identifier of the permission ticket
     private String ticket;
 
     private String resourceId;
 
     private String[] scopes;
 
+    // attributes not specified by the spec
     private String status; // status of the permission ticket
 
     private String expirationTime;
@@ -44,6 +49,10 @@ public class PermissionTicketDO {
     private String consumerKey;
 
     private Timestamp createdTime;
+
+    private long validityPeriod;
+
+    private long validityPeriodInMillis;
 
     public PermissionTicketDO(PermissionTicketReqBean permissionTicketReqBean) {
         resourceId = permissionTicketReqBean.getResourceSetId();

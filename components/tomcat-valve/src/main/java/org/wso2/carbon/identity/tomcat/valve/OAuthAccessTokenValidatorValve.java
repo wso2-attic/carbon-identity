@@ -110,7 +110,6 @@ public class OAuthAccessTokenValidatorValve extends ValveBase{
 
                         OAuth2ClientApplicationDTO clientApplicationDTO = validateAccessToken(accessToken);
 
-
                         // set the OAuth access token validation response and the consumer key
                         // within the OAuth2ClientApplicationDTO as an attribute
                         request.setAttribute(OAUTH_VALIDATION_RESPONSE, clientApplicationDTO);

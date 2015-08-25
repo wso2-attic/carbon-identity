@@ -63,6 +63,7 @@ public class ResourceSetRegEndpoint {
         try {
             umaResponse = EndpointUtil.getUMAService().createResourceSet(umaResourceSetRegRequest);
         } catch (IdentityUMAException e) {
+            log.error("Error creating the resource",e);
             umaResponse = UmaResponse.errorResponse(HttpServletResponse.SC_BAD_REQUEST)
                     .setError(e.getMessage()).buildJSONResponse();
         }
@@ -94,39 +95,47 @@ public class ResourceSetRegEndpoint {
         try {
             umaResponse = EndpointUtil.getUMAService().getResourceSet(umaResourceSetRegRequest);
         } catch (IdentityUMAException e) {
+            log.error("Error retrieving resource ",e);
             umaResponse = UmaResponse.errorResponse(e.getErrorStatus()).setError(e.getMessage()).buildJSONResponse();
         }
 
         return EndpointUtil.buildResponse(umaResponse);
     }
 
-//    @PUT
-//    @Path("/{rsid}")
-//    @Consumes("application/json")
-//    public Response updateResourceSet
-//            (@Context HttpServletRequest httpServletRequest,
-//             ResourceSetDescriptionBean resourceSetDescriptionBean,
-//             @PathParam("rsid") String resourceSetId) {
-//
-//        try {
-//            //  Check Authorization to access the API
-//            validateAuthorization(httpServletRequest);
-//
-//        } catch (IdentityUMAException e) {
-//            // build and error message and return
-//            return EndpointUtil.buildOAuthErrorMessage(e.getMessage());
-//        }
-//
-//
-//        // create UMAResourceSetRegistration Request
-//        UmaResourceSetRegRequest umaResourceSetRegRequest =
-//                new UmaResourceSetRegRequest(httpServletRequest, resourceSetDescriptionBean);
-//        umaResourceSetRegRequest.setResourceId(resourceSetId);
-//
-//
-//        UmaResponse umaResponse = EndpointUtil.getUMAService().updateResourceSet(umaResourceSetRegRequest);
-//        return EndpointUtil.buildResponse(umaResponse);
-//    }
+    @PUT
+    @Path("/{rsid}")
+    @Consumes("application/json")
+    public Response updateResourceSet
+            (@Context HttpServletRequest httpServletRequest,
+             ResourceSetDescriptionBean resourceSetDescriptionBean,
+             @PathParam("rsid") String resourceSetId) {
+
+        try {
+            //  Check Authorization to access the API
+            validateAuthorization(httpServletRequest);
+
+        } catch (IdentityUMAException e) {
+            // build and error message and return
+            return EndpointUtil.buildOAuthErrorMessage(e.getMessage());
+        }
+
+
+        // create UMAResourceSetRegistration Request
+        UmaResourceSetRegRequest umaResourceSetRegRequest =
+                new UmaResourceSetRegRequest(httpServletRequest, resourceSetDescriptionBean);
+        umaResourceSetRegRequest.setResourceId(resourceSetId);
+
+
+        UmaResponse umaResponse = null;
+        try {
+            umaResponse = EndpointUtil.getUMAService().updateResourceSet(umaResourceSetRegRequest);
+        } catch (IdentityUMAException e) {
+            log.error("Error updating the resource ",e);
+            umaResponse = UmaResponse.errorResponse(e.getErrorStatus()).setError(e.getMessage()).buildJSONResponse();
+        }
+
+        return EndpointUtil.buildResponse(umaResponse);
+    }
 
 
     @DELETE
@@ -153,6 +162,7 @@ public class ResourceSetRegEndpoint {
         try {
             umaResponse = EndpointUtil.getUMAService().deleteResourceSet(umaResourceSetRegRequest);
         } catch (IdentityUMAException e) {
+            log.error("Error when trying delete the resource",e);
             umaResponse = UmaResponse.errorResponse(HttpServletResponse.SC_INTERNAL_SERVER_ERROR)
                     .setError(e.getMessage()).buildJSONResponse();
 
@@ -180,6 +190,7 @@ public class ResourceSetRegEndpoint {
         try {
             umaResponse = EndpointUtil.getUMAService().getResourceSetIds(umaResourceSetRegRequest);
         } catch (IdentityUMAException e) {
+            log.error("Error when listing registered resources",e);
             umaResponse = UmaResponse.errorResponse(e.getErrorStatus()).setError(e.getMessage()).buildJSONResponse();
         }
 

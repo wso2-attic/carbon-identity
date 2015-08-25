@@ -266,7 +266,7 @@ public class ResourceSetMgtDAO {
         ResultSet resultSet = null;
         List<String> resourceSetIdList = new ArrayList<>();
 
-        String sql = SQLQueries.GET_ALL_RESOURCE_SET_IDS;
+        String sql = SQLQueries.GET_RESOURCE_SET_IDS;
         if (StringUtils.isNotBlank(userStoreDomain)){
             sql = sql.replaceAll(IDN_UMA_RESOURCE_SET, IDN_UMA_RESOURCE_SET+"_"+userStoreDomain)
                     .replaceAll(IDN_OAUTH2_ACCESS_TOKEN, IDN_OAUTH2_ACCESS_TOKEN+"_"+userStoreDomain);
@@ -303,7 +303,7 @@ public class ResourceSetMgtDAO {
      * @return
      * @throws IdentityUMAException
      */
-    public ResourceSetDO retrieveResourceSet(String resourceSetId,String userStoreDomain) throws IdentityUMAException {
+    public ResourceSetDO retrieveResourceSet(String resourceSetId,String accessTokenId,String userStoreDomain) throws IdentityUMAException {
 
         Connection connection = null;
         PreparedStatement prepStmt = null;
@@ -327,6 +327,7 @@ public class ResourceSetMgtDAO {
 
             prepStmt = connection.prepareStatement(sql);
             prepStmt.setString(1,resourceSetId);
+            prepStmt.setString(2,accessTokenId);
 
             resultSet = prepStmt.executeQuery();
 
@@ -393,23 +394,24 @@ public class ResourceSetMgtDAO {
 
 
 
-    public boolean removeResourceSet(String resourceSetId, String userStoreDomain) throws IdentityUMAException {
+    public boolean removeResourceSet(String resourceSetId, String accessTokenId, String userStoreDomain) throws IdentityUMAException {
 
         Connection connection = null;
         PreparedStatement prepStmt = null;
 
-        String resourceSetTable = IDN_UMA_RESOURCE_SET;
-        if (StringUtils.isNotBlank(userStoreDomain)){
-            resourceSetTable = resourceSetTable + "_" + userStoreDomain;
-        }
+        String sql = SQLQueries.DELETE_RESOURCE_SET_BY_ID;
 
-        String sql = SQLQueries.DELETE_RESOURCE_SET_FROM_ID.replaceAll("\\$resourceSetRegTable",resourceSetTable);
+        if (StringUtils.isNotBlank(userStoreDomain)){
+            sql = sql.replaceAll(IDN_UMA_RESOURCE_SET, IDN_UMA_RESOURCE_SET+"_"+userStoreDomain)
+                    .replaceAll(IDN_OAUTH2_ACCESS_TOKEN, IDN_OAUTH2_ACCESS_TOKEN+"_"+userStoreDomain);
+        }
 
         try {
             connection = JDBCPersistenceManager.getInstance().getDBConnection();
 
             prepStmt = connection.prepareStatement(sql);
             prepStmt.setString(1, resourceSetId);
+            prepStmt.setString(2, accessTokenId);
 
             int rowsAffected = prepStmt.executeUpdate();
             connection.commit();
@@ -433,51 +435,39 @@ public class ResourceSetMgtDAO {
     }
 
 
-//    public boolean updateResourceSet
-//            (String resourceSetId,ResourceSetDO newResourceSetDO, String consumerKey, String userStoreDomain) throws IdentityUMAException {
-//
-//        Connection connection = null;
-//        PreparedStatement prepStmt = null;
-//        String sql = addUserStoreDomainToSQL(SQLQueries.UPDATE_RESOURCE_SET, userStoreDomain);
-//
-//        try {
-//            connection = JDBCPersistenceManager.getInstance().getDBConnection();
-//
-//            prepStmt = connection.prepareStatement(sql);
-//
-//            String name = newResourceSetDO.getName();
-//            String URI = newResourceSetDO.getURI();
-//            String type = newResourceSetDO.getType();
-//            String iconURI = newResourceSetDO.getIconURI();
-//            String scopes = UMAUtil.buildScopeString(newResourceSetDO.getScopes());
-//
-//            prepStmt.setString(1,name);
-//            prepStmt.setString(2,URI);
-//            prepStmt.setString(3,type);
-//            prepStmt.setString(4,iconURI);
-//            prepStmt.setString(5,scopes);
-//            prepStmt.setString(6,resourceSetId);
-//
-//            int rowsAffected = prepStmt.executeUpdate();
-//            connection.commit();
-//
-//            return rowsAffected > 0;
-//
-//        } catch (IdentityException e) {
-//
-//            throw new IdentityUMAException("Error occurred while getting Identity persistence " +
-//                    "store connection", e);
-//
-//        } catch (SQLException e) {
-//
-//            String errorMsg = "Error occurred while update resource set with ID : " +resourceSetId
-//                    + " registered with Client ID : " + consumerKey;
-//            throw new IdentityUMAException(errorMsg, e);
-//
-//        }finally {
-//            IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
-//        }
-//    }
+    /**
+     * Method to update(replace) a previously registered resourceSet with a new one
+     * @param resourceSetId
+     * @param newResourceSetDO
+     * @param userStoreDomain
+     * @return
+     * @throws IdentityUMAException
+     */
+    public boolean updateResourceSet
+            (String resourceSetId,ResourceSetDO newResourceSetDO, String userStoreDomain) throws IdentityUMAException {
+
+        boolean isUpdateSuccessful = false;
+        try {
+            String accessTokenId = newResourceSetDO.getTokenId();
+            // delete the old resource set
+            boolean isDeleteSuccess = removeResourceSet(resourceSetId,accessTokenId,userStoreDomain);
+
+            // if the delete is successful the resourceSet existed and the user trying to update it has authorization
+            // to do so
+            if (isDeleteSuccess){
+                // we replace the previous resource set by inserting a new resource set with the same resource set Id
+                saveResourceSetDescription(newResourceSetDO,userStoreDomain);
+                isUpdateSuccessful = true;
+            }
+            return isUpdateSuccessful;
+        } catch (IdentityException e) {
+
+            throw new IdentityUMAException("Error occurred while getting Identity persistence " +
+                    "store connection", e);
+
+        }
+
+    }
 
 
 }

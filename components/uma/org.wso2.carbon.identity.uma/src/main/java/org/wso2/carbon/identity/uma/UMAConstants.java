@@ -20,6 +20,9 @@ package org.wso2.carbon.identity.uma;
 
 public final class UMAConstants {
 
+    public static final String UMA_PERMISSION_TICKET_TYPE = "UMA_PERMISSION_TICKET";
+    public static final String UMA_RPT_TYPE = "UMA_PERMISSION_TICKET";
+
     public static final String UMA_AUTHORIZATION_API_SCOPE = "uma_authorization";
     public static final String UMA_PROTECTION_API_SCOPE = "uma_protection";
 

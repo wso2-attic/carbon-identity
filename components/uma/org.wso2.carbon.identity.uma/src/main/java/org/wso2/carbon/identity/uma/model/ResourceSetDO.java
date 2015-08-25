@@ -38,12 +38,15 @@ public class ResourceSetDO {
     private static final String PROPERTY_ICON_URI = UMAConstants.OAuthResourceSetRegistration.RESOURCE_SET_ICON_URI;
 
 
+    // unique identifier for the resourceSet
     private String resourceSetId;
 
     private Timestamp timeCreated;
 
+    // TokenID of the PAT token used to register the resource set
     private String tokenId;
 
+    // Meta data map to store the attributes of the resource set
     private Map<String,Object> metadata = new HashMap<>();
 
 
