@@ -16,15 +16,15 @@
    under the License.
   --%>
 
-<%@page import="org.apache.axis2.context.ConfigurationContext" %>
-<%@page import="org.wso2.carbon.CarbonConstants" %>
-<%@page import="org.wso2.carbon.ui.CarbonUIMessage" %>
-<%@page import="org.wso2.carbon.ui.CarbonUIUtil" %>
-<%@page import="org.wso2.carbon.user.mgt.ui.UserAdminClient" %>
-<%@ page import="org.wso2.carbon.utils.ServerConstants" %>
-<%@page import="java.text.MessageFormat" %>
-<%@page import="java.util.ResourceBundle" %>
+<%@ page import="org.apache.axis2.context.ConfigurationContext" %>
 <%@ page import="org.owasp.encoder.Encode" %>
+<%@ page import="org.wso2.carbon.CarbonConstants" %>
+<%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
+<%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
+<%@ page import="org.wso2.carbon.user.mgt.ui.UserAdminClient" %>
+<%@ page import="org.wso2.carbon.utils.ServerConstants" %>
+<%@ page import="java.text.MessageFormat" %>
+<%@ page import="java.util.ResourceBundle" %>
 
 <%
 
@@ -33,7 +33,6 @@
 
     String forwardTo = "role-mgt.jsp?ordinal=1";
     String roleName = request.getParameter("roleName");
-
 
     if (request.getParameter("prevPage") != null && request.getParameter("prevUser") != null) {
         String prevPage = request.getParameter("prevPage");
@@ -61,11 +60,10 @@
         client.setRoleUIPermission(roleName, selectedPermissions);
         CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.INFO, request);
 
-
     } catch (InstantiationException e) {
 
         CarbonUIMessage.sendCarbonUIMessage("Your session has timed out. Please try again.",
-                CarbonUIMessage.ERROR, request);
+                                            CarbonUIMessage.ERROR, request);
 
     } catch (Exception e) {
 

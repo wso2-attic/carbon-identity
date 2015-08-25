@@ -38,19 +38,23 @@
     if (request.getParameter("errorMessage") != null) {
 %>
 <script type="text/javascript">
-    jQuery(document).ready(function(){ if (getCookie(msgId) == null) {
-        CARBON.showErrorDialog("<%=Encode.forJavaScriptBlock(request.getParameter("errorMessage"))%>");
-        setCookie(msgId, 'true');
-    }})
+    jQuery(document).ready(function () {
+        if (getCookie(msgId) == null) {
+            CARBON.showErrorDialog("<%=Encode.forJavaScriptBlock(request.getParameter("errorMessage"))%>");
+            setCookie(msgId, 'true');
+        }
+    })
 </script>
 <%
 } else if (request.getParameter("message") != null) {
 %>
 <script type="text/javascript">
-    jQuery(document).ready(function(){ if (getCookie(msgId) == null) {
-        CARBON.showInfoDialog("<%=Encode.forJavaScriptBlock(request.getParameter("message"))%>");
-        setCookie(msgId, 'true');
-    }});
+    jQuery(document).ready(function () {
+        if (getCookie(msgId) == null) {
+            CARBON.showInfoDialog("<%=Encode.forJavaScriptBlock(request.getParameter("message"))%>");
+            setCookie(msgId, 'true');
+        }
+    });
 </script>
 <%
     }
