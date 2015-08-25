@@ -665,6 +665,17 @@ public class UserRealmProxy {
             info.setBulkImportSupported(this.isBulkImportSupported());
             info.setDomainName(realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME));
 
+            boolean caseSensitiveUsername;
+            String caseInsensitiveUsernameString;
+            caseInsensitiveUsernameString = manager.getRealmConfiguration().getUserStoreProperty
+                    ("CaseInsensitiveUsername");
+
+            if (caseInsensitiveUsernameString != null) {
+                caseSensitiveUsername = !Boolean.parseBoolean(caseInsensitiveUsernameString);
+            } else {
+                caseSensitiveUsername = true;
+            }
+            info.setCaseSensitiveUsername(caseSensitiveUsername);
             return info;
         } catch (UserStoreException e) {
             // previously logged so logging not needed
