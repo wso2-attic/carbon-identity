@@ -2277,8 +2277,8 @@ public class UserRealmProxy {
 
         @Override
         public int compare(ClaimMapping o1, ClaimMapping o2) {
-            ClaimMapping dto1 = (ClaimMapping) o1;
-            ClaimMapping dto2 = (ClaimMapping) o2;
+            ClaimMapping dto1 = o1;
+            ClaimMapping dto2 = o2;
             return dto1.getClaim().getClaimUri().compareTo(dto2.getClaim().getClaimUri());
         }
     }
