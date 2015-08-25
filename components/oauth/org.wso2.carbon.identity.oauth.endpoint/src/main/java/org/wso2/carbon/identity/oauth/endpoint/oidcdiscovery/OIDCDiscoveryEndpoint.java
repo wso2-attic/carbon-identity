@@ -56,7 +56,7 @@ public class OIDCDiscoveryEndpoint {
     }
 
     private Response getResponse(HttpServletRequest request, String tenant){
-        String response = null;
+        String response;
         OIDCProcessor processor = EndpointUtil.getOIDCService();
         try {
             OIDProviderResponseBuilder responseBuilder = new OIDProviderJSONResponseBuilder();

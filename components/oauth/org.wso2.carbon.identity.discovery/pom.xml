@@ -71,6 +71,7 @@
                             org.wso2.carbon.identity.discovery.*;
                             version="${carbon.identity.package.export.version}"
                         </Export-Package>
+                        <DynamicImport-Package>*</DynamicImport-Package>
                     </instructions>
                 </configuration>
             </plugin>
