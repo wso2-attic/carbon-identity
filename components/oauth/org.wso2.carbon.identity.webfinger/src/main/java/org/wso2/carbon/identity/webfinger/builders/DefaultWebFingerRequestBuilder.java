@@ -46,7 +46,7 @@ public class DefaultWebFingerRequestBuilder implements WebFingerRequestBuilder {
         //this.validateTenant(webFingerRequest.getTenant());
         return webFingerRequest;
     }
-    private void validateTenant(String tenant) throws WebFingerEndPointException{
+    private void validateTenant(String tenant) throws WebFingerEndPointException {
         try {
             int tenantId = ClaimManagementServiceComponent.getRealmService().getTenantManager().getTenantId(tenant);
             if (tenantId<0){

@@ -22,29 +22,22 @@ import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.identity.webfinger.WebFingerProcessor;
-import org.wso2.carbon.utils.ConfigurationContextService;
+
 /**
- * @scr.component name="identity.webfinger.component" immediate="true"
+ *@scr.component name="identity.webfingerooo.component" immediate="true"
  */
+
 public class WebFingerServiceComponent {
     private static Log log = LogFactory.getLog(WebFingerServiceComponent.class);
     private static BundleContext bundleContext = null;
-    private static ConfigurationContextService configurationContextService = null;
-
-    public WebFingerServiceComponent() {
-    }
 
     public static BundleContext getBundleContext() {
         return bundleContext;
     }
 
-    /**
-     * @param context
-     */
     protected void activate(ComponentContext context) {
         bundleContext = context.getBundleContext();
         bundleContext.registerService(WebFingerProcessor.class.getName(), WebFingerProcessor.getInstance(), null);
-        //bundleContext.registerService(DefaultOIDProviderRequestBuilder.class.getName(),new DefaultOIDProviderRequestBuilder(),null);
         // exposing server configuration as a service
         if (log.isDebugEnabled()) {
             log.debug("OpenID WebFinger bundle is activated.");
