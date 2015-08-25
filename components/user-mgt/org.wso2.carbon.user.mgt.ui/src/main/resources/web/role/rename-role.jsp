@@ -18,11 +18,11 @@
 
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar" prefix="carbon" %>
-<%@page import="org.wso2.carbon.ui.util.CharacterEncoder"%>
 <%@ page import="org.wso2.carbon.user.mgt.stub.types.carbon.UserRealmInfo" %>
 <%@ page import="org.wso2.carbon.user.mgt.stub.types.carbon.UserStoreInfo" %>
 <%@ page import="org.wso2.carbon.user.mgt.ui.UserAdminUIConstants" %>
 <%@ page import="org.wso2.carbon.user.mgt.ui.Util" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 
 <script type="text/javascript" src="../userstore/extensions/js/vui.js"></script>
 <jsp:include page="../userstore/display-messages.jsp"/>
@@ -30,7 +30,7 @@
 <%
     UserRealmInfo userRealmInfo;
     UserStoreInfo userStoreInfo;
-    String roleName = CharacterEncoder.getSafeText(request.getParameter("roleName"));
+    String roleName = request.getParameter("roleName");
     String modifiedRole = roleName;
     UserStoreInfo[] allUserStoreInfo = null;
 
@@ -112,7 +112,7 @@
 
         function doRename() {
 		    if(doValidation()){
-                var oldRoleName = "<%=roleName%>";
+                var oldRoleName = "<%=Encode.forJavaScriptBlock(roleName)%>";
                 var newRoleName = document.getElementById("roleName").value;
                 
                 if (newRoleName.indexOf("/") !=-1) {
@@ -144,8 +144,8 @@
         <div id="workArea">
             <form action="rename-role-finish.jsp" method="post" id="renameRoleForm">
             
-                 <input type="hidden"  id="role_regex" name="role_regex" value=<%=regEx%>>
-                 <input type="hidden"  id="oldRoleName" name="oldRoleName" value=<%=roleName%>>
+                 <input type="hidden"  id="role_regex" name="role_regex" value=<%=Encode.forHtmlAttribute(regEx)%>>
+                 <input type="hidden"  id="oldRoleName" name="oldRoleName" value=<%=Encode.forHtmlAttribute(roleName)%>>
                  
                 <table class="styledLeft">
                     <thead>
@@ -159,7 +159,8 @@
                                 <tr>
                                     <td><fmt:message key="role.rename"/><font color="red">*</font>
                                     </td>
-                                    <td><input type="text" name="newRoleName" value="<%=modifiedRole%>" id="roleName"/></td>
+                                    <td><input type="text" name="newRoleName"
+                                               value="<%=Encode.forHtmlAttribute(modifiedRole)%>" id="roleName"/></td>
                                 </tr>
                             </table>
                             <!-- normal table -->

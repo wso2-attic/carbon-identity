@@ -20,12 +20,11 @@
 <%@page import="org.wso2.carbon.CarbonConstants" %>
 <%@page import="org.wso2.carbon.ui.CarbonUIMessage" %>
 <%@page import="org.wso2.carbon.ui.CarbonUIUtil" %>
-<%@page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
 <%@page import="org.wso2.carbon.user.mgt.ui.UserAdminClient" %>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
-<%@ page import="java.net.URLEncoder" %>
 <%@page import="java.text.MessageFormat" %>
 <%@page import="java.util.ResourceBundle" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 
 <%
 
@@ -41,9 +40,11 @@
         String prevUser = request.getParameter("prevUser");
         String prevPageNumber = request.getParameter("prevPageNumber");
         if ("view".equals(prevPage)) {
-            forwardTo = "../user/view-roles.jsp?username=" + URLEncoder.encode(prevUser) + "&pageNumber=" + prevPageNumber;
+            forwardTo = "../user/view-roles.jsp?username=" + Encode.forUriComponent(prevUser) + "&pageNumber=" +
+                        Encode.forUriComponent(prevPageNumber);
         } else if ("edit".equals(prevPage)) {
-            forwardTo = "../user/edit-user-roles.jsp?username=" + URLEncoder.encode(prevUser) + "&pageNumber=" + prevPageNumber;
+            forwardTo = "../user/edit-user-roles.jsp?username=" + Encode.forUriComponent(prevUser) + "&pageNumber=" +
+                        Encode.forUriComponent(prevPageNumber);
         }
     }
 
@@ -68,8 +69,7 @@
 
     } catch (Exception e) {
 
-        message = MessageFormat.format(resourceBundle.getString("role.cannot.update"),
-                CharacterEncoder.getSafeText(roleName), e.getMessage());
+        message = MessageFormat.format(resourceBundle.getString("role.cannot.update"), roleName, e.getMessage());
         CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
 %>
 <script type="text/javascript">
@@ -85,7 +85,7 @@
 
 <script type="text/javascript">
     function forward() {
-        location.href = "<%=forwardTo%>";
+        location.href = "<%=Encode.forJavaScriptBlock(forwardTo)%>";
     }
 </script>
 

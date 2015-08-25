@@ -34,6 +34,7 @@
 <%@ page import="java.util.List" %>
 <%@ page import="java.util.Map" %>
 <%@ page import="java.util.ResourceBundle" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 <script type="text/javascript" src="../userstore/extensions/js/vui.js"></script>
 <script type="text/javascript" src="../admin/js/main.js"></script>
 <jsp:useBean id="roleBean" type="org.wso2.carbon.user.mgt.ui.RoleBean" scope="session"/>
@@ -181,7 +182,7 @@
         function doPaginate(page, pageNumberParameterName, pageNumber){
             var form = document.createElement("form");
             form.setAttribute("method", "POST");
-            form.setAttribute("action", page + "?" + pageNumberParameterName + "=" + pageNumber + "&roleName=" + '<%=roleName%>');
+            form.setAttribute("action", page + "?" + pageNumberParameterName + "=" + pageNumber + "&roleName=" + '<%=Encode.forJavaScript(Encode.forUriComponent(roleName))%>');
             var selectedUsersStr = "";
             $("input[type='checkbox']:checked").each(function(index){
                 if(!$(this).is(":disabled")){
@@ -233,12 +234,14 @@
 	    </script>
         <div id="workArea">
             <h3><fmt:message key="step.3.role"/></h3>
-            <form name="filterForm" method="post" action="add-step3.jsp?roleName=<%=roleName%>">
+
+            <form name="filterForm" method="post" action="add-step3.jsp?roleName=<%=Encode.forUriComponent(roleName)%>">
                 <table class="normal">
                     <tr>
                         <td><fmt:message key="list.users"/></td>
                         <td>
-                           <input type="text" name="<%=UserAdminUIConstants.ROLE_LIST_ASSIGN_USER_FILTER%>" value="<%=filter%>"/>
+                            <input type="text" name="<%=UserAdminUIConstants.ROLE_LIST_ASSIGN_USER_FILTER%>"
+                                   value="<%=Encode.forHtmlAttribute(filter)%>"/>
                         </td>
                         <td>
                         <input class="button" type="submit" value="<fmt:message key="user.search"/>" />
@@ -253,7 +256,7 @@
                                   numberOfPages="<%=numberOfPages%>"
                                   noOfPageLinksToDisplay="<%=noOfPageLinksToDisplay%>"
                                   page="add-step3.jsp" pageNumberParameterName="pageNumber"
-                                  parameters="<%="roleName="+roleName%>"/>
+                                  parameters="<%="roleName=" + Encode.forHtmlAttribute(roleName)%>"/>
 
 
 
@@ -315,7 +318,9 @@
                                 %>
                                 <tr>
                                     <td>
-                                        <input type="checkbox" name="roleUsers" value="<%=userName%>" <%=doEdit%> <%=doCheck%>/><%=disPlayName%>
+                                        <input type="checkbox" name="roleUsers"
+                                               value="<%=Encode.forHtmlAttribute(userName)%>" <%=doEdit%>
+                                                <%=doCheck%>/><%=Encode.forHtml(disPlayName)%>
                                         <%if (!user.getEditable()) { %> <%="(Read-Only)"%> <% } %>
                                     </td>
 
@@ -334,7 +339,7 @@
                                   numberOfPages="<%=numberOfPages%>"
                                   noOfPageLinksToDisplay="<%=noOfPageLinksToDisplay%>"
                                   page="add-step3.jsp" pageNumberParameterName="pageNumber"
-                                  parameters="<%="roleName="+roleName%>"/>
+                                  parameters="<%="roleName=" + Encode.forHtmlAttribute(roleName)%>"/>
 
                 <%
                     if (users != null) {
@@ -358,7 +363,7 @@
                                         message = resourceBundle.getString("more.users.primary");
                                     }
                 %>
-                <strong><%=message%></strong>
+                <strong><%=Encode.forHtml(message)%></strong>
                 <%
                 }else if(exceededDomains.getItemDisplayName() != null && !exceededDomains.getItemDisplayName().equals("")){
                     String[] domains = exceededDomains.getItemDisplayName().split(":");
@@ -373,7 +378,7 @@
                     }
                     message = resourceBundle.getString("more.users").replace("{0}",arg);
                 %>
-                <strong><%=message%></strong>
+                <strong><%=Encode.forHtml(message)%></strong>
                 <%
                                 }
                             }
@@ -397,7 +402,7 @@
     function doSelectAllRetrieved() {
         var form = document.createElement("form");
         form.setAttribute("method", "POST");
-        form.setAttribute("action", "add-step3.jsp?pageNumber=" + <%=pageNumber%> + "&roleName=" + '<%=roleName%>');
+        form.setAttribute("action", "add-step3.jsp?pageNumber=" + <%=pageNumber%> +"&roleName=" + '<%=Encode.forJavaScript(Encode.forUriComponent(roleName))%>');
         var selectedRolesElem = document.createElement("input");
         selectedRolesElem.setAttribute("type", "hidden");
         selectedRolesElem.setAttribute("name", "selectedUsers");
@@ -411,7 +416,7 @@
     function doUnSelectAllRetrieved() {
         var form = document.createElement("form");
         form.setAttribute("method", "POST");
-        form.setAttribute("action", "add-step3.jsp?pageNumber=" + <%=pageNumber%> + "&roleName=" + '<%=roleName%>');
+        form.setAttribute("action", "add-step3.jsp?pageNumber=" + <%=pageNumber%> +"&roleName=" + '<%=Encode.forJavaScript(Encode.forUriComponent(roleName))%>');
         var unselectedRolesElem = document.createElement("input");
         unselectedRolesElem.setAttribute("type", "hidden");
         unselectedRolesElem.setAttribute("name", "unselectedUsers");

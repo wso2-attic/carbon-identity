@@ -41,6 +41,7 @@
 <%@ page import="java.util.Map" %>
 <%@ page import="java.util.ResourceBundle" %>
 <%@ page import="java.util.Set" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 <script type="text/javascript" src="../userstore/extensions/js/vui.js"></script>
 <script type="text/javascript" src="../admin/js/main.js"></script>
 
@@ -247,7 +248,7 @@
                     if (flaggedName == null) {
                         continue;
                     }
-                    String userName = CharacterEncoder.getSafeText(flaggedName.getItemName());
+                    String userName = flaggedName.getItemName();
                     if (workFlowDeletePendingUsers.contains(userName)) {
                         showDeletePendingUsers.add(flaggedName);
                         iterator.remove();
@@ -314,26 +315,26 @@
                     </thead>
                     <tbody>
 
-                    <%
-                        if (domainNames != null && domainNames.length > 0) {
-                    %>
-                    <tr>
-                        <td class="leftCol-big" style="padding-right: 0 !important;"><fmt:message
-                                key="select.domain.search"/></td>
-                        <td><select id="domain" name="domain">
-                            <%
-                                for (String domainName : domainNames) {
-                                    if (selectedDomain.equals(domainName)) {
-                            %>
-                            <option selected="selected" value="<%=domainName%>"><%=domainName%>
-                            </option>
-                            <%
-                            } else {
-                            %>
-                            <option value="<%=domainName%>"><%=domainName%>
-                            </option>
-                            <%
-                                    }
+                <%
+                   if(domainNames != null && domainNames.length > 0){
+                %>
+                <tr>
+                    <td class="leftCol-big" style="padding-right: 0 !important;"><fmt:message key="select.domain.search"/></td>
+                    <td><select id="domain" name="domain">
+                        <%
+                            for(String domainName : domainNames) {
+                                if(selectedDomain.equals(domainName)) {
+                        %>
+                        <option selected="selected" value="<%=Encode.forHtmlAttribute(domainName)%>">
+                            <%=Encode.forHtml(domainName)%>
+                        </option>
+                        <%
+                                } else {
+                        %>
+                        <option value="<%=Encode.forHtmlAttribute(domainName)%>">
+                            <%=Encode.forHtml(domainName)%>
+                        </option>
+                        <%
                                 }
                             %>
                         </select>
@@ -348,8 +349,8 @@
                                 key="list.users"/></td>
                         <td>
                             <input type="text" name="<%=UserAdminUIConstants.USER_LIST_FILTER%>"
-                                   value="<%=filter%>"/>
-
+                                   value="<%=Encode.forHtmlAttribute(filter)%>"/>
+                      
                             <input class="button" type="submit"
                                    value="<fmt:message key="user.search"/>"/>
                         </td>
@@ -364,12 +365,14 @@
                                     for (String claim : claimUris) {
                                         if (claimUri != null && claim.equals(claimUri)) {
                             %>
-                            <option selected="selected" value="<%=claim%>"><%=claim%>
+                            <option selected="selected" value="<%=Encode.forHtmlAttribute(claim)%>">
+                                <%=Encode.forHtmlContent(claim)%>
                             </option>
                             <%
                             } else {
                             %>
-                            <option value="<%=claim%>"><%=claim%>
+                            <option value="<%=Encode.forHtmlAttribute(claim)%>">
+                                <%=Encode.forHtmlContent(claim)%>
                             </option>
                             <%
                                         }
@@ -412,15 +415,15 @@
                                 if (flaggedName.getItemName().equals(CarbonConstants.REGISTRY_ANONNYMOUS_USERNAME)) {
                                     continue;
                                 }
-                                String userName = CharacterEncoder.getSafeText(flaggedName.getItemName());
-                                String disPlayName = CharacterEncoder.getSafeText(flaggedName.getItemDisplayName());
-                                if (disPlayName == null || disPlayName.trim().length() == 0) {
+                                String  userName = users[i].getItemName();
+                                String disPlayName = users[i].getItemDisplayName();
+                                if(disPlayName == null || disPlayName.trim().length() == 0){
                                     disPlayName = userName;
                                 }
                 %>
                 <tr>
-                    <td><%=disPlayName%>
-                        <%if (!flaggedName.getEditable()) { %> <%="(Read-Only)"%> <% } %>
+                    <td><%=Encode.forHtml(disPlayName)%>
+                        <%if(!users[i].getEditable()){ %> <%="(Read-Only)"%> <% } %>
                     </td>
                     <td>
 
@@ -453,7 +456,7 @@
                         } else {
                         %>
 
-                        <a href="change-passwd.jsp?username=<%=java.net.URLEncoder.encode(userName,"UTF-8")%>&disPlayName=<%=java.net.URLEncoder.encode(disPlayName,"UTF-8")%>"
+                        <a href="change-passwd.jsp?username=<%=Encode.forUriComponent(userName)%>&disPlayName=<%=Encode.forUriComponent(disPlayName)%>"
                            class="icon-link"
                            style="background-image:url(../admin/images/edit.gif);"><fmt:message
                                 key="change.password"/></a>
@@ -465,11 +468,9 @@
                         <%
                             if (CarbonUIUtil.isUserAuthorized(request, "/permission/admin/configure/security")) {
                         %>
-                        <a href="edit-user-roles.jsp?username=<%=
-                        java.net.URLEncoder.encode(userName,"UTF-8")%>&disPlayName=<%=java.net.URLEncoder.encode(disPlayName,"UTF-8")%>"
+                        <a href="edit-user-roles.jsp?username=<%=Encode.forUriComponent(userName)%>&disPlayName=<%=Encode.forUriComponent(disPlayName)%>"
                            class="icon-link"
-                           style="background-image:url(../admin/images/edit.gif);"><fmt:message
-                                key="edit.roles"/></a>
+                           style="background-image:url(../admin/images/edit.gif);"><fmt:message key="edit.roles"/></a>
                         <%
                             }
                         %>
@@ -477,10 +478,9 @@
                         <%
                             if (CarbonUIUtil.isUserAuthorized(request, "/permission/admin/configure/security")) {
                         %>
-                        <a href="view-roles.jsp?username=<%=java.net.URLEncoder.encode(userName,"UTF-8")%>&disPlayName=<%=java.net.URLEncoder.encode(disPlayName,"UTF-8")%>"
+                        <a href="view-roles.jsp?username=<%=Encode.forUriComponent(userName)%>&disPlayName=<%=Encode.forUriComponent(disPlayName)%>"
                            class="icon-link"
-                           style="background-image:url(images/view.gif);"><fmt:message
-                                key="view.roles"/></a>
+                           style="background-image:url(images/view.gif);"><fmt:message key="view.roles"/></a>
                         <%
                             }
                         %>
@@ -492,9 +492,8 @@
                                     && !Util.decodeHTMLCharacters(userName).equals(userRealmInfo.getAdminUser()) &&
                                     flaggedName.getEditable()) {
                         %>
-                        <a href="#" onclick="deleteUser('<%=java.net.URLEncoder.encode(userName,"UTF-8")%>')"
-                           class="icon-link"
-                           style="background-image:url(images/delete.gif);"><fmt:message
+                        <a href="#" onclick="deleteUser('<%=Encode.forJavaScriptAttribute(userName)%>')"
+                           class="icon-link" style="background-image:url(images/delete.gif);"><fmt:message
                                 key="delete"/></a>
                         <%
                             }
@@ -505,9 +504,8 @@
                             if (CarbonUIUtil.isContextRegistered(config, "/identity-authorization/") &&
                                     CarbonUIUtil.isUserAuthorized(request, "/permission/admin/configure/security/")) {
                         %>
-                        <a href="../identity-authorization/permission-root.jsp?userName=<%=java.net.URLEncoder.encode(userName,"UTF-8")%>&fromUserMgt=true"
-                           class="icon-link"
-                           style="background-image:url(../admin/images/edit.gif);"><fmt:message
+                        <a href="../identity-authorization/permission-root.jsp?userName=<%=Encode.forUriComponent(userName)%>&fromUserMgt=true"
+                           class="icon-link" style="background-image:url(../admin/images/edit.gif);"><fmt:message
                                 key="authorization"/></a>
                         <%
                             }
@@ -519,7 +517,7 @@
                                     && CarbonUIUtil.isUserAuthorized(request,
                                     "/permission/admin/configure/security/usermgt/profiles")) {
                         %>
-                        <a href="../userprofile/index.jsp?username=<%=java.net.URLEncoder.encode(userName,"UTF-8")%>&disPlayName=<%=java.net.URLEncoder.encode(disPlayName,"UTF-8")%>&fromUserMgt=true"
+                        <a href="../userprofile/index.jsp?username=<%=Encode.forUriComponent(userName)%>&disPlayName=<%=Encode.forUriComponent(disPlayName)%>&fromUserMgt=true"
                            class="icon-link"
                            style="background-image:url(../userprofile/images/my-prof.gif);">User
                             Profile</a>
@@ -543,15 +541,15 @@
                                 if (flaggedName.getItemName().equals(CarbonConstants.REGISTRY_ANONNYMOUS_USERNAME)) {
                                     continue;
                                 }
-                                String userName = CharacterEncoder.getSafeText(flaggedName.getItemName());
-                                String disPlayName = CharacterEncoder.getSafeText(flaggedName.getItemDisplayName()) +
+                                String userName = flaggedName.getItemName();
+                                String disPlayName = flaggedName.getItemDisplayName() +
                                         " " + "[Pending Users for Delete]";
                                 if (disPlayName == null || disPlayName.trim().length() == 0) {
                                     disPlayName = userName;
                                 }
                 %>
                 <tr>
-                    <td><%=disPlayName%>
+                    <td><%=Encode.forHtml(disPlayName)%>
                         <%if (!flaggedName.getEditable()) { %> <%="(Read-Only)"%> <% } %>
                     </td>
                     <td>
@@ -577,7 +575,7 @@
                         } else {
                         %>
 
-                        <a href="change-passwd.jsp?username=<%=java.net.URLEncoder.encode(userName,"UTF-8")%>&disPlayName=<%=java.net.URLEncoder.encode(disPlayName,"UTF-8")%>"
+                        <a href="change-passwd.jsp?username=<%=Encode.forUriComponent(userName)%>&disPlayName=<%=Encode.forUriComponent(disPlayName)%>"
                            class="icon-link"
                            style="background-image:url(../admin/images/edit.gif);"><fmt:message
                                 key="change.password"/></a>
@@ -589,8 +587,7 @@
                         <%
                             if (CarbonUIUtil.isUserAuthorized(request, "/permission/admin/configure/security")) {
                         %>
-                        <a href="edit-user-roles.jsp?username=<%=
-                        java.net.URLEncoder.encode(userName,"UTF-8")%>&disPlayName=<%=java.net.URLEncoder.encode(disPlayName,"UTF-8")%>"
+                        <a href="edit-user-roles.jsp?username=<%=Encode.forUriComponent(userName)%>&disPlayName=<%=Encode.forUriComponent(disPlayName)%>"
                            class="icon-link"
                            style="background-image:url(../admin/images/edit.gif);"><fmt:message
                                 key="edit.roles"/></a>
@@ -601,7 +598,7 @@
                         <%
                             if (CarbonUIUtil.isUserAuthorized(request, "/permission/admin/configure/security")) {
                         %>
-                        <a href="view-roles.jsp?username=<%=java.net.URLEncoder.encode(userName,"UTF-8")%>&disPlayName=<%=java.net.URLEncoder.encode(disPlayName,"UTF-8")%>"
+                        <a href="view-roles.jsp?username=<%=Encode.forUriComponent(userName)%>&disPlayName=<%=Encode.forUriComponent(disPlayName)%>"
                            class="icon-link"
                            style="background-image:url(images/view.gif);"><fmt:message
                                 key="view.roles"/></a>
@@ -613,7 +610,7 @@
                             if (CarbonUIUtil.isContextRegistered(config, "/identity-authorization/") &&
                                     CarbonUIUtil.isUserAuthorized(request, "/permission/admin/configure/security/")) {
                         %>
-                        <a href="../identity-authorization/permission-root.jsp?userName=<%=java.net.URLEncoder.encode(userName,"UTF-8")%>&fromUserMgt=true"
+                        <a href="../identity-authorization/permission-root.jsp?userName=<%=Encode.forUriComponent(userName)%>&fromUserMgt=true"
                            class="icon-link"
                            style="background-image:url(../admin/images/edit.gif);"><fmt:message
                                 key="authorization"/></a>
@@ -627,9 +624,8 @@
                                     && CarbonUIUtil.isUserAuthorized(request,
                                     "/permission/admin/configure/security/usermgt/profiles")) {
                         %>
-                        <a href="../userprofile/index.jsp?username=<%=java.net.URLEncoder.encode(userName,"UTF-8")%>&disPlayName=<%=java.net.URLEncoder.encode(disPlayName,"UTF-8")%>&fromUserMgt=true"
-                           class="icon-link"
-                           style="background-image:url(../userprofile/images/my-prof.gif);">User
+                        <a href="../userprofile/index.jsp?username=<%=Encode.forUriComponent(userName)%>&disPlayName=<%=Encode.forUriComponent(disPlayName)%>&fromUserMgt=true"
+                           class="icon-link" style="background-image:url(../userprofile/images/my-prof.gif);">User
                             Profile</a>
                         <%
                             }
@@ -654,10 +650,10 @@
                                 String disPlayName = user + " " + "[Pending Users for Add]";
                 %>
                 <tr>
-                    <td><%=disPlayName%>
+                    <td><%=Encode.forHtml(disPlayName)%>
                     </td>
                     <td>
-                        <%=inActiveUserMessage%>
+                        <%=Encode.forHtml(inActiveUserMessage)%>
                     </td>
                 </tr>
                 <%
@@ -695,26 +691,24 @@
                             } else {
                                 message = resourceBundle.getString("more.users.primary");
                             }
-            %>
-            <strong><%=message%>
-            </strong>
-            <%
-            } else if (exceededDomains.getItemDisplayName() != null && !exceededDomains.getItemDisplayName().equals("")) {
-                String[] domains = exceededDomains.getItemDisplayName().split(":");
-                String arg = "";
-                for (int i = 0; i < domains.length; i++) {
-                    arg += "\'" + domains[i] + "\'";
-                    if (i < domains.length - 2) {
-                        arg += ", ";
-                    } else if (i == domains.length - 2) {
-                        arg += " and ";
-                    }
-                }
-                message = resourceBundle.getString("more.users").replace("{0}", arg);
-            %>
-            <strong><%=message%>
-            </strong>
-            <%
+        %>
+                <strong><%=Encode.forHtml(message)%></strong>
+        <%
+                        }else if(exceededDomains.getItemDisplayName() != null && !exceededDomains.getItemDisplayName().equals("")){
+                            String[] domains = exceededDomains.getItemDisplayName().split(":");
+                            String arg = "";
+                            for(int i=0;i<domains.length;i++){
+                                arg += "\'"+domains[i]+"\'";
+                                if(i < domains.length - 2){
+                                    arg += ", ";
+                                }else if(i == domains.length - 2){
+                                    arg += " and ";
+                                }
+                            }
+                            message = resourceBundle.getString("more.users").replace("{0}",arg);
+        %>
+                <strong><%=Encode.forHtml(message)%></strong>
+        <%
                         }
                     }
                 }
