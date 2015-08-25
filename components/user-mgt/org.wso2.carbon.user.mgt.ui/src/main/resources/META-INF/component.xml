@@ -65,5 +65,13 @@
             </tiles>
         </bypass>
     </framework-configuration>
+    <servlets>
+        <servlet id="UserAndRoleMgt">
+            <servlet-name>userandrolemgtservice</servlet-name>
+            <url-pattern>/userandrolemgtservice</url-pattern>
+            <display-name>UserAndRoleManagement</display-name>
+            <servlet-class>org.wso2.carbon.user.mgt.ui.servlet.UserAndRoleManagementServlet</servlet-class>
+        </servlet>
+    </servlets>
 
 </component>

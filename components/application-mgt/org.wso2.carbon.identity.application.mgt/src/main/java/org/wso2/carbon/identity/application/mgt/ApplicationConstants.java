@@ -39,4 +39,5 @@ public class ApplicationConstants {
     public static final String IDP_NAME = "idpName";
     public static final String IDP_AUTHENTICATOR_NAME = "authenticatorName";
     public static final String IDP_AUTHENTICATOR_DISPLAY_NAME = "authenticatorDisplayName";
+    public static final String APPLICATION_DOMAIN = "Application";
 }

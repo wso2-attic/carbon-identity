@@ -28,6 +28,8 @@ import org.wso2.carbon.identity.workflow.mgt.bean.RequestParameter;
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkFlowRequest;
 import org.wso2.carbon.identity.workflow.mgt.exception.RuntimeWorkflowException;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -36,11 +38,22 @@ import java.util.Set;
 
 public class WorkflowRequestBuilder {
 
-    private static final String WF_NS = "http://schema.bpel.mgt.workflow.carbon.wso2.org";
+    private static final String WF_NS = "http://schema.bpel.mgt.workflow.carbon.wso2.org/";
     private static final String WF_NS_PREFIX = "p";
     private static final String WF_REQ_ROOT_ELEM = "ProcessRequest";
     private static final String WF_REQ_UUID_ELEM = "uuid";
     private static final String WF_REQ_ACTION_ELEM = "eventType";
+
+    private static final String WF_REQ_CONFIG_ELEM = "configuration";
+    private static final String WF_REQ_APPROVAL_STEP_ELEM = "approvalStep";
+    private static final String WF_REQ_STEP_NAME_ELEM = "stepName";
+    private static final String WF_REQ_HUMAN_TASK_ELEM = "humanTask";
+    private static final String WF_REQ_HUMAN_TASK_SUBJECT_ELEM = "humanTaskSubject";
+    private static final String WF_REQ_HUMAN_TASK_DESC_ELEM = "humanTaskDescription";
+    private static final String WF_REQ_APPROVE_USER_ELEM = "user";
+    private static final String WF_REQ_APPROVE_ROLE_ELEM = "role";
+
+
     //    private static final String WF_REQ_TENANT_DOMAIN_ELEM = "tenantDomain";
     private static final String WF_REQ_PARAMS_ELEM = "parameters";
     private static final String WF_REQ_PARAM_ELEM = "parameter";
@@ -70,11 +83,12 @@ public class WorkflowRequestBuilder {
     private Map<String, Object> singleValuedParams;
     private Map<String, List<Object>> listTypeParams;
     private Map<String, Map<String, Object>> mapTypeParams;
+    private Map<String, Object> initParams ;
 
     public static OMElement buildXMLRequest(WorkFlowRequest workFlowRequest) throws RuntimeWorkflowException {
 
         WorkflowRequestBuilder requestBuilder = new WorkflowRequestBuilder(workFlowRequest.getUuid(),
-                workFlowRequest.getEventType());
+                                                                           workFlowRequest.getEventType());
 
         for (RequestParameter parameter : workFlowRequest.getRequestParameters()) {
             if (parameter.isRequiredInWorkflow()) {
@@ -101,6 +115,41 @@ public class WorkflowRequestBuilder {
         return requestBuilder.buildRequest();
     }
 
+    public static OMElement buildXMLRequest(WorkFlowRequest workFlowRequest, Map<String, Object> initParams) throws RuntimeWorkflowException {
+
+        WorkflowRequestBuilder requestBuilder = new WorkflowRequestBuilder(workFlowRequest.getUuid(),
+                workFlowRequest.getEventType());
+
+        for (RequestParameter parameter : workFlowRequest.getRequestParameters()) {
+            if (parameter.isRequiredInWorkflow()) {
+                switch (parameter.getValueType()) {
+                    case WorkflowDataType.BOOLEAN_TYPE:
+                    case WorkflowDataType.STRING_TYPE:
+                    case WorkflowDataType.INTEGER_TYPE:
+                    case WorkflowDataType.DOUBLE_TYPE:
+                        requestBuilder.addSingleValuedParam(parameter.getName(), parameter.getValue());
+                        break;
+                    case WorkflowDataType.STRING_LIST_TYPE:
+                    case WorkflowDataType.DOUBLE_LIST_TYPE:
+                    case WorkflowDataType.INTEGER_LIST_TYPE:
+                    case WorkflowDataType.BOOLEAN_LIST_TYPE:
+                        requestBuilder.addListTypeParam(parameter.getName(), (List<Object>) parameter.getValue());
+                        break;
+                    case WorkflowDataType.STRING_STRING_MAP_TYPE:
+                        requestBuilder.addMapTypeParam(parameter.getName(), (Map<String, Object>) parameter.getValue());
+                        break;
+                    //ignoring the other types
+                }
+            }
+        }
+        requestBuilder.setInitParams(initParams);
+        return requestBuilder.buildRequest();
+    }
+
+    public void setInitParams(Map<String, Object> initParams) {
+        this.initParams = initParams;
+    }
+
     /**
      * Initialize the Request builder with uuid and event
      *
@@ -114,6 +163,7 @@ public class WorkflowRequestBuilder {
         singleValuedParams = new HashMap<>();
         listTypeParams = new HashMap<>();
         mapTypeParams = new HashMap<>();
+        this.initParams = new HashMap<String, Object>();
     }
 
     /**
@@ -221,6 +271,7 @@ public class WorkflowRequestBuilder {
         OMNamespace omNs = omFactory.createOMNamespace(WF_NS, WF_NS_PREFIX);
         OMElement rootElement = omFactory.createOMElement(WF_REQ_ROOT_ELEM, omNs);
         OMElement uuidElement = omFactory.createOMElement(WF_REQ_UUID_ELEM, omNs);
+        OMElement configElement = omFactory.createOMElement(WF_REQ_CONFIG_ELEM, omNs);
         uuidElement.setText(uuid);
         rootElement.addChild(uuidElement);
         OMElement reqIdElement = omFactory.createOMElement(WF_REQ_ACTION_ELEM, omNs);
@@ -283,6 +334,87 @@ public class WorkflowRequestBuilder {
             paramsElement.addChild(paramElement);
         }
         rootElement.addChild(paramsElement);
+
+
+        final Map<String, Map<String, List<String>>> approvalStepMap = getApprovalStepMap();
+
+        for (int a = 1; a <= approvalStepMap.size() ; a++) {
+
+            String key = "Step " + a ;
+            OMElement stepName = omFactory.createOMElement(WF_REQ_STEP_NAME_ELEM,omNs);
+            stepName.setText(key);
+
+            OMElement approvalStepElement = omFactory.createOMElement(WF_REQ_APPROVAL_STEP_ELEM, omNs);
+            approvalStepElement.addChild(stepName);
+
+            OMElement humanTaskElement = omFactory.createOMElement(WF_REQ_HUMAN_TASK_ELEM, omNs);
+            OMElement humanTaskSubjectElement = omFactory.createOMElement(WF_REQ_HUMAN_TASK_SUBJECT_ELEM, omNs);
+            humanTaskSubjectElement.setText("ht");
+            OMElement humanTaskDescElement = omFactory.createOMElement(WF_REQ_HUMAN_TASK_DESC_ELEM, omNs);
+            humanTaskDescElement.setText("htdesc");
+            humanTaskElement.addChild(humanTaskSubjectElement);
+            humanTaskElement.addChild(humanTaskDescElement);
+
+            approvalStepElement.addChild(humanTaskElement);
+
+
+            Map<String, List<String>> value = approvalStepMap.get(a+"");
+            if(value.get("users")!=null){
+                List<String> userList = value.get("users");
+                for (String user : userList){
+                    OMElement userElement = omFactory.createOMElement(WF_REQ_APPROVE_USER_ELEM, omNs);
+                    userElement.setText(user);
+                    approvalStepElement.addChild(userElement);
+                }
+            }
+
+            if(value.get("roles")!=null){
+                List<String> userList = value.get("roles");
+                for (String user : userList){
+                    OMElement userElement = omFactory.createOMElement(WF_REQ_APPROVE_ROLE_ELEM, omNs);
+                    userElement.setText(user);
+                    approvalStepElement.addChild(userElement);
+                }
+            }
+            configElement.addChild(approvalStepElement);
+        }
+        rootElement.addChild(configElement);
         return rootElement;
+    }
+
+    private Map<String,Map<String,List<String>>> getApprovalStepMap(){
+        Map<String,Map<String,List<String>>> map = new HashMap<String,Map<String,List<String>>>();
+        for (Map.Entry<String, Object> entry : this.initParams.entrySet()) {
+            if(entry.getKey().startsWith("step-")){
+                String []key = entry.getKey().split("-");
+                String step = key[1] ;
+                Map<String,List<String>> valueMap =map.get(step);
+                if(valueMap==null){
+                    valueMap = new HashMap<String,List<String>>();
+                    map.put(step,valueMap);
+                }
+
+                String value = (String)entry.getValue();
+                String []values = null ;
+                if(StringUtils.isNotBlank(value)){
+                    values =  value.split(",");
+                }
+                if(values!=null) {
+                    List<String> userList = Arrays.asList(values);
+                    String stepName = "step-" + step + "-users";
+                    if (stepName.equals(entry.getKey())) {
+                        valueMap.put("users", userList);
+                    }
+                    stepName = "step-" + step + "-roles";
+                    if (stepName.equals(entry.getKey())) {
+                        valueMap.put("roles", userList);
+
+                    }
+                }
+            }
+
+        }
+        return map ;
+
     }
 }

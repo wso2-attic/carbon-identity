@@ -23,6 +23,8 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.identity.workflow.mgt.WorkflowService;
 import org.wso2.carbon.identity.workflow.mgt.extension.WorkflowRequestHandler;
+import org.wso2.carbon.user.core.listener.UserOperationEventListener;
+import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.mgt.workflow.userstore.AddRoleWFRequestHandler;
 import org.wso2.carbon.user.mgt.workflow.userstore.AddUserWFRequestHandler;
 import org.wso2.carbon.user.mgt.workflow.userstore.DeleteClaimWFRequestHandler;
@@ -35,8 +37,6 @@ import org.wso2.carbon.user.mgt.workflow.userstore.UpdateRoleNameWFRequestHandle
 import org.wso2.carbon.user.mgt.workflow.userstore.UpdateRoleUsersWFRequestHandler;
 import org.wso2.carbon.user.mgt.workflow.userstore.UpdateUserRolesWFRequestHandler;
 import org.wso2.carbon.user.mgt.workflow.userstore.UserStoreActionListener;
-import org.wso2.carbon.user.core.listener.UserOperationEventListener;
-import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.ConfigurationContextService;
 
 /**

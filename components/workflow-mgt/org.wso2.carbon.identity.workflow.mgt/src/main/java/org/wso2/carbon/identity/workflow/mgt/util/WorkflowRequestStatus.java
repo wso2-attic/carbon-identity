@@ -50,6 +50,11 @@ public enum WorkflowRequestStatus {
     FAILED,
 
     /**
+     * The request is deleted by requested user.
+     */
+    DELETED,
+
+    /**
      * The request failed at the executor.
      */
     UNDEFINED

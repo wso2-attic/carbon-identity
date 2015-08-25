@@ -76,8 +76,8 @@ public class WorkflowMgtServiceComponent {
         WorkflowServiceDataHolder.getInstance().setBundleContext(bundleContext);
         setWorkflowTemplate(new SimpleApprovalTemplate());
         setTemplateImplementation(new BPELApprovalTemplateImpl());
-        setWorkflowTemplate(new AlwaysDenyTemplate());
-        setTemplateImplementation(new DefaultImmediateDenyImpl());
+        //setWorkflowTemplate(new AlwaysDenyTemplate());
+        //setTemplateImplementation(new DefaultImmediateDenyImpl());
     }
 
     protected void unsetRealmService(RealmService realmService) {

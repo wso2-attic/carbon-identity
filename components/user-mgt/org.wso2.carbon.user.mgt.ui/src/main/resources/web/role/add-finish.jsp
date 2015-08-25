@@ -20,14 +20,14 @@
 <%@ page import="org.wso2.carbon.CarbonConstants" %>
 <%@page import="org.wso2.carbon.ui.CarbonUIMessage" %>
 <%@page import="org.wso2.carbon.ui.CarbonUIUtil" %>
-<%@page import="org.wso2.carbon.user.mgt.ui.UserAdminClient" %>
+<%@page import="org.wso2.carbon.user.core.UserCoreConstants" %>
+<%@ page import="org.wso2.carbon.user.core.util.UserCoreUtil" %>
+<%@ page import="org.wso2.carbon.user.mgt.ui.UserAdminClient" %>
 <%@ page import="org.wso2.carbon.user.mgt.ui.UserAdminUIConstants" %>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@ page import="java.text.MessageFormat" %>
 <%@ page import="java.util.Map" %>
 <%@ page import="java.util.ResourceBundle" %>
-<%@ page import="org.wso2.carbon.user.core.UserCoreConstants" %>
-<%@ page import="org.wso2.carbon.user.core.util.UserCoreUtil" %>
 
 <jsp:useBean id="roleBean" type="org.wso2.carbon.user.mgt.ui.RoleBean"
              class="org.wso2.carbon.user.mgt.ui.RoleBean" scope="session"/>

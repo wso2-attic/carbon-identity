@@ -33,9 +33,10 @@ import org.wso2.carbon.identity.application.authentication.framework.context.Aut
 import org.wso2.carbon.identity.application.authentication.framework.exception.ApplicationAuthenticatorException;
 import org.wso2.carbon.identity.application.authentication.framework.exception.AuthenticationFailedException;
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticatedUser;
+import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkConstants;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkUtils;
 import org.wso2.carbon.identity.application.common.model.ClaimMapping;
-import org.wso2.carbon.ui.CarbonUIUtil;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -85,15 +86,14 @@ public class FacebookAuthenticator extends AbstractApplicationAuthenticator impl
                 scope = FacebookAuthenticatorConstants.EMAIL;
             }
 
-            String callbackurl = CarbonUIUtil.getAdminConsoleURL(request);
-            callbackurl = callbackurl.replace("commonauth/carbon/", "commonauth");
+            String callbackUrl = IdentityUtil.getServerURL(FrameworkConstants.COMMONAUTH);
 
             String state = context.getContextIdentifier() + "," + FacebookAuthenticatorConstants.FACEBOOK_LOGIN_TYPE;
 
             OAuthClientRequest authzRequest =
                     OAuthClientRequest.authorizationLocation(authorizationEP)
                             .setClientId(clientId)
-                            .setRedirectURI(callbackurl)
+                            .setRedirectURI(callbackUrl)
                             .setResponseType(FacebookAuthenticatorConstants.OAUTH2_GRANT_TYPE_CODE)
                             .setScope(scope).setState(state)
                             .buildQueryMessage();
@@ -126,11 +126,10 @@ public class FacebookAuthenticator extends AbstractApplicationAuthenticator impl
             String tokenEndPoint = authenticatorProperties.get(FacebookAuthenticatorConstants.FB_TOKEN_URL);
             String fbauthUserInfoUrl = authenticatorProperties.get(FacebookAuthenticatorConstants.FB_USER_INFO_URL);
 
-            String callbackurl = CarbonUIUtil.getAdminConsoleURL(request);
-            callbackurl = callbackurl.replace("commonauth/carbon/", "commonauth");
+            String callbackUrl = IdentityUtil.getServerURL(FrameworkConstants.COMMONAUTH);
 
             String code = getAuthorizationCode(request);
-            String token = getToken(tokenEndPoint, clientId, clientSecret, callbackurl, code);
+            String token = getToken(tokenEndPoint, clientId, clientSecret, callbackUrl, code);
 
             if (!StringUtils.isBlank(userInfoFields)) {
                 if (context.getExternalIdP().getIdentityProvider().getClaimConfig() != null && !StringUtils.isBlank

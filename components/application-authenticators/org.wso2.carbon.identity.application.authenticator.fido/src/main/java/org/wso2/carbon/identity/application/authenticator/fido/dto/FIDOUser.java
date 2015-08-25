@@ -22,21 +22,9 @@ import com.yubico.u2f.data.DeviceRegistration;
 import com.yubico.u2f.data.messages.AuthenticateResponse;
 import com.yubico.u2f.data.messages.RegisterResponse;
 import org.wso2.carbon.identity.application.authenticator.fido.util.FIDOAuthenticatorConstants;
+import org.wso2.carbon.identity.application.common.model.User;
 
-public class FIDOUser {
-    /**
-     * The username belongs to the FIDO user
-     */
-    private String username;
-    /**
-     * The tenant domain belongs to the FIDO user.
-     */
-    private String tenantDomain;
-
-    /**
-     * The user store domain belongs to the FIDO user.
-     */
-    private String userStoreDomain;
+public class FIDOUser extends User {
 
     /**
      * The U2F AppID. Set this to the Web Origin of the login page, unless you need to support logging in from multiple
@@ -66,7 +54,7 @@ public class FIDOUser {
 
     @SuppressWarnings(FIDOAuthenticatorConstants.UNUSED)
     public FIDOUser(final String username) {
-        this.username = username;
+        this.userName = username;
     }
 
     public FIDOUser(RegisterResponse registerResponse) {
@@ -76,20 +64,20 @@ public class FIDOUser {
     @SuppressWarnings(FIDOAuthenticatorConstants.UNUSED)
     public FIDOUser(final String appID, final String username) {
         this.appID = appID;
-        this.username = username;
+        this.userName = username;
     }
 
     @SuppressWarnings(FIDOAuthenticatorConstants.UNUSED)
     public FIDOUser(final String username, final String tenantDomain,
                     final String userStoreDomain) {
-        this.username = username;
+        this.userName = username;
         this.tenantDomain = tenantDomain;
         this.userStoreDomain = userStoreDomain;
     }
 
     public FIDOUser(final String username, final String tenantDomain, final String userStoreDomain,
                     final RegisterResponse registerResponse) {
-        this.username = username;
+        this.userName = username;
         this.tenantDomain = tenantDomain;
         this.userStoreDomain = userStoreDomain;
         this.registerResponse = registerResponse;
@@ -97,46 +85,17 @@ public class FIDOUser {
 
     public FIDOUser(String username, String tenantDomain, String userStoreDomain,
                     AuthenticateResponse authenticateResponse) {
-        this.username = username;
+        this.userName = username;
         this.tenantDomain = tenantDomain;
         this.userStoreDomain = userStoreDomain;
         this.authenticateResponse = authenticateResponse;
     }
 
     public FIDOUser(String username, String tenantDomain, String userStoreDomain, String appID) {
-        this.username = username;
+        this.userName = username;
         this.tenantDomain = tenantDomain;
         this.userStoreDomain = userStoreDomain;
         this.appID = appID;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    @SuppressWarnings(FIDOAuthenticatorConstants.UNUSED)
-    public void setUsername(final String username) {
-        this.username = username;
-    }
-
-    @SuppressWarnings(FIDOAuthenticatorConstants.UNUSED)
-    public String getTenantDomain() {
-        return tenantDomain;
-    }
-
-    @SuppressWarnings(FIDOAuthenticatorConstants.UNUSED)
-    public void setTenantDomain(final String tenantDomain) {
-        this.tenantDomain = tenantDomain;
-    }
-
-    @SuppressWarnings(FIDOAuthenticatorConstants.UNUSED)
-    public String getUserStoreDomain() {
-        return userStoreDomain;
-    }
-
-    @SuppressWarnings(FIDOAuthenticatorConstants.UNUSED)
-    public void setUserStoreDomain(final String userStoreDomain) {
-        this.userStoreDomain = userStoreDomain;
     }
 
     @SuppressWarnings(FIDOAuthenticatorConstants.UNUSED)
