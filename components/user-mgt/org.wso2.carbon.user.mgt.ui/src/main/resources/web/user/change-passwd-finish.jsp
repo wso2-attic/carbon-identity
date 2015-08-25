@@ -16,36 +16,40 @@
    under the License.
   --%>
 
-<%@page import="org.apache.axis2.context.ConfigurationContext"%>
-<%@page import="org.wso2.carbon.CarbonConstants"%>
-<%@page import="org.wso2.carbon.context.PrivilegedCarbonContext"%>
-<%@page import="org.wso2.carbon.ui.CarbonUIMessage"%>
-<%@page import="org.wso2.carbon.ui.CarbonUIUtil"%>
+<%@ page import="org.apache.axis2.context.ConfigurationContext" %>
+<%@ page import="org.owasp.encoder.Encode" %>
+<%@ page import="org.wso2.carbon.CarbonConstants" %>
+<%@ page import="org.wso2.carbon.context.PrivilegedCarbonContext" %>
+<%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
+<%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
 <%@ page import="org.wso2.carbon.user.core.util.UserCoreUtil" %>
 <%@ page import="org.wso2.carbon.user.mgt.ui.UserAdminClient" %>
 <%@ page import="org.wso2.carbon.user.mgt.ui.Util" %>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
+<%@ page import="java.text.MessageFormat" %>
+<%@ page import="java.util.ResourceBundle" %>
+
 <%
-	String forwardTo = null;
+    String forwardTo = null;
     String username = request.getParameter("username");
     String newPassword = request.getParameter("newPassword");
     String isUserChange = request.getParameter("isUserChange");
     String returnPath = request.getParameter("returnPath");
     String currentPassword = request.getParameter("currentPassword");
-    
+
     String BUNDLE = "org.wso2.carbon.userstore.ui.i18n.Resources";
     ResourceBundle resourceBundle = ResourceBundle.getBundle(BUNDLE, request.getLocale());
 
     try {
-        String cookie = (String)session.getAttribute(ServerConstants.ADMIN_SERVICE_COOKIE);
+        String cookie = (String) session.getAttribute(ServerConstants.ADMIN_SERVICE_COOKIE);
         String backendServerURL = CarbonUIUtil.getServerURL(config.getServletContext(), session);
         ConfigurationContext configContext =
-            (ConfigurationContext) config.getServletContext().getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
+                (ConfigurationContext) config.getServletContext().getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
         UserAdminClient client = new UserAdminClient(cookie, backendServerURL, configContext);
         if (isUserChange != null) {
             String tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
             client.changePasswordByUser(UserCoreUtil.addTenantDomainToEntry(username, tenantDomain),
-                    currentPassword, newPassword);
+                                        currentPassword, newPassword);
             forwardTo = Encode.forUriComponent(returnPath);
             session.removeAttribute(ServerConstants.PASSWORD_EXPIRATION);
         } else {
@@ -54,15 +58,14 @@
         }
 
         String message = MessageFormat.format(resourceBundle.getString("password.change.successful"),
-                new Object[]{Util.decodeHTMLCharacters(username)});
+                                              new Object[] { Util.decodeHTMLCharacters(username) });
         CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.INFO, request);
-        
-        
+
     } catch (Exception e) {
         String message = MessageFormat.format(resourceBundle.getString("password.change.error"),
-                Util.decodeHTMLCharacters(username), e.getMessage());
+                                              Util.decodeHTMLCharacters(username), e.getMessage());
         CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
-        if(isUserChange != null) {
+        if (isUserChange != null) {
             forwardTo = "change-passwd.jsp?ordinal=2&returnPath=" + Encode.forUriComponent(returnPath) +
                         "&isUserChange=true";
         } else {
@@ -71,10 +74,6 @@
     }
 %>
 
-
-<%@page import="java.text.MessageFormat" %>
-<%@ page import="java.util.ResourceBundle" %>
-<%@ page import="org.owasp.encoder.Encode" %>
 <script type="text/javascript">
     function forward() {
         debugger;
