@@ -124,6 +124,7 @@ public class WebFingerRequest {
     public void setUri(String uri) {
         this.uri = uri;
     }
+
     public String getUserName() {
         return userName;
     }

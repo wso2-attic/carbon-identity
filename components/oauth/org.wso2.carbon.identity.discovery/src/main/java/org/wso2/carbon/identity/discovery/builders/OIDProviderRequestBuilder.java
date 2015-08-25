@@ -24,6 +24,7 @@ import javax.servlet.http.HttpServletRequest;
 
 public interface OIDProviderRequestBuilder {
 
-    public OIDProviderRequest buildRequest(HttpServletRequest request, String tenant) throws OIDCDiscoveryEndPointException;
+    public OIDProviderRequest buildRequest(HttpServletRequest request, String tenant) throws
+            OIDCDiscoveryEndPointException;
 
 }

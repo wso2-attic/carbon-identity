@@ -61,7 +61,6 @@ public class OIDProviderConfigResponse {
     private String op_tos_uri;
 
 
-
     public String getIssuer() {
         return issuer;
     }
@@ -218,7 +217,8 @@ public class OIDProviderConfigResponse {
         return request_object_encryption_alg_values_supported;
     }
 
-    public void setRequest_object_encryption_alg_values_supported(String[] request_object_encryption_alg_values_supported) {
+    public void setRequest_object_encryption_alg_values_supported(String[]
+                                                                          request_object_encryption_alg_values_supported) {
         this.request_object_encryption_alg_values_supported = request_object_encryption_alg_values_supported;
     }
 
@@ -226,7 +226,8 @@ public class OIDProviderConfigResponse {
         return request_object_encryption_enc_values_supported;
     }
 
-    public void setRequest_object_encryption_enc_values_supported(String[] request_object_encryption_enc_values_supported) {
+    public void setRequest_object_encryption_enc_values_supported(String[]
+                                                                          request_object_encryption_enc_values_supported) {
         this.request_object_encryption_enc_values_supported = request_object_encryption_enc_values_supported;
     }
 
@@ -242,7 +243,8 @@ public class OIDProviderConfigResponse {
         return token_endpoint_auth_signing_alg_values_supported;
     }
 
-    public void setToken_endpoint_auth_signing_alg_values_supported(String[] token_endpoint_auth_signing_alg_values_supported) {
+    public void setToken_endpoint_auth_signing_alg_values_supported(String[]
+                                                                            token_endpoint_auth_signing_alg_values_supported) {
         this.token_endpoint_auth_signing_alg_values_supported = token_endpoint_auth_signing_alg_values_supported;
     }
 
@@ -342,43 +344,56 @@ public class OIDProviderConfigResponse {
         this.op_tos_uri = op_tos_uri;
     }
 
-    public Map<String,Object> getConfigMap(){
-        Map<String,Object> configMap = new HashMap<String,Object>();
-        configMap.put(DiscoveryConstants.ISSUER.toLowerCase(),this.issuer);
-        configMap.put(DiscoveryConstants.ACR_VALUES_SUPPORTED.toLowerCase(),this.acr_values_supported);
-        configMap.put(DiscoveryConstants.AUTHORIZATION_ENDPOINT.toLowerCase(),this.authorization_endpoint);
-        configMap.put(DiscoveryConstants.CLAIM_TYPES_SUPPORTED.toLowerCase(),this.claim_types_supported);
-        configMap.put(DiscoveryConstants.CLAIMS_LOCALES_SUPPORTED.toLowerCase(),this.claims_locales_supported);
-        configMap.put(DiscoveryConstants.CLAIMS_PARAMETER_SUPPORTED.toLowerCase(),this.claims_parameter_supported);
-        configMap.put(DiscoveryConstants.CLAIMS_SUPPORTED.toLowerCase(),this.claims_supported);
-        configMap.put(DiscoveryConstants.DISPLAY_VALUES_SUPPORTED.toLowerCase(),this.display_values_supported);
-        configMap.put(DiscoveryConstants.GRANT_TYPES_SUPPORTED.toLowerCase(),this.grant_types_supported);
-        configMap.put(DiscoveryConstants.ID_TOKEN_ENCRYPTION_ALG_VALUES_SUPPORTED.toLowerCase(),this.id_token_encryption_alg_values_supported);
-        configMap.put(DiscoveryConstants.ID_TOKEN_ENCRYPTION_ENC_VALUES_SUPPORTED.toLowerCase(),this.id_token_encryption_enc_values_supported);
-        configMap.put(DiscoveryConstants.ID_TOKEN_SIGNING_ALG_VALUES_SUPPORTED.toLowerCase(),this.id_token_signing_alg_values_supported);
-        configMap.put(DiscoveryConstants.JWKS_URI.toLowerCase(),this.jwks_uri);
-        configMap.put(DiscoveryConstants.OP_POLICY_URI.toLowerCase(),this.op_policy_uri);
-        configMap.put(DiscoveryConstants.OP_TOS_URI.toLowerCase(),this.op_tos_uri);
-        configMap.put(DiscoveryConstants.REGISTRATION_ENDPOINT.toLowerCase(),this.registration_endpoint);
-        configMap.put(DiscoveryConstants.REQUEST_OBJECT_ENCRYPTION_ALG_VALUES_SUPPORTED.toLowerCase(),this.request_object_encryption_alg_values_supported);
-        configMap.put(DiscoveryConstants.REQUEST_OBJECT_ENCRYPTION_ENC_VALUES_SUPPORTED.toLowerCase(),this.request_object_encryption_enc_values_supported);
-        configMap.put(DiscoveryConstants.REQUEST_OBJECT_SIGNING_ALG_VALUES_SUPPORTED.toLowerCase(),this.request_object_signing_alg_values_supported);
-        configMap.put(DiscoveryConstants.REQUEST_PARAMETER_SUPPORTED.toLowerCase(),this.request_parameter_supported);
-        configMap.put(DiscoveryConstants.REQUEST_URI_PARAMETER_SUPPORTED.toLowerCase(),this.request_uri_parameter_supported);
-        configMap.put(DiscoveryConstants.REQUIRE_REQUEST_URI_REGISTRATION.toLowerCase(),this.require_request_uri_registration);
-        configMap.put(DiscoveryConstants.RESPONSE_MODES_SUPPORTED.toLowerCase(),this.response_modes_supported);
-        configMap.put(DiscoveryConstants.RESPONSE_TYPES_SUPPORTED.toLowerCase(),this.response_types_supported);
-        configMap.put(DiscoveryConstants.SCOPES_SUPPORTED.toLowerCase(),this.scopes_supported);
-        configMap.put(DiscoveryConstants.SERVICE_DOCUMENTATION.toLowerCase(),this.service_documentation);
-        configMap.put(DiscoveryConstants.SUBJECT_TYPES_SUPPORTED.toLowerCase(),this.subject_types_supported);
-        configMap.put(DiscoveryConstants.TOKEN_ENDPOINT.toLowerCase(),this.token_endpoint);
-        configMap.put(DiscoveryConstants.TOKEN_ENDPOINT_AUTH_METHODS_SUPPORTED.toLowerCase(),this.token_endpoint_auth_methods_supported);
-        configMap.put(DiscoveryConstants.TOKEN_ENDPOINT_AUTH_SIGNING_ALG_VALUES_SUPPORTED.toLowerCase(),this.token_endpoint_auth_signing_alg_values_supported);
-        configMap.put(DiscoveryConstants.UI_LOCALES_SUPPORTED.toLowerCase(),this.ui_locales_supported);
-        configMap.put(DiscoveryConstants.USERINFO_ENCRYPTION_ALG_VALUES_SUPPORTED.toLowerCase(),this.userinfo_encryption_alg_values_supported);
-        configMap.put(DiscoveryConstants.USERINFO_ENCRYPTION_ENC_VALUES_SUPPORTED.toLowerCase(),this.userinfo_encryption_enc_values_supported);
-        configMap.put(DiscoveryConstants.USERINFO_ENDPOINT.toLowerCase(),this.userinfo_endpoint);
-        configMap.put(DiscoveryConstants.USERINFO_SIGNING_ALG_VALUES_SUPPORTED.toLowerCase(),this.userinfo_signing_alg_values_supported);
+    public Map<String, Object> getConfigMap() {
+        Map<String, Object> configMap = new HashMap<String, Object>();
+        configMap.put(DiscoveryConstants.ISSUER.toLowerCase(), this.issuer);
+        configMap.put(DiscoveryConstants.ACR_VALUES_SUPPORTED.toLowerCase(), this.acr_values_supported);
+        configMap.put(DiscoveryConstants.AUTHORIZATION_ENDPOINT.toLowerCase(), this.authorization_endpoint);
+        configMap.put(DiscoveryConstants.CLAIM_TYPES_SUPPORTED.toLowerCase(), this.claim_types_supported);
+        configMap.put(DiscoveryConstants.CLAIMS_LOCALES_SUPPORTED.toLowerCase(), this.claims_locales_supported);
+        configMap.put(DiscoveryConstants.CLAIMS_PARAMETER_SUPPORTED.toLowerCase(), this.claims_parameter_supported);
+        configMap.put(DiscoveryConstants.CLAIMS_SUPPORTED.toLowerCase(), this.claims_supported);
+        configMap.put(DiscoveryConstants.DISPLAY_VALUES_SUPPORTED.toLowerCase(), this.display_values_supported);
+        configMap.put(DiscoveryConstants.GRANT_TYPES_SUPPORTED.toLowerCase(), this.grant_types_supported);
+        configMap.put(DiscoveryConstants.ID_TOKEN_ENCRYPTION_ALG_VALUES_SUPPORTED.toLowerCase(), this
+                .id_token_encryption_alg_values_supported);
+        configMap.put(DiscoveryConstants.ID_TOKEN_ENCRYPTION_ENC_VALUES_SUPPORTED.toLowerCase(), this
+                .id_token_encryption_enc_values_supported);
+        configMap.put(DiscoveryConstants.ID_TOKEN_SIGNING_ALG_VALUES_SUPPORTED.toLowerCase(), this
+                .id_token_signing_alg_values_supported);
+        configMap.put(DiscoveryConstants.JWKS_URI.toLowerCase(), this.jwks_uri);
+        configMap.put(DiscoveryConstants.OP_POLICY_URI.toLowerCase(), this.op_policy_uri);
+        configMap.put(DiscoveryConstants.OP_TOS_URI.toLowerCase(), this.op_tos_uri);
+        configMap.put(DiscoveryConstants.REGISTRATION_ENDPOINT.toLowerCase(), this.registration_endpoint);
+        configMap.put(DiscoveryConstants.REQUEST_OBJECT_ENCRYPTION_ALG_VALUES_SUPPORTED.toLowerCase(), this
+                .request_object_encryption_alg_values_supported);
+        configMap.put(DiscoveryConstants.REQUEST_OBJECT_ENCRYPTION_ENC_VALUES_SUPPORTED.toLowerCase(), this
+                .request_object_encryption_enc_values_supported);
+        configMap.put(DiscoveryConstants.REQUEST_OBJECT_SIGNING_ALG_VALUES_SUPPORTED.toLowerCase(), this
+                .request_object_signing_alg_values_supported);
+        configMap.put(DiscoveryConstants.REQUEST_PARAMETER_SUPPORTED.toLowerCase(), this.request_parameter_supported);
+        configMap.put(DiscoveryConstants.REQUEST_URI_PARAMETER_SUPPORTED.toLowerCase(), this
+                .request_uri_parameter_supported);
+        configMap.put(DiscoveryConstants.REQUIRE_REQUEST_URI_REGISTRATION.toLowerCase(), this
+                .require_request_uri_registration);
+        configMap.put(DiscoveryConstants.RESPONSE_MODES_SUPPORTED.toLowerCase(), this.response_modes_supported);
+        configMap.put(DiscoveryConstants.RESPONSE_TYPES_SUPPORTED.toLowerCase(), this.response_types_supported);
+        configMap.put(DiscoveryConstants.SCOPES_SUPPORTED.toLowerCase(), this.scopes_supported);
+        configMap.put(DiscoveryConstants.SERVICE_DOCUMENTATION.toLowerCase(), this.service_documentation);
+        configMap.put(DiscoveryConstants.SUBJECT_TYPES_SUPPORTED.toLowerCase(), this.subject_types_supported);
+        configMap.put(DiscoveryConstants.TOKEN_ENDPOINT.toLowerCase(), this.token_endpoint);
+        configMap.put(DiscoveryConstants.TOKEN_ENDPOINT_AUTH_METHODS_SUPPORTED.toLowerCase(), this
+                .token_endpoint_auth_methods_supported);
+        configMap.put(DiscoveryConstants.TOKEN_ENDPOINT_AUTH_SIGNING_ALG_VALUES_SUPPORTED.toLowerCase(), this
+                .token_endpoint_auth_signing_alg_values_supported);
+        configMap.put(DiscoveryConstants.UI_LOCALES_SUPPORTED.toLowerCase(), this.ui_locales_supported);
+        configMap.put(DiscoveryConstants.USERINFO_ENCRYPTION_ALG_VALUES_SUPPORTED.toLowerCase(), this
+                .userinfo_encryption_alg_values_supported);
+        configMap.put(DiscoveryConstants.USERINFO_ENCRYPTION_ENC_VALUES_SUPPORTED.toLowerCase(), this
+                .userinfo_encryption_enc_values_supported);
+        configMap.put(DiscoveryConstants.USERINFO_ENDPOINT.toLowerCase(), this.userinfo_endpoint);
+        configMap.put(DiscoveryConstants.USERINFO_SIGNING_ALG_VALUES_SUPPORTED.toLowerCase(), this
+                .userinfo_signing_alg_values_supported);
         return configMap;
     }
 

@@ -25,9 +25,10 @@ public class WebFingerResponse {
     private String subject;
     private List<WebLink> links;
 
-    public WebFingerResponse(){
+    public WebFingerResponse() {
         links = new ArrayList<WebLink>();
     }
+
     public List<WebLink> getLinks() {
         return links;
     }
@@ -40,11 +41,11 @@ public class WebFingerResponse {
         this.subject = subject;
     }
 
-    public void addLink(String rel, String href){
+    public void addLink(String rel, String href) {
         WebLink link = new WebLink();
         link.setRel(rel);
         link.setHref(href);
         this.links.add(link);
     }
-    
+
 }

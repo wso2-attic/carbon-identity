@@ -24,7 +24,7 @@ import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.identity.webfinger.WebFingerProcessor;
 
 /**
- *@scr.component name="identity.webfingerooo.component" immediate="true"
+ * @scr.component name="identity.webfingerooo.component" immediate="true"
  */
 
 public class WebFingerServiceComponent {

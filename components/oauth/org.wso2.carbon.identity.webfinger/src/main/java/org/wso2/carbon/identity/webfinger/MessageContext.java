@@ -21,11 +21,13 @@ package org.wso2.carbon.identity.webfinger;
 class MessageContext {
     private WebFingerRequest request;
     private WebFingerResponse response;
-    public MessageContext(){
+
+    public MessageContext() {
         this.request = new WebFingerRequest();
         this.response = new WebFingerResponse();
     }
-    public MessageContext(WebFingerRequest request){
+
+    public MessageContext(WebFingerRequest request) {
         this.request = request;
         this.response = new WebFingerResponse();
     }
@@ -45,8 +47,6 @@ class MessageContext {
     public void setResponse(WebFingerResponse response) {
         this.response = response;
     }
-
-
 
 
 }

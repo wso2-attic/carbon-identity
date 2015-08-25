@@ -24,7 +24,7 @@ import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.identity.discovery.OIDCProcessor;
 
 /**
- *@scr.component name="identity.discovery.component" immediate="true"
+ * @scr.component name="identity.discovery.component" immediate="true"
  */
 public class OIDCDiscoveryServiceComponent {
     private static Log log = LogFactory.getLog(OIDCDiscoveryServiceComponent.class);

@@ -7,14 +7,16 @@ class MessageContext {
 
     private OIDProviderRequest request;
 
-    public MessageContext(){
+    public MessageContext() {
         this.request = new OIDProviderRequest();
         this.configurations = new OIDProviderConfigResponse();
     }
-    public MessageContext(OIDProviderRequest request){
+
+    public MessageContext(OIDProviderRequest request) {
         this.request = request;
         this.configurations = new OIDProviderConfigResponse();
     }
+
     public void setConfigurations(OIDProviderConfigResponse configurations) {
         this.configurations = configurations;
     }

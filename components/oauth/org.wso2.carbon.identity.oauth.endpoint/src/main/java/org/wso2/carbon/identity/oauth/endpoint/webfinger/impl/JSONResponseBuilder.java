@@ -27,6 +27,7 @@ import org.wso2.carbon.identity.webfinger.builders.ResponseBuilder;
 
 public class JSONResponseBuilder implements ResponseBuilder {
     private static final Log log = LogFactory.getLog(JSONResponseBuilder.class);
+
     @Override
     public String getOIDProviderIssuerString(WebFingerResponse webFingerResponse) throws WebFingerEndPointException {
         return new Gson().toJson(webFingerResponse);

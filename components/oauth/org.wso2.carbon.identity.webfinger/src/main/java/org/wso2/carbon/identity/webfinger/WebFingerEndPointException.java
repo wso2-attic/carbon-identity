@@ -18,7 +18,7 @@
 package org.wso2.carbon.identity.webfinger;
 
 
-public class WebFingerEndPointException extends Exception{
+public class WebFingerEndPointException extends Exception {
 
     private static final long serialVersionUID = -4449780649560035452L;
     private final String errorCode;

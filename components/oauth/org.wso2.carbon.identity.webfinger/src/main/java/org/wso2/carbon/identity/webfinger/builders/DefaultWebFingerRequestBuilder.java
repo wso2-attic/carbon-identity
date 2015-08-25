@@ -46,14 +46,16 @@ public class DefaultWebFingerRequestBuilder implements WebFingerRequestBuilder {
         //this.validateTenant(webFingerRequest.getTenant());
         return webFingerRequest;
     }
+
     private void validateTenant(String tenant) throws WebFingerEndPointException {
         try {
             int tenantId = ClaimManagementServiceComponent.getRealmService().getTenantManager().getTenantId(tenant);
-            if (tenantId<0){
-                throw new WebFingerEndPointException(WebFingerConstants.ERROR_CODE_INVALID_TENANT,"The tenant domain is not valid.");
+            if (tenantId < 0) {
+                throw new WebFingerEndPointException(WebFingerConstants.ERROR_CODE_INVALID_TENANT, "The tenant domain" +
+                        " is not valid.");
             }
         } catch (UserStoreException e) {
-            throw new WebFingerEndPointException(WebFingerConstants.ERROR_CODE_INVALID_TENANT,e.getMessage());
+            throw new WebFingerEndPointException(WebFingerConstants.ERROR_CODE_INVALID_TENANT, e.getMessage());
         }
     }
 

@@ -29,7 +29,7 @@ import javax.servlet.http.HttpServletResponse;
 
 /**
  * Singleton class to process the webfinger request.
- * */
+ */
 public class WebFingerProcessor {
     private static Log log = LogFactory.getLog(WebFingerProcessor.class);
     private static WebFingerProcessor webFingerProcessor = new WebFingerProcessor();
@@ -64,7 +64,7 @@ public class WebFingerProcessor {
         } else if (errorCode.equals(WebFingerConstants.ERROR_CODE_JSON_EXCEPTION)) {
             return HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE;
         } else if (errorCode.equals(WebFingerConstants.ERROR_CODE_NO_WEBFINGER_CONFIG)) {
-           return HttpServletResponse.SC_NOT_FOUND;
+            return HttpServletResponse.SC_NOT_FOUND;
         } else {
             return HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
         }

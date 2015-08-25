@@ -157,41 +157,45 @@ op_tos_uri
     OpenID Provider's terms of service. The registration process SHOULD display this URL to the person
     registering the Client if it is given.
 */
-    public static final String ISSUER="Issuer";
-    public static final String AUTHORIZATION_ENDPOINT="Authorization_endpoint";
-    public static final String TOKEN_ENDPOINT="Token_endpoint";
-    public static final String USERINFO_ENDPOINT="Userinfo_endpoint";
-    public static final String JWKS_URI="Jwks_uri";
-    public static final String REGISTRATION_ENDPOINT="Registration_endpoint";
-    public static final String SCOPES_SUPPORTED="Scopes_supported";
-    public static final String RESPONSE_TYPES_SUPPORTED="Response_types_supported";
-    public static final String RESPONSE_MODES_SUPPORTED="Response_modes_supported";
-    public static final String GRANT_TYPES_SUPPORTED="Grant_types_supported";
-    public static final String ACR_VALUES_SUPPORTED="Acr_values_supported";
-    public static final String SUBJECT_TYPES_SUPPORTED="Subject_types_supported";
-    public static final String ID_TOKEN_SIGNING_ALG_VALUES_SUPPORTED="ID_token_signing_alg_values_supported";
-    public static final String ID_TOKEN_ENCRYPTION_ALG_VALUES_SUPPORTED="ID_token_encryption_alg_values_supported";
-    public static final String ID_TOKEN_ENCRYPTION_ENC_VALUES_SUPPORTED="ID_token_encryption_enc_values_supported";
-    public static final String USERINFO_SIGNING_ALG_VALUES_SUPPORTED="Userinfo_signing_alg_values_supported";
-    public static final String USERINFO_ENCRYPTION_ALG_VALUES_SUPPORTED="Userinfo_encryption_alg_values_supported";
-    public static final String USERINFO_ENCRYPTION_ENC_VALUES_SUPPORTED="Userinfo_encryption_enc_values_supported";
-    public static final String REQUEST_OBJECT_SIGNING_ALG_VALUES_SUPPORTED="Request_object_signing_alg_values_supported";
-    public static final String REQUEST_OBJECT_ENCRYPTION_ALG_VALUES_SUPPORTED="Request_object_encryption_alg_values_supported";
-    public static final String REQUEST_OBJECT_ENCRYPTION_ENC_VALUES_SUPPORTED="Request_object_encryption_enc_values_supported";
-    public static final String TOKEN_ENDPOINT_AUTH_METHODS_SUPPORTED="Token_endpoint_auth_methods_supported";
-    public static final String TOKEN_ENDPOINT_AUTH_SIGNING_ALG_VALUES_SUPPORTED="Token_endpoint_auth_signing_alg_values_supported";
-    public static final String DISPLAY_VALUES_SUPPORTED="Display_values_supported";
-    public static final String CLAIM_TYPES_SUPPORTED="Claim_types_supported";
-    public static final String CLAIMS_SUPPORTED="Claims_supported";
-    public static final String SERVICE_DOCUMENTATION="Service_documentation";
-    public static final String CLAIMS_LOCALES_SUPPORTED="Claims_locales_supported";
-    public static final String UI_LOCALES_SUPPORTED="UI_locales_supported";
-    public static final String CLAIMS_PARAMETER_SUPPORTED="Claims_parameter_supported";
-    public static final String REQUEST_PARAMETER_SUPPORTED="Request_parameter_supported";
-    public static final String REQUEST_URI_PARAMETER_SUPPORTED="Request_uri_parameter_supported";
-    public static final String REQUIRE_REQUEST_URI_REGISTRATION="Require_request_uri_registration";
-    public static final String OP_POLICY_URI="OP_policy_uri";
-    public static final String OP_TOS_URI="OP_tos_uri";
+    public static final String ISSUER = "Issuer";
+    public static final String AUTHORIZATION_ENDPOINT = "Authorization_endpoint";
+    public static final String TOKEN_ENDPOINT = "Token_endpoint";
+    public static final String USERINFO_ENDPOINT = "Userinfo_endpoint";
+    public static final String JWKS_URI = "Jwks_uri";
+    public static final String REGISTRATION_ENDPOINT = "Registration_endpoint";
+    public static final String SCOPES_SUPPORTED = "Scopes_supported";
+    public static final String RESPONSE_TYPES_SUPPORTED = "Response_types_supported";
+    public static final String RESPONSE_MODES_SUPPORTED = "Response_modes_supported";
+    public static final String GRANT_TYPES_SUPPORTED = "Grant_types_supported";
+    public static final String ACR_VALUES_SUPPORTED = "Acr_values_supported";
+    public static final String SUBJECT_TYPES_SUPPORTED = "Subject_types_supported";
+    public static final String ID_TOKEN_SIGNING_ALG_VALUES_SUPPORTED = "ID_token_signing_alg_values_supported";
+    public static final String ID_TOKEN_ENCRYPTION_ALG_VALUES_SUPPORTED = "ID_token_encryption_alg_values_supported";
+    public static final String ID_TOKEN_ENCRYPTION_ENC_VALUES_SUPPORTED = "ID_token_encryption_enc_values_supported";
+    public static final String USERINFO_SIGNING_ALG_VALUES_SUPPORTED = "Userinfo_signing_alg_values_supported";
+    public static final String USERINFO_ENCRYPTION_ALG_VALUES_SUPPORTED = "Userinfo_encryption_alg_values_supported";
+    public static final String USERINFO_ENCRYPTION_ENC_VALUES_SUPPORTED = "Userinfo_encryption_enc_values_supported";
+    public static final String REQUEST_OBJECT_SIGNING_ALG_VALUES_SUPPORTED =
+            "Request_object_signing_alg_values_supported";
+    public static final String REQUEST_OBJECT_ENCRYPTION_ALG_VALUES_SUPPORTED =
+            "Request_object_encryption_alg_values_supported";
+    public static final String REQUEST_OBJECT_ENCRYPTION_ENC_VALUES_SUPPORTED =
+            "Request_object_encryption_enc_values_supported";
+    public static final String TOKEN_ENDPOINT_AUTH_METHODS_SUPPORTED = "Token_endpoint_auth_methods_supported";
+    public static final String TOKEN_ENDPOINT_AUTH_SIGNING_ALG_VALUES_SUPPORTED =
+            "Token_endpoint_auth_signing_alg_values_supported";
+    public static final String DISPLAY_VALUES_SUPPORTED = "Display_values_supported";
+    public static final String CLAIM_TYPES_SUPPORTED = "Claim_types_supported";
+    public static final String CLAIMS_SUPPORTED = "Claims_supported";
+    public static final String SERVICE_DOCUMENTATION = "Service_documentation";
+    public static final String CLAIMS_LOCALES_SUPPORTED = "Claims_locales_supported";
+    public static final String UI_LOCALES_SUPPORTED = "UI_locales_supported";
+    public static final String CLAIMS_PARAMETER_SUPPORTED = "Claims_parameter_supported";
+    public static final String REQUEST_PARAMETER_SUPPORTED = "Request_parameter_supported";
+    public static final String REQUEST_URI_PARAMETER_SUPPORTED = "Request_uri_parameter_supported";
+    public static final String REQUIRE_REQUEST_URI_REGISTRATION = "Require_request_uri_registration";
+    public static final String OP_POLICY_URI = "OP_policy_uri";
+    public static final String OP_TOS_URI = "OP_tos_uri";
 
     public static final String CONFIG_ELEM_OIDC = "OpenIDConnectDiscovery";
     public static final String CONFIG_ELEM_OIDCCONFIG = "Configuration";

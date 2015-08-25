@@ -45,22 +45,22 @@ public class OIDCDiscoveryEndpoint {
     @Produces("application/json")
     public Response getOIDProviderConfiguration(@Context HttpServletRequest request, @PathParam("tenant") String
             tenant) {
-        return this.getResponse(request,tenant);
+        return this.getResponse(request, tenant);
     }
 
     @GET
     @Path("/.well-known/openid-configuration")
     @Produces("application/json")
     public Response getOIDProviderConfiguration(@Context HttpServletRequest request) {
-        return this.getResponse(request,null);
+        return this.getResponse(request, null);
     }
 
-    private Response getResponse(HttpServletRequest request, String tenant){
+    private Response getResponse(HttpServletRequest request, String tenant) {
         String response;
         OIDCProcessor processor = EndpointUtil.getOIDCService();
         try {
             OIDProviderResponseBuilder responseBuilder = new OIDProviderJSONResponseBuilder();
-            response = responseBuilder.getOIDProviderConfigString(processor.getResponse(request,tenant));
+            response = responseBuilder.getOIDProviderConfigString(processor.getResponse(request, tenant));
         } catch (OIDCDiscoveryEndPointException e) {
             Response.ResponseBuilder errorResponse = Response.status(processor.handleError(e));
             return errorResponse.entity(e.getMessage()).build();

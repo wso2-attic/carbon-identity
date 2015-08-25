@@ -32,7 +32,6 @@ public class OIDCProcessor {
     private static OIDCProcessor oidcProcessor = new OIDCProcessor();
 
 
-
     private OIDCProcessor() {
         if (log.isDebugEnabled()) {
             log.debug("Initializing OIDCProcessor for OpenID connect discovery processor.");
@@ -46,7 +45,7 @@ public class OIDCProcessor {
     public OIDProviderConfigResponse getResponse(HttpServletRequest request, String tenant) throws
             OIDCDiscoveryEndPointException, ServerConfigurationException {
         OIDProviderRequestBuilder requestBuilder = new DefaultOIDProviderRequestBuilder();
-        OIDProviderRequest requestObject  = requestBuilder.buildRequest(request, tenant);
+        OIDProviderRequest requestObject = requestBuilder.buildRequest(request, tenant);
         ProviderConfigBuilder responseBuilder = new ProviderConfigBuilder();
         return responseBuilder.buildOIDProviderConfig(requestObject);
     }
@@ -56,15 +55,15 @@ public class OIDCProcessor {
             log.debug(error);
         }
         String errorCode = error.getErrorCode();
-        if (errorCode.equals(OIDCDiscoveryEndPointException.ERROR_CODE_NO_OPENID_PROVIDER_FOUND)){
+        if (errorCode.equals(OIDCDiscoveryEndPointException.ERROR_CODE_NO_OPENID_PROVIDER_FOUND)) {
 
-        }else if(errorCode.equals(OIDCDiscoveryEndPointException.ERROR_CODE_INVALID_REQUEST)){
+        } else if (errorCode.equals(OIDCDiscoveryEndPointException.ERROR_CODE_INVALID_REQUEST)) {
 
-        }else if(errorCode.equals(OIDCDiscoveryEndPointException.ERROR_CODE_INVALID_TENANT)){
+        } else if (errorCode.equals(OIDCDiscoveryEndPointException.ERROR_CODE_INVALID_TENANT)) {
 
-        }else if(errorCode.equals(OIDCDiscoveryEndPointException.ERROR_CODE_JSON_EXCEPTION)){
-            
-        }else {
+        } else if (errorCode.equals(OIDCDiscoveryEndPointException.ERROR_CODE_JSON_EXCEPTION)) {
+
+        } else {
             return HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
         }
         return HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
