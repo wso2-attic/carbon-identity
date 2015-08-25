@@ -1,3 +1,21 @@
+/*
+ * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 package org.wso2.carbon.identity.mgt.handler.internal;
 
 import org.apache.commons.logging.Log;
@@ -23,7 +41,7 @@ public class PasswordExpireEventHandler extends AbstractEventHandler {
     @Override
     public void init() {
 
-        registeredEventList = new ArrayList<String>() {{
+        registeredEventList = new ArrayList<>() {{
             add("POST_AUTHENTICATION");
         }};
     }
@@ -72,7 +90,7 @@ public class PasswordExpireEventHandler extends AbstractEventHandler {
             // Password Expire based on time
             if (lastPasswordChangeTime > 0 && ((currentTime - lastPasswordChangeTime) > expireTimeConfiguration)) {
                 String errorMsg = "Same password is used for maximum no of times, has to change the password";
-                if(log.isDebugEnabled()){
+                if (log.isDebugEnabled()) {
                     log.debug("Same password is used for maximum duration, has to change the password");
                 }
                 throw new UserStoreException(
@@ -84,7 +102,7 @@ public class PasswordExpireEventHandler extends AbstractEventHandler {
             // Password Expire based on frequency
             else if (noOfTimePasswordIsUsed > expireFrequencyConfiguration) {
                 String errorMsg = "Same password is used for maximum no of times, has to change the password";
-                if(log.isDebugEnabled()){
+                if (log.isDebugEnabled()) {
                     log.debug(errorMsg);
                 }
                 throw new UserStoreException(

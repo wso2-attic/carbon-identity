@@ -101,7 +101,6 @@ public class IdentityMgtEventListener extends AbstractIdentityUserOperationEvent
     private static final String DO_POST_UPDATE_CREDENTIAL = "doPostUpdateCredential";
 
 
-
     public IdentityMgtEventListener() {
         identityMgtConfig = IdentityMgtConfig.getInstance();
         // Get the policy registry with the loaded policies.
@@ -109,7 +108,7 @@ public class IdentityMgtEventListener extends AbstractIdentityUserOperationEvent
         module = IdentityMgtConfig.getInstance().getIdentityDataStore();
         String isAdminUnlockSysProp = System.getProperty(UNLOCK_ADMIN_SYS_PROP);
         // If the system property unlockAdmin is set, then admin account will be unlocked
-        if(StringUtils.isNotBlank(isAdminUnlockSysProp) && Boolean.parseBoolean(isAdminUnlockSysProp)) {
+        if (StringUtils.isNotBlank(isAdminUnlockSysProp) && Boolean.parseBoolean(isAdminUnlockSysProp)) {
             log.info("unlockAdmin system property is defined. Hence unlocking admin account");
             unlockAdmin();
         }
@@ -390,12 +389,11 @@ public class IdentityMgtEventListener extends AbstractIdentityUserOperationEvent
                         long lastFailAttemptTime = userIdentityDTO.getLastFailAttemptTime();
                         long timeGapBetweenFailAttempts = currentTime - lastFailAttemptTime;
 
-                        long failAttemptExpireTime = (config.getAuthPolicyLoginAttemptsExpireTime())*24*60*1000;
+                        long failAttemptExpireTime = (config.getAuthPolicyLoginAttemptsExpireTime()) * 24 * 60 * 1000;
 
-                        if(lastFailAttemptTime!=0 && timeGapBetweenFailAttempts> failAttemptExpireTime){
+                        if (lastFailAttemptTime != 0 && timeGapBetweenFailAttempts > failAttemptExpireTime) {
                             userIdentityDTO.setFailAttempts(0);
-                        }
-                        else{
+                        } else {
                             userIdentityDTO.setFailAttempts();
                             userIdentityDTO.setLastFailAttemptTime(currentTime);
                         }
@@ -708,13 +706,12 @@ public class IdentityMgtEventListener extends AbstractIdentityUserOperationEvent
     }
 
     /**
-	 * This method is used to check pre conditions when changing the user
-	 * password.
-	 * 
-	 */
+     * This method is used to check pre conditions when changing the user
+     * password.
+     */
     @Override
-	public boolean doPreUpdateCredential(String userName, Object newCredential,
-            Object oldCredential, UserStoreManager userStoreManager) throws UserStoreException {
+    public boolean doPreUpdateCredential(String userName, Object newCredential,
+                                         Object oldCredential, UserStoreManager userStoreManager) throws UserStoreException {
 
         if (!isEnable(this.getClass().getName())) {
             return true;
@@ -733,7 +730,7 @@ public class IdentityMgtEventListener extends AbstractIdentityUserOperationEvent
             // Enforcing the password policies.
             if (newCredential != null
                     && (newCredential instanceof String && (newCredential.toString().trim()
-                            .length() > 0))) {
+                    .length() > 0))) {
                 policyRegistry.enforcePasswordPolicies(newCredential.toString(), userName);
 
             }
@@ -763,9 +760,8 @@ public class IdentityMgtEventListener extends AbstractIdentityUserOperationEvent
             String encryptedPassword = null;
             try {
                 encryptedPassword = Utils.encryptPassword((String) newCredential, saltValue, config);
-            } catch (org.wso2.carbon.user.api.UserStoreException e) {
-                String msg = "Error in adding password";
-                throw new UserStoreException(msg, e);
+            } catch (UserStoreException e) {
+                log.error("Error in adding password", e);
             }
 
 
@@ -773,7 +769,7 @@ public class IdentityMgtEventListener extends AbstractIdentityUserOperationEvent
 
                 String eventName = "PRE_UPDATE_CREDENTIAL";
 
-                HashMap<String, Object> properties = new HashMap<String, Object>();
+                Map<String, Object> properties = new HashMap<>();
                 properties.put("UserIdentityDTO", userIdentityDTO);
                 properties.put("IdentityMgtConfig", config);
                 properties.put("credential", encryptedPassword);
@@ -809,15 +805,15 @@ public class IdentityMgtEventListener extends AbstractIdentityUserOperationEvent
 
         return true;
     }
-	
-	/**
-	 * This method is used when the admin is updating the credentials with an
-	 * empty credential. A random password will be generated and will be mailed
-	 * to the user. 
-	 */
-	@Override
+
+    /**
+     * This method is used when the admin is updating the credentials with an
+     * empty credential. A random password will be generated and will be mailed
+     * to the user.
+     */
+    @Override
     public boolean doPreUpdateCredentialByAdmin(String userName, Object newCredential,
-            UserStoreManager userStoreManager) throws UserStoreException {
+                                                UserStoreManager userStoreManager) throws UserStoreException {
 
         if (!isEnable(this.getClass().getName())) {
             return true;
@@ -835,7 +831,7 @@ public class IdentityMgtEventListener extends AbstractIdentityUserOperationEvent
             // Enforcing the password policies.
             if (newCredential != null
                     && (newCredential instanceof StringBuffer && (newCredential.toString().trim()
-                            .length() > 0))) {
+                    .length() > 0))) {
                 policyRegistry.enforcePasswordPolicies(newCredential.toString(), userName);
             }
 
@@ -845,7 +841,7 @@ public class IdentityMgtEventListener extends AbstractIdentityUserOperationEvent
 
         if (newCredential == null
                 || (newCredential instanceof StringBuffer && ((StringBuffer) newCredential)
-                        .toString().trim().length() < 1)) {
+                .toString().trim().length() < 1)) {
 
             if (!config.isEnableTemporaryPassword()) {
                 log.error("Empty passwords are not allowed");
