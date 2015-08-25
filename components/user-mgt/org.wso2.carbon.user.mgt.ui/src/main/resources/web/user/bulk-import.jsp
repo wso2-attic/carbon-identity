@@ -27,6 +27,7 @@
 <%@ page import="org.wso2.carbon.user.mgt.ui.UserAdminClient" %>
 <%@ page import="org.wso2.carbon.user.mgt.ui.UserAdminUIConstants" %>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 
 <script type="text/javascript" src="extensions/core/js/vui.js"></script>
 <script type="text/javascript" src="../admin/js/main.js"></script>
@@ -82,7 +83,7 @@
             }
 
             var e = document.getElementById("domain");
-            var passwordRegEx = "<%=userStoreInfo.getPasswordRegEx()%>";
+            var passwordRegEx = "<%=Encode.forJavaScriptBlock(userStoreInfo.getPasswordRegEx())%>";
             if (e != null) {
 
                 var selectedDomainValue = e.options[e.selectedIndex].text.toUpperCase()

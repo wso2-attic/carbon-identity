@@ -22,7 +22,6 @@
 <%@page import="org.apache.axis2.context.ConfigurationContext" %>
 <%@page import="org.wso2.carbon.CarbonConstants" %>
 <%@page import="org.wso2.carbon.ui.CarbonUIUtil" %>
-<%@page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
 <%@page import="org.wso2.carbon.user.mgt.stub.types.carbon.FlaggedName" %>
 <%@page import="org.wso2.carbon.user.mgt.ui.PaginatedNamesBean" %>
 <%@ page import="org.wso2.carbon.user.mgt.ui.UserAdminClient" %>
@@ -36,6 +35,7 @@
 <%@ page import="java.util.List" %>
 <%@ page import="java.util.Map" %>
 <%@ page import="java.util.ResourceBundle" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 <script type="text/javascript" src="../userstore/extensions/js/vui.js"></script>
 <script type="text/javascript" src="../admin/js/main.js"></script>
 <jsp:include page="../dialog/display_messages.jsp"/>
@@ -77,7 +77,7 @@
     filter = filter.trim();
     session.setAttribute(UserAdminUIConstants.ROLE_LIST_UNASSIGNED_USER_FILTER, filter);
 
-    String roleName = CharacterEncoder.getSafeText(request.getParameter("roleName"));
+    String roleName = request.getParameter("roleName");
 
     String readOnlyRoleString  = request.getParameter(UserAdminUIConstants.ROLE_READ_ONLY);
     if(readOnlyRoleString == null){
@@ -215,7 +215,7 @@
     function doPaginate(page, pageNumberParameterName, pageNumber){
         var form = document.createElement("form");
         form.setAttribute("method", "POST");
-        form.setAttribute("action", page + "?" + pageNumberParameterName + "=" + pageNumber + "&roleName=" + '<%=roleName%>');
+        form.setAttribute("action", page + "?" + pageNumberParameterName + "=" + pageNumber + "&roleName=" + '<%=Encode.forJavaScript(Encode.forUriComponent(roleName))%>');
         var selectedRolesStr = "";
         $("input[type='checkbox']:checked").each(function(index){
             if(!$(this).is(":disabled")){
@@ -251,7 +251,7 @@
     function doSelectAllRetrieved() {
         var form = document.createElement("form");
         form.setAttribute("method", "POST");
-        form.setAttribute("action", "edit-users.jsp?pageNumber=" + <%=pageNumber%> + "&roleName=" + '<%=roleName%>');
+        form.setAttribute("action", "edit-users.jsp?pageNumber=" + <%=pageNumber%> +"&roleName=" + '<%=Encode.forJavaScript(Encode.forUriComponent(roleName))%>');
         var selectedRolesElem = document.createElement("input");
         selectedRolesElem.setAttribute("type", "hidden");
         selectedRolesElem.setAttribute("name", "selectedUsers");
@@ -265,7 +265,7 @@
     function doUnSelectAllRetrieved() {
         var form = document.createElement("form");
         form.setAttribute("method", "POST");
-        form.setAttribute("action", "edit-users.jsp?pageNumber=" + <%=pageNumber%> + "&roleName=" + '<%=roleName%>');
+        form.setAttribute("action", "edit-users.jsp?pageNumber=" + <%=pageNumber%> +"&roleName=" + '<%=Encode.forJavaScript(Encode.forUriComponent(roleName))%>');
         var unselectedRolesElem = document.createElement("input");
         unselectedRolesElem.setAttribute("type", "hidden");
         unselectedRolesElem.setAttribute("name", "unselectedUsers");
@@ -279,7 +279,7 @@
 
 
 <div id="middle">
-    <h2><fmt:message key="users.list.in.role"/> <%=roleName%>
+    <h2><fmt:message key="users.list.in.role"/> <%=Encode.forHtmlContent(roleName)%>
     </h2>
 
     <script type="text/javascript">
@@ -295,13 +295,13 @@
     </script>
     <div id="workArea">
         <form name="filterForm" method="post" action="edit-users.jsp">
-        	<input type="hidden" name="roleName" value="<%=roleName %>">
+        	<input type="hidden" name="roleName" value="<%=Encode.forHtmlAttribute(roleName)%>">
             <table class="normal">
                 <tr>
                     <td><fmt:message key="list.users"/></td>
                     <td>
                         <input type="text" name="<%=UserAdminUIConstants.ROLE_LIST_UNASSIGNED_USER_FILTER%>"
-                               value="<%=filter%>"/>
+                               value="<%=Encode.forHtmlAttribute(filter)%>"/>
                     </td>
                     <td>
                         <input class="button" type="submit"
@@ -313,7 +313,7 @@
         <p>&nbsp;</p>
         <form method="post" action="edit-users-finish.jsp?" onsubmit="return doValidation();"
               name="edit_users" id="edit_users">
-            <input type="hidden" id="roleName" name="roleName" value="<%=roleName%>"/>
+            <input type="hidden" id="roleName" name="roleName" value="<%=Encode.forHtmlAttribute(roleName)%>"/>
             <input type="hidden" id="logout" name="logout" value="false"/>
             <input type="hidden" id="finish" name="finish" value="false"/>
             <input type="hidden" name="pageNumber" value="<%=pageNumber%>" />
@@ -330,7 +330,7 @@
                                       numberOfPages="<%=numberOfPages%>"
                                       noOfPageLinksToDisplay="<%=noOfPageLinksToDisplay%>"
                                       page="edit-users.jsp" pageNumberParameterName="pageNumber"
-                                      parameters="<%="roleName="+roleName%>"/>
+                                      parameters="<%="roleName=" + Encode.forHtmlAttribute(roleName)%>"/>
                         <table class="normal">
                             <%
                                 if (users != null && users.length > 0) {
@@ -373,8 +373,8 @@
                                                 if (users[i] != null) {
                                                     String doEdit = "";
                                                     String doCheck = "";
-                                                    String userName = CharacterEncoder.getSafeText(users[i].getItemName());
-                                                    String disPlayName = CharacterEncoder.getSafeText(users[i].getItemDisplayName());
+                                                    String userName = users[i].getItemName();
+                                                    String disPlayName = users[i].getItemDisplayName();
                                                     if (disPlayName == null || disPlayName.trim().length() == 0) {
                                                         disPlayName = userName;
                                                     }
@@ -388,8 +388,11 @@
                                                         doCheck = "checked=\"checked\"";
                                                     }
                                     %>
-                                    <input type="checkbox" name="selectedUsers" value="<%=userName%>" <%=doEdit%> <%=doCheck%>/><%=disPlayName%>
-                                    <input type="hidden" name="shownUsers" value="<%=userName%>"/><br/>
+                                    <input type="checkbox" name="selectedUsers"
+                                           value="<%=Encode.forHtmlAttribute(userName)%>" <%=doEdit%> <%=doCheck%>/>
+                                    <%=Encode.forHtml(disPlayName)%>
+                                    <input type="hidden" name="shownUsers"
+                                           value="<%=Encode.forHtmlAttribute(userName)%>"/><br/>
                                     <%
                                                 }
                                             }
@@ -409,7 +412,7 @@
                                   numberOfPages="<%=numberOfPages%>"
                                   noOfPageLinksToDisplay="<%=noOfPageLinksToDisplay%>"
                                   page="edit-users.jsp" pageNumberParameterName="pageNumber"
-                                  parameters="<%="roleName="+roleName%>"/>
+                                  parameters="<%="roleName=" + Encode.forHtmlAttribute(roleName)%>"/>
             <%
                 if (users != null && users.length > 0 && exceededDomains != null) {
                     if(exceededDomains.getItemName() != null || exceededDomains.getItemDisplayName() != null){
@@ -431,7 +434,7 @@
                                 message = resourceBundle.getString("more.users.primary");
                             }
         %>
-        <strong><%=message%></strong>
+        <strong><%=Encode.forHtml(message)%></strong>
         <%
         }else if(exceededDomains.getItemDisplayName() != null && !exceededDomains.getItemDisplayName().equals("")){
             String[] domains = exceededDomains.getItemDisplayName().split(":");
@@ -446,7 +449,7 @@
             }
             message = resourceBundle.getString("more.users").replace("{0}",arg);
         %>
-        <strong><%=message%></strong>
+        <strong><%=Encode.forHtml(message)%></strong>
         <%
                         }
                     }

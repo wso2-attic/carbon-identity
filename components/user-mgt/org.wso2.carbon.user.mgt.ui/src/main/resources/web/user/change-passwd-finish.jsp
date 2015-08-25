@@ -21,14 +21,13 @@
 <%@page import="org.wso2.carbon.context.PrivilegedCarbonContext"%>
 <%@page import="org.wso2.carbon.ui.CarbonUIMessage"%>
 <%@page import="org.wso2.carbon.ui.CarbonUIUtil"%>
-<%@page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
 <%@ page import="org.wso2.carbon.user.core.util.UserCoreUtil" %>
 <%@ page import="org.wso2.carbon.user.mgt.ui.UserAdminClient" %>
 <%@ page import="org.wso2.carbon.user.mgt.ui.Util" %>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 <%
 	String forwardTo = null;
-    String username = CharacterEncoder.getSafeText(request.getParameter("username"));
+    String username = request.getParameter("username");
     String newPassword = request.getParameter("newPassword");
     String isUserChange = request.getParameter("isUserChange");
     String returnPath = request.getParameter("returnPath");
@@ -47,7 +46,7 @@
             String tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
             client.changePasswordByUser(UserCoreUtil.addTenantDomainToEntry(username, tenantDomain),
                     currentPassword, newPassword);
-            forwardTo = returnPath;
+            forwardTo = Encode.forUriComponent(returnPath);
             session.removeAttribute(ServerConstants.PASSWORD_EXPIRATION);
         } else {
             client.changePassword(Util.decodeHTMLCharacters(username), newPassword);
@@ -64,20 +63,22 @@
                 Util.decodeHTMLCharacters(username), e.getMessage());
         CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
         if(isUserChange != null) {
-            forwardTo = "change-passwd.jsp?ordinal=2&returnPath="+returnPath+"&isUserChange=true";    
+            forwardTo = "change-passwd.jsp?ordinal=2&returnPath=" + Encode.forUriComponent(returnPath) +
+                        "&isUserChange=true";
         } else {
-            forwardTo = "change-passwd.jsp?username="+URLEncoder.encode(username,"UTF-8")+"&ordinal=2";
+            forwardTo = "change-passwd.jsp?username=" + Encode.forUriComponent(username) + "&ordinal=2";
         }
     }
 %>
 
 
-<%@page import="java.net.URLEncoder" %>
 <%@page import="java.text.MessageFormat" %>
 <%@ page import="java.util.ResourceBundle" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 <script type="text/javascript">
     function forward() {
-        location.href = "<%=forwardTo%>";
+        debugger;
+        location.href = "<%=Encode.forJavaScriptBlock(forwardTo)%>";
     }
 </script>
 

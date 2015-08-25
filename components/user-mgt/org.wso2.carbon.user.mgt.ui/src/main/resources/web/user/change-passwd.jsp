@@ -30,12 +30,13 @@
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@ page import="java.text.MessageFormat" %>
 <%@ page import="java.util.ResourceBundle" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 <script type="text/javascript" src="../userstore/extensions/js/vui.js"></script>
 <script type="text/javascript" src="../admin/js/main.js"></script>
 <jsp:include page="../dialog/display_messages.jsp"/>
 
 <%
-	String isUserChange = CharacterEncoder.getSafeText(request.getParameter("isUserChange"));
+	String isUserChange = request.getParameter("isUserChange");
     String BUNDLE = "org.wso2.carbon.userstore.ui.i18n.Resources";
     ResourceBundle resourceBundle = ResourceBundle.getBundle(BUNDLE, request.getLocale());
     String returnPath = null;
@@ -45,7 +46,7 @@
         returnPath = request.getParameter("returnPath");
         cancelPath = returnPath;
     } else {
-        username = CharacterEncoder.getSafeText(request.getParameter("username"));
+        username = request.getParameter("username");
         cancelPath = "user-mgt.jsp?ordinal=1";
     }
     
@@ -112,7 +113,7 @@
         var skipPasswordValidation = false;
 
         function doCancel() {
-            location.href = '<%=cancelPath%>';
+            location.href = '<%=Encode.forJavaScriptBlock(cancelPath)%>';
         }
         jQuery(document).ready(function(){
             jQuery('#defineHere').attr('checked','checked');
@@ -164,7 +165,7 @@
                             }
                         %>
 
-                        CARBON.showWarningDialog("<%=passwordErrorMessage%>");
+                        CARBON.showWarningDialog("<%=Encode.forJavaScriptBlock(passwordErrorMessage)%>");
                     }
                     return false;
                 }
@@ -180,14 +181,14 @@
         <div id="workArea">
             <form name="chgPassWdForm" method="post"
                   onsubmit="return doValidation();" action="change-passwd-finish.jsp">
-                <input type="hidden"  id="pwd_regex" name="pwd_regex" value=<%=regEx%>>                              
+                <input type="hidden"  id="pwd_regex" name="pwd_regex" value=<%=Encode.forHtmlAttribute(regEx)%>>
                   
-                <input type="hidden" name="username" value="<%=username%>"/>
+                <input type="hidden" name="username" value="<%=Encode.forHtmlAttribute(username)%>"/>
                 <% if (isUserChange != null) { %>
-                    <input type="hidden" name="isUserChange" value="<%=isUserChange%>"/>
+                    <input type="hidden" name="isUserChange" value="<%=Encode.forHtmlAttribute(isUserChange)%>"/>
                 <% } %>
                 <% if (returnPath != null) { %>
-                    <input type="hidden" name="returnPath" value="<%=returnPath%>"/>
+                    <input type="hidden" name="returnPath" value="<%=Encode.forHtmlAttribute(returnPath)%>"/>
                 <% } %>
                 <table class="styledLeft" id="changePassword" width="60%">
                     <thead>

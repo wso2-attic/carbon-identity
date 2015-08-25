@@ -20,7 +20,6 @@
 <%@page import="org.wso2.carbon.CarbonConstants" %>
 <%@page import="org.wso2.carbon.ui.CarbonUIMessage"%>
 <%@page import="org.wso2.carbon.ui.CarbonUIUtil"%>
-<%@page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
 <%@page import="org.wso2.carbon.user.mgt.ui.UserAdminClient" %>
 <%@ page import="org.wso2.carbon.user.mgt.ui.UserAdminUIConstants" %>
 <%@ page import="org.wso2.carbon.user.mgt.ui.Util" %>
@@ -33,6 +32,7 @@
 <%@ page import="java.util.Map" %>
 <%@ page import="java.util.ResourceBundle" %>
 <%@ page import="java.util.Set" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 
 <%
     boolean logout = false;
@@ -42,14 +42,14 @@
     String BUNDLE = "org.wso2.carbon.userstore.ui.i18n.Resources";
 	ResourceBundle resourceBundle = ResourceBundle.getBundle(BUNDLE, request.getLocale());
 
-	String username = CharacterEncoder.getSafeText(request.getParameter("username"));
-    String disPlayName = CharacterEncoder.getSafeText(request.getParameter("disPlayName"));
+	String username = request.getParameter("username");
+    String disPlayName = request.getParameter("disPlayName");
     if(disPlayName == null || disPlayName.trim().length() == 0){
         disPlayName = username;
     }
 	String[] selectedRoles = request.getParameterValues("selectedRoles");
 	String[] shownRoles = request.getParameterValues("shownRoles");
-    String pageNumber = CharacterEncoder.getSafeText(request.getParameter("pageNumber"));
+    String pageNumber = request.getParameter("pageNumber");
 
     if(request.getParameter("logout") != null){
         logout = Boolean.parseBoolean(request.getParameter("logout"));
@@ -115,13 +115,13 @@
         } else if(viewUsers){
 %>
             <script type="text/javascript">
-                location.href = "view-roles.jsp?username=<%=URLEncoder.encode(username)%>";
+                location.href = "view-roles.jsp?username=<%=Encode.forJavaScriptBlock(Encode.forUriComponent(username))%>";
             </script>
 <%
         } else {
 %>
             <script type="text/javascript">
-                location.href = "edit-user-roles.jsp?username=<%=URLEncoder.encode(username)%>" + "&pageNumber=<%=pageNumber%>";
+                location.href = "edit-user-roles.jsp?username=<%=Encode.forJavaScriptBlock(Encode.forUriComponent(username))%>" + "&pageNumber=<%=Encode.forJavaScriptBlock(Encode.forUriComponent(pageNumber))%>";
             </script>
 <%
         }
@@ -140,13 +140,13 @@
         if(viewUsers){
 %>
             <script type="text/javascript">
-                location.href = "view-roles.jsp?username=<%=encodedUserName%>";
+                location.href = "view-roles.jsp?username=<%=Encode.forJavaScriptBlock(encodedUserName)%>";
             </script>
 <%
         } else {
 %>
             <script type="text/javascript">
-                location.href = "edit-user-roles.jsp?username=<%=encodedUserName%>";
+                location.href = "edit-user-roles.jsp?username=<%=Encode.forJavaScriptBlock(encodedUserName)%>";
             </script>
 <%
         }

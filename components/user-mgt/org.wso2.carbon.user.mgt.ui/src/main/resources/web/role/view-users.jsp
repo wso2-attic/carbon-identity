@@ -22,7 +22,6 @@
 <%@page import="org.apache.axis2.context.ConfigurationContext" %>
 <%@page import="org.wso2.carbon.CarbonConstants" %>
 <%@page import="org.wso2.carbon.ui.CarbonUIUtil" %>
-<%@page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
 <%@page import="org.wso2.carbon.user.mgt.stub.types.carbon.FlaggedName" %>
 <%@page import="org.wso2.carbon.user.mgt.ui.PaginatedNamesBean" %>
 <%@page import="org.wso2.carbon.user.mgt.ui.UserAdminClient" %>
@@ -31,7 +30,6 @@
 <%@page import="org.wso2.carbon.user.mgt.ui.UserAdminUIConstants" %>
 <%@ page import="org.wso2.carbon.user.mgt.ui.Util" %>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
-<%@ page import="java.net.URLEncoder" %>
 <%@ page import="java.text.MessageFormat" %>
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="java.util.Arrays" %>
@@ -39,6 +37,7 @@
 <%@ page import="java.util.List" %>
 <%@ page import="java.util.Map" %>
 <%@ page import="java.util.ResourceBundle" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 <script type="text/javascript" src="../userstore/extensions/js/vui.js"></script>
 <script type="text/javascript" src="../admin/js/main.js"></script>
 <jsp:include page="../dialog/display_messages.jsp"/>
@@ -77,9 +76,11 @@
     if(prevPage != null && prevPage.trim().length() > 0 && prevUser !=null &&  prevUser.trim().length() > 0){
         showUpdate = false;
         if("view".equals(prevPage)){
-            prevString = "../user/view-roles.jsp?username="+URLEncoder.encode(prevUser) + "&pageNumber=" + prevPageNumber;
+            prevString = "../user/view-roles.jsp?username=" + Encode.forUriComponent(prevUser) + "&pageNumber=" +
+                         Encode.forUriComponent(prevPageNumber);
         }else if("edit".equals(prevPage)){
-            prevString = "../user/edit-user-roles.jsp?username="+URLEncoder.encode(prevUser) + "&pageNumber=" + prevPageNumber;
+            prevString = "../user/edit-user-roles.jsp?username=" + Encode.forUriComponent(prevUser) + "&pageNumber=" +
+                         Encode.forUriComponent(prevPageNumber);
         }
         session.setAttribute("prevString", prevString);
     } else {
@@ -97,7 +98,7 @@
                 prevString = "role-mgt.jsp";
              }
             %>
-            location.href = '<%=prevString%>';
+            location.href = '<%=Encode.forJavaScriptBlock(prevString)%>';
         }
     </script>
 <%
@@ -115,7 +116,7 @@
     filter = filter.trim();
     session.setAttribute(UserAdminUIConstants.ROLE_LIST_VIEW_USER_FILTER, filter);
 
-    String roleName = CharacterEncoder.getSafeText(request.getParameter("roleName"));
+    String roleName = request.getParameter("roleName");
 
     String prevRole = (String) session.getAttribute("previousRole");
 
@@ -213,8 +214,8 @@
 				}
 			}
 		} catch (Exception e) {
-            String message = MessageFormat.format(resourceBundle.getString("error.while.loading.users.of"),
-                    CharacterEncoder.getSafeText(roleName),e.getMessage());
+            String message = MessageFormat
+                    .format(resourceBundle.getString("error.while.loading.users.of"), roleName, e.getMessage());
 %>
 <script type="text/javascript">
     jQuery(document).ready(function () {
@@ -253,7 +254,7 @@
     function doPaginate(page, pageNumberParameterName, pageNumber){
         var form = document.createElement("form");
         form.setAttribute("method", "POST");
-        form.setAttribute("action", page + "?" + pageNumberParameterName + "=" + pageNumber + "&roleName=" + '<%=roleName%>');
+        form.setAttribute("action", page + "?" + pageNumberParameterName + "=" + pageNumber + "&roleName=" + '<%=Encode.forJavaScript(Encode.forUriComponent(roleName))%>');
         var selectedRolesStr = "";
         $("input[type='checkbox']:checked").each(function(index){
             if(!$(this).is(":disabled")){
@@ -289,7 +290,7 @@
     function doSelectAllRetrieved() {
         var form = document.createElement("form");
         form.setAttribute("method", "POST");
-        form.setAttribute("action", "view-users.jsp?pageNumber=" + <%=pageNumber%> + "&roleName=" + '<%=roleName%>');
+        form.setAttribute("action", "view-users.jsp?pageNumber=" + <%=pageNumber%> + "&roleName=" + '<%=Encode.forJavaScript(Encode.forUriComponent(roleName))%>');
         var selectedRolesElem = document.createElement("input");
         selectedRolesElem.setAttribute("type", "hidden");
         selectedRolesElem.setAttribute("name", "selectedUsers");
@@ -303,7 +304,7 @@
     function doUnSelectAllRetrieved() {
         var form = document.createElement("form");
         form.setAttribute("method", "POST");
-        form.setAttribute("action", "view-users.jsp?pageNumber=" + <%=pageNumber%> + "&roleName=" + '<%=roleName%>');
+        form.setAttribute("action", "view-users.jsp?pageNumber=" + <%=pageNumber%> + "&roleName=" + '<%=Encode.forJavaScript(Encode.forUriComponent(roleName))%>');
         var unselectedRolesElem = document.createElement("input");
         unselectedRolesElem.setAttribute("type", "hidden");
         unselectedRolesElem.setAttribute("name", "unselectedUsers");
@@ -317,7 +318,7 @@
 
 
 <div id="middle">
-    <h2><fmt:message key="users.list.in.role"/> <%=roleName%>
+    <h2><fmt:message key="users.list.in.role"/> <%=Encode.forHtml(roleName)%>
     </h2>
 
     <script type="text/javascript">
@@ -329,13 +330,13 @@
     </script>
     <div id="workArea">
         <form name="filterForm" method="post" action="view-users.jsp">
-        	<input type="hidden" name="roleName" value="<%=roleName %>" />
+            <input type="hidden" name="roleName" value="<%=Encode.forHtmlAttribute(roleName)%>"/>
             <table class="normal">
                 <tr>
                     <td><fmt:message key="list.users"/></td>
                     <td>
                         <input type="text" name="<%=UserAdminUIConstants.ROLE_LIST_VIEW_USER_FILTER%>"
-                               value="<%=filter%>"/>
+                               value="<%=Encode.forHtmlAttribute(filter)%>"/>
                     </td>
                     <td>
                         <input class="button" type="submit"
@@ -351,10 +352,10 @@
                           numberOfPages="<%=numberOfPages%>"
                           noOfPageLinksToDisplay="<%=noOfPageLinksToDisplay%>"
                           page="view-users.jsp" pageNumberParameterName="pageNumber"
-                          parameters="<%="roleName="+roleName%>"/>
+                          parameters="<%="roleName=" + Encode.forHtmlAttribute(roleName)%>"/>
         <form method="post" action="edit-users-finish.jsp?viewUsers=true" onsubmit="return doValidation();"
               name="edit_users" id="edit_users">
-            <input type="hidden" id="roleName" name="roleName" value="<%=roleName%>"/>
+            <input type="hidden" id="roleName" name="roleName" value="<%=Encode.forHtmlAttribute(roleName)%>"/>
             <input type="hidden" id="logout" name="logout" value="false"/>
             <input type="hidden" id="finish" name="finish" value="false"/>
 
@@ -414,18 +415,19 @@
                                             doCheck = "";
                                         }
 
-                                        String userName = CharacterEncoder.getSafeText(user.getItemName());
-                                        String displayName = CharacterEncoder.getSafeText(user.getItemDisplayName());
+                                        String userName = user.getItemName();
+                                        String displayName = user.getItemDisplayName();
                                         if (displayName == null || displayName.trim().length() == 0) {
                                             displayName = userName;
                                         }
                         %>
 
                         <% if(showUpdate) {%>
-                            <input type="checkbox" name="selectedUsers" value="<%=userName%>" <%=doCheck%> <%=doEdit%> />
+                        <input type="checkbox" name="selectedUsers"
+                               value="<%=Encode.forHtmlAttribute(userName)%>" <%=doCheck%><%=doEdit%> />
                         <% } %>
-                        <%=displayName%>
-                        <input type="hidden" name="shownUsers" value="<%=userName%>"/><br/>
+                        <%=Encode.forHtml(displayName)%>
+                        <input type="hidden" name="shownUsers" value="<%=Encode.forHtmlAttribute(userName)%>"/><br/>
                         <%
                                     }
                                 }
@@ -441,7 +443,7 @@
                                   numberOfPages="<%=numberOfPages%>"
                                   noOfPageLinksToDisplay="<%=noOfPageLinksToDisplay%>"
                                   page="view-users.jsp" pageNumberParameterName="pageNumber"
-                                  parameters="<%="roleName="+roleName%>"/>
+                                  parameters="<%="roleName=" + Encode.forHtmlAttribute(roleName)%>"/>
             <%
                 if (users != null && users.length > 0 && exceededDomains != null) {
                     if(exceededDomains.getItemName() != null || exceededDomains.getItemDisplayName() != null){
@@ -463,7 +465,7 @@
                                 message = resourceBundle.getString("more.users.primary");
                             }
         %>
-        <strong><%=message%></strong>
+            <strong><%=Encode.forHtml(message)%></strong>
         <%
         }else if(exceededDomains.getItemDisplayName() != null && !exceededDomains.getItemDisplayName().equals("")){
             String[] domains = exceededDomains.getItemDisplayName().split(":");
@@ -478,7 +480,7 @@
             }
             message = resourceBundle.getString("more.users").replace("{0}",arg);
         %>
-        <strong><%=message%></strong>
+        <strong><%=Encode.forHtml(message)%></strong>
         <%
                         }
                     }

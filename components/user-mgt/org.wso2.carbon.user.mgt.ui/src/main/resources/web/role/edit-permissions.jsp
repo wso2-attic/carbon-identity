@@ -21,7 +21,6 @@
 <%@page import="org.wso2.carbon.ui.CarbonUIUtil"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar" prefix="carbon" %>
-<%@page import="org.wso2.carbon.ui.util.CharacterEncoder"%>
 <%@page import="org.wso2.carbon.user.mgt.stub.types.carbon.UIPermissionNode"%>
 <%@page import="org.wso2.carbon.user.mgt.ui.UserAdminClient" %>
 <%@page import="org.wso2.carbon.utils.ServerConstants" %>
@@ -29,6 +28,7 @@
 <%@page import="java.io.IOException"%>
 <%@page import="java.text.MessageFormat"%>
 <%@page import="java.util.ResourceBundle"%>
+<%@ page import="org.owasp.encoder.Encode" %>
 
 
 <script type="text/javascript" src="../admin/js/main.js"></script>
@@ -102,12 +102,12 @@
         String BUNDLE = "org.wso2.carbon.userstore.ui.i18n.Resources";
         ResourceBundle resourceBundle = ResourceBundle.getBundle(BUNDLE, request.getLocale());
 
-        String prevPage =  CharacterEncoder.getSafeText(request.getParameter("prevPage"));
-        String prevUser = CharacterEncoder.getSafeText(request.getParameter("prevUser"));
-        String prevPageNumber = CharacterEncoder.getSafeText(request.getParameter("prevPageNumber"));
+        String prevPage =  request.getParameter("prevPage");
+        String prevUser = request.getParameter("prevUser");
+        String prevPageNumber = request.getParameter("prevPageNumber");
 
         UIPermissionNode rootNode = null;
-        String roleName = CharacterEncoder.getSafeText(request.getParameter("roleName"));
+        String roleName = request.getParameter("roleName");
 
         try {
             String cookie = (String) session.getAttribute(ServerConstants.ADMIN_SERVICE_COOKIE);
@@ -139,7 +139,7 @@
         topPage="false" request="<%=request%>" />
         
 <div id="middle">
-    <h2><fmt:message key="permissions.of.the.role"/> <%=roleName%></h2>
+    <h2><fmt:message key="permissions.of.the.role"/> <%=Encode.forHtmlContent(roleName)%></h2>
 
     <div id="workArea">
       
@@ -158,10 +158,11 @@
             <table>
                 <tr>
                     <td class="buttonRow">
-                        <input type="hidden" value="<%=prevUser%>" name="prevUser" />
-                        <input type="hidden" value="<%=prevPage%>" name="prevPage" />
-                        <input type="hidden" value="<%=roleName%>" name="roleName" />
-                        <input type="hidden" value="<%=prevPageNumber%>" name="prevPageNumber" />
+                        <input type="hidden" value="<%=Encode.forHtmlAttribute(prevUser)%>" name="prevUser" />
+                        <input type="hidden" value="<%=Encode.forHtmlAttribute(prevPage)%>" name="prevPage" />
+                        <input type="hidden" value="<%=Encode.forHtmlAttribute(roleName)%>" name="roleName" />
+                        <input type="hidden" value="<%=Encode.forHtmlAttribute(prevPageNumber)%>"
+                               name="prevPageNumber"/>
                         <input class="button" type="submit" value="<fmt:message key="update"/>"/>
                         <input class="button" type="button" value="<fmt:message key="cancel"/>" onclick="history.back()"/>
                     </td>
