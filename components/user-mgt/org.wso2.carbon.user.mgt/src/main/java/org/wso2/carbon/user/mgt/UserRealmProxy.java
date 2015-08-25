@@ -2273,7 +2273,7 @@ public class UserRealmProxy {
         return ret;
     }
 
-    public class ClaimMappingsComparator implements Comparator<ClaimMapping> {
+    private class ClaimMappingsComparator implements Comparator<ClaimMapping> {
 
         @Override
         public int compare(ClaimMapping o1, ClaimMapping o2) {
