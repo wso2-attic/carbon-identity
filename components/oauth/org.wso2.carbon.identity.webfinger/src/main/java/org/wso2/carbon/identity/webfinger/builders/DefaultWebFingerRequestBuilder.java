@@ -17,12 +17,10 @@
  */
 package org.wso2.carbon.identity.webfinger.builders;
 
-import org.wso2.carbon.claim.mgt.internal.ClaimManagementServiceComponent;
 import org.wso2.carbon.identity.webfinger.URLNormalizer;
 import org.wso2.carbon.identity.webfinger.WebFingerConstants;
 import org.wso2.carbon.identity.webfinger.WebFingerEndPointException;
 import org.wso2.carbon.identity.webfinger.WebFingerRequest;
-import org.wso2.carbon.user.api.UserStoreException;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Collections;
@@ -43,20 +41,9 @@ public class DefaultWebFingerRequestBuilder implements WebFingerRequestBuilder {
         webFingerRequest.setRel(request.getParameter(WebFingerConstants.REL));
         webFingerRequest.setResource(resource);
         URLNormalizer.normalizeResource(webFingerRequest);
-        //this.validateTenant(webFingerRequest.getTenant());
         return webFingerRequest;
     }
 
-    private void validateTenant(String tenant) throws WebFingerEndPointException {
-        try {
-            int tenantId = ClaimManagementServiceComponent.getRealmService().getTenantManager().getTenantId(tenant);
-            if (tenantId < 0) {
-                throw new WebFingerEndPointException(WebFingerConstants.ERROR_CODE_INVALID_TENANT, "The tenant domain" +
-                        " is not valid.");
-            }
-        } catch (UserStoreException e) {
-            throw new WebFingerEndPointException(WebFingerConstants.ERROR_CODE_INVALID_TENANT, e.getMessage());
-        }
-    }
+
 
 }

@@ -23,9 +23,13 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.identity.webfinger.DefaultWebFingerProcessor;
 import org.wso2.carbon.identity.webfinger.WebFingerProcessor;
+import org.wso2.carbon.user.core.service.RealmService;
 
 /**
  * @scr.component name="identity.webfinger.component" immediate="true"
+ * @scr.reference name="user.realmservice.default"
+ * interface="org.wso2.carbon.user.core.service.RealmService" cardinality="1..1"
+ * policy="dynamic" bind="setRealmService" unbind="unsetRealmService"
  */
 
 public class WebFingerServiceComponent {
@@ -38,11 +42,26 @@ public class WebFingerServiceComponent {
 
     protected void activate(ComponentContext context) {
         bundleContext = context.getBundleContext();
-        bundleContext.registerService(WebFingerProcessor.class.getName(), DefaultWebFingerProcessor.getInstance(), null);
+        bundleContext.registerService(WebFingerProcessor.class.getName(), DefaultWebFingerProcessor.getInstance(),
+                null);
         // exposing server configuration as a service
         if (log.isDebugEnabled()) {
             log.debug("OpenID WebFinger bundle is activated.");
         }
 
+    }
+
+    protected void setRealmService(RealmService realmService) {
+        if (log.isDebugEnabled()) {
+            log.info("Setting the Realm Service");
+        }
+        WebFingerServiceComponentHolder.setRealmService(realmService);
+    }
+
+    protected void unsetRealmService(RealmService realmService) {
+        if (log.isDebugEnabled()) {
+            log.info("Unsetting the Realm Service");
+        }
+        WebFingerServiceComponentHolder.setRealmService(null);
     }
 }

@@ -21,6 +21,8 @@ import com.google.common.base.Strings;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.util.StringUtils;
+import org.wso2.carbon.identity.webfinger.internal.WebFingerServiceComponentHolder;
+import org.wso2.carbon.user.api.UserStoreException;
 
 import java.net.URI;
 import java.util.regex.Matcher;
@@ -92,6 +94,7 @@ public class URLNormalizer {
             if (m.matches()) {
                 request.setScheme(m.group(2));
                 request.setUserInfo(m.group(6));
+                validateTenant(request.getUserInfo());
                 request.setHost((m.group(8)));
                 String port = m.group(10);
                 if (!Strings.isNullOrEmpty(port)) {
@@ -131,6 +134,18 @@ public class URLNormalizer {
         }
 
 
+    }
+    public static void validateTenant(String userInfo) throws WebFingerEndPointException {
+        try {
+
+            int tenantId = WebFingerServiceComponentHolder.getRealmService().getTenantManager().getTenantId(userInfo);
+            if (tenantId < 0) {
+                throw new WebFingerEndPointException(WebFingerConstants.ERROR_CODE_INVALID_TENANT, "The tenant domain" +
+                        " is not valid.");
+            }
+        } catch (UserStoreException e) {
+            throw new WebFingerEndPointException(WebFingerConstants.ERROR_CODE_INVALID_TENANT, e.getMessage());
+        }
     }
 
     /**
