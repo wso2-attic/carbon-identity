@@ -197,7 +197,7 @@
 
             jQuery('#stepsAddLink').click(function(){
                 stepOrder++;
-                jQuery('#stepsConfRow').append(jQuery('<div id="div_step_head_'+stepOrder+'" style="border:solid 1px #ccc;padding: 10px;">' +
+                jQuery('#stepsConfRow').append(jQuery('<div class="toggle_container sectionSub" id="div_step_head_'+stepOrder+'" style="border:solid 1px #ccc;padding: 10px;" >' +
                                                         '<h2 id="step_head_'+stepOrder+'" class="sectionSeperator trigger active step_heads" style="background-color: beige; clear: both;">' +
                                                             '<input type="hidden" value="'+stepOrder+'" name="approve_step" id="approve_step">' +
                                                             '<a class="step_order_header" href="#">Step '+stepOrder+'</a>' +

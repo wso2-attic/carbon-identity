@@ -24,6 +24,7 @@ import java.util.Set;
 public class WorkFlowConstants {
 
     public static final String WF_STATUS_NO_MATCHING_EXECUTORS = "NO_MATCHING_EXECUTOR";
+    public static final String DEFAULT_BPS_PROFILE = "embedbps";
 
     public static final Set<Class> NUMERIC_CLASSES;
 

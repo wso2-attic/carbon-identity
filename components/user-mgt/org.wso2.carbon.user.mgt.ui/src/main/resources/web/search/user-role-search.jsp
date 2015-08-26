@@ -271,7 +271,7 @@
 <%
     if(!StringUtils.isNotBlank(isAJAXRequest) || isAJAXRequest.equals("false")){
 %>
-
+<fmt:bundle basename="org.wso2.carbon.userstore.ui.i18n.Resources">
 <script>
 
     var navigatorHolder = '<%=navigatorHolder%>';
@@ -398,8 +398,13 @@
 
         if(category == "users"){
             $("#id_claim_attribute").show();
+            $("#id_search_button").val('<fmt:message key="user.search"/>');
+            $("#id_pattern_category").html('<fmt:message key="list.users"/>');
+
         }else{
             $("#id_claim_attribute").hide();
+            $("#id_search_button").val('<fmt:message key="role.search"/>');
+            $("#id_pattern_category").html('<fmt:message key="list.roles"/>');
         }
 
 
@@ -526,7 +531,7 @@
     }
 
 </style>
-<fmt:bundle basename="org.wso2.carbon.userstore.ui.i18n.Resources">
+
     <carbon:breadcrumb label="users"
                        resourceBundle="org.wso2.carbon.userstore.ui.i18n.Resources"
                        topPage="false" request="<%=request%>"/>
@@ -591,12 +596,12 @@
                 %>
 
                     <tr>
-                        <td class="leftCol-big" style="padding-right: 0 !important;"><fmt:message key="list.users"/></td>
+                        <td id="id_pattern_category" class="leftCol-big" style="padding-right: 0 !important;"><fmt:message key="list.users"/></td>
                         <td>
                             <input type="text" name="<%=UserAdminUIConstants.USER_LIST_FILTER%>"
                                    value="<%=filter%>"/>
                       
-                            <input onclick="search();" class="button" type="button"
+                            <input id="id_search_button" onclick="search();" class="button" type="button"
                                    value="<fmt:message key="user.search"/>"/>
                         </td>
                     </tr>

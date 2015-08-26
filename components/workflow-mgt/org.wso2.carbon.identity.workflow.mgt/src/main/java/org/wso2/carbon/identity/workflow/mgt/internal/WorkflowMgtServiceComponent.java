@@ -18,8 +18,18 @@
 
 package org.wso2.carbon.identity.workflow.mgt.internal;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.ComponentContext;
+import org.wso2.carbon.base.MultitenantConstants;
+import org.wso2.carbon.base.ServerConfiguration;
+import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
+import org.wso2.carbon.identity.workflow.mgt.bean.BPSProfileDTO;
+import org.wso2.carbon.identity.workflow.mgt.exception.InternalWorkflowException;
+import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
+import org.wso2.carbon.identity.workflow.mgt.listener.WorkflowTenantMgtListener;
 import org.wso2.carbon.identity.workflow.mgt.template.AbstractWorkflowTemplate;
 import org.wso2.carbon.identity.workflow.mgt.template.AbstractWorkflowTemplateImpl;
 import org.wso2.carbon.identity.workflow.mgt.template.impl.AlwaysDenyTemplate;
@@ -28,8 +38,13 @@ import org.wso2.carbon.identity.workflow.mgt.template.impl.DefaultImmediateDenyI
 import org.wso2.carbon.identity.workflow.mgt.template.impl.SimpleApprovalTemplate;
 import org.wso2.carbon.identity.workflow.mgt.extension.WorkflowRequestHandler;
 import org.wso2.carbon.identity.workflow.mgt.WorkflowService;
+import org.wso2.carbon.identity.workflow.mgt.util.WorkFlowConstants;
+import org.wso2.carbon.stratos.common.listeners.TenantMgtListener;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.ConfigurationContextService;
+import org.wso2.carbon.utils.NetworkUtils;
+
+import java.net.SocketException;
 
 /**
  * @scr.component name="identity.workflow" immediate="true"
@@ -58,6 +73,8 @@ import org.wso2.carbon.utils.ConfigurationContextService;
  */
 public class WorkflowMgtServiceComponent {
 
+    private static Log log = LogFactory.getLog(WorkflowMgtServiceComponent.class);
+
     protected void setRealmService(RealmService realmService) {
 
         WorkflowServiceDataHolder.getInstance().setRealmService(realmService);
@@ -72,10 +89,26 @@ public class WorkflowMgtServiceComponent {
 
         BundleContext bundleContext = context.getBundleContext();
         WorkflowService workflowService = new WorkflowService();
+
         bundleContext.registerService(WorkflowService.class, workflowService, null);
+        WorkflowServiceDataHolder.getInstance().setWorkflowService(workflowService);
+
+
         WorkflowServiceDataHolder.getInstance().setBundleContext(bundleContext);
         setWorkflowTemplate(new SimpleApprovalTemplate());
         setTemplateImplementation(new BPELApprovalTemplateImpl());
+
+        WorkflowTenantMgtListener workflowTenantMgtListener = new WorkflowTenantMgtListener();
+        ServiceRegistration tenantMgtListenerSR = bundleContext.registerService(
+                TenantMgtListener.class.getName(), workflowTenantMgtListener, null);
+        if (tenantMgtListenerSR != null) {
+            log.debug("Workflow Management - WorkflowTenantMgtListener registered");
+        } else {
+            log.error("Workflow Management - WorkflowTenantMgtListener could not be registered");
+        }
+
+        this.addDefaultBPSProfile();
+
         //setWorkflowTemplate(new AlwaysDenyTemplate());
         //setTemplateImplementation(new DefaultImmediateDenyImpl());
     }
@@ -118,5 +151,51 @@ public class WorkflowMgtServiceComponent {
     protected void unsetTemplateImplementation(AbstractWorkflowTemplateImpl templateImpl) {
 
         WorkflowServiceDataHolder.getInstance().removeTemplateImpl(templateImpl);
+    }
+
+    private void addDefaultBPSProfile(){
+
+        BPSProfileDTO bpsProfileDTO = new BPSProfileDTO();
+        String hostName = ServerConfiguration.getInstance().getFirstProperty(IdentityCoreConstants.HOST_NAME);
+        String offset = ServerConfiguration.getInstance().getFirstProperty(IdentityCoreConstants.PORTS_OFFSET);
+        String userName = WorkflowServiceDataHolder.getInstance().getRealmService().getBootstrapRealmConfiguration()
+                .getAdminUserName();
+        String password = WorkflowServiceDataHolder.getInstance().getRealmService().getBootstrapRealmConfiguration()
+                .getAdminPassword();
+        try {
+            if (hostName == null) {
+                hostName = NetworkUtils.getLocalHostname();
+            }
+            String url = "https://" + hostName + ":" + (9443 + Integer.parseInt(offset));
+
+            bpsProfileDTO.setHost(url);
+            bpsProfileDTO.setUsername(userName);
+            bpsProfileDTO.setPassword(password);
+            bpsProfileDTO.setCallbackUser(userName);
+            bpsProfileDTO.setCallbackPassword(password);
+            bpsProfileDTO.setProfileName(WorkFlowConstants.DEFAULT_BPS_PROFILE);
+
+            WorkflowService workflowService = WorkflowServiceDataHolder.getInstance().getWorkflowService();
+            BPSProfileDTO currentBpsProfile = workflowService
+                    .getBPSProfile(WorkFlowConstants.DEFAULT_BPS_PROFILE, MultitenantConstants.SUPER_TENANT_ID);
+            if(currentBpsProfile == null) {
+                workflowService.addBPSProfile(bpsProfileDTO, MultitenantConstants.SUPER_TENANT_ID);
+                if(log.isDebugEnabled()){
+                    log.info("Default BPS profile added to the DB");
+                }
+            }
+        } catch (SocketException e) {
+            //This is not thrown exception because this is not blocked to the other functionality. User can create default profile by manually.
+            String errorMsg = "Error while trying to read hostname, " + e.getMessage() ;
+            log.error(errorMsg);
+        } catch (InternalWorkflowException e) {
+            //This is not thrown exception because this is not blocked to the other functionality. User can create default profile by manually.
+            String errorMsg = "Error occured while adding default bps profile, " + e.getMessage() ;
+            log.error(errorMsg);
+        } catch (WorkflowException e) {
+            //This is not thrown exception because this is not blocked to the other functionality. User can create default profile by manually.
+            String errorMsg = "Error occured while adding default bps profile, " + e.getMessage() ;
+            log.error(errorMsg);
+        }
     }
 }
