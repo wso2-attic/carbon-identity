@@ -1469,11 +1469,5 @@ public class IdentityProviderManager {
         return true;
     }
 
-    public FederatedAuthenticatorConfig getFederatedAuthenticatorConfig(String idpName, String tenantDomain)
-            throws IdentityApplicationManagementException {
-        FederatedAuthenticatorConfig federatedAuthenticatorConfig = dao.getFederatedAuthenticatorConfig(null,
-                idpName, getTenantIdOfDomain(tenantDomain), tenantDomain);
-        return federatedAuthenticatorConfig;
-    }
 
 }
