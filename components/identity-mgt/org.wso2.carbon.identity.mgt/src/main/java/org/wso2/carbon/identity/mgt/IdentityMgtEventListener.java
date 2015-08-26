@@ -813,6 +813,13 @@ public class IdentityMgtEventListener extends AbstractIdentityUserOperationEvent
         if (!isEnable(this.getClass().getName())) {
             return true;
         }
+        IdentityUtil.clearIdentityErrorMsg();
+        boolean accountLocked = Boolean.parseBoolean(claims.get(UserIdentityDataStore.ACCOUNT_LOCK));
+        if (accountLocked) {
+            IdentityErrorMsgContext customErrorMessageContext = new IdentityErrorMsgContext(UserCoreConstants
+                    .ErrorCode.USER_IS_LOCKED);
+            IdentityUtil.setIdentityErrorMsg(customErrorMessageContext);
+        }
 
         // Top level try and finally blocks are used to unset thread local variables
         try {

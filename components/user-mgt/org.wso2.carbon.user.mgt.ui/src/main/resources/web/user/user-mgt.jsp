@@ -425,9 +425,17 @@
                     <td>
 
                         <%
-                            if (userRealmInfo.getAdminUser().equals(Util.decodeHTMLCharacters(userName)) &&
-                                    !userRealmInfo.getAdminUser().equals(currentUser)) {
-                                continue;
+                            if (userRealmInfo.getAdminUser().equals(Util.decodeHTMLCharacters(userName))) {
+                                if (Util.getUserStoreInfoForUser(Util.decodeHTMLCharacters(currentUser),
+                                        userRealmInfo).getCaseSensitiveUsername()) {
+                                    if (!userRealmInfo.getAdminUser().equals(currentUser)) {
+                                        continue;
+                                    }
+                                } else {
+                                    if (!userRealmInfo.getAdminUser().equalsIgnoreCase(currentUser)) {
+                                        continue;
+                                    }
+                                }
                             }
                         %>
                         <%
