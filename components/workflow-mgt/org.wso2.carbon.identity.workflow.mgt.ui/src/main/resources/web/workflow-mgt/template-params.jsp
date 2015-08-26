@@ -34,6 +34,7 @@
 <%@ page import="java.util.ResourceBundle" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.TemplateBean" %>
 <%@ page import="org.apache.commons.lang.StringUtils" %>
+<%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.Test" %>
 
 <%
     String requestPath = "list-workflows";
@@ -51,7 +52,7 @@
     String template = CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_WORKFLOW_TEMPLATE));
     Map<String, String> templateParams = new HashMap<String, String>();
 
-    Map<String, String> attribMap = null ;
+    Map<String, String> attribMap = new HashMap<String, String>() ;
 
     if (session.getAttribute(WorkflowUIConstants.ATTRIB_WORKFLOW_WIZARD) != null &&
             session.getAttribute(WorkflowUIConstants.ATTRIB_WORKFLOW_WIZARD) instanceof Map) {
@@ -59,8 +60,6 @@
         //setting params from previous page
         if (template == null) {
             template = attribMap.get(WorkflowUIConstants.PARAM_WORKFLOW_TEMPLATE);
-        } else {
-            attribMap.put(WorkflowUIConstants.PARAM_WORKFLOW_TEMPLATE, template);
         }
         for (Map.Entry<String, String> entry : attribMap.entrySet()) {
             if (entry.getKey().startsWith("p-")) {
@@ -104,9 +103,12 @@
         templateList = client.listTemplates();
         if (templateList == null) {
             templateList = new TemplateBean[0];
+        }else if(templateList.length == 1 && template == null){
+            template = templateList[0].getId();
         }
 
         if(template != null) {
+            attribMap.put(WorkflowUIConstants.PARAM_WORKFLOW_TEMPLATE, template);
             templateDTO = client.getTemplate(template);
             bpsProfiles = client.listBPSProfiles();
         }
@@ -317,6 +319,10 @@
 
         <div id="workArea">
 
+            <%
+                if( isSelf  || template == null){
+            %>
+
             <form id="id_workflow_template" method="post" name="serviceAdd" action="template-params.jsp">
                 <input type="hidden" name="path" value="<%=requestPath%>"/>
                 <input type="hidden" name="self" value="true"/>
@@ -344,6 +350,10 @@
             </form>
 
             </br>
+
+            <%
+                }
+            %>
 
             <%
                 if(template != null ){
