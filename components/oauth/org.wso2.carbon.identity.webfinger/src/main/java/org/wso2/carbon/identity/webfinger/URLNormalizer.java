@@ -52,7 +52,7 @@ public class URLNormalizer {
     private URLNormalizer() {
     }
 
-    public static WebFingerRequest normalize(WebFingerRequest request) throws WebFingerEndPointException{
+    public static WebFingerRequest normalizeResource(WebFingerRequest request) throws WebFingerEndPointException{
         String resource = request.getResource();
         if (Strings.isNullOrEmpty(resource)) {
             log.warn("Can't normalize null or empty URI: " + resource);
@@ -60,6 +60,10 @@ public class URLNormalizer {
 
         } else {
             URI resourceURI = URI.create(resource);
+            String scheme = resourceURI.getScheme();
+            if(scheme.equals("acct")){
+                return matchPattern(request);
+            }
             request.setScheme(resourceURI.getScheme());
             request.setUserInfo(resourceURI.getUserInfo());
             request.setHost(resourceURI.getHost());
@@ -68,24 +72,6 @@ public class URLNormalizer {
             request.setQuery(resourceURI.getQuery());
             request.setQuery(resourceURI.getFragment());
         }
-        if (Strings.isNullOrEmpty(request.getScheme())) {
-            if (!Strings.isNullOrEmpty(request.getUserInfo())
-                    && Strings.isNullOrEmpty(request.getPath())
-                    && Strings.isNullOrEmpty(request.getQuery())
-                    && request.getPort() < 0) {
-                // scheme empty, userinfo is not empty, path/query/port are empty
-                // set to "acct" (rule 2)
-                request.setScheme("acct");
-
-            } else {
-                // scheme is empty, but rule 2 doesn't apply
-                // set scheme to "https" (rule 3)
-                request.setScheme("https");
-            }
-        }
-        // fragment must be stripped (rule 4)
-        request.setFragment(null);
-
         return request;
     }
     /**
@@ -94,7 +80,7 @@ public class URLNormalizer {
      * @param request
      * @return the WebFingerRequest, after assigning the relevant fields to the properties in the WebFingerRequest
      */
-    public static WebFingerRequest normalizeResource(WebFingerRequest request) throws WebFingerEndPointException {
+    private static WebFingerRequest matchPattern(WebFingerRequest request) throws WebFingerEndPointException {
         String identifier = request.getResource();
         if (Strings.isNullOrEmpty(identifier)) {
             log.warn("Can't normalize null or empty URI: " + identifier);
