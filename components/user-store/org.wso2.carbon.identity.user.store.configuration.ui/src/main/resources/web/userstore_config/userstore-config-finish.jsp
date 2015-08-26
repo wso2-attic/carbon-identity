@@ -23,7 +23,6 @@
 <%@ page import="org.wso2.carbon.ndatasource.common.DataSourceException" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
-<%@ page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
 <%@ page import="org.wso2.carbon.user.mgt.ui.UserAdminUIConstants" %>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@ page import="java.util.ArrayList" %>
@@ -40,7 +39,7 @@
             String domain = request.getParameterValues("domainId")[0];
             String previousDomain = request.getParameterValues("previousDomainId")[0];
             String description = request.getParameterValues("description")[0];
-            int defaultProperties = Integer.parseInt(CharacterEncoder.getSafeText(request.getParameter("defaultProperties")).replaceAll("[\\D]", ""));    //number of default properties
+            int defaultProperties = Integer.parseInt(request.getParameter("defaultProperties").replaceAll("[\\D]", ""));    //number of default properties
 
             UserStoreConfigAdminServiceClient userStoreConfigAdminServiceClient = null;
             try{
@@ -60,17 +59,17 @@
 
                 if (request.getParameter("propertyName_" + i) != null) {
 
-                    if (CharacterEncoder.getSafeText(request.getParameter("propertyValue_" + i)) == null) {
+                    if (request.getParameter("propertyValue_" + i) == null) {
                         value = "false";
                     } else {
-                        value = CharacterEncoder.getSafeText(request.getParameter("propertyValue_" + i));
+                        value = request.getParameter("propertyValue_" + i);
                         if (value.equals("null")) {
                             value = "false";
                         } else if (value.equals("on")) {
                             value = "true";
                         }
                     }
-                    propertyDTO.setName(CharacterEncoder.getSafeText(request.getParameter("propertyName_" + i)));
+                    propertyDTO.setName(request.getParameter("propertyName_" + i));
                     propertyDTO.setValue(value);
                     propertyList.add(propertyDTO);
                 }
