@@ -335,6 +335,14 @@ public class WorkflowRequestBuilder {
         }
         rootElement.addChild(paramsElement);
 
+        /*
+        {WorkFlowConstants.TemplateConstants.HT_SUBJECT, "Approval Request Subject",
+                WorkflowTemplateParamType.STRING, "Approval required", true},
+        {WorkFlowConstants.TemplateConstants.HT_DESCRIPTION,
+
+*/
+        String ht  = (String)this.initParams.get(WorkFlowConstants.TemplateConstants.HT_SUBJECT);
+        String htDesc  = (String)this.initParams.get(WorkFlowConstants.TemplateConstants.HT_DESCRIPTION);
 
         final Map<String, Map<String, List<String>>> approvalStepMap = getApprovalStepMap();
 
@@ -349,9 +357,9 @@ public class WorkflowRequestBuilder {
 
             OMElement humanTaskElement = omFactory.createOMElement(WF_REQ_HUMAN_TASK_ELEM, omNs);
             OMElement humanTaskSubjectElement = omFactory.createOMElement(WF_REQ_HUMAN_TASK_SUBJECT_ELEM, omNs);
-            humanTaskSubjectElement.setText("ht");
+            humanTaskSubjectElement.setText(ht);
             OMElement humanTaskDescElement = omFactory.createOMElement(WF_REQ_HUMAN_TASK_DESC_ELEM, omNs);
-            humanTaskDescElement.setText("htdesc");
+            humanTaskDescElement.setText(htDesc);
             humanTaskElement.addChild(humanTaskSubjectElement);
             humanTaskElement.addChild(humanTaskDescElement);
 
