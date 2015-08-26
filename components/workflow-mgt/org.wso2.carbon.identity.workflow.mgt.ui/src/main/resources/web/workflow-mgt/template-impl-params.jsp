@@ -103,7 +103,6 @@
         client = new WorkflowAdminServiceClient(cookie, backendServerURL, configContext);
 
         templateDTO = client.getTemplate(template);
-        Test.test(templateDTO);
         if(templateDTO != null && templateDTO.getImplementations() != null  && templateDTO.getImplementations().length == 1 ){
             templateImpl = templateDTO.getImplementations()[0].getImplementationId() ;
         }
