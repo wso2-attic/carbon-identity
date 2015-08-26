@@ -31,6 +31,8 @@ import org.wso2.carbon.identity.application.common.model.IdentityProvider;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
 import org.wso2.carbon.identity.core.util.IdentityCoreInitializedEvent;
 import org.wso2.carbon.idp.mgt.IdentityProviderManager;
+import org.wso2.carbon.idp.mgt.listener.IdentityProviderMgtApplicationListener;
+import org.wso2.carbon.idp.mgt.listener.IdentityProviderMgtLister;
 import org.wso2.carbon.idp.mgt.util.IdPManagementConstants;
 import org.wso2.carbon.stratos.common.listeners.TenantMgtListener;
 import org.wso2.carbon.user.core.listener.UserOperationEventListener;
@@ -110,6 +112,11 @@ public class IdPManagementServiceComponent {
     protected void activate(ComponentContext ctxt) {
         try {
             BundleContext bundleCtx = ctxt.getBundleContext();
+
+            bundleCtx.registerService(IdentityProviderMgtLister.class.getName(), new IdentityProviderMgtApplicationListener(), null);
+            if (log.isDebugEnabled()) {
+                log.debug("Identity Provider Management Event listener registered successfully");
+            }
 
             TenantManagementListener idPMgtTenantMgtListener = new TenantManagementListener();
             ServiceRegistration tenantMgtListenerSR = bundleCtx.registerService(
