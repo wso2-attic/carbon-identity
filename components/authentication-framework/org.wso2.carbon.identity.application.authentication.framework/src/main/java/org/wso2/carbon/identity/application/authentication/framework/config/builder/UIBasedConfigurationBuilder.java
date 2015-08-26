@@ -18,10 +18,6 @@
 
 package org.wso2.carbon.identity.application.authentication.framework.config.builder;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.identity.application.authentication.framework.ApplicationAuthenticator;
 import org.wso2.carbon.identity.application.authentication.framework.config.model.ApplicationConfig;
 import org.wso2.carbon.identity.application.authentication.framework.config.model.AuthenticatorConfig;
@@ -38,14 +34,11 @@ import org.wso2.carbon.identity.application.common.model.LocalAuthenticatorConfi
 import org.wso2.carbon.identity.application.common.model.RequestPathAuthenticatorConfig;
 import org.wso2.carbon.identity.application.common.model.ServiceProvider;
 import org.wso2.carbon.identity.application.mgt.ApplicationManagementService;
-import org.wso2.carbon.idp.mgt.IdentityProviderManager;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class UIBasedConfigurationBuilder {
-
-    private static final Log log = LogFactory.getLog(UIBasedConfigurationBuilder.class);
 
     private static volatile UIBasedConfigurationBuilder instance;
 
@@ -164,7 +157,6 @@ public class UIBasedConfigurationBuilder {
 
     private void loadFederatedAuthenticators(AuthenticationStep authenticationStep, StepConfig stepConfig) {
         IdentityProvider[] federatedIDPs = authenticationStep.getFederatedIdentityProviders();
-        String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
 
         if (federatedIDPs != null) {
             // for each idp in the step
@@ -173,21 +165,8 @@ public class UIBasedConfigurationBuilder {
                 FederatedAuthenticatorConfig federatedAuthenticator = federatedIDP
                         .getDefaultAuthenticatorConfig();
                 // for each authenticator in the idp
-                FederatedAuthenticatorConfig currentFederatedAuthenticator = null;
-                String actualAuthenticatorName;
-                try {
-                    currentFederatedAuthenticator = IdentityProviderManager.getInstance()
-                            .getFederatedAuthenticatorConfig(federatedIDP.getIdentityProviderName(), tenantDomain);
-                } catch (IdentityApplicationManagementException e) {
-                    log.error("Error in loading current default authenticator of idp :" + federatedIDP.getIdentityProviderName() , e);
-                }
 
-                if(StringUtils.equals(currentFederatedAuthenticator.getName(), federatedAuthenticator.getName())){
-                    actualAuthenticatorName = federatedAuthenticator.getName();
-                }else{
-                    actualAuthenticatorName = currentFederatedAuthenticator.getName();
-                    federatedIDP.setDefaultAuthenticatorConfig(currentFederatedAuthenticator);
-                }
+                String actualAuthenticatorName = federatedAuthenticator.getName();
                 // assign it to the step
                 loadStepAuthenticator(stepConfig, federatedIDP, actualAuthenticatorName);
             }
