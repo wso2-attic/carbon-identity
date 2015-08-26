@@ -287,6 +287,6 @@ public class IdentityConfigParser {
      * @return relevant QName
      * */
     public QName getQNameWithIdentityNS(String localPart) {
-        return new QName(IdentityConfigParser.IDENTITY_DEFAULT_NAMESPACE, localPart);
+        return new QName(IdentityCoreConstants.IDENTITY_DEFAULT_NAMESPACE, localPart);
     }
 }

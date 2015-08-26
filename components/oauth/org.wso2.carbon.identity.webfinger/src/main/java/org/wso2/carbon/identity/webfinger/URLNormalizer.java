@@ -22,6 +22,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.util.StringUtils;
 
+import java.net.URI;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -51,6 +52,42 @@ public class URLNormalizer {
     private URLNormalizer() {
     }
 
+    public static WebFingerRequest normalize(WebFingerRequest request) throws WebFingerEndPointException{
+        String resource = request.getResource();
+        if (Strings.isNullOrEmpty(resource)) {
+            log.warn("Can't normalize null or empty URI: " + resource);
+            throw new WebFingerEndPointException(WebFingerConstants.ERROR_CODE_INVALID_RESOURCE, "Null or empty URI.");
+
+        } else {
+            URI resourceURI = URI.create(resource);
+            request.setScheme(resourceURI.getScheme());
+            request.setUserInfo(resourceURI.getUserInfo());
+            request.setHost(resourceURI.getHost());
+            request.setPort(resourceURI.getPort());
+            request.setPath(resourceURI.getPath());
+            request.setQuery(resourceURI.getQuery());
+            request.setQuery(resourceURI.getFragment());
+        }
+        if (Strings.isNullOrEmpty(request.getScheme())) {
+            if (!Strings.isNullOrEmpty(request.getUserInfo())
+                    && Strings.isNullOrEmpty(request.getPath())
+                    && Strings.isNullOrEmpty(request.getQuery())
+                    && request.getPort() < 0) {
+                // scheme empty, userinfo is not empty, path/query/port are empty
+                // set to "acct" (rule 2)
+                request.setScheme("acct");
+
+            } else {
+                // scheme is empty, but rule 2 doesn't apply
+                // set scheme to "https" (rule 3)
+                request.setScheme("https");
+            }
+        }
+        // fragment must be stripped (rule 4)
+        request.setFragment(null);
+
+        return request;
+    }
     /**
      * Normalize the resource string as per OIDC Discovery.
      *

@@ -17,59 +17,13 @@
  */
 package org.wso2.carbon.identity.webfinger;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
 import org.wso2.carbon.base.ServerConfigurationException;
-import org.wso2.carbon.identity.webfinger.builders.DefaultWebFingerRequestBuilder;
-import org.wso2.carbon.identity.webfinger.builders.WebFingerRequestBuilder;
-import org.wso2.carbon.identity.webfinger.builders.WebFingerResponseBuilder;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
-/**
- * Singleton class to process the webfinger request.
- */
-public class WebFingerProcessor {
-    private static Log log = LogFactory.getLog(WebFingerProcessor.class);
-    private static WebFingerProcessor webFingerProcessor = new WebFingerProcessor();
-
-    private WebFingerProcessor() {
-        if (log.isDebugEnabled()) {
-            log.debug("Initializing OIDCProcessor for OpenID connect discovery processor.");
-        }
-    }
-
-    public static WebFingerProcessor getInstance() {
-        return webFingerProcessor;
-    }
-
+public interface WebFingerProcessor {
     public WebFingerResponse getResponse(HttpServletRequest request) throws WebFingerEndPointException,
-            ServerConfigurationException {
-        WebFingerRequestBuilder requestBuilder = new DefaultWebFingerRequestBuilder();
-        WebFingerRequest requestObject = requestBuilder.buildRequest(request);
-        WebFingerResponseBuilder responseBuilder = new WebFingerResponseBuilder();
-        return responseBuilder.buildWebFingerResponse(requestObject);
-    }
-
-    public int handleError(WebFingerEndPointException error) {
-        if (log.isDebugEnabled()) {
-            log.debug(error);
-        }
-        String errorCode = error.getErrorCode();
-        if (errorCode.equals(WebFingerConstants.ERROR_CODE_INVALID_REQUEST)) {
-            return HttpServletResponse.SC_BAD_REQUEST;
-        } else if (errorCode.equals(WebFingerConstants.ERROR_CODE_INVALID_RESOURCE)) {
-            return HttpServletResponse.SC_NOT_FOUND;
-        } else if (errorCode.equals(WebFingerConstants.ERROR_CODE_JSON_EXCEPTION)) {
-            return HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE;
-        } else if (errorCode.equals(WebFingerConstants.ERROR_CODE_NO_WEBFINGER_CONFIG)) {
-            return HttpServletResponse.SC_NOT_FOUND;
-        } else {
-            return HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
-        }
-
-    }
-
-
+            ServerConfigurationException;
+    public int handleError(WebFingerEndPointException error);
 }

@@ -17,57 +17,12 @@
  */
 package org.wso2.carbon.identity.discovery;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.base.ServerConfigurationException;
-import org.wso2.carbon.identity.discovery.builders.DefaultOIDProviderRequestBuilder;
-import org.wso2.carbon.identity.discovery.builders.OIDProviderRequestBuilder;
-import org.wso2.carbon.identity.discovery.builders.ProviderConfigBuilder;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
-public class OIDCProcessor {
-    private static Log log = LogFactory.getLog(OIDCProcessor.class);
-    private static OIDCProcessor oidcProcessor = new OIDCProcessor();
-
-
-    private OIDCProcessor() {
-        if (log.isDebugEnabled()) {
-            log.debug("Initializing OIDCProcessor for OpenID connect discovery processor.");
-        }
-    }
-
-    public static OIDCProcessor getInstance() {
-        return oidcProcessor;
-    }
-
+public interface OIDCProcessor {
     public OIDProviderConfigResponse getResponse(HttpServletRequest request, String tenant) throws
-            OIDCDiscoveryEndPointException, ServerConfigurationException {
-        OIDProviderRequestBuilder requestBuilder = new DefaultOIDProviderRequestBuilder();
-        OIDProviderRequest requestObject = requestBuilder.buildRequest(request, tenant);
-        ProviderConfigBuilder responseBuilder = new ProviderConfigBuilder();
-        return responseBuilder.buildOIDProviderConfig(requestObject);
-    }
-
-    public int handleError(OIDCDiscoveryEndPointException error) {
-        if (log.isDebugEnabled()) {
-            log.debug(error);
-        }
-        String errorCode = error.getErrorCode();
-        if (errorCode.equals(OIDCDiscoveryEndPointException.ERROR_CODE_NO_OPENID_PROVIDER_FOUND)) {
-
-        } else if (errorCode.equals(OIDCDiscoveryEndPointException.ERROR_CODE_INVALID_REQUEST)) {
-
-        } else if (errorCode.equals(OIDCDiscoveryEndPointException.ERROR_CODE_INVALID_TENANT)) {
-
-        } else if (errorCode.equals(OIDCDiscoveryEndPointException.ERROR_CODE_JSON_EXCEPTION)) {
-
-        } else {
-            return HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
-        }
-        return HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
-    }
-
-
+            OIDCDiscoveryEndPointException, ServerConfigurationException;
+    public int handleError(OIDCDiscoveryEndPointException error);
 }
