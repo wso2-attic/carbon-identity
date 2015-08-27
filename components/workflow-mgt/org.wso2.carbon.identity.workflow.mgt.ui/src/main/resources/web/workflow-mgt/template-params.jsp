@@ -34,7 +34,6 @@
 <%@ page import="java.util.ResourceBundle" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.TemplateBean" %>
 <%@ page import="org.apache.commons.lang.StringUtils" %>
-<%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.Test" %>
 
 <%
     String requestPath = "list-workflows";
