@@ -36,7 +36,6 @@
 <%@ page import="java.util.ResourceBundle" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.TemplateDTO" %>
 <%@ page import="java.util.HashMap" %>
-<%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.Test" %>
 
 
 <%
