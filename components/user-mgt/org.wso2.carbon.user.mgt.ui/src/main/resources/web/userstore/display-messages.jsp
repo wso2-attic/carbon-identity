@@ -40,7 +40,7 @@
 <script type="text/javascript">
     jQuery(document).ready(function () {
         if (getCookie(msgId) == null) {
-            CARBON.showErrorDialog("<%=Encode.forJavaScriptBlock(request.getParameter("errorMessage"))%>");
+            CARBON.showErrorDialog("<%=Encode.forJavaScriptBlock(Encode.forHtml(request.getParameter("errorMessage")))%>");
             setCookie(msgId, 'true');
         }
     })
@@ -51,7 +51,7 @@
 <script type="text/javascript">
     jQuery(document).ready(function () {
         if (getCookie(msgId) == null) {
-            CARBON.showInfoDialog("<%=Encode.forJavaScriptBlock(request.getParameter("message"))%>");
+            CARBON.showInfoDialog("<%=Encode.forJavaScriptBlock(Encode.forHtml(request.getParameter("message")))%>");
             setCookie(msgId, 'true');
         }
     });

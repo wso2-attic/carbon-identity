@@ -132,8 +132,7 @@
                             max++;
                             continue;
                         }
-                        PaginatedNamesBean bean = Util.
-                                                              retrievePaginatedFlaggedName(i, dataList);
+                        PaginatedNamesBean bean = Util.retrievePaginatedFlaggedName(i, dataList);
                         flaggedNameMap.put(i, bean);
                         if (bean.getNumberOfPages() == i + 1) {
                             break;
@@ -158,7 +157,7 @@
 %>
 <script type="text/javascript">
     jQuery(document).ready(function () {
-        CARBON.showErrorDialog('<%=message%>', function () {
+        CARBON.showErrorDialog('<%=Encode.forJavaScript(Encode.forHtml(message))%>', function () {
             location.href = "add-step1.jsp";
         });
     });

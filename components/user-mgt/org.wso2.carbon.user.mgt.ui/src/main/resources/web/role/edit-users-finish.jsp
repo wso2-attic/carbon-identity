@@ -126,6 +126,7 @@
 <script type="text/javascript">
 
     function forward(){
+        location.href = "<%=forwardTo%>";
     }
 
     forward();

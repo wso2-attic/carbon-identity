@@ -234,11 +234,12 @@
             }
             if (CarbonUIUtil.isContextRegistered(config, "/usermgt-workflow/")) {
 
-                String[] AddPendingUsersList = UserMgtClient.listAllEntityNames("ADD_USER", "PENDING", "USER");
+                String[] AddPendingUsersList = UserMgtClient.
+                        listAllEntityNames("ADD_USER", "PENDING", "USER");
                 workFlowAddPendingUsers = new LinkedHashSet<String>(Arrays.asList(AddPendingUsersList));
 
-                String[] DeletePendingUsersList = UserMgtClient.listAllEntityNames("DELETE_USER", "PENDING",
-                                                                                          "USER");
+                String[] DeletePendingUsersList = UserMgtClient.
+                        listAllEntityNames("DELETE_USER", "PENDING", "USER");
                 workFlowDeletePendingUsers = new LinkedHashSet<String>(Arrays.asList(DeletePendingUsersList));
 
                 for (Iterator<FlaggedName> iterator = activeUserList.iterator(); iterator.hasNext(); ) {
@@ -261,7 +262,7 @@
 <script type="text/javascript">
 
     jQuery(document).ready(function () {
-        CARBON.showErrorDialog('<%=message%>', null);
+        CARBON.showErrorDialog('<%=Encode.forJavaScript(Encode.forHtml(message))%>', null);
     });
 </script>
 <%
@@ -334,6 +335,7 @@
                                 <%=Encode.forHtml(domainName)%>
                             </option>
                             <%
+                                    }
                                 }
                             %>
                         </select>
@@ -414,15 +416,15 @@
                                 if (flaggedName.getItemName().equals(CarbonConstants.REGISTRY_ANONNYMOUS_USERNAME)) {
                                     continue;
                                 }
-                                String userName = users[i].getItemName();
-                                String disPlayName = users[i].getItemDisplayName();
+                                String userName = flaggedName.getItemName();
+                                String disPlayName = flaggedName.getItemDisplayName();
                                 if (disPlayName == null || disPlayName.trim().length() == 0) {
                                     disPlayName = userName;
                                 }
                 %>
                 <tr>
                     <td><%=Encode.forHtml(disPlayName)%>
-                        <%if (!users[i].getEditable()) { %> <%="(Read-Only)"%> <% } %>
+                        <%if (!flaggedName.getEditable()) { %> <%="(Read-Only)"%> <% } %>
                     </td>
                     <td>
 
@@ -445,8 +447,7 @@
                                      .getPasswordsExternallyManaged() &&      // TODO
                                 CarbonUIUtil.isUserAuthorized(request,
                                                               "/permission/admin/configure/security/usermgt/passwords") &&
-                                flaggedName
-                                        .getEditable()) { //if passwords are managed externally do not allow to change passwords.
+                                flaggedName.getEditable()) { //if passwords are managed externally do not allow to change passwords.
                                 if (Util.decodeHTMLCharacters(userName).equals(currentUser)) {
                         %>
                         <a href="change-passwd.jsp?isUserChange=true&returnPath=user-mgt.jsp" class="icon-link"
@@ -567,8 +568,7 @@
                                      .getPasswordsExternallyManaged() &&      // TODO
                                 CarbonUIUtil.isUserAuthorized(request,
                                                               "/permission/admin/configure/security/usermgt/passwords") &&
-                                flaggedName
-                                        .getEditable()) { //if passwords are managed externally do not allow to change passwords.
+                                flaggedName.getEditable()) { //if passwords are managed externally do not allow to change passwords.
                                 if (Util.decodeHTMLCharacters(userName).equals(currentUser)) {
                         %>
                         <a href="change-passwd.jsp?isUserChange=true&returnPath=user-mgt.jsp" class="icon-link"
