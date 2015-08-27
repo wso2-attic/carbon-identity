@@ -51,7 +51,7 @@ public class WorkflowRequestDAO {
      * @param currentUser Currently logged in user's fully qualified username
      * @throws WorkflowException
      */
-    public void addWorkflowEntry(WorkFlowRequest workflow, String currentUser) throws WorkflowException {
+    public void addWorkflowEntry(WorkFlowRequest workflow, String currentUser, int tenantId) throws WorkflowException {
         Connection connection = null;
         PreparedStatement prepStmt = null;
         String query = SQLConstants.ADD_WORKFLOW_REQUEST_QUERY;
@@ -66,6 +66,7 @@ public class WorkflowRequestDAO {
             prepStmt.setTimestamp(5, createdDateStamp);
             prepStmt.setBytes(6, serializeWorkflowRequest(workflow));
             prepStmt.setString(7, WorkflowRequestStatus.PENDING.toString());
+            prepStmt.setInt(8, tenantId);
             prepStmt.executeUpdate();
             connection.commit();
         } catch (IdentityException e) {
@@ -215,7 +216,7 @@ public class WorkflowRequestDAO {
      * @return
      * @throws InternalWorkflowException
      */
-    public WorkflowRequestDTO[] getRequestsOfUser(String userName) throws InternalWorkflowException {
+    public WorkflowRequestDTO[] getRequestsOfUser(String userName, int tenantId) throws InternalWorkflowException {
 
         Connection connection = null;
         PreparedStatement prepStmt = null;
@@ -225,6 +226,7 @@ public class WorkflowRequestDAO {
             connection = IdentityDatabaseUtil.getDBConnection();
             prepStmt = connection.prepareStatement(query);
             prepStmt.setString(1, userName);
+            prepStmt.setInt(2, tenantId);
             resultSet = prepStmt.executeQuery();
             ArrayList<WorkflowRequestDTO> requestDTOs = new ArrayList<>();
             while (resultSet.next()) {
@@ -265,7 +267,7 @@ public class WorkflowRequestDAO {
      * @throws InternalWorkflowException
      */
     public WorkflowRequestDTO[] getRequestsOfUserFilteredByTime(String userName, Timestamp beginTime, Timestamp
-            endTime, String timeCategory) throws
+            endTime, String timeCategory, int tenantId) throws
             InternalWorkflowException {
 
         Connection connection = null;
@@ -283,7 +285,8 @@ public class WorkflowRequestDAO {
             prepStmt.setString(1, userName);
             prepStmt.setTimestamp(2, beginTime);
             prepStmt.setTimestamp(3, endTime);
-            prepStmt.setInt(4, SQLConstants.maxResultsPerRequest);
+            prepStmt.setInt(4, tenantId);
+            prepStmt.setInt(5, SQLConstants.maxResultsPerRequest);
             resultSet = prepStmt.executeQuery();
             ArrayList<WorkflowRequestDTO> requestDTOs = new ArrayList<>();
             while (resultSet.next()) {
@@ -323,7 +326,7 @@ public class WorkflowRequestDAO {
      * @throws InternalWorkflowException
      */
     public WorkflowRequestDTO[] getRequestsFilteredByTime(Timestamp beginTime, Timestamp
-            endTime, String timeCategory) throws
+            endTime, String timeCategory, int tenant) throws
             InternalWorkflowException {
 
         Connection connection = null;
@@ -340,7 +343,8 @@ public class WorkflowRequestDAO {
             prepStmt = connection.prepareStatement(query);
             prepStmt.setTimestamp(1, beginTime);
             prepStmt.setTimestamp(2, endTime);
-            prepStmt.setInt(3, SQLConstants.maxResultsPerRequest);
+            prepStmt.setInt(3, tenant);
+            prepStmt.setInt(4, SQLConstants.maxResultsPerRequest);
             resultSet = prepStmt.executeQuery();
             ArrayList<WorkflowRequestDTO> requestDTOs = new ArrayList<>();
             while (resultSet.next()) {

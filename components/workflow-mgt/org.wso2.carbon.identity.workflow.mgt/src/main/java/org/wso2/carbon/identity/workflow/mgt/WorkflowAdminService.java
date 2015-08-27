@@ -277,9 +277,8 @@ public class WorkflowAdminService {
             dateCategory) throws WorkflowException {
 
 
-        String tenant = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-        String fullyQualifiedUserName = UserCoreUtil.addTenantDomainToEntry(user, tenant);
-        return workflowService.getRequestsFromFilter(fullyQualifiedUserName, beginDate, endDate, dateCategory);
+        int tenant = CarbonContext.getThreadLocalCarbonContext().getTenantId();
+        return workflowService.getRequestsFromFilter(user, beginDate, endDate, dateCategory, tenant);
     }
 
     /**
@@ -294,7 +293,8 @@ public class WorkflowAdminService {
     public WorkflowRequestDTO[] getRequestsInFilter(String beginDate, String endDate, String
             dateCategory) throws WorkflowException {
 
-        return workflowService.getRequestsFromFilter("", beginDate, endDate, dateCategory);
+        int tenant = CarbonContext.getThreadLocalCarbonContext().getTenantId();
+        return workflowService.getRequestsFromFilter("", beginDate, endDate, dateCategory, tenant);
     }
 
     /**
