@@ -42,9 +42,9 @@
         userStoreInfo = Util.getUserStoreInfoForUser(roleName, userRealmInfo);
     } else {
 %>
-<script>window.location.href = '../admin/logout_action.jsp'</script>
-<% return;
-}
+        <script>window.location.href='../admin/logout_action.jsp'</script>
+<%      return;
+    }
 
     String regEx = userStoreInfo.getRoleNameRegEx();
 

@@ -154,8 +154,7 @@
                             max++;
                             continue;
                         }
-                        PaginatedNamesBean bean = Util.
-                                                              retrievePaginatedFlaggedName(i, dataList);
+                        PaginatedNamesBean bean = Util.retrievePaginatedFlaggedName(i, dataList);
                         flaggedNameMap.put(i, bean);
                         if (bean.getNumberOfPages() == i + 1) {
                             break;

@@ -210,12 +210,12 @@
 
                     //Listing Workflow Pending Roles to Add.
                     String[] AddPendingRolesList = UserMgtClient.listAllEntityNames("ADD_ROLE", "PENDING",
-                                                                                           "ROLE");
+                                                                                    "ROLE");
                     workFlowAddPendingRoles = new LinkedHashSet<String>(Arrays.asList(AddPendingRolesList));
 
                     //Listing Workflow Pending Roles to Delete.
                     String[] DeletePendingRolesList = UserMgtClient.listAllEntityNames("DELETE_ROLE", "PENDING",
-                                                                                              "ROLE");
+                                                                                       "ROLE");
                     workFlowDeletePendingRoles = new LinkedHashSet<String>(Arrays.asList(DeletePendingRolesList));
 
                     for (Iterator<FlaggedName> iterator = activeRoleList.iterator(); iterator.hasNext(); ) {
@@ -238,7 +238,7 @@
 <script type="text/javascript">
 
     jQuery(document).ready(function () {
-        CARBON.showErrorDialog('<%=message%>', null);
+        CARBON.showErrorDialog('<%=Encode.forJavaScript(Encode.forHtml(message))%>', null);
     });
 </script>
 <%
@@ -377,8 +377,7 @@
                     if (activeRoleList != null) {
                         for (Iterator<FlaggedName> iterator = activeRoleList.iterator(); iterator.hasNext(); ) {
                             FlaggedName flaggedName = iterator.next();
-                            if (flaggedName !=
-                                null) { //Confusing!!. Sometimes a null object comes. Maybe a bug in Axis!!
+                            if (flaggedName != null) { //Confusing!!. Sometimes a null object comes. Maybe a bug in Axis!!
                                 if (CarbonConstants.REGISTRY_ANONNYMOUS_ROLE_NAME.equals(flaggedName.getItemName())) {
                                     continue;
                                 }
@@ -386,15 +385,15 @@
                                     !userRealmInfo.getAdminUser().equals(currentUser)) {
                                     continue;
                                 }
-                                String roleName = data.getItemName();
-                                String disPlayName = data.getItemDisplayName();
+                                String roleName = flaggedName.getItemName();
+                                String disPlayName = flaggedName.getItemDisplayName();
                                 if (disPlayName == null) {
                                     disPlayName = roleName;
                                 }
                 %>
                 <tr>
                     <td><%=Encode.forHtmlContent(disPlayName)%>
-                        <%if (!data.getEditable()) { %> <%="(Read-Only)"%> <% } %>
+                        <%if (!flaggedName.getEditable()) { %> <%="(Read-Only)"%> <% } %>
                     </td>
                         <%-- <%if(hasMultipleUserStores){%>
                              <td>
@@ -487,7 +486,8 @@
                         <% if (flaggedName.getItemName().equals(userRealmInfo.getAdminRole()) == false &&
                                flaggedName.getItemName().equals(userRealmInfo.getEveryOneRole()) == false &&
                                flaggedName.getEditable()) {%>
-                        <a href="#" onclick="updateUserGroup('<%=roleName%>')" class="icon-link"
+                        <a href="#" onclick="updateUserGroup('<%=Encode.forJavaScriptAttribute(roleName)%>')"
+                           class="icon-link"
                            style="background-image:url(images/edit.gif);"><fmt:message key="rename"/></a>
                         <% } %>
                         <% if (!flaggedName.getItemName().equals(userRealmInfo.getAdminRole())) {%>

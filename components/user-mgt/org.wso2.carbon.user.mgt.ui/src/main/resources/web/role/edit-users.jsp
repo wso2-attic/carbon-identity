@@ -155,8 +155,7 @@
                             max++;
                             continue;
                         }
-                        PaginatedNamesBean bean = Util.
-                                                              retrievePaginatedFlaggedName(i, datasList);
+                        PaginatedNamesBean bean = Util.retrievePaginatedFlaggedName(i,datasList);
                         flaggedNameMap.put(i, bean);
                         if (bean.getNumberOfPages() == i + 1) {
                             break;
@@ -176,7 +175,7 @@
 %>
 <script type="text/javascript">
     jQuery(document).ready(function () {
-        CARBON.showErrorDialog('<%=message%>', function () {
+        CARBON.showErrorDialog('<%=Encode.forJavaScript(Encode.forHtml(message))%>', function () {
             location.href = "role-mgt.jsp";
         });
     });
