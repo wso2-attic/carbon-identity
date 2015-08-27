@@ -421,7 +421,8 @@ public class WorkflowService {
     /**
      * Returns array of requests initiated by a user.
      *
-     * @param user
+     * @param user User to get requests of, empty String to retrieve requests of all users
+     * @param tenantId tenant id of currently logged in user
      * @return
      * @throws WorkflowException
      */
@@ -459,15 +460,16 @@ public class WorkflowService {
     /**
      * get requests list according to createdUser, createdTime, and lastUpdatedTime
      *
-     * @param user
-     * @param beginDate
-     * @param endDate
-     * @param dateCategory
+     * @param user User to get requests of, empty String to retrieve requests of all users
+     * @param beginDate lower limit of date range to filter
+     * @param endDate upper limit of date range to filter
+     * @param dateCategory filter by created time or last updated time ?
+     * @param tenantId tenant id of currently logged in user
      * @return
      * @throws WorkflowException
      */
     public WorkflowRequestDTO[] getRequestsFromFilter(String user, String beginDate, String endDate, String
-            dateCategory, int tenant) throws WorkflowException {
+            dateCategory, int tenantId) throws WorkflowException {
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
         Timestamp beginTime;
@@ -489,9 +491,9 @@ public class WorkflowService {
             endTime = new java.sql.Timestamp(parsedEndDate.getTime());
         }
         if (StringUtils.isBlank(user)) {
-            return workflowRequestDAO.getRequestsFilteredByTime(beginTime, endTime, dateCategory, tenant);
+            return workflowRequestDAO.getRequestsFilteredByTime(beginTime, endTime, dateCategory, tenantId);
         } else {
-            return workflowRequestDAO.getRequestsOfUserFilteredByTime(user, beginTime, endTime, dateCategory, tenant);
+            return workflowRequestDAO.getRequestsOfUserFilteredByTime(user, beginTime, endTime, dateCategory, tenantId);
         }
 
     }

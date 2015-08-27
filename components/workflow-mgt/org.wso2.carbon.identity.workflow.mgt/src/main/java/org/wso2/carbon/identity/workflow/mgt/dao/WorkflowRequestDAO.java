@@ -47,8 +47,9 @@ public class WorkflowRequestDAO {
     /**
      * Persists WorkflowRequest to be used when workflow is completed
      *
-     * @param workflow    The workflow object to be persisted
-     * @param currentUser Currently logged in user's fully qualified username
+     * @param workflow The workflow object to be persisted
+     * @param currentUser Currently logged in user
+     * @param tenantId Tenant ID of the currently Logged user.
      * @throws WorkflowException
      */
     public void addWorkflowEntry(WorkFlowRequest workflow, String currentUser, int tenantId) throws WorkflowException {
@@ -212,7 +213,8 @@ public class WorkflowRequestDAO {
     /**
      * Get requests of a given user.
      *
-     * @param userName
+     * @param userName user name of user to get requests
+     * @param tenantId user's tenant id
      * @return
      * @throws InternalWorkflowException
      */
@@ -256,13 +258,14 @@ public class WorkflowRequestDAO {
         }
     }
 
-    /**
+   /**
      * Get requests of a user created/updated in given time period
      *
-     * @param userName
-     * @param beginTime
-     * @param endTime
-     * @param timeCategory
+    * @param userName User to get requests of, empty String to retrieve requests of all users
+    * @param beginTime lower limit of date range to filter
+    * @param endTime upper limit of date range to filter
+    * @param timeCategory filter by created time or last updated time ?
+    * @param tenantId tenant id of currently logged in user
      * @return
      * @throws InternalWorkflowException
      */
@@ -319,9 +322,10 @@ public class WorkflowRequestDAO {
     /**
      * Get requests created/updated in given time period
      *
-     * @param beginTime
-     * @param endTime
-     * @param timeCategory
+     * @param beginTime lower limit of date range to filter
+     * @param endTime upper limit of date range to filter
+     * @param timeCategory filter by created time or last updated time ?
+     * @param tenant tenant id of currently logged in user
      * @return
      * @throws InternalWorkflowException
      */
