@@ -425,9 +425,9 @@ public class WorkflowService {
      * @return
      * @throws WorkflowException
      */
-    public WorkflowRequestDTO[] getRequestsCreatedByUser(String user) throws WorkflowException {
+    public WorkflowRequestDTO[] getRequestsCreatedByUser(String user, int tenantId) throws WorkflowException {
 
-        return workflowRequestDAO.getRequestsOfUser(user);
+        return workflowRequestDAO.getRequestsOfUser(user, tenantId);
     }
 
     /**
@@ -467,7 +467,7 @@ public class WorkflowService {
      * @throws WorkflowException
      */
     public WorkflowRequestDTO[] getRequestsFromFilter(String user, String beginDate, String endDate, String
-            dateCategory) throws WorkflowException {
+            dateCategory, int tenant) throws WorkflowException {
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
         Timestamp beginTime;
@@ -489,9 +489,9 @@ public class WorkflowService {
             endTime = new java.sql.Timestamp(parsedEndDate.getTime());
         }
         if (StringUtils.isBlank(user)) {
-            return workflowRequestDAO.getRequestsFilteredByTime(beginTime, endTime, dateCategory);
+            return workflowRequestDAO.getRequestsFilteredByTime(beginTime, endTime, dateCategory, tenant);
         } else {
-            return workflowRequestDAO.getRequestsOfUserFilteredByTime(user, beginTime, endTime, dateCategory);
+            return workflowRequestDAO.getRequestsOfUserFilteredByTime(user, beginTime, endTime, dateCategory, tenant);
         }
 
     }
