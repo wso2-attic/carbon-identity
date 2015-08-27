@@ -1102,6 +1102,11 @@
                 <artifactId>org.wso2.carbon.identity.application.authentication.endpoint.util</artifactId>
                 <version>${carbon.identity.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.wso2.orbit.org.owasp.encoder</groupId>
+                <artifactId>encoder</artifactId>
+                <version>${encoder.wso2.version}</version>
+            </dependency>
             <!--Components Dependencies Ends-->
 
             <!--Composite Feature Dependency-->
@@ -2041,6 +2046,7 @@
         <apache.poi.wso2.version>3.9.0.wso2v1</apache.poi.wso2.version>
         <javax.activation.import.pkg.version>[0.0.0, 0.1.0)</javax.activation.import.pkg.version>
         <com.yubico.version>0.14.0</com.yubico.version>
+        <encoder.wso2.version>1.2.0.wso2v1</encoder.wso2.version>
 
 
         <project.scm.id>my-scm-server</project.scm.id>
