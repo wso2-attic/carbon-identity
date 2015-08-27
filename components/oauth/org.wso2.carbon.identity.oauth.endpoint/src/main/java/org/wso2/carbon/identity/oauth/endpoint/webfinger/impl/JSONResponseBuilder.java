@@ -21,7 +21,7 @@ package org.wso2.carbon.identity.oauth.endpoint.webfinger.impl;
 import com.google.gson.Gson;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.identity.webfinger.WebFingerEndPointException;
+import org.wso2.carbon.identity.webfinger.WebFingerEndpointException;
 import org.wso2.carbon.identity.webfinger.WebFingerResponse;
 import org.wso2.carbon.identity.webfinger.builders.ResponseBuilder;
 
@@ -29,7 +29,7 @@ public class JSONResponseBuilder implements ResponseBuilder {
     private static final Log log = LogFactory.getLog(JSONResponseBuilder.class);
 
     @Override
-    public String getOIDProviderIssuerString(WebFingerResponse webFingerResponse) throws WebFingerEndPointException {
+    public String getOIDProviderIssuerString(WebFingerResponse webFingerResponse) throws WebFingerEndpointException {
         return new Gson().toJson(webFingerResponse);
     }
 }

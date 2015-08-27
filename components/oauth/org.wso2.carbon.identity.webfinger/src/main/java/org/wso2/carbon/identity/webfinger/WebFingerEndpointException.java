@@ -18,19 +18,19 @@
 package org.wso2.carbon.identity.webfinger;
 
 
-public class WebFingerEndPointException extends Exception {
+public class WebFingerEndpointException extends Exception {
 
     private static final long serialVersionUID = -4449780649560035452L;
     private final String errorCode;
     private final String errorMessage;
 
-    public WebFingerEndPointException(String errorCode, String errorMessage) {
+    public WebFingerEndpointException(String errorCode, String errorMessage) {
         super(errorMessage);
         this.errorCode = errorCode;
         this.errorMessage = errorMessage;
     }
 
-    public WebFingerEndPointException(String errorMessage) {
+    public WebFingerEndpointException(String errorMessage) {
         super(errorMessage);
         this.errorCode = null;
         this.errorMessage = errorMessage;

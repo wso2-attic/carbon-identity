@@ -20,7 +20,6 @@ package org.wso2.carbon.identity.webfinger;
 import com.google.common.base.Strings;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.util.StringUtils;
 import org.wso2.carbon.identity.webfinger.internal.WebFingerServiceComponentHolder;
 import org.wso2.carbon.user.api.UserStoreException;
 
@@ -54,16 +53,16 @@ public class URLNormalizer {
     private URLNormalizer() {
     }
 
-    public static WebFingerRequest normalizeResource(WebFingerRequest request) throws WebFingerEndPointException{
+    public static WebFingerRequest normalizeResource(WebFingerRequest request) throws WebFingerEndpointException {
         String resource = request.getResource();
         if (Strings.isNullOrEmpty(resource)) {
             log.warn("Can't normalize null or empty URI: " + resource);
-            throw new WebFingerEndPointException(WebFingerConstants.ERROR_CODE_INVALID_RESOURCE, "Null or empty URI.");
+            throw new WebFingerEndpointException(WebFingerConstants.ERROR_CODE_INVALID_RESOURCE, "Null or empty URI.");
 
         } else {
             URI resourceURI = URI.create(resource);
             String scheme = resourceURI.getScheme();
-            if(scheme.equals("acct")){
+            if (scheme == null || scheme.equals("acct")) {
                 return matchPattern(request);
             }
             request.setScheme(resourceURI.getScheme());
@@ -76,17 +75,18 @@ public class URLNormalizer {
         }
         return request;
     }
+
     /**
      * Normalize the resource string as per OIDC Discovery.
      *
      * @param request
      * @return the WebFingerRequest, after assigning the relevant fields to the properties in the WebFingerRequest
      */
-    private static WebFingerRequest matchPattern(WebFingerRequest request) throws WebFingerEndPointException {
+    private static WebFingerRequest matchPattern(WebFingerRequest request) throws WebFingerEndpointException {
         String identifier = request.getResource();
         if (Strings.isNullOrEmpty(identifier)) {
             log.warn("Can't normalize null or empty URI: " + identifier);
-            throw new WebFingerEndPointException(WebFingerConstants.ERROR_CODE_INVALID_RESOURCE, "Null or empty URI.");
+            throw new WebFingerEndpointException(WebFingerConstants.ERROR_CODE_INVALID_RESOURCE, "Null or empty URI.");
 
         } else {
 
@@ -107,7 +107,7 @@ public class URLNormalizer {
             } else {
                 // doesn't match the pattern, throw it out
                 log.warn("Parser couldn't match input: " + identifier);
-                throw new WebFingerEndPointException(WebFingerConstants.ERROR_CODE_INVALID_RESOURCE, "URI in wrong " +
+                throw new WebFingerEndpointException(WebFingerConstants.ERROR_CODE_INVALID_RESOURCE, "URI in wrong " +
                         "format.");
             }
 
@@ -135,77 +135,20 @@ public class URLNormalizer {
 
 
     }
-    public static void validateTenant(String userInfo) throws WebFingerEndPointException {
-        try {
 
+    public static void validateTenant(String userInfo) throws WebFingerEndpointException {
+        try {
             int tenantId = WebFingerServiceComponentHolder.getRealmService().getTenantManager().getTenantId(userInfo);
-            if (tenantId < 0) {
-                throw new WebFingerEndPointException(WebFingerConstants.ERROR_CODE_INVALID_TENANT, "The tenant domain" +
+            if (tenantId < 0 && tenantId!= -1234) {
+                throw new WebFingerEndpointException(WebFingerConstants.ERROR_CODE_INVALID_TENANT, "The tenant domain" +
                         " is not valid.");
             }
         } catch (UserStoreException e) {
-            throw new WebFingerEndPointException(WebFingerConstants.ERROR_CODE_INVALID_TENANT, e.getMessage());
+            throw new WebFingerEndpointException(WebFingerConstants.ERROR_CODE_INVALID_TENANT, e.getMessage());
         }
     }
 
-    /**
-     * This is to be used at the Relying party.
-     * Not used in the Web Finger host.
-     */
-    public static WebFingerRequest serializeURL(WebFingerRequest request) {
-        if (request.getScheme() != null &&
-                (request.getScheme().equals("acct") ||
-                        request.getScheme().equals("mailto") ||
-                        request.getScheme().equals("tel") ||
-                        request.getScheme().equals("device")
-                )) {
 
-            // serializer copied from HierarchicalUriComponents but with "//" removed
-
-            StringBuilder uriBuilder = new StringBuilder();
-
-            if (request.getScheme() != null) {
-                uriBuilder.append(request.getScheme());
-                uriBuilder.append(':');
-            }
-
-            if (request.getUserInfo() != null || request.getHost() != null) {
-                if (request.getUserInfo() != null) {
-                    uriBuilder.append(request.getUserInfo());
-                    uriBuilder.append('@');
-                }
-                if (request.getHost() != null) {
-                    uriBuilder.append(request.getHost());
-                }
-                if (request.getPort() != -1) {
-                    uriBuilder.append(':');
-                    uriBuilder.append(request.getPort());
-                }
-            }
-
-            String path = request.getPath();
-            if (StringUtils.hasLength(path)) {
-                if (uriBuilder.length() != 0 && path.charAt(0) != '/') {
-                    uriBuilder.append('/');
-                }
-                uriBuilder.append(path);
-            }
-
-            String query = request.getQuery();
-            if (query != null) {
-                uriBuilder.append('?');
-                uriBuilder.append(query);
-            }
-
-            if (request.getFragment() != null) {
-                uriBuilder.append('#');
-                uriBuilder.append(request.getFragment());
-            }
-
-            request.setUri(uriBuilder.toString());
-        }
-        return request;
-    }
 
 
 }

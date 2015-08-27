@@ -17,11 +17,11 @@
  */
 package org.wso2.carbon.identity.webfinger.builders;
 
-import org.wso2.carbon.identity.webfinger.WebFingerEndPointException;
+import org.wso2.carbon.identity.webfinger.WebFingerEndpointException;
 import org.wso2.carbon.identity.webfinger.WebFingerRequest;
 
 import javax.servlet.http.HttpServletRequest;
 
 public interface WebFingerRequestBuilder {
-    public WebFingerRequest buildRequest(HttpServletRequest request) throws WebFingerEndPointException;
+    public WebFingerRequest buildRequest(HttpServletRequest request) throws WebFingerEndpointException;
 }

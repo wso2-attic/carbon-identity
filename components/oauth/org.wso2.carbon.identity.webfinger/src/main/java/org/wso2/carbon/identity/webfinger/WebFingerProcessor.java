@@ -23,7 +23,7 @@ import org.wso2.carbon.base.ServerConfigurationException;
 import javax.servlet.http.HttpServletRequest;
 
 public interface WebFingerProcessor {
-    public WebFingerResponse getResponse(HttpServletRequest request) throws WebFingerEndPointException,
+    public WebFingerResponse getResponse(HttpServletRequest request) throws WebFingerEndpointException,
             ServerConfigurationException;
-    public int handleError(WebFingerEndPointException error);
+    public int handleError(WebFingerEndpointException error);
 }

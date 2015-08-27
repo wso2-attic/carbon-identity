@@ -23,7 +23,7 @@ import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.util.IdentityConfigParser;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.webfinger.WebFingerConstants;
-import org.wso2.carbon.identity.webfinger.WebFingerEndPointException;
+import org.wso2.carbon.identity.webfinger.WebFingerEndpointException;
 import org.wso2.carbon.identity.webfinger.WebFingerRequest;
 import org.wso2.carbon.identity.webfinger.WebFingerResponse;
 
@@ -37,19 +37,19 @@ import java.util.Iterator;
 public class WebFingerResponseBuilder {
 
 
-    public WebFingerResponse buildWebFingerResponse(WebFingerRequest request) throws WebFingerEndPointException,
+    public WebFingerResponse buildWebFingerResponse(WebFingerRequest request) throws WebFingerEndpointException,
             ServerConfigurationException {
         WebFingerResponse response = this.getLinkFromIdentityConfig(request.getRel(), request.getResource());
         if (response == null) {
             try {
                 response = this.getIssuerFromServerURL(request.getResource());
             } catch (IdentityException e) {
-                throw new WebFingerEndPointException(WebFingerConstants.ERROR_CODE_NO_WEBFINGER_CONFIG, "Error in " +
+                throw new WebFingerEndpointException(WebFingerConstants.ERROR_CODE_NO_WEBFINGER_CONFIG, "Error in " +
                         "getting server url.\n" + e.getMessage());
             }
         }
         if (response == null) {
-            throw new WebFingerEndPointException(WebFingerConstants.ERROR_CODE_NO_WEBFINGER_CONFIG, "No WebFinger " +
+            throw new WebFingerEndpointException(WebFingerConstants.ERROR_CODE_NO_WEBFINGER_CONFIG, "No WebFinger " +
                     "settings set at the server.");
         }
         return response;
@@ -63,7 +63,7 @@ public class WebFingerResponseBuilder {
      * @resource resource parameter in the request
      */
     private WebFingerResponse getLinkFromIdentityConfig(String rel, String resource) throws
-            WebFingerEndPointException, ServerConfigurationException {
+            WebFingerEndpointException, ServerConfigurationException {
         WebFingerResponse response = null;
         IdentityConfigParser configParser = IdentityConfigParser.getInstance();
         OMElement webFingerElement = configParser.getConfigElement(WebFingerConstants.CONFIG_WEBFINGER_TAG);

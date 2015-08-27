@@ -23,7 +23,7 @@ import org.wso2.carbon.base.ServerConfigurationException;
 import org.wso2.carbon.identity.oauth.endpoint.util.EndpointUtil;
 import org.wso2.carbon.identity.oauth.endpoint.webfinger.impl.JSONResponseBuilder;
 import org.wso2.carbon.identity.webfinger.DefaultWebFingerProcessor;
-import org.wso2.carbon.identity.webfinger.WebFingerEndPointException;
+import org.wso2.carbon.identity.webfinger.WebFingerEndpointException;
 import org.wso2.carbon.identity.webfinger.builders.ResponseBuilder;
 
 import javax.servlet.http.HttpServletRequest;
@@ -50,7 +50,7 @@ public class WebFingerEndPoint {
         try {
             ResponseBuilder responseBuilder = new JSONResponseBuilder();
             response = responseBuilder.getOIDProviderIssuerString(processor.getResponse(request));
-        } catch (WebFingerEndPointException e) {
+        } catch (WebFingerEndpointException e) {
             Response.ResponseBuilder errorResponse = Response.status(processor.handleError(e));
             return errorResponse.entity(e.getErrorMessage()).build();
         } catch (ServerConfigurationException e) {

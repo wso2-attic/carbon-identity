@@ -19,7 +19,7 @@ package org.wso2.carbon.identity.webfinger.builders;
 
 import org.wso2.carbon.identity.webfinger.URLNormalizer;
 import org.wso2.carbon.identity.webfinger.WebFingerConstants;
-import org.wso2.carbon.identity.webfinger.WebFingerEndPointException;
+import org.wso2.carbon.identity.webfinger.WebFingerEndpointException;
 import org.wso2.carbon.identity.webfinger.WebFingerRequest;
 
 import javax.servlet.http.HttpServletRequest;
@@ -28,12 +28,12 @@ import java.util.List;
 
 public class DefaultWebFingerRequestBuilder implements WebFingerRequestBuilder {
     @Override
-    public WebFingerRequest buildRequest(HttpServletRequest request) throws WebFingerEndPointException {
+    public WebFingerRequest buildRequest(HttpServletRequest request) throws WebFingerEndpointException {
         WebFingerRequest webFingerRequest = new WebFingerRequest();
         List<String> parameters = Collections.list(request.getParameterNames());
         if (parameters.size() != 2 || !parameters.contains(WebFingerConstants.REL) || !parameters.contains
                 (WebFingerConstants.RESOURCE)) {
-            throw new WebFingerEndPointException(WebFingerConstants.ERROR_CODE_INVALID_REQUEST, "Bad Web " +
+            throw new WebFingerEndpointException(WebFingerConstants.ERROR_CODE_INVALID_REQUEST, "Bad Web " +
                     "Finger request.");
         }
         webFingerRequest.setServletRequest(request);

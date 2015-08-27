@@ -44,7 +44,7 @@ public class DefaultWebFingerProcessor implements WebFingerProcessor{
         return defaultWebFingerProcessor;
     }
 
-    public WebFingerResponse getResponse(HttpServletRequest request) throws WebFingerEndPointException,
+    public WebFingerResponse getResponse(HttpServletRequest request) throws WebFingerEndpointException,
             ServerConfigurationException {
         WebFingerRequestBuilder requestBuilder = new DefaultWebFingerRequestBuilder();
         WebFingerRequest requestObject = requestBuilder.buildRequest(request);
@@ -52,7 +52,7 @@ public class DefaultWebFingerProcessor implements WebFingerProcessor{
         return responseBuilder.buildWebFingerResponse(requestObject);
     }
 
-    public int handleError(WebFingerEndPointException error) {
+    public int handleError(WebFingerEndpointException error) {
         if (log.isDebugEnabled()) {
             log.debug(error);
         }

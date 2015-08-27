@@ -18,10 +18,10 @@
 package org.wso2.carbon.identity.webfinger.builders;
 
 
-import org.wso2.carbon.identity.webfinger.WebFingerEndPointException;
+import org.wso2.carbon.identity.webfinger.WebFingerEndpointException;
 import org.wso2.carbon.identity.webfinger.WebFingerResponse;
 
 public interface ResponseBuilder {
     public String getOIDProviderIssuerString(WebFingerResponse webFingerResponse) throws
-            WebFingerEndPointException;
+            WebFingerEndpointException;
 }
