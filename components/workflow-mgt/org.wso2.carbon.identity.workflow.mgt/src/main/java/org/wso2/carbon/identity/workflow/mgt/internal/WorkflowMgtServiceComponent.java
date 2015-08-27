@@ -32,10 +32,7 @@ import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.listener.WorkflowTenantMgtListener;
 import org.wso2.carbon.identity.workflow.mgt.template.AbstractWorkflowTemplate;
 import org.wso2.carbon.identity.workflow.mgt.template.AbstractWorkflowTemplateImpl;
-import org.wso2.carbon.identity.workflow.mgt.template.impl.AlwaysDenyTemplate;
 import org.wso2.carbon.identity.workflow.mgt.template.impl.BPELApprovalTemplateImpl;
-import org.wso2.carbon.identity.workflow.mgt.template.impl.BPELApprovalTemplateImpl2;
-import org.wso2.carbon.identity.workflow.mgt.template.impl.DefaultImmediateDenyImpl;
 import org.wso2.carbon.identity.workflow.mgt.template.impl.SimpleApprovalTemplate;
 import org.wso2.carbon.identity.workflow.mgt.extension.WorkflowRequestHandler;
 import org.wso2.carbon.identity.workflow.mgt.WorkflowService;
@@ -98,9 +95,6 @@ public class WorkflowMgtServiceComponent {
         WorkflowServiceDataHolder.getInstance().setBundleContext(bundleContext);
         setWorkflowTemplate(new SimpleApprovalTemplate());
         setTemplateImplementation(new BPELApprovalTemplateImpl());
-        //setTemplateImplementation(new BPELApprovalTemplateImpl2());
-        //setWorkflowTemplate(new AlwaysDenyTemplate());
-        //setTemplateImplementation(new DefaultImmediateDenyImpl());
 
         WorkflowTenantMgtListener workflowTenantMgtListener = new WorkflowTenantMgtListener();
         ServiceRegistration tenantMgtListenerSR = bundleContext.registerService(
