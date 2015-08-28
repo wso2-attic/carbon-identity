@@ -19,6 +19,7 @@
 package org.wso2.carbon.identity.workflow.mgt.template.impl;
 
 import org.apache.axiom.om.OMElement;
+import org.apache.axiom.soap.SOAP11Constants;
 import org.apache.axis2.AxisFault;
 import org.apache.axis2.Constants;
 import org.apache.axis2.addressing.EndpointReference;
@@ -118,7 +119,8 @@ public class DefaultBPELExecutor implements WorkFlowExecutor {
         }
 
         options.setTo(new EndpointReference(endpoint));
-        options.setProperty(Constants.Configuration.MESSAGE_TYPE, HTTPConstants.MEDIA_TYPE_APPLICATION_XML);
+
+        options.setProperty(Constants.Configuration.MESSAGE_TYPE, SOAP11Constants.SOAP_11_CONTENT_TYPE);
 
         HttpTransportProperties.Authenticator auth = new HttpTransportProperties.Authenticator();
         auth.setUsername((String) initParams.get(WorkFlowConstants.TemplateConstants.AUTH_USER));
@@ -130,6 +132,7 @@ public class DefaultBPELExecutor implements WorkFlowExecutor {
         options.setProperty(org.apache.axis2.transport.http.HTTPConstants.AUTHENTICATE, auth);
 
         options.setManageSession(true);
+
         client.setOptions(options);
         client.fireAndForget(messagePayload);
 

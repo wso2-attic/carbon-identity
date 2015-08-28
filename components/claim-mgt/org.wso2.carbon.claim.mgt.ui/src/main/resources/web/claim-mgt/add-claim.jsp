@@ -19,14 +19,14 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar"
            prefix="carbon" %>
-<%@ page import="org.wso2.carbon.claim.mgt.stub.dto.ClaimDialectDTO" %>
-<%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
 <%@ page import="org.apache.axis2.context.ConfigurationContext" %>
 <%@ page import="org.wso2.carbon.CarbonConstants" %>
-<%@ page import="org.wso2.carbon.utils.ServerConstants" %>
+<%@ page import="org.wso2.carbon.claim.mgt.stub.dto.ClaimDialectDTO" %>
 <%@ page import="org.wso2.carbon.claim.mgt.ui.client.ClaimAdminClient" %>
-<%@ page import="java.util.ResourceBundle" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
+<%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
+<%@ page import="org.wso2.carbon.utils.ServerConstants" %>
+<%@ page import="java.util.ResourceBundle" %>
 
 <script type="text/javascript" src="../admin/js/main.js"></script>
 <jsp:include page="../dialog/display_messages.jsp"/>
@@ -60,8 +60,6 @@
         forwardTo = "../admin/error.jsp";
 %>
 
-<%@page import="org.wso2.carbon.utils.ServerConstants" %>
-<%@page import="java.util.ResourceBundle" %>
 <script type="text/javascript">
     function forward() {
         location.href = "<%=forwardTo%>";

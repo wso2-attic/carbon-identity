@@ -20,7 +20,6 @@
 <%@ page import="org.wso2.carbon.CarbonConstants" %>
 <%@page import="org.wso2.carbon.ui.CarbonUIMessage" %>
 <%@page import="org.wso2.carbon.ui.CarbonUIUtil" %>
-<%@page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
 <%@page import="org.wso2.carbon.user.mgt.ui.UserAdminClient" %>
 <%@ page import="org.wso2.carbon.user.mgt.ui.UserAdminUIConstants" %>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
@@ -28,8 +27,8 @@
 <%@ page import="java.util.ResourceBundle" %>
 
 <%
-    String oldRoleName = CharacterEncoder.getSafeText(request.getParameter("oldRoleName"));
-    String newRoleName = CharacterEncoder.getSafeText(request.getParameter("newRoleName"));
+    String oldRoleName = request.getParameter("oldRoleName");
+    String newRoleName = request.getParameter("newRoleName");
 	String forwardTo = null;
 
     String BUNDLE = "org.wso2.carbon.userstore.ui.i18n.Resources";
