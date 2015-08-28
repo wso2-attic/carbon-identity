@@ -574,7 +574,7 @@ public class IdentityMgtEventListener extends AbstractIdentityUserOperationEvent
                     }
 
                     // store identity data
-                    userIdentityClaimsDO.setAccountLock(false).setPasswordTimeStamp(System.currentTimeMillis());
+                    userIdentityClaimsDO.setAccountLock(false);
                     try {
                         module.store(userIdentityClaimsDO, userStoreManager);
                     } catch (IdentityException e) {
@@ -630,7 +630,6 @@ public class IdentityMgtEventListener extends AbstractIdentityUserOperationEvent
                 if (config.isAuthPolicyAccountLockOnCreation()) {
                     // accounts are locked. Admin should unlock
                     userIdentityClaimsDO.setAccountLock(true);
-                    userIdentityClaimsDO.setPasswordTimeStamp(System.currentTimeMillis());
                     try {
                         config.getIdentityDataStore().store(userIdentityClaimsDO, userStoreManager);
                     } catch (IdentityException e) {
@@ -974,49 +973,7 @@ public class IdentityMgtEventListener extends AbstractIdentityUserOperationEvent
     public boolean doPostUpdateCredential(String userName, Object credential, UserStoreManager userStoreManager)
             throws UserStoreException {
 
-        if (!isEnable(this.getClass().getName())) {
-            return true;
-        }
-
-        // Top level try and finally blocks are used to unset thread local variables
-        try {
-            if (!threadLocalProperties.get().containsKey(DO_POST_UPDATE_CREDENTIAL)) {
-                threadLocalProperties.get().put(DO_POST_UPDATE_CREDENTIAL, true);
-
-                IdentityMgtConfig config = IdentityMgtConfig.getInstance();
-                if (!config.isListenerEnable()) {
-                    return true;
-                }
-
-                UserIdentityClaimsDO userIdentityDTO = module.load(userName, userStoreManager);
-
-                if (userIdentityDTO == null) {
-                    userIdentityDTO = new UserIdentityClaimsDO(userName);
-                }
-
-                // Do not timestamp if OTP enabled.
-                boolean userOTPEnabled = userIdentityDTO.getOneTimeLogin();
-
-                if (config.isAuthPolicyExpirePasswordCheck() && !userOTPEnabled && (!userStoreManager.isReadOnly())) {
-
-                    userIdentityDTO.setPasswordTimeStamp(Calendar.getInstance().getTimeInMillis());
-
-                    try {
-                        // Store the new timestamp after change password
-                        module.store(userIdentityDTO, userStoreManager);
-
-                    } catch (IdentityException e) {
-                        throw new UserStoreException(
-                                "Error while saving user store data for user : "
-                                        + userName, e);
-                    }
-                }
-            }
-            return true;
-        } finally {
-            // Remove thread local variable.
-            threadLocalProperties.get().remove(DO_POST_UPDATE_CREDENTIAL);
-        }
+       return true;
     }
 
 }
