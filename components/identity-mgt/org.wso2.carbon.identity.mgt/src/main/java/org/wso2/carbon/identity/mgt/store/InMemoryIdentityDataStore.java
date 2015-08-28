@@ -145,6 +145,18 @@ public class InMemoryIdentityDataStore extends UserIdentityDataStore {
         if (userName == null) {
             return;
         }
+        if (userStoreManager instanceof org.wso2.carbon.user.core.UserStoreManager) {
+            String caseInsensitiveUsername = ((org.wso2.carbon.user.core.UserStoreManager) userStoreManager)
+                    .getRealmConfiguration().getUserStoreProperty("CaseInsensitiveUsername");
+            if (!StringUtils.isBlank(caseInsensitiveUsername) && "true".equalsIgnoreCase(caseInsensitiveUsername.trim
+                    ())) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Case insensitive user store found. Changing username from : " + userName + " to : " +
+                            userName.toLowerCase());
+                }
+                userName = userName.toLowerCase();
+            }
+        }
         org.wso2.carbon.user.core.UserStoreManager store = (org.wso2.carbon.user.core.UserStoreManager) userStoreManager;
         String domainName = store.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
 
