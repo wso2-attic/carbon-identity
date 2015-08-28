@@ -482,18 +482,22 @@ public class SCIMUserManager implements UserManager {
                 SCIMCommonUtils.setThreadLocalIsManagedThroughSCIMEP(true);
                 userNames = carbonUM.getUserList(SCIMConstants.ID_URI, userId,
                         UserCoreConstants.DEFAULT_PROFILE);
-                if (userNames == null && userNames.length == 0) {
+                String userStoreDomainFromSP = null;
+                try {
+                    userStoreDomainFromSP = getUserStoreDomainFromSP();
+                }catch (IdentityApplicationManagementException e){
+                    throw new CharonException("Error retrieving User Store name. ", e);
+                }
+                if (userNames == null || userNames.length == 0) {
                     //resource with given id not found
                     if (log.isDebugEnabled()) {
                         log.debug("User with id: " + userId + " not found.");
                     }
                     throw new NotFoundException();
-                } else if (userNames != null && userNames.length == 0) {
-                    //resource with given id not found
-                    if (log.isDebugEnabled()) {
-                        log.debug("User with id: " + userId + " not found.");
-                    }
-                    throw new NotFoundException();
+                } else if (userStoreDomainFromSP != null &&
+                           !(userStoreDomainFromSP.equalsIgnoreCase(UserCoreUtil.extractDomainFromName(userNames[0])))) {
+                    throw new CharonException("User :" + userNames[0] + "is not belong to user store " +
+                                              userStoreDomainFromSP + "Hence user updating fail");
                 } else {
                     //we assume (since id is unique per user) only one user exists for a given id
                     userName = userNames[0];
@@ -733,8 +737,8 @@ public class SCIMUserManager implements UserManager {
             String userStoreDomainFromSP = getUserStoreDomainFromSP();
             if(userStoreDomainFromSP != null && !userStoreDomainFromSP.equalsIgnoreCase(
                     UserCoreUtil.extractDomainFromName(oldGroup.getDisplayName()))){
-                throw new CharonException("User :" + oldGroup.getDisplayName() + "is not belong to user store " +
-                                          userStoreDomainFromSP + "Hence user updating fail");
+                throw new CharonException("Group :" + oldGroup.getDisplayName() + "is not belong to user store " +
+                                          userStoreDomainFromSP + "Hence group updating fail");
             }
         } catch (IdentityApplicationManagementException e) {
             throw new CharonException("Error retrieving User Store name. ", e);
@@ -896,8 +900,8 @@ public class SCIMUserManager implements UserManager {
             String userStoreDomainFromSP = getUserStoreDomainFromSP();
             if (userStoreDomainFromSP != null && !userStoreDomainFromSP
                     .equalsIgnoreCase(UserCoreUtil.extractDomainFromName(oldGroup.getDisplayName()))) {
-                throw new CharonException("User :" + oldGroup.getDisplayName() + "is not belong to user store " +
-                                          userStoreDomainFromSP + "Hence user updating fail");
+                throw new CharonException("Group :" + oldGroup.getDisplayName() + "is not belong to user store " +
+                                          userStoreDomainFromSP + "Hence group updating fail");
             }
         } catch (IdentityApplicationManagementException e) {
             throw new CharonException("Error retrieving User Store name. ", e);
@@ -1075,6 +1079,17 @@ public class SCIMUserManager implements UserManager {
                 String groupName = groupHandler.getGroupName(groupId);
 
                 if (groupName != null) {
+                    String userStoreDomainFromSP = null;
+                    try {
+                        userStoreDomainFromSP = getUserStoreDomainFromSP();
+                    }catch (IdentityApplicationManagementException e){
+                        throw new CharonException("Error retrieving User Store name. ", e);
+                    }
+                    if (userStoreDomainFromSP != null &&
+                        !(userStoreDomainFromSP.equalsIgnoreCase(UserCoreUtil.extractDomainFromName(groupName)))) {
+                        throw new CharonException("Group :" + groupName + "is not belong to user store " +
+                                                  userStoreDomainFromSP + "Hence group updating fail");
+                    }
                     //delete group in carbon UM
                     carbonUM.deleteRole(groupName);
 
