@@ -271,21 +271,17 @@ public class JDBCIdentityDataStore extends InMemoryIdentityDataStore {
                 "TENANT_ID = ? AND USER_NAME = ? AND DATA_KEY = ?";
         public static final String CHECK_EXIST_USER_DATA_CASE_INSENSITIVE = "SELECT DATA_VALUE FROM " +
                 "IDN_IDENTITY_USER_DATA WHERE TENANT_ID = ? AND LOWER(USER_NAME) = LOWER(?) AND DATA_KEY = ?";
-        public static final String STORE_USER_DATA =
-                "INSERT "
-                        + "INTO IDN_IDENTITY_USER_DATA "
-                        + "(TENANT_ID, USER_NAME, DATA_KEY, DATA_VALUE) "
-                        + "VALUES (?,?,?,?)";
-        public static final String UPDATE_USER_DATA =
-                "UPDATE IDN_IDENTITY_USER_DATA "
-                        + "SET DATA_VALUE=? "
-                        + "WHERE TENANT_ID=? AND USER_NAME=? AND DATA_KEY=?";
+
+        public static final String STORE_USER_DATA = "INSERT INTO IDN_IDENTITY_USER_DATA (TENANT_ID, USER_NAME, " +
+                "DATA_KEY, DATA_VALUE) VALUES (?,?,?,?)";
+
+        public static final String UPDATE_USER_DATA = "UPDATE IDN_IDENTITY_USER_DATA SET DATA_VALUE=? WHERE " +
+                "TENANT_ID=? AND USER_NAME=? AND DATA_KEY=?";
         public static final String UPDATE_USER_DATA_CASE_INSENSITIVE = "UPDATE IDN_IDENTITY_USER_DATA SET " +
                 "DATA_VALUE=? WHERE TENANT_ID=? AND LOWER(USER_NAME)=LOWER(?) AND DATA_KEY=?";
 
-        public static final String LOAD_USER_DATA = "SELECT " + "DATA_KEY, DATA_VALUE "
-                + "FROM IDN_IDENTITY_USER_DATA "
-                + "WHERE TENANT_ID = ? AND USER_NAME = ?";
+        public static final String LOAD_USER_DATA = "SELECT DATA_KEY, DATA_VALUE FROM IDN_IDENTITY_USER_DATA WHERE " +
+                "TENANT_ID = ? AND USER_NAME = ?";
         public static final String LOAD_USER_DATA_CASE_INSENSITIVE = "SELECT " + "DATA_KEY, DATA_VALUE FROM " +
                 "IDN_IDENTITY_USER_DATA WHERE TENANT_ID = ? AND LOWER(USER_NAME) = LOWER(?)";
 
