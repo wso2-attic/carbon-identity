@@ -24,7 +24,6 @@ import org.wso2.carbon.identity.application.authenticator.iwa.IWAAuthenticator;
 import org.wso2.carbon.identity.application.authenticator.iwa.IWAConstants;
 import org.wso2.carbon.identity.application.authenticator.iwa.IWAServiceDataHolder;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
-import org.wso2.carbon.ui.CarbonUIUtil;
 import waffle.servlet.AutoDisposableWindowsPrincipal;
 import waffle.servlet.NegotiateSecurityFilter;
 import waffle.servlet.WindowsPrincipal;

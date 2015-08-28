@@ -28,9 +28,6 @@ import org.wso2.carbon.user.api.UserStoreManager;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.claim.Claim;
 import org.wso2.carbon.user.core.common.AbstractUserStoreManager;
-import org.wso2.carbon.user.core.jdbc.JDBCUserStoreManager;
-import org.wso2.carbon.user.core.ldap.ActiveDirectoryUserStoreManager;
-import org.wso2.carbon.user.core.ldap.ReadWriteLDAPUserStoreManager;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 
 import javax.cache.Cache;

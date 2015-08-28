@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.wso2.carbon.identity</groupId>
         <artifactId>identity-provider-management-feature</artifactId>
-        <version>4.5.5-SNAPSHOT</version>
+        <version>4.5.6-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -41,10 +41,6 @@
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.ui</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon.identity</groupId>
-            <artifactId>org.wso2.carbon.identity.application.common</artifactId>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon.identity</groupId>
@@ -81,12 +77,10 @@
                             <bundles>
                                 <bundleDef>org.wso2.carbon.identity:org.wso2.carbon.idp.mgt.stub</bundleDef>
                                 <bundleDef>org.wso2.carbon.identity:org.wso2.carbon.idp.mgt.ui</bundleDef>
-                                <bundleDef>org.wso2.carbon.identity:org.wso2.carbon.identity.application.common
-                                </bundleDef>
                             </bundles>
                             <importFeatures>
                                 <importFeatureDef>org.wso2.carbon.core:${carbon.kernel.version}</importFeatureDef>
-                                <importFeatureDef>org.wso2.carbon.identity.core.ui:${carbon.identity.version}</importFeatureDef>
+                                <importFeatureDef>org.wso2.carbon.identity.core:${carbon.identity.version}</importFeatureDef>
                             </importFeatures>
                         </configuration>
                     </execution>

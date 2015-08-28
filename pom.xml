@@ -21,7 +21,7 @@
     <groupId>org.wso2.carbon.identity</groupId>
     <artifactId>carbon-identity</artifactId>
     <packaging>pom</packaging>
-    <version>4.5.5-SNAPSHOT</version>
+    <version>4.5.6-SNAPSHOT</version>
     <name>WSO2 Carbon - Platform Aggregator Pom</name>
     <url>http://wso2.org</url>
 
@@ -1102,6 +1102,11 @@
                 <artifactId>org.wso2.carbon.identity.application.authentication.endpoint.util</artifactId>
                 <version>${carbon.identity.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.wso2.orbit.org.owasp.encoder</groupId>
+                <artifactId>encoder</artifactId>
+                <version>${encoder.wso2.version}</version>
+            </dependency>
             <!--Components Dependencies Ends-->
 
             <!--Composite Feature Dependency-->
@@ -1657,6 +1662,18 @@
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
+                <artifactId>org.wso2.carbon.user.mgt.workflow.server.feature</artifactId>
+                <version>${carbon.identity.version}</version>
+                <type>zip</type>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.identity</groupId>
+                <artifactId>org.wso2.carbon.user.mgt.workflow.ui.feature</artifactId>
+                <version>${carbon.identity.version}</version>
+                <type>zip</type>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.identity.user.store.configuration.deployer</artifactId>
                 <version>${carbon.identity.version}</version>
             </dependency>
@@ -1725,6 +1742,7 @@
                 <artifactId>org.wso2.carbon.user.mgt.workflow.stub</artifactId>
                 <version>${carbon.identity.version}</version>
             </dependency>
+
             <!--Feature Dependencies Ends-->
 
             <dependency>
@@ -1832,7 +1850,7 @@
         <carbon.commons.imp.pkg.version>[4.4.0, 4.5.0)</carbon.commons.imp.pkg.version>
 
         <!--Carbon identity version-->
-        <carbon.identity.version>4.5.5-SNAPSHOT</carbon.identity.version>
+        <carbon.identity.version>4.5.6-SNAPSHOT</carbon.identity.version>
         <carbon.identity.package.export.version>${carbon.identity.version}</carbon.identity.package.export.version>
         <carbon.identity.package.import.version.range>[4.5.0, 4.6.0)</carbon.identity.package.import.version.range>
 
@@ -2028,6 +2046,7 @@
         <apache.poi.wso2.version>3.9.0.wso2v1</apache.poi.wso2.version>
         <javax.activation.import.pkg.version>[0.0.0, 0.1.0)</javax.activation.import.pkg.version>
         <com.yubico.version>0.14.0</com.yubico.version>
+        <encoder.wso2.version>1.2.0.wso2v1</encoder.wso2.version>
 
 
         <project.scm.id>my-scm-server</project.scm.id>
