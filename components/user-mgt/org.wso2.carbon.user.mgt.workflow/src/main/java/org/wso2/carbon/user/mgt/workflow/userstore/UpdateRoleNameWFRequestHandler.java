@@ -75,10 +75,10 @@ public class UpdateRoleNameWFRequestHandler extends AbstractWorkflowRequestHandl
         String uuid = UUID.randomUUID().toString();
         if (workflowService.eventEngagedWithWorkflows(UserStoreWFConstants.UPDATE_ROLE_NAME_EVENT) && !Boolean.TRUE
                 .equals
-                (getWorkFlowCompleted()) && !isValidOperation(new Entity[]{new Entity
+                        (getWorkFlowCompleted()) && !isValidOperation(new Entity[]{new Entity
                 (fullyQualifiedOldName, UserStoreWFConstants.ENTITY_TYPE_ROLE, tenant), new Entity
                 (fullyQualifiedNewName,
-                UserStoreWFConstants.ENTITY_TYPE_ROLE, tenant)})) {
+                        UserStoreWFConstants.ENTITY_TYPE_ROLE, tenant)})) {
             throw new WorkflowException("Operation is not valid.");
         }
         boolean state = startWorkFlow(wfParams, nonWfParams, uuid);
@@ -182,9 +182,7 @@ public class UpdateRoleNameWFRequestHandler extends AbstractWorkflowRequestHandl
                 if (entities[i].getEntityType() == UserStoreWFConstants.ENTITY_TYPE_ROLE && workflowService
                         .entityHasPendingWorkflows(entities[i])) {
 
-                    throw new WorkflowException("One or more roles assigned has pending workflows which " +
-                            "blocks this operation.");
-
+                    throw new WorkflowException("Role has pending workflows which  blocks this operation.");
                 }
             } catch (InternalWorkflowException e) {
                 throw new WorkflowException(e.getMessage(), e);
