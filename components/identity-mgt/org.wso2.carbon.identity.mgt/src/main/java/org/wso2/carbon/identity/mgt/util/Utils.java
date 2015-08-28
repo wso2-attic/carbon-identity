@@ -382,4 +382,32 @@ public class Utils {
         return PolicyEngine.getPolicy(new ByteArrayInputStream(policyString.getBytes()));
 
     }
+
+    /**
+     * check the case sensitivity of user store
+     *
+     * @param username
+     * @param tenantId
+     * @return
+     */
+    public static boolean isUsernameCaseSensitive(String username, int tenantId) {
+
+        boolean isUsernameCaseSensitive = true;
+        try {
+
+            org.wso2.carbon.user.core.UserStoreManager userStoreManager = (org.wso2.carbon.user.core.UserStoreManager) IdentityMgtServiceComponent.getRealmService()
+                    .getTenantUserRealm(tenantId).getUserStoreManager();
+            org.wso2.carbon.user.core.UserStoreManager UserAvailableUserStoreManager = userStoreManager.getSecondaryUserStoreManager
+                    (UserCoreUtil.extractDomainFromName(username));
+            String caseInsensitiveUsername = UserAvailableUserStoreManager.getRealmConfiguration().getUserStoreProperty("CaseInsensitiveUsername");
+            if (caseInsensitiveUsername != null) {
+                isUsernameCaseSensitive = !Boolean.parseBoolean(caseInsensitiveUsername);
+            }
+        } catch (UserStoreException e) {
+            if (log.isDebugEnabled()){
+                log.debug("Error while reading user store property CaseInsensitiveUsername. Considering as false.");
+            }
+        }
+        return isUsernameCaseSensitive;
+    }
 }

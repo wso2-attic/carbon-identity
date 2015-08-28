@@ -541,7 +541,7 @@ public class OAuth2Util {
     }
 
     public static boolean isUsernameCaseSensitive(String username) {
-        boolean isUsernameCaseSensitive = false;
+        boolean isUsernameCaseSensitive = true;
         try {
             String tenantDomain = MultitenantUtils.getTenantDomain(username);
             int tenantId = OAuthComponentServiceHolder.getRealmService().getTenantManager().getTenantId(tenantDomain);
