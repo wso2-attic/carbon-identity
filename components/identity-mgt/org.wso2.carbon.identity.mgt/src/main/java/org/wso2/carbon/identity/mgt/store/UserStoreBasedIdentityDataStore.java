@@ -131,11 +131,11 @@ public class UserStoreBasedIdentityDataStore extends InMemoryIdentityDataStore {
                 return null;
             }
         } catch (UserStoreException e) {
-            if(!e.getMessage().contains("User does not exist")){
+            if(!e.getMessage().contains("UserNotFound")){
                 log.error("Error while reading user claim values", e);
             }
             else if (log.isDebugEnabled()){
-                log.debug("User "+userName+" does not exist in "+((AbstractUserStoreManager) userStoreManager).
+                log.debug("User " + userName + " does not exist in " + ((AbstractUserStoreManager) userStoreManager).
                         getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME));
             }
             return null;
