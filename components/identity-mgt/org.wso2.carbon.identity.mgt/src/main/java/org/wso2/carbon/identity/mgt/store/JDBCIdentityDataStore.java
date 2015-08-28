@@ -23,8 +23,8 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.persistence.JDBCPersistenceManager;
 import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.mgt.dto.UserIdentityClaimsDO;
-import org.wso2.carbon.identity.mgt.util.Utils;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.api.UserStoreManager;
 import org.wso2.carbon.user.core.UserCoreConstants;
@@ -90,7 +90,7 @@ public class JDBCIdentityDataStore extends InMemoryIdentityDataStore {
         Connection connection = null;
         PreparedStatement prepStmt = null;
         ResultSet results;
-        boolean isUsernameCaseSensitive = Utils.isUsernameCaseSensitive(userName, tenantId);
+        boolean isUsernameCaseSensitive = IdentityUtil.isUsernameCaseSensitive(userName, tenantId);
         try {
             connection = JDBCPersistenceManager.getInstance().getDBConnection();
             String query;
@@ -147,7 +147,7 @@ public class JDBCIdentityDataStore extends InMemoryIdentityDataStore {
 
         Connection connection = null;
         PreparedStatement prepStmt = null;
-        boolean isUsernameCaseSensitive = Utils.isUsernameCaseSensitive(userName, tenantId);
+        boolean isUsernameCaseSensitive = IdentityUtil.isUsernameCaseSensitive(userName, tenantId);
         try {
             connection = JDBCPersistenceManager.getInstance().getDBConnection();
             String query;
@@ -191,7 +191,7 @@ public class JDBCIdentityDataStore extends InMemoryIdentityDataStore {
         ResultSet results = null;
         try {
             int tenantId = userStoreManager.getTenantId();
-            boolean isUsernameCaseSensitive = Utils.isUsernameCaseSensitive(userName, tenantId);
+            boolean isUsernameCaseSensitive = IdentityUtil.isUsernameCaseSensitive(userName, tenantId);
             connection = JDBCPersistenceManager.getInstance().getDBConnection();
             String query;
             if (isUsernameCaseSensitive) {
@@ -239,7 +239,7 @@ public class JDBCIdentityDataStore extends InMemoryIdentityDataStore {
         PreparedStatement prepStmt = null;
         try {
             int tenantId = userStoreManager.getTenantId();
-            boolean isUsernameCaseSensitive = Utils.isUsernameCaseSensitive(userName, tenantId);
+            boolean isUsernameCaseSensitive = IdentityUtil.isUsernameCaseSensitive(userName, tenantId);
             connection = JDBCPersistenceManager.getInstance().getDBConnection();
             String query;
             if (isUsernameCaseSensitive) {

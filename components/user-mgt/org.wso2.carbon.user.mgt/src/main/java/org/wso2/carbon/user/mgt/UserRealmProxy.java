@@ -24,6 +24,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.context.CarbonContext;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.registry.api.Registry;
 import org.wso2.carbon.registry.api.RegistryException;
 import org.wso2.carbon.registry.api.Resource;
@@ -668,16 +669,8 @@ public class UserRealmProxy {
             info.setBulkImportSupported(this.isBulkImportSupported());
             info.setDomainName(realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME));
 
-            boolean caseSensitiveUsername;
-            String caseInsensitiveUsernameString;
-            caseInsensitiveUsernameString = manager.getRealmConfiguration().getUserStoreProperty
-                    ("CaseInsensitiveUsername");
+            boolean caseSensitiveUsername = IdentityUtil.isUsernameCaseSensitive(manager);
 
-            if (caseInsensitiveUsernameString != null) {
-                caseSensitiveUsername = !Boolean.parseBoolean(caseInsensitiveUsernameString);
-            } else {
-                caseSensitiveUsername = true;
-            }
             info.setCaseSensitiveUsername(caseSensitiveUsername);
             return info;
         } catch (UserStoreException e) {

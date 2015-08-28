@@ -229,7 +229,7 @@ public class OAuth2Util {
 
         boolean cacheHit = false;
         String username = null;
-        boolean isUsernameCaseSensitive = OAuth2Util.isUsernameCaseSensitive(username);
+        boolean isUsernameCaseSensitive = IdentityUtil.isUsernameCaseSensitive(username);
 
         if (OAuth2Util.authenticateClient(clientId, clientSecretProvided)) {
             // check cache
@@ -538,37 +538,6 @@ public class OAuth2Util {
         } else {
            return null;
         }
-    }
-
-    public static boolean isUsernameCaseSensitive(String username) {
-        boolean isUsernameCaseSensitive = true;
-        try {
-            String tenantDomain = MultitenantUtils.getTenantDomain(username);
-            int tenantId = OAuthComponentServiceHolder.getRealmService().getTenantManager().getTenantId(tenantDomain);
-
-            UserStoreManager userStoreManager = (UserStoreManager) OAuthComponentServiceHolder.getRealmService()
-                    .getTenantUserRealm(tenantId).getUserStoreManager();
-            UserStoreManager UserAvailableUserStoreManager = userStoreManager.getSecondaryUserStoreManager
-                    (UserCoreUtil.extractDomainFromName(username));
-            String caseInsensitiveUsername = UserAvailableUserStoreManager.getRealmConfiguration().getUserStoreProperty("CaseInsensitiveUsername");
-            if (caseInsensitiveUsername != null) {
-                isUsernameCaseSensitive = !Boolean.parseBoolean(caseInsensitiveUsername);
-            }
-        } catch (UserStoreException e) {
-            if (log.isDebugEnabled()){
-                log.debug("Error while reading user store property CaseInsensitiveUsername. Considering as false.");
-            }
-        }
-        return isUsernameCaseSensitive;
-    }
-
-    public static String getDomainFromName(String name) {
-        int index;
-        if ((index = name.indexOf("/")) > 0) {
-            String domain = name.substring(0, index);
-            return domain;
-        }
-        return UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME;
     }
 
     public static User getUserFromUserName(String username) throws IllegalArgumentException{

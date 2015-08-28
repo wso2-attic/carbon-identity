@@ -18,11 +18,11 @@
 
 package org.wso2.carbon.identity.mgt.store;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.identity.base.IdentityException;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.mgt.dto.UserIdentityClaimsDO;
 import org.wso2.carbon.user.api.UserStoreManager;
 import org.wso2.carbon.user.core.UserCoreConstants;
@@ -55,10 +55,8 @@ public class InMemoryIdentityDataStore extends UserIdentityDataStore {
         if (userIdentityDTO != null && userIdentityDTO.getUserName() != null) {
             String userName = userIdentityDTO.getUserName();
             if (userStoreManager instanceof org.wso2.carbon.user.core.UserStoreManager) {
-                String caseInsensitiveUsername = ((org.wso2.carbon.user.core.UserStoreManager) userStoreManager).
-                        getRealmConfiguration().getUserStoreProperty("CaseInsensitiveUsername");
-                if (StringUtils.isNotBlank(caseInsensitiveUsername) &&
-                        "true".equalsIgnoreCase(caseInsensitiveUsername.trim())) {
+                if (!IdentityUtil.isUsernameCaseSensitive((org.wso2.carbon.user.core.UserStoreManager)
+                        userStoreManager)) {
                     if (log.isDebugEnabled()) {
                         log.debug("Case insensitive user store found. Changing username from : " + userName +
                                 " to : " + userName.toLowerCase());
@@ -101,10 +99,8 @@ public class InMemoryIdentityDataStore extends UserIdentityDataStore {
         Cache<String, UserIdentityClaimsDO> cache = getCache();
         if (userName != null && cache != null) {
             if (userStoreManager instanceof org.wso2.carbon.user.core.UserStoreManager) {
-                String caseInsensitiveUsername = ((org.wso2.carbon.user.core.UserStoreManager) userStoreManager).
-                        getRealmConfiguration().getUserStoreProperty("CaseInsensitiveUsername");
-                if (!StringUtils.isBlank(caseInsensitiveUsername) &&
-                        "true".equalsIgnoreCase(caseInsensitiveUsername.trim())) {
+                if (!IdentityUtil.isUsernameCaseSensitive((org.wso2.carbon.user.core.UserStoreManager)
+                        userStoreManager)) {
                     if (log.isDebugEnabled()) {
                         log.debug("Case insensitive user store found. Changing username from : " + userName +
                                 " to : " + userName.toLowerCase());
@@ -146,10 +142,7 @@ public class InMemoryIdentityDataStore extends UserIdentityDataStore {
             return;
         }
         if (userStoreManager instanceof org.wso2.carbon.user.core.UserStoreManager) {
-            String caseInsensitiveUsername = ((org.wso2.carbon.user.core.UserStoreManager) userStoreManager)
-                    .getRealmConfiguration().getUserStoreProperty("CaseInsensitiveUsername");
-            if (!StringUtils.isBlank(caseInsensitiveUsername) && "true".equalsIgnoreCase(caseInsensitiveUsername.trim
-                    ())) {
+            if (!IdentityUtil.isUsernameCaseSensitive((org.wso2.carbon.user.core.UserStoreManager) userStoreManager)) {
                 if (log.isDebugEnabled()) {
                     log.debug("Case insensitive user store found. Changing username from : " + userName + " to : " +
                             userName.toLowerCase());
@@ -157,8 +150,10 @@ public class InMemoryIdentityDataStore extends UserIdentityDataStore {
                 userName = userName.toLowerCase();
             }
         }
-        org.wso2.carbon.user.core.UserStoreManager store = (org.wso2.carbon.user.core.UserStoreManager) userStoreManager;
-        String domainName = store.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
+        org.wso2.carbon.user.core.UserStoreManager store = (org.wso2.carbon.user.core.UserStoreManager)
+                userStoreManager;
+        String domainName = store.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig
+                .PROPERTY_DOMAIN_NAME);
 
         cache.remove(domainName + CarbonContext.getThreadLocalCarbonContext().getTenantId() + userName);
     }
