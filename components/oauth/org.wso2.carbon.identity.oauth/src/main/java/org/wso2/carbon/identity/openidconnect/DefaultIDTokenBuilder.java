@@ -40,6 +40,7 @@ import org.wso2.carbon.identity.application.common.model.ServiceProvider;
 import org.wso2.carbon.identity.application.mgt.ApplicationManagementService;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.oauth.cache.AuthorizationGrantCache;
 import org.wso2.carbon.identity.oauth.cache.AuthorizationGrantCacheEntry;
 import org.wso2.carbon.identity.oauth.cache.AuthorizationGrantCacheKey;
@@ -320,7 +321,7 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
 
         OAuthCache oauthCache = OAuthCache.getInstance(OAuthServerConfiguration.getInstance().getOAuthCacheTimeout());
         String authorizedUser = request.getAuthorizedUser().toString();
-        boolean isUsernameCaseSensitive = OAuth2Util.isUsernameCaseSensitive(authorizedUser);
+        boolean isUsernameCaseSensitive = IdentityUtil.isUsernameCaseSensitive(authorizedUser);
         if (!isUsernameCaseSensitive){
             authorizedUser = authorizedUser.toLowerCase();
         }

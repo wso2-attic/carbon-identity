@@ -24,6 +24,7 @@ import org.apache.axiom.util.base64.Base64Utils;
 import org.apache.commons.io.Charsets;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.oauth.cache.CacheKey;
 import org.wso2.carbon.identity.oauth.cache.OAuthCacheKey;
 import org.wso2.carbon.identity.oauth.common.OAuthConstants;
@@ -247,7 +248,7 @@ public class RefreshGrantHandler extends AbstractAuthorizationGrantHandler {
         // if it's enabled.
         if (cacheEnabled) {
             // Remove the old access token from the OAuthCache
-            boolean isUsernameCaseSensitive = OAuth2Util.isUsernameCaseSensitive(authorizedUser);
+            boolean isUsernameCaseSensitive = IdentityUtil.isUsernameCaseSensitive(authorizedUser);
             String cacheKeyString;
             if (isUsernameCaseSensitive){
                 cacheKeyString = clientId + ":" + authorizedUser + ":" + scope;
