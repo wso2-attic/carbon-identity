@@ -198,8 +198,8 @@
 
             jQuery('#stepsAddLink').click(function(){
                 stepOrder++;
-                jQuery('#stepsConfRow').append(jQuery('<div class="toggle_container sectionSub" id="div_step_head_'+stepOrder+'" style="border:solid 1px #ccc;padding: 10px;" >' +
-                                                        '<h2 id="step_head_'+stepOrder+'" class="sectionSeperator trigger active step_heads" style="background-color: beige; clear: both;">' +
+                jQuery('#stepsConfRow').append(jQuery('<div class="toggle_container sectionSub" id="div_step_head_'+stepOrder+'" style="border:solid 1px #ccc;padding: 10px;margin-bottom:10px;" >' +
+                                                        '<h2 id="step_head_'+stepOrder+'" class="trigger active step_heads" style="background-color: beige; clear: both;">' +
                                                             '<input type="hidden" value="'+stepOrder+'" name="approve_step" id="approve_step">' +
                                                             '<a class="step_order_header" href="#">Step '+stepOrder+'</a>' +
                                                             '<a onclick="deleteStep(this);return false;" href="#" class="icon-link" style="background-image: url(images/delete.gif);float:right;width: 9px;"></a>' +
@@ -388,8 +388,9 @@
                                         if (parameter != null) {
                                 %>
                                 <tr>
-                                    <td width="200px" style="vertical-align: top !important;"><%=parameter.getDisplayName()%>
-                                    </td>
+                                    <td width="200px" style="vertical-align: top !important;"><%=parameter.getDisplayName()%></td>
+                                </tr>
+                                <tr>
                                     <%
                                         //Text areas
                                         if (WorkflowUIConstants.ParamTypes.LONG_STRING
@@ -426,10 +427,8 @@
                                     } else if (WorkflowUIConstants.ParamTypes.USER_NAME_OR_USER_ROLE.equals(parameter.getParamType())) {
                                     %>
                                     <td>
-                                       <a id="stepsAddLink" class="icon-link" style="float:none;margin-left:0; padding-bottom:10px;">
-                                           <fmt:message key='workflow.template.button.add.step'/>
-                                       </a>
-                                       <div style="margin-bottom:10px;width: 60%" id="stepsConfRow"></div>
+                                        <a id="stepsAddLink" class="icon-link" style="background-image:url(images/add.png);margin-left:0"><fmt:message key='workflow.template.button.add.step'/></a>
+                                       <div style="margin-bottom:10px;width: 100%" id="stepsConfRow"></div>
                                     </td>
                                     <%
                                     } else {
