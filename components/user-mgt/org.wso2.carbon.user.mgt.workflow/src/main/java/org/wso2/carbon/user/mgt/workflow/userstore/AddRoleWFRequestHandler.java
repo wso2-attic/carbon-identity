@@ -97,8 +97,7 @@ public class AddRoleWFRequestHandler extends AbstractWorkflowRequestHandler {
             fullyQualifiedName = UserCoreUtil.addDomainToName(userList[i], userStoreDomain);
             entities[i + 1] = new Entity(fullyQualifiedName, UserStoreWFConstants.ENTITY_TYPE_USER, tenant);
         }
-        if (workflowService.eventEngagedWithWorkflows(UserStoreWFConstants.ADD_ROLE_EVENT) && !Boolean.TRUE.equals
-                (getWorkFlowCompleted()) && !isValidOperation(entities)) {
+        if (!Boolean.TRUE.equals(getWorkFlowCompleted()) && !isValidOperation(entities)) {
             throw new WorkflowException("Operation is not valid");
         }
         boolean state = startWorkFlow(wfParams, nonWfParams, uuid);

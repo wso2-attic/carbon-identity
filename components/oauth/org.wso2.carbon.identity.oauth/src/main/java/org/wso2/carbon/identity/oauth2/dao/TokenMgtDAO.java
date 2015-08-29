@@ -320,7 +320,7 @@ public class TokenMgtDAO {
                                               "store connection", e);
         }
 
-        boolean isUsernameCaseSensitive = OAuth2Util.isUsernameCaseSensitive(userName);
+        boolean isUsernameCaseSensitive = IdentityUtil.isUserStoreInUsernameCaseSensitive(userName);
         String tenantDomain = MultitenantUtils.getTenantDomain(userName);
         int tenantId = OAuth2Util.getTenantId(tenantDomain);
         String tenantAwareUsername = MultitenantUtils.getTenantAwareUsername(userName);
@@ -452,7 +452,7 @@ public class TokenMgtDAO {
                     "store connection", e);
         }
 
-        boolean isUsernameCaseSensitive = OAuth2Util.isUsernameCaseSensitive(userName);
+        boolean isUsernameCaseSensitive = IdentityUtil.isUserStoreInUsernameCaseSensitive(userName);
         String tenantDomain = MultitenantUtils.getTenantDomain(userName);
         String tenantAwareUsername = MultitenantUtils.getTenantAwareUsername(userName);
         String tenantAwareUsernameWithNoUserDomain = UserCoreUtil.removeDomainFromName(tenantAwareUsername);
@@ -1051,7 +1051,7 @@ public class TokenMgtDAO {
         Connection connection = null;
         ResultSet rs = null;
         Set<String> distinctConsumerKeys = new HashSet<>();
-        boolean isUsernameCaseSensitive = OAuth2Util.isUsernameCaseSensitive(authzUser);
+        boolean isUsernameCaseSensitive = IdentityUtil.isUserStoreInUsernameCaseSensitive(authzUser);
         String tenantDomain = MultitenantUtils.getTenantDomain(authzUser);
         String tenantAwareUsername = MultitenantUtils.getTenantAwareUsername(authzUser);
         String tenantAwareUsernameWithNoUserDomain = UserCoreUtil.removeDomainFromName(tenantAwareUsername);
