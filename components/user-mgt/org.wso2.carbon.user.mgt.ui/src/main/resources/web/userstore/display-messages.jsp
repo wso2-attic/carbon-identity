@@ -16,7 +16,7 @@
    under the License.
   --%>
 
-<%@page import="org.wso2.carbon.ui.util.CharacterEncoder"%>
+<%@ page import="org.owasp.encoder.Encode" %>
 <jsp:include page="../dialog/display_messages.jsp"/>
 
 <script type="text/javascript">
@@ -28,29 +28,33 @@
     <%
     } else {
     %>
-    msgId = '<%=CharacterEncoder.getSafeText(request.getParameter("msgId"))%>';
+    msgId = '<%=Encode.forJavaScriptBlock(request.getParameter("msgId"))%>';
     <%
     }
     %>
 </script>
 <%
 
-    if (CharacterEncoder.getSafeText(request.getParameter("errorMessage")) != null) {
+    if (request.getParameter("errorMessage") != null) {
 %>
 <script type="text/javascript">
-    jQuery(document).ready(function(){ if (getCookie(msgId) == null) {
-        CARBON.showErrorDialog("<%=CharacterEncoder.getSafeText(request.getParameter("errorMessage"))%>");
-        setCookie(msgId, 'true');
-    }})
+    jQuery(document).ready(function () {
+        if (getCookie(msgId) == null) {
+            CARBON.showErrorDialog("<%=Encode.forJavaScriptBlock(Encode.forHtml(request.getParameter("errorMessage")))%>");
+            setCookie(msgId, 'true');
+        }
+    })
 </script>
 <%
-} else if (CharacterEncoder.getSafeText(request.getParameter("message")) != null) {
+} else if (request.getParameter("message") != null) {
 %>
 <script type="text/javascript">
-    jQuery(document).ready(function(){ if (getCookie(msgId) == null) {
-        CARBON.showInfoDialog("<%=CharacterEncoder.getSafeText(request.getParameter("message"))%>");
-        setCookie(msgId, 'true');
-    }});
+    jQuery(document).ready(function () {
+        if (getCookie(msgId) == null) {
+            CARBON.showInfoDialog("<%=Encode.forJavaScriptBlock(Encode.forHtml(request.getParameter("message")))%>");
+            setCookie(msgId, 'true');
+        }
+    });
 </script>
 <%
     }
