@@ -90,7 +90,7 @@ public class JDBCIdentityDataStore extends InMemoryIdentityDataStore {
         Connection connection = null;
         PreparedStatement prepStmt = null;
         ResultSet results;
-        boolean isUsernameCaseSensitive = IdentityUtil.isUsernameCaseSensitive(userName, tenantId);
+        boolean isUsernameCaseSensitive = IdentityUtil.isUserStoreInUsernameCaseSensitive(userName, tenantId);
         try {
             connection = JDBCPersistenceManager.getInstance().getDBConnection();
             String query;
@@ -147,7 +147,7 @@ public class JDBCIdentityDataStore extends InMemoryIdentityDataStore {
 
         Connection connection = null;
         PreparedStatement prepStmt = null;
-        boolean isUsernameCaseSensitive = IdentityUtil.isUsernameCaseSensitive(userName, tenantId);
+        boolean isUsernameCaseSensitive = IdentityUtil.isUserStoreInUsernameCaseSensitive(userName, tenantId);
         try {
             connection = JDBCPersistenceManager.getInstance().getDBConnection();
             String query;
@@ -191,7 +191,7 @@ public class JDBCIdentityDataStore extends InMemoryIdentityDataStore {
         ResultSet results = null;
         try {
             int tenantId = userStoreManager.getTenantId();
-            boolean isUsernameCaseSensitive = IdentityUtil.isUsernameCaseSensitive(userName, tenantId);
+            boolean isUsernameCaseSensitive = IdentityUtil.isUserStoreInUsernameCaseSensitive(userName, tenantId);
             connection = JDBCPersistenceManager.getInstance().getDBConnection();
             String query;
             if (isUsernameCaseSensitive) {
@@ -239,7 +239,7 @@ public class JDBCIdentityDataStore extends InMemoryIdentityDataStore {
         PreparedStatement prepStmt = null;
         try {
             int tenantId = userStoreManager.getTenantId();
-            boolean isUsernameCaseSensitive = IdentityUtil.isUsernameCaseSensitive(userName, tenantId);
+            boolean isUsernameCaseSensitive = IdentityUtil.isUserStoreInUsernameCaseSensitive(userName, tenantId);
             connection = JDBCPersistenceManager.getInstance().getDBConnection();
             String query;
             if (isUsernameCaseSensitive) {

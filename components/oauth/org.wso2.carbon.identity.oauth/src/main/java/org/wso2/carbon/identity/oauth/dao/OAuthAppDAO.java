@@ -145,7 +145,7 @@ public class OAuthAppDAO {
             String tenantDomain = realmService.getTenantManager().getDomain(tenantId);
             String tenantAwareUserName = MultitenantUtils.getTenantAwareUsername(username);
             String tenantUnawareUserName = tenantAwareUserName + "@" + tenantDomain;
-            boolean isUsernameCaseSensitive = IdentityUtil.isUsernameCaseSensitive(tenantUnawareUserName);
+            boolean isUsernameCaseSensitive = IdentityUtil.isUserStoreInUsernameCaseSensitive(tenantUnawareUserName);
 
             connection = JDBCPersistenceManager.getInstance().getDBConnection();
             String sql = SQLQueries.OAuthAppDAOSQLQueries.GET_APPS_OF_USER_WITH_TENANTAWARE_OR_TENANTUNAWARE_USERNAME;
@@ -364,7 +364,7 @@ public class OAuthAppDAO {
         ResultSet rSet = null;
 
         boolean isDuplicateApp = false;
-        boolean isUsernameCaseSensitive = IdentityUtil.isUsernameCaseSensitive(username);
+        boolean isUsernameCaseSensitive = IdentityUtil.isUserStoreInUsernameCaseSensitive(username);
 
         try {
             connection = JDBCPersistenceManager.getInstance().getDBConnection();

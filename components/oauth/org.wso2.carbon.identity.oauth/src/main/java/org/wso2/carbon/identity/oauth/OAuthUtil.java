@@ -85,7 +85,7 @@ public final class OAuthUtil {
     }
 
     public static void clearOAuthCache(String consumerKey, String authorizedUser) {
-        boolean isUsernameCaseSensitive = IdentityUtil.isUsernameCaseSensitive(authorizedUser);
+        boolean isUsernameCaseSensitive = IdentityUtil.isUserStoreInUsernameCaseSensitive(authorizedUser);
         if (!isUsernameCaseSensitive){
             authorizedUser = authorizedUser.toLowerCase();
         }
@@ -93,7 +93,7 @@ public final class OAuthUtil {
     }
 
     public static void clearOAuthCache(String consumerKey, String authorizedUser, String scope) {
-        boolean isUsernameCaseSensitive = IdentityUtil.isUsernameCaseSensitive(authorizedUser);
+        boolean isUsernameCaseSensitive = IdentityUtil.isUserStoreInUsernameCaseSensitive(authorizedUser);
         if (!isUsernameCaseSensitive){
             authorizedUser = authorizedUser.toLowerCase();
         }
