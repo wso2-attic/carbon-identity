@@ -248,7 +248,7 @@ public class RefreshGrantHandler extends AbstractAuthorizationGrantHandler {
         // if it's enabled.
         if (cacheEnabled) {
             // Remove the old access token from the OAuthCache
-            boolean isUsernameCaseSensitive = IdentityUtil.isUsernameCaseSensitive(authorizedUser);
+            boolean isUsernameCaseSensitive = IdentityUtil.isUserStoreInUsernameCaseSensitive(authorizedUser);
             String cacheKeyString;
             if (isUsernameCaseSensitive){
                 cacheKeyString = clientId + ":" + authorizedUser + ":" + scope;

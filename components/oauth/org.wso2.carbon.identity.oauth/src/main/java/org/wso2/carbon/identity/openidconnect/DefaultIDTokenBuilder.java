@@ -321,7 +321,7 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
 
         OAuthCache oauthCache = OAuthCache.getInstance(OAuthServerConfiguration.getInstance().getOAuthCacheTimeout());
         String authorizedUser = request.getAuthorizedUser().toString();
-        boolean isUsernameCaseSensitive = IdentityUtil.isUsernameCaseSensitive(authorizedUser);
+        boolean isUsernameCaseSensitive = IdentityUtil.isUserStoreInUsernameCaseSensitive(authorizedUser);
         if (!isUsernameCaseSensitive){
             authorizedUser = authorizedUser.toLowerCase();
         }

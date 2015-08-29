@@ -669,7 +669,7 @@ public class UserRealmProxy {
             info.setBulkImportSupported(this.isBulkImportSupported());
             info.setDomainName(realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME));
 
-            boolean caseSensitiveUsername = IdentityUtil.isUsernameCaseSensitive(manager);
+            boolean caseSensitiveUsername = IdentityUtil.isUserStoreCaseSensitive(manager);
 
             info.setCaseSensitiveUsername(caseSensitiveUsername);
             return info;

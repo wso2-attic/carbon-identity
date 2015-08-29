@@ -55,7 +55,7 @@ public class InMemoryIdentityDataStore extends UserIdentityDataStore {
         if (userIdentityDTO != null && userIdentityDTO.getUserName() != null) {
             String userName = userIdentityDTO.getUserName();
             if (userStoreManager instanceof org.wso2.carbon.user.core.UserStoreManager) {
-                if (!IdentityUtil.isUsernameCaseSensitive((org.wso2.carbon.user.core.UserStoreManager)
+                if (!IdentityUtil.isUserStoreCaseSensitive((org.wso2.carbon.user.core.UserStoreManager)
                         userStoreManager)) {
                     if (log.isDebugEnabled()) {
                         log.debug("Case insensitive user store found. Changing username from : " + userName +
@@ -99,7 +99,7 @@ public class InMemoryIdentityDataStore extends UserIdentityDataStore {
         Cache<String, UserIdentityClaimsDO> cache = getCache();
         if (userName != null && cache != null) {
             if (userStoreManager instanceof org.wso2.carbon.user.core.UserStoreManager) {
-                if (!IdentityUtil.isUsernameCaseSensitive((org.wso2.carbon.user.core.UserStoreManager)
+                if (!IdentityUtil.isUserStoreCaseSensitive((org.wso2.carbon.user.core.UserStoreManager)
                         userStoreManager)) {
                     if (log.isDebugEnabled()) {
                         log.debug("Case insensitive user store found. Changing username from : " + userName +
@@ -142,7 +142,7 @@ public class InMemoryIdentityDataStore extends UserIdentityDataStore {
             return;
         }
         if (userStoreManager instanceof org.wso2.carbon.user.core.UserStoreManager) {
-            if (!IdentityUtil.isUsernameCaseSensitive((org.wso2.carbon.user.core.UserStoreManager) userStoreManager)) {
+            if (!IdentityUtil.isUserStoreCaseSensitive((org.wso2.carbon.user.core.UserStoreManager) userStoreManager)) {
                 if (log.isDebugEnabled()) {
                     log.debug("Case insensitive user store found. Changing username from : " + userName + " to : " +
                             userName.toLowerCase());

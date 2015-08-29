@@ -41,8 +41,6 @@ import org.wso2.carbon.identity.oauth2.IdentityOAuth2Exception;
 import org.wso2.carbon.identity.oauth2.model.AccessTokenDO;
 import org.wso2.carbon.identity.oauth2.model.ClientCredentialDO;
 import org.wso2.carbon.user.api.UserStoreException;
-import org.wso2.carbon.user.core.UserCoreConstants;
-import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
@@ -229,7 +227,7 @@ public class OAuth2Util {
 
         boolean cacheHit = false;
         String username = null;
-        boolean isUsernameCaseSensitive = IdentityUtil.isUsernameCaseSensitive(username);
+        boolean isUsernameCaseSensitive = IdentityUtil.isUserStoreInUsernameCaseSensitive(username);
 
         if (OAuth2Util.authenticateClient(clientId, clientSecretProvided)) {
             // check cache
