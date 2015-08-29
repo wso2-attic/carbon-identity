@@ -396,7 +396,7 @@ public class IdentityUtil {
     /**
      *
      * @param userStoreDomain user store domain
-     * @param tenantId tenant domain of the user store
+     * @param tenantId tenant id of the user store
      * @return
      */
     public static boolean isUserStoreCaseSensitive(String userStoreDomain, int tenantId) {
