@@ -527,8 +527,25 @@
 
 <style>
     .LargeHeader{
-        font-size: large;
+        font-size: medium;
     }
+
+    h2.triggerIn {
+        border: solid 1px #c2c4c6;
+        -moz-box-shadow: 3px 3px 3px #888;
+        -webkit-box-shadow: 3px 3px 3px #888;
+        box-shadow: 3px 3px 3px #888;
+        padding: 0;
+        background-color: #e9e9e9;
+        background-repeat: no-repeat;
+        background-position: 5px center;
+        padding-left: 0px;
+        padding-bottom: 0px !important;
+        margin-bottom: 0px !important;
+        margin: 0;
+        height: 25px;
+    }
+
 
 </style>
 
@@ -558,78 +575,85 @@
 
     <div id="middle">
 
-        <div class="LargeHeader">
-            <input onclick="changeCategory('roles',false);" type="radio" id="id_radio_role" name="radio_user_role" value="roles"><label for="id_radio_role"><fmt:message key="role.search"/></label>
-            <input onclick="changeCategory('users',false);" type="radio" id="id_radio_user" name="radio_user_role" value="users" checked="checked"><label for="id_radio_user"><fmt:message key="user.search"/></label>
-        </div>
 
 
-        <div id="workArea">
+        <div id="workArea" style="margin-left: 10px">
             <form id="id_search" name="filterForm" method="post" action="user-mgt.jsp">
 
-                <table class="styledLeft noBorders">
-				<tbody>
-                <%
-                   if(domainNames != null && domainNames.length > 0){
-                %>
-                <tr>
-                    <td class="leftCol-big" style="padding-right: 0 !important;"><fmt:message key="select.domain.search"/></td>
-                    <td><select id="domain" name="domain">
+                <h2  class="triggerIn" style="background-color: floralwhite;">
+                    <div class="LargeHeader">
+                        <input onclick="changeCategory('roles',false);" type="radio" id="id_radio_role" name="radio_user_role" value="roles"><label for="id_radio_role"><img  style="margin-top:  5px; margin-right:3px" src="images/user-roles.gif"><fmt:message key="role.search"/></label>
+                        <input onclick="changeCategory('users',false);" type="radio" id="id_radio_user" name="radio_user_role" value="users" checked="checked"><label for="id_radio_user"><img style="margin-top:  5px; margin-right:3px" src="images/users.gif"><fmt:message key="user.search"/></label>
+                    </div>
+                </h2>
+
+                <div class="toggle_container sectionSub" style="margin-bottom:10px;" id="local_auth_head_dev_1">
+                    <table>
+                        <tbody>
                         <%
-                            for(String domainName : domainNames) {
-                                if(selectedDomain.equals(domainName)) {
+                            if(domainNames != null && domainNames.length > 0){
                         %>
-                            <option selected="selected" value="<%=domainName%>"><%=domainName%></option>
-                        <%
+                        <tr>
+                            <td class="leftCol-big" style="padding-right: 0 !important;"><fmt:message key="select.domain.search"/></td>
+                            <td><select id="domain" name="domain">
+                                <%
+                                    for(String domainName : domainNames) {
+                                        if(selectedDomain.equals(domainName)) {
+                                %>
+                                <option selected="selected" value="<%=domainName%>"><%=domainName%></option>
+                                <%
                                 } else {
-                        %>
-                            <option value="<%=domainName%>"><%=domainName%></option>
-                        <%
-                                }
-                            }
-                        %>
-                    </select>
-                    </td>
-                </tr>
-                <%
-                    }
-                %>
-
-                    <tr>
-                        <td id="id_pattern_category" class="leftCol-big" style="padding-right: 0 !important;"><fmt:message key="list.users"/></td>
-                        <td>
-                            <input type="text" name="<%=UserAdminUIConstants.USER_LIST_FILTER%>"
-                                   value="<%=filter%>"/>
-                      
-                            <input id="id_search_button" onclick="search();" class="button" type="button"
-                                   value="<fmt:message key="user.search"/>"/>
-                        </td>
-                    </tr>
-                    <tr id="id_claim_attribute">
-                        <td><fmt:message key="claim.uri"/></td>
-                        <td><select id="claimUri" name="claimUri">
-                            <option value="Select" selected="selected">Select</option>
-                            <%
-                                if(claimUris != null){
-
-                                    for(String claim : claimUris) {
-                                        if(claimUri != null && claim.equals(claimUri)) {
-                            %>
-                                    <option selected="selected" value="<%=claim%>"><%=claim%></option>
-                            <%
-                                        } else {
-                            %>
-                                    <option value="<%=claim%>"><%=claim%></option>
-                            <%
+                                %>
+                                <option value="<%=domainName%>"><%=domainName%></option>
+                                <%
                                         }
                                     }
-                                }
-                            %>
-                        </select>
-                        </td>
-                    </tr>
-                    </tbody>
-                </table>
+                                %>
+                            </select>
+                            </td>
+                        </tr>
+                        <%
+                            }
+                        %>
+
+                        <tr>
+                            <td id="id_pattern_category" class="leftCol-big" style="padding-right: 0 !important;"><fmt:message key="list.users"/></td>
+                            <td>
+                                <input type="text" name="<%=UserAdminUIConstants.USER_LIST_FILTER%>"
+                                       value="<%=filter%>"/>
+
+                                <input id="id_search_button" onclick="search();" class="button" type="button"
+                                       value="<fmt:message key="user.search"/>"/>
+                            </td>
+                        </tr>
+                        <tr id="id_claim_attribute">
+                            <td><fmt:message key="claim.uri"/></td>
+                            <td><select id="claimUri" name="claimUri">
+                                <option value="Select" selected="selected">Select</option>
+                                <%
+                                    if(claimUris != null){
+
+                                        for(String claim : claimUris) {
+                                            if(claimUri != null && claim.equals(claimUri)) {
+                                %>
+                                <option selected="selected" value="<%=claim%>"><%=claim%></option>
+                                <%
+                                } else {
+                                %>
+                                <option value="<%=claim%>"><%=claim%></option>
+                                <%
+                                            }
+                                        }
+                                    }
+                                %>
+                            </select>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+
             </form>
             <p>&nbsp;</p>
 
