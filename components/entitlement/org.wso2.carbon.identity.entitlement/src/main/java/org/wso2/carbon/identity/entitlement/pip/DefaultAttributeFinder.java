@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.identity.entitlement.pip;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.CarbonContext;
@@ -31,6 +32,7 @@ import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
+import java.util.StringTokenizer;
 
 /**
  * DefaultAttributeFinder talks to the underlying user store to read user attributes.
@@ -86,9 +88,9 @@ public class DefaultAttributeFinder extends AbstractPIPAttributeFinder {
                 }
             }
         } else {
-            String claimValues = null;
+            String claimValue = null;
             try {
-                claimValues = CarbonContext.getThreadLocalCarbonContext().getUserRealm().
+                claimValue = CarbonContext.getThreadLocalCarbonContext().getUserRealm().
                         getUserStoreManager().getUserClaimValue(subjectId, attributeId, null);
             } catch (UserStoreException e) {
                 if(e.getMessage().startsWith(IdentityCoreConstants.USER_NOT_FOUND)){
@@ -99,14 +101,26 @@ public class DefaultAttributeFinder extends AbstractPIPAttributeFinder {
                     throw e;
                 }
             }
-            if (claimValues == null && log.isDebugEnabled()) {
+            if (claimValue == null && log.isDebugEnabled()) {
                 log.debug(String.format("Request attribute %1$s not found", attributeId));
             }
             // Fix for multiple claim values
-            if (claimValues != null) {
-                String[] claimsArray = claimValues.split(",");
-                for (String claim : claimsArray) {
-                    values.add(claim);
+            if (claimValue != null) {
+                String claimSeparator = CarbonContext.getThreadLocalCarbonContext().getUserRealm().
+                        getRealmConfiguration().getUserStoreProperty(IdentityCoreConstants.MULTI_ATTRIBUTE_SEPARATOR);
+                if (StringUtils.isBlank(claimSeparator)) {
+                    claimSeparator = IdentityCoreConstants.MULTI_ATTRIBUTE_SEPARATOR_DEFAULT;
+                }
+                if (claimValue.contains(claimSeparator)) {
+                    StringTokenizer st = new StringTokenizer(claimValue, claimSeparator);
+                    while (st.hasMoreElements()) {
+                        String attributeValue = st.nextElement().toString();
+                        if (StringUtils.isNotBlank(attributeValue)) {
+                            values.add(attributeValue);
+                        }
+                    }
+                } else {
+                    values.add(claimValue);
                 }
             }
         }
