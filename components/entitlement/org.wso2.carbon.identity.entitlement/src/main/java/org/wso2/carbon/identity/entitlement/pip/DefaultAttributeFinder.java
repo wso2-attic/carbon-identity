@@ -21,8 +21,10 @@ package org.wso2.carbon.identity.entitlement.pip;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.CarbonContext;
+import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
 import org.wso2.carbon.user.api.ClaimManager;
 import org.wso2.carbon.user.api.ClaimMapping;
+import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
@@ -84,8 +86,19 @@ public class DefaultAttributeFinder extends AbstractPIPAttributeFinder {
                 }
             }
         } else {
-            String claimValues = CarbonContext.getThreadLocalCarbonContext().getUserRealm().
-                    getUserStoreManager().getUserClaimValue(subjectId, attributeId, null);
+            String claimValues = null;
+            try {
+                claimValues = CarbonContext.getThreadLocalCarbonContext().getUserRealm().
+                        getUserStoreManager().getUserClaimValue(subjectId, attributeId, null);
+            } catch (UserStoreException e) {
+                if(e.getMessage().startsWith(IdentityCoreConstants.USER_NOT_FOUND)){
+                    if(log.isDebugEnabled()){
+                        log.debug("User: " + subjectId + " not found");
+                    }
+                } else {
+                    throw e;
+                }
+            }
             if (claimValues == null && log.isDebugEnabled()) {
                 log.debug(String.format("Request attribute %1$s not found", attributeId));
             }
