@@ -69,6 +69,8 @@ public class WorkflowUIConstants {
     public static final String PARAM_PAGE_NUMBER = "pageNumber";
     public static final int RESULTS_PER_PAGE = 20;
 
+    public static final String DEFAULT_BPS_PROFILE = "embeded_bps";
+
     public static class ParamTypes {
         public static final String INTEGER = "INTEGER";
         public static final String DOUBLE = "DOUBLE";
