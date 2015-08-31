@@ -209,19 +209,18 @@
                                                                 '<tr id="id_step_roles_'+stepOrder+'" style="display:none;">' +
                                                                     '<td style="width:100%;">' +
                                                                         '<table  style="width:100%;">' +
-                                                                            '<tr><td width="40px">Roles</td><td onclick="moveSearchController(\''+stepOrder+'\',\'roles\', false);"><input   name="p-step-'+stepOrder+'-roles" id="p-step-'+stepOrder+'-roles"  type="text" class="tokenizer_'+stepOrder+'"/></td></tr>' +
+                                                                            '<tr><td width="40px">Roles</td><td onclick="moveSearchController(\''+stepOrder+'\',\'roles\', false);"><input readonly  name="p-step-'+stepOrder+'-roles" id="p-step-'+stepOrder+'-roles"  type="text" class="tokenizer_'+stepOrder+'"/></td></tr>' +
                                                                         '</table>' +
                                                                     '</td>' +
                                                                 '</tr>' +
                                                               '<tr id="id_step_users_'+stepOrder+'" style="width:100%;display:none;">' +
                                                                   '<td style="width:100%;">' +
                                                                       '<table style="width:100%;">' +
-                                                                            '<tr><td width="40px">Users</td><td onclick="moveSearchController(\''+stepOrder+'\',\'users\', false);"><input  name="p-step-'+stepOrder+'-users" id="p-step-'+stepOrder+'-users" type="text" class="tokenizer_'+stepOrder+'"/></td></tr>' +
+                                                                            '<tr><td width="40px">Users</td><td onclick="moveSearchController(\''+stepOrder+'\',\'users\', false);"><input readonly  name="p-step-'+stepOrder+'-users" id="p-step-'+stepOrder+'-users" type="text" class="tokenizer_'+stepOrder+'"/></td></tr>' +
                                                                       '</table>' +
                                                                   '</td>' +
                                                               '</tr>' +
                                                             '</table>' +
-                                                      '</div>'));
 
                 //Move search component to selected step
                 moveSearchController(stepOrder, "roles", true)
@@ -363,15 +362,13 @@
                 </table>
             </form>
 
-            </br>
 
-            <%
-                }else{
-            %>
-                <p><fmt:message key='workflow.template'/> : <%= template %></p>
+
             <%
                 }
             %>
+
+            </br>
 
             <%
                 if(template != null ){
@@ -381,7 +378,7 @@
                 <table class="styledLeft">
                     <thead>
                     <tr>
-                        <th><fmt:message key="workflow.details"/></th>
+                        <th><fmt:message key='workflow.template'/> : <%= template %></th>
                     </tr>
                     </thead>
                     <tr>

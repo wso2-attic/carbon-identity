@@ -129,9 +129,10 @@
             <table class="styledLeft" id="servicesTable">
                 <thead>
                 <tr>
-                    <th width="30%"><fmt:message key="workflow.bps.profile.name"/></th>
+                    <th width="15%"><fmt:message key="workflow.bps.profile.name"/></th>
                     <th width="30%"><fmt:message key="workflow.bps.profile.host"/></th>
                     <th width="15%"><fmt:message key="workflow.bps.profile.auth.user"/></th>
+                    <th width="15%"><fmt:message key="workflow.bps.profile.callback.user"/></th>
                     <th><fmt:message key="actions"/></th>
                 </tr>
                 </thead>
@@ -148,15 +149,23 @@
                     </td>
                     <td><%=profile.getUsername()%>
                     </td>
+                    <td><%=profile.getCallbackUser()%>
+                    </td>
                     <td>
-                        <a title="<fmt:message key='workflow.bps.profile.delete.title'/>"
-                           onclick="removeProfile('<%=profile.getProfileName()%>');return false;"
-                           href="#" style="background-image: url(images/delete.gif);"
-                           class="icon-link"><fmt:message key='delete'/></a>
-                        <a title="<fmt:message key='workflow.bps.profile.edit.title'/>"
-                           onclick="editProfile('<%=profile.getProfileName()%>');return false;"
-                           href="#" style="background-image: url(images/edit.gif);"
-                           class="icon-link"><fmt:message key='edit'/></a>
+                        <%
+                            if(!WorkflowUIConstants.DEFAULT_BPS_PROFILE.equals(profile.getProfileName())){
+                        %>
+                            <a title="<fmt:message key='workflow.bps.profile.edit.title'/>"
+                               onclick="editProfile('<%=profile.getProfileName()%>');return false;"
+                               href="#" style="background-image: url(images/edit.gif);"
+                               class="icon-link"><fmt:message key='edit'/></a>
+                            <a title="<fmt:message key='workflow.bps.profile.delete.title'/>"
+                               onclick="removeProfile('<%=profile.getProfileName()%>');return false;"
+                               href="#" style="background-image: url(images/delete.gif);"
+                               class="icon-link"><fmt:message key='delete'/></a>
+                        <%
+                            }
+                        %>
                     </td>
                 </tr>
                 <%
