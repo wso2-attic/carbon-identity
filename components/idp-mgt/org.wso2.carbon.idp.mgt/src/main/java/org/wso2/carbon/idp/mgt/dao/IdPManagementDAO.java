@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.idp.mgt.dao;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.base.MultitenantConstants;
@@ -38,6 +39,7 @@ import org.wso2.carbon.identity.application.common.util.IdentityApplicationConst
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
+import org.wso2.carbon.idp.mgt.IdentityProviderManagementException;
 import org.wso2.carbon.idp.mgt.util.IdPManagementConstants;
 import org.wso2.carbon.utils.DBUtils;
 
@@ -46,6 +48,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.security.cert.CertificateException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -66,10 +69,10 @@ public class IdPManagementDAO {
      * @param tenantId
      * @param tenantDomain
      * @return
-     * @throws IdentityApplicationManagementException
+     * @throws IdentityProviderManagementException
      */
     public List<IdentityProvider> getIdPs(Connection dbConnection, int tenantId, String tenantDomain)
-            throws IdentityApplicationManagementException {
+            throws IdentityProviderManagementException {
 
         boolean dbConnInitialized = true;
         PreparedStatement prepStmt = null;
@@ -131,7 +134,7 @@ public class IdPManagementDAO {
             IdentityApplicationManagementUtil.rollBack(dbConnection);
             String msg = "Error occurred while retrieving registered Identity Provider Entity IDs "
                     + "for tenant " + tenantDomain;
-            throw new IdentityApplicationManagementException(msg);
+            throw new IdentityProviderManagementException(msg);
         } finally {
             if (dbConnInitialized) {
                 IdentityApplicationManagementUtil.closeStatement(prepStmt);
@@ -146,12 +149,12 @@ public class IdPManagementDAO {
      * @param idPName
      * @param tenantId
      * @return
-     * @throws IdentityApplicationManagementException
+     * @throws IdentityProviderManagementException
      * @throws SQLException
      */
     private FederatedAuthenticatorConfig[] getFederatedAuthenticatorConfigs(
             Connection dbConnection, String idPName, IdentityProvider federatedIdp, int tenantId)
-            throws IdentityApplicationManagementException, SQLException {
+            throws IdentityProviderManagementException, SQLException {
 
         int idPId = getIdentityProviderIdentifier(dbConnection, idPName, tenantId);
 
@@ -224,14 +227,14 @@ public class IdPManagementDAO {
      * @param dbConnection
      * @param idpId
      * @param tenantId
-     * @throws IdentityApplicationManagementException
+     * @throws IdentityProviderManagementException
      * @throws SQLException
      */
     private void updateFederatedAuthenticatorConfigs(
             FederatedAuthenticatorConfig[] newFederatedAuthenticatorConfigs,
             FederatedAuthenticatorConfig[] oldFederatedAuthenticatorConfigs,
             Connection dbConnection, int idpId, int tenantId)
-            throws IdentityApplicationManagementException, SQLException {
+            throws IdentityProviderManagementException, SQLException {
 
         Map<String, FederatedAuthenticatorConfig> oldFedAuthnConfigMap = new HashMap<String, FederatedAuthenticatorConfig>();
         if (oldFederatedAuthenticatorConfigs != null && oldFederatedAuthenticatorConfigs.length > 0) {
@@ -258,12 +261,12 @@ public class IdPManagementDAO {
      * @param federatedAuthenticatorConfig
      * @param dbConnection
      * @param idpId
-     * @throws IdentityApplicationManagementException
+     * @throws IdentityProviderManagementException
      * @throws SQLException
      */
     private void updateFederatedAuthenticatorConfig(
             FederatedAuthenticatorConfig federatedAuthenticatorConfig, Connection dbConnection,
-            int idpId, int tenantId) throws IdentityApplicationManagementException, SQLException {
+            int idpId, int tenantId) throws IdentityProviderManagementException, SQLException {
 
         PreparedStatement prepStmt = null;
         ResultSet rs = null;
@@ -327,12 +330,12 @@ public class IdPManagementDAO {
      * @param authnConfigs
      * @param dbConnection
      * @param idpId
-     * @throws IdentityApplicationManagementException
+     * @throws IdentityProviderManagementException
      * @throws SQLException
      */
     public void addFederatedAuthenticatorConfigs(FederatedAuthenticatorConfig[] authnConfigs,
                                                  Connection dbConnection, int idpId, int tenantId)
-            throws IdentityApplicationManagementException, SQLException {
+            throws IdentityProviderManagementException, SQLException {
 
         for (FederatedAuthenticatorConfig authnConfig : authnConfigs) {
             addFederatedAuthenticatorConfig(authnConfig, dbConnection, idpId, tenantId);
@@ -341,7 +344,7 @@ public class IdPManagementDAO {
 
     public void addFederatedAuthenticatorConfig(FederatedAuthenticatorConfig authnConfig,
                                                 Connection dbConnection, int idpId, int tenantId)
-            throws IdentityApplicationManagementException, SQLException {
+            throws IdentityProviderManagementException, SQLException {
 
         PreparedStatement prepStmt = null;
         ResultSet rs = null;
@@ -461,12 +464,12 @@ public class IdPManagementDAO {
      * @param idPName
      * @param tenantId
      * @return
-     * @throws IdentityApplicationManagementException
+     * @throws IdentityProviderManagementException
      * @throws SQLException
      */
     private ClaimConfig getIdPClaimConfiguration(Connection dbConnection, String idPName,
                                                  String userClaimUri, String roleClaimUri, int idPId, int tenantId)
-            throws IdentityApplicationManagementException, SQLException {
+            throws IdentityProviderManagementException, SQLException {
 
         PreparedStatement prepStmt = null;
         ResultSet rs = null;
@@ -543,12 +546,12 @@ public class IdPManagementDAO {
      * @param idPName
      * @param tenantId
      * @return
-     * @throws IdentityApplicationManagementException
+     * @throws IdentityProviderManagementException
      * @throws SQLException
      */
     public PermissionsAndRoleConfig getPermissionsAndRoleConfiguration(Connection dbConnection,
                                                                        String idPName, int idPId, int tenantId)
-            throws IdentityApplicationManagementException,
+            throws IdentityProviderManagementException,
             SQLException {
 
         PreparedStatement prepStmt = null;
@@ -602,12 +605,12 @@ public class IdPManagementDAO {
      * @param provisioningConnectors
      * @param dbConnection
      * @param idpId
-     * @throws IdentityApplicationManagementException
+     * @throws IdentityProviderManagementException
      * @throws SQLException
      */
     private void addProvisioningConnectorConfigs(
             ProvisioningConnectorConfig[] provisioningConnectors, Connection dbConnection,
-            int idpId, int tenantId) throws IdentityApplicationManagementException, SQLException {
+            int idpId, int tenantId) throws IdentityProviderManagementException, SQLException {
 
         PreparedStatement prepStmt = null;
         ResultSet rs = null;
@@ -705,7 +708,7 @@ public class IdPManagementDAO {
         } catch (IOException e) {
             String msg = "An error occurred while processing content stream.";
             log.error(msg, e);
-            throw new IdentityApplicationManagementException(msg, e);
+            throw new IdentityProviderManagementException(msg, e);
         } finally {
             IdentityApplicationManagementUtil.closeResultSet(rs);
             IdentityApplicationManagementUtil.closeStatement(prepStmt);
@@ -729,12 +732,12 @@ public class IdPManagementDAO {
      * @param newProvisioningConnectorConfigs
      * @param dbConnection
      * @param idpId
-     * @throws IdentityApplicationManagementException
+     * @throws IdentityProviderManagementException
      * @throws SQLException
      */
     private void updateProvisioningConnectorConfigs(
             ProvisioningConnectorConfig[] newProvisioningConnectorConfigs, Connection dbConnection,
-            int idpId, int tenantId) throws IdentityApplicationManagementException, SQLException {
+            int idpId, int tenantId) throws IdentityProviderManagementException, SQLException {
 
         PreparedStatement prepStmt = null;
         ResultSet rs = null;
@@ -759,12 +762,12 @@ public class IdPManagementDAO {
      * @param idPName
      * @param tenantId
      * @return
-     * @throws IdentityApplicationManagementException
+     * @throws IdentityProviderManagementException
      * @throws SQLException
      */
     public ProvisioningConnectorConfig[] getProvisioningConnectorConfigs(Connection dbConnection,
                                                                          String idPName, int idPId, int tenantId)
-            throws IdentityApplicationManagementException, SQLException {
+            throws IdentityProviderManagementException, SQLException {
 
         PreparedStatement prepStmt = null;
         PreparedStatement prepBaseStmt = null;
@@ -864,7 +867,7 @@ public class IdPManagementDAO {
         }
     }
 
-    private String getBlobValue(InputStream is) throws IdentityApplicationManagementException {
+    private String getBlobValue(InputStream is) throws IdentityProviderManagementException {
         if (is != null) {
             BufferedReader br = null;
             StringBuilder sb = new StringBuilder();
@@ -878,7 +881,7 @@ public class IdPManagementDAO {
                 }
 
             } catch (IOException e) {
-                throw new IdentityApplicationManagementException(e);
+                throw new IdentityProviderManagementException(e);
             } finally {
                 if (br != null) {
                     try {
@@ -900,10 +903,10 @@ public class IdPManagementDAO {
      * @param tenantId
      * @param tenantDomain
      * @return
-     * @throws IdentityApplicationManagementException
+     * @throws IdentityProviderManagementException
      */
     public IdentityProvider getIdPByName(Connection dbConnection, String idPName, int tenantId,
-                                         String tenantDomain) throws IdentityApplicationManagementException {
+                                         String tenantDomain) throws IdentityProviderManagementException {
 
         PreparedStatement prepStmt = null;
         ResultSet rs = null;
@@ -1030,7 +1033,7 @@ public class IdPManagementDAO {
             IdentityApplicationManagementUtil.rollBack(dbConnection);
             String msg = "Error occurred while retrieving Identity Provider information for tenant : "
                     + tenantDomain + " and Identity Provider name : " + idPName;
-            throw new IdentityApplicationManagementException(msg, e);
+            throw new IdentityProviderManagementException(msg, e);
         } finally {
             if (dbConnectionInitialized) {
                 IdentityApplicationManagementUtil.closeConnection(dbConnection);
@@ -1046,11 +1049,11 @@ public class IdPManagementDAO {
      * @param tenantId
      * @param tenantDomain
      * @return
-     * @throws IdentityApplicationManagementException
+     * @throws IdentityProviderManagementException
      */
     public IdentityProvider getIdPByAuthenticatorPropertyValue(Connection dbConnection, String property, String value,
                                                                int tenantId, String tenantDomain)
-            throws IdentityApplicationManagementException {
+            throws IdentityProviderManagementException {
 
         PreparedStatement prepStmt = null;
         ResultSet rs = null;
@@ -1180,7 +1183,7 @@ public class IdPManagementDAO {
             IdentityApplicationManagementUtil.rollBack(dbConnection);
             String msg = "Error occurred while retrieving Identity Provider information for Authenticator Property : "
                     + property + " and value : " + value;
-            throw new IdentityApplicationManagementException(msg, e);
+            throw new IdentityProviderManagementException(msg, e);
         } finally {
             if (dbConnectionInitialized) {
                 IdentityApplicationManagementUtil.closeConnection(dbConnection);
@@ -1193,11 +1196,11 @@ public class IdPManagementDAO {
      * @param tenantId
      * @param tenantDomain
      * @return
-     * @throws IdentityApplicationManagementException
+     * @throws IdentityProviderManagementException
      * @throws SQLException
      */
     public IdentityProvider getIdPByRealmId(String realmId, int tenantId, String tenantDomain)
-            throws IdentityApplicationManagementException {
+            throws IdentityProviderManagementException {
 
         Connection dbConnection = null;
         PreparedStatement prepStmt = null;
@@ -1222,7 +1225,7 @@ public class IdPManagementDAO {
             dbConnection.commit();
             return getIdPByName(dbConnection, idPName, tenantId, tenantDomain);
         } catch (SQLException | IdentityException e) {
-            throw new IdentityApplicationManagementException(
+            throw new IdentityProviderManagementException(
                     "Error while retreiving Identity Provider by realm " + realmId, e);
         } finally {
             IdentityApplicationManagementUtil.closeStatement(prepStmt);
@@ -1235,10 +1238,10 @@ public class IdPManagementDAO {
     /**
      * @param identityProvider
      * @param tenantId
-     * @throws IdentityApplicationManagementException
+     * @throws IdentityProviderManagementException
      */
     public void addIdP(IdentityProvider identityProvider, int tenantId)
-            throws IdentityApplicationManagementException {
+            throws IdentityProviderManagementException {
 
         Connection dbConnection = null;
         try {
@@ -1344,7 +1347,7 @@ public class IdPManagementDAO {
 
             if (idPId <= 0) {
                 String msg = "Error adding Identity Provider for tenant " + tenantId;
-                throw new IdentityApplicationManagementException(msg);
+                throw new IdentityProviderManagementException(msg);
             }
 
             // add provisioning connectors.
@@ -1398,11 +1401,11 @@ public class IdPManagementDAO {
         } catch (IOException e) {
             String msg = "An error occurred while processing content stream.";
             log.error(msg, e);
-            throw new IdentityApplicationManagementException(msg, e);
+            throw new IdentityProviderManagementException(msg, e);
         } catch (SQLException | IdentityException e) {
             IdentityApplicationManagementUtil.rollBack(dbConnection);
             String msg = "Error occurred while adding Identity Provider for tenant " + tenantId;
-            throw new IdentityApplicationManagementException(msg, e);
+            throw new IdentityProviderManagementException(msg, e);
         } finally {
             IdentityApplicationManagementUtil.closeConnection(dbConnection);
         }
@@ -1412,11 +1415,11 @@ public class IdPManagementDAO {
      * @param newIdentityProvider
      * @param currentIdentityProvider
      * @param tenantId
-     * @throws IdentityApplicationManagementException
+     * @throws IdentityProviderManagementException
      */
     public void updateIdP(IdentityProvider newIdentityProvider,
                           IdentityProvider currentIdentityProvider, int tenantId)
-            throws IdentityApplicationManagementException {
+            throws IdentityProviderManagementException {
 
         Connection dbConnection = null;
 
@@ -1430,7 +1433,7 @@ public class IdPManagementDAO {
             if (idPId <= 0) {
                 String msg = "Trying to update non-existent Identity Provider for tenant "
                         + tenantId;
-                throw new IdentityApplicationManagementException(msg);
+                throw new IdentityProviderManagementException(msg);
             }
 
             PreparedStatement prepStmt = null;
@@ -1567,20 +1570,20 @@ public class IdPManagementDAO {
         } catch (IOException e) {
             String msg = "An error occurred while processing content stream.";
             log.error(msg, e);
-            throw new IdentityApplicationManagementException(msg, e);
+            throw new IdentityProviderManagementException(msg, e);
         } catch (SQLException | IdentityException e) {
             log.error(e.getMessage(), e);
             IdentityApplicationManagementUtil.rollBack(dbConnection);
             String msg = "Error occurred while updating Identity Provider information  for tenant "
                     + tenantId;
-            throw new IdentityApplicationManagementException(msg, e);
+            throw new IdentityProviderManagementException(msg, e);
         } finally {
             IdentityApplicationManagementUtil.closeConnection(dbConnection);
         }
     }
 
     public boolean isIdpReferredBySP(String idPName, int tenantId)
-            throws IdentityApplicationManagementException {
+            throws IdentityProviderManagementException {
         boolean isReffered = false;
         Connection dbConnection = null;
         PreparedStatement prepStmtFedIdp = null;
@@ -1613,7 +1616,7 @@ public class IdPManagementDAO {
         } catch (SQLException | IdentityException e) {
             log.error(e.getMessage(), e);
             String msg = "Error occurred while searching for IDP references in SP ";
-            throw new IdentityApplicationManagementException(msg, e);
+            throw new IdentityProviderManagementException(msg, e);
         } finally {
             IdentityApplicationManagementUtil.closeStatement(prepStmtFedIdp);
             IdentityApplicationManagementUtil.closeResultSet(rsFedIdp);
@@ -1632,10 +1635,10 @@ public class IdPManagementDAO {
      * @param idPName
      * @param tenantId
      * @param tenantDomain
-     * @throws IdentityApplicationManagementException
+     * @throws IdentityProviderManagementException
      */
     public void deleteIdP(String idPName, int tenantId, String tenantDomain)
-            throws IdentityApplicationManagementException {
+            throws IdentityProviderManagementException {
 
         Connection dbConnection = null;
         try {
@@ -1667,14 +1670,14 @@ public class IdPManagementDAO {
             IdentityApplicationManagementUtil.rollBack(dbConnection);
             String msg = "Error occurred while deleting Identity Provider of tenant "
                     + tenantDomain;
-            throw new IdentityApplicationManagementException(msg);
+            throw new IdentityProviderManagementException(msg);
         } finally {
             IdentityApplicationManagementUtil.closeConnection(dbConnection);
         }
     }
 
     public IdentityProvider getPrimaryIdP(Connection dbConnection, int tenantId, String tenantDomain)
-            throws IdentityApplicationManagementException {
+            throws IdentityProviderManagementException {
 
         boolean dbConnInitialized = true;
         PreparedStatement prepStmt = null;
@@ -1719,7 +1722,7 @@ public class IdPManagementDAO {
             IdentityApplicationManagementUtil.rollBack(dbConnection);
             String msg = "Error occurred while retrieving primary Identity Provider for tenant "
                     + tenantDomain;
-            throw new IdentityApplicationManagementException(msg);
+            throw new IdentityProviderManagementException(msg);
         } finally {
             if (dbConnInitialized) {
                 IdentityApplicationManagementUtil.closeConnection(dbConnection);
@@ -1729,7 +1732,7 @@ public class IdPManagementDAO {
     }
 
     public void deleteTenantRole(int tenantId, String role, String tenantDomain)
-            throws IdentityApplicationManagementException {
+            throws IdentityProviderManagementException {
 
         Connection dbConnection = null;
         PreparedStatement prepStmt = null;
@@ -1746,14 +1749,14 @@ public class IdPManagementDAO {
             IdentityApplicationManagementUtil.rollBack(dbConnection);
             String msg = "Error occurred while deleting tenant role " + role + " of tenant "
                     + tenantDomain;
-            throw new IdentityApplicationManagementException(msg);
+            throw new IdentityProviderManagementException(msg);
         } finally {
             IdentityApplicationManagementUtil.closeConnection(dbConnection);
         }
     }
 
     public void renameTenantRole(String newRoleName, String oldRoleName, int tenantId,
-                                 String tenantDomain) throws IdentityApplicationManagementException {
+                                 String tenantDomain) throws IdentityProviderManagementException {
 
         Connection dbConnection = null;
         PreparedStatement prepStmt;
@@ -1771,7 +1774,7 @@ public class IdPManagementDAO {
             IdentityApplicationManagementUtil.rollBack(dbConnection);
             String msg = "Error occurred while renaming tenant role " + oldRoleName + " to "
                     + newRoleName + " of tenant " + tenantDomain;
-            throw new IdentityApplicationManagementException(msg);
+            throw new IdentityProviderManagementException(msg);
         } finally {
             IdentityApplicationManagementUtil.closeConnection(dbConnection);
         }
@@ -1780,11 +1783,11 @@ public class IdPManagementDAO {
     /**
      * @param dbConnection
      * @param idpId
-     * @throws IdentityApplicationManagementException
+     * @throws IdentityProviderManagementException
      * @throws SQLException
      */
     private void deleteAllIdPClaims(Connection dbConnection, int idpId)
-            throws IdentityApplicationManagementException, SQLException {
+            throws IdentityProviderManagementException, SQLException {
 
         PreparedStatement prepStmt = null;
         try {
@@ -1802,11 +1805,11 @@ public class IdPManagementDAO {
      * @param dbConnection
      * @param idpId
      * @param tenantId
-     * @throws IdentityApplicationManagementException
+     * @throws IdentityProviderManagementException
      * @throws SQLException
      */
     private void deleteLocalIdPClaimValues(Connection dbConnection, int idpId, int tenantId)
-            throws IdentityApplicationManagementException, SQLException {
+            throws IdentityProviderManagementException, SQLException {
 
         PreparedStatement prepStmt = null;
         try {
@@ -1825,11 +1828,11 @@ public class IdPManagementDAO {
     /**
      * @param dbConnection
      * @param idpId
-     * @throws IdentityApplicationManagementException
+     * @throws IdentityProviderManagementException
      * @throws SQLException
      */
     private void deleteAllIdPRoles(Connection dbConnection, int idpId)
-            throws IdentityApplicationManagementException, SQLException {
+            throws IdentityProviderManagementException, SQLException {
 
         PreparedStatement prepStmt = null;
         try {
@@ -1848,10 +1851,10 @@ public class IdPManagementDAO {
      * @param oldClaimURI
      * @param tenantId
      * @param tenantDomain
-     * @throws IdentityApplicationManagementException
+     * @throws IdentityProviderManagementException
      */
     public void renameClaimURI(String newClaimURI, String oldClaimURI, int tenantId,
-                               String tenantDomain) throws IdentityApplicationManagementException {
+                               String tenantDomain) throws IdentityProviderManagementException {
 
         Connection dbConnection = null;
         PreparedStatement prepStmt = null;
@@ -1868,7 +1871,7 @@ public class IdPManagementDAO {
             log.error(e.getMessage(), e);
             String msg = "Error occurred while renaming tenant role " + oldClaimURI + " to "
                     + newClaimURI + " of tenant " + tenantDomain;
-            throw new IdentityApplicationManagementException(msg);
+            throw new IdentityProviderManagementException(msg);
         } finally {
             IdentityApplicationManagementUtil.closeConnection(dbConnection);
         }
@@ -1897,7 +1900,7 @@ public class IdPManagementDAO {
     }
 
     private void doAppointPrimary(Connection conn, int tenantId, String tenantDomain)
-            throws SQLException, IdentityApplicationManagementException {
+            throws SQLException, IdentityProviderManagementException {
 
         List<IdentityProvider> tenantIdPs = getIdPs(conn, tenantId, tenantDomain);
         if (!tenantIdPs.isEmpty()) {
@@ -1952,11 +1955,11 @@ public class IdPManagementDAO {
      * @param tenantId
      * @param claimMappings
      * @throws SQLException
-     * @throws IdentityApplicationManagementException
+     * @throws IdentityProviderManagementException
      */
     private void addDefaultClaimValuesForLocalIdP(Connection conn, int idPId, int tenantId,
                                                   ClaimMapping[] claimMappings) throws SQLException,
-            IdentityApplicationManagementException {
+            IdentityProviderManagementException {
 
         PreparedStatement prepStmt = null;
         ResultSet rs = null;
@@ -2002,11 +2005,11 @@ public class IdPManagementDAO {
      * @param tenantId
      * @param claimMappings
      * @throws SQLException
-     * @throws IdentityApplicationManagementException
+     * @throws IdentityProviderManagementException
      */
     private void addIdPClaimMappings(Connection conn, int idPId, int tenantId,
                                      ClaimMapping[] claimMappings) throws SQLException,
-            IdentityApplicationManagementException {
+            IdentityProviderManagementException {
 
         Map<String, Integer> claimIdMap = new HashMap<String, Integer>();
         PreparedStatement prepStmt = null;
@@ -2035,7 +2038,7 @@ public class IdPManagementDAO {
 
             if (claimIdMap.isEmpty()) {
                 String message = "No Identity Provider claim URIs defined for tenant " + tenantId;
-                throw new IdentityApplicationManagementException(message);
+                throw new IdentityProviderManagementException(message);
             }
 
             sqlStmt = IdPManagementConstants.SQLQueries.ADD_IDP_CLAIM_MAPPINGS_SQL;
@@ -2062,7 +2065,7 @@ public class IdPManagementDAO {
                 } else {
                     String msg = "Cannot find Identity Provider claim mapping for tenant "
                             + tenantId;
-                    throw new IdentityApplicationManagementException(msg);
+                    throw new IdentityProviderManagementException(msg);
                 }
             }
 
@@ -2116,11 +2119,11 @@ public class IdPManagementDAO {
      * @param tenantId
      * @param roleMappings
      * @throws SQLException
-     * @throws IdentityApplicationManagementException
+     * @throws IdentityProviderManagementException
      */
     private void addIdPRoleMappings(Connection conn, int idPId, int tenantId,
                                     RoleMapping[] roleMappings) throws SQLException,
-            IdentityApplicationManagementException {
+            IdentityProviderManagementException {
 
         Map<String, Integer> roleIdMap = new HashMap<String, Integer>();
         PreparedStatement prepStmt = null;
@@ -2147,7 +2150,7 @@ public class IdPManagementDAO {
 
             if (roleIdMap.isEmpty()) {
                 String message = "No Identity Provider roles defined for tenant " + tenantId;
-                throw new IdentityApplicationManagementException(message);
+                throw new IdentityProviderManagementException(message);
             }
 
             sqlStmt = IdPManagementConstants.SQLQueries.ADD_IDP_ROLE_MAPPINGS_SQL;
@@ -2171,7 +2174,7 @@ public class IdPManagementDAO {
                 } else {
                     String msg = "Cannot find Identity Provider role " + mapping.getRemoteRole()
                             + " for tenant " + tenantId;
-                    throw new IdentityApplicationManagementException(msg);
+                    throw new IdentityProviderManagementException(msg);
                 }
             }
 
@@ -2190,11 +2193,11 @@ public class IdPManagementDAO {
      * @param tenantId
      * @param newClaimConfig
      * @throws SQLException
-     * @throws IdentityApplicationManagementException
+     * @throws IdentityProviderManagementException
      */
     private void updateClaimConfiguration(Connection conn, int idPId, int tenantId,
                                           ClaimConfig newClaimConfig) throws SQLException,
-            IdentityApplicationManagementException {
+            IdentityProviderManagementException {
 
         // remove all identity provider claims - this will also remove associated claim mappings.
         deleteAllIdPClaims(conn, idPId);
@@ -2298,11 +2301,11 @@ public class IdPManagementDAO {
      * @param newRoleConfiguration
      * @param newRoleConfiguration
      * @throws SQLException
-     * @throws IdentityApplicationManagementException
+     * @throws IdentityProviderManagementException
      */
     private void updateRoleConfiguration(Connection conn, int idPId, int tenantId,
                                          PermissionsAndRoleConfig newRoleConfiguration) throws SQLException,
-            IdentityApplicationManagementException {
+            IdentityProviderManagementException {
 
         // delete all identity provider roles - this will also clean up idp role mappings.
         deleteAllIdPRoles(conn, idPId);
@@ -2373,10 +2376,10 @@ public class IdPManagementDAO {
      * @param tenantId
      * @return
      * @throws SQLException
-     * @throws IdentityApplicationManagementException
+     * @throws IdentityProviderManagementException
      */
     private int getIdentityProviderIdByName(Connection dbConnection, String idpName, int tenantId)
-            throws SQLException, IdentityApplicationManagementException {
+            throws SQLException, IdentityProviderManagementException {
 
         boolean dbConnInitialized = true;
         PreparedStatement prepStmt = null;
@@ -2397,7 +2400,7 @@ public class IdPManagementDAO {
                 return rs.getInt(1);
             }
         } catch (IdentityException e) {
-            throw new IdentityApplicationManagementException("Error occurred while reading Identity Provider by name" +
+            throw new IdentityProviderManagementException("Error occurred while reading Identity Provider by name" +
                     ".", e);
         } finally {
             IdentityApplicationManagementUtil.closeStatement(prepStmt);
@@ -2429,10 +2432,10 @@ public class IdPManagementDAO {
      * @param tenantId
      * @return
      * @throws SQLException
-     * @throws IdentityApplicationManagementException
+     * @throws IdentityProviderManagementException
      */
     private int getIdentityProviderIdentifier(Connection dbConnection, String idPName, int tenantId)
-            throws SQLException, IdentityApplicationManagementException {
+            throws SQLException, IdentityProviderManagementException {
 
         String sqlStmt = null;
         PreparedStatement prepStmt = null;
@@ -2447,7 +2450,7 @@ public class IdPManagementDAO {
             if (rs.next()) {
                 return rs.getInt("ID");
             } else {
-                throw new IdentityApplicationManagementException("Invalid Identity Provider Name "
+                throw new IdentityProviderManagementException("Invalid Identity Provider Name "
                         + idPName);
             }
         } finally {
@@ -2457,7 +2460,7 @@ public class IdPManagementDAO {
     }
 
     private int getAuthenticatorIdentifier(Connection dbConnection, int idPId, String authnType)
-            throws SQLException, IdentityApplicationManagementException {
+            throws SQLException, IdentityProviderManagementException {
 
         String sqlStmt = null;
         PreparedStatement prepStmt = null;
@@ -2471,7 +2474,7 @@ public class IdPManagementDAO {
             if (rs.next()) {
                 return rs.getInt("ID");
             } else {
-                throw new IdentityApplicationManagementException("Cannot find authenticator : "
+                throw new IdentityProviderManagementException("Cannot find authenticator : "
                         + authnType);
             }
         } finally {
@@ -2481,7 +2484,7 @@ public class IdPManagementDAO {
     }
 
     public boolean isSimilarIdPEntityIdsAvailble(String idPEntityId, int tenantId)
-            throws IdentityApplicationManagementException {
+            throws IdentityProviderManagementException {
         boolean isAvailable = false;
         Connection dbConnection = null;
         PreparedStatement prepStmt = null;
@@ -2502,7 +2505,7 @@ public class IdPManagementDAO {
         } catch (SQLException | IdentityException e) {
             log.error(e.getMessage(), e);
             String msg = "Error occurred while searching for similar IdP EntityIds";
-            throw new IdentityApplicationManagementException(msg, e);
+            throw new IdentityProviderManagementException(msg, e);
         } finally {
             if (prepStmt != null) {
                 IdentityApplicationManagementUtil.closeStatement(prepStmt);

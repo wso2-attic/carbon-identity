@@ -32,16 +32,15 @@ import org.wso2.carbon.identity.application.common.model.ServiceProvider;
 import org.wso2.carbon.identity.application.mgt.ApplicationConstants;
 import org.wso2.carbon.identity.application.mgt.ApplicationMgtSystemConfig;
 import org.wso2.carbon.identity.application.mgt.dao.IdentityProviderDAO;
-import org.wso2.carbon.identity.application.mgt.dao.impl.ApplicationDAOImpl;
 import org.wso2.carbon.identity.base.IdentityException;
-import org.wso2.carbon.idp.mgt.listener.IdentityProviderMgtLister;
+import org.wso2.carbon.idp.mgt.IdentityProviderManagementException;
 
 public class IdentityProviderMgtApplicationListener implements IdentityProviderMgtLister {
 
     private static final Log log = LogFactory.getLog(IdentityProviderMgtApplicationListener.class);
 
     @Override
-    public void updateIdP(String oldIdPName, IdentityProvider identityProvider) {
+    public boolean doPreUpdateIdP(String oldIdPName, IdentityProvider identityProvider) throws IdentityProviderManagementException {
 
         try {
             ApplicationBasicInfo[] applicationBasicInfos = ApplicationMgtSystemConfig.getInstance()
@@ -81,21 +80,51 @@ public class IdentityProviderMgtApplicationListener implements IdentityProviderM
             }
         } catch (IdentityApplicationManagementException | IdentityException e) {
             log.error("Error when updating default authenticator of service providers", e);
+            throw new IdentityProviderManagementException("Error when updating default authenticator of service providers", e);
         }
+        return true;
     }
 
     @Override
-    public void updateResidentIdP(IdentityProvider identityProvider) {
+    public boolean doPostUpdateIdP(String oldIdPName, IdentityProvider identityProvider) throws IdentityProviderManagementException {
+        // Not Implemented
+        return true;
+    }
+
+    @Override
+    public boolean doPreUpdateResidentIdP(IdentityProvider identityProvider) throws IdentityProviderManagementException {
+        // Not Implemented
+        return true;
 
     }
 
     @Override
-    public void addIdP(IdentityProvider identityProvider) {
-
+    public boolean doPostUpdateResidentIdP(IdentityProvider identityProvider) throws IdentityProviderManagementException {
+        // Not Implemented
+        return true;
     }
 
     @Override
-    public void deleteIdP(String idPName) {
+    public boolean doPreAddIdP(IdentityProvider identityProvider) throws IdentityProviderManagementException {
+        // Not Implemented
+        return true;
+    }
 
+    @Override
+    public boolean doPostAddIdP(IdentityProvider identityProvider) throws IdentityProviderManagementException {
+        // Not Implemented
+        return true;
+    }
+
+    @Override
+    public boolean doPreDeleteIdP(String idPName) throws IdentityProviderManagementException {
+        // Not Implemented
+        return true;
+    }
+
+    @Override
+    public boolean doPostDeleteIdP(String idPName) throws IdentityProviderManagementException {
+        // Not Implemented
+        return true;
     }
 }

@@ -21,6 +21,7 @@ package org.wso2.carbon.identity.provisioning.listener;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
+import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
 import org.wso2.carbon.identity.application.common.model.ServiceProvider;
 import org.wso2.carbon.identity.application.mgt.listener.ApplicationMgtListener;
 import org.wso2.carbon.identity.provisioning.cache.ServiceProviderProvisioningConnectorCache;
@@ -33,23 +34,39 @@ public class ApplicationMgtProvisioningListener implements ApplicationMgtListene
     private static Log log = LogFactory.getLog(ApplicationMgtProvisioningListener.class);
 
     @Override
-    public void createApplication(ServiceProvider serviceProvider) {
-        // TODO Auto-generated method stub
-
+    public boolean doPreCreateApplication(ServiceProvider serviceProvider) throws IdentityApplicationManagementException {
+        return true;
     }
 
     @Override
-    public void updateApplication(ServiceProvider serviceProvider) {
+    public boolean doPostCreateApplication(ServiceProvider serviceProvider) throws IdentityApplicationManagementException {
+        return true;
+    }
+
+    @Override
+    public boolean doPreUpdateApplication(ServiceProvider serviceProvider) throws IdentityApplicationManagementException {
         String tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
         log.debug("Clearing cache entry for " + serviceProvider.getApplicationName());
         destroySpProvConnectors(serviceProvider.getApplicationName(), tenantDomain);
+        return true;
     }
 
     @Override
-    public void deleteApplication(String applicationName) {
+    public boolean doPostDeleteApplication(String applicationName) throws IdentityApplicationManagementException {
+        return true;
+    }
+
+    @Override
+    public boolean doPreDeleteApplication(String applicationName) throws IdentityApplicationManagementException {
         String tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
         log.debug("Clearing cache entry for " + applicationName);
         destroySpProvConnectors(applicationName, tenantDomain);
+        return true;
+    }
+
+    @Override
+    public boolean doPostUpdateApplication(ServiceProvider serviceProvider) throws IdentityApplicationManagementException {
+        return true;
     }
 
     private void destroySpProvConnectors(String applicationName, String tenantDomain) {
