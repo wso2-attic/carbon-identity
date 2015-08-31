@@ -221,6 +221,7 @@
                                                                   '</td>' +
                                                               '</tr>' +
                                                             '</table>' +
+                                                      '</div>'));
 
                 //Move search component to selected step
                 moveSearchController(stepOrder, "roles", true)
