@@ -207,6 +207,7 @@ public class SessionDataStore {
             log.info("Session Data Operations CleanUp Task of Authentication framework is not enabled.");
         }
     }
+    
     public static SessionDataStore getInstance() {
         if (instance == null) {
             synchronized (SessionDataStore.class) {
@@ -224,15 +225,15 @@ public class SessionDataStore {
     }
 
     public SessionContextDO getSessionContextData(String key, String type) {
-        if (!this.enablePersist) {
+        if (!enablePersist) {
             return null;
         }
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
         try {
-            connection = this.jdbcPersistenceManager.getDBConnection();
-            preparedStatement = connection.prepareStatement(this.sqlSelect);
+            connection = jdbcPersistenceManager.getDBConnection();
+            preparedStatement = connection.prepareStatement(sqlSelect);
             preparedStatement.setString(1, key);
             preparedStatement.setString(2, type);
             resultSet = preparedStatement.executeQuery();
@@ -249,7 +250,7 @@ public class SessionDataStore {
     }
 
     public void storeSessionData(String key, String type, Object entry) {
-        if (!this.enablePersist) {
+        if (!enablePersist) {
             return;
         }
         Timestamp timestamp = new Timestamp(new Date().getTime());
@@ -261,7 +262,7 @@ public class SessionDataStore {
     }
 
     public void clearSessionData(String key, String type) {
-        if (!this.enablePersist) {
+        if (!enablePersist) {
             return;
         }
         Timestamp timestamp = new Timestamp(new Date().getTime());
