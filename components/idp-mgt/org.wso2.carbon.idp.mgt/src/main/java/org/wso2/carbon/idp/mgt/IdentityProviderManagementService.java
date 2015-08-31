@@ -214,11 +214,7 @@ public class IdentityProviderManagementService extends AbstractAdmin {
             for (ClaimMapping claimMap : claimMappings) {
                 claimUris.add(claimMap.getClaim().getClaimUri());
             }
-            String[] allLocalClaimUris = claimUris.toArray(new String[claimUris.size()]);
-            if (ArrayUtils.isNotEmpty(allLocalClaimUris)) {
-                Arrays.sort(allLocalClaimUris);
-            }
-            return allLocalClaimUris;
+            return claimUris.toArray(new String[claimUris.size()]);
         } catch (Exception e) {
             String message = "Error while reading system claims";
             log.error(message, e);
