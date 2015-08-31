@@ -418,7 +418,7 @@
                                             <%
                                                 if ((name.getItemName()).contains("[Pending Role for Delete]")) {
                                             %>
-                                            <%=name.getItemDisplayName()%>
+                                            <%=Encode.forHtml(name.getItemDisplayName())%>
                                             <img src="images/workflow_pending_remove.gif"
                                                  title="Workflow-pending-user-delete"
                                                  alt="Workflow-pending-user-delete" height="15" width="15">
@@ -482,7 +482,7 @@
                                 message = resourceBundle.getString("more.roles.primary");
                             }
         %>
-        <strong><%=Encode.forHtml(message)%></strong>
+        <strong><%=message%></strong>
         <%
         }else if(exceededDomains.getItemDisplayName() != null && !exceededDomains.getItemDisplayName().equals("")){
             String[] domains = exceededDomains.getItemDisplayName().split(":");
@@ -497,7 +497,7 @@
             }
             message = resourceBundle.getString("more.roles").replace("{0}",arg);
         %>
-        <strong><%=Encode.forHtml(message)%></strong>
+        <strong><%=message%></strong>
         <%
                         }
                     }

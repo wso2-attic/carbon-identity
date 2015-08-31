@@ -527,7 +527,7 @@
                             if (CarbonUIUtil.isContextRegistered(config, "/identity-authorization/") &&
                                     CarbonUIUtil.isUserAuthorized(request, "/permission/admin/configure/security/")) {
                         %>
-                        <a href="../identity-authorization/permission-root.jsp?userName=<%=java.net.URLEncoder.encode(userName,"UTF-8")%>&fromUserMgt=true"
+                        <a href="../identity-authorization/permission-root.jsp?userName=<%=Encode.forUriComponent(userName)%>&fromUserMgt=true"
                            class="icon-link"
                            style="background-image:url(../admin/images/edit.gif);"><fmt:message
                                 key="authorization"/></a>
@@ -636,7 +636,7 @@
                                     && !Util.decodeHTMLCharacters(userName).equals(userRealmInfo.getAdminUser()) &&
                                     users[i].getEditable()) {
                         %>
-                        <a href="#" onclick="deleteUser('<%=java.net.URLEncoder.encode(userName,"UTF-8")%>')"
+                        <a href="#" onclick="deleteUser('<%=Encode.forJavaScriptAttribute(userName)%>')"
                            class="icon-link"
                            style="background-image:url(images/delete.gif);"><fmt:message
                                 key="delete"/></a>

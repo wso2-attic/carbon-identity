@@ -422,7 +422,7 @@
                                     <%
                                         if (userName.contains("[Pending User for Delete]")) {
                                     %>
-                                    <%=Encode.forhtml(users[i].getItemDisplayName())%>
+                                    <%=Encode.forHtml(users[i].getItemDisplayName())%>
                                     <img src="images/workflow_pending_remove.gif"
                                          title="Workflow-pending-user-delete"
                                          alt="Workflow-pending-user-delete" height="15" width="15">
@@ -433,11 +433,11 @@
                                     <%
                                         }
                                     %>
-                                    <input type="hidden" name="shownUsers" value="<%=userName%>"/><br/>
+                                    <input type="hidden" name="shownUsers" value="<%=Encode.forHtmlAttribute(userName)%>"/><br/>
                                     <%
                                                 }
                                             }
-
+                                        }
                                         %>
                                     </td>
                                 </tr>

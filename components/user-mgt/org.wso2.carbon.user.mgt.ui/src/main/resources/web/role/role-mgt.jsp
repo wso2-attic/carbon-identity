@@ -441,10 +441,10 @@
                     <td>
                         <%if(!data.getShared()){ %>
                         <% if(data.getItemName().equals(userRealmInfo.getAdminRole()) == false && data.getItemName().equals(userRealmInfo.getEveryOneRole()) == false && data.getEditable()){%>
-                        <a href="#" onclick="updateUserGroup('<%=roleName%>')" class="icon-link" style="background-image:url(images/edit.gif);"><fmt:message key="rename"/></a>
+                        <a href="#" onclick="updateUserGroup('<%=Encode.forJavaScriptAttribute(roleName)%>')" class="icon-link" style="background-image:url(images/edit.gif);"><fmt:message key="rename"/></a>
                         <% }  %>
                         <% if(!data.getItemName().equals(userRealmInfo.getAdminRole())) {%>
-                        <a href="edit-permissions.jsp?roleName=<%=roleName%>" class="icon-link" style="background-image:url(images/edit.gif);"><fmt:message key="edit.permissions"/></a>
+                        <a href="edit-permissions.jsp?roleName=<%=Encode.forUriComponent(roleName)%>" class="icon-link" style="background-image:url(images/edit.gif);"><fmt:message key="edit.permissions"/></a>
                         <% }
                         }%>
 
@@ -452,7 +452,7 @@
                            style="background-image:url(images/edit.gif);color:#CCC;"><fmt:message key="edit.users"/></a>
 
                         <% if (!userRealmInfo.getEveryOneRole().equals(data.getItemName())) { %>
-                        <a href="view-users.jsp?roleName=<%=roleName%>&<%=UserAdminUIConstants.ROLE_READ_ONLY%>=<%=!data.getEditable()%>"
+                        <a href="view-users.jsp?roleName=<%=Encode.forUriComponent(roleName)%>&<%=UserAdminUIConstants.ROLE_READ_ONLY%>=<%=!data.getEditable()%>"
                            class="icon-link" style="background-image:url(images/view.gif);"><fmt:message key="view.users"/></a>
                         <% } %>
 
@@ -477,24 +477,24 @@
                     <td>
                         <%if(!data.getShared()){ %>
                         <% if(data.getItemName().equals(userRealmInfo.getAdminRole()) == false && data.getItemName().equals(userRealmInfo.getEveryOneRole()) == false && data.getEditable()){%>
-                        <a href="#" onclick="updateUserGroup('<%=roleName%>')" class="icon-link" style="background-image:url(images/edit.gif);"><fmt:message key="rename"/></a>
+                        <a href="#" onclick="updateUserGroup('<%=Encode.forJavaScriptAttribute(roleName)%>')" class="icon-link" style="background-image:url(images/edit.gif);"><fmt:message key="rename"/></a>
                         <% }  %>
                         <% if(!data.getItemName().equals(userRealmInfo.getAdminRole())) {%>
-                        <a href="edit-permissions.jsp?roleName=<%=roleName%>" class="icon-link" style="background-image:url(images/edit.gif);"><fmt:message key="edit.permissions"/></a>
+                        <a href="edit-permissions.jsp?roleName=<%=Encode.forUriComponent(roleName)%>" class="icon-link" style="background-image:url(images/edit.gif);"><fmt:message key="edit.permissions"/></a>
                         <% }
                         }%>
 
                         <% if (!userRealmInfo.getEveryOneRole().equals(data.getItemName()) && data.getEditable()) { %>
-                        <a href="edit-users.jsp?roleName=<%=roleName%>&<%=UserAdminUIConstants.ROLE_READ_ONLY%>=<%=!data.getEditable()%>" class="icon-link" style="background-image:url(images/edit.gif);"><fmt:message key="edit.users"/></a>
+                        <a href="edit-users.jsp?roleName=<%=Encode.forUriComponent(roleName)%>&<%=UserAdminUIConstants.ROLE_READ_ONLY%>=<%=!data.getEditable()%>" class="icon-link" style="background-image:url(images/edit.gif);"><fmt:message key="edit.users"/></a>
                         <% } %>
                         <% if (!userRealmInfo.getEveryOneRole().equals(data.getItemName())) { %>
-                        <a href="view-users.jsp?roleName=<%=roleName%>&<%=UserAdminUIConstants.ROLE_READ_ONLY%>=<%=!data.getEditable()%>"
+                        <a href="view-users.jsp?roleName=<%=Encode.forUriComponent(roleName)%>&<%=UserAdminUIConstants.ROLE_READ_ONLY%>=<%=!data.getEditable()%>"
                            class="icon-link" style="background-image:url(images/view.gif);"><fmt:message key="view.users"/></a>
                         <% } %>
                         <%if(!data.getShared()){ %>
 
                         <% if(data.getItemName().equals(userRealmInfo.getAdminRole()) == false && data.getItemName().equals(userRealmInfo.getEveryOneRole()) == false && data.getEditable()){%>
-                        <a href="#" onclick="deleteUserGroup('<%=roleName%>')" class="icon-link" style="background-image:url(images/delete.gif);"><fmt:message key="delete"/></a>
+                        <a href="#" onclick="deleteUserGroup('<%=Encode.forJavaScriptAttribute(roleName)%>')" class="icon-link" style="background-image:url(images/delete.gif);"><fmt:message key="delete"/></a>
                         <% }}  %>
 
                     </td>
