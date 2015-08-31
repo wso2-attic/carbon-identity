@@ -24,11 +24,11 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.xml.security.utils.Base64;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.application.common.model.User;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.oauth.cache.CacheKey;
 import org.wso2.carbon.identity.oauth.cache.OAuthCache;
 import org.wso2.carbon.identity.oauth.cache.OAuthCacheKey;
 import org.wso2.carbon.identity.oauth.config.OAuthServerConfiguration;
-import org.wso2.carbon.identity.oauth2.util.OAuth2Util;
 import org.wso2.carbon.registry.core.utils.UUIDGenerator;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
@@ -85,7 +85,7 @@ public final class OAuthUtil {
     }
 
     public static void clearOAuthCache(String consumerKey, String authorizedUser) {
-        boolean isUsernameCaseSensitive = OAuth2Util.isUsernameCaseSensitive(authorizedUser);
+        boolean isUsernameCaseSensitive = IdentityUtil.isUserStoreInUsernameCaseSensitive(authorizedUser);
         if (!isUsernameCaseSensitive){
             authorizedUser = authorizedUser.toLowerCase();
         }
@@ -93,7 +93,7 @@ public final class OAuthUtil {
     }
 
     public static void clearOAuthCache(String consumerKey, String authorizedUser, String scope) {
-        boolean isUsernameCaseSensitive = OAuth2Util.isUsernameCaseSensitive(authorizedUser);
+        boolean isUsernameCaseSensitive = IdentityUtil.isUserStoreInUsernameCaseSensitive(authorizedUser);
         if (!isUsernameCaseSensitive){
             authorizedUser = authorizedUser.toLowerCase();
         }

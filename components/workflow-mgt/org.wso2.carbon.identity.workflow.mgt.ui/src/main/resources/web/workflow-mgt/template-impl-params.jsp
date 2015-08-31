@@ -205,8 +205,10 @@
             </form>
 
             <%
-                }
+            }
             %>
+
+            </br>
 
 
             <form id="param-form" method="post" name="serviceAdd" action="update-workflow-finish.jsp">
@@ -234,7 +236,7 @@
                 <table class="styledLeft">
                     <thead>
                     <tr>
-                        <th><fmt:message key="workflow.details"/></th>
+                        <th><fmt:message key='workflow.deployment.type'/> : <%= templateImpl %></th>
                     </tr>
                     </thead>
                     <tr>

@@ -31,6 +31,11 @@ public class IdentityCoreConstants {
     public static final String UTC = "UTC";
     public static final int EVENT_LISTENER_ORDER_ID = -1;
 
+    public static final String CASE_INSENSITIVE_USERNAME = "CaseInsensitiveUsername";
+    public static final String USER_NOT_FOUND = "UserNotFound";
+    public final static String MULTI_ATTRIBUTE_SEPARATOR = "MultiAttributeSeparator";
+    public final static String MULTI_ATTRIBUTE_SEPARATOR_DEFAULT = ",,,";
+
     private IdentityCoreConstants(){
     }
 }

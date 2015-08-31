@@ -264,8 +264,10 @@
                                 for (int x = 0; x < attrMap.length; x++) {
                                     val += "; " + attrMap[x].getDomainName() + "/" + attrMap[x].getAttributeName();
                                 }
-                                val = val.substring(1);
-                                claims[j].setMappedAttribute(val);
+                                if (!val.isEmpty()) {
+                                    val = val.substring(1);
+                                    claims[j].setMappedAttribute(val);
+                                }
                             }
                         }
 

@@ -40,10 +40,6 @@ import org.wso2.carbon.identity.sso.saml.util.SAMLSSOUtil;
 public class DefaultResponseBuilder implements ResponseBuilder {
 
     private static Log log = LogFactory.getLog(DefaultResponseBuilder.class);
-    private static final String MULTI_ATTRIBUTE_SEPARATOR = "MultiAttributeSeparator";
-
-    private String userAttributeSeparator = ",";
-
 
     static {
         SAMLSSOUtil.doBootstrap();
