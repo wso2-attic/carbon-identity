@@ -84,6 +84,16 @@ public class WSClaimManager implements ClaimManager {
     }
 
     @Override
+    public void deleteClaimMappings(String s, ClaimMapping[] claimMappings) throws org.wso2.carbon.user.api.UserStoreException {
+        //Not implemented
+    }
+
+    @Override
+    public void deleteClaimDialect(String dialectUri) throws org.wso2.carbon.user.api.UserStoreException{
+        //Not implemented
+    }
+
+    @Override
     public String[] getAllClaimUris() throws UserStoreException {
         try {
             return stub.getAllClaimUris();
