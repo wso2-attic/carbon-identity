@@ -19,12 +19,12 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar" prefix="carbon" %>
 <%@ page import="org.apache.axis2.context.ConfigurationContext" %>
-<%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
 <%@ page import="org.wso2.carbon.CarbonConstants" %>
-<%@ page import="org.wso2.carbon.utils.ServerConstants" %>
-<%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
-<%@page import="org.wso2.carbon.identity.sts.mgt.ui.client.STSAdminServiceClient"%>
 <%@ page import="org.wso2.carbon.identity.sts.mgt.stub.dto.CardIssuerDTO" %>
+<%@ page import="org.wso2.carbon.identity.sts.mgt.ui.client.STSAdminServiceClient" %>
+<%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
+<%@page import="org.wso2.carbon.ui.CarbonUIUtil"%>
+<%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 <script type="text/javascript" src="global-params.js"></script>
 
 <%

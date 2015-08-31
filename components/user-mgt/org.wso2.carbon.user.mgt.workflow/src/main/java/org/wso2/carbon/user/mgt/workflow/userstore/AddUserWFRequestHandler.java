@@ -22,11 +22,11 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.CarbonContext;
+import org.wso2.carbon.core.util.CryptoException;
+import org.wso2.carbon.core.util.CryptoUtil;
 import org.wso2.carbon.identity.workflow.mgt.WorkflowService;
 import org.wso2.carbon.identity.workflow.mgt.bean.Entity;
 import org.wso2.carbon.identity.workflow.mgt.exception.InternalWorkflowException;
-import org.wso2.carbon.user.core.util.UserCoreUtil;
-import org.wso2.carbon.user.mgt.workflow.internal.IdentityWorkflowDataHolder;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.extension.AbstractWorkflowRequestHandler;
 import org.wso2.carbon.identity.workflow.mgt.util.WorkflowDataType;
@@ -34,8 +34,11 @@ import org.wso2.carbon.identity.workflow.mgt.util.WorkflowRequestStatus;
 import org.wso2.carbon.user.api.UserRealm;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.service.RealmService;
-import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
+import org.wso2.carbon.user.core.util.UserCoreUtil;
+import org.wso2.carbon.user.mgt.workflow.internal.IdentityWorkflowDataHolder;
 
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -87,6 +90,8 @@ public class AddUserWFRequestHandler extends AbstractWorkflowRequestHandler {
 
         Map<String, Object> wfParams = new HashMap<>();
         Map<String, Object> nonWfParams = new HashMap<>();
+        String encryptedCredentials = null;
+
         if (roleList == null) {
             roleList = new String[0];
         }
@@ -95,12 +100,24 @@ public class AddUserWFRequestHandler extends AbstractWorkflowRequestHandler {
         }
         int tenant = CarbonContext.getThreadLocalCarbonContext().getTenantId();
         String fullyQualifiedName = UserCoreUtil.addDomainToName(userName, userStoreDomain);
+
+        try {
+            if (log.isDebugEnabled()) {
+                log.debug("Encrypting the password of user " + " " + userName);
+            }
+            CryptoUtil cryptoUtil = CryptoUtil.getDefaultCryptoUtil();
+            encryptedCredentials = cryptoUtil.
+                    encryptAndBase64Encode((credential.toString()).getBytes(Charset.forName("UTF-8")));
+        } catch (CryptoException e) {
+            throw new WorkflowException("Error while encrypting the Credential for User Name" + " " + userName, e);
+        }
+
         wfParams.put(USERNAME, userName);
         wfParams.put(USER_STORE_DOMAIN, userStoreDomain);
         wfParams.put(ROLE_LIST, Arrays.asList(roleList));
         wfParams.put(CLAIM_LIST, claims);
         wfParams.put(PROFILE, profile);
-        nonWfParams.put(CREDENTIAL, credential.toString());
+        nonWfParams.put(CREDENTIAL, encryptedCredentials);
         String uuid = UUID.randomUUID().toString();
         Entity[] entities = new Entity[roleList.length + 1];
         entities[0] = new Entity(fullyQualifiedName, UserStoreWFConstants.ENTITY_TYPE_USER, tenant);
@@ -108,11 +125,9 @@ public class AddUserWFRequestHandler extends AbstractWorkflowRequestHandler {
             fullyQualifiedName = UserCoreUtil.addDomainToName(roleList[i], userStoreDomain);
             entities[i + 1] = new Entity(fullyQualifiedName, UserStoreWFConstants.ENTITY_TYPE_ROLE, tenant);
         }
-        if (workflowService.eventEngagedWithWorkflows(UserStoreWFConstants.ADD_USER_EVENT) && !Boolean.TRUE.equals
-                (getWorkFlowCompleted()) && !isValidOperation(entities)) {
+        if (!Boolean.TRUE.equals(getWorkFlowCompleted()) && !isValidOperation(entities)) {
             throw new WorkflowException("Operation is not valid.");
         }
-
         boolean state = startWorkFlow(wfParams, nonWfParams, uuid);
 
         //WF_REQUEST_ENTITY_RELATIONSHIP table has foreign key to WF_REQUEST, so need to run this after WF_REQUEST is
@@ -173,7 +188,9 @@ public class AddUserWFRequestHandler extends AbstractWorkflowRequestHandler {
             responseAdditionalParams, int tenantId) throws WorkflowException {
 
         String userName;
+        String decryptedCredentials;
         Object requestUsername = requestParams.get(USERNAME);
+        Object credential = requestParams.get(CREDENTIAL);
         if (requestUsername == null || !(requestUsername instanceof String)) {
             throw new WorkflowException("Callback request for Add User received without the mandatory " +
                     "parameter 'username'");
@@ -184,7 +201,20 @@ public class AddUserWFRequestHandler extends AbstractWorkflowRequestHandler {
         } else {
             userName = (String) requestUsername;
         }
-        Object credential = requestParams.get(CREDENTIAL);
+
+        try {
+            if (log.isDebugEnabled()) {
+                log.debug("Decrypting the password of user " + " " + userName);
+            }
+            CryptoUtil cryptoUtil = CryptoUtil.getDefaultCryptoUtil();
+            byte[] decryptedBytes = cryptoUtil.base64DecodeAndDecrypt(credential.toString());
+            decryptedCredentials = new String(decryptedBytes, "UTF-8");
+            credential = decryptedCredentials;
+
+        } catch (CryptoException | UnsupportedEncodingException e) {
+            throw new WorkflowException("Error while decrypting the Credential for user" + " " + userName, e);
+        }
+
         List<String> roleList = ((List<String>) requestParams.get(ROLE_LIST));
         String[] roles;
         if (roleList != null) {
@@ -226,11 +256,11 @@ public class AddUserWFRequestHandler extends AbstractWorkflowRequestHandler {
                 if (entities[i].getEntityType() == UserStoreWFConstants.ENTITY_TYPE_USER && workflowService
                         .entityHasPendingWorkflowsOfType(entities[i], UserStoreWFConstants.ADD_USER_EVENT)) {
                     throw new WorkflowException("Username already exists in the system. Please pick another username.");
-                } else if (entities[i].getEntityType() == UserStoreWFConstants.ENTITY_TYPE_ROLE && (workflowService
+                } else if (workflowService.eventEngagedWithWorkflows(UserStoreWFConstants.ADD_USER_EVENT) &&
+                        entities[i].getEntityType() == UserStoreWFConstants.ENTITY_TYPE_ROLE && (workflowService
                         .entityHasPendingWorkflowsOfType(entities[i], UserStoreWFConstants.DELETE_ROLE_EVENT) ||
-                        workflowService
-                                .entityHasPendingWorkflowsOfType(entities[i], UserStoreWFConstants
-                                        .UPDATE_ROLE_NAME_EVENT))) {
+                        workflowService.entityHasPendingWorkflowsOfType(entities[i], UserStoreWFConstants
+                                .UPDATE_ROLE_NAME_EVENT))) {
 
                     throw new WorkflowException("One or more roles assigned has pending workflows which " +
                             "blocks this operation.");

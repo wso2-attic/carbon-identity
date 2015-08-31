@@ -47,6 +47,8 @@ import org.wso2.carbon.identity.core.model.IdentityEventListenerConfigKey;
 import org.wso2.carbon.registry.core.utils.UUIDGenerator;
 import org.wso2.carbon.user.api.TenantManager;
 import org.wso2.carbon.user.api.UserStoreException;
+import org.wso2.carbon.user.core.UserStoreManager;
+import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.utils.NetworkUtils;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
@@ -357,5 +359,78 @@ public class IdentityUtil {
             String message = "Error in constructing XML Object from the encoded String";
             throw new IdentityException(message, e);
         }
+    }
+
+    /**
+     *
+     * @param username Full qualified username
+     * @return
+     */
+    public static boolean isUserStoreInUsernameCaseSensitive(String username) {
+
+        boolean isUsernameCaseSensitive = true;
+        try {
+            String tenantDomain = MultitenantUtils.getTenantDomain(username);
+            int tenantId = IdentityTenantUtil.getRealmService().getTenantManager().getTenantId(tenantDomain);
+            return isUserStoreInUsernameCaseSensitive(username, tenantId);
+        } catch (UserStoreException e) {
+            if (log.isDebugEnabled()) {
+                log.debug("Error while reading user store property CaseInsensitiveUsername. Considering as case " +
+                        "sensitive.");
+            }
+        }
+        return isUsernameCaseSensitive;
+    }
+
+    /**
+     *
+     * @param username user name with user store domain
+     * @param tenantId tenant id of the user
+     * @return
+     */
+    public static boolean isUserStoreInUsernameCaseSensitive(String username, int tenantId) {
+
+        return isUserStoreCaseSensitive(UserCoreUtil.extractDomainFromName(username), tenantId);
+    }
+
+    /**
+     *
+     * @param userStoreDomain user store domain
+     * @param tenantId tenant id of the user store
+     * @return
+     */
+    public static boolean isUserStoreCaseSensitive(String userStoreDomain, int tenantId) {
+
+        boolean isUsernameCaseSensitive = true;
+        try {
+            org.wso2.carbon.user.core.UserStoreManager userStoreManager = (org.wso2.carbon.user.core
+                    .UserStoreManager) IdentityTenantUtil.getRealmService()
+                    .getTenantUserRealm(tenantId).getUserStoreManager();
+            org.wso2.carbon.user.core.UserStoreManager userAvailableUserStoreManager = userStoreManager
+                    .getSecondaryUserStoreManager(userStoreDomain);
+            return isUserStoreCaseSensitive(userAvailableUserStoreManager);
+        } catch (UserStoreException e) {
+            if (log.isDebugEnabled()) {
+                log.debug("Error while reading user store property CaseInsensitiveUsername. Considering as case " +
+                        "sensitive.");
+            }
+        }
+        return isUsernameCaseSensitive;
+    }
+
+    /**
+     *
+     * @param userStoreManager
+     * @return
+     */
+    public static boolean isUserStoreCaseSensitive(UserStoreManager userStoreManager) {
+
+        String caseInsensitiveUsername = userStoreManager.getRealmConfiguration()
+                .getUserStoreProperty(IdentityCoreConstants.CASE_INSENSITIVE_USERNAME);
+        if (caseInsensitiveUsername == null && log.isDebugEnabled()){
+            log.debug("Error while reading user store property CaseInsensitiveUsername. Considering as case sensitive" +
+                    ".");
+        }
+        return !Boolean.parseBoolean(caseInsensitiveUsername);
     }
 }

@@ -37,14 +37,14 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Stack;
 
 public class IdentityConfigParser {
 
-    public static final String OPENID_REALM = "OpenIDRealm";
-    public static final String REQUEST_CLAIMS_FROM_IDP = "RequestClaimsFromIdP";
-    public static final String IDENTITY_DEFAULT_NAMESPACE = "http://wso2.org/projects/carbon/carbon.xml";
-    private static final String IDENTITY_CONFIG = "identity.xml";
     private static Map<String, Object> configuration = new HashMap<String, Object>();
     private static Map<IdentityEventListenerConfigKey, IdentityEventListener> eventListenerConfiguration = new HashMap();
     private static IdentityConfigParser parser;
@@ -108,7 +108,8 @@ public class IdentityConfigParser {
                 }
             } else {
 
-                File identityConfigXml = new File(IdentityUtil.getIdentityConfigDirPath(), IDENTITY_CONFIG);
+                File identityConfigXml = new File(IdentityUtil.getIdentityConfigDirPath(),
+                        IdentityCoreConstants.IDENTITY_CONFIG);
                 if (identityConfigXml.exists()) {
                     inStream = new FileInputStream(identityConfigXml);
                 }
@@ -168,7 +169,7 @@ public class IdentityConfigParser {
         OMElement eventListeners = this.getConfigElement(IdentityConstants.EVENT_LISTENERS);
         if (eventListeners != null) {
             Iterator<OMElement> eventListener = eventListeners.getChildrenWithName(
-                    new QName(IdentityConfigParser.IDENTITY_DEFAULT_NAMESPACE, IdentityConstants.EVENT_LISTENER));
+                    new QName(IdentityCoreConstants.IDENTITY_DEFAULT_NAMESPACE, IdentityConstants.EVENT_LISTENER));
 
             if (eventListener != null) {
                 while (eventListener.hasNext()) {
@@ -276,7 +277,7 @@ public class IdentityConfigParser {
      * @return Corresponding OMElement
      */
     public OMElement getConfigElement(String localPart) {
-        return rootElement.getFirstChildWithName(new QName(IDENTITY_DEFAULT_NAMESPACE, localPart));
+        return rootElement.getFirstChildWithName(new QName(IdentityCoreConstants.IDENTITY_DEFAULT_NAMESPACE,localPart));
     }
 
 }

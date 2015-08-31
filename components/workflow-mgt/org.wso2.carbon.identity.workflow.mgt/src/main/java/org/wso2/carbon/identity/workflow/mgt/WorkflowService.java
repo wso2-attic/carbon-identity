@@ -21,7 +21,13 @@ package org.wso2.carbon.identity.workflow.mgt;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.CarbonConstants;
+import org.wso2.carbon.base.CarbonBaseUtils;
+import org.wso2.carbon.base.MultitenantConstants;
+import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.context.CarbonContext;
+import org.wso2.carbon.identity.base.IdentityRuntimeException;
+import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
 import org.wso2.carbon.identity.workflow.mgt.bean.BPSProfileDTO;
 import org.wso2.carbon.identity.workflow.mgt.bean.ParameterDTO;
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowAssociationBean;
@@ -52,10 +58,15 @@ import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.internal.WorkflowServiceDataHolder;
 import org.wso2.carbon.identity.workflow.mgt.util.WorkFlowConstants;
 import org.wso2.carbon.identity.workflow.mgt.util.WorkflowRequestStatus;
+import org.wso2.carbon.user.api.RealmConfiguration;
+import org.wso2.carbon.user.core.UserStoreManager;
+import org.wso2.carbon.utils.CarbonUtils;
+import org.wso2.carbon.utils.NetworkUtils;
 
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
+import java.net.SocketException;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -410,13 +421,14 @@ public class WorkflowService {
     /**
      * Returns array of requests initiated by a user.
      *
-     * @param user
+     * @param user User to get requests of, empty String to retrieve requests of all users
+     * @param tenantId tenant id of currently logged in user
      * @return
      * @throws WorkflowException
      */
-    public WorkflowRequestDTO[] getRequestsCreatedByUser(String user) throws WorkflowException {
+    public WorkflowRequestDTO[] getRequestsCreatedByUser(String user, int tenantId) throws WorkflowException {
 
-        return workflowRequestDAO.getRequestsOfUser(user);
+        return workflowRequestDAO.getRequestsOfUser(user, tenantId);
     }
 
     /**
@@ -448,15 +460,16 @@ public class WorkflowService {
     /**
      * get requests list according to createdUser, createdTime, and lastUpdatedTime
      *
-     * @param user
-     * @param beginDate
-     * @param endDate
-     * @param dateCategory
+     * @param user User to get requests of, empty String to retrieve requests of all users
+     * @param beginDate lower limit of date range to filter
+     * @param endDate upper limit of date range to filter
+     * @param dateCategory filter by created time or last updated time ?
+     * @param tenantId tenant id of currently logged in user
      * @return
      * @throws WorkflowException
      */
     public WorkflowRequestDTO[] getRequestsFromFilter(String user, String beginDate, String endDate, String
-            dateCategory) throws WorkflowException {
+            dateCategory, int tenantId) throws WorkflowException {
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
         Timestamp beginTime;
@@ -478,9 +491,9 @@ public class WorkflowService {
             endTime = new java.sql.Timestamp(parsedEndDate.getTime());
         }
         if (StringUtils.isBlank(user)) {
-            return workflowRequestDAO.getRequestsFilteredByTime(beginTime, endTime, dateCategory);
+            return workflowRequestDAO.getRequestsFilteredByTime(beginTime, endTime, dateCategory, tenantId);
         } else {
-            return workflowRequestDAO.getRequestsOfUserFilteredByTime(user, beginTime, endTime, dateCategory);
+            return workflowRequestDAO.getRequestsOfUserFilteredByTime(user, beginTime, endTime, dateCategory, tenantId);
         }
 
     }
@@ -495,10 +508,8 @@ public class WorkflowService {
      * @return
      * @throws InternalWorkflowException
      */
-
     public List<String> listEntityNames(String wfOperationType, String wfStatus, String entityType, int tenantID) throws
             InternalWorkflowException {
         return requestEntityRelationshipDAO.getEntityNamesOfRequest(wfOperationType, wfStatus, entityType, tenantID);
     }
-
 }
