@@ -19,6 +19,7 @@
 package org.wso2.carbon.idp.mgt.internal;
 
 import org.wso2.carbon.context.CarbonContext;
+import org.wso2.carbon.identity.core.AbstractIdentityUserOperationEventListener;
 import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.idp.mgt.IdentityProviderManagementException;
@@ -28,12 +29,12 @@ import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.common.AbstractUserOperationEventListener;
 
-public class UserStoreListener extends AbstractUserOperationEventListener {
+public class UserStoreListener extends AbstractIdentityUserOperationEventListener {
 
     private CacheBackedIdPMgtDAO dao = new CacheBackedIdPMgtDAO(new IdPManagementDAO());
 
     public int getExecutionOrderId() {
-        int orderId = IdentityUtil.readEventListenerOrderIDs("UserOperationEventListener", "org.wso2.carbon.idp.mgt.internal.UserStoreListener");
+        int orderId = getOrderId(UserStoreListener.class.getName());
         if (orderId != IdentityCoreConstants.EVENT_LISTENER_ORDER_ID) {
             return orderId;
         }
@@ -43,6 +44,9 @@ public class UserStoreListener extends AbstractUserOperationEventListener {
     @Override
     public boolean doPostUpdateRoleName(String newRoleName, String oldRoleName, UserStoreManager um) throws
             UserStoreException {
+        if (!isEnable(UserStoreListener.class.getName())) {
+            return true;
+        }
         int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
         String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
         try {
@@ -55,6 +59,9 @@ public class UserStoreListener extends AbstractUserOperationEventListener {
 
     @Override
     public boolean doPostDeleteRole(String roleName, UserStoreManager userStoreManager) throws UserStoreException {
+        if (!isEnable(UserStoreListener.class.getName())) {
+            return true;
+        }
         int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
         String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
         try {

@@ -19,6 +19,7 @@
 package org.wso2.carbon.idp.mgt;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.CarbonContext;
@@ -32,6 +33,7 @@ import org.wso2.carbon.idp.mgt.util.IdPManagementConstants;
 import org.wso2.carbon.user.api.ClaimMapping;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class IdentityProviderManagementService extends AbstractAdmin {
@@ -40,7 +42,6 @@ public class IdentityProviderManagementService extends AbstractAdmin {
     private static String LOCAL_DEFAULT_CLAIM_DIALECT = "http://wso2.org/claims";
 
     /**
-     *
      * Retrieves resident Identity provider for the logged-in tenant
      *
      * @return <code>IdentityProvider</code>
@@ -68,13 +69,13 @@ public class IdentityProviderManagementService extends AbstractAdmin {
         // invoking the listeners
         List<IdentityProviderMgtLister> listeners = IdpMgtListenerServiceComponent.getListners();
         for (IdentityProviderMgtLister listener : listeners) {
-            if (!listener.doPreUpdateResidentIdP(identityProvider)){
+            if (!listener.doPreUpdateResidentIdP(identityProvider)) {
                 return;
             }
         }
 
         for (IdentityProviderMgtLister listener : listeners) {
-            if (!listener.doPostUpdateResidentIdP(identityProvider)){
+            if (!listener.doPostUpdateResidentIdP(identityProvider)) {
                 return;
             }
         }
@@ -186,13 +187,13 @@ public class IdentityProviderManagementService extends AbstractAdmin {
         // invoking the listeners
         List<IdentityProviderMgtLister> listeners = IdpMgtListenerServiceComponent.getListners();
         for (IdentityProviderMgtLister listener : listeners) {
-            if(!listener.doPreDeleteIdP(idPName)){
+            if (!listener.doPreDeleteIdP(idPName)) {
                 return;
             }
         }
 
         for (IdentityProviderMgtLister listener : listeners) {
-            if(!listener.doPostDeleteIdP(idPName)){
+            if (!listener.doPostDeleteIdP(idPName)) {
                 return;
             }
         }
@@ -211,7 +212,11 @@ public class IdentityProviderManagementService extends AbstractAdmin {
             for (ClaimMapping claimMap : claimMappings) {
                 claimUris.add(claimMap.getClaim().getClaimUri());
             }
-            return claimUris.toArray(new String[claimUris.size()]);
+            String[] allLocalClaimUris = claimUris.toArray(new String[claimUris.size()]);
+            if (ArrayUtils.isNotEmpty(allLocalClaimUris)) {
+                Arrays.sort(allLocalClaimUris);
+            }
+            return allLocalClaimUris;
         } catch (Exception e) {
             String message = "Error while reading system claims";
             log.error(message, e);
@@ -245,12 +250,12 @@ public class IdentityProviderManagementService extends AbstractAdmin {
         // invoking the listeners
         List<IdentityProviderMgtLister> listeners = IdpMgtListenerServiceComponent.getListners();
         for (IdentityProviderMgtLister listener : listeners) {
-            if(!listener.doPreUpdateIdP(oldIdPName, identityProvider)){
+            if (!listener.doPreUpdateIdP(oldIdPName, identityProvider)) {
                 return;
             }
         }
         for (IdentityProviderMgtLister listener : listeners) {
-            if(!listener.doPostUpdateIdP(oldIdPName, identityProvider)){
+            if (!listener.doPostUpdateIdP(oldIdPName, identityProvider)) {
                 return;
             }
         }
