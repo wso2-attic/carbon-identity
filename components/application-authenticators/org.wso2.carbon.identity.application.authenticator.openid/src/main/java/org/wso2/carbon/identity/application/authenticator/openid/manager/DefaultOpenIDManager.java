@@ -37,11 +37,12 @@ import org.openid4java.message.ax.FetchResponse;
 import org.wso2.carbon.identity.application.authentication.framework.config.builder.FileBasedConfigurationBuilder;
 import org.wso2.carbon.identity.application.authentication.framework.context.AuthenticationContext;
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticatedUser;
+import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkConstants;
 import org.wso2.carbon.identity.application.authenticator.openid.exception.OpenIDException;
 import org.wso2.carbon.identity.application.common.model.Claim;
 import org.wso2.carbon.identity.application.common.model.ClaimMapping;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
-import org.wso2.carbon.ui.CarbonUIUtil;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -78,9 +79,8 @@ public class DefaultOpenIDManager implements OpenIDManager {
             request.getSession().setAttribute("openid-disc", discovered);
 
 
-            String returnToURL = CarbonUIUtil.getAdminConsoleURL(request);
-            String realm = returnToURL.replace("commonauth/carbon/", "commonauth");
-            returnToURL = realm + "?sessionDataKey=" + context.getContextIdentifier();
+            String realm = IdentityUtil.getServerURL(FrameworkConstants.COMMONAUTH);
+            String returnToURL = realm + "?sessionDataKey=" + context.getContextIdentifier();
 
             AuthRequest authReq = consumerManager.authenticate(discovered, returnToURL);
             authReq.setRealm(realm);
@@ -133,8 +133,8 @@ public class DefaultOpenIDManager implements OpenIDManager {
             // Previously discovered information
             DiscoveryInformation discovered = (DiscoveryInformation) request.getSession().getAttribute("openid-disc");
 
-            String returnToURL = CarbonUIUtil.getAdminConsoleURL(request);
-            returnToURL = returnToURL.replace("commonauth/carbon/", "commonauth") + "?sessionDataKey=" + contextIdentifier;
+            String returnToURL = IdentityUtil.getServerURL(FrameworkConstants.COMMONAUTH) + "?sessionDataKey=" +
+                                 contextIdentifier;
 
             // Verify return-to, discoveries, nonce & signature
             // Signature will be verified using the shared secret

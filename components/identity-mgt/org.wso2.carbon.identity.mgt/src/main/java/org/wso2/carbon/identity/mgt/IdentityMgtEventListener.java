@@ -22,6 +22,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.base.IdentityException;
+import org.wso2.carbon.identity.core.AbstractIdentityUserOperationEventListener;
 import org.wso2.carbon.identity.core.model.IdentityErrorMsgContext;
 import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
@@ -51,7 +52,6 @@ import org.wso2.carbon.registry.core.session.UserRegistry;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
-import org.wso2.carbon.user.core.common.AbstractUserOperationEventListener;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 
 import java.util.Calendar;
@@ -67,7 +67,7 @@ import java.util.Map.Entry;
  * additional operations
  * for some of the core user management operations
  */
-public class IdentityMgtEventListener extends AbstractUserOperationEventListener {
+public class IdentityMgtEventListener extends AbstractIdentityUserOperationEventListener {
 
     /*
      * The thread local variable to hold data with scope only to that variable.
@@ -136,7 +136,7 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
      */
     @Override
     public int getExecutionOrderId() {
-        int orderId = IdentityUtil.readEventListenerOrderIDs("UserOperationEventListener", "org.wso2.carbon.identity.mgt.IdentityMgtEventListener");
+        int orderId = getOrderId(IdentityMgtEventListener.class.getName());
         if (orderId != IdentityCoreConstants.EVENT_LISTENER_ORDER_ID) {
             return orderId;
         }
@@ -151,6 +151,9 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
     @Override
     public boolean doPreAuthenticate(String userName, Object credential,
                                      UserStoreManager userStoreManager) throws UserStoreException {
+        if (!isEnable(this.getClass().getName())) {
+            return true;
+        }
 
         // Top level try and finally blocks are used to unset thread local variables
         try {
@@ -239,6 +242,9 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
     @Override
     public boolean doPostAuthenticate(String userName, boolean authenticated,
                                       UserStoreManager userStoreManager) throws UserStoreException {
+        if (!isEnable(this.getClass().getName())) {
+            return true;
+        }
 
         // Top level try and finally blocks are used to unset thread local variables
         try {
@@ -448,6 +454,10 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
                                 Map<String, String> claims, String profile,
                                 UserStoreManager userStoreManager) throws UserStoreException {
 
+        if (!isEnable(this.getClass().getName())) {
+            return true;
+        }
+
         if (log.isDebugEnabled()) {
             log.debug("Pre add user is called in IdentityMgtEventListener");
         }
@@ -534,6 +544,10 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
                                  Map<String, String> claims, String profile,
                                  UserStoreManager userStoreManager) throws UserStoreException {
 
+        if (!isEnable(this.getClass().getName())) {
+            return true;
+        }
+
         // Top level try and finally blocks are used to unset thread local variables
         try {
             if (!threadLocalProperties.get().containsKey(DO_POST_ADD_USER)) {
@@ -560,7 +574,7 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
                     }
 
                     // store identity data
-                    userIdentityClaimsDO.setAccountLock(false).setPasswordTimeStamp(System.currentTimeMillis());
+                    userIdentityClaimsDO.setAccountLock(false);
                     try {
                         module.store(userIdentityClaimsDO, userStoreManager);
                     } catch (IdentityException e) {
@@ -616,7 +630,6 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
                 if (config.isAuthPolicyAccountLockOnCreation()) {
                     // accounts are locked. Admin should unlock
                     userIdentityClaimsDO.setAccountLock(true);
-                    userIdentityClaimsDO.setPasswordTimeStamp(System.currentTimeMillis());
                     try {
                         config.getIdentityDataStore().store(userIdentityClaimsDO, userStoreManager);
                     } catch (IdentityException e) {
@@ -660,6 +673,10 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
 	public boolean doPreUpdateCredential(String userName, Object newCredential,
             Object oldCredential, UserStoreManager userStoreManager) throws UserStoreException {
 
+        if (!isEnable(this.getClass().getName())) {
+            return true;
+        }
+
         if (log.isDebugEnabled()) {
             log.debug("Pre update credential is called in IdentityMgtEventListener");
         }
@@ -693,6 +710,10 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
 	@Override
     public boolean doPreUpdateCredentialByAdmin(String userName, Object newCredential,
             UserStoreManager userStoreManager) throws UserStoreException {
+
+        if (!isEnable(this.getClass().getName())) {
+            return true;
+        }
 
         if (log.isDebugEnabled()) {
             log.debug("Pre update credential by admin is called in IdentityMgtEventListener");
@@ -758,6 +779,9 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
     public boolean doPreSetUserClaimValue(String userName, String claimURI, String claimValue,
                                           String profileName, UserStoreManager userStoreManager)
             throws UserStoreException {
+        if (!isEnable(this.getClass().getName())) {
+            return true;
+        }
 
         IdentityMgtConfig config = IdentityMgtConfig.getInstance();
         if (!config.isListenerEnable()) {
@@ -784,6 +808,17 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
     public boolean doPreSetUserClaimValues(String userName, Map<String, String> claims,
                                            String profileName, UserStoreManager userStoreManager)
             throws UserStoreException {
+
+        if (!isEnable(this.getClass().getName())) {
+            return true;
+        }
+        IdentityUtil.clearIdentityErrorMsg();
+        boolean accountLocked = Boolean.parseBoolean(claims.get(UserIdentityDataStore.ACCOUNT_LOCK));
+        if (accountLocked) {
+            IdentityErrorMsgContext customErrorMessageContext = new IdentityErrorMsgContext(UserCoreConstants
+                    .ErrorCode.USER_IS_LOCKED);
+            IdentityUtil.setIdentityErrorMsg(customErrorMessageContext);
+        }
 
         // Top level try and finally blocks are used to unset thread local variables
         try {
@@ -837,6 +872,10 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
     public boolean doPostDeleteUser(String userName, UserStoreManager userStoreManager)
             throws UserStoreException {
 
+        if (!isEnable(this.getClass().getName())) {
+            return true;
+        }
+
         IdentityMgtConfig config = IdentityMgtConfig.getInstance();
         if (!config.isListenerEnable()) {
             return true;
@@ -876,6 +915,10 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
                                             Map<String, String> claimMap,
                                             UserStoreManager storeManager)
             throws UserStoreException {
+
+        if (!isEnable(this.getClass().getName())) {
+            return true;
+        }
 
         IdentityMgtConfig config = IdentityMgtConfig.getInstance();
         if (!config.isListenerEnable()) {
@@ -930,45 +973,7 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
     public boolean doPostUpdateCredential(String userName, Object credential, UserStoreManager userStoreManager)
             throws UserStoreException {
 
-        // Top level try and finally blocks are used to unset thread local variables
-        try {
-            if (!threadLocalProperties.get().containsKey(DO_POST_UPDATE_CREDENTIAL)) {
-                threadLocalProperties.get().put(DO_POST_UPDATE_CREDENTIAL, true);
-
-                IdentityMgtConfig config = IdentityMgtConfig.getInstance();
-                if (!config.isListenerEnable()) {
-                    return true;
-                }
-
-                UserIdentityClaimsDO userIdentityDTO = module.load(userName, userStoreManager);
-
-                if (userIdentityDTO == null) {
-                    userIdentityDTO = new UserIdentityClaimsDO(userName);
-                }
-
-                // Do not timestamp if OTP enabled.
-                boolean userOTPEnabled = userIdentityDTO.getOneTimeLogin();
-
-                if (config.isAuthPolicyExpirePasswordCheck() && !userOTPEnabled && (!userStoreManager.isReadOnly())) {
-
-                    userIdentityDTO.setPasswordTimeStamp(Calendar.getInstance().getTimeInMillis());
-
-                    try {
-                        // Store the new timestamp after change password
-                        module.store(userIdentityDTO, userStoreManager);
-
-                    } catch (IdentityException e) {
-                        throw new UserStoreException(
-                                "Error while saving user store data for user : "
-                                        + userName, e);
-                    }
-                }
-            }
-            return true;
-        } finally {
-            // Remove thread local variable.
-            threadLocalProperties.get().remove(DO_POST_UPDATE_CREDENTIAL);
-        }
+       return true;
     }
 
 }

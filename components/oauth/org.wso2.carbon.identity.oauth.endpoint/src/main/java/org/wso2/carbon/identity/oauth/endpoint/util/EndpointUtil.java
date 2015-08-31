@@ -28,6 +28,7 @@ import org.wso2.carbon.identity.application.authentication.framework.cache.Authe
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticationRequest;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkConstants;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkUtils;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.oauth.cache.SessionDataCache;
 import org.wso2.carbon.identity.oauth.cache.SessionDataCacheEntry;
 import org.wso2.carbon.identity.oauth.cache.SessionDataCacheKey;
@@ -39,7 +40,6 @@ import org.wso2.carbon.identity.oauth2.OAuth2Service;
 import org.wso2.carbon.identity.oauth2.OAuth2TokenValidationService;
 import org.wso2.carbon.identity.oauth2.model.OAuth2Parameters;
 import org.wso2.carbon.identity.oauth2.util.OAuth2Util;
-import org.wso2.carbon.ui.CarbonUIUtil;
 import org.wso2.carbon.ui.util.CharacterEncoder;
 
 import java.io.UnsupportedEncodingException;
@@ -168,7 +168,7 @@ public class EndpointUtil {
         if (redirectUri != null && !"".equals(redirectUri)) {
             errorPageUrl = redirectUri;
         } else {
-            errorPageUrl = CarbonUIUtil.getAdminConsoleURL("/") + "../authenticationendpoint/oauth2_error.do";
+            errorPageUrl = IdentityUtil.getServerURL("/authenticationendpoint/oauth2_error.do");
         }
         try {
             errorPageUrl += "?" + OAuthConstants.OAUTH_ERROR_CODE + "=" + URLEncoder.encode(errorCode, "UTF-8") + "&"
@@ -204,7 +204,7 @@ public class EndpointUtil {
      */
     public static String getLoginPageURL(String clientId, String sessionDataKey,
                                          boolean forceAuthenticate, boolean checkAuthentication, Set<String> scopes)
-            throws UnsupportedEncodingException {
+            throws IdentityOAuth2Exception {
 
         try {
             SessionDataCacheEntry entry = (SessionDataCacheEntry) SessionDataCache.getInstance(0)
@@ -231,7 +231,7 @@ public class EndpointUtil {
      */
     public static String getLoginPageURL(String clientId, String sessionDataKey,
                                          boolean forceAuthenticate, boolean checkAuthentication, Set<String> scopes,
-                                         Map<String, String[]> reqParams) throws UnsupportedEncodingException {
+                                         Map<String, String[]> reqParams) throws IdentityOAuth2Exception {
 
         try {
 
@@ -240,9 +240,7 @@ public class EndpointUtil {
             if (scopes != null && scopes.contains("openid")) {
                 type = "oidc";
             }
-            String commonAuthURL = CarbonUIUtil.getAdminConsoleURL("/");
-            commonAuthURL = commonAuthURL.replace(FrameworkConstants.CARBON,
-                    FrameworkConstants.COMMONAUTH);
+            String commonAuthURL = IdentityUtil.getServerURL(FrameworkConstants.COMMONAUTH);
             String selfPath = "/oauth2/authorize";
             AuthenticationRequest authenticationRequest = new AuthenticationRequest();
 
@@ -253,12 +251,7 @@ public class EndpointUtil {
             authenticationRequest.setForceAuth(forceAuthenticate);
             authenticationRequest.setPassiveAuth(checkAuthentication);
             authenticationRequest.setRelyingParty(clientId);
-            try {
-                authenticationRequest.setTenantDomain(OAuth2Util.getTenantDomain(tenantId));
-            } catch (IdentityOAuth2Exception e) {
-                log.error("Error while getting tenant domain from tenant id", e);
-                throw new UnsupportedEncodingException("Error while getting tenant domain from tenant id");
-            }
+            authenticationRequest.setTenantDomain(OAuth2Util.getTenantDomain(tenantId));
             authenticationRequest.setRequestQueryParams(reqParams);
 
             //Build an AuthenticationRequestCacheEntry which wraps AuthenticationRequestContext
@@ -316,11 +309,9 @@ public class EndpointUtil {
 
 
             if (isOIDC) {
-                consentPage = CarbonUIUtil.getAdminConsoleURL("/") +
-                        "../authenticationendpoint/oauth2_consent.do";
+                consentPage = IdentityUtil.getServerURL("/authenticationendpoint/oauth2_consent.do");
             } else {
-                consentPage = CarbonUIUtil.getAdminConsoleURL("/") +
-                        "../authenticationendpoint/oauth2_authz.do";
+                consentPage = IdentityUtil.getServerURL("/authenticationendpoint/oauth2_authz.do");
             }
             if (params != null) {
                 consentPage += "?" + OAuthConstants.OIDC_LOGGED_IN_USER + "=" + URLEncoder.encode(loggedInUser,

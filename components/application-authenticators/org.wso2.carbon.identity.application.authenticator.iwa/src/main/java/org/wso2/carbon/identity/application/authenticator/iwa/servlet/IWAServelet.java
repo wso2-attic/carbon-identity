@@ -23,7 +23,7 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.application.authenticator.iwa.IWAAuthenticator;
 import org.wso2.carbon.identity.application.authenticator.iwa.IWAConstants;
 import org.wso2.carbon.identity.application.authenticator.iwa.IWAServiceDataHolder;
-import org.wso2.carbon.ui.CarbonUIUtil;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import waffle.servlet.AutoDisposableWindowsPrincipal;
 import waffle.servlet.NegotiateSecurityFilter;
 import waffle.servlet.WindowsPrincipal;
@@ -67,8 +67,7 @@ public class IWAServelet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        String commonAuthURL = CarbonUIUtil.getAdminConsoleURL(request);
-        commonAuthURL = commonAuthURL.replace(IWAConstants.IWA_CARBON_ROOT, IWAConstants.COMMON_AUTH_EP);
+        String commonAuthURL = IdentityUtil.getServerURL(IWAConstants.COMMON_AUTH_EP);
         String param = request.getParameter(IWAConstants.IWA_PARAM_STATE);
         if (param == null) {
             throw new IllegalArgumentException(IWAConstants.IWA_PARAM_STATE + " parameter is null.");

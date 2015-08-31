@@ -87,44 +87,37 @@ public class IdentityProviderMgtApplicationListener implements IdentityProviderM
 
     @Override
     public boolean doPostUpdateIdP(String oldIdPName, IdentityProvider identityProvider) throws IdentityProviderManagementException {
-        // Not Implemented
         return true;
     }
 
     @Override
     public boolean doPreUpdateResidentIdP(IdentityProvider identityProvider) throws IdentityProviderManagementException {
-        // Not Implemented
         return true;
 
     }
 
     @Override
     public boolean doPostUpdateResidentIdP(IdentityProvider identityProvider) throws IdentityProviderManagementException {
-        // Not Implemented
         return true;
     }
 
     @Override
     public boolean doPreAddIdP(IdentityProvider identityProvider) throws IdentityProviderManagementException {
-        // Not Implemented
         return true;
     }
 
     @Override
     public boolean doPostAddIdP(IdentityProvider identityProvider) throws IdentityProviderManagementException {
-        // Not Implemented
         return true;
     }
 
     @Override
     public boolean doPreDeleteIdP(String idPName) throws IdentityProviderManagementException {
-        // Not Implemented
         return true;
     }
 
     @Override
     public boolean doPostDeleteIdP(String idPName) throws IdentityProviderManagementException {
-        // Not Implemented
         return true;
     }
 }

@@ -32,9 +32,9 @@ public class SimpleApprovalTemplate extends AbstractWorkflowTemplate {
 
     static {
         TemplateParameterDef roleDef = new TemplateParameterDef();
-        roleDef.setParamName(WorkFlowConstants.TemplateConstants.SIMPLE_APPROVAL_ROLE_NAME);
-        roleDef.setParamType(WorkflowTemplateParamType.USER_ROLE);
-        roleDef.setDisplayName(WorkFlowConstants.TemplateConstants.SIMPLE_APPROVAL_ROLE_DISPLAY_NAME);
+        roleDef.setParamName(WorkFlowConstants.TemplateConstants.SIMPLE_APPROVAL_USER_OR_ROLE_NAME);
+        roleDef.setParamType(WorkflowTemplateParamType.USER_NAME_OR_USER_ROLE);
+        roleDef.setDisplayName(WorkFlowConstants.TemplateConstants.SIMPLE_APPROVAL_USERS_OR_ROLES_DISPLAY_NAME);
         roleDef.setMandatory(true);
         PARAMETER_DEFINITIONS = new TemplateParameterDef[]{roleDef};
     }
