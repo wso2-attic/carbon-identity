@@ -36,6 +36,9 @@
 <%@ page import="java.util.List" %>
 <%@ page import="java.util.Map" %>
 <%@ page import="java.util.ResourceBundle" %>
+<%@ page import="org.wso2.carbon.user.mgt.workflow.ui.UserManagementWorkflowServiceClient" %>
+<%@ page import="java.util.LinkedHashSet" %>
+<%@ page import="java.util.Set" %>
 <script type="text/javascript" src="../userstore/extensions/js/vui.js"></script>
 <script type="text/javascript" src="../admin/js/main.js"></script>
 <jsp:include page="../dialog/display_messages.jsp"/>
@@ -57,6 +60,8 @@
     int noOfPageLinksToDisplay = 5;
     int numberOfPages = 0;
     Map<Integer, PaginatedNamesBean>  flaggedNameMap = null;
+    Set<String> workFlowDeletePendingUsers = null;
+
     if(request.getParameter("pageNumber") == null){
         session.removeAttribute("checkedUsersMap");
     }
@@ -132,8 +137,26 @@
             ConfigurationContext configContext =
                     (ConfigurationContext) config.getServletContext().getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
             UserAdminClient client = new UserAdminClient(cookie, backendServerURL, configContext);
+            UserManagementWorkflowServiceClient UserMgtClient = new
+                    UserManagementWorkflowServiceClient(cookie, backendServerURL, configContext);
             if (filter.length() > 0) {
                 FlaggedName[] data = client.getUsersOfRole(roleName, filter, -1);
+                if (CarbonUIUtil.isContextRegistered(config, "/usermgt-workflow/")) {
+                    String[] DeletePendingRolesList = UserMgtClient.
+                            listAllEntityNames("DELETE_USER", "PENDING", "USER");
+                    workFlowDeletePendingUsers = new LinkedHashSet<String>(Arrays.asList(DeletePendingRolesList));
+                    String pendingStatus = "[Pending User for Delete]";
+                    if (data != null) {
+                        for (int i = 0; i < data.length; i++) {
+                            String updatedStatus = null;
+                            if (workFlowDeletePendingUsers.contains(data[i].getItemName())) {
+                                updatedStatus = data[i].getItemName() + " " + pendingStatus;
+                                data[i].setItemDisplayName(data[i].getItemName());
+                                data[i].setItemName(updatedStatus);
+                            }
+                        }
+                    }
+                }
                 List<FlaggedName> datasList = new ArrayList<FlaggedName>(Arrays.asList(data));
                 exceededDomains = datasList.remove(datasList.size() - 1);
                 session.setAttribute(UserAdminUIConstants.ROLE_LIST_UNASSIGNED_USER_CACHE_EXCEEDED, exceededDomains);
@@ -388,7 +411,21 @@
                                                         doCheck = "checked=\"checked\"";
                                                     }
                                     %>
-                                    <input type="checkbox" name="selectedUsers" value="<%=userName%>" <%=doEdit%> <%=doCheck%>/><%=disPlayName%>
+                                    <input type="checkbox" name="selectedUsers" value="<%=userName%>" <%=doEdit%> <%=doCheck%>/>
+                                    <%
+                                        if (userName.contains("[Pending User for Delete]")) {
+                                    %>
+                                    <%=users[i].getItemDisplayName()%>
+                                    <img src="images/workflow_pending_remove.gif"
+                                         title="Workflow-pending-user-delete"
+                                         alt="Workflow-pending-user-delete" height="15" width="15">
+                                    <%
+                                    } else {
+                                    %>
+                                    <%=disPlayName%>
+                                    <%
+                                        }
+                                    %>
                                     <input type="hidden" name="shownUsers" value="<%=userName%>"/><br/>
                                     <%
                                                 }

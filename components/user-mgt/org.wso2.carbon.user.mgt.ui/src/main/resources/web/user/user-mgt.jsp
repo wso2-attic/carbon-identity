@@ -67,13 +67,13 @@
     int numberOfPages = 0;
     Map<Integer, PaginatedNamesBean> flaggedNameMap = null;
     Set<FlaggedName> workFlowAddPendingUsers = new LinkedHashSet<FlaggedName>();
-    Set<String> workFlowAddPendingUsersList = null;
-    Set<String> workFlowDeletePendingUsers = null;
-    Set<FlaggedName> activeUserList = null;
+    Set<String> workFlowAddPendingUsersList = new LinkedHashSet<String>();
+    Set<String> workFlowDeletePendingUsers = new LinkedHashSet<String>();
+    Set<FlaggedName> activeUserList;
     Set<FlaggedName> showDeletePendingUsers = new LinkedHashSet<FlaggedName>();
     Set<String> showDeletePendingUsersList = new LinkedHashSet<String>();
     Set<FlaggedName> aggregateUserList = new LinkedHashSet<FlaggedName>();
-    String inActiveUserMessage = "No Actions are allowed for the Workflow Pending Users";
+    Set<FlaggedName> removeUserElement = new LinkedHashSet<FlaggedName>();
 
     String BUNDLE = "org.wso2.carbon.userstore.ui.i18n.Resources";
     ResourceBundle resourceBundle = ResourceBundle.getBundle(BUNDLE, request.getLocale());
@@ -208,29 +208,15 @@
                 } else {
                     datas = client.listAllUsers(modifiedFilter, -1);
                 }
-
-                System.out.println("Dataas Start Active users");
-
-                for (FlaggedName f : datas) {
-                    System.out.println(f.getItemName());
-                }
-                System.out.println("-------------------------------------------------");
-
                 if (CarbonUIUtil.isContextRegistered(config, "/usermgt-workflow/")) {
+                    List<FlaggedName> preactiveUserList = new ArrayList<FlaggedName>(Arrays.asList(datas));
+                    FlaggedName excessiveDomainElement = preactiveUserList.remove(datas.length - 1);
+                    removeUserElement.add(excessiveDomainElement);
 
-                    activeUserList = new LinkedHashSet<FlaggedName>(Arrays.asList(datas));
-
-                    System.out.println("Start Active users");
-
-                    for (Iterator<FlaggedName> iterator = activeUserList.iterator(); iterator.hasNext(); ) {
-                        FlaggedName flaggedName = iterator.next();
-                        System.out.println(flaggedName.getItemName());
-                    }
-                    System.out.println("-------------------------------------------------");
+                    activeUserList = new LinkedHashSet<FlaggedName>(preactiveUserList);
 
                     String[] AddPendingUsersList = UserMgtClient.
                             listAllEntityNames("ADD_USER", "PENDING", "USER");
-
                     workFlowAddPendingUsersList = new LinkedHashSet<String>(Arrays.asList(AddPendingUsersList));
 
                     for (String s : AddPendingUsersList) {
@@ -239,7 +225,6 @@
                         flaggedName.setEditable(true);
                         workFlowAddPendingUsers.add(flaggedName);
                     }
-
                     String[] DeletePendingUsersList = UserMgtClient.
                             listAllEntityNames("DELETE_USER", "PENDING", "USER");
                     workFlowDeletePendingUsers = new LinkedHashSet<String>(Arrays.asList(DeletePendingUsersList));
@@ -257,8 +242,9 @@
                         }
                     }
                     aggregateUserList.addAll(activeUserList);
-                    aggregateUserList.addAll(workFlowAddPendingUsers);
                     aggregateUserList.addAll(showDeletePendingUsers);
+                    aggregateUserList.addAll(workFlowAddPendingUsers);
+                    aggregateUserList.addAll(removeUserElement);
                     datas = aggregateUserList.toArray(new FlaggedName[aggregateUserList.size()]);
                 }
 
@@ -269,6 +255,7 @@
                     session.removeAttribute(UserAdminUIConstants.USER_LIST_FILTER);
                     showFilterMessage = true;
                 }
+
                 if (dataList != null) {
                     flaggedNameMap = new HashMap<Integer, PaginatedNamesBean>();
                     int max = pageNumber + cachePages;
@@ -286,7 +273,6 @@
                     users = flaggedNameMap.get(pageNumber).getNames();
                     numberOfPages = flaggedNameMap.get(pageNumber).getNumberOfPages();
                     session.setAttribute(UserAdminUIConstants.USER_LIST_CACHE, flaggedNameMap);
-
                 }
             }
 
@@ -451,35 +437,46 @@
                                 if (disPlayName == null || disPlayName.trim().length() == 0) {
                                     disPlayName = userName;
                                 }
-
                                 if (workFlowAddPendingUsersList.contains(userName)) {
-                                    disPlayName = userName + " " + "[Pending Users for Add]";
                 %>
                 <tr>
                     <td><%=disPlayName%>
                         <%if (!users[i].getEditable()) { %> <%="(Read-Only)"%> <% } %>
+                        <img src="images/workflow_pending_add.gif" title="Workflow-pending-user-add"
+                             alt="Workflow-pending-user-add" height="15" width="15">
                     </td>
                     <td>
-                        <%=inActiveUserMessage%>
+                        <a href="#" class="icon-link" title="Operation is Disabled"
+                           style="background-image:url(../admin/images/edit.gif);color:#CCC;"><fmt:message
+                                key="change.password"/></a>
+
+                        <a href="#" class="icon-link" title="Operation is Disabled"
+                           style="background-image:url(../admin/images/edit.gif);color:#CCC;"><fmt:message
+                                key="edit.roles"/></a>
+
+                        <a href="#" class="icon-link" title="Operation is Disabled"
+                           style="background-image:url(images/view.gif);color:#CCC;"><fmt:message
+                                key="view.roles"/></a>
+
+                        <a href="#" class="icon-link" title="Operation is Disabled"
+                           style="background-image:url(images/delete.gif);color:#CCC;"><fmt:message
+                                key="delete"/></a>
+
+                        <a href="#" class="icon-link" title="Operation is Disabled"
+                           style="background-image:url(../userprofile/images/my-prof.gif);color:#CCC;">User
+                            Profile</a>
                     </td>
                 </tr>
                 <%
-
-                } else if(showDeletePendingUsersList.contains(userName)){
-                    disPlayName = userName + " " + "[Pending Users for Delete]";
+                } else if (showDeletePendingUsersList.contains(userName)) {
                 %>
                 <tr>
                     <td><%=disPlayName%>
                         <%if (!users[i].getEditable()) { %> <%="(Read-Only)"%> <% } %>
+                        <img src="images/workflow_pending_remove.gif" title="Workflow-pending-user-delete"
+                             alt="Workflow-pending-user-delete" height="15" width="15">
                     </td>
                     <td>
-
-                        <%
-                            if (userRealmInfo.getAdminUser().equals(Util.decodeHTMLCharacters(userName)) &&
-                                    !userRealmInfo.getAdminUser().equals(currentUser)) {
-                                continue;
-                            }
-                        %>
                         <%
                             if (!Util.getUserStoreInfoForUser(Util.decodeHTMLCharacters(userName), userRealmInfo).getPasswordsExternallyManaged() &&      // TODO
                                     CarbonUIUtil.isUserAuthorized(request,
@@ -504,17 +501,9 @@
                             }
                         %>
 
-                        <%
-                            if (CarbonUIUtil.isUserAuthorized(request, "/permission/admin/configure/security")) {
-                        %>
-                        <a href="edit-user-roles.jsp?username=<%=
-                        java.net.URLEncoder.encode(userName,"UTF-8")%>&disPlayName=<%=java.net.URLEncoder.encode(disPlayName,"UTF-8")%>"
-                           class="icon-link"
-                           style="background-image:url(../admin/images/edit.gif);"><fmt:message
+                        <a href="#" class="icon-link" title="Operation is Disabled"
+                           style="background-image:url(../admin/images/edit.gif);color:#CCC;"><fmt:message
                                 key="edit.roles"/></a>
-                        <%
-                            }
-                        %>
 
                         <%
                             if (CarbonUIUtil.isUserAuthorized(request, "/permission/admin/configure/security")) {
@@ -527,6 +516,10 @@
                             }
                         %>
 
+                        <a href="#" class="icon-link" title="Operation is Disabled"
+                           style="background-image:url(images/delete.gif);color:#CCC;"><fmt:message
+                                key="delete"/></a>
+
                         <%
                             if (CarbonUIUtil.isContextRegistered(config, "/identity-authorization/") &&
                                     CarbonUIUtil.isUserAuthorized(request, "/permission/admin/configure/security/")) {
@@ -538,7 +531,6 @@
                         <%
                             }
                         %>
-
 
                         <%
                             if (CarbonUIUtil.isContextRegistered(config, "/userprofile/")
@@ -552,21 +544,40 @@
                         <%
                             }
                         %>
-
                     </td>
                 </tr>
                 <%
-                }else {
+                } else {
                 %>
                 <tr>
                     <td><%=disPlayName%>
                         <%if (!users[i].getEditable()) { %> <%="(Read-Only)"%> <% } %>
                     </td>
                     <td>
-
                         <%
                             if (userRealmInfo.getAdminUser().equals(Util.decodeHTMLCharacters(userName)) &&
                                     !userRealmInfo.getAdminUser().equals(currentUser)) {
+                        %>
+                        <a href="#" class="icon-link" title="Operation is Disabled"
+                           style="background-image:url(../admin/images/edit.gif);color:#CCC;"><fmt:message
+                                key="change.password"/></a>
+
+                        <a href="#" class="icon-link" title="Operation is Disabled"
+                           style="background-image:url(../admin/images/edit.gif);color:#CCC;"><fmt:message
+                                key="edit.roles"/></a>
+
+                        <a href="#" class="icon-link" title="Operation is Disabled"
+                           style="background-image:url(images/view.gif);color:#CCC;"><fmt:message
+                                key="view.roles"/></a>
+
+                        <a href="#" class="icon-link" title="Operation is Disabled"
+                           style="background-image:url(images/delete.gif);color:#CCC;"><fmt:message
+                                key="delete"/></a>
+
+                        <a href="#" class="icon-link" title="Operation is Disabled"
+                           style="background-image:url(../userprofile/images/my-prof.gif);color:#CCC;">User
+                            Profile</a>
+                        <%
                                 continue;
                             }
                         %>
@@ -617,7 +628,6 @@
                             }
                         %>
 
-
                         <%
                             if (CarbonUIUtil.isUserAuthorized(request,
                                     "/permission/admin/configure/security/usermgt/users") && !Util.decodeHTMLCharacters(userName).equals(currentUser)
@@ -629,10 +639,15 @@
                            style="background-image:url(images/delete.gif);"><fmt:message
                                 key="delete"/></a>
                         <%
+                        } else if (Util.decodeHTMLCharacters(userName).equals(currentUser) ||
+                                Util.decodeHTMLCharacters(userName).equals(userRealmInfo.getAdminUser())) {
+                        %>
+                        <a href="#" class="icon-link" title="Operation is Disabled"
+                           style="background-image:url(images/delete.gif);color:#CCC;"><fmt:message
+                                key="delete"/></a>
+                        <%
                             }
                         %>
-
-
                         <%
                             if (CarbonUIUtil.isContextRegistered(config, "/identity-authorization/") &&
                                     CarbonUIUtil.isUserAuthorized(request, "/permission/admin/configure/security/")) {
@@ -644,7 +659,6 @@
                         <%
                             }
                         %>
-
 
                         <%
                             if (CarbonUIUtil.isContextRegistered(config, "/userprofile/")
@@ -669,7 +683,6 @@
                         }
                     }
                 %>
-
                 </tbody>
             </table>
             <carbon:paginator pageNumber="<%=pageNumber%>"
