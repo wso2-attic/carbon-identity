@@ -54,7 +54,7 @@ public class FIDOAdminService {
         try {
             return u2FService.startRegistration(user).toJson();
         } catch (FIDOAuthenticatorServerException e) {
-          log.error("Error occurred while initiating device registration for User : " + user.getUsername(), e);
+          log.error("Error occurred while initiating device registration for User : " + user.getUserName(), e);
             throw new FIDOAuthenticatorClientException("Error occurred while initiating device registration");
         }
 
@@ -73,7 +73,7 @@ public class FIDOAdminService {
         try {
             u2FService.finishRegistration(user);
         } catch (FIDOAuthenticatorServerException e) {
-            log.error("Error occurred while finishing device registration for User : " + user.getUsername(), e);
+            log.error("Error occurred while finishing device registration for User : " + user.getUserName(), e);
             throw new FIDOAuthenticatorClientException("Error occurred while finishing device registration");
         }
     }
@@ -89,7 +89,7 @@ public class FIDOAdminService {
         try {
             u2FService.removeAllRegistrations(user);
         } catch (FIDOAuthenticatorServerException e) {
-            log.error("Error occurred while deleting all registered device for User : " + user.getUsername(), e);
+            log.error("Error occurred while deleting all registered device for User : " + user.getUserName(), e);
             throw new FIDOAuthenticatorClientException("Error occurred while deleting all registered device for user");
         }
     }
@@ -99,7 +99,7 @@ public class FIDOAdminService {
         try {
             u2FService.removeRegistration(user, deviceRemarks);
         } catch (FIDOAuthenticatorServerException e) {
-            log.error("Error occurred while deleting registered device for User : " + user.getUsername(), e);
+            log.error("Error occurred while deleting registered device for User : " + user.getUserName(), e);
             throw new FIDOAuthenticatorClientException("Error occurred while deleting registered device");
         }
     }
@@ -116,7 +116,7 @@ public class FIDOAdminService {
         try {
             return u2FService.isDeviceRegistered(user);
         } catch (FIDOAuthenticatorServerException e) {
-            log.error("Error occurred while getting device registration status for User : " + user.getUsername(), e);
+            log.error("Error occurred while getting device registration status for User : " + user.getUserName(), e);
             throw new FIDOAuthenticatorClientException("Error occurred while getting device registration status");
         }
     }
@@ -132,7 +132,7 @@ public class FIDOAdminService {
             return new String[0];
         }catch (FIDOAuthenticatorServerException e){
 
-            log.error("Error occurred while getting registered device metadata list for User : " + user.getUsername(), e);
+            log.error("Error occurred while getting registered device metadata list for User : " + user.getUserName(), e);
             throw  new FIDOAuthenticatorClientException("Error occurred while getting registered device metadata list");
         }
     }

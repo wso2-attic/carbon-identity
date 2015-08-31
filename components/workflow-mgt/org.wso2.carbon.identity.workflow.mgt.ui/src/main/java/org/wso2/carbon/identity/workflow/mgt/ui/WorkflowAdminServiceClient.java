@@ -24,16 +24,18 @@ import org.apache.axis2.client.ServiceClient;
 import org.apache.axis2.context.ConfigurationContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.identity.workflow.mgt.stub.bean.WorkflowRequestAssociationDTO;
+import org.wso2.carbon.identity.workflow.mgt.stub.bean.WorkflowRequestDTO;
 import org.wso2.carbon.identity.workflow.mgt.stub.WorkflowAdminServiceStub;
 import org.wso2.carbon.identity.workflow.mgt.stub.WorkflowAdminServiceWorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.stub.bean.AssociationDTO;
-import org.wso2.carbon.identity.workflow.mgt.stub.bean.BPSProfileBean;
-import org.wso2.carbon.identity.workflow.mgt.stub.bean.Parameter;
+import org.wso2.carbon.identity.workflow.mgt.stub.bean.BPSProfileDTO;
+import org.wso2.carbon.identity.workflow.mgt.stub.bean.ParameterDTO;
 import org.wso2.carbon.identity.workflow.mgt.stub.bean.TemplateBean;
 import org.wso2.carbon.identity.workflow.mgt.stub.bean.TemplateDTO;
 import org.wso2.carbon.identity.workflow.mgt.stub.bean.TemplateImplDTO;
 import org.wso2.carbon.identity.workflow.mgt.stub.bean.TemplateParameterDef;
-import org.wso2.carbon.identity.workflow.mgt.stub.bean.WorkflowBean;
+import org.wso2.carbon.identity.workflow.mgt.stub.bean.WorkflowDTO;
 import org.wso2.carbon.identity.workflow.mgt.stub.bean.WorkflowEventDTO;
 
 import java.rmi.RemoteException;
@@ -105,31 +107,81 @@ public class WorkflowAdminServiceClient {
         return templateImplDTO;
     }
 
-    public void addWorkflow(String workflowName, String description, String templateName, String templateImplName,
-                            List<Parameter> templateParams, List<Parameter> templateImplParams)
+    /**
+     * Add new workflow
+     *
+     * @param workflowDTO
+     * @param templateParams
+     * @param templateImplParams
+     * @throws RemoteException
+     * @throws WorkflowAdminServiceWorkflowException
+     */
+    public void addWorkflow(WorkflowDTO workflowDTO, List<ParameterDTO> templateParams,
+                            List<ParameterDTO> templateImplParams)
             throws RemoteException, WorkflowAdminServiceWorkflowException {
 
-        stub.addWorkflow(workflowName, description, templateName, templateImplName, templateParams.toArray(new
-                        Parameter[templateParams.size()]),
-                templateImplParams.toArray(new Parameter[templateImplParams.size()]));
+        stub.addWorkflow(workflowDTO, templateParams.toArray(new
+                                                                     ParameterDTO[templateParams.size()]),
+                         templateImplParams.toArray(new ParameterDTO[templateImplParams.size()]));
 
     }
 
-    public void addBPSProfile(String profileName, String host, String user, String password, String callbackUser,
-                              String callbackPassword)
+    /**
+     * Add new BPS profile
+     *
+     * @param bpsProfileDTO
+     * @throws RemoteException
+     * @throws WorkflowAdminServiceWorkflowException
+     */
+    public void addBPSProfile(BPSProfileDTO bpsProfileDTO)
             throws RemoteException, WorkflowAdminServiceWorkflowException {
 
-//        String[] splittedPw = password.split("(?!^)");
-        stub.addBPSProfile(profileName, host, user, password, callbackUser, callbackPassword);
+        stub.addBPSProfile(bpsProfileDTO);
     }
 
-    public BPSProfileBean[] listBPSProfiles() throws RemoteException, WorkflowAdminServiceWorkflowException {
 
-        BPSProfileBean[] bpsProfiles = stub.listBPSProfiles();
+    /**
+     * Retrieve BPS Profiles
+     *
+     * @return
+     * @throws RemoteException
+     * @throws WorkflowAdminServiceWorkflowException
+     */
+    public BPSProfileDTO[] listBPSProfiles() throws RemoteException, WorkflowAdminServiceWorkflowException {
+
+        BPSProfileDTO[] bpsProfiles = stub.listBPSProfiles();
         if (bpsProfiles == null) {
-            bpsProfiles = new BPSProfileBean[0];
+            bpsProfiles = new BPSProfileDTO[0];
         }
         return bpsProfiles;
+    }
+
+    /**
+     * Get BPS Profile detail for given profile name
+     *
+     * @param profileName
+     * @return
+     * @throws RemoteException
+     * @throws WorkflowAdminServiceWorkflowException
+     */
+    public BPSProfileDTO getBPSProfiles(String profileName)
+            throws RemoteException, WorkflowAdminServiceWorkflowException {
+
+        BPSProfileDTO bpsProfile = stub.getBPSProfile(profileName);
+        return bpsProfile;
+    }
+
+    /**
+     * Update BPS Profile
+     *
+     * @param bpsProfileDTO
+     * @throws RemoteException
+     * @throws WorkflowAdminServiceWorkflowException
+     */
+    public void updateBPSProfile(BPSProfileDTO bpsProfileDTO)
+            throws RemoteException, WorkflowAdminServiceWorkflowException {
+
+        stub.updateBPSProfile(bpsProfileDTO);
     }
 
     public void deleteBPSProfile(String profileName) throws RemoteException, WorkflowAdminServiceWorkflowException {
@@ -137,11 +189,18 @@ public class WorkflowAdminServiceClient {
         stub.removeBPSProfile(profileName);
     }
 
-    public WorkflowBean[] listWorkflows() throws RemoteException, WorkflowAdminServiceWorkflowException {
+    /**
+     * Retrieve Workflows
+     *
+     * @return
+     * @throws RemoteException
+     * @throws WorkflowAdminServiceWorkflowException
+     */
+    public WorkflowDTO[] listWorkflows() throws RemoteException, WorkflowAdminServiceWorkflowException {
 
-        WorkflowBean[] workflows = stub.listWorkflows();
+        WorkflowDTO[] workflows = stub.listWorkflows();
         if (workflows == null) {
-            workflows = new WorkflowBean[0];
+            workflows = new WorkflowDTO[0];
         }
         return workflows;
     }
@@ -181,9 +240,66 @@ public class WorkflowAdminServiceClient {
         stub.addAssociation(associationName, workflowId, eventId, condition);
     }
 
+    /**
+     * Enable association to allow to execute
+     *
+     * @param associationId
+     * @throws RemoteException
+     * @throws WorkflowAdminServiceWorkflowException
+     */
+    public void enableAssociation(String associationId)
+            throws RemoteException, WorkflowAdminServiceWorkflowException {
+
+        stub.changeAssociationState(associationId, true);
+    }
+
+    /**
+     * Disable association to avoid with execution of the workflows
+     *
+     * @param associationId
+     * @throws RemoteException
+     * @throws WorkflowAdminServiceWorkflowException
+     */
+    public void disableAssociation(String associationId)
+            throws RemoteException, WorkflowAdminServiceWorkflowException {
+
+        stub.changeAssociationState(associationId,false);
+    }
+
     public WorkflowEventDTO getEvent(String id) throws RemoteException {
 
         return stub.getEvent(id);
+    }
+
+    public WorkflowRequestDTO[] getRequestsCreatedByUser(String user, String beginDate, String endDate, String
+            dateCategory) throws RemoteException, WorkflowAdminServiceWorkflowException {
+
+        WorkflowRequestDTO[] requestDTOs = stub.getRequestsCreatedByUser(user, beginDate, endDate, dateCategory);
+        if (requestDTOs == null) {
+            requestDTOs = new WorkflowRequestDTO[0];
+        }
+        return requestDTOs;
+
+    }
+
+    public WorkflowRequestDTO[] getAllRequests(String beginDate, String endDate, String dateCategory) throws
+            RemoteException, WorkflowAdminServiceWorkflowException {
+
+        WorkflowRequestDTO[] requestDTOs = stub.getRequestsInFilter(beginDate, endDate, dateCategory);
+        if (requestDTOs == null) {
+            requestDTOs = new WorkflowRequestDTO[0];
+        }
+        return requestDTOs;
+    }
+
+    public void deleteRequest(String requestId) throws WorkflowAdminServiceWorkflowException, RemoteException {
+        stub.deleteWorkflowRequest(requestId);
+    }
+
+    public WorkflowRequestAssociationDTO[] getWorkflowsOfRequest(String requestId) throws
+            WorkflowAdminServiceWorkflowException, RemoteException {
+
+        return stub.getWorkflowsOfRequest(requestId);
     }
 
 }

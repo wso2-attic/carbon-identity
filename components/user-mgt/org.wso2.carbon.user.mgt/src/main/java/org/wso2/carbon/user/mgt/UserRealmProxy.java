@@ -19,10 +19,12 @@
 package org.wso2.carbon.user.mgt;
 
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.context.CarbonContext;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.registry.api.Registry;
 import org.wso2.carbon.registry.api.RegistryException;
 import org.wso2.carbon.registry.api.Resource;
@@ -442,16 +444,29 @@ public class UserRealmProxy {
                 flaggedNames.add(fName);
             }
 
+            String filteredDomain = null;
             // get hybrid roles
+            if (filter.contains(CarbonConstants.DOMAIN_SEPARATOR)) {
+                filteredDomain = filter.split(CarbonConstants.DOMAIN_SEPARATOR)[0];
+            }
+
             if (filter.startsWith(UserCoreConstants.INTERNAL_DOMAIN + CarbonConstants.DOMAIN_SEPARATOR)) {
                 filter = filter.substring(filter.indexOf(CarbonConstants.DOMAIN_SEPARATOR) + 1);
             }
+
             String[] hybridRoles = ((AbstractUserStoreManager) userStoreMan).getHybridRoles(filter);
 
             for (String hybridRole : hybridRoles) {
+                if (filteredDomain != null && !hybridRole.startsWith(filteredDomain)) {
+                    continue;
+                }
                 FlaggedName fName = new FlaggedName();
                 fName.setItemName(hybridRole);
-                fName.setRoleType(UserMgtConstants.INTERNAL_ROLE);
+                if (hybridRole.startsWith(UserCoreConstants.INTERNAL_DOMAIN)) {
+                    fName.setRoleType(UserMgtConstants.INTERNAL_ROLE);
+                } else {
+                    fName.setRoleType(UserMgtConstants.APPLICATION_DOMAIN);
+                }
                 fName.setEditable(true);
                 flaggedNames.add(fName);
             }
@@ -530,7 +545,9 @@ public class UserRealmProxy {
                 userRealmInfo.setEveryOneRole(realmConfig.getEveryOneRoleName());
                 ClaimMapping[] defaultClaims = realm.getClaimManager().
                         getAllClaimMappings(UserCoreConstants.DEFAULT_CARBON_DIALECT);
-
+                if (ArrayUtils.isNotEmpty(defaultClaims)) {
+                    Arrays.sort(defaultClaims, new ClaimMappingsComparator());
+                }
                 List<String> fullClaimList = new ArrayList<String>();
                 List<String> requiredClaimsList = new ArrayList<String>();
                 List<String> defaultClaimList = new ArrayList<String>();
@@ -652,6 +669,9 @@ public class UserRealmProxy {
             info.setBulkImportSupported(this.isBulkImportSupported());
             info.setDomainName(realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME));
 
+            boolean caseSensitiveUsername = IdentityUtil.isUserStoreCaseSensitive(manager);
+
+            info.setCaseSensitiveUsername(caseSensitiveUsername);
             return info;
         } catch (UserStoreException e) {
             // previously logged so logging not needed
@@ -1014,7 +1034,8 @@ public class UserRealmProxy {
             String domain = domainProvided ? roleName.substring(0, index) : null;
 
             if (domain != null && filter != null && !filter.toLowerCase().startsWith(domain.toLowerCase()) &&
-                    !UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domain)) {
+                !(UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domain)
+                  || UserMgtConstants.APPLICATION_DOMAIN.equalsIgnoreCase(domain))) {
                 filter = domain + "/" + filter;
             }
 
@@ -1057,7 +1078,8 @@ public class UserRealmProxy {
                         fName.setItemName(anUsersOfRole);
                         fName.setItemDisplayName(anUsersOfRole);
                     }
-                    if (domain != null && !UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domain)) {
+                    if (domain != null && !(UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domain)
+                                            || UserMgtConstants.APPLICATION_DOMAIN.equalsIgnoreCase(domain))) {
                         if (usMan.getSecondaryUserStoreManager(domain) != null &&
                                 (usMan.getSecondaryUserStoreManager(domain).isReadOnly() ||
                                         FALSE.equals(usMan.getSecondaryUserStoreManager(domain).getRealmConfiguration().
@@ -1139,7 +1161,8 @@ public class UserRealmProxy {
                     //if only user name is present
                     fName.setItemName(userNames[i]);
                 }
-                if (domain != null && !UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domain)) {
+                if (domain != null && !(UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domain) ||
+                                        UserMgtConstants.APPLICATION_DOMAIN.equalsIgnoreCase(domain))) {
                     if (usMan.getSecondaryUserStoreManager(domain) != null &&
                             (usMan.getSecondaryUserStoreManager(domain).isReadOnly() ||
                                     FALSE.equals(usMan.getSecondaryUserStoreManager(domain).getRealmConfiguration().
@@ -2252,5 +2275,13 @@ public class UserRealmProxy {
         System.arraycopy(o2, 0, ret, o1.length, o2.length);
 
         return ret;
+    }
+
+    private class ClaimMappingsComparator implements Comparator<ClaimMapping> {
+
+        @Override
+        public int compare(ClaimMapping o1, ClaimMapping o2) {
+            return o1.getClaim().getClaimUri().compareTo(o2.getClaim().getClaimUri());
+        }
     }
 }
