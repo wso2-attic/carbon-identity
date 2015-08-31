@@ -36,6 +36,9 @@
 <%@ page import="java.util.List" %>
 <%@ page import="java.util.Map" %>
 <%@ page import="java.util.ResourceBundle" %>
+<%@ page import="org.wso2.carbon.user.mgt.workflow.ui.UserManagementWorkflowServiceClient" %>
+<%@ page import="java.util.LinkedHashSet" %>
+<%@ page import="java.util.Set" %>
 <script type="text/javascript" src="../userstore/extensions/js/vui.js"></script>
 <script type="text/javascript" src="../admin/js/main.js"></script>
 <jsp:include page="../dialog/display_messages.jsp"/>
@@ -56,12 +59,14 @@
     int cachePages = 3;
     int noOfPageLinksToDisplay = 5;
     int numberOfPages = 0;
-    Map<Integer, PaginatedNamesBean> flaggedNameMap = null;
-    if (request.getParameter("pageNumber") == null) {
+    Map<Integer, PaginatedNamesBean>  flaggedNameMap = null;
+    Set<String> workFlowDeletePendingUsers = null;
+
+    if(request.getParameter("pageNumber") == null){
         session.removeAttribute("checkedUsersMap");
     }
-    if (session.getAttribute("checkedUsersMap") == null) {
-        session.setAttribute("checkedUsersMap", new HashMap<String, Boolean>());
+    if(session.getAttribute("checkedUsersMap") == null){
+        session.setAttribute("checkedUsersMap",new HashMap<String,Boolean>());
     }
 
     // search filter
@@ -79,11 +84,11 @@
 
     String roleName = request.getParameter("roleName");
 
-    String readOnlyRoleString = request.getParameter(UserAdminUIConstants.ROLE_READ_ONLY);
-    if (readOnlyRoleString == null) {
+    String readOnlyRoleString  = request.getParameter(UserAdminUIConstants.ROLE_READ_ONLY);
+    if(readOnlyRoleString == null){
         readOnlyRoleString = (String) session.getAttribute(UserAdminUIConstants.ROLE_READ_ONLY);
     }
-    if ("true".equals(readOnlyRoleString)) {
+    if("true".equals(readOnlyRoleString)){
         readOnlyRole = true;
     }
 
@@ -105,59 +110,77 @@
 
     boolean useCache = false;
 
-    if (prevRole != null && prevRole.equals(roleName)) {
+    if(prevRole != null && prevRole.equals(roleName) ){
         useCache = true;
-    } else if (prevRole != null) {
-        session.setAttribute("previousRole", roleName);
+    } else if(prevRole!=null){
+        session.setAttribute("previousRole",roleName);
     }
-    if (useCache) {
-        flaggedNameMap = (Map<Integer, PaginatedNamesBean>) session.getAttribute(
-                UserAdminUIConstants.ROLE_LIST_UNASSIGNED_USER_CACHE);
-        if (flaggedNameMap != null) {
-            PaginatedNamesBean bean = flaggedNameMap.get(pageNumber);
-            if (bean != null) {
-                users = bean.getNames();
-                if (users != null && users.length > 0) {
-                    numberOfPages = bean.getNumberOfPages();
-                    doUserList = false;
-                }
-            }
-        }
-    }
-    if (doUserList || newFilter) {
+   if(useCache) {
+       flaggedNameMap = (Map<Integer, PaginatedNamesBean>) session.
+               getAttribute(UserAdminUIConstants.ROLE_LIST_UNASSIGNED_USER_CACHE);
+       if (flaggedNameMap != null) {
+           PaginatedNamesBean bean = flaggedNameMap.get(pageNumber);
+           if (bean != null) {
+               users = bean.getNames();
+               if (users != null && users.length > 0) {
+                   numberOfPages = bean.getNumberOfPages();
+                   doUserList = false;
+               }
+           }
+       }
+   }
+    if(doUserList || newFilter){
         try {
             String cookie = (String) session.getAttribute(ServerConstants.ADMIN_SERVICE_COOKIE);
             String backendServerURL = CarbonUIUtil.getServerURL(config.getServletContext(), session);
             ConfigurationContext configContext =
-                    (ConfigurationContext) config.getServletContext()
-                                                 .getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
+                    (ConfigurationContext) config.getServletContext().getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
             UserAdminClient client = new UserAdminClient(cookie, backendServerURL, configContext);
+            UserManagementWorkflowServiceClient UserMgtClient = new
+                    UserManagementWorkflowServiceClient(cookie, backendServerURL, configContext);
             if (filter.length() > 0) {
                 FlaggedName[] data = client.getUsersOfRole(roleName, filter, -1);
+                if (CarbonUIUtil.isContextRegistered(config, "/usermgt-workflow/")) {
+                    String[] DeletePendingRolesList = UserMgtClient.
+                            listAllEntityNames("DELETE_USER", "PENDING", "USER");
+                    workFlowDeletePendingUsers = new LinkedHashSet<String>(Arrays.asList(DeletePendingRolesList));
+                    String pendingStatus = "[Pending User for Delete]";
+                    if (data != null) {
+                        for (int i = 0; i < data.length; i++) {
+                            String updatedStatus = null;
+                            if (workFlowDeletePendingUsers.contains(data[i].getItemName())) {
+                                updatedStatus = data[i].getItemName() + " " + pendingStatus;
+                                data[i].setItemDisplayName(data[i].getItemName());
+                                data[i].setItemName(updatedStatus);
+                            }
+                        }
+                    }
+                }
                 List<FlaggedName> datasList = new ArrayList<FlaggedName>(Arrays.asList(data));
                 exceededDomains = datasList.remove(datasList.size() - 1);
                 session.setAttribute(UserAdminUIConstants.ROLE_LIST_UNASSIGNED_USER_CACHE_EXCEEDED, exceededDomains);
                 if (datasList != null) {
                     List<FlaggedName> nameList = new ArrayList<FlaggedName>();
-                    for (FlaggedName value : datasList) {
-                        if (!value.getSelected()) {
+                    for(FlaggedName value : datasList){
+                        if(!value.getSelected()){
                             nameList.add(value);
                         }
                     }
                     datasList = nameList;
                 }
 
-                if (datasList != null && datasList.size() > 0) {
+                if(datasList != null && datasList.size() > 0){
                     flaggedNameMap = new HashMap<Integer, PaginatedNamesBean>();
                     int max = pageNumber + cachePages;
-                    for (int i = (pageNumber - cachePages); i < max; i++) {
-                        if (i < 0) {
+                    for(int i = (pageNumber - cachePages); i < max ; i++){
+                        if(i < 0){
                             max++;
                             continue;
                         }
-                        PaginatedNamesBean bean = Util.retrievePaginatedFlaggedName(i,datasList);
+                        PaginatedNamesBean bean  =  Util.
+                            retrievePaginatedFlaggedName(i,datasList);
                         flaggedNameMap.put(i, bean);
-                        if (bean.getNumberOfPages() == i + 1) {
+                        if(bean.getNumberOfPages() == i + 1){
                             break;
                         }
                     }
@@ -395,16 +418,26 @@
                                                             doCheck = "checked=\"checked\"";
                                                         }
                                         %>
-                                        <input type="checkbox" name="selectedUsers"
-                                               value="<%=Encode.forHtmlAttribute(userName)%>" <%=doEdit%> <%=doCheck%>/>
+                                    <input type="checkbox" name="selectedUsers" value="<%=Encode.forHtmlAttribute(userName)%>" <%=doEdit%> <%=doCheck%>/>
+                                    <%
+                                        if (userName.contains("[Pending User for Delete]")) {
+                                    %>
+                                    <%=Encode.forHtml(users[i].getItemDisplayName())%>
+                                    <img src="images/workflow_pending_remove.gif"
+                                         title="Workflow-pending-user-delete"
+                                         alt="Workflow-pending-user-delete" height="15" width="15">
+                                    <%
+                                    } else {
+                                    %>
                                         <%=Encode.forHtml(disPlayName)%>
-                                        <input type="hidden" name="shownUsers"
-                                               value="<%=Encode.forHtmlAttribute(userName)%>"/><br/>
-                                        <%
-                                                    }
+                                    <%
+                                        }
+                                    %>
+                                    <input type="hidden" name="shownUsers" value="<%=Encode.forHtmlAttribute(userName)%>"/><br/>
+                                    <%
                                                 }
                                             }
-
+                                        }
                                         %>
                                     </td>
                                 </tr>
@@ -437,9 +470,6 @@
                                             arg += " and ";
                                         }
                                     }
-                                    message = resourceBundle.getString("more.users.others").replace("{0}", arg);
-                                } else {
-                                    message = resourceBundle.getString("more.users.primary");
                                 }
                 %>
                 <strong><%=Encode.forHtml(message)%>
