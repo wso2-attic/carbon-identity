@@ -329,7 +329,7 @@
 
             resultTable = '<table class="styledLeft noBorders" id="userTable"><thead>';
             resultTable += '<tr>';
-            resultTable += '<th>Select</th>';
+            resultTable += '<th width="50px">Select</th>';
             resultTable += '<th>UserName</th>';
             resultTable += '</tr>';
             resultTable += '</thead>';
@@ -347,7 +347,7 @@
             resultTable += '</table>';
             resultTable += '<table>';
             resultTable += '<tr>';
-            resultTable += '<td colspan="2" align="left"><input type="button" value="Add Selected Items" name="addItems" onclick="addSelectedItems();" /></td>';
+            resultTable += '<td colspan="2" align="left"><a class="icon-link"  style="background-image:url(images/add.png);margin-left:0" onclick="addSelectedItems();"><fmt:message key='workflow.template.button.add.users'/></a></td>';
             resultTable += '</tr>';
             resultTable += '</table>';
 
@@ -355,7 +355,7 @@
 
             resultTable = '<table class="styledLeft noBorders" id="userTable"><thead>';
             resultTable += '<tr>';
-            resultTable += '<th>Select</th>';
+            resultTable += '<th width="50px">Select</th>';
             resultTable += '<th>RoleName</th>';
             resultTable += '</tr>';
             resultTable += '</thead>';
@@ -373,7 +373,54 @@
             resultTable += '</table>';
             resultTable += '<table>';
             resultTable += '<tr>';
-            resultTable += '<td colspan="2" align="left"><input type="button" value="Add Selected Items" name="addItems" onclick="addSelectedItems();" /></td>';
+            resultTable += '<td colspan="2" align="left"><a class="icon-link"  style="background-image:url(images/add.png);margin-left:0" onclick="addSelectedItems();"><fmt:message key='workflow.template.button.add.roles'/></a></td>';
+            resultTable += '</tr>';
+            resultTable += '</table>';
+
+        }
+
+        $('#'+resultHolder).append(resultTable);
+    }
+
+
+
+
+    function updateEmptyResultView(){
+
+        $('#'+navigatorHolder).empty();
+        $('#'+resultHolder).empty();
+
+
+        var category = $("input[name=radio_user_role]:checked").val();
+
+        var resultTable = "" ;
+        if(category == "users"){
+
+            resultTable = '<table class="styledLeft noBorders" id="userTable"><thead>';
+            resultTable += '<tr>';
+            resultTable += '<th width="50px">Select</th>';
+            resultTable += '<th>UserName</th>';
+            resultTable += '</tr>';
+            resultTable += '</thead>';
+            resultTable += '</table>';
+            resultTable += '<table>';
+            resultTable += '<tr>';
+            resultTable += '<td colspan="2" align="left"><a class="icon-link"  style="background-image:url(images/add.png);margin-left:0" onclick="addSelectedItems();"><fmt:message key='workflow.template.button.add.users'/></a></td>';
+            resultTable += '</tr>';
+            resultTable += '</table>';
+
+        }else if(category == "roles"){
+
+            resultTable = '<table class="styledLeft noBorders" id="userTable"><thead>';
+            resultTable += '<tr>';
+            resultTable += '<th width="50px">Select</th>';
+            resultTable += '<th>RoleName</th>';
+            resultTable += '</tr>';
+            resultTable += '</thead>';
+            resultTable += '</table>';
+            resultTable += '<table>';
+            resultTable += '<tr>';
+            resultTable += '<td colspan="2" align="left"><a class="icon-link"  style="background-image:url(images/add.png);margin-left:0" onclick="addSelectedItems();"><fmt:message key='workflow.template.button.add.roles'/></a></td>';
             resultTable += '</tr>';
             resultTable += '</table>';
 
@@ -393,18 +440,20 @@
 
     function changeCategory(category,init){
 
-        $('#'+navigatorHolder).empty();
-        $('#'+resultHolder).empty();
+        updateEmptyResultView();
 
         if(category == "users"){
             $("#id_claim_attribute").show();
             $("#id_search_button").val('<fmt:message key="user.search"/>');
             $("#id_pattern_category").html('<fmt:message key="list.users"/>');
+            $("#id_filter").attr('name','<%=UserAdminUIConstants.USER_LIST_FILTER%>');
+
 
         }else{
             $("#id_claim_attribute").hide();
             $("#id_search_button").val('<fmt:message key="role.search"/>');
             $("#id_pattern_category").html('<fmt:message key="list.roles"/>');
+            $("#id_filter").attr('name','<%=UserAdminUIConstants.ROLE_LIST_FILTER%>');
         }
 
 
@@ -582,8 +631,8 @@
 
                 <h2  class="triggerIn" style="background-color: floralwhite;">
                     <div class="LargeHeader">
-                        <input onclick="changeCategory('roles',false);" type="radio" id="id_radio_role" name="radio_user_role" value="roles"><label for="id_radio_role"><img  style="margin-top:  5px; margin-right:3px" src="images/user-roles.gif"><fmt:message key="role.search"/></label>
-                        <input onclick="changeCategory('users',false);" type="radio" id="id_radio_user" name="radio_user_role" value="users" checked="checked"><label for="id_radio_user"><img style="margin-top:  5px; margin-right:3px" src="images/users.gif"><fmt:message key="user.search"/></label>
+                        <input onclick="changeCategory('roles',false);" type="radio" id="id_radio_role" name="radio_user_role" value="roles" checked="checked"><label for="id_radio_role"><img  style="margin-top:  5px; margin-right:3px" src="images/user-roles.gif"><fmt:message key="role.search"/></label>
+                        <input onclick="changeCategory('users',false);" type="radio" id="id_radio_user" name="radio_user_role" value="users"><label for="id_radio_user"><img style="margin-top:  5px; margin-right:3px" src="images/users.gif"><fmt:message key="user.search"/></label>
                     </div>
                 </h2>
 
@@ -619,7 +668,7 @@
                         <tr>
                             <td id="id_pattern_category" class="leftCol-big" style="padding-right: 0 !important;"><fmt:message key="list.users"/></td>
                             <td>
-                                <input type="text" name="<%=UserAdminUIConstants.USER_LIST_FILTER%>"
+                                <input id="id_filter" type="text" name="<%=UserAdminUIConstants.USER_LIST_FILTER%>"
                                        value="<%=filter%>"/>
 
                                 <input id="id_search_button" onclick="search();" class="button" type="button"
@@ -651,22 +700,19 @@
                         </tr>
                         </tbody>
                     </table>
+                    <div id="result">
+
+                    </div>
+                    <div id="navigator">
+
+                    </div>
                 </div>
 
 
             </form>
             <p>&nbsp;</p>
 
-            <div>
-            <div id="result">
 
-            </div>
-            <div id="navigator">
-
-            </div>
-
-
-        </div>
     </div>
 
 
