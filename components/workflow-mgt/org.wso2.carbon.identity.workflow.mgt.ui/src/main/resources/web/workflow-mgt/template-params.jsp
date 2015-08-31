@@ -204,11 +204,23 @@
                                                             '<a class="step_order_header" href="#">Step '+stepOrder+'</a>' +
                                                             '<a onclick="deleteStep(this);return false;" href="#" class="icon-link" style="background-image: url(images/delete.gif);float:right;width: 9px;"></a>' +
                                                         '</h2>' +
-                                                          '<table style="width:100%;">' +
-                                                              '<tr><td colspan="2" id="search_step_head_'+stepOrder+'"></td></tr>' +
-                                                              '<tr><td width="40px">Roles</td><td onclick="moveSearchController(\''+stepOrder+'\',\'roles\', false);"><input   name="p-step-'+stepOrder+'-roles" id="p-step-'+stepOrder+'-roles"  type="text" class="tokenizer_'+stepOrder+'"/></td></tr>' +
-                                                              '<tr><td>Users</td><td onclick="moveSearchController(\''+stepOrder+'\',\'users\', false);"><input  name="p-step-'+stepOrder+'-users" id="p-step-'+stepOrder+'-users" type="text" class="tokenizer_'+stepOrder+'"/></td></tr>' +
-                                                          '</table>' +
+                                                            '<table style="width:100%;">' +
+                                                                '<tr><td id="search_step_head_'+stepOrder+'"></td></tr>' +
+                                                                '<tr id="id_step_roles_'+stepOrder+'" style="display:none;">' +
+                                                                    '<td style="width:100%;">' +
+                                                                        '<table  style="width:100%;">' +
+                                                                            '<tr><td width="40px">Roles</td><td onclick="moveSearchController(\''+stepOrder+'\',\'roles\', false);"><input   name="p-step-'+stepOrder+'-roles" id="p-step-'+stepOrder+'-roles"  type="text" class="tokenizer_'+stepOrder+'"/></td></tr>' +
+                                                                        '</table>' +
+                                                                    '</td>' +
+                                                                '</tr>' +
+                                                              '<tr id="id_step_users_'+stepOrder+'" style="width:100%;display:none;">' +
+                                                                  '<td style="width:100%;">' +
+                                                                      '<table style="width:100%;">' +
+                                                                            '<tr><td width="40px">Users</td><td onclick="moveSearchController(\''+stepOrder+'\',\'users\', false);"><input  name="p-step-'+stepOrder+'-users" id="p-step-'+stepOrder+'-users" type="text" class="tokenizer_'+stepOrder+'"/></td></tr>' +
+                                                                      '</table>' +
+                                                                  '</td>' +
+                                                              '</tr>' +
+                                                            '</table>' +
                                                       '</div>'));
 
                 //Move search component to selected step
@@ -277,8 +289,11 @@
 
 
         function getSelectedItems(allList, category){
+
             if(allList!=null && allList.length!=0) {
                 var currentStep = $("#currentstep").val();
+
+                $("#id_step_"+category+"_" + currentStep).show();
                 var currentValues = $("#p-step-" + currentStep + "-" + category).val();
                 for(var i=0;i<allList.length;i++) {
                     var newItem = allList[i];
@@ -350,6 +365,10 @@
 
             </br>
 
+            <%
+                }else{
+            %>
+                <p><fmt:message key='workflow.template'/> : <%= template %></p>
             <%
                 }
             %>
@@ -498,13 +517,11 @@
             <input type="hidden" id="currentstep" name="currentstep" value=""/>
             <div id="id_user_search">
                 <jsp:include page="../search/user-role-search.jsp">
-                    <jsp:param name="navigator-holder" value="id-result-holder"/>
-                    <jsp:param name="result-holder" value="id-navigator-holder"/>
                     <jsp:param name="function-get-all-items" value="getSelectedItems"/>
                 </jsp:include>
             </div>
-            <div id="id-result-holder"></div>
-            <div id="id-navigator-holder"></div>
+            <!--div id="id-result-holder"></div>
+            <div id="id-navigator-holder"></div-->
         </div>
     </div>
 
