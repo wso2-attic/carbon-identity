@@ -22,6 +22,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.CarbonContext;
+import org.wso2.carbon.identity.application.authentication.framework.store.SessionContextDO;
 import org.wso2.carbon.identity.application.authentication.framework.store.SessionDataStore;
 import org.wso2.carbon.identity.application.common.cache.BaseCache;
 import org.wso2.carbon.identity.application.common.cache.CacheEntry;
@@ -86,13 +87,13 @@ public class SessionContextCache extends BaseCache<String, CacheEntry> {
         }
         if (cacheEntry == null) {
             String keyValue = ((SessionContextCacheKey) key).getContextId();
-            SessionContextCacheEntry sessionEntry = (SessionContextCacheEntry) SessionDataStore.getInstance().
-                    getSessionData(keyValue, SESSION_CONTEXT_CACHE_NAME);
+            SessionContextDO sessionContextDO = SessionDataStore.getInstance().
+                    getSessionContextData(keyValue, SESSION_CONTEXT_CACHE_NAME);
+
+            SessionContextCacheEntry sessionEntry = (SessionContextCacheEntry) sessionContextDO.getEntry();
             Timestamp currentTimestamp = new java.sql.Timestamp(new java.util.Date().getTime());
             if (sessionEntry != null && sessionEntry.getContext().isRememberMe() &&
-                    (currentTimestamp.getTime() - SessionDataStore.getInstance().getTimeStamp(keyValue,
-                            SESSION_CONTEXT_CACHE_NAME)
-                            .getTime() <=
+                        (currentTimestamp.getTime() - sessionContextDO.getTimestamp().getTime() <=
                             IdPManagementUtil.getRememberMeTimeout(CarbonContext.getThreadLocalCarbonContext()
                                     .getTenantDomain())*60*1000)) {
                 cacheEntry = sessionEntry;
