@@ -205,6 +205,10 @@
             </form>
 
             <%
+            }else{
+            %>
+                <p><fmt:message key='workflow.deployment.type'/> : <%= templateImpl %></p>
+            <%
                 }
             %>
 
