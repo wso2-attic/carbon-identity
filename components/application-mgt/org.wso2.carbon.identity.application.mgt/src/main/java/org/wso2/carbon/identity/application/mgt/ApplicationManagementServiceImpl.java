@@ -24,6 +24,7 @@ import org.apache.axis2.description.AxisService;
 import org.apache.axis2.description.Parameter;
 import org.apache.axis2.engine.AxisConfiguration;
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.rahas.impl.SAMLTokenIssuerConfig;
@@ -67,6 +68,7 @@ import org.wso2.carbon.utils.ServerConstants;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -113,7 +115,15 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
             List<ApplicationMgtListener> listeners = ApplicationMgtListenerServiceComponent.getListners();
 
             for (ApplicationMgtListener listener : listeners) {
-                listener.createApplication(serviceProvider);
+                if(!listener.doPreCreateApplication(serviceProvider)){
+                    return -1;
+                }
+            }
+
+            for (ApplicationMgtListener listener : listeners) {
+                if(!listener.doPostCreateApplication(serviceProvider)){
+                    return -1;
+                }
             }
 
             // first we need to create a role with the application name.
@@ -199,7 +209,15 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
             // invoking the listeners
             List<ApplicationMgtListener> listeners = ApplicationMgtListenerServiceComponent.getListners();
             for (ApplicationMgtListener listener : listeners) {
-                listener.updateApplication(serviceProvider);
+                if(!listener.doPreUpdateApplication(serviceProvider)){
+                    return;
+                }
+            }
+
+            for (ApplicationMgtListener listener : listeners) {
+                if(!listener.doPostUpdateApplication(serviceProvider)){
+                    return;
+                }
             }
 
             // check whether use is authorized to update the application.
@@ -224,7 +242,7 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
                     .getRegistry(RegistryType.USER_GOVERNANCE);
 
             boolean exist = tenantGovReg.resourceExists(applicationNode);
-            if (exist && !storedAppName.equals(serviceProvider.getApplicationName())) {
+            if (exist && !StringUtils.equals(storedAppName, serviceProvider.getApplicationName())) {
                 ApplicationMgtUtil.renameAppPermissionPathNode(storedAppName, serviceProvider.getApplicationName());
             }
 
@@ -284,13 +302,21 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
             List<ApplicationMgtListener> listeners = ApplicationMgtListenerServiceComponent.getListners();
 
             for (ApplicationMgtListener listener : listeners) {
-                listener.deleteApplication(applicationName);
+                if(!listener.doPreDeleteApplication(applicationName)){
+                    return;
+                }
             }
 
             if (!ApplicationMgtUtil.isUserAuthorized(applicationName)) {
                 log.warn("Illegal Access! User " + CarbonContext.getThreadLocalCarbonContext().getUsername() +
                          " does not have access to the application " + applicationName);
                 throw new IdentityApplicationManagementException("User not authorized");
+            }
+
+            for (ApplicationMgtListener listener : listeners) {
+                if(!listener.doPostDeleteApplication(applicationName)){
+                    return;
+                }
             }
 
             ApplicationDAO appDAO = ApplicationMgtSystemConfig.getInstance().getApplicationDAO();
@@ -451,7 +477,11 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
             for (ClaimMapping claimMap : claimMappings) {
                 claimUris.add(claimMap.getClaim().getClaimUri());
             }
-            return claimUris.toArray(new String[claimUris.size()]);
+            String[] allLocalClaimUris = (claimUris.toArray(new String[claimUris.size()]));
+            if (ArrayUtils.isNotEmpty(allLocalClaimUris)) {
+                Arrays.sort(allLocalClaimUris);
+            }
+            return allLocalClaimUris;
         } catch (Exception e) {
             String error = "Error while reading system claims";
             log.error(error, e);
