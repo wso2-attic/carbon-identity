@@ -18,11 +18,9 @@
 
 package org.wso2.carbon.idp.mgt.dao;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
-import org.wso2.carbon.identity.application.common.model.FederatedAuthenticatorConfig;
 import org.wso2.carbon.identity.application.common.model.IdentityProvider;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
 import org.wso2.carbon.idp.mgt.cache.IdPAuthPropertyCacheKey;
@@ -536,50 +534,6 @@ public class CacheBackedIdPMgtDAO {
             throws IdentityApplicationManagementException {
 
         return idPMgtDAO.isSimilarIdPEntityIdsAvailble(idPEntityId, tenantId);
-    }
-
-    /**
-     * @param dbConnection
-     * @param idpName
-     * @param tenantId
-     * @param tenantDomain
-     * @return
-     * @throws IdentityApplicationManagementException
-     */
-    public FederatedAuthenticatorConfig getFederatedAuthenticatorConfig(Connection dbConnection, String idpName,
-                                                                        int tenantId, String tenantDomain)
-            throws IdentityApplicationManagementException {
-
-        FederatedAuthenticatorConfig federatedAuthenticatorConfig = null;
-
-        if (StringUtils.isNotEmpty(idpName)) {
-            IdPNameCacheKey idPNameCacheKey = new IdPNameCacheKey(
-                    idpName, tenantDomain);
-            IdPCacheEntry cacheEntry = (IdPCacheEntry) idPCacheByName.getValueFromCache(idPNameCacheKey);
-            if (cacheEntry != null && cacheEntry.getIdentityProvider().getDefaultAuthenticatorConfig() != null) {
-                return cacheEntry.getIdentityProvider().getDefaultAuthenticatorConfig();
-            }
-            IdentityProvider newIdentityProvider = idPMgtDAO.getIdPByName(dbConnection, idpName, tenantId, tenantDomain);
-            if (newIdentityProvider != null) {
-                idPCacheByName.addToCache(idPNameCacheKey, new IdPCacheEntry(newIdentityProvider));
-                if (newIdentityProvider.getHomeRealmId() != null) {
-                    IdPHomeRealmIdCacheKey idPHomeRealmIdCacheKey = new IdPHomeRealmIdCacheKey(
-                            newIdentityProvider.getHomeRealmId(), tenantDomain);
-                    idPCacheByHRI.addToCache(idPHomeRealmIdCacheKey,
-                            new IdPCacheEntry(newIdentityProvider));
-                }
-                primaryIdPs.put(tenantDomain, newIdentityProvider);
-                if (IdentityApplicationConstants.RESIDENT_IDP_RESERVED_NAME.equals(
-                        newIdentityProvider.getIdentityProviderName())) {
-                    residentIdPs.put(tenantDomain, newIdentityProvider);
-                }
-                if (newIdentityProvider.getDefaultAuthenticatorConfig() != null) {
-                    federatedAuthenticatorConfig = newIdentityProvider.getDefaultAuthenticatorConfig();
-                }
-            }
-        }
-
-        return federatedAuthenticatorConfig;
     }
 
 }
