@@ -251,8 +251,6 @@
 
     }
 
-        }
-
         function doPaginate(page, pageNumberParameterName, pageNumber) {
             var form = document.createElement("form");
             form.setAttribute("method", "POST");
@@ -456,13 +454,13 @@
                                               <% if(!userRealmInfo.getAdminRole().equals(name.getItemName())) {%>
                                                   <a style="background-image:url(images/edit.gif);"
                                                      class="icon-link"
-                                                     href="../role/edit-permissions.jsp?roleName=<%=Encode.forUriComponent(name.getItemName())%>&prevPage=edit&prevUser=<%=URLEncoder.encode(userName,"UTF-8")%>&prevPageNumber=<%=pageNumber%>"><fmt:message key="edit.permissions"/>
+                                                     href="../role/edit-permissions.jsp?roleName=<%=Encode.forUriComponent(name.getItemName())%>&prevPage=edit&prevUser=<%=Encode.forUriComponent(name.getItemName())%>&prevPageNumber=<%=pageNumber%>"><fmt:message key="edit.permissions"/>
                                                   </a>
                                               <% } %>
                                               <% if(!userRealmInfo.getEveryOneRole().equals(name.getItemName())) {%>
                                                   <a style="background-image:url(images/view.gif);"
                                                      class="icon-link"
-                                                     href="../role/view-users.jsp?roleName=<%=Encode.forUriComponent(name.getItemName())%>&prevPage=edit&prevUser=<%=URLEncoder.encode(userName,"UTF-8")%>&prevPageNumber=<%=pageNumber%>&<%=UserAdminUIConstants.ROLE_READ_ONLY%>=<%if (!name.getEditable()) { %>true<% }else{ %>false<% } %>"><fmt:message key="view.users"/>
+                                                     href="../role/view-users.jsp?roleName=<%=Encode.forUriComponent(name.getItemName())%>&prevPage=edit&prevUser=<%=Encode.forUriComponent(name.getItemName())%>&prevPageNumber=<%=pageNumber%>&<%=UserAdminUIConstants.ROLE_READ_ONLY%>=<%if (!name.getEditable()) { %>true<% }else{ %>false<% } %>"><fmt:message key="view.users"/>
                                                   </a>
                                               <% } %>
                                           </td>
