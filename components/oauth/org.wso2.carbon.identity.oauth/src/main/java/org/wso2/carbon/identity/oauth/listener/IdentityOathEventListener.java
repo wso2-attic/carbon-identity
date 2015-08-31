@@ -21,6 +21,8 @@ package org.wso2.carbon.identity.oauth.listener;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
+import org.wso2.carbon.identity.core.AbstractIdentityUserOperationEventListener;
+import org.wso2.carbon.identity.core.model.IdentityErrorMsgContext;
 import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.oauth.OAuthUtil;
@@ -28,9 +30,12 @@ import org.wso2.carbon.identity.oauth2.IdentityOAuth2Exception;
 import org.wso2.carbon.identity.oauth2.dao.TokenMgtDAO;
 import org.wso2.carbon.identity.oauth2.model.AccessTokenDO;
 import org.wso2.carbon.identity.oauth2.util.OAuth2Util;
-import org.wso2.carbon.user.core.common.AbstractUserOperationEventListener;
+import org.wso2.carbon.user.core.UserCoreConstants;
+import org.wso2.carbon.user.core.UserStoreException;
+import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -38,7 +43,7 @@ import java.util.Set;
  * additional operations
  * for some of the core user management operations
  */
-public class IdentityOathEventListener extends AbstractUserOperationEventListener {
+public class IdentityOathEventListener extends AbstractIdentityUserOperationEventListener {
     private static final Log log = LogFactory.getLog(IdentityOathEventListener.class);
 
     /**
@@ -46,7 +51,7 @@ public class IdentityOathEventListener extends AbstractUserOperationEventListene
      */
     @Override
     public int getExecutionOrderId() {
-        int orderId = IdentityUtil.readEventListenerOrderIDs("UserOperationEventListener", "org.wso2.carbon.identity.oauth.listener.IdentityOathEventListener");
+        int orderId = getOrderId(IdentityOathEventListener.class.getName());
         if (orderId != IdentityCoreConstants.EVENT_LISTENER_ORDER_ID) {
             return orderId;
         }
@@ -61,6 +66,44 @@ public class IdentityOathEventListener extends AbstractUserOperationEventListene
                                    org.wso2.carbon.user.core.UserStoreManager userStoreManager)
             throws org.wso2.carbon.user.core.UserStoreException {
 
+        if (!isEnable(this.getClass().getName())) {
+            return true;
+        }
+        return revokeTokens(username, userStoreManager);
+
+    }
+
+    @Override
+    public boolean doPostSetUserClaimValues(String userName, Map<String, String> claims, String profileName,
+                                            UserStoreManager userStoreManager) {
+
+        if (!isEnable(this.getClass().getName())) {
+            return true;
+        }
+        return revokeTokensOfLockedUser(userName, userStoreManager);
+    }
+
+    @Override
+    public boolean doPostAuthenticate(String userName, boolean authenticated, UserStoreManager userStoreManager)
+            throws UserStoreException {
+
+        if (!isEnable(this.getClass().getName())) {
+            return true;
+        }
+        return revokeTokensOfLockedUser(userName, userStoreManager);
+    }
+
+    private boolean revokeTokensOfLockedUser(String userName, UserStoreManager userStoreManager){
+
+        IdentityErrorMsgContext errorContext = IdentityUtil.getIdentityErrorMsg();
+
+        if (errorContext != null && errorContext.getErrorCode() == UserCoreConstants.ErrorCode.USER_IS_LOCKED){
+            return revokeTokens(userName, userStoreManager);
+        }
+        return true;
+    }
+
+    private boolean revokeTokens(String username, UserStoreManager userStoreManager){
         TokenMgtDAO tokenMgtDAO = new TokenMgtDAO();
 
         String userStoreDomain = UserCoreUtil.getDomainName(userStoreManager.getRealmConfiguration());

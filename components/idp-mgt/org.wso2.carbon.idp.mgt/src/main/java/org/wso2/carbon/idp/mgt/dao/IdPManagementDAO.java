@@ -22,7 +22,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.base.MultitenantConstants;
-import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
 import org.wso2.carbon.identity.application.common.model.Claim;
 import org.wso2.carbon.identity.application.common.model.ClaimConfig;
 import org.wso2.carbon.identity.application.common.model.ClaimMapping;
@@ -1272,7 +1271,17 @@ public class IdPManagementDAO {
             }
 
             prepStmt.setString(4, CharacterEncoder.getSafeText(identityProvider.getHomeRealmId()));
+
+            if (StringUtils.isNotBlank(identityProvider.getCertificate())) {
+                try {
+                    IdentityApplicationManagementUtil.getCertData(identityProvider.getCertificate());
+                } catch (CertificateException ex) {
+                    String msg = "Malformed Public Certificate file has been provided.";
+                    throw new IdentityApplicationManagementException(msg, ex);
+                }
+            }
             setBlobValue(identityProvider.getCertificate(), prepStmt, 5);
+
             prepStmt.setString(6, CharacterEncoder.getSafeText(identityProvider.getAlias()));
 
             if (identityProvider.getJustInTimeProvisioningConfig() != null
@@ -1454,7 +1463,17 @@ public class IdPManagementDAO {
             }
 
             prepStmt.setString(3, CharacterEncoder.getSafeText(newIdentityProvider.getHomeRealmId()));
+
+            if (StringUtils.isNotBlank(newIdentityProvider.getCertificate())) {
+                try {
+                    IdentityApplicationManagementUtil.getCertData(newIdentityProvider.getCertificate());
+                } catch (CertificateException ex) {
+                    String msg = "Malformed Public Certificate file has been provided.";
+                    throw new IdentityApplicationManagementException(msg, ex);
+                }
+            }
             setBlobValue(newIdentityProvider.getCertificate(), prepStmt, 4);
+
             prepStmt.setString(5, CharacterEncoder.getSafeText(newIdentityProvider.getAlias()));
 
             if (newIdentityProvider.getJustInTimeProvisioningConfig() != null

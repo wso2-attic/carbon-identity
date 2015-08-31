@@ -39,7 +39,7 @@ import org.wso2.carbon.identity.application.authentication.framework.util.Framew
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkUtils;
 import org.wso2.carbon.identity.application.common.model.ClaimMapping;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
-import org.wso2.carbon.ui.CarbonUIUtil;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -154,8 +154,7 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
                 String callbackurl = getCallbackUrl(authenticatorProperties);
 
                 if (callbackurl == null) {
-                    callbackurl = CarbonUIUtil.getAdminConsoleURL(request);
-                    callbackurl = callbackurl.replace("commonauth/carbon/", "commonauth");
+                    callbackurl = IdentityUtil.getServerURL(FrameworkConstants.COMMONAUTH);
                 }
 
                 String state = context.getContextIdentifier() + ","
@@ -265,8 +264,7 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
             String callbackurl = getCallbackUrl(authenticatorProperties);
 
             if (callbackurl == null) {
-                callbackurl = CarbonUIUtil.getAdminConsoleURL(request);
-                callbackurl = callbackurl.replace("commonauth/carbon/", "commonauth");
+                callbackurl = IdentityUtil.getServerURL(FrameworkConstants.COMMONAUTH);
             }
 
             @SuppressWarnings({"unchecked"})

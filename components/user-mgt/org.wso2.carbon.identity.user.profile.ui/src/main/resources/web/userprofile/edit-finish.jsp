@@ -16,43 +16,52 @@
  ~ under the License.
  -->
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
-<%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar"
-    prefix="carbon"%>
-<%@page import="org.apache.axis2.context.ConfigurationContext"%>
-<%@page import="org.wso2.carbon.CarbonConstants"%>
-<%@page import="org.wso2.carbon.identity.user.profile.stub.types.UserFieldDTO"%>
-<%@page import="org.wso2.carbon.identity.user.profile.stub.types.UserProfileDTO"%>
-<%@page import="org.wso2.carbon.identity.user.profile.ui.client.UserProfileCient"%>
-<%@page import="org.wso2.carbon.ui.CarbonUIMessage"%>
-<%@page import="org.wso2.carbon.ui.CarbonUIUtil"%>
-<%@page import="org.wso2.carbon.ui.util.CharacterEncoder"%>
-<%@page import="org.wso2.carbon.user.mgt.ui.Util"%>
-<%@ page import="org.wso2.carbon.utils.ServerConstants" %>
-<%@page import="java.net.URLEncoder"%><script type="text/javascript" src="extensions/js/vui.js"></script>
+<%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar" prefix="carbon"%>
+<%@ page import="org.apache.axis2.context.ConfigurationContext"%>
+<%@ page import="org.apache.commons.lang.StringUtils"%>
+<%@ page import="org.wso2.carbon.CarbonConstants"%>
+<%@ page import="org.wso2.carbon.identity.user.profile.stub.types.UserFieldDTO"%>
+<%@ page import="org.wso2.carbon.identity.user.profile.stub.types.UserProfileDTO"%>
+<%@ page import="org.wso2.carbon.identity.user.profile.ui.client.UserProfileCient"%>
+<%@ page import="org.wso2.carbon.ui.CarbonUIMessage"%>
+<%@ page import="org.wso2.carbon.ui.CarbonUIUtil"%>
+<%@ page import="org.wso2.carbon.ui.util.CharacterEncoder"%>
+<%@ page import="org.wso2.carbon.user.mgt.ui.Util" %>
+<%@ page import="org.wso2.carbon.utils.ServerConstants"%><script type="text/javascript" src="extensions/js/vui.js"></script>
+<%@ page import="java.net.URLEncoder"%>
+<%@ page import="java.text.MessageFormat" %>
+<%@ page import="java.util.ResourceBundle" %>
+<jsp:include page="../dialog/display_messages.jsp" />
 <script type="text/javascript" src="../extensions/core/js/vui.js"></script>
 <script type="text/javascript" src="../admin/js/main.js"></script>
 
-<jsp:include page="../dialog/display_messages.jsp" />
-<%@ page import="java.text.MessageFormat"%>
-<%@ page import="java.util.ResourceBundle" %>
-
 <%
-	String profile = CharacterEncoder.getSafeText(request.getParameter("profile"));
+    String BUNDLE = "org.wso2.carbon.identity.user.profile.ui.i18n.Resources";
+    ResourceBundle resourceBundle = ResourceBundle.getBundle(BUNDLE, request.getLocale());
     String username = CharacterEncoder.getSafeText(request.getParameter("username"));
+    String profile = CharacterEncoder.getSafeText(request.getParameter("profile"));
     String profileConfiguration = request.getParameter("profileConfiguration");
+    String fromUserMgt = request.getParameter("fromUserMgt");
+    String noOfProfiles = request.getParameter("noOfProfiles");
+    if(StringUtils.isBlank(username) || StringUtils.isBlank(profile)){
+        String message = MessageFormat.format(resourceBundle.getString("error.while.updating.profile"), null);
+        CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
+%>
+        <script type="text/javascript">
+            location.href = "../user/user-mgt.jsp?ordinal=1";
+        </script>
+<%
+        return;
+    }
 	UserFieldDTO[] fieldDTOs = null;
 	String forwardTo = null;
-	String BUNDLE = "org.wso2.carbon.identity.user.profile.ui.i18n.Resources";
-	ResourceBundle resourceBundle = ResourceBundle.getBundle(BUNDLE, request.getLocale());
-	String fromUserMgt = (String) request.getParameter("fromUserMgt");
-    String noOfProfiles = request.getParameter("noOfProfiles");
-    if (noOfProfiles == null) {
+    if (StringUtils.isBlank(noOfProfiles)) {
         noOfProfiles = "0";
     }
-    
-    if (fromUserMgt==null) fromUserMgt = "false";
+    if (StringUtils.isBlank(fromUserMgt)) {
+        fromUserMgt = "false";
+    }
 
-    
     try {
         String cookie = (String) session.getAttribute(ServerConstants.ADMIN_SERVICE_COOKIE);
         String backendServerURL = CarbonUIUtil.getServerURL(config.getServletContext(), session);
@@ -87,13 +96,13 @@
             } else {
                 forwardTo ="index.jsp?username="+ URLEncoder.encode(username)+"&fromUserMgt="+fromUserMgt;
             }
-        }else{
+        } else {
         	forwardTo ="index.jsp?region=region5&item=userprofiles_menu&ordinal=0";        	
         }
 
     } catch (Exception e) {
-        String message = MessageFormat.format(resourceBundle.getString(
-                "error.while.updating.user.profile"), Util.decodeHTMLCharacters(username), e.getMessage());
+        String message = MessageFormat.format(resourceBundle.getString("error.while.updating.profile.user"),
+                Util.decodeHTMLCharacters(username), e.getMessage());
     	CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
         forwardTo = "edit.jsp?username=" + URLEncoder.encode(username) + "&profile=" + profile + "&fromUserMgt=true&noOfProfiles=" + noOfProfiles;
     }

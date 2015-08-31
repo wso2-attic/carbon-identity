@@ -18,13 +18,11 @@
 
 package org.wso2.carbon.idp.mgt;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.core.AbstractAdmin;
-import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
 import org.wso2.carbon.identity.application.common.model.FederatedAuthenticatorConfig;
 import org.wso2.carbon.identity.application.common.model.IdentityProvider;
 import org.wso2.carbon.identity.application.common.model.ProvisioningConnectorConfig;
@@ -34,7 +32,6 @@ import org.wso2.carbon.idp.mgt.util.IdPManagementConstants;
 import org.wso2.carbon.user.api.ClaimMapping;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class IdentityProviderManagementService extends AbstractAdmin {
@@ -47,7 +44,7 @@ public class IdentityProviderManagementService extends AbstractAdmin {
      * Retrieves resident Identity provider for the logged-in tenant
      *
      * @return <code>IdentityProvider</code>
-     * @throws IdentityApplicationManagementException Error when getting Resident Identity Provider
+     * @throws IdentityProviderManagementException Error when getting Resident Identity Provider
      */
     public IdentityProvider getResidentIdP() throws IdentityProviderManagementException {
 
@@ -61,7 +58,7 @@ public class IdentityProviderManagementService extends AbstractAdmin {
      * Updated resident Identity provider for the logged-in tenant
      *
      * @param identityProvider <code>IdentityProvider</code>
-     * @throws IdentityApplicationManagementException Error when getting Resident Identity Provider
+     * @throws IdentityProviderManagementException Error when getting Resident Identity Provider
      */
     public void updateResidentIdP(IdentityProvider identityProvider)
             throws IdentityProviderManagementException {

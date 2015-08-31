@@ -24,6 +24,7 @@ import java.util.Set;
 public class WorkFlowConstants {
 
     public static final String WF_STATUS_NO_MATCHING_EXECUTORS = "NO_MATCHING_EXECUTOR";
+    public static final String DEFAULT_BPS_PROFILE = "embedbps";
 
     public static final Set<Class> NUMERIC_CLASSES;
 
@@ -41,8 +42,8 @@ public class WorkFlowConstants {
     public static class TemplateConstants {
 
         public static final String APPROVAL_TEMPLATE_ID = "SimpleApproval";
-        public static final String SIMPLE_APPROVAL_ROLE_NAME = "RoleName";
-        public static final String SIMPLE_APPROVAL_ROLE_DISPLAY_NAME = "Role to Authorize the Request";
+        public static final String SIMPLE_APPROVAL_USER_OR_ROLE_NAME = "UserNameOrRoleName";
+        public static final String SIMPLE_APPROVAL_USERS_OR_ROLES_DISPLAY_NAME = "Users or Roles to Authorize the Request";
 
         public static final String IMMEDIATE_DENY_TEMPLATE_ID = "ImmediateDeny";
 

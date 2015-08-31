@@ -24,6 +24,7 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.base.ServerConfigurationException;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.util.IdentityConfigParser;
+import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -84,7 +85,7 @@ public class JDBCPersistenceManager {
             }
 
             OMElement dataSourceElem = persistenceManagerConfigElem.getFirstChildWithName(
-                    new QName(IdentityConfigParser.IDENTITY_DEFAULT_NAMESPACE, "DataSource"));
+                    new QName(IdentityCoreConstants.IDENTITY_DEFAULT_NAMESPACE, "DataSource"));
 
             if (dataSourceElem == null) {
                 String errorMsg = "DataSource Element is not available for JDBC Persistence " +
@@ -95,7 +96,7 @@ public class JDBCPersistenceManager {
             }
 
             OMElement dataSourceNameElem = dataSourceElem.getFirstChildWithName(
-                    new QName(IdentityConfigParser.IDENTITY_DEFAULT_NAMESPACE, "Name"));
+                    new QName(IdentityCoreConstants.IDENTITY_DEFAULT_NAMESPACE, "Name"));
 
             if (dataSourceNameElem != null) {
                 String dataSourceName = dataSourceNameElem.getText();

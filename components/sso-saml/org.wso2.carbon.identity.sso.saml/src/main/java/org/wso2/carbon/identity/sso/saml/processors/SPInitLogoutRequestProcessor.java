@@ -35,6 +35,7 @@ import org.wso2.carbon.identity.sso.saml.dto.SingleLogoutRequestDTO;
 import org.wso2.carbon.identity.sso.saml.session.SSOSessionPersistenceManager;
 import org.wso2.carbon.identity.sso.saml.session.SessionInfoData;
 import org.wso2.carbon.identity.sso.saml.util.SAMLSSOUtil;
+import org.wso2.carbon.user.api.UserStoreException;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -168,7 +169,7 @@ public class SPInitLogoutRequestProcessor {
 
                     // Validate 'Destination'
                     String idpUrl = IdentityUtil.getProperty(IdentityConstants.ServerConfig.SSO_IDP_URL);
-                    if(StringUtils.isBlank(idpUrl)) {
+                    if (StringUtils.isBlank(idpUrl)) {
                         idpUrl = IdentityUtil.getServerURL(SAMLSSOConstants.SAMLSSO_URL);
                     }
 
@@ -246,11 +247,21 @@ public class SPInitLogoutRequestProcessor {
             }
 
             return reqValidationResponseDTO;
-        } catch (Exception e) {
+        } catch (UserStoreException | IdentityException e) {
             throw new IdentityException("Error Processing the Logout Request", e);
         }
     }
 
+    /**
+     * Builds the SAML error response and sets the compressed value to the reqValidationResponseDTO
+     *
+     * @param id
+     * @param status
+     * @param statMsg
+     * @param destination
+     * @return
+     * @throws IdentityException
+     */
     private SAMLSSOReqValidationResponseDTO buildErrorResponse(String id, String status, String statMsg,
                                                                String destination) throws IdentityException{
         SAMLSSOReqValidationResponseDTO reqValidationResponseDTO = new SAMLSSOReqValidationResponseDTO();
