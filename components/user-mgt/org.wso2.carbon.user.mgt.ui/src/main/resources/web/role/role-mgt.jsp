@@ -440,9 +440,8 @@
                     </td>
                     <td>
                         <%if(!data.getShared()){ %>
-                        <% if(data.getItemName().equals(userRealmInfo.getAdminRole()) == false && data.getItemName().equals(userRealmInfo.getEveryOneRole()) == false && data.getEditable()){%>
-                        <a href="#" onclick="updateUserGroup('<%=Encode.forJavaScriptAttribute(roleName)%>')" class="icon-link" style="background-image:url(images/edit.gif);"><fmt:message key="rename"/></a>
-                        <% }  %>
+                        <a href="#" class="icon-link" title="Operation is Disabled"
+                           style="background-image:url(images/edit.gif);color:#CCC;"><fmt:message key="rename"/></a>
                         <% if(!data.getItemName().equals(userRealmInfo.getAdminRole())) {%>
                         <a href="edit-permissions.jsp?roleName=<%=Encode.forUriComponent(roleName)%>" class="icon-link" style="background-image:url(images/edit.gif);"><fmt:message key="edit.permissions"/></a>
                         <% }
