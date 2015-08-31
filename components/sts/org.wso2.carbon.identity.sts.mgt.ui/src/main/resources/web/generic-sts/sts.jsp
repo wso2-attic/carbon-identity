@@ -16,19 +16,19 @@
   ~ under the License.
   --%>
 
-<%@page import="org.wso2.carbon.base.MultitenantConstants"%>
+<%@page import="org.apache.axis2.context.ConfigurationContext"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar" prefix="carbon" %>
-<%@page import="org.wso2.carbon.identity.sts.mgt.stub.service.util.xsd.TrustedServiceData" %>
-<%@ page import="org.wso2.carbon.identity.sts.mgt.ui.client.CarbonSTSClient" %>
+<%@page import="org.wso2.carbon.CarbonConstants" %>
+<%@ page import="org.wso2.carbon.base.MultitenantConstants" %>
+<%@ page import="org.wso2.carbon.identity.sts.mgt.stub.service.util.xsd.TrustedServiceData" %>
+
+
+<%@page import="org.wso2.carbon.identity.sts.mgt.ui.client.CarbonSTSClient" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
-
-
-<%@page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@ page import="org.wso2.carbon.utils.CarbonUtils" %>
 <%@ page import="org.wso2.carbon.utils.NetworkUtils" %>
-<%@ page import="org.wso2.carbon.CarbonConstants" %>
-<%@ page import="org.apache.axis2.context.ConfigurationContext" %>
+<%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 
 
 <jsp:include page="../dialog/display_messages.jsp"/>

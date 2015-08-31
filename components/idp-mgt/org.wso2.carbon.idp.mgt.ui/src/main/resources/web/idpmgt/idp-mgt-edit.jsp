@@ -17,15 +17,16 @@
 -->
 
 <%@page import="org.apache.axis2.context.ConfigurationContext" %>
+<%@page import="org.apache.commons.lang.StringUtils" %>
 <%@page import="org.wso2.carbon.CarbonConstants" %>
 <%@page import="org.wso2.carbon.identity.application.common.model.CertData" %>
 <%@page import="org.wso2.carbon.identity.application.common.model.idp.xsd.Claim" %>
 <%@page import="org.wso2.carbon.identity.application.common.model.idp.xsd.ClaimMapping" %>
-<%@page import="org.wso2.carbon.identity.application.common.model.idp.xsd.FederatedAuthenticatorConfig" %>
 
-<%@page import="org.wso2.carbon.identity.application.common.model.idp.xsd.IdentityProvider" %>
+<%@page import="org.wso2.carbon.identity.application.common.model.idp.xsd.FederatedAuthenticatorConfig" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="carbon" uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar" %>
+<%@ page import="org.wso2.carbon.identity.application.common.model.idp.xsd.IdentityProvider" %>
 <%@ page import="org.wso2.carbon.identity.application.common.model.idp.xsd.Property" %>
 <%@ page import="org.wso2.carbon.identity.application.common.model.idp.xsd.ProvisioningConnectorConfig" %>
 <%@ page import="org.wso2.carbon.identity.application.common.model.idp.xsd.RoleMapping" %>
@@ -35,12 +36,11 @@
 <%@ page import="org.wso2.carbon.idp.mgt.ui.util.IdPManagementUIUtil" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
 <%@ page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
+<%@ page import="org.wso2.carbon.user.core.util.UserCoreUtil" %>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@ page import="java.util.HashMap" %>
 <%@ page import="java.util.List" %>
 <%@ page import="java.util.Map" %>
-<%@ page import="org.apache.commons.lang.StringUtils" %>
-<%@ page import="org.wso2.carbon.user.core.util.UserCoreUtil" %>
 <link href="css/idpmgt.css" rel="stylesheet" type="text/css" media="all"/>
 
 <carbon:breadcrumb label="identity.providers" resourceBundle="org.wso2.carbon.idp.mgt.ui.i18n.Resources"
@@ -731,8 +731,7 @@
         oidcQueryParam = "";
     }
     if (idPAlias == null) {
-        idPAlias = IdPManagementUIUtil.getOAuth2TokenEPURL(request);
-        ;
+        idPAlias = tokenUrl;
     }
     String provisionStaticDropdownDisabled = "";
     String provisionDynamicDropdownDisabled = "";
@@ -766,9 +765,6 @@
             openIdDefaultDisabled = "disabled=\'disabled\'";
         }
     }
-    if (openIdUrl == null) {
-        openIdUrl = IdPManagementUIUtil.getOpenIDUrl(request);
-    }
     String saml2SSOEnabledChecked = "";
     String saml2SSODefaultDisabled = "";
     if (identityProvider != null) {
@@ -790,9 +786,6 @@
     }
     if (spEntityId == null) {
         spEntityId = "";
-    }
-    if (ssoUrl == null) {
-        ssoUrl = IdPManagementUIUtil.getSAML2SSOUrl(request);
     }
     String authnRequestSignedChecked = "";
     if (identityProvider != null) {
@@ -853,12 +846,6 @@
             oidcDefaultDisabled = "disabled=\'disabled\'";
         }
     }
-    if (authzUrl == null) {
-        authzUrl = IdPManagementUIUtil.getOAuth2AuthzEPURL(request);
-    }
-    if (tokenUrl == null) {
-        tokenUrl = IdPManagementUIUtil.getOAuth2TokenEPURL(request);
-    }
     if (clientId == null) {
         clientId = "";
     }
@@ -883,9 +870,6 @@
     }
     if (passiveSTSRealm == null) {
         passiveSTSRealm = "";
-    }
-    if (passiveSTSUrl == null) {
-        passiveSTSUrl = IdPManagementUIUtil.getPassiveSTSURL(request);
     }
     String fbAuthEnabledChecked = "";
     String fbAuthDefaultDisabled = "";

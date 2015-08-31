@@ -19,27 +19,27 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar" prefix="carbon" %>
 <%@ page import="org.apache.axis2.context.ConfigurationContext" %>
-<%@page import="org.wso2.carbon.CarbonConstants" %>
-<%@page import="org.wso2.carbon.ui.CarbonUIUtil" %>
-<%@page import="org.wso2.carbon.ui.util.CharacterEncoder"%>
-<%@page import="org.wso2.carbon.user.mgt.stub.types.carbon.FlaggedName" %>
-<%@page import="org.wso2.carbon.user.mgt.stub.types.carbon.UserRealmInfo" %>
+<%@ page import="org.owasp.encoder.Encode" %>
+<%@ page import="org.wso2.carbon.CarbonConstants" %>
+<%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
+<%@ page import="org.wso2.carbon.user.mgt.stub.types.carbon.FlaggedName" %>
+<%@ page import="org.wso2.carbon.user.mgt.stub.types.carbon.UserRealmInfo" %>
 <%@ page import="org.wso2.carbon.user.mgt.ui.PaginatedNamesBean" %>
 <%@ page import="org.wso2.carbon.user.mgt.ui.UserAdminClient" %>
 <%@ page import="org.wso2.carbon.user.mgt.ui.UserAdminUIConstants" %>
 <%@ page import="org.wso2.carbon.user.mgt.ui.Util" %>
+<%@ page import="org.wso2.carbon.user.mgt.workflow.ui.UserManagementWorkflowServiceClient" %>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@ page import="java.text.MessageFormat" %>
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="java.util.Arrays" %>
 <%@ page import="java.util.HashMap" %>
+<%@ page import="java.util.Iterator" %>
+<%@ page import="java.util.LinkedHashSet" %>
 <%@ page import="java.util.List" %>
 <%@ page import="java.util.Map" %>
 <%@ page import="java.util.ResourceBundle" %>
 <%@ page import="java.util.Set" %>
-<%@ page import="java.util.LinkedHashSet" %>
-<%@ page import="org.wso2.carbon.user.mgt.workflow.ui.UserManagementWorkflowServiceClient" %>
-<%@ page import="java.util.Iterator" %>
 <script type="text/javascript" src="../userstore/extensions/js/vui.js"></script>
 <script type="text/javascript" src="../admin/js/main.js"></script>
 <jsp:include page="../dialog/display_messages.jsp"/>
@@ -202,7 +202,7 @@
                         if (flaggedName == null) {
                             continue;
                         }
-                        String userName = CharacterEncoder.getSafeText(flaggedName.getItemName());
+                        String userName = flaggedName.getItemName();
                         if (workFlowDeletePendingRoles.contains(userName)) {
                             showDeletePendingRoles.add(flaggedName);
                             showDeletePendingRolesList.add(userName);
@@ -254,7 +254,7 @@
 <script type="text/javascript">
 
     jQuery(document).ready(function () {
-        CARBON.showErrorDialog('<%=message%>', null);
+        CARBON.showErrorDialog('<%=Encode.forJavaScript(Encode.forHtml(message))%>', null);
     });
 </script>
 <%
@@ -331,7 +331,9 @@
                             <%
                                     } else {
                             %>
-                                <option value="<%=domainName%>"><%=domainName%></option>
+                            <option value="<%=Encode.forHtmlAttribute(domainName)%>">
+                                <%=Encode.forHtmlContent(domainName)%>
+                            </option>
                             <%
                                     }
                                 }
@@ -347,7 +349,7 @@
                         <td class="leftCol-big" style="padding-right: 0 !important;"><fmt:message key="list.roles"/></td>
                         <td>
                             <input type="text" name="<%=UserAdminUIConstants.ROLE_LIST_FILTER%>"
-                                   value="<%=filter%>"/>
+                                   value="<%=Encode.forHtmlAttribute(filter)%>"/>
 
                             <input class="button" type="submit"
                                    value="<fmt:message key="role.search"/>"/>
@@ -393,15 +395,15 @@
                                         !userRealmInfo.getAdminUser().equals(currentUser)) {
                                     continue;
                                 }
-                                String roleName = CharacterEncoder.getSafeText(data.getItemName());
-                                String disPlayName = CharacterEncoder.getSafeText(data.getItemDisplayName());
+                                String roleName = data.getItemName();
+                                String disPlayName = data.getItemDisplayName();
                                 if (disPlayName == null) {
                                     disPlayName = roleName;
                                 }
                                 if (workFlowAddPendingRolesList.contains(roleName)) {
                 %>
                 <tr>
-                    <td><%=disPlayName%>
+                    <td><%=Encode.forHtmlContent(disPlayName)%>
                         <%if (!data.getEditable()) { %> <%="(Read-Only)"%> <% } %>
                         <img src="images/workflow_pending_add.gif" title="Workflow-pending-user-add"
                              alt="Workflow-pending-user-add" height="15" width="15">
@@ -431,7 +433,7 @@
                         </td>
                     <%}%>--%>
                 <tr>
-                    <td><%=disPlayName%>
+                    <td><%=Encode.forHtmlContent(disPlayName)%>
                         <%if (!data.getEditable()) { %> <%="(Read-Only)"%> <% } %>
                         <img src="images/workflow_pending_remove.gif" title="Workflow-pending-user-delete"
                              alt="Workflow-pending-user-delete" height="15" width="15">
@@ -462,7 +464,7 @@
                 }else{
                 %>
                 <tr>
-                    <td><%=disPlayName%>
+                    <td><%=Encode.forHtmlContent(disPlayName)%>
                         <%if(!data.getEditable()){ %> <%="(Read-Only)"%> <% } %>
                     </td>
                         <%-- <%if(hasMultipleUserStores){%>
@@ -534,7 +536,7 @@
                                 message = resourceBundle.getString("more.roles.primary");
                             }
             %>
-            <strong><%=message%></strong>
+            <strong><%=Encode.forHtml(message)%></strong>
             <%
             }else if(exceededDomains.getItemDisplayName() != null && !exceededDomains.getItemDisplayName().equals("")){
                 String[] domains = exceededDomains.getItemDisplayName().split(":");
@@ -549,7 +551,7 @@
                 }
                 message = resourceBundle.getString("more.roles").replace("{0}",arg);
             %>
-            <strong><%=message%></strong>
+            <strong><%=Encode.forHtml(message)%></strong>
             <%
                         }
                     }

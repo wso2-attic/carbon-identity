@@ -51,7 +51,7 @@
     String template = CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_WORKFLOW_TEMPLATE));
     Map<String, String> templateParams = new HashMap<String, String>();
 
-    Map<String, String> attribMap = null ;
+    Map<String, String> attribMap = new HashMap<String, String>() ;
 
     if (session.getAttribute(WorkflowUIConstants.ATTRIB_WORKFLOW_WIZARD) != null &&
             session.getAttribute(WorkflowUIConstants.ATTRIB_WORKFLOW_WIZARD) instanceof Map) {
@@ -59,8 +59,6 @@
         //setting params from previous page
         if (template == null) {
             template = attribMap.get(WorkflowUIConstants.PARAM_WORKFLOW_TEMPLATE);
-        } else {
-            attribMap.put(WorkflowUIConstants.PARAM_WORKFLOW_TEMPLATE, template);
         }
         for (Map.Entry<String, String> entry : attribMap.entrySet()) {
             if (entry.getKey().startsWith("p-")) {
@@ -104,9 +102,12 @@
         templateList = client.listTemplates();
         if (templateList == null) {
             templateList = new TemplateBean[0];
+        }else if(templateList.length == 1 && template == null){
+            template = templateList[0].getId();
         }
 
         if(template != null) {
+            attribMap.put(WorkflowUIConstants.PARAM_WORKFLOW_TEMPLATE, template);
             templateDTO = client.getTemplate(template);
             bpsProfiles = client.listBPSProfiles();
         }
@@ -197,7 +198,7 @@
 
             jQuery('#stepsAddLink').click(function(){
                 stepOrder++;
-                jQuery('#stepsConfRow').append(jQuery('<div id="div_step_head_'+stepOrder+'" style="border:solid 1px #ccc;padding: 10px;">' +
+                jQuery('#stepsConfRow').append(jQuery('<div class="toggle_container sectionSub" id="div_step_head_'+stepOrder+'" style="border:solid 1px #ccc;padding: 10px;" >' +
                                                         '<h2 id="step_head_'+stepOrder+'" class="sectionSeperator trigger active step_heads" style="background-color: beige; clear: both;">' +
                                                             '<input type="hidden" value="'+stepOrder+'" name="approve_step" id="approve_step">' +
                                                             '<a class="step_order_header" href="#">Step '+stepOrder+'</a>' +
@@ -317,6 +318,10 @@
 
         <div id="workArea">
 
+            <%
+                if( isSelf  || template == null){
+            %>
+
             <form id="id_workflow_template" method="post" name="serviceAdd" action="template-params.jsp">
                 <input type="hidden" name="path" value="<%=requestPath%>"/>
                 <input type="hidden" name="self" value="true"/>
@@ -344,6 +349,10 @@
             </form>
 
             </br>
+
+            <%
+                }
+            %>
 
             <%
                 if(template != null ){

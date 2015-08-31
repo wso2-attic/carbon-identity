@@ -17,6 +17,7 @@
  */
 package org.wso2.carbon.identity.sso.saml.builders.assertion;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.xml.security.signature.XMLSignature;
@@ -54,6 +55,7 @@ import org.opensaml.saml2.core.impl.SubjectConfirmationDataBuilder;
 import org.opensaml.xml.schema.XSString;
 import org.opensaml.xml.schema.impl.XSStringBuilder;
 import org.wso2.carbon.identity.base.IdentityException;
+import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
 import org.wso2.carbon.identity.sso.saml.SAMLSSOConstants;
 import org.wso2.carbon.identity.sso.saml.builders.SignKeyDataHolder;
 import org.wso2.carbon.identity.sso.saml.dto.SAMLSSOAuthnReqDTO;
@@ -66,9 +68,8 @@ import java.util.StringTokenizer;
 public class DefaultSAMLAssertionBuilder implements SAMLAssertionBuilder {
 
     private static Log log = LogFactory.getLog(DefaultSAMLAssertionBuilder.class);
-    private static final String MULTI_ATTRIBUTE_SEPARATOR = "MultiAttributeSeparator";
 
-    private String userAttributeSeparator = ",";
+    private String userAttributeSeparator = IdentityCoreConstants.MULTI_ATTRIBUTE_SEPARATOR_DEFAULT;
 
     @Override
     public void init() throws IdentityException {
@@ -185,11 +186,11 @@ public class DefaultSAMLAssertionBuilder implements SAMLAssertionBuilder {
 
     private AttributeStatement buildAttributeStatement(Map<String, String> claims) {
 
-        String claimSeparator = claims.get(MULTI_ATTRIBUTE_SEPARATOR);
-        if (claimSeparator != null) {
+        String claimSeparator = claims.get(IdentityCoreConstants.MULTI_ATTRIBUTE_SEPARATOR);
+        if (StringUtils.isNotBlank(claimSeparator)) {
             userAttributeSeparator = claimSeparator;
-            claims.remove(MULTI_ATTRIBUTE_SEPARATOR);
         }
+        claims.remove(IdentityCoreConstants.MULTI_ATTRIBUTE_SEPARATOR);
 
         AttributeStatement attStmt = new AttributeStatementBuilder().buildObject();
         Iterator<Map.Entry<String, String>> iterator = claims.entrySet().iterator();

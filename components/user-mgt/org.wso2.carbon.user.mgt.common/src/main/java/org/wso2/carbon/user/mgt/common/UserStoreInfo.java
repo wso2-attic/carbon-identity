@@ -45,6 +45,8 @@ public class UserStoreInfo {
 
     private int maxUserLimit;
 
+    private boolean caseSensitiveUsername;
+
     public boolean isBulkImportSupported() {
         return isBulkImportSupported;
     }
@@ -139,5 +141,13 @@ public class UserStoreInfo {
 
     public void setUsernameRegExViolationErrorMsg(String usernameRegExViolationErrorMsg) {
         this.usernameRegExViolationErrorMsg = usernameRegExViolationErrorMsg;
+    }
+
+    public boolean isCaseSensitiveUsername() {
+        return caseSensitiveUsername;
+    }
+
+    public void setCaseSensitiveUsername(boolean caseSensitiveUsername) {
+        this.caseSensitiveUsername = caseSensitiveUsername;
     }
 }
