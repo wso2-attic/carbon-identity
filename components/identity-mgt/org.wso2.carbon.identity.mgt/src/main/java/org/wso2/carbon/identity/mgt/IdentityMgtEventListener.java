@@ -117,7 +117,7 @@ public class IdentityMgtEventListener extends AbstractIdentityUserOperationEvent
         String adminUserName =
                 IdentityMgtServiceComponent.getRealmService().getBootstrapRealmConfiguration().getAdminUserName();
         try {
-            if (identityMgtConfig.isListenerEnable()) {
+            if (isEnable(this.getClass().getName())) {
                 UserStoreManager userStoreMng = IdentityMgtServiceComponent.getRealmService()
                         .getBootstrapRealm().getUserStoreManager();
                 Map<String, String> claimMap = new HashMap<String, String>();
@@ -167,10 +167,6 @@ public class IdentityMgtEventListener extends AbstractIdentityUserOperationEvent
                 IdentityUtil.clearIdentityErrorMsg();
 
                 IdentityMgtConfig config = IdentityMgtConfig.getInstance();
-
-                if (!config.isListenerEnable()) {
-                    return true;
-                }
 
                 if (!config.isEnableAuthPolicy()) {
                     return true;
@@ -256,10 +252,6 @@ public class IdentityMgtEventListener extends AbstractIdentityUserOperationEvent
                 }
 
                 IdentityMgtConfig config = IdentityMgtConfig.getInstance();
-
-                if (!config.isListenerEnable()) {
-                    return true;
-                }
 
                 if (!config.isEnableAuthPolicy()) {
                     return true;
@@ -455,14 +447,6 @@ public class IdentityMgtEventListener extends AbstractIdentityUserOperationEvent
                                 UserStoreManager userStoreManager) throws UserStoreException {
 
         if (!isEnable(this.getClass().getName())) {
-            return true;
-        }
-
-        if (log.isDebugEnabled()) {
-            log.debug("Pre add user is called in IdentityMgtEventListener");
-        }
-        IdentityMgtConfig config = IdentityMgtConfig.getInstance();
-        if (!config.isListenerEnable()) {
             if (credential == null || StringUtils.isBlank(credential.toString())) {
                 log.error("Identity Management listener is disabled");
                 throw new UserStoreException("Ask Password Feature is disabled");
@@ -470,6 +454,10 @@ public class IdentityMgtEventListener extends AbstractIdentityUserOperationEvent
             return true;
         }
 
+        if (log.isDebugEnabled()) {
+            log.debug("Pre add user is called in IdentityMgtEventListener");
+        }
+        IdentityMgtConfig config = IdentityMgtConfig.getInstance();
         try {
             // Enforcing the password policies.
             if (credential != null &&
@@ -556,9 +544,6 @@ public class IdentityMgtEventListener extends AbstractIdentityUserOperationEvent
                     log.debug("Post add user is called in IdentityMgtEventListener");
                 }
                 IdentityMgtConfig config = IdentityMgtConfig.getInstance();
-                if (!config.isListenerEnable()) {
-                    return true;
-                }
                 // reading the value from the thread local
                 UserIdentityClaimsDO userIdentityClaimsDO = (UserIdentityClaimsDO) threadLocalProperties.get().get(USER_IDENTITY_DO);
 
@@ -681,11 +666,6 @@ public class IdentityMgtEventListener extends AbstractIdentityUserOperationEvent
             log.debug("Pre update credential is called in IdentityMgtEventListener");
         }
 
-        IdentityMgtConfig config = IdentityMgtConfig.getInstance();
-        if (!config.isListenerEnable()) {
-            return true;
-        }
-
         try {
             // Enforcing the password policies.
             if (newCredential != null
@@ -719,9 +699,6 @@ public class IdentityMgtEventListener extends AbstractIdentityUserOperationEvent
             log.debug("Pre update credential by admin is called in IdentityMgtEventListener");
         }
         IdentityMgtConfig config = IdentityMgtConfig.getInstance();
-        if (!config.isListenerEnable()) {
-            return true;
-        }
 
         try {
             // Enforcing the password policies.
@@ -784,9 +761,6 @@ public class IdentityMgtEventListener extends AbstractIdentityUserOperationEvent
         }
 
         IdentityMgtConfig config = IdentityMgtConfig.getInstance();
-        if (!config.isListenerEnable()) {
-            return true;
-        }
 
         // security questions and identity claims are updated at the identity store
         if (claimURI.contains(UserCoreConstants.ClaimTypeURIs.CHALLENGE_QUESTION_URI) ||
@@ -825,10 +799,6 @@ public class IdentityMgtEventListener extends AbstractIdentityUserOperationEvent
             if (!threadLocalProperties.get().containsKey(DO_PRE_SET_USER_CLAIM_VALUES)) {
                 threadLocalProperties.get().put(DO_PRE_SET_USER_CLAIM_VALUES, true);
                 IdentityMgtConfig config = IdentityMgtConfig.getInstance();
-                if (!config.isListenerEnable()) {
-                    return true;
-                }
-
                 UserIdentityDataStore identityDataStore = IdentityMgtConfig.getInstance().getIdentityDataStore();
                 UserIdentityClaimsDO identityDTO = identityDataStore.load(userName, userStoreManager);
                 if (identityDTO == null) {
@@ -876,10 +846,6 @@ public class IdentityMgtEventListener extends AbstractIdentityUserOperationEvent
             return true;
         }
 
-        IdentityMgtConfig config = IdentityMgtConfig.getInstance();
-        if (!config.isListenerEnable()) {
-            return true;
-        }
         // remove from the identity store
         try {
             IdentityMgtConfig.getInstance().getIdentityDataStore()
@@ -920,10 +886,6 @@ public class IdentityMgtEventListener extends AbstractIdentityUserOperationEvent
             return true;
         }
 
-        IdentityMgtConfig config = IdentityMgtConfig.getInstance();
-        if (!config.isListenerEnable()) {
-            return true;
-        }
         if (claimMap == null) {
             claimMap = new HashMap<String, String>();
         }
