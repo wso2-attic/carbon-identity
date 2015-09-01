@@ -49,6 +49,7 @@ import org.wso2.carbon.user.api.Claim;
 import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -121,8 +122,8 @@ public class OAuth2Service extends AbstractAdmin {
             OAuthAppDAO oAuthAppDAO = new OAuthAppDAO();
             OAuthAppDO appDO = oAuthAppDAO.getAppInformation(clientId);
 
-            if(StringUtils.isEmpty(appDO.getGrantTypes()) || StringUtils.isEmpty(appDO.getCallbackUrl())){
-                if(log.isDebugEnabled()) {
+            if (StringUtils.isEmpty(appDO.getGrantTypes()) || StringUtils.isEmpty(appDO.getCallbackUrl())) {
+                if (log.isDebugEnabled()) {
                     log.debug("Registered App found for the given Client Id : " + clientId + " ,App Name : " + appDO
                             .getApplicationName() + ", does not support the requested grant type.");
                 }
@@ -210,7 +211,11 @@ public class OAuth2Service extends AbstractAdmin {
                     ", Scope : " + Arrays.toString(tokenReqDTO.getScope()) + " and Grant Type : " + tokenReqDTO.getGrantType(), e);
             OAuth2AccessTokenRespDTO tokenRespDTO = new OAuth2AccessTokenRespDTO();
             tokenRespDTO.setError(true);
-            tokenRespDTO.setErrorCode(OAuth2ErrorCodes.SERVER_ERROR);
+            if (e.getCause().getCause() instanceof SQLIntegrityConstraintViolationException) {
+                tokenRespDTO.setErrorCode("sql_error");
+            } else {
+                tokenRespDTO.setErrorCode(OAuth2ErrorCodes.SERVER_ERROR);
+            }
             tokenRespDTO.setErrorMsg("Server Error");
             return tokenRespDTO;
         }
@@ -392,7 +397,7 @@ public class OAuth2Service extends AbstractAdmin {
                 Map<String, String> extClaimsMap =
                         userStore.getUserClaimValues(username, claims,
                                 profileName);
-                for (Map.Entry<String, String> entry : extClaimsMap.entrySet()){
+                for (Map.Entry<String, String> entry : extClaimsMap.entrySet()) {
                     Claim curClaim = new Claim();
                     curClaim.setClaimUri(entry.getKey());
                     curClaim.setValue(entry.getValue());
