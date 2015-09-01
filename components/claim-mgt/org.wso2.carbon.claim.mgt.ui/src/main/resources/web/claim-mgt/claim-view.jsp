@@ -32,6 +32,8 @@
 <%@page import="org.wso2.carbon.user.core.UserCoreConstants" %>
 <%@page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@ page import="java.util.ResourceBundle" %>
+<%@ page import="com.ctc.wstx.util.StringUtil" %>
+<%@ page import="org.apache.commons.lang.StringUtils" %>
 
 <%
     String serverURL = CarbonUIUtil.getServerURL(config.getServletContext(), session);
@@ -260,13 +262,17 @@
                         } else {
                             ClaimAttributeDTO[] attrMap = claims[j].getMappedAttributes();
                             if (attrMap != null) {
-                                String val = "";
+                                StringBuilder stringBuilder = new StringBuilder();
                                 for (int x = 0; x < attrMap.length; x++) {
-                                    val += "; " + attrMap[x].getDomainName() + "/" + attrMap[x].getAttributeName();
+                                    stringBuilder.append(";");
+                                    stringBuilder.append(attrMap[x].getDomainName());
+                                    stringBuilder.append("/");
+                                    stringBuilder.append(attrMap[x].getAttributeName());
                                 }
-                                if (!val.isEmpty()) {
-                                    val = val.substring(1);
-                                    claims[j].setMappedAttribute(val);
+                                String subString = stringBuilder.toString();
+                                if (StringUtils.isNotEmpty(stringBuilder.toString())) {
+                                    subString = subString.substring(1);
+                                    claims[j].setMappedAttribute(subString);
                                 }
                             }
                         }
