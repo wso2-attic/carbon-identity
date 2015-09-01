@@ -599,11 +599,7 @@ public class ClaimDAO {
      */
     protected boolean isClaimExists(Connection dbConnection, String uri) throws UserStoreException {
         int claimId = getClaimId(dbConnection, uri);
-        if (claimId != -1) {
-            return true;
-        } else {
-            return false;
-        }
+        return claimId != -1;
     }
 
     /**
@@ -616,11 +612,7 @@ public class ClaimDAO {
      */
     private boolean isDialectExists(Connection dbConnection, String uri) throws UserStoreException {
         int dialectId = getDialectId(dbConnection, uri);
-        if (dialectId != -1) {
-            return true;
-        } else {
-            return false;
-        }
+        return dialectId != -1;
     }
 
     /**

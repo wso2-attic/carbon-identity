@@ -37,8 +37,8 @@ import java.util.Map.Entry;
 
 public class ClaimAdminService {
 
-    Claim claim=null;
-    ClaimMapping mapping=null;
+    private static Claim claim=null;
+    private static ClaimMapping mapping=null;
     /**
      * @throws ClaimManagementException
      */
