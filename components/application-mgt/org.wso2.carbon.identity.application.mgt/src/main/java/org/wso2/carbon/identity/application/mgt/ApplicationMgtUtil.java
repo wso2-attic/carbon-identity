@@ -158,8 +158,7 @@ public class ApplicationMgtUtil {
     }
 
     private static String getAppRoleName(String applicationName) {
-//        return ApplicationConstants.APPLICATION_DOMAIN + UserCoreConstants.DOMAIN_SEPARATOR + applicationName;
-        return UserCoreConstants.INTERNAL_DOMAIN + UserCoreConstants.DOMAIN_SEPARATOR + applicationName;
+        return ApplicationConstants.APPLICATION_DOMAIN + UserCoreConstants.DOMAIN_SEPARATOR + applicationName;
     }
 
     /**

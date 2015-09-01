@@ -266,8 +266,7 @@
         if(domainNames != null){
             List<String> list = new ArrayList<String>(Arrays.asList(domainNames));
             list.add(UserAdminUIConstants.ALL_DOMAINS);
-            list.add(UserAdminUIConstants.INTERNAL_DOMAIN);
-//            list.add(UserAdminUIConstants.APPLICATION_DOMAIN);
+            list.add(UserAdminUIConstants.APPLICATION_DOMAIN);
             domainNames = list.toArray(new String[list.size()]);
         }
     }
