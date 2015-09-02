@@ -15,7 +15,7 @@
 ~ specific language governing permissions and limitations
 ~ under the License.
 -->
-<%@page import="org.apache.axis2.context.ConfigurationContext"%>
+<%@page import="org.apache.axis2.context.ConfigurationContext" %>
 <%@ page import="org.apache.commons.lang.StringUtils" %>
 <%@ page import="org.wso2.carbon.CarbonConstants" %>
 <%@ page import="org.wso2.carbon.identity.sso.saml.stub.types.SAMLSSOServiceProviderDTO" %>
@@ -26,6 +26,7 @@
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@ page import="java.util.ResourceBundle" %>
+<%@ page import="org.apache.xpath.operations.Bool" %>
 
 <jsp:useBean id="samlSsoServuceProviderConfigBean"
              type="org.wso2.carbon.identity.sso.saml.ui.SAMLSSOProviderConfigBean"
@@ -40,7 +41,7 @@
 
 
 <%
-	String backendServerURL;
+    String backendServerURL;
     ConfigurationContext configContext;
     String cookie;
     String user = null;
@@ -61,7 +62,7 @@
         client = new SAMLSSOConfigServiceClient(cookie, backendServerURL, configContext);
 
         serviceProviderDTO = new SAMLSSOServiceProviderDTO();
-        boolean isEditingSP = false; 
+        boolean isEditingSP = false;
         if ("editServiceProvider".equals(SAMLSSOUIUtil.getSafeInput(request, "SPAction"))) {
             isEditingSP = true;
             serviceProviderDTO.setIssuer(SAMLSSOUIUtil.getSafeInput(request, "hiddenIssuer"));
@@ -70,11 +71,11 @@
         }
 
         serviceProviderDTO.setAssertionConsumerUrls(SAMLSSOUIUtil.getSafeInput(request, "assertionConsumerURLs")
-                                                            .split(","));
+                .split(","));
         serviceProviderDTO.setDefaultAssertionConsumerUrl(SAMLSSOUIUtil.getSafeInput(request,
-                                                                                     "defaultAssertionConsumerURL"));
+                "defaultAssertionConsumerURL"));
 
-        if ("true".equals(request.getParameter(SAMLSSOUIConstants.ENABLE_SINGLE_LOGOUT))) {
+        if (Boolean.parseBoolean(request.getParameter(SAMLSSOUIConstants.ENABLE_SINGLE_LOGOUT))) {
             serviceProviderDTO.setDoSingleLogout(true);
             if (StringUtils.isNotBlank(request.getParameter(SAMLSSOUIConstants.SLO_RESPONSE_URL))) {
                 serviceProviderDTO.setSloResponseURL(request.getParameter(SAMLSSOUIConstants.SLO_RESPONSE_URL));
@@ -84,105 +85,106 @@
             }
         }
 
-        if ("true".equals(request.getParameter(SAMLSSOUIConstants.ENABLE_RESPONSE_SIGNATURE))) {
+        if (Boolean.parseBoolean(request.getParameter(SAMLSSOUIConstants.ENABLE_RESPONSE_SIGNATURE))) {
             serviceProviderDTO.setDoSignResponse(true);
         }
 
-        if ("true".equals(request.getParameter(SAMLSSOUIConstants.ENABLE_ASSERTION_SIGNATURE))) {
+
+        if (Boolean.parseBoolean(request.getParameter(SAMLSSOUIConstants.ENABLE_ASSERTION_SIGNATURE))) {
             serviceProviderDTO.setDoSignAssertions(true);
         }
-        
+
         serviceProviderDTO.setNameIDFormat(request.getParameter(SAMLSSOUIConstants.NAME_ID_FORMAT));
-        
-        if (serviceProviderDTO.getNameIDFormat()!=null) {
-        	serviceProviderDTO.setNameIDFormat(serviceProviderDTO.getNameIDFormat().replace(":", "/"));
+
+        if (serviceProviderDTO.getNameIDFormat() != null) {
+            serviceProviderDTO.setNameIDFormat(serviceProviderDTO.getNameIDFormat().replace(":", "/"));
         }
 
         if (request.getParameter(SAMLSSOUIConstants.ENABLE_ATTRIBUTE_PROFILE) != null) {
             serviceProviderDTO.setRequestedClaims(samlSsoServuceProviderConfigBean.getSelectedClaimsAttay());
             serviceProviderDTO.setEnableAttributeProfile(true);
 
-            if ("true".equals(request.getParameter(SAMLSSOUIConstants.ENABLE_DEFAULT_ATTRIBUTE_PROFILE_HIDDEN))) {
+            if (Boolean.parseBoolean(request.getParameter(SAMLSSOUIConstants.ENABLE_DEFAULT_ATTRIBUTE_PROFILE_HIDDEN))) {
                 serviceProviderDTO.setEnableAttributesByDefault(true);
             }
         }
-        
-        if ("true".equals(request.getParameter(SAMLSSOUIConstants.ENABLE_NAME_ID_CLAIM_URI_HIDDEN))) {
-                serviceProviderDTO.setNameIdClaimUri(request.getParameter(SAMLSSOUIConstants.NAME_ID_CLAIM));
+
+        if (Boolean.parseBoolean(request.getParameter(SAMLSSOUIConstants.ENABLE_NAME_ID_CLAIM_URI_HIDDEN))) {
+            serviceProviderDTO.setNameIdClaimUri(request.getParameter(SAMLSSOUIConstants.NAME_ID_CLAIM));
         }
-               
-               
-        if ("true".equals(request.getParameter(SAMLSSOUIConstants.ENABLE_AUDIENCE_RESTRICTION))) {
+
+
+        if (Boolean.parseBoolean(request.getParameter(SAMLSSOUIConstants.ENABLE_AUDIENCE_RESTRICTION))) {
             serviceProviderDTO.setRequestedAudiences(samlSsoServuceProviderConfigBean.getSelectedAudiencesArray());
         }
 
-        if ("true".equals(request.getParameter(SAMLSSOUIConstants.ENABLE_RECIPIENTS))) {
+        if (Boolean.parseBoolean(request.getParameter(SAMLSSOUIConstants.ENABLE_RECIPIENTS))) {
             serviceProviderDTO.setRequestedRecipients(samlSsoServuceProviderConfigBean.getSelectedRecipientsArray());
         }
 
-        if (request.getParameter(SAMLSSOUIConstants.LOGIN_PAGE_URL)!=null && !"null".equals(request.getParameter(SAMLSSOUIConstants.LOGIN_PAGE_URL))) {
+        if (request.getParameter(SAMLSSOUIConstants.LOGIN_PAGE_URL) != null && !"null".equals(request.getParameter(SAMLSSOUIConstants.LOGIN_PAGE_URL))) {
             serviceProviderDTO.setLoginPageURL(request.getParameter(SAMLSSOUIConstants.LOGIN_PAGE_URL));
         }
 
-        if ("true".equals(request.getParameter(SAMLSSOUIConstants.ENABLE_ATTRIBUTE_PROFILE))) {
+        if (Boolean.parseBoolean(request.getParameter(SAMLSSOUIConstants.ENABLE_ATTRIBUTE_PROFILE))) {
 
-        String claimsCountParameter = SAMLSSOUIUtil.getSafeInput(request, "claimPropertyCounter");
-        if (claimsCountParameter != null && !"".equals(claimsCountParameter)) {
-            try {
-                int claimsCount = Integer.parseInt(claimsCountParameter);
-                for (int i = 0; i < claimsCount; i++) {
-                    String claim = SAMLSSOUIUtil.getSafeInput(request, "claimPropertyName" + i);
-                    if (claim != null && !"".equals(claim) && !"null".equals(claim)) {
-                        String[] currentClaims = serviceProviderDTO.getRequestedClaims();
-                        boolean isClaimAlreadyAdded = false;
-                        for (String currentClaim : currentClaims) {
-                            if (claim.equals(currentClaim)) {
-                                isClaimAlreadyAdded = true;
-                                break;
+            String claimsCountParameter = SAMLSSOUIUtil.getSafeInput(request, "claimPropertyCounter");
+            if (claimsCountParameter != null && !"".equals(claimsCountParameter)) {
+                try {
+                    int claimsCount = Integer.parseInt(claimsCountParameter);
+                    for (int i = 0; i < claimsCount; i++) {
+                        String claim = SAMLSSOUIUtil.getSafeInput(request, "claimPropertyName" + i);
+                        if (claim != null && !"".equals(claim) && !"null".equals(claim)) {
+                            String[] currentClaims = serviceProviderDTO.getRequestedClaims();
+                            boolean isClaimAlreadyAdded = false;
+                            for (String currentClaim : currentClaims) {
+                                if (claim.equals(currentClaim)) {
+                                    isClaimAlreadyAdded = true;
+                                    break;
+                                }
+                            }
+
+                            if (!isClaimAlreadyAdded) {
+                                serviceProviderDTO.addRequestedClaims(claim);
                             }
                         }
-
-                        if (!isClaimAlreadyAdded) {
-                            serviceProviderDTO.addRequestedClaims(claim);
-                        }
                     }
+                } catch (NumberFormatException e) {
+                    throw new RuntimeException("Invalid number", e);
                 }
-            } catch (NumberFormatException e) {
-                throw new RuntimeException("Invalid number", e);
             }
         }
+
+        if (Boolean.parseBoolean(request.getParameter(SAMLSSOUIConstants.ENABLE_AUDIENCE_RESTRICTION))) {
+
+            String audiencesCountParameter = SAMLSSOUIUtil.getSafeInput(request, "audiencePropertyCounter");
+            if (audiencesCountParameter != null && !"".equals(audiencesCountParameter)) {
+                try {
+                    int audiencesCount = Integer.parseInt(audiencesCountParameter);
+                    for (int i = 0; i < audiencesCount; i++) {
+                        String audience = SAMLSSOUIUtil.getSafeInput(request, "audiencePropertyName" + i);
+                        if (audience != null && !"".equals(audience) && !"null".equals(audience)) {
+                            String[] currentAudiences = serviceProviderDTO.getRequestedAudiences();
+                            boolean isAudienceAlreadyAdded = false;
+                            for (String currentAudience : currentAudiences) {
+                                if (audience.equals(currentAudience)) {
+                                    isAudienceAlreadyAdded = true;
+                                    break;
+                                }
+                            }
+
+                            if (!isAudienceAlreadyAdded) {
+                                serviceProviderDTO.addRequestedAudiences(audience);
+                            }
+                        }
+                    }
+                } catch (NumberFormatException e) {
+                    throw new RuntimeException("Invalid number", e);
+                }
+            }
         }
 
-        if ("true".equals(request.getParameter(SAMLSSOUIConstants.ENABLE_AUDIENCE_RESTRICTION))) {
-
-        	String audiencesCountParameter = SAMLSSOUIUtil.getSafeInput(request, "audiencePropertyCounter");
-        	if (audiencesCountParameter != null && !"".equals(audiencesCountParameter)) {
-            	try {
-                	int audiencesCount = Integer.parseInt(audiencesCountParameter);
-                	for (int i = 0; i < audiencesCount; i++) {
-                    	String audience = SAMLSSOUIUtil.getSafeInput(request, "audiencePropertyName" + i);
-                    	if (audience != null && !"".equals(audience) && !"null".equals(audience)) {
-                        	String[] currentAudiences = serviceProviderDTO.getRequestedAudiences();
-                        	boolean isAudienceAlreadyAdded = false;
-                        	for (String currentAudience : currentAudiences) {
-                            	if (audience.equals(currentAudience)) {
-                               		isAudienceAlreadyAdded = true;
-                                	break;
-                            	}
-                        	}
-
-                        	if (!isAudienceAlreadyAdded) {
-                            	serviceProviderDTO.addRequestedAudiences(audience);
-                        	}
-                    	}
-                	}
-            	} catch (NumberFormatException e) {
-                	throw new RuntimeException("Invalid number", e);
-            	}
-        	}
-        }
-
-        if ("true".equals(request.getParameter(SAMLSSOUIConstants.ENABLE_RECIPIENTS))) {
+        if (Boolean.parseBoolean(request.getParameter(SAMLSSOUIConstants.ENABLE_RECIPIENTS))) {
 
             String recipientCountParameter = SAMLSSOUIUtil.getSafeInput(request, "recipientPropertyCounter");
             if (recipientCountParameter != null && !"".equals(recipientCountParameter)) {
@@ -213,24 +215,24 @@
 
         serviceProviderDTO.setAttributeConsumingServiceIndex(SAMLSSOUIUtil.getSafeInput(request, "attributeConsumingServiceIndex"));
 
-        if ("true".equals(request.getParameter(SAMLSSOUIConstants.ENABLE_IDP_INIT_SSO))) {
+        if (Boolean.parseBoolean(request.getParameter(SAMLSSOUIConstants.ENABLE_IDP_INIT_SSO))) {
             serviceProviderDTO.setIdPInitSSOEnabled(true);
         }
 
-        if ("true".equals(request.getParameter(SAMLSSOUIConstants.ENABLE_IDP_INIT_SLO))) {
+        if (Boolean.parseBoolean(request.getParameter(SAMLSSOUIConstants.ENABLE_IDP_INIT_SLO))) {
             serviceProviderDTO.setIdPInitSLOEnabled(true);
             String returnToUrls = SAMLSSOUIUtil.getSafeInput(request, "idpInitSLOReturnToURLs");
-            if(StringUtils.isNotBlank(returnToUrls)) {
+            if (StringUtils.isNotBlank(returnToUrls)) {
                 serviceProviderDTO.setIdpInitSLOReturnToURLs(returnToUrls.split(","));
             }
         }
 
-        if ("true".equals(request.getParameter(SAMLSSOUIConstants.ENABLE_ENC_ASSERTION))) {
+        if (Boolean.parseBoolean(request.getParameter(SAMLSSOUIConstants.ENABLE_ENC_ASSERTION))) {
             serviceProviderDTO.setDoEnableEncryptedAssertion(true);
             serviceProviderDTO.setCertAlias(SAMLSSOUIUtil.getSafeInput(request, "alias"));
         }
 
-        if("true".equals(request.getParameter(SAMLSSOUIConstants.ENABLE_SIG_VALIDATION))){
+        if (Boolean.parseBoolean(request.getParameter(SAMLSSOUIConstants.ENABLE_SIG_VALIDATION))) {
             serviceProviderDTO.setDoValidateSignatureInRequests(true);
             serviceProviderDTO.setCertAlias(SAMLSSOUIUtil.getSafeInput(request, "alias"));
         }
@@ -244,36 +246,36 @@
         samlSsoServuceProviderConfigBean.clearBean();
 
         String message;
-        if (status) {     	
-			if (isEditingSP) {
-				message = resourceBundle.getString("sp.updated.successfully");
-			} else {
-				message = resourceBundle.getString("sp.added.successfully");
-			}
-		} else {
-			message = resourceBundle.getString("error.adding.sp");
-		}
+        if (status) {
+            if (isEditingSP) {
+                message = resourceBundle.getString("sp.updated.successfully");
+            } else {
+                message = resourceBundle.getString("sp.added.successfully");
+            }
+        } else {
+            message = resourceBundle.getString("error.adding.sp");
+        }
 
-		if (status) {
-			CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.INFO, request);
-		} else {
-			CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
-		}
+        if (status) {
+            CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.INFO, request);
+        } else {
+            CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
+        }
 %>
 <script>
-<%
-boolean applicationComponentFound = CarbonUIUtil.isContextRegistered(config, "/application/");
+    <%
+    boolean applicationComponentFound = CarbonUIUtil.isContextRegistered(config, "/application/");
 
-if (applicationComponentFound) {
-	if (status) {
-%>
+    if (applicationComponentFound) {
+        if (status) {
+    %>
     location.href = '../application/configure-service-provider.jsp?action=update&display=samlIssuer&spName=<%=spName%>&samlIssuer=<%=serviceProviderDTO.getIssuer()%>&attrConServIndex=<%=attributeConsumingServiceIndex%>';
-<% } else { %>
-	location.href = '../application/configure-service-provider.jsp?action=delete&display=samlIssuer&spName=<%=spName%>&samlIssuer=<%=serviceProviderDTO.getIssuer()%>&attrConServIndex=<%=attributeConsumingServiceIndex%>';
+    <% } else { %>
+    location.href = '../application/configure-service-provider.jsp?action=delete&display=samlIssuer&spName=<%=spName%>&samlIssuer=<%=serviceProviderDTO.getIssuer()%>&attrConServIndex=<%=attributeConsumingServiceIndex%>';
 
-<% } } else { %>
+    <% } } else { %>
     location.href = 'manage_service_providers.jsp?region=region1&item=manage_saml_sso';
-<% } %>
+    <% } %>
 </script>
 <%
 
