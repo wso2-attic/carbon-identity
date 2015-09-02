@@ -21,17 +21,18 @@
 <%@ page import="org.wso2.carbon.CarbonConstants" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.WorkflowAdminServiceWorkflowException" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.ParameterDTO" %>
+<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.WorkflowDTO" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.WorkflowAdminServiceClient" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.WorkflowUIConstants" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
 <%@ page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
+<%@ page import="java.rmi.RemoteException" %>
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="java.util.List" %>
 <%@ page import="java.util.Map" %>
 <%@ page import="java.util.ResourceBundle" %>
-<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.WorkflowDTO" %>
 
 
 <%
@@ -49,16 +50,9 @@
     String workflowName =
             CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_WORKFLOW_NAME));
 
-    String forwardTo = "list-workflows.jsp";
-
-    if(request.getParameter("path") != null && !request.getParameter("path").isEmpty()){
-        forwardTo = request.getParameter("path") + ".jsp?wizard=finish&" + WorkflowUIConstants.PARAM_WORKFLOW_NAME + "=" + workflowName;
-    }
-
+    String forwardTo = null;
 
     if (WorkflowUIConstants.ACTION_VALUE_ADD.equals(action)) {
-
-
         Map<String, String> attribMap =
                 (Map<String, String>) session.getAttribute(WorkflowUIConstants.ATTRIB_WORKFLOW_WIZARD);
 
@@ -87,7 +81,7 @@
         }
         for (Map.Entry<String, String> paramEntry : attribMap.entrySet()) {
 
-            if (paramEntry.getKey() != null && paramEntry.getValue()!=null) {
+            if (paramEntry.getKey() != null && paramEntry.getValue() != null) {
                 if (paramEntry.getKey().startsWith("p-")) {
                     ParameterDTO parameter = new ParameterDTO();
                     parameter.setParamName(paramEntry.getKey().substring(2));   //length of "p-"
@@ -103,10 +97,15 @@
             workflowDTO.setWorkflowDescription(description);
             workflowDTO.setTemplateName(templateName);
             workflowDTO.setImplementationName(templateImplName);
-            client.addWorkflow(workflowDTO, templateParams,templateImplParams);
+            client.addWorkflow(workflowDTO, templateParams, templateImplParams);
 
         } catch (WorkflowAdminServiceWorkflowException e) {
             String message = resourceBundle.getString("workflow.error.when.adding.workflow");
+            CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
+            forwardTo = "../admin/error.jsp";
+        } catch (RemoteException e) {
+            String message = resourceBundle.getString("workflow.error.when.adding.workflow") +
+                    "\n Error: " + e.getMessage();
             CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
             forwardTo = "../admin/error.jsp";
         }
@@ -134,6 +133,14 @@
             CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
             forwardTo = "../admin/error.jsp";
         }
+    }
+
+    String pathParam = CharacterEncoder.getSafeText(request.getParameter("path"));
+    if (StringUtils.isNotBlank(pathParam) && forwardTo == null) {
+        forwardTo = request.getParameter("path") + ".jsp?wizard=finish&" + WorkflowUIConstants.PARAM_WORKFLOW_NAME +
+                "=" + workflowName;
+    } else if (forwardTo == null) {
+        forwardTo = "list-workflows.jsp";
     }
 %>
 <script type="text/javascript">

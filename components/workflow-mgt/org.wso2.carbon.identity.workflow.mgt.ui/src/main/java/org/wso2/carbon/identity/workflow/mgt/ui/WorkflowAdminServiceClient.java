@@ -116,9 +116,8 @@ public class WorkflowAdminServiceClient {
      * @throws RemoteException
      * @throws WorkflowAdminServiceWorkflowException
      */
-    public void addWorkflow(WorkflowDTO workflowDTO, List<ParameterDTO> templateParams,
-                            List<ParameterDTO> templateImplParams)
-            throws RemoteException, WorkflowAdminServiceWorkflowException {
+    public void addWorkflow(WorkflowDTO workflowDTO, List<ParameterDTO> templateParams, List<ParameterDTO>
+            templateImplParams) throws RemoteException, WorkflowAdminServiceWorkflowException {
 
         stub.addWorkflow(workflowDTO, templateParams.toArray(new
                                                                      ParameterDTO[templateParams.size()]),
