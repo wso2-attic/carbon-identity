@@ -29,6 +29,8 @@ public class WorkFlowConstants {
     public static final String DEFAULT_CARBON_PROFILE = "default";
     public static final String WORKFLOW_PROFILE = "workflow" ;
 
+    public static final String WORKFLOW_DOMAIN = "Workflow";
+
     public static final Set<Class> NUMERIC_CLASSES;
 
     static {
