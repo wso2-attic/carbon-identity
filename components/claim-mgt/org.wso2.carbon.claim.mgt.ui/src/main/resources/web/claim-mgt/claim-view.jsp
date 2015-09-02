@@ -269,10 +269,10 @@
                                     mappedAttributeWithDomain.append("/");
                                     mappedAttributeWithDomain.append(attrMap[x].getAttributeName());
                                 }
-                                String subString = mappedAttributeWithDomain.toString();
-                                if (StringUtils.isNotEmpty(mappedAttributeWithDomain.toString())) {
-                                    subString = subString.substring(1);
-                                    claims[j].setMappedAttribute(subString);
+                                String mappedAttribute = mappedAttributeWithDomain.toString();
+                                if (StringUtils.isNotEmpty(mappedAttribute)) {
+                                    mappedAttribute = mappedAttribute.substring(1);
+                                    claims[j].setMappedAttribute(mappedAttribute);
                                 }
                             }
                         }
