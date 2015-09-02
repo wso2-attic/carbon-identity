@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.identity.application.mgt;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
@@ -141,9 +142,19 @@ public class ApplicationMgtUtil {
     public static void createAppRole(String applicationName) throws IdentityApplicationManagementException {
         String roleName = getAppRoleName(applicationName);
         String qualifiedUsername = CarbonContext.getThreadLocalCarbonContext().getUsername();
-        String[] user = {qualifiedUsername};
+        List<String> qualifiedUserList = new ArrayList<>();
 
         try {
+            qualifiedUserList.add(qualifiedUsername);
+            String[] userListOfAdminRole = CarbonContext.getThreadLocalCarbonContext().getUserRealm().getUserStoreManager().getUserListOfRole("admin");
+            for (String userName : userListOfAdminRole) {
+                if (StringUtils.equals(userName, qualifiedUsername)) {
+                    continue;
+                }
+                qualifiedUserList.add(userName);
+            }
+            String[] user = qualifiedUserList.toArray(new String[qualifiedUserList.size()]);
+
             // create a role for the application and assign the user to that role.
             if (log.isDebugEnabled()) {
                 log.debug("Creating application role : " + roleName + " and assign the user : "
