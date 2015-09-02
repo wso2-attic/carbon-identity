@@ -165,7 +165,29 @@ public class ApplicationMgtUtil {
         } catch (UserStoreException e) {
             throw new IdentityApplicationManagementException("Error while creating application", e);
         }
+    }
 
+    /**
+     * Assign Admin users to the role created for a application.
+     *
+     * @param applicationName
+     * @param qualifiedUsername
+     * @throws IdentityApplicationManagementException
+     */
+    public static void addAdminUserToRole(String applicationName, String qualifiedUsername) throws IdentityApplicationManagementException {
+        String roleName = getAppRoleName(applicationName);
+        String [] user = {qualifiedUsername};
+        try {
+            // create a role for the application and assign the user to that role.
+            if (log.isDebugEnabled()) {
+                log.debug("Creating application role : " + roleName + " and assign the user : "
+                        + Arrays.toString(user) + " to that role");
+            }
+            CarbonContext.getThreadLocalCarbonContext().getUserRealm().getUserStoreManager()
+                    .updateUserListOfRole(roleName, null , user);
+        } catch (UserStoreException e) {
+            throw new IdentityApplicationManagementException("Error while creating application", e);
+        }
     }
 
     private static String getAppRoleName(String applicationName) {
