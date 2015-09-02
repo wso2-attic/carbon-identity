@@ -51,7 +51,7 @@
     String template = CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_WORKFLOW_TEMPLATE));
     Map<String, String> templateParams = new HashMap<String, String>();
 
-    Map<String, String> attribMap = null ;
+    Map<String, String> attribMap = new HashMap<String, String>() ;
 
     if (session.getAttribute(WorkflowUIConstants.ATTRIB_WORKFLOW_WIZARD) != null &&
             session.getAttribute(WorkflowUIConstants.ATTRIB_WORKFLOW_WIZARD) instanceof Map) {
@@ -59,8 +59,6 @@
         //setting params from previous page
         if (template == null) {
             template = attribMap.get(WorkflowUIConstants.PARAM_WORKFLOW_TEMPLATE);
-        } else {
-            attribMap.put(WorkflowUIConstants.PARAM_WORKFLOW_TEMPLATE, template);
         }
         for (Map.Entry<String, String> entry : attribMap.entrySet()) {
             if (entry.getKey().startsWith("p-")) {
@@ -104,9 +102,12 @@
         templateList = client.listTemplates();
         if (templateList == null) {
             templateList = new TemplateBean[0];
+        }else if(templateList.length == 1 && template == null){
+            template = templateList[0].getId();
         }
 
         if(template != null) {
+            attribMap.put(WorkflowUIConstants.PARAM_WORKFLOW_TEMPLATE, template);
             templateDTO = client.getTemplate(template);
             bpsProfiles = client.listBPSProfiles();
         }
@@ -197,17 +198,29 @@
 
             jQuery('#stepsAddLink').click(function(){
                 stepOrder++;
-                jQuery('#stepsConfRow').append(jQuery('<div id="div_step_head_'+stepOrder+'" style="border:solid 1px #ccc;padding: 10px;">' +
-                                                        '<h2 id="step_head_'+stepOrder+'" class="sectionSeperator trigger active step_heads" style="background-color: beige; clear: both;">' +
+                jQuery('#stepsConfRow').append(jQuery('<div class="toggle_container sectionSub" id="div_step_head_'+stepOrder+'" style="border:solid 1px #ccc;padding: 10px;margin-bottom:10px;" >' +
+                                                        '<h2 id="step_head_'+stepOrder+'" class="trigger active step_heads" style="background-color: beige; clear: both;">' +
                                                             '<input type="hidden" value="'+stepOrder+'" name="approve_step" id="approve_step">' +
                                                             '<a class="step_order_header" href="#">Step '+stepOrder+'</a>' +
                                                             '<a onclick="deleteStep(this);return false;" href="#" class="icon-link" style="background-image: url(images/delete.gif);float:right;width: 9px;"></a>' +
                                                         '</h2>' +
-                                                          '<table style="width:100%;">' +
-                                                              '<tr><td colspan="2" id="search_step_head_'+stepOrder+'"></td></tr>' +
-                                                              '<tr><td width="40px">Roles</td><td onclick="moveSearchController(\''+stepOrder+'\',\'roles\', false);"><input   name="p-step-'+stepOrder+'-roles" id="p-step-'+stepOrder+'-roles"  type="text" class="tokenizer_'+stepOrder+'"/></td></tr>' +
-                                                              '<tr><td>Users</td><td onclick="moveSearchController(\''+stepOrder+'\',\'users\', false);"><input  name="p-step-'+stepOrder+'-users" id="p-step-'+stepOrder+'-users" type="text" class="tokenizer_'+stepOrder+'"/></td></tr>' +
-                                                          '</table>' +
+                                                            '<table style="width:100%;">' +
+                                                                '<tr><td id="search_step_head_'+stepOrder+'"></td></tr>' +
+                                                                '<tr id="id_step_roles_'+stepOrder+'" style="display:none;">' +
+                                                                    '<td style="width:100%;">' +
+                                                                        '<table  style="width:100%;">' +
+                                                                            '<tr><td width="40px">Roles</td><td onclick="moveSearchController(\''+stepOrder+'\',\'roles\', false);"><input readonly  name="p-step-'+stepOrder+'-roles" id="p-step-'+stepOrder+'-roles"  type="text" class="tokenizer_'+stepOrder+'"/></td></tr>' +
+                                                                        '</table>' +
+                                                                    '</td>' +
+                                                                '</tr>' +
+                                                              '<tr id="id_step_users_'+stepOrder+'" style="width:100%;display:none;">' +
+                                                                  '<td style="width:100%;">' +
+                                                                      '<table style="width:100%;">' +
+                                                                            '<tr><td width="40px">Users</td><td onclick="moveSearchController(\''+stepOrder+'\',\'users\', false);"><input readonly  name="p-step-'+stepOrder+'-users" id="p-step-'+stepOrder+'-users" type="text" class="tokenizer_'+stepOrder+'"/></td></tr>' +
+                                                                      '</table>' +
+                                                                  '</td>' +
+                                                              '</tr>' +
+                                                            '</table>' +
                                                       '</div>'));
 
                 //Move search component to selected step
@@ -276,8 +289,11 @@
 
 
         function getSelectedItems(allList, category){
+
             if(allList!=null && allList.length!=0) {
                 var currentStep = $("#currentstep").val();
+
+                $("#id_step_"+category+"_" + currentStep).show();
                 var currentValues = $("#p-step-" + currentStep + "-" + category).val();
                 for(var i=0;i<allList.length;i++) {
                     var newItem = allList[i];
@@ -317,6 +333,10 @@
 
         <div id="workArea">
 
+            <%
+                if( isSelf  || template == null){
+            %>
+
             <form id="id_workflow_template" method="post" name="serviceAdd" action="template-params.jsp">
                 <input type="hidden" name="path" value="<%=requestPath%>"/>
                 <input type="hidden" name="self" value="true"/>
@@ -343,6 +363,12 @@
                 </table>
             </form>
 
+
+
+            <%
+                }
+            %>
+
             </br>
 
             <%
@@ -353,7 +379,7 @@
                 <table class="styledLeft">
                     <thead>
                     <tr>
-                        <th><fmt:message key="workflow.details"/></th>
+                        <th><fmt:message key='workflow.template'/> : <%= template %></th>
                     </tr>
                     </thead>
                     <tr>
@@ -379,8 +405,9 @@
                                         if (parameter != null) {
                                 %>
                                 <tr>
-                                    <td width="200px" style="vertical-align: top !important;"><%=parameter.getDisplayName()%>
-                                    </td>
+                                    <td width="200px" style="vertical-align: top !important;"><%=parameter.getDisplayName()%></td>
+                                </tr>
+                                <tr>
                                     <%
                                         //Text areas
                                         if (WorkflowUIConstants.ParamTypes.LONG_STRING
@@ -417,10 +444,8 @@
                                     } else if (WorkflowUIConstants.ParamTypes.USER_NAME_OR_USER_ROLE.equals(parameter.getParamType())) {
                                     %>
                                     <td>
-                                       <a id="stepsAddLink" class="icon-link" style="float:none;margin-left:0; padding-bottom:10px;">
-                                           <fmt:message key='workflow.template.button.add.step'/>
-                                       </a>
-                                       <div style="margin-bottom:10px;width: 60%" id="stepsConfRow"></div>
+                                        <a id="stepsAddLink" class="icon-link" style="background-image:url(images/add.png);margin-left:0"><fmt:message key='workflow.template.button.add.step'/></a>
+                                       <div style="margin-bottom:10px;width: 100%" id="stepsConfRow"></div>
                                     </td>
                                     <%
                                     } else {
@@ -490,13 +515,11 @@
             <input type="hidden" id="currentstep" name="currentstep" value=""/>
             <div id="id_user_search">
                 <jsp:include page="../search/user-role-search.jsp">
-                    <jsp:param name="navigator-holder" value="id-result-holder"/>
-                    <jsp:param name="result-holder" value="id-navigator-holder"/>
                     <jsp:param name="function-get-all-items" value="getSelectedItems"/>
                 </jsp:include>
             </div>
-            <div id="id-result-holder"></div>
-            <div id="id-navigator-holder"></div>
+            <!--div id="id-result-holder"></div>
+            <div id="id-navigator-holder"></div-->
         </div>
     </div>
 

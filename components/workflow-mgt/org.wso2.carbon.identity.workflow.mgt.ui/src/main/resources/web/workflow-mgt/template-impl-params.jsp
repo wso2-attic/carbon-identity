@@ -35,6 +35,7 @@
 <%@ page import="java.util.Map" %>
 <%@ page import="java.util.ResourceBundle" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.TemplateDTO" %>
+<%@ page import="java.util.HashMap" %>
 
 
 <%
@@ -59,10 +60,12 @@
     TemplateImplDTO templateImplDTO = null;
     TemplateDTO templateDTO = null;
 
+    Map<String, String> attribMap = new HashMap<String,String>();
+
 
     if (session.getAttribute(WorkflowUIConstants.ATTRIB_WORKFLOW_WIZARD) != null &&
             session.getAttribute(WorkflowUIConstants.ATTRIB_WORKFLOW_WIZARD) instanceof Map) {
-        Map<String, String> attribMap =
+        attribMap =
                 (Map<String, String>) session.getAttribute(WorkflowUIConstants.ATTRIB_WORKFLOW_WIZARD);
 
         template = attribMap.get(WorkflowUIConstants.PARAM_WORKFLOW_TEMPLATE);
@@ -85,8 +88,6 @@
                     attribMap.put(paramEntry.getKey(), paramValue);
                 }
             }
-        }else{
-            attribMap.put(WorkflowUIConstants.PARAM_TEMPLATE_IMPL,templateImpl);
         }
 
     }
@@ -101,8 +102,14 @@
         client = new WorkflowAdminServiceClient(cookie, backendServerURL, configContext);
 
         templateDTO = client.getTemplate(template);
+        if(templateDTO != null && templateDTO.getImplementations() != null  && templateDTO.getImplementations().length == 1 ){
+            templateImpl = templateDTO.getImplementations()[0].getImplementationId() ;
+        }
 
         if(templateImpl != null) {
+
+            attribMap.put(WorkflowUIConstants.PARAM_TEMPLATE_IMPL,templateImpl);
+
             templateImplDTO = client.getTemplateImpDTO(template, templateImpl);
             bpsProfiles = client.listBPSProfiles();
         }
@@ -166,6 +173,10 @@
 
         <div id="workArea">
 
+            <%
+                if( isSelf  || templateImpl == null){
+            %>
+
             <form id="id_param_template_impl" method="post" name="serviceAdd" action="template-impl-params.jsp">
                 <input type="hidden" name="path" value="<%=requestPath%>"/>
                 <input type="hidden" name="self" value="true"/>
@@ -193,6 +204,12 @@
 
             </form>
 
+            <%
+            }
+            %>
+
+            </br>
+
 
             <form id="param-form" method="post" name="serviceAdd" action="update-workflow-finish.jsp">
                 <input type="hidden" name="path" value="<%=requestPath%>"/>
@@ -219,7 +236,7 @@
                 <table class="styledLeft">
                     <thead>
                     <tr>
-                        <th><fmt:message key="workflow.details"/></th>
+                        <th><fmt:message key='workflow.deployment.type'/> : <%= templateImpl %></th>
                     </tr>
                     </thead>
                     <tr>

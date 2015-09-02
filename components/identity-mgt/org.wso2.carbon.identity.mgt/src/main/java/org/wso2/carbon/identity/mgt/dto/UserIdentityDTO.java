@@ -34,7 +34,6 @@ public class UserIdentityDTO {
     private long unlockTime;
     private long lastLogonTime;
     private long lastFailAttemptTime;
-    private long passwordTimeStamp;
     private int failAttempts;
     private boolean accountLock;
     private boolean temporaryLock;
@@ -195,15 +194,6 @@ public class UserIdentityDTO {
      */
     public void setUserIdentityDataClaim(String claim, String value) {
         userDataMap.put(claim, value);
-    }
-
-    public long getPasswordTimeStamp() {
-        return passwordTimeStamp;
-    }
-
-    public void setPasswordTimeStamp(long passwordTimeStamp) {
-        this.passwordTimeStamp = passwordTimeStamp;
-        this.userDataMap.put(UserIdentityDataStore.PASSWORD_TIME_STAMP, Long.toString(passwordTimeStamp));
     }
 
     public int getTenantId() {

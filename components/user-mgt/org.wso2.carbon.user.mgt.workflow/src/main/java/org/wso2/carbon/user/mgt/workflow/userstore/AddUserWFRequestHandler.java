@@ -90,7 +90,7 @@ public class AddUserWFRequestHandler extends AbstractWorkflowRequestHandler {
 
         Map<String, Object> wfParams = new HashMap<>();
         Map<String, Object> nonWfParams = new HashMap<>();
-        String encryptedCredentials=null;
+        String encryptedCredentials = null;
 
         if (roleList == null) {
             roleList = new String[0];
@@ -125,11 +125,9 @@ public class AddUserWFRequestHandler extends AbstractWorkflowRequestHandler {
             fullyQualifiedName = UserCoreUtil.addDomainToName(roleList[i], userStoreDomain);
             entities[i + 1] = new Entity(fullyQualifiedName, UserStoreWFConstants.ENTITY_TYPE_ROLE, tenant);
         }
-        if (workflowService.eventEngagedWithWorkflows(UserStoreWFConstants.ADD_USER_EVENT) && !Boolean.TRUE.equals
-                (getWorkFlowCompleted()) && !isValidOperation(entities)) {
+        if (!Boolean.TRUE.equals(getWorkFlowCompleted()) && !isValidOperation(entities)) {
             throw new WorkflowException("Operation is not valid.");
         }
-
         boolean state = startWorkFlow(wfParams, nonWfParams, uuid);
 
         //WF_REQUEST_ENTITY_RELATIONSHIP table has foreign key to WF_REQUEST, so need to run this after WF_REQUEST is
@@ -258,11 +256,11 @@ public class AddUserWFRequestHandler extends AbstractWorkflowRequestHandler {
                 if (entities[i].getEntityType() == UserStoreWFConstants.ENTITY_TYPE_USER && workflowService
                         .entityHasPendingWorkflowsOfType(entities[i], UserStoreWFConstants.ADD_USER_EVENT)) {
                     throw new WorkflowException("Username already exists in the system. Please pick another username.");
-                } else if (entities[i].getEntityType() == UserStoreWFConstants.ENTITY_TYPE_ROLE && (workflowService
+                } else if (workflowService.eventEngagedWithWorkflows(UserStoreWFConstants.ADD_USER_EVENT) &&
+                        entities[i].getEntityType() == UserStoreWFConstants.ENTITY_TYPE_ROLE && (workflowService
                         .entityHasPendingWorkflowsOfType(entities[i], UserStoreWFConstants.DELETE_ROLE_EVENT) ||
-                        workflowService
-                                .entityHasPendingWorkflowsOfType(entities[i], UserStoreWFConstants
-                                        .UPDATE_ROLE_NAME_EVENT))) {
+                        workflowService.entityHasPendingWorkflowsOfType(entities[i], UserStoreWFConstants
+                                .UPDATE_ROLE_NAME_EVENT))) {
 
                     throw new WorkflowException("One or more roles assigned has pending workflows which " +
                             "blocks this operation.");

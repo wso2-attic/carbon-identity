@@ -22,6 +22,7 @@ import org.apache.commons.collections.MapUtils;
 import org.openid4java.message.MessageExtension;
 import org.wso2.carbon.identity.application.common.model.ClaimMapping;
 import org.wso2.carbon.identity.base.IdentityException;
+import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
 import org.wso2.carbon.identity.provider.IdentityProviderException;
 import org.wso2.carbon.identity.provider.dto.OpenIDAuthRequestDTO;
 import org.wso2.carbon.identity.provider.dto.OpenIDClaimDTO;
@@ -37,8 +38,6 @@ import java.util.Map;
  */
 
 public abstract class OpenIDExtension {
-
-    private static final String MULTI_ATTRIBUTE_SEPARATOR = "MultiAttributeSeparator";
 
     /**
      * Creates an instance of MessageExtension for the OpenID authentication
@@ -98,7 +97,8 @@ public abstract class OpenIDExtension {
 
         if (requiredClaims.isEmpty()) {
             for (Map.Entry<ClaimMapping, String> entry : receivedClaims.entrySet()) {
-                if (MULTI_ATTRIBUTE_SEPARATOR.equals(entry.getKey().getRemoteClaim().getClaimUri())) {
+                if (IdentityCoreConstants.MULTI_ATTRIBUTE_SEPARATOR.equals(entry.getKey().getRemoteClaim()
+                        .getClaimUri())) {
                     continue;
                 }
                 OpenIDClaimDTO openIDClaimDTO = new OpenIDClaimDTO();
