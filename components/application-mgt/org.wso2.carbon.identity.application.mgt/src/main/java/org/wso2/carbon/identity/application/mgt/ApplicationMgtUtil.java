@@ -145,6 +145,7 @@ public class ApplicationMgtUtil {
         List<String> qualifiedUserList = new ArrayList<>();
 
         try {
+            // assign the app role for all the users, having admin privileges
             qualifiedUserList.add(qualifiedUsername);
             String[] userListOfAdminRole = CarbonContext.getThreadLocalCarbonContext().getUserRealm().getUserStoreManager().getUserListOfRole("admin");
             for (String userName : userListOfAdminRole) {
@@ -168,7 +169,7 @@ public class ApplicationMgtUtil {
     }
 
     /**
-     * Assign Admin users to the role created for a application.
+     * Assign Admin users to the role that created for a application.
      *
      * @param applicationName
      * @param qualifiedUsername
@@ -178,15 +179,13 @@ public class ApplicationMgtUtil {
         String roleName = getAppRoleName(applicationName);
         String [] user = {qualifiedUsername};
         try {
-            // create a role for the application and assign the user to that role.
             if (log.isDebugEnabled()) {
-                log.debug("Creating application role : " + roleName + " and assign the user : "
-                        + Arrays.toString(user) + " to that role");
+                log.debug("Adding admin user : " + qualifiedUsername + " to the application role :" + roleName);
             }
             CarbonContext.getThreadLocalCarbonContext().getUserRealm().getUserStoreManager()
                     .updateUserListOfRole(roleName, null , user);
         } catch (UserStoreException e) {
-            throw new IdentityApplicationManagementException("Error while creating application", e);
+            throw new IdentityApplicationManagementException("Error while assigning admin user to the app role.", e);
         }
     }
 
