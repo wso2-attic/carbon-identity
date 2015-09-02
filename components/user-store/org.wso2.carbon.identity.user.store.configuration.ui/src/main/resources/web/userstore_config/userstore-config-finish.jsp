@@ -30,6 +30,7 @@
 <%@ page import="java.util.HashMap" %>
         <%@ page import="java.util.Map" %>
         <%@ page import="java.util.ResourceBundle" %>
+        <%@ page import="org.apache.commons.lang.StringEscapeUtils" %>
 
         <%
         	Map<String, String> properties = new HashMap<String, String>();
@@ -71,7 +72,7 @@
                         }
                     }
                     propertyDTO.setName(CharacterEncoder.getSafeText(request.getParameter("propertyName_" + i)));
-                    propertyDTO.setValue(value);
+                    propertyDTO.setValue(StringEscapeUtils.unescapeXml(StringEscapeUtils.unescapeXml(value)));
                     propertyList.add(propertyDTO);
                 }
             }
