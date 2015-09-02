@@ -124,6 +124,44 @@ public class WorkflowDAO {
         return worlflowParams;
     }
 
+    public WorkflowDTO getWorkflow(String workflowId) throws InternalWorkflowException {
+
+        Connection connection = null;
+        PreparedStatement prepStmt = null;
+        ResultSet rs = null;
+        String query = SQLConstants.GET_WORKFLOW;
+
+        WorkflowDTO  workflowDTO = new WorkflowDTO();
+
+        try {
+            connection = IdentityDatabaseUtil.getDBConnection();
+            prepStmt = connection.prepareStatement(query);
+            prepStmt.setString(1, workflowId);
+            rs = prepStmt.executeQuery();
+            while (rs.next()) {
+                String workflowName = rs.getString(SQLConstants.WF_NAME_COLUMN);
+                String description = rs.getString(SQLConstants.DESCRIPTION_COLUMN);
+                String templateId = rs.getString(SQLConstants.TEMPLATE_ID_COLUMN);
+                String implId = rs.getString(SQLConstants.TEMPLATE_IMPL_ID_COLUMN);
+
+                workflowDTO.setWorkflowId(workflowId);
+                workflowDTO.setWorkflowName(workflowName);
+                workflowDTO.setWorkflowDescription(description);
+                workflowDTO.setTemplateName(templateId);
+                workflowDTO.setImplementationName(implId);
+
+                break ;
+            }
+        } catch (IdentityException e) {
+            throw new InternalWorkflowException("Error when connecting to the Identity Database.", e);
+        } catch (SQLException e) {
+            throw new InternalWorkflowException("Error when executing the sql.", e);
+        } finally {
+            IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
+        }
+        return workflowDTO;
+    }
+
     /**
      * Stores the association of workflow executor service to a event type with the condition.
      */
