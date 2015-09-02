@@ -262,15 +262,15 @@
                         } else {
                             ClaimAttributeDTO[] attrMap = claims[j].getMappedAttributes();
                             if (attrMap != null) {
-                                StringBuilder stringBuilder = new StringBuilder();
+                                StringBuilder mappedAttributeWithDomain = new StringBuilder();
                                 for (int x = 0; x < attrMap.length; x++) {
-                                    stringBuilder.append(";");
-                                    stringBuilder.append(attrMap[x].getDomainName());
-                                    stringBuilder.append("/");
-                                    stringBuilder.append(attrMap[x].getAttributeName());
+                                    mappedAttributeWithDomain.append(";");
+                                    mappedAttributeWithDomain.append(attrMap[x].getDomainName());
+                                    mappedAttributeWithDomain.append("/");
+                                    mappedAttributeWithDomain.append(attrMap[x].getAttributeName());
                                 }
-                                String subString = stringBuilder.toString();
-                                if (StringUtils.isNotEmpty(stringBuilder.toString())) {
+                                String subString = mappedAttributeWithDomain.toString();
+                                if (StringUtils.isNotEmpty(mappedAttributeWithDomain.toString())) {
                                     subString = subString.substring(1);
                                     claims[j].setMappedAttribute(subString);
                                 }
