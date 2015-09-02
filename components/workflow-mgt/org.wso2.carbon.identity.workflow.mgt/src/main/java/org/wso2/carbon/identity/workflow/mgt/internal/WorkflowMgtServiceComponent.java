@@ -26,16 +26,16 @@ import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
+import org.wso2.carbon.identity.workflow.mgt.WorkflowService;
 import org.wso2.carbon.identity.workflow.mgt.bean.BPSProfileDTO;
-import org.wso2.carbon.identity.workflow.mgt.exception.InternalWorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
+import org.wso2.carbon.identity.workflow.mgt.extension.WorkflowRequestHandler;
 import org.wso2.carbon.identity.workflow.mgt.listener.WorkflowTenantMgtListener;
 import org.wso2.carbon.identity.workflow.mgt.template.AbstractWorkflowTemplate;
 import org.wso2.carbon.identity.workflow.mgt.template.AbstractWorkflowTemplateImpl;
 import org.wso2.carbon.identity.workflow.mgt.template.impl.BPELApprovalTemplateImpl;
 import org.wso2.carbon.identity.workflow.mgt.template.impl.SimpleApprovalTemplate;
-import org.wso2.carbon.identity.workflow.mgt.extension.WorkflowRequestHandler;
-import org.wso2.carbon.identity.workflow.mgt.WorkflowService;
 import org.wso2.carbon.identity.workflow.mgt.util.WorkFlowConstants;
 import org.wso2.carbon.stratos.common.listeners.TenantMgtListener;
 import org.wso2.carbon.user.core.service.RealmService;
@@ -106,7 +106,11 @@ public class WorkflowMgtServiceComponent {
         }
 
         this.addDefaultBPSProfile();
-
+        String workflowEnabled = IdentityUtil.getProperty(WorkFlowConstants.IdentityWorkflowConstants.WORKFLOW_ENABLED);
+        if (log.isDebugEnabled()) {
+            log.debug("Workflow triggering enabled: " + Boolean.valueOf(workflowEnabled));
+        }
+        WorkflowServiceDataHolder.getInstance().setWorkFlowTriggeringEnabled(workflowEnabled);
 
     }
 
@@ -150,7 +154,7 @@ public class WorkflowMgtServiceComponent {
         WorkflowServiceDataHolder.getInstance().removeTemplateImpl(templateImpl);
     }
 
-    private void addDefaultBPSProfile(){
+    private void addDefaultBPSProfile() {
 
         BPSProfileDTO bpsProfileDTO = new BPSProfileDTO();
         String hostName = ServerConfiguration.getInstance().getFirstProperty(IdentityCoreConstants.HOST_NAME);
@@ -175,23 +179,19 @@ public class WorkflowMgtServiceComponent {
             WorkflowService workflowService = WorkflowServiceDataHolder.getInstance().getWorkflowService();
             BPSProfileDTO currentBpsProfile = workflowService
                     .getBPSProfile(WorkFlowConstants.DEFAULT_BPS_PROFILE, MultitenantConstants.SUPER_TENANT_ID);
-            if(currentBpsProfile == null) {
+            if (currentBpsProfile == null) {
                 workflowService.addBPSProfile(bpsProfileDTO, MultitenantConstants.SUPER_TENANT_ID);
-                if(log.isDebugEnabled()){
-                    log.info("Default BPS profile added to the DB");
+                if (log.isDebugEnabled()) {
+                    log.debug("Default BPS profile added to the DB");
                 }
             }
         } catch (SocketException e) {
             //This is not thrown exception because this is not blocked to the other functionality. User can create default profile by manually.
-            String errorMsg = "Error while trying to read hostname, " + e.getMessage() ;
-            log.error(errorMsg);
-        } catch (InternalWorkflowException e) {
-            //This is not thrown exception because this is not blocked to the other functionality. User can create default profile by manually.
-            String errorMsg = "Error occured while adding default bps profile, " + e.getMessage() ;
+            String errorMsg = "Error while trying to read hostname, " + e.getMessage();
             log.error(errorMsg);
         } catch (WorkflowException e) {
             //This is not thrown exception because this is not blocked to the other functionality. User can create default profile by manually.
-            String errorMsg = "Error occured while adding default bps profile, " + e.getMessage() ;
+            String errorMsg = "Error occured while adding default bps profile, " + e.getMessage();
             log.error(errorMsg);
         }
     }

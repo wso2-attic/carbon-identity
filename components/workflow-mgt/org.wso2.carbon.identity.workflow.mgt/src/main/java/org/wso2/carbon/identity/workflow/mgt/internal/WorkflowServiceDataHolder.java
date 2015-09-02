@@ -23,10 +23,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
 import org.wso2.carbon.identity.workflow.mgt.WorkflowService;
+import org.wso2.carbon.identity.workflow.mgt.exception.RuntimeWorkflowException;
+import org.wso2.carbon.identity.workflow.mgt.extension.WorkflowRequestHandler;
 import org.wso2.carbon.identity.workflow.mgt.template.AbstractWorkflowTemplate;
 import org.wso2.carbon.identity.workflow.mgt.template.AbstractWorkflowTemplateImpl;
-import org.wso2.carbon.identity.workflow.mgt.extension.WorkflowRequestHandler;
-import org.wso2.carbon.identity.workflow.mgt.exception.RuntimeWorkflowException;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.ConfigurationContextService;
 
@@ -51,7 +51,8 @@ public class WorkflowServiceDataHolder {
     private Map<String, AbstractWorkflowTemplate> templates;
     private Set<AbstractWorkflowTemplateImpl> unresolvedImpls;
 
-    private WorkflowService workflowService = null ;
+    private WorkflowService workflowService = null;
+    private boolean workFlowTriggeringEnabled = false;
 
     private WorkflowServiceDataHolder() {
 
@@ -209,11 +210,23 @@ public class WorkflowServiceDataHolder {
     }
 
     public WorkflowService getWorkflowService() {
+
         return workflowService;
     }
 
     public void setWorkflowService(WorkflowService workflowService) {
+
         this.workflowService = workflowService;
+    }
+
+    public boolean isWorkFlowTriggeringEnabled() {
+
+        return workFlowTriggeringEnabled;
+    }
+
+    public void setWorkFlowTriggeringEnabled(String workFlowEnabled) {
+
+        this.workFlowTriggeringEnabled = Boolean.valueOf(workFlowEnabled);
     }
 }
 
