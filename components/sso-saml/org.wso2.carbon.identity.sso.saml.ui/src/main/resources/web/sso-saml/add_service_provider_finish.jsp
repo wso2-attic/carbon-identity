@@ -158,12 +158,12 @@
         if (Boolean.parseBoolean(request.getParameter(SAMLSSOUIConstants.ENABLE_AUDIENCE_RESTRICTION))) {
 
             String audiencesCountParameter = SAMLSSOUIUtil.getSafeInput(request, "audiencePropertyCounter");
-            if (audiencesCountParameter != null && !"".equals(audiencesCountParameter)) {
+            if (StringUtils.isNotEmpty(audiencesCountParameter)) {
                 try {
                     int audiencesCount = Integer.parseInt(audiencesCountParameter);
                     for (int i = 0; i < audiencesCount; i++) {
                         String audience = SAMLSSOUIUtil.getSafeInput(request, "audiencePropertyName" + i);
-                        if (audience != null && !"".equals(audience) && !"null".equals(audience)) {
+                        if (StringUtils.isNotEmpty(audience) && !"null".equals(audience)) {
                             String[] currentAudiences = serviceProviderDTO.getRequestedAudiences();
                             boolean isAudienceAlreadyAdded = false;
                             for (String currentAudience : currentAudiences) {
@@ -187,12 +187,12 @@
         if (Boolean.parseBoolean(request.getParameter(SAMLSSOUIConstants.ENABLE_RECIPIENTS))) {
 
             String recipientCountParameter = SAMLSSOUIUtil.getSafeInput(request, "recipientPropertyCounter");
-            if (recipientCountParameter != null && !"".equals(recipientCountParameter)) {
+            if (StringUtils.isNotEmpty(recipientCountParameter)) {
                 try {
                     int recipientCount = Integer.parseInt(recipientCountParameter);
                     for (int i = 0; i < recipientCount; i++) {
                         String recipient = SAMLSSOUIUtil.getSafeInput(request, "recipientPropertyName" + i);
-                        if (recipient != null && !"".equals(recipient) && !"null".equals(recipient)) {
+                        if (StringUtils.isNotEmpty(recipient) && !"null".equals(recipient)) {
                             String[] currentRecipients = serviceProviderDTO.getRequestedRecipients();
                             boolean isRecipientAlreadyAdded = false;
                             for (String currentRecipient : currentRecipients) {
