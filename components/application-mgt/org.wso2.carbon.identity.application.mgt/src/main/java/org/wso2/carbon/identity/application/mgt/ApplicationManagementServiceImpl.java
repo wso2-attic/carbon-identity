@@ -116,13 +116,13 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
 
             for (ApplicationMgtListener listener : listeners) {
                 if(!listener.doPreCreateApplication(serviceProvider)){
-                    return -1;
+                    return 0;
                 }
             }
 
             for (ApplicationMgtListener listener : listeners) {
                 if(!listener.doPostCreateApplication(serviceProvider)){
-                    return -1;
+                    return 0;
                 }
             }
 
