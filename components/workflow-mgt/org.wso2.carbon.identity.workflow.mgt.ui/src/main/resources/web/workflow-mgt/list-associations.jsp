@@ -151,7 +151,6 @@
                     <th width="30%"><fmt:message key="workflow.service.associate.event"/></th>
                     <th width="15%"><fmt:message key="workflow.name"/></th>
                     <th><fmt:message key="actions"/></th>
-                    <th></th>
                 </tr>
                 </thead>
                 <tbody>
@@ -165,13 +164,6 @@
                     <td><%=association.getEventName()%>
                     </td>
                     <td><%=association.getWorkflowName()%>
-                    </td>
-                    <td>
-                        <a title="<fmt:message key='workflow.service.association.delete.title'/>"
-                           onclick="removeAssociation('<%=association.getAssociationId()%>',
-                                   '<%=association.getAssociationName()%>');return false;"
-                           href="#" style="background-image: url(images/delete.gif);"
-                           class="icon-link"><fmt:message key='delete'/></a>
                     </td>
                     <td>
                         <% if(association.getEnabled()){ %>
@@ -191,6 +183,11 @@
                         <%
                             }
                         %>
+                        <a title="<fmt:message key='workflow.service.association.delete.title'/>"
+                           onclick="removeAssociation('<%=association.getAssociationId()%>',
+                                   '<%=association.getAssociationName()%>');return false;"
+                           href="#" style="background-image: url(images/delete.gif);"
+                           class="icon-link"><fmt:message key='delete'/></a>
                     </td>
                 </tr>
                 <%
