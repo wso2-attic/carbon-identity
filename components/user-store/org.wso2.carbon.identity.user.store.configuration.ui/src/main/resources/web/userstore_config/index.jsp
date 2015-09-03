@@ -28,6 +28,7 @@
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@ page import="java.util.ResourceBundle" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 
 <fmt:bundle basename="org.wso2.carbon.identity.user.store.configuration.ui.i18n.Resources">
 <carbon:breadcrumb
@@ -220,34 +221,34 @@
                         }
 
                 %>
-                <tr id=<%=domainId%>>
+                <tr id=<%=Encode.forHtmlAttribute(domainId)%>>
                     <td style="width: 5%;margin-top:10px;">
                         <input type="checkbox" name="userStores"
-                               value="<%=domainId%>"
+                               value="<%=Encode.forHtmlAttribute(domainId)%>"
                                onclick="resetVars()"
                                class="chkBox"/>
                     </td>
                     <td style="width: 10%;margin-top:10px;">
-                        <a><%=domainId%>
+                        <a><%=Encode.forHtml(domainId)%>
                         </a>
                     </td>
                     <td style="width: 40%;margin-top:10px;">
-                        <a><%=className%>
+                        <a><%=Encode.forHtml(className)%>
                         </a>
                     </td>
                     <td style="width: 45%;margin-top:10px;">
                         <a title="<fmt:message key='edit.userstore'/>"
-                           onclick="edit('<%=domainId%>','<%=className%>');"
+                           onclick="edit('<%=Encode.forJavaScript(Encode.forHtml(domainId))%>','<%=Encode.forJavaScript(Encode.forHtml(className))%>');"
                            href="#" style="background-image: url(images/edit.gif);" class="icon-link">
                             <fmt:message key='edit.userstore'/></a>
                         <% if (!isDisabled) { %>
                         <a title="<fmt:message key='disable.userstore'/>"
-                           onclick="disable('<%=domainId%>');return false;"
+                           onclick="disable('<%=Encode.forJavaScript(Encode.forHtml(domainId))%>');return false;"
                            href="#" style="background-image: url(images/disable.gif);" class="icon-link">
                             <fmt:message key='disable.userstore'/></a>
                         <% } else { %>
                         <a title="<fmt:message key='enable.userstore'/>"
-                           onclick="enable('<%=domainId%>');return false;"
+                           onclick="enable('<%=Encode.forJavaScript(Encode.forHtml(domainId))%>');return false;"
                            href="#" style="background-image: url(images/enable.gif);" class="icon-link">
                             <fmt:message key='enable.userstore'/></a>
                         <%

@@ -27,6 +27,7 @@
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
 <%@ page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
+<%@ page import="org.owasp.encoder.Encode"
 <%@ page import="java.util.Iterator" %>
 <%@ page import="java.util.Map" %>
 <%@ page import="java.util.ResourceBundle" %>
@@ -351,6 +352,7 @@
                     <%
                         for (String classApply : classApplies) {
                             if (selectedClassApplied != null && classApply.equals(selectedClassApplied)) {
+                                classApply = Encode.forHtmlAttribute(classApply);
                     %>
                     <option value="<%=classApply%>" selected="selected"><%=classApply%>
                     </option>
@@ -376,8 +378,8 @@
             <%
                 if (domain != null && domain.trim().length() > 0 && !domain.equals("0")) {
             %>
-            <td><input type="text" name="domainId" id="domainId" width="" value="<%=domain%>"/></td>
-            <td><input type="hidden" name="previousDomainId" id="previousDomainId" value="<%=domain%>"/></td>
+            <td><input type="text" name="domainId" id="domainId" width="" value="<%=Encode.forHtmlAttribute(domain)%>"/></td>
+            <td><input type="hidden" name="previousDomainId" id="previousDomainId" value="<%=Encode.forHtmlAttribute(domain)%>"/></td>
             <%
             } else {
             %>
@@ -392,7 +394,7 @@
             <%
                 if (description != null && description.trim().length() > 0) {
             %>
-            <td><textarea name="description" id="description" class="text-box-big"><%=description%>
+            <td><textarea name="description" id="description" class="text-box-big"><%=Encode.forHtml(description)%>
             </textarea>
             </td>
             <%
@@ -503,12 +505,12 @@
                             <%
                             } else if (propertyName.endsWith("password") || propertyName.endsWith("Password")) { %>
                             <input type="password" name=<%=value%> id=<%=value%> style="width:95%"
-                                   value="<%=propertyValue%>"/>
+                                   value="<%=Encode.forHtmlAttribute(propertyValue)%>"/>
                             <%
                             } else {
                             %>
                             <input type="text" name=<%=value%> id=<%=value%> style="width:95%"
-                                   value="<%=propertyValue%>"/>
+                                   value="<%=Encode.forHtmlAttribute(propertyValue)%>"/>
                             <%
                                 }
                             %>
@@ -521,7 +523,7 @@
                             %>
                         </td>
                         <td class="sectionHelp" width="50%" style="text-align:left; !important">
-                            <%=description%>
+                            <%=Encode.forHtml(description)%>
                         </td>
 
                     </tr>
@@ -649,7 +651,7 @@
                             } else {
                             %>
                             <input type="text" name=<%=value%> id=<%=value%> style="width:95%"
-                                   value="<%=propertyValue%>"/>
+                                   value="<%=Encode.forHtmlAttribute(propertyValue)%>"/>
                             <%
                                     }
                                 } else {
@@ -672,11 +674,11 @@
                                     <td style="width:30%" style="display:none;">
                                         <input type="hidden" name=<%=value%> id=<%=value%>
                                         style="width:95%"
-                                               value="<%=propertyValue%>"/>
+                                               value="<%=Encode.forHtmlAttribute(propertyValue)%>"/>
 
                                     </td>
                                     <td class="sectionHelp" width="50%" style="display:none;">
-                                        <%=description%>
+                                        <%=Encode.forHtml(description)%>
                                     </td>
                                     <%
                                 }
@@ -777,7 +779,7 @@
                             } else {
                             %>
                             <input type="text" name=<%=value%> id=<%=value%> style="width:95%"
-                                   value="<%=propertyValue%>"/>
+                                   value="<%=Encode.forHtmlAttribute(propertyValue)%>"/>
                             <%
                                     }
                                 } else {
