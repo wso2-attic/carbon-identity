@@ -60,8 +60,6 @@ public class UserApplicationMgtEventListener implements UserOperationEventListen
         try {
             for (String role : roleList) {
                 if (StringUtils.equals(role, "admin")) {
-                    //ApplicationManagementService applicationMgtService = ApplicationManagementService.getInstance();
-                    //ApplicationBasicInfo[] applicationBasicInfos = applicationMgtService.getAllApplicationBasicInfo(CarbonContext.getThreadLocalCarbonContext().getTenantDomain(), userName);
                     ApplicationDAO appDAO = ApplicationMgtSystemConfig.getInstance().getApplicationDAO();
                     ApplicationBasicInfo[] applicationBasicInfos = appDAO.getAllApplicationBasicInfoForAdmin();
                     for (ApplicationBasicInfo app : applicationBasicInfos) {
