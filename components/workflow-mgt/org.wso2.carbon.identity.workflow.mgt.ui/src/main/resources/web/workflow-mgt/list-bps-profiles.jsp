@@ -7,7 +7,7 @@
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.WorkflowUIConstants" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
-<%@ page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
+
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@ page import="java.util.ResourceBundle" %>
 <%--
@@ -51,7 +51,7 @@
         String serviceAlias = null;
         paginationValue = "region=region1&item=workflow_services_list_menu";
 
-        String pageNumber = CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_PAGE_NUMBER));
+        String pageNumber = request.getParameter(WorkflowUIConstants.PARAM_PAGE_NUMBER);
         pageNumberInt = 0;
         numberOfPages = 0;
 
