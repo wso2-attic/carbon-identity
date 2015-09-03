@@ -368,4 +368,10 @@
         <EventListener type="org.wso2.carbon.user.core.listener.UserOperationEventListener" name="org.wso2.carbon.identity.provider.openid.listener.IdentityOpenIDUserEventListener"
                        orderId="70" enable="false"/>
     </EventListeners>
+
+    <Workflows>
+        <!--Enable or disable triggering workflows globally-->
+        <EnableTriggeringWorkflows>true</EnableTriggeringWorkflows>
+    </Workflows>
+
 </Server>

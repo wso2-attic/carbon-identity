@@ -23,11 +23,7 @@ import java.util.Set;
 
 public class WorkFlowConstants {
 
-    public static final String WF_STATUS_NO_MATCHING_EXECUTORS = "NO_MATCHING_EXECUTOR";
     public static final String DEFAULT_BPS_PROFILE = "embeded_bps";
-    public static final String PROFILE = "profile";
-    public static final String DEFAULT_CARBON_PROFILE = "default";
-    public static final String WORKFLOW_PROFILE = "workflow" ;
 
     public static final String WORKFLOW_DOMAIN = "Workflow";
 
@@ -44,11 +40,17 @@ public class WorkFlowConstants {
         NUMERIC_CLASSES.add(Double.class);
     }
 
+    public static class IdentityWorkflowConstants {
+
+        public static final String WORKFLOW_ENABLED = "Workflows.EnableTriggeringWorkflows";
+    }
+
     public static class TemplateConstants {
 
         public static final String APPROVAL_TEMPLATE_ID = "SimpleApproval";
         public static final String SIMPLE_APPROVAL_USER_OR_ROLE_NAME = "UserNameOrRoleName";
-        public static final String SIMPLE_APPROVAL_USERS_OR_ROLES_DISPLAY_NAME = "Users or Roles to Authorize the Request";
+        public static final String SIMPLE_APPROVAL_USERS_OR_ROLES_DISPLAY_NAME =
+                "Users or Roles to Authorize the Request";
 
         public static final String IMMEDIATE_DENY_TEMPLATE_ID = "ImmediateDeny";
 

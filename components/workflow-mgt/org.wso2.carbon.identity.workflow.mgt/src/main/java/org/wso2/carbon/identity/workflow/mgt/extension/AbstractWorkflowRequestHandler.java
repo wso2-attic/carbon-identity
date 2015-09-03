@@ -21,11 +21,12 @@ package org.wso2.carbon.identity.workflow.mgt.extension;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.identity.workflow.mgt.WorkFlowExecutorManager;
 import org.wso2.carbon.identity.workflow.mgt.bean.Entity;
-import org.wso2.carbon.identity.workflow.mgt.util.WorkflowDataType;
 import org.wso2.carbon.identity.workflow.mgt.bean.RequestParameter;
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkFlowRequest;
 import org.wso2.carbon.identity.workflow.mgt.exception.RuntimeWorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
+import org.wso2.carbon.identity.workflow.mgt.internal.WorkflowServiceDataHolder;
+import org.wso2.carbon.identity.workflow.mgt.util.WorkflowDataType;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -73,9 +74,14 @@ public abstract class AbstractWorkflowRequestHandler implements WorkflowRequestH
     public boolean startWorkFlow(Map<String, Object> wfParams, Map<String, Object> nonWfParams, String uuid)
             throws WorkflowException {
 
+        if (!WorkflowServiceDataHolder.getInstance().isWorkFlowTriggeringEnabled()) {
+            return true;
+        }
+
         if (isWorkflowCompleted()) {
             return true;
         }
+
         WorkFlowRequest workFlowRequest = new WorkFlowRequest();
         List<RequestParameter> parameters = new ArrayList<RequestParameter>(wfParams.size() + nonWfParams.size());
         for (Map.Entry<String, Object> paramEntry : wfParams.entrySet()) {
@@ -192,6 +198,7 @@ public abstract class AbstractWorkflowRequestHandler implements WorkflowRequestH
      * @return
      */
     public boolean isValidOperation(Entity[] entities) throws WorkflowException {
+
         return true;
     }
 
