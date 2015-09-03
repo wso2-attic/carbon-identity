@@ -27,7 +27,7 @@
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.WorkflowUIConstants" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
-<%@ page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
+
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@ page import="java.util.HashMap" %>
 <%@ page import="java.util.Map" %>
@@ -48,7 +48,7 @@
 
 
 
-    String template = CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_WORKFLOW_TEMPLATE));
+    String template = request.getParameter(WorkflowUIConstants.PARAM_WORKFLOW_TEMPLATE);
     Map<String, String> templateParams = new HashMap<String, String>();
 
     Map<String, String> attribMap = new HashMap<String, String>() ;
@@ -70,10 +70,8 @@
     }
 
     if (!isSelf) {
-        String workflowName =
-                CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_WORKFLOW_NAME));
-        String description =
-                CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_WORKFLOW_DESCRIPTION));
+        String workflowName = request.getParameter(WorkflowUIConstants.PARAM_WORKFLOW_NAME);
+        String description = request.getParameter(WorkflowUIConstants.PARAM_WORKFLOW_DESCRIPTION);
         if (workflowName != null) {
             attribMap.put(WorkflowUIConstants.PARAM_WORKFLOW_NAME, workflowName);
         }
