@@ -23,7 +23,9 @@ import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
 import org.wso2.carbon.identity.application.common.model.ApplicationBasicInfo;
 import org.wso2.carbon.identity.application.mgt.ApplicationManagementService;
+import org.wso2.carbon.identity.application.mgt.ApplicationMgtSystemConfig;
 import org.wso2.carbon.identity.application.mgt.ApplicationMgtUtil;
+import org.wso2.carbon.identity.application.mgt.dao.ApplicationDAO;
 import org.wso2.carbon.user.api.Permission;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
@@ -31,7 +33,7 @@ import org.wso2.carbon.user.core.listener.UserOperationEventListener;
 
 import java.util.Map;
 
-public class ApplicationMgtEventListener extends UserOperationEventListener {
+public class UserApplicationMgtEventListener implements UserOperationEventListener {
 
     @Override
     public int getExecutionOrderId() {
@@ -58,8 +60,10 @@ public class ApplicationMgtEventListener extends UserOperationEventListener {
         try {
             for (String role : roleList) {
                 if (StringUtils.equals(role, "admin")) {
-                    ApplicationManagementService applicationMgtService = ApplicationManagementService.getInstance();
-                    ApplicationBasicInfo[] applicationBasicInfos = applicationMgtService.getAllApplicationBasicInfo(CarbonContext.getThreadLocalCarbonContext().getTenantDomain(), userName);
+                    //ApplicationManagementService applicationMgtService = ApplicationManagementService.getInstance();
+                    //ApplicationBasicInfo[] applicationBasicInfos = applicationMgtService.getAllApplicationBasicInfo(CarbonContext.getThreadLocalCarbonContext().getTenantDomain(), userName);
+                    ApplicationDAO appDAO = ApplicationMgtSystemConfig.getInstance().getApplicationDAO();
+                    ApplicationBasicInfo[] applicationBasicInfos = appDAO.getAllApplicationBasicInfoForAdmin();
                     for (ApplicationBasicInfo app : applicationBasicInfos) {
                         ApplicationMgtUtil.addAdminUserToRole(app.getApplicationName(), userName);
                     }

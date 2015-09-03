@@ -28,7 +28,7 @@ import org.wso2.carbon.identity.application.common.model.ServiceProvider;
 import org.wso2.carbon.identity.application.mgt.ApplicationManagementService;
 import org.wso2.carbon.identity.application.mgt.ApplicationManagementServiceImpl;
 import org.wso2.carbon.identity.application.mgt.ApplicationMgtSystemConfig;
-import org.wso2.carbon.identity.application.mgt.listener.ApplicationMgtEventListener;
+import org.wso2.carbon.identity.application.mgt.listener.UserApplicationMgtEventListener;
 import org.wso2.carbon.registry.core.service.RegistryService;
 import org.wso2.carbon.user.core.listener.UserOperationEventListener;
 import org.wso2.carbon.user.core.service.RealmService;
@@ -69,7 +69,7 @@ public class ApplicationManagementServiceComponent {
     protected void activate(ComponentContext context) {
         try {
             bundleContext = context.getBundleContext();
-            bundleContext.registerService(UserOperationEventListener.class.getName(), new ApplicationMgtEventListener(), null);
+            bundleContext.registerService(UserOperationEventListener.class.getName(), new UserApplicationMgtEventListener(), null);
             // Registering Application management service as a OSGIService
             bundleContext.registerService(ApplicationManagementService.class.getName(),
                     ApplicationManagementServiceImpl.getInstance(), null);
