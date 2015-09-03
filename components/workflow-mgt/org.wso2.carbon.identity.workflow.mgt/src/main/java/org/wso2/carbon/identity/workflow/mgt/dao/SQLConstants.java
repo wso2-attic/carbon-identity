@@ -30,6 +30,7 @@ public class SQLConstants {
     public static final String WF_NAME_COLUMN = "WF_NAME";
     public static final String TEMPLATE_ID_COLUMN = "TEMPLATE_ID";
     public static final String TEMPLATE_IMPL_ID_COLUMN = "IMPL_ID";
+    public static final String TENANT_ID_COLUMN = "TENANT_ID";
     public static final String CONDITION_COLUMN = "ASSOC_CONDITION";
     public static final String PROFILE_NAME_COLUMN = "PROFILE_NAME";
     public static final String HOST_URL_COLUMN = "HOST_URL";
@@ -109,6 +110,11 @@ public class SQLConstants {
 
     public static final String GET_WORKFLOW_PARAMS = "SELECT PARAM_NAME, PARAM_VALUE FROM WF_WORKFLOW_CONFIG_PARAM " +
             "WHERE WORKFLOW_ID = ?";
+
+    public static final String GET_WORKFLOW =
+            "SELECT WF_WORKFLOW.WF_NAME, WF_WORKFLOW.DESCRIPTION, WF_WORKFLOW.TEMPLATE_ID, WF_WORKFLOW.IMPL_ID, " +
+            "WF_WORKFLOW.TENANT_ID FROM WF_WORKFLOW WHERE WF_WORKFLOW.ID = ?";
+
 
     public static final String DELETE_WORKFLOW_QUERY = "DELETE FROM WF_WORKFLOW WHERE ID = ?";
 

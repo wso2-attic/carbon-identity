@@ -25,6 +25,8 @@ public class WorkFlowConstants {
 
     public static final String DEFAULT_BPS_PROFILE = "embeded_bps";
 
+    public static final String WORKFLOW_DOMAIN = "Workflow";
+
     public static final Set<Class> NUMERIC_CLASSES;
 
     static {
