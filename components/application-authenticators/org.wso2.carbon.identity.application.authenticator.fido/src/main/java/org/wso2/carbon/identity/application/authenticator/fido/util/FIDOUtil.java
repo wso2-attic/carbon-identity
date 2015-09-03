@@ -18,10 +18,7 @@
 package org.wso2.carbon.identity.application.authenticator.fido.util;
 
 import org.wso2.carbon.CarbonConstants;
-import org.wso2.carbon.identity.application.authenticator.fido.exception.FIDOAuthenticatorServerException;
-import org.wso2.carbon.identity.application.authenticator.fido.internal.FIDOAuthenticatorServiceComponent;
-import org.wso2.carbon.user.api.UserStoreException;
-import org.wso2.carbon.user.core.service.RealmService;
+import org.wso2.carbon.user.core.UserCoreConstants;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -38,34 +35,6 @@ public class FIDOUtil {
 		       request.getServerPort();
 	}
 
-    public static int getTenantID(String tenantDomain) throws FIDOAuthenticatorServerException {
-
-        RealmService realmService = null;
-        int tenantId;
-        realmService = FIDOAuthenticatorServiceComponent.getRealmService();
-        try {
-            tenantId = realmService.getTenantManager().getTenantId(tenantDomain);
-        } catch (UserStoreException e) {
-            throw new FIDOAuthenticatorServerException(e.getMessage(), e);
-        }
-        return tenantId;
-    }
-
-    public static String getSafeText(String text) {
-        String trimmedText = null;
-        if (text == null) {
-            return text;
-        }
-        trimmedText = text.trim();
-        if (trimmedText.indexOf('<') > -1) {
-            trimmedText = trimmedText.replace("<", "&lt;");
-        }
-        if (trimmedText.indexOf('>') > -1) {
-            trimmedText = trimmedText.replace(">", "&gt;");
-        }
-        return trimmedText;
-    }
-
     public static String getUniqueUsername(HttpServletRequest request, String username) {
         return request.getServerName() + "/" + username;
     }
@@ -73,7 +42,7 @@ public class FIDOUtil {
     public static String getDomainName(String username) {
         int index = username.indexOf(CarbonConstants.DOMAIN_SEPARATOR);
         if (index < 0) {
-            return FIDOAuthenticatorConstants.PRIMARY_USER_DOMAIN;
+            return UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME;
         }
         return username.substring(0, index);
     }

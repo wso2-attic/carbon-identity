@@ -40,5 +40,8 @@ public class UserMgtConstants {
     public static final String INTERNAL_ROLE = "Internal";
 
     public static final String EXTERNAL_ROLE = "External";
+
+    public static final String APPLICATION_DOMAIN = "Application";
+
     //component xml constants
 }

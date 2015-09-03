@@ -36,6 +36,7 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.core.util.KeyStoreManager;
 import org.wso2.carbon.identity.core.model.OAuthAppDO;
+import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
 import org.wso2.carbon.identity.oauth.cache.CacheKey;
 import org.wso2.carbon.identity.oauth.common.exception.InvalidOAuthClientException;
 import org.wso2.carbon.identity.oauth.config.OAuthServerConfiguration;
@@ -91,8 +92,6 @@ public class JWTTokenGenerator implements AuthorizationContextTokenGenerator {
 
     private static final Base64 base64Url = new Base64(0, null, true);
 
-    private static final String MULTI_ATTRIBUTE_SEPARATOR = "MultiAttributeSeparator";
-
     private static volatile long ttl = -1L;
 
     private ClaimsRetriever claimsRetriever;
@@ -112,7 +111,7 @@ public class JWTTokenGenerator implements AuthorizationContextTokenGenerator {
         claimsLocalCache = ClaimCache.getInstance(OAuthServerConfiguration.getInstance().getClaimCacheTimeout());
     }
 
-    private String userAttributeSeparator = ",";
+    private String userAttributeSeparator = IdentityCoreConstants.MULTI_ATTRIBUTE_SEPARATOR_DEFAULT;
 
     //constructor for testing purposes
     public JWTTokenGenerator(boolean includeClaims, boolean enableSigning) {
@@ -170,7 +169,8 @@ public class JWTTokenGenerator implements AuthorizationContextTokenGenerator {
 
         RealmService realmService = OAuthComponentServiceHolder.getRealmService();
         // TODO : Need to handle situation where federated user name is similar to a one we have in our user store
-        if (realmService != null && tenantID != -1 && tenantID == OAuth2Util.getTenantIdFromUserName(authzUser)) {
+        if (realmService != null && tenantID != MultitenantConstants.INVALID_TENANT_ID &&
+                tenantID == OAuth2Util.getTenantIdFromUserName(authzUser)) {
             try {
                 UserRealm userRealm = realmService.getTenantUserRealm(tenantID);
                 if (userRealm != null) {
@@ -241,7 +241,7 @@ public class JWTTokenGenerator implements AuthorizationContextTokenGenerator {
 
             if(isExistingUser) {
                 String claimSeparator = getMultiAttributeSeparator(authzUser, tenantID);
-                if (claimSeparator != null) {
+                if (StringUtils.isBlank(claimSeparator)) {
                     userAttributeSeparator = claimSeparator;
                 }
             }
@@ -535,14 +535,14 @@ public class JWTTokenGenerator implements AuthorizationContextTokenGenerator {
             RealmConfiguration realmConfiguration = null;
             RealmService realmService = OAuthComponentServiceHolder.getRealmService();
 
-            if (realmService != null && tenantId != -1) {
+            if (realmService != null && tenantId != MultitenantConstants.INVALID_TENANT_ID) {
                 UserStoreManager userStoreManager = (UserStoreManager) realmService.getTenantUserRealm(tenantId)
                         .getUserStoreManager();
                 realmConfiguration = userStoreManager.getSecondaryUserStoreManager(userDomain).getRealmConfiguration();
             }
 
             if (realmConfiguration != null) {
-                claimSeparator = realmConfiguration.getUserStoreProperty(MULTI_ATTRIBUTE_SEPARATOR);
+                claimSeparator = realmConfiguration.getUserStoreProperty(IdentityCoreConstants.MULTI_ATTRIBUTE_SEPARATOR);
                 if (claimSeparator != null && !claimSeparator.trim().isEmpty()) {
                     return claimSeparator;
                 }

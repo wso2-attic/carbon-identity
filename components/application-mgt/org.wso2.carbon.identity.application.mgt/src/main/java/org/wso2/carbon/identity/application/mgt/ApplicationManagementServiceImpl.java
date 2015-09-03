@@ -24,6 +24,7 @@ import org.apache.axis2.description.AxisService;
 import org.apache.axis2.description.Parameter;
 import org.apache.axis2.engine.AxisConfiguration;
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.rahas.impl.SAMLTokenIssuerConfig;
@@ -31,6 +32,7 @@ import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.context.RegistryType;
 import org.wso2.carbon.core.RegistryResources;
+import org.wso2.carbon.directory.server.manager.DirectoryServerManager;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
 import org.wso2.carbon.identity.application.common.model.ApplicationBasicInfo;
 import org.wso2.carbon.identity.application.common.model.ApplicationPermission;
@@ -66,6 +68,7 @@ import org.wso2.carbon.utils.ServerConstants;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -223,7 +226,7 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
                     .getRegistry(RegistryType.USER_GOVERNANCE);
 
             boolean exist = tenantGovReg.resourceExists(applicationNode);
-            if (exist && !storedAppName.equals(serviceProvider.getApplicationName())) {
+            if (exist && !StringUtils.equals(storedAppName, serviceProvider.getApplicationName())) {
                 ApplicationMgtUtil.renameAppPermissionPathNode(storedAppName, serviceProvider.getApplicationName());
             }
 
@@ -319,8 +322,14 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
                         OAuthApplicationDAO oathDAO = ApplicationMgtSystemConfig.getInstance().getOAuthOIDCClientDAO();
                         oathDAO.removeOAuthApplication(config.getInboundAuthKey());
 
-                    } else if (IdentityApplicationConstants.Authenticator.WSTrust.NAME.equalsIgnoreCase(
-                            config.getInboundAuthType()) && config.getInboundAuthKey() != null) {
+                    } else if ("kerberos".equalsIgnoreCase(config.getInboundAuthType()) && config.getInboundAuthKey()
+                            != null) {
+
+                        DirectoryServerManager directoryServerManager = new DirectoryServerManager();
+                        directoryServerManager.removeServer(config.getInboundAuthKey());
+
+                    } else if(IdentityApplicationConstants.Authenticator.WSTrust.NAME.equalsIgnoreCase(
+                                            config.getInboundAuthType()) && config.getInboundAuthKey() != null) {
                         try {
                             AxisService stsService = getAxisConfig().getService(ServerConstants.STS_NAME);
                             Parameter origParam =
@@ -334,7 +343,7 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
                                 samlConfig.getTrustedServices().remove(config.getInboundAuthKey());
                                 setSTSParameter(samlConfig);
                                 removeTrustedService(ServerConstants.STS_NAME, ServerConstants.STS_NAME,
-                                                     config.getInboundAuthKey());
+                                        config.getInboundAuthKey());
                             } else {
                                 throw new IdentityApplicationManagementException(
                                         "missing parameter : " + SAMLTokenIssuerConfig.SAML_ISSUER_CONFIG.getLocalPart());
@@ -444,7 +453,11 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
             for (ClaimMapping claimMap : claimMappings) {
                 claimUris.add(claimMap.getClaim().getClaimUri());
             }
-            return claimUris.toArray(new String[claimUris.size()]);
+            String[] allLocalClaimUris = (claimUris.toArray(new String[claimUris.size()]));
+            if (ArrayUtils.isNotEmpty(allLocalClaimUris)) {
+                Arrays.sort(allLocalClaimUris);
+            }
+            return allLocalClaimUris;
         } catch (Exception e) {
             String error = "Error while reading system claims";
             log.error(error, e);

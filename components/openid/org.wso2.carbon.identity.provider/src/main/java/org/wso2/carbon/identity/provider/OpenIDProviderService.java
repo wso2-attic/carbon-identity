@@ -43,6 +43,7 @@ import org.wso2.carbon.identity.core.model.OpenIDRememberMeDO;
 import org.wso2.carbon.identity.core.model.OpenIDUserRPDO;
 import org.wso2.carbon.identity.core.model.XMPPSettingsDO;
 import org.wso2.carbon.identity.core.persistence.IdentityPersistenceManager;
+import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
 import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.provider.dto.OpenIDAuthRequestDTO;
@@ -88,8 +89,7 @@ import java.util.StringTokenizer;
 public class OpenIDProviderService {
 
     private static final Log log = LogFactory.getLog(OpenIDProviderService.class);
-    private static final String MULTI_ATTRIBUTE_SEPARATOR = "MultiAttributeSeparator";
-    private String userAttributeSeparator = ",";
+    private String userAttributeSeparator = IdentityCoreConstants.MULTI_ATTRIBUTE_SEPARATOR_DEFAULT;
 
     public static int getOpenIDSessionTimeout() {
         if (StringUtils.isNotBlank(IdentityUtil.getProperty(IdentityConstants.ServerConfig.OPENID_SESSION_TIMEOUT))) {
@@ -370,30 +370,8 @@ public class OpenIDProviderService {
             throw new IdentityProviderException("Error while checking if user exists", e);
         }
 
-        // Read from OpenID configuration in identity.xml
-        String openIDServerURL = IdentityUtil.getProperty(ServerConfig.OPENID_SERVER_URL);
-        String openIDUserPattern = IdentityUtil.getProperty(ServerConfig.OPENID_USER_PATTERN);
-
-        // If configuration are not defined in build URL from server configurations.
-        if (StringUtils.isBlank(openIDServerURL)) {
-            try {
-                openIDServerURL = IdentityUtil.getServerURL() + "/" + OpenIDServerConstants.OPENID_SERVER;
-            } catch (IdentityException e) {
-                throw new IdentityProviderException(e.getMessage(), e);
-            }
-        }
-
-        if (StringUtils.isBlank(openIDUserPattern)) {
-            try {
-                openIDServerURL = IdentityUtil.getServerURL() + "/" + OpenIDServerConstants.OPENID;
-            } catch (IdentityException e) {
-                throw new IdentityProviderException(e.getMessage(), e);
-            }
-        }
-
-        providerInfo.setOpenIDProviderServerUrl(openIDServerURL);
-        providerInfo.setOpenID(openIDUserPattern + "/" + tenantFreeUsername);
-
+        providerInfo.setOpenIDProviderServerUrl(OpenIDUtil.getOpenIDServerURL());
+        providerInfo.setOpenID(OpenIDUtil.getOpenIDUserPattern() + "/" + tenantFreeUsername);
 
         return providerInfo;
     }
@@ -825,11 +803,11 @@ public class OpenIDProviderService {
             throw new IdentityProviderException("Failed to get claims of user " + tenantUser, e);
         }
 
-        String claimSeparator = claimValues.get(MULTI_ATTRIBUTE_SEPARATOR);
-        if (claimSeparator != null) {
+        String claimSeparator = claimValues.get(IdentityCoreConstants.MULTI_ATTRIBUTE_SEPARATOR);
+        if (StringUtils.isNotBlank(claimSeparator)) {
             userAttributeSeparator = claimSeparator;
-            claimValues.remove(MULTI_ATTRIBUTE_SEPARATOR);
         }
+        claimValues.remove(IdentityCoreConstants.MULTI_ATTRIBUTE_SEPARATOR);
 
         int i = 0;
         JSONArray values;

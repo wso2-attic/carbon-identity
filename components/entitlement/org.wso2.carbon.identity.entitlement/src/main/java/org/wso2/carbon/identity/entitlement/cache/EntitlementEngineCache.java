@@ -46,6 +46,7 @@ public class EntitlementEngineCache {
     private static final EntitlementEngineCache instance = new EntitlementEngineCache();
     private static CacheBuilder<Integer, EntitlementEngine> cacheBuilder;
     private static Log log = LogFactory.getLog(EntitlementEngineCache.class);
+    private static final long DEFAULT_ENTITLEMENT_ENGINE_CACHING_INTERVAL = 900;
 
     private EntitlementEngineCache(){
 
@@ -63,23 +64,23 @@ public class EntitlementEngineCache {
 
     private Cache<Integer, EntitlementEngine> getEntitlementCache() {
         Cache<Integer, EntitlementEngine> cache;
-        CacheManager cacheManager = Caching.getCacheManagerFactory().
-                getCacheManager(ENTITLEMENT_ENGINE_CACHE_MANAGER);
+        CacheManager cacheManager = Caching.getCacheManagerFactory().getCacheManager(ENTITLEMENT_ENGINE_CACHE_MANAGER);
         if (cacheManager != null) {
-            if (cacheBuilder == null){
+            if (cacheBuilder == null) {
                 Properties properties = EntitlementServiceComponent.getEntitlementConfig().getEngineProperties();
                 String engineCachingInterval = properties.getProperty(PDPConstants.ENTITLEMENT_ENGINE_CACHING_INTERVAL);
-                long entitlementEngineCachingInterval = 900;
-                if (engineCachingInterval != null){
-                    try{
+                long entitlementEngineCachingInterval = DEFAULT_ENTITLEMENT_ENGINE_CACHING_INTERVAL;
+                if (engineCachingInterval != null) {
+                    try {
                         entitlementEngineCachingInterval = Long.parseLong(engineCachingInterval);
-                    }catch (NumberFormatException e){
-                        //Do nothing. value will remain as original
+                    } catch (NumberFormatException e) {
+                        log.warn("Invalid value for " + PDPConstants.ENTITLEMENT_ENGINE_CACHING_INTERVAL + ". Using " +
+                                 "default value " + entitlementEngineCachingInterval + " seconds.");
                     }
                 } else {
-                    if (log.isDebugEnabled()){
-                        log.debug("Entitlement.Engine.CachingInterval not set. Using default value " +
-                                entitlementEngineCachingInterval);
+                    if (log.isDebugEnabled()) {
+                        log.debug(PDPConstants.ENTITLEMENT_ENGINE_CACHING_INTERVAL + " not set. Using default value " +
+                                  entitlementEngineCachingInterval + " seconds.");
                     }
                 }
                 cacheManager.removeCache(ENTITLEMENT_ENGINE_CACHE);

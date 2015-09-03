@@ -41,6 +41,7 @@ import javax.servlet.http.HttpSession;
 public class IWAUIAuthenticator extends DefaultCarbonAuthenticator {
 
     public static final String NEGOTIATE = "Negotiate";
+    public static final String NTLM = "NTLM";
     protected static final Log log = LogFactory.getLog(IWAUIAuthenticator.class);
     private static final int DEFAULT_PRIORITY_LEVEL = 10;
     private static final String AUTHENTICATOR_NAME = "IWAUIAuthenticator";
@@ -50,10 +51,12 @@ public class IWAUIAuthenticator extends DefaultCarbonAuthenticator {
      */
     @Override
     public boolean canHandle(HttpServletRequest request) {
-        if (NEGOTIATE.equalsIgnoreCase(request.getAuthType()) && request.getRemoteUser() != null) {
+
+        if ((NEGOTIATE.equalsIgnoreCase(request.getAuthType()) || NTLM.equalsIgnoreCase(request.getAuthType())) &&
+                request.getRemoteUser() != null) {
             if (log.isDebugEnabled()) {
                 log.debug("IWA request received for url: "
-                        + request.getRequestURL());
+                        + request.getRequestURL() + " Auth type:" + request.getAuthType());
             }
             return true;
         }
@@ -65,6 +68,7 @@ public class IWAUIAuthenticator extends DefaultCarbonAuthenticator {
      */
     @Override
     public int getPriority() {
+
         AuthenticatorsConfiguration authenticatorsConfiguration = AuthenticatorsConfiguration
                 .getInstance();
         AuthenticatorsConfiguration.AuthenticatorConfig authenticatorConfig = authenticatorsConfiguration
@@ -79,6 +83,7 @@ public class IWAUIAuthenticator extends DefaultCarbonAuthenticator {
      * {@inheritDoc}
      */
     public String getAuthenticatorName() {
+
         return AUTHENTICATOR_NAME;
     }
 
@@ -87,6 +92,7 @@ public class IWAUIAuthenticator extends DefaultCarbonAuthenticator {
      */
     @Override
     public void authenticate(HttpServletRequest request) throws AuthenticationException {
+
         String userName = request.getRemoteUser();
         userName = userName.substring(userName.indexOf("\\") + 1);
 
@@ -115,6 +121,7 @@ public class IWAUIAuthenticator extends DefaultCarbonAuthenticator {
     @Override
     public String doAuthentication(Object credentials, boolean isRememberMe, ServiceClient client,
                                    HttpServletRequest request) throws AuthenticationException {
+
         try {
 
             String user = (String) credentials;
@@ -158,6 +165,7 @@ public class IWAUIAuthenticator extends DefaultCarbonAuthenticator {
      */
     @Override
     public boolean isDisabled() {
+
         AuthenticatorsConfiguration authenticatorsConfiguration = AuthenticatorsConfiguration
                 .getInstance();
         AuthenticatorsConfiguration.AuthenticatorConfig authenticatorConfig = authenticatorsConfiguration
@@ -173,6 +181,7 @@ public class IWAUIAuthenticator extends DefaultCarbonAuthenticator {
      * {@inheritDoc}
      */
     protected boolean isAdminCookieSet() {
+
         return true;
     }
 
@@ -181,6 +190,7 @@ public class IWAUIAuthenticator extends DefaultCarbonAuthenticator {
      * credentials.
      */
     public boolean skipLoginPage() {
+
         return true;
     }
 
@@ -191,6 +201,7 @@ public class IWAUIAuthenticator extends DefaultCarbonAuthenticator {
      */
     private IWAAuthenticatorStub getIWAClient(HttpServletRequest request)
             throws AxisFault, IdentityException {
+
         HttpSession session = request.getSession();
         ServletContext servletContext = session.getServletContext();
         String backendServerURL = request.getParameter("backendURL");

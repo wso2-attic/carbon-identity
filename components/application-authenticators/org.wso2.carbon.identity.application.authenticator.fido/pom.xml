@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.wso2.carbon.identity</groupId>
         <artifactId>application-authenticators</artifactId>
-        <version>4.5.4-SNAPSHOT</version>
+        <version>4.5.6-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -66,32 +66,32 @@
                             org.wso2.carbon.identity.user.store.configuration.*;
                             version="${carbon.identity.package.import.version.range}",
                             !org.wso2.carbon.identity.application.authenticator.fido,
-                            javax.annotation,
-                            javax.inject,
                             javax.servlet.http; version="${imp.pkg.version.javax.servlet}",
-                            javax.xml.datatype, javax.xml.namespace, javax.xml.parsers,
                             org.apache.commons.logging; version="${commons-logging.osgi.version.range}",
-                            org.bouncycastle.asn1.sec, org.bouncycastle.asn1.x9,
-                            org.bouncycastle.jce.provider, org.bouncycastle.jce.spec, org.bouncycastle.math.ec,
                             org.osgi.framework; version="${osgi.framework.imp.pkg.version.range}",
                             org.osgi.service.component; version="${osgi.service.component.imp.pkg.version.range}",
-                            org.w3c.dom, org.w3c.dom.bootstrap,
-                            org.w3c.dom.ls, org.wso2.carbon.context,
-                            org.wso2.carbon.identity.application.authentication.framework,
-                            org.wso2.carbon.identity.application.authentication.framework.config,
-                            org.wso2.carbon.identity.application.authentication.framework.config.model,
-                            org.wso2.carbon.identity.application.authentication.framework.context,
-                            org.wso2.carbon.identity.application.authentication.framework.exception,
-                            org.wso2.carbon.identity.application.authentication.framework.model,
-                            org.wso2.carbon.identity.base, org.wso2.carbon.identity.core.util, org.wso2.carbon.user.api,
-                            org.wso2.carbon.user.core.service, org.wso2.carbon.user.core.tenant, org.xml.sax, sun.misc;resolution:=optional,
+                            org.bouncycastle.*; version="${bcprov.version}",
+                            org.w3c.dom.*,
+                            org.wso2.carbon.context; version="${carbon.kernel.package.import.version.range}",
+                            org.wso2.carbon.identity.application.common.*;
+                            version="${carbon.identity.package.import.version.range}",
+                            org.wso2.carbon.identity.application.authentication.framework.*;
+                            version="${carbon.identity.package.import.version.range}",
+                            org.wso2.carbon.identity.base; version="${carbon.identity.package.import.version.range}",
+                            org.wso2.carbon.identity.core.util;
+                            version="${carbon.identity.package.import.version.range}",
+                            org.wso2.carbon.user.api; version="${carbon.user.api.imp.pkg.version.range}",
+                            org.wso2.carbon.user.core.service; version="${carbon.kernel.package.import.version.range}",
+                            org.wso2.carbon.user.core.tenant; version="${carbon.kernel.package.import.version.range}",
+                            org.xml.sax,
                         </Import-Package>
                         <Embed-Dependency>
                             jackson-core|guava|u2flib-server-core|jackson-databind|jackson-annotations
                         </Embed-Dependency>
                         <Export-Package>
                             !org.wso2.carbon.identity.application.authenticator.fido.u2f.internal,
-                            org.wso2.carbon.identity.application.authenticator.fido.*,
+                            org.wso2.carbon.identity.application.authenticator.fido.*;
+                            version="${carbon.identity.package.export.version}"
                         </Export-Package>
                     </instructions>
                 </configuration>

@@ -17,15 +17,16 @@
 -->
 
 <%@page import="org.apache.axis2.context.ConfigurationContext" %>
+<%@page import="org.apache.commons.lang.StringUtils" %>
 <%@page import="org.wso2.carbon.CarbonConstants" %>
 <%@page import="org.wso2.carbon.identity.application.common.model.CertData" %>
 <%@page import="org.wso2.carbon.identity.application.common.model.idp.xsd.Claim" %>
 <%@page import="org.wso2.carbon.identity.application.common.model.idp.xsd.ClaimMapping" %>
-<%@page import="org.wso2.carbon.identity.application.common.model.idp.xsd.FederatedAuthenticatorConfig" %>
 
-<%@page import="org.wso2.carbon.identity.application.common.model.idp.xsd.IdentityProvider" %>
+<%@page import="org.wso2.carbon.identity.application.common.model.idp.xsd.FederatedAuthenticatorConfig" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="carbon" uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar" %>
+<%@ page import="org.wso2.carbon.identity.application.common.model.idp.xsd.IdentityProvider" %>
 <%@ page import="org.wso2.carbon.identity.application.common.model.idp.xsd.Property" %>
 <%@ page import="org.wso2.carbon.identity.application.common.model.idp.xsd.ProvisioningConnectorConfig" %>
 <%@ page import="org.wso2.carbon.identity.application.common.model.idp.xsd.RoleMapping" %>
@@ -35,11 +36,11 @@
 <%@ page import="org.wso2.carbon.idp.mgt.ui.util.IdPManagementUIUtil" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
 <%@ page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
+<%@ page import="org.wso2.carbon.user.core.util.UserCoreUtil" %>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@ page import="java.util.HashMap" %>
 <%@ page import="java.util.List" %>
 <%@ page import="java.util.Map" %>
-<%@ page import="org.apache.commons.lang.StringUtils" %>
 <link href="css/idpmgt.css" rel="stylesheet" type="text/css" media="all"/>
 
 <carbon:breadcrumb label="identity.providers" resourceBundle="org.wso2.carbon.idp.mgt.ui.i18n.Resources"
@@ -251,10 +252,6 @@
                         openidQueryParam = queryParamProp.getValue();
                     }
 
-                    if (openIdUrlProp != null) {
-                        openIdUrl = openIdUrlProp.getValue();
-                    }
-
                     Property isOpenIdUserIdInClaimsProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
                             IdentityApplicationConstants.Authenticator.OpenID.IS_USER_ID_IN_CLAIMS);
                     if (isOpenIdUserIdInClaimsProp != null) {
@@ -311,7 +308,7 @@
                         passiveSTSRealm = passiveSTSRealmProp.getValue();
                     }
                     Property passiveSTSUrlProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
-                            IdentityApplicationConstants.Authenticator.PassiveSTS.PASSIVE_STS_URL);
+                            IdentityApplicationConstants.Authenticator.PassiveSTS.IDENTITY_PROVIDER_URL);
                     if (passiveSTSUrlProp != null) {
                         passiveSTSUrl = passiveSTSUrlProp.getValue();
                     }
@@ -734,8 +731,7 @@
         oidcQueryParam = "";
     }
     if (idPAlias == null) {
-        idPAlias = IdPManagementUIUtil.getOAuth2TokenEPURL(request);
-        ;
+        idPAlias = tokenUrl;
     }
     String provisionStaticDropdownDisabled = "";
     String provisionDynamicDropdownDisabled = "";
@@ -769,9 +765,6 @@
             openIdDefaultDisabled = "disabled=\'disabled\'";
         }
     }
-    if (openIdUrl == null) {
-        openIdUrl = IdPManagementUIUtil.getOpenIDUrl(request);
-    }
     String saml2SSOEnabledChecked = "";
     String saml2SSODefaultDisabled = "";
     if (identityProvider != null) {
@@ -793,9 +786,6 @@
     }
     if (spEntityId == null) {
         spEntityId = "";
-    }
-    if (ssoUrl == null) {
-        ssoUrl = IdPManagementUIUtil.getSAML2SSOUrl(request);
     }
     String authnRequestSignedChecked = "";
     if (identityProvider != null) {
@@ -856,12 +846,6 @@
             oidcDefaultDisabled = "disabled=\'disabled\'";
         }
     }
-    if (authzUrl == null) {
-        authzUrl = IdPManagementUIUtil.getOAuth2AuthzEPURL(request);
-    }
-    if (tokenUrl == null) {
-        tokenUrl = IdPManagementUIUtil.getOAuth2TokenEPURL(request);
-    }
     if (clientId == null) {
         clientId = "";
     }
@@ -886,9 +870,6 @@
     }
     if (passiveSTSRealm == null) {
         passiveSTSRealm = "";
-    }
-    if (passiveSTSUrl == null) {
-        passiveSTSUrl = IdPManagementUIUtil.getPassiveSTSURL(request);
     }
     String fbAuthEnabledChecked = "";
     String fbAuthDefaultDisabled = "";
@@ -3012,15 +2993,40 @@ function doValidation() {
                         </thead>
                         <tbody>
                         <tr>
-                            <td><%=certData.getIssuerDN()%>
+                            <td><%
+                                String issuerDN = "";
+                                if (certData.getIssuerDN() != null) {
+                                    issuerDN = certData.getIssuerDN();
+                                }
+                            %><%=issuerDN%>
                             </td>
-                            <td><%=certData.getSubjectDN()%>
+                            <td><%
+                                String subjectDN = "";
+                                if (certData.getSubjectDN() != null) {
+                                    subjectDN = certData.getSubjectDN();
+                                }
+                            %><%=subjectDN%>
                             </td>
-                            <td><%=certData.getNotAfter()%>
+                            <td><%
+                                String notAfter = "";
+                                if (certData.getNotAfter() != null) {
+                                    notAfter = certData.getNotAfter();
+                                }
+                            %><%=notAfter%>
                             </td>
-                            <td><%=certData.getNotBefore()%>
+                            <td><%
+                                String notBefore = "";
+                                if (certData.getNotBefore() != null) {
+                                    notBefore = certData.getNotBefore();
+                                }
+                            %><%=notBefore%>
                             </td>
-                            <td><%=certData.getSerialNumber()%>
+                            <td><%
+                                String serialNo = "";
+                                if (certData.getSerialNumber() != null) {
+                                    serialNo = certData.getSerialNumber().toString();
+                                }
+                            %><%=serialNo%>
                             </td>
                             <td><%=certData.getVersion()%>
                             </td>
@@ -3341,8 +3347,7 @@ function doValidation() {
                     <tr>
                         <td><input type="text" value="<%=roleMappings[i].getRemoteRole()%>" id="rolerowname_<%=i%>"
                                    name="rolerowname_<%=i%>"/></td>
-                        <td><input type="text" value="<%=roleMappings[i].getLocalRole().getUserStoreId()%>/<%=roleMappings[i].getLocalRole().getLocalRoleName()%>"
-                                   id="localrowname_<%=i%>" name="localrowname_<%=i%>"/></td>
+                        <td><input type="text" value="<%=UserCoreUtil.addDomainToName(roleMappings[i].getLocalRole().getLocalRoleName(), roleMappings[i].getLocalRole().getUserStoreId())%>" id="localrowname_<%=i%>" name="localrowname_<%=i%>"/></td>
                         <td>
                             <a title="<fmt:message key='delete.role'/>"
                                onclick="deleteRoleRow(this);return false;"

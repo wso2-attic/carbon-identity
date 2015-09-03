@@ -20,6 +20,7 @@ package org.wso2.carbon.identity.sts.passive.ui;
 import org.apache.axis2.context.ConfigurationContext;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
@@ -34,6 +35,7 @@ import org.wso2.carbon.identity.application.authentication.framework.util.Framew
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkUtils;
 import org.wso2.carbon.identity.application.common.cache.CacheEntry;
 import org.wso2.carbon.identity.application.common.model.ClaimMapping;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.sts.passive.stub.types.RequestToken;
 import org.wso2.carbon.identity.sts.passive.stub.types.ResponseToken;
 import org.wso2.carbon.identity.sts.passive.ui.cache.SessionDataCache;
@@ -109,8 +111,10 @@ public class PassiveSTS extends HttpServlet {
 
         } catch (FileNotFoundException e) {
             // The Passive STS Redirect HTML file is optional. When the file is not found, use the default page content.
-            log.info("Passive STS Redirect HTML file not found in : " + redirectHtmlFilePath +
-                    ". Default Redirect is used.");
+            if (log.isDebugEnabled()) {
+                log.debug("Passive STS Redirect HTML file not found in : " + redirectHtmlFilePath +
+                        ". Default Redirect is used.");
+            }
         } finally {
             if (fileInputStream != null) {
                 try {
@@ -142,8 +146,8 @@ public class PassiveSTS extends HttpServlet {
         }
 
         // Adding parameters to the Passive STS HTML redirect page
-        String parameters = "<input type='hidden' name='wa' value='$action'>" +
-                "<input type='hidden' name='wresult' value='$result'>";
+        String parameters = "<input type=\"hidden\" name=\"wa\" value=\"$action\">" +
+                "<input type=\"hidden\" name=\"wresult\" value=\"$result\">";
 
         fileContent = fileContent.replace("<!--$params-->", parameters);
 
@@ -175,10 +179,13 @@ public class PassiveSTS extends HttpServlet {
         String pageWithReply = htmlPage.replace("$url", String.valueOf(respToken.getReplyTo()));
 
         String pageWithReplyAction = pageWithReply.replace("$action", String.valueOf(action));
-        String pageWithReplyActionResult = pageWithReplyAction.replace("$result", String.valueOf(respToken.getResults()));
+        String pageWithReplyActionResult = pageWithReplyAction.replace("$result",
+                StringEscapeUtils.escapeHtml(String.valueOf(respToken.getResults())));
         String pageWithReplyActionResultContext;
         if(respToken.getContext() !=null) {
-            pageWithReplyActionResultContext = pageWithReplyActionResult.replace("<!--$additionalParams-->", "<!--$additionalParams-->" + "<input type='hidden' name='wctx' value='"  +respToken.getContext() + "'>");
+            pageWithReplyActionResultContext = pageWithReplyActionResult.replace(
+                    "<!--$additionalParams-->", "<!--$additionalParams-->" + "<input type='hidden' name='wctx' value='"
+                            +respToken.getContext() + "'>");
         } else {
             pageWithReplyActionResultContext = pageWithReplyActionResult;
         }
@@ -276,8 +283,7 @@ public class PassiveSTS extends HttpServlet {
     private void sendToAuthenticationFramework(HttpServletRequest request, HttpServletResponse response,
                                                String sessionDataKey, SessionDTO sessionDTO) throws IOException {
 
-        String commonAuthURL = CarbonUIUtil.getAdminConsoleURL(request);
-        commonAuthURL = commonAuthURL.replace(FrameworkConstants.CARBON + "/", FrameworkConstants.COMMONAUTH);
+        String commonAuthURL = IdentityUtil.getServerURL(FrameworkConstants.COMMONAUTH);
 
         String selfPath = URLEncoder.encode("/" + FrameworkConstants.PASSIVE_STS, StandardCharsets.UTF_8.name());
         //Authentication context keeps data which should be sent to commonAuth endpoint
@@ -462,8 +468,6 @@ public class PassiveSTS extends HttpServlet {
 
     private void sendToRetryPage(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
-        String redirectURL = CarbonUIUtil.getAdminConsoleURL(request);
-        redirectURL = redirectURL.replace("passivests/carbon/", "authenticationendpoint/retry.do");
-        response.sendRedirect(redirectURL);
+        response.sendRedirect(IdentityUtil.getServerURL( "/authenticationendpoint/retry.do"));
     }
 }

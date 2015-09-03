@@ -20,13 +20,15 @@
 <%@ page import="org.wso2.carbon.CarbonConstants" %>
 <%@page import="org.wso2.carbon.ui.CarbonUIMessage" %>
 <%@page import="org.wso2.carbon.ui.CarbonUIUtil" %>
-<%@page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
-<%@page import="org.wso2.carbon.user.mgt.ui.UserAdminClient" %>
+<%@page import="org.wso2.carbon.user.core.UserCoreConstants" %>
+<%@ page import="org.wso2.carbon.user.core.util.UserCoreUtil" %>
+<%@ page import="org.wso2.carbon.user.mgt.ui.UserAdminClient" %>
 <%@ page import="org.wso2.carbon.user.mgt.ui.UserAdminUIConstants" %>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@ page import="java.text.MessageFormat" %>
 <%@ page import="java.util.Map" %>
 <%@ page import="java.util.ResourceBundle" %>
+
 <jsp:useBean id="roleBean" type="org.wso2.carbon.user.mgt.ui.RoleBean"
              class="org.wso2.carbon.user.mgt.ui.RoleBean" scope="session"/>
 <jsp:setProperty name="roleBean" property="*" />
@@ -37,8 +39,12 @@
     String BUNDLE = "org.wso2.carbon.userstore.ui.i18n.Resources";
     ResourceBundle resourceBundle = ResourceBundle.getBundle(BUNDLE, request.getLocale());
     try {
-        roleName = CharacterEncoder.getSafeText(roleBean.getRoleName());
+        roleName = roleBean.getRoleName();
         roleType = roleBean.getRoleType();
+        if ((roleType == null || "null".equals(roleType)) &&
+                UserCoreConstants.INTERNAL_USERSTORE.equalsIgnoreCase(UserCoreUtil.extractDomainFromName(roleName))) {
+            roleType = UserCoreConstants.INTERNAL_USERSTORE;
+        }
         boolean isSharedRole = roleBean.getSharedRole() != null && !roleBean.getSharedRole().isEmpty(); 
         String cookie = (String) session.getAttribute(ServerConstants.ADMIN_SERVICE_COOKIE);
         String backendServerURL = CarbonUIUtil.getServerURL(config.getServletContext(), session);
@@ -48,8 +54,8 @@
 
         roleBean.addRoleUsers((Map<String, Boolean>) session.getAttribute("checkedUsersMap"));
 
-        if(UserAdminUIConstants.INTERNAL_ROLE.equals(roleType)){
-            client.addInternalRole(roleName, roleBean.getRoleUsers(),
+        if(UserAdminUIConstants.INTERNAL_ROLE.equalsIgnoreCase(roleType)){
+            client.addInternalRole(UserCoreUtil.removeDomainFromName(roleName), roleBean.getRoleUsers(),
                                                                 roleBean.getSelectedPermissions());
         } else {
             client.addRole(roleName, roleBean.getRoleUsers(), roleBean.getSelectedPermissions(), isSharedRole);

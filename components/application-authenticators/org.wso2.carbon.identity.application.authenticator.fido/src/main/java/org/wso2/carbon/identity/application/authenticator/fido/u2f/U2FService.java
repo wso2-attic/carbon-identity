@@ -29,7 +29,6 @@ import org.wso2.carbon.identity.application.authentication.framework.exception.A
 import org.wso2.carbon.identity.application.authenticator.fido.dao.DeviceStoreDAO;
 import org.wso2.carbon.identity.application.authenticator.fido.dto.FIDOUser;
 import org.wso2.carbon.identity.application.authenticator.fido.exception.FIDOAuthenticatorServerException;
-import org.wso2.carbon.identity.application.authenticator.fido.util.FIDOUtil;
 import org.wso2.carbon.identity.base.IdentityException;
 
 import java.sql.Timestamp;
@@ -75,11 +74,9 @@ public class U2FService {
     private Iterable<DeviceRegistration> getRegistrations(final FIDOUser user)
             throws FIDOAuthenticatorServerException {
 
-        int tenantID = FIDOUtil.getTenantID(user.getTenantDomain());
-
         Collection<String> serializedRegistrations = null;
-        serializedRegistrations = DeviceStoreDAO.getInstance().getDeviceRegistration(
-                user.getUsername(), tenantID, user.getUserStoreDomain());
+        serializedRegistrations = DeviceStoreDAO.getInstance().getDeviceRegistration(user.getUserName(),
+                user.getTenantDomain(), user.getUserStoreDomain());
 
         List<DeviceRegistration> registrations = new ArrayList<DeviceRegistration>();
         for (String serialized : serializedRegistrations) {
@@ -175,16 +172,14 @@ public class U2FService {
     }
 
     private void addRegistration(FIDOUser user) throws FIDOAuthenticatorServerException {
-        int tenantID = FIDOUtil.getTenantID(user.getTenantDomain());
         Timestamp timestamp = new Timestamp(new Date().getTime());
-        DeviceStoreDAO.getInstance().addDeviceRegistration(
-                user.getUsername(), user.getDeviceRegistration(), tenantID, user.getUserStoreDomain(), timestamp);
+        DeviceStoreDAO.getInstance().addDeviceRegistration(user.getUserName(), user.getDeviceRegistration(),
+                user.getTenantDomain(), user.getUserStoreDomain(), timestamp);
     }
 
     public boolean isDeviceRegistered(FIDOUser user) throws FIDOAuthenticatorServerException {
-        int tenantID = FIDOUtil.getTenantID(user.getTenantDomain());
-        Collection<String> registrations = DeviceStoreDAO.getInstance().getDeviceRegistration(
-                user.getUsername(), tenantID, user.getUserStoreDomain());
+        Collection<String> registrations = DeviceStoreDAO.getInstance().getDeviceRegistration(user.getUserName(),
+                user.getTenantDomain(), user.getUserStoreDomain());
         if (!registrations.isEmpty()) {
             return true;
         } else {
@@ -194,22 +189,20 @@ public class U2FService {
     }
 
     public ArrayList<String> getDeviceMetadata(FIDOUser user) throws FIDOAuthenticatorServerException{
-        int tenantID = FIDOUtil.getTenantID(user.getTenantDomain());
-        return DeviceStoreDAO.getInstance().getDeviceMetadata(
-                user.getUsername(), tenantID, user.getUserStoreDomain());
+        return DeviceStoreDAO.getInstance().getDeviceMetadata(user.getUserName(), user.getTenantDomain(),
+                user.getUserStoreDomain());
 
     }
 
     public void removeAllRegistrations(FIDOUser user) throws FIDOAuthenticatorServerException {
-        int tenantID = FIDOUtil.getTenantID(user.getTenantDomain());
-        DeviceStoreDAO.getInstance().removeAllRegistrations(user.getUsername(), tenantID, user.getUserStoreDomain());
+        DeviceStoreDAO.getInstance().removeAllRegistrations(user.getUserName(), user.getTenantDomain(),
+                user.getUserStoreDomain());
     }
 
     public void removeRegistration(FIDOUser user, String deviceRemarks)
             throws FIDOAuthenticatorServerException {
-        int tenantID = FIDOUtil.getTenantID(user.getTenantDomain());
-        DeviceStoreDAO.getInstance().removeRegistration(
-                user.getUsername(), tenantID, user.getUserStoreDomain(), Timestamp.valueOf(deviceRemarks));
+        DeviceStoreDAO.getInstance().removeRegistration(user.getUserName(), user.getTenantDomain(),
+                user.getUserStoreDomain(), Timestamp.valueOf(deviceRemarks));
 
     }
 }

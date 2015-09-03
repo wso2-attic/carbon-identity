@@ -20,14 +20,10 @@ package org.wso2.carbon.identity.oauth2.token.handlers.grant.saml;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.io.Charsets;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.xerces.impl.Constants;
-import org.apache.xerces.util.SecurityManager;
 import org.joda.time.DateTime;
-import org.opensaml.Configuration;
 import org.opensaml.DefaultBootstrap;
 import org.opensaml.saml2.core.Assertion;
 import org.opensaml.saml2.core.Audience;
@@ -37,13 +33,9 @@ import org.opensaml.saml2.core.SubjectConfirmation;
 import org.opensaml.security.SAMLSignatureProfileValidator;
 import org.opensaml.xml.ConfigurationException;
 import org.opensaml.xml.XMLObject;
-import org.opensaml.xml.io.Unmarshaller;
-import org.opensaml.xml.io.UnmarshallerFactory;
 import org.opensaml.xml.security.x509.X509Credential;
 import org.opensaml.xml.signature.SignatureValidator;
 import org.opensaml.xml.validation.ValidationException;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
 import org.wso2.carbon.identity.application.common.model.FederatedAuthenticatorConfig;
@@ -51,19 +43,17 @@ import org.wso2.carbon.identity.application.common.model.IdentityProvider;
 import org.wso2.carbon.identity.application.common.model.Property;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
+import org.wso2.carbon.identity.base.IdentityException;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.oauth.common.OAuthConstants;
 import org.wso2.carbon.identity.oauth.config.OAuthServerConfiguration;
 import org.wso2.carbon.identity.oauth2.IdentityOAuth2Exception;
 import org.wso2.carbon.identity.oauth2.token.OAuthTokenReqMessageContext;
 import org.wso2.carbon.identity.oauth2.token.handlers.grant.AbstractAuthorizationGrantHandler;
-import org.wso2.carbon.identity.oauth2.util.CarbonEntityResolver;
+import org.wso2.carbon.identity.oauth2.util.OAuth2Util;
 import org.wso2.carbon.identity.oauth2.util.X509CredentialImpl;
 import org.wso2.carbon.idp.mgt.IdentityProviderManager;
 
-import javax.xml.XMLConstants;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import java.io.ByteArrayInputStream;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
@@ -77,9 +67,6 @@ import java.util.Set;
  */
 public class SAML2BearerGrantHandler extends AbstractAuthorizationGrantHandler {
 
-    private static final String SECURITY_MANAGER_PROPERTY = Constants.XERCES_PROPERTY_PREFIX +
-            Constants.SECURITY_MANAGER_PROPERTY;
-    private static final int ENTITY_EXPANSION_LIMIT = 0;
     private static Log log = LogFactory.getLog(SAML2BearerGrantHandler.class);
     SAMLSignatureProfileValidator profileValidator = null;
 
@@ -143,12 +130,14 @@ public class SAML2BearerGrantHandler extends AbstractAuthorizationGrantHandler {
 
 
         try {
-            XMLObject samlObject = unmarshall(new String(Base64.decodeBase64(
+            XMLObject samlObject = IdentityUtil.unmarshall(new String(Base64.decodeBase64(
                     tokReqMsgCtx.getOauth2AccessTokenReqDTO().getAssertion())));
             assertion = (Assertion) samlObject;
-        } catch (IdentityOAuth2Exception e) {
-            // fault in the saml token
-            log.error("Error while unmashalling the assertion", e);
+        } catch (IdentityException e) {
+            // fault in the saml2 assertion
+            if(log.isDebugEnabled()){
+                log.debug("Error while unmashalling the assertion", e);
+            }
             return false;
         }
 
@@ -173,7 +162,7 @@ public class SAML2BearerGrantHandler extends AbstractAuthorizationGrantHandler {
                 }
                 return false;
             }
-            tokReqMsgCtx.setAuthorizedUser(resourceOwnerUserName);
+            tokReqMsgCtx.setAuthorizedUser(OAuth2Util.getUserFromUserName(resourceOwnerUserName));
         } else {
             log.debug("Cannot find a Subject in the Assertion");
             return false;
@@ -481,37 +470,5 @@ public class SAML2BearerGrantHandler extends AbstractAuthorizationGrantHandler {
         }
 
         return true;
-    }
-
-    /**
-     * Constructing the SAML or XACML Objects from a String
-     *
-     * @param xmlString Decoded SAML or XACML String
-     * @return SAML or XACML Object
-     * @throws org.wso2.carbon.identity.base.IdentityException
-     */
-    private XMLObject unmarshall(String xmlString) throws IdentityOAuth2Exception {
-
-        try {
-            DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-            documentBuilderFactory.setNamespaceAware(true);
-
-            documentBuilderFactory.setExpandEntityReferences(false);
-            documentBuilderFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
-            SecurityManager securityManager = new SecurityManager();
-            securityManager.setEntityExpansionLimit(ENTITY_EXPANSION_LIMIT);
-            documentBuilderFactory.setAttribute(SECURITY_MANAGER_PROPERTY, securityManager);
-
-            DocumentBuilder docBuilder = documentBuilderFactory.newDocumentBuilder();
-            docBuilder.setEntityResolver(new CarbonEntityResolver());
-            Document document = docBuilder.parse(new ByteArrayInputStream(xmlString.trim().getBytes(Charsets.UTF_8)));
-            Element element = document.getDocumentElement();
-            UnmarshallerFactory unmarshallerFactory = Configuration.getUnmarshallerFactory();
-            Unmarshaller unmarshaller = unmarshallerFactory.getUnmarshaller(element);
-            return unmarshaller.unmarshall(element);
-        } catch (Exception e) {
-            log.error("Error in constructing XML Object from the encoded String", e);
-            throw new IdentityOAuth2Exception("Error in constructing XML Object from the encoded String", e);
-        }
     }
 }

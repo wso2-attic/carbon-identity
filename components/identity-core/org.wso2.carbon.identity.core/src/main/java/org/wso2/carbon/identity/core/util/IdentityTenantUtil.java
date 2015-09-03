@@ -29,10 +29,12 @@ import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.core.util.AdminServicesUtil;
 import org.wso2.carbon.core.util.AnonymousSessionUtil;
 import org.wso2.carbon.identity.base.IdentityException;
+import org.wso2.carbon.identity.base.IdentityRuntimeException;
 import org.wso2.carbon.registry.core.Registry;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
 import org.wso2.carbon.registry.core.service.RegistryService;
 import org.wso2.carbon.registry.core.service.TenantRegistryLoader;
+import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.AuthenticationObserver;
@@ -219,5 +221,21 @@ public class IdentityTenantUtil {
                 PrivilegedCarbonContext.endTenantFlow();
             }
         }
+    }
+
+    public static int getTenantID(String tenantDomain) throws IdentityRuntimeException {
+
+        int tenantId;
+        try {
+            tenantId = realmService.getTenantManager().getTenantId(tenantDomain);
+        } catch (UserStoreException e) {
+            // Ideally user.core should be throwing an unchecked exception, in which case no need to wrap at this
+            // level once more without adding any valuable contextual information. Because we don't have exception
+            // enrichment properly implemented, we are appending the error message from the UserStoreException to the
+            // new message
+            throw new IdentityRuntimeException("Error occurred while retrieving tenantId for tenantDomain: " +
+                    tenantDomain + e.getMessage(), e);
+        }
+        return tenantId;
     }
 }

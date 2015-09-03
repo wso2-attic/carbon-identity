@@ -37,6 +37,7 @@ import org.wso2.carbon.identity.application.authentication.framework.util.Framew
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkUtils;
 import org.wso2.carbon.identity.application.common.model.ClaimMapping;
 import org.wso2.carbon.identity.application.mgt.ApplicationConstants;
+import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
 import org.wso2.carbon.user.api.ClaimManager;
 import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.api.UserStoreException;
@@ -55,7 +56,6 @@ public class DefaultClaimHandler implements ClaimHandler {
 
     public static final String SERVICE_PROVIDER_SUBJECT_CLAIM_VALUE = "ServiceProviderSubjectClaimValue";
     private static final Log log = LogFactory.getLog(DefaultClaimHandler.class);
-    private static final String MULTI_ATTRIBUTE_SEPARATOR = "MultiAttributeSeparator";
     private static volatile DefaultClaimHandler instance;
 
     public static DefaultClaimHandler getInstance() {
@@ -395,9 +395,10 @@ public class DefaultClaimHandler implements ClaimHandler {
             RealmConfiguration realmConfiguration = userStore
                     .getSecondaryUserStoreManager(domain).getRealmConfiguration();
 
-            String claimSeparator = realmConfiguration.getUserStoreProperty(MULTI_ATTRIBUTE_SEPARATOR);
-            if (claimSeparator != null && !claimSeparator.trim().isEmpty()) {
-                spRequestedClaims.put(MULTI_ATTRIBUTE_SEPARATOR, claimSeparator);
+            String claimSeparator = realmConfiguration.getUserStoreProperty(IdentityCoreConstants
+                    .MULTI_ATTRIBUTE_SEPARATOR);
+            if (StringUtils.isNotBlank(claimSeparator)) {
+                spRequestedClaims.put(IdentityCoreConstants.MULTI_ATTRIBUTE_SEPARATOR, claimSeparator);
             }
         }
     }

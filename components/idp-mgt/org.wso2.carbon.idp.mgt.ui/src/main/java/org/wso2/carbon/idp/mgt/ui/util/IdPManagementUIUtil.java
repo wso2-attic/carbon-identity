@@ -41,7 +41,6 @@ import org.wso2.carbon.identity.application.common.model.idp.xsd.Property;
 import org.wso2.carbon.identity.application.common.model.idp.xsd.ProvisioningConnectorConfig;
 import org.wso2.carbon.identity.application.common.model.idp.xsd.RoleMapping;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
-import org.wso2.carbon.ui.CarbonUIUtil;
 
 import javax.servlet.http.HttpServletRequest;
 import java.net.MalformedURLException;
@@ -79,36 +78,6 @@ public class IdPManagementUIUtil {
             return false;
         }
         return true;
-    }
-
-    public static String getOpenIDUrl(HttpServletRequest request) {
-        String adminConsoleURL = CarbonUIUtil.getAdminConsoleURL(request);
-        String endpointURL = adminConsoleURL.substring(0, adminConsoleURL.indexOf("/carbon"));
-        return endpointURL + "/openid/";
-    }
-
-    public static String getSAML2SSOUrl(HttpServletRequest request) {
-        String adminConsoleURL = CarbonUIUtil.getAdminConsoleURL(request);
-        String endpointURL = adminConsoleURL.substring(0, adminConsoleURL.indexOf("/carbon"));
-        return endpointURL + "/samlsso/";
-    }
-
-    public static String getOAuth2AuthzEPURL(HttpServletRequest request) {
-        String adminConsoleURL = CarbonUIUtil.getAdminConsoleURL(request);
-        String endpointURL = adminConsoleURL.substring(0, adminConsoleURL.indexOf("/carbon"));
-        return endpointURL + "/oauth2/authorize/";
-    }
-
-    public static String getOAuth2TokenEPURL(HttpServletRequest request) {
-        String adminConsoleURL = CarbonUIUtil.getAdminConsoleURL(request);
-        String endpointURL = adminConsoleURL.substring(0, adminConsoleURL.indexOf("/carbon"));
-        return endpointURL + "/oauth2/token/";
-    }
-
-    public static String getPassiveSTSURL(HttpServletRequest request) {
-        String adminConsoleURL = CarbonUIUtil.getAdminConsoleURL(request);
-        String endpointURL = adminConsoleURL.substring(0, adminConsoleURL.indexOf("/carbon"));
-        return endpointURL + "/passivests/";
     }
 
     /**
@@ -1200,7 +1169,7 @@ public class IdPManagementUIUtil {
         properties[0] = property;
 
         property = new Property();
-        property.setName(IdentityApplicationConstants.Authenticator.PassiveSTS.PASSIVE_STS_URL);
+        property.setName(IdentityApplicationConstants.Authenticator.PassiveSTS.IDENTITY_PROVIDER_URL);
         property.setValue(paramMap.get("passiveSTSUrl"));
         properties[1] = property;
 

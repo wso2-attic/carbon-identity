@@ -26,7 +26,9 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.application.authenticator.fido.exception.FIDOAuthenticatorServerException;
 import org.wso2.carbon.identity.application.authenticator.fido.util.FIDOAuthenticatorConstants;
 import org.wso2.carbon.identity.base.IdentityException;
+import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
 import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
+import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -68,12 +70,12 @@ public class DeviceStoreDAO {
      * @param timestamp
      * @throws IdentityException when SQL statement can not be executed.
      */
-    public void addDeviceRegistration(String username, DeviceRegistration registration,
-                                      int tenantID, String userStoreDomain, Timestamp timestamp)
+    public void addDeviceRegistration(String username, DeviceRegistration registration, String tenantDomain,
+                                      String userStoreDomain, Timestamp timestamp)
             throws FIDOAuthenticatorServerException {
 
         if (log.isDebugEnabled()) {
-            log.debug("addDeviceRegistration inputs {username: " + username + ", tenantID: " +tenantID +
+            log.debug("addDeviceRegistration inputs {username: " + username + ", tenantDomain: " + tenantDomain +
                       ", userStoreDomain : " + userStoreDomain +", registration :" +
                       registration.toJsonWithAttestationCert() + "}");
         }
@@ -82,10 +84,10 @@ public class DeviceStoreDAO {
 
         try {
             preparedStatement = connection.prepareStatement(FIDOAuthenticatorConstants.SQLQueries.ADD_DEVICE_REGISTRATION_QUERY);
-            preparedStatement.setInt(1, tenantID);
+            preparedStatement.setInt(1, IdentityTenantUtil.getTenantID(tenantDomain));
             preparedStatement.setString(2, userStoreDomain);
             preparedStatement.setString(3, username);
-            preparedStatement.setTimestamp(4, timestamp, Calendar.getInstance(TimeZone.getTimeZone(FIDOAuthenticatorConstants.UTC)));
+            preparedStatement.setTimestamp(4, timestamp, Calendar.getInstance(TimeZone.getTimeZone(IdentityCoreConstants.UTC)));
             preparedStatement.setString(5, registration.getKeyHandle());
             preparedStatement.setString(6, registration.toJson());
             preparedStatement.executeUpdate();
@@ -108,11 +110,11 @@ public class DeviceStoreDAO {
      * @return Collection of Device Registration.
      * @throws IdentityException when SQL statement can not be executed.
      */
-    public Collection getDeviceRegistration(String username, int tenantID, String userStoreDomain)
+    public Collection getDeviceRegistration(String username,String tenantDomain, String userStoreDomain)
             throws FIDOAuthenticatorServerException {
 
         if (log.isDebugEnabled()) {
-            log.debug("getDeviceRegistration inputs {username: " + username + ", tenantID: " +tenantID +
+            log.debug("getDeviceRegistration inputs {username: " + username + ", tenantDomain: " + tenantDomain +
                       ", userStoreDomain : " + userStoreDomain +"}");
         }
         Connection connection = getDBConnection();
@@ -122,7 +124,7 @@ public class DeviceStoreDAO {
 
         try {
             preparedStatement = connection.prepareStatement(FIDOAuthenticatorConstants.SQLQueries.GET_DEVICE_REGISTRATION_QUERY);
-            preparedStatement.setInt(1, tenantID);
+            preparedStatement.setInt(1, IdentityTenantUtil.getTenantID(tenantDomain));
             preparedStatement.setString(2, userStoreDomain);
             preparedStatement.setString(3, username);
             resultSet = preparedStatement.executeQuery();
@@ -151,13 +153,13 @@ public class DeviceStoreDAO {
      * @return Collection of Device Registration.
      * @throws IdentityException when SQL statement can not be executed.
      */
-    public ArrayList<String> getDeviceMetadata(String username, int tenantID, String userStoreDomain)
+    public ArrayList<String> getDeviceMetadata(String username, String tenantDomain, String userStoreDomain)
             throws FIDOAuthenticatorServerException {
 
         ResultSet resultSet = null;
         ArrayList<String> devicesMetadata = new ArrayList<String>();
         if (log.isDebugEnabled()) {
-            log.debug("getDeviceRegistration inputs {username: " + username + ", tenantID: " +tenantID +
+            log.debug("getDeviceRegistration inputs {username: " + username + ", tenantDomain: " + tenantDomain +
                       ", userStoreDomain : " + userStoreDomain +"}");
         }
         Connection connection = getDBConnection();
@@ -165,7 +167,7 @@ public class DeviceStoreDAO {
 
         try {
             preparedStatement = connection.prepareStatement(FIDOAuthenticatorConstants.SQLQueries.GET_DEVICE_REGISTRATION_QUERY);
-            preparedStatement.setInt(1, tenantID);
+            preparedStatement.setInt(1, IdentityTenantUtil.getTenantID(tenantDomain));
             preparedStatement.setString(2, userStoreDomain);
             preparedStatement.setString(3, username);
             resultSet = preparedStatement.executeQuery();
@@ -189,11 +191,11 @@ public class DeviceStoreDAO {
      * Remove all registered device from store.
      *
      * @param username
-     * @param tenantID
+     * @param tenantDomain
      * @param userStoreDomain
      * @throws FIDOAuthenticatorServerException
      */
-    public void removeAllRegistrations(String username, int tenantID, String userStoreDomain)
+    public void removeAllRegistrations(String username, String tenantDomain, String userStoreDomain)
             throws FIDOAuthenticatorServerException {
 
         if (log.isDebugEnabled()) {
@@ -204,7 +206,7 @@ public class DeviceStoreDAO {
 
         try {
             preparedStatement = connection.prepareStatement(FIDOAuthenticatorConstants.SQLQueries.REMOVE_ALL_REGISTRATION_QUERY);
-            preparedStatement.setInt(1, tenantID);
+            preparedStatement.setInt(1, IdentityTenantUtil.getTenantID(tenantDomain));
             preparedStatement.setString(2, userStoreDomain);
             preparedStatement.setString(3, username);
             preparedStatement.executeUpdate();
@@ -226,15 +228,15 @@ public class DeviceStoreDAO {
      * Remove all registered device from store.
      *
      * @param username
-     * @param tenantID
+     * @param tenantDomain
      * @param userStoreDomain
      * @throws FIDOAuthenticatorServerException
      */
-    public void removeRegistration(String username, int tenantID, String userStoreDomain, Timestamp timestamp )
+    public void removeRegistration(String username, String tenantDomain, String userStoreDomain, Timestamp timestamp )
             throws FIDOAuthenticatorServerException {
 
         if (log.isDebugEnabled()) {
-            log.debug("removeRegistration inputs {username: " + username + ", tenantID: " +tenantID +
+            log.debug("removeRegistration inputs {username: " + username + ", tenantDomain: " + tenantDomain +
                       ", userStoreDomain : " + userStoreDomain + "}");
         }
         Connection connection = getDBConnection();
@@ -242,7 +244,7 @@ public class DeviceStoreDAO {
 
         try {
             preparedStatement = connection.prepareStatement(FIDOAuthenticatorConstants.SQLQueries.REMOVE_REGISTRATION_QUERY);
-            preparedStatement.setInt(1, tenantID);
+            preparedStatement.setInt(1, IdentityTenantUtil.getTenantID(tenantDomain));
             preparedStatement.setString(2, userStoreDomain);
             preparedStatement.setString(3, username);
             preparedStatement.setTimestamp(4,timestamp);
@@ -332,10 +334,10 @@ public class DeviceStoreDAO {
 
     }
 
-    private ResultSet getDeviceData(String username, int tenantID, String userStoreDomain)
+    private ResultSet getDeviceData(String username, String tenantDomain, String userStoreDomain)
             throws FIDOAuthenticatorServerException {
         if (log.isDebugEnabled()) {
-            log.debug("getDeviceRegistration inputs {username: " + username + ", tenantID: " +tenantID +
+            log.debug("getDeviceRegistration inputs {username: " + username + ", tenantDomain: " + tenantDomain +
                       ", userStoreDomain : " + userStoreDomain +"}");
         }
         Connection connection = getDBConnection();
@@ -345,7 +347,7 @@ public class DeviceStoreDAO {
 
         try {
             preparedStatement = connection.prepareStatement(FIDOAuthenticatorConstants.SQLQueries.GET_DEVICE_REGISTRATION_QUERY);
-            preparedStatement.setInt(1, tenantID);
+            preparedStatement.setInt(1, IdentityTenantUtil.getTenantID(tenantDomain));
             preparedStatement.setString(2, userStoreDomain);
             preparedStatement.setString(3, username);
             resultSet = preparedStatement.executeQuery();

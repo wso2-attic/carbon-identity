@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.wso2.carbon.identity</groupId>
         <artifactId>provisioning</artifactId>
-        <version>4.5.4-SNAPSHOT</version>
+        <version>4.5.6-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -112,7 +112,7 @@
                         <Import-Package>
                             javax.swing,
                             javax.xml.parsers,
-                            javax.xml.transform.*,
+                            javax.xml.transform.*; version=0.0.0,
                             javax.servlet; version="${imp.pkg.version.javax.servlet}",
                             javax.servlet.http; version="${imp.pkg.version.javax.servlet}",
                             org.apache.commons.collections; version="${commons-collections.wso2.osgi.version.range}",

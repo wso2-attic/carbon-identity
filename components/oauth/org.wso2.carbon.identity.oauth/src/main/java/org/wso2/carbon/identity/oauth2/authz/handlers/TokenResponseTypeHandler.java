@@ -24,6 +24,7 @@ import org.apache.commons.io.Charsets;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.base.IdentityException;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.oauth.cache.OAuthCacheKey;
 import org.wso2.carbon.identity.oauth.common.OAuthConstants;
 import org.wso2.carbon.identity.oauth.config.OAuthServerConfiguration;
@@ -53,7 +54,7 @@ public class TokenResponseTypeHandler extends AbstractResponseTypeHandler {
         String consumerKey = authorizationReqDTO.getConsumerKey();
         String authorizedUser = authorizationReqDTO.getUsername();
         String oAuthCacheKeyString;
-        boolean isUsernameCaseSensitive = OAuth2Util.isUsernameCaseSensitive(authorizedUser);
+        boolean isUsernameCaseSensitive = IdentityUtil.isUserStoreInUsernameCaseSensitive(authorizedUser);
         if (isUsernameCaseSensitive) {
             oAuthCacheKeyString = consumerKey + ":" + authorizedUser + ":" + scope;
         } else {
@@ -262,9 +263,10 @@ public class TokenResponseTypeHandler extends AbstractResponseTypeHandler {
                         .getRefreshTokenValidityPeriodInSeconds() * 1000;
             }
 
-            AccessTokenDO newAccessTokenDO = new AccessTokenDO(consumerKey, authorizationReqDTO.getUsername(),
-                    oauthAuthzMsgCtx.getApprovedScope(), timestamp, refreshTokenIssuedTime, validityPeriodInMillis,
-                    refreshTokenValidityPeriodInMillis, OAuthConstants.USER_TYPE_FOR_USER_TOKEN);
+            AccessTokenDO newAccessTokenDO = new AccessTokenDO(consumerKey, OAuth2Util.getUserFromUserName
+                    (authorizationReqDTO.getUsername()), oauthAuthzMsgCtx.getApprovedScope(), timestamp,
+                    refreshTokenIssuedTime, validityPeriodInMillis, refreshTokenValidityPeriodInMillis,
+                    OAuthConstants.USER_TYPE_FOR_USER_TOKEN);
 
             newAccessTokenDO.setAccessToken(accessToken);
             newAccessTokenDO.setRefreshToken(refreshToken);

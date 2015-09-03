@@ -19,7 +19,7 @@
     <parent>
         <groupId>org.wso2.carbon.identity</groupId>
         <artifactId>saml2-sso-authenticator</artifactId>
-        <version>4.5.4-SNAPSHOT</version>
+        <version>4.5.6-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -115,7 +115,9 @@
                             org.wso2.carbon.identity.authenticator.saml2.sso.stub;
                             version="${carbon.identity.package.import.version.range}",
                             org.wso2.carbon.identity.authenticator.saml2.sso.stub.types;
-                            version="${carbon.identity.package.import.version.range}"
+                            version="${carbon.identity.package.import.version.range}",
+                            org.wso2.carbon.identity.application.authentication.framework.model.xsd;
+                            resolution:=optional
                         </Import-Package>
                         <Export-Package>
                             !org.wso2.carbon.identity.authenticator.saml2.sso.ui.internal,

@@ -20,9 +20,21 @@ package org.wso2.carbon.identity.core.util;
 
 public class IdentityCoreConstants {
 
+    public static final String IDENTITY_CONFIG = "identity.xml";
+    public static final String IDENTITY_DEFAULT_NAMESPACE = "http://wso2.org/projects/carbon/carbon.xml";
     public static final String HOST_NAME = "HostName";
+    public static final String PORTS_OFFSET = "Ports.Offset";
+
     public static final String PROXY_CONTEXT_PATH = "ProxyContextPath";
     public static final int DEFAULT_HTTPS_PORT = 443;
+    public static final String UTF_8 = "UTF-8";
+    public static final String UTC = "UTC";
+    public static final int EVENT_LISTENER_ORDER_ID = -1;
+
+    public static final String CASE_INSENSITIVE_USERNAME = "CaseInsensitiveUsername";
+    public static final String USER_NOT_FOUND = "UserNotFound";
+    public final static String MULTI_ATTRIBUTE_SEPARATOR = "MultiAttributeSeparator";
+    public final static String MULTI_ATTRIBUTE_SEPARATOR_DEFAULT = ",,,";
 
     private IdentityCoreConstants(){
     }

@@ -201,13 +201,6 @@
 				<Description>One Time Password</Description>
 		    </Claim>
 		    <Claim>
-				<ClaimURI>http://wso2.org/claims/identity/passwordTimestamp</ClaimURI>
-				<DisplayName>Password Time Stamp</DisplayName>
-			<!-- Proper attribute Id in your user store must be configured for this -->
-				<AttributeID>passwordTimestamp</AttributeID>
-				<Description>Password Time Stamp</Description>
-		    </Claim>
-		    <Claim>
 				<ClaimURI>http://wso2.org/claims/identity/accountLocked</ClaimURI>
 				<DisplayName>Account Locked</DisplayName>
 			<!-- Proper attribute Id in your user store must be configured for this -->
@@ -1030,7 +1023,7 @@
 				<ClaimURI>birthdate</ClaimURI>
 				<DisplayName>Birth Date</DisplayName>
 				<AttributeID>birthDate</AttributeID>
-				<Description>End-User's birthday, represented as an ISO 8601:2004 [ISO8601‑2004] YYYY-MM-DD format. The year MAY be 0000, indicating that it is omitted. To represent only the year, YYYY format is allowed.</Description>
+				<Description>End-User's birthday, represented as an ISO 8601:2004 [ISO8601-2004] YYYY-MM-DD format. The year MAY be 0000, indicating that it is omitted. To represent only the year, YYYY format is allowed.</Description>
 			</Claim>
 			<Claim>
 				<ClaimURI>zoneinfo</ClaimURI>

@@ -204,10 +204,10 @@
 
         <div id="workArea">
 
-            <div style="height:30px;">
-                <a href="javascript:document.location.href='add-claim.jsp?dialect=<%=dialectUri%>'" class="icon-link"
-                   style="background-image:url(../admin/images/add.gif);"><fmt:message key='add.new.claim.mapping'/></a>
-            </div>
+            <%--<div style="height:30px;">--%>
+                <%--<a href="javascript:document.location.href='add-claim.jsp?dialect=<%=dialectUri%>'" class="icon-link"--%>
+                   <%--style="background-image:url(../admin/images/add.gif);"><fmt:message key='add.new.claim.mapping'/></a>--%>
+            <%--</div>--%>
 
 
             <%
@@ -264,8 +264,10 @@
                                 for (int x = 0; x < attrMap.length; x++) {
                                     val += "; " + attrMap[x].getDomainName() + "/" + attrMap[x].getAttributeName();
                                 }
-                                val = val.substring(1);
-                                claims[j].setMappedAttribute(val);
+                                if (!val.isEmpty()) {
+                                    val = val.substring(1);
+                                    claims[j].setMappedAttribute(val);
+                                }
                             }
                         }
 

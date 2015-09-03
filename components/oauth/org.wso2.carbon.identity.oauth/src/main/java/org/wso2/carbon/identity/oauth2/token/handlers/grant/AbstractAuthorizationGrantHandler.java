@@ -29,6 +29,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.model.OAuthAppDO;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.oauth.cache.AppInfoCache;
 import org.wso2.carbon.identity.oauth.cache.OAuthCache;
 import org.wso2.carbon.identity.oauth.cache.OAuthCacheKey;
@@ -53,7 +54,7 @@ import java.util.UUID;
 public abstract class AbstractAuthorizationGrantHandler implements AuthorizationGrantHandler {
 
     private static Log log = LogFactory.getLog(AbstractAuthorizationGrantHandler.class);
-    protected final OAuthIssuer oauthIssuerImpl = new OAuthIssuerImpl(new MD5Generator());
+    protected OAuthIssuer oauthIssuerImpl = new OAuthIssuerImpl(new MD5Generator());
     protected TokenMgtDAO tokenMgtDAO;
     protected OAuthCallbackManager callbackManager;
     protected boolean cacheEnabled;
@@ -93,8 +94,8 @@ public abstract class AbstractAuthorizationGrantHandler implements Authorization
         String scope = OAuth2Util.buildScopeString(tokReqMsgCtx.getScope());
 
         String consumerKey = tokReqMsgCtx.getOauth2AccessTokenReqDTO().getClientId();
-        String authorizedUser = tokReqMsgCtx.getAuthorizedUser();
-        boolean isUsernameCaseSensitive = OAuth2Util.isUsernameCaseSensitive(authorizedUser);
+        String authorizedUser = tokReqMsgCtx.getAuthorizedUser().toString();
+        boolean isUsernameCaseSensitive = IdentityUtil.isUserStoreInUsernameCaseSensitive(authorizedUser);
         String cacheKeyString;
         if (isUsernameCaseSensitive){
             cacheKeyString = consumerKey + ":" + authorizedUser + ":" + scope;
@@ -107,8 +108,7 @@ public abstract class AbstractAuthorizationGrantHandler implements Authorization
         //select the user store domain when multiple user stores are configured.
         if (OAuth2Util.checkAccessTokenPartitioningEnabled() &&
                 OAuth2Util.checkUserNameAssertionEnabled()) {
-            userStoreDomain = OAuth2Util.getUserStoreDomainFromUserId
-                    (tokReqMsgCtx.getAuthorizedUser());
+            userStoreDomain = tokReqMsgCtx.getAuthorizedUser().getUserStoreDomain();
         }
 
         String tokenType;
@@ -187,7 +187,7 @@ public abstract class AbstractAuthorizationGrantHandler implements Authorization
 
             //Check if the last issued access token is still active and valid in database
             AccessTokenDO existingAccessTokenDO = tokenMgtDAO.retrieveLatestAccessToken(
-                    oAuth2AccessTokenReqDTO.getClientId(), tokReqMsgCtx.getAuthorizedUser(),
+                    oAuth2AccessTokenReqDTO.getClientId(), tokReqMsgCtx.getAuthorizedUser().toString(),
                     userStoreDomain, scope, false);
 
             if (existingAccessTokenDO != null) {
@@ -280,7 +280,7 @@ public abstract class AbstractAuthorizationGrantHandler implements Authorization
             String newAccessToken;
 
             try {
-                String userName = tokReqMsgCtx.getAuthorizedUser();
+                String userName = tokReqMsgCtx.getAuthorizedUser().toString();
 
                 newAccessToken = oauthIssuerImpl.accessToken();
                 if (OAuth2Util.checkUserNameAssertionEnabled()) {
@@ -401,8 +401,7 @@ public abstract class AbstractAuthorizationGrantHandler implements Authorization
     @Override
     public boolean authorizeAccessDelegation(OAuthTokenReqMessageContext tokReqMsgCtx)
             throws IdentityOAuth2Exception {
-        OAuthCallback authzCallback = new OAuthCallback(
-                tokReqMsgCtx.getAuthorizedUser(),
+        OAuthCallback authzCallback = new OAuthCallback(tokReqMsgCtx.getAuthorizedUser().toString(),
                 tokReqMsgCtx.getOauth2AccessTokenReqDTO().getClientId(),
                 OAuthCallback.OAuthCallbackType.ACCESS_DELEGATION_TOKEN);
         authzCallback.setRequestedScope(tokReqMsgCtx.getScope());
@@ -426,10 +425,9 @@ public abstract class AbstractAuthorizationGrantHandler implements Authorization
     @Override
     public boolean validateScope(OAuthTokenReqMessageContext tokReqMsgCtx)
             throws IdentityOAuth2Exception {
-        OAuthCallback scopeValidationCallback = new OAuthCallback(
-                tokReqMsgCtx.getAuthorizedUser(),
-                tokReqMsgCtx.getOauth2AccessTokenReqDTO().getClientId(),
-                OAuthCallback.OAuthCallbackType.SCOPE_VALIDATION_TOKEN);
+        OAuthCallback scopeValidationCallback = new OAuthCallback(tokReqMsgCtx.getAuthorizedUser().toString(),
+                tokReqMsgCtx.getOauth2AccessTokenReqDTO().getClientId(), OAuthCallback.OAuthCallbackType
+                .SCOPE_VALIDATION_TOKEN);
         scopeValidationCallback.setRequestedScope(tokReqMsgCtx.getScope());
         if (tokReqMsgCtx.getOauth2AccessTokenReqDTO().getGrantType().equals(
                 org.wso2.carbon.identity.oauth.common.GrantType.SAML20_BEARER.toString())) {

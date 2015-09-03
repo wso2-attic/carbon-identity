@@ -39,7 +39,9 @@ import org.opensaml.xml.schema.impl.XSStringBuilder;
 import org.wso2.carbon.identity.base.IdentityConstants;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.IdentityClaimManager;
+import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
 import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
+import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.claim.Claim;
@@ -57,11 +59,10 @@ import java.util.StringTokenizer;
 public class AttributeCallbackHandler implements SAMLCallbackHandler {
 
     private static final Log log = LogFactory.getLog(AttributeCallbackHandler.class);
-    private static final String MULTI_ATTRIBUTE_SEPARATOR = "MultiAttributeSeparator";
     protected Map<String, RequestedClaimData> requestedClaims = new HashMap<String, RequestedClaimData>();
     protected Map<String, String> requestedClaimValues = new HashMap<String, String>();
     protected Map<String, Claim> supportedClaims = new HashMap<String, Claim>();
-    private String userAttributeSeparator = ",";
+    private String userAttributeSeparator = IdentityCoreConstants.MULTI_ATTRIBUTE_SEPARATOR_DEFAULT;
 
     @Override
     public void handle(SAMLCallback callback) throws SAMLException {
@@ -296,18 +297,17 @@ public class AttributeCallbackHandler implements SAMLCallbackHandler {
                     mapValues = connector.getUserClaimValues(
                             MultitenantUtils.getTenantAwareUsername(userId),
                             claimList.toArray(claimArray), null);
-                } catch (Exception e) {
-                    log.error("Error while instantiating IdentityUserStore", e);
+                } catch (UserStoreException e) {
                     throw new IdentityProviderException("Error while instantiating IdentityUserStore", e);
                 }
             } else {
                 mapValues = requestedClaimValues;
             }
 
-            String claimSeparator = mapValues.get(MULTI_ATTRIBUTE_SEPARATOR);
-            if (claimSeparator != null) {
+            String claimSeparator = mapValues.get(IdentityCoreConstants.MULTI_ATTRIBUTE_SEPARATOR);
+            if (StringUtils.isNotBlank(claimSeparator)) {
                 userAttributeSeparator = claimSeparator;
-                mapValues.remove(MULTI_ATTRIBUTE_SEPARATOR);
+                mapValues.remove(IdentityCoreConstants.MULTI_ATTRIBUTE_SEPARATOR);
             }
 
             ite = requestedClaims.values().iterator();
