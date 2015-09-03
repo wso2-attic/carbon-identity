@@ -19,7 +19,7 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar"
            prefix="carbon" %>
-<%@ page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
+
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.WorkflowUIConstants" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.WorkflowAdminServiceClient" %>
 <%@ page import="java.util.ResourceBundle" %>
@@ -37,12 +37,11 @@
 <script type="text/javascript" src="../admin/js/main.js"></script>
 
 <%
-    //ToDo Use encode at request sender and remove getSafeText, do input validation
-    String requestId = CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_REQUEST_ID));
+    String requestId = request.getParameter(WorkflowUIConstants.PARAM_REQUEST_ID);
     WorkflowAdminServiceClient client = null;
     String bundle = "org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources";
     ResourceBundle resourceBundle = ResourceBundle.getBundle(bundle, request.getLocale());
-    String pageNumber = CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_PAGE_NUMBER));
+    String pageNumber = request.getParameter(WorkflowUIConstants.PARAM_PAGE_NUMBER);
     int pageNumberInt = 0;
     int numberOfPages = 0;
     String forwardTo = null;
