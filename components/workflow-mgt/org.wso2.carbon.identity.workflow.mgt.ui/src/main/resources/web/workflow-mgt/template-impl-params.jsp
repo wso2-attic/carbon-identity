@@ -29,7 +29,7 @@
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.WorkflowUIConstants" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
-<%@ page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
+
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@ page import="java.util.Iterator" %>
 <%@ page import="java.util.Map" %>
@@ -49,7 +49,7 @@
     }
 
     String template = null ;
-    String templateImpl = CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_TEMPLATE_IMPL));
+    String templateImpl = request.getParameter(WorkflowUIConstants.PARAM_TEMPLATE_IMPL);
 
 
     WorkflowAdminServiceClient client;
@@ -84,7 +84,7 @@
             for (Map.Entry<String, String[]> paramEntry : parameterMap.entrySet()) {
                 if (StringUtils.startsWith(paramEntry.getKey(), "p-") &&
                     paramEntry.getValue() != null && paramEntry.getValue().length > 0) {
-                    String paramValue = CharacterEncoder.getSafeText(paramEntry.getValue()[0]);
+                    String paramValue = paramEntry.getValue()[0];
                     attribMap.put(paramEntry.getKey(), paramValue);
                 }
             }
@@ -220,7 +220,7 @@
                     for (Map.Entry<String, String[]> paramEntry : parameterMap.entrySet()) {
                         if (StringUtils.startsWith(paramEntry.getKey(), "p-") &&
                                 paramEntry.getValue() != null && paramEntry.getValue().length > 0) {
-                            String paramValue = CharacterEncoder.getSafeText(paramEntry.getValue()[0]);
+                            String paramValue = paramEntry.getValue()[0];
                 %>
                     <input type="hidden" name="<%=paramEntry.getKey()%>" value="<%=paramValue%>">
                 <%
