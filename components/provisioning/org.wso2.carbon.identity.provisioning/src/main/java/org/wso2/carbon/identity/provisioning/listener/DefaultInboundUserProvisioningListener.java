@@ -233,7 +233,7 @@ public class DefaultInboundUserProvisioningListener extends AbstractIdentityUser
     /**
      *
      */
-    public boolean doPreDeleteUserClaimValues(String userName, String[] deletedInboundAttributesURI,
+    public boolean doPreDeleteUserClaimValues(String userName, String[] attributesToDelete,
                                               String profileName, UserStoreManager userStoreManager) throws UserStoreException {
         try {
             Map<ClaimMapping, List<String>> outboundAttributes = new HashMap<>();
@@ -251,12 +251,12 @@ public class DefaultInboundUserProvisioningListener extends AbstractIdentityUser
             String domainAwareName = UserCoreUtil.addDomainToName(userName, domainName);
 
             ProvisioningEntity provisioningEntity = new ProvisioningEntity(
-                    ProvisioningEntityType.USER, domainAwareName, ProvisioningOperation.PUT,
+                    ProvisioningEntityType.USER, domainAwareName, ProvisioningOperation.PATCH,
                     outboundAttributes);
 
             Map<String, String> inboundAttributes = new HashMap<>();
-            for(int i =0; i<deletedInboundAttributesURI.length;i++){
-                inboundAttributes.put(deletedInboundAttributesURI[i],"");
+            for(int i =0; i<attributesToDelete.length;i++){
+                inboundAttributes.put(attributesToDelete[i],"");
             }
             ;
             // set the in-bound attribute list.
@@ -311,7 +311,7 @@ public class DefaultInboundUserProvisioningListener extends AbstractIdentityUser
     /**
      *
      */
-    public boolean doPreDeleteUserClaimValue(String userName, String deletedInboundAttributeURI, String profileName,
+    public boolean doPreDeleteUserClaimValue(String userName, String attributeToDelete, String profileName,
                                              UserStoreManager userStoreManager) throws UserStoreException {
         try {
             Map<ClaimMapping, List<String>> outboundAttributes = new HashMap<>();
@@ -329,11 +329,11 @@ public class DefaultInboundUserProvisioningListener extends AbstractIdentityUser
             String domainAwareName = UserCoreUtil.addDomainToName(userName, domainName);
 
             ProvisioningEntity provisioningEntity = new ProvisioningEntity(
-                    ProvisioningEntityType.USER, domainAwareName, ProvisioningOperation.PUT,
+                    ProvisioningEntityType.USER, domainAwareName, ProvisioningOperation.PATCH,
                     outboundAttributes);
 
             Map<String, String> inboundAttributes = new HashMap<>();
-            inboundAttributes.put(deletedInboundAttributeURI,"");
+            inboundAttributes.put(attributeToDelete,"");
 
             // set the in-bound attribute list.
             provisioningEntity.setInboundAttributes(inboundAttributes);
