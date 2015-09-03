@@ -50,6 +50,12 @@ public interface ApplicationDAO {
     ApplicationBasicInfo[] getAllApplicationBasicInfo() throws IdentityApplicationManagementException;
 
     /**
+     * @return
+     * @throws IdentityApplicationManagementException
+     */
+    ApplicationBasicInfo[] getAllApplicationBasicInfoForAdmin() throws IdentityApplicationManagementException;
+
+    /**
      * @param applicationDTO
      * @throws IdentityApplicationManagementException
      */

@@ -70,6 +70,11 @@ public class FileBasedApplicationDAO implements ApplicationDAO {
     }
 
     @Override
+    public ApplicationBasicInfo[] getAllApplicationBasicInfoForAdmin() throws IdentityApplicationManagementException {
+        return getAllApplicationBasicInfo();
+    }
+
+    @Override
     public void updateApplication(ServiceProvider applicationDTO)
             throws IdentityApplicationManagementException {
         throw new IdentityApplicationManagementException("Not supported in file based dao.");

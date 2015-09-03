@@ -60,6 +60,7 @@ import org.wso2.carbon.identity.application.mgt.internal.ApplicationManagementSe
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.persistence.JDBCPersistenceManager;
 import org.wso2.carbon.user.api.UserStoreException;
+import org.wso2.carbon.user.core.common.AbstractUserStoreManager;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.utils.DBUtils;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
@@ -2117,6 +2118,50 @@ public class ApplicationDAOImpl implements ApplicationDAO {
         }
 
         return appInfo.toArray(new ApplicationBasicInfo[appInfo.size()]);
+    }
+
+
+    public ApplicationBasicInfo[] getAllApplicationBasicInfoForAdmin() throws IdentityApplicationManagementException {
+        int tenantID = CarbonContext.getThreadLocalCarbonContext().getTenantId();
+        if (debugMode) {
+            log.debug("Reading all Applications of Tenant " + tenantID);
+        }
+
+        Connection connection = null;
+        PreparedStatement getAppNamesStmt = null;
+        ResultSet appNameResultSet = null;
+
+        ArrayList<ApplicationBasicInfo> appInfo = new ArrayList<>();
+
+        try {
+            connection = JDBCPersistenceManager.getInstance().getDBConnection();
+            getAppNamesStmt = connection
+                    .prepareStatement(ApplicationMgtDBQueries.LOAD_APP_NAMES_BY_TENANT);
+            getAppNamesStmt.setInt(1, tenantID);
+            appNameResultSet = getAppNamesStmt.executeQuery();
+
+            while (appNameResultSet.next()) {
+                ApplicationBasicInfo basicInfo = new ApplicationBasicInfo();
+                if (ApplicationConstants.LOCAL_SP.equals(appNameResultSet.getString(1))) {
+                    continue;
+                }
+                basicInfo.setApplicationName(appNameResultSet.getString(1));
+                basicInfo.setDescription(appNameResultSet.getString(2));
+                appInfo.add(basicInfo);
+                if (debugMode) {
+                    log.debug("Application Name:" + basicInfo.getApplicationName());
+                }
+            }
+            connection.commit();
+        } catch (SQLException | IdentityException e) {
+            throw new IdentityApplicationManagementException("Error while Reading all Applications");
+        } finally {
+            IdentityApplicationManagementUtil.closeStatement(getAppNamesStmt);
+            IdentityApplicationManagementUtil.closeResultSet(appNameResultSet);
+            IdentityApplicationManagementUtil.closeConnection(connection);
+        }
+        return appInfo.toArray(new ApplicationBasicInfo[appInfo.size()]);
+
     }
 
     /**

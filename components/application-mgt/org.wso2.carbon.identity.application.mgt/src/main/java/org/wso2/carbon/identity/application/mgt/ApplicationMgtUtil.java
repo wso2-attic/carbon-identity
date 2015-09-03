@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.identity.application.mgt;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
@@ -141,9 +142,20 @@ public class ApplicationMgtUtil {
     public static void createAppRole(String applicationName) throws IdentityApplicationManagementException {
         String roleName = getAppRoleName(applicationName);
         String qualifiedUsername = CarbonContext.getThreadLocalCarbonContext().getUsername();
-        String[] user = {qualifiedUsername};
+        List<String> qualifiedUserList = new ArrayList<>();
 
         try {
+            // assign the app role for all the users, having admin privileges
+            qualifiedUserList.add(qualifiedUsername);
+            String[] userListOfAdminRole = CarbonContext.getThreadLocalCarbonContext().getUserRealm().getUserStoreManager().getUserListOfRole("admin");
+            for (String userName : userListOfAdminRole) {
+                if (StringUtils.equals(userName, qualifiedUsername)) {
+                    continue;
+                }
+                qualifiedUserList.add(userName);
+            }
+            String[] user = qualifiedUserList.toArray(new String[qualifiedUserList.size()]);
+
             // create a role for the application and assign the user to that role.
             if (log.isDebugEnabled()) {
                 log.debug("Creating application role : " + roleName + " and assign the user : "
@@ -154,7 +166,27 @@ public class ApplicationMgtUtil {
         } catch (UserStoreException e) {
             throw new IdentityApplicationManagementException("Error while creating application", e);
         }
+    }
 
+    /**
+     * Assign Admin users to the role that created for a application.
+     *
+     * @param applicationName
+     * @param qualifiedUsername
+     * @throws IdentityApplicationManagementException
+     */
+    public static void addAdminUserToRole(String applicationName, String qualifiedUsername) throws IdentityApplicationManagementException {
+        String roleName = getAppRoleName(applicationName);
+        String [] user = {qualifiedUsername};
+        try {
+            if (log.isDebugEnabled()) {
+                log.debug("Adding admin user : " + qualifiedUsername + " to the application role :" + roleName);
+            }
+            CarbonContext.getThreadLocalCarbonContext().getUserRealm().getUserStoreManager()
+                    .updateUserListOfRole(roleName, null , user);
+        } catch (UserStoreException e) {
+            throw new IdentityApplicationManagementException("Error while assigning admin user to the app role.", e);
+        }
     }
 
     private static String getAppRoleName(String applicationName) {
