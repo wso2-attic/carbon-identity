@@ -120,12 +120,6 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
                 }
             }
 
-            for (ApplicationMgtListener listener : listeners) {
-                if(!listener.doPostCreateApplication(serviceProvider)){
-                    return 0;
-                }
-            }
-
             // first we need to create a role with the application name.
             // only the users in this role will be able to edit/update the
             // application.
@@ -134,7 +128,14 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
             ApplicationMgtUtil.storePermission(serviceProvider.getApplicationName(),
                                                serviceProvider.getPermissionAndRoleConfig());
 
-            return appDAO.createApplication(serviceProvider, tenantDomain);
+            int applicationId = appDAO.createApplication(serviceProvider, tenantDomain);
+
+            for (ApplicationMgtListener listener : listeners) {
+                if(!listener.doPostCreateApplication(serviceProvider)){
+                    return 0;
+                }
+            }
+            return applicationId;
         } catch (Exception e) {
             try {
                 ApplicationMgtUtil.deleteAppRole(serviceProvider.getApplicationName());
@@ -206,20 +207,6 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
                 startTenantFlow(tenantDomain, userName);
             }
 
-            // invoking the listeners
-            List<ApplicationMgtListener> listeners = ApplicationMgtListenerServiceComponent.getListners();
-            for (ApplicationMgtListener listener : listeners) {
-                if(!listener.doPreUpdateApplication(serviceProvider)){
-                    return;
-                }
-            }
-
-            for (ApplicationMgtListener listener : listeners) {
-                if(!listener.doPostUpdateApplication(serviceProvider)){
-                    return;
-                }
-            }
-
             // check whether use is authorized to update the application.
             if (!ApplicationConstants.LOCAL_SP.equals(serviceProvider.getApplicationName()) &&
                 !ApplicationMgtUtil.isUserAuthorized(serviceProvider.getApplicationName(),
@@ -229,6 +216,14 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
                          " does not have access to the application " +
                          serviceProvider.getApplicationName());
                 throw new IdentityApplicationManagementException("User not authorized");
+            }
+
+            // invoking the listeners
+            List<ApplicationMgtListener> listeners = ApplicationMgtListenerServiceComponent.getListners();
+            for (ApplicationMgtListener listener : listeners) {
+                if(!listener.doPreUpdateApplication(serviceProvider)){
+                    return;
+                }
             }
 
             ApplicationDAO appDAO = ApplicationMgtSystemConfig.getInstance().getApplicationDAO();
@@ -249,6 +244,13 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
             if (ArrayUtils.isNotEmpty(permissions)) {
                 ApplicationMgtUtil.updatePermissions(serviceProvider.getApplicationName(), permissions);
             }
+
+            for (ApplicationMgtListener listener : listeners) {
+                if(!listener.doPostUpdateApplication(serviceProvider)){
+                    return;
+                }
+            }
+
         } catch (Exception e) {
             String error = "Error occurred while updating the application";
             log.error(error, e);
@@ -313,12 +315,6 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
                 throw new IdentityApplicationManagementException("User not authorized");
             }
 
-            for (ApplicationMgtListener listener : listeners) {
-                if(!listener.doPostDeleteApplication(applicationName)){
-                    return;
-                }
-            }
-
             ApplicationDAO appDAO = ApplicationMgtSystemConfig.getInstance().getApplicationDAO();
             ServiceProvider serviceProvider = appDAO.getApplication(applicationName, tenantDomain);
             appDAO.deleteApplication(applicationName);
@@ -378,6 +374,12 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
                             throw new IdentityApplicationManagementException(error, e);
                         }
                     }
+                }
+            }
+
+            for (ApplicationMgtListener listener : listeners) {
+                if(!listener.doPostDeleteApplication(applicationName)){
+                    return;
                 }
             }
 
