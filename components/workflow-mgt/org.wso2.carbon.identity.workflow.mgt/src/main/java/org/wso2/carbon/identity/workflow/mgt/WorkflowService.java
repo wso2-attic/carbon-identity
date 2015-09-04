@@ -30,6 +30,7 @@ import org.wso2.carbon.identity.base.IdentityRuntimeException;
 import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
 import org.wso2.carbon.identity.workflow.mgt.bean.BPSProfileDTO;
 import org.wso2.carbon.identity.workflow.mgt.bean.ParameterDTO;
+import org.wso2.carbon.identity.workflow.mgt.bean.WorkFlowRequest;
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowAssociationBean;
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowDTO;
 import org.wso2.carbon.identity.workflow.mgt.template.AbstractWorkflowTemplate;
@@ -458,6 +459,10 @@ public class WorkflowService {
      */
     public void updateStatusOfRequest(String requestId, String newState) throws WorkflowException {
         if (WorkflowRequestStatus.DELETED.toString().equals(newState)) {
+            String loggedUser = CarbonContext.getThreadLocalCarbonContext().getUsername();
+            if (!loggedUser.equals(workflowRequestDAO.retrieveCreatedUserOfRequest(requestId))) {
+                throw  new WorkflowException("User not authorized to delete this request");
+            }
             workflowRequestDAO.updateStatusOfRequest(requestId, newState);
         }
         requestEntityRelationshipDAO.deleteRelationshipsOfRequest(requestId);

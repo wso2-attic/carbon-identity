@@ -26,6 +26,7 @@ public class WorkflowRequestDTO {
     private String updatedAt;
     private String status;
     private String requestParams;
+    private String createdBy;
 
     public String getRequestId() {
         return requestId;
@@ -73,5 +74,13 @@ public class WorkflowRequestDTO {
 
     public void setCreatedAt(String createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public String getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(String createdBy) {
+        this.createdBy = createdBy;
     }
 }

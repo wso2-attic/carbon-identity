@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.identity.mgt.services;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
@@ -27,7 +28,10 @@ import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.base.IdentityConstants;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.IdentityClaimManager;
+import org.wso2.carbon.identity.core.model.IdentityEventListener;
 import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
+import org.wso2.carbon.identity.mgt.IdentityMgtEventListener;
 import org.wso2.carbon.identity.mgt.ChallengeQuestionProcessor;
 import org.wso2.carbon.identity.mgt.IdentityMgtConfig;
 import org.wso2.carbon.identity.mgt.IdentityMgtServiceException;
@@ -49,6 +53,7 @@ import org.wso2.carbon.user.core.Permission;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.user.core.claim.Claim;
+import org.wso2.carbon.user.core.listener.UserOperationEventListener;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.core.tenant.TenantManager;
 import org.wso2.carbon.user.mgt.UserMgtConstants;
@@ -794,10 +799,20 @@ public class UserInformationRecoveryService {
                         new String[]{userName});
             }
 
+            IdentityEventListener identityEventListener = IdentityUtil.readEventListenerProperty
+                    (UserOperationEventListener.class.getName(), IdentityMgtEventListener.class.getName());
+
+            boolean isListenerEnable = true;
+
+            if (identityEventListener != null) {
+                if (StringUtils.isNotBlank(identityEventListener.getEnable())) {
+                    isListenerEnable = Boolean.parseBoolean(identityEventListener.getEnable());
+                }
+            }
 
             IdentityMgtConfig config = IdentityMgtConfig.getInstance();
 
-            if (config.isListenerEnable() && config.isAuthPolicyAccountLockOnCreation()) {
+            if (isListenerEnable && config.isAuthPolicyAccountLockOnCreation()) {
                 UserDTO userDTO = new UserDTO(userName);
                 userDTO.setTenantId(tenantId);
 
