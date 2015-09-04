@@ -130,7 +130,7 @@
                                 <bundleDef>org.wso2.charon:org.wso2.charon.core</bundleDef>
                             </bundles>
                             <importFeatures>
-                                <importFeatureDef>org.wso2.carbon.claim.mgt:${carbon.identity.version}</importFeatureDef>
+                                <importFeatureDef>org.wso2.carbon.claim.mgt.server:${carbon.identity.version}</importFeatureDef>
                                 <importFeatureDef>org.wso2.carbon.identity.scim.common:${carbon.identity.version}</importFeatureDef>
                             </importFeatures>
                         </configuration>
