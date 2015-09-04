@@ -16,16 +16,15 @@
    under the License.
   --%>
 
-<%@page import="org.apache.axis2.context.ConfigurationContext" %>
-<%@page import="org.wso2.carbon.CarbonConstants" %>
-<%@page import="org.wso2.carbon.ui.CarbonUIMessage" %>
-<%@page import="org.wso2.carbon.ui.CarbonUIUtil" %>
-<%@page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
-<%@page import="org.wso2.carbon.user.mgt.ui.UserAdminClient" %>
+<%@ page import="org.apache.axis2.context.ConfigurationContext" %>
+<%@ page import="org.owasp.encoder.Encode" %>
+<%@ page import="org.wso2.carbon.CarbonConstants" %>
+<%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
+<%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
+<%@ page import="org.wso2.carbon.user.mgt.ui.UserAdminClient" %>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
-<%@ page import="java.net.URLEncoder" %>
-<%@page import="java.text.MessageFormat" %>
-<%@page import="java.util.ResourceBundle" %>
+<%@ page import="java.text.MessageFormat" %>
+<%@ page import="java.util.ResourceBundle" %>
 
 <%
 
@@ -35,15 +34,16 @@
     String forwardTo = "role-mgt.jsp?ordinal=1";
     String roleName = request.getParameter("roleName");
 
-
     if (request.getParameter("prevPage") != null && request.getParameter("prevUser") != null) {
         String prevPage = request.getParameter("prevPage");
         String prevUser = request.getParameter("prevUser");
         String prevPageNumber = request.getParameter("prevPageNumber");
         if ("view".equals(prevPage)) {
-            forwardTo = "../user/view-roles.jsp?username=" + URLEncoder.encode(prevUser) + "&pageNumber=" + prevPageNumber;
+            forwardTo = "../user/view-roles.jsp?username=" + Encode.forUriComponent(prevUser) + "&pageNumber=" +
+                        Encode.forUriComponent(prevPageNumber);
         } else if ("edit".equals(prevPage)) {
-            forwardTo = "../user/edit-user-roles.jsp?username=" + URLEncoder.encode(prevUser) + "&pageNumber=" + prevPageNumber;
+            forwardTo = "../user/edit-user-roles.jsp?username=" + Encode.forUriComponent(prevUser) + "&pageNumber=" +
+                        Encode.forUriComponent(prevPageNumber);
         }
     }
 
@@ -60,21 +60,19 @@
         client.setRoleUIPermission(roleName, selectedPermissions);
         CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.INFO, request);
 
-
     } catch (InstantiationException e) {
 
         CarbonUIMessage.sendCarbonUIMessage("Your session has timed out. Please try again.",
-                CarbonUIMessage.ERROR, request);
+                                            CarbonUIMessage.ERROR, request);
 
     } catch (Exception e) {
 
-        message = MessageFormat.format(resourceBundle.getString("role.cannot.update"),
-                CharacterEncoder.getSafeText(roleName), e.getMessage());
+        message = MessageFormat.format(resourceBundle.getString("role.cannot.update"), roleName, e.getMessage());
         CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
 %>
 <script type="text/javascript">
     jQuery(document).ready(function () {
-        CARBON.showErrorDialog('<%=message%>', function () {
+        CARBON.showErrorDialog('<%=Encode.forJavaScript(Encode.forHtml(message))%>', function () {
             location.href = "role-mgt.jsp";
         });
     });
@@ -85,7 +83,7 @@
 
 <script type="text/javascript">
     function forward() {
-        location.href = "<%=forwardTo%>";
+        location.href = "<%=Encode.forJavaScriptBlock(forwardTo)%>";
     }
 </script>
 

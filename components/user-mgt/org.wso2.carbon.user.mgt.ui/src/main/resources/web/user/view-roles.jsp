@@ -18,21 +18,18 @@
 
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar" prefix="carbon" %>
-<%@page session="true" %>
-<%@page import="org.apache.axis2.context.ConfigurationContext" %>
-<%@page import="org.wso2.carbon.CarbonConstants" %>
-<%@page import="org.wso2.carbon.ui.CarbonUIUtil" %>
-<%@page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
-<%@page import="org.wso2.carbon.user.mgt.stub.types.carbon.FlaggedName" %>
-<%@page import="org.wso2.carbon.user.mgt.stub.types.carbon.UserRealmInfo" %>
+<%@ page session="true" %>
+<%@ page import="org.apache.axis2.context.ConfigurationContext" %>
+<%@ page import="org.owasp.encoder.Encode" %>
+<%@ page import="org.wso2.carbon.CarbonConstants" %>
+<%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
+<%@ page import="org.wso2.carbon.user.mgt.stub.types.carbon.FlaggedName" %>
+<%@ page import="org.wso2.carbon.user.mgt.stub.types.carbon.UserRealmInfo" %>
 <%@ page import="org.wso2.carbon.user.mgt.ui.PaginatedNamesBean" %>
-
-
-<%@page import="org.wso2.carbon.user.mgt.ui.UserAdminClient" %>
+<%@ page import="org.wso2.carbon.user.mgt.ui.UserAdminClient" %>
 <%@ page import="org.wso2.carbon.user.mgt.ui.UserAdminUIConstants" %>
 <%@ page import="org.wso2.carbon.user.mgt.ui.Util" %>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
-<%@ page import="java.net.URLEncoder" %>
 <%@ page import="java.text.MessageFormat" %>
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="java.util.Arrays" %>
@@ -40,6 +37,9 @@
 <%@ page import="java.util.List" %>
 <%@ page import="java.util.Map" %>
 <%@ page import="java.util.ResourceBundle" %>
+<%@ page import="org.wso2.carbon.user.mgt.workflow.ui.UserManagementWorkflowServiceClient" %>
+<%@ page import="java.util.LinkedHashSet" %>
+<%@ page import="java.util.Set" %>
 <script type="text/javascript" src="../userstore/extensions/js/vui.js"></script>
 <script type="text/javascript" src="../admin/js/main.js"></script>
 <jsp:include page="../dialog/display_messages.jsp"/>
@@ -61,6 +61,8 @@
     int noOfPageLinksToDisplay = 5;
     int numberOfPages = 0;
     Map<Integer, PaginatedNamesBean>  flaggedNameMap = null;
+    Set<String> workFlowDeletePendingRoles = null;
+
     if(request.getParameter("pageNumber") == null){
         session.removeAttribute("checkedRolesMap");
     }
@@ -113,8 +115,8 @@
         }
     }
 
-    String userName = CharacterEncoder.getSafeText(request.getParameter("username"));
-    String disPlayName = CharacterEncoder.getSafeText(request.getParameter("disPlayName"));
+    String userName = request.getParameter("username");
+    String disPlayName = request.getParameter("disPlayName");
     if(disPlayName == null || disPlayName.trim().length() == 0){
         disPlayName = (String)session.getAttribute(UserAdminUIConstants.USER_DISPLAY_NAME);
         if(disPlayName == null || disPlayName.trim().length() == 0){
@@ -134,8 +136,28 @@
             ConfigurationContext configContext =
                     (ConfigurationContext) config.getServletContext().getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
             UserAdminClient client = new UserAdminClient(cookie, backendServerURL, configContext);
+            UserManagementWorkflowServiceClient UserMgtClient = new
+                    UserManagementWorkflowServiceClient(cookie, backendServerURL, configContext);
+
             if (filter.length() > 0 && userName != null) {
                 FlaggedName[] data = client.getRolesOfUser(Util.decodeHTMLCharacters(userName), filter, 0);
+                if (CarbonUIUtil.isContextRegistered(config, "/usermgt-workflow/")) {
+                    String[] DeletePendingRolesList = UserMgtClient.
+                            listAllEntityNames("DELETE_ROLE", "PENDING", "ROLE");
+                    workFlowDeletePendingRoles = new LinkedHashSet<String>(Arrays.asList(DeletePendingRolesList));
+                    String pendingStatus = "[Pending Role for Delete]";
+
+                    if (data != null) {
+                        for (int i = 0; i < data.length; i++) {
+                            String updatedStatus = null;
+                            if (workFlowDeletePendingRoles.contains(data[i].getItemName())) {
+                                updatedStatus = data[i].getItemName() + " " + pendingStatus;
+                                data[i].setItemDisplayName(data[i].getItemName());
+                                data[i].setItemName(updatedStatus);
+                            }
+                        }
+                    }
+                }
                 List<FlaggedName> dataList = new ArrayList<FlaggedName>(Arrays.asList(data));
                 exceededDomains = dataList.remove(dataList.size() - 1);
                 session.setAttribute(UserAdminUIConstants.USER_LIST_ASSIGNED_ROLE_CACHE_EXCEEDED, exceededDomains);
@@ -173,7 +195,7 @@
 %>
 <script type="text/javascript">
     jQuery(document).ready(function () {
-        CARBON.showErrorDialog('<%=message%>',  function () {
+        CARBON.showErrorDialog('<%=Encode.forJavaScript(Encode.forHtml(message))%>', function () {
             location.href = "user-mgt.jsp";
         });
     });
@@ -189,7 +211,7 @@
                    resourceBundle="org.wso2.carbon.userstore.ui.i18n.Resources"
                    topPage="true" request="<%=request%>"/>
 
-<script type="text/javascript">
+    <script type="text/javascript">
 
     function doValidation() {
         // no worth of validation here.
@@ -220,121 +242,124 @@
 
     }
 
-    function doPaginate(page, pageNumberParameterName, pageNumber){
-        var form = document.createElement("form");
-        form.setAttribute("method", "POST");
-        form.setAttribute("action", page + "?" + pageNumberParameterName + "=" + pageNumber + "&username=" + '<%=URLEncoder.encode(userName,"UTF-8")%>');
-        var selectedRolesStr = "";
-        $("input[type='checkbox']:checked").each(function(index){
-            if(!$(this).is(":disabled")){
-                selectedRolesStr += $(this).val();
-                if(index != $("input[type='checkbox']:checked").length-1){
-                    selectedRolesStr += ":";
+        function doPaginate(page, pageNumberParameterName, pageNumber) {
+            var form = document.createElement("form");
+            form.setAttribute("method", "POST");
+            form.setAttribute("action", page + "?" + pageNumberParameterName + "=" + pageNumber + "&username=" + '<%=Encode.forJavaScript(Encode.forUriComponent(userName))%>');
+            var selectedRolesStr = "";
+            $("input[type='checkbox']:checked").each(function (index) {
+                if (!$(this).is(":disabled")) {
+                    selectedRolesStr += $(this).val();
+                    if (index != $("input[type='checkbox']:checked").length - 1) {
+                        selectedRolesStr += ":";
+                    }
                 }
-            }
-        });
-        var selectedRolesElem = document.createElement("input");
-        selectedRolesElem.setAttribute("type", "hidden");
-        selectedRolesElem.setAttribute("name", "selectedRoles");
-        selectedRolesElem.setAttribute("value", selectedRolesStr);
-        form.appendChild(selectedRolesElem);
-        var unselectedRolesStr = "";
-        $("input[type='checkbox']:not(:checked)").each(function(index){
-            if(!$(this).is(":disabled")){
-                unselectedRolesStr += $(this).val();
-                if(index != $("input[type='checkbox']:not(:checked)").length-1){
-                    unselectedRolesStr += ":";
+            });
+            var selectedRolesElem = document.createElement("input");
+            selectedRolesElem.setAttribute("type", "hidden");
+            selectedRolesElem.setAttribute("name", "selectedRoles");
+            selectedRolesElem.setAttribute("value", selectedRolesStr);
+            form.appendChild(selectedRolesElem);
+            var unselectedRolesStr = "";
+            $("input[type='checkbox']:not(:checked)").each(function (index) {
+                if (!$(this).is(":disabled")) {
+                    unselectedRolesStr += $(this).val();
+                    if (index != $("input[type='checkbox']:not(:checked)").length - 1) {
+                        unselectedRolesStr += ":";
+                    }
                 }
-            }
-        });
-        var unselectedRolesElem = document.createElement("input");
-        unselectedRolesElem.setAttribute("type", "hidden");
-        unselectedRolesElem.setAttribute("name", "unselectedRoles");
-        unselectedRolesElem.setAttribute("value", unselectedRolesStr);
-        form.appendChild(unselectedRolesElem);
-        document.body.appendChild(form);
-        form.submit();
-    }
+            });
+            var unselectedRolesElem = document.createElement("input");
+            unselectedRolesElem.setAttribute("type", "hidden");
+            unselectedRolesElem.setAttribute("name", "unselectedRoles");
+            unselectedRolesElem.setAttribute("value", unselectedRolesStr);
+            form.appendChild(unselectedRolesElem);
+            document.body.appendChild(form);
+            form.submit();
+        }
 
-    function doSelectAllRetrieved() {
-        var form = document.createElement("form");
-        form.setAttribute("method", "POST");
-        form.setAttribute("action", "view-roles.jsp?pageNumber=" + <%=pageNumber%> + "&username=" + '<%=URLEncoder.encode(userName,"UTF-8")%>');
-        var selectedRolesElem = document.createElement("input");
-        selectedRolesElem.setAttribute("type", "hidden");
-        selectedRolesElem.setAttribute("name", "selectedRoles");
-        selectedRolesElem.setAttribute("value", "ALL");
-        form.appendChild(selectedRolesElem);
-        document.body.appendChild(form);
-        form.submit();
+        function doSelectAllRetrieved() {
+            var form = document.createElement("form");
+            form.setAttribute("method", "POST");
+            form.setAttribute("action", "view-roles.jsp?pageNumber=" + <%=pageNumber%> +"&username=" + '<%=Encode.forJavaScript(Encode.forUriComponent(userName))%>');
+            var selectedRolesElem = document.createElement("input");
+            selectedRolesElem.setAttribute("type", "hidden");
+            selectedRolesElem.setAttribute("name", "selectedRoles");
+            selectedRolesElem.setAttribute("value", "ALL");
+            form.appendChild(selectedRolesElem);
+            document.body.appendChild(form);
+            form.submit();
 
-    }
+        }
 
-    function doUnSelectAllRetrieved() {
-        var form = document.createElement("form");
-        form.setAttribute("method", "POST");
-        form.setAttribute("action", "view-roles.jsp?pageNumber=" + <%=pageNumber%> + "&username=" + '<%=URLEncoder.encode(userName,"UTF-8")%>');
-        var unselectedRolesElem = document.createElement("input");
-        unselectedRolesElem.setAttribute("type", "hidden");
-        unselectedRolesElem.setAttribute("name", "unselectedRoles");
-        unselectedRolesElem.setAttribute("value", "ALL");
-        form.appendChild(unselectedRolesElem);
-        document.body.appendChild(form);
-        form.submit();
-    }
-
-</script>
-
-
-<div id="middle">
-    <h2><fmt:message key="roles.list.in.user"/> <%=disPlayName%>
-    </h2>
-
-    <script type="text/javascript">
-
-        <%if(showFilterMessage == true){%>
-        CARBON.showInfoDialog('<fmt:message key="no.roles.filtered"/>', null, null);
-        <%}%>
+        function doUnSelectAllRetrieved() {
+            var form = document.createElement("form");
+            form.setAttribute("method", "POST");
+            form.setAttribute("action", "view-roles.jsp?pageNumber=" + <%=pageNumber%> +"&username=" + '<%=Encode.forJavaScript(Encode.forUriComponent(userName))%>');
+            var unselectedRolesElem = document.createElement("input");
+            unselectedRolesElem.setAttribute("type", "hidden");
+            unselectedRolesElem.setAttribute("name", "unselectedRoles");
+            unselectedRolesElem.setAttribute("value", "ALL");
+            form.appendChild(unselectedRolesElem);
+            document.body.appendChild(form);
+            form.submit();
+        }
 
     </script>
-    <div id="workArea">
-        <form name="filterForm" method="post" action="view-roles.jsp?username=<%=URLEncoder.encode(userName,"UTF-8")%>" >
-            <table class="normal">
-                <tr>
-                    <td><fmt:message key="list.roles"/></td>
-                    <td>
-                        <input type="text" name="<%=UserAdminUIConstants.USER_LIST_VIEW_ROLE_FILTER%>"
-                               value="<%=filter%>"/>
-                    </td>
-                    <td>
-                        <input class="button" type="submit"
-                               value="<fmt:message key="user.search"/>"/>
-                    </td>
-                </tr>
-            </table>
-        </form>
-        <p>&nbsp;</p>
 
-        <carbon:paginator pageNumber="<%=pageNumber%>"
-                          action="post"
-                          numberOfPages="<%=numberOfPages%>"
-                          noOfPageLinksToDisplay="<%=noOfPageLinksToDisplay%>"
-                          page="view-roles.jsp" pageNumberParameterName="pageNumber"
-                          parameters="<%="username="+URLEncoder.encode(userName,"UTF-8")%>"/>
-        <form method="post" action="edit-user-roles-finish.jsp?viewRoles=true" onsubmit="return doValidation();"
-              name="edit_users" id="edit_users">
-            <input type="hidden" id="username" name="username" value="<%=userName%>"/>
-            <input type="hidden" id="logout" name="logout" value="false"/>
-            <input type="hidden" id="finish" name="finish" value="false"/>
-            <div class="sectionHelp"><fmt:message key="role.view.help"/></div>
-            <table class="styledLeft" id="table_users_list_of_role">
-                <thead>
-                <tr>
-                    <th><fmt:message key="roles.in.the.user"/> <strong><%=userName%></strong></th>
-                </tr>
-                </thead>
 
-                <tbody>
+    <div id="middle">
+        <h2><fmt:message key="roles.list.in.user"/> <%=Encode.forHtml(disPlayName)%>
+        </h2>
+
+        <script type="text/javascript">
+
+            <%if(showFilterMessage == true){%>
+            CARBON.showInfoDialog('<fmt:message key="no.roles.filtered"/>', null, null);
+            <%}%>
+
+        </script>
+        <div id="workArea">
+            <form name="filterForm" method="post"
+                  action="view-roles.jsp?username=<%=Encode.forUriComponent(userName)%>">
+                <table class="normal">
+                    <tr>
+                        <td><fmt:message key="list.roles"/></td>
+                        <td>
+                            <input type="text" name="<%=UserAdminUIConstants.USER_LIST_VIEW_ROLE_FILTER%>"
+                                   value="<%=Encode.forHtmlAttribute(filter)%>"/>
+                        </td>
+                        <td>
+                            <input class="button" type="submit"
+                                   value="<fmt:message key="user.search"/>"/>
+                        </td>
+                    </tr>
+                </table>
+            </form>
+            <p>&nbsp;</p>
+
+            <carbon:paginator pageNumber="<%=pageNumber%>"
+                              action="post"
+                              numberOfPages="<%=numberOfPages%>"
+                              noOfPageLinksToDisplay="<%=noOfPageLinksToDisplay%>"
+                              page="view-roles.jsp" pageNumberParameterName="pageNumber"
+                              parameters="<%="username=" + Encode.forHtmlAttribute(userName)%>"/>
+            <form method="post" action="edit-user-roles-finish.jsp?viewRoles=true" onsubmit="return doValidation();"
+                  name="edit_users" id="edit_users">
+                <input type="hidden" id="username" name="username" value="<%=Encode.forHtmlAttribute(userName)%>"/>
+                <input type="hidden" id="logout" name="logout" value="false"/>
+                <input type="hidden" id="finish" name="finish" value="false"/>
+
+                <div class="sectionHelp"><fmt:message key="role.view.help"/></div>
+                <table class="styledLeft" id="table_users_list_of_role">
+                    <thead>
+                    <tr>
+                        <th><fmt:message key="roles.in.the.user"/> <strong><%=Encode.forHtml(userName)%>
+                        </strong></th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
                     <tr>
                         <td colspan="2" style="padding:0 !important;">
                             <%
@@ -389,18 +414,34 @@
                                 <tr>
                                     <td>
                                         <label>
-                                            <input type="checkbox" name="selectedRoles" value="<%=name.getItemName()%>" <%=doCheck%> <%=doEdit%> />
-                                                <%=CharacterEncoder.getSafeText(name.getItemName())%>
-                                                <%if (!name.getEditable()) { %> <%="(Read-Only)"%> <% } %>
-                                            <input type="hidden" name="shownRoles" value="<%=CharacterEncoder.getSafeText(name.getItemName())%>"/>
+                                            <input type="checkbox" name="selectedRoles" value="<%=Encode.forHtmlAttribute(name.getItemName())%>" <%=doCheck%> <%=doEdit%> />
+                                            <%
+                                                if ((name.getItemName()).contains("[Pending Role for Delete]")) {
+                                            %>
+                                            <%=Encode.forHtml(name.getItemDisplayName())%>
+                                            <img src="images/workflow_pending_remove.gif"
+                                                 title="Workflow-pending-user-delete"
+                                                 alt="Workflow-pending-user-delete" height="15" width="15">
+                                            <%
+                                            } else {
+                                            %>
+                                            <%=Encode.forHtml(name.getItemName())%>
+                                            <%if (!name.getEditable()) { %> <%="(Read-Only)"%> <%
+                                                }
+                                            } %>
+                                            <input type="hidden" name="shownRoles" value="<%=Encode.forHtmlAttribute(name.getItemName())%>"/>
                                         </label>
                                     </td>
                                     <td>
-                                        <% if(!userRealmInfo.getAdminRole().equals(name.getItemName())) {%>
-                                            <a style="background-image:url(images/edit.gif);" class="icon-link" href="../role/edit-permissions.jsp?roleName=<%=name.getItemName()%>&prevPage=view&prevUser=<%=URLEncoder.encode(userName,"UTF-8")%>&prevPageNumber=<%=pageNumber%>"><fmt:message key="edit.permissions"/></a>
+                                        <% if (!userRealmInfo.getAdminRole().equals(name.getItemName())) {%>
+                                        <a style="background-image:url(images/edit.gif);" class="icon-link"
+                                           href="../role/edit-permissions.jsp?roleName=<%=Encode.forUriComponent(name.getItemName())%>&prevPage=view&prevUser=<%=Encode.forUriComponent(userName)%>&prevPageNumber=<%=pageNumber%>"><fmt:message
+                                                key="edit.permissions"/></a>
                                         <%} %>
-                                        <% if(!userRealmInfo.getEveryOneRole().equals(name.getItemName())) {%>
-                                            <a style="background-image:url(images/view.gif);" class="icon-link" href="../role/view-users.jsp?roleName=<%=name.getItemName()%>&prevPage=view&prevUser=<%=URLEncoder.encode(userName,"UTF-8")%>&prevPageNumber=<%=pageNumber%>&<%=UserAdminUIConstants.ROLE_READ_ONLY%>=<%if (!name.getEditable()) { %>true<% }else{ %>false<% } %>"><fmt:message key="view.users"/></a>
+                                        <% if (!userRealmInfo.getEveryOneRole().equals(name.getItemName())) {%>
+                                        <a style="background-image:url(images/view.gif);" class="icon-link"
+                                           href="../role/view-users.jsp?roleName=<%=Encode.forUriComponent(name.getItemName())%>&prevPage=view&prevUser=<%=Encode.forUriComponent(userName)%>&prevPageNumber=<%=pageNumber%>&<%=UserAdminUIConstants.ROLE_READ_ONLY%>=<%if (!name.getEditable()) { %>true<% }else{ %>false<% } %>"><fmt:message
+                                                key="view.users"/></a>
                                         <% } %>
                                     </td>
                                     <% } %>
@@ -419,7 +460,7 @@
                                   numberOfPages="<%=numberOfPages%>"
                                   noOfPageLinksToDisplay="<%=noOfPageLinksToDisplay%>"
                                   page="view-roles.jsp" pageNumberParameterName="pageNumber"
-                                  parameters="<%="username="+URLEncoder.encode(userName,"UTF-8")%>"/>
+                                  parameters="<%="username="+Encode.forHtmlAttribute(userName)%>"/>
             <%
                 if (roles != null && roles.length > 0 && exceededDomains != null) {
                     if(exceededDomains.getItemName() != null || exceededDomains.getItemDisplayName() != null){
