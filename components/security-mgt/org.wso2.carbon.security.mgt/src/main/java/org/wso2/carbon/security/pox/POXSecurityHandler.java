@@ -1,3 +1,4 @@
+
 /*
  * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
@@ -18,6 +19,7 @@
 
 package org.wso2.carbon.security.pox;
 
+import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMNode;
 import org.apache.axiom.om.util.Base64;
 import org.apache.axiom.soap.SOAPEnvelope;
@@ -190,7 +192,12 @@ public class POXSecurityHandler implements Handler {
          * instead unauthorized header
          */
         if (!msgCtx.isDoingREST() && soapWithoutSecHeader && basicAuthHeader == null) {
-            return InvocationResponse.CONTINUE;
+            try {
+                setAuthHeaders(msgCtx);
+            } catch (IOException e) {
+                log.error("Error while setting auth headers", e);
+            }
+            return InvocationResponse.ABORT;
         }
 
         //return if incoming message is soap and has soap security headers
@@ -358,10 +365,25 @@ public class POXSecurityHandler implements Handler {
         // Issue is axiom - a returned collection must not be null
         if (headerBlocks != null) {
             Iterator headerBlocksIterator = headerBlocks.iterator();
+
             while (headerBlocksIterator.hasNext()) {
-                SOAPHeaderBlock elem = (SOAPHeaderBlock) headerBlocksIterator.next();
-                if (WSConstants.WSSE_LN.equals(elem.getLocalName())) {
+                Object o=headerBlocksIterator.next();
+                SOAPHeaderBlock elem = null;
+                OMElement element = null;
+                if (o instanceof SOAPHeaderBlock) {
+                    try {
+                        elem = (SOAPHeaderBlock)o;
+                    } catch (Exception e) {
+                        log.error("Error while casting to soap header block", e);
+                    }
+                } else {
+                    element = ((OMElement) o).cloneOMElement();
+                }
+
+                if (elem != null &&  WSConstants.WSSE_LN.equals(elem.getLocalName())) {
                     return false; // security header already present. invalid request.
+                } else if(element != null && WSConstants.WSSE_LN.equals(element.getLocalName())){
+                    return false;
                 }
             }
         }
