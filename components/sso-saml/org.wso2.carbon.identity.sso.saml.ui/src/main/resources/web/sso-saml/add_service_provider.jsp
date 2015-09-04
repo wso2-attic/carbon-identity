@@ -87,6 +87,11 @@ function doValidation() {
         return false;
     }
 
+    var defaultSigningAlgorithm = $('#defaultSigningAlgorithm').val();
+    if (defaultSigningAlgorithm == null || defaultSigningAlgorithm.trim().length() === 0){
+        CARBON.showWarningDialog("<fmt:message key='sp.enter.default.signingAlgorithm'/>",null,null)
+    }
+
     var fld3 = document.getElementsByName("logoutURL")[0];
     var value = fld3.value;
     var regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/
@@ -897,7 +902,39 @@ function clearAll() {
 </tr>
 
 <input type="hidden" name="enableAssertionSignature" value="true"/>
-
+<!--selectResponseSignAlgo-->
+<tr id="defaultSigningAlgorithmRow">
+    <td>
+        <fmt:message key="sp.signingAlgorithm"/>
+        <font color="red">*</font>
+    </td>
+    <td>
+        <select id="defaultSigningAlgorithm" name="defaultSigningAlgorithm">
+            <option value="">---Select---</option>
+            <%
+                if (spConfigClient.getSigningAlgorithms() != null) {
+                    for (String signingAlgo : spConfigClient.getSigningAlgorithms()) {
+                        String defaultAlgorithm = null;
+                        if (provider != null) {
+                            defaultAlgorithm = provider.getDefaultSigningAlgorithm();
+                        }
+                        if (defaultAlgorithm != null && signingAlgo.equals(defaultAlgorithm)) {
+            %>
+            <option value="<%=signingAlgo%>" selected><%=signingAlgo%>
+            </option>
+            <%
+            } else {
+            %>
+            <option value="<%=signingAlgo%>"><%=signingAlgo%>
+            </option>
+            <%
+                        }
+                    }
+                }
+            %>
+        </select>
+    </td>
+</tr>
 <!-- enableSigValidation -->
 <%
     if (isEditSP && provider.isDoValidateSignatureInRequestsSpecified() && provider.getDoValidateSignatureInRequests()) {

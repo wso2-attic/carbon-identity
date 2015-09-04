@@ -47,6 +47,15 @@ public class SAMLSSOServiceProviderDTO implements Serializable {
     private String[] idpInitSLOReturnToURLs;
     private boolean doEnableEncryptedAssertion;
     private boolean doValidateSignatureInRequests;
+    private String defaultSigningAlgorithm;
+
+    public String getDefaultSigningAlgorithm() {
+        return defaultSigningAlgorithm;
+    }
+
+    public void setDefaultSigningAlgorithm(String defaultSigningAlgorithm) {
+        this.defaultSigningAlgorithm = defaultSigningAlgorithm;
+    }
 
     public String getNameIDFormat() {
         return nameIDFormat;

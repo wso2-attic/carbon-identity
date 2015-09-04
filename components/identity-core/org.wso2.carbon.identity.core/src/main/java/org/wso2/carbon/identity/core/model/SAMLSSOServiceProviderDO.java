@@ -56,6 +56,9 @@ public class SAMLSSOServiceProviderDO implements Serializable {
     private List<String> idpInitSLOReturnToURLList;
     private boolean doEnableEncryptedAssertion;
     private boolean doValidateSignatureInRequests;
+    private String defaultSigningAlgorithm;
+
+
 
     public String getNameIDFormat() {
         return nameIDFormat;
@@ -154,7 +157,13 @@ public class SAMLSSOServiceProviderDO implements Serializable {
     public void setAttributeConsumingServiceIndex(String attributeConsumingServiceIndex) {
         this.attributeConsumingServiceIndex = attributeConsumingServiceIndex;
     }
+    public String getDefaultSigningAlgorithm() {
+        return defaultSigningAlgorithm;
+    }
 
+    public void setDefaultSigningAlgorithm(String defaultSigningAlgorithm) {
+        this.defaultSigningAlgorithm = defaultSigningAlgorithm;
+    }
     /**
      * @return the requestedClaims
      */

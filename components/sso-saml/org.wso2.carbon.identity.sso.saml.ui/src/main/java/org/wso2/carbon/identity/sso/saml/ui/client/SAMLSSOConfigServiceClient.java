@@ -126,4 +126,15 @@ public class SAMLSSOConfigServiceClient {
         }
         return claimUris;
     }
+
+    public String[] getSigningAlgorithms() throws AxisFault{
+        String[] signingAlgorithms = null;
+        try {
+            signingAlgorithms = stub.getSigningAlgorithms();
+        } catch (Exception e) {
+            log.error("Error when reading signing algorithms");
+            throw new AxisFault(e.getMessage(),e);
+        }
+        return  signingAlgorithms;
+    }
 }

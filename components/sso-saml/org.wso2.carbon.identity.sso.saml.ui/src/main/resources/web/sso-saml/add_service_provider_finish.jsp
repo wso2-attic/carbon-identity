@@ -73,6 +73,7 @@
                                                             .split(","));
         serviceProviderDTO.setDefaultAssertionConsumerUrl(SAMLSSOUIUtil.getSafeInput(request,
                                                                                      "defaultAssertionConsumerURL"));
+        serviceProviderDTO.setDefaultSigningAlgorithm(SAMLSSOUIUtil.getSafeInput(request,"defaultSigningAlgorithm"));
 
         if ("true".equals(request.getParameter("enableSingleLogout"))) {
             serviceProviderDTO.setDoSingleLogout(true);

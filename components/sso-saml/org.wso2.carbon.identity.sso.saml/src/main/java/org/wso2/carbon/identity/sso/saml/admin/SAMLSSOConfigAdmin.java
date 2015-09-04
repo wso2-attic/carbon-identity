@@ -80,6 +80,7 @@ public class SAMLSSOConfigAdmin {
         serviceProviderDO.setDoSignResponse(serviceProviderDTO.isDoSignResponse());
         serviceProviderDO.setDoSignAssertions(serviceProviderDTO.isDoSignAssertions());
         serviceProviderDO.setNameIdClaimUri(serviceProviderDTO.getNameIdClaimUri());
+        serviceProviderDO.setDefaultSigningAlgorithm(serviceProviderDTO.getDefaultSigningAlgorithm());
 
         if (serviceProviderDTO.getNameIDFormat() == null) {
             serviceProviderDTO.setNameIDFormat(NameIdentifier.EMAIL);
@@ -147,6 +148,7 @@ public class SAMLSSOConfigAdmin {
                 providerDTO.setIssuer(providerDO.getIssuer());
                 providerDTO.setAssertionConsumerUrls(providerDO.getAssertionConsumerUrls());
                 providerDTO.setDefaultAssertionConsumerUrl(providerDO.getDefaultAssertionConsumerUrl());
+                providerDTO.setDefaultSigningAlgorithm(providerDO.getDefaultSigningAlgorithm());
                 providerDTO.setCertAlias(providerDO.getCertAlias());
                 providerDTO.setAttributeConsumingServiceIndex(providerDO.getAttributeConsumingServiceIndex());
                 providerDTO.setDoSignResponse(providerDO.isDoSignResponse());
