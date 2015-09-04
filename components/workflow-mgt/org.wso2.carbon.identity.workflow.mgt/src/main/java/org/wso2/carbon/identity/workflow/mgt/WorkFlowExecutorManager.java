@@ -126,13 +126,13 @@ public class WorkFlowExecutorManager {
         if (request != null) {
             WorkflowRequestDAO workflowRequestDAO = new WorkflowRequestDAO();
             String requestId = request.getUuid();
+            workflowRequestAssociationDAO.updateStatusOfRelationship(requestWorkflowId, status);
+            workflowRequestDAO.updateLastUpdatedTimeOfRequest(requestId);
             if (StringUtils.isNotBlank(requestWorkflowId) && workflowRequestDAO.retrieveStatusOfWorkflow(request
                     .getUuid()).equals(WorkflowRequestStatus.DELETED.toString())) {
                 log.info("Callback received for request " + requestId + " which is already deleted by user. ");
                 return;
             }
-            workflowRequestAssociationDAO.updateStatusOfRelationship(requestWorkflowId, status);
-            workflowRequestDAO.updateLastUpdatedTimeOfRequest(requestId);
             if (status.equals(WorkflowRequestStatus.APPROVED.toString()) && !isAllWorkflowsCompleted
                     (workflowRequestAssociationDAO, requestId)) {
                 return;
