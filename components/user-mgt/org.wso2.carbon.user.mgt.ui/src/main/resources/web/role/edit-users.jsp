@@ -39,6 +39,7 @@
 <%@ page import="org.wso2.carbon.user.mgt.workflow.ui.UserManagementWorkflowServiceClient" %>
 <%@ page import="java.util.LinkedHashSet" %>
 <%@ page import="java.util.Set" %>
+<%@ page import="org.apache.commons.lang.StringUtils" %>
 <script type="text/javascript" src="../userstore/extensions/js/vui.js"></script>
 <script type="text/javascript" src="../admin/js/main.js"></script>
 <jsp:include page="../dialog/display_messages.jsp"/>
@@ -88,7 +89,7 @@
     if (readOnlyRoleString == null) {
         readOnlyRoleString = (String) session.getAttribute(UserAdminUIConstants.ROLE_READ_ONLY);
     }
-    if ("true".equals(readOnlyRoleString)) {
+    if (Boolean.parseBoolean(readOnlyRoleString)) {
         readOnlyRole = true;
     }
 
@@ -110,7 +111,7 @@
 
     boolean useCache = false;
 
-    if (prevRole != null && prevRole.equals(roleName)) {
+    if (StringUtils.equals(roleName)) {
         useCache = true;
     } else if (prevRole != null) {
         session.setAttribute("previousRole", roleName);
