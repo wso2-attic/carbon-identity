@@ -40,6 +40,9 @@
 <%@ page import="java.util.Map" %>
 <%@ page import="java.util.ResourceBundle" %>
 <%@ page import="java.util.Set" %>
+<%@ page import="org.apache.commons.lang.StringUtils" %>
+<%@ page import="org.apache.commons.collections.CollectionUtils" %>
+<%@ page import="org.apache.commons.lang.ArrayUtils" %>
 <script type="text/javascript" src="../userstore/extensions/js/vui.js"></script>
 <script type="text/javascript" src="../admin/js/main.js"></script>
 <jsp:include page="../dialog/display_messages.jsp"/>
@@ -319,7 +322,7 @@
                     </thead>
                     <tbody>
                     <%
-                        if (domainNames != null && domainNames.length > 0) {
+                        if (!ArrayUtils.isEmpty(domainNames)) {
                     %>
                     <tr>
                         <td class="leftCol-big" style="padding-right: 0 !important;"><fmt:message
