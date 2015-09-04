@@ -32,7 +32,6 @@
 <%@page import="org.wso2.carbon.user.core.UserCoreConstants" %>
 <%@page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@ page import="java.util.ResourceBundle" %>
-<%@ page import="com.ctc.wstx.util.StringUtil" %>
 <%@ page import="org.apache.commons.lang.StringUtils" %>
 
 <%
