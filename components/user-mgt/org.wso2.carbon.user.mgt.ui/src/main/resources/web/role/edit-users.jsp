@@ -111,7 +111,7 @@
 
     boolean useCache = false;
 
-    if (StringUtils.equals(roleName)) {
+    if (StringUtils.equals(roleName, prevRole)) {
         useCache = true;
     } else if (prevRole != null) {
         session.setAttribute("previousRole", roleName);
