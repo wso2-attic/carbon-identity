@@ -59,14 +59,14 @@
     int cachePages = 3;
     int noOfPageLinksToDisplay = 5;
     int numberOfPages = 0;
-    Map<Integer, PaginatedNamesBean>  flaggedNameMap = null;
+    Map<Integer, PaginatedNamesBean> flaggedNameMap = null;
     Set<String> workFlowDeletePendingUsers = null;
 
-    if(request.getParameter("pageNumber") == null){
+    if (request.getParameter("pageNumber") == null) {
         session.removeAttribute("checkedUsersMap");
     }
-    if(session.getAttribute("checkedUsersMap") == null){
-        session.setAttribute("checkedUsersMap",new HashMap<String,Boolean>());
+    if (session.getAttribute("checkedUsersMap") == null) {
+        session.setAttribute("checkedUsersMap", new HashMap<String, Boolean>());
     }
 
     // search filter
@@ -84,11 +84,11 @@
 
     String roleName = request.getParameter("roleName");
 
-    String readOnlyRoleString  = request.getParameter(UserAdminUIConstants.ROLE_READ_ONLY);
-    if(readOnlyRoleString == null){
+    String readOnlyRoleString = request.getParameter(UserAdminUIConstants.ROLE_READ_ONLY);
+    if (readOnlyRoleString == null) {
         readOnlyRoleString = (String) session.getAttribute(UserAdminUIConstants.ROLE_READ_ONLY);
     }
-    if("true".equals(readOnlyRoleString)){
+    if ("true".equals(readOnlyRoleString)) {
         readOnlyRole = true;
     }
 
@@ -110,26 +110,26 @@
 
     boolean useCache = false;
 
-    if(prevRole != null && prevRole.equals(roleName) ){
+    if (prevRole != null && prevRole.equals(roleName)) {
         useCache = true;
-    } else if(prevRole!=null){
-        session.setAttribute("previousRole",roleName);
+    } else if (prevRole != null) {
+        session.setAttribute("previousRole", roleName);
     }
-   if(useCache) {
-       flaggedNameMap = (Map<Integer, PaginatedNamesBean>) session.
-               getAttribute(UserAdminUIConstants.ROLE_LIST_UNASSIGNED_USER_CACHE);
-       if (flaggedNameMap != null) {
-           PaginatedNamesBean bean = flaggedNameMap.get(pageNumber);
-           if (bean != null) {
-               users = bean.getNames();
-               if (users != null && users.length > 0) {
-                   numberOfPages = bean.getNumberOfPages();
-                   doUserList = false;
-               }
-           }
-       }
-   }
-    if(doUserList || newFilter){
+    if (useCache) {
+        flaggedNameMap = (Map<Integer, PaginatedNamesBean>) session.
+                getAttribute(UserAdminUIConstants.ROLE_LIST_UNASSIGNED_USER_CACHE);
+        if (flaggedNameMap != null) {
+            PaginatedNamesBean bean = flaggedNameMap.get(pageNumber);
+            if (bean != null) {
+                users = bean.getNames();
+                if (users != null && users.length > 0) {
+                    numberOfPages = bean.getNumberOfPages();
+                    doUserList = false;
+                }
+            }
+        }
+    }
+    if (doUserList || newFilter) {
         try {
             String cookie = (String) session.getAttribute(ServerConstants.ADMIN_SERVICE_COOKIE);
             String backendServerURL = CarbonUIUtil.getServerURL(config.getServletContext(), session);
@@ -161,26 +161,26 @@
                 session.setAttribute(UserAdminUIConstants.ROLE_LIST_UNASSIGNED_USER_CACHE_EXCEEDED, exceededDomains);
                 if (datasList != null) {
                     List<FlaggedName> nameList = new ArrayList<FlaggedName>();
-                    for(FlaggedName value : datasList){
-                        if(!value.getSelected()){
+                    for (FlaggedName value : datasList) {
+                        if (!value.getSelected()) {
                             nameList.add(value);
                         }
                     }
                     datasList = nameList;
                 }
 
-                if(datasList != null && datasList.size() > 0){
+                if (datasList != null && datasList.size() > 0) {
                     flaggedNameMap = new HashMap<Integer, PaginatedNamesBean>();
                     int max = pageNumber + cachePages;
-                    for(int i = (pageNumber - cachePages); i < max ; i++){
-                        if(i < 0){
+                    for (int i = (pageNumber - cachePages); i < max; i++) {
+                        if (i < 0) {
                             max++;
                             continue;
                         }
-                        PaginatedNamesBean bean  =  Util.
-                            retrievePaginatedFlaggedName(i,datasList);
+                        PaginatedNamesBean bean = Util.
+                                retrievePaginatedFlaggedName(i, datasList);
                         flaggedNameMap.put(i, bean);
-                        if(bean.getNumberOfPages() == i + 1){
+                        if (bean.getNumberOfPages() == i + 1) {
                             break;
                         }
                     }
@@ -194,7 +194,7 @@
             }
         } catch (Exception e) {
             String message = MessageFormat.format(resourceBundle.getString("error.while.loading.users"),
-                                                  e.getMessage());
+                    e.getMessage());
 %>
 <script type="text/javascript">
     jQuery(document).ready(function () {
@@ -404,40 +404,42 @@
                                                             disPlayName = userName;
                                                         }
                                                         if (users[i].getItemName()
-                                                                    .equals(CarbonConstants.REGISTRY_ANONNYMOUS_USERNAME)) {
+                                                                .equals(CarbonConstants.REGISTRY_ANONNYMOUS_USERNAME)) {
                                                             continue;
                                                         } else if (readOnlyRole && !users[i].getEditable()) {
                                                             doEdit = "disabled=\"disabled\"";
                                                         } else if (session.getAttribute("checkedUsersMap") != null &&
-                                                                   ((Map<String, Boolean>) session
-                                                                           .getAttribute("checkedUsersMap"))
-                                                                           .get(users[i].getItemName()) != null &&
-                                                                   ((Map<String, Boolean>) session
-                                                                           .getAttribute("checkedUsersMap"))
-                                                                           .get(users[i].getItemName()) == true) {
+                                                                ((Map<String, Boolean>) session
+                                                                        .getAttribute("checkedUsersMap"))
+                                                                        .get(users[i].getItemName()) != null &&
+                                                                ((Map<String, Boolean>) session
+                                                                        .getAttribute("checkedUsersMap"))
+                                                                        .get(users[i].getItemName()) == true) {
                                                             doCheck = "checked=\"checked\"";
                                                         }
                                         %>
-                                    <input type="checkbox" name="selectedUsers" value="<%=Encode.forHtmlAttribute(userName)%>" <%=doEdit%> <%=doCheck%>/>
-                                    <%
-                                        if (userName.contains("[Pending User for Delete]")) {
-                                    %>
-                                    <%=Encode.forHtml(users[i].getItemDisplayName())%>
-                                    <img src="images/workflow_pending_remove.gif"
-                                         title="Workflow-pending-user-delete"
-                                         alt="Workflow-pending-user-delete" height="15" width="15">
-                                    <%
-                                    } else {
-                                    %>
+                                        <input type="checkbox" name="selectedUsers"
+                                               value="<%=Encode.forHtmlAttribute(userName)%>" <%=doEdit%> <%=doCheck%>/>
+                                        <%
+                                            if (userName.contains("[Pending User for Delete]")) {
+                                        %>
+                                        <%=Encode.forHtml(users[i].getItemDisplayName())%>
+                                        <img src="images/workflow_pending_remove.gif"
+                                             title="Workflow-pending-user-delete"
+                                             alt="Workflow-pending-user-delete" height="15" width="15">
+                                        <%
+                                        } else {
+                                        %>
                                         <%=Encode.forHtml(disPlayName)%>
-                                    <%
-                                        }
-                                    %>
-                                    <input type="hidden" name="shownUsers" value="<%=Encode.forHtmlAttribute(userName)%>"/><br/>
-                                    <%
+                                        <%
+                                            }
+                                        %>
+                                        <input type="hidden" name="shownUsers"
+                                               value="<%=Encode.forHtmlAttribute(userName)%>"/><br/>
+                                        <%
+                                                    }
                                                 }
                                             }
-                                        }
                                         %>
                                     </td>
                                 </tr>
