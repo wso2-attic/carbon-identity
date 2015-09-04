@@ -83,9 +83,7 @@ public class IdPInitLogoutRequestProcessor {
                     return validationResponseDTO;
                 }
 
-                validationResponseDTO.setReturnToURL(serverURL.replace(SAMLSSOConstants.SAML_ENDPOINT,
-                                                                       SAMLSSOConstants
-                                                                               .DEFAULT_LOGOUT_LOCATION));
+                validationResponseDTO.setReturnToURL(serverURL);
             } else {
 
                 SAMLSSOServiceProviderDO logoutReqIssuer = sessionsList.get(spEntityID);
@@ -111,9 +109,7 @@ public class IdPInitLogoutRequestProcessor {
                     }
                     validationResponseDTO.setReturnToURL(returnTo);
                 } else {
-                    validationResponseDTO.setReturnToURL(serverURL.replace(
-                            SAMLSSOConstants.SAML_ENDPOINT, SAMLSSOConstants.DEFAULT_LOGOUT_LOCATION + "?spEntityID="
-                                                            + spEntityID));
+                    validationResponseDTO.setReturnToURL(serverURL + "?spEntityID=" + spEntityID);
                 }
                 validationResponseDTO.setIssuer(logoutReqIssuer.getIssuer());
                 SAMLSSOUtil.setTenantDomainInThreadLocal(logoutReqIssuer.getTenantDomain());

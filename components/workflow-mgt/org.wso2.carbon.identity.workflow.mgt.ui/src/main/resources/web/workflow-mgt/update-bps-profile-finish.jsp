@@ -23,12 +23,13 @@
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.WorkflowUIConstants" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
-<%@ page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
+
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@ page import="java.util.ResourceBundle" %>
+<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.BPSProfileDTO" %>
 
 <%
-    String action = CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_ACTION));
+    String action = request.getParameter(WorkflowUIConstants.PARAM_ACTION);
 
     WorkflowAdminServiceClient client = null;
 
@@ -43,28 +44,58 @@
     ResourceBundle resourceBundle = ResourceBundle.getBundle(bundle, request.getLocale());
     String forwardTo = "list-bps-profiles.jsp";
 
+    String profileName = request.getParameter(WorkflowUIConstants.PARAM_BPS_PROFILE_NAME);
+
     if (WorkflowUIConstants.ACTION_VALUE_ADD.equals(action)) {
-        String profileName =
-                CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_BPS_PROFILE_NAME));
-        String host = CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_BPS_HOST));
-        String username = CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_BPS_AUTH_USER));
-        String password =
-                CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_BPS_AUTH_PASSWORD));
-        String callbackUser =
-                CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_CARBON_AUTH_USER));
-        String callbackPassword =
-                CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_CARBON_AUTH_PASSWORD));
+
+        String host = request.getParameter(WorkflowUIConstants.PARAM_BPS_HOST);
+        String username = request.getParameter(WorkflowUIConstants.PARAM_BPS_AUTH_USER);
+        String password = request.getParameter(WorkflowUIConstants.PARAM_BPS_AUTH_PASSWORD);
+        String callbackUser = request.getParameter(WorkflowUIConstants.PARAM_CARBON_AUTH_USER);
+        String callbackPassword = request.getParameter(WorkflowUIConstants.PARAM_CARBON_AUTH_PASSWORD);
         try {
-            client.addBPSProfile(profileName, host, username, password, callbackUser, callbackPassword);
+            BPSProfileDTO bpsProfileDTO = new BPSProfileDTO();
+            bpsProfileDTO.setProfileName(profileName);
+            bpsProfileDTO.setHost(host);
+            bpsProfileDTO.setUsername(username);
+            bpsProfileDTO.setPassword(password);
+            bpsProfileDTO.setCallbackUser(username);
+            bpsProfileDTO.setCallbackPassword(callbackPassword);
+            client.addBPSProfile(bpsProfileDTO);
 
         } catch (WorkflowAdminServiceWorkflowException e) {
             String message = resourceBundle.getString("workflow.error.bps.profile.add");
             CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
             forwardTo = "../admin/error.jsp";
         }
-    } else if (WorkflowUIConstants.ACTION_VALUE_DELETE.equals(action)) {
-        String profileName =
-                CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_BPS_PROFILE_NAME));
+    }else if (WorkflowUIConstants.ACTION_VALUE_UPDATE.equals(action)) {
+        String host = request.getParameter(WorkflowUIConstants.PARAM_BPS_HOST);
+        String username = request.getParameter(WorkflowUIConstants.PARAM_BPS_AUTH_USER);
+        String password = request.getParameter(WorkflowUIConstants.PARAM_BPS_AUTH_PASSWORD);
+        String callbackUser = request.getParameter(WorkflowUIConstants.PARAM_CARBON_AUTH_USER);
+        String callbackPassword = request.getParameter(WorkflowUIConstants.PARAM_CARBON_AUTH_PASSWORD);
+        try {
+            BPSProfileDTO bpsProfileDTO = new BPSProfileDTO();
+            bpsProfileDTO.setProfileName(profileName);
+            bpsProfileDTO.setHost(host);
+            bpsProfileDTO.setUsername(username);
+            bpsProfileDTO.setCallbackUser(callbackUser);
+
+            if(password!=null && !password.isEmpty()) {
+                bpsProfileDTO.setPassword(password);
+            }
+            if(callbackPassword!=null && !callbackPassword.isEmpty()) {
+                bpsProfileDTO.setCallbackPassword(callbackPassword);
+            }
+
+            client.updateBPSProfile(bpsProfileDTO);
+
+        } catch (WorkflowAdminServiceWorkflowException e) {
+            String message = resourceBundle.getString("workflow.error.bps.profile.add");
+            CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
+            forwardTo = "../admin/error.jsp";
+        }
+    }else if (WorkflowUIConstants.ACTION_VALUE_DELETE.equals(action)) {
         try {
             client.deleteBPSProfile(profileName);
             forwardTo = "list-bps-profiles.jsp";

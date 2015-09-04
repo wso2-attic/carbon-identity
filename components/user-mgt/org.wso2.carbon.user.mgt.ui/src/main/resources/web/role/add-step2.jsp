@@ -32,6 +32,7 @@
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="java.util.Arrays" %>
 <%@ page import="java.util.ResourceBundle" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 <jsp:useBean id="roleBean" type="org.wso2.carbon.user.mgt.ui.RoleBean"
                     class="org.wso2.carbon.user.mgt.ui.RoleBean" scope="session"/>
 <jsp:setProperty name="roleBean" property="*" />
@@ -118,7 +119,7 @@
     %>
 <script type="text/javascript">
     jQuery(document).ready(function () {
-        CARBON.showErrorDialog('<%=message%>',  function () {
+        CARBON.showErrorDialog('<%=Encode.forJavaScript(Encode.forHtml(message))%>',  function () {
             location.href = "add-step1.jsp";
         });
     });

@@ -22,14 +22,13 @@ import org.apache.commons.collections.MapUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
+import org.wso2.carbon.identity.core.AbstractIdentityUserOperationEventListener;
 import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
-import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.scim.common.group.SCIMGroupHandler;
 import org.wso2.carbon.identity.scim.common.utils.IdentitySCIMException;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
-import org.wso2.carbon.user.core.listener.UserOperationEventListener;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.charon.core.schema.SCIMConstants;
 import org.wso2.charon.core.util.AttributeUtil;
@@ -44,13 +43,13 @@ import java.util.UUID;
  * For eg: when a user is created through UserAdmin API, we need to set some SCIM specific properties
  * as user attributes.
  */
-public class SCIMUserOperationListener implements UserOperationEventListener {
+public class SCIMUserOperationListener extends AbstractIdentityUserOperationEventListener {
 
     private static Log log = LogFactory.getLog(SCIMUserOperationListener.class);
 
     @Override
     public int getExecutionOrderId() {
-        int orderId = IdentityUtil.readEventListenerOrderIDs("UserOperationEventListener", "org.wso2.carbon.identity.scim.common.listener.SCIMUserOperationListener");
+        int orderId = getOrderId(SCIMUserOperationListener.class.getName());
         if (orderId != IdentityCoreConstants.EVENT_LISTENER_ORDER_ID) {
             return orderId;
         }
@@ -67,6 +66,11 @@ public class SCIMUserOperationListener implements UserOperationEventListener {
     public boolean doPostAuthenticate(String userName, boolean authenticated,
                                       UserStoreManager userStoreManager)
             throws UserStoreException {
+
+        if (!isEnable(this.getClass().getName())) {
+            return true;
+        }
+
         try {
             String activeAttributeValue = userStoreManager.getUserClaimValue(userName, SCIMConstants.ACTIVE_URI, null);
             boolean isUserActive = true;
@@ -91,6 +95,11 @@ public class SCIMUserOperationListener implements UserOperationEventListener {
     public boolean doPreAddUser(String userName, Object credential, String[] roleList,
                                 Map<String, String> claims, String profile,
                                 UserStoreManager userStoreManager) throws UserStoreException {
+
+        if (!isEnable(this.getClass().getName())) {
+            return true;
+        }
+
         try {
             if (!userStoreManager.isSCIMEnabled()) {
                 return true;
@@ -134,6 +143,10 @@ public class SCIMUserOperationListener implements UserOperationEventListener {
     public boolean doPostUpdateCredentialByAdmin(String userName, Object credential,
                                                  UserStoreManager userStoreManager)
             throws UserStoreException {
+
+        if (!isEnable(this.getClass().getName())) {
+            return true;
+        }
 
         try {
             //update last-modified-date
@@ -197,6 +210,10 @@ public class SCIMUserOperationListener implements UserOperationEventListener {
                                             String profileName, UserStoreManager userStoreManager)
             throws UserStoreException {
 
+        if (!isEnable(this.getClass().getName())) {
+            return true;
+        }
+
         String newUserName = claims.get("urn:scim:schemas:core:1.0:userName");
         if(newUserName != null && !newUserName.isEmpty()){
             userName = newUserName;
@@ -255,6 +272,10 @@ public class SCIMUserOperationListener implements UserOperationEventListener {
                                  org.wso2.carbon.user.api.Permission[] permissions,
                                  UserStoreManager userStoreManager) throws UserStoreException {
 
+        if (!isEnable(this.getClass().getName())) {
+            return true;
+        }
+
         try {
 
             SCIMGroupHandler scimGroupHandler = new SCIMGroupHandler(userStoreManager.getTenantId());
@@ -288,6 +309,10 @@ public class SCIMUserOperationListener implements UserOperationEventListener {
     @Override
     public boolean doPreDeleteRole(String roleName, UserStoreManager userStoreManager)
             throws UserStoreException {
+
+        if (!isEnable(this.getClass().getName())) {
+            return true;
+        }
 
         try {
             SCIMGroupHandler scimGroupHandler = new SCIMGroupHandler(userStoreManager.getTenantId());
@@ -329,6 +354,10 @@ public class SCIMUserOperationListener implements UserOperationEventListener {
     public boolean doPostUpdateRoleName(String roleName, String newRoleName,
                                         UserStoreManager userStoreManager)
             throws UserStoreException {
+
+        if (!isEnable(this.getClass().getName())) {
+            return true;
+        }
 
         try {
             //TODO:set last update date
@@ -393,8 +422,11 @@ public class SCIMUserOperationListener implements UserOperationEventListener {
         } else {
             attributes = new HashMap<>();
         }
-        String id = UUID.randomUUID().toString();
-        attributes.put(SCIMConstants.ID_URI, id);
+
+        if (!attributes.containsKey(SCIMConstants.ID_URI)) {
+            String id = UUID.randomUUID().toString();
+            attributes.put(SCIMConstants.ID_URI, id);
+        }
 
         Date date = new Date();
         String createdDate = AttributeUtil.formatDateTime(date);

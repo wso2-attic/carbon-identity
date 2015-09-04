@@ -27,7 +27,7 @@
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.WorkflowUIConstants" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
-<%@ page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
+
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@ page import="java.util.ResourceBundle" %>
 
@@ -36,17 +36,15 @@
 <script type="text/javascript" src="../admin/js/main.js"></script>
 
 <%
-    //    String username = CharacterEncoder.getSafeText(request.getParameter("username"));
 
     String bundle = "org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources";
     ResourceBundle resourceBundle = ResourceBundle.getBundle(bundle, request.getLocale());
     WorkflowAdminServiceClient client;
     String forwardTo = null;
-    AssociationDTO[] associations = null;
     AssociationDTO[] associationsToDisplay = new AssociationDTO[0];
     String paginationValue = "region=region1&item=association_list_menu";
 
-    String pageNumber = CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_PAGE_NUMBER));
+    String pageNumber = request.getParameter(WorkflowUIConstants.PARAM_PAGE_NUMBER);
     int pageNumberInt = 0;
     int numberOfPages = 0;
 
@@ -65,7 +63,7 @@
                         .getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
         client = new WorkflowAdminServiceClient(cookie, backendServerURL, configContext);
 
-        associations = client.listAllAssociations();
+        AssociationDTO[] associations = client.listAllAssociations();
         if (associations != null) {
             numberOfPages = (int) Math.ceil((double) associations.length / WorkflowUIConstants.RESULTS_PER_PAGE);
             int startIndex = pageNumberInt * WorkflowUIConstants.RESULTS_PER_PAGE;
@@ -117,19 +115,38 @@
                     doDelete, null);
         }
 
+        function changeState(id, name, action) {
+            function onChangeState() {
+                location.href = 'update-association-finish.jsp?<%=WorkflowUIConstants.PARAM_ACTION%>=' +
+                                action + '&<%=WorkflowUIConstants.PARAM_ASSOCIATION_ID%>=' + id;
+            }
+            if(action == '<%=WorkflowUIConstants.ACTION_VALUE_ENABLE%>'){
+                CARBON.showConfirmationDialog('<fmt:message key="confirmation.association.enable"/> ',
+                                              onChangeState, null);
+            }else{
+                CARBON.showConfirmationDialog('<fmt:message key="confirmation.association.disable"/> ',
+                                              onChangeState, null);
+            }
+
+        }
+
+
         function addAssociation() {
             window.location = "add-association.jsp";
         }
     </script>
 
     <div id="middle">
-        <h2><fmt:message key='workflow.association.mgt'/></h2>
+        <h2><fmt:message key='workflow.association.list'/></h2>
 
         <div id="workArea">
+            <a title="<fmt:message key='workflow.service.association.add'/>"
+               href="#" style="background-image: url(images/add.png);" onclick="addAssociation();return false;"
+               class="icon-link"><fmt:message key='workflow.service.association.add'/></a>
             <table class="styledLeft" id="servicesTable">
                 <thead>
                 <tr>
-                    <th width="30%"><fmt:message key="workflow.service.engamement.name"/></th>
+                    <th width="30%"><fmt:message key="workflow.service.association.name"/></th>
                     <th width="30%"><fmt:message key="workflow.service.associate.event"/></th>
                     <th width="15%"><fmt:message key="workflow.name"/></th>
                     <th><fmt:message key="actions"/></th>
@@ -137,12 +154,9 @@
                 </thead>
                 <tbody>
                 <%
-                if(associations != null && associations.length > 0) {
                     for (AssociationDTO association : associationsToDisplay) {
                         if (association != null) {
-
                 %>
-                <tr>
                     <td>
                         <%=association.getAssociationName()%>
                     </td>
@@ -151,6 +165,23 @@
                     <td><%=association.getWorkflowName()%>
                     </td>
                     <td>
+                        <% if(association.getEnabled()){ %>
+
+                        <a title="<fmt:message key='workflow.service.association.state.disable'/>"
+                           onclick="changeState('<%=association.getAssociationId()%>',
+                                   '<%=association.getAssociationName()%>','<%=WorkflowUIConstants.ACTION_VALUE_DISABLE%>');return false;"
+                           class="icon-link" href="#" style="background-image: url(images/disable.gif);"><fmt:message key='disable'/></a>
+
+                        <% }else{ %>
+
+                        <a title="<fmt:message key='workflow.service.association.state.enable'/>"
+                           onclick="changeState('<%=association.getAssociationId()%>',
+                                   '<%=association.getAssociationName()%>','<%=WorkflowUIConstants.ACTION_VALUE_ENABLE%>');return false;"
+                           class="icon-link" href="#" style="background-image: url(images/enable.gif);"><fmt:message key='enable'/></a>
+
+                        <%
+                            }
+                        %>
                         <a title="<fmt:message key='workflow.service.association.delete.title'/>"
                            onclick="removeAssociation('<%=association.getAssociationId()%>',
                                    '<%=association.getAssociationName()%>');return false;"
@@ -158,15 +189,9 @@
                            class="icon-link"><fmt:message key='delete'/></a>
                     </td>
                 </tr>
-                        <% }
+                <%
+                        }
                     }
-                  }else { %>
-                <tbody>
-                <tr>
-                    <td colspan="4"><i>No Workflow Engagements registered</i></td>
-                </tr>
-                </tbody>
-                <% }
                 %>
                 </tbody>
             </table>

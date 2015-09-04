@@ -26,7 +26,7 @@
 <%@page import="org.wso2.carbon.ui.CarbonUIMessage" %>
 
 <%@page import="org.wso2.carbon.ui.CarbonUIUtil" %>
-<%@page import="org.wso2.carbon.user.core.UserCoreConstants" %>
+<%@page import="org.wso2.carbon.utils.ServerConstants" %>
 
 <%
     String serverURL = CarbonUIUtil.getServerURL(config
@@ -51,7 +51,6 @@
         forwardTo = "../admin/error.jsp";
 %>
 
-<%@page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@page import="java.util.ResourceBundle" %>
 <script type="text/javascript">
     function forward() {

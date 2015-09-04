@@ -102,7 +102,7 @@ public class SAML2SSOAuthenticator implements CarbonServerAuthenticator {
                 return false;
             }
 
-            if (!validateAudienceRestriction(xmlObject)) {
+            if (!validateAudienceRestrictionInXML(xmlObject)) {
                 log.error("Authentication Request is rejected. SAMLResponse AudienceRestriction validation failed.");
                 CarbonAuthenticationUtil.onFailedAdminLogin(httpSession, username, -1,
                         "SAML2 SSO Authentication", "AudienceRestriction validation failed");
@@ -448,11 +448,11 @@ public class SAML2SSOAuthenticator implements CarbonServerAuthenticator {
      * @param xmlObject Unmarshalled SAML2 Response
      * @return validity
      */
-    private boolean validateAudienceRestriction(XMLObject xmlObject) {
+    private boolean validateAudienceRestrictionInXML(XMLObject xmlObject) {
         if (xmlObject instanceof Response) {
-            return validateAudienceRestriction((Response) xmlObject);
+            return validateAudienceRestrictionInResponse((Response) xmlObject);
         } else if (xmlObject instanceof Assertion) {
-            return validateAudienceRestriction((Assertion) xmlObject);
+            return validateAudienceRestrictionInAssertion((Assertion) xmlObject);
         } else {
             log.error("Only Response and Assertion objects are validated in this authendicator");
             return false;
@@ -465,9 +465,9 @@ public class SAML2SSOAuthenticator implements CarbonServerAuthenticator {
      * @param response SAML2 Response
      * @return validity
      */
-    public boolean validateAudienceRestriction(Response response) {
+    public boolean validateAudienceRestrictionInResponse(Response response) {
         Assertion assertion = getAssertionFromResponse(response);
-        return validateAudienceRestriction(assertion);
+        return validateAudienceRestrictionInAssertion(assertion);
     }
 
     /**
@@ -476,7 +476,7 @@ public class SAML2SSOAuthenticator implements CarbonServerAuthenticator {
      * @param assertion SAML2 Assertion
      * @return validity
      */
-    public boolean validateAudienceRestriction(Assertion assertion) {
+    public boolean validateAudienceRestrictionInAssertion(Assertion assertion) {
         if (assertion != null) {
             Conditions conditions = assertion.getConditions();
             if (conditions != null) {
