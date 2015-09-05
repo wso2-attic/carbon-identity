@@ -110,7 +110,7 @@ public class SAMLSSOConfigService extends AbstractAdmin {
         throw new IdentityException("Primary Keystore cannot be found.");
     }
 
-    public String[] getSigningAlgorithms(){
+    public String[] getSigningAlgorithms() {
         Set<String> keySet = IdentityApplicationManagementUtil.getXMLSignatureAlgorithms().keySet();
         return keySet.toArray(new String[keySet.size()]);
     }
