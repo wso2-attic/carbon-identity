@@ -59,6 +59,15 @@ public class SAMLSSOAuthnReqDTO implements Serializable {
     private Map<String, String> claimMapping = null;
     private String tenantDomain;
     private String certAlias;
+    private String defaultSigningAlgorithm;
+
+    public String getDefaultSigningAlgorithm() {
+        return defaultSigningAlgorithm;
+    }
+
+    public void setDefaultSigningAlgorithm(String defaultSigningAlgorithm) {
+        this.defaultSigningAlgorithm = defaultSigningAlgorithm;
+    }
 
     public String getNameIdClaimUri() {
         return nameIdClaimUri;

@@ -230,6 +230,7 @@ public class IdPInitSSOAuthnRequestProcessor {
         authnReqDTO.setIdPInitSLOEnabled(ssoIdpConfigs.isIdPInitSLOEnabled());
         authnReqDTO.setAssertionConsumerURLs(ssoIdpConfigs.getAssertionConsumerUrls());
         authnReqDTO.setIdpInitSLOReturnToURLs(ssoIdpConfigs.getIdpInitSLOReturnToURLs());
+        authnReqDTO.setDefaultSigningAlgorithm(ssoIdpConfigs.getDefaultSigningAlgorithm());
     }
 
     /**

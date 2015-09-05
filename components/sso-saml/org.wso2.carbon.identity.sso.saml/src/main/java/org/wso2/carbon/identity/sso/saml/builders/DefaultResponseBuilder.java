@@ -19,19 +19,14 @@ package org.wso2.carbon.identity.sso.saml.builders;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.xml.security.signature.XMLSignature;
 import org.joda.time.DateTime;
 import org.opensaml.common.SAMLVersion;
-import org.opensaml.saml2.core.Assertion;
-import org.opensaml.saml2.core.EncryptedAssertion;
-import org.opensaml.saml2.core.Response;
-import org.opensaml.saml2.core.Status;
-import org.opensaml.saml2.core.StatusCode;
-import org.opensaml.saml2.core.StatusMessage;
+import org.opensaml.saml2.core.*;
 import org.opensaml.saml2.core.impl.StatusBuilder;
 import org.opensaml.saml2.core.impl.StatusCodeBuilder;
 import org.opensaml.saml2.core.impl.StatusMessageBuilder;
 import org.opensaml.xml.encryption.EncryptionConstants;
+import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.sso.saml.SAMLSSOConstants;
 import org.wso2.carbon.identity.sso.saml.dto.SAMLSSOAuthnReqDTO;
@@ -82,7 +77,8 @@ public class DefaultResponseBuilder implements ResponseBuilder {
         }
 
         if (authReqDTO.isDoSignResponse()) {
-            SAMLSSOUtil.setSignature(response, XMLSignature.ALGO_ID_SIGNATURE_RSA,
+            SAMLSSOUtil.setSignature(response, IdentityApplicationManagementUtil.getXMLSignatureAlgorithms().get
+                            (authReqDTO.getDefaultSigningAlgorithm()),
                     new SignKeyDataHolder(authReqDTO.getUser().getAuthenticatedSubjectIdentifier()));
         }
         return response;
@@ -106,7 +102,7 @@ public class DefaultResponseBuilder implements ResponseBuilder {
         response.setIssueInstant(issueInstant);
         response.getAssertions().add(assertion);
         if (authReqDTO.isDoSignResponse()) {
-            SAMLSSOUtil.setSignature(response, XMLSignature.ALGO_ID_SIGNATURE_RSA,
+            SAMLSSOUtil.setSignature(response, authReqDTO.getDefaultSigningAlgorithm(),
                     new SignKeyDataHolder(authReqDTO.getUser().getAuthenticatedSubjectIdentifier()));
         }
         return response;
