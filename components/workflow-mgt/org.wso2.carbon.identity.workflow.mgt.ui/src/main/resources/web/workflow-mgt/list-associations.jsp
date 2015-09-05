@@ -27,7 +27,7 @@
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.WorkflowUIConstants" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
-<%@ page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
+
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@ page import="java.util.ResourceBundle" %>
 
@@ -36,7 +36,6 @@
 <script type="text/javascript" src="../admin/js/main.js"></script>
 
 <%
-    //    String username = CharacterEncoder.getSafeText(request.getParameter("username"));
 
     String bundle = "org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources";
     ResourceBundle resourceBundle = ResourceBundle.getBundle(bundle, request.getLocale());
@@ -45,7 +44,7 @@
     AssociationDTO[] associationsToDisplay = new AssociationDTO[0];
     String paginationValue = "region=region1&item=association_list_menu";
 
-    String pageNumber = CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_PAGE_NUMBER));
+    String pageNumber = request.getParameter(WorkflowUIConstants.PARAM_PAGE_NUMBER);
     int pageNumberInt = 0;
     int numberOfPages = 0;
 
@@ -151,7 +150,6 @@
                     <th width="30%"><fmt:message key="workflow.service.associate.event"/></th>
                     <th width="15%"><fmt:message key="workflow.name"/></th>
                     <th><fmt:message key="actions"/></th>
-                    <th></th>
                 </tr>
                 </thead>
                 <tbody>
@@ -165,13 +163,6 @@
                     <td><%=association.getEventName()%>
                     </td>
                     <td><%=association.getWorkflowName()%>
-                    </td>
-                    <td>
-                        <a title="<fmt:message key='workflow.service.association.delete.title'/>"
-                           onclick="removeAssociation('<%=association.getAssociationId()%>',
-                                   '<%=association.getAssociationName()%>');return false;"
-                           href="#" style="background-image: url(images/delete.gif);"
-                           class="icon-link"><fmt:message key='delete'/></a>
                     </td>
                     <td>
                         <% if(association.getEnabled()){ %>
@@ -191,6 +182,11 @@
                         <%
                             }
                         %>
+                        <a title="<fmt:message key='workflow.service.association.delete.title'/>"
+                           onclick="removeAssociation('<%=association.getAssociationId()%>',
+                                   '<%=association.getAssociationName()%>');return false;"
+                           href="#" style="background-image: url(images/delete.gif);"
+                           class="icon-link"><fmt:message key='delete'/></a>
                     </td>
                 </tr>
                 <%

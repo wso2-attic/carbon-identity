@@ -59,7 +59,7 @@ public class DeleteMultipleClaimsWFRequestHandler extends AbstractWorkflowReques
         PARAM_DEFINITION = new LinkedHashMap<>();
         PARAM_DEFINITION.put(USERNAME, WorkflowDataType.STRING_TYPE);
         PARAM_DEFINITION.put(USER_STORE_DOMAIN, WorkflowDataType.STRING_TYPE);
-        PARAM_DEFINITION.put(CLAIMS, WorkflowDataType.STRING_STRING_MAP_TYPE);
+        PARAM_DEFINITION.put(CLAIMS, WorkflowDataType.STRING_LIST_TYPE);
         PARAM_DEFINITION.put(PROFILE_NAME, WorkflowDataType.STRING_TYPE);
     }
 

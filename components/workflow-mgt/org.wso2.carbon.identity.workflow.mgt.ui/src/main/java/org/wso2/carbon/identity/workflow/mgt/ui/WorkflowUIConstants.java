@@ -34,6 +34,7 @@ public class WorkflowUIConstants {
     public static final String ACTION_VALUE_DISABLE = "disable";
     public static final String ACTION_VALUE_DELETE_ASSOCIATION = "deleteAssociation";
     public static final String ACTION_VALUE_ADD_ASSOCIATION = "addAssociation";
+    public static final String DEFAULT_BPS_PROFILE = "embeded_bps";
 
     public static final String ATTRIB_WORKFLOW_WIZARD = "workflowAddWizard";
 

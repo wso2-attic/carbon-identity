@@ -30,6 +30,7 @@ import org.wso2.carbon.identity.base.IdentityRuntimeException;
 import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
 import org.wso2.carbon.identity.workflow.mgt.bean.BPSProfileDTO;
 import org.wso2.carbon.identity.workflow.mgt.bean.ParameterDTO;
+import org.wso2.carbon.identity.workflow.mgt.bean.WorkFlowRequest;
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowAssociationBean;
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowDTO;
 import org.wso2.carbon.identity.workflow.mgt.template.AbstractWorkflowTemplate;
@@ -57,6 +58,7 @@ import org.wso2.carbon.identity.workflow.mgt.exception.RuntimeWorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.internal.WorkflowServiceDataHolder;
 import org.wso2.carbon.identity.workflow.mgt.util.WorkFlowConstants;
+import org.wso2.carbon.identity.workflow.mgt.util.WorkflowManagementUtil;
 import org.wso2.carbon.identity.workflow.mgt.util.WorkflowRequestStatus;
 import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.core.UserStoreManager;
@@ -238,6 +240,9 @@ public class WorkflowService {
                 WorkflowServiceDataHolder.getInstance().getTemplateImplementation(workflowDTO.getTemplateName(), workflowDTO.getImplementationName());
         //deploying the template
         templateImplementation.deploy(paramMap);
+
+        //Creating a role for the workflow
+        WorkflowManagementUtil.createAppRole(workflowDTO.getWorkflowName());
     }
 
     public void addAssociation(String associationName, String workflowId, String eventId, String condition) throws
@@ -276,7 +281,9 @@ public class WorkflowService {
     }
 
     public void removeWorkflow(String id) throws WorkflowException {
-
+        WorkflowDTO workflow = workflowDAO.getWorkflow(id);
+        //Deleting the role that is created for per workflow
+        WorkflowManagementUtil.deleteWorkflowRole(workflow.getWorkflowName());
         workflowDAO.removeWorkflow(id);
     }
 
@@ -452,6 +459,10 @@ public class WorkflowService {
      */
     public void updateStatusOfRequest(String requestId, String newState) throws WorkflowException {
         if (WorkflowRequestStatus.DELETED.toString().equals(newState)) {
+            String loggedUser = CarbonContext.getThreadLocalCarbonContext().getUsername();
+            if (!loggedUser.equals(workflowRequestDAO.retrieveCreatedUserOfRequest(requestId))) {
+                throw  new WorkflowException("User not authorized to delete this request");
+            }
             workflowRequestDAO.updateStatusOfRequest(requestId, newState);
         }
         requestEntityRelationshipDAO.deleteRelationshipsOfRequest(requestId);

@@ -37,6 +37,9 @@
 <%@ page import="java.util.List" %>
 <%@ page import="java.util.Map" %>
 <%@ page import="java.util.ResourceBundle" %>
+<%@ page import="org.wso2.carbon.user.mgt.workflow.ui.UserManagementWorkflowServiceClient" %>
+<%@ page import="java.util.LinkedHashSet" %>
+<%@ page import="java.util.Set" %>
 <script type="text/javascript" src="../userstore/extensions/js/vui.js"></script>
 <script type="text/javascript" src="../admin/js/main.js"></script>
 <jsp:include page="../dialog/display_messages.jsp"/>
@@ -58,6 +61,8 @@
     int noOfPageLinksToDisplay = 5;
     int numberOfPages = 0;
     Map<Integer, PaginatedNamesBean> flaggedNameMap = null;
+    Set<String> workFlowDeletePendingRoles = null;
+
     if (request.getParameter("pageNumber") == null) {
         session.removeAttribute("checkedRolesMap");
     }
@@ -97,8 +102,8 @@
         // page number format exception
     }
 
-    flaggedNameMap = (Map<Integer, PaginatedNamesBean>) session.getAttribute(
-            UserAdminUIConstants.USER_LIST_ASSIGNED_ROLE_CACHE);
+    flaggedNameMap = (Map<Integer, PaginatedNamesBean>) session.
+            getAttribute(UserAdminUIConstants.USER_LIST_ASSIGNED_ROLE_CACHE);
     if (flaggedNameMap != null) {
         PaginatedNamesBean bean = flaggedNameMap.get(pageNumber);
         if (bean != null) {
@@ -123,17 +128,36 @@
     UserRealmInfo userRealmInfo = (UserRealmInfo) session.getAttribute(UserAdminUIConstants.USER_STORE_INFO);
     exceededDomains = (FlaggedName) session.getAttribute(UserAdminUIConstants.USER_LIST_ASSIGNED_ROLE_CACHE_EXCEEDED);
 
-    if (doUserList || newFilter) {
+    if(doUserList || newFilter){
         try {
 
             String cookie = (String) session.getAttribute(ServerConstants.ADMIN_SERVICE_COOKIE);
             String backendServerURL = CarbonUIUtil.getServerURL(config.getServletContext(), session);
             ConfigurationContext configContext =
-                    (ConfigurationContext) config.getServletContext()
-                                                 .getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
+                    (ConfigurationContext) config.getServletContext().getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
             UserAdminClient client = new UserAdminClient(cookie, backendServerURL, configContext);
+            UserManagementWorkflowServiceClient UserMgtClient = new
+                    UserManagementWorkflowServiceClient(cookie, backendServerURL, configContext);
+
             if (filter.length() > 0 && userName != null) {
                 FlaggedName[] data = client.getRolesOfUser(Util.decodeHTMLCharacters(userName), filter, 0);
+                if (CarbonUIUtil.isContextRegistered(config, "/usermgt-workflow/")) {
+                    String[] DeletePendingRolesList = UserMgtClient.
+                            listAllEntityNames("DELETE_ROLE", "PENDING", "ROLE");
+                    workFlowDeletePendingRoles = new LinkedHashSet<String>(Arrays.asList(DeletePendingRolesList));
+                    String pendingStatus = "[Pending Role for Delete]";
+
+                    if (data != null) {
+                        for (int i = 0; i < data.length; i++) {
+                            String updatedStatus = null;
+                            if (workFlowDeletePendingRoles.contains(data[i].getItemName())) {
+                                updatedStatus = data[i].getItemName() + " " + pendingStatus;
+                                data[i].setItemDisplayName(data[i].getItemName());
+                                data[i].setItemName(updatedStatus);
+                            }
+                        }
+                    }
+                }
                 List<FlaggedName> dataList = new ArrayList<FlaggedName>(Arrays.asList(data));
                 exceededDomains = dataList.remove(dataList.size() - 1);
                 session.setAttribute(UserAdminUIConstants.USER_LIST_ASSIGNED_ROLE_CACHE_EXCEEDED, exceededDomains);
@@ -145,7 +169,8 @@
                             max++;
                             continue;
                         }
-                        PaginatedNamesBean bean = Util.retrievePaginatedFlaggedName(i, dataList);
+                        PaginatedNamesBean bean = Util.
+                                retrievePaginatedFlaggedName(i, dataList);
                         flaggedNameMap.put(i, bean);
                         if (bean.getNumberOfPages() == i + 1) {
                             break;
@@ -166,7 +191,7 @@
             }
         } catch (Exception e) {
             String message = MessageFormat.format(resourceBundle.getString("error.while.loading.roles.of"),
-                                                  Util.decodeHTMLCharacters(userName), e.getMessage());
+                    Util.decodeHTMLCharacters(userName), e.getMessage());
 %>
 <script type="text/javascript">
     jQuery(document).ready(function () {
@@ -178,8 +203,8 @@
 <%
         }
     }
-    Util.updateCheckboxStateMap((Map<String, Boolean>) session.getAttribute("checkedRolesMap"), flaggedNameMap,
-                                request.getParameter("selectedRoles"), request.getParameter("unselectedRoles"), ":");
+    Util.updateCheckboxStateMap((Map<String,Boolean>)session.getAttribute("checkedRolesMap"),flaggedNameMap,
+            request.getParameter("selectedRoles"),request.getParameter("unselectedRoles"),":");
 %>
 <fmt:bundle basename="org.wso2.carbon.userstore.ui.i18n.Resources">
     <carbon:breadcrumb label="users.in.the.role"
@@ -375,20 +400,15 @@
                                             if (name != null) {
                                                 String doCheck = "checked=\"checked\"";
                                                 String doEdit = "";
-                                                if (name.getItemName()
-                                                        .equals(CarbonConstants.REGISTRY_ANONNYMOUS_ROLE_NAME)) {
+                                                if (name.getItemName().equals(CarbonConstants.REGISTRY_ANONNYMOUS_ROLE_NAME)) {
                                                     continue;
                                                 } else if (userRealmInfo.getEveryOneRole().equals(name.getItemName())) {
                                                     doEdit = "disabled=\"disabled\"";
                                                 } else if (!name.getEditable()) {
                                                     doEdit = "disabled=\"disabled\"";
                                                 } else if (session.getAttribute("checkedRolesMap") != null &&
-                                                           ((Map<String, Boolean>) session
-                                                                   .getAttribute("checkedRolesMap"))
-                                                                   .get(name.getItemName()) != null &&
-                                                           ((Map<String, Boolean>) session
-                                                                   .getAttribute("checkedRolesMap"))
-                                                                   .get(name.getItemName()) == false) {
+                                                        ((Map<String, Boolean>) session.getAttribute("checkedRolesMap")).get(name.getItemName()) != null &&
+                                                        ((Map<String, Boolean>) session.getAttribute("checkedRolesMap")).get(name.getItemName()) == false) {
                                                     doCheck = "";
                                                 }
                                 %>
@@ -396,10 +416,21 @@
                                     <td>
                                         <label>
                                             <input type="checkbox" name="selectedRoles"
-                                                   value="<%=Encode.forHtmlAttribute(name.getItemName())%>" <%=doCheck%>
-                                                    <%=doEdit%> />
+                                                   value="<%=Encode.forHtmlAttribute(name.getItemName())%>" <%=doCheck%> <%=doEdit%> />
+                                            <%
+                                                if ((name.getItemName()).contains("[Pending Role for Delete]")) {
+                                            %>
+                                            <%=Encode.forHtml(name.getItemDisplayName())%>
+                                            <img src="images/workflow_pending_remove.gif"
+                                                 title="Workflow-pending-user-delete"
+                                                 alt="Workflow-pending-user-delete" height="15" width="15">
+                                            <%
+                                            } else {
+                                            %>
                                             <%=Encode.forHtml(name.getItemName())%>
-                                            <%if (!name.getEditable()) { %> <%="(Read-Only)"%> <% } %>
+                                            <%if (!name.getEditable()) { %> <%="(Read-Only)"%> <%
+                                                }
+                                            } %>
                                             <input type="hidden" name="shownRoles"
                                                    value="<%=Encode.forHtmlAttribute(name.getItemName())%>"/>
                                         </label>
@@ -425,21 +456,20 @@
                             </table>
                         </td>
                     </tr>
-                    </tbody>
-                </table>
+                </tbody>
+            </table>
                 <carbon:paginator pageNumber="<%=pageNumber%>"
                                   action="post"
                                   numberOfPages="<%=numberOfPages%>"
                                   noOfPageLinksToDisplay="<%=noOfPageLinksToDisplay%>"
                                   page="view-roles.jsp" pageNumberParameterName="pageNumber"
-                                  parameters="<%="username=" + Encode.forHtmlAttribute(userName)%>"/>
+                                  parameters="<%="username="+Encode.forHtmlAttribute(userName)%>"/>
                 <%
                     if (roles != null && roles.length > 0 && exceededDomains != null) {
                         if (exceededDomains.getItemName() != null || exceededDomains.getItemDisplayName() != null) {
                             String message = null;
                             if (exceededDomains.getItemName() != null && exceededDomains.getItemName().equals("true")) {
-                                if (exceededDomains.getItemDisplayName() != null &&
-                                    !exceededDomains.getItemDisplayName().equals("")) {
+                                if (exceededDomains.getItemDisplayName() != null && !exceededDomains.getItemDisplayName().equals("")) {
                                     String arg = "";
                                     String[] domains = exceededDomains.getItemDisplayName().split(":");
                                     for (int i = 0; i < domains.length; i++) {
@@ -458,8 +488,7 @@
                 <strong><%=Encode.forHtml(message)%>
                 </strong>
                 <%
-                } else if (exceededDomains.getItemDisplayName() != null &&
-                           !exceededDomains.getItemDisplayName().equals("")) {
+                } else if (exceededDomains.getItemDisplayName() != null && !exceededDomains.getItemDisplayName().equals("")) {
                     String[] domains = exceededDomains.getItemDisplayName().split(":");
                     String arg = "";
                     for (int i = 0; i < domains.length; i++) {
@@ -493,7 +522,7 @@
                                onclick="doCancel()"/>
                     </td>
                 </tr>
-            </form>
-        </div>
+        </form>
     </div>
+</div>
 </fmt:bundle>
