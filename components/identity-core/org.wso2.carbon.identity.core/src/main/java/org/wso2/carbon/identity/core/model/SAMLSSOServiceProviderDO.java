@@ -58,8 +58,6 @@ public class SAMLSSOServiceProviderDO implements Serializable {
     private boolean doValidateSignatureInRequests;
     private String defaultSigningAlgorithm;
 
-
-
     public String getNameIDFormat() {
         return nameIDFormat;
     }

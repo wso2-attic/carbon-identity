@@ -88,8 +88,9 @@ function doValidation() {
     }
 
     var defaultSigningAlgorithm = $('#defaultSigningAlgorithm').val();
-    if (defaultSigningAlgorithm == null || defaultSigningAlgorithm.trim().length() === 0){
-        CARBON.showWarningDialog("<fmt:message key='sp.enter.default.signingAlgorithm'/>",null,null)
+    if (defaultSigningAlgorithm == null || defaultSigningAlgorithm.trim().length() === 0 ||
+            defaultSigningAlgorithm.trim().equals('---Select---')) {
+        CARBON.showWarningDialog("<fmt:message key='sp.enter.default.signingAlgorithm'/>", null, null)
     }
 
     var fld3 = document.getElementsByName("logoutURL")[0];
