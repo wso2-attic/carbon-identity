@@ -40,6 +40,8 @@
 <%@ page import="java.util.LinkedHashSet" %>
 <%@ page import="java.util.Set" %>
 <%@ page import="org.apache.commons.lang.StringUtils" %>
+<%@ page import="org.apache.commons.lang.ArrayUtils" %>
+<%@ page import="org.apache.commons.collections.CollectionUtils" %>
 <script type="text/javascript" src="../userstore/extensions/js/vui.js"></script>
 <script type="text/javascript" src="../admin/js/main.js"></script>
 <jsp:include page="../dialog/display_messages.jsp"/>
@@ -72,9 +74,9 @@
 
     // search filter
     String filter = request.getParameter(UserAdminUIConstants.ROLE_LIST_UNASSIGNED_USER_FILTER);
-    if (filter == null || filter.trim().length() == 0) {
+    if (StringUtils.isEmpty(filter)) {
         filter = (java.lang.String) session.getAttribute(UserAdminUIConstants.ROLE_LIST_UNASSIGNED_USER_FILTER);
-        if (filter == null || filter.trim().length() == 0) {
+        if (StringUtils.isEmpty(filter)) {
             filter = "*";
         }
     } else {
@@ -96,15 +98,13 @@
     exceededDomains = (FlaggedName) session.getAttribute(UserAdminUIConstants.ROLE_LIST_UNASSIGNED_USER_CACHE_EXCEEDED);
 
     // check page number
-    String pageNumberStr = request.getParameter("pageNumber");
-    if (pageNumberStr == null) {
-        pageNumberStr = "0";
-    }
-
     try {
-        pageNumber = Integer.parseInt(pageNumberStr);
+
+        pageNumber = Integer.parseInt(request.getParameter("pageNumber"));
+
     } catch (NumberFormatException ignored) {
         // page number format exception
+        pageNumber = 0;
     }
 
     String prevRole = (String) session.getAttribute("previousRole");
@@ -123,7 +123,7 @@
             PaginatedNamesBean bean = flaggedNameMap.get(pageNumber);
             if (bean != null) {
                 users = bean.getNames();
-                if (users != null && users.length > 0) {
+                if (ArrayUtils.isNotEmpty(users)) {
                     numberOfPages = bean.getNumberOfPages();
                     doUserList = false;
                 }
@@ -170,7 +170,7 @@
                     datasList = nameList;
                 }
 
-                if (datasList != null && datasList.size() > 0) {
+                if (CollectionUtils.isNotEmpty(datasList)) {
                     flaggedNameMap = new HashMap<Integer, PaginatedNamesBean>();
                     int max = pageNumber + cachePages;
                     for (int i = (pageNumber - cachePages); i < max; i++) {
@@ -357,7 +357,7 @@
                                               parameters="<%="roleName=" + Encode.forHtmlAttribute(roleName)%>"/>
                             <table class="normal">
                                 <%
-                                    if (users != null && users.length > 0) {
+                                    if (!ArrayUtils.isEmpty(users)) {
                                 %>
                                 <tr>
                                     <!-- td><fmt:message key="users"/></td -->
@@ -410,12 +410,7 @@
                                                         } else if (readOnlyRole && !users[i].getEditable()) {
                                                             doEdit = "disabled=\"disabled\"";
                                                         } else if (session.getAttribute("checkedUsersMap") != null &&
-                                                                ((Map<String, Boolean>) session
-                                                                        .getAttribute("checkedUsersMap"))
-                                                                        .get(users[i].getItemName()) != null &&
-                                                                ((Map<String, Boolean>) session
-                                                                        .getAttribute("checkedUsersMap"))
-                                                                        .get(users[i].getItemName()) == true) {
+                                                                Boolean.TRUE.equals(((Map<String, Boolean>) session.getAttribute("checkedUsersMap")).get(users[i].getItemName()))) {
                                                             doCheck = "checked=\"checked\"";
                                                         }
                                         %>
@@ -457,12 +452,11 @@
                                   page="edit-users.jsp" pageNumberParameterName="pageNumber"
                                   parameters="<%="roleName=" + Encode.forHtmlAttribute(roleName)%>"/>
                 <%
-                    if (users != null && users.length > 0 && exceededDomains != null) {
+                    if (ArrayUtils.isNotEmpty(users) && exceededDomains != null) {
                         if (exceededDomains.getItemName() != null || exceededDomains.getItemDisplayName() != null) {
                             String message = null;
-                            if (exceededDomains.getItemName() != null && exceededDomains.getItemName().equals("true")) {
-                                if (exceededDomains.getItemDisplayName() != null &&
-                                    !exceededDomains.getItemDisplayName().equals("")) {
+                            if (Boolean.parseBoolean(exceededDomains.getItemName())) {
+                                if (StringUtils.isNotBlank(exceededDomains.getItemDisplayName())) {
                                     String arg = "";
                                     String[] domains = exceededDomains.getItemDisplayName().split(":");
                                     for (int i = 0; i < domains.length; i++) {
@@ -478,8 +472,7 @@
                 <strong><%=Encode.forHtml(message)%>
                 </strong>
                 <%
-                } else if (exceededDomains.getItemDisplayName() != null &&
-                           !exceededDomains.getItemDisplayName().equals("")) {
+                } else if (StringUtils.isNotBlank(exceededDomains.getItemDisplayName())) {
                     String[] domains = exceededDomains.getItemDisplayName().split(":");
                     String arg = "";
                     for (int i = 0; i < domains.length; i++) {

@@ -41,6 +41,7 @@
 <%@ page import="java.util.ResourceBundle" %>
 <%@ page import="java.util.Set" %>
 <%@ page import="org.apache.commons.lang.ArrayUtils" %>
+<%@ page import="org.apache.commons.lang.StringUtils" %>
 <script type="text/javascript" src="../userstore/extensions/js/vui.js"></script>
 <script type="text/javascript" src="../admin/js/main.js"></script>
 <jsp:include page="../dialog/display_messages.jsp"/>
@@ -89,9 +90,9 @@
     session.removeAttribute("previousRole");
     // search filter
     String selectedDomain = request.getParameter("domain");
-    if (selectedDomain == null || selectedDomain.trim().length() == 0) {
+    if (StringUtils.isBlank(selectedDomain)) {
         selectedDomain = (String) session.getAttribute(UserAdminUIConstants.ROLE_LIST_DOMAIN_FILTER);
-        if (selectedDomain == null || selectedDomain.trim().length() == 0) {
+        if (StringUtils.isBlank(selectedDomain)) {
             selectedDomain = UserAdminUIConstants.ALL_DOMAINS;
         }
     } else {
@@ -101,9 +102,9 @@
     session.setAttribute(UserAdminUIConstants.ROLE_LIST_DOMAIN_FILTER, selectedDomain.trim());
 
     String filter = request.getParameter(UserAdminUIConstants.ROLE_LIST_FILTER);
-    if (filter == null || filter.trim().length() == 0) {
+    if (StringUtils.isBlank(filter)) {
         filter = (String) session.getAttribute(UserAdminUIConstants.ROLE_LIST_FILTER);
-        if (filter == null || filter.trim().length() == 0) {
+        if (StringUtils.isBlank(filter)) {
             filter = "*";
         }
     } else {
@@ -132,15 +133,13 @@
     exceededDomains = (FlaggedName) session.getAttribute(UserAdminUIConstants.ROLE_LIST_CACHE_EXCEEDED);
 
     // check page number
-    String pageNumberStr = request.getParameter("pageNumber");
-    if (pageNumberStr == null) {
-        pageNumberStr = "0";
-    }
-
     try {
-        pageNumber = Integer.parseInt(pageNumberStr);
+
+        pageNumber = Integer.parseInt(request.getParameter("pageNumber"));
+
     } catch (NumberFormatException ignored) {
         // page number format exception
+        pageNumber = 0;
     }
 
     flaggedNameMap = (Map<Integer, PaginatedNamesBean>) session.getAttribute(UserAdminUIConstants.ROLE_LIST_CACHE);
@@ -148,7 +147,7 @@
         PaginatedNamesBean bean = flaggedNameMap.get(pageNumber);
         if (bean != null) {
             roles = bean.getNames();
-            if (roles != null && roles.length > 0) {
+            if (!ArrayUtils.isEmpty(roles)) {
                 numberOfPages = bean.getNumberOfPages();
                 doRoleList = false;
             }
@@ -320,7 +319,7 @@
                     </thead>
                     <tbody>
                     <%
-                        if (!ArrayUtils.isEmpty(domainNames)) {
+                        if (ArrayUtils.isNotEmpty(domainNames)) {
                     %>
                     <tr>
                         <td class="leftCol-big" style="padding-right: 0 !important;"><fmt:message
@@ -374,7 +373,7 @@
 
             <table class="styledLeft" id="roleTable">
                 <%
-                    if (roles != null && roles.length > 0) {
+                    if (ArrayUtils.isNotEmpty(roles)) {
                 %>
                 <thead>
                 <tr>
@@ -391,7 +390,7 @@
                 %>
                 <tbody>
                 <%
-                    if (roles != null && roles.length > 0) {
+                    if (ArrayUtils.isNotEmpty(roles)) {
                         for (FlaggedName data : roles) {
                             if (data != null) { //Confusing!!. Sometimes a null object comes. Maybe a bug in Axis!!
                                 if (CarbonConstants.REGISTRY_ANONNYMOUS_ROLE_NAME.equals(data.getItemName())) {
@@ -483,7 +482,7 @@
                          <%}%>--%>
                     <td>
                         <%if (!data.getShared()) { %>
-                        <% if (data.getItemName().equals(userRealmInfo.getAdminRole()) == false && data.getItemName().equals(userRealmInfo.getEveryOneRole()) == false && data.getEditable()) {%>
+                        <% if (!data.getItemName().equals(userRealmInfo.getAdminRole()) && !data.getItemName().equals(userRealmInfo.getEveryOneRole()) && data.getEditable()) {%>
                         <a href="#" onclick="updateUserGroup('<%=Encode.forJavaScriptAttribute(roleName)%>')"
                            class="icon-link" style="background-image:url(images/edit.gif);"><fmt:message
                                 key="rename"/></a>
@@ -506,7 +505,7 @@
                         <% } %>
                         <%if (!data.getShared()) { %>
 
-                        <% if (data.getItemName().equals(userRealmInfo.getAdminRole()) == false && data.getItemName().equals(userRealmInfo.getEveryOneRole()) == false && data.getEditable()) {%>
+                        <% if (!data.getItemName().equals(userRealmInfo.getAdminRole()) && !data.getItemName().equals(userRealmInfo.getEveryOneRole()) && data.getEditable()) {%>
                         <a href="#" onclick="deleteUserGroup('<%=Encode.forJavaScriptAttribute(roleName)%>')"
                            class="icon-link" style="background-image:url(images/delete.gif);"><fmt:message
                                 key="delete"/></a>
@@ -532,11 +531,11 @@
                               page="role-mgt.jsp" pageNumberParameterName="pageNumber"/>
 
             <%
-                if (roles != null && roles.length > 0 && exceededDomains != null) {
+                if (ArrayUtils.isNotEmpty(roles) && exceededDomains != null) {
                     if (exceededDomains.getItemName() != null || exceededDomains.getItemDisplayName() != null) {
                         String message = null;
-                        if (exceededDomains.getItemName() != null && exceededDomains.getItemName().equals("true")) {
-                            if (exceededDomains.getItemDisplayName() != null && !exceededDomains.getItemDisplayName().equals("")) {
+                        if (Boolean.parseBoolean(exceededDomains.getItemName())) {
+                            if (StringUtils.isNotBlank(exceededDomains.getItemDisplayName())) {
                                 String arg = "";
                                 String[] domains = exceededDomains.getItemDisplayName().split(":");
                                 for (int i = 0; i < domains.length; i++) {
@@ -555,7 +554,7 @@
             <strong><%=Encode.forHtml(message)%>
             </strong>
             <%
-            } else if (exceededDomains.getItemDisplayName() != null && !exceededDomains.getItemDisplayName().equals("")) {
+            } else if (StringUtils.isNotBlank(exceededDomains.getItemDisplayName())) {
                 String[] domains = exceededDomains.getItemDisplayName().split(":");
                 String arg = "";
                 for (int i = 0; i < domains.length; i++) {
