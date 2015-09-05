@@ -78,17 +78,20 @@ public class IdentityValidationUtil {
             throw new IllegalArgumentException("Should provide at least one white list pattern");
         }
 
+        if (StringUtils.isEmpty(input)) {
+            return true;
+        }
+
         boolean isValid = false;
-        if (input != null) {
-            for (String key : whiteListPatterns) {
-                if (validatorConfig.getPattern(key) != null) {
-                    isValid = validatorConfig.getPattern(key).matcher(input).matches();
-                    if (isValid) {
-                        break;
-                    }
+        for (String key : whiteListPatterns) {
+            if (validatorConfig.getPattern(key) != null) {
+                isValid = validatorConfig.getPattern(key).matcher(input).matches();
+                if (isValid) {
+                    break;
                 }
             }
         }
+
         return isValid;
     }
 
@@ -104,17 +107,20 @@ public class IdentityValidationUtil {
             throw new IllegalArgumentException("Should provide at least one black list pattern");
         }
 
+        if (StringUtils.isEmpty(input)) {
+            return true;
+        }
+
         boolean isValid = false;
-        if (input != null) {
-            for (String key : blackListPatterns) {
-                if (validatorConfig.getPattern(key) != null) {
-                    isValid = !validatorConfig.getPattern(key).matcher(input).matches();
-                    if (!isValid) {
-                        break;
-                    }
+        for (String key : blackListPatterns) {
+            if (validatorConfig.getPattern(key) != null) {
+                isValid = !validatorConfig.getPattern(key).matcher(input).matches();
+                if (!isValid) {
+                    break;
                 }
             }
         }
+
         return isValid;
     }
 
@@ -145,7 +151,8 @@ public class IdentityValidationUtil {
      * @param whiteListPatterns a String array of white list pattern keys
      * @return input if valid over the given white list patterns else throws an IdentityValidationException
      */
-    public static String getValidInputOverWhiteListPatterns(String input, String... whiteListPatterns) {
+    public static String getValidInputOverWhiteListPatterns(String input, String... whiteListPatterns)
+            throws IdentityValidationException {
 
         if (StringUtils.isEmpty(input) || isValidOverWhiteListPatterns(input, whiteListPatterns)) {
             return input;
@@ -162,7 +169,8 @@ public class IdentityValidationUtil {
      * @param blackListPatterns a String array of black list pattern keys
      * @return input if valid over the given black list patterns else throws an IdentityValidationException
      */
-    public static String getValidInputOverBlackListPatterns(String input, String... blackListPatterns) {
+    public static String getValidInputOverBlackListPatterns(String input, String... blackListPatterns)
+            throws IdentityValidationException {
 
         if (StringUtils.isEmpty(input) || isValidOverBlackListPatterns(input, blackListPatterns)) {
             return input;
@@ -182,7 +190,8 @@ public class IdentityValidationUtil {
      * @return input if valid over the given white list and black list patterns else throws an
      * IdentityValidationException
      */
-    public static String getValidInput(String input, String[] whiteListPatterns, String[] blackListPatterns) {
+    public static String getValidInput(String input, String[] whiteListPatterns, String[] blackListPatterns)
+            throws IdentityValidationException {
 
         if (StringUtils.isEmpty(input) || isValid(input, whiteListPatterns, blackListPatterns)) {
             return input;

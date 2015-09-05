@@ -68,7 +68,15 @@ function getPattern(pattern) {
     return regex;
 }
 
+/**
+ * Checks if the provided input value is valid against the given white list pattern array
+ *
+ * @param input input value
+ * @param whiteListPatterns white list pattern array
+ * @returns {boolean} true if input value is valid
+ */
 function isWhiteListed(input, whiteListPatterns) {
+
     var isValid = false;
     var pattern;
     for (var i = 0; i < whiteListPatterns.length; i++) {
@@ -82,7 +90,15 @@ function isWhiteListed(input, whiteListPatterns) {
     return isValid;
 }
 
+/**
+ * Checks if the provided input value is valid against the given black list pattern array
+ *
+ * @param input input value
+ * @param blackListPatterns black list pattern array
+ * @returns {boolean} true if input value is valid
+ */
 function isNotBlackListed(input, blackListPatterns) {
+
     var isValid = false;
     var pattern;
     for (var i = 0; i < blackListPatterns.length; i++) {
@@ -97,7 +113,14 @@ function isNotBlackListed(input, blackListPatterns) {
     return isValid;
 }
 
+/**
+ * Returns a comma separated string of patterns given by the patterns array
+ *
+ * @param patterns
+ * @returns {string}
+ */
 function getPatternString(patterns) {
+
     var patternString = "";
     for (var i = 0; i < patterns.length; i++) {
         patternString += getPattern(patterns[i]).toString();
@@ -110,97 +133,14 @@ function getPatternString(patterns) {
 }
 
 /**
- * Validates all input elements of the form which defines attributes for white list or black list patterns against them.
+ * Extracts the given validator object
  *
- * @param form Form to be validated
- * @returns {{isValid: boolean, label: string, whiteListPatterns: string, blackListPatterns: string}}
+ * @param validationObj validator object
+ * @param msg custom message
+ * @returns {boolean} true if object contains isValid = true
  */
-function validate(form) {
-    var allInputs = form.getElementsByTagName('input');
-    var len = allInputs.length;
+function isValid(validationObj, msg) {
 
-    var whiteListPatternString = "";
-    var blackListPatternString = "";
-    var labelString = "";
-
-    for (var i = 0; i < len; i++) {
-        var element = allInputs[i];
-        var value = element.value;
-        if (value != null && value != 'null' && value != "") {
-            var whiteListPatterns = element.getAttribute('white-list-patterns');
-            var blackListPatterns = element.getAttribute('black-list-patterns');
-
-            if ((whiteListPatterns === null || whiteListPatterns === "") &&
-                (blackListPatterns === null || blackListPatterns === "")) {
-                continue;
-            }
-
-            var isValid = false;
-            var isWhiteListed = false;
-            var isNotBlackListed = false;
-            var whiteListPatternsProvided = false;
-            var blackListPatternsProvided = false;
-
-            if (whiteListPatterns != null && whiteListPatterns != "") {
-                whiteListPatternsProvided = true;
-                var patternArray = whiteListPatterns.split(' ');
-                isWhiteListed = isWhiteListed(value, patternArray);
-                whiteListPatternString = getPatternString(patternArray);
-            }
-
-            if (blackListPatterns != null && blackListPatterns != "") {
-                blackListPatternsProvided = true;
-                var patternArray = blackListPatterns.split(' ');
-                isNotBlackListed = isNotBlackListed(value, patternArray);
-                blackListPatternString = getPatternString(patternArray);
-            }
-
-            if (whiteListPatternsProvided && blackListPatternsProvided) {
-                isValid = isWhiteListed || isNotBlackListed;
-            } else if (whiteListPatternsProvided) {
-                isValid = isWhiteListed;
-            } else if (blackListPatternsProvided) {
-                isValid = isNotBlackListed;
-            }
-
-            if (isValid === true) {
-                continue;
-            } else {
-                labelString = element.getAttribute('label');
-                if (labelString == null || labelString == "") {
-                    labelString = element.getAttribute('name');
-                }
-                return {
-                    isValid: false,
-                    label: labelString,
-                    whiteListPatterns: whiteListPatternString,
-                    blackListPatterns: blackListPatternString
-                };
-            }
-        } else {
-            continue;
-        }
-    }
-
-    return {
-        isValid: true,
-        label: labelString,
-        whiteListPatterns: whiteListPatternString,
-        blackListPatterns: blackListPatternString
-    };
-}
-
-/**
- * Validates all input elements of the form which defines attributes for white list or black list patterns against them,
- * and returns true if all inputs are valid and pops up an error message if inputs are invalid.
- *
- * @param form
- * @param msg Message to be popped up if validations fails. Message should contain {0}, {1} and {2},
- * which are replaced by the input label, white list patterns and black list patterns respectively.
- * @returns {boolean} true if successfully validated
- */
-function doValidateForm(form, msg) {
-    var validationObj = validate(form);
     if (validationObj['isValid'] === true) {
         return true;
     }
@@ -214,5 +154,139 @@ function doValidateForm(form, msg) {
 
     CARBON.showErrorDialog(message);
     return false;
+}
 
+/**
+ * Validates the given input element against white list or black list patterns
+ *
+ * @param inputElement input element to be evaluated
+ * @returns {{isValid: boolean, label: string, whiteListPatterns: string, blackListPatterns: string}}
+ */
+function validateInput(inputElement) {
+
+    var value = inputElement.value;
+
+    var whiteListPatternString = "";
+    var blackListPatternString = "";
+    var labelString = "";
+
+    if (value != null && value != 'null' && value != "") {
+        var whiteListPatterns = inputElement.getAttribute('white-list-patterns');
+        var blackListPatterns = inputElement.getAttribute('black-list-patterns');
+
+        if ((whiteListPatterns === null || whiteListPatterns === "") &&
+            (blackListPatterns === null || blackListPatterns === "")) {
+            return {
+                isValid: true,
+                label: labelString,
+                whiteListPatterns: whiteListPatternString,
+                blackListPatterns: blackListPatternString
+            };
+        }
+
+        var isValid = false;
+        var whiteListed = false;
+        var notBlackListed = false;
+        var whiteListPatternsProvided = false;
+        var blackListPatternsProvided = false;
+
+        if (whiteListPatterns != null && whiteListPatterns != "") {
+            whiteListPatternsProvided = true;
+            var patternArray = whiteListPatterns.split(' ');
+            whiteListed = isWhiteListed(value, patternArray);
+            whiteListPatternString = getPatternString(patternArray);
+        }
+
+        if (blackListPatterns != null && blackListPatterns != "") {
+            blackListPatternsProvided = true;
+            var patternArray = blackListPatterns.split(' ');
+            notBlackListed = isNotBlackListed(value, patternArray);
+            blackListPatternString = getPatternString(patternArray);
+        }
+
+        if (whiteListPatternsProvided && blackListPatternsProvided) {
+            isValid = whiteListed || notBlackListed;
+        } else if (whiteListPatternsProvided) {
+            isValid = whiteListed;
+        } else if (blackListPatternsProvided) {
+            isValid = notBlackListed;
+        }
+
+        if (isValid === true) {
+            return {
+                isValid: true,
+                label: labelString,
+                whiteListPatterns: whiteListPatternString,
+                blackListPatterns: blackListPatternString
+            };
+        } else {
+            labelString = inputElement.getAttribute('label');
+            if (labelString == null || labelString == "") {
+                labelString = inputElement.getAttribute('name');
+            }
+            return {
+                isValid: false,
+                label: labelString,
+                whiteListPatterns: whiteListPatternString,
+                blackListPatterns: blackListPatternString
+            };
+        }
+    }
+}
+
+/**
+ * Validates all input elements of the form which defines attributes for white list or black list patterns against them.
+ *
+ * @param form Form to be validated
+ * @returns {{isValid: boolean, label: string, whiteListPatterns: string, blackListPatterns: string}}
+ */
+function validateForm(form) {
+
+    var allInputs = form.getElementsByTagName('input');
+    var len = allInputs.length;
+
+    for (var i = 0; i < len; i++) {
+        var validationObj = validateInput(allInputs[i]);
+
+        if (validationObj['isValid'] === true) {
+            continue;
+        } else {
+            return validationObj;
+        }
+    }
+
+    return {
+        isValid: true,
+        label: "",
+        whiteListPatterns: "",
+        blackListPatterns: ""
+    };
+}
+
+/**
+ * Validates the given input element against white list or black list patterns and returns true if input is valid
+ * and pops up an error message if input is invalid.
+ *
+ * @param inputElement input element to be evaluated
+ * @param msg Message to be popped up if validations fails. If message contains {0}, {1} and {2},
+ * they are replaced by the input label, white list patterns and black list patterns respectively.
+ * @returns {boolean} true if successfully validated
+ */
+function doValidateInput(inputElement, msg) {
+
+    return isValid(validateInput(inputElement), msg);
+}
+
+/**
+ * Validates all input elements of the form which defines attributes for white list or black list patterns against them,
+ * and returns true if all inputs are valid and pops up an error message if inputs are invalid.
+ *
+ * @param form
+ * @param msg Message to be popped up if validations fails. If message contains {0}, {1} and {2},
+ * they are replaced by the input label, white list patterns and black list patterns respectively.
+ * @returns {boolean} true if successfully validated
+ */
+function doValidateForm(form, msg) {
+
+    return isValid(validateForm(form), msg);
 }

@@ -21,7 +21,7 @@ package org.wso2.carbon.identity.base;
 /**
  * Used to denote input validation failures
  */
-public class IdentityValidationException extends IdentityRuntimeException {
+public class IdentityValidationException extends IdentityException {
 
     private static final long serialVersionUID = 8331812986028679831L;
 
