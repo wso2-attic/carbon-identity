@@ -26,7 +26,7 @@
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>org.wso2.carbon.identity.menu.ui</artifactId>
+    <artifactId>org.wso2.carbon.identity.core.ui</artifactId>
     <packaging>bundle</packaging>
     <name>WSO2 Carbon - identity tree menu structure</name>
     <description>core tree menu structure</description>

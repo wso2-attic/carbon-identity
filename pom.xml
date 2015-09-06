@@ -1196,7 +1196,7 @@
 
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
-                <artifactId>org.wso2.carbon.identity.menu.ui</artifactId>
+                <artifactId>org.wso2.carbon.identity.core.ui</artifactId>
                 <version>${carbon.identity.version}</version>
             </dependency>
             <dependency>
