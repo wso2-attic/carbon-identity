@@ -40,6 +40,9 @@
 <%@ page import="org.wso2.carbon.user.mgt.workflow.ui.UserManagementWorkflowServiceClient" %>
 <%@ page import="java.util.LinkedHashSet" %>
 <%@ page import="java.util.Set" %>
+<%@ page import="org.apache.commons.lang.StringUtils" %>
+<%@ page import="org.apache.commons.lang.ArrayUtils" %>
+<%@ page import="org.apache.commons.collections.CollectionUtils" %>
 <script type="text/javascript" src="../userstore/extensions/js/vui.js"></script>
 <script type="text/javascript" src="../admin/js/main.js"></script>
 <jsp:include page="../dialog/display_messages.jsp"/>
@@ -79,9 +82,9 @@
 
     // search filter
     String filter = request.getParameter(UserAdminUIConstants.USER_LIST_VIEW_ROLE_FILTER);
-    if (filter == null || filter.trim().length() == 0) {
+    if (StringUtils.isBlank(filter)) {
         filter = (java.lang.String) session.getAttribute(UserAdminUIConstants.USER_LIST_VIEW_ROLE_FILTER);
-        if (filter == null || filter.trim().length() == 0) {
+        if (StringUtils.isBlank(filter)) {
             filter = "*";
         }
     } else {
@@ -91,15 +94,13 @@
     session.setAttribute(UserAdminUIConstants.USER_LIST_VIEW_ROLE_FILTER, filter);
 
     // check page number
-    String pageNumberStr = request.getParameter("pageNumber");
-    if (pageNumberStr == null) {
-        pageNumberStr = "0";
-    }
-
     try {
-        pageNumber = Integer.parseInt(pageNumberStr);
+
+        pageNumber = Integer.parseInt(request.getParameter("pageNumber"));
+
     } catch (NumberFormatException ignored) {
         // page number format exception
+        pageNumber = 0;
     }
 
     flaggedNameMap = (Map<Integer, PaginatedNamesBean>) session.
@@ -108,7 +109,7 @@
         PaginatedNamesBean bean = flaggedNameMap.get(pageNumber);
         if (bean != null) {
             roles = bean.getNames();
-            if (roles != null && roles.length > 0) {
+            if (ArrayUtils.isNotEmpty(roles)) {
                 numberOfPages = bean.getNumberOfPages();
                 doUserList = false;
             }
@@ -117,9 +118,9 @@
 
     String userName = request.getParameter("username");
     String disPlayName = request.getParameter("disPlayName");
-    if (disPlayName == null || disPlayName.trim().length() == 0) {
+    if (StringUtils.isBlank(disPlayName)) {
         disPlayName = (String) session.getAttribute(UserAdminUIConstants.USER_DISPLAY_NAME);
-        if (disPlayName == null || disPlayName.trim().length() == 0) {
+        if (StringUtils.isBlank(disPlayName)) {
             disPlayName = userName;
         }
     } else {
@@ -161,7 +162,7 @@
                 List<FlaggedName> dataList = new ArrayList<FlaggedName>(Arrays.asList(data));
                 exceededDomains = dataList.remove(dataList.size() - 1);
                 session.setAttribute(UserAdminUIConstants.USER_LIST_ASSIGNED_ROLE_CACHE_EXCEEDED, exceededDomains);
-                if (dataList != null && dataList.size() > 0) {
+                if (CollectionUtils.isNotEmpty(dataList)) {
                     flaggedNameMap = new HashMap<Integer, PaginatedNamesBean>();
                     int max = pageNumber + cachePages;
                     for (int i = (pageNumber - cachePages); i < max; i++) {
@@ -362,7 +363,7 @@
                     <tr>
                         <td colspan="2" style="padding:0 !important;">
                             <%
-                                if (roles != null && roles.length > 0) {
+                                if (ArrayUtils.isNotEmpty(roles)) {
                             %>
                             <div style="padding:5px 5px 10px 10px">
                                 <!-- td><fmt:message key="users"/></td -->
@@ -407,8 +408,7 @@
                                                 } else if (!name.getEditable()) {
                                                     doEdit = "disabled=\"disabled\"";
                                                 } else if (session.getAttribute("checkedRolesMap") != null &&
-                                                        ((Map<String, Boolean>) session.getAttribute("checkedRolesMap")).get(name.getItemName()) != null &&
-                                                        ((Map<String, Boolean>) session.getAttribute("checkedRolesMap")).get(name.getItemName()) == false) {
+                                                        Boolean.FALSE.equals(((Map<String, Boolean>) session.getAttribute("checkedRolesMap")).get(name.getItemName()))) {
                                                     doCheck = "";
                                                 }
                                 %>
@@ -465,11 +465,11 @@
                                   page="view-roles.jsp" pageNumberParameterName="pageNumber"
                                   parameters="<%="username="+Encode.forHtmlAttribute(userName)%>"/>
                 <%
-                    if (roles != null && roles.length > 0 && exceededDomains != null) {
+                    if (ArrayUtils.isNotEmpty(roles) && exceededDomains != null) {
                         if (exceededDomains.getItemName() != null || exceededDomains.getItemDisplayName() != null) {
                             String message = null;
-                            if (exceededDomains.getItemName() != null && exceededDomains.getItemName().equals("true")) {
-                                if (exceededDomains.getItemDisplayName() != null && !exceededDomains.getItemDisplayName().equals("")) {
+                            if (Boolean.parseBoolean(exceededDomains.getItemName())) {
+                                if (StringUtils.isNotBlank(exceededDomains.getItemDisplayName())) {
                                     String arg = "";
                                     String[] domains = exceededDomains.getItemDisplayName().split(":");
                                     for (int i = 0; i < domains.length; i++) {
@@ -488,7 +488,7 @@
                 <strong><%=Encode.forHtml(message)%>
                 </strong>
                 <%
-                } else if (exceededDomains.getItemDisplayName() != null && !exceededDomains.getItemDisplayName().equals("")) {
+                } else if (StringUtils.isNotBlank(exceededDomains.getItemDisplayName())) {
                     String[] domains = exceededDomains.getItemDisplayName().split(":");
                     String arg = "";
                     for (int i = 0; i < domains.length; i++) {
