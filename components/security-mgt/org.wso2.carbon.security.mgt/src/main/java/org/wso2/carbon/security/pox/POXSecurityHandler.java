@@ -192,12 +192,7 @@ public class POXSecurityHandler implements Handler {
          * instead unauthorized header
          */
         if (!msgCtx.isDoingREST() && soapWithoutSecHeader && basicAuthHeader == null) {
-            try {
-                setAuthHeaders(msgCtx);
-            } catch (IOException e) {
-                log.error("Error while setting auth headers", e);
-            }
-            return InvocationResponse.ABORT;
+            return InvocationResponse.CONTINUE;
         }
 
         //return if incoming message is soap and has soap security headers
