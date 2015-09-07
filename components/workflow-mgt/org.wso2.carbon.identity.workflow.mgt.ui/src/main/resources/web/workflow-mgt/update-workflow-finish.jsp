@@ -98,7 +98,7 @@
             workflowDTO.setImplementationName(templateImplName);
             client.addWorkflow(workflowDTO, templateParams,templateImplParams);
 
-        } catch (WorkflowAdminServiceWorkflowException e) {
+        } catch (Exception e) {
             String message = resourceBundle.getString("workflow.error.when.adding.workflow");
             CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
             forwardTo = "../admin/error.jsp";
