@@ -235,11 +235,14 @@ public class WorkflowService {
             }
         }
         paramMap.put(WorkFlowConstants.TemplateConstants.WORKFLOW_NAME, workflowDTO.getWorkflowName());
-        workflowDAO.addWorkflowParams(workflowDTO.getWorkflowId(), paramMap);
+
         AbstractWorkflowTemplateImpl templateImplementation =
                 WorkflowServiceDataHolder.getInstance().getTemplateImplementation(workflowDTO.getTemplateName(), workflowDTO.getImplementationName());
         //deploying the template
         templateImplementation.deploy(paramMap);
+
+        //add workflow to the database
+        workflowDAO.addWorkflowParams(workflowDTO.getWorkflowId(), paramMap);
 
         //Creating a role for the workflow
         WorkflowManagementUtil.createAppRole(workflowDTO.getWorkflowName());
