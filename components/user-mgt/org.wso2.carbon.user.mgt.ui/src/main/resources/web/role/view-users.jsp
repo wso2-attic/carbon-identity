@@ -39,6 +39,9 @@
 <%@ page import="org.wso2.carbon.user.mgt.workflow.ui.UserManagementWorkflowServiceClient" %>
 <%@ page import="java.util.Set" %>
 <%@ page import="java.util.LinkedHashSet" %>
+<%@ page import="org.apache.commons.lang.ArrayUtils" %>
+<%@ page import="org.apache.commons.lang.StringUtils" %>
+<%@ page import="org.apache.commons.collections.CollectionUtils" %>
 <script type="text/javascript" src="../userstore/extensions/js/vui.js"></script>
 <script type="text/javascript" src="../admin/js/main.js"></script>
 <jsp:include page="../dialog/display_messages.jsp"/>
@@ -76,7 +79,7 @@
     String prevString = null;
 
 
-    if (prevPage != null && prevPage.trim().length() > 0 && prevUser != null && prevUser.trim().length() > 0) {
+    if (StringUtils.isNotBlank(prevPage) && StringUtils.isNotBlank(prevUser)) {
         showUpdate = false;
         if ("view".equals(prevPage)) {
             prevString = "../user/view-roles.jsp?username=" + Encode.forUriComponent(prevUser) + "&pageNumber=" +
@@ -107,9 +110,9 @@
 <%
 	// search filter
     String filter = request.getParameter(UserAdminUIConstants.ROLE_LIST_VIEW_USER_FILTER);
-    if (filter == null || filter.trim().length() == 0) {
+    if (StringUtils.isEmpty(filter)) {
         filter = (java.lang.String) session.getAttribute(UserAdminUIConstants.ROLE_LIST_VIEW_USER_FILTER);
-        if (filter == null || filter.trim().length() == 0) {
+        if (StringUtils.isEmpty(filter)) {
             filter = "*";
         }
     } else {
@@ -125,7 +128,7 @@
 
     boolean useCache = false;
 
-    if (prevRole != null && prevRole.equals(roleName)) {
+    if (StringUtils.equals(roleName, prevRole)) {
         useCache = true;
     } else if (prevRole != null) {
         session.setAttribute("previousRole", roleName);
@@ -136,7 +139,7 @@
         readOnlyRoleString =
                 (String) session.getAttribute(UserAdminUIConstants.ROLE_READ_ONLY);
     }
-    if ("true".equals(readOnlyRoleString)) {
+    if (Boolean.parseBoolean(readOnlyRoleString)) {
         readOnlyRole = true;
     }
 
@@ -144,15 +147,13 @@
             (FlaggedName) session.getAttribute(UserAdminUIConstants.ROLE_LIST_ASSIGNED_USER_CACHE_EXCEEDED);
 
     // check page number
-    String pageNumberStr = request.getParameter("pageNumber");
-    if (pageNumberStr == null) {
-        pageNumberStr = "0";
-    }
-
     try {
-        pageNumber = Integer.parseInt(pageNumberStr);
+
+        pageNumber = Integer.parseInt(request.getParameter("pageNumber"));
+
     } catch (NumberFormatException ignored) {
         // page number format exception
+        pageNumber = 0;
     }
 
     if (useCache) {
@@ -207,7 +208,7 @@
                 exceededDomains = dataList.remove(dataList.size() - 1);
                 session.setAttribute(UserAdminUIConstants.ROLE_LIST_ASSIGNED_USER_CACHE_EXCEEDED,
                         exceededDomains);
-                if (dataList != null && dataList.size() > 0) {
+                if (CollectionUtils.isNotEmpty(dataList)) {
                     flaggedNameMap = new HashMap<Integer, PaginatedNamesBean>();
                     int max = pageNumber + cachePages;
                     for (int i = (pageNumber - cachePages); i < max; i++) {
@@ -238,7 +239,7 @@
 %>
 <script type="text/javascript">
     jQuery(document).ready(function () {
-        CARBON.showErrorDialog('<%=message%>', function () {
+        CARBON.showErrorDialog('<%=Encode.forJavaScript(Encode.forHtml(message))%>', function () {
             location.href = "role-mgt.jsp";
         });
     });
@@ -387,90 +388,89 @@
                     </tr>
                     </thead>
 
-                <tbody>
-                <%if (users != null && users.length > 0 && showUpdate) {%>
-                <tr>
-                    <td colspan="4">
+                    <tbody>
+                    <%if (ArrayUtils.isNotEmpty(users) && showUpdate) {%>
+                    <tr>
+                        <td colspan="4">
 
-                        <%
-                            String fromPage = "1";
-                            String toPage = String.valueOf(numberOfPages);
-                            if (pageNumber - cachePages >= 0) {
-                                fromPage = String.valueOf(pageNumber + 1 - cachePages);
-                            }
-                            if (pageNumber + cachePages <= numberOfPages - 1) {
-                                toPage = String.valueOf(pageNumber + 1 + cachePages);
-                            }
-                        %>
+                            <%
+                                String fromPage = "1";
+                                String toPage = String.valueOf(numberOfPages);
+                                if (pageNumber - cachePages >= 0) {
+                                    fromPage = String.valueOf(pageNumber + 1 - cachePages);
+                                }
+                                if (pageNumber + cachePages <= numberOfPages - 1) {
+                                    toPage = String.valueOf(pageNumber + 1 + cachePages);
+                                }
+                            %>
 
-                        <a href="#" onclick="doSelectAll('selectedUsers');"/>
-                        <fmt:message key="select.all.page"/> </a> |
-                        <a href="#" onclick="doUnSelectAll('selectedUsers');"/>
-                        <fmt:message key="unselect.all.page"/> </a>
-                        <%if (Integer.parseInt(fromPage) < Integer.parseInt(toPage)) {%>
-                        | <a href="#" onclick="doSelectAllRetrieved();"/>
-                        <fmt:message key="select.all.page.from"/> <%=fromPage%> <fmt:message
-                            key="select.all.page.to"/> <%=toPage%></a> |
-                        <a href="#" onclick="doUnSelectAllRetrieved();"/>
-                        <fmt:message key="unselect.all.page.from"/> <%=fromPage%> <fmt:message
-                            key="unselect.all.page.to"/> <%=toPage%></a>
-                        <%}%>
-                    </td>
-                </tr>
-                <% } %>
-                <tr>
-                    <td colspan="2">
-                        <%
-                            if (users != null) {
-                                for (FlaggedName user : users) {
-                                    if (user != null) {
-                                        String doCheck = "checked=\"checked\"";
-                                        String doEdit = "";
-                                        if (user.getItemName().equals(CarbonConstants.REGISTRY_ANONNYMOUS_USERNAME)) {
-                                            continue;
-                                        } else if (readOnlyRole && !user.getEditable()) {
-                                            doEdit = "disabled=\"disabled\"";
-                                        } else if (session.getAttribute("checkedUsersMap") != null &&
-                                                ((Map<String, Boolean>) session.getAttribute("checkedUsersMap")).get(user.getItemName()) != null &&
-                                                ((Map<String, Boolean>) session.getAttribute("checkedUsersMap")).get(user.getItemName()) == false) {
-                                            doCheck = "";
+                            <a href="#" onclick="doSelectAll('selectedUsers');"/>
+                            <fmt:message key="select.all.page"/> </a> |
+                            <a href="#" onclick="doUnSelectAll('selectedUsers');"/>
+                            <fmt:message key="unselect.all.page"/> </a>
+                            <%if (Integer.parseInt(fromPage) < Integer.parseInt(toPage)) {%>
+                            | <a href="#" onclick="doSelectAllRetrieved();"/>
+                            <fmt:message key="select.all.page.from"/> <%=fromPage%> <fmt:message
+                                key="select.all.page.to"/> <%=toPage%></a> |
+                            <a href="#" onclick="doUnSelectAllRetrieved();"/>
+                            <fmt:message key="unselect.all.page.from"/> <%=fromPage%> <fmt:message
+                                key="unselect.all.page.to"/> <%=toPage%></a>
+                            <%}%>
+                        </td>
+                    </tr>
+                    <% } %>
+                    <tr>
+                        <td colspan="2">
+                            <%
+                                if (users != null) {
+                                    for (FlaggedName user : users) {
+                                        if (user != null) {
+                                            String doCheck = "checked=\"checked\"";
+                                            String doEdit = "";
+                                            if (user.getItemName().equals(CarbonConstants.REGISTRY_ANONNYMOUS_USERNAME)) {
+                                                continue;
+                                            } else if (readOnlyRole && !user.getEditable()) {
+                                                doEdit = "disabled=\"disabled\"";
+                                            } else if (session.getAttribute("checkedUsersMap") != null &&
+                                                    Boolean.FALSE.equals(((Map<String, Boolean>) session.getAttribute("checkedUsersMap")).get(user.getItemName()))) {
+                                                doCheck = "";
+                                            }
+
+                                            String userName = user.getItemName();
+                                            String displayName = user.getItemDisplayName();
+                                            if (displayName == null || displayName.trim().length() == 0) {
+                                                displayName = userName;
+                                            }
+                            %>
+                            <% if (showUpdate) {%>
+                            <input type="checkbox" name="selectedUsers"
+                                   value="<%=Encode.forHtmlAttribute(userName)%>" <%=doCheck%> <%=doEdit%> />
+                            <% } %>
+                            <%
+                                if (userName.contains("[Pending User for Delete]")) {
+                            %>
+                            <%=Encode.forHtml(user.getItemDisplayName())%>
+                            <img src="images/workflow_pending_remove.gif"
+                                 title="Workflow-pending-user-delete"
+                                 alt="Workflow-pending-user-delete" height="15" width="15">
+                            <%
+                            } else {
+                            %>
+                            <%=Encode.forHtml(displayName)%>
+                            <%
+                                }
+                            %>
+                            <input type="hidden" name="shownUsers" value="<%=Encode.forHtmlAttribute(userName)%>"/><br/>
+                            <%
                                         }
-
-                                        String userName = user.getItemName();
-                                        String displayName = user.getItemDisplayName();
-                                        if (displayName == null || displayName.trim().length() == 0) {
-                                            displayName = userName;
-                                        }
-                        %>
-                        <% if (showUpdate) {%>
-                        <input type="checkbox" name="selectedUsers"
-                               value="<%=Encode.forHtmlAttribute(userName)%>" <%=doCheck%> <%=doEdit%> />
-                        <% } %>
-                        <%
-                            if (userName.contains("[Pending User for Delete]")) {
-                        %>
-                        <%=Encode.forHtml(user.getItemDisplayName())%>
-                        <img src="images/workflow_pending_remove.gif"
-                             title="Workflow-pending-user-delete"
-                             alt="Workflow-pending-user-delete" height="15" width="15">
-                        <%
-                        } else {
-                        %>
-                        <%=Encode.forHtml(displayName)%>
-                        <%
-                            }
-                        %>
-                        <input type="hidden" name="shownUsers" value="<%=Encode.forHtmlAttribute(userName)%>"/><br/>
-                        <%
                                     }
                                 }
-                            }
 
-                        %>
-                    </td>
-                </tr>
-                </tbody>
-            </table>
+                            %>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
                 <carbon:paginator pageNumber="<%=pageNumber%>"
                                   action="post"
                                   numberOfPages="<%=numberOfPages%>"
@@ -478,11 +478,11 @@
                                   page="view-users.jsp" pageNumberParameterName="pageNumber"
                                   parameters="<%="roleName="+Encode.forHtmlAttribute(roleName)%>"/>
                 <%
-                    if (users != null && users.length > 0 && exceededDomains != null) {
+                    if (ArrayUtils.isNotEmpty(users) && exceededDomains != null) {
                         if (exceededDomains.getItemName() != null || exceededDomains.getItemDisplayName() != null) {
                             String message = null;
-                            if (exceededDomains.getItemName() != null && exceededDomains.getItemName().equals("true")) {
-                                if (exceededDomains.getItemDisplayName() != null && !exceededDomains.getItemDisplayName().equals("")) {
+                            if (Boolean.parseBoolean(exceededDomains.getItemName())) {
+                                if (StringUtils.isNotBlank(exceededDomains.getItemDisplayName())) {
                                     String arg = "";
                                     String[] domains = exceededDomains.getItemDisplayName().split(":");
                                     for (int i = 0; i < domains.length; i++) {
@@ -501,7 +501,7 @@
                 <strong><%=Encode.forHtml(message)%>
                 </strong>
                 <%
-                } else if (exceededDomains.getItemDisplayName() != null && !exceededDomains.getItemDisplayName().equals("")) {
+                } else if (StringUtils.isNotBlank(exceededDomains.getItemDisplayName())) {
                     String[] domains = exceededDomains.getItemDisplayName().split(":");
                     String arg = "";
                     for (int i = 0; i < domains.length; i++) {

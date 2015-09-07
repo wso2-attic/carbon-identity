@@ -101,8 +101,9 @@ public class POXSecurityHandler implements Handler {
 
         //this handler only intercepts
         //Adding a check for http since UT should work with http as well.
-        if (!(msgCtx.isDoingREST() || isSOAPWithoutSecHeader(msgCtx)) ||
-            !("https".equals(msgCtx.getIncomingTransportName()) || "http".equals(msgCtx.getIncomingTransportName()))) {
+        if (msgCtx.getIncomingTransportName() != null && (!(msgCtx.isDoingREST() || isSOAPWithoutSecHeader(msgCtx)) ||
+                !("https".equals(msgCtx.getIncomingTransportName()) ||
+                        "http".equals(msgCtx.getIncomingTransportName())))) {
             return InvocationResponse.CONTINUE;
         }
 
@@ -192,12 +193,7 @@ public class POXSecurityHandler implements Handler {
          * instead unauthorized header
          */
         if (!msgCtx.isDoingREST() && soapWithoutSecHeader && basicAuthHeader == null) {
-            try {
-                setAuthHeaders(msgCtx);
-            } catch (IOException e) {
-                log.error("Error while setting auth headers", e);
-            }
-            return InvocationResponse.ABORT;
+            return InvocationResponse.CONTINUE;
         }
 
         //return if incoming message is soap and has soap security headers
@@ -303,6 +299,14 @@ public class POXSecurityHandler implements Handler {
 
         HttpServletResponse response = (HttpServletResponse)
                 msgCtx.getProperty(HTTPConstants.MC_HTTP_SERVLETRESPONSE);
+        // TODO : verify this fix. This is to handle soap fault from UT scenario
+        if(msgCtx.isFault() && response == null){
+            MessageContext originalContext = (MessageContext) msgCtx.getProperty(MessageContext.IN_MESSAGE_CONTEXT);
+            if(originalContext != null){
+                response = (HttpServletResponse)
+                        originalContext.getProperty(HTTPConstants.MC_HTTP_SERVLETRESPONSE);
+            }
+        }
         if (response != null) {
             response.setContentLength(0);
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);

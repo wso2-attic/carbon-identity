@@ -675,19 +675,23 @@ public class SecurityConfigAdmin {
         if ((trustedStores != null || privateStore != null) && isTrusEnabled) {
             trustElement = factory.createOMElement(SecurityConstants.TRUST, secElement);
             if (trustedStores != null && trustedStores.length > 0) {
-                OMElement trustStorePropertyElement = factory.createOMElement(SecurityConstants.PROPERTY_LABEL, secElement);
+                OMElement trustStorePropertyElement = factory.createOMElement(SecurityConstants.PROPERTY_LABEL,
+                        secElement);
                 OMAttribute propertyNameAttribute = factory.createOMAttribute(SecurityConstants.NAME_LABEL, null,
                         ServerCrypto.PROP_ID_TRUST_STORES);
                 trustStorePropertyElement.addAttribute(propertyNameAttribute);
-                OMText storePropertyValue = factory.createOMText(trustStorePropertyElement, getArrayAsString(trustedStores));
+                OMText storePropertyValue = factory.createOMText(trustStorePropertyElement,
+                        getArrayAsString(trustedStores));
                 trustStorePropertyElement.addChild(storePropertyValue);
                 trustElement.addChild(trustStorePropertyElement);
                 carbonSecElement.addChild(trustElement);
 
             }
             if (privateStore != null) {
-                OMElement privateStorePropertyElement = factory.createOMElement(SecurityConstants.PROPERTY_LABEL, secElement);
-                OMAttribute propertyNameAttribute = factory.createOMAttribute(SecurityConstants.NAME_LABEL, null, ServerCrypto.PROP_ID_PRIVATE_STORE);
+                OMElement privateStorePropertyElement = factory.createOMElement(SecurityConstants.PROPERTY_LABEL,
+                        secElement);
+                OMAttribute propertyNameAttribute = factory.createOMAttribute(SecurityConstants.NAME_LABEL, null,
+                        ServerCrypto.PROP_ID_PRIVATE_STORE);
                 privateStorePropertyElement.addAttribute(propertyNameAttribute);
                 OMText storePropertyValue = factory.createOMText(privateStorePropertyElement, privateStore);
 
@@ -716,7 +720,8 @@ public class SecurityConfigAdmin {
         if (userGroups != null && userGroups.length > 0) {
             OMElement authorizationElement = factory.createOMElement(SecurityConstants.AUTHORIZATION, secElement);
             OMElement propertyElement = factory.createOMElement(SecurityConstants.PROPERTY_LABEL, secElement);
-            OMAttribute propertyNameAttribute = factory.createOMAttribute(SecurityConstants.NAME_LABEL, null, "org.wso2.carbon.security.allowedroles");
+            OMAttribute propertyNameAttribute = factory.createOMAttribute(SecurityConstants.NAME_LABEL, null,
+                    "org.wso2.carbon.security.allowedroles");
             propertyElement.addAttribute(propertyNameAttribute);
             OMText propertyValue = factory.createOMText(propertyElement, getArrayAsString(userGroups));
 
@@ -729,8 +734,10 @@ public class SecurityConfigAdmin {
         if (kerberosConfigData != null) {
 
             if (StringUtils.isNotEmpty(kerberosConfigData.getServicePrincipleName())) {
-                OMElement principalNamePropertyElement = factory.createOMElement(SecurityConstants.PROPERTY_LABEL, secElement);
-                OMAttribute propertyNameAttribute = factory.createOMAttribute(SecurityConstants.NAME_LABEL, null, KerberosConfig.SERVICE_PRINCIPLE_NAME);
+                OMElement principalNamePropertyElement = factory.createOMElement(SecurityConstants.PROPERTY_LABEL,
+                        secElement);
+                OMAttribute propertyNameAttribute = factory.createOMAttribute(SecurityConstants.NAME_LABEL, null,
+                        KerberosConfig.SERVICE_PRINCIPLE_NAME);
                 principalNamePropertyElement.addAttribute(propertyNameAttribute);
                 OMText principalNameValue = factory.createOMText(principalNamePropertyElement,
                         kerberosConfigData.getServicePrincipleName());
@@ -739,9 +746,12 @@ public class SecurityConfigAdmin {
             }
 
             if (StringUtils.isNotEmpty(kerberosConfigData.getServicePrinciplePassword())) {
-                OMElement principalPasswordPropertyElement = factory.createOMElement(SecurityConstants.PROPERTY_LABEL, secElement);
-                OMAttribute propertyNameAttribute = factory.createOMAttribute(SecurityConstants.NAME_LABEL, null, KerberosConfig.SERVICE_PRINCIPLE_PASSWORD);
-                OMAttribute propertyEncryptedAttribute = factory.createOMAttribute(SecurityConstants.ENCRYPTED, null, "true");
+                OMElement principalPasswordPropertyElement = factory.createOMElement(SecurityConstants
+                        .PROPERTY_LABEL, secElement);
+                OMAttribute propertyNameAttribute = factory.createOMAttribute(SecurityConstants.NAME_LABEL, null,
+                        KerberosConfig.SERVICE_PRINCIPLE_PASSWORD);
+                OMAttribute propertyEncryptedAttribute = factory.createOMAttribute(SecurityConstants.ENCRYPTED, null,
+                        "true");
                 principalPasswordPropertyElement.addAttribute(propertyNameAttribute);
                 principalPasswordPropertyElement.addAttribute(propertyEncryptedAttribute);
                 OMText principalPasswordValue = null;
@@ -926,7 +936,8 @@ public class SecurityConfigAdmin {
 
                 //this will check for TokenStoreClassName property under Security in carbon.xml
                 //if it is not found, default token store class will be set
-                String tokenStoreClassName = ServerConfiguration.getInstance().getFirstProperty("Security.TokenStoreClassName");
+                String tokenStoreClassName = ServerConfiguration.getInstance().
+                        getFirstProperty("Security.TokenStoreClassName");
                 if (tokenStoreClassName == null) {
                     rampartConfig.setTokenStoreClass(SecurityTokenStore.class.getName());
                 } else {
@@ -1282,7 +1293,8 @@ public class SecurityConfigAdmin {
             Iterator iterator = parentElement.getChildElements();
             while (iterator.hasNext()) {
                 OMElement element = (OMElement) iterator.next();
-                String nameAttribute = element.getAttribute(new QName(SecurityConstants.NAME_LABEL)).getAttributeValue();
+                String nameAttribute = element.getAttribute(new QName(SecurityConstants.NAME_LABEL)).
+                        getAttributeValue();
                 String value = element.getText();
                 properties.put(nameAttribute, value);
             }
