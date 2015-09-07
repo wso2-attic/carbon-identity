@@ -238,17 +238,17 @@
                     </td>
                     <td style="width: 45%;margin-top:10px;">
                         <a title="<fmt:message key='edit.userstore'/>"
-                           onclick="edit('<%=Encode.forJavaScript(Encode.forHtml(domainId))%>','<%=Encode.forJavaScript(Encode.forHtml(className))%>');"
+                           onclick="edit('<%=Encode.forJavaScriptAttribute(Encode.forUriComponent(domainId))%>','<%=Encode.forJavaScriptAttribute(Encode.forUriComponent(className))%>');"
                            href="#" style="background-image: url(images/edit.gif);" class="icon-link">
                             <fmt:message key='edit.userstore'/></a>
                         <% if (!isDisabled) { %>
                         <a title="<fmt:message key='disable.userstore'/>"
-                           onclick="disable('<%=Encode.forJavaScript(Encode.forHtml(domainId))%>');return false;"
+                           onclick="disable('<%=Encode.forJavaScriptAttribute(Encode.forUriComponent(domainId))%>');return false;"
                            href="#" style="background-image: url(images/disable.gif);" class="icon-link">
                             <fmt:message key='disable.userstore'/></a>
                         <% } else { %>
                         <a title="<fmt:message key='enable.userstore'/>"
-                           onclick="enable('<%=Encode.forJavaScript(Encode.forHtml(domainId))%>');return false;"
+                           onclick="enable('<%=Encode.forJavaScriptAttribute(Encode.forUriComponent(domainId))%>');return false;"
                            href="#" style="background-image: url(images/enable.gif);" class="icon-link">
                             <fmt:message key='enable.userstore'/></a>
                         <%

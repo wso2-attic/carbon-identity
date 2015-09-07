@@ -352,7 +352,7 @@
                     <%
                         for (String classApply : classApplies) {
                             if (selectedClassApplied != null && classApply.equals(selectedClassApplied)) {
-                                classApply = Encode.forHtmlAttribute(classApply);
+                                classApply = Encode.forHtml(classApply);
                     %>
                     <option value="<%=classApply%>" selected="selected"><%=classApply%>
                     </option>
@@ -394,7 +394,7 @@
             <%
                 if (description != null && description.trim().length() > 0) {
             %>
-            <td><textarea name="description" id="description" class="text-box-big"><%=Encode.forHtml(description)%>
+            <td><textarea name="description" id="description" class="text-box-big"><%=Encode.forHtmlContent(description)%>
             </textarea>
             </td>
             <%
