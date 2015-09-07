@@ -65,8 +65,6 @@ public class SessionDataStore {
             "INSERT INTO IDN_AUTH_SESSION_STORE(SESSION_ID, SESSION_TYPE, OPERATION, SESSION_OBJECT, TIME_CREATED) VALUES (?,?,?,?,?)";
     private static final String SQL_INSERT_DELETE_OPERATION =
             "INSERT INTO IDN_AUTH_SESSION_STORE(SESSION_ID, SESSION_TYPE,OPERATION, TIME_CREATED) VALUES (?,?,?,?)";
-    private static final String SQL_DELETE_STORE_OPERATIONS_ON_DELETION =
-            "DELETE FROM IDN_AUTH_SESSION_STORE WHERE SESSION_ID = ? AND SESSION_TYPE=? AND OPERATION=?";
     private static final String SQL_DELETE_STORE_OPERATIONS_TASK =
             "DELETE FROM IDN_AUTH_SESSION_STORE WHERE OPERATION = '"+OPERATION_STORE+"' AND SESSION_ID in (" +
             "SELECT SESSION_ID  FROM IDN_AUTH_SESSION_STORE WHERE OPERATION = '"+OPERATION_DELETE+"' AND TIME_CREATED < ?)";
@@ -86,7 +84,6 @@ public class SessionDataStore {
     private boolean enablePersist;
     private String sqlInsertSTORE;
     private String sqlInsertDELETE;
-    private String sqlDeleteSTOREOnDELETE;
     private String sqlDeleteSTORETask;
     private String sqlDeleteDELETETask;
     private String sqlSelect;
@@ -146,11 +143,6 @@ public class SessionDataStore {
                 sqlInsertDELETE = insertDELETESQL;
             } else {
                 sqlInsertDELETE = SQL_INSERT_DELETE_OPERATION;
-            }
-            if (!StringUtils.isBlank(deleteSTOREOnDELETESQL)) {
-                sqlDeleteSTOREOnDELETE = deleteSTOREOnDELETESQL;
-            } else {
-                sqlDeleteSTOREOnDELETE = SQL_DELETE_STORE_OPERATIONS_ON_DELETION;
             }
             if (!StringUtils.isBlank(deleteSTORETaskSQL)) {
                 sqlDeleteSTORETask = deleteSTORETaskSQL;
@@ -237,9 +229,11 @@ public class SessionDataStore {
             preparedStatement.setString(1, key);
             preparedStatement.setString(2, type);
             resultSet = preparedStatement.executeQuery();
-            if ((resultSet.next()) &&
-                (OPERATION_STORE.equals(resultSet.getString(1)))) {
-                return new SessionContextDO(key, type, getBlobObject(resultSet.getBinaryStream(2)), resultSet.getTimestamp(3));
+            if(resultSet.next()) {
+                String operation = resultSet.getString(1);
+                if ((OPERATION_STORE.equals(operation))) {
+                    return new SessionContextDO(key, type, getBlobObject(resultSet.getBinaryStream(2)), resultSet.getTimestamp(3));
+                }
             }
         } catch (SQLException | IdentityException | ClassNotFoundException | IOException | IdentityApplicationManagementException e) {
             log.error("Error while retrieving session data", e);
@@ -329,8 +323,24 @@ public class SessionDataStore {
         if (!enablePersist) {
             return;
         }
-        storeDELETEOperations(key, type, timestamp);
-        deleteSTOREOperations(key, type);
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        try {
+            connection = jdbcPersistenceManager.getDBConnection();
+            preparedStatement = connection.prepareStatement(sqlInsertDELETE);
+            preparedStatement.setString(1, key);
+            preparedStatement.setString(2, type);
+            preparedStatement.setString(3, OPERATION_DELETE);
+            preparedStatement.setTimestamp(4, timestamp);
+            preparedStatement.executeUpdate();
+            if (!connection.getAutoCommit()) {
+                connection.commit();
+            }
+        } catch (Exception e) {
+            log.error("Error while storing DELETE operation session data", e);
+        } finally {
+            IdentityDatabaseUtil.closeAllConnections(connection, null, preparedStatement);
+        }
     }
 
     private void setBlobObject(PreparedStatement prepStmt, Object value, int index)
@@ -366,48 +376,6 @@ public class SessionDataStore {
             }
         }
         return null;
-    }
-
-    private void storeDELETEOperations(String key, String type, Timestamp timestamp) {
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
-        try {
-            connection = jdbcPersistenceManager.getDBConnection();
-            preparedStatement = connection.prepareStatement(sqlInsertDELETE);
-            preparedStatement.setString(1, key);
-            preparedStatement.setString(2, type);
-            preparedStatement.setString(3, OPERATION_DELETE);
-            preparedStatement.setTimestamp(4, timestamp);
-            preparedStatement.executeUpdate();
-            if (!connection.getAutoCommit()) {
-                connection.commit();
-            }
-        } catch (Exception e) {
-            log.error("Error while storing DELETE operation session data", e);
-        } finally {
-            IdentityDatabaseUtil.closeAllConnections(connection, null, preparedStatement);
-        }
-    }
-
-    private void deleteSTOREOperations(String key, String type) {
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
-        try {
-            connection = jdbcPersistenceManager.getDBConnection();
-            preparedStatement = connection.prepareStatement(sqlDeleteSTOREOnDELETE);
-            preparedStatement.setString(1, key);
-            preparedStatement.setString(2, type);
-            preparedStatement.setString(3, OPERATION_STORE);
-            preparedStatement.executeUpdate();
-            if (!connection.getAutoCommit()) {
-                connection.commit();
-            }
-        } catch (Exception e) {
-            log.error("Error while deleting STORE operations on DELETE operation data", e);
-        } finally {
-            IdentityDatabaseUtil.closeAllConnections(connection, null, preparedStatement);
-        }
-
     }
 
     private void deleteSTOREOperationsTask(Timestamp timestamp) {

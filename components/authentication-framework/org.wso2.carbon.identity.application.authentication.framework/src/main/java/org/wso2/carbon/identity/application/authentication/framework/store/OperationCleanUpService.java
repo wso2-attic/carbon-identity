@@ -37,7 +37,9 @@ public final class OperationCleanUpService {
     private final ScheduledExecutorService scheduler;
     private final long initialDelay;
     private final long delayBetweenRuns;
-    private static final int defaultTimeSkew = 15;
+
+    // Time skew in minute
+    private static final int defaultTimeSkew = 60;
 
     /**
      * @param initialDelay
@@ -63,6 +65,7 @@ public final class OperationCleanUpService {
             log.debug("Start running the Session Operation Data cleanup task.");
 
             Date date = new Date();
+            // Convert defaultTimeSkew (minutes) to milliseconds
             Timestamp timestamp = new Timestamp((date.getTime() - (defaultTimeSkew * 60 * 1000)));
             SessionDataStore.getInstance().removeExpiredOperationData(timestamp);
             log.debug("Stop running the Operation Data cleanup task.");
