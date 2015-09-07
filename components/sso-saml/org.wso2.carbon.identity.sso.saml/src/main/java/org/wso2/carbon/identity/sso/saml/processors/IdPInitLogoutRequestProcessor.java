@@ -134,7 +134,7 @@ public class IdPInitLogoutRequestProcessor {
                     LogoutRequest logoutReq = logoutMsgBuilder.buildLogoutRequest(
                             sessionInfoData.getSubject(value.getIssuer()), sessionIndex,
                             SAMLSSOConstants.SingleLogoutCodes.LOGOUT_USER, logoutReqDTO.getAssertionConsumerURL(),
-                            value.getNameIDFormat(), value.getTenantDomain());
+                            value.getNameIDFormat(), value.getTenantDomain(), value.getDefaultSigningAlgorithm());
 
                     String logoutReqString = SAMLSSOUtil.encode(SAMLSSOUtil.marshall(logoutReq));
                     logoutReqDTO.setLogoutResponse(logoutReqString);

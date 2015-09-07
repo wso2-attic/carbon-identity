@@ -18,6 +18,9 @@ package org.wso2.carbon.identity.core.model;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
+import org.wso2.carbon.identity.base.IdentityConstants;
+import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 
 import java.io.Serializable;
 import java.util.Arrays;
@@ -156,6 +159,15 @@ public class SAMLSSOServiceProviderDO implements Serializable {
         this.attributeConsumingServiceIndex = attributeConsumingServiceIndex;
     }
     public String getDefaultSigningAlgorithm() {
+        if (defaultSigningAlgorithm == null || defaultSigningAlgorithm.isEmpty()) {
+            if (IdentityUtil.getProperty(IdentityConstants.ServerConfig.SSO_DEFAULT_SIGNING_ALGORITHM) != null &&
+                    !"".equals(IdentityUtil.getProperty(IdentityConstants.ServerConfig.SSO_DEFAULT_SIGNING_ALGORITHM)
+                            .trim())) {
+                return IdentityUtil.getProperty(IdentityConstants.ServerConfig.SSO_DEFAULT_SIGNING_ALGORITHM).trim();
+            } else {
+                return IdentityCoreConstants.XML_SIGNATURE_ALGORITHM_URI_RSA_SHA1;
+            }
+        }
         return defaultSigningAlgorithm;
     }
 

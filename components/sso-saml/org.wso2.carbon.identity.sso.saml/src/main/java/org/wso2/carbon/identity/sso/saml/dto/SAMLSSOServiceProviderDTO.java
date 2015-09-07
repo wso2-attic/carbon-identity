@@ -18,6 +18,7 @@
 package org.wso2.carbon.identity.sso.saml.dto;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.wso2.carbon.identity.sso.saml.util.SAMLSSOUtil;
 
 import java.io.Serializable;
 
@@ -50,6 +51,9 @@ public class SAMLSSOServiceProviderDTO implements Serializable {
     private String defaultSigningAlgorithm;
 
     public String getDefaultSigningAlgorithm() {
+        if(defaultSigningAlgorithm==null || defaultSigningAlgorithm.isEmpty()) {
+           return SAMLSSOUtil.getDefaultSigningAlgorithmFromIdentityConfig();
+        }
         return defaultSigningAlgorithm;
     }
 

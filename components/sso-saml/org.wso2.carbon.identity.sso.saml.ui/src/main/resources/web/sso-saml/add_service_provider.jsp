@@ -88,10 +88,11 @@ function doValidation() {
     }
 
     var defaultSigningAlgorithm = $('#defaultSigningAlgorithm').val();
-    if (defaultSigningAlgorithm == null || defaultSigningAlgorithm.trim().length() === 0 ||
-            defaultSigningAlgorithm.trim().equals('---Select---')) {
-        CARBON.showWarningDialog("<fmt:message key='sp.enter.default.signingAlgorithm'/>", null, null)
+    if (defaultSigningAlgorithm == null || defaultSigningAlgorithm=='') {
+        CARBON.showWarningDialog("<fmt:message key='sp.enter.default.signingAlgorithm'/>", null, null);
+        return false;
     }
+
 
     var fld3 = document.getElementsByName("logoutURL")[0];
     var value = fld3.value;
