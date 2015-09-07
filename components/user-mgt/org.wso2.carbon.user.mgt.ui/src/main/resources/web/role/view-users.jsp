@@ -432,7 +432,7 @@
                                             } else if (readOnlyRole && !user.getEditable()) {
                                                 doEdit = "disabled=\"disabled\"";
                                             } else if (session.getAttribute("checkedUsersMap") != null &&
-                                                    (!((Map<String, Boolean>) session.getAttribute("checkedUsersMap")).get(user.getItemName()))) {
+                                                    Boolean.FALSE.equals(((Map<String, Boolean>) session.getAttribute("checkedUsersMap")).get(user.getItemName()))) {
                                                 doCheck = "";
                                             }
 
