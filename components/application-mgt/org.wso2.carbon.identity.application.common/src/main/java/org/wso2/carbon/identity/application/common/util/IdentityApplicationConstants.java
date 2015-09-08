@@ -91,6 +91,17 @@ public class IdentityApplicationConstants {
             public static final String IS_AUTHN_RESP_SIGNED = "IsAuthnRespSigned";
             public static final String IS_USER_ID_IN_CLAIMS = "IsUserIdInClaims";
             public static final String REQUEST_METHOD = "RequestMethod";
+			public static final String SIGNATURE_ALGORITHM = "SignatureAlgorithm";
+            public static final String SIGNATURE_ALGORITHM_POST = "SignatureAlgorithmPost";
+            public static final String DIGEST_ALGORITHM = "DigestAlgorithm";
+            public static final String INCLUDE_NAME_ID_POLICY = "IncludeNameIDPolicy";
+            public static final String INCLUDE_AUTHN_CONTEXT = "IncludeAuthnContext";
+            public static final String INCLUDE_CERT = "IncludeCert";
+            public static final String INCLUDE_PROTOCOL_BINDING = "IncludeProtocolBinding";
+            public static final String FORCE_AUTHENTICATION = "ForceAuthentication";
+            public static final String AUTHENTICATION_CONTEXT_CLASS = "AuthnContextClassRef";
+            public static final String AUTHENTICATION_CONTEXT_COMPARISON_LEVEL = "AuthnContextComparisonLevel";
+            public static final String ATTRIBUTE_CONSUMING_SERVICE_INDEX = "AttributeConsumingServiceIndex";
 
             private SAML2SSO(){
             }
@@ -175,20 +186,87 @@ public class IdentityApplicationConstants {
         private OAuth2(){
         }
     }
+
+	public static class SAML2 {
+
+        public static class AuthnContextClass {
+            public static final String IP = "Internet Protocol";
+            public static final String IP_PASSWORD = "Internet Protocol Password";
+            public static final String KERBEROS = "Kerberos";
+            public static final String MOBILE_ONE_FACTOR_UNREGISTERED = "Mobile One Factor Unregistered";
+            public static final String MOBILE_TWO_FACTOR_UNREGISTERED = "Mobile Two Factor Unregistered";
+            public static final String MOBILE_ONE_FACTOR_CONTRACT = "Mobile One Factor Contract";
+            public static final String MOBILE_TWO_FACTOR_CONTRACT = "Mobile Two Factor Contract";
+            public static final String PASSWORD = "Password";
+            public static final String PASSWORD_PROTECTED_TRANSPORT = "Password Protected Transport";
+            public static final String PREVIOUS_SESSION = "Previous Session";
+            public static final String X509 = "Public Key - X.509";
+            public static final String PGP = "Public Key - PGP";
+            public static final String SPKI = "Public Key - SPKI";
+            public static final String XML_DSIG = "Public Key - XML Digital Signature";
+            public static final String SMARTCARD = "Smartcard";
+            public static final String SMARTCARD_PKI = "Smartcard PKI";
+            public static final String SOFTWARE_PKI = "Software PKI";
+            public static final String TELEPHONY = "Telephony";
+            public static final String NOMAD_TELEPHONY = "Telephony (Nomadic)";
+            public static final String PERSONAL_TELEPHONY = "Telephony (Personalized)";
+            public static final String AUTHENTICATED_TELEPHONY = "Telephony (Authenticated)";
+            public static final String SECURE_REMOTE_PASSWORD = "Secure Remote Password";
+            public static final String TLS_CLIENT = "SSL/TLS Certificate-Based Client Authentication";
+            public static final String TIME_SYNC_TOKEN = "Time Sync Token";
+            public static final String UNSPECIFIED = "Unspecified";
+        }
+
+        public static class AuthnContextClassURI {
+            public static final String IP = "urn:oasis:names:tc:SAML:2.0:ac:classes:InternetProtocol";
+            public static final String IP_PASSWORD = "urn:oasis:names:tc:SAML:2.0:ac:classes:InternetProtocolPassword";
+            public static final String KERBEROS = "urn:oasis:names:tc:SAML:2.0:ac:classes:Kerberos";
+            public static final String MOBILE_ONE_FACTOR_UNREGISTERED = "urn:oasis:names:tc:SAML:2.0:ac:classes:MobileOneFactorUnregistered";
+            public static final String MOBILE_TWO_FACTOR_UNREGISTERED = "urn:oasis:names:tc:SAML:2.0:ac:classes:MobileTwoFactorUnregistered";
+            public static final String MOBILE_ONE_FACTOR_CONTRACT = "urn:oasis:names:tc:SAML:2.0:ac:classes:MobileOneFactorContract";
+            public static final String MOBILE_TWO_FACTOR_CONTRACT = "urn:oasis:names:tc:SAML:2.0:ac:classes:MobileTwoFactorContract";
+            public static final String PASSWORD = "urn:oasis:names:tc:SAML:2.0:ac:classes:Password";
+            public static final String PASSWORD_PROTECTED_TRANSPORT = "urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport";
+            public static final String PREVIOUS_SESSION = "urn:oasis:names:tc:SAML:2.0:ac:classes:PreviousSession";
+            public static final String X509 = "urn:oasis:names:tc:SAML:2.0:ac:classes:X509";
+            public static final String PGP = "urn:oasis:names:tc:SAML:2.0:ac:classes:PGP";
+            public static final String SPKI = "urn:oasis:names:tc:SAML:2.0:ac:classes:SPKI";
+            public static final String XML_DSIG = "urn:oasis:names:tc:SAML:2.0:ac:classes:XMLDSig";
+            public static final String SMARTCARD = "urn:oasis:names:tc:SAML:2.0:ac:classes:Smartcard";
+            public static final String SMARTCARD_PKI = "urn:oasis:names:tc:SAML:2.0:ac:classes:SmartcardPKI";
+            public static final String SOFTWARE_PKI = "urn:oasis:names:tc:SAML:2.0:ac:classes:SoftwarePKI";
+            public static final String TELEPHONY = "urn:oasis:names:tc:SAML:2.0:ac:classes:Telephony";
+            public static final String NOMAD_TELEPHONY = "urn:oasis:names:tc:SAML:2.0:ac:classes:NomadTelephony";
+            public static final String PERSONAL_TELEPHONY = "urn:oasis:names:tc:SAML:2.0:ac:classes:PersonalTelephony";
+            public static final String AUTHENTICATED_TELEPHONY = "urn:oasis:names:tc:SAML:2.0:ac:classes:AuthenticatedTelephony";
+            public static final String SECURE_REMOTE_PASSWORD = "urn:oasis:names:tc:SAML:2.0:ac:classes:SecureRemotePassword";
+            public static final String TLS_CLIENT = "urn:oasis:names:tc:SAML:2.0:ac:classes:TLSClient";
+            public static final String TIME_SYNC_TOKEN = "urn:oasis:names:tc:SAML:2.0:ac:classes:TimeSyncToken";
+            public static final String UNSPECIFIED = "urn:oasis:names:tc:SAML:2.0:ac:classes:unspecified";
+        }
+
+        public static class AuthnContextComparison {
+            public static final String EXACT = "Exact";
+            public static final String MINIMUM = "Minimum";
+            public static final String MAXIMUM = "Maximum";
+            public static final String BETTER = "Better";
+        }
+    }
+
     public static class XML {
 
         public static class SignatureAlgorithm {
-            public static final String DSA_SHA1 = "DSAwithSHA1";
-            public static final String ECDSA_SHA1 = "ECDSAwithSHA1";
-            public static final String ECDSA_SHA256 = "ECDSAwithSHA256";
-            public static final String ECDSA_SHA384 = "ECDSAwithSHA384";
-            public static final String ECDSA_SHA512 = "ECDSAwithSHA512";
-            public static final String RSA_MD5 = "RSAwithMD5";
-            public static final String RSA_RIPEMD160 = "RSAwithRIPEMD160";
-            public static final String RSA_SHA1 = "RSAwithSHA1";
-            public static final String RSA_SHA256 = "RSAwithSHA256";
-            public static final String RSA_SHA384 = "RSAwithSHA384";
-            public static final String RSA_SHA512 = "RSAwithSHA512";
+            public static final String DSA_SHA1 = "DSA with SHA1";
+            public static final String ECDSA_SHA1 = "ECDSA with SHA1";
+            public static final String ECDSA_SHA256 = "ECDSA with SHA256";
+            public static final String ECDSA_SHA384 = "ECDSA with SHA384";
+            public static final String ECDSA_SHA512 = "ECDSA with SHA512";
+            public static final String RSA_MD5 = "RSA with MD5";
+            public static final String RSA_RIPEMD160 = "RSA with RIPEMD160";
+            public static final String RSA_SHA1 = "RSA with SHA1";
+            public static final String RSA_SHA256 = "RSA with SHA256";
+            public static final String RSA_SHA384 = "RSA with SHA384";
+            public static final String RSA_SHA512 = "RSA with SHA512";
         }
 
         public static class SignatureAlgorithmURI {
@@ -203,6 +281,24 @@ public class IdentityApplicationConstants {
             public static final String RSA_SHA256 = "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256";
             public static final String RSA_SHA384 = "http://www.w3.org/2001/04/xmldsig-more#rsa-sha384";
             public static final String RSA_SHA512 = "http://www.w3.org/2001/04/xmldsig-more#rsa-sha512";
+        }
+
+        public static class DigestAlgorithm {
+            public static final String MD5 = "MD5";
+            public static final String RIPEMD160 = "RIPEMD160";
+            public static final String SHA1 = "SHA1";
+            public static final String SHA256 = "SHA256";
+            public static final String SHA384 = "SHA384";
+            public static final String SHA512 = "SHA512";
+        }
+
+        public static class DigestAlgorithmURI {
+            public static final String MD5 = "http://www.w3.org/2001/04/xmldsig-more#md5";
+            public static final String RIPEMD160 = "http://www.w3.org/2001/04/xmlenc#ripemd160";
+            public static final String SHA1 = "http://www.w3.org/2000/09/xmldsig#sha1";
+            public static final String SHA256 = "http://www.w3.org/2001/04/xmlenc#sha256";
+            public static final String SHA384 = "http://www.w3.org/2001/04/xmldsig-more#sha384";
+            public static final String SHA512 = "http://www.w3.org/2001/04/xmlenc#sha512";
         }
     }
 }
