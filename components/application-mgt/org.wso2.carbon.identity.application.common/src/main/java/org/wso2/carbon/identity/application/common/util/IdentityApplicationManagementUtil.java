@@ -78,12 +78,12 @@ public class IdentityApplicationManagementUtil {
 
     private static final Log log = LogFactory.getLog(IdentityApplicationManagementUtil.class);
     private static ThreadLocal<ThreadLocalProvisioningServiceProvider> threadLocalProvisioningServiceProvider = new ThreadLocal<ThreadLocalProvisioningServiceProvider>();
-
+    
     private static final Map<String, String> xmlSignatureAlgorithms;
     private static final Map<String, String> xmlDigestAlgorithms;
     private static final Map<String, String> samlAuthnContextClasses;
     private static final List<String> samlAuthnContextComparisonLevels;
-
+    
     static {
         //initialize xmlSignatureAlgorithms
         Map<String, String> xmlSignatureAlgorithmMap = new LinkedHashMap<String, String>();
@@ -118,7 +118,7 @@ public class IdentityApplicationManagementUtil {
                 IdentityApplicationConstants.XML.SignatureAlgorithm.RSA_SHA512,
                 IdentityApplicationConstants.XML.SignatureAlgorithmURI.RSA_SHA512);
         xmlSignatureAlgorithms = Collections.unmodifiableMap(xmlSignatureAlgorithmMap);
-
+        
         //initialize xmlDigestAlgorithms
         Map<String, String> xmlDigestAlgorithmMap = new LinkedHashMap<String, String>();
         xmlDigestAlgorithmMap.put(IdentityApplicationConstants.XML.DigestAlgorithm.MD5,
@@ -134,7 +134,7 @@ public class IdentityApplicationManagementUtil {
         xmlDigestAlgorithmMap.put(IdentityApplicationConstants.XML.DigestAlgorithm.SHA512,
                 IdentityApplicationConstants.XML.DigestAlgorithmURI.SHA512);
         xmlDigestAlgorithms = Collections.unmodifiableMap(xmlDigestAlgorithmMap);
-
+        
         //initialize samlAuthnContextClasses
         Map<String, String> samlAuthnContextClassMap = new LinkedHashMap<String, String>();
         samlAuthnContextClassMap.put(IdentityApplicationConstants.SAML2.AuthnContextClass.IP,
@@ -209,7 +209,7 @@ public class IdentityApplicationManagementUtil {
                 IdentityApplicationConstants.SAML2.AuthnContextClass.UNSPECIFIED,
                 IdentityApplicationConstants.SAML2.AuthnContextClassURI.UNSPECIFIED);
         samlAuthnContextClasses = Collections.unmodifiableMap(samlAuthnContextClassMap);
-
+        
         ////initialize samlAuthnContextComparisonLevels map
         List<String> samlAuthnContextComparisonLevelList = new ArrayList<String>();
         samlAuthnContextComparisonLevelList.add(IdentityApplicationConstants.SAML2.AuthnContextComparison.EXACT);
@@ -1135,31 +1135,31 @@ public class IdentityApplicationManagementUtil {
         }
         return result;
     }
-
+    
     public static Map<String, String> getXMLSignatureAlgorithms() {
         return xmlSignatureAlgorithms;
     }
-
+    
     public static Map<String, String> getXMLDigestAlgorithms() {
         return xmlDigestAlgorithms;
     }
-
+    
     public static Map<String, String> getSAMLAuthnContextClasses() {
         return samlAuthnContextClasses;
     }
-
+    
     public static List<String> getSAMLAuthnContextComparisonLevels() {
         return samlAuthnContextComparisonLevels;
     }
-
+    
     public static Set<String> getXMLSignatureAlgorithmNames() {
         return xmlSignatureAlgorithms.keySet();
     }
-
+    
     public static Set<String> getXMLDigestAlgorithmNames() {
         return xmlDigestAlgorithms.keySet();
     }
-
+    
     public static Set<String> getSAMLAuthnContextClassNames() {
         return samlAuthnContextClasses.keySet();
     }

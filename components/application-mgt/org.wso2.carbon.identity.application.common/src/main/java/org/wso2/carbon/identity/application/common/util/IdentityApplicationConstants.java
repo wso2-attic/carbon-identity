@@ -188,7 +188,7 @@ public class IdentityApplicationConstants {
     }
 
 	public static class SAML2 {
-
+        
         public static class AuthnContextClass {
             public static final String IP = "Internet Protocol";
             public static final String IP_PASSWORD = "Internet Protocol Password";
@@ -216,7 +216,7 @@ public class IdentityApplicationConstants {
             public static final String TIME_SYNC_TOKEN = "Time Sync Token";
             public static final String UNSPECIFIED = "Unspecified";
         }
-
+        
         public static class AuthnContextClassURI {
             public static final String IP = "urn:oasis:names:tc:SAML:2.0:ac:classes:InternetProtocol";
             public static final String IP_PASSWORD = "urn:oasis:names:tc:SAML:2.0:ac:classes:InternetProtocolPassword";
@@ -244,7 +244,7 @@ public class IdentityApplicationConstants {
             public static final String TIME_SYNC_TOKEN = "urn:oasis:names:tc:SAML:2.0:ac:classes:TimeSyncToken";
             public static final String UNSPECIFIED = "urn:oasis:names:tc:SAML:2.0:ac:classes:unspecified";
         }
-
+        
         public static class AuthnContextComparison {
             public static final String EXACT = "Exact";
             public static final String MINIMUM = "Minimum";
@@ -252,9 +252,9 @@ public class IdentityApplicationConstants {
             public static final String BETTER = "Better";
         }
     }
-
+    
     public static class XML {
-
+        
         public static class SignatureAlgorithm {
             public static final String DSA_SHA1 = "DSA with SHA1";
             public static final String ECDSA_SHA1 = "ECDSA with SHA1";
@@ -268,7 +268,7 @@ public class IdentityApplicationConstants {
             public static final String RSA_SHA384 = "RSA with SHA384";
             public static final String RSA_SHA512 = "RSA with SHA512";
         }
-
+        
         public static class SignatureAlgorithmURI {
             public static final String DSA_SHA1 = "http://www.w3.org/2000/09/xmldsig#dsa-sha1";
             public static final String ECDSA_SHA1 = "http://www.w3.org/2001/04/xmldsig-more#ecdsa-sha1";
@@ -282,7 +282,7 @@ public class IdentityApplicationConstants {
             public static final String RSA_SHA384 = "http://www.w3.org/2001/04/xmldsig-more#rsa-sha384";
             public static final String RSA_SHA512 = "http://www.w3.org/2001/04/xmldsig-more#rsa-sha512";
         }
-
+        
         public static class DigestAlgorithm {
             public static final String MD5 = "MD5";
             public static final String RIPEMD160 = "RIPEMD160";
@@ -291,7 +291,7 @@ public class IdentityApplicationConstants {
             public static final String SHA384 = "SHA384";
             public static final String SHA512 = "SHA512";
         }
-
+        
         public static class DigestAlgorithmURI {
             public static final String MD5 = "http://www.w3.org/2001/04/xmldsig-more#md5";
             public static final String RIPEMD160 = "http://www.w3.org/2001/04/xmlenc#ripemd160";

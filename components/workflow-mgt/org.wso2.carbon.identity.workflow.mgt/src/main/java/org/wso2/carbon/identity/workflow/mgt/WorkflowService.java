@@ -221,8 +221,6 @@ public class WorkflowService {
 
     public void addWorkflow(WorkflowDTO workflowDTO,
                             ParameterDTO[] templateParams, ParameterDTO[] implParams, int tenantId) throws WorkflowException {
-
-        workflowDAO.addWorkflow(workflowDTO, tenantId);
         Map<String, Object> paramMap = new HashMap<>();
         if (templateParams != null) {
             for (ParameterDTO param : templateParams) {
@@ -242,6 +240,7 @@ public class WorkflowService {
         templateImplementation.deploy(paramMap);
 
         //add workflow to the database
+        workflowDAO.addWorkflow(workflowDTO, tenantId);
         workflowDAO.addWorkflowParams(workflowDTO.getWorkflowId(), paramMap);
 
         //Creating a role for the workflow
