@@ -32,6 +32,7 @@ import org.wso2.carbon.identity.provisioning.cache.ServiceProviderProvisioningCo
 import org.wso2.carbon.identity.provisioning.cache.ServiceProviderProvisioningConnectorCacheKey;
 import org.wso2.carbon.identity.provisioning.dao.ProvisioningManagementDAO;
 import org.wso2.carbon.identity.provisioning.internal.ProvisioningServiceDataHolder;
+import org.wso2.carbon.idp.mgt.IdentityProviderManagementException;
 import org.wso2.carbon.idp.mgt.listener.IdentityProviderMgtLister;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.service.RealmService;
@@ -45,36 +46,61 @@ public class IdentityProviderMgtProvisioningListener implements IdentityProvider
     private static ProvisioningManagementDAO provisioningManagementDAO = new ProvisioningManagementDAO();
 
     @Override
-    public void updateResidentIdP(IdentityProvider identityProvider) {
+    public boolean doPreUpdateResidentIdP(IdentityProvider identityProvider) throws IdentityProviderManagementException {
         log.debug("update Resident Identity Provider event received");
+        return true;
     }
 
     @Override
-    public void addIdP(IdentityProvider identityProvider) {
+    public boolean doPostUpdateResidentIdP(IdentityProvider identityProvider) throws IdentityProviderManagementException {
+        return true;
+    }
+
+    @Override
+    public boolean doPreAddIdP(IdentityProvider identityProvider) throws IdentityProviderManagementException {
         log.debug("add new Identity Provider event received");
+        return true;
     }
 
     @Override
-    public void deleteIdP(String idPName) {
+    public boolean doPostAddIdP(IdentityProvider identityProvider) throws IdentityProviderManagementException {
+        return true;
+    }
+
+    @Override
+    public boolean doPreDeleteIdP(String idPName) throws IdentityProviderManagementException {
         String tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext()
                 .getTenantDomain();
         try {
             destroyConnector(idPName, tenantDomain);
         } catch (IdentityProvisioningException e) {
-            log.error(e.getMessage(), e);
+            log.error("Error when provisioning IDP deletion", e);
+            throw new IdentityProviderManagementException("Error when provisioning IDP deletion",e);
         }
-
+        return true;
     }
 
     @Override
-    public void updateIdP(String oldIdPName, IdentityProvider identityProvider) {
+    public boolean doPostDeleteIdP(String idPName) throws IdentityProviderManagementException {
+        return true;
+    }
+
+    @Override
+    public boolean doPreUpdateIdP(String oldIdPName, IdentityProvider identityProvider) throws IdentityProviderManagementException {
         String tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext()
                 .getTenantDomain();
         try {
             destroyConnector(oldIdPName, tenantDomain);
         } catch (IdentityProvisioningException e) {
-            log.error(e.getMessage(), e);
+            log.error("Error when provisioning IDP update", e);
+            throw new IdentityProviderManagementException("Error when provisioning IDP update",e);
         }
+        return true;
+    }
+
+    @Override
+    public boolean doPostUpdateIdP(String oldIdPName, IdentityProvider identityProvider) throws IdentityProviderManagementException {
+        return true;
     }
 
     /**

@@ -18,15 +18,22 @@
  */
 package org.wso2.carbon.identity.application.mgt.listener;
 
+import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
 import org.wso2.carbon.identity.application.common.model.ServiceProvider;
 
 public interface ApplicationMgtListener {
 
-    public void createApplication(ServiceProvider serviceProvider);
+    public boolean doPreCreateApplication(ServiceProvider serviceProvider) throws IdentityApplicationManagementException;
 
-    public void updateApplication(ServiceProvider serviceProvider);
+    public boolean doPostCreateApplication(ServiceProvider serviceProvider) throws IdentityApplicationManagementException;
 
-    public void deleteApplication(String applicationName);
+    public boolean doPreUpdateApplication(ServiceProvider serviceProvider) throws IdentityApplicationManagementException;
+
+    public boolean doPostUpdateApplication(ServiceProvider serviceProvider) throws IdentityApplicationManagementException;
+
+    public boolean doPreDeleteApplication(String applicationName) throws IdentityApplicationManagementException;
+
+    public boolean doPostDeleteApplication(String applicationName) throws IdentityApplicationManagementException;
 
 
 }

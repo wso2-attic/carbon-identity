@@ -19,15 +19,24 @@
 package org.wso2.carbon.idp.mgt.listener;
 
 import org.wso2.carbon.identity.application.common.model.IdentityProvider;
+import org.wso2.carbon.idp.mgt.IdentityProviderManagementException;
 
 public interface IdentityProviderMgtLister {
 
-    public void updateResidentIdP(IdentityProvider identityProvider);
+    public boolean doPreUpdateResidentIdP(IdentityProvider identityProvider) throws IdentityProviderManagementException;
 
-    public void addIdP(IdentityProvider identityProvider);
+    public boolean doPostUpdateResidentIdP(IdentityProvider identityProvider) throws IdentityProviderManagementException;
 
-    public void deleteIdP(String idPName);
+    public boolean doPreAddIdP(IdentityProvider identityProvider) throws IdentityProviderManagementException;
 
-    public void updateIdP(String oldIdPName, IdentityProvider identityProvider);
+    public boolean doPostAddIdP(IdentityProvider identityProvider) throws IdentityProviderManagementException;
+
+    public boolean doPreDeleteIdP(String idPName) throws IdentityProviderManagementException;
+
+    public boolean doPostDeleteIdP(String idPName) throws IdentityProviderManagementException;
+
+    public boolean doPreUpdateIdP(String oldIdPName, IdentityProvider identityProvider) throws IdentityProviderManagementException;
+
+    public boolean doPostUpdateIdP(String oldIdPName, IdentityProvider identityProvider) throws IdentityProviderManagementException;
 
 }
