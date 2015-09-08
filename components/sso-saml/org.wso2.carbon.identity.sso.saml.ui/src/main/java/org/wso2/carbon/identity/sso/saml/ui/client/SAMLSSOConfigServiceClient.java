@@ -128,7 +128,7 @@ public class SAMLSSOConfigServiceClient {
     }
 
     public String[] getSigningAlgorithms() throws AxisFault{
-        String[] signingAlgorithms = null;
+        String[] signingAlgorithms;
         try {
             signingAlgorithms = stub.getSigningAlgorithms();
         } catch (Exception e) {

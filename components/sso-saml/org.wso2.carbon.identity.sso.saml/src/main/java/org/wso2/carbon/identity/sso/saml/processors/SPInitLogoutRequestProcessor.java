@@ -269,10 +269,11 @@ public class SPInitLogoutRequestProcessor {
      * @throws IdentityException
      */
     private SAMLSSOReqValidationResponseDTO buildErrorResponse(String id, String status, String statMsg,
-                                                               String destination,String responseSigningAlgorithm) throws IdentityException{
+                                                               String destination, String responseSigningAlgorithm)
+            throws IdentityException {
         SAMLSSOReqValidationResponseDTO reqValidationResponseDTO = new SAMLSSOReqValidationResponseDTO();
         LogoutResponse logoutResp = new SingleLogoutMessageBuilder().buildLogoutResponse(id,
-                status, statMsg, destination, null,responseSigningAlgorithm);
+                status, statMsg, destination, null, responseSigningAlgorithm);
         reqValidationResponseDTO.setLogOutReq(true);
         reqValidationResponseDTO.setValid(false);
         try {
