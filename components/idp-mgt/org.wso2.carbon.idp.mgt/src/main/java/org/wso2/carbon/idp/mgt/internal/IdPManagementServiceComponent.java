@@ -26,11 +26,13 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.base.MultitenantConstants;
-import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
+import org.wso2.carbon.idp.mgt.IdentityProviderManagementException;
 import org.wso2.carbon.identity.application.common.model.IdentityProvider;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
 import org.wso2.carbon.identity.core.util.IdentityCoreInitializedEvent;
 import org.wso2.carbon.idp.mgt.IdentityProviderManager;
+import org.wso2.carbon.idp.mgt.listener.IdentityProviderMgtApplicationListener;
+import org.wso2.carbon.idp.mgt.listener.IdentityProviderMgtLister;
 import org.wso2.carbon.idp.mgt.util.IdPManagementConstants;
 import org.wso2.carbon.stratos.common.listeners.TenantMgtListener;
 import org.wso2.carbon.user.core.listener.UserOperationEventListener;
@@ -110,6 +112,11 @@ public class IdPManagementServiceComponent {
     protected void activate(ComponentContext ctxt) {
         try {
             BundleContext bundleCtx = ctxt.getBundleContext();
+
+            bundleCtx.registerService(IdentityProviderMgtLister.class.getName(), new IdentityProviderMgtApplicationListener(), null);
+            if (log.isDebugEnabled()) {
+                log.debug("Identity Provider Management Event listener registered successfully");
+            }
 
             TenantManagementListener idPMgtTenantMgtListener = new TenantManagementListener();
             ServiceRegistration tenantMgtListenerSR = bundleCtx.registerService(
@@ -204,7 +211,7 @@ public class IdPManagementServiceComponent {
         List<IdentityProvider> idPs;
         try {
             idPs = idpManager.getIdPs(superTenantDN);
-        } catch (IdentityApplicationManagementException e) {
+        } catch (IdentityProviderManagementException e) {
             log.error("Error loading IDPs", e);
             return;
         }
@@ -216,7 +223,7 @@ public class IdPManagementServiceComponent {
                     if (log.isDebugEnabled()) {
                         log.debug("Deleted shared IdP with the name : " + idp.getIdentityProviderName());
                     }
-                } catch (IdentityApplicationManagementException e) {
+                } catch (IdentityProviderManagementException e) {
                     log.error("Error when deleting IdP " + idp.getIdentityProviderName(), e);
                 }
             }
