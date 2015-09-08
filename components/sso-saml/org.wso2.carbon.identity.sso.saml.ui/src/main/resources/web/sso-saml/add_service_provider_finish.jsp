@@ -71,7 +71,7 @@
 
         serviceProviderDTO.setAssertionConsumerUrls(SAMLSSOUIUtil.getSafeInput(request, "assertionConsumerURLs")
                 .split(","));
-        serviceProviderDTO.setDefaultAssertionConsumerUrl(SAMLSSOUIUtil.getSafeInput(request,"defaultAssertionConsumerURL"));
+        serviceProviderDTO.setDefaultAssertionConsumerUrl(SAMLSSOUIUtil.getSafeInput(request, "defaultAssertionConsumerURL"));
         serviceProviderDTO.setDefaultSigningAlgorithm(SAMLSSOUIUtil.getSafeInput(request,"defaultSigningAlgorithm"));
 
         if (Boolean.parseBoolean(request.getParameter(SAMLSSOUIConstants.ENABLE_SINGLE_LOGOUT))) {

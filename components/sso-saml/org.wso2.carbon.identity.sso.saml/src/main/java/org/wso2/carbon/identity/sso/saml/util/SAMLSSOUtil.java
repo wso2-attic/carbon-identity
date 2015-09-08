@@ -1260,7 +1260,7 @@ public class SAMLSSOUtil {
         }
     }
 
-    public static String getDefaultSigningAlgorithmFromIdentityConfig(){
+    public static String getSigningAlgoByConfig(){
         if (IdentityUtil.getProperty(IdentityConstants.ServerConfig.SSO_DEFAULT_SIGNING_ALGORITHM) != null &&
                 !"".equals(IdentityUtil.getProperty(IdentityConstants.ServerConfig.SSO_DEFAULT_SIGNING_ALGORITHM)
                         .trim())) {

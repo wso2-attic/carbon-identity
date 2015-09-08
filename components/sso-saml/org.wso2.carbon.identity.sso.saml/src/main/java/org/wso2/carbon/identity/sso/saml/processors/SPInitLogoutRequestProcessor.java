@@ -72,7 +72,7 @@ public class SPInitLogoutRequestProcessor {
                 log.error(message);
                 return buildErrorResponse(logoutRequest.getID(),
                         SAMLSSOConstants.StatusCodes.REQUESTOR_ERROR, message,
-                        logoutRequest.getDestination(), SAMLSSOUtil.getDefaultSigningAlgorithmFromIdentityConfig());
+                        logoutRequest.getDestination(), SAMLSSOUtil.getSigningAlgoByConfig());
             }
             String sessionIndex = ssoSessionPersistenceManager.getSessionIndexFromTokenId(sessionId);
 
@@ -82,7 +82,7 @@ public class SPInitLogoutRequestProcessor {
                 reqValidationResponseDTO = buildErrorResponse(logoutRequest.getID(),
                         SAMLSSOConstants.StatusCodes
                                 .REQUESTOR_ERROR, message, null, SAMLSSOUtil
-                                .getDefaultSigningAlgorithmFromIdentityConfig());
+                                .getSigningAlgoByConfig());
                 reqValidationResponseDTO.setLogoutFromAuthFramework(true);
                 return reqValidationResponseDTO;
             }
@@ -93,7 +93,7 @@ public class SPInitLogoutRequestProcessor {
                     log.error(message);
                     return buildErrorResponse(logoutRequest.getID(),
                             SAMLSSOConstants.StatusCodes.REQUESTOR_ERROR, message, logoutRequest.getDestination(),
-                            SAMLSSOUtil.getDefaultSigningAlgorithmFromIdentityConfig());
+                            SAMLSSOUtil.getSigningAlgoByConfig());
                 }
 
                 // TODO : Check for BaseID and EncryptedID as well.
@@ -105,7 +105,7 @@ public class SPInitLogoutRequestProcessor {
                     log.error(message);
                     return buildErrorResponse(logoutRequest.getID(),
                             SAMLSSOConstants.StatusCodes.REQUESTOR_ERROR, message, logoutRequest.getDestination(),
-                            SAMLSSOUtil.getDefaultSigningAlgorithmFromIdentityConfig());
+                            SAMLSSOUtil.getSigningAlgoByConfig());
                 }
 
                 if (logoutRequest.getSessionIndexes() == null) {
@@ -113,7 +113,7 @@ public class SPInitLogoutRequestProcessor {
                     log.error(message);
                     return buildErrorResponse(logoutRequest.getID(),
                             SAMLSSOConstants.StatusCodes.REQUESTOR_ERROR, message, logoutRequest.getDestination(),
-                            SAMLSSOUtil.getDefaultSigningAlgorithmFromIdentityConfig());
+                            SAMLSSOUtil.getSigningAlgoByConfig());
                 }
 
                 SessionInfoData sessionInfoData = ssoSessionPersistenceManager.getSessionInfo(sessionIndex);
@@ -123,7 +123,7 @@ public class SPInitLogoutRequestProcessor {
                     log.error(message);
                     reqValidationResponseDTO = buildErrorResponse(logoutRequest.getID(),
                             SAMLSSOConstants.StatusCodes.REQUESTOR_ERROR,
-                            message, null, SAMLSSOUtil.getDefaultSigningAlgorithmFromIdentityConfig());
+                            message, null, SAMLSSOUtil.getSigningAlgoByConfig());
                     reqValidationResponseDTO.setLogoutFromAuthFramework(true);
                     return reqValidationResponseDTO;
                 }

@@ -88,7 +88,7 @@ function doValidation() {
     }
 
     var defaultSigningAlgorithm = $('#defaultSigningAlgorithm').val();
-    if (defaultSigningAlgorithm == null || defaultSigningAlgorithm=='') {
+    if (defaultSigningAlgorithm == null || defaultSigningAlgorithm == '') {
         CARBON.showWarningDialog("<fmt:message key='sp.enter.default.signingAlgorithm'/>", null, null);
         return false;
     }

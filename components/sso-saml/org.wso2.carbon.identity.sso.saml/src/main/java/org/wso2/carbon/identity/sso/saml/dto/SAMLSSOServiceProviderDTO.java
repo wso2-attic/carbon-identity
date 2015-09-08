@@ -52,7 +52,7 @@ public class SAMLSSOServiceProviderDTO implements Serializable {
 
     public String getDefaultSigningAlgorithm() {
         if(defaultSigningAlgorithm==null || defaultSigningAlgorithm.isEmpty()) {
-           return SAMLSSOUtil.getDefaultSigningAlgorithmFromIdentityConfig();
+           return SAMLSSOUtil.getSigningAlgoByConfig();
         }
         return defaultSigningAlgorithm;
     }
