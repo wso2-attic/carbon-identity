@@ -41,6 +41,8 @@
 <%@ page import="java.util.HashMap" %>
 <%@ page import="java.util.List" %>
 <%@ page import="java.util.Map" %>
+<%@page import="java.util.ArrayList"%>
+<%@page import="java.util.Set"%>
 <link href="css/idpmgt.css" rel="stylesheet" type="text/css" media="all"/>
 
 <carbon:breadcrumb label="identity.providers" resourceBundle="org.wso2.carbon.idp.mgt.ui.i18n.Resources"
@@ -85,6 +87,17 @@
     boolean isEnableAssertionEncription = false;
     boolean isEnableAssertionSigning = true;
 
+    String signatureAlgorithm = IdentityApplicationConstants.XML.SignatureAlgorithm.RSA_SHA1;
+    String digestAlgorithm = IdentityApplicationConstants.XML.DigestAlgorithm.SHA1;
+    String authenticationContextClass = IdentityApplicationConstants.SAML2.AuthnContextClass.PASSWORD_PROTECTED_TRANSPORT;
+    String authenticationContextComparisonLevel = IdentityApplicationConstants.SAML2.AuthnContextComparison.EXACT;
+    String forceAuthentication = "as_request";
+    String attributeConsumingServiceIndex = null;
+    String includeAuthenticationContext = "yes";
+    boolean includeNameIdPolicy = true;
+    boolean includeProtocolBinding = true;
+    boolean includeCert = true;
+    
     String requestMethod = "redirect";
     boolean isSLOEnabled = false;
     boolean isLogoutRequestSigned = false;
@@ -176,6 +189,10 @@
     String provisioningRole = null;
     Map<String, ProvisioningConnectorConfig> customProvisioningConnectors = null;
 
+	Set<String> signatureAlgorithms = IdentityApplicationManagementUtil.getXMLSignatureAlgorithmNames();
+	Set<String> digestAlgorithms = IdentityApplicationManagementUtil.getXMLDigestAlgorithmNames();
+    Set<String> authenticationContextClasses = IdentityApplicationManagementUtil.getSAMLAuthnContextClassNames();
+    List<String> authenticationContextComparisonLevels = IdentityApplicationManagementUtil.getSAMLAuthnContextComparisonLevels();
 
     String[] idpClaims = new String[]{"admin", "Internal/everyone"};//appBean.getSystemClaims();
 
@@ -358,82 +375,149 @@
                     }
 
                 } else if (fedAuthnConfig.getDisplayName().equals(IdentityApplicationConstants.Authenticator.SAML2SSO.NAME)) {
-                    allFedAuthConfigs.remove(fedAuthnConfig.getName());
-                    isSAML2SSOEnabled = fedAuthnConfig.getEnabled();
-                    Property idPEntityIdProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
-                            IdentityApplicationConstants.Authenticator.SAML2SSO.IDP_ENTITY_ID);
-                    if (idPEntityIdProp != null) {
-                        idPEntityId = idPEntityIdProp.getValue();
-                    }
-                    Property spEntityIdProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
-                            IdentityApplicationConstants.Authenticator.SAML2SSO.SP_ENTITY_ID);
-                    if (spEntityIdProp != null) {
-                        spEntityId = spEntityIdProp.getValue();
-                    }
-                    Property ssoUrlProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
-                            IdentityApplicationConstants.Authenticator.SAML2SSO.SSO_URL);
-                    if (spEntityIdProp != null) {
-                        ssoUrl = ssoUrlProp.getValue();
-                    }
-                    Property isAuthnRequestSignedProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
-                            IdentityApplicationConstants.Authenticator.SAML2SSO.IS_AUTHN_REQ_SIGNED);
-                    if (isAuthnRequestSignedProp != null) {
-                        isAuthnRequestSigned = Boolean.parseBoolean(isAuthnRequestSignedProp.getValue());
-                    }
+					allFedAuthConfigs.remove(fedAuthnConfig.getName());
+					isSAML2SSOEnabled = fedAuthnConfig.getEnabled();
+					Property idPEntityIdProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
+							IdentityApplicationConstants.Authenticator.SAML2SSO.IDP_ENTITY_ID);
+					if (idPEntityIdProp != null) {
+						idPEntityId = idPEntityIdProp.getValue();
+					}
+					Property spEntityIdProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
+							IdentityApplicationConstants.Authenticator.SAML2SSO.SP_ENTITY_ID);
+					if (spEntityIdProp != null) {
+						spEntityId = spEntityIdProp.getValue();
+					}
+					Property ssoUrlProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
+							IdentityApplicationConstants.Authenticator.SAML2SSO.SSO_URL);
+					if (spEntityIdProp != null) {
+						ssoUrl = ssoUrlProp.getValue();
+					}
+					Property isAuthnRequestSignedProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
+							IdentityApplicationConstants.Authenticator.SAML2SSO.IS_AUTHN_REQ_SIGNED);
+					if (isAuthnRequestSignedProp != null) {
+						isAuthnRequestSigned = Boolean.parseBoolean(isAuthnRequestSignedProp.getValue());
+					}
 
-                    Property isEnableAssertionSigningProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
-                            IdentityApplicationConstants.Authenticator.SAML2SSO.IS_ENABLE_ASSERTION_SIGNING);
-                    if (isEnableAssertionSigningProp != null) {
-                        isEnableAssertionSigning = Boolean.parseBoolean(isEnableAssertionSigningProp.getValue());
-                    }
+					Property isEnableAssertionSigningProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
+							IdentityApplicationConstants.Authenticator.SAML2SSO.IS_ENABLE_ASSERTION_SIGNING);
+					if (isEnableAssertionSigningProp != null) {
+						isEnableAssertionSigning = Boolean.parseBoolean(isEnableAssertionSigningProp.getValue());
+					}
 
-                    Property isEnableAssersionEncriptionProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
-                            IdentityApplicationConstants.Authenticator.SAML2SSO.IS_ENABLE_ASSERTION_ENCRYPTION);
-                    if (isEnableAssersionEncriptionProp != null) {
-                        isEnableAssertionEncription = Boolean.parseBoolean(isEnableAssersionEncriptionProp.getValue());
-                    }
+					Property isEnableAssersionEncriptionProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
+							IdentityApplicationConstants.Authenticator.SAML2SSO.IS_ENABLE_ASSERTION_ENCRYPTION);
+					if (isEnableAssersionEncriptionProp != null) {
+						isEnableAssertionEncription = Boolean.parseBoolean(isEnableAssersionEncriptionProp.getValue());
+					}
 
-                    Property isSLOEnabledProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
-                            IdentityApplicationConstants.Authenticator.SAML2SSO.IS_LOGOUT_ENABLED);
-                    if (isSLOEnabledProp != null) {
-                        isSLOEnabled = Boolean.parseBoolean(isSLOEnabledProp.getValue());
-                    }
-                    Property logoutUrlProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
-                            IdentityApplicationConstants.Authenticator.SAML2SSO.LOGOUT_REQ_URL);
-                    if (logoutUrlProp != null) {
-                        logoutUrl = logoutUrlProp.getValue();
-                    }
-                    Property isLogoutRequestSignedProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
-                            IdentityApplicationConstants.Authenticator.SAML2SSO.IS_LOGOUT_REQ_SIGNED);
-                    if (isLogoutRequestSignedProp != null) {
-                        isLogoutRequestSigned = Boolean.parseBoolean(isLogoutRequestSignedProp.getValue());
-                    }
-                    Property isAuthnResponseSignedProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
-                            IdentityApplicationConstants.Authenticator.SAML2SSO.IS_AUTHN_RESP_SIGNED);
-                    if (isAuthnResponseSignedProp != null) {
-                        isAuthnResponseSigned = Boolean.parseBoolean(isAuthnResponseSignedProp.getValue());
-                    }
+					Property isSLOEnabledProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
+							IdentityApplicationConstants.Authenticator.SAML2SSO.IS_LOGOUT_ENABLED);
+					if (isSLOEnabledProp != null) {
+						isSLOEnabled = Boolean.parseBoolean(isSLOEnabledProp.getValue());
+					}
+					Property logoutUrlProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
+							IdentityApplicationConstants.Authenticator.SAML2SSO.LOGOUT_REQ_URL);
+					if (logoutUrlProp != null) {
+						logoutUrl = logoutUrlProp.getValue();
+					}
+					Property isLogoutRequestSignedProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
+							IdentityApplicationConstants.Authenticator.SAML2SSO.IS_LOGOUT_REQ_SIGNED);
+					if (isLogoutRequestSignedProp != null) {
+						isLogoutRequestSigned = Boolean.parseBoolean(isLogoutRequestSignedProp.getValue());
+					}
+					Property isAuthnResponseSignedProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
+							IdentityApplicationConstants.Authenticator.SAML2SSO.IS_AUTHN_RESP_SIGNED);
+					if (isAuthnResponseSignedProp != null) {
+						isAuthnResponseSigned = Boolean.parseBoolean(isAuthnResponseSignedProp.getValue());
+					}
 
-                    Property requestMethodProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
-                            IdentityApplicationConstants.Authenticator.SAML2SSO.REQUEST_METHOD);
-                    if (requestMethodProp != null) {
-                        requestMethod = requestMethodProp.getValue();
-                    } else {
-                        requestMethod = "redirect";
-                    }
+					Property signatureAlgoProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
+							IdentityApplicationConstants.Authenticator.SAML2SSO.SIGNATURE_ALGORITHM);
+					if(signatureAlgoProp != null){
+						signatureAlgorithm = signatureAlgoProp.getValue();
+					}
+		
+					Property digestAlgoProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
+							IdentityApplicationConstants.Authenticator.SAML2SSO.DIGEST_ALGORITHM);
+					if(digestAlgoProp != null){
+						digestAlgorithm = digestAlgoProp.getValue();
+					}
+		
+					Property includeAuthnContextProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
+							IdentityApplicationConstants.Authenticator.SAML2SSO.INCLUDE_AUTHN_CONTEXT);
+					if(includeAuthnContextProp != null){
+						includeAuthenticationContext = includeAuthnContextProp.getValue();
+					} else{
+						includeAuthenticationContext = "yes";
+					}
+		
+					Property authnContextRefClassProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
+							IdentityApplicationConstants.Authenticator.SAML2SSO.AUTHENTICATION_CONTEXT_CLASS);
+					if(authnContextRefClassProp != null){
+						authenticationContextClass = authnContextRefClassProp.getValue();
+					} else {
+						authenticationContextClass = "urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport";
+					}
+		
+					Property authnContextCompLevelProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
+							IdentityApplicationConstants.Authenticator.SAML2SSO.AUTHENTICATION_CONTEXT_COMPARISON_LEVEL);
+					if(authnContextCompLevelProp != null){
+						authenticationContextComparisonLevel = authnContextCompLevelProp.getValue();
+					} else {
+						authenticationContextComparisonLevel = "Exact";
+					}
+		
+					Property includeNameIdPolicyProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
+							IdentityApplicationConstants.Authenticator.SAML2SSO.INCLUDE_NAME_ID_POLICY);
+					if(includeNameIdPolicyProp != null){
+						includeNameIdPolicy = Boolean.parseBoolean(includeNameIdPolicyProp.getValue());
+					}
+		
+					Property includeCertProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
+							IdentityApplicationConstants.Authenticator.SAML2SSO.INCLUDE_CERT);
+					if(includeCertProp != null){
+						includeCert = Boolean.parseBoolean(includeCertProp.getValue());
+					}
+		
+					Property includeProtocolBindingProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
+							IdentityApplicationConstants.Authenticator.SAML2SSO.INCLUDE_PROTOCOL_BINDING);
+					if(includeProtocolBindingProp != null){
+						includeProtocolBinding = Boolean.parseBoolean(includeProtocolBindingProp.getValue());
+					}
+		
+					Property forceAuthProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
+							IdentityApplicationConstants.Authenticator.SAML2SSO.FORCE_AUTHENTICATION);
+					if(forceAuthProp != null){
+						forceAuthentication = forceAuthProp.getValue();
+					} else{
+						forceAuthentication = "as_request";
+					}
+		
+					Property attributeConsumingServiceIndexProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
+							IdentityApplicationConstants.Authenticator.SAML2SSO.ATTRIBUTE_CONSUMING_SERVICE_INDEX);
+					if(attributeConsumingServiceIndexProp != null){
+						attributeConsumingServiceIndex = attributeConsumingServiceIndexProp.getValue();
+					}
+		
+					Property requestMethodProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
+							IdentityApplicationConstants.Authenticator.SAML2SSO.REQUEST_METHOD);
+					if (requestMethodProp != null) {
+						requestMethod = requestMethodProp.getValue();
+					} else {
+						requestMethod = "redirect";
+					}
 
-                    Property isSAMLSSOUserIdInClaimsProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
-                            IdentityApplicationConstants.Authenticator.SAML2SSO.IS_USER_ID_IN_CLAIMS);
-                    if (isSAMLSSOUserIdInClaimsProp != null) {
-                        isSAMLSSOUserIdInClaims = Boolean.parseBoolean(isSAMLSSOUserIdInClaimsProp.getValue());
-                    }
+					Property isSAMLSSOUserIdInClaimsProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
+							IdentityApplicationConstants.Authenticator.SAML2SSO.IS_USER_ID_IN_CLAIMS);
+					if (isSAMLSSOUserIdInClaimsProp != null) {
+						isSAMLSSOUserIdInClaims = Boolean.parseBoolean(isSAMLSSOUserIdInClaimsProp.getValue());
+					}
 
-                    Property queryParamProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(), "commonAuthQueryParams");
-                    if (queryParamProp != null) {
-                        samlQueryParam = queryParamProp.getValue();
-                    }
-
-                } else {
+					Property queryParamProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(), "commonAuthQueryParams");
+					if (queryParamProp != null) {
+						samlQueryParam = queryParamProp.getValue();
+					}
+				} else {
                     FederatedAuthenticatorConfig customConfig = allFedAuthConfigs.get(fedAuthnConfig.getName());
                     if (customConfig != null) {
                         Property[] properties = fedAuthnConfig.getProperties();
@@ -829,6 +913,49 @@
             authnResponseSignedChecked = "checked=\'checked\'";
         }
     }
+    
+    String signAlgoDropdownDisabled="";
+    if(!isAuthnRequestSigned){
+        signAlgoDropdownDisabled = "disabled=\'disabled\'";
+    }
+    
+	String digestAlgoDropdownDisabled="";
+    if(!isAuthnRequestSigned){
+        digestAlgoDropdownDisabled = "disabled=\'disabled\'";
+    }
+    
+    String authnContextClassRefDropdownDisabled="";
+    String authnContextComparisonDropdownDisabled="";
+    if("no".equals(includeAuthenticationContext)){
+        authnContextClassRefDropdownDisabled = "disabled=\'disabled\'";
+        authnContextComparisonDropdownDisabled = "disabled=\'disabled\'";
+    }
+    
+    String includeNameIdPolicyChecked="";
+    if(identityProvider != null){
+        if(includeNameIdPolicy){
+            includeNameIdPolicyChecked = "checked=\'checked\'";
+        }
+    }
+    
+    String includeCertChecked = "";
+    if(identityProvider != null){
+        if(includeCert){
+            includeCertChecked = "checked=\'checked\'";
+        }
+    }
+    
+    String includeProtocolBindingChecked = "";
+    if(identityProvider != null){
+        if(includeProtocolBinding){
+            includeProtocolBindingChecked = "checked=\'checked\'";
+        }
+    }
+    
+    if(attributeConsumingServiceIndex == null) {
+        attributeConsumingServiceIndex = "";
+    }
+    
     String oidcEnabledChecked = "";
     String oidcDefaultDisabled = "";
     if (identityProvider != null) {
@@ -1535,7 +1662,48 @@ jQuery(document).ready(function () {
     });
 
     claimURIDropdownPopulator();
+    
+    var $signature_algorithem_dropdown = jQuery('#signature_algorithem_dropdown');
+    var $digest_algorithem_dropdown = jQuery('#digest_algorithem_dropdown');
+    var $authentication_context_class_dropdown =  jQuery('#authentication_context_class_dropdown');
+    var $auth_context_comparison_level_dropdown = jQuery('#auth_context_comparison_level_dropdown');
+    
+    jQuery('#authnRequestSigned').click(function(){
+        if(jQuery(this).is(":checked") || jQuery("#logoutRequestSigned").is(":checked")){
+            jQuery('#signature_algorithem_dropdown').removeAttr('disabled');
+            jQuery('#digest_algorithem_dropdown').removeAttr('disabled');
+        }else{
+            jQuery('#signature_algorithem_dropdown').attr('disabled',true);
+            jQuery('#digest_algorithem_dropdown').attr('disabled',true);
+        }
+    });
+    
+    jQuery('#logoutRequestSigned').click(function(){
+        if(jQuery(this).is(":checked") || jQuery("#authnRequestSigned").is(":checked")){
+            jQuery('#signature_algorithem_dropdown').removeAttr('disabled');
+            jQuery('#digest_algorithem_dropdown').removeAttr('disabled');
+        }else{
+            jQuery('#signature_algorithem_dropdown').attr('disabled',true);
+            jQuery('#digest_algorithem_dropdown').attr('disabled',true);
+        }
+    });
+    
+    jQuery('#includeAuthnCtxNo').click(function(){
+		jQuery('#authentication_context_class_dropdown').attr('disabled',true);
+        jQuery('#auth_context_comparison_level_dropdown').attr('disabled',true);
+    });
+    
+    jQuery('#includeAuthnCtxYes').click(function(){
+   		jQuery('#authentication_context_class_dropdown').removeAttr('disabled');
+        jQuery('#auth_context_comparison_level_dropdown').removeAttr('disabled');
+    });
+    
+    jQuery('#includeAuthnCtxReq').click(function(){
+    	jQuery('#authentication_context_class_dropdown').attr('disabled',true);
+        jQuery('#auth_context_comparison_level_dropdown').attr('disabled',true);
+    });
 })
+
 var deleteClaimRows = [];
 function deleteClaimRow(obj) {
     if (jQuery(obj).parent().prev().children()[0].value != '') {
@@ -3651,6 +3819,224 @@ function doValidation() {
                 </div>
             </td>
         </tr>
+        
+        <!-- Signature Algorithm -->
+                    
+	      <tr>
+	          <td class="leftCol-med labelField"><fmt:message key='signature.algorithm'/>:</td>
+	          <td>
+	
+	              <select id="signature_algorithem_dropdown" name="SignatureAlgorithm" <%=signAlgoDropdownDisabled%>>
+	                  <%
+	                  for(String algorithm : signatureAlgorithms){
+	                      if(signatureAlgorithm != null && algorithm.equalsIgnoreCase(signatureAlgorithm)){
+	                  %>
+	                  <option selected="selected"><%=signatureAlgorithm%></option>
+	                  <%
+	                  } else {
+	                  %>
+	                  <option><%=algorithm%></option>
+	                  <%
+	                              }
+	                          }
+	                  %>
+	              </select>
+	              <div class="sectionHelp" style="margin-top: 5px">
+	                  <fmt:message key='signature.algorithm.help'/>
+	              </div>
+	          </td>
+	      </tr>
+	      
+	      <!-- Digest Algorithm -->
+	      
+	      <tr>
+	          <td class="leftCol-med labelField"><fmt:message key='digest.algorithm'/>:</td>
+	          <td>
+	
+	              <select id="digest_algorithem_dropdown" name="DigestAlgorithm" <%=digestAlgoDropdownDisabled%>>
+	                  <%
+	                  for(String algorithm : digestAlgorithms){
+	                      if(digestAlgorithm != null && algorithm.equalsIgnoreCase(digestAlgorithm)){
+	                  %>
+	                  <option selected="selected"><%=digestAlgorithm%></option>
+	               <%
+	                   } else {
+	               %>
+	                  	<option><%=algorithm%></option>
+	                  <%
+	                      }
+	                  }
+	                  %>
+	              </select>
+	              <div class="sectionHelp" style="margin-top: 5px">
+	                  <fmt:message key='digest.algorithm.help'/>
+	              </div>
+	          </td>
+	      </tr>
+	      
+	      <!-- Attribute Consuming Service Index -->
+	      
+	      <tr>
+	          <td class="leftCol-med labelField"><fmt:message key='attr.consuming.service.index'/>:</td>
+	          <td>
+	              <input id="attrConsumingServiceIndex" name="AttributeConsumingServiceIndex" type="text" value=<%=attributeConsumingServiceIndex%>>
+	              <div class="sectionHelp">
+	                  <fmt:message key='attr.consuming.service.index.help'/>
+	              </div>
+	          </td>
+	      </tr>
+	      
+	      <!-- Force Authentication -->
+	      
+	      <tr>
+	          <td class="leftCol-med labelField">
+	              <label for="forceAuthentication"><fmt:message key='enable.force.authentication'/></label>
+	          </td>
+	          <td>
+	              <div class="sectionCheckbox">
+	
+	                  <label><input type="radio" value="yes" <%
+	              if(forceAuthentication !=null && forceAuthentication.equals("yes")){%>checked="checked"<%
+	                      }%> name="ForceAuthentication"  /> Yes </label>
+	                  <label><input type="radio" value="no" <%
+	              if(forceAuthentication !=null && forceAuthentication.equals("no")){%>checked
+	                          ="checked"<%}%> name="ForceAuthentication" />No </label>
+	                  <label><input type="radio" value="as_request" <%
+	              if(forceAuthentication!=null&&forceAuthentication.equals("as_request")){%>checked="checked"<%}%> name="ForceAuthentication" />As Per Request</label>
+	
+	              </div>
+	              <div class="sectionHelp" style="margin-top: 5px" >
+	                  <fmt:message key='enable.force.authentication.help'/>
+	              </div>
+	          </td>
+	      </tr>
+	      
+	      <!-- Include Public Cert -->
+	      
+	      <tr>
+	          <td class="leftCol-med labelField">
+	              <label for="includeCert"><fmt:message key='include.cert'/></label>
+	          </td>
+	          <td>
+	              <div class="sectionCheckbox">
+	                  <input id="includeCert" name="IncludeCert" type="checkbox" <%=includeCertChecked%>/>
+	                  <span style="display:inline-block" class="sectionHelp">
+	                      <fmt:message key='include.cert.help'/>
+	                  </span>
+	              </div>
+	          </td>
+	      </tr>
+	      
+	      <!-- Include Protocol Binding -->
+	      
+	      <tr>
+	          <td class="leftCol-med labelField">
+	              <label for="includeProtocolBinding"><fmt:message key='include.protocol.binding'/></label>
+	          </td>
+	          <td>
+	              <div class="sectionCheckbox">
+	                  <input id="includeProtocolBinding" name="IncludeProtocolBinding" type="checkbox" <%=includeProtocolBindingChecked%>/>
+	                  <span style="display:inline-block" class="sectionHelp">
+	                      <fmt:message key='include.protocol.binding.help'/>
+	                  </span>
+	              </div>
+	          </td>
+	      </tr>
+	      
+	      <!-- Include NameID Policy -->
+	
+	      <tr>
+	          <td class="leftCol-med labelField">
+	              <label for="includeNameIDPolicy"><fmt:message key='include.name.id.policy'/></label>
+	          </td>
+	          <td>
+	              <div class="sectionCheckbox">
+	                  <input id="includeNameIDPolicy" name="IncludeNameIDPolicy" type="checkbox" <%=includeNameIdPolicyChecked%>/>
+	                  <span style="display:inline-block" class="sectionHelp">
+	                      <fmt:message key='include.name.id.policy.help'/>
+	                  </span>
+	              </div>
+	          </td>
+	      </tr>
+	      
+	      <!-- Include Authentication Context -->
+	      <tr>
+	          <td class="leftCol-med labelField">
+	              <label for="includeAuthnContext"><fmt:message key='include.authentication.context'/></label>
+	          </td>
+	          <td>
+	              <div class="sectionCheckbox">
+	                  <label><input type="radio" id="includeAuthnCtxYes" value="yes" <%
+	              if(includeAuthenticationContext != null && includeAuthenticationContext.equals("yes")){%>checked="checked"<%
+	                      }%> name="IncludeAuthnContext"/>Yes </label>
+	                  <label><input type="radio" id="includeAuthnCtxNo" value="no" <%
+	              if(includeAuthenticationContext != null && includeAuthenticationContext.equals("no")){%>checked="checked"<%
+	              		}%> name="IncludeAuthnContext"/>No </label>
+	                  <label><input type="radio" id="includeAuthnCtxReq" value="as_request" <%
+	              if(includeAuthenticationContext !=null && includeAuthenticationContext.equals("as_request")){%>checked="checked"<%
+	              		}%>name="IncludeAuthnContext"/>As Per Request</label>
+	              </div>
+	              <div class="sectionHelp" style="margin-top: 5px" >
+	                  <fmt:message key='include.authentication.context.help'/>
+	              </div>
+	          </td>
+	      </tr>
+	      
+	      <!-- Authentication Context Class -->
+	
+	<tr>
+	                   <td class="leftCol-med labelField"><fmt:message key='authentication.context.class'/>:</td>
+	          <td>
+	
+	              <select id="authentication_context_class_dropdown" name="AuthnContextClassRef" <%=authnContextClassRefDropdownDisabled%>>
+	                  <%
+	                  for(String authnContextClass : authenticationContextClasses){
+	                      if( authnContextClass != null && authnContextClass.equalsIgnoreCase(authenticationContextClass)){
+	                    %>
+	                    <option selected="selected"><%=authenticationContextClass%></option>
+	                    <%
+	                  	} else {
+	                  %>
+	                  		<option><%=authnContextClass%></option>
+	                  <%
+	                      }
+	                  }
+	                  %>
+	              </select>
+	
+	              <div class="sectionHelp" style="margin-top: 5px">
+	                  <fmt:message key='authentication.context.class.help'/>
+	              </div>
+	          </td>
+	      </tr>
+	      
+	      <!-- Authenticatin Context Comparison Level -->
+	
+	<tr>
+	                  <td class="leftCol-med labelField"><fmt:message key='authentication.context.comparison'/>:</td>
+	          <td>
+	
+	              <select id="auth_context_comparison_level_dropdown" name="AuthnContextComparisonLevel" <%=authnContextComparisonDropdownDisabled%>>
+	                  <%
+	                  for(String authnContextComparisonLevel : authenticationContextComparisonLevels){
+	                      if(authnContextComparisonLevel != null && authnContextComparisonLevel.equals(authenticationContextComparisonLevel)){
+	                  %>
+	                  		<option selected="selected"><%=authenticationContextComparisonLevel%></option>
+	                   <%
+	                   } else {
+	                   %>
+	                  		<option><%=authnContextComparisonLevel%></option>
+	                  <%
+	                      }
+	                  }
+	                  %>
+	              </select>
+	              <div class="sectionHelp" style="margin-top: 5px">
+	                  <fmt:message key='authentication.context.comparison.help'/>
+	              </div>
+	          </td>
+	      </tr>
+        
         <tr>
             <td class="leftCol-med labelField"><fmt:message key='saml2.sso.user.id.location'/>:</td>
             <td>
