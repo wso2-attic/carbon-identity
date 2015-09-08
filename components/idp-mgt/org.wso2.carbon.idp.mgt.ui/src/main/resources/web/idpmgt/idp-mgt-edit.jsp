@@ -375,148 +375,148 @@
                     }
 
                 } else if (fedAuthnConfig.getDisplayName().equals(IdentityApplicationConstants.Authenticator.SAML2SSO.NAME)) {
-					allFedAuthConfigs.remove(fedAuthnConfig.getName());
-					isSAML2SSOEnabled = fedAuthnConfig.getEnabled();
-					Property idPEntityIdProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
-							IdentityApplicationConstants.Authenticator.SAML2SSO.IDP_ENTITY_ID);
-					if (idPEntityIdProp != null) {
-						idPEntityId = idPEntityIdProp.getValue();
-					}
-					Property spEntityIdProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
-							IdentityApplicationConstants.Authenticator.SAML2SSO.SP_ENTITY_ID);
-					if (spEntityIdProp != null) {
-						spEntityId = spEntityIdProp.getValue();
-					}
-					Property ssoUrlProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
-							IdentityApplicationConstants.Authenticator.SAML2SSO.SSO_URL);
-					if (spEntityIdProp != null) {
-						ssoUrl = ssoUrlProp.getValue();
-					}
-					Property isAuthnRequestSignedProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
-							IdentityApplicationConstants.Authenticator.SAML2SSO.IS_AUTHN_REQ_SIGNED);
-					if (isAuthnRequestSignedProp != null) {
-						isAuthnRequestSigned = Boolean.parseBoolean(isAuthnRequestSignedProp.getValue());
-					}
+                    allFedAuthConfigs.remove(fedAuthnConfig.getName());
+                    isSAML2SSOEnabled = fedAuthnConfig.getEnabled();
+                    Property idPEntityIdProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
+                            IdentityApplicationConstants.Authenticator.SAML2SSO.IDP_ENTITY_ID);
+                    if (idPEntityIdProp != null) {
+                        idPEntityId = idPEntityIdProp.getValue();
+                    }
+                    Property spEntityIdProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
+                            IdentityApplicationConstants.Authenticator.SAML2SSO.SP_ENTITY_ID);
+                    if (spEntityIdProp != null) {
+                        spEntityId = spEntityIdProp.getValue();
+                    }
+                    Property ssoUrlProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
+                            IdentityApplicationConstants.Authenticator.SAML2SSO.SSO_URL);
+                    if (spEntityIdProp != null) {
+                        ssoUrl = ssoUrlProp.getValue();
+                    }
+                    Property isAuthnRequestSignedProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
+                            IdentityApplicationConstants.Authenticator.SAML2SSO.IS_AUTHN_REQ_SIGNED);
+                    if (isAuthnRequestSignedProp != null) {
+                        isAuthnRequestSigned = Boolean.parseBoolean(isAuthnRequestSignedProp.getValue());
+                    }
 
-					Property isEnableAssertionSigningProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
-							IdentityApplicationConstants.Authenticator.SAML2SSO.IS_ENABLE_ASSERTION_SIGNING);
-					if (isEnableAssertionSigningProp != null) {
-						isEnableAssertionSigning = Boolean.parseBoolean(isEnableAssertionSigningProp.getValue());
-					}
+                    Property isEnableAssertionSigningProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
+                            IdentityApplicationConstants.Authenticator.SAML2SSO.IS_ENABLE_ASSERTION_SIGNING);
+                    if (isEnableAssertionSigningProp != null) {
+                        isEnableAssertionSigning = Boolean.parseBoolean(isEnableAssertionSigningProp.getValue());
+                    }
 
-					Property isEnableAssersionEncriptionProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
-							IdentityApplicationConstants.Authenticator.SAML2SSO.IS_ENABLE_ASSERTION_ENCRYPTION);
-					if (isEnableAssersionEncriptionProp != null) {
-						isEnableAssertionEncription = Boolean.parseBoolean(isEnableAssersionEncriptionProp.getValue());
-					}
+                    Property isEnableAssersionEncriptionProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
+                            IdentityApplicationConstants.Authenticator.SAML2SSO.IS_ENABLE_ASSERTION_ENCRYPTION);
+                    if (isEnableAssersionEncriptionProp != null) {
+                        isEnableAssertionEncription = Boolean.parseBoolean(isEnableAssersionEncriptionProp.getValue());
+                    }
 
-					Property isSLOEnabledProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
-							IdentityApplicationConstants.Authenticator.SAML2SSO.IS_LOGOUT_ENABLED);
-					if (isSLOEnabledProp != null) {
-						isSLOEnabled = Boolean.parseBoolean(isSLOEnabledProp.getValue());
-					}
-					Property logoutUrlProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
-							IdentityApplicationConstants.Authenticator.SAML2SSO.LOGOUT_REQ_URL);
-					if (logoutUrlProp != null) {
-						logoutUrl = logoutUrlProp.getValue();
-					}
-					Property isLogoutRequestSignedProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
-							IdentityApplicationConstants.Authenticator.SAML2SSO.IS_LOGOUT_REQ_SIGNED);
-					if (isLogoutRequestSignedProp != null) {
-						isLogoutRequestSigned = Boolean.parseBoolean(isLogoutRequestSignedProp.getValue());
-					}
-					Property isAuthnResponseSignedProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
-							IdentityApplicationConstants.Authenticator.SAML2SSO.IS_AUTHN_RESP_SIGNED);
-					if (isAuthnResponseSignedProp != null) {
-						isAuthnResponseSigned = Boolean.parseBoolean(isAuthnResponseSignedProp.getValue());
-					}
+                    Property isSLOEnabledProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
+                            IdentityApplicationConstants.Authenticator.SAML2SSO.IS_LOGOUT_ENABLED);
+                    if (isSLOEnabledProp != null) {
+                        isSLOEnabled = Boolean.parseBoolean(isSLOEnabledProp.getValue());
+                    }
+                    Property logoutUrlProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
+                            IdentityApplicationConstants.Authenticator.SAML2SSO.LOGOUT_REQ_URL);
+                    if (logoutUrlProp != null) {
+                        logoutUrl = logoutUrlProp.getValue();
+                    }
+                    Property isLogoutRequestSignedProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
+                            IdentityApplicationConstants.Authenticator.SAML2SSO.IS_LOGOUT_REQ_SIGNED);
+                    if (isLogoutRequestSignedProp != null) {
+                        isLogoutRequestSigned = Boolean.parseBoolean(isLogoutRequestSignedProp.getValue());
+                    }
+                    Property isAuthnResponseSignedProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
+                            IdentityApplicationConstants.Authenticator.SAML2SSO.IS_AUTHN_RESP_SIGNED);
+                    if (isAuthnResponseSignedProp != null) {
+                        isAuthnResponseSigned = Boolean.parseBoolean(isAuthnResponseSignedProp.getValue());
+                    }
 
-					Property signatureAlgoProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
-							IdentityApplicationConstants.Authenticator.SAML2SSO.SIGNATURE_ALGORITHM);
-					if(signatureAlgoProp != null){
-						signatureAlgorithm = signatureAlgoProp.getValue();
-					}
-		
-					Property digestAlgoProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
-							IdentityApplicationConstants.Authenticator.SAML2SSO.DIGEST_ALGORITHM);
-					if(digestAlgoProp != null){
-						digestAlgorithm = digestAlgoProp.getValue();
-					}
-		
-					Property includeAuthnContextProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
-							IdentityApplicationConstants.Authenticator.SAML2SSO.INCLUDE_AUTHN_CONTEXT);
-					if(includeAuthnContextProp != null){
-						includeAuthenticationContext = includeAuthnContextProp.getValue();
-					} else{
-						includeAuthenticationContext = "yes";
-					}
-		
-					Property authnContextRefClassProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
-							IdentityApplicationConstants.Authenticator.SAML2SSO.AUTHENTICATION_CONTEXT_CLASS);
-					if(authnContextRefClassProp != null){
-						authenticationContextClass = authnContextRefClassProp.getValue();
-					} else {
-						authenticationContextClass = "urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport";
-					}
-		
-					Property authnContextCompLevelProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
-							IdentityApplicationConstants.Authenticator.SAML2SSO.AUTHENTICATION_CONTEXT_COMPARISON_LEVEL);
-					if(authnContextCompLevelProp != null){
-						authenticationContextComparisonLevel = authnContextCompLevelProp.getValue();
-					} else {
-						authenticationContextComparisonLevel = "Exact";
-					}
-		
-					Property includeNameIdPolicyProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
-							IdentityApplicationConstants.Authenticator.SAML2SSO.INCLUDE_NAME_ID_POLICY);
-					if(includeNameIdPolicyProp != null){
-						includeNameIdPolicy = Boolean.parseBoolean(includeNameIdPolicyProp.getValue());
-					}
-		
-					Property includeCertProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
-							IdentityApplicationConstants.Authenticator.SAML2SSO.INCLUDE_CERT);
-					if(includeCertProp != null){
-						includeCert = Boolean.parseBoolean(includeCertProp.getValue());
-					}
-		
-					Property includeProtocolBindingProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
-							IdentityApplicationConstants.Authenticator.SAML2SSO.INCLUDE_PROTOCOL_BINDING);
-					if(includeProtocolBindingProp != null){
-						includeProtocolBinding = Boolean.parseBoolean(includeProtocolBindingProp.getValue());
-					}
-		
-					Property forceAuthProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
-							IdentityApplicationConstants.Authenticator.SAML2SSO.FORCE_AUTHENTICATION);
-					if(forceAuthProp != null){
-						forceAuthentication = forceAuthProp.getValue();
-					} else{
-						forceAuthentication = "as_request";
-					}
-		
-					Property attributeConsumingServiceIndexProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
-							IdentityApplicationConstants.Authenticator.SAML2SSO.ATTRIBUTE_CONSUMING_SERVICE_INDEX);
-					if(attributeConsumingServiceIndexProp != null){
-						attributeConsumingServiceIndex = attributeConsumingServiceIndexProp.getValue();
-					}
-		
-					Property requestMethodProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
-							IdentityApplicationConstants.Authenticator.SAML2SSO.REQUEST_METHOD);
-					if (requestMethodProp != null) {
-						requestMethod = requestMethodProp.getValue();
-					} else {
-						requestMethod = "redirect";
-					}
+                    Property signatureAlgoProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
+                            IdentityApplicationConstants.Authenticator.SAML2SSO.SIGNATURE_ALGORITHM);
+                    if (signatureAlgoProp != null) {
+                        signatureAlgorithm = signatureAlgoProp.getValue();
+                    }
 
-					Property isSAMLSSOUserIdInClaimsProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
-							IdentityApplicationConstants.Authenticator.SAML2SSO.IS_USER_ID_IN_CLAIMS);
-					if (isSAMLSSOUserIdInClaimsProp != null) {
-						isSAMLSSOUserIdInClaims = Boolean.parseBoolean(isSAMLSSOUserIdInClaimsProp.getValue());
-					}
+                    Property digestAlgoProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
+                            IdentityApplicationConstants.Authenticator.SAML2SSO.DIGEST_ALGORITHM);
+                    if (digestAlgoProp != null) {
+                        digestAlgorithm = digestAlgoProp.getValue();
+                    }
 
-					Property queryParamProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(), "commonAuthQueryParams");
-					if (queryParamProp != null) {
-						samlQueryParam = queryParamProp.getValue();
-					}
+                    Property includeAuthnContextProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
+                            IdentityApplicationConstants.Authenticator.SAML2SSO.INCLUDE_AUTHN_CONTEXT);
+                    if (includeAuthnContextProp != null) {
+                        includeAuthenticationContext = includeAuthnContextProp.getValue();
+                    } else {
+                        includeAuthenticationContext = "yes";
+                    }
+
+                    Property authnContextRefClassProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
+                            IdentityApplicationConstants.Authenticator.SAML2SSO.AUTHENTICATION_CONTEXT_CLASS);
+                    if (authnContextRefClassProp != null) {
+                        authenticationContextClass = authnContextRefClassProp.getValue();
+                    } else {
+                        authenticationContextClass = "urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport";
+                    }
+
+                    Property authnContextCompLevelProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
+                            IdentityApplicationConstants.Authenticator.SAML2SSO.AUTHENTICATION_CONTEXT_COMPARISON_LEVEL);
+                    if (authnContextCompLevelProp != null) {
+                        authenticationContextComparisonLevel = authnContextCompLevelProp.getValue();
+                    } else {
+                        authenticationContextComparisonLevel = "Exact";
+                    }
+
+                    Property includeNameIdPolicyProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
+                            IdentityApplicationConstants.Authenticator.SAML2SSO.INCLUDE_NAME_ID_POLICY);
+                    if (includeNameIdPolicyProp != null) {
+                        includeNameIdPolicy = Boolean.parseBoolean(includeNameIdPolicyProp.getValue());
+                    }
+
+                    Property includeCertProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
+                            IdentityApplicationConstants.Authenticator.SAML2SSO.INCLUDE_CERT);
+                    if (includeCertProp != null) {
+                        includeCert = Boolean.parseBoolean(includeCertProp.getValue());
+                    }
+
+                    Property includeProtocolBindingProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
+                            IdentityApplicationConstants.Authenticator.SAML2SSO.INCLUDE_PROTOCOL_BINDING);
+                    if (includeProtocolBindingProp != null) {
+                        includeProtocolBinding = Boolean.parseBoolean(includeProtocolBindingProp.getValue());
+                    }
+
+                    Property forceAuthProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
+                            IdentityApplicationConstants.Authenticator.SAML2SSO.FORCE_AUTHENTICATION);
+                    if (forceAuthProp != null) {
+                        forceAuthentication = forceAuthProp.getValue();
+                    } else {
+                        forceAuthentication = "as_request";
+                    }
+
+                    Property attributeConsumingServiceIndexProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
+                            IdentityApplicationConstants.Authenticator.SAML2SSO.ATTRIBUTE_CONSUMING_SERVICE_INDEX);
+                    if (attributeConsumingServiceIndexProp != null) {
+                        attributeConsumingServiceIndex = attributeConsumingServiceIndexProp.getValue();
+                    }
+
+                    Property requestMethodProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
+                            IdentityApplicationConstants.Authenticator.SAML2SSO.REQUEST_METHOD);
+                    if (requestMethodProp != null) {
+                        requestMethod = requestMethodProp.getValue();
+                    } else {
+                        requestMethod = "redirect";
+                    }
+
+                    Property isSAMLSSOUserIdInClaimsProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
+                            IdentityApplicationConstants.Authenticator.SAML2SSO.IS_USER_ID_IN_CLAIMS);
+                    if (isSAMLSSOUserIdInClaimsProp != null) {
+                        isSAMLSSOUserIdInClaims = Boolean.parseBoolean(isSAMLSSOUserIdInClaimsProp.getValue());
+                    }
+
+                    Property queryParamProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(), "commonAuthQueryParams");
+                    if (queryParamProp != null) {
+                        samlQueryParam = queryParamProp.getValue();
+                    }
 				} else {
                     FederatedAuthenticatorConfig customConfig = allFedAuthConfigs.get(fedAuthnConfig.getName());
                     if (customConfig != null) {
