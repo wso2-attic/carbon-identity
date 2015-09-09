@@ -53,7 +53,6 @@ public class SAMLSSOAuthenticator extends AbstractApplicationAuthenticator imple
     private static final long serialVersionUID = -8097512332218044859L;
     public static final String AS_REQUEST = "AS_REQUEST";
 
-
     private static Log log = LogFactory.getLog(SAMLSSOAuthenticator.class);
 
     @Override
