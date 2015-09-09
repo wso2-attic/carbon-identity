@@ -339,7 +339,7 @@ public class SAMLSSOAuthenticator extends AbstractApplicationAuthenticator imple
         }
 
         String encodedRequest = ((DefaultSAML2SSOManager) saml2SSOManager).buildPostRequest(
-                request, isLogout, isPassive, loginPage);
+                request, isLogout, isPassive, loginPage, context);
         String relayState = context.getContextIdentifier();
 
         Map<String, String> reqParamMap = getAdditionalRequestParams(request, context);

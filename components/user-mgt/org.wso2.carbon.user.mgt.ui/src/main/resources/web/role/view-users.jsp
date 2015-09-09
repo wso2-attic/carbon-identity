@@ -39,6 +39,9 @@
 <%@ page import="org.wso2.carbon.user.mgt.workflow.ui.UserManagementWorkflowServiceClient" %>
 <%@ page import="java.util.Set" %>
 <%@ page import="java.util.LinkedHashSet" %>
+<%@ page import="org.apache.commons.lang.ArrayUtils" %>
+<%@ page import="org.apache.commons.lang.StringUtils" %>
+<%@ page import="org.apache.commons.collections.CollectionUtils" %>
 <script type="text/javascript" src="../userstore/extensions/js/vui.js"></script>
 <script type="text/javascript" src="../admin/js/main.js"></script>
 <jsp:include page="../dialog/display_messages.jsp"/>
@@ -59,14 +62,14 @@
     int cachePages = 3;
     int noOfPageLinksToDisplay = 5;
     int numberOfPages = 0;
-    Map<Integer, PaginatedNamesBean>  flaggedNameMap = null;
+    Map<Integer, PaginatedNamesBean> flaggedNameMap = null;
     Set<String> workFlowDeletePendingUsers = null;
 
-    if(request.getParameter("pageNumber") == null){
+    if (request.getParameter("pageNumber") == null) {
         session.removeAttribute("checkedUsersMap");
     }
-    if(session.getAttribute("checkedUsersMap") == null){
-        session.setAttribute("checkedUsersMap",new HashMap<String,Boolean>());
+    if (session.getAttribute("checkedUsersMap") == null) {
+        session.setAttribute("checkedUsersMap", new HashMap<String, Boolean>());
     }
 
     // find out jsp to send back
@@ -76,19 +79,19 @@
     String prevString = null;
 
 
-    if(prevPage != null && prevPage.trim().length() > 0 && prevUser !=null &&  prevUser.trim().length() > 0){
+    if (StringUtils.isNotBlank(prevPage) && StringUtils.isNotBlank(prevUser)) {
         showUpdate = false;
         if ("view".equals(prevPage)) {
             prevString = "../user/view-roles.jsp?username=" + Encode.forUriComponent(prevUser) + "&pageNumber=" +
-                         Encode.forUriComponent(prevPageNumber);
+                    Encode.forUriComponent(prevPageNumber);
         } else if ("edit".equals(prevPage)) {
             prevString = "../user/edit-user-roles.jsp?username=" + Encode.forUriComponent(prevUser) + "&pageNumber=" +
-                         Encode.forUriComponent(prevPageNumber);
+                    Encode.forUriComponent(prevPageNumber);
         }
         session.setAttribute("prevString", prevString);
     } else {
-        prevString = (String)session.getAttribute("prevString");
-        if(prevString != null){
+        prevString = (String) session.getAttribute("prevString");
+        if (prevString != null) {
             showUpdate = false;
         }
     }
@@ -107,9 +110,9 @@
 <%
 	// search filter
     String filter = request.getParameter(UserAdminUIConstants.ROLE_LIST_VIEW_USER_FILTER);
-    if (filter == null || filter.trim().length() == 0) {
+    if (StringUtils.isEmpty(filter)) {
         filter = (java.lang.String) session.getAttribute(UserAdminUIConstants.ROLE_LIST_VIEW_USER_FILTER);
-        if (filter == null || filter.trim().length() == 0) {
+        if (StringUtils.isEmpty(filter)) {
             filter = "*";
         }
     } else {
@@ -125,37 +128,35 @@
 
     boolean useCache = false;
 
-    if(prevRole != null && prevRole.equals(roleName) ){
+    if (StringUtils.equals(roleName, prevRole)) {
         useCache = true;
-    } else if(prevRole!=null){
-        session.setAttribute("previousRole",roleName);
+    } else if (prevRole != null) {
+        session.setAttribute("previousRole", roleName);
     }
-    
+
     String readOnlyRoleString = request.getParameter(UserAdminUIConstants.ROLE_READ_ONLY);
-	if (readOnlyRoleString == null) {
-		readOnlyRoleString =
-		                     (String) session.getAttribute(UserAdminUIConstants.ROLE_READ_ONLY);
-	}
-	if ("true".equals(readOnlyRoleString)) {
-		readOnlyRole = true;
-	}
+    if (readOnlyRoleString == null) {
+        readOnlyRoleString =
+                (String) session.getAttribute(UserAdminUIConstants.ROLE_READ_ONLY);
+    }
+    if (Boolean.parseBoolean(readOnlyRoleString)) {
+        readOnlyRole = true;
+    }
 
-	exceededDomains =
-	                  (FlaggedName) session.getAttribute(UserAdminUIConstants.ROLE_LIST_ASSIGNED_USER_CACHE_EXCEEDED);
+    exceededDomains =
+            (FlaggedName) session.getAttribute(UserAdminUIConstants.ROLE_LIST_ASSIGNED_USER_CACHE_EXCEEDED);
 
-	// check page number
-	String pageNumberStr = request.getParameter("pageNumber");
-	if (pageNumberStr == null) {
-		pageNumberStr = "0";
-	}
+    // check page number
+    try {
 
-	try {
-		pageNumber = Integer.parseInt(pageNumberStr);
-	} catch (NumberFormatException ignored) {
-		// page number format exception
-	}
+        pageNumber = Integer.parseInt(request.getParameter("pageNumber"));
 
-	if(useCache) {
+    } catch (NumberFormatException ignored) {
+        // page number format exception
+        pageNumber = 0;
+    }
+
+    if (useCache) {
 
         flaggedNameMap =
                 (Map<Integer, PaginatedNamesBean>) session.getAttribute(UserAdminUIConstants.ROLE_LIST_ASSIGNED_USER_CACHE);
@@ -170,23 +171,23 @@
             }
         }
     }
-	if (doUserList || newFilter) {
-		try {
-			String cookie =
-			                (String) session.getAttribute(ServerConstants.ADMIN_SERVICE_COOKIE);
-			String backendServerURL =
-			                          CarbonUIUtil.getServerURL(config.getServletContext(),
-			                                                    session);
-			ConfigurationContext configContext =
-			                                     (ConfigurationContext) config.getServletContext()
-			                                                                  .getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
-			UserAdminClient client =
-			                         new UserAdminClient(cookie, backendServerURL,
-			                                             configContext);
+    if (doUserList || newFilter) {
+        try {
+            String cookie =
+                    (String) session.getAttribute(ServerConstants.ADMIN_SERVICE_COOKIE);
+            String backendServerURL =
+                    CarbonUIUtil.getServerURL(config.getServletContext(),
+                            session);
+            ConfigurationContext configContext =
+                    (ConfigurationContext) config.getServletContext()
+                            .getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
+            UserAdminClient client =
+                    new UserAdminClient(cookie, backendServerURL,
+                            configContext);
             UserManagementWorkflowServiceClient UserMgtClient = new
                     UserManagementWorkflowServiceClient(cookie, backendServerURL, configContext);
-			if (filter.length() > 0) {
-				FlaggedName[] data = client.getUsersOfRole(roleName, filter, 0);
+            if (filter.length() > 0) {
+                FlaggedName[] data = client.getUsersOfRole(roleName, filter, 0);
                 if (CarbonUIUtil.isContextRegistered(config, "/usermgt-workflow/")) {
                     String[] DeletePendingRolesList = UserMgtClient.
                             listAllEntityNames("DELETE_USER", "PENDING", "USER");
@@ -203,42 +204,42 @@
                         }
                     }
                 }
-				dataList = new ArrayList<FlaggedName>(Arrays.asList(data));
-				exceededDomains = dataList.remove(dataList.size() - 1);
-				session.setAttribute(UserAdminUIConstants.ROLE_LIST_ASSIGNED_USER_CACHE_EXCEEDED,
-				                     exceededDomains);
-				if (dataList != null && dataList.size() > 0) {
-					flaggedNameMap = new HashMap<Integer, PaginatedNamesBean>();
-					int max = pageNumber + cachePages;
-					for (int i = (pageNumber - cachePages); i < max; i++) {
-						if (i < 0) {
-							max++;
-							continue;
-						}
-						PaginatedNamesBean bean =
-						                          Util.retrievePaginatedFlaggedName(i,
-						                                                            dataList);
-						flaggedNameMap.put(i, bean);
-						if (bean.getNumberOfPages() == i + 1) {
-							break;
-						}
-					}
-					users = flaggedNameMap.get(pageNumber).getNames();
-					numberOfPages = flaggedNameMap.get(pageNumber).getNumberOfPages();
-					session.setAttribute(UserAdminUIConstants.ROLE_LIST_ASSIGNED_USER_CACHE,
-					                     flaggedNameMap);
-				} else {
-					session.removeAttribute(UserAdminUIConstants.ROLE_LIST_VIEW_USER_FILTER);
-					showFilterMessage = true;
-				}
-			}
-		} catch (Exception e) {
+                dataList = new ArrayList<FlaggedName>(Arrays.asList(data));
+                exceededDomains = dataList.remove(dataList.size() - 1);
+                session.setAttribute(UserAdminUIConstants.ROLE_LIST_ASSIGNED_USER_CACHE_EXCEEDED,
+                        exceededDomains);
+                if (CollectionUtils.isNotEmpty(dataList)) {
+                    flaggedNameMap = new HashMap<Integer, PaginatedNamesBean>();
+                    int max = pageNumber + cachePages;
+                    for (int i = (pageNumber - cachePages); i < max; i++) {
+                        if (i < 0) {
+                            max++;
+                            continue;
+                        }
+                        PaginatedNamesBean bean =
+                                Util.retrievePaginatedFlaggedName(i,
+                                        dataList);
+                        flaggedNameMap.put(i, bean);
+                        if (bean.getNumberOfPages() == i + 1) {
+                            break;
+                        }
+                    }
+                    users = flaggedNameMap.get(pageNumber).getNames();
+                    numberOfPages = flaggedNameMap.get(pageNumber).getNumberOfPages();
+                    session.setAttribute(UserAdminUIConstants.ROLE_LIST_ASSIGNED_USER_CACHE,
+                            flaggedNameMap);
+                } else {
+                    session.removeAttribute(UserAdminUIConstants.ROLE_LIST_VIEW_USER_FILTER);
+                    showFilterMessage = true;
+                }
+            }
+        } catch (Exception e) {
             String message = MessageFormat.format(resourceBundle.getString("error.while.loading.users.of"),
-                    roleName,e.getMessage());
+                    roleName, e.getMessage());
 %>
 <script type="text/javascript">
     jQuery(document).ready(function () {
-        CARBON.showErrorDialog('<%=message%>',  function () {
+        CARBON.showErrorDialog('<%=Encode.forJavaScript(Encode.forHtml(message))%>', function () {
             location.href = "role-mgt.jsp";
         });
     });
@@ -246,29 +247,29 @@
 <%
         }
     }
-    Util.updateCheckboxStateMap((Map<String,Boolean>)session.getAttribute("checkedUsersMap"),flaggedNameMap,
-            request.getParameter("selectedUsers"),request.getParameter("unselectedUsers"),":");
+    Util.updateCheckboxStateMap((Map<String, Boolean>) session.getAttribute("checkedUsersMap"), flaggedNameMap,
+            request.getParameter("selectedUsers"), request.getParameter("unselectedUsers"), ":");
 %>
 <fmt:bundle basename="org.wso2.carbon.userstore.ui.i18n.Resources">
-<carbon:breadcrumb label="users.in.the.role"
-                   resourceBundle="org.wso2.carbon.userstore.ui.i18n.Resources"
-                   topPage="true" request="<%=request%>"/>
+    <carbon:breadcrumb label="users.in.the.role"
+                       resourceBundle="org.wso2.carbon.userstore.ui.i18n.Resources"
+                       topPage="true" request="<%=request%>"/>
 
-<script type="text/javascript">
+    <script type="text/javascript">
 
-    function doValidation() {
-        return true;
-    }
+        function doValidation() {
+            return true;
+        }
 
-    function doUpdate() {
-        document.edit_users.submit();
-    }
+        function doUpdate() {
+            document.edit_users.submit();
+        }
 
-    function doFinish() {
+        function doFinish() {
 
-        document.edit_users.finish.value = 'true';
-        document.edit_users.submit();
-    }
+            document.edit_users.finish.value = 'true';
+            document.edit_users.submit();
+        }
 
         function doPaginate(page, pageNumberParameterName, pageNumber) {
             var form = document.createElement("form");
@@ -387,147 +388,151 @@
                     </tr>
                     </thead>
 
-                <tbody>
-                <%if(users != null && users.length > 0 && showUpdate){%>
+                    <tbody>
+                    <%if (ArrayUtils.isNotEmpty(users) && showUpdate) {%>
                     <tr>
                         <td colspan="4">
 
                             <%
                                 String fromPage = "1";
                                 String toPage = String.valueOf(numberOfPages);
-                                if(pageNumber - cachePages >= 0){
+                                if (pageNumber - cachePages >= 0) {
                                     fromPage = String.valueOf(pageNumber + 1 - cachePages);
                                 }
-                                if(pageNumber + cachePages <= numberOfPages-1){
+                                if (pageNumber + cachePages <= numberOfPages - 1) {
                                     toPage = String.valueOf(pageNumber + 1 + cachePages);
                                 }
                             %>
 
                             <a href="#" onclick="doSelectAll('selectedUsers');"/>
-                                <fmt:message key="select.all.page"/> </a> |
+                            <fmt:message key="select.all.page"/> </a> |
                             <a href="#" onclick="doUnSelectAll('selectedUsers');"/>
-                                <fmt:message key="unselect.all.page"/> </a>
-                            <%if(Integer.parseInt(fromPage) < Integer.parseInt(toPage)){%>
-                                | <a href="#" onclick="doSelectAllRetrieved();"/>
-                                    <fmt:message key="select.all.page.from"/> <%=fromPage%> <fmt:message key="select.all.page.to"/> <%=toPage%></a> |
-                                <a href="#" onclick="doUnSelectAllRetrieved();"/>
-                                    <fmt:message key="unselect.all.page.from"/> <%=fromPage%> <fmt:message key="unselect.all.page.to"/> <%=toPage%></a>
+                            <fmt:message key="unselect.all.page"/> </a>
+                            <%if (Integer.parseInt(fromPage) < Integer.parseInt(toPage)) {%>
+                            | <a href="#" onclick="doSelectAllRetrieved();"/>
+                            <fmt:message key="select.all.page.from"/> <%=fromPage%> <fmt:message
+                                key="select.all.page.to"/> <%=toPage%></a> |
+                            <a href="#" onclick="doUnSelectAllRetrieved();"/>
+                            <fmt:message key="unselect.all.page.from"/> <%=fromPage%> <fmt:message
+                                key="unselect.all.page.to"/> <%=toPage%></a>
                             <%}%>
                         </td>
                     </tr>
-                <% } %>
-                <tr>
-                    <td colspan="2">
-                        <%
-                            if (users != null) {
-                                for (FlaggedName user : users) {
-                                    if (user != null) {
-                                        String doCheck = "checked=\"checked\"";
-                                        String doEdit = "";
-                                        if (user.getItemName().equals(CarbonConstants.REGISTRY_ANONNYMOUS_USERNAME)) {
-                                            continue;
-                                        } else if(readOnlyRole && !user.getEditable()){
-                                            doEdit = "disabled=\"disabled\"";
-                                        } else if(session.getAttribute("checkedUsersMap") != null &&
-                                                ((Map<String, Boolean>) session.getAttribute("checkedUsersMap")).get(user.getItemName()) != null &&
-                                                ((Map<String, Boolean>) session.getAttribute("checkedUsersMap")).get(user.getItemName()) == false){
-                                            doCheck = "";
-                                        }
+                    <% } %>
+                    <tr>
+                        <td colspan="2">
+                            <%
+                                if (users != null) {
+                                    for (FlaggedName user : users) {
+                                        if (user != null) {
+                                            String doCheck = "checked=\"checked\"";
+                                            String doEdit = "";
+                                            if (user.getItemName().equals(CarbonConstants.REGISTRY_ANONNYMOUS_USERNAME)) {
+                                                continue;
+                                            } else if (readOnlyRole && !user.getEditable()) {
+                                                doEdit = "disabled=\"disabled\"";
+                                            } else if (session.getAttribute("checkedUsersMap") != null &&
+                                                    Boolean.FALSE.equals(((Map<String, Boolean>) session.getAttribute("checkedUsersMap")).get(user.getItemName()))) {
+                                                doCheck = "";
+                                            }
 
-                                        String userName = user.getItemName();
-                                        String displayName = user.getItemDisplayName();
-                                        if (displayName == null || displayName.trim().length() == 0) {
-                                            displayName = userName;
+                                            String userName = user.getItemName();
+                                            String displayName = user.getItemDisplayName();
+                                            if (displayName == null || displayName.trim().length() == 0) {
+                                                displayName = userName;
+                                            }
+                            %>
+                            <% if (showUpdate) {%>
+                            <input type="checkbox" name="selectedUsers"
+                                   value="<%=Encode.forHtmlAttribute(userName)%>" <%=doCheck%> <%=doEdit%> />
+                            <% } %>
+                            <%
+                                if (userName.contains("[Pending User for Delete]")) {
+                            %>
+                            <%=Encode.forHtml(user.getItemDisplayName())%>
+                            <img src="images/workflow_pending_remove.gif"
+                                 title="Workflow-pending-user-delete"
+                                 alt="Workflow-pending-user-delete" height="15" width="15">
+                            <%
+                            } else {
+                            %>
+                            <%=Encode.forHtml(displayName)%>
+                            <%
+                                }
+                            %>
+                            <input type="hidden" name="shownUsers" value="<%=Encode.forHtmlAttribute(userName)%>"/><br/>
+                            <%
                                         }
-                        %>
-                        <% if(showUpdate) {%>
-                            <input type="checkbox" name="selectedUsers" value="<%=Encode.forHtmlAttribute(userName)%>" <%=doCheck%> <%=doEdit%> />
-                        <% } %>
-                        <%
-                            if (userName.contains("[Pending User for Delete]")) {
-                        %>
-                        <%=Encode.forHtml(user.getItemDisplayName())%>
-                        <img src="images/workflow_pending_remove.gif"
-                             title="Workflow-pending-user-delete"
-                             alt="Workflow-pending-user-delete" height="15" width="15">
-                        <%
-                        } else {
-                        %>
-                        <%=Encode.forHtml(displayName)%>
-                        <%
-                            }
-                        %>
-                        <input type="hidden" name="shownUsers" value="<%=userName%>"/><br/>
-                        <%
                                     }
                                 }
-                            }
 
-                        %>
-                    </td>
-                </tr>
-                </tbody>
-            </table>                
+                            %>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
                 <carbon:paginator pageNumber="<%=pageNumber%>"
                                   action="post"
                                   numberOfPages="<%=numberOfPages%>"
                                   noOfPageLinksToDisplay="<%=noOfPageLinksToDisplay%>"
                                   page="view-users.jsp" pageNumberParameterName="pageNumber"
-                                  parameters="<%="roleName="+roleName%>"/>
-            <%
-                if (users != null && users.length > 0 && exceededDomains != null) {
-                    if(exceededDomains.getItemName() != null || exceededDomains.getItemDisplayName() != null){
-                        String message = null;
-                        if(exceededDomains.getItemName() != null && exceededDomains.getItemName().equals("true")){
-                            if(exceededDomains.getItemDisplayName() != null && !exceededDomains.getItemDisplayName().equals("")){
-                                String arg = "";
-                                String[] domains = exceededDomains.getItemDisplayName().split(":");
-                                for(int i=0;i<domains.length;i++){
-                                    arg += "\'"+domains[i]+"\'";
-                                    if(i < domains.length - 2){
-                                        arg += ", ";
-                                    }else if(i == domains.length - 2){
-                                        arg += " and ";
+                                  parameters="<%="roleName="+Encode.forHtmlAttribute(roleName)%>"/>
+                <%
+                    if (ArrayUtils.isNotEmpty(users) && exceededDomains != null) {
+                        if (exceededDomains.getItemName() != null || exceededDomains.getItemDisplayName() != null) {
+                            String message = null;
+                            if (Boolean.parseBoolean(exceededDomains.getItemName())) {
+                                if (StringUtils.isNotBlank(exceededDomains.getItemDisplayName())) {
+                                    String arg = "";
+                                    String[] domains = exceededDomains.getItemDisplayName().split(":");
+                                    for (int i = 0; i < domains.length; i++) {
+                                        arg += "\'" + domains[i] + "\'";
+                                        if (i < domains.length - 2) {
+                                            arg += ", ";
+                                        } else if (i == domains.length - 2) {
+                                            arg += " and ";
+                                        }
                                     }
+                                    message = resourceBundle.getString("more.users.others").replace("{0}", arg);
+                                } else {
+                                    message = resourceBundle.getString("more.users.primary");
                                 }
-                                message = resourceBundle.getString("more.users.others").replace("{0}",arg);
-                            } else{
-                                message = resourceBundle.getString("more.users.primary");
-                            }
-        %>
-        <strong><%=Encode.forHtml(message)%></strong>
-        <%
-        }else if(exceededDomains.getItemDisplayName() != null && !exceededDomains.getItemDisplayName().equals("")){
-            String[] domains = exceededDomains.getItemDisplayName().split(":");
-            String arg = "";
-            for(int i=0;i<domains.length;i++){
-                arg += "\'"+domains[i]+"\'";
-                if(i < domains.length - 2){
-                    arg += ", ";
-                }else if(i == domains.length - 2){
-                    arg += " and ";
-                }
-            }
-            message = resourceBundle.getString("more.users").replace("{0}",arg);
-        %>
-        <strong><%=Encode.forHtml(message)%></strong>
-        <%
+                %>
+                <strong><%=Encode.forHtml(message)%>
+                </strong>
+                <%
+                } else if (StringUtils.isNotBlank(exceededDomains.getItemDisplayName())) {
+                    String[] domains = exceededDomains.getItemDisplayName().split(":");
+                    String arg = "";
+                    for (int i = 0; i < domains.length; i++) {
+                        arg += "\'" + domains[i] + "\'";
+                        if (i < domains.length - 2) {
+                            arg += ", ";
+                        } else if (i == domains.length - 2) {
+                            arg += " and ";
                         }
                     }
-                }
-            %>
+                    message = resourceBundle.getString("more.users").replace("{0}", arg);
+                %>
+                <strong><%=Encode.forHtml(message)%>
+                </strong>
+                <%
+                            }
+                        }
+                    }
+                %>
 
                 <tr>
                     <td class="buttonRow">
                         <%
-                            if(showUpdate && !readOnlyRole && !showFilterMessage){
+                            if (showUpdate && !readOnlyRole && !showFilterMessage) {
                         %>
-                                <input class="button" type="button" value="<fmt:message key="update"/>" onclick="doUpdate()"/>
-                                <input class="button" type="button" value="<fmt:message key="finish"/>" onclick="doFinish()"/>
+                        <input class="button" type="button" value="<fmt:message key="update"/>" onclick="doUpdate()"/>
+                        <input class="button" type="button" value="<fmt:message key="finish"/>" onclick="doFinish()"/>
                         <%
                             }
                         %>
-                            <input class="button" type="button" value="<fmt:message key="cancel"/>" onclick="doCancel()"/>
+                        <input class="button" type="button" value="<fmt:message key="cancel"/>" onclick="doCancel()"/>
                     </td>
                 </tr>
         </form>

@@ -40,6 +40,8 @@
 <%@ page import="java.util.Map" %>
 <%@ page import="java.util.ResourceBundle" %>
 <%@ page import="java.util.Set" %>
+<%@ page import="org.apache.commons.lang.ArrayUtils" %>
+<%@ page import="org.apache.commons.lang.StringUtils" %>
 <script type="text/javascript" src="../userstore/extensions/js/vui.js"></script>
 <script type="text/javascript" src="../admin/js/main.js"></script>
 <jsp:include page="../dialog/display_messages.jsp"/>
@@ -88,9 +90,9 @@
     session.removeAttribute("previousRole");
     // search filter
     String selectedDomain = request.getParameter("domain");
-    if(selectedDomain == null || selectedDomain.trim().length() == 0){
+    if (StringUtils.isBlank(selectedDomain)) {
         selectedDomain = (String) session.getAttribute(UserAdminUIConstants.ROLE_LIST_DOMAIN_FILTER);
-        if (selectedDomain == null || selectedDomain.trim().length() == 0) {
+        if (StringUtils.isBlank(selectedDomain)) {
             selectedDomain = UserAdminUIConstants.ALL_DOMAINS;
         }
     } else {
@@ -98,15 +100,15 @@
     }
 
     session.setAttribute(UserAdminUIConstants.ROLE_LIST_DOMAIN_FILTER, selectedDomain.trim());
-    
+
     String filter = request.getParameter(UserAdminUIConstants.ROLE_LIST_FILTER);
-    if (filter == null || filter.trim().length() == 0) {
+    if (StringUtils.isBlank(filter)) {
         filter = (String) session.getAttribute(UserAdminUIConstants.ROLE_LIST_FILTER);
-        if (filter == null || filter.trim().length() == 0) {
+        if (StringUtils.isBlank(filter)) {
             filter = "*";
         }
     } else {
-        if(filter.contains(UserAdminUIConstants.DOMAIN_SEPARATOR)){
+        if (filter.contains(UserAdminUIConstants.DOMAIN_SEPARATOR)) {
             selectedDomain = UserAdminUIConstants.ALL_DOMAINS;
             session.removeAttribute(UserAdminUIConstants.ROLE_LIST_DOMAIN_FILTER);
         }
@@ -115,7 +117,7 @@
 
 
     String modifiedFilter = filter.trim();
-    if(!UserAdminUIConstants.ALL_DOMAINS.equalsIgnoreCase(selectedDomain)){
+    if (!UserAdminUIConstants.ALL_DOMAINS.equalsIgnoreCase(selectedDomain)) {
         modifiedFilter = selectedDomain + UserAdminUIConstants.DOMAIN_SEPARATOR + filter;
         modifiedFilter = modifiedFilter.trim();
     }
@@ -123,7 +125,7 @@
     session.setAttribute(UserAdminUIConstants.ROLE_LIST_FILTER, filter.trim());
 
     String currentUser = (String) session.getAttribute("logged-user");
-    userRealmInfo = (UserRealmInfo)session.getAttribute(UserAdminUIConstants.USER_STORE_INFO);
+    userRealmInfo = (UserRealmInfo) session.getAttribute(UserAdminUIConstants.USER_STORE_INFO);
     if (userRealmInfo != null) {
         multipleUserStores = userRealmInfo.getMultipleUserStore();
     }
@@ -131,23 +133,21 @@
     exceededDomains = (FlaggedName) session.getAttribute(UserAdminUIConstants.ROLE_LIST_CACHE_EXCEEDED);
 
     // check page number
-    String pageNumberStr = request.getParameter("pageNumber");
-    if (pageNumberStr == null) {
-        pageNumberStr = "0";
-    }
-
     try {
-        pageNumber = Integer.parseInt(pageNumberStr);
+
+        pageNumber = Integer.parseInt(request.getParameter("pageNumber"));
+
     } catch (NumberFormatException ignored) {
         // page number format exception
+        pageNumber = 0;
     }
 
-    flaggedNameMap  = (Map<Integer, PaginatedNamesBean>) session.getAttribute(UserAdminUIConstants.ROLE_LIST_CACHE);
-    if(flaggedNameMap != null){
+    flaggedNameMap = (Map<Integer, PaginatedNamesBean>) session.getAttribute(UserAdminUIConstants.ROLE_LIST_CACHE);
+    if (flaggedNameMap != null) {
         PaginatedNamesBean bean = flaggedNameMap.get(pageNumber);
-        if(bean != null){
+        if (bean != null) {
             roles = bean.getNames();
-            if(roles != null && roles.length > 0){
+            if (!ArrayUtils.isEmpty(roles)) {
                 numberOfPages = bean.getNumberOfPages();
                 doRoleList = false;
             }
@@ -224,22 +224,22 @@
                     showFilterMessage = true;
                 }
             }
-            if(userRealmInfo == null){
+            if (userRealmInfo == null) {
                 userRealmInfo = client.getUserRealmInfo();
                 session.setAttribute(UserAdminUIConstants.USER_STORE_INFO, userRealmInfo);
             }
 
-            if(datasList != null){
+            if (datasList != null) {
                 flaggedNameMap = new HashMap<Integer, PaginatedNamesBean>();
                 int max = pageNumber + cachePages;
-                for(int i = (pageNumber - cachePages); i < max ; i++){
-                    if(i < 0){
+                for (int i = (pageNumber - cachePages); i < max; i++) {
+                    if (i < 0) {
                         max++;
                         continue;
                     }
-                    PaginatedNamesBean bean  =  Util.retrievePaginatedFlaggedName(i, datasList);
+                    PaginatedNamesBean bean = Util.retrievePaginatedFlaggedName(i, datasList);
                     flaggedNameMap.put(i, bean);
-                    if(bean.getNumberOfPages() == i + 1){
+                    if (bean.getNumberOfPages() == i + 1) {
                         break;
                     }
                 }
@@ -248,7 +248,7 @@
                 session.setAttribute(UserAdminUIConstants.ROLE_LIST_CACHE, flaggedNameMap);
             }
         } catch (Exception e) {
-            String message =  MessageFormat.format(resourceBundle.getString("error.while.role.filtered"),
+            String message = MessageFormat.format(resourceBundle.getString("error.while.role.filtered"),
                     e.getMessage());
 %>
 <script type="text/javascript">
@@ -261,9 +261,9 @@
         }
     }
 
-    if(userRealmInfo != null){
+    if (userRealmInfo != null) {
         domainNames = userRealmInfo.getDomainNames();
-        if(domainNames != null){
+        if (domainNames != null) {
             List<String> list = new ArrayList<String>(Arrays.asList(domainNames));
             list.add(UserAdminUIConstants.ALL_DOMAINS);
             list.add(UserAdminUIConstants.INTERNAL_DOMAIN);
@@ -312,25 +312,28 @@
 
             <form name="filterForm" method="post" action="role-mgt.jsp">
                 <table class="styledLeft noBorders">
-				<thead>
-					<tr>
-						<th colspan="2"><fmt:message key="role.search"/></th>
-					</tr>
-				</thead>
-				<tbody>
+                    <thead>
+                    <tr>
+                        <th colspan="2"><fmt:message key="role.search"/></th>
+                    </tr>
+                    </thead>
+                    <tbody>
                     <%
-                       if(domainNames != null && domainNames.length > 0){
+                        if (ArrayUtils.isNotEmpty(domainNames)) {
                     %>
                     <tr>
-                        <td class="leftCol-big" style="padding-right: 0 !important;"><fmt:message key="select.domain.search"/></td>
+                        <td class="leftCol-big" style="padding-right: 0 !important;"><fmt:message
+                                key="select.domain.search"/></td>
                         <td><select id="domain" name="domain">
                             <%
-                                for(String domainName : domainNames) {
-                                    if(selectedDomain.equals(domainName)) {
+                                for (String domainName : domainNames) {
+                                    if (selectedDomain.equals(domainName)) {
                             %>
-                                <option selected="selected" value="<%=domainName%>"><%=domainName%></option>
+                            <option selected="selected"
+                                    value="<%=Encode.forHtmlAttribute(domainName)%>"><%=Encode.forHtmlContent(domainName)%>
+                            </option>
                             <%
-                                    } else {
+                            } else {
                             %>
                             <option value="<%=Encode.forHtmlAttribute(domainName)%>">
                                 <%=Encode.forHtmlContent(domainName)%>
@@ -347,7 +350,8 @@
                     %>
 
                     <tr>
-                        <td class="leftCol-big" style="padding-right: 0 !important;"><fmt:message key="list.roles"/></td>
+                        <td class="leftCol-big" style="padding-right: 0 !important;"><fmt:message
+                                key="list.roles"/></td>
                         <td>
                             <input type="text" name="<%=UserAdminUIConstants.ROLE_LIST_FILTER%>"
                                    value="<%=Encode.forHtmlAttribute(filter)%>"/>
@@ -357,7 +361,7 @@
                         </td>
 
                     </tr>
-				</tbody>
+                    </tbody>
                 </table>
             </form>
             <p>&nbsp;</p>
@@ -369,15 +373,15 @@
 
             <table class="styledLeft" id="roleTable">
                 <%
-                    if (roles != null && roles.length > 0) {
+                    if (ArrayUtils.isNotEmpty(roles)) {
                 %>
                 <thead>
                 <tr>
                     <th><fmt:message key="name"/></th>
-                    <%--<%if(hasMultipleUserStores){%>
-                    <th><fmt:message key="domainName"/></th>
-                    <%}
-                    %>--%>
+                        <%--<%if(hasMultipleUserStores){%>
+                        <th><fmt:message key="domainName"/></th>
+                        <%}
+                        %>--%>
                     <th><fmt:message key="actions"/></th>
                 </tr>
                 </thead>
@@ -386,7 +390,7 @@
                 %>
                 <tbody>
                 <%
-                    if (roles != null && roles.length > 0) {
+                    if (ArrayUtils.isNotEmpty(roles)) {
                         for (FlaggedName data : roles) {
                             if (data != null) { //Confusing!!. Sometimes a null object comes. Maybe a bug in Axis!!
                                 if (CarbonConstants.REGISTRY_ANONNYMOUS_ROLE_NAME.equals(data.getItemName())) {
@@ -440,11 +444,12 @@
                              alt="Workflow-pending-user-delete" height="15" width="15">
                     </td>
                     <td>
-                        <%if(!data.getShared()){ %>
+                        <%if (!data.getShared()) { %>
                         <a href="#" class="icon-link" title="Operation is Disabled"
                            style="background-image:url(images/edit.gif);color:#CCC;"><fmt:message key="rename"/></a>
-                        <% if(!data.getItemName().equals(userRealmInfo.getAdminRole())) {%>
-                        <a href="edit-permissions.jsp?roleName=<%=Encode.forUriComponent(roleName)%>" class="icon-link" style="background-image:url(images/edit.gif);"><fmt:message key="edit.permissions"/></a>
+                        <% if (!data.getItemName().equals(userRealmInfo.getAdminRole())) {%>
+                        <a href="edit-permissions.jsp?roleName=<%=Encode.forUriComponent(roleName)%>" class="icon-link"
+                           style="background-image:url(images/edit.gif);"><fmt:message key="edit.permissions"/></a>
                         <% }
                         }%>
 
@@ -453,7 +458,8 @@
 
                         <% if (!userRealmInfo.getEveryOneRole().equals(data.getItemName())) { %>
                         <a href="view-users.jsp?roleName=<%=Encode.forUriComponent(roleName)%>&<%=UserAdminUIConstants.ROLE_READ_ONLY%>=<%=!data.getEditable()%>"
-                           class="icon-link" style="background-image:url(images/view.gif);"><fmt:message key="view.users"/></a>
+                           class="icon-link" style="background-image:url(images/view.gif);"><fmt:message
+                                key="view.users"/></a>
                         <% } %>
 
                         <a href="#" class="icon-link" title="Operation is Disabled"
@@ -461,11 +467,11 @@
                     </td>
                 </tr>
                 <%
-                }else{
+                } else {
                 %>
                 <tr>
                     <td><%=Encode.forHtmlContent(disPlayName)%>
-                        <%if(!data.getEditable()){ %> <%="(Read-Only)"%> <% } %>
+                        <%if (!data.getEditable()) { %> <%="(Read-Only)"%> <% } %>
                     </td>
                         <%-- <%if(hasMultipleUserStores){%>
                              <td>
@@ -475,27 +481,36 @@
                              </td>
                          <%}%>--%>
                     <td>
-                        <%if(!data.getShared()){ %>
-                        <% if(data.getItemName().equals(userRealmInfo.getAdminRole()) == false && data.getItemName().equals(userRealmInfo.getEveryOneRole()) == false && data.getEditable()){%>
-                        <a href="#" onclick="updateUserGroup('<%=Encode.forJavaScriptAttribute(roleName)%>')" class="icon-link" style="background-image:url(images/edit.gif);"><fmt:message key="rename"/></a>
-                        <% }  %>
-                        <% if(!data.getItemName().equals(userRealmInfo.getAdminRole())) {%>
-                        <a href="edit-permissions.jsp?roleName=<%=Encode.forUriComponent(roleName)%>" class="icon-link" style="background-image:url(images/edit.gif);"><fmt:message key="edit.permissions"/></a>
+                        <%if (!data.getShared()) { %>
+                        <% if (!data.getItemName().equals(userRealmInfo.getAdminRole()) && !data.getItemName().equals(userRealmInfo.getEveryOneRole()) && data.getEditable()) {%>
+                        <a href="#" onclick="updateUserGroup('<%=Encode.forJavaScriptAttribute(roleName)%>')"
+                           class="icon-link" style="background-image:url(images/edit.gif);"><fmt:message
+                                key="rename"/></a>
+                        <% } %>
+                        <% if (!data.getItemName().equals(userRealmInfo.getAdminRole())) {%>
+                        <a href="edit-permissions.jsp?roleName=<%=Encode.forUriComponent(roleName)%>" class="icon-link"
+                           style="background-image:url(images/edit.gif);"><fmt:message key="edit.permissions"/></a>
                         <% }
                         }%>
 
                         <% if (!userRealmInfo.getEveryOneRole().equals(data.getItemName()) && data.getEditable()) { %>
-                        <a href="edit-users.jsp?roleName=<%=Encode.forUriComponent(roleName)%>&<%=UserAdminUIConstants.ROLE_READ_ONLY%>=<%=!data.getEditable()%>" class="icon-link" style="background-image:url(images/edit.gif);"><fmt:message key="edit.users"/></a>
+                        <a href="edit-users.jsp?roleName=<%=Encode.forUriComponent(roleName)%>&<%=UserAdminUIConstants.ROLE_READ_ONLY%>=<%=!data.getEditable()%>"
+                           class="icon-link" style="background-image:url(images/edit.gif);"><fmt:message
+                                key="edit.users"/></a>
                         <% } %>
                         <% if (!userRealmInfo.getEveryOneRole().equals(data.getItemName())) { %>
                         <a href="view-users.jsp?roleName=<%=Encode.forUriComponent(roleName)%>&<%=UserAdminUIConstants.ROLE_READ_ONLY%>=<%=!data.getEditable()%>"
-                           class="icon-link" style="background-image:url(images/view.gif);"><fmt:message key="view.users"/></a>
+                           class="icon-link" style="background-image:url(images/view.gif);"><fmt:message
+                                key="view.users"/></a>
                         <% } %>
-                        <%if(!data.getShared()){ %>
+                        <%if (!data.getShared()) { %>
 
-                        <% if(data.getItemName().equals(userRealmInfo.getAdminRole()) == false && data.getItemName().equals(userRealmInfo.getEveryOneRole()) == false && data.getEditable()){%>
-                        <a href="#" onclick="deleteUserGroup('<%=Encode.forJavaScriptAttribute(roleName)%>')" class="icon-link" style="background-image:url(images/delete.gif);"><fmt:message key="delete"/></a>
-                        <% }}  %>
+                        <% if (!data.getItemName().equals(userRealmInfo.getAdminRole()) && !data.getItemName().equals(userRealmInfo.getEveryOneRole()) && data.getEditable()) {%>
+                        <a href="#" onclick="deleteUserGroup('<%=Encode.forJavaScriptAttribute(roleName)%>')"
+                           class="icon-link" style="background-image:url(images/delete.gif);"><fmt:message
+                                key="delete"/></a>
+                        <% }
+                        } %>
 
                     </td>
                 </tr>
@@ -516,42 +531,44 @@
                               page="role-mgt.jsp" pageNumberParameterName="pageNumber"/>
 
             <%
-                if (roles != null && roles.length > 0 && exceededDomains != null) {
-                    if(exceededDomains.getItemName() != null || exceededDomains.getItemDisplayName() != null){
+                if (ArrayUtils.isNotEmpty(roles) && exceededDomains != null) {
+                    if (exceededDomains.getItemName() != null || exceededDomains.getItemDisplayName() != null) {
                         String message = null;
-                        if(exceededDomains.getItemName() != null && exceededDomains.getItemName().equals("true")){
-                            if(exceededDomains.getItemDisplayName() != null && !exceededDomains.getItemDisplayName().equals("")){
+                        if (Boolean.parseBoolean(exceededDomains.getItemName())) {
+                            if (StringUtils.isNotBlank(exceededDomains.getItemDisplayName())) {
                                 String arg = "";
                                 String[] domains = exceededDomains.getItemDisplayName().split(":");
-                                for(int i=0;i<domains.length;i++){
-                                    arg += "\'"+domains[i]+"\'";
-                                    if(i < domains.length - 2){
+                                for (int i = 0; i < domains.length; i++) {
+                                    arg += "\'" + domains[i] + "\'";
+                                    if (i < domains.length - 2) {
                                         arg += ", ";
-                                    }else if(i == domains.length - 2){
+                                    } else if (i == domains.length - 2) {
                                         arg += " and ";
                                     }
                                 }
-                                message = resourceBundle.getString("more.roles.others").replace("{0}",arg);
-                            } else{
+                                message = resourceBundle.getString("more.roles.others").replace("{0}", arg);
+                            } else {
                                 message = resourceBundle.getString("more.roles.primary");
                             }
             %>
-            <strong><%=Encode.forHtml(message)%></strong>
+            <strong><%=Encode.forHtml(message)%>
+            </strong>
             <%
-            }else if(exceededDomains.getItemDisplayName() != null && !exceededDomains.getItemDisplayName().equals("")){
+            } else if (StringUtils.isNotBlank(exceededDomains.getItemDisplayName())) {
                 String[] domains = exceededDomains.getItemDisplayName().split(":");
                 String arg = "";
-                for(int i=0;i<domains.length;i++){
-                    arg += "\'"+domains[i]+"\'";
-                    if(i < domains.length - 2){
+                for (int i = 0; i < domains.length; i++) {
+                    arg += "\'" + domains[i] + "\'";
+                    if (i < domains.length - 2) {
                         arg += ", ";
-                    }else if(i == domains.length - 2){
+                    } else if (i == domains.length - 2) {
                         arg += " and ";
                     }
                 }
-                message = resourceBundle.getString("more.roles").replace("{0}",arg);
+                message = resourceBundle.getString("more.roles").replace("{0}", arg);
             %>
-            <strong><%=Encode.forHtml(message)%></strong>
+            <strong><%=Encode.forHtml(message)%>
+            </strong>
             <%
                         }
                     }
