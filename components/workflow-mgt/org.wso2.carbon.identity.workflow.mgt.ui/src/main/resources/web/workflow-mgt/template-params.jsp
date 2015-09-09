@@ -512,7 +512,7 @@
         <div id="id_search_controller" style="display:none;">
             <input type="hidden" id="currentstep" name="currentstep" value=""/>
             <div id="id_user_search">
-                <jsp:include page="../search/user-role-search.jsp">
+                <jsp:include page="../userstore/user-role-search.jsp">
                     <jsp:param name="function-get-all-items" value="getSelectedItems"/>
                 </jsp:include>
             </div>

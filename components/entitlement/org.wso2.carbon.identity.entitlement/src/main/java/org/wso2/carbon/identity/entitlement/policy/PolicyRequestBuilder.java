@@ -19,11 +19,16 @@ package org.wso2.carbon.identity.entitlement.policy;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.xerces.impl.Constants;
+import org.apache.xerces.util.SecurityManager;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.wso2.carbon.identity.entitlement.EntitlementException;
+import org.wso2.carbon.identity.entitlement.util.CarbonEntityResolver;
 import org.xml.sax.SAXException;
 
+import javax.xml.XMLConstants;
+import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.ByteArrayInputStream;
@@ -35,6 +40,9 @@ import java.io.IOException;
 public class PolicyRequestBuilder {
 
     private static Log log = LogFactory.getLog(PolicyRequestBuilder.class);
+    private static final String SECURITY_MANAGER_PROPERTY = Constants.XERCES_PROPERTY_PREFIX +
+            Constants.SECURITY_MANAGER_PROPERTY;
+    private static final int ENTITY_EXPANSION_LIMIT = 0;
 
     /**
      * creates DOM representation of the XACML request
@@ -46,14 +54,23 @@ public class PolicyRequestBuilder {
     public Element getXacmlRequest(String request) throws EntitlementException {
 
         ByteArrayInputStream inputStream;
-        DocumentBuilderFactory dbf;
+        DocumentBuilderFactory documentBuilderFactory;
         Document doc;
 
         inputStream = new ByteArrayInputStream(request.getBytes());
-        dbf = DocumentBuilderFactory.newInstance();
-        dbf.setNamespaceAware(true);
+        documentBuilderFactory = DocumentBuilderFactory.newInstance();
+        documentBuilderFactory.setNamespaceAware(true);
+        documentBuilderFactory.setExpandEntityReferences(false);
+
+        SecurityManager securityManager = new SecurityManager();
+        securityManager.setEntityExpansionLimit(ENTITY_EXPANSION_LIMIT);
+        documentBuilderFactory.setAttribute(SECURITY_MANAGER_PROPERTY, securityManager);
+        DocumentBuilder documentBuilder;
         try {
-            doc = dbf.newDocumentBuilder().parse(inputStream);
+            documentBuilderFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+            documentBuilder = documentBuilderFactory.newDocumentBuilder();
+            documentBuilder.setEntityResolver(new CarbonEntityResolver());
+            doc = documentBuilder.parse(inputStream);
         } catch (SAXException e) {
             throw new EntitlementException("Error while creating DOM from XACML request");
         } catch (IOException e) {

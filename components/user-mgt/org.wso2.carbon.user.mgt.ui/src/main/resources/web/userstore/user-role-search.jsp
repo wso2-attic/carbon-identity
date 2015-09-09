@@ -44,7 +44,7 @@
 %>
 
 
-<script type="text/javascript" src="../userstore/extensions/js/vui.js"></script>
+<script type="text/javascript" src="extensions/js/vui.js"></script>
 <script type="text/javascript" src="../admin/js/main.js"></script>
 
 <%
