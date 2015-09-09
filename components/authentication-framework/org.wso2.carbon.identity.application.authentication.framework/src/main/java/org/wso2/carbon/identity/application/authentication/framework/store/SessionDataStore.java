@@ -114,7 +114,7 @@ public class SessionDataStore {
             //hidden config parameter
             String enablePersistVal = IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.Enable");
             enablePersist = true;
-            if(enablePersistVal != null){
+            if (enablePersistVal != null) {
                 enablePersist = Boolean.parseBoolean(enablePersistVal);
             }
             String storeSQL = IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.SQL.Store");
@@ -263,16 +263,7 @@ public class SessionDataStore {
         } catch (IdentityException e) {
             log.error("Error while obtaining the database connection", e);
         } finally {
-            try {
-                if (statement != null) {
-                    statement.close();
-                }
-                if (connection != null) {
-                    connection.close();
-                }
-            } catch (SQLException e) {
-                log.error("Error while closing the stream", e);
-            }
+            IdentityDatabaseUtil.closeAllConnections(connection, null, statement);
         }
 
     }
