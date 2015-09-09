@@ -43,7 +43,7 @@ public class OIDCSessionMgtEndpoint {
     public String getLoginStatus(@Context HttpServletRequest request, @Context HttpServletResponse resp, @QueryParam("logoutNotification") String logoutNotification) {
         String callBackUrl;
         callBackUrl = getCallBackUrl();
-        if (logoutNotification.equals(OAuthConstants.LOG_OUT_NOTIFICATION)) {
+        if (OAuthConstants.LOG_OUT_NOTIFICATION.equals(logoutNotification)) {
             setIdTokenHint(null);
             removeStatusCookie(request, resp);
         }
@@ -116,7 +116,7 @@ public class OIDCSessionMgtEndpoint {
         Cookie[] cookies = request.getCookies();
         if (cookies != null) {
             for (javax.servlet.http.Cookie cookie : cookies) {
-                if (cookie.getName().equals(OAuthConstants.STATUSCOOKIE)) {
+                if (OAuthConstants.STATUSCOOKIE.equals(cookie.getName())) {
                     return cookie.getValue();
                 }
             }
@@ -128,7 +128,7 @@ public class OIDCSessionMgtEndpoint {
         Cookie[] cookies = req.getCookies();
         if (cookies != null) {
             for (Cookie cookie : cookies) {
-                if (cookie.getName().equals(OAuthConstants.STATUSCOOKIE)) {
+                if (OAuthConstants.STATUSCOOKIE.equals(cookie.getName())) {
                     cookie.setMaxAge(0);
                     resp.addCookie(cookie);
                     break;

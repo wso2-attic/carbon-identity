@@ -88,6 +88,7 @@ import org.wso2.carbon.identity.oauth.endpoint.session.LogoutEndpoint;
 public class OAuth2AuthzEndpoint {
 
     private static final Log log = LogFactory.getLog(OAuth2AuthzEndpoint.class);
+    public static final String OAUTH_2_CONSENT = "oauth2_consent";
 
     @GET
     @Path("/")
@@ -190,7 +191,7 @@ public class OAuth2AuthzEndpoint {
                         sessionDataCacheEntry.setAuthenticatedIdPs(authnResult.getAuthenticatedIdPs());
                         SessionDataCache.getInstance().addToCache(cacheKey, sessionDataCacheEntry);
                         redirectURL = doUserAuthz(request, sessionDataKeyFromLogin, sessionDataCacheEntry);
-                        if (redirectURL.contains("oauth2_consent")) {
+                        if (redirectURL.contains(OAUTH_2_CONSENT)) {
                             return Response.status(HttpServletResponse.SC_FOUND).location(new URI(redirectURL)).build();
                         } else {
                             String sessionKey = UUIDGenerator.generateUUID();
