@@ -97,7 +97,6 @@ public class BasicAuthRequestPathAuthenticator extends AbstractApplicationAuthen
             boolean isAuthenticated = userStoreManager.authenticate(MultitenantUtils.getTenantAwareUsername(username), password);
 
             if (!isAuthenticated) {
-                log.error("Authentication failed for user " + username);
                 throw new AuthenticationFailedException("Authentication Failed");
             }
             if (log.isDebugEnabled()) {
@@ -117,8 +116,7 @@ public class BasicAuthRequestPathAuthenticator extends AbstractApplicationAuthen
             authProperties.put("user-tenant-domain", tenantDomain);
 
             context.setSubject(AuthenticatedUser.createLocalAuthenticatedUserFromSubjectIdentifier(
-                    FrameworkUtils.prependUserStoreDomainToName(
-                            username)));
+                    FrameworkUtils.prependUserStoreDomainToName(username)));
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw new AuthenticationFailedException("Authentication Failed");
