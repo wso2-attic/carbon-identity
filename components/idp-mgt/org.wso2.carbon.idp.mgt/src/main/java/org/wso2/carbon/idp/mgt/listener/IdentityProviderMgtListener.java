@@ -21,7 +21,7 @@ package org.wso2.carbon.idp.mgt.listener;
 import org.wso2.carbon.identity.application.common.model.IdentityProvider;
 import org.wso2.carbon.idp.mgt.IdentityProviderManagementException;
 
-public interface IdentityProviderMgtLister {
+public interface IdentityProviderMgtListener {
 
     public boolean doPreUpdateResidentIdP(IdentityProvider identityProvider) throws IdentityProviderManagementException;
 

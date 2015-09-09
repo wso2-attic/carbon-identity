@@ -99,10 +99,10 @@ public class IdentityProviderManager {
         try {
             return IdPManagementUtil.getTenantIdOfDomain(tenantDomain);
         } catch (UserStoreException e) {
-            log.error(e.getMessage(), e);
             String msg = "Error occurred while getting Tenant Id from Tenant domain "
                     + tenantDomain;
-            throw new IdentityProviderManagementException(msg);
+            log.error(msg, e);
+            throw new IdentityProviderManagementException(msg, e);
         }
     }
 
@@ -274,9 +274,9 @@ public class IdentityProviderManager {
                 cert = keyStoreManager.getDefaultPrimaryCertificate();
             }
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            throw new IdentityProviderManagementException(
-                    "Error retrieving primary certificate for tenant : " + tenantDomain);
+            String msg = "Error retrieving primary certificate for tenant : " + tenantDomain;
+            log.error(msg, e);
+            throw new IdentityProviderManagementException(msg, e);
         }
         if (cert == null) {
             throw new IdentityProviderManagementException(
@@ -285,9 +285,9 @@ public class IdentityProviderManager {
         try {
             identityProvider.setCertificate(Base64.encode(cert.getEncoded()));
         } catch (CertificateEncodingException e) {
-            log.error(e.getMessage(), e);
-            throw new IdentityProviderManagementException(
-                    "Error occurred while encoding primary certificate for tenant domain " + tenantDomain);
+            String msg = "Error occurred while encoding primary certificate for tenant domain " + tenantDomain;
+            log.error(msg, e);
+            throw new IdentityProviderManagementException(msg, e);
         }
 
         List<FederatedAuthenticatorConfig> fedAuthnCofigs = new ArrayList<FederatedAuthenticatorConfig>();

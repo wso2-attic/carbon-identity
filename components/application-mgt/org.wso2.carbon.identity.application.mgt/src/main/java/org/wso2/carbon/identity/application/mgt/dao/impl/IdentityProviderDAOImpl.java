@@ -61,7 +61,8 @@ public class IdentityProviderDAOImpl implements IdentityProviderDAO {
             return idp.getDefaultAuthenticatorConfig() != null ? idp
                     .getDefaultAuthenticatorConfig().getName() : null;
         } catch (IdentityProviderManagementException e) {
-            throw new IdentityApplicationManagementException(e.getMessage(), e);
+            throw new IdentityApplicationManagementException("Error when retrieving default authenticator of idp "
+                    + idpName, e);
         }
     }
 
@@ -120,7 +121,7 @@ public class IdentityProviderDAOImpl implements IdentityProviderDAO {
             return identityProvider;
 
         } catch (IdentityProviderManagementException e) {
-            throw new IdentityApplicationManagementException(e.getMessage(), e);
+            throw new IdentityApplicationManagementException("Error when retrieving identity provider "+ idpName, e);
         }
     }
 
@@ -138,7 +139,8 @@ public class IdentityProviderDAOImpl implements IdentityProviderDAO {
             idps = idpManager
                     .getIdPs(CarbonContext.getThreadLocalCarbonContext().getTenantDomain());
         } catch (IdentityProviderManagementException e) {
-            throw new IdentityApplicationManagementException(e.getMessage(), e);
+            throw new IdentityApplicationManagementException("Error when retrieving all identity providers in " +
+                    CarbonContext.getThreadLocalCarbonContext().getTenantDomain() +" tenant domain.", e);
         }
 
         List<IdentityProvider> federatedIdentityProviders = new ArrayList<IdentityProvider>();

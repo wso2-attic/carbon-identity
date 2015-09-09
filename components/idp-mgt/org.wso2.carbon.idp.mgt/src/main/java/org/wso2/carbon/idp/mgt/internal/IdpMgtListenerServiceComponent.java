@@ -18,7 +18,7 @@
 
 package org.wso2.carbon.idp.mgt.internal;
 
-import org.wso2.carbon.idp.mgt.listener.IdentityProviderMgtLister;
+import org.wso2.carbon.idp.mgt.listener.IdentityProviderMgtListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,28 +26,28 @@ import java.util.List;
 /**
  * @scr.component name="org.wso2.carbon.idp.mgt.listener" immediate="true"
  * @scr.reference name="idp.mgt.event.listener.service"
- * interface="org.wso2.carbon.idp.mgt.listener.IdentityProviderMgtLister"
+ * interface="org.wso2.carbon.idp.mgt.listener.IdentityProviderMgtListener"
  * cardinality="0..n" policy="dynamic"
  * bind="setIdentityProviderMgtListerService"
  * unbind="unsetIdentityProviderMgtListerService" *
  */
 public class IdpMgtListenerServiceComponent {
 
-    private static List<IdentityProviderMgtLister> listeners = new ArrayList<>();
+    private static List<IdentityProviderMgtListener> listeners = new ArrayList<>();
 
     public static void setIdentityProviderMgtListerService(
-            IdentityProviderMgtLister identityProviderMgtListerService) {
+            IdentityProviderMgtListener identityProviderMgtListerService) {
 
         listeners.add(identityProviderMgtListerService);
     }
 
     public static void unsetIdentityProviderMgtListerService(
-            IdentityProviderMgtLister identityProviderMgtListerService) {
+            IdentityProviderMgtListener identityProviderMgtListerService) {
 
         listeners.remove(identityProviderMgtListerService);
     }
 
-    public static List<IdentityProviderMgtLister> getListners() {
+    public static List<IdentityProviderMgtListener> getListeners() {
         return listeners;
     }
 
