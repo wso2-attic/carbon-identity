@@ -53,6 +53,7 @@ public class SAMLSSOAuthenticator extends AbstractApplicationAuthenticator imple
     private static final long serialVersionUID = -8097512332218044859L;
     public static final String AS_REQUEST = "AS_REQUEST";
 
+
     private static Log log = LogFactory.getLog(SAMLSSOAuthenticator.class);
 
     @Override
@@ -178,8 +179,8 @@ public class SAMLSSOAuthenticator extends AbstractApplicationAuthenticator imple
             }
 
             Object sessionIndexObj = request.getSession(false).getAttribute(SSOConstants.IDP_SESSION);
-            String nameQualifier = (String) request.getSession().getAttribute("nameQualifier");
-            String spNameQualifier = (String) request.getSession().getAttribute("spNameQualifier");
+            String nameQualifier = (String) request.getSession().getAttribute(SSOConstants.NAME_QUALIFIER);
+            String spNameQualifier = (String) request.getSession().getAttribute(SSOConstants.SP_NAME_QUALIFIER);
             String sessionIndex = null;
 
             if (sessionIndexObj != null) {
@@ -268,13 +269,13 @@ public class SAMLSSOAuthenticator extends AbstractApplicationAuthenticator imple
             AuthenticatorStateInfo stateInfo = context.getStateInfo();
 
             if (stateInfo instanceof StateInfo) {
-                request.getSession().setAttribute("logoutSessionIndex",
+                request.getSession().setAttribute(SSOConstants.LOGOUT_SESSION_INDEX,
                         ((StateInfo) stateInfo).getSessionIndex());
-                request.getSession().setAttribute("logoutUsername",
+                request.getSession().setAttribute(SSOConstants.LOGOUT_USERNAME,
                         ((StateInfo) stateInfo).getSubject());
-                request.getSession().setAttribute("nameQualifier",
+                request.getSession().setAttribute(SSOConstants.NAME_QUALIFIER,
                         ((StateInfo) stateInfo).getNameQualifier());
-                request.getSession().setAttribute("spNameQualifier",
+                request.getSession().setAttribute(SSOConstants.SP_NAME_QUALIFIER,
                         ((StateInfo) stateInfo).getSpNameQualifier());
             }
 
