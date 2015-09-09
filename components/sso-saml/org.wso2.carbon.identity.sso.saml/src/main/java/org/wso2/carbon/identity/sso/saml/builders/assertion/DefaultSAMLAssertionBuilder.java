@@ -173,7 +173,7 @@ public class DefaultSAMLAssertionBuilder implements SAMLAssertionBuilder {
 
             if (authReqDTO.getDoSignAssertions()) {
                 SAMLSSOUtil.setSignature(samlAssertion, IdentityApplicationManagementUtil.getXMLSignatureAlgorithms()
-                                .get(authReqDTO.getDefaultSigningAlgorithm()),
+                                .get(authReqDTO.getSigningAlgorithm()),
                         new SignKeyDataHolder(authReqDTO.getUser().getAuthenticatedSubjectIdentifier()));
             }
 

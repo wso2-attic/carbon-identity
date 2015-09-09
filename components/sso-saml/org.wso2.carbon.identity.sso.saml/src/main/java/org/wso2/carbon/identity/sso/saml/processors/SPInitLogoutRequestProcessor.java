@@ -230,7 +230,7 @@ public class SPInitLogoutRequestProcessor {
                         singleLogoutReqDTOs.add(logoutReqDTO);
                     } else {
                         reqValidationResponseDTO.setIssuer(value.getIssuer());
-                        reqValidationResponseDTO.setDefaultSigningAlgorithm(value.getSigningAlgorithm());
+                        reqValidationResponseDTO.setSigningAlgorithm(value.getSigningAlgorithm());
                         if (StringUtils.isNotBlank(value.getSloResponseURL())) {
                             reqValidationResponseDTO.setAssertionConsumerURL(value.getSloResponseURL());
                         } else {
@@ -246,7 +246,7 @@ public class SPInitLogoutRequestProcessor {
                         logoutRequest.getID(), SAMLSSOConstants.StatusCodes.SUCCESS_CODE, null,
                         reqValidationResponseDTO.getAssertionConsumerURL(),
                         SAMLSSOUtil.getTenantDomainFromThreadLocal(), reqValidationResponseDTO
-                                .getDefaultSigningAlgorithm());
+                                .getSigningAlgorithm());
                 reqValidationResponseDTO.setLogoutResponse(SAMLSSOUtil.encode(SAMLSSOUtil
                         .marshall(logoutResponse)));
                 reqValidationResponseDTO.setValid(true);
