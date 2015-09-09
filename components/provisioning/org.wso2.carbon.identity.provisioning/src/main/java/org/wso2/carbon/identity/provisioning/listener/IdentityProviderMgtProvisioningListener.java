@@ -33,21 +33,23 @@ import org.wso2.carbon.identity.provisioning.cache.ServiceProviderProvisioningCo
 import org.wso2.carbon.identity.provisioning.dao.ProvisioningManagementDAO;
 import org.wso2.carbon.identity.provisioning.internal.ProvisioningServiceDataHolder;
 import org.wso2.carbon.idp.mgt.IdentityProviderManagementException;
-import org.wso2.carbon.idp.mgt.listener.IdentityProviderMgtLister;
+import org.wso2.carbon.idp.mgt.listener.IdentityProviderMgtListener;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 import java.util.List;
 
-public class IdentityProviderMgtProvisioningListener implements IdentityProviderMgtLister {
+public class IdentityProviderMgtProvisioningListener implements IdentityProviderMgtListener {
 
     private static final Log log = LogFactory.getLog(IdentityProviderMgtProvisioningListener.class);
     private static ProvisioningManagementDAO provisioningManagementDAO = new ProvisioningManagementDAO();
 
     @Override
     public boolean doPreUpdateResidentIdP(IdentityProvider identityProvider) throws IdentityProviderManagementException {
-        log.debug("update Resident Identity Provider event received");
+        if(log.isDebugEnabled()){
+            log.debug("update Resident Identity Provider event received");
+        }
         return true;
     }
 
