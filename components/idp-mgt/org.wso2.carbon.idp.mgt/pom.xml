@@ -52,10 +52,6 @@
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon.identity</groupId>
-            <artifactId>org.wso2.carbon.identity.application.mgt</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon.identity</groupId>
             <artifactId>org.wso2.carbon.identity.core</artifactId>
         </dependency>
         <dependency>
@@ -103,8 +99,6 @@
                             org.wso2.carbon.user.api; version="${carbon.user.api.imp.pkg.version.range}",
 
                             org.wso2.carbon.identity.application.common.*;
-                            version="${carbon.identity.package.import.version.range}",
-                            org.wso2.carbon.identity.application.mgt.*;
                             version="${carbon.identity.package.import.version.range}",
                             org.wso2.carbon.identity.core.*;
                             version="${carbon.identity.package.import.version.range}",
