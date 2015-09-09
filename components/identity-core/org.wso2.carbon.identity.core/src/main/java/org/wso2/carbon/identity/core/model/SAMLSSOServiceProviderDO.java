@@ -59,7 +59,7 @@ public class SAMLSSOServiceProviderDO implements Serializable {
     private List<String> idpInitSLOReturnToURLList;
     private boolean doEnableEncryptedAssertion;
     private boolean doValidateSignatureInRequests;
-    private String defaultSigningAlgorithm;
+    private String signingAlgorithm;
 
     public String getNameIDFormat() {
         return nameIDFormat;
@@ -158,8 +158,8 @@ public class SAMLSSOServiceProviderDO implements Serializable {
     public void setAttributeConsumingServiceIndex(String attributeConsumingServiceIndex) {
         this.attributeConsumingServiceIndex = attributeConsumingServiceIndex;
     }
-    public String getDefaultSigningAlgorithm() {
-        if (defaultSigningAlgorithm == null || defaultSigningAlgorithm.isEmpty()) {
+    public String getSigningAlgorithm() {
+        if (signingAlgorithm == null || signingAlgorithm.isEmpty()) {
             if (IdentityUtil.getProperty(IdentityConstants.ServerConfig.SSO_DEFAULT_SIGNING_ALGORITHM) != null &&
                     !"".equals(IdentityUtil.getProperty(IdentityConstants.ServerConfig.SSO_DEFAULT_SIGNING_ALGORITHM)
                             .trim())) {
@@ -168,11 +168,11 @@ public class SAMLSSOServiceProviderDO implements Serializable {
                 return IdentityCoreConstants.XML_SIGNATURE_ALGORITHM_URI_RSA_SHA1;
             }
         }
-        return defaultSigningAlgorithm;
+        return signingAlgorithm;
     }
 
-    public void setDefaultSigningAlgorithm(String defaultSigningAlgorithm) {
-        this.defaultSigningAlgorithm = defaultSigningAlgorithm;
+    public void setSigningAlgorithm(String signingAlgorithm) {
+        this.signingAlgorithm = signingAlgorithm;
     }
     /**
      * @return the requestedClaims

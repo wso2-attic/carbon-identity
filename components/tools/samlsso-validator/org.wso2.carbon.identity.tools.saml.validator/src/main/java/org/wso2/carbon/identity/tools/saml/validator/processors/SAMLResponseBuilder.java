@@ -118,7 +118,7 @@ public class SAMLResponseBuilder {
             response.getAssertions().add(assertion);
         }
         if (ssoIdPConfigs.isDoSignResponse()) {
-            SAMLSSOUtil.setSignature(response, ssoIdPConfigs.getDefaultSigningAlgorithm(),
+            SAMLSSOUtil.setSignature(response, ssoIdPConfigs.getSigningAlgorithm(),
                     new SignKeyDataHolder(userName));
         }
         return response;
@@ -214,7 +214,7 @@ public class SAMLResponseBuilder {
 
         if (ssoIdPConfigs.isDoSignAssertions()) {
             SAMLSSOUtil.setSignature(samlAssertion, IdentityApplicationManagementUtil.getXMLSignatureAlgorithms().get
-                            (ssoIdPConfigs.getDefaultSigningAlgorithm()),
+                            (ssoIdPConfigs.getSigningAlgorithm()),
                     new SignKeyDataHolder(userName));
         }
 

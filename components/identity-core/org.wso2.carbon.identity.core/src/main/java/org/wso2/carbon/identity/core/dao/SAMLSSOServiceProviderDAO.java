@@ -49,7 +49,7 @@ public class SAMLSSOServiceProviderDAO extends AbstractDAO<SAMLSSOServiceProvide
                 IdentityRegistryResources.PROP_DEFAULT_SAML_SSO_ASSERTION_CONS_URL));
         serviceProviderDO.setCertAlias(resource
                 .getProperty(IdentityRegistryResources.PROP_SAML_SSO_ISSUER_CERT_ALIAS));
-        serviceProviderDO.setDefaultSigningAlgorithm(resource.getProperty(IdentityRegistryResources
+        serviceProviderDO.setSigningAlgorithm(resource.getProperty(IdentityRegistryResources
                 .PROP_SAML_SSO_DEFAULT_SIGNING_ALGORITHM));
 
         if (resource.getProperty(IdentityRegistryResources.PROP_SAML_SSO_DO_SINGLE_LOGOUT) != null) {
@@ -183,7 +183,7 @@ public class SAMLSSOServiceProviderDAO extends AbstractDAO<SAMLSSOServiceProvide
                     IdentityRegistryResources.PROP_SAML_SSO_NAMEID_FORMAT,
                     serviceProviderDO.getNameIDFormat());
             resource.addProperty(IdentityRegistryResources.PROP_SAML_SSO_DEFAULT_SIGNING_ALGORITHM, serviceProviderDO
-                    .getDefaultSigningAlgorithm());
+                    .getSigningAlgorithm());
             if (serviceProviderDO.getNameIdClaimUri() != null
                     && serviceProviderDO.getNameIdClaimUri().trim().length() > 0) {
                 resource.addProperty(

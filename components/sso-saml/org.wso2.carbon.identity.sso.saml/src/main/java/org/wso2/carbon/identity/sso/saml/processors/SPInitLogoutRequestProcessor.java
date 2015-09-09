@@ -165,7 +165,7 @@ public class SPInitLogoutRequestProcessor {
                         log.error(message);
                         return buildErrorResponse(logoutRequest.getID(),
                                 SAMLSSOConstants.StatusCodes.REQUESTOR_ERROR,
-                                message, logoutRequest.getDestination(), logoutReqIssuer.getDefaultSigningAlgorithm());
+                                message, logoutRequest.getDestination(), logoutReqIssuer.getSigningAlgorithm());
                     }
                 }
 
@@ -185,7 +185,7 @@ public class SPInitLogoutRequestProcessor {
                         log.error(message);
                         return buildErrorResponse(logoutRequest.getID(),
                                 SAMLSSOConstants.StatusCodes.REQUESTOR_ERROR,
-                                message, logoutRequest.getDestination(), logoutReqIssuer.getDefaultSigningAlgorithm());
+                                message, logoutRequest.getDestination(), logoutReqIssuer.getSigningAlgorithm());
                     }
 
                     // Validate Signature
@@ -198,7 +198,7 @@ public class SPInitLogoutRequestProcessor {
                         log.error(message);
                         return buildErrorResponse(logoutRequest.getID(),
                                 SAMLSSOConstants.StatusCodes.REQUESTOR_ERROR,
-                                message, logoutRequest.getDestination(), logoutReqIssuer.getDefaultSigningAlgorithm());
+                                message, logoutRequest.getDestination(), logoutReqIssuer.getSigningAlgorithm());
                     }
                 }
 
@@ -223,14 +223,14 @@ public class SPInitLogoutRequestProcessor {
                         LogoutRequest logoutReq = logoutMsgBuilder.buildLogoutRequest(
                                 sessionInfoData.getSubject(key), sessionIndex, SAMLSSOConstants.SingleLogoutCodes
                                         .LOGOUT_USER, logoutReqDTO.getAssertionConsumerURL(),
-                                value.getNameIDFormat(), value.getTenantDomain(), value.getDefaultSigningAlgorithm());
+                                value.getNameIDFormat(), value.getTenantDomain(), value.getSigningAlgorithm());
                         String logoutReqString = SAMLSSOUtil.encode(SAMLSSOUtil.marshall(logoutReq));
                         logoutReqDTO.setLogoutResponse(logoutReqString);
                         logoutReqDTO.setRpSessionId(rpSessionsList.get(key));
                         singleLogoutReqDTOs.add(logoutReqDTO);
                     } else {
                         reqValidationResponseDTO.setIssuer(value.getIssuer());
-                        reqValidationResponseDTO.setDefaultSigningAlgorithm(value.getDefaultSigningAlgorithm());
+                        reqValidationResponseDTO.setDefaultSigningAlgorithm(value.getSigningAlgorithm());
                         if (StringUtils.isNotBlank(value.getSloResponseURL())) {
                             reqValidationResponseDTO.setAssertionConsumerURL(value.getSloResponseURL());
                         } else {
