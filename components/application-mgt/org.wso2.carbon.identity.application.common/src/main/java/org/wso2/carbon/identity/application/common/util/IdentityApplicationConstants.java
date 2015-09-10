@@ -157,6 +157,10 @@ public class IdentityApplicationConstants {
             public static final String CLEAN_UP_TIMEOUT_DEFAULT = "20160";
             public static final String CLEAN_UP_PERIOD = "CleanUpPeriod";
             public static final String CLEAN_UP_PERIOD_DEFAULT = "1140";
+            public static final String TIME_CONFIG = "TimeConfig";
+            private IDPProperties(){
+
+            }
         }
 
     }

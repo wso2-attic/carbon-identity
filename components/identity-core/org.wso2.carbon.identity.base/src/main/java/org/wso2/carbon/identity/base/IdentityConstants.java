@@ -184,6 +184,12 @@ public class IdentityConstants {
 
         //Identity Persistence Manager
         public static final String SKIP_DB_SCHEMA_CREATION = "JDBCPersistenceManager.SkipDBSchemaCreation";
+
+        //Timeout Configurations
+        public static final String SESSION_IDLE_TIMEOUT = "TimeConfig.SessionIdleTimeout";
+        public static final String REMEMBER_ME_TIME_OUT = "TimeConfig.RememberMeTimeout";
+        public static final String CLEAN_UP_PERIOD = "TimeConfig.PersistanceCleanUpPeriod";
+
     }
 
     /**

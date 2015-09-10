@@ -91,10 +91,8 @@ public class SessionContextCache extends BaseCache<String, CacheEntry> {
             Timestamp currentTimestamp = new java.sql.Timestamp(new java.util.Date().getTime());
             if (sessionEntry != null && sessionEntry.getContext().isRememberMe() &&
                     (currentTimestamp.getTime() - SessionDataStore.getInstance().getTimeStamp(keyValue,
-                            SESSION_CONTEXT_CACHE_NAME)
-                            .getTime() <=
-                            IdPManagementUtil.getRememberMeTimeout(CarbonContext.getThreadLocalCarbonContext()
-                                    .getTenantDomain())*60*1000)) {
+                            SESSION_CONTEXT_CACHE_NAME).getTime() <= IdPManagementUtil.getRememberMeTimeout(
+                                    CarbonContext.getThreadLocalCarbonContext().getTenantDomain()) * 60 * 1000)) {
                 cacheEntry = sessionEntry;
             }
         }

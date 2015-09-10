@@ -67,6 +67,7 @@ public class SessionDataStore {
                                                                     "TIME_CREATED<?";
     private static final String SQL_SELECT_TIME_CREATED = "SELECT TIME_CREATED FROM IDN_AUTH_SESSION_STORE WHERE " +
                                                           "SESSION_ID =? AND SESSION_TYPE =?";
+    private static final String COLUMN_TIME_CREATED = "TIME_CREATED";
     private static final Log log = LogFactory.getLog(SessionDataStore.class);
     private static int maxPoolSize = 100;
     private static BlockingDeque<SessionContextDO> sessionContextQueue = new LinkedBlockingDeque<SessionContextDO>();
@@ -421,7 +422,7 @@ public class SessionDataStore {
                 preparedStatement.setString(2, type);
                 resultSet = preparedStatement.executeQuery();
                 if (resultSet.next()) {
-                    timestamp = resultSet.getTimestamp(1);
+                    timestamp = resultSet.getTimestamp(COLUMN_TIME_CREATED);
                 }
             } catch (SQLException e) {
                 //ignore
