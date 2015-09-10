@@ -83,6 +83,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class OAuth2AuthzEndpoint {
 
     private static final Log log = LogFactory.getLog(OAuth2AuthzEndpoint.class);
+    public static final String APPROVE = "approve";
 
     @GET
     @Path("/")
@@ -478,7 +479,7 @@ public class OAuth2AuthzEndpoint {
             params.setACRValues(list);
         }
         String prompt = oauthRequest.getParam(OIDC.AuthZRequest.PROMPT);
-        if (prompt == null) {
+        if (StringUtils.isBlank(prompt)) {
             prompt = "consent";
         }
         params.setPrompt(prompt);
@@ -516,7 +517,6 @@ public class OAuth2AuthzEndpoint {
         boolean forceAuthenticate = false;
         boolean checkAuthentication = false;
 
-        if (prompt != null) {
             // values {none, login, consent, select_profile}
             String[] prompts = prompt.trim().split("\\s");
             boolean containsNone = prompt.contains(OIDC.Prompt.NONE);
@@ -532,15 +532,17 @@ public class OAuth2AuthzEndpoint {
                         .setState(params.getState()).buildQueryMessage().getLocationUri();
             }
 
-            if (prompt.contains(OIDC.Prompt.LOGIN)) { // prompt for authentication
-                checkAuthentication = false;
-                forceAuthenticate = true;
-
-            } else if (containsNone || prompt.contains(OIDC.Prompt.CONSENT)) {
-                checkAuthentication = false;
-                forceAuthenticate = false;
-            }
+        if (prompt.contains(OIDC.Prompt.LOGIN)) { // prompt for authentication
+            checkAuthentication = false;
+            forceAuthenticate = true;
+        } else if (containsNone) {
+            checkAuthentication = true;
+            forceAuthenticate = false;
+        } else if (prompt.contains(OIDC.Prompt.CONSENT)) {
+            checkAuthentication = false;
+            forceAuthenticate = false;
         }
+
 
         String sessionDataKey = UUIDGenerator.generateUUID();
         CacheKey cacheKey = new SessionDataCacheKey(sessionDataKey);
@@ -614,24 +616,35 @@ public class OAuth2AuthzEndpoint {
         // load the users approved applications to skip consent
         String appName = oauth2Params.getApplicationName();
         boolean hasUserApproved = OpenIDConnectUserRPStore.getInstance().hasUserApproved(loggedInUser, appName);
+        String consentUrl;
+        String errorResponse = OAuthASResponse.errorResponse(HttpServletResponse.SC_FOUND)
+                .setError(OAuth2ErrorCodes.ACCESS_DENIED)
+                .location(oauth2Params.getRedirectURI())
+                .setState(oauth2Params.getState()).buildQueryMessage()
+                .getLocationUri();
+
+        consentUrl = EndpointUtil.getUserConsentURL(oauth2Params, loggedInUser, sessionDataKey,
+                OIDCAuthzServerUtil.isOIDCAuthzRequest(oauth2Params.getScopes()) ? true : false);
 
         //Skip the consent page if User has provided approve always or skip consent from file
-        if (skipConsent || hasUserApproved) {
-
-            return handleUserConsent(request, "approveAlways", oauth2Params, sessionDataCacheEntry);
+        if (oauth2Params.getPrompt().contains(OIDC.Prompt.CONSENT) ||
+                oauth2Params.getPrompt().contains(OIDC.Prompt.LOGIN)) {
+            return consentUrl;
 
         } else if (oauth2Params.getPrompt().contains(OIDC.Prompt.NONE)) {
-            // should not prompt for consent if approved always
-            // returning error
-            return OAuthASResponse.errorResponse(HttpServletResponse.SC_FOUND)
-                    .setError(OAuth2ErrorCodes.ACCESS_DENIED)
-                    .location(oauth2Params.getRedirectURI())
-                    .setState(oauth2Params.getState()).buildQueryMessage()
-                    .getLocationUri();
+            //Returning error if the user has not previous session
+            if (sessionDataCacheEntry.getLoggedInUser() == null) {
+                return errorResponse;
+            } else {
+                if (skipConsent || hasUserApproved) {
+                    return handleUserConsent(request, APPROVE, oauth2Params, sessionDataCacheEntry);
+                } else {
+                    return errorResponse;
+                }
+            }
 
         } else {
-            return EndpointUtil.getUserConsentURL(oauth2Params, loggedInUser, sessionDataKey, OIDCAuthzServerUtil
-                    .isOIDCAuthzRequest(oauth2Params.getScopes()) ? true : false);
+            return consentUrl;
         }
 
     }
