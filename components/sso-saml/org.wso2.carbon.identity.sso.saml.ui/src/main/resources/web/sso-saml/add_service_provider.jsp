@@ -87,8 +87,8 @@ function doValidation() {
         return false;
     }
 
-    var defaultSigningAlgorithm = $('#defaultSigningAlgorithm').val();
-    if (defaultSigningAlgorithm == null || defaultSigningAlgorithm == '') {
+    var signingAlgorithm = $('#signingAlgorithm').val();
+    if (signingAlgorithm == null || signingAlgorithm == '') {
         CARBON.showWarningDialog("<fmt:message key='sp.enter.default.signingAlgorithm'/>", null, null);
         return false;
     }
@@ -911,16 +911,16 @@ function clearAll() {
         <font color="red">*</font>
     </td>
     <td>
-        <select id="defaultSigningAlgorithm" name="defaultSigningAlgorithm">
+        <select id="signingAlgorithm" name="signingAlgorithm">
             <option value="">---Select---</option>
             <%
                 if (spConfigClient.getSigningAlgorithms() != null) {
                     for (String signingAlgo : spConfigClient.getSigningAlgorithms()) {
-                        String defaultAlgorithm = null;
+                        String signAlgorithm = null;
                         if (provider != null) {
-                            defaultAlgorithm = provider.getDefaultSigningAlgorithm();
+                            signAlgorithm = provider.getSigningAlgorithm();
                         }
-                        if (defaultAlgorithm != null && signingAlgo.equals(defaultAlgorithm)) {
+                        if (signAlgorithm != null && signingAlgo.equals(signAlgorithm)) {
             %>
             <option value="<%=signingAlgo%>" selected><%=signingAlgo%>
             </option>
