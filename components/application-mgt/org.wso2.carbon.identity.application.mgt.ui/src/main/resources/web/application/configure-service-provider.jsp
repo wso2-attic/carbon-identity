@@ -104,9 +104,9 @@ location.href = 'list-service-provider.jsp';
 
 
     String attributeConsumingServiceIndex = CharacterEncoder.getSafeText(request.getParameter("attrConServIndex"));
-	if(attributeConsumingServiceIndex != null){
-		appBean.setAttributeConsumingServiceIndex(attributeConsumingServiceIndex);
-	}
+    if (attributeConsumingServiceIndex != null) {
+        appBean.setAttributeConsumingServiceIndex(attributeConsumingServiceIndex);
+    }
     
     String oauthapp = CharacterEncoder.getSafeText(request.getParameter("oauthapp"));
     
