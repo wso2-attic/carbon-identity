@@ -117,8 +117,7 @@ public class FrameworkUtils {
     public static void addAuthenticationRequestToCache(
             String key, AuthenticationRequestCacheEntry authReqEntry, int cacheTimeout) {
 
-        AuthenticationRequestCacheKey cacheKey = new AuthenticationRequestCacheKey(key);
-        AuthenticationRequestCache.getInstance(cacheTimeout).addToCache(cacheKey, authReqEntry);
+        AuthenticationRequestCache.getInstance(cacheTimeout).addToCache(key, authReqEntry);
     }
 
     /**
@@ -129,9 +128,7 @@ public class FrameworkUtils {
      */
     public static void addAuthenticationRequestToCache(
             String key, AuthenticationRequestCacheEntry authReqEntry) {
-
-        AuthenticationRequestCacheKey cacheKey = new AuthenticationRequestCacheKey(key);
-        AuthenticationRequestCache.getInstance().addToCache(cacheKey, authReqEntry);
+        AuthenticationRequestCache.getInstance().addToCache(key, authReqEntry);
     }
 
     /**
@@ -143,8 +140,7 @@ public class FrameworkUtils {
     public static AuthenticationRequestCacheEntry getAuthenticationRequestFromCache(String key) {
 
         AuthenticationRequestCacheEntry authRequest = null;
-        AuthenticationRequestCacheKey cacheKey = new AuthenticationRequestCacheKey(key);
-        Object cacheEntryObj = AuthenticationRequestCache.getInstance(0).getValueFromCache(cacheKey);
+        Object cacheEntryObj = AuthenticationRequestCache.getInstance(0).getValueFromCache(key);
 
         if (cacheEntryObj != null) {
             authRequest = (AuthenticationRequestCacheEntry) cacheEntryObj;
@@ -161,8 +157,7 @@ public class FrameworkUtils {
     public static void removeAuthenticationRequestFromCache(String key) {
 
         if (key != null) {
-            AuthenticationRequestCacheKey cacheKey = new AuthenticationRequestCacheKey(key);
-            AuthenticationRequestCache.getInstance(0).clearCacheEntry(cacheKey);
+            AuthenticationRequestCache.getInstance(0).clearCacheEntry(key);
         }
     }
 

@@ -69,28 +69,25 @@ public class AuthenticationRequestCache extends BaseCache<String, CacheEntry> {
         return instance;
     }
 
-    public void addToCache(CacheKey key,CacheEntry entry){
-        String keyValue = ((AuthenticationRequestCacheKey)key).getResultId();
-        super.addToCache(keyValue,entry);
-        if(enableRequestScopeCache){
-            SessionDataStore.getInstance().storeSessionData(keyValue,AUTHENTICATION_REQUEST_CACHE_NAME,entry);
+    public void addToCache(String key, CacheEntry entry) {
+        super.addToCache(key, entry);
+        if (enableRequestScopeCache) {
+            SessionDataStore.getInstance().storeSessionData(key, AUTHENTICATION_REQUEST_CACHE_NAME, entry);
         }
     }
 
-    public CacheEntry getValueFromCache(CacheKey key){
-        String keyValue = ((AuthenticationRequestCacheKey)key).getResultId();
-        CacheEntry cacheEntry = super.getValueFromCache(keyValue);
-        if(cacheEntry == null){
-            cacheEntry = (CacheEntry) SessionDataStore.getInstance().getSessionData(keyValue,AUTHENTICATION_REQUEST_CACHE_NAME);
+    public CacheEntry getValueFromCache(String key) {
+        CacheEntry cacheEntry = super.getValueFromCache(key);
+        if (cacheEntry == null) {
+            cacheEntry = (CacheEntry) SessionDataStore.getInstance().getSessionData(key, AUTHENTICATION_REQUEST_CACHE_NAME);
         }
         return cacheEntry;
     }
 
-    public void clearCacheEntry(CacheKey key){
-        String keyValue = ((AuthenticationRequestCacheKey)key).getResultId();
-        super.clearCacheEntry(keyValue);
+    public void clearCacheEntry(String key) {
+        super.clearCacheEntry(key);
         if (enableRequestScopeCache) {
-            SessionDataStore.getInstance().clearSessionData(keyValue, AUTHENTICATION_REQUEST_CACHE_NAME);
+            SessionDataStore.getInstance().clearSessionData(key, AUTHENTICATION_REQUEST_CACHE_NAME);
         }
     }
 }

@@ -84,10 +84,8 @@ public class DefaultRequestCoordinator implements RequestCoordinator {
                 // Retrieve AuthenticationRequestCache Entry which is stored stored from servlet.
                 if (sessionDataKey != null) {
                     log.debug("retrieving authentication request from cache..");
-                    AuthenticationRequestCacheKey cacheKey = new AuthenticationRequestCacheKey(
-                            sessionDataKey);
                     authRequest = (AuthenticationRequestCacheEntry) AuthenticationRequestCache
-                            .getInstance(0).getValueFromCache(cacheKey);
+                            .getInstance(0).getValueFromCache(sessionDataKey);
                 } else if (request.getParameter(FrameworkConstants.LOGOUT) == null ||
                            !"true".equals(request.getParameter(FrameworkConstants.LOGOUT))) {
 
