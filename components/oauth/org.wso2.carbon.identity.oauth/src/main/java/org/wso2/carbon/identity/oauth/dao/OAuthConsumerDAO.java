@@ -211,10 +211,10 @@ public class OAuthConsumerDAO {
             prepStmt = connection.prepareStatement(SQLQueries.OAuthConsumerDAOSQLQueries.ADD_OAUTH_REQ_TOKEN);
             prepStmt.setString(1, oauthToken);
             prepStmt.setString(2, oauthSecret);
-            prepStmt.setString(3, consumerKey);
-            prepStmt.setString(4, userCallback);
-            prepStmt.setString(5, scope);
-            prepStmt.setString(6, Boolean.toString(false));
+            prepStmt.setString(3, userCallback);
+            prepStmt.setString(4, scope);
+            prepStmt.setString(5, Boolean.toString(false));
+            prepStmt.setString(6, consumerKey);
 
             prepStmt.execute();
             connection.commit();
@@ -251,7 +251,7 @@ public class OAuthConsumerDAO {
             prepStmt = connection.prepareStatement(SQLQueries.OAuthConsumerDAOSQLQueries.AUTHORIZE_REQ_TOKEN);
             prepStmt.setString(1, Boolean.toString(true));
             prepStmt.setString(2, oauthVerifier);
-            prepStmt.setString(3, userName.toLowerCase());
+            prepStmt.setString(3, userName);
             prepStmt.setString(4, oauthToken);
 
             prepStmt.execute();
@@ -335,7 +335,7 @@ public class OAuthConsumerDAO {
             issueAccessTokStmt.setString(2, accessTokenSecret);
             issueAccessTokStmt.setString(3, consumerKey);
             issueAccessTokStmt.setString(4, scope);
-            issueAccessTokStmt.setString(5, authorizedUser.toLowerCase());
+            issueAccessTokStmt.setString(5, authorizedUser);
             issueAccessTokStmt.execute();
 
             connection.commit();

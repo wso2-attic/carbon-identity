@@ -18,15 +18,20 @@
 
 package org.wso2.carbon.identity.application.authentication.framework.cache;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.identity.application.authentication.framework.store.SessionDataStore;
 import org.wso2.carbon.identity.application.common.cache.BaseCache;
 import org.wso2.carbon.identity.application.common.cache.CacheEntry;
 import org.wso2.carbon.identity.application.common.cache.CacheKey;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
+import org.wso2.carbon.idp.mgt.util.IdPManagementUtil;
 
-public class SessionContextCache extends BaseCache<CacheKey, CacheEntry> {
+import java.sql.Timestamp;
+
+public class SessionContextCache extends BaseCache<String, CacheEntry> {
 
     private static final String SESSION_CONTEXT_CACHE_NAME = "AppAuthFrameworkSessionContextCache";
     private static final Log log = LogFactory.getLog(SessionContextCache.class);
@@ -49,12 +54,15 @@ public class SessionContextCache extends BaseCache<CacheKey, CacheEntry> {
                 if (instance == null) {
                     int capacity = 2000;
                     try {
-                        capacity = Integer.parseInt(
-                                IdentityUtil.getProperty("SessionContextCache.Capacity"));
-                    } catch (Exception e) {
+                        String capacityConfigValue = IdentityUtil.getProperty("SessionContextCache.Capacity");
+                        if (StringUtils.isNotBlank(capacityConfigValue)) {
+                            capacity = Integer.parseInt(capacityConfigValue);
+                        }
+                    } catch (NumberFormatException e) {
                         if (log.isDebugEnabled()) {
                             log.debug("Ignoring Exception.", e);
                         }
+                        log.warn("Session context cache capacity size is not configured. Using default value.");
                     }
                     instance = new SessionContextCache(SESSION_CONTEXT_CACHE_NAME, timeout, capacity);
                 }
@@ -63,26 +71,30 @@ public class SessionContextCache extends BaseCache<CacheKey, CacheEntry> {
         return instance;
     }
 
-    @Override
     public void addToCache(CacheKey key, CacheEntry entry) {
         if (useCache) {
-            super.addToCache(key, entry);
+            super.addToCache(((SessionContextCacheKey) key).getContextId(), entry);
         }
         String keyValue = ((SessionContextCacheKey) key).getContextId();
         SessionDataStore.getInstance().storeSessionData(keyValue, SESSION_CONTEXT_CACHE_NAME, entry);
     }
 
-    @Override
     public CacheEntry getValueFromCache(CacheKey key) {
         CacheEntry cacheEntry = null;
         if (useCache) {
-            cacheEntry = super.getValueFromCache(key);
+            cacheEntry = super.getValueFromCache(((SessionContextCacheKey) key).getContextId());
         }
         if (cacheEntry == null) {
             String keyValue = ((SessionContextCacheKey) key).getContextId();
             SessionContextCacheEntry sessionEntry = (SessionContextCacheEntry) SessionDataStore.getInstance().
                     getSessionData(keyValue, SESSION_CONTEXT_CACHE_NAME);
-            if (sessionEntry != null && sessionEntry.getContext().isRememberMe()) {
+            Timestamp currentTimestamp = new java.sql.Timestamp(new java.util.Date().getTime());
+            if (sessionEntry != null && sessionEntry.getContext().isRememberMe() &&
+                    (currentTimestamp.getTime() - SessionDataStore.getInstance().getTimeStamp(keyValue,
+                            SESSION_CONTEXT_CACHE_NAME)
+                            .getTime() <=
+                            IdPManagementUtil.getRememberMeTimeout(CarbonContext.getThreadLocalCarbonContext()
+                                    .getTenantDomain())*60*1000)) {
                 cacheEntry = sessionEntry;
             }
         }
@@ -90,10 +102,9 @@ public class SessionContextCache extends BaseCache<CacheKey, CacheEntry> {
 
     }
 
-    @Override
     public void clearCacheEntry(CacheKey key) {
         if (useCache) {
-            super.clearCacheEntry(key);
+            super.clearCacheEntry(((SessionContextCacheKey) key).getContextId());
         }
         String keyValue = ((SessionContextCacheKey) key).getContextId();
         SessionDataStore.getInstance().clearSessionData(keyValue, SESSION_CONTEXT_CACHE_NAME);

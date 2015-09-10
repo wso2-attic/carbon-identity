@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.wso2.carbon.identity</groupId>
         <artifactId>samlsso-validator</artifactId>
-        <version>4.5.6-SNAPSHOT</version>
+        <version>4.5.10-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -68,10 +68,6 @@
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.logging</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>bouncycastle</groupId>
-            <artifactId>bcprov-jdk15</artifactId>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon.identity</groupId>
@@ -122,10 +118,6 @@
                             org.wso2.carbon.identity.tools.saml.validator.*;
                             version="${carbon.identity.package.export.version}"
                         </Export-Package>
-                        <Embed-Dependency>
-                            bcprov-jdk15|naming-factory|naming-resources|commons-collections;scope=compile|runtime;
-                            inline=false
-                        </Embed-Dependency>
                     </instructions>
                 </configuration>
             </plugin>

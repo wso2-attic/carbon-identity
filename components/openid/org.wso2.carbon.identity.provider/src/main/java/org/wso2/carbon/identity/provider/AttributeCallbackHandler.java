@@ -39,7 +39,9 @@ import org.opensaml.xml.schema.impl.XSStringBuilder;
 import org.wso2.carbon.identity.base.IdentityConstants;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.IdentityClaimManager;
+import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
 import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
+import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.claim.Claim;
@@ -57,11 +59,10 @@ import java.util.StringTokenizer;
 public class AttributeCallbackHandler implements SAMLCallbackHandler {
 
     private static final Log log = LogFactory.getLog(AttributeCallbackHandler.class);
-    private static final String MULTI_ATTRIBUTE_SEPARATOR = "MultiAttributeSeparator";
     protected Map<String, RequestedClaimData> requestedClaims = new HashMap<String, RequestedClaimData>();
     protected Map<String, String> requestedClaimValues = new HashMap<String, String>();
     protected Map<String, Claim> supportedClaims = new HashMap<String, Claim>();
-    private String userAttributeSeparator = ",";
+    private String userAttributeSeparator = IdentityCoreConstants.MULTI_ATTRIBUTE_SEPARATOR_DEFAULT;
 
     @Override
     public void handle(SAMLCallback callback) throws SAMLException {
@@ -88,8 +89,10 @@ public class AttributeCallbackHandler implements SAMLCallbackHandler {
             }
 
             try {
-                loadClaims(claimElem, userIdentifier);
                 processClaimData(data, claimElem);
+                if (MapUtils.isEmpty(requestedClaimValues)) {
+                    loadClaims(claimElem, userIdentifier);
+                }
                 populateClaimValues(userIdentifier, attrCallback);
             } catch (IdentityProviderException e) {
                 log.error("Error occurred while populating claim data", e);
@@ -104,14 +107,18 @@ public class AttributeCallbackHandler implements SAMLCallbackHandler {
                 }
             }
 
-            if (attrCallback.getSAML2Attributes() == null || attrCallback.getSAML2Attributes().length == 0) {
-                if (RahasConstants.TOK_TYPE_SAML_20.equals(data.getTokenType())) {
+            if (RahasConstants.TOK_TYPE_SAML_20.equals(data.getTokenType())) {
+                if (attrCallback.getSAML2Attributes() == null
+                        || attrCallback.getSAML2Attributes().length == 0) {
                     attrCallback.addAttributes(getSAML2Attribute("Name", "Colombo",
-                                                                 "https://rahas.apache.org/saml/attrns"));
-                } else {
+                            "https://rahas.apache.org/saml/attrns"));
+                }
+            } else {
+                if (attrCallback.getAttributes() == null
+                        || attrCallback.getAttributes().length == 0) {
                     SAMLAttribute attribute = new SAMLAttribute("Name",
-                                                                "https://rahas.apache.org/saml/attrns", null, -1,
-                                                                Arrays.asList(new String[]{"Colombo/Rahas"}));
+                            "https://rahas.apache.org/saml/attrns", null, -1, Arrays
+                            .asList(new String[]{"Colombo/Rahas"}));
                     attrCallback.addAttributes(attribute);
                 }
             }
@@ -267,13 +274,6 @@ public class AttributeCallbackHandler implements SAMLCallbackHandler {
             return;
         }
 
-        try {
-            connector = IdentityTenantUtil.getRealm(null, userIdentifier).getUserStoreManager();
-        } catch (Exception e) {
-            log.error("Error while instantiating IdentityUserStore", e);
-            throw new IdentityProviderException("Error while instantiating IdentityUserStore", e);
-        }
-
         // get the column names for the URIs
         Iterator<RequestedClaimData> ite = requestedClaims.values().iterator();
         List<String> claimList = new ArrayList<String>();
@@ -292,17 +292,22 @@ public class AttributeCallbackHandler implements SAMLCallbackHandler {
 
         try {
             if (MapUtils.isEmpty(requestedClaimValues)) {
-                mapValues = connector.getUserClaimValues(
-                        MultitenantUtils.getTenantAwareUsername(userId),
-                        claimList.toArray(claimArray), null);
+                try {
+                    connector = IdentityTenantUtil.getRealm(null, userIdentifier).getUserStoreManager();
+                    mapValues = connector.getUserClaimValues(
+                            MultitenantUtils.getTenantAwareUsername(userId),
+                            claimList.toArray(claimArray), null);
+                } catch (UserStoreException e) {
+                    throw new IdentityProviderException("Error while instantiating IdentityUserStore", e);
+                }
             } else {
                 mapValues = requestedClaimValues;
             }
 
-            String claimSeparator = mapValues.get(MULTI_ATTRIBUTE_SEPARATOR);
-            if (claimSeparator != null) {
+            String claimSeparator = mapValues.get(IdentityCoreConstants.MULTI_ATTRIBUTE_SEPARATOR);
+            if (StringUtils.isNotBlank(claimSeparator)) {
                 userAttributeSeparator = claimSeparator;
-                mapValues.remove(MULTI_ATTRIBUTE_SEPARATOR);
+                mapValues.remove(IdentityCoreConstants.MULTI_ATTRIBUTE_SEPARATOR);
             }
 
             ite = requestedClaims.values().iterator();

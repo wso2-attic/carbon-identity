@@ -35,7 +35,6 @@ public abstract class UserIdentityDataStore {
     public static final String FAIL_LOGIN_ATTEMPTS = "http://wso2.org/claims/identity/failedLoginAttempts";
     public static final String LAST_LOGON_TIME = "http://wso2.org/claims/identity/lastLogonTime";
     public static final String UNLOCKING_TIME = "http://wso2.org/claims/identity/unlockTime";
-    public static final String PASSWORD_TIME_STAMP = "http://wso2.org/claims/identity/passwordTimestamp";
     public static final String ACCOUNT_LOCK = "http://wso2.org/claims/identity/accountLocked";
 
     /**
@@ -47,8 +46,7 @@ public abstract class UserIdentityDataStore {
 
         return new String[]{ONE_TIME_PASSWORD, PASSWORD_CHANGE_REQUIRED, TEMPORARY_LOCK,
                 LAST_FAILED_LOGIN_ATTEMPT_TIME, FAIL_LOGIN_ATTEMPTS, LAST_LOGON_TIME,
-                UNLOCKING_TIME, PASSWORD_TIME_STAMP, ACCOUNT_LOCK,
-                UserCoreConstants.ClaimTypeURIs.CHALLENGE_QUESTION_URI};
+                UNLOCKING_TIME, ACCOUNT_LOCK, UserCoreConstants.ClaimTypeURIs.CHALLENGE_QUESTION_URI};
 
     }
 

@@ -61,12 +61,13 @@ public class SAMLSSOAuthenticatorServiceComponent {
     }
 
     protected void activate(ComponentContext ctxt) {
+        String postPagePath = null;
         try {
             SAMLSSOAuthenticator samlSSOAuthenticator = new SAMLSSOAuthenticator();
             ctxt.getBundleContext().registerService(ApplicationAuthenticator.class.getName(), samlSSOAuthenticator, null);
-            String postPagePath = CarbonUtils.getCarbonHome() + File.separator + "repository"
-                    + File.separator + "resources" + File.separator + "security" + File.separator
-                    + "samlsso_federate.html";
+            postPagePath = CarbonUtils.getCarbonHome() + File.separator + "repository"
+                    + File.separator + "resources" + File.separator + "identity" + File.separator + "pages" + File
+                    .separator + "samlsso_federate.html";
             FileInputStream fis = new FileInputStream(new File(postPagePath));
             postPage = new Scanner(fis, "UTF-8").useDelimiter("\\A").next();
             if (log.isDebugEnabled()) {
@@ -74,7 +75,7 @@ public class SAMLSSOAuthenticatorServiceComponent {
             }
         } catch (FileNotFoundException e) {
             if (log.isDebugEnabled()) {
-                log.debug("Failed to find SAMLSSO POST page for federation" + e);
+                log.debug("Failed to find SAMLSSO POST page for federation in "+ postPagePath);
             }
         } catch (Throwable e) {
             if (log.isDebugEnabled()) {

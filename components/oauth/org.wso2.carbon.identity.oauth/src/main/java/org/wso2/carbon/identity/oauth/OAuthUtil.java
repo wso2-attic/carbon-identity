@@ -23,11 +23,14 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.xml.security.utils.Base64;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
+import org.wso2.carbon.identity.application.common.model.User;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.oauth.cache.CacheKey;
 import org.wso2.carbon.identity.oauth.cache.OAuthCache;
 import org.wso2.carbon.identity.oauth.cache.OAuthCacheKey;
 import org.wso2.carbon.identity.oauth.config.OAuthServerConfiguration;
 import org.wso2.carbon.registry.core.utils.UUIDGenerator;
+import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 import javax.crypto.Mac;
@@ -67,11 +70,33 @@ public final class OAuthUtil {
         }
     }
 
+    public static void clearOAuthCache(String consumerKey, User authorizedUser) {
+
+        String user = UserCoreUtil.addDomainToName(authorizedUser.getUserName(), authorizedUser.getUserStoreDomain());
+        user = UserCoreUtil.addTenantDomainToEntry(user, authorizedUser.getTenantDomain());
+        clearOAuthCache(consumerKey, user);
+    }
+
+    public static void clearOAuthCache(String consumerKey, User authorizedUser, String scope) {
+
+        String user = UserCoreUtil.addDomainToName(authorizedUser.getUserName(), authorizedUser.getUserStoreDomain());
+        user = UserCoreUtil.addTenantDomainToEntry(user, authorizedUser.getTenantDomain());
+        clearOAuthCache(consumerKey, user, scope);
+    }
+
     public static void clearOAuthCache(String consumerKey, String authorizedUser) {
+        boolean isUsernameCaseSensitive = IdentityUtil.isUserStoreInUsernameCaseSensitive(authorizedUser);
+        if (!isUsernameCaseSensitive){
+            authorizedUser = authorizedUser.toLowerCase();
+        }
         clearOAuthCache(consumerKey + ":" + authorizedUser);
     }
 
     public static void clearOAuthCache(String consumerKey, String authorizedUser, String scope) {
+        boolean isUsernameCaseSensitive = IdentityUtil.isUserStoreInUsernameCaseSensitive(authorizedUser);
+        if (!isUsernameCaseSensitive){
+            authorizedUser = authorizedUser.toLowerCase();
+        }
         clearOAuthCache(consumerKey + ":" + authorizedUser + ":" + scope);
     }
 
@@ -86,7 +111,7 @@ public final class OAuthUtil {
 
             CacheKey cacheKey = new OAuthCacheKey(oauthCacheKey);
             if (OAuthServerConfiguration.getInstance().isCacheEnabled()) {
-                oauthCache = OAuthCache.getInstance();
+                oauthCache = OAuthCache.getInstance(OAuthServerConfiguration.getInstance().getOAuthCacheTimeout());
                 oauthCache.clearCacheEntry(cacheKey);
             }
         } finally {

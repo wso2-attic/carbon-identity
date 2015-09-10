@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.wso2.carbon.identity</groupId>
         <artifactId>user-mgt</artifactId>
-        <version>4.5.6-SNAPSHOT</version>
+        <version>4.5.10-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -63,6 +63,7 @@
                             org.apache.commons.logging; version="${commons-logging.osgi.version.range}",
                             org.wso2.carbon.identity.user.profile.stub.*;
                             version="${carbon.identity.package.import.version.range}",
+                            org.apache.commons.lang; version="${commons-lang.wso2.osgi.version.range}
                         </Import-Package>
                         <Export-Package>
                             org.wso2.carbon.identity.user.profile.ui.*;

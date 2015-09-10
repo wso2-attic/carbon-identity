@@ -46,9 +46,11 @@ import org.wso2.carbon.identity.oauth.cache.SessionDataCacheEntry;
 import org.wso2.carbon.identity.oauth.cache.SessionDataCacheKey;
 import org.wso2.carbon.identity.oauth.common.OAuth2ErrorCodes;
 import org.wso2.carbon.identity.oauth.common.OAuthConstants;
+import org.wso2.carbon.identity.oauth.config.OAuthServerConfiguration;
 import org.wso2.carbon.identity.oauth.endpoint.OAuthRequestWrapper;
 import org.wso2.carbon.identity.oauth.endpoint.util.EndpointUtil;
 import org.wso2.carbon.identity.oauth.endpoint.util.OpenIDConnectUserRPStore;
+import org.wso2.carbon.identity.oauth2.IdentityOAuth2Exception;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2AuthorizeReqDTO;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2AuthorizeRespDTO;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2ClientValidationResponseDTO;
@@ -81,6 +83,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class OAuth2AuthzEndpoint {
 
     private static final Log log = LogFactory.getLog(OAuth2AuthzEndpoint.class);
+    public static final String APPROVE = "approve";
 
     @GET
     @Path("/")
@@ -105,11 +108,12 @@ public class OAuth2AuthzEndpoint {
         Object resultFromConsent = null;
         if (StringUtils.isNotEmpty(sessionDataKeyFromLogin)) {
             cacheKey = new SessionDataCacheKey(sessionDataKeyFromLogin);
-            resultFromLogin = SessionDataCache.getInstance().getValueFromCache(cacheKey);
+            resultFromLogin = SessionDataCache.getInstance(OAuthServerConfiguration.getInstance().getSessionDataCacheTimeout()).getValueFromCache(cacheKey);
         }
         if (StringUtils.isNotEmpty(sessionDataKeyFromConsent)) {
             cacheKey = new SessionDataCacheKey(sessionDataKeyFromConsent);
-            resultFromConsent = SessionDataCache.getInstance().getValueFromCache(cacheKey);
+            resultFromConsent = SessionDataCache.getInstance(OAuthServerConfiguration.getInstance().getSessionDataCacheTimeout()).getValueFromCache(cacheKey);
+            SessionDataCache.getInstance(OAuthServerConfiguration.getInstance().getSessionDataCacheTimeout()).clearCacheEntry(cacheKey);
         }
         if (resultFromLogin != null && resultFromConsent != null) {
 
@@ -180,7 +184,8 @@ public class OAuth2AuthzEndpoint {
                         }
                         sessionDataCacheEntry.setLoggedInUser(authenticatedUser);
                         sessionDataCacheEntry.setAuthenticatedIdPs(authnResult.getAuthenticatedIdPs());
-                        SessionDataCache.getInstance().addToCache(cacheKey, sessionDataCacheEntry);
+                        SessionDataCache.getInstance(OAuthServerConfiguration.getInstance().getSessionDataCacheTimeout
+                                ()).addToCache(cacheKey, sessionDataCacheEntry);
                         redirectURL = doUserAuthz(request, sessionDataKeyFromLogin, sessionDataCacheEntry);
                         return Response.status(HttpServletResponse.SC_FOUND).location(new URI(redirectURL)).build();
 
@@ -391,7 +396,8 @@ public class OAuth2AuthzEndpoint {
         AuthorizationGrantCacheEntry authorizationGrantCacheEntry = new AuthorizationGrantCacheEntry(
                 sessionDataCacheEntry.getLoggedInUser().getUserAttributes());
         authorizationGrantCacheEntry.setNonceValue(sessionDataCacheEntry.getoAuth2Parameters().getNonce());
-        AuthorizationGrantCache.getInstance().addToCache(authorizationGrantCacheKey, authorizationGrantCacheEntry);
+        AuthorizationGrantCache.getInstance(OAuthServerConfiguration.getInstance().getAuthorizationGrantCacheTimeout())
+                .addToCache(authorizationGrantCacheKey, authorizationGrantCacheEntry);
     }
 
     /**
@@ -473,7 +479,7 @@ public class OAuth2AuthzEndpoint {
             params.setACRValues(list);
         }
         String prompt = oauthRequest.getParam(OIDC.AuthZRequest.PROMPT);
-        if (prompt == null) {
+        if (StringUtils.isBlank(prompt)) {
             prompt = "consent";
         }
         params.setPrompt(prompt);
@@ -511,7 +517,6 @@ public class OAuth2AuthzEndpoint {
         boolean forceAuthenticate = false;
         boolean checkAuthentication = false;
 
-        if (prompt != null) {
             // values {none, login, consent, select_profile}
             String[] prompts = prompt.trim().split("\\s");
             boolean containsNone = prompt.contains(OIDC.Prompt.NONE);
@@ -527,14 +532,15 @@ public class OAuth2AuthzEndpoint {
                         .setState(params.getState()).buildQueryMessage().getLocationUri();
             }
 
-            if (prompt.contains(OIDC.Prompt.LOGIN)) { // prompt for authentication
-                checkAuthentication = false;
-                forceAuthenticate = true;
-
-            } else if (containsNone || prompt.contains(OIDC.Prompt.CONSENT)) {
-                checkAuthentication = false;
-                forceAuthenticate = false;
-            }
+        if (prompt.contains(OIDC.Prompt.LOGIN)) { // prompt for authentication
+            checkAuthentication = false;
+            forceAuthenticate = true;
+        } else if (containsNone) {
+            checkAuthentication = true;
+            forceAuthenticate = false;
+        } else if (prompt.contains(OIDC.Prompt.CONSENT)) {
+            checkAuthentication = false;
+            forceAuthenticate = false;
         }
 
         String sessionDataKey = UUIDGenerator.generateUUID();
@@ -546,12 +552,13 @@ public class OAuth2AuthzEndpoint {
         if (req.getParameterMap() != null) {
             sessionDataCacheEntryNew.setParamMap(new ConcurrentHashMap<String, String[]>(req.getParameterMap()));
         }
-        SessionDataCache.getInstance().addToCache(cacheKey, sessionDataCacheEntryNew);
+        SessionDataCache.getInstance(OAuthServerConfiguration.getInstance().getSessionDataCacheTimeout()).
+                addToCache(cacheKey, sessionDataCacheEntryNew);
 
         try {
             return EndpointUtil.getLoginPageURL(clientId, sessionDataKey, forceAuthenticate,
                     checkAuthentication, oauthRequest.getScopes(), req.getParameterMap());
-        } catch (UnsupportedEncodingException e) {
+        } catch (IdentityOAuth2Exception e) {
             if (log.isDebugEnabled()) {
                 log.debug("Error while retrieving the login page url.", e);
             }
@@ -608,24 +615,35 @@ public class OAuth2AuthzEndpoint {
         // load the users approved applications to skip consent
         String appName = oauth2Params.getApplicationName();
         boolean hasUserApproved = OpenIDConnectUserRPStore.getInstance().hasUserApproved(loggedInUser, appName);
+        String consentUrl;
+        String errorResponse = OAuthASResponse.errorResponse(HttpServletResponse.SC_FOUND)
+                .setError(OAuth2ErrorCodes.ACCESS_DENIED)
+                .location(oauth2Params.getRedirectURI())
+                .setState(oauth2Params.getState()).buildQueryMessage()
+                .getLocationUri();
+
+        consentUrl = EndpointUtil.getUserConsentURL(oauth2Params, loggedInUser, sessionDataKey,
+                OIDCAuthzServerUtil.isOIDCAuthzRequest(oauth2Params.getScopes()) ? true : false);
 
         //Skip the consent page if User has provided approve always or skip consent from file
-        if (skipConsent || hasUserApproved) {
-
-            return handleUserConsent(request, "approveAlways", oauth2Params, sessionDataCacheEntry);
+        if (oauth2Params.getPrompt().contains(OIDC.Prompt.CONSENT) ||
+                oauth2Params.getPrompt().contains(OIDC.Prompt.LOGIN)) {
+            return consentUrl;
 
         } else if (oauth2Params.getPrompt().contains(OIDC.Prompt.NONE)) {
-            // should not prompt for consent if approved always
-            // returning error
-            return OAuthASResponse.errorResponse(HttpServletResponse.SC_FOUND)
-                    .setError(OAuth2ErrorCodes.ACCESS_DENIED)
-                    .location(oauth2Params.getRedirectURI())
-                    .setState(oauth2Params.getState()).buildQueryMessage()
-                    .getLocationUri();
+            //Returning error if the user has not previous session
+            if (sessionDataCacheEntry.getLoggedInUser() == null) {
+                return errorResponse;
+            } else {
+                if (skipConsent || hasUserApproved) {
+                    return handleUserConsent(request, APPROVE, oauth2Params, sessionDataCacheEntry);
+                } else {
+                    return errorResponse;
+                }
+            }
 
         } else {
-            return EndpointUtil.getUserConsentURL(oauth2Params, loggedInUser, sessionDataKey, OIDCAuthzServerUtil
-                    .isOIDCAuthzRequest(oauth2Params.getScopes()) ? true : false);
+            return consentUrl;
         }
 
     }
@@ -652,9 +670,11 @@ public class OAuth2AuthzEndpoint {
     private void clearCacheEntry(String sessionDataKey) {
         if (sessionDataKey != null) {
             CacheKey cacheKey = new SessionDataCacheKey(sessionDataKey);
-            Object result = SessionDataCache.getInstance().getValueFromCache(cacheKey);
+            Object result = SessionDataCache.getInstance(OAuthServerConfiguration.getInstance().
+                    getSessionDataCacheTimeout()).getValueFromCache(cacheKey);
             if (result != null) {
-                SessionDataCache.getInstance().clearCacheEntry(cacheKey);
+                SessionDataCache.getInstance(OAuthServerConfiguration.getInstance().getSessionDataCacheTimeout())
+                        .clearCacheEntry(cacheKey);
             }
         }
     }

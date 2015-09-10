@@ -113,18 +113,13 @@ public class Util {
         String saltValue = null;
         if ("true".equals(realmConfig.getUserStoreProperties().get(JDBCRealmConstants.STORE_SALTED_PASSWORDS))) {
             try {
-
                 SecureRandom secureRandom = SecureRandom.getInstance(SHA_1_PRNG);
                 byte[] bytes = new byte[16];
                 //secureRandom is automatically seeded by calling nextBytes
                 secureRandom.nextBytes(bytes);
                 saltValue = Base64.encode(bytes);
             } catch (NoSuchAlgorithmException e) {
-                // Ignore Exception.
-                // Tha SHA_1_PRNG algorithm is provided.
-                if (log.isDebugEnabled()) {
-                    log.debug("Ignoring NoSuchAlgorithmException. Tha SHA1PRNG algorithm is provided.", e);
-                }
+                throw new RuntimeException("SHA1PRNG algorithm could not be found.");
             }
 
         }

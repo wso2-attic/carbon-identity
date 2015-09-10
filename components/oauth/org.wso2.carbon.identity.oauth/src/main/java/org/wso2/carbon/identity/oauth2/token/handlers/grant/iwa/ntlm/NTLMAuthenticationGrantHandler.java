@@ -19,29 +19,30 @@
 package org.wso2.carbon.identity.oauth2.token.handlers.grant.iwa.ntlm;
 
 import com.sun.jna.platform.win32.Sspi;
-import com.sun.jna.platform.win32.Sspi.SecBufferDesc;
-import org.apache.catalina.Realm;
-import org.apache.commons.io.Charsets;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.oauth2.IdentityOAuth2Exception;
 import org.wso2.carbon.identity.oauth2.token.OAuthTokenReqMessageContext;
 import org.wso2.carbon.identity.oauth2.token.handlers.grant.AbstractAuthorizationGrantHandler;
-import org.wso2.carbon.identity.oauth2.token.handlers.grant.iwa.ntlm.util.SimpleContext;
+import org.wso2.carbon.identity.oauth2.token.handlers.grant.iwa.ntlm.util.SimpleFilterChain;
 import org.wso2.carbon.identity.oauth2.token.handlers.grant.iwa.ntlm.util.SimpleHttpRequest;
 import org.wso2.carbon.identity.oauth2.token.handlers.grant.iwa.ntlm.util.SimpleHttpResponse;
-import org.wso2.carbon.identity.oauth2.token.handlers.grant.iwa.ntlm.util.SimpleRealm;
-import waffle.apache.NegotiateAuthenticator;
+import org.wso2.carbon.identity.oauth2.util.OAuth2Util;
+import waffle.servlet.NegotiateSecurityFilter;
 import waffle.util.Base64;
 import waffle.windows.auth.IWindowsCredentialsHandle;
 import waffle.windows.auth.impl.WindowsAccountImpl;
+import waffle.windows.auth.impl.WindowsAuthProviderImpl;
 import waffle.windows.auth.impl.WindowsCredentialsHandleImpl;
 import waffle.windows.auth.impl.WindowsSecurityContextImpl;
+
+import javax.security.auth.Subject;
+import javax.servlet.ServletException;
+import java.io.IOException;
 
 
 public class NTLMAuthenticationGrantHandler extends AbstractAuthorizationGrantHandler {
     private static Log log = LogFactory.getLog(NTLMAuthenticationGrantHandler.class);
-    NegotiateAuthenticator _authenticator = null;
     String securityPackage = "Negotiate";
 
     @Override
@@ -51,74 +52,77 @@ public class NTLMAuthenticationGrantHandler extends AbstractAuthorizationGrantHa
             return false;
         }
 
+        NegotiateSecurityFilter filter;
+
+        filter = new NegotiateSecurityFilter();
+        filter.setAuth(new WindowsAuthProviderImpl());
+        try {
+            filter.init(null);
+        } catch (ServletException e) {
+            log.error("Error while initializing Negotiate Security Filter", e);
+            throw new IdentityOAuth2Exception("Error while initializing Negotiate Security Filter", e);
+        }
         String token = tokReqMsgCtx.getOauth2AccessTokenReqDTO().getWindowsToken();
         boolean authenticated;
-        IWindowsCredentialsHandle clientCredentials = null;
-        WindowsSecurityContextImpl clientContext = null;
+        IWindowsCredentialsHandle clientCredentials;
+        WindowsSecurityContextImpl clientContext;
+        filter.setRoleFormat("both");
         if (token != null) {
-
-
-            try {
-                initializeNegotiateAuthenticator();
-            } catch (Exception e) {
-                throw new IdentityOAuth2Exception("Error while validating the NTLM authentication grant", e);
-            }
 
             // Logging the windows authentication object
             if (log.isDebugEnabled()) {
                 log.debug("Received NTLM Token : " +
-                                tokReqMsgCtx.getOauth2AccessTokenReqDTO().getWindowsToken()
+                          tokReqMsgCtx.getOauth2AccessTokenReqDTO().getWindowsToken()
                 );
             }
+
             // client credentials handle
-            clientCredentials = WindowsCredentialsHandleImpl
-                    .getCurrent(securityPackage);
+            clientCredentials = WindowsCredentialsHandleImpl.getCurrent(securityPackage);
             clientCredentials.initialize();
             // initial client security context
             clientContext = new WindowsSecurityContextImpl();
-            clientContext.setToken(token.getBytes(Charsets.UTF_8));
             clientContext.setPrincipalName(WindowsAccountImpl.getCurrentUsername());
             clientContext.setCredentialsHandle(clientCredentials.getHandle());
             clientContext.setSecurityPackage(securityPackage);
             clientContext.initialize(null, null, WindowsAccountImpl.getCurrentUsername());
+
+            SimpleHttpRequest request = new SimpleHttpRequest();
+            SimpleFilterChain filterChain = new SimpleFilterChain();
+
             while (true) {
-                SimpleHttpRequest request = new SimpleHttpRequest();
 
                 try {
-                    request.addHeader("Authorization", securityPackage + " "
-                            + token);
+                    request.addHeader("Authorization", securityPackage + " " + token);
                     SimpleHttpResponse response = new SimpleHttpResponse();
-                    authenticated = _authenticator.authenticate(request, response, null);
 
-                    if (log.isDebugEnabled()) {
-                        if (authenticated) {
-                            log.debug("The input NTLM token is authenticated against the windows server.");
-                        } else {
-                            log.debug("The input NTLM token is not a valid token.It cannot be authenticate against windows server.");
-                        }
+                    try {
+                        filter.doFilter(request, response, filterChain);
+                    } catch (IOException e) {
+                        log.error("You have been given wrong inputs to negotiate filter", e);
+                        throw new IdentityOAuth2Exception("Error while processing negotiate the filter.", e);
                     }
+
+                    Subject subject = (Subject) request.getSession().getAttribute("javax.security.auth.subject");
+                    authenticated = (subject != null && subject.getPrincipals().size() > 0);
 
                     if (authenticated) {
+                        if (log.isDebugEnabled()) {
+                            log.debug("NTLM token is authenticated");
+                        }
                         String resourceOwnerUserNameWithDomain = WindowsAccountImpl.getCurrentUsername();
                         String resourceOwnerUserName = resourceOwnerUserNameWithDomain.split("\\\\")[1];
-                        tokReqMsgCtx.setAuthorizedUser(resourceOwnerUserName);
+                        tokReqMsgCtx.setAuthorizedUser(OAuth2Util.getUserFromUserName(resourceOwnerUserName));
                         break;
                     }
-
-                    if (response.getHeader("WWW-Authenticate").startsWith(securityPackage + " ") && response.getStatus() == 401) {
-                        String continueToken = response.getHeader("WWW-Authenticate").substring(securityPackage.length() + 1);
-                        byte[] continueTokenBytes = Base64.decode(continueToken);
-                        if (continueTokenBytes.length > 0) {
-                            SecBufferDesc continueTokenBuffer = new SecBufferDesc(Sspi.SECBUFFER_TOKEN, continueTokenBytes);
-                            clientContext.initialize(clientContext.getHandle(), continueTokenBuffer, WindowsAccountImpl.getCurrentUsername());
-                            token = Base64.encode(clientContext.getToken());
-                        }
-
-                    } else {
-                        break;
-                    }
-
+                    String continueToken = response.getHeader("WWW-Authenticate").
+                            substring(securityPackage.length() + 1);
+                    byte[] continueTokenBytes = Base64.decode(continueToken);
+                    Sspi.SecBufferDesc continueTokenBuffer = new Sspi.
+                            SecBufferDesc(Sspi.SECBUFFER_TOKEN, continueTokenBytes);
+                    clientContext.initialize(clientContext.getHandle(), continueTokenBuffer, "localhost");
+                    token = Base64.encode(clientContext.getToken());
                 } catch (Exception e) {
+                    log.error("Error while validating the NTLM authentication grant", e);
                     throw new IdentityOAuth2Exception("Error while validating the NTLM authentication grant", e);
                 }
             }
@@ -131,16 +135,5 @@ public class NTLMAuthenticationGrantHandler extends AbstractAuthorizationGrantHa
         return authenticated;
 
     }
-
-    private void initializeNegotiateAuthenticator() throws Exception {
-        _authenticator = new NegotiateAuthenticator();
-        SimpleContext ctx = new SimpleContext();
-        Realm realm = new SimpleRealm();
-        ctx.setRealm(realm);
-        _authenticator.setContainer(ctx);
-
-
-    }
-
 
 }

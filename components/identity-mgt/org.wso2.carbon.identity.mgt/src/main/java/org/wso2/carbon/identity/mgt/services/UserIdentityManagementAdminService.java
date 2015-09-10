@@ -25,6 +25,7 @@ import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.mgt.ChallengeQuestionProcessor;
+import org.wso2.carbon.identity.mgt.IdentityMgtConfig;
 import org.wso2.carbon.identity.mgt.IdentityMgtServiceException;
 import org.wso2.carbon.identity.mgt.constants.IdentityMgtConstants;
 import org.wso2.carbon.identity.mgt.dto.ChallengeQuestionDTO;
@@ -77,6 +78,7 @@ public class UserIdentityManagementAdminService {
             UserStoreManager userStoreManager = IdentityMgtServiceComponent.getRealmService().
                     getTenantUserRealm(CarbonContext.getThreadLocalCarbonContext().getTenantId()).getUserStoreManager();
             userStoreManager.deleteUser(userName);
+            log.info("Deleted user: " + userName);
         } catch (UserStoreException e) {
             String errorMessage = "Error occured while deleting user : " + userName;
             log.error(errorMessage, e);
@@ -97,13 +99,10 @@ public class UserIdentityManagementAdminService {
             UserStoreManager userStoreManager = getUserStore(userName);
             String userNameWithoutDomain = UserCoreUtil.removeDomainFromName(userName);
             UserIdentityManagementUtil.lockUserAccount(userNameWithoutDomain, userStoreManager);
-            log.info("User account " + userNameWithoutDomain + " locked");
-        } catch (UserStoreException e) {
-            log.error("Error while loading user store", e);
-            throw new IdentityMgtServiceException("Unable to lock the account");
-        } catch (IdentityException e) {
-            log.error("Error while reading registration info", e);
-            throw new IdentityMgtServiceException("Unable to lock the account");
+            log.info("User account locked: " + userName);
+        } catch (UserStoreException|IdentityException e) {
+            log.error("Error occurred while trying to lock the account " + userName, e);
+            throw new IdentityMgtServiceException("Error occurred while trying to lock the account " + userName, e);
         }
     }
 
@@ -120,31 +119,25 @@ public class UserIdentityManagementAdminService {
             UserIdentityManagementUtil.unlockUserAccount(userNameWithoutDomain, userStoreManager);
             int tenantID = userStoreManager.getTenantId();
             String tenantDomain = IdentityMgtServiceComponent.getRealmService().getTenantManager().getDomain(tenantID);
-            if (notificationType != null) {
-                UserRecoveryDTO dto = null;
+            boolean isNotificationSending = IdentityMgtConfig.getInstance().isNotificationSending();
+            if (notificationType != null && isNotificationSending) {
+                UserRecoveryDTO dto;
                 if (MultitenantConstants.SUPER_TENANT_DOMAIN_NAME.equals(tenantDomain)) {
-                    dto = new UserRecoveryDTO(userNameWithoutDomain);
+                    dto = new UserRecoveryDTO(userName);
                 } else {
-                    UserDTO userDTO = new UserDTO(UserCoreUtil.addTenantDomainToEntry(userNameWithoutDomain, tenantDomain));
+                    UserDTO userDTO = new UserDTO(UserCoreUtil.addTenantDomainToEntry(userName, tenantDomain));
                     userDTO.setTenantId(tenantID);
                     dto = new UserRecoveryDTO(userDTO);
                 }
                 dto.setNotification(IdentityMgtConstants.Notification.ACCOUNT_UNLOCK);
                 dto.setNotificationType(notificationType);
-                try {
-                    IdentityMgtServiceComponent.getRecoveryProcessor().recoverWithNotification(dto);
-                } catch (IdentityException e) {
-                    String errorMessage = "Error while password recovery";
-                    log.error(errorMessage, e);
-                    throw new IdentityMgtServiceException(errorMessage);
-                }
+                IdentityMgtServiceComponent.getRecoveryProcessor().recoverWithNotification(dto);
             }
-        } catch (UserStoreException e) {
-            log.error("Error while loading user store", e);
-            throw new IdentityMgtServiceException("Unable to unlock the account");
-        } catch (IdentityException e) {
-            log.error("Error while reading registration info", e);
-            throw new IdentityMgtServiceException("Unable to unlock the account");
+            log.info("Account unlocked for: " + userName);
+        } catch (UserStoreException|IdentityException e) {
+            String message = "Error occurred while unlocking account for: " + userName;
+            log.error(message, e);
+            throw new IdentityMgtServiceException(message, e);
         }
     }
 
@@ -161,9 +154,11 @@ public class UserIdentityManagementAdminService {
             UserStoreManager userStoreManager = getUserStore(userName);
             String userNameWithoutDomain = UserCoreUtil.removeDomainFromName(userName);
             userStoreManager.updateCredentialByAdmin(userNameWithoutDomain, newPassword);
+            log.info("User password reset for: " + userName);
         } catch (UserStoreException e) {
-            log.error("Error while resetting the password", e);
-            throw new IdentityMgtServiceException("Unable reset the password");
+            String message = "Error occurred while resetting password for: " + userName;
+            log.error(message, e);
+            throw new IdentityMgtServiceException(message, e);
         }
     }
 
@@ -399,14 +394,10 @@ public class UserIdentityManagementAdminService {
             }
             userStoreManager.setUserClaimValues(userName, claims, null);
 
-        } catch (UserStoreException e) {
-            String errorMessage = "Error while updating user identity recovery data";
+        } catch (UserStoreException|IdentityException e) {
+            String errorMessage = "Error while updating identity recovery data for : " + userName;
             log.error(errorMessage, e);
-            throw new IdentityMgtServiceException(errorMessage);
-        } catch (IdentityException e) {
-            String errorMessage = "Error while updating user identity recovery data";
-            log.error(errorMessage, e);
-            throw new IdentityMgtServiceException(errorMessage);
+            throw new IdentityMgtServiceException(errorMessage, e);
         }
     }
 
@@ -437,9 +428,11 @@ public class UserIdentityManagementAdminService {
             UserStoreManager userStoreManager = getUserStore(userName);
             userName = UserCoreUtil.removeDomainFromName(userName);
             userStoreManager.updateCredential(userName, newPassword, oldPassword);
+            log.info("Password changed for: " + userName);
         } catch (UserStoreException e) {
-            log.error("Error while resetting the password", e);
-            throw new IdentityMgtServiceException("Unable reset the password");
+            String message = "Error while resetting the password for: " + userName;
+            log.error(message, e);
+            throw new IdentityMgtServiceException(message, e);
         }
     }
 

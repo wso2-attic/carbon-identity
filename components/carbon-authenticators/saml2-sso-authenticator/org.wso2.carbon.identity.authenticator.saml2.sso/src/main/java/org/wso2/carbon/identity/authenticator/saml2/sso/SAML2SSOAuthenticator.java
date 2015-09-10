@@ -19,6 +19,7 @@ package org.wso2.carbon.identity.authenticator.saml2.sso;
 
 import org.apache.axis2.context.MessageContext;
 import org.apache.axis2.transport.http.HTTPConstants;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opensaml.saml2.core.Assertion;
@@ -48,6 +49,7 @@ import org.wso2.carbon.identity.authenticator.saml2.sso.dto.AuthnReqDTO;
 import org.wso2.carbon.identity.authenticator.saml2.sso.internal.SAML2SSOAuthBEDataHolder;
 import org.wso2.carbon.identity.authenticator.saml2.sso.util.Util;
 import org.wso2.carbon.registry.core.service.RegistryService;
+import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
@@ -73,15 +75,16 @@ import java.util.Map;
 public class SAML2SSOAuthenticator implements CarbonServerAuthenticator {
 
     public static final Log log = LogFactory.getLog(SAML2SSOAuthenticator.class);
+    private static final Log AUDIT_LOG = CarbonConstants.AUDIT_LOG;
+
     private static final int DEFAULT_PRIORITY_LEVEL = 3;
     private static final String AUTHENTICATOR_NAME = SAML2SSOAuthenticatorBEConstants.SAML2_SSO_AUTHENTICATOR_NAME;
-    private static final Log AUDIT_LOG = CarbonConstants.AUDIT_LOG;
     private SecureRandom random = new SecureRandom();
 
     public boolean login(AuthnReqDTO authDto) {
         String username = null;
         String tenantDomain = null;
-        String result = SAML2SSOAuthenticatorConstants.AUDIT_FAILED;
+        String auditResult = SAML2SSOAuthenticatorConstants.AUDIT_RESULT_FAILED;
 
         HttpSession httpSession = getHttpSession();
         try {
@@ -93,17 +96,16 @@ public class SAML2SSOAuthenticator implements CarbonServerAuthenticator {
                 log.error("Authentication Request is rejected. " +
                         "SAMLResponse does not contain the username of the subject.");
                 CarbonAuthenticationUtil.onFailedAdminLogin(httpSession, username, -1,
-                        "SAML2 SSO Authentication", "Data");
+                        "SAML2 SSO Authentication", "SAMLResponse does not contain the username of the subject");
                 // Unable to call #handleAuthenticationCompleted since there is no way to determine
                 // tenantId without knowing the username.
                 return false;
             }
 
-            if (!validateAudienceRestriction(xmlObject)) {
-                log.error("Authentication Request is rejected. " +
-                        "SAMLResponse AudienceRestriction validation failed.");
+            if (!validateAudienceRestrictionInXML(xmlObject)) {
+                log.error("Authentication Request is rejected. SAMLResponse AudienceRestriction validation failed.");
                 CarbonAuthenticationUtil.onFailedAdminLogin(httpSession, username, -1,
-                        "SAML2 SSO Authentication", "Data");
+                        "SAML2 SSO Authentication", "AudienceRestriction validation failed");
                 return false;
             }
 
@@ -115,11 +117,9 @@ public class SAML2SSOAuthenticator implements CarbonServerAuthenticator {
             if (isResponseSignatureValidationEnabled()) {
                 boolean isSignatureValid = validateSignature(xmlObject, tenantDomain);
                 if (!isSignatureValid) {
-                    log.error("Authentication Request is rejected. "
-                            + " Signature validation failed.");
+                    log.error("Authentication Request is rejected. Signature validation failed.");
                     CarbonAuthenticationUtil.onFailedAdminLogin(httpSession, username, tenantId,
-                            "SAML2 SSO Authentication",
-                            "Invalid Signature");
+                            "SAML2 SSO Authentication", "Invalid Signature");
                     handleAuthenticationCompleted(tenantId, false);
                     return false;
                 }
@@ -137,18 +137,21 @@ public class SAML2SSOAuthenticator implements CarbonServerAuthenticator {
             // Starting Authorization
 
             PermissionUpdateUtil.updatePermissionTree(tenantId);
-            boolean isAuthorized = realm.getAuthorizationManager().isUserAuthorized(username,
-                    "/permission/admin/login", CarbonConstants.UI_PERMISSION_ACTION);
+            boolean isAuthorized = false;
+            if (realm != null) {
+                isAuthorized = realm.getAuthorizationManager().isUserAuthorized(username,
+                        "/permission/admin/login", CarbonConstants.UI_PERMISSION_ACTION);
+            }
             if (isAuthorized) {
                 CarbonAuthenticationUtil.onSuccessAdminLogin(httpSession, username,
                         tenantId, tenantDomain, "SAML2 SSO Authentication");
                 handleAuthenticationCompleted(tenantId, true);
-                result = SAML2SSOAuthenticatorConstants.AUDIT_SUCCESS;
+                auditResult = SAML2SSOAuthenticatorConstants.AUDIT_RESULT_SUCCESS;
                 return true;
             } else {
                 log.error("Authentication Request is rejected. Authorization Failure.");
                 CarbonAuthenticationUtil.onFailedAdminLogin(httpSession, username, tenantId,
-                        "SAML2 SSO Authentication", "Invalid credential");
+                        "SAML2 SSO Authentication", "Authorization Failure");
                 handleAuthenticationCompleted(tenantId, false);
                 return false;
             }
@@ -158,8 +161,13 @@ public class SAML2SSOAuthenticator implements CarbonServerAuthenticator {
             return false;
         } finally {
             if (username != null && username.trim().length() > 0 && AUDIT_LOG.isInfoEnabled()) {
-                AUDIT_LOG.info(String.format(SAML2SSOAuthenticatorConstants.AUDIT_MESSAGE, username + '@' + tenantDomain, "Login",
-                        "SAML2SSOAuthenticator", "", result));
+
+                String auditInitiator = username + UserCoreConstants.TENANT_DOMAIN_COMBINER + tenantDomain;
+                String auditData = "";
+
+                AUDIT_LOG.info(String.format(SAML2SSOAuthenticatorConstants.AUDIT_MESSAGE,
+                        auditInitiator, SAML2SSOAuthenticatorConstants.AUDIT_ACTION_LOGIN, AUTHENTICATOR_NAME,
+                        auditData, auditResult));
             }
         }
     }
@@ -209,19 +217,30 @@ public class SAML2SSOAuthenticator implements CarbonServerAuthenticator {
         if (session != null) {
             loggedInUser = (String) session.getAttribute(ServerConstants.USER_LOGGED_IN);
             delegatedBy = (String) session.getAttribute("DELEGATED_BY");
-            if (delegatedBy == null) {
-                log.info("'" + loggedInUser + "' logged out at " + date.format(currentTime));
-            } else {
-                log.info("'" + loggedInUser + "' logged out at " + date.format(currentTime)
-                        + " delegated by " + delegatedBy);
+
+            if (StringUtils.isNotBlank(loggedInUser)) {
+                String logMessage = "'" + loggedInUser + "' logged out at " + date.format(currentTime);
+
+                if (delegatedBy != null) {
+                    logMessage += " delegated by " + delegatedBy;
+                }
+
+                log.info(logMessage);
             }
+
             session.invalidate();
+
             if (loggedInUser != null && AUDIT_LOG.isInfoEnabled()) {
-                String tenantAwareUsername = MultitenantUtils.getTenantAwareUsername(loggedInUser);
+                // username in the session is in tenantAware manner
+                String tenantAwareUsername = loggedInUser;
                 String tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-                AUDIT_LOG.info(String.format(SAML2SSOAuthenticatorConstants.AUDIT_MESSAGE, tenantAwareUsername + "@" + tenantDomain, "Logout",
-                        "SAML2SSOAuthenticator", delegatedBy != null ? "Delegated By : " + delegatedBy : "",
-                        SAML2SSOAuthenticatorConstants.AUDIT_SUCCESS));
+
+                String auditInitiator = tenantAwareUsername + UserCoreConstants.TENANT_DOMAIN_COMBINER + tenantDomain;
+                String auditData = delegatedBy != null ? "Delegated By : " + delegatedBy : "";
+
+                AUDIT_LOG.info(String.format(SAML2SSOAuthenticatorConstants.AUDIT_MESSAGE,
+                        auditInitiator, SAML2SSOAuthenticatorConstants.AUDIT_ACTION_LOGOUT, AUTHENTICATOR_NAME,
+                        auditData, SAML2SSOAuthenticatorConstants.AUDIT_RESULT_SUCCESS));
             }
         }
     }
@@ -399,7 +418,7 @@ public class SAML2SSOAuthenticator implements CarbonServerAuthenticator {
             String errorMsg = "Error when creating an X509CredentialImpl instance";
             log.error(errorMsg, e);
         } catch (ValidationException e) {
-            log.warn("Signature validation failed for a SAML2 Reposnse from domain : " + domainName,e);
+            log.warn("Signature validation failed for a SAML2 Reposnse from domain : " + domainName, e);
         }
         return isSignatureValid;
     }
@@ -429,11 +448,11 @@ public class SAML2SSOAuthenticator implements CarbonServerAuthenticator {
      * @param xmlObject Unmarshalled SAML2 Response
      * @return validity
      */
-    private boolean validateAudienceRestriction(XMLObject xmlObject) {
+    private boolean validateAudienceRestrictionInXML(XMLObject xmlObject) {
         if (xmlObject instanceof Response) {
-            return validateAudienceRestriction((Response) xmlObject);
+            return validateAudienceRestrictionInResponse((Response) xmlObject);
         } else if (xmlObject instanceof Assertion) {
-            return validateAudienceRestriction((Assertion) xmlObject);
+            return validateAudienceRestrictionInAssertion((Assertion) xmlObject);
         } else {
             log.error("Only Response and Assertion objects are validated in this authendicator");
             return false;
@@ -446,9 +465,9 @@ public class SAML2SSOAuthenticator implements CarbonServerAuthenticator {
      * @param response SAML2 Response
      * @return validity
      */
-    public boolean validateAudienceRestriction(Response response) {
+    public boolean validateAudienceRestrictionInResponse(Response response) {
         Assertion assertion = getAssertionFromResponse(response);
-        return validateAudienceRestriction(assertion);
+        return validateAudienceRestrictionInAssertion(assertion);
     }
 
     /**
@@ -457,7 +476,7 @@ public class SAML2SSOAuthenticator implements CarbonServerAuthenticator {
      * @param assertion SAML2 Assertion
      * @return validity
      */
-    public boolean validateAudienceRestriction(Assertion assertion) {
+    public boolean validateAudienceRestrictionInAssertion(Assertion assertion) {
         if (assertion != null) {
             Conditions conditions = assertion.getConditions();
             if (conditions != null) {
@@ -641,7 +660,7 @@ public class SAML2SSOAuthenticator implements CarbonServerAuthenticator {
      * @return String array of roles
      */
     private String[] getRoles(XMLObject xmlObject) {
-        String[] arrRoles={};
+        String[] arrRoles = {};
         if (xmlObject instanceof Response) {
             return getRolesFromResponse((Response) xmlObject);
         } else if (xmlObject instanceof Assertion) {

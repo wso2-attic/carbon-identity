@@ -36,6 +36,8 @@ public class LocalAndOutboundAuthenticationConfig implements Serializable {
     private AuthenticationStep authenticationStepForAttributes;
     private boolean alwaysSendBackAuthenticatedListOfIdPs;
     private String subjectClaimUri;
+    private boolean useTenantDomainInLocalSubjectIdentifier = true;
+    private boolean useUserstoreDomainInLocalSubjectIdentifier = true;
 
     /*
      * <LocalAndOutboundAuthenticationConfig> <AuthenticationSteps></AuthenticationSteps>
@@ -100,6 +102,14 @@ public class LocalAndOutboundAuthenticationConfig implements Serializable {
             } else if ("alwaysSendBackAuthenticatedListOfIdPs".equals(member.getLocalName())) {
                 if (member.getText() != null && "true".equals(member.getText())) {
                     localAndOutboundAuthenticationConfig.setAlwaysSendBackAuthenticatedListOfIdPs(true);
+                }
+            } else if ("UseUserstoreDomainInUsername".equals(member.getLocalName())) {
+                if (member.getText() != null && "false".equals(member.getText())) {
+                    localAndOutboundAuthenticationConfig.setUseUserstoreDomainInLocalSubjectIdentifier(false);
+                }
+            } else if ("UseTenantDomainInUsername".equals(member.getLocalName())) {
+                if (member.getText() != null && "false".equals(member.getText())) {
+                    localAndOutboundAuthenticationConfig.setUseTenantDomainInLocalSubjectIdentifier(false);
                 }
             } else if ("subjectClaimUri".equals(member.getLocalName())) {
                 localAndOutboundAuthenticationConfig.setSubjectClaimUri(member.getText());
@@ -194,4 +204,19 @@ public class LocalAndOutboundAuthenticationConfig implements Serializable {
         this.subjectClaimUri = subjectClaimUri;
     }
 
+    public boolean isUseTenantDomainInLocalSubjectIdentifier() {
+        return useTenantDomainInLocalSubjectIdentifier;
+    }
+
+    public void setUseTenantDomainInLocalSubjectIdentifier(boolean useTenantDomainInLocalSubjectIdentifier) {
+        this.useTenantDomainInLocalSubjectIdentifier = useTenantDomainInLocalSubjectIdentifier;
+    }
+
+    public boolean isUseUserstoreDomainInLocalSubjectIdentifier() {
+        return useUserstoreDomainInLocalSubjectIdentifier;
+    }
+
+    public void setUseUserstoreDomainInLocalSubjectIdentifier(boolean useUserstoreDomainInLocalSubjectIdentifier) {
+        this.useUserstoreDomainInLocalSubjectIdentifier = useUserstoreDomainInLocalSubjectIdentifier;
+    }
 }

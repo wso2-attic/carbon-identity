@@ -33,12 +33,14 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.oltu.openidconnect.as.messages.IDTokenBuilder;
 import org.apache.oltu.openidconnect.as.messages.IDTokenException;
 import org.wso2.carbon.base.MultitenantConstants;
+import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.core.util.KeyStoreManager;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
 import org.wso2.carbon.identity.application.common.model.ServiceProvider;
 import org.wso2.carbon.identity.application.mgt.ApplicationManagementService;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.oauth.cache.AuthorizationGrantCache;
 import org.wso2.carbon.identity.oauth.cache.AuthorizationGrantCacheEntry;
 import org.wso2.carbon.identity.oauth.cache.AuthorizationGrantCacheKey;
@@ -56,9 +58,10 @@ import org.wso2.carbon.identity.oauth2.model.AccessTokenDO;
 import org.wso2.carbon.identity.oauth2.token.OAuthTokenReqMessageContext;
 import org.wso2.carbon.identity.oauth2.util.OAuth2Util;
 import org.wso2.carbon.user.core.UserStoreException;
-import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import java.security.Key;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.security.interfaces.RSAPrivateKey;
 import java.text.ParseException;
 import java.util.Calendar;
@@ -81,8 +84,12 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
     private static final String SHA256_WITH_EC = "SHA256withEC";
     private static final String SHA384_WITH_EC = "SHA384withEC";
     private static final String SHA512_WITH_EC = "SHA512withEC";
+    private static final String SHA256 = "SHA-256";
+    private static final String SHA384 = "SHA-384";
+    private static final String SHA512 = "SHA-512";
     private static final String AUTHORIZATION_CODE = "AuthorizationCode";
     private static final String INBOUND_AUTH2_TYPE = "oauth2";
+
     private static final Log log = LogFactory.getLog(DefaultIDTokenBuilder.class);
     private static Map<Integer, Key> privateKeys = new ConcurrentHashMap<>();
     private OAuthServerConfiguration config = null;
@@ -99,11 +106,11 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
     public String buildIDToken(OAuthTokenReqMessageContext request, OAuth2AccessTokenRespDTO tokenRespDTO)
             throws IdentityOAuth2Exception {
 
-        String issuer = config.getOpenIDConnectIDTokenIssuerIdentifier();
+        String issuer = OAuth2Util.getIDTokenIssuer();
         long lifetime = Integer.parseInt(config.getOpenIDConnectIDTokenExpiration());
         long curTime = Calendar.getInstance().getTimeInMillis() / 1000;
         // setting subject
-        String subject = request.getAuthorizedUser();
+        String subject = request.getAuthorizedUser().toString();
 
         if (!GrantType.AUTHORIZATION_CODE.toString().equals(request.getOauth2AccessTokenReqDTO().getGrantType()) &&
             !org.wso2.carbon.identity.oauth.common.GrantType.SAML20_BEARER.toString().equals(request
@@ -114,13 +121,13 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
             ServiceProvider serviceProvider = null;
 
             try {
+                String tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
                 String spName =
                         applicationMgtService.getServiceProviderNameByClientId(request.getOauth2AccessTokenReqDTO()
                                                                                        .getClientId(),
-                                                                               INBOUND_AUTH2_TYPE);
-                serviceProvider = applicationMgtService.getApplication(spName);
+                                                                               INBOUND_AUTH2_TYPE, tenantDomain);
+                serviceProvider = applicationMgtService.getApplicationExcludingFileBasedSPs(spName, tenantDomain);
             } catch (IdentityApplicationManagementException ex) {
-                log.error("Error while getting service provider information.", ex);
                 throw new IdentityOAuth2Exception("Error while getting service provider information.",
                                                   ex);
             }
@@ -129,16 +136,14 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
                 String claim = serviceProvider.getLocalAndOutBoundAuthenticationConfig().getSubjectClaimUri();
 
                 if (claim != null) {
-                    String username = request.getAuthorizedUser();
-                    String tenantUser = MultitenantUtils.getTenantAwareUsername(username);
-                    String domainName = MultitenantUtils.getTenantDomain(request.getAuthorizedUser());
+                    String username = request.getAuthorizedUser().toString();
+                    String tenantUser = request.getAuthorizedUser().getUserName();
+                    String domainName = request.getAuthorizedUser().getTenantDomain();
                     try {
-                        subject =
-                                IdentityTenantUtil.getRealm(domainName, username)
-                                        .getUserStoreManager()
+                        subject = IdentityTenantUtil.getRealm(domainName, username).getUserStoreManager()
                                         .getUserClaimValue(tenantUser, claim, null);
                         if (subject == null) {
-                            subject = request.getAuthorizedUser();
+                            subject = request.getAuthorizedUser().toString();
                         }
                     } catch (IdentityException e) {
                         String error = "Error occurred while getting user claim for domain " + domainName + ", " +
@@ -163,7 +168,31 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
         }
         // Get access token issued time
         long accessTokenIssuedTime = getAccessTokenIssuedTime(tokenRespDTO.getAccessToken(), request) / 1000;
-        String atHash = new String(Base64.encodeBase64(tokenRespDTO.getAccessToken().getBytes(Charsets.UTF_8)), Charsets.UTF_8);
+
+        String atHash = null;
+        if(!JWSAlgorithm.NONE.getName().equals(signatureAlgorithm.getName())){
+            String digAlg = mapDigestAlgorithm(signatureAlgorithm);
+            MessageDigest md;
+            try {
+                md = MessageDigest.getInstance(digAlg);
+            } catch (NoSuchAlgorithmException e) {
+                throw new IdentityOAuth2Exception("Invalid Algorithm : " + digAlg);
+            }
+            md.update(tokenRespDTO.getAccessToken().getBytes(Charsets.UTF_8));
+            byte[] digest = md.digest();
+            int leftHalfBytes = 16;
+            if(SHA384.equals(digAlg)){
+                leftHalfBytes = 24;
+            } else if(SHA512.equals(digAlg)){
+                leftHalfBytes = 32;
+            }
+            byte[] leftmost = new byte[leftHalfBytes];
+            for (int i = 0; i < leftHalfBytes; i++){
+                leftmost[i]=digest[i];
+            }
+            atHash = new String(Base64.encodeBase64URLSafe(leftmost), Charsets.UTF_8);
+        }
+
 
         if (log.isDebugEnabled()) {
             StringBuilder stringBuilder = (new StringBuilder())
@@ -183,7 +212,10 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
                         .setAudience(request.getOauth2AccessTokenReqDTO().getClientId())
                         .setAuthorizedParty(request.getOauth2AccessTokenReqDTO().getClientId())
                         .setExpiration(curTime + lifetime).setAuthTime(accessTokenIssuedTime)
-                        .setAtHash(atHash).setIssuedAt(curTime);
+                        .setIssuedAt(curTime);
+        if(atHash != null){
+            builder.setAtHash(atHash);
+        }
         if (nonceValue != null) {
             builder.setNonce(nonceValue);
         }
@@ -275,8 +307,9 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
         AuthorizationGrantCacheKey authorizationGrantCacheKey = new AuthorizationGrantCacheKey(authorizationCode);
 
         AuthorizationGrantCacheEntry authorizationGrantCacheEntry =
-                (AuthorizationGrantCacheEntry) AuthorizationGrantCache.getInstance().
-                        getValueFromCache(authorizationGrantCacheKey);
+                (AuthorizationGrantCacheEntry) AuthorizationGrantCache.getInstance(OAuthServerConfiguration.
+                                                                    getInstance().getAuthorizationGrantCacheTimeout()).
+                                                                        getValueFromCache(authorizationGrantCacheKey);
         return authorizationGrantCacheEntry;
     }
 
@@ -286,9 +319,15 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
         AccessTokenDO accessTokenDO = null;
         TokenMgtDAO tokenMgtDAO = new TokenMgtDAO();
 
-        OAuthCache oauthCache = OAuthCache.getInstance();
+        OAuthCache oauthCache = OAuthCache.getInstance(OAuthServerConfiguration.getInstance().getOAuthCacheTimeout());
+        String authorizedUser = request.getAuthorizedUser().toString();
+        boolean isUsernameCaseSensitive = IdentityUtil.isUserStoreInUsernameCaseSensitive(authorizedUser);
+        if (!isUsernameCaseSensitive){
+            authorizedUser = authorizedUser.toLowerCase();
+        }
+
         CacheKey cacheKey = new OAuthCacheKey(
-                request.getOauth2AccessTokenReqDTO().getClientId() + ":" + request.getAuthorizedUser().toLowerCase() +
+                request.getOauth2AccessTokenReqDTO().getClientId() + ":" + authorizedUser +
                         ":" + OAuth2Util.buildScopeString(request.getScope()));
         CacheEntry result = oauthCache.getValueFromCache(cacheKey);
 
@@ -347,7 +386,7 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
     protected JWSAlgorithm mapSignatureAlgorithm(String signatureAlgorithm) throws IdentityOAuth2Exception {
 
         if (NONE.equals(signatureAlgorithm)) {
-            return JWSAlgorithm.RS256;
+            return new JWSAlgorithm(JWSAlgorithm.NONE.getName());
         } else if (SHA256_WITH_RSA.equals(signatureAlgorithm)) {
             return JWSAlgorithm.RS256;
         } else if (SHA384_WITH_RSA.equals(signatureAlgorithm)) {
@@ -370,5 +409,26 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
         throw new IdentityOAuth2Exception("Unsupported Signature Algorithm in identity.xml");
     }
 
+    /**
+     * This method maps signature algorithm define in identity.xml to digest algorithms to generate the at_hash
+     *
+     * @param signatureAlgorithm
+     * @return
+     * @throws IdentityOAuth2Exception
+     */
+    protected String mapDigestAlgorithm(Algorithm signatureAlgorithm) throws IdentityOAuth2Exception {
+
+        if (JWSAlgorithm.RS256.equals(signatureAlgorithm) || JWSAlgorithm.HS256.equals(signatureAlgorithm) ||
+            JWSAlgorithm.ES256.equals(signatureAlgorithm)) {
+            return SHA256;
+        } else if (JWSAlgorithm.RS384.equals(signatureAlgorithm) || JWSAlgorithm.HS384.equals(signatureAlgorithm) ||
+                   JWSAlgorithm.ES384.equals(signatureAlgorithm)) {
+            return SHA384;
+        } else if (JWSAlgorithm.RS512.equals(signatureAlgorithm) || JWSAlgorithm.HS512.equals(signatureAlgorithm) ||
+                   JWSAlgorithm.ES512.equals(signatureAlgorithm)) {
+            return SHA512;
+        }
+        throw new RuntimeException("Cannot map Signature Algorithm in identity.xml to hashing algorithm");
+    }
 }
 

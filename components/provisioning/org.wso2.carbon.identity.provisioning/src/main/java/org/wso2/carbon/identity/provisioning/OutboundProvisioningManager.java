@@ -35,7 +35,7 @@ import org.wso2.carbon.identity.application.common.model.ProvisioningConnectorCo
 import org.wso2.carbon.identity.application.common.model.RoleMapping;
 import org.wso2.carbon.identity.application.common.model.ServiceProvider;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
-import org.wso2.carbon.identity.application.mgt.ApplicationInfoProvider;
+import org.wso2.carbon.identity.application.mgt.ApplicationManagementService;
 import org.wso2.carbon.identity.provisioning.cache.ServiceProviderProvisioningConnectorCache;
 import org.wso2.carbon.identity.provisioning.cache.ServiceProviderProvisioningConnectorCacheEntry;
 import org.wso2.carbon.identity.provisioning.cache.ServiceProviderProvisioningConnectorCacheKey;
@@ -379,7 +379,7 @@ public class OutboundProvisioningManager {
             // get details about the service provider.any in-bound provisioning request via
             // the SOAP based API (or the management console) - or SCIM API with HTTP Basic
             // Authentication is considered as coming from the local service provider.
-            ServiceProvider serviceProvider = ApplicationInfoProvider.getInstance()
+            ServiceProvider serviceProvider = ApplicationManagementService.getInstance()
                     .getServiceProvider(serviceProviderIdentifier, tenantDomainName);
 
             if (serviceProvider == null) {
@@ -593,15 +593,7 @@ public class OutboundProvisioningManager {
                     //DO Rollback
                 }
             } catch (Exception e) { //call() of Callable interface throws this exception
-                if (executors != null) {
-                    executors.shutdown();
-                }
-                if (log.isDebugEnabled()) {
-                    log.debug("Error in executing Outbound Provisioning", e);
-                }
-                throw new IdentityProvisioningException
-                        (generateMessageOnFailureProvisioningOperation(idPName,
-                                connectorType, provisioningEntity));
+                handleException(idPName, connectorType, provisioningEntity, executors, e);
             }
         }
     }
@@ -650,7 +642,7 @@ public class OutboundProvisioningManager {
                     " For operation = " + provisioningEntity.getOperation() + " " +
                     "failed  ";
 
-            log.debug(errMsg);
+            log.error(errMsg);
         }
         return "Provisioning failed for IDP = " + idPName + " " +
                 "with Entity name=" + provisioningEntity.getEntityName();
@@ -906,5 +898,22 @@ public class OutboundProvisioningManager {
             return domain;
         }
         return UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME;
+    }
+
+    /**
+     * introduce extendability for handling provisioning exceptions
+     *
+     * @param idPName
+     * @param connectorType
+     * @param provisioningEntity
+     * @param executors
+     * @param e
+     */
+    protected void handleException(String idPName, String connectorType, ProvisioningEntity provisioningEntity,
+                                   ExecutorService executors, Exception e) {
+
+        if (log.isDebugEnabled()) {
+            log.debug(generateMessageOnFailureProvisioningOperation(idPName, connectorType, provisioningEntity), e);
+        }
     }
 }

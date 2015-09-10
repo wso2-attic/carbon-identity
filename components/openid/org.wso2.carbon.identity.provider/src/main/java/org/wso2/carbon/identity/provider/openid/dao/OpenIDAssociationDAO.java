@@ -43,14 +43,30 @@ public class OpenIDAssociationDAO {
     private static final Log log = LogFactory.getLog(OpenIDAssociationDAO.class);
     private String associationStore;
 
+    private static OpenIDAssociationDAO privateStore;
+    private static OpenIDAssociationDAO sharedStore;
+
+    static {
+        privateStore = new OpenIDAssociationDAO(OpenIDServerConstants.ASSOCIATION_STORE_TYPE_PRIVATE);
+        sharedStore = new OpenIDAssociationDAO(OpenIDServerConstants.ASSOCIATION_STORE_TYPE_SHARED);
+    }
+
     /**
      * Create the DAO with the identity database connection.
      *
      * @param dbConnection
      * @param privateAssociations if this DAO stores private associations
      */
-    public OpenIDAssociationDAO(String storeType) {
+    private OpenIDAssociationDAO(String storeType) {
         associationStore = storeType;
+    }
+
+    public static OpenIDAssociationDAO getInstance(String storeType){
+        if(storeType.equals(OpenIDServerConstants.ASSOCIATION_STORE_TYPE_PRIVATE)){
+            return privateStore;
+        } else{
+            return sharedStore;
+        }
     }
 
     /**
@@ -59,7 +75,7 @@ public class OpenIDAssociationDAO {
      *
      * @param association
      */
-    public synchronized void storeAssociation(Association association) {
+    public void storeAssociation(Association association) {
 
         Connection connection = null;
         PreparedStatement prepStmt = null;
@@ -67,7 +83,7 @@ public class OpenIDAssociationDAO {
         try {
             connection = JDBCPersistenceManager.getInstance().getDBConnection();
 
-            if (!isAssociationExist(connection, association.getHandle())) {
+//            if (!isAssociationExist(connection, association.getHandle())) {
                 prepStmt = connection.prepareStatement(OpenIDSQLQueries.STORE_ASSOCIATION);
                 prepStmt.setString(1, association.getHandle());
                 prepStmt.setString(2, association.getType());
@@ -77,9 +93,9 @@ public class OpenIDAssociationDAO {
                 prepStmt.execute();
                 connection.commit();
                 log.debug("Association " + association.getHandle() + " successfully stored in the database.");
-            } else {
-                log.debug("Association " + association.getHandle() + " already exist in the databse.");
-            }
+//            } else {
+//                log.debug("Association " + association.getHandle() + " already exist in the database.");
+//            }
             connection.commit();
         } catch (SQLException | IdentityException e) {
             log.error("Failed to store the association " + association.getHandle() +
@@ -96,7 +112,7 @@ public class OpenIDAssociationDAO {
      * @param handle
      * @return <code>Association</code>
      */
-    public synchronized Association loadAssociation(String handle) {
+    public Association loadAssociation(String handle) {
 
         Connection connection = null;
         PreparedStatement prepStmt = null;
@@ -129,7 +145,7 @@ public class OpenIDAssociationDAO {
      *
      * @param handle
      */
-    public synchronized void removeAssociation(String handle) {
+    public void removeAssociation(String handle) {
 
         Connection connection = null;
         PreparedStatement prepStmt = null;
@@ -165,7 +181,7 @@ public class OpenIDAssociationDAO {
      * @return boolean
      * @throws SQLException
      */
-    private synchronized boolean isAssociationExist(Connection connection, String handle) {
+    private boolean isAssociationExist(Connection connection, String handle) {
 
         PreparedStatement prepStmt = null;
         ResultSet results = null;

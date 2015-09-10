@@ -40,7 +40,10 @@ public class CarbonRemoteUserStoreDSComponent {
             ctxt.getBundleContext().registerService(UserStoreManager.class.getName(),
                     remoteStoreManager, null);
 
-            log.info("Carbon Remote User Store activated successfully.");
+            if (log.isDebugEnabled()) {
+                log.debug("Carbon Remote User Store activated successfully.");
+            }
+
         } catch (Exception e) {
             log.error("Failed to activate Carbon Remote User Store activated successfully ", e);
         }

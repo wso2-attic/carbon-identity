@@ -52,6 +52,7 @@ public final class SAML2SSOAuthenticatorConstants {
     public static final String LOGIN_PAGE = "LoginPage";
     public static final String LANDING_PAGE = "LandingPage";
     public static final String EXTERNAL_LOGOUT_PAGE = "ExternalLogoutPage";
+    public static final String LOGOUT_SUPPORTED_IDP = "LogoutSupportedIDP";
     public static final String ASSERTION_CONSUMER_SERVICE_URL = "AssertionConsumerServiceURL";
     public static final String ASSERTION_CONSUMER_URL = "AssertionConsumerServiceURL";
     public static final String FEDERATION_CONFIG = "FederationConfig";
@@ -60,8 +61,10 @@ public final class SAML2SSOAuthenticatorConstants {
     public static final String LOGIN_ATTRIBUTE_NAME = "LoginAttributeName";
     public static final String IDENTITY_PROVIDER_SLO_SERVICE_URL = "IdentityProviderSLOServiceURL";
     public static final String AUDIT_MESSAGE = "Initiator : %s | Action : %s | Target : %s | Data : { %s } | Result : %s ";
-    public static final String AUDIT_SUCCESS = "Success";
-    public static final String AUDIT_FAILED = "Failed";
+    public static final String AUDIT_ACTION_LOGIN = "Login";
+    public static final String AUDIT_ACTION_LOGOUT = "Logout";
+    public static final String AUDIT_RESULT_SUCCESS = "Success";
+    public static final String AUDIT_RESULT_FAILED = "Failed";
 
     public static final class ErrorMessageConstants {
         private ErrorMessageConstants(){

@@ -19,7 +19,7 @@
     <parent>
         <groupId>org.wso2.carbon.identity</groupId>
         <artifactId>carbon-identity</artifactId>
-        <version>4.5.6-SNAPSHOT</version>
+        <version>4.5.10-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -34,18 +34,15 @@
 
     <modules>
         <module>org.wso2.carbon.identity.application.authenticator.basicauth</module>
-        <module>org.wso2.carbon.identity.application.authenticator.facebook</module>
+        <module>org.wso2.carbon.identity.application.authenticator.social</module>
         <module>org.wso2.carbon.identity.application.authenticator.iwa</module>
         <module>org.wso2.carbon.identity.application.authenticator.oidc</module>
-        <module>org.wso2.carbon.identity.application.authenticator.oidc.ext</module>
         <module>org.wso2.carbon.identity.application.authenticator.openid</module>
-        <module>org.wso2.carbon.identity.application.authenticator.openid.ext</module>
         <module>org.wso2.carbon.identity.application.authenticator.passive.sts</module>
         <module>org.wso2.carbon.identity.application.authenticator.requestpath.basicauth</module>
         <module>org.wso2.carbon.identity.application.authenticator.requestpath.oauth</module>
         <module>org.wso2.carbon.identity.application.authenticator.samlsso</module>
         <module>org.wso2.carbon.identity.application.authenticator.fido</module>
-        <module>org.wso2.carbon.identity.application.authenticator.oidc.googleext</module>
     </modules>
 
 </project>

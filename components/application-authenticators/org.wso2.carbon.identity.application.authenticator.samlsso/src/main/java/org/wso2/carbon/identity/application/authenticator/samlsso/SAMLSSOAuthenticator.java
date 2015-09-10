@@ -158,6 +158,7 @@ public class SAMLSSOAuthenticator extends AbstractApplicationAuthenticator imple
                     .getSession(false).getAttribute("samlssoAttributes");
 
             String subject = null;
+            String idpSubject = null;
             String isSubjectInClaimsProp = context.getAuthenticatorProperties().get(
                     IdentityApplicationConstants.Authenticator.SAML2SSO.IS_USER_ID_IN_CLAIMS);
             if ("true".equalsIgnoreCase(isSubjectInClaimsProp)) {
@@ -168,14 +169,17 @@ public class SAMLSSOAuthenticator extends AbstractApplicationAuthenticator imple
                             "Defaulting to Name Identifier.");
                 }
             }
+            idpSubject = (String) request.getSession().getAttribute("username");
             if (subject == null) {
-                subject = (String) request.getSession().getAttribute("username");
+                subject = idpSubject;
             }
             if (subject == null) {
                 throw new SAMLSSOException("Cannot find federated User Identifier");
             }
 
             Object sessionIndexObj = request.getSession(false).getAttribute(SSOConstants.IDP_SESSION);
+            String nameQualifier = (String) request.getSession().getAttribute("nameQualifier");
+            String spNameQualifier = (String) request.getSession().getAttribute("spNameQualifier");
             String sessionIndex = null;
 
             if (sessionIndexObj != null) {
@@ -185,6 +189,8 @@ public class SAMLSSOAuthenticator extends AbstractApplicationAuthenticator imple
             StateInfo stateInfoDO = new StateInfo();
             stateInfoDO.setSessionIndex(sessionIndex);
             stateInfoDO.setSubject(subject);
+            stateInfoDO.setNameQualifier(nameQualifier);
+            stateInfoDO.setSpNameQualifier(spNameQualifier);
             context.setStateInfo(stateInfoDO);
 
             AuthenticatedUser authenticatedUser =
@@ -266,6 +272,10 @@ public class SAMLSSOAuthenticator extends AbstractApplicationAuthenticator imple
                         ((StateInfo) stateInfo).getSessionIndex());
                 request.getSession().setAttribute("logoutUsername",
                         ((StateInfo) stateInfo).getSubject());
+                request.getSession().setAttribute("nameQualifier",
+                        ((StateInfo) stateInfo).getNameQualifier());
+                request.getSession().setAttribute("spNameQualifier",
+                        ((StateInfo) stateInfo).getSpNameQualifier());
             }
 
             try {
@@ -329,7 +339,7 @@ public class SAMLSSOAuthenticator extends AbstractApplicationAuthenticator imple
         }
 
         String encodedRequest = ((DefaultSAML2SSOManager) saml2SSOManager).buildPostRequest(
-                request, isLogout, isPassive, loginPage);
+                request, isLogout, isPassive, loginPage, context);
         String relayState = context.getContextIdentifier();
 
         Map<String, String> reqParamMap = getAdditionalRequestParams(request, context);

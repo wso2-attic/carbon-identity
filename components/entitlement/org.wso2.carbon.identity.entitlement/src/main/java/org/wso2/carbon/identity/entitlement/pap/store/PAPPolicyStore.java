@@ -24,8 +24,6 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.identity.entitlement.EntitlementException;
 import org.wso2.carbon.identity.entitlement.PDPConstants;
-import org.wso2.carbon.identity.entitlement.cache.DecisionInvalidationCache;
-import org.wso2.carbon.identity.entitlement.cache.EntitlementPolicyInvalidationCache;
 import org.wso2.carbon.identity.entitlement.dto.PolicyDTO;
 import org.wso2.carbon.identity.entitlement.internal.EntitlementServiceComponent;
 import org.wso2.carbon.identity.entitlement.policy.PolicyAttributeBuilder;
@@ -99,7 +97,7 @@ public class PAPPolicyStore {
         } catch (RegistryException e) {
             log.error("Error while retrieving all entitlement policy identifiers from PAP policy store", e);
             throw new EntitlementException("Error while retrieving entitlement policy " +
-                    "identifiers from PAP policy store");
+                                           "identifiers from PAP policy store");
         }
 
         return resources.toArray(new String[resources.size()]);
@@ -134,7 +132,7 @@ public class PAPPolicyStore {
         } catch (RegistryException e) {
             log.error("Error while retrieving entitlement policy " + policyId + " PAP policy store", e);
             throw new EntitlementException("Error while retrieving entitlement policy " + policyId
-                    + " PAP policy store");
+                                           + " PAP policy store");
         }
     }
 
@@ -161,7 +159,7 @@ public class PAPPolicyStore {
 
         if (policy == null || policyId == null) {
             log.error("Error while creating or updating entitlement policy: " +
-                    "Policy DTO or Policy Id can not be null");
+                      "Policy DTO or Policy Id can not be null");
             throw new EntitlementException("Invalid Entitlement Policy. Policy or policyId can not be Null");
         }
 
@@ -186,11 +184,11 @@ public class PAPPolicyStore {
                 String noOfPolicies = policyCollection.getProperty(PDPConstants.MAX_POLICY_ORDER);
                 if (noOfPolicies != null && Integer.parseInt(noOfPolicies) < policy.getPolicyOrder()) {
                     policyCollection.setProperty(PDPConstants.MAX_POLICY_ORDER,
-                            Integer.toString(policy.getPolicyOrder()));
+                                                 Integer.toString(policy.getPolicyOrder()));
                     registry.put(policyPath, policyCollection);
                 }
                 resource.setProperty(PDPConstants.POLICY_ORDER,
-                        Integer.toString(policy.getPolicyOrder()));
+                                     Integer.toString(policy.getPolicyOrder()));
             } else {
                 String previousOrder = resource.getProperty(PDPConstants.POLICY_ORDER);
                 if (previousOrder == null) {
@@ -201,7 +199,7 @@ public class PAPPolicyStore {
                             policyOrder = policyOrder + Integer.parseInt(noOfPolicies);
                         }
                         policyCollection.setProperty(PDPConstants.MAX_POLICY_ORDER,
-                                Integer.toString(policyOrder));
+                                                     Integer.toString(policyOrder));
                         resource.setProperty(PDPConstants.POLICY_ORDER, Integer.toString(policyOrder));
                     }
                     registry.put(policyPath, policyCollection);
@@ -226,7 +224,8 @@ public class PAPPolicyStore {
                 resource.setProperty(PDPConstants.POLICY_VERSION, policy.getVersion());
             }
             resource.setProperty(PDPConstants.LAST_MODIFIED_TIME, Long.toString(System.currentTimeMillis()));
-            resource.setProperty(PDPConstants.LAST_MODIFIED_USER, CarbonContext.getThreadLocalCarbonContext().getUsername());
+            resource.setProperty(PDPConstants.LAST_MODIFIED_USER, CarbonContext.getThreadLocalCarbonContext()
+                    .getUsername());
 
             if (policy.getPolicyType() != null && policy.getPolicyType().trim().length() > 0) {
                 resource.setProperty(PDPConstants.POLICY_TYPE, policy.getPolicyType());
@@ -244,14 +243,14 @@ public class PAPPolicyStore {
 
             if (omElement != null) {
                 Iterator iterator1 = omElement.getChildrenWithLocalName(PDPConstants.
-                        POLICY_REFERENCE);
+                                                                                POLICY_REFERENCE);
                 if (iterator1 != null) {
                     String policyReferences = "";
                     while (iterator1.hasNext()) {
                         OMElement policyReference = (OMElement) iterator1.next();
                         if (!"".equals(policyReferences)) {
                             policyReferences = policyReferences + PDPConstants.ATTRIBUTE_SEPARATOR
-                                    + policyReference.getText();
+                                               + policyReference.getText();
                         } else {
                             policyReferences = policyReference.getText();
                         }
@@ -260,14 +259,14 @@ public class PAPPolicyStore {
                 }
 
                 Iterator iterator2 = omElement.getChildrenWithLocalName(PDPConstants.
-                        POLICY_SET_REFERENCE);
+                                                                                POLICY_SET_REFERENCE);
                 if (iterator2 != null) {
                     String policySetReferences = "";
                     while (iterator1.hasNext()) {
                         OMElement policySetReference = (OMElement) iterator2.next();
                         if (!"".equals(policySetReferences)) {
                             policySetReferences = policySetReferences + PDPConstants.ATTRIBUTE_SEPARATOR
-                                    + policySetReference.getText();
+                                                  + policySetReference.getText();
                         } else {
                             policySetReferences = policySetReference.getText();
                         }
@@ -290,7 +289,7 @@ public class PAPPolicyStore {
             String[] policyMetaData = policy.getPolicyEditorData();
             if (policyMetaData != null && policyMetaData.length > 0) {
                 String BasicPolicyEditorMetaDataAmount = resource.getProperty(PDPConstants.
-                        BASIC_POLICY_EDITOR_META_DATA_AMOUNT);
+                                                                                      BASIC_POLICY_EDITOR_META_DATA_AMOUNT);
                 if (newPolicy && BasicPolicyEditorMetaDataAmount != null) {
                     int amount = Integer.parseInt(BasicPolicyEditorMetaDataAmount);
                     for (int i = 0; i < amount; i++) {
@@ -303,21 +302,19 @@ public class PAPPolicyStore {
                 for (String policyData : policyMetaData) {
                     if (policyData != null && !"".equals(policyData)) {
                         resource.setProperty(PDPConstants.BASIC_POLICY_EDITOR_META_DATA + i,
-                                policyData);
+                                             policyData);
                     }
                     i++;
                 }
                 resource.setProperty(PDPConstants.BASIC_POLICY_EDITOR_META_DATA_AMOUNT,
-                        Integer.toString(i));
+                                     Integer.toString(i));
             }
 
             registry.put(path, resource);
-            clearDecisionCache();
-            clearPolicyCache();
 
         } catch (RegistryException e) {
             log.error("Error while adding or updating entitlement policy " + policyId +
-                    " in policy store", e);
+                      " in policy store", e);
             throw new EntitlementException("Error while adding or updating entitlement policy in policy store");
         }
     }
@@ -343,20 +340,10 @@ public class PAPPolicyStore {
                 return;
             }
             registry.delete(path);
-            clearDecisionCache();
-            clearPolicyCache();
         } catch (RegistryException e) {
             log.error("Error while removing entitlement policy " + policyId + " from PAP policy store", e);
             throw new EntitlementException("Error while removing policy " + policyId + " from PAP policy store");
         }
-    }
-
-    private void clearPolicyCache() throws EntitlementException {
-        EntitlementPolicyInvalidationCache.getInstance().invalidateCache();
-    }
-
-    private void clearDecisionCache() {
-        DecisionInvalidationCache.getInstance().invalidateCache();
     }
 
 }

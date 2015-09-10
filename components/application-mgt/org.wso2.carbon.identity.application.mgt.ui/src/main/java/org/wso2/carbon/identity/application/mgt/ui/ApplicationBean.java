@@ -66,6 +66,7 @@ public class ApplicationBean {
     private Map<String, String> claimMap;
     private Map<String, String> requestedClaims = new HashMap<String, String>();
     private String samlIssuer;
+    private String kerberosServiceName;
     private String oauthAppName;
     private String oauthConsumerSecret;
     private String attrConsumServiceIndex;
@@ -88,6 +89,7 @@ public class ApplicationBean {
         claimMap = null;
         requestedClaims = new HashMap<String, String>();
         samlIssuer = null;
+        kerberosServiceName = null;
         oauthAppName = null;
         wstrustEp = null;
         passivests = null;
@@ -317,7 +319,7 @@ public class ApplicationBean {
     }
 
     /**
-     * @param roleClaimUri
+     * @param userClaimUri
      */
     public void setUserClaimUri(String userClaimUri) {
 
@@ -360,7 +362,8 @@ public class ApplicationBean {
     }
 
     /**
-     * @param roleMapping
+     * @param spRole
+     * @param localRole
      */
     public void addRoleMapping(String spRole, String localRole) {
         roleMap.put(localRole, spRole);
@@ -424,6 +427,20 @@ public class ApplicationBean {
     public boolean isAlwaysSendBackAuthenticatedListOfIdPs() {
         if (serviceProvider.getLocalAndOutBoundAuthenticationConfig() != null) {
             return serviceProvider.getLocalAndOutBoundAuthenticationConfig().getAlwaysSendBackAuthenticatedListOfIdPs();
+        }
+        return false;
+    }
+
+    public boolean isUseTenantDomainInLocalSubjectIdentifier() {
+        if (serviceProvider.getLocalAndOutBoundAuthenticationConfig() != null) {
+            return serviceProvider.getLocalAndOutBoundAuthenticationConfig().getUseTenantDomainInLocalSubjectIdentifier();
+        }
+        return false;
+    }
+
+    public boolean isUseUserstoreDomainInLocalSubjectIdentifier() {
+        if (serviceProvider.getLocalAndOutBoundAuthenticationConfig() != null) {
+            return serviceProvider.getLocalAndOutBoundAuthenticationConfig().getUseUserstoreDomainInLocalSubjectIdentifier();
         }
         return false;
     }
@@ -517,6 +534,28 @@ public class ApplicationBean {
         return samlIssuer;
     }
 
+    public String getKerberosServiceName() {
+        if (kerberosServiceName != null) {
+            return kerberosServiceName;
+        }
+        InboundAuthenticationRequestConfig[] authRequest = serviceProvider
+                .getInboundAuthenticationConfig().getInboundAuthenticationRequestConfigs();
+
+        if (authRequest != null) {
+            for (int i = 0; i < authRequest.length; i++) {
+                if ("kerberos".equalsIgnoreCase(authRequest[i].getInboundAuthType())) {
+                    kerberosServiceName = authRequest[i].getInboundAuthKey();
+                    break;
+                }
+            }
+        }
+        return kerberosServiceName;
+    }
+
+    public void setKerberosServiceName(String kerberosServiceName) {
+        this.kerberosServiceName = kerberosServiceName;
+    }
+
     /**
      * @param issuerName
      */
@@ -569,6 +608,33 @@ public class ApplicationBean {
             List<InboundAuthenticationRequestConfig> tempAuthRequest = new ArrayList<InboundAuthenticationRequestConfig>();
             for (int i = 0; i < authRequest.length; i++) {
                 if ("oauth2".equalsIgnoreCase(authRequest[i].getInboundAuthType())) {
+                    continue;
+                }
+                tempAuthRequest.add(authRequest[i]);
+            }
+            if (CollectionUtils.isNotEmpty(tempAuthRequest)) {
+                serviceProvider
+                        .getInboundAuthenticationConfig()
+                        .setInboundAuthenticationRequestConfigs(
+                                tempAuthRequest
+                                        .toArray(new InboundAuthenticationRequestConfig[tempAuthRequest
+                                                .size()]));
+            } else {
+                serviceProvider.getInboundAuthenticationConfig()
+                        .setInboundAuthenticationRequestConfigs(null);
+            }
+        }
+    }
+
+    public void deleteKerberosApp() {
+        this.kerberosServiceName = null;
+        InboundAuthenticationRequestConfig[] authRequest = serviceProvider
+                .getInboundAuthenticationConfig().getInboundAuthenticationRequestConfigs();
+
+        if (authRequest != null && authRequest.length > 0) {
+            List<InboundAuthenticationRequestConfig> tempAuthRequest = new ArrayList<InboundAuthenticationRequestConfig>();
+            for (int i = 0; i < authRequest.length; i++) {
+                if ("kerberos".equalsIgnoreCase(authRequest[i].getInboundAuthType())) {
                     continue;
                 }
                 tempAuthRequest.add(authRequest[i]);
@@ -969,6 +1035,13 @@ public class ApplicationBean {
             authRequestList.add(samlAuthenticationRequest);
         }
 
+        if (kerberosServiceName != null) {
+            InboundAuthenticationRequestConfig kerberosAuthenticationRequest = new InboundAuthenticationRequestConfig();
+            kerberosAuthenticationRequest.setInboundAuthKey(kerberosServiceName);
+            kerberosAuthenticationRequest.setInboundAuthType("kerberos");
+            authRequestList.add(kerberosAuthenticationRequest);
+        }
+
         if (oauthAppName != null) {
             InboundAuthenticationRequestConfig opicAuthenticationRequest = new InboundAuthenticationRequestConfig();
             opicAuthenticationRequest.setInboundAuthKey(oauthAppName);
@@ -1066,6 +1139,18 @@ public class ApplicationBean {
         serviceProvider.getLocalAndOutBoundAuthenticationConfig()
                 .setAlwaysSendBackAuthenticatedListOfIdPs(alwaysSendAuthListOfIdPs != null &&
                         "on".equals(alwaysSendAuthListOfIdPs) ? true : false);
+
+        String useTenantDomainInLocalSubjectIdentifier = CharacterEncoder.getSafeText(
+                request.getParameter("use_tenant_domain_in_local_subject_identifier"));
+        serviceProvider.getLocalAndOutBoundAuthenticationConfig()
+                .setUseTenantDomainInLocalSubjectIdentifier(useTenantDomainInLocalSubjectIdentifier != null &&
+                        "on".equals(useTenantDomainInLocalSubjectIdentifier) ? true : false);
+
+        String useUserstoreDomainInLocalSubjectIdentifier = CharacterEncoder.getSafeText(
+                request.getParameter("use_userstore_domain_in_local_subject_identifier"));
+        serviceProvider.getLocalAndOutBoundAuthenticationConfig()
+                .setUseUserstoreDomainInLocalSubjectIdentifier(useUserstoreDomainInLocalSubjectIdentifier != null &&
+                        "on".equals(useUserstoreDomainInLocalSubjectIdentifier) ? true : false);
 
 
         String subjectClaimUri = CharacterEncoder.getSafeText(request.getParameter("subject_claim_uri"));

@@ -34,6 +34,7 @@ import org.wso2.carbon.identity.application.common.model.ClaimMapping;
 import org.wso2.carbon.identity.base.IdentityConstants;
 import org.wso2.carbon.identity.base.IdentityConstants.OpenId;
 import org.wso2.carbon.identity.base.IdentityException;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.provider.IdentityProviderException;
 import org.wso2.carbon.identity.provider.dto.OpenIDAuthRequestDTO;
 import org.wso2.carbon.identity.provider.dto.OpenIDAuthResponseDTO;
@@ -445,9 +446,7 @@ public class OpenIDHandler {
          */
         request.getSession().setAttribute(OpenIDConstants.SessionAttribute.OPENID, claimedID);
 
-        String commonAuthURL = OpenIDUtil.getAdminConsoleURL(request);
-        commonAuthURL = commonAuthURL.replace(FrameworkConstants.CARBON + "/",
-                                              FrameworkConstants.COMMONAUTH);
+        String commonAuthURL = IdentityUtil.getServerURL(FrameworkConstants.COMMONAUTH);
         String selfPath = URLEncoder.encode("/" + FrameworkConstants.OPENID_SERVER, "UTF-8");
         String sessionDataKey = UUIDGenerator.generateUUID();
 
@@ -457,9 +456,14 @@ public class OpenIDHandler {
         authenticationRequest.setRelyingParty(getRelyingParty(request));
         authenticationRequest.setCommonAuthCallerPath(selfPath);
         String username = null;
+        String tenantDomain = null;
         if (params.getParameterValue(FrameworkConstants.OPENID_IDENTITY) != null) {
             username = OpenIDUtil.getUserName(params.getParameterValue(FrameworkConstants.OPENID_IDENTITY));
             authenticationRequest.addRequestQueryParam(FrameworkConstants.USERNAME, new String[] { username });
+        }
+        if (params.getParameterValue(FrameworkConstants.RequestParams.TENANT_DOMAIN) != null) {
+            tenantDomain = params.getParameterValue(FrameworkConstants.RequestParams.TENANT_DOMAIN);
+            authenticationRequest.setTenantDomain(tenantDomain);
         }
 
         boolean forceAuthenticate = false;
@@ -653,8 +657,7 @@ public class OpenIDHandler {
                 session.removeAttribute(OpenIDConstants.SessionAttribute.AUTHENTICATED_OPENID);
 
                 // sending to the login page
-                String openIdEndpointUrl = OpenIDUtil.getAdminConsoleURL(req);
-                openIdEndpointUrl = openIdEndpointUrl.replace("carbon/", "authenticationendpoint/openid_login.do");
+                String openIdEndpointUrl = IdentityUtil.getServerURL("/authenticationendpoint/openid_login.do");
 
                 resp.sendRedirect(openIdEndpointUrl
                                   + OpenIDUtil.getLoginPageQueryParams((ParameterList) req.getSession().getAttribute(

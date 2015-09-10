@@ -43,7 +43,6 @@ public abstract class FrameworkConstants {
     public static final String SAML_REQUEST = "SAMLRequest";
     public static final String SIGNATURE = "Signature";
     public static final String COMMONAUTH = "commonauth";
-    public static final String CARBON = "carbon";
     public static final String PASSIVE_STS = "passivests";
     public static final String OPENID_SERVER = "openidserver";
     public static final String OAUTH2 = "oauth2";
@@ -63,7 +62,6 @@ public abstract class FrameworkConstants {
 
     public static class Config {
 
-        public static final String AUTHENTICATORS_FILE_NAME = "application-authentication.xml";
         // Constant definitions for Elements
         public static final String ELEM_SEQUENCE = "Sequence";
         public static final String ELEM_STEP = "Step";
@@ -167,6 +165,7 @@ public abstract class FrameworkConstants {
         public static final String CLAIM_TYPE_SAML_SSO = "samlsso";
         public static final String CLAIM_TYPE_SCIM = "scim";
         public static final String CLAIM_TYPE_OIDC = "oidc";
+        public static final String CLAIM_TYPE_PASSIVE_STS = "passivests";
         private RequestType() {
         }
     }

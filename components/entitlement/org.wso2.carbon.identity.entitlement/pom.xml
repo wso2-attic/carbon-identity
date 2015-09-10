@@ -22,7 +22,7 @@
     <parent>
         <groupId>org.wso2.carbon.identity</groupId>
         <artifactId>entitlement</artifactId>
-        <version>4.5.6-SNAPSHOT</version>
+        <version>4.5.10-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -48,7 +48,7 @@
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon.identity</groupId>
-            <artifactId>org.wso2.carbon.identity.thrift.authentication</artifactId>
+            <artifactId>org.wso2.carbon.identity.authenticator.thrift</artifactId>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon.identity</groupId>
@@ -87,12 +87,10 @@
         <dependency>
             <groupId>opensaml.wso2</groupId>
             <artifactId>opensaml2</artifactId>
-            <!--<version>2.4.1.wso2v1</version>-->
         </dependency>
         <dependency>
             <groupId>org.apache.axis2.wso2</groupId>
             <artifactId>axis2</artifactId>
-            <!--<version>1.6.1.wso2v5</version>-->
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon.identity</groupId>

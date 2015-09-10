@@ -26,15 +26,18 @@ import com.yubico.u2f.data.messages.RegisterRequestData;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.application.authentication.framework.exception.AuthenticationFailedException;
-import org.wso2.carbon.identity.application.authenticator.fido.FIDOAuthenticator;
 import org.wso2.carbon.identity.application.authenticator.fido.dao.DeviceStoreDAO;
 import org.wso2.carbon.identity.application.authenticator.fido.dto.FIDOUser;
 import org.wso2.carbon.identity.application.authenticator.fido.exception.FIDOAuthenticatorServerException;
-import org.wso2.carbon.identity.application.authenticator.fido.util.FIDOUtil;
 import org.wso2.carbon.identity.base.IdentityException;
-import org.wso2.carbon.user.api.UserStoreException;
 
-import java.util.*;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class U2FService {
 
@@ -43,7 +46,6 @@ public class U2FService {
     private static volatile U2FService u2FService;
     private final U2F u2f = new U2F();
     private static Map<String, String> requestStorage = new HashMap<String, String>();
-    private DeviceStoreDAO deviceStoreDAO = new DeviceStoreDAO();
 
     /**
      * Gets a U2FService instance.
@@ -72,10 +74,9 @@ public class U2FService {
     private Iterable<DeviceRegistration> getRegistrations(final FIDOUser user)
             throws FIDOAuthenticatorServerException {
 
-        int tenantID = FIDOUtil.getTenantID(user.getTenantDomain());
-
         Collection<String> serializedRegistrations = null;
-        serializedRegistrations = deviceStoreDAO.getDeviceRegistration(user.getUsername(), tenantID, user.getUserStoreDomain());
+        serializedRegistrations = DeviceStoreDAO.getInstance().getDeviceRegistration(user.getUserName(),
+                user.getTenantDomain(), user.getUserStoreDomain());
 
         List<DeviceRegistration> registrations = new ArrayList<DeviceRegistration>();
         for (String serialized : serializedRegistrations) {
@@ -171,13 +172,14 @@ public class U2FService {
     }
 
     private void addRegistration(FIDOUser user) throws FIDOAuthenticatorServerException {
-        int tenantID = FIDOUtil.getTenantID(user.getTenantDomain());
-        deviceStoreDAO.addDeviceRegistration(user.getUsername(), user.getDeviceRegistration(), tenantID, user.getUserStoreDomain());
+        Timestamp timestamp = new Timestamp(new Date().getTime());
+        DeviceStoreDAO.getInstance().addDeviceRegistration(user.getUserName(), user.getDeviceRegistration(),
+                user.getTenantDomain(), user.getUserStoreDomain(), timestamp);
     }
 
     public boolean isDeviceRegistered(FIDOUser user) throws FIDOAuthenticatorServerException {
-        int tenantID = FIDOUtil.getTenantID(user.getTenantDomain());
-        Collection<String> registrations = deviceStoreDAO.getDeviceRegistration(user.getUsername(), tenantID, user.getUserStoreDomain());
+        Collection<String> registrations = DeviceStoreDAO.getInstance().getDeviceRegistration(user.getUserName(),
+                user.getTenantDomain(), user.getUserStoreDomain());
         if (!registrations.isEmpty()) {
             return true;
         } else {
@@ -186,8 +188,21 @@ public class U2FService {
 
     }
 
-    public void removeRegistration(FIDOUser user) throws FIDOAuthenticatorServerException {
-        int tenantID = FIDOUtil.getTenantID(user.getTenantDomain());
-        deviceStoreDAO.removeRegistration(user.getUsername(), tenantID, user.getUserStoreDomain());
+    public ArrayList<String> getDeviceMetadata(FIDOUser user) throws FIDOAuthenticatorServerException{
+        return DeviceStoreDAO.getInstance().getDeviceMetadata(user.getUserName(), user.getTenantDomain(),
+                user.getUserStoreDomain());
+
+    }
+
+    public void removeAllRegistrations(FIDOUser user) throws FIDOAuthenticatorServerException {
+        DeviceStoreDAO.getInstance().removeAllRegistrations(user.getUserName(), user.getTenantDomain(),
+                user.getUserStoreDomain());
+    }
+
+    public void removeRegistration(FIDOUser user, String deviceRemarks)
+            throws FIDOAuthenticatorServerException {
+        DeviceStoreDAO.getInstance().removeRegistration(user.getUserName(), user.getTenantDomain(),
+                user.getUserStoreDomain(), Timestamp.valueOf(deviceRemarks));
+
     }
 }

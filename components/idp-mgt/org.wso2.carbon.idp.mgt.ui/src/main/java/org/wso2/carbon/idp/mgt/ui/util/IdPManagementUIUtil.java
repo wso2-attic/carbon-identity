@@ -41,7 +41,6 @@ import org.wso2.carbon.identity.application.common.model.idp.xsd.Property;
 import org.wso2.carbon.identity.application.common.model.idp.xsd.ProvisioningConnectorConfig;
 import org.wso2.carbon.identity.application.common.model.idp.xsd.RoleMapping;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
-import org.wso2.carbon.ui.CarbonUIUtil;
 
 import javax.servlet.http.HttpServletRequest;
 import java.net.MalformedURLException;
@@ -79,36 +78,6 @@ public class IdPManagementUIUtil {
             return false;
         }
         return true;
-    }
-
-    public static String getOpenIDUrl(HttpServletRequest request) {
-        String adminConsoleURL = CarbonUIUtil.getAdminConsoleURL(request);
-        String endpointURL = adminConsoleURL.substring(0, adminConsoleURL.indexOf("/carbon"));
-        return endpointURL + "/openid/";
-    }
-
-    public static String getSAML2SSOUrl(HttpServletRequest request) {
-        String adminConsoleURL = CarbonUIUtil.getAdminConsoleURL(request);
-        String endpointURL = adminConsoleURL.substring(0, adminConsoleURL.indexOf("/carbon"));
-        return endpointURL + "/samlsso/";
-    }
-
-    public static String getOAuth2AuthzEPURL(HttpServletRequest request) {
-        String adminConsoleURL = CarbonUIUtil.getAdminConsoleURL(request);
-        String endpointURL = adminConsoleURL.substring(0, adminConsoleURL.indexOf("/carbon"));
-        return endpointURL + "/oauth2/authorize/";
-    }
-
-    public static String getOAuth2TokenEPURL(HttpServletRequest request) {
-        String adminConsoleURL = CarbonUIUtil.getAdminConsoleURL(request);
-        String endpointURL = adminConsoleURL.substring(0, adminConsoleURL.indexOf("/carbon"));
-        return endpointURL + "/oauth2/token/";
-    }
-
-    public static String getPassiveSTSURL(HttpServletRequest request) {
-        String adminConsoleURL = CarbonUIUtil.getAdminConsoleURL(request);
-        String endpointURL = adminConsoleURL.substring(0, adminConsoleURL.indexOf("/carbon"));
-        return endpointURL + "/passivests/";
     }
 
     /**
@@ -1038,7 +1007,7 @@ public class IdPManagementUIUtil {
             fedIdp.setDefaultAuthenticatorConfig(facebookAuthnConfig);
         }
 
-        Property[] properties = new Property[4];
+        Property[] properties = new Property[7];
         Property property = new Property();
         property.setName(IdentityApplicationConstants.Authenticator.Facebook.CLIENT_ID);
         property.setValue(paramMap.get("fbClientId"));
@@ -1063,6 +1032,21 @@ public class IdPManagementUIUtil {
         }
         property.setValue(fbUserInfoFields);
         properties[3] = property;
+
+        property = new Property();
+        property.setName(IdentityApplicationConstants.Authenticator.Facebook.AUTH_ENDPOINT);
+        property.setValue(paramMap.get("fbAuthnEndpoint"));
+        properties[4] = property;
+
+        property = new Property();
+        property.setName(IdentityApplicationConstants.Authenticator.Facebook.AUTH_TOKEN_ENDPOINT);
+        property.setValue(paramMap.get("fbOauth2TokenEndpoint"));
+        properties[5] = property;
+
+        property = new Property();
+        property.setName(IdentityApplicationConstants.Authenticator.Facebook.USER_INFO_ENDPOINT);
+        property.setValue(paramMap.get("fbUserInfoEndpoint"));
+        properties[6] = property;
 
         facebookAuthnConfig.setProperties(properties);
 
@@ -1185,7 +1169,7 @@ public class IdPManagementUIUtil {
         properties[0] = property;
 
         property = new Property();
-        property.setName(IdentityApplicationConstants.Authenticator.PassiveSTS.PASSIVE_STS_URL);
+        property.setName(IdentityApplicationConstants.Authenticator.PassiveSTS.IDENTITY_PROVIDER_URL);
         property.setValue(paramMap.get("passiveSTSUrl"));
         properties[1] = property;
 
@@ -1339,7 +1323,7 @@ public class IdPManagementUIUtil {
             fedIdp.setDefaultAuthenticatorConfig(saml2SSOAuthnConfig);
         }
 
-        Property[] properties = new Property[13];
+        Property[] properties = new Property[24];
         Property property = new Property();
         property.setName(IdentityApplicationConstants.Authenticator.SAML2SSO.IDP_ENTITY_ID);
         property.setValue(paramMap.get("idPEntityId"));
@@ -1438,7 +1422,85 @@ public class IdPManagementUIUtil {
         property.setValue(paramMap
                 .get(IdentityApplicationConstants.Authenticator.SAML2SSO.REQUEST_METHOD));
         properties[12] = property;
+        
+        property = new Property();
+        property.setName(IdentityApplicationConstants.Authenticator.SAML2SSO.SIGNATURE_ALGORITHM);
+        property.setValue(paramMap
+                .get(IdentityApplicationConstants.Authenticator.SAML2SSO.SIGNATURE_ALGORITHM));
+        properties[13] = property;
+        
+        property = new Property();
+        property.setName(IdentityApplicationConstants.Authenticator.SAML2SSO.DIGEST_ALGORITHM);
+        property.setValue(paramMap
+                .get(IdentityApplicationConstants.Authenticator.SAML2SSO.DIGEST_ALGORITHM));
+        properties[14] = property;
 
+        property = new Property();
+        property.setName(IdentityApplicationConstants.Authenticator.SAML2SSO.AUTHENTICATION_CONTEXT_COMPARISON_LEVEL);
+        property.setValue(paramMap
+                .get(IdentityApplicationConstants.Authenticator.SAML2SSO.AUTHENTICATION_CONTEXT_COMPARISON_LEVEL));
+        properties[15] = property;
+
+        property = new Property();
+        property.setName(IdentityApplicationConstants.Authenticator.SAML2SSO.INCLUDE_NAME_ID_POLICY);
+        if ("on".equals(paramMap
+                .get(IdentityApplicationConstants.Authenticator.SAML2SSO.INCLUDE_NAME_ID_POLICY))) {
+            property.setValue("true");
+        } else {
+            property.setValue("false");
+        }
+        properties[16] = property;
+
+        property = new Property();
+        property.setName(IdentityApplicationConstants.Authenticator.SAML2SSO.FORCE_AUTHENTICATION);
+        property.setValue(paramMap
+                .get(IdentityApplicationConstants.Authenticator.SAML2SSO.FORCE_AUTHENTICATION));
+        properties[17] = property;
+
+        property = new Property();
+        property.setName(IdentityApplicationConstants.Authenticator.SAML2SSO.SIGNATURE_ALGORITHM_POST);
+        property.setValue(paramMap
+                .get(IdentityApplicationConstants.Authenticator.SAML2SSO.SIGNATURE_ALGORITHM_POST));
+        properties[18] = property;
+
+        property = new Property();
+        property.setName(IdentityApplicationConstants.Authenticator.SAML2SSO.AUTHENTICATION_CONTEXT_CLASS);
+        property.setValue(paramMap
+                .get(IdentityApplicationConstants.Authenticator.SAML2SSO.AUTHENTICATION_CONTEXT_CLASS));
+        properties[19] = property;
+        
+        property = new Property();
+        property.setName(IdentityApplicationConstants.Authenticator.SAML2SSO.ATTRIBUTE_CONSUMING_SERVICE_INDEX);
+        property.setValue(paramMap
+                .get(IdentityApplicationConstants.Authenticator.SAML2SSO.ATTRIBUTE_CONSUMING_SERVICE_INDEX));
+        properties[20] = property;
+
+        property = new Property();
+        property.setName(IdentityApplicationConstants.Authenticator.SAML2SSO.INCLUDE_CERT);
+        if ("on".equals(paramMap
+                .get(IdentityApplicationConstants.Authenticator.SAML2SSO.INCLUDE_CERT))) {
+            property.setValue("true");
+        } else {
+            property.setValue("false");
+        }
+        properties[21] = property;
+        
+        property = new Property();
+        property.setName(IdentityApplicationConstants.Authenticator.SAML2SSO.INCLUDE_AUTHN_CONTEXT);
+        property.setValue(paramMap
+                .get(IdentityApplicationConstants.Authenticator.SAML2SSO.INCLUDE_AUTHN_CONTEXT));
+        properties[22] = property;
+        
+        property = new Property();
+        property.setName(IdentityApplicationConstants.Authenticator.SAML2SSO.INCLUDE_PROTOCOL_BINDING);
+        if ("on".equals(paramMap
+                .get(IdentityApplicationConstants.Authenticator.SAML2SSO.INCLUDE_PROTOCOL_BINDING))) {
+            property.setValue("true");
+        } else {
+            property.setValue("false");
+        }
+        properties[23] = property;
+        
         saml2SSOAuthnConfig.setProperties(properties);
 
         FederatedAuthenticatorConfig[] authenticators = fedIdp.getFederatedAuthenticatorConfigs();

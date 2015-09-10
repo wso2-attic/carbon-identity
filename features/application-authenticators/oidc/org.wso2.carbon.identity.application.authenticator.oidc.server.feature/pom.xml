@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.wso2.carbon.identity</groupId>
         <artifactId>oidc-application-authenticator-feature</artifactId>
-        <version>4.5.6-SNAPSHOT</version>
+        <version>4.5.10-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -37,10 +37,6 @@
         <dependency>
             <groupId>org.wso2.carbon.identity</groupId>
             <artifactId>org.wso2.carbon.identity.application.authenticator.oidc</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon.identity</groupId>
-            <artifactId>org.wso2.carbon.identity.application.authenticator.oidc.ext</artifactId>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon.identity</groupId>
@@ -71,9 +67,6 @@
                             <bundles>
                                 <bundleDef>
                                     org.wso2.carbon.identity:org.wso2.carbon.identity.application.authenticator.oidc
-                                </bundleDef>
-                                <bundleDef>
-                                    org.wso2.carbon.identity:org.wso2.carbon.identity.application.authenticator.oidc.ext
                                 </bundleDef>
                                 <bundleDef>org.apache.amber.wso2:amber</bundleDef>
                             </bundles>

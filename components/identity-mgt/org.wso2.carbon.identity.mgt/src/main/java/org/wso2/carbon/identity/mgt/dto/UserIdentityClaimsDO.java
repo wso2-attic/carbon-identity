@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.identity.mgt.dto;
 
+import org.apache.commons.lang.StringUtils;
 import org.wso2.carbon.identity.mgt.store.UserIdentityDataStore;
 import org.wso2.carbon.user.core.UserCoreConstants;
 
@@ -43,7 +44,6 @@ public class UserIdentityClaimsDO implements Serializable {
     private long unlockTime;
     private long lastLogonTime;
     private long lastFailAttemptTime;
-    private long passwordTimeStamp;
     private int failedAttempts;
     private boolean accountLock;
     private boolean passwordChangeRequired;
@@ -98,14 +98,6 @@ public class UserIdentityClaimsDO implements Serializable {
         }
         if (userDataMap.get(UserIdentityDataStore.ACCOUNT_LOCK) != null) {
             setAccountLock(Boolean.parseBoolean(userDataMap.get(UserIdentityDataStore.ACCOUNT_LOCK)));
-        }
-        if (userDataMap.get(UserIdentityDataStore.PASSWORD_TIME_STAMP) != null) {
-            String passwordTs = userDataMap.get(UserIdentityDataStore.PASSWORD_TIME_STAMP).trim();
-            if (!passwordTs.isEmpty()) {
-                setPasswordTimeStamp(Long.parseLong(passwordTs));
-            } else {
-                setPasswordTimeStamp(0);
-            }
         }
     }
 
@@ -224,21 +216,23 @@ public class UserIdentityClaimsDO implements Serializable {
      */
     public void setUserIdentityDataClaim(String claim, String value) {
         userIdentityDataMap.put(claim, value);
-    }
-
-    public long getPasswordTimeStamp() {
-        return passwordTimeStamp;
-    }
-
-    /**
-     * @param passwordTimeStamp
-     * @return
-     */
-    public UserIdentityClaimsDO setPasswordTimeStamp(long passwordTimeStamp) {
-        this.passwordTimeStamp = passwordTimeStamp;
-        this.userIdentityDataMap.put(UserIdentityDataStore.PASSWORD_TIME_STAMP,
-                Long.toString(passwordTimeStamp));
-        return this;
+        if(StringUtils.isBlank(value)){
+            return;
+        } else if (UserIdentityDataStore.FAIL_LOGIN_ATTEMPTS.equalsIgnoreCase(claim)) {
+            setFailAttempts(Integer.parseInt(value));
+        } else if (UserIdentityDataStore.LAST_FAILED_LOGIN_ATTEMPT_TIME.equalsIgnoreCase(claim)) {
+            setLastFailAttemptTime(Long.parseLong(value));
+        } else if (UserIdentityDataStore.UNLOCKING_TIME.equalsIgnoreCase(claim)) {
+            setUnlockTime(Long.parseLong(value));
+        } else if (UserIdentityDataStore.ONE_TIME_PASSWORD.equalsIgnoreCase(claim)) {
+            setOneTimeLogin(Boolean.parseBoolean(claim));
+        } else if (UserIdentityDataStore.PASSWORD_CHANGE_REQUIRED.equalsIgnoreCase(claim)) {
+            setPasswordChangeRequired(Boolean.parseBoolean(value));
+        } else if (UserIdentityDataStore.LAST_LOGON_TIME.equalsIgnoreCase(claim)) {
+            setLastLogonTime(Long.parseLong(value));
+        } else if (UserIdentityDataStore.ACCOUNT_LOCK.equalsIgnoreCase(claim)) {
+            setAccountLock(Boolean.parseBoolean(value));
+        }
     }
 
     public int getTenantId() {

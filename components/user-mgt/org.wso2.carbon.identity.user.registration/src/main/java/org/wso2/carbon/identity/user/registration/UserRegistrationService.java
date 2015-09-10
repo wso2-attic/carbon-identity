@@ -20,6 +20,8 @@ package org.wso2.carbon.identity.user.registration;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.xerces.impl.Constants;
+import org.apache.xerces.util.SecurityManager;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -48,9 +50,11 @@ import org.wso2.carbon.user.core.claim.Claim;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.user.mgt.UserMgtConstants;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
+import org.wso2.carbon.identity.user.registration.util.CarbonEntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -65,6 +69,9 @@ import java.util.Map;
 public class UserRegistrationService {
 
     private static final Log log = LogFactory.getLog(UserRegistrationService.class);
+    private static final String SECURITY_MANAGER_PROPERTY = Constants.XERCES_PROPERTY_PREFIX +
+            Constants.SECURITY_MANAGER_PROPERTY;
+    private static final int ENTITY_EXPANSION_LIMIT = 0;
 
     /**
      * This service method will return back all available password validation regular expressions
@@ -344,7 +351,7 @@ public class UserRegistrationService {
             if (registry.resourceExists(SelfRegistrationConstants.SIGN_UP_CONFIG_REG_PATH)) {
                 Resource resource = registry.get(SelfRegistrationConstants.SIGN_UP_CONFIG_REG_PATH);
                 // build config from tenant registry resource
-                DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+                DocumentBuilder builder = getSecuredDocumentBuilder();
                 String configXml = new String((byte[]) resource.getContent());
                 InputSource configInputSource = new InputSource();
                 configInputSource.setCharacterStream(new StringReader(configXml.trim()));
@@ -383,4 +390,24 @@ public class UserRegistrationService {
         return null;
     }
 
+    /**
+     * * This method provides a secured document builder which will secure XXE attacks.
+     *
+     * @return DocumentBuilder
+     * @throws ParserConfigurationException
+     */
+    private DocumentBuilder getSecuredDocumentBuilder() throws ParserConfigurationException {
+
+        DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+        documentBuilderFactory.setNamespaceAware(true);
+        documentBuilderFactory.setExpandEntityReferences(false);
+        documentBuilderFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+        SecurityManager securityManager = new SecurityManager();
+        securityManager.setEntityExpansionLimit(ENTITY_EXPANSION_LIMIT);
+        documentBuilderFactory.setAttribute(SECURITY_MANAGER_PROPERTY, securityManager);
+        DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
+        documentBuilder.setEntityResolver(new CarbonEntityResolver());
+        return documentBuilder;
+
+    }
 }

@@ -26,12 +26,12 @@ import org.osgi.service.http.HttpService;
 import org.wso2.carbon.identity.authenticator.saml2.sso.common.Util;
 import org.wso2.carbon.identity.base.IdentityConstants;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
+import org.wso2.carbon.identity.sso.saml.SAMLSSOConstants;
 import org.wso2.carbon.identity.sso.saml.SSOServiceProviderConfigManager;
 import org.wso2.carbon.identity.sso.saml.admin.FileBasedConfigManager;
 import org.wso2.carbon.identity.sso.saml.servlet.SAMLSSOProviderServlet;
 import org.wso2.carbon.identity.sso.saml.util.SAMLSSOUtil;
 import org.wso2.carbon.registry.core.service.RegistryService;
-import org.wso2.carbon.registry.core.service.TenantRegistryLoader;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.utils.ConfigurationContextService;
@@ -39,6 +39,7 @@ import org.wso2.carbon.utils.ConfigurationContextService;
 import javax.servlet.Servlet;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.util.Scanner;
 
 /**
@@ -51,10 +52,6 @@ import java.util.Scanner;
  * interface="org.wso2.carbon.utils.ConfigurationContextService" cardinality="1..1"
  * policy="dynamic" bind="setConfigurationContextService"
  * unbind="unsetConfigurationContextService"
- * @scr.reference name="registry.loader.default"
- * interface="org.wso2.carbon.registry.core.service.TenantRegistryLoader"
- * cardinality="1..1" policy="dynamic" bind="setTenantRegistryLoader"
- * unbind="unsetTenantRegistryLoader"
  * @scr.reference name="user.realmservice.default" interface="org.wso2.carbon.user.core.service.RealmService"
  * cardinality="1..1" policy="dynamic" bind="setRealmService"
  * unbind="unsetRealmService"
@@ -64,7 +61,6 @@ import java.util.Scanner;
  */
 public class IdentitySAMLSSOServiceComponent {
 
-    public static final String SAMLSSO_URL = "/samlsso";
     private static Log log = LogFactory.getLog(IdentitySAMLSSOServiceComponent.class);
     private static int defaultSingleLogoutRetryCount = 5;
 
@@ -81,9 +77,10 @@ public class IdentitySAMLSSOServiceComponent {
         HttpService httpService = SAMLSSOUtil.getHttpService();
 
         // Register SAML SSO servlet
-        Servlet samlSSOServlet = new ContextPathServletAdaptor(new SAMLSSOProviderServlet(), SAMLSSO_URL);
+        Servlet samlSSOServlet = new ContextPathServletAdaptor(new SAMLSSOProviderServlet(),
+                                                               SAMLSSOConstants.SAMLSSO_URL);
         try {
-            httpService.registerServlet(SAMLSSO_URL, samlSSOServlet, null, null);
+            httpService.registerServlet(SAMLSSOConstants.SAMLSSO_URL, samlSSOServlet, null, null);
         } catch (Exception e) {
             String errMsg = "Error when registering SAML SSO Servlet via the HttpService.";
             log.error(errMsg, e);
@@ -93,7 +90,7 @@ public class IdentitySAMLSSOServiceComponent {
         // Register a SSOServiceProviderConfigManager object as an OSGi Service
         ctxt.getBundleContext().registerService(SSOServiceProviderConfigManager.class.getName(),
                 SSOServiceProviderConfigManager.getInstance(), null);
-
+        String redirectHtmlPath = null;
         try {
             IdentityUtil.populateProperties();
             SAMLSSOUtil.setSingleLogoutRetryCount(Integer.parseInt(
@@ -108,17 +105,21 @@ public class IdentitySAMLSSOServiceComponent {
                     SAMLSSOUtil.getSingleLogoutRetryInterval() + " in seconds.");
 
 
-            String redirectHtmlPath = CarbonUtils.getCarbonHome() + File.separator + "repository"
-                    + File.separator + "resources" + File.separator + "security" + File.separator + "sso_redirect.html";
+            redirectHtmlPath = CarbonUtils.getCarbonHome() + File.separator + "repository"
+                    + File.separator + "resources" + File.separator + "identity" + File.separator + "pages" + File.separator + "samlsso_response.html";
             FileInputStream fis = new FileInputStream(new File(redirectHtmlPath));
             ssoRedirectPage = new Scanner(fis, "UTF-8").useDelimiter("\\A").next();
-            log.debug("sso_redirect.html " + ssoRedirectPage);
+            log.debug("samlsso_response.html " + ssoRedirectPage);
 
             FileBasedConfigManager.getInstance().addServiceProviders();
 
             Util.initSSOConfigParams();
             if (log.isDebugEnabled()) {
                 log.info("Identity SAML SSO bundle is activated");
+            }
+        } catch (FileNotFoundException e) {
+            if (log.isDebugEnabled()) {
+                log.debug("Failed to find SAML SSO response page in : " + redirectHtmlPath);
             }
         } catch (Throwable e) {
             SAMLSSOUtil.setSingleLogoutRetryCount(defaultSingleLogoutRetryCount);
@@ -197,19 +198,5 @@ public class IdentitySAMLSSOServiceComponent {
             log.debug("HTTP Service is unset in the SAML SSO bundle");
         }
         SAMLSSOUtil.setHttpService(null);
-    }
-
-    protected void setTenantRegistryLoader(TenantRegistryLoader tenantRegistryLoader) {
-        if (log.isDebugEnabled()) {
-            log.debug("Tenant Registry Loader is set in the SAML SSO bundle");
-        }
-        SAMLSSOUtil.setTenantRegistryLoader(tenantRegistryLoader);
-    }
-
-    protected void unsetTenantRegistryLoader(TenantRegistryLoader tenantRegistryLoader) {
-        if (log.isDebugEnabled()) {
-            log.debug("Tenant Registry Loader is unset in the SAML SSO bundle");
-        }
-        SAMLSSOUtil.setTenantRegistryLoader(null);
     }
 }

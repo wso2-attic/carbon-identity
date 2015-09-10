@@ -28,7 +28,6 @@ import org.wso2.balana.cond.EvaluationResult;
 import org.wso2.balana.ctx.EvaluationCtx;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.identity.entitlement.PDPConstants;
-import org.wso2.carbon.identity.entitlement.cache.DecisionInvalidationCache;
 import org.wso2.carbon.identity.entitlement.cache.PIPAbstractAttributeCache;
 import org.wso2.carbon.identity.entitlement.internal.EntitlementServiceComponent;
 
@@ -63,7 +62,8 @@ public abstract class AbstractPIPAttributeFinder implements PIPAttributeFinder {
      * @throws Exception throws if fails
      */
     public abstract Set<String> getAttributeValues(String subject, String resource, String action,
-                                                   String environment, String attributeId, String issuer) throws Exception;
+                                                   String environment, String attributeId, String issuer)
+            throws Exception;
 
 
     @Override
@@ -85,13 +85,13 @@ public abstract class AbstractPIPAttributeFinder implements PIPAttributeFinder {
         subject = evaluationCtx.getAttribute(new URI(StringAttribute.identifier), new URI(
                 PDPConstants.SUBJECT_ID_DEFAULT), issuer, new URI(XACMLConstants.SUBJECT_CATEGORY));
         if (subject != null && subject.getAttributeValue() != null &&
-                subject.getAttributeValue().isBag()) {
+            subject.getAttributeValue().isBag()) {
             BagAttribute bagAttribute = (BagAttribute) subject.getAttributeValue();
             if (bagAttribute.size() > 0) {
                 subjectId = ((AttributeValue) bagAttribute.iterator().next()).encode();
                 if (log.isDebugEnabled()) {
                     log.debug(String.format("Finding attributes for the subject %1$s",
-                            subjectId));
+                                            subjectId));
                 }
             }
         }
@@ -99,13 +99,13 @@ public abstract class AbstractPIPAttributeFinder implements PIPAttributeFinder {
         resource = evaluationCtx.getAttribute(new URI(StringAttribute.identifier), new URI(
                 PDPConstants.RESOURCE_ID_DEFAULT), issuer, new URI(XACMLConstants.RESOURCE_CATEGORY));
         if (resource != null && resource.getAttributeValue() != null &&
-                resource.getAttributeValue().isBag()) {
+            resource.getAttributeValue().isBag()) {
             BagAttribute bagAttribute = (BagAttribute) resource.getAttributeValue();
             if (bagAttribute.size() > 0) {
                 resourceId = ((AttributeValue) bagAttribute.iterator().next()).encode();
                 if (log.isDebugEnabled()) {
                     log.debug(String.format("Finding attributes for the resource %1$s",
-                            resourceId));
+                                            resourceId));
                 }
             }
         }
@@ -113,13 +113,13 @@ public abstract class AbstractPIPAttributeFinder implements PIPAttributeFinder {
         action = evaluationCtx.getAttribute(new URI(StringAttribute.identifier), new URI(
                 PDPConstants.ACTION_ID_DEFAULT), issuer, new URI(XACMLConstants.ACTION_CATEGORY));
         if (action != null && action.getAttributeValue() != null &&
-                action.getAttributeValue().isBag()) {
+            action.getAttributeValue().isBag()) {
             BagAttribute bagAttribute = (BagAttribute) action.getAttributeValue();
             if (bagAttribute.size() > 0) {
                 actionId = ((AttributeValue) bagAttribute.iterator().next()).encode();
                 if (log.isDebugEnabled()) {
                     log.debug(String.format("Finding attributes for the action %1$s",
-                            actionId));
+                                            actionId));
                 }
             }
         }
@@ -127,13 +127,13 @@ public abstract class AbstractPIPAttributeFinder implements PIPAttributeFinder {
         environment = evaluationCtx.getAttribute(new URI(StringAttribute.identifier), new URI(
                 PDPConstants.ENVIRONMENT_ID_DEFAULT), issuer, new URI(XACMLConstants.ENT_CATEGORY));
         if (environment != null && environment.getAttributeValue() != null &&
-                environment.getAttributeValue().isBag()) {
+            environment.getAttributeValue().isBag()) {
             BagAttribute bagAttribute = (BagAttribute) environment.getAttributeValue();
             if (bagAttribute.size() > 0) {
                 environmentId = ((AttributeValue) bagAttribute.iterator().next()).encode();
                 if (log.isDebugEnabled()) {
                     log.debug(String.format("Finding attributes for the environment %1$s",
-                            environmentId));
+                                            environmentId));
                 }
             }
         }
@@ -142,15 +142,11 @@ public abstract class AbstractPIPAttributeFinder implements PIPAttributeFinder {
 
         if (isAbstractAttributeCachingEnabled) {
             key = (subjectId != null ? subjectId : "") + (resourceId != null ? resourceId : "") +
-                    (environmentId != null ? environmentId : "") + (attributeId != null ? attributeId : "") +
-                    (issuer != null ? issuer : "") +
-                    (actionId != null ? actionId : "");
+                  (environmentId != null ? environmentId : "") + (attributeId != null ? attributeId : "") +
+                  (issuer != null ? issuer : "") +
+                  (actionId != null ? actionId : "");
 
-            if (DecisionInvalidationCache.getInstance().isInvalidate()) {
-                abstractAttributeFinderCache.clearCache();
-            } else {
-                attributeValues = abstractAttributeFinderCache.getFromCache(tenantId, key);
-            }
+            attributeValues = abstractAttributeFinderCache.getFromCache(tenantId, key);
         }
 
         if (attributeValues == null) {
@@ -158,7 +154,7 @@ public abstract class AbstractPIPAttributeFinder implements PIPAttributeFinder {
                 log.debug("Carbon Attribute Cache Miss");
             }
             attributeValues = getAttributeValues(subjectId, resourceId, actionId, environmentId,
-                    attributeId.toString(), issuer);
+                                                 attributeId.toString(), issuer);
             if (isAbstractAttributeCachingEnabled && key != null) {
                 if (attributeValues != null && !attributeValues.isEmpty()) {
                     abstractAttributeFinderCache.addToCache(tenantId, key, attributeValues);

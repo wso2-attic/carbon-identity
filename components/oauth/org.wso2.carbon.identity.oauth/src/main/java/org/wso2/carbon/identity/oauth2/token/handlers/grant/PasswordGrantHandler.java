@@ -21,11 +21,14 @@ package org.wso2.carbon.identity.oauth2.token.handlers.grant;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
+import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
+import org.wso2.carbon.identity.application.common.model.ServiceProvider;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.oauth.internal.OAuthComponentServiceHolder;
 import org.wso2.carbon.identity.oauth2.IdentityOAuth2Exception;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2AccessTokenReqDTO;
+import org.wso2.carbon.identity.oauth2.internal.OAuth2ServiceComponentHolder;
 import org.wso2.carbon.identity.oauth2.token.OAuthTokenReqMessageContext;
 import org.wso2.carbon.identity.oauth2.util.OAuth2Util;
 import org.wso2.carbon.user.api.UserStoreException;
@@ -53,10 +56,27 @@ public class PasswordGrantHandler extends AbstractAuthorizationGrantHandler {
 
         OAuth2AccessTokenReqDTO oAuth2AccessTokenReqDTO = tokReqMsgCtx.getOauth2AccessTokenReqDTO();
         String username = oAuth2AccessTokenReqDTO.getResourceOwnerUsername();
+        String userTenantDomain = MultitenantUtils.getTenantDomain(username);
+        String clientId = oAuth2AccessTokenReqDTO.getClientId();
+        String tenantDomain = oAuth2AccessTokenReqDTO.getTenantDomain();
+        ServiceProvider serviceProvider = null;
+        try {
+            serviceProvider = OAuth2ServiceComponentHolder.getApplicationMgtService().getServiceProviderByClientId(
+                    clientId, "oauth2", tenantDomain);
+        } catch (IdentityApplicationManagementException e) {
+            throw new IdentityOAuth2Exception("Error occurred while retrieving OAuth2 application data for client id " +
+                    clientId, e);
+        }
+        if(!serviceProvider.isSaasApp() && !userTenantDomain.equals(tenantDomain)){
+            if(log.isDebugEnabled()) {
+                log.debug("Non-SaaS service provider tenant domain is not same as user tenant domain; " +
+                        tenantDomain + " != " + userTenantDomain);
+            }
+            return false;
 
-        String tenantDomain = MultitenantUtils.getTenantDomain(username);
+        }
         String tenantAwareUserName = MultitenantUtils.getTenantAwareUsername(username);
-        username = tenantAwareUserName + "@" + tenantDomain;
+        username = tenantAwareUserName + "@" + userTenantDomain;
         int tenantId;
         try {
             tenantId = IdentityUtil.getTenantIdOFUser(username);
@@ -100,7 +120,7 @@ public class PasswordGrantHandler extends AbstractAuthorizationGrantHandler {
                     null && !"".equals(UserCoreUtil.getDomainFromThreadLocal())) {
                 username = UserCoreUtil.getDomainFromThreadLocal() + CarbonConstants.DOMAIN_SEPARATOR + username;
             }
-            tokReqMsgCtx.setAuthorizedUser(username);
+            tokReqMsgCtx.setAuthorizedUser(OAuth2Util.getUserFromUserName(username));
             tokReqMsgCtx.setScope(oAuth2AccessTokenReqDTO.getScope());
         }
 

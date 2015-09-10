@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.wso2.carbon.identity</groupId>
         <artifactId>user-mgt</artifactId>
-        <version>4.5.6-SNAPSHOT</version>
+        <version>4.5.10-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -122,14 +122,13 @@
                             org.wso2.carbon.user.core.*; version="${carbon.kernel.package.import.version.range}",
                             org.wso2.carbon.utils.multitenancy; version="${carbon.kernel.package.import.version.range}",
                             org.wso2.carbon.stratos.common.*; version="${carbon.kernel.package.import.version.range}",
-
                             org.wso2.carbon.user.api; version="${carbon.user.api.imp.pkg.version.range}",
                             org.wso2.carbon.registry.core.*; version="${carbon.kernel.registry.imp.pkg.version}",
                             org.wso2.carbon.identity.application.common.*;
                             version="${carbon.identity.package.import.version.range}",
                             org.wso2.carbon.identity.base;
                             version="${carbon.identity.package.import.version.range}",
-                            org.wso2.carbon.identity.core.persistence;
+                            org.wso2.carbon.identity.core.*;
                             version="${carbon.identity.package.import.version.range}",
                             org.wso2.carbon.identity.user.store.configuration.*;
                             version="${carbon.identity.package.import.version.range}"

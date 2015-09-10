@@ -62,7 +62,7 @@ public class AccessTokenIssuer {
 
         authzGrantHandlers = OAuthServerConfiguration.getInstance().getSupportedGrantTypes();
         clientAuthenticationHandlers = OAuthServerConfiguration.getInstance().getSupportedClientAuthHandlers();
-        appInfoCache = AppInfoCache.getInstance();
+        appInfoCache = AppInfoCache.getInstance(OAuthServerConfiguration.getInstance().getAppInfoCacheTimeout());
         if (appInfoCache != null) {
             if (log.isDebugEnabled()) {
                 log.debug("Successfully created AppInfoCache under " + OAuthConstants.OAUTH_CACHE_MANAGER);
@@ -137,15 +137,16 @@ public class AccessTokenIssuer {
         // loading the stored application data
         OAuthAppDO oAuthAppDO = getAppInformation(tokenReqDTO);
         String applicationName = oAuthAppDO.getApplicationName();
-        String userName = tokReqMsgCtx.getAuthorizedUser();
         if (!authzGrantHandler.isOfTypeApplicationUser()) {
-            tokReqMsgCtx.setAuthorizedUser(oAuthAppDO.getUserName());
+            tokReqMsgCtx.setAuthorizedUser(OAuth2Util.getUserFromUserName(oAuthAppDO.getUserName()));
             tokReqMsgCtx.setTenantID(oAuthAppDO.getTenantId());
         }
 
         boolean isValidGrant = authzGrantHandler.validateGrant(tokReqMsgCtx);
         boolean isAuthorized = authzGrantHandler.authorizeAccessDelegation(tokReqMsgCtx);
         boolean isValidScope = authzGrantHandler.validateScope(tokReqMsgCtx);
+
+        String userName = tokReqMsgCtx.getAuthorizedUser().toString();
 
         //boolean isAuthenticated = true;
         if (!isAuthenticated) {
@@ -227,11 +228,13 @@ public class AccessTokenIssuer {
         AuthorizationGrantCacheKey oldCacheKey = new AuthorizationGrantCacheKey(tokenReqDTO.getAuthorizationCode());
         //checking getUserAttributesId vale of cacheKey before retrieve entry from cache as it causes to NPE
         if (oldCacheKey.getUserAttributesId() != null) {
-            CacheEntry authorizationGrantCacheEntry = AuthorizationGrantCache.getInstance()
+            CacheEntry authorizationGrantCacheEntry = AuthorizationGrantCache.getInstance(OAuthServerConfiguration.
+                    getInstance().getAuthorizationGrantCacheTimeout())
                     .getValueFromCache(oldCacheKey);
             AuthorizationGrantCacheKey newCacheKey = new AuthorizationGrantCacheKey(tokenRespDTO.getAccessToken());
-            AuthorizationGrantCache.getInstance().addToCache(newCacheKey, authorizationGrantCacheEntry);
-            AuthorizationGrantCache.getInstance().clearCacheEntry(oldCacheKey);
+            int authorizationGrantCacheTimeout = OAuthServerConfiguration.getInstance().getAuthorizationGrantCacheTimeout();
+            AuthorizationGrantCache.getInstance(authorizationGrantCacheTimeout).addToCache(newCacheKey, authorizationGrantCacheEntry);
+            AuthorizationGrantCache.getInstance(authorizationGrantCacheTimeout).clearCacheEntry(oldCacheKey);
         }
     }
 

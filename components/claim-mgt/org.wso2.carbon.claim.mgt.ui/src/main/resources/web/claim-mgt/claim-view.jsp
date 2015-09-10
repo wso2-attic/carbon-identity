@@ -32,6 +32,7 @@
 <%@page import="org.wso2.carbon.user.core.UserCoreConstants" %>
 <%@page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@ page import="java.util.ResourceBundle" %>
+<%@ page import="org.apache.commons.lang.StringUtils" %>
 
 <%
     String serverURL = CarbonUIUtil.getServerURL(config.getServletContext(), session);
@@ -204,10 +205,10 @@
 
         <div id="workArea">
 
-            <div style="height:30px;">
-                <a href="javascript:document.location.href='add-claim.jsp?dialect=<%=dialectUri%>'" class="icon-link"
-                   style="background-image:url(../admin/images/add.gif);"><fmt:message key='add.new.claim.mapping'/></a>
-            </div>
+            <%--<div style="height:30px;">--%>
+                <%--<a href="javascript:document.location.href='add-claim.jsp?dialect=<%=dialectUri%>'" class="icon-link"--%>
+                   <%--style="background-image:url(../admin/images/add.gif);"><fmt:message key='add.new.claim.mapping'/></a>--%>
+            <%--</div>--%>
 
 
             <%
@@ -260,12 +261,18 @@
                         } else {
                             ClaimAttributeDTO[] attrMap = claims[j].getMappedAttributes();
                             if (attrMap != null) {
-                                String val = "";
+                                StringBuilder mappedAttributeWithDomain = new StringBuilder();
                                 for (int x = 0; x < attrMap.length; x++) {
-                                    val += "; " + attrMap[x].getDomainName() + "/" + attrMap[x].getAttributeName();
+                                    mappedAttributeWithDomain.append(";");
+                                    mappedAttributeWithDomain.append(attrMap[x].getDomainName());
+                                    mappedAttributeWithDomain.append("/");
+                                    mappedAttributeWithDomain.append(attrMap[x].getAttributeName());
                                 }
-                                val = val.substring(1);
-                                claims[j].setMappedAttribute(val);
+                                String mappedAttribute = mappedAttributeWithDomain.toString();
+                                if (StringUtils.isNotEmpty(mappedAttribute)) {
+                                    mappedAttribute = mappedAttribute.substring(1);
+                                    claims[j].setMappedAttribute(mappedAttribute);
+                                }
                             }
                         }
 

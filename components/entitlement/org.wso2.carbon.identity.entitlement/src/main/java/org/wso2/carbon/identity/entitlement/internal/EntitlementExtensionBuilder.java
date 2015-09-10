@@ -21,6 +21,7 @@ package org.wso2.carbon.identity.entitlement.internal;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.entitlement.PAPStatusDataHandler;
 import org.wso2.carbon.identity.entitlement.PDPConstants;
 import org.wso2.carbon.identity.entitlement.pap.EntitlementDataFinderModule;
@@ -35,7 +36,6 @@ import org.wso2.carbon.identity.entitlement.policy.publisher.PublisherVerificati
 import org.wso2.carbon.identity.entitlement.policy.store.PolicyDataStore;
 import org.wso2.carbon.identity.entitlement.policy.store.PolicyStoreManageModule;
 import org.wso2.carbon.identity.entitlement.policy.version.PolicyVersionManager;
-import org.wso2.carbon.utils.CarbonUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -68,7 +68,8 @@ import java.util.Properties;
  * PIP.ResourceFinders.Finder.1="org.wso2.carbon.identity.entitlement.pip.DefaultResourceFinder
  * <p/>
  * PAP.MetaDataFinders.Finder.1=org.wso2.carbon.identity.entitlement.pap.CarbonEntitlementDataFinder
- * PAP.PolicyPublishers.Publisher.1=org.wso2.carbon.identity.entitlement.policy.publisher.CarbonBasicPolicyPublisherModule
+ * PAP.PolicyPublishers.Publisher.1=org.wso2.carbon.identity.entitlement.policy.publisher
+ * .CarbonBasicPolicyPublisherModule
  * <p/>
  * # Properties needed for each extension. #
  * org.wso2.carbon.identity.entitlement.pip.DefaultAttributeFinder.1=name,value #
@@ -125,7 +126,7 @@ public class EntitlementExtensionBuilder {
         InputStream inStream = null;
         String warningMessage = null;
 
-        File pipConfigXml = new File(CarbonUtils.getCarbonSecurityConfigDirPath(), ENTITLEMENT_CONFIG);
+        File pipConfigXml = new File(IdentityUtil.getIdentityConfigDirPath(), ENTITLEMENT_CONFIG);
 
         try {
             if (pipConfigXml.exists()) {
@@ -137,8 +138,8 @@ public class EntitlementExtensionBuilder {
                         inStream = url.openStream();
                     } else {
                         warningMessage = "Bundle context could not find resource "
-                                + ENTITLEMENT_CONFIG
-                                + " or user does not have sufficient permission to access the resource.";
+                                         + ENTITLEMENT_CONFIG
+                                         + " or user does not have sufficient permission to access the resource.";
                     }
 
                 } else {
@@ -147,8 +148,8 @@ public class EntitlementExtensionBuilder {
                         inStream = url.openStream();
                     } else {
                         warningMessage = "PIP Config Builder could not find resource "
-                                + ENTITLEMENT_CONFIG
-                                + " or user does not have sufficient permission to access the resource.";
+                                         + ENTITLEMENT_CONFIG
+                                         + " or user does not have sufficient permission to access the resource.";
                     }
                 }
             }
@@ -210,7 +211,9 @@ public class EntitlementExtensionBuilder {
         setProperty(properties, pdpProperties, PDPConstants.ENTITLEMENT_ITEMS_PER_PAGE);
         setProperty(properties, pdpProperties, PDPConstants.START_UP_POLICY_ADDING);
         setProperty(properties, pdpProperties, PDP_SCHEMA_VALIDATION);
-        setProperty(properties,pdpProperties, PDPConstants.ENTITLEMENT_ENGINE_CACHING_INTERVAL);
+        setProperty(properties, pdpProperties, PDPConstants.ENTITLEMENT_ENGINE_CACHING_INTERVAL);
+        setProperty(properties, pdpProperties, PDPConstants.PDP_REGISTRY_LEVEL_POLICY_CACHE_CLEAR);
+        setProperty(properties, pdpProperties, PDPConstants.POLICY_CACHING_INTERVAL);
 
         holder.setEngineProperties(pdpProperties);
     }
@@ -231,7 +234,7 @@ public class EntitlementExtensionBuilder {
     private void populateAttributeFinders(Properties properties, EntitlementConfigHolder holder)
             throws Exception {
         int i = 1;
-        PIPAttributeFinder designator;
+        PIPAttributeFinder designator = null;
 
         while (properties.getProperty("PIP.AttributeDesignators.Designator." + i) != null) {
             String className = properties.getProperty("PIP.AttributeDesignators.Designator." + i++);
@@ -439,7 +442,7 @@ public class EntitlementExtensionBuilder {
             while (properties.getProperty(className + "." + j) != null) {
                 String value = properties.getProperty(className + "." + j++);
                 metadataProps.put(value.substring(0, value.indexOf(",")),
-                        value.substring(value.indexOf(",") + 1));
+                                  value.substring(value.indexOf(",") + 1));
             }
 
             metadata.init(metadataProps);

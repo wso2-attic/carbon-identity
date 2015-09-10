@@ -76,7 +76,7 @@ import org.wso2.carbon.identity.application.common.model.ClaimMapping;
 import org.wso2.carbon.identity.application.common.model.FederatedAuthenticatorConfig;
 import org.wso2.carbon.identity.application.common.model.IdentityProvider;
 import org.wso2.carbon.identity.application.common.model.Property;
-import org.wso2.carbon.ui.CarbonUIUtil;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
@@ -464,9 +464,7 @@ public class FrameworkUtils {
     public static void sendToRetryPage(HttpServletRequest request, HttpServletResponse response)
             throws IOException {
         // TODO read the URL from framework config file rather than carbon.xml
-        String redirectURL = CarbonUIUtil.getAdminConsoleURL(request);
-        redirectURL = redirectURL.replace("commonauth/carbon/", "authenticationendpoint/retry.do");
-        response.sendRedirect(redirectURL);
+        response.sendRedirect(IdentityUtil.getServerURL("/authenticationendpoint/retry.do"));
     }
 
     /**
@@ -931,8 +929,9 @@ public class FrameworkUtils {
                         String paramName = entry.getKey();
                         String paramValue = entry.getValue()[0];
 
-                        //skip the sessionDataKey sent from the servlet.
-                        if (SESSION_DATA_KEY.equals(paramName)) {
+                        //skip issuer and type and sessionDataKey parameters
+                        if (SESSION_DATA_KEY.equals(paramName) || FrameworkConstants.RequestParams.ISSUER.equals
+                                (paramName) || FrameworkConstants.RequestParams.TYPE.equals(paramName)) {
                             continue;
                         }
 
@@ -977,8 +976,9 @@ public class FrameworkUtils {
                     String paramName = entry.getKey();
                     String paramValue = entry.getValue()[0];
 
-                    //skip the sessionDataKey sent from the servlet.
-                    if (SESSION_DATA_KEY.equals(paramName)) {
+                    //skip issuer and type and sessionDataKey parameters
+                    if (SESSION_DATA_KEY.equals(paramName) || FrameworkConstants.RequestParams.ISSUER.equals
+                            (paramName) || FrameworkConstants.RequestParams.TYPE.equals(paramName)) {
                         continue;
                     }
 

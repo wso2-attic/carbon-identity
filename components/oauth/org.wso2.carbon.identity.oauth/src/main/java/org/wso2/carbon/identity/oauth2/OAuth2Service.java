@@ -254,7 +254,7 @@ public class OAuth2Service extends AbstractAdmin {
                         org.wso2.carbon.identity.oauth.OAuthUtil.clearOAuthCache(
                                 revokeRequestDTO.getConsumerKey(), refreshTokenDO.getAuthorizedUser());
                         org.wso2.carbon.identity.oauth.OAuthUtil.clearOAuthCache(refreshTokenDO.getAccessToken());
-                        tokenMgtDAO.revokeToken(refreshTokenDO.getAccessToken());
+                        tokenMgtDAO.revokeTokens(new String[]{refreshTokenDO.getAccessToken()});
                         addRevokeResponseHeaders(revokeResponseDTO, refreshTokenDO.getAccessToken(),
                                 revokeRequestDTO.getToken(), refreshTokenDO.getAuthorizedUser());
                     } else {
@@ -267,7 +267,7 @@ public class OAuth2Service extends AbstractAdmin {
                             org.wso2.carbon.identity.oauth.OAuthUtil.clearOAuthCache(
                                     revokeRequestDTO.getConsumerKey(), accessTokenDO.getAuthzUser());
                             org.wso2.carbon.identity.oauth.OAuthUtil.clearOAuthCache(revokeRequestDTO.getToken());
-                            tokenMgtDAO.revokeToken(revokeRequestDTO.getToken());
+                            tokenMgtDAO.revokeTokens(new String[]{revokeRequestDTO.getToken()});
                             addRevokeResponseHeaders(revokeResponseDTO, accessTokenDO.getAccessToken(),
                                     accessTokenDO.getRefreshToken(), refreshTokenDO.getAuthorizedUser());
                         }
@@ -282,9 +282,9 @@ public class OAuth2Service extends AbstractAdmin {
                         org.wso2.carbon.identity.oauth.OAuthUtil.clearOAuthCache(
                                 revokeRequestDTO.getConsumerKey(), accessTokenDO.getAuthzUser());
                         org.wso2.carbon.identity.oauth.OAuthUtil.clearOAuthCache(revokeRequestDTO.getToken());
-                        tokenMgtDAO.revokeToken(revokeRequestDTO.getToken());
+                        tokenMgtDAO.revokeTokens(new String[]{revokeRequestDTO.getToken()});
                         addRevokeResponseHeaders(revokeResponseDTO, revokeRequestDTO.getToken(),
-                                accessTokenDO.getRefreshToken(), accessTokenDO.getAuthzUser());
+                                accessTokenDO.getRefreshToken(), accessTokenDO.getAuthzUser().toString());
                     } else {
                         RefreshTokenValidationDataDO refreshTokenDO = tokenMgtDAO.validateRefreshToken(
                                 revokeRequestDTO.getConsumerKey(), revokeRequestDTO.getToken());
@@ -299,7 +299,7 @@ public class OAuth2Service extends AbstractAdmin {
                             org.wso2.carbon.identity.oauth.OAuthUtil.clearOAuthCache(
                                     revokeRequestDTO.getConsumerKey(), refreshTokenDO.getAuthorizedUser());
                             org.wso2.carbon.identity.oauth.OAuthUtil.clearOAuthCache(refreshTokenDO.getAccessToken());
-                            tokenMgtDAO.revokeToken(refreshTokenDO.getAccessToken());
+                            tokenMgtDAO.revokeTokens(new String[]{refreshTokenDO.getAccessToken()});
                             addRevokeResponseHeaders(revokeResponseDTO, refreshTokenDO.getAccessToken(),
                                     revokeRequestDTO.getToken(), refreshTokenDO.getAuthorizedUser());
                         }

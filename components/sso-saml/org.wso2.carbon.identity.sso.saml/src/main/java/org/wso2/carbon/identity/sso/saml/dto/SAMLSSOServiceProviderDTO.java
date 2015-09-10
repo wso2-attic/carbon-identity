@@ -17,17 +17,21 @@
  */
 package org.wso2.carbon.identity.sso.saml.dto;
 
+import org.apache.commons.lang.ArrayUtils;
+
 import java.io.Serializable;
 
 public class SAMLSSOServiceProviderDTO implements Serializable {
 
     private String issuer;
+    private String[] assertionConsumerUrls;
+    private String defaultAssertionConsumerUrl;
     private String assertionConsumerUrl;
     private String certAlias;
-    private String logoutURL;
+    private String sloResponseURL;
+    private String sloRequestURL;
     private String loginPageURL;
     private String attributeConsumingServiceIndex;
-    private boolean useFullyQualifiedUsername;
     private boolean doSingleLogout;
     private boolean doSignAssertions;
     private boolean doSignResponse;
@@ -39,6 +43,8 @@ public class SAMLSSOServiceProviderDTO implements Serializable {
     private String nameIdClaimUri;
     private String nameIDFormat;
     private boolean idPInitSSOEnabled;
+    private boolean idPInitSLOEnabled;
+    private String[] idpInitSLOReturnToURLs;
     private boolean doEnableEncryptedAssertion;
     private boolean doValidateSignatureInRequests;
 
@@ -98,14 +104,6 @@ public class SAMLSSOServiceProviderDTO implements Serializable {
         this.certAlias = certAlias;
     }
 
-    public boolean isUseFullyQualifiedUsername() {
-        return useFullyQualifiedUsername;
-    }
-
-    public void setUseFullyQualifiedUsername(boolean useFullyQualifiedUsername) {
-        this.useFullyQualifiedUsername = useFullyQualifiedUsername;
-    }
-
     public boolean isDoSingleLogout() {
         return doSingleLogout;
     }
@@ -114,12 +112,12 @@ public class SAMLSSOServiceProviderDTO implements Serializable {
         this.doSingleLogout = doSingleLogout;
     }
 
-    public String getLogoutURL() {
-        return logoutURL;
+    public String getSloResponseURL() {
+        return sloResponseURL;
     }
 
-    public void setLogoutURL(String logoutURL) {
-        this.logoutURL = logoutURL;
+    public void setSloResponseURL(String logoutURL) {
+        this.sloResponseURL = logoutURL;
     }
 
     public String getLoginPageURL() {
@@ -254,5 +252,58 @@ public class SAMLSSOServiceProviderDTO implements Serializable {
 
     public void setDoValidateSignatureInRequests(boolean doValidateSignatureInRequests) {
         this.doValidateSignatureInRequests = doValidateSignatureInRequests;
+    }
+
+    public String[] getAssertionConsumerUrls() {
+
+        if (assertionConsumerUrls == null) {
+            return new String[0];
+        }
+        return assertionConsumerUrls.clone();
+    }
+
+    public void setAssertionConsumerUrls(String[] assertionConsumerUrls) {
+        this.assertionConsumerUrls = assertionConsumerUrls;
+    }
+
+    public String getDefaultAssertionConsumerUrl() {
+        return defaultAssertionConsumerUrl;
+    }
+
+    public void setDefaultAssertionConsumerUrl(String defaultAssertionConsumerUrl) {
+        this.defaultAssertionConsumerUrl = defaultAssertionConsumerUrl;
+    }
+
+    public String getSloRequestURL() {
+        return sloRequestURL;
+    }
+
+    public void setSloRequestURL(String sloRequestURL) {
+        this.sloRequestURL = sloRequestURL;
+    }
+
+    public boolean isIdPInitSLOEnabled() {
+        return idPInitSLOEnabled;
+    }
+
+    public void setIdPInitSLOEnabled(boolean idPInitSLOEnabled) {
+        this.idPInitSLOEnabled = idPInitSLOEnabled;
+    }
+
+    public String[] getIdpInitSLOReturnToURLs() {
+
+        if (idpInitSLOReturnToURLs == null) {
+            return ArrayUtils.EMPTY_STRING_ARRAY;
+        }
+        return idpInitSLOReturnToURLs.clone();
+    }
+
+    public void setIdpInitSLOReturnToURLs(String[] idpInitSLOReturnToURLs) {
+
+        if(idpInitSLOReturnToURLs != null) {
+            this.idpInitSLOReturnToURLs = idpInitSLOReturnToURLs.clone();
+        } else {
+            this.idpInitSLOReturnToURLs = null;
+        }
     }
 }

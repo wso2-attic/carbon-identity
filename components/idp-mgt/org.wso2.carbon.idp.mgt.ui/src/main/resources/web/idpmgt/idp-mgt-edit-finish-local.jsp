@@ -53,8 +53,22 @@
         property.setValue(CharacterEncoder.getSafeText(request.getParameter("idPEntityId")));
         properties[0] = property;
         samlFedAuthn.setProperties(properties);
-        FederatedAuthenticatorConfig[] federatedAuthenticators = new FederatedAuthenticatorConfig[1];
+
+        FederatedAuthenticatorConfig propertyHolderConfig = new FederatedAuthenticatorConfig();
+        propertyHolderConfig.setName(IdentityApplicationConstants.Authenticator.IDPProperties.NAME);
+        properties = new Property[2];
+        property = new Property();
+        property.setName(IdentityApplicationConstants.Authenticator.IDPProperties.SESSION_IDLE_TIME_OUT);
+        property.setValue(CharacterEncoder.getSafeText(request.getParameter("sessionIdleTimeout")));
+        properties[0] = property;
+        property = new Property();
+        property.setName(IdentityApplicationConstants.Authenticator.IDPProperties.REMEMBER_ME_TIME_OUT);
+        property.setValue(CharacterEncoder.getSafeText(request.getParameter("rememberMeTimeout")));
+        properties[1] = property;
+        propertyHolderConfig.setProperties(properties);
+        FederatedAuthenticatorConfig[] federatedAuthenticators = new FederatedAuthenticatorConfig[2];
         federatedAuthenticators[0] = samlFedAuthn;
+        federatedAuthenticators[1] = propertyHolderConfig;
         identityProvider.setFederatedAuthenticatorConfigs(federatedAuthenticators);
         client.updateResidentIdP(identityProvider);
         String message = MessageFormat.format(resourceBundle.getString("success.updating.resident.idp"),null);

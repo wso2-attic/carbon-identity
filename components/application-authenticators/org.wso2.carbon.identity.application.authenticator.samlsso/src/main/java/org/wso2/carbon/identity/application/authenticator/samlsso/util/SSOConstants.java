@@ -31,6 +31,8 @@ public class SSOConstants {
     public static final String POST = "POST";
     public static final String REDIRECT = "REDIRECT";
 
+	public static final String SERVLET_REQ_ATTR_AUTHENTICATION_CONTEXT = "authenticationContext";
+
     public class StatusCodes {
         private StatusCodes() {
 

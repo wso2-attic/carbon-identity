@@ -20,7 +20,6 @@ package org.wso2.carbon.identity.entitlement.listener;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.identity.entitlement.cache.EntitlementPolicyInvalidationCache;
 import org.wso2.carbon.identity.entitlement.internal.EntitlementServiceComponent;
 import org.wso2.carbon.identity.entitlement.pdp.EntitlementEngine;
 import org.wso2.carbon.identity.entitlement.pip.CarbonAttributeFinder;
@@ -59,11 +58,11 @@ public class CacheClearingUserOperationListener extends AbstractUserOperationEve
      */
     @Override
     public boolean doPostDeleteUser(String userName, UserStoreManager userStoreManager) throws
-            UserStoreException {
+                                                                                        UserStoreException {
 
         if (log.isDebugEnabled()) {
             log.debug("Clearing entitlement cache on post delete user operation for user " +
-                    userName);
+                      userName);
         }
         clearCarbonAttributeCache();
         // Always returns true since cache clearing failure does not make an effect on subsequent
@@ -84,7 +83,7 @@ public class CacheClearingUserOperationListener extends AbstractUserOperationEve
             throws UserStoreException {
         if (log.isDebugEnabled()) {
             log.debug("Clearing entitlement cache on post set user claim value operation for user "
-                    + userName);
+                      + userName);
         }
         // Always returns true since cache clearing failure does not make an effect on subsequent
         // User Operation Listeners
@@ -109,7 +108,7 @@ public class CacheClearingUserOperationListener extends AbstractUserOperationEve
 
         if (log.isDebugEnabled()) {
             log.debug("Clearing entitlement cache on post set user claim values operation for " +
-                    "user " + userName);
+                      "user " + userName);
         }
         // Always returns true since cache clearing failure does not make an effect on subsequent
         // User Operation Listeners
@@ -128,11 +127,11 @@ public class CacheClearingUserOperationListener extends AbstractUserOperationEve
     @Override
     public boolean doPostDeleteUserClaimValues(String userName,
                                                UserStoreManager userStoreManager) throws
-            UserStoreException {
+                                                                                  UserStoreException {
 
         if (log.isDebugEnabled()) {
             log.debug("Clearing entitlement cache on post delete user claim values operation for " +
-                    "user " + userName);
+                      "user " + userName);
         }
         // Always returns true since cache clearing failure does not make an effect on subsequent
         // User Operation Listeners
@@ -154,7 +153,7 @@ public class CacheClearingUserOperationListener extends AbstractUserOperationEve
 
         if (log.isDebugEnabled()) {
             log.debug("Clearing entitlement cache on post delete user claim value operation for " +
-                    "user " + userName);
+                      "user " + userName);
         }
         // Always returns true since cache clearing failure does not make an effect on subsequent
         // User Operation Listeners
@@ -178,7 +177,7 @@ public class CacheClearingUserOperationListener extends AbstractUserOperationEve
 
         if (log.isDebugEnabled()) {
             log.debug("Clearing entitlement cache on post add role operation for role " +
-                    roleName);
+                      roleName);
         }
         clearCarbonAttributeCache();
         // Always returns true since cache clearing failure does not make an effect on subsequent
@@ -196,11 +195,11 @@ public class CacheClearingUserOperationListener extends AbstractUserOperationEve
      */
     @Override
     public boolean doPostDeleteRole(String roleName, UserStoreManager userStoreManager) throws
-            UserStoreException {
+                                                                                        UserStoreException {
 
         if (log.isDebugEnabled()) {
             log.debug("Clearing entitlement cache on post delete role operation for role " +
-                    roleName);
+                      roleName);
         }
         clearCarbonAttributeCache();
         // Always returns true since cache clearing failure does not make an effect on subsequent
@@ -218,10 +217,10 @@ public class CacheClearingUserOperationListener extends AbstractUserOperationEve
     @Override
     public boolean doPostUpdateRoleName(String roleName, String newRoleName,
                                         UserStoreManager userStoreManager) throws
-            UserStoreException {
+                                                                           UserStoreException {
         if (log.isDebugEnabled()) {
             log.debug("Clearing entitlement cache on post update role operation for role " +
-                    roleName);
+                      roleName);
         }
         clearCarbonAttributeCache();
         // Always returns true since cache clearing failure does not make an effect on subsequent
@@ -240,7 +239,7 @@ public class CacheClearingUserOperationListener extends AbstractUserOperationEve
             finder.clearAttributeCache();
             // we need to invalidate policy cache as well. Decision cache is cleared within
             // clearAttributeCache.
-            EntitlementPolicyInvalidationCache.getInstance().invalidateCache();
+            EntitlementEngine.getInstance().getPolicyCache().invalidateCache();
         } else {
             // Return if no finders are found
             return;

@@ -20,7 +20,14 @@ package org.wso2.carbon.idp.mgt.util;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
+import org.wso2.carbon.identity.application.common.model.FederatedAuthenticatorConfig;
+import org.wso2.carbon.identity.application.common.model.IdentityProvider;
+import org.wso2.carbon.identity.application.common.model.Property;
+import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
+import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
+import org.wso2.carbon.idp.mgt.IdentityProviderManager;
 import org.wso2.carbon.idp.mgt.internal.IdPManagementServiceComponent;
 import org.wso2.carbon.user.api.TenantManager;
 import org.wso2.carbon.user.api.UserStoreException;
@@ -59,5 +66,48 @@ public class IdPManagementUtil {
                 localEntityId = "localhost";
             }
         return localEntityId;
+    }
+
+    public static int getIdleSessionTimeOut(String tenantDomain) {
+        return IdPManagementUtil.getTimeoutProperty(IdentityApplicationConstants.Authenticator
+                        .IDPProperties.SESSION_IDLE_TIME_OUT,
+                tenantDomain, Integer.parseInt
+                        (IdentityApplicationConstants.Authenticator.IDPProperties.SESSION_IDLE_TIME_OUT_DEFAULT));
+    }
+
+    public static int getRememberMeTimeout(String tenantDomain) {
+        return IdPManagementUtil.getTimeoutProperty(IdentityApplicationConstants.Authenticator.IDPProperties.REMEMBER_ME_TIME_OUT,
+                tenantDomain, Integer.parseInt
+                        (IdentityApplicationConstants.Authenticator.IDPProperties.REMEMBER_ME_TIME_OUT_DEFAULT));
+    }
+
+    public static int getCleanUpTimeout(String tenantDomain) {
+        return IdPManagementUtil.getTimeoutProperty(IdentityApplicationConstants.Authenticator.IDPProperties.CLEAN_UP_TIMEOUT,
+                tenantDomain, Integer.parseInt
+                        (IdentityApplicationConstants.Authenticator.IDPProperties.CLEAN_UP_TIMEOUT_DEFAULT));
+    }
+
+    public static int getCleanUpPeriod(String tenantDomain){
+        return IdPManagementUtil.getTimeoutProperty(IdentityApplicationConstants.Authenticator.IDPProperties.CLEAN_UP_PERIOD,
+                tenantDomain, Integer.parseInt
+                        (IdentityApplicationConstants.Authenticator.IDPProperties.CLEAN_UP_PERIOD_DEFAULT));
+    }
+
+    private static int getTimeoutProperty(String timeOutPropertyName,String tenantDomain,int defaultVal) {
+        IdentityProviderManager identityProviderManager = IdentityProviderManager.getInstance();
+        IdentityProvider identityProvider = null;
+        int timeout = defaultVal;
+        try {
+            identityProvider = identityProviderManager.getResidentIdP(tenantDomain);
+            FederatedAuthenticatorConfig federatedAuthenticatorConfig = IdentityApplicationManagementUtil
+                    .getFederatedAuthenticator(identityProvider.getFederatedAuthenticatorConfigs(),
+                            IdentityApplicationConstants.Authenticator.IDPProperties.NAME);
+            Property property = IdentityApplicationManagementUtil.getProperty(federatedAuthenticatorConfig.getProperties()
+                    , timeOutPropertyName);
+            timeout = Integer.parseInt(property.getValue()) * 60;
+        } catch (IdentityApplicationManagementException e) {
+            log.error("Error when accessing the IdentityProviderManager for tenant : " +tenantDomain, e);
+        }
+        return timeout;
     }
 }

@@ -21,16 +21,23 @@ import org.apache.axis2.context.MessageContext;
 import org.apache.axis2.transport.http.HTTPConstants;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.osgi.framework.BundleContext;
+import org.osgi.util.tracker.ServiceTracker;
 import org.wso2.carbon.CarbonException;
 import org.wso2.carbon.context.CarbonContext;
+import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.core.util.AdminServicesUtil;
 import org.wso2.carbon.core.util.AnonymousSessionUtil;
 import org.wso2.carbon.identity.base.IdentityException;
+import org.wso2.carbon.identity.base.IdentityRuntimeException;
 import org.wso2.carbon.registry.core.Registry;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
 import org.wso2.carbon.registry.core.service.RegistryService;
+import org.wso2.carbon.registry.core.service.TenantRegistryLoader;
+import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.user.core.service.RealmService;
+import org.wso2.carbon.utils.AuthenticationObserver;
 import org.wso2.carbon.utils.ServerConstants;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
@@ -42,6 +49,12 @@ public class IdentityTenantUtil {
     private static RealmService realmService;
     private static RegistryService registryService;
     private static Log log = LogFactory.getLog(IdentityTenantUtil.class);
+    private static TenantRegistryLoader tenantRegistryLoader;
+    private static BundleContext bundleContext;
+
+    public static TenantRegistryLoader getTenantRegistryLoader() {
+        return tenantRegistryLoader;
+    }
 
     public static Registry getConfigRegistry(int tenantId) throws RegistryException {
         return registryService.getConfigSystemRegistry(tenantId);
@@ -148,6 +161,11 @@ public class IdentityTenantUtil {
         return registryService;
     }
 
+    public static BundleContext getBundleContext() {
+        return IdentityTenantUtil.bundleContext;
+    }
+
+
     public static void setRegistryService(RegistryService registryService) {
         IdentityTenantUtil.registryService = registryService;
     }
@@ -158,5 +176,66 @@ public class IdentityTenantUtil {
 
     public static void setRealmService(RealmService realmService) {
         IdentityTenantUtil.realmService = realmService;
+    }
+
+    public static void setTenantRegistryLoader(TenantRegistryLoader tenantRegistryLoader) {
+        IdentityTenantUtil.tenantRegistryLoader = tenantRegistryLoader;
+    }
+
+    public static void setBundleContext(BundleContext bundleContext) {
+        IdentityTenantUtil.bundleContext = bundleContext;
+    }
+
+
+    public static void initializeRegistry(int tenantId, String tenantDomain) throws IdentityException {
+
+        if (tenantId != MultitenantConstants.SUPER_TENANT_ID) {
+            try {
+                PrivilegedCarbonContext.startTenantFlow();
+                PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
+                carbonContext.setTenantDomain(tenantDomain, true);
+                BundleContext bundleContext = IdentityTenantUtil.getBundleContext();
+                if (bundleContext != null) {
+                    ServiceTracker tracker = new ServiceTracker(bundleContext, AuthenticationObserver.class.getName(), null);
+                    tracker.open();
+                    Object[] services = tracker.getServices();
+                    if (services != null) {
+                        for (Object service : services) {
+                            ((AuthenticationObserver) service).startedAuthentication(tenantId);
+                        }
+                    }
+                    tracker.close();
+                    try {
+                        IdentityTenantUtil.getTenantRegistryLoader().loadTenantRegistry(tenantId);
+                    } catch (RegistryException e) {
+                        throw new IdentityException("Error loading tenant registry for tenant domain " + tenantDomain, e);
+                    }
+                    try {
+                        registryService.getGovernanceSystemRegistry(tenantId);
+                    } catch (RegistryException e) {
+                        throw new IdentityException("Error obtaining governance system registry for tenant domain " +
+                                                    tenantDomain, e);
+                    }
+                }
+            } finally {
+                PrivilegedCarbonContext.endTenantFlow();
+            }
+        }
+    }
+
+    public static int getTenantID(String tenantDomain) throws IdentityRuntimeException {
+
+        int tenantId;
+        try {
+            tenantId = realmService.getTenantManager().getTenantId(tenantDomain);
+        } catch (UserStoreException e) {
+            // Ideally user.core should be throwing an unchecked exception, in which case no need to wrap at this
+            // level once more without adding any valuable contextual information. Because we don't have exception
+            // enrichment properly implemented, we are appending the error message from the UserStoreException to the
+            // new message
+            throw new IdentityRuntimeException("Error occurred while retrieving tenantId for tenantDomain: " +
+                    tenantDomain + e.getMessage(), e);
+        }
+        return tenantId;
     }
 }

@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.wso2.carbon.identity</groupId>
         <artifactId>sts</artifactId>
-        <version>4.5.6-SNAPSHOT</version>
+        <version>4.5.10-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -109,10 +109,13 @@
 
                             org.wso2.carbon.base; version="${carbon.base.imp.pkg.version.range}",
                             org.wso2.carbon.registry.core.*;version="${carbon.kernel.registry.imp.pkg.version}",
+                            org.wso2.carbon.registry.api;version="${carbon.kernel.registry.imp.pkg.version}",
 
                             org.wso2.carbon.security.util; version="${carbon.identity.package.import.version.range}",
                             org.wso2.carbon.security.keystore.*;
                             version="${carbon.identity.package.import.version.range}",
+                            org.apache.neethi; version="${neethi.osgi.version.range}",
+                            org.apache.axiom.*; version="${axiom.osgi.version.range}",
                         </Import-Package>
                         <Export-Package>
                             !org.wso2.carbon.sts.internal,

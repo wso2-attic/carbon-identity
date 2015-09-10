@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.identity.application.mgt.dao.impl;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
@@ -313,7 +314,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
         }
 
         // only if the application has been renamed
-        if (!applicationName.equals(storedAppName)) {
+        if (!StringUtils.equals(applicationName, storedAppName)) {
             // rename the role
             ApplicationMgtUtil.renameRole(storedAppName, applicationName);
             if (debugMode) {
@@ -679,6 +680,36 @@ public class ApplicationDAOImpl implements ApplicationDAO {
             storeSendAuthListOfIdPsPrepStmt.executeUpdate();
         } finally {
             IdentityApplicationManagementUtil.closeStatement(storeSendAuthListOfIdPsPrepStmt);
+        }
+
+        PreparedStatement storeUseTenantDomainInLocalSubjectIdStmt = null;
+        try {
+            storeUseTenantDomainInLocalSubjectIdStmt = connection
+                    .prepareStatement(ApplicationMgtDBQueries
+                            .UPDATE_BASIC_APPINFO_WITH_USE_TENANT_DOMAIN_LOCAL_SUBJECT_ID);
+            // IS_USE_TENANT_DIMAIN_LOCAL_SUBJECT_ID=? WHERE TENANT_ID= ? AND ID = ?
+            storeUseTenantDomainInLocalSubjectIdStmt.setString(1, localAndOutboundAuthConfig
+                    .isUseTenantDomainInLocalSubjectIdentifier() ? "1" : "0");
+            storeUseTenantDomainInLocalSubjectIdStmt.setInt(2, tenantID);
+            storeUseTenantDomainInLocalSubjectIdStmt.setInt(3, applicationId);
+            storeUseTenantDomainInLocalSubjectIdStmt.executeUpdate();
+        } finally {
+            IdentityApplicationManagementUtil.closeStatement(storeUseTenantDomainInLocalSubjectIdStmt);
+        }
+
+        PreparedStatement storeUseUserstoreDomainInLocalSubjectIdStmt = null;
+        try {
+            storeUseUserstoreDomainInLocalSubjectIdStmt = connection
+                    .prepareStatement(ApplicationMgtDBQueries
+                            .UPDATE_BASIC_APPINFO_WITH_USE_USERSTORE_DOMAIN_LOCAL_SUBJECT_ID);
+            // IS_USE_USERSTORE_DIMAIN_LOCAL_SUBJECT_ID=? WHERE TENANT_ID= ? AND ID = ?
+            storeUseUserstoreDomainInLocalSubjectIdStmt.setString(1, localAndOutboundAuthConfig
+                    .isUseUserstoreDomainInLocalSubjectIdentifier() ? "1" : "0");
+            storeUseUserstoreDomainInLocalSubjectIdStmt.setInt(2, tenantID);
+            storeUseUserstoreDomainInLocalSubjectIdStmt.setInt(3, applicationId);
+            storeUseUserstoreDomainInLocalSubjectIdStmt.executeUpdate();
+        } finally {
+            IdentityApplicationManagementUtil.closeStatement(storeUseUserstoreDomainInLocalSubjectIdStmt);
         }
 
         PreparedStatement storeSubjectClaimUri = null;
@@ -1206,11 +1237,11 @@ public class ApplicationDAOImpl implements ApplicationDAO {
                 localAndOutboundAuthenticationConfig.setAlwaysSendBackAuthenticatedListOfIdPs("1"
                         .equals(basicAppDataResultSet.getString(12)));
                 localAndOutboundAuthenticationConfig.setSubjectClaimUri(basicAppDataResultSet
-                        .getString(13));
+                        .getString(15));
                 serviceProvider
                         .setLocalAndOutBoundAuthenticationConfig(localAndOutboundAuthenticationConfig);
 
-                serviceProvider.setSaasApp("1".equals(basicAppDataResultSet.getString(14)));
+                serviceProvider.setSaasApp("1".equals(basicAppDataResultSet.getString(16)));
 
                 if (debugMode) {
                     log.debug("ApplicationID: " + serviceProvider.getApplicationID()
@@ -1652,6 +1683,44 @@ public class ApplicationDAOImpl implements ApplicationDAO {
             } finally {
                 IdentityApplicationManagementUtil.closeStatement(loadSendAuthListOfIdPs);
                 IdentityApplicationManagementUtil.closeResultSet(sendAuthListOfIdPsResultSet);
+            }
+
+            PreparedStatement loadUseTenantDomainInLocalSubjectId = null;
+            ResultSet useTenantDomainInLocalSubjectIdResultSet = null;
+
+            try {
+                loadUseTenantDomainInLocalSubjectId = connection
+                        .prepareStatement(ApplicationMgtDBQueries.LOAD_USE_TENANT_DOMAIN_LOCAL_SUBJECT_ID_BY_APP_ID);
+                loadUseTenantDomainInLocalSubjectId.setInt(1, tenantId);
+                loadUseTenantDomainInLocalSubjectId.setInt(2, applicationId);
+                useTenantDomainInLocalSubjectIdResultSet = loadUseTenantDomainInLocalSubjectId.executeQuery();
+
+                if (useTenantDomainInLocalSubjectIdResultSet.next()) {
+                    localAndOutboundConfiguration.setUseTenantDomainInLocalSubjectIdentifier("1"
+                            .equals(useTenantDomainInLocalSubjectIdResultSet.getString(1)));
+                }
+            } finally {
+                IdentityApplicationManagementUtil.closeStatement(loadUseTenantDomainInLocalSubjectId);
+                IdentityApplicationManagementUtil.closeResultSet(useTenantDomainInLocalSubjectIdResultSet);
+            }
+
+            PreparedStatement loadUseUserstoreDomainInLocalSubjectId = null;
+            ResultSet useUserstoreDomainInLocalSubjectIdResultSet = null;
+
+            try {
+                loadUseUserstoreDomainInLocalSubjectId = connection
+                        .prepareStatement(ApplicationMgtDBQueries.LOAD_USE_USERSTORE_DOMAIN_LOCAL_SUBJECT_ID_BY_APP_ID);
+                loadUseUserstoreDomainInLocalSubjectId.setInt(1, tenantId);
+                loadUseUserstoreDomainInLocalSubjectId.setInt(2, applicationId);
+                useUserstoreDomainInLocalSubjectIdResultSet = loadUseUserstoreDomainInLocalSubjectId.executeQuery();
+
+                if (useUserstoreDomainInLocalSubjectIdResultSet.next()) {
+                    localAndOutboundConfiguration.setUseUserstoreDomainInLocalSubjectIdentifier("1"
+                            .equals(useUserstoreDomainInLocalSubjectIdResultSet.getString(1)));
+                }
+            } finally {
+                IdentityApplicationManagementUtil.closeStatement(loadUseUserstoreDomainInLocalSubjectId);
+                IdentityApplicationManagementUtil.closeResultSet(useUserstoreDomainInLocalSubjectIdResultSet);
             }
 
             PreparedStatement loadSubjectClaimUri = null;

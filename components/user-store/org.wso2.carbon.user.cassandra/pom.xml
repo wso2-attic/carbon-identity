@@ -19,12 +19,12 @@
     <parent>
         <groupId>org.wso2.carbon.identity</groupId>
         <artifactId>user-store</artifactId>
-        <version>4.5.6-SNAPSHOT</version>
+        <version>4.5.10-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>org.wso2.carbon.user.cassandra.core</artifactId>
+    <artifactId>org.wso2.carbon.user.cassandra</artifactId>
     <packaging>bundle</packaging>
     <name>WSO2 Carbon - Cassandra based User Manager</name>
     <url>http://wso2.org</url>

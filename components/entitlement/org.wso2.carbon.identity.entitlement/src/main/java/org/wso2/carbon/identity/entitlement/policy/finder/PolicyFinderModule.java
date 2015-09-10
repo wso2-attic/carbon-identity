@@ -101,6 +101,9 @@ public interface PolicyFinderModule {
     public String getPolicy(String policyId);
 
 
+    public int getPolicyOrder(String policyId);
+
+
     /**
      * gets reference policy for given policy Id
      * <p/>

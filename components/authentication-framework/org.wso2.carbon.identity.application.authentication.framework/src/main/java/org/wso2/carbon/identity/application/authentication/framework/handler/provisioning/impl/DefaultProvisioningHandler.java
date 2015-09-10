@@ -200,7 +200,7 @@ public class DefaultProvisioningHandler implements ProvisioningHandler {
                 String claimURI = entry.getKey();
                 String claimValue = entry.getValue();
                 if (!(StringUtils.isEmpty(claimURI) || StringUtils.isEmpty(claimValue))) {
-                    userClaims.put(claimURI, claimURI);
+                    userClaims.put(claimURI, claimValue);
                 }
             }
         }

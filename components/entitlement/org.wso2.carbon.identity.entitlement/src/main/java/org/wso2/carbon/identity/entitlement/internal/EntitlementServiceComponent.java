@@ -32,7 +32,6 @@ import org.wso2.carbon.identity.entitlement.EntitlementUtil;
 import org.wso2.carbon.identity.entitlement.PDPConstants;
 import org.wso2.carbon.identity.entitlement.dto.PolicyDTO;
 import org.wso2.carbon.identity.entitlement.listener.CacheClearingUserOperationListener;
-import org.wso2.carbon.identity.entitlement.listener.UserOperationsNotificationListener;
 import org.wso2.carbon.identity.entitlement.pap.store.PAPPolicyStore;
 import org.wso2.carbon.identity.entitlement.thrift.EntitlementService;
 import org.wso2.carbon.identity.entitlement.thrift.ThriftConfigConstants;
@@ -171,7 +170,7 @@ public class EntitlementServiceComponent {
     protected void activate(ComponentContext ctxt) {
 
         if (log.isDebugEnabled()) {
-            log.info("Identity Entitlement bundle is activated");
+            log.debug("Identity Entitlement bundle is activated");
         }
 
         try {
@@ -211,7 +210,7 @@ public class EntitlementServiceComponent {
                     if (policyPathFromConfig == null || !policyFolder.exists()) {
                         policyFolder = new File(CarbonUtils.getCarbonHome() + File.separator
                                 + "repository" + File.separator + "resources" + File.separator
-                                + "security" + File.separator + "policies" + File.separator + "xacml");
+                                + "identity" + File.separator + "policies" + File.separator + "xacml");
 
                     }
 
@@ -250,11 +249,9 @@ public class EntitlementServiceComponent {
 
             // Register Notification sending on user operations. Even though this is registered
             // only subscribed modules will send messages.
-            log.info("Registering notification sender on user operations");
-            UserOperationsNotificationListener notificationListener =
-                    new UserOperationsNotificationListener();
-            ctxt.getBundleContext().registerService(
-                    UserOperationEventListener.class.getName(), notificationListener, null);
+            if (log.isDebugEnabled()) {
+                log.debug("Registering notification sender on user operations");
+            }
 
             //TODO: Read from identity.xml, the configurations to be used in thrift based entitlement service.
             //initialize thrift authenticator
@@ -386,7 +383,9 @@ public class EntitlementServiceComponent {
                 Runnable serverThread = new ServerRunnable(server);
                 executor.submit(serverThread);
 
-                log.info("Started thrift entitlement service at port:" + receivePort);
+                if (log.isDebugEnabled()) {
+                    log.debug("Started thrift entitlement service at port:" + receivePort);
+                }
             }
 
 

@@ -24,7 +24,7 @@
             <parent-menu>identity_menu</parent-menu>
             <link>#</link>
             <region>region1</region>
-            <order>1</order>
+            <order>4</order>
             <style-class>manage</style-class>
             <icon>../application/images/service-provider.png</icon>
             <require-permission>/permission/admin/manage</require-permission>
