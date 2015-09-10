@@ -71,6 +71,9 @@
     }
 
 %><%
+    domain = "0";
+    className = "0";
+
     if (request.getParameter("domain") != null) {
         domain = CharacterEncoder.getSafeText(request.getParameter("domain"));
     }
