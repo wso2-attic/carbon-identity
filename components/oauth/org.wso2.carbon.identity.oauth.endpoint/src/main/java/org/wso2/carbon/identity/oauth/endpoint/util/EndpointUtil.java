@@ -88,7 +88,8 @@ public class EndpointUtil {
      * @return
      */
     public static DefaultOIDCProcessor getOIDCService() {
-        return (DefaultOIDCProcessor) PrivilegedCarbonContext.getThreadLocalCarbonContext().getOSGiService(OIDCProcessor.class);
+        return (DefaultOIDCProcessor) PrivilegedCarbonContext.getThreadLocalCarbonContext().getOSGiService
+                (OIDCProcessor.class);
     }
     /**
      * Returns the {@code OAuth2Service} instance
