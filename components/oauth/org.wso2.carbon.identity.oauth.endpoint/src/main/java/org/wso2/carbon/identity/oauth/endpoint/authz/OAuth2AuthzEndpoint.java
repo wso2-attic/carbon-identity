@@ -543,7 +543,6 @@ public class OAuth2AuthzEndpoint {
             forceAuthenticate = false;
         }
 
-
         String sessionDataKey = UUIDGenerator.generateUUID();
         CacheKey cacheKey = new SessionDataCacheKey(sessionDataKey);
         SessionDataCacheEntry sessionDataCacheEntryNew = new SessionDataCacheEntry();
