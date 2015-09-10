@@ -1,12 +1,12 @@
 <%--
-  ~ Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+  ~ Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
   ~
   ~ WSO2 Inc. licenses this file to you under the Apache License,
   ~ Version 2.0 (the "License"); you may not use this file except
   ~ in compliance with the License.
-  ~ You may obtain a copy of the License at
+  ~ may obtain a copy of the License at
   ~
-  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~  http://www.apache.org/licenses/LICENSE-2.0
   ~
   ~ Unless required by applicable law or agreed to in writing,
   ~ software distributed under the License is distributed on an
@@ -39,11 +39,11 @@
     ConfigurationContext configContext = (ConfigurationContext) config.getServletContext().getAttribute(
             CarbonConstants.CONFIGURATION_CONTEXT);
     String cookie = (String) session.getAttribute(ServerConstants.ADMIN_SERVICE_COOKIE);
-    ClaimAdminClient claimAdminClient = new ClaimAdminClient(cookie,serverURL,configContext);
+    ClaimAdminClient claimAdminClient = new ClaimAdminClient(cookie, serverURL, configContext);
     String LOCAL_DIALECT_URI = "http://wso2.org/claims";
     String USER_STORE_INFO = "org.wso2.carbon.userstore.info";
     ClaimDialectDTO claimDialectDTO = claimAdminClient.getAllClaimMappingsByDialect(LOCAL_DIALECT_URI);
-    ClaimMappingDTO[] mapping=claimDialectDTO.getClaimMappings();
+    ClaimMappingDTO[] mapping = claimDialectDTO.getClaimMappings();
     String dialectUri = request.getParameter("dialect");
     String pageAction = request.getParameter("action");
 %>
