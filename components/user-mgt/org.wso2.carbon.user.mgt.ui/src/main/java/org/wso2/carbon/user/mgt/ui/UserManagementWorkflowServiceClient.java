@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.carbon.user.mgt.workflow.ui;
+package org.wso2.carbon.user.mgt.ui;
 
 
 import org.apache.axis2.AxisFault;
@@ -58,8 +58,8 @@ public class UserManagementWorkflowServiceClient {
      * @param wfStatus        Current Status of the Work-flow.
      * @param entityType      Entity Type of the Work-flow.
      * @return
-     * @throws RemoteException
-     * @throws UserManagementWorkflowServiceWorkflowExceptionException
+     * @throws java.rmi.RemoteException
+     * @throws org.wso2.carbon.user.mgt.workflow.stub.UserManagementWorkflowServiceWorkflowExceptionException
      */
 
     public String[] listAllEntityNames(String wfOperationType, String wfStatus, String entityType)
@@ -71,5 +71,4 @@ public class UserManagementWorkflowServiceClient {
         }
         return entityNames;
     }
-
 }

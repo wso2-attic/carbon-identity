@@ -42,10 +42,6 @@
             <groupId>org.wso2.carbon.identity</groupId>
             <artifactId>org.wso2.carbon.user.mgt.workflow.ui</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon.identity</groupId>
-            <artifactId>org.wso2.carbon.user.mgt.workflow.stub</artifactId>
-        </dependency>
     </dependencies>
 
     <build>
@@ -72,7 +68,6 @@
                             </adviceFile>
                             <bundles>
                                 <bundleDef>org.wso2.carbon.identity:org.wso2.carbon.user.mgt.workflow.ui</bundleDef>
-                                <bundleDef>org.wso2.carbon.identity:org.wso2.carbon.user.mgt.workflow.stub</bundleDef>
                             </bundles>
                             <importFeatures>
                                 <importFeatureDef>org.wso2.carbon.core.ui:${carbon.kernel.version}</importFeatureDef>
