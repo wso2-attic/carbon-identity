@@ -339,7 +339,6 @@ public class GroupDAO {
                 throw new IdentitySCIMException(errorMsg, e);
             } catch (SQLException e) {
                 log.error("Error when executing the SQL : " + SQLQueries.UPDATE_GROUP_NAME_SQL);
-                log.error(e.getMessage(), e);
                 throw new IdentitySCIMException("Error updating the SCIM Group Attributes.", e);
             } finally {
                 IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
