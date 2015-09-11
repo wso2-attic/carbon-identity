@@ -18,6 +18,7 @@
 package org.wso2.carbon.identity.sso.saml.dto;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
 import org.wso2.carbon.identity.sso.saml.util.SAMLSSOUtil;
 
 import java.io.Serializable;
@@ -51,7 +52,7 @@ public class SAMLSSOServiceProviderDTO implements Serializable {
     private String signingAlgorithm;
 
     public String getSigningAlgorithm() {
-        if(signingAlgorithm ==null || signingAlgorithm.isEmpty()) {
+        if(StringUtils.isBlank(signingAlgorithm)) {
            return SAMLSSOUtil.getSigningAlgoByConfig();
         }
         return signingAlgorithm;

@@ -159,7 +159,7 @@ public class SAMLSSOServiceProviderDO implements Serializable {
         this.attributeConsumingServiceIndex = attributeConsumingServiceIndex;
     }
     public String getSigningAlgorithm() {
-        if (signingAlgorithm == null || signingAlgorithm.isEmpty()) {
+        if (StringUtils.isBlank(signingAlgorithm)) {
             if (IdentityUtil.getProperty(IdentityConstants.ServerConfig.SSO_DEFAULT_SIGNING_ALGORITHM) != null &&
                     !"".equals(IdentityUtil.getProperty(IdentityConstants.ServerConfig.SSO_DEFAULT_SIGNING_ALGORITHM)
                             .trim())) {

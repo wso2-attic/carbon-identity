@@ -132,7 +132,7 @@ public class SAMLSSOConfigServiceClient {
         try {
             signingAlgorithms = stub.getSigningAlgorithms();
         } catch (Exception e) {
-            log.error("Error when reading signing algorithms");
+            log.error("Error when reading signing algorithms",e);
             throw new AxisFault(e.getMessage(),e);
         }
         return  signingAlgorithms;
