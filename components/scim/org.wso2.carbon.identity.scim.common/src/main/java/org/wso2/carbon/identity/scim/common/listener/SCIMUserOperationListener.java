@@ -90,7 +90,7 @@ public class SCIMUserOperationListener extends AbstractIdentityUserOperationEven
                 if (log.isDebugEnabled()){
                     log.debug("Error looking for user: ", e);
                 }
-                return true;
+                return false;
             }
                 throw new UserStoreException(e);
 
