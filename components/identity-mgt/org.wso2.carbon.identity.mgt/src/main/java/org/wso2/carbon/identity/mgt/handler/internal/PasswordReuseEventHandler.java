@@ -37,6 +37,7 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 
 public class PasswordReuseEventHandler extends AbstractEventHandler {
@@ -104,7 +105,7 @@ public class PasswordReuseEventHandler extends AbstractEventHandler {
                 long time = keyList.get(iterateCount);
                 String password = (String) valueList.get(iterateCount);
 
-                if ((currentTime - time) <= (config.getPasswordReuseTime()) * 24 * 60 * 1000) {
+                if ((currentTime - time) <= TimeUnit.DAYS.toMillis(config.getPasswordReuseTime())) {
                     if (password.equals(credential)) {
                         isPasswordReused = true;
                         break;
@@ -141,17 +142,12 @@ public class PasswordReuseEventHandler extends AbstractEventHandler {
         // check password is reused or not
         // if reused throw an error message
         if (isPasswordReused) {
-
             IdentityErrorMsgContext customErrorMessageContext = new IdentityErrorMsgContext(UserCoreConstants.ErrorCode.USER_IS_LOCKED,
                     userIdentityDTO.getFailAttempts(), config.getAuthPolicyMaxLoginAttempts());
             IdentityUtil.setIdentityErrorMsg(customErrorMessageContext);
             String errorMsg = "Error in password change: Used same password used before. Please use another password. ";
-
-            throw new UserStoreException(
-                    errorMsg);
-
+            throw new UserStoreException(errorMsg);
         }
-
 
         return true;
     }

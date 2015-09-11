@@ -47,11 +47,12 @@ public class WorkflowRequestDAO {
     /**
      * Persists WorkflowRequest to be used when workflow is completed
      *
-     * @param workflow    The workflow object to be persisted
-     * @param currentUser Currently logged in user's fully qualified username
+     * @param workflow The workflow object to be persisted
+     * @param currentUser Currently logged in user
+     * @param tenantId Tenant ID of the currently Logged user.
      * @throws WorkflowException
      */
-    public void addWorkflowEntry(WorkFlowRequest workflow, String currentUser) throws WorkflowException {
+    public void addWorkflowEntry(WorkFlowRequest workflow, String currentUser, int tenantId) throws WorkflowException {
         Connection connection = null;
         PreparedStatement prepStmt = null;
         String query = SQLConstants.ADD_WORKFLOW_REQUEST_QUERY;
@@ -66,6 +67,7 @@ public class WorkflowRequestDAO {
             prepStmt.setTimestamp(5, createdDateStamp);
             prepStmt.setBytes(6, serializeWorkflowRequest(workflow));
             prepStmt.setString(7, WorkflowRequestStatus.PENDING.toString());
+            prepStmt.setInt(8, tenantId);
             prepStmt.executeUpdate();
             connection.commit();
         } catch (IdentityException e) {
@@ -161,6 +163,37 @@ public class WorkflowRequestDAO {
     }
 
     /**
+     * Get user who created the request.
+     *
+     * @param uuid
+     * @return
+     * @throws InternalWorkflowException
+     */
+    public String retrieveCreatedUserOfRequest(String uuid) throws InternalWorkflowException {
+        Connection connection = null;
+        PreparedStatement prepStmt = null;
+        ResultSet resultSet = null;
+
+        String query = SQLConstants.GET_WORKFLOW_REQUEST_QUERY;
+        try {
+            connection = IdentityDatabaseUtil.getDBConnection();
+            prepStmt = connection.prepareStatement(query);
+            prepStmt.setString(1, uuid);
+            resultSet = prepStmt.executeQuery();
+            if (resultSet.next()) {
+                return resultSet.getString(SQLConstants.CREATED_BY_COLUMN);
+            }
+        } catch (IdentityException e) {
+            throw new InternalWorkflowException("Error when connecting to the Identity Database.", e);
+        } catch (SQLException e) {
+            throw new InternalWorkflowException("Error when executing the sql query:" + query, e);
+        } finally {
+            IdentityDatabaseUtil.closeAllConnections(connection, resultSet, prepStmt);
+        }
+        return "";
+    }
+
+    /**
      * Deserialize the persisted Workflow request
      *
      * @param serializedData Serialized request
@@ -211,11 +244,12 @@ public class WorkflowRequestDAO {
     /**
      * Get requests of a given user.
      *
-     * @param userName
+     * @param userName user name of user to get requests
+     * @param tenantId user's tenant id
      * @return
      * @throws InternalWorkflowException
      */
-    public WorkflowRequestDTO[] getRequestsOfUser(String userName) throws InternalWorkflowException {
+    public WorkflowRequestDTO[] getRequestsOfUser(String userName, int tenantId) throws InternalWorkflowException {
 
         Connection connection = null;
         PreparedStatement prepStmt = null;
@@ -225,6 +259,7 @@ public class WorkflowRequestDAO {
             connection = IdentityDatabaseUtil.getDBConnection();
             prepStmt = connection.prepareStatement(query);
             prepStmt.setString(1, userName);
+            prepStmt.setInt(2, tenantId);
             resultSet = prepStmt.executeQuery();
             ArrayList<WorkflowRequestDTO> requestDTOs = new ArrayList<>();
             while (resultSet.next()) {
@@ -236,6 +271,7 @@ public class WorkflowRequestDAO {
                 requestDTO.setStatus(resultSet.getString(SQLConstants.REQUEST_STATUS_COLUMN));
                 requestDTO.setRequestParams((deserializeWorkflowRequest(resultSet.getBytes(SQLConstants
                         .REQUEST_COLUMN))).getRequestParameterAsString());
+                requestDTO.setCreatedBy(resultSet.getString(SQLConstants.CREATED_BY_COLUMN));
                 requestDTOs.add(requestDTO);
             }
             WorkflowRequestDTO[] requestArray = new WorkflowRequestDTO[requestDTOs.size()];
@@ -254,18 +290,19 @@ public class WorkflowRequestDAO {
         }
     }
 
-    /**
-     * Get requests of a user created/updated in given time period
-     *
-     * @param userName
-     * @param beginTime
-     * @param endTime
-     * @param timeCategory
-     * @return
-     * @throws InternalWorkflowException
-     */
+   /**
+    * Get requests of a user created/updated in given time period
+    *
+    * @param userName User to get requests of, empty String to retrieve requests of all users
+    * @param beginTime lower limit of date range to filter
+    * @param endTime upper limit of date range to filter
+    * @param timeCategory filter by created time or last updated time ?
+    * @param tenantId tenant id of currently logged in user
+    * @return
+    * @throws InternalWorkflowException
+    */
     public WorkflowRequestDTO[] getRequestsOfUserFilteredByTime(String userName, Timestamp beginTime, Timestamp
-            endTime, String timeCategory) throws
+            endTime, String timeCategory, int tenantId) throws
             InternalWorkflowException {
 
         Connection connection = null;
@@ -283,7 +320,8 @@ public class WorkflowRequestDAO {
             prepStmt.setString(1, userName);
             prepStmt.setTimestamp(2, beginTime);
             prepStmt.setTimestamp(3, endTime);
-            prepStmt.setInt(4, SQLConstants.maxResultsPerRequest);
+            prepStmt.setInt(4, tenantId);
+            prepStmt.setInt(5, SQLConstants.maxResultsPerRequest);
             resultSet = prepStmt.executeQuery();
             ArrayList<WorkflowRequestDTO> requestDTOs = new ArrayList<>();
             while (resultSet.next()) {
@@ -295,6 +333,7 @@ public class WorkflowRequestDAO {
                 requestDTO.setStatus(resultSet.getString(SQLConstants.REQUEST_STATUS_COLUMN));
                 requestDTO.setRequestParams((deserializeWorkflowRequest(resultSet.getBytes(SQLConstants
                         .REQUEST_COLUMN))).getRequestParameterAsString());
+                requestDTO.setCreatedBy(resultSet.getString(SQLConstants.CREATED_BY_COLUMN));
                 requestDTOs.add(requestDTO);
             }
             WorkflowRequestDTO[] requestArray = new WorkflowRequestDTO[requestDTOs.size()];
@@ -316,14 +355,15 @@ public class WorkflowRequestDAO {
     /**
      * Get requests created/updated in given time period
      *
-     * @param beginTime
-     * @param endTime
-     * @param timeCategory
+     * @param beginTime lower limit of date range to filter
+     * @param endTime upper limit of date range to filter
+     * @param timeCategory filter by created time or last updated time ?
+     * @param tenant tenant id of currently logged in user
      * @return
      * @throws InternalWorkflowException
      */
     public WorkflowRequestDTO[] getRequestsFilteredByTime(Timestamp beginTime, Timestamp
-            endTime, String timeCategory) throws
+            endTime, String timeCategory, int tenant) throws
             InternalWorkflowException {
 
         Connection connection = null;
@@ -340,7 +380,8 @@ public class WorkflowRequestDAO {
             prepStmt = connection.prepareStatement(query);
             prepStmt.setTimestamp(1, beginTime);
             prepStmt.setTimestamp(2, endTime);
-            prepStmt.setInt(3, SQLConstants.maxResultsPerRequest);
+            prepStmt.setInt(3, tenant);
+            prepStmt.setInt(4, SQLConstants.maxResultsPerRequest);
             resultSet = prepStmt.executeQuery();
             ArrayList<WorkflowRequestDTO> requestDTOs = new ArrayList<>();
             while (resultSet.next()) {
@@ -352,6 +393,7 @@ public class WorkflowRequestDAO {
                 requestDTO.setStatus(resultSet.getString(SQLConstants.REQUEST_STATUS_COLUMN));
                 requestDTO.setRequestParams((deserializeWorkflowRequest(resultSet.getBytes(SQLConstants
                         .REQUEST_COLUMN))).getRequestParameterAsString());
+                requestDTO.setCreatedBy(resultSet.getString(SQLConstants.CREATED_BY_COLUMN));
                 requestDTOs.add(requestDTO);
             }
             WorkflowRequestDTO[] requestArray = new WorkflowRequestDTO[requestDTOs.size()];

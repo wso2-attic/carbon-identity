@@ -52,15 +52,18 @@ This utility class, parse security configuration element and build the Security 
 */
 public class SecurityConfigParamBuilder {
 
-    public static final QName SECURITY_CONFIG_QNAME = new QName(SecurityConstants.SECURITY_NAMESPACE, "CarbonSecConfig");
+    public static final QName SECURITY_CONFIG_QNAME = new QName(SecurityConstants.SECURITY_NAMESPACE,
+            SecurityConstants.CARBON_SEC_CONFIG);
 
-    private static QName propertyQName = new QName(SecurityConstants.SECURITY_NAMESPACE, "property");
-    private static QName nameQName = new QName("name");
-    private static QName encryptedQName = new QName("encrypted");
+    private static QName propertyQName = new QName(SecurityConstants.SECURITY_NAMESPACE,
+            SecurityConstants.PROPERTY_LABEL);
+    private static QName nameQName = new QName(SecurityConstants.NAME_LABEL);
+    private static QName encryptedQName = new QName(SecurityConstants.ENCRYPTED);
 
-    private static QName trustQName = new QName(SecurityConstants.SECURITY_NAMESPACE, "Trust");
-    private static QName authorizationQName = new QName(SecurityConstants.SECURITY_NAMESPACE, "Authorization");
-    private static QName kerberosQName = new QName(SecurityConstants.SECURITY_NAMESPACE, "Kerberos");
+    private static QName trustQName = new QName(SecurityConstants.SECURITY_NAMESPACE, SecurityConstants.TRUST);
+    private static QName authorizationQName = new QName(SecurityConstants.SECURITY_NAMESPACE,
+            SecurityConstants.AUTHORIZATION);
+    private static QName kerberosQName = new QName(SecurityConstants.SECURITY_NAMESPACE, SecurityConstants.KERBEROS);
 
     private static Log log = LogFactory.getLog(SecurityConfigParamBuilder.class);
 

@@ -30,6 +30,7 @@ import org.wso2.carbon.user.core.UserStoreManager;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.concurrent.TimeUnit;
 
 public class PasswordExpireEventHandler extends AbstractEventHandler {
 
@@ -79,7 +80,7 @@ public class PasswordExpireEventHandler extends AbstractEventHandler {
         // Password expire check. Not for OTP enabled users.
         if (authenticated && config.isAuthPolicyExpirePasswordCheck() && !userOTPEnabled && (!userStoreManager.isReadOnly())) {
 
-            long expireTimeConfiguration = config.getPasswordExpireTime() * 24 * 60 * 1000;
+            long expireTimeConfiguration = TimeUnit.DAYS.toMillis(config.getPasswordExpireTime());
             long lastPasswordChangeTime = userIdentityDTO.getPasswordTimeStamp();
             long currentTime = Calendar.getInstance().getTimeInMillis();
 
@@ -89,7 +90,6 @@ public class PasswordExpireEventHandler extends AbstractEventHandler {
 
             // Password Expire based on time
             if (lastPasswordChangeTime > 0 && ((currentTime - lastPasswordChangeTime) > expireTimeConfiguration)) {
-                String errorMsg = "Same password is used for maximum no of times, has to change the password";
                 if (log.isDebugEnabled()) {
                     log.debug("Same password is used for maximum duration, has to change the password");
                 }
@@ -101,9 +101,8 @@ public class PasswordExpireEventHandler extends AbstractEventHandler {
 
             // Password Expire based on frequency
             else if (noOfTimePasswordIsUsed > expireFrequencyConfiguration) {
-                String errorMsg = "Same password is used for maximum no of times, has to change the password";
                 if (log.isDebugEnabled()) {
-                    log.debug(errorMsg);
+                    log.debug("Same password is used for maximum no of times, has to change the password");
                 }
                 throw new UserStoreException(
                         "Password is expired after using : " + noOfTimePasswordIsUsed + " no of times");

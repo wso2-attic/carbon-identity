@@ -121,7 +121,7 @@ public class IdentityMgtEventListener extends AbstractIdentityUserOperationEvent
         String adminUserName =
                 IdentityMgtServiceComponent.getRealmService().getBootstrapRealmConfiguration().getAdminUserName();
         try {
-            if (identityMgtConfig.isListenerEnable()) {
+            if (isEnable(this.getClass().getName())) {
                 UserStoreManager userStoreMng = IdentityMgtServiceComponent.getRealmService()
                         .getBootstrapRealm().getUserStoreManager();
                 Map<String, String> claimMap = new HashMap<String, String>();
@@ -171,10 +171,6 @@ public class IdentityMgtEventListener extends AbstractIdentityUserOperationEvent
                 IdentityUtil.clearIdentityErrorMsg();
 
                 IdentityMgtConfig config = IdentityMgtConfig.getInstance();
-
-                if (!config.isListenerEnable()) {
-                    return true;
-                }
 
                 if (!config.isEnableAuthPolicy()) {
                     return true;
@@ -260,10 +256,6 @@ public class IdentityMgtEventListener extends AbstractIdentityUserOperationEvent
                 }
 
                 IdentityMgtConfig config = IdentityMgtConfig.getInstance();
-
-                if (!config.isListenerEnable()) {
-                    return true;
-                }
 
                 if (!config.isEnableAuthPolicy()) {
                     return true;
@@ -477,14 +469,6 @@ public class IdentityMgtEventListener extends AbstractIdentityUserOperationEvent
                                 UserStoreManager userStoreManager) throws UserStoreException {
 
         if (!isEnable(this.getClass().getName())) {
-            return true;
-        }
-
-        if (log.isDebugEnabled()) {
-            log.debug("Pre add user is called in IdentityMgtEventListener");
-        }
-        IdentityMgtConfig config = IdentityMgtConfig.getInstance();
-        if (!config.isListenerEnable()) {
             if (credential == null || StringUtils.isBlank(credential.toString())) {
                 log.error("Identity Management listener is disabled");
                 throw new UserStoreException("Ask Password Feature is disabled");
@@ -492,6 +476,10 @@ public class IdentityMgtEventListener extends AbstractIdentityUserOperationEvent
             return true;
         }
 
+        if (log.isDebugEnabled()) {
+            log.debug("Pre add user is called in IdentityMgtEventListener");
+        }
+        IdentityMgtConfig config = IdentityMgtConfig.getInstance();
         try {
             // Enforcing the password policies.
             if (credential != null &&
@@ -578,9 +566,6 @@ public class IdentityMgtEventListener extends AbstractIdentityUserOperationEvent
                     log.debug("Post add user is called in IdentityMgtEventListener");
                 }
                 IdentityMgtConfig config = IdentityMgtConfig.getInstance();
-                if (!config.isListenerEnable()) {
-                    return true;
-                }
                 // reading the value from the thread local
                 UserIdentityClaimsDO userIdentityClaimsDO = (UserIdentityClaimsDO) threadLocalProperties.get().get(USER_IDENTITY_DO);
 
@@ -591,9 +576,8 @@ public class IdentityMgtEventListener extends AbstractIdentityUserOperationEvent
                 String encryptedPassword = null;
                 try {
                     encryptedPassword = Utils.encryptPassword((String) credential, saltValue, config);
-                } catch (org.wso2.carbon.user.api.UserStoreException e) {
-                    String msg = "Error in adding password";
-                    throw new UserStoreException(msg, e);
+                } catch (UserStoreException e) {
+                    throw new UserStoreException("Error in encrypting password.", e);
                 }
 
                 if (config.isEnableUserAccountVerification() && threadLocalProperties.get().containsKey(EMPTY_PASSWORD_USED)) {
@@ -723,9 +707,6 @@ public class IdentityMgtEventListener extends AbstractIdentityUserOperationEvent
         }
 
         IdentityMgtConfig config = IdentityMgtConfig.getInstance();
-        if (!config.isListenerEnable()) {
-            return true;
-        }
 
         try {
             // Enforcing the password policies.
@@ -761,8 +742,8 @@ public class IdentityMgtEventListener extends AbstractIdentityUserOperationEvent
             String encryptedPassword = null;
             try {
                 encryptedPassword = Utils.encryptPassword((String) newCredential, saltValue, config);
-            } catch (UserStoreException e) {
-                log.error("Error in adding password", e);
+            } catch (org.wso2.carbon.user.api.UserStoreException e) {
+                log.error("Error in encrypting password.", e);
             }
 
 
@@ -801,7 +782,7 @@ public class IdentityMgtEventListener extends AbstractIdentityUserOperationEvent
             }
 
         } catch (PolicyViolationException pe) {
-            throw new UserStoreException(pe.getMessage(), pe);
+            throw new UserStoreException("Error while updating credentials.", pe);
         }
 
         return true;
@@ -825,15 +806,11 @@ public class IdentityMgtEventListener extends AbstractIdentityUserOperationEvent
             log.debug("Pre update credential by admin is called in IdentityMgtEventListener");
         }
         IdentityMgtConfig config = IdentityMgtConfig.getInstance();
-        if (!config.isListenerEnable()) {
-            return true;
-        }
 
         try {
             // Enforcing the password policies.
             if (newCredential != null
-                    && (newCredential instanceof StringBuffer && (newCredential.toString().trim()
-                    .length() > 0))) {
+                    && (newCredential instanceof StringBuffer && (newCredential.toString().trim().length() > 0))) {
                 policyRegistry.enforcePasswordPolicies(newCredential.toString(), userName);
             }
 
@@ -890,9 +867,6 @@ public class IdentityMgtEventListener extends AbstractIdentityUserOperationEvent
         }
 
         IdentityMgtConfig config = IdentityMgtConfig.getInstance();
-        if (!config.isListenerEnable()) {
-            return true;
-        }
 
         // security questions and identity claims are updated at the identity store
         if (claimURI.contains(UserCoreConstants.ClaimTypeURIs.CHALLENGE_QUESTION_URI) ||
@@ -918,16 +892,19 @@ public class IdentityMgtEventListener extends AbstractIdentityUserOperationEvent
         if (!isEnable(this.getClass().getName())) {
             return true;
         }
+        IdentityUtil.clearIdentityErrorMsg();
+        boolean accountLocked = Boolean.parseBoolean(claims.get(UserIdentityDataStore.ACCOUNT_LOCK));
+        if (accountLocked) {
+            IdentityErrorMsgContext customErrorMessageContext = new IdentityErrorMsgContext(UserCoreConstants
+                    .ErrorCode.USER_IS_LOCKED);
+            IdentityUtil.setIdentityErrorMsg(customErrorMessageContext);
+        }
 
         // Top level try and finally blocks are used to unset thread local variables
         try {
             if (!threadLocalProperties.get().containsKey(DO_PRE_SET_USER_CLAIM_VALUES)) {
                 threadLocalProperties.get().put(DO_PRE_SET_USER_CLAIM_VALUES, true);
                 IdentityMgtConfig config = IdentityMgtConfig.getInstance();
-                if (!config.isListenerEnable()) {
-                    return true;
-                }
-
                 UserIdentityDataStore identityDataStore = IdentityMgtConfig.getInstance().getIdentityDataStore();
                 UserIdentityClaimsDO identityDTO = identityDataStore.load(userName, userStoreManager);
                 if (identityDTO == null) {
@@ -975,10 +952,6 @@ public class IdentityMgtEventListener extends AbstractIdentityUserOperationEvent
             return true;
         }
 
-        IdentityMgtConfig config = IdentityMgtConfig.getInstance();
-        if (!config.isListenerEnable()) {
-            return true;
-        }
         // remove from the identity store
         try {
             IdentityMgtConfig.getInstance().getIdentityDataStore()
@@ -1019,10 +992,6 @@ public class IdentityMgtEventListener extends AbstractIdentityUserOperationEvent
             return true;
         }
 
-        IdentityMgtConfig config = IdentityMgtConfig.getInstance();
-        if (!config.isListenerEnable()) {
-            return true;
-        }
         if (claimMap == null) {
             claimMap = new HashMap<String, String>();
         }

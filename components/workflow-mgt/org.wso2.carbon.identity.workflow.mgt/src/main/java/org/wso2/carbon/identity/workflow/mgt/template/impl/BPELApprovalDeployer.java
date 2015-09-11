@@ -29,6 +29,7 @@ import org.wso2.carbon.identity.workflow.mgt.exception.InternalWorkflowException
 import org.wso2.carbon.identity.workflow.mgt.exception.RuntimeWorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.template.TemplateInitializer;
+import org.wso2.carbon.identity.workflow.mgt.util.WorkflowManagementUtil;
 
 import javax.activation.DataHandler;
 import javax.activation.DataSource;
@@ -82,7 +83,7 @@ public class BPELApprovalDeployer implements TemplateInitializer {
         password = (String) initParams.get(WorkFlowConstants.TemplateConstants.AUTH_USER_PASSWORD);
         callBackUser = (String) initParams.get(WorkFlowConstants.TemplateConstants.CALLBACK_USER);
         callBackUserPassword = (String) initParams.get(WorkFlowConstants.TemplateConstants.CALLBACK_USER_PASSWORD);
-        role = "admin" ;//(String) initParams.get(WorkFlowConstants.TemplateConstants.SIMPLE_APPROVAL_USER_OR_ROLE_NAME);
+        role = WorkflowManagementUtil.getWorkflowRoleName((String) initParams.get(WorkFlowConstants.TemplateConstants.WORKFLOW_NAME));
 
 
         htName = processName + Constants.HT_SUFFIX;

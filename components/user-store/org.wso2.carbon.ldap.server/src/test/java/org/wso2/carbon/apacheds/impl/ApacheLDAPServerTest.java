@@ -54,7 +54,7 @@ public class ApacheLDAPServerTest extends AbstractDirectoryTestCase {
         env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
         // This is set in AbstractDirectoryTestCase run method. use a different port other than default port in order
         // to make sure no bind exception occurs even if a product is up at test running time.
-        env.put(Context.PROVIDER_URL, "ldap://localhost:10388/");
+        env.put(Context.PROVIDER_URL, "ldap://localhost:10798/");
         env.put(Context.SECURITY_PRINCIPAL, "uid=admin,ou=system");
         env.put(Context.SECURITY_CREDENTIALS, password);
 

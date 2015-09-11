@@ -22,6 +22,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
+import org.wso2.carbon.identity.workflow.mgt.WorkflowService;
 import org.wso2.carbon.identity.workflow.mgt.template.AbstractWorkflowTemplate;
 import org.wso2.carbon.identity.workflow.mgt.template.AbstractWorkflowTemplateImpl;
 import org.wso2.carbon.identity.workflow.mgt.extension.WorkflowRequestHandler;
@@ -49,6 +50,8 @@ public class WorkflowServiceDataHolder {
     private Map<String, WorkflowRequestHandler> workflowRequestHandlers;
     private Map<String, AbstractWorkflowTemplate> templates;
     private Set<AbstractWorkflowTemplateImpl> unresolvedImpls;
+
+    private WorkflowService workflowService = null ;
 
     private WorkflowServiceDataHolder() {
 
@@ -203,6 +206,14 @@ public class WorkflowServiceDataHolder {
     public List<AbstractWorkflowTemplate> listTemplates() {
 
         return new ArrayList<>(templates.values());
+    }
+
+    public WorkflowService getWorkflowService() {
+        return workflowService;
+    }
+
+    public void setWorkflowService(WorkflowService workflowService) {
+        this.workflowService = workflowService;
     }
 }
 
