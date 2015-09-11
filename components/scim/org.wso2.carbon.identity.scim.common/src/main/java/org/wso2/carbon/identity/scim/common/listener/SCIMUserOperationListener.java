@@ -86,7 +86,14 @@ public class SCIMUserOperationListener extends AbstractIdentityUserOperationEven
             return true;
 
         } catch (org.wso2.carbon.user.api.UserStoreException e) {
-            throw new UserStoreException(e);
+            if (e.getMessage().contains("UserNotFound")){
+                if (log.isDebugEnabled()){
+                    log.debug("Error looking for user: ", e);
+                }
+                return true;
+            }
+                throw new UserStoreException(e);
+
         }
 
     }
