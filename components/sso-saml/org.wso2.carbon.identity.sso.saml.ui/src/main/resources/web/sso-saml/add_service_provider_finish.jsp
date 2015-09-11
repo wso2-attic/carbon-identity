@@ -126,88 +126,70 @@
         }
 
         if (Boolean.parseBoolean(request.getParameter(SAMLSSOUIConstants.ENABLE_ATTRIBUTE_PROFILE))) {
-
             String claimsCountParameter = SAMLSSOUIUtil.getSafeInput(request, "claimPropertyCounter");
             if (claimsCountParameter != null && !"".equals(claimsCountParameter)) {
-                try {
-                    int claimsCount = Integer.parseInt(claimsCountParameter);
-                    for (int i = 0; i < claimsCount; i++) {
-                        String claim = SAMLSSOUIUtil.getSafeInput(request, "claimPropertyName" + i);
-                        if (claim != null && !"".equals(claim) && !"null".equals(claim)) {
-                            String[] currentClaims = serviceProviderDTO.getRequestedClaims();
-                            boolean isClaimAlreadyAdded = false;
-                            for (String currentClaim : currentClaims) {
-                                if (claim.equals(currentClaim)) {
-                                    isClaimAlreadyAdded = true;
-                                    break;
-                                }
-                            }
-
-                            if (!isClaimAlreadyAdded) {
-                                serviceProviderDTO.addRequestedClaims(claim);
+                int claimsCount = Integer.parseInt(claimsCountParameter);
+                for (int i = 0; i < claimsCount; i++) {
+                    String claim = SAMLSSOUIUtil.getSafeInput(request, "claimPropertyName" + i);
+                    if (claim != null && !"".equals(claim) && !"null".equals(claim)) {
+                        String[] currentClaims = serviceProviderDTO.getRequestedClaims();
+                        boolean isClaimAlreadyAdded = false;
+                        for (String currentClaim : currentClaims) {
+                            if (claim.equals(currentClaim)) {
+                                isClaimAlreadyAdded = true;
+                                break;
                             }
                         }
+                        if (!isClaimAlreadyAdded) {
+                            serviceProviderDTO.addRequestedClaims(claim);
+                        }
                     }
-                } catch (NumberFormatException e) {
-                    throw new RuntimeException("Invalid number", e);
                 }
             }
         }
 
         if (Boolean.parseBoolean(request.getParameter(SAMLSSOUIConstants.ENABLE_AUDIENCE_RESTRICTION))) {
-
             String audiencesCountParameter = SAMLSSOUIUtil.getSafeInput(request, "audiencePropertyCounter");
             if (StringUtils.isNotEmpty(audiencesCountParameter)) {
-                try {
-                    int audiencesCount = Integer.parseInt(audiencesCountParameter);
-                    for (int i = 0; i < audiencesCount; i++) {
-                        String audience = SAMLSSOUIUtil.getSafeInput(request, "audiencePropertyName" + i);
-                        if (StringUtils.isNotEmpty(audience) && !"null".equals(audience)) {
-                            String[] currentAudiences = serviceProviderDTO.getRequestedAudiences();
-                            boolean isAudienceAlreadyAdded = false;
-                            for (String currentAudience : currentAudiences) {
-                                if (audience.equals(currentAudience)) {
-                                    isAudienceAlreadyAdded = true;
-                                    break;
-                                }
-                            }
-
-                            if (!isAudienceAlreadyAdded) {
-                                serviceProviderDTO.addRequestedAudiences(audience);
+                int audiencesCount = Integer.parseInt(audiencesCountParameter);
+                for (int i = 0; i < audiencesCount; i++) {
+                    String audience = SAMLSSOUIUtil.getSafeInput(request, "audiencePropertyName" + i);
+                    if (StringUtils.isNotEmpty(audience) && !"null".equals(audience)) {
+                        String[] currentAudiences = serviceProviderDTO.getRequestedAudiences();
+                        boolean isAudienceAlreadyAdded = false;
+                        for (String currentAudience : currentAudiences) {
+                            if (audience.equals(currentAudience)) {
+                                isAudienceAlreadyAdded = true;
+                                break;
                             }
                         }
+                        if (!isAudienceAlreadyAdded) {
+                            serviceProviderDTO.addRequestedAudiences(audience);
+                        }
                     }
-                } catch (NumberFormatException e) {
-                    throw new RuntimeException("Invalid number", e);
                 }
             }
         }
 
         if (Boolean.parseBoolean(request.getParameter(SAMLSSOUIConstants.ENABLE_RECIPIENTS))) {
-
             String recipientCountParameter = SAMLSSOUIUtil.getSafeInput(request, "recipientPropertyCounter");
             if (StringUtils.isNotEmpty(recipientCountParameter)) {
-                try {
-                    int recipientCount = Integer.parseInt(recipientCountParameter);
-                    for (int i = 0; i < recipientCount; i++) {
-                        String recipient = SAMLSSOUIUtil.getSafeInput(request, "recipientPropertyName" + i);
-                        if (StringUtils.isNotEmpty(recipient) && !"null".equals(recipient)) {
-                            String[] currentRecipients = serviceProviderDTO.getRequestedRecipients();
-                            boolean isRecipientAlreadyAdded = false;
-                            for (String currentRecipient : currentRecipients) {
-                                if (recipient.equals(currentRecipient)) {
-                                    isRecipientAlreadyAdded = true;
-                                    break;
-                                }
-                            }
-
-                            if (!isRecipientAlreadyAdded) {
-                                serviceProviderDTO.addRequestedRecipients(recipient);
+                int recipientCount = Integer.parseInt(recipientCountParameter);
+                for (int i = 0; i < recipientCount; i++) {
+                    String recipient = SAMLSSOUIUtil.getSafeInput(request, "recipientPropertyName" + i);
+                    if (StringUtils.isNotEmpty(recipient) && !"null".equals(recipient)) {
+                        String[] currentRecipients = serviceProviderDTO.getRequestedRecipients();
+                        boolean isRecipientAlreadyAdded = false;
+                        for (String currentRecipient : currentRecipients) {
+                            if (recipient.equals(currentRecipient)) {
+                                isRecipientAlreadyAdded = true;
+                                break;
                             }
                         }
+                        if (!isRecipientAlreadyAdded) {
+                            serviceProviderDTO.addRequestedRecipients(recipient);
+                        }
                     }
-                } catch (NumberFormatException e) {
-                    throw new RuntimeException("Invalid number", e);
                 }
             }
         }
