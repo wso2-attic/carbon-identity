@@ -46,8 +46,7 @@ import java.util.List;
 
 public class SAML2HTTPRedirectDeflateSignatureValidator implements SAML2HTTPRedirectSignatureValidator {
 
-    private final static Log log = LogFactory.getLog(
-            SAML2HTTPRedirectDeflateSignatureValidator.class);
+    private final static Log log = LogFactory.getLog(SAML2HTTPRedirectDeflateSignatureValidator.class);
 
     /**
      * Build a criteria set suitable for input to the trust engine.
@@ -140,15 +139,17 @@ public class SAML2HTTPRedirectDeflateSignatureValidator implements SAML2HTTPRedi
         // request directly. We can't use the decoded parameters because we need
         // the raw
         // data and URL-encoding isn't canonical.
-        log.debug("Constructing signed content string from URL query string "+queryString );
-
+        if (log.isDebugEnabled()) {
+            log.debug("Constructing signed content string from URL query string " + queryString);
+        }
         String constructed = buildSignedContentString(queryString);
         if (DatatypeHelper.isEmpty(constructed)) {
             throw new SecurityPolicyException(
                     "Could not extract signed content string from query string");
         }
-        log.debug("Constructed signed content string for HTTP-Redirect DEFLATE "+ constructed);
-
+        if (log.isDebugEnabled()) {
+            log.debug("Constructed signed content string for HTTP-Redirect DEFLATE " + constructed);
+        }
         try {
             return constructed.getBytes("UTF-8");
         } catch (UnsupportedEncodingException e) {
