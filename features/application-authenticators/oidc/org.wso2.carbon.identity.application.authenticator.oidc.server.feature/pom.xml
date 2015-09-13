@@ -43,8 +43,8 @@
             <artifactId>org.wso2.carbon.identity.application.authentication.framework</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.amber.wso2</groupId>
-            <artifactId>amber</artifactId>
+            <groupId>org.apache.oltu.oauth2</groupId>
+            <artifactId>org.apache.oltu.oauth2.client</artifactId>
         </dependency>
     </dependencies>
 
@@ -68,7 +68,7 @@
                                 <bundleDef>
                                     org.wso2.carbon.identity:org.wso2.carbon.identity.application.authenticator.oidc
                                 </bundleDef>
-                                <bundleDef>org.apache.amber.wso2:amber</bundleDef>
+                                <bundleDef>org.apache.oltu.oauth2:org.apache.oltu.oauth2.client</bundleDef>
                             </bundles>
                             <importFeatures>
                                 <importFeatureDef>org.wso2.carbon.core:${carbon.kernel.version}</importFeatureDef>
