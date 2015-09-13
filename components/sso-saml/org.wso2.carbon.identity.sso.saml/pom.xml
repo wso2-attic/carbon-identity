@@ -113,7 +113,6 @@
                             org.eclipse.equinox.http.helper,
                             org.joda.time; version="${opensaml2.wso2.osgi.version.range}",
                             org.opensaml.*; version="${opensaml2.wso2.osgi.version.range}",
-                            org.slf4j; version="${org.slf4j.imp.pkg.version.range}",
 
                             org.apache.xerces.util; resolution:=optional,
                             org.apache.xml.security.*; version="${wss4j.xml.security.imp.pkg.version.range}",
