@@ -47,6 +47,7 @@
 
 <script type="text/javascript" src="extensions/js/vui.js"></script>
 <script type="text/javascript" src="../admin/js/main.js"></script>
+<script type="text/javascript" src="../identity/validation/js/identity-validate.js"></script>
 
 <%
     }
@@ -282,18 +283,20 @@
             pageNumber = "0";
         }
 
-        var category = $("input[name=radio_user_role]:checked").val();
-        $.ajax({
-            url: "/userandrolemgtservice?category=" + category + "&pageNumber=" + pageNumber,
-            type: "POST",
-            data: $("#id_search").serialize(),
-            success: function (data, textStatus, jqXHR) {
-                doSearch("success", data);
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-                doSearch("fail", errorThrown);
-            }
-        });
+        if (doValidateForm($("#id_search"), '<fmt:message key="error.input.validation.msg"/>')) {
+            var category = $("input[name=radio_user_role]:checked").val();
+            $.ajax({
+                url: "/userandrolemgtservice?category=" + category + "&pageNumber=" + pageNumber,
+                type: "POST",
+                data: $("#id_search").serialize(),
+                success: function (data, textStatus, jqXHR) {
+                    doSearch("success", data);
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    doSearch("fail", errorThrown);
+                }
+            });
+        }
     }
     var registerSearchResult = null ;
     function registerSearchResultEvent(registerSearchResultParam){
@@ -671,7 +674,8 @@
                             <td id="id_pattern_category" class="leftCol-big" style="padding-right: 0 !important;"><fmt:message key="list.users"/></td>
                             <td>
                                 <input id="id_filter" type="text" name="<%=UserAdminUIConstants.USER_LIST_FILTER%>"
-                                       value="<%=Encode.forHtmlAttribute(filter)%>"/>
+                                       value="<%=Encode.forHtmlAttribute(filter)%>" label="<fmt:message
+                                       key="list.users"/>" black-list-patterns="xml-meta-exists"/>
 
                                 <input id="id_search_button" onclick="search();" class="button" type="button"
                                        value="<fmt:message key="user.search"/>"/>
