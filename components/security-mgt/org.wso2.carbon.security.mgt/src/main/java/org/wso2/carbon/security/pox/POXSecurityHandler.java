@@ -1,3 +1,4 @@
+
 /*
  * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
@@ -18,6 +19,7 @@
 
 package org.wso2.carbon.security.pox;
 
+import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMNode;
 import org.apache.axiom.om.util.Base64;
 import org.apache.axiom.soap.SOAPEnvelope;
@@ -99,8 +101,9 @@ public class POXSecurityHandler implements Handler {
 
         //this handler only intercepts
         //Adding a check for http since UT should work with http as well.
-        if (!(msgCtx.isDoingREST() || isSOAPWithoutSecHeader(msgCtx)) ||
-            !("https".equals(msgCtx.getIncomingTransportName()) || "http".equals(msgCtx.getIncomingTransportName()))) {
+        if (msgCtx.getIncomingTransportName() != null && (!(msgCtx.isDoingREST() || isSOAPWithoutSecHeader(msgCtx)) ||
+                !("https".equals(msgCtx.getIncomingTransportName()) ||
+                        "http".equals(msgCtx.getIncomingTransportName())))) {
             return InvocationResponse.CONTINUE;
         }
 
@@ -296,6 +299,14 @@ public class POXSecurityHandler implements Handler {
 
         HttpServletResponse response = (HttpServletResponse)
                 msgCtx.getProperty(HTTPConstants.MC_HTTP_SERVLETRESPONSE);
+        // TODO : verify this fix. This is to handle soap fault from UT scenario
+        if(msgCtx.isFault() && response == null){
+            MessageContext originalContext = (MessageContext) msgCtx.getProperty(MessageContext.IN_MESSAGE_CONTEXT);
+            if(originalContext != null){
+                response = (HttpServletResponse)
+                        originalContext.getProperty(HTTPConstants.MC_HTTP_SERVLETRESPONSE);
+            }
+        }
         if (response != null) {
             response.setContentLength(0);
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -358,10 +369,25 @@ public class POXSecurityHandler implements Handler {
         // Issue is axiom - a returned collection must not be null
         if (headerBlocks != null) {
             Iterator headerBlocksIterator = headerBlocks.iterator();
+
             while (headerBlocksIterator.hasNext()) {
-                SOAPHeaderBlock elem = (SOAPHeaderBlock) headerBlocksIterator.next();
-                if (WSConstants.WSSE_LN.equals(elem.getLocalName())) {
+                Object o=headerBlocksIterator.next();
+                SOAPHeaderBlock elem = null;
+                OMElement element = null;
+                if (o instanceof SOAPHeaderBlock) {
+                    try {
+                        elem = (SOAPHeaderBlock)o;
+                    } catch (Exception e) {
+                        log.error("Error while casting to soap header block", e);
+                    }
+                } else {
+                    element = ((OMElement) o).cloneOMElement();
+                }
+
+                if (elem != null &&  WSConstants.WSSE_LN.equals(elem.getLocalName())) {
                     return false; // security header already present. invalid request.
+                } else if(element != null && WSConstants.WSSE_LN.equals(element.getLocalName())){
+                    return false;
                 }
             }
         }

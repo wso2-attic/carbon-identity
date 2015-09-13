@@ -1276,8 +1276,7 @@ public class IdPManagementDAO {
                 try {
                     IdentityApplicationManagementUtil.getCertData(identityProvider.getCertificate());
                 } catch (CertificateException ex) {
-                    String msg = "Malformed Public Certificate file has been provided.";
-                    throw new IdentityApplicationManagementException(msg, ex);
+                    throw new IdentityApplicationManagementException("Malformed Public Certificate file has been provided.", ex);
                 }
             }
             setBlobValue(identityProvider.getCertificate(), prepStmt, 5);
@@ -1468,8 +1467,7 @@ public class IdPManagementDAO {
                 try {
                     IdentityApplicationManagementUtil.getCertData(newIdentityProvider.getCertificate());
                 } catch (CertificateException ex) {
-                    String msg = "Malformed Public Certificate file has been provided.";
-                    throw new IdentityApplicationManagementException(msg, ex);
+                    throw new IdentityApplicationManagementException("Malformed Public Certificate file has been provided.", ex);
                 }
             }
             setBlobValue(newIdentityProvider.getCertificate(), prepStmt, 4);

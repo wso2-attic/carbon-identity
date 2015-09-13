@@ -29,7 +29,7 @@
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.WorkflowUIConstants" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
-<%@ page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
+
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="java.util.HashMap" %>
@@ -44,14 +44,11 @@
 <script type="text/javascript" src="../admin/js/main.js"></script>
 
 <%
-    String taskTypeFilter =
-            CharacterEncoder.getSafeText(request.getParameter("requestTypeFilter"));
-    String statusToFilter = CharacterEncoder.getSafeText(request.getParameter("requestStatusFilter"));
-    String lowerBound =
-            CharacterEncoder.getSafeText(request.getParameter("createdAtFrom"));
-    String upperBound =
-            CharacterEncoder.getSafeText(request.getParameter("createdAtTo"));
-    String timeFilterCategory = CharacterEncoder.getSafeText(request.getParameter("timeCategoryToFilter"));
+    String taskTypeFilter = request.getParameter("requestTypeFilter");
+    String statusToFilter = request.getParameter("requestStatusFilter");
+    String lowerBound = request.getParameter("createdAtFrom");
+    String upperBound = request.getParameter("createdAtTo");
+    String timeFilterCategory = request.getParameter("timeCategoryToFilter");
     String loggedUser = (String) session.getAttribute("logged-user");
     String bundle = "org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources";
     ResourceBundle resourceBundle = ResourceBundle.getBundle(bundle, request.getLocale());
@@ -61,7 +58,7 @@
     WorkflowRequestDTO[] requestList = null;
     String paginationValue = "region=region1";
 
-    String pageNumber = CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_PAGE_NUMBER));
+    String pageNumber = request.getParameter(WorkflowUIConstants.PARAM_PAGE_NUMBER);
     int pageNumberInt = 0;
     int numberOfPages = 0;
     WorkflowEventDTO[] workflowEvents;
@@ -446,7 +443,7 @@
                            onclick="listWorkflows('<%=workflowReq.getRequestId()%>');return false;"
                            href="#" style="background-image: url(images/list.png);"
                            class="icon-link"><fmt:message key='workflows'/></a>
-                        <% if (workflowReq.getStatus().equals("PENDING")) { %>
+                        <% if (workflowReq.getStatus().equals("PENDING") && workflowReq.getCreatedBy().equals(loggedUser)) { %>
                         <a title="<fmt:message key='workflow.request.delete.title'/>"
                            onclick="removeRequest('<%=workflowReq.getRequestId()%>');return false;"
                            href="#" style="background-image: url(images/delete.gif);"

@@ -23,7 +23,7 @@
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.WorkflowUIConstants" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
-<%@ page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
+
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@ page import="java.util.ResourceBundle" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.BPSProfileDTO" %>
@@ -32,14 +32,12 @@
     String bundle = "org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources";
     ResourceBundle resourceBundle = ResourceBundle.getBundle(bundle, request.getLocale());
 
-    String profileName = CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_BPS_PROFILE_NAME));
-    String host = CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_BPS_HOST));
-    String username = CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_BPS_AUTH_USER));
-    String password = CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_BPS_AUTH_PASSWORD));
-    String callbackUser =
-            CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_CARBON_AUTH_USER));
-    String callbackPassword =
-            CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_CARBON_AUTH_PASSWORD));
+    String profileName = request.getParameter(WorkflowUIConstants.PARAM_BPS_PROFILE_NAME);
+    String host = request.getParameter(WorkflowUIConstants.PARAM_BPS_HOST);
+    String username = request.getParameter(WorkflowUIConstants.PARAM_BPS_AUTH_USER);
+    String password = request.getParameter(WorkflowUIConstants.PARAM_BPS_AUTH_PASSWORD);
+    String callbackUser = request.getParameter(WorkflowUIConstants.PARAM_CARBON_AUTH_USER);
+    String callbackPassword = request.getParameter(WorkflowUIConstants.PARAM_CARBON_AUTH_PASSWORD);
     String forwardTo = "list-bps-profiles.jsp";
 //    todo:validate
 
