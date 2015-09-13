@@ -26,6 +26,7 @@
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@ page import="java.util.ResourceBundle" %>
+<%@ page import="org.wso2.carbon.identity.core.util.IdentityUtil" %>
 
 <jsp:useBean id="samlSsoServuceProviderConfigBean"
              type="org.wso2.carbon.identity.sso.saml.ui.SAMLSSOProviderConfigBean"
@@ -128,12 +129,12 @@
         if (Boolean.parseBoolean(request.getParameter(SAMLSSOUIConstants.ENABLE_ATTRIBUTE_PROFILE))) {
 
             String claimsCountParameter = SAMLSSOUIUtil.getSafeInput(request, "claimPropertyCounter");
-            if (claimsCountParameter != null && !"".equals(claimsCountParameter)) {
+            if (IdentityUtil.isNotBlank(claimsCountParameter)) {
                 try {
                     int claimsCount = Integer.parseInt(claimsCountParameter);
                     for (int i = 0; i < claimsCount; i++) {
                         String claim = SAMLSSOUIUtil.getSafeInput(request, "claimPropertyName" + i);
-                        if (claim != null && !"".equals(claim) && !"null".equals(claim)) {
+                        if (IdentityUtil.isNotBlank(claim)) {
                             String[] currentClaims = serviceProviderDTO.getRequestedClaims();
                             boolean isClaimAlreadyAdded = false;
                             for (String currentClaim : currentClaims) {
@@ -157,12 +158,12 @@
         if (Boolean.parseBoolean(request.getParameter(SAMLSSOUIConstants.ENABLE_AUDIENCE_RESTRICTION))) {
 
             String audiencesCountParameter = SAMLSSOUIUtil.getSafeInput(request, "audiencePropertyCounter");
-            if (StringUtils.isNotEmpty(audiencesCountParameter)) {
+            if (IdentityUtil.isNotBlank(audiencesCountParameter)) {
                 try {
                     int audiencesCount = Integer.parseInt(audiencesCountParameter);
                     for (int i = 0; i < audiencesCount; i++) {
                         String audience = SAMLSSOUIUtil.getSafeInput(request, "audiencePropertyName" + i);
-                        if (StringUtils.isNotEmpty(audience) && !"null".equals(audience)) {
+                        if (IdentityUtil.isNotBlank(audience)) {
                             String[] currentAudiences = serviceProviderDTO.getRequestedAudiences();
                             boolean isAudienceAlreadyAdded = false;
                             for (String currentAudience : currentAudiences) {
@@ -186,12 +187,12 @@
         if (Boolean.parseBoolean(request.getParameter(SAMLSSOUIConstants.ENABLE_RECIPIENTS))) {
 
             String recipientCountParameter = SAMLSSOUIUtil.getSafeInput(request, "recipientPropertyCounter");
-            if (StringUtils.isNotEmpty(recipientCountParameter)) {
+            if (IdentityUtil.isNotBlank(recipientCountParameter)) {
                 try {
                     int recipientCount = Integer.parseInt(recipientCountParameter);
                     for (int i = 0; i < recipientCount; i++) {
                         String recipient = SAMLSSOUIUtil.getSafeInput(request, "recipientPropertyName" + i);
-                        if (StringUtils.isNotEmpty(recipient) && !"null".equals(recipient)) {
+                        if (IdentityUtil.isNotBlank(recipient)) {
                             String[] currentRecipients = serviceProviderDTO.getRequestedRecipients();
                             boolean isRecipientAlreadyAdded = false;
                             for (String currentRecipient : currentRecipients) {
