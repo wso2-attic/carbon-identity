@@ -77,7 +77,7 @@
 		<AuthenticatorConfig name="BasicAuthRequestPathAuthenticator" enabled="true" />
  		<AuthenticatorConfig name="SAMLSSOAuthenticator" enabled="true">
 			<!--Parameter name="SignAuth2SAMLUsingSuperTenant">true</Parameter-->
-			<!--Parameter name="SAMLSSOManager">org.wso2.carbon.identity.application.authenticator.samlsso.manager.DefaultSAMLSSOManager</Parameter-->
+			<!--Parameter name="SAML2SSOManager">org.wso2.carbon.identity.application.authenticator.samlsso.manager.DefaultSAML2SSOManager</Parameter-->
 		</AuthenticatorConfig>
 		<AuthenticatorConfig name="OpenIDConnectAuthenticator" enabled="true">
 			<!--Parameter name="IDTokenHandler">org.wso2.carbon.identity.application.authenticator.oidc.DefaultIDTokenHandler</Parameter-->

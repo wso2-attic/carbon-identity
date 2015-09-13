@@ -23,12 +23,12 @@
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.WorkflowUIConstants" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
-<%@ page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
+
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@ page import="java.util.ResourceBundle" %>
 
 <%
-    String requestId = CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_REQUEST_ID));
+    String requestId = request.getParameter(WorkflowUIConstants.PARAM_REQUEST_ID);
 
     WorkflowAdminServiceClient client = null;
 
