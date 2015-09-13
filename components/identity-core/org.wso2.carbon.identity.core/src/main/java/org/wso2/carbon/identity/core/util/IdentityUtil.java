@@ -433,4 +433,20 @@ public class IdentityUtil {
         }
         return !Boolean.parseBoolean(caseInsensitiveUsername);
     }
+
+    public static boolean isNotBlank(String input){
+        if(StringUtils.isNotBlank(input) && !"null".equals(input.trim())){
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public static boolean isBlank(String input){
+        if(StringUtils.isBlank(input) || "null".equals(input.trim())){
+            return true;
+        } else {
+            return false;
+        }
+    }
 }
