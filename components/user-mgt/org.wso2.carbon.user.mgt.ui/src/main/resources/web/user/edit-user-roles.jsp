@@ -45,6 +45,7 @@
 <%@ page import="org.wso2.carbon.user.mgt.ui.UserManagementWorkflowServiceClient" %>
 <script type="text/javascript" src="../userstore/extensions/js/vui.js"></script>
 <script type="text/javascript" src="../admin/js/main.js"></script>
+<script type="text/javascript" src="../identity/validation/js/identity-validate.js"></script>
 <jsp:include page="../dialog/display_messages.jsp"/>
 <jsp:include page="../userstore/display-messages.jsp"/>
 
@@ -204,7 +205,7 @@
 %>
 <script type="text/javascript">
     jQuery(document).ready(function () {
-        CARBON.showErrorDialog('<%=message%>',  function () {
+        CARBON.showErrorDialog('<%=Encode.forJavaScript(Encode.forHtml(message))%>', function () {
             location.href = "user-mgt.jsp";
         });
     });
@@ -314,6 +315,12 @@
             form.submit();
         }
 
+        $(document).ready(function () {
+            $('form[name=filterForm]').submit(function(){
+                return doValidateForm(this, '<fmt:message key="error.input.validation.msg"/>');
+            })
+        });
+
     </script>
 
 
@@ -342,7 +349,8 @@
                         <td><fmt:message key="list.roles"/></td>
                         <td>
                             <input type="text" name="<%=UserAdminUIConstants.USER_LIST_UNASSIGNED_ROLE_FILTER%>"
-                                   value="<%=Encode.forHtmlAttribute(filter)%>"/>
+                                   value="<%=Encode.forHtmlAttribute(filter)%>" label="<fmt:message key="list.roles"/>"
+                                   black-list-patterns="xml-meta-exists"/>
                         </td>
                         <td>
                             <input class="button" type="submit"
