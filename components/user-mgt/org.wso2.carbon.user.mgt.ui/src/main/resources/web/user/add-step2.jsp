@@ -40,6 +40,7 @@
 
 <script type="text/javascript" src="../userstore/extensions/js/vui.js"></script>
 <script type="text/javascript" src="../admin/js/main.js"></script>
+<script type="text/javascript" src="../identity/validation/js/identity-validate.js"></script>
 <jsp:include page="../dialog/display_messages.jsp"/>
 <jsp:include page="../userstore/display-messages.jsp"/>
 
@@ -242,7 +243,8 @@
                         <td style="white-space:nowrap" class="leftCol-med"><fmt:message key="list.roles"/></td>
                         <td class="leftCol-small">
                             <input type="text" name="<%=UserAdminUIConstants.USER_LIST_ASSIGN_ROLE_FILTER%>"
-                                   value="<%=Encode.forHtmlAttribute(filter)%>"/>
+                                   value="<%=Encode.forHtmlAttribute(filter)%>" label="<fmt:message key="list.roles"/>"
+                                   black-list-patterns="xml-meta-exists"/>
                         </td>
                         <td style="text-align:left;">
                             <input class="button" type="submit" value="<fmt:message key="user.search"/>"/>
@@ -421,7 +423,6 @@
             </form>
         </div>
     </div>
-</fmt:bundle>
 
 <script type="text/javascript">
 
@@ -456,4 +457,11 @@
         form.submit();
     }
 
-</script>
+        $(document).ready(function () {
+            $('form[name=filterForm]').submit(function () {
+                return doValidateForm(this, '<fmt:message key="error.input.validation.msg"/>');
+            })
+        });
+
+    </script>
+</fmt:bundle>
