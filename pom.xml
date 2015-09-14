@@ -924,11 +924,10 @@
                 <version>${carbon.identity.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.openid4java.wso2</groupId>
-                <artifactId>openid4java-nodeps</artifactId>
-                <version>${openid4java.wso2.version}</version>
+                <groupId>org.openid4java</groupId>
+                <artifactId>openid4java</artifactId>
+                <version>${openid4java.version}</version>
             </dependency>
-
             <dependency>
                 <groupId>com.google.step2.wso2</groupId>
                 <artifactId>step2</artifactId>
@@ -969,12 +968,6 @@
                 <artifactId>org.wso2.carbon.identity.xacml.ui.feature</artifactId>
                 <version>${carbon.identity.version}</version>
                 <type>zip</type>
-            </dependency>
-            <dependency>
-                <groupId>org.openid4java</groupId>
-                <artifactId>openid4java-consumer</artifactId>
-                <version>${openid4java.version}</version>
-                <type>pom</type>
             </dependency>
             <dependency>
                 <groupId>javax.servlet</groupId>
@@ -2000,9 +1993,8 @@
         <google.guice.imp.pkg.version.range>[1.3.0,1.4.0)</google.guice.imp.pkg.version.range>
         <charon.wso2.version.identity>2.0.1</charon.wso2.version.identity>
         <charon.core.imp.pkg.version.range>[2.0.1,2.1.0)</charon.core.imp.pkg.version.range>
-        <openid4java.version>0.9.6</openid4java.version>
-        <openid4java.wso2.version>0.9.6.wso2v5</openid4java.wso2.version>
-        <openid4java.wso2.osgi.version.range>[0.9.6.wso2v5,0.10)</openid4java.wso2.osgi.version.range>
+        <openid4java.version>1.0.0</openid4java.version>
+        <openid4java.wso2.osgi.version.range>[1.0.0,1.1.0)</openid4java.wso2.osgi.version.range>
         <opensaml2.version>2.4.1.wso2v1</opensaml2.version>
         <opensaml.wso2.version>1.1.0.wso2v1</opensaml.wso2.version>
         <balana.version>1.0.1</balana.version>

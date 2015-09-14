@@ -38,8 +38,8 @@
             <artifactId>org.wso2.carbon.identity.provider</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.openid4java.wso2</groupId>
-            <artifactId>openid4java-nodeps</artifactId>
+            <groupId>org.openid4java</groupId>
+            <artifactId>openid4java</artifactId>
         </dependency>
         <dependency>
             <groupId>org.igniterealtime.smack.wso2</groupId>
@@ -109,7 +109,7 @@
                             </adviceFile>
                             <bundles>
                                 <bundleDef>org.wso2.carbon.identity:org.wso2.carbon.identity.provider</bundleDef>
-                                <bundleDef>org.openid4java.wso2:openid4java-nodeps</bundleDef>
+                                <bundleDef>org.openid4java:openid4java</bundleDef>
                                 <bundleDef>org.igniterealtime.smack.wso2:smack</bundleDef>
                             </bundles>
                             <importBundles>
