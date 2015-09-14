@@ -234,8 +234,6 @@ public class OAuthConsumerDAO {
             connection.commit();
 
         } catch (SQLException e) {
-            log.error("Error when executing the SQL : " + SQLQueries.OAuthConsumerDAOSQLQueries.AUTHORIZE_REQ_TOKEN);
-            log.error(e.getMessage(), e);
             throw new IdentityOAuthAdminException("Error when authorizing the request token : " + oauthToken);
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);

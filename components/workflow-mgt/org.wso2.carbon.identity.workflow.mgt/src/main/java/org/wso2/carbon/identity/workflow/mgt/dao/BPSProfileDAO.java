@@ -20,7 +20,6 @@ package org.wso2.carbon.identity.workflow.mgt.dao;
 
 import org.wso2.carbon.core.util.CryptoException;
 import org.wso2.carbon.core.util.CryptoUtil;
-import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
 import org.wso2.carbon.identity.workflow.mgt.bean.BPSProfileDTO;
 import org.wso2.carbon.identity.workflow.mgt.util.WorkFlowConstants;

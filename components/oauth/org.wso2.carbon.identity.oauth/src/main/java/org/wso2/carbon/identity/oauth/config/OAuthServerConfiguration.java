@@ -30,7 +30,6 @@ import org.apache.axis2.util.JavaUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.base.ServerConfigurationException;
 import org.wso2.carbon.identity.core.util.IdentityConfigParser;
 import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
 import org.wso2.carbon.identity.oauth.common.OAuthConstants;
@@ -156,78 +155,72 @@ public class OAuthServerConfiguration {
     }
 
     private void buildOAuthServerConfiguration() {
-        try {
 
-            IdentityConfigParser configParser = IdentityConfigParser.getInstance();
-            OMElement oauthElem = configParser.getConfigElement(CONFIG_ELEM_OAUTH);
+        IdentityConfigParser configParser = IdentityConfigParser.getInstance();
+        OMElement oauthElem = configParser.getConfigElement(CONFIG_ELEM_OAUTH);
 
-            if (oauthElem == null) {
-                warnOnFaultyConfiguration("OAuth element is not available.");
-                return;
-            }
-
-            // read callback handler configurations
-            parseOAuthCallbackHandlers(oauthElem.getFirstChildWithName(
-                    getQNameWithIdentityNS(ConfigElements.OAUTH_CALLBACK_HANDLERS)));
-
-            // get the token validators by type
-            parseTokenValidators(oauthElem.getFirstChildWithName(
-                    getQNameWithIdentityNS(ConfigElements.TOKEN_VALIDATORS)));
-
-            // Get the configured scope validator
-            OMElement scopeValidatorElem = oauthElem.getFirstChildWithName(
-                    getQNameWithIdentityNS(ConfigElements.SCOPE_VALIDATOR));
-            if (scopeValidatorElem != null) {
-                parseScopeValidator(scopeValidatorElem);
-            }
-
-            // read default timeout periods
-            parseDefaultValidityPeriods(oauthElem);
-
-            // read OAuth URLs
-            parseOAuthURLs(oauthElem);
-
-            // read caching configurations
-            parseCachingConfiguration(oauthElem);
-
-            // read refresh token renewal config
-            parseRefreshTokenRenewalConfiguration(oauthElem);
-
-            // read token persistence processor config
-            parseTokenPersistenceProcessorConfig(oauthElem);
-
-            // read supported grant types
-            parseSupportedGrantTypesConfig(oauthElem);
-
-            // read supported response types
-            parseSupportedResponseTypesConfig(oauthElem);
-
-            // read supported response types
-            parseSupportedClientAuthHandlersConfig(oauthElem.getFirstChildWithName(
-                    getQNameWithIdentityNS(ConfigElements.CLIENT_AUTH_HANDLERS)));
-
-            // read SAML2 grant config
-            parseSAML2GrantConfig(oauthElem);
-
-            // read JWT generator config
-            parseAuthorizationContextTokenGeneratorConfig(oauthElem);
-
-            // read the assertions user name config
-            parseEnableAssertionsUserNameConfig(oauthElem);
-
-            // read access token partitioning config
-            parseAccessTokenPartitioningConfig(oauthElem);
-
-            // read access token partitioning domains config
-            parseAccessTokenPartitioningDomainsConfig(oauthElem);
-
-            // read openid connect configurations
-            parseOpenIDConnectConfig(oauthElem);
-
-        } catch (ServerConfigurationException e) {
-            log.error("Error when reading the OAuth Configurations. "
-                    + "OAuth related functionality might be affected.", e);
+        if (oauthElem == null) {
+            warnOnFaultyConfiguration("OAuth element is not available.");
+            return;
         }
+
+        // read callback handler configurations
+        parseOAuthCallbackHandlers(oauthElem.getFirstChildWithName(
+                getQNameWithIdentityNS(ConfigElements.OAUTH_CALLBACK_HANDLERS)));
+
+        // get the token validators by type
+        parseTokenValidators(oauthElem.getFirstChildWithName(
+                getQNameWithIdentityNS(ConfigElements.TOKEN_VALIDATORS)));
+
+        // Get the configured scope validator
+        OMElement scopeValidatorElem = oauthElem.getFirstChildWithName(
+                getQNameWithIdentityNS(ConfigElements.SCOPE_VALIDATOR));
+        if (scopeValidatorElem != null) {
+            parseScopeValidator(scopeValidatorElem);
+        }
+
+        // read default timeout periods
+        parseDefaultValidityPeriods(oauthElem);
+
+        // read OAuth URLs
+        parseOAuthURLs(oauthElem);
+
+        // read caching configurations
+        parseCachingConfiguration(oauthElem);
+
+        // read refresh token renewal config
+        parseRefreshTokenRenewalConfiguration(oauthElem);
+
+        // read token persistence processor config
+        parseTokenPersistenceProcessorConfig(oauthElem);
+
+        // read supported grant types
+        parseSupportedGrantTypesConfig(oauthElem);
+
+        // read supported response types
+        parseSupportedResponseTypesConfig(oauthElem);
+
+        // read supported response types
+        parseSupportedClientAuthHandlersConfig(oauthElem.getFirstChildWithName(
+                getQNameWithIdentityNS(ConfigElements.CLIENT_AUTH_HANDLERS)));
+
+        // read SAML2 grant config
+        parseSAML2GrantConfig(oauthElem);
+
+        // read JWT generator config
+        parseAuthorizationContextTokenGeneratorConfig(oauthElem);
+
+        // read the assertions user name config
+        parseEnableAssertionsUserNameConfig(oauthElem);
+
+        // read access token partitioning config
+        parseAccessTokenPartitioningConfig(oauthElem);
+
+        // read access token partitioning domains config
+        parseAccessTokenPartitioningDomainsConfig(oauthElem);
+
+        // read openid connect configurations
+        parseOpenIDConnectConfig(oauthElem);
     }
 
     public Set<OAuthCallbackHandlerMetaData> getCallbackHandlerMetaData() {

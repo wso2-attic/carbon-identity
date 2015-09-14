@@ -25,7 +25,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.application.authenticator.fido.exception.FIDOAuthenticatorServerException;
 import org.wso2.carbon.identity.application.authenticator.fido.util.FIDOAuthenticatorConstants;
-import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
 import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
 import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
@@ -68,7 +67,7 @@ public class DeviceStoreDAO {
      * @param username     The username of Device Registration.
      * @param registration The FIDO Registration.
      * @param timestamp
-     * @throws IdentityException when SQL statement can not be executed.
+     * @throws FIDOAuthenticatorServerException when SQL statement can not be executed.
      */
     public void addDeviceRegistration(String username, DeviceRegistration registration, String tenantDomain,
                                       String userStoreDomain, Timestamp timestamp)
@@ -108,7 +107,7 @@ public class DeviceStoreDAO {
      *
      * @param username The username of the Device Registration.
      * @return Collection of Device Registration.
-     * @throws IdentityException when SQL statement can not be executed.
+     * @throws FIDOAuthenticatorServerException when SQL statement can not be executed.
      */
     public Collection getDeviceRegistration(String username,String tenantDomain, String userStoreDomain)
             throws FIDOAuthenticatorServerException {
@@ -151,7 +150,7 @@ public class DeviceStoreDAO {
      *
      * @param username The username of the Device Registration.
      * @return Collection of Device Registration.
-     * @throws IdentityException when SQL statement can not be executed.
+     * @throws FIDOAuthenticatorServerException when SQL statement can not be executed.
      */
     public ArrayList<String> getDeviceMetadata(String username, String tenantDomain, String userStoreDomain)
             throws FIDOAuthenticatorServerException {

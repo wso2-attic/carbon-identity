@@ -72,10 +72,10 @@ public class JDBCPersistenceManager {
     }
 
     private void initDataSource() {
-        try {
-            OMElement persistenceManagerConfigElem = IdentityConfigParser.getInstance()
-                    .getConfigElement("JDBCPersistenceManager");
 
+        OMElement persistenceManagerConfigElem = IdentityConfigParser.getInstance()
+                .getConfigElement("JDBCPersistenceManager");
+        try {
             if (persistenceManagerConfigElem == null) {
                 String errorMsg = "Identity Persistence Manager configuration is not available in " +
                         "identity.xml file. Terminating the JDBC Persistence Manager " +

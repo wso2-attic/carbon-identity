@@ -19,7 +19,6 @@ package org.wso2.carbon.identity.provider.openid.dao;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.model.OpenIDUserRPDO;
 import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
 import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
@@ -41,9 +40,8 @@ public class OpenIDUserRPDAO {
      * If the entry exist, then update with the new data
      *
      * @param rpdo
-     * @throws IdentityException
      */
-    public void createOrUpdate(OpenIDUserRPDO rpdo) throws IdentityException {
+    public void createOrUpdate(OpenIDUserRPDO rpdo) {
 
         // first we try to get DO from the database. Return null if no data
         OpenIDUserRPDO existingdo = getOpenIDUserRP(rpdo.getUserName(), rpdo.getRpUrl());
@@ -104,9 +102,8 @@ public class OpenIDUserRPDAO {
      * Party
      *
      * @param rpdo
-     * @throws IdentityException
      */
-    public void update(OpenIDUserRPDO rpdo) throws IdentityException {
+    public void update(OpenIDUserRPDO rpdo) {
 
         Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
@@ -145,9 +142,8 @@ public class OpenIDUserRPDAO {
      * Remove the entry from the database.
      *
      * @param opdo
-     * @throws IdentityException
      */
-    public void delete(OpenIDUserRPDO opdo) throws IdentityException {
+    public void delete(OpenIDUserRPDO opdo) {
 
         Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
@@ -178,9 +174,8 @@ public class OpenIDUserRPDAO {
      * @param rpUrl    Relying party urlupdateOpenIDUserRPInfo
      * @return A set of OpenIDUserRPDO, corresponding to the provided user name
      * and RP url.
-     * @throws IdentityException
      */
-    public OpenIDUserRPDO getOpenIDUserRP(String userName, String rpUrl) throws IdentityException {
+    public OpenIDUserRPDO getOpenIDUserRP(String userName, String rpUrl) {
 
         Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
@@ -215,9 +210,8 @@ public class OpenIDUserRPDAO {
      * Returns all registered relying parties
      *
      * @return
-     * @throws IdentityException
      */
-    public OpenIDUserRPDO[] getAllOpenIDUserRP() throws IdentityException {
+    public OpenIDUserRPDO[] getAllOpenIDUserRP() {
         Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
         ResultSet results = null;
@@ -258,9 +252,8 @@ public class OpenIDUserRPDAO {
      * @param userName Unique user name
      * @return OpenIDUserRPDO, corresponding to the provided user name and RP
      * url.
-     * @throws IdentityException
      */
-    public OpenIDUserRPDO[] getOpenIDUserRPs(String userName) throws IdentityException {
+    public OpenIDUserRPDO[] getOpenIDUserRPs(String userName) {
 
         Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
@@ -305,9 +298,8 @@ public class OpenIDUserRPDAO {
      * @param userName Unique user name
      * @param rpUrl    Relying party URL
      * @return Default user profile
-     * @throws IdentityException
      */
-    public String getOpenIDDefaultUserProfile(String userName, String rpUrl) throws IdentityException {
+    public String getOpenIDDefaultUserProfile(String userName, String rpUrl) {
 
         Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
@@ -345,9 +337,8 @@ public class OpenIDUserRPDAO {
      * @param rpDo
      * @return
      * @throws SQLException
-     * @throws IdentityException
      */
-    private boolean isUserRPExist(Connection connection, OpenIDUserRPDO rpDo) throws IdentityException {
+    private boolean isUserRPExist(Connection connection, OpenIDUserRPDO rpDo) throws SQLException {
 
         PreparedStatement prepStmt = null;
         ResultSet results = null;
@@ -364,8 +355,6 @@ public class OpenIDUserRPDAO {
                 result = true;
             }
 
-        } catch (SQLException e) {
-            log.error("Failed to load RP: " + rpDo.getRpUrl() + " for user: " + rpDo.getUserName(), e);
         } finally {
             IdentityDatabaseUtil.closeResultSet(results);
             IdentityDatabaseUtil.closeStatement(prepStmt);

@@ -72,8 +72,7 @@ public class IdentityConfigParser {
         return parser;
     }
 
-    public static IdentityConfigParser getInstance(String filePath)
-            throws ServerConfigurationException {
+    public static IdentityConfigParser getInstance(String filePath) {
         configFilePath = filePath;
         return getInstance();
     }
