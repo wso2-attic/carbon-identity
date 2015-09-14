@@ -71,12 +71,17 @@ public class OAuthConsumerDAO {
             if (resultSet.next()) {
                 consumerSecret = persistenceProcessor.getPreprocessedClientSecret(resultSet.getString(1));
             } else {
-                log.debug("Invalid Consumer Key : " + consumerKey);
+                if(log.isDebugEnabled()) {
+                    log.debug("Invalid Consumer Key : " + consumerKey);
+                }
             }
             connection.commit();
         } catch (SQLException e) {
             throw new IdentityOAuthAdminException("Error when reading the consumer secret for consumer key : " +
                     consumerKey, e);
+        } catch (IdentityOAuth2Exception e) {
+            throw new IdentityOAuthAdminException("Error occurred while processing client id and client secret by " +
+                    "TokenPersistenceProcessor", e);
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, resultSet, prepStmt);
         }
