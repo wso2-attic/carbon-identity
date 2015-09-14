@@ -79,7 +79,7 @@ public class DeviceStoreDAO {
                       ", userStoreDomain : " + userStoreDomain +", registration :" +
                       registration.toJsonWithAttestationCert() + "}");
         }
-        Connection connection = getDBConnection();
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement preparedStatement = null;
 
         try {
@@ -117,7 +117,7 @@ public class DeviceStoreDAO {
             log.debug("getDeviceRegistration inputs {username: " + username + ", tenantDomain: " + tenantDomain +
                       ", userStoreDomain : " + userStoreDomain +"}");
         }
-        Connection connection = getDBConnection();
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
         Multimap<String, String> devices = ArrayListMultimap.create();
@@ -162,7 +162,7 @@ public class DeviceStoreDAO {
             log.debug("getDeviceRegistration inputs {username: " + username + ", tenantDomain: " + tenantDomain +
                       ", userStoreDomain : " + userStoreDomain +"}");
         }
-        Connection connection = getDBConnection();
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement preparedStatement = null;
 
         try {
@@ -201,7 +201,7 @@ public class DeviceStoreDAO {
         if (log.isDebugEnabled()) {
             log.debug("removeRegistration inputs {username:" + username + "}");
         }
-        Connection connection = getDBConnection();
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement preparedStatement = null;
 
         try {
@@ -239,7 +239,7 @@ public class DeviceStoreDAO {
             log.debug("removeRegistration inputs {username: " + username + ", tenantDomain: " + tenantDomain +
                       ", userStoreDomain : " + userStoreDomain + "}");
         }
-        Connection connection = getDBConnection();
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement preparedStatement = null;
 
         try {
@@ -277,7 +277,7 @@ public class DeviceStoreDAO {
             log.debug("updateDomainNameOfRegistration inputs {tenantId: " + tenantId + ", currentUserStoreName: " +
                       currentUserStoreName +", newUserStoreName: " + newUserStoreName + "}");
         }
-        Connection connection = getDBConnection();
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement preparedStatement = null;
 
         try {
@@ -311,7 +311,7 @@ public class DeviceStoreDAO {
         if (log.isDebugEnabled()) {
             log.debug("deleteRegistrationFromDomain inputs {tenantId: " + tenantId + ", userStoreName: " + userStoreName +"}");
         }
-        Connection connection = getDBConnection();
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement preparedStatement = null;
 
         try {
@@ -340,7 +340,7 @@ public class DeviceStoreDAO {
             log.debug("getDeviceRegistration inputs {username: " + username + ", tenantDomain: " + tenantDomain +
                       ", userStoreDomain : " + userStoreDomain +"}");
         }
-        Connection connection = getDBConnection();
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
         ArrayList<String> devicesMetadata = new ArrayList<String>();
@@ -360,13 +360,5 @@ public class DeviceStoreDAO {
             IdentityDatabaseUtil.closeAllConnections(connection, resultSet, preparedStatement);
         }
         return resultSet;
-    }
-
-    private Connection getDBConnection() throws FIDOAuthenticatorServerException {
-        try {
-            return IdentityDatabaseUtil.getDBConnection();
-        } catch (IdentityException e) {
-            throw new FIDOAuthenticatorServerException("Error while getting database connection ", e);
-        }
     }
 }

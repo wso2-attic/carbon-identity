@@ -21,7 +21,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.model.OpenIDRememberMeDO;
-import org.wso2.carbon.identity.core.persistence.JDBCPersistenceManager;
 import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
 import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
 import org.wso2.carbon.identity.provider.IdentityProviderException;
@@ -48,14 +47,8 @@ public class OpenIDRememberMeTokenDAO {
      */
     public void updateTokenData(OpenIDRememberMeDO rememberMe) throws IdentityProviderException {
 
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
-
-        try {
-            connection = JDBCPersistenceManager.getInstance().getDBConnection();
-        } catch (IdentityException e) {
-            throw new IdentityProviderException("Error occurred while getting connection to database", e);
-        }
         try {
             if (isTokenExist(connection, rememberMe)) {
                 prepStmt = connection.prepareStatement(OpenIDSQLQueries.UPDATE_REMEMBER_ME_TOKEN);
@@ -94,14 +87,8 @@ public class OpenIDRememberMeTokenDAO {
      */
     public OpenIDRememberMeDO getTokenData(OpenIDRememberMeDO rememberMe) throws IdentityProviderException {
 
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
-
-        try {
-            connection = JDBCPersistenceManager.getInstance().getDBConnection();
-        } catch (IdentityException e) {
-            throw new IdentityProviderException("Error occurred while trying to get connection to database", e);
-        }
         try {
             prepStmt = connection.prepareStatement(OpenIDSQLQueries.LOAD_REMEMBER_ME_TOKEN);
             prepStmt.setString(1, rememberMe.getUserName());
