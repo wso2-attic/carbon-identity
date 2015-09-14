@@ -2393,7 +2393,6 @@ public class ApplicationDAOImpl implements ApplicationDAO {
                         ApplicationMgtUtil.PATH_CONSTANT +
                         applicationName + ApplicationMgtUtil.PATH_CONSTANT +
                         applicationPermission.getValue();
-
                 int permisionId = getPermissionId(connection, permissionValue.toLowerCase());
                 deleteRolePermissionMapping(connection, permisionId);
                 deletePermission(connection, permisionId);
