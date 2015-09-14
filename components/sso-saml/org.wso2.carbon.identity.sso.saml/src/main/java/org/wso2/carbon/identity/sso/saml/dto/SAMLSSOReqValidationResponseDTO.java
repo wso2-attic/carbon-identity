@@ -17,6 +17,8 @@
  */
 package org.wso2.carbon.identity.sso.saml.dto;
 
+import org.apache.commons.lang.StringUtils;
+
 import java.io.Serializable;
 
 public class SAMLSSOReqValidationResponseDTO implements Serializable {
@@ -49,7 +51,9 @@ public class SAMLSSOReqValidationResponseDTO implements Serializable {
     }
 
     public void setSigningAlgorithm(String signingAlgorithm) {
-        this.signingAlgorithm = signingAlgorithm;
+        if (StringUtils.isNotBlank(signingAlgorithm)) {
+            this.signingAlgorithm = signingAlgorithm;
+        }
     }
 
     public boolean isValid() {

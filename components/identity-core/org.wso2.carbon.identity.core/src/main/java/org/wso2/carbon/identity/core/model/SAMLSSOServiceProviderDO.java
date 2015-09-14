@@ -61,6 +61,15 @@ public class SAMLSSOServiceProviderDO implements Serializable {
     private boolean doValidateSignatureInRequests;
     private String signingAlgorithm;
 
+    public SAMLSSOServiceProviderDO() {
+        if (StringUtils.isNotBlank(IdentityUtil.getProperty(IdentityConstants.ServerConfig
+                .SSO_DEFAULT_SIGNING_ALGORITHM))) {
+            signingAlgorithm = IdentityUtil.getProperty(IdentityConstants.ServerConfig.SSO_DEFAULT_SIGNING_ALGORITHM)
+                    .trim();
+        } else {
+            signingAlgorithm = IdentityCoreConstants.XML_SIGNATURE_ALGORITHM_URI_RSA_SHA1;
+        }
+    }
     public String getNameIDFormat() {
         return nameIDFormat;
     }
@@ -158,22 +167,17 @@ public class SAMLSSOServiceProviderDO implements Serializable {
     public void setAttributeConsumingServiceIndex(String attributeConsumingServiceIndex) {
         this.attributeConsumingServiceIndex = attributeConsumingServiceIndex;
     }
+
     public String getSigningAlgorithm() {
-        if (StringUtils.isBlank(signingAlgorithm)) {
-            if (IdentityUtil.getProperty(IdentityConstants.ServerConfig.SSO_DEFAULT_SIGNING_ALGORITHM) != null &&
-                    !"".equals(IdentityUtil.getProperty(IdentityConstants.ServerConfig.SSO_DEFAULT_SIGNING_ALGORITHM)
-                            .trim())) {
-                return IdentityUtil.getProperty(IdentityConstants.ServerConfig.SSO_DEFAULT_SIGNING_ALGORITHM).trim();
-            } else {
-                return IdentityCoreConstants.XML_SIGNATURE_ALGORITHM_URI_RSA_SHA1;
-            }
-        }
         return signingAlgorithm;
     }
 
     public void setSigningAlgorithm(String signingAlgorithm) {
-        this.signingAlgorithm = signingAlgorithm;
+        if (StringUtils.isNotEmpty(signingAlgorithm)) {
+            this.signingAlgorithm = signingAlgorithm;
+        }
     }
+
     /**
      * @return the requestedClaims
      */

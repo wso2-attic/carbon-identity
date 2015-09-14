@@ -51,9 +51,9 @@ public class SingleLogoutMessageBuilder {
         SAMLSSOUtil.doBootstrap();
     }
 
-    public LogoutRequest buildLogoutRequest(String subject, String sessionId, String reason,
-                                            String destination, String nameIDFormat,
-                                            String tenantDomain,String requestsigningAlgorithm) throws IdentityException {
+    public LogoutRequest buildLogoutRequest(String subject, String sessionId, String reason, String destination,
+                                            String nameIDFormat, String tenantDomain, String requestsigningAlgorithm)
+            throws IdentityException {
 
         LogoutRequest logoutReq = new LogoutRequestBuilder().buildObject();
 
@@ -108,7 +108,8 @@ public class SingleLogoutMessageBuilder {
     }
 
     public LogoutResponse buildLogoutResponse(String id, String status, String statMsg, String destination,
-                                              String tenantDomain,String responseSigningAlgorithm) throws IdentityException {
+                                              String tenantDomain, String responseSigningAlgorithm) throws
+            IdentityException {
 
         LogoutResponse logoutResp = new LogoutResponseBuilder().buildObject();
         logoutResp.setID(SAMLSSOUtil.createID());
