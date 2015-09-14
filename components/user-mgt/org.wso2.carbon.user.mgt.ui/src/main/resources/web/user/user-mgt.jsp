@@ -101,7 +101,7 @@
     java.lang.String errorAttribute = (java.lang.String) session.getAttribute(UserAdminUIConstants.DO_USER_LIST);
 
     String claimUri = request.getParameter("claimUri");
-    if (StringUtils.isEmpty(claimUri)) {
+    if (StringUtils.isBlank(claimUri)) {
         claimUri = (java.lang.String) session.getAttribute(UserAdminUIConstants.USER_CLAIM_FILTER);
     }
     session.setAttribute(UserAdminUIConstants.USER_CLAIM_FILTER, claimUri);

@@ -54,7 +54,7 @@ public class AuthorizationGrantCache extends BaseCache<String, CacheEntry> {
     }
 
     public void addToCache(CacheKey key, CacheEntry entry) {
-        String keyValue = ((AuthorizationGrantCacheKey) key).getUserAttributesId();
+        String keyValue = ((AuthorizationGrantCacheKey)key).getUserAttributesId();
         super.addToCache(keyValue, entry);
         SessionDataStore.getInstance().storeSessionData(keyValue, AUTHORIZATION_GRANT_CACHE_NAME, entry);
         if (enableRequestScopeCache) {
@@ -63,7 +63,7 @@ public class AuthorizationGrantCache extends BaseCache<String, CacheEntry> {
     }
 
     public CacheEntry getValueFromCache(CacheKey key) {
-        String keyValue = ((AuthorizationGrantCacheKey) key).getUserAttributesId();
+        String keyValue = ((AuthorizationGrantCacheKey)key).getUserAttributesId();
         CacheEntry cacheEntry = super.getValueFromCache(keyValue);
         if (cacheEntry == null) {
             cacheEntry = (CacheEntry) SessionDataStore.getInstance().getSessionData(keyValue,

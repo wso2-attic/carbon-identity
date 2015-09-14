@@ -52,7 +52,7 @@ public class SessionDataCache extends BaseCache<String, CacheEntry> {
     }
 
     public void addToCache(CacheKey key, CacheEntry entry) {
-        String keyValue = ((SessionDataCacheKey) key).getSessionDataId();
+        String keyValue = ((SessionDataCacheKey)key).getSessionDataId();
         super.addToCache(keyValue, entry);
         SessionDataStore.getInstance().storeSessionData(keyValue, SESSION_DATA_CACHE_NAME, entry);
         if (enableRequestScopeCache) {
@@ -61,7 +61,7 @@ public class SessionDataCache extends BaseCache<String, CacheEntry> {
     }
 
     public CacheEntry getValueFromCache(CacheKey key) {
-        String keyValue = ((SessionDataCacheKey) key).getSessionDataId();
+        String keyValue = ((SessionDataCacheKey)key).getSessionDataId();
         CacheEntry cacheEntry = super.getValueFromCache(keyValue);
         if (cacheEntry == null) {
             cacheEntry = (CacheEntry) SessionDataStore.getInstance().getSessionData(keyValue, SESSION_DATA_CACHE_NAME);
@@ -70,7 +70,7 @@ public class SessionDataCache extends BaseCache<String, CacheEntry> {
     }
 
     public void clearCacheEntry(CacheKey key) {
-        String keyValue = ((SessionDataCacheKey) key).getSessionDataId();
+        String keyValue = ((SessionDataCacheKey)key).getSessionDataId();
         super.clearCacheEntry(keyValue);
         SessionDataStore.getInstance().clearSessionData(keyValue, SESSION_DATA_CACHE_NAME);
         if (enableRequestScopeCache) {
