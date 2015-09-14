@@ -66,16 +66,16 @@ public class PrivateAssociationCryptoStore extends InMemoryServerAssociationStor
         if(log.isDebugEnabled()){
             log.debug("Inside load(); handle : " + handle);
         }
+        String timeStamp = handle.substring((Integer.toString(storeId)).length(), handle.indexOf("-"));
+        Date expireDate = new Date(Long.parseLong(timeStamp)+ this.expireIn);
+        if(log.isDebugEnabled()){
+            log.debug("Calculated Expiry Time : " + expireDate.getTime());
+        }
 //        SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
 //        PBEKeySpec spec = new PBEKeySpec(serverKey.toCharArray(), handle.getBytes(), 1, 256);
 //        SecretKey secretKey = factory.generateSecret(spec);
         if(log.isDebugEnabled()){
             log.debug("Crypto key : " + serverKey + handle);
-        }
-        String timeStamp = handle.substring((Integer.toString(storeId)).length(), handle.indexOf("-"));
-        Date expireDate = new Date(Long.parseLong(timeStamp)+ this.expireIn);
-        if(log.isDebugEnabled()){
-            log.debug("Calculated Expiry Time : " + expireDate.getTime());
         }
         return Association.createHmacSha256(handle, (serverKey + handle).getBytes(), expireDate);
     }
