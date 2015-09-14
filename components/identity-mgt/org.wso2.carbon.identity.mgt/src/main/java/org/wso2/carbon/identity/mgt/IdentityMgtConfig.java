@@ -543,17 +543,15 @@ public class IdentityMgtConfig {
         int count = 1;
         String className = null;
         int size = 0;
-        Properties policyExtensionProperties = new Properties();
         Enumeration<String> keyValues = (Enumeration<String>) properties.propertyNames();
         while (keyValues.hasMoreElements()) {
             String currentProp = keyValues.nextElement();
             if (currentProp.contains(extensionType)) {
-                policyExtensionProperties.put(currentProp, properties.getProperty(currentProp));
+                size++;
             }
         }
         //setting the number of extensionTypes as the upper bound as there can be many extension policy numbers,
         //eg: Password.policy.extensions.1, Password.policy.extensions.4, Password.policy.extensions.15
-        size = policyExtensionProperties.size();
         while (size > 0) {
             className = properties.getProperty(extensionType + "." + count);
             if (className == null) {
