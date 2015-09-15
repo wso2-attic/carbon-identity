@@ -1608,28 +1608,28 @@
 
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
-                <artifactId>org.wso2.carbon.um.ws.api</artifactId>
+                <artifactId>org.wso2.carbon.identity.um.ws.api</artifactId>
                 <version>${carbon.identity.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
-                <artifactId>org.wso2.carbon.um.ws.api.stub</artifactId>
+                <artifactId>org.wso2.carbon.identity.um.ws.api.stub</artifactId>
                 <version>${carbon.identity.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
-                <artifactId>org.wso2.carbon.um.ws.service</artifactId>
+                <artifactId>org.wso2.carbon.identity.um.ws.service</artifactId>
                 <version>${carbon.identity.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
-                <artifactId>org.wso2.carbon.um.ws.service.server.feature</artifactId>
+                <artifactId>org.wso2.carbon.identity.um.ws.service.server.feature</artifactId>
                 <version>${carbon.identity.version}</version>
                 <type>zip</type>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
-                <artifactId>org.wso2.carbon.um.ws.service.client.feature</artifactId>
+                <artifactId>org.wso2.carbon.identity.um.ws.service.client.feature</artifactId>
                 <version>${carbon.identity.version}</version>
                 <type>zip</type>
             </dependency>

@@ -22,7 +22,7 @@ import org.apache.axis2.context.ConfigurationContextFactory;
 import org.apache.axis2.description.TransportOutDescription;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.um.ws.api.WSUserStoreManager;
+import org.wso2.carbon.identity.um.ws.api.WSUserStoreManager;
 import org.wso2.carbon.user.api.ClaimManager;
 import org.wso2.carbon.user.api.Permission;
 import org.wso2.carbon.user.api.Properties;

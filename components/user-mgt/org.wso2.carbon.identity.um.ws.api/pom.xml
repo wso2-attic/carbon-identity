@@ -28,7 +28,7 @@
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>org.wso2.carbon.um.ws.api</artifactId>
+    <artifactId>org.wso2.carbon.identity.um.ws.api</artifactId>
     <packaging>bundle</packaging>
     <name>Remote User Management Client</name>
     <description>A custom WSO2 product.</description>
@@ -68,7 +68,7 @@
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon.identity</groupId>
-            <artifactId>org.wso2.carbon.um.ws.api.stub</artifactId>
+            <artifactId>org.wso2.carbon.identity.um.ws.api.stub</artifactId>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
@@ -108,7 +108,7 @@
                             org.wso2.carbon.user.api; version="${carbon.user.api.imp.pkg.version.range}",
                         </Import-Package>
                         <Export-Package>
-                            org.wso2.carbon.um.ws.api.*; version="${carbon.identity.package.export.version}",
+                            org.wso2.carbon.identity.um.ws.api.*; version="${carbon.identity.package.export.version}",
                         </Export-Package>
                     </instructions>
                 </configuration>
