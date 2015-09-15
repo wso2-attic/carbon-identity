@@ -44,7 +44,7 @@
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon.identity</groupId>
-            <artifactId>org.wso2.carbon.user.mgt.common</artifactId>
+            <artifactId>org.wso2.carbon.identity.user.mgt.common</artifactId>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>

@@ -38,7 +38,7 @@ import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
-import org.wso2.carbon.user.mgt.UserMgtConstants;
+import org.wso2.carbon.identity.user.mgt.UserMgtConstants;
 
 import java.util.ArrayList;
 import java.util.Arrays;

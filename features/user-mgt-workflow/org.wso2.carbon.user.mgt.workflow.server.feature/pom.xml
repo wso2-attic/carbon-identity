@@ -27,7 +27,7 @@
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>org.wso2.carbon.user.mgt.workflow.server.feature</artifactId>
+    <artifactId>org.wso2.carbon.identity.user.mgt.workflow.server.feature</artifactId>
     <packaging>pom</packaging>
     <name>WSO2 Carbon - User Management Workflow Core Feature</name>
     <url>http://wso2.org</url>
@@ -55,7 +55,7 @@
                             <goal>p2-feature-gen</goal>
                         </goals>
                         <configuration>
-                            <id>org.wso2.carbon.user.mgt.workflow.server</id>
+                            <id>org.wso2.carbon.identity.user.mgt.workflow.server</id>
                             <propertiesFile>../../etc/feature.properties</propertiesFile>
                             <adviceFile>
                                 <properties>
@@ -64,7 +64,7 @@
                                 </properties>
                             </adviceFile>
                             <bundles>
-                                <bundleDef>org.wso2.carbon.identity:org.wso2.carbon.user.mgt.workflow</bundleDef>
+                                <bundleDef>org.wso2.carbon.identity:org.wso2.carbon.identity.user.mgt.workflow</bundleDef>
                             </bundles>
                             <importFeatures>
                                 <importFeatureDef>org.wso2.carbon.identity.workflow.mgt.server:${carbon.identity.version}</importFeatureDef>

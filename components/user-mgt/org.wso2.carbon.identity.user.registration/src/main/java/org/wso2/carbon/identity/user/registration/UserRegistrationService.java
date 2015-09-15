@@ -48,7 +48,7 @@ import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.claim.Claim;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
-import org.wso2.carbon.user.mgt.UserMgtConstants;
+import org.wso2.carbon.identity.user.mgt.UserMgtConstants;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 import org.wso2.carbon.identity.user.registration.util.CarbonEntityResolver;
 import org.xml.sax.InputSource;

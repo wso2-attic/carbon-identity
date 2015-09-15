@@ -29,7 +29,7 @@
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>org.wso2.carbon.user.mgt.workflow.ui.feature</artifactId>
+    <artifactId>org.wso2.carbon.identity.user.mgt.workflow.ui.feature</artifactId>
     <packaging>pom</packaging>
     <name>WSO2 Carbon - User Management Workflow UI Feature</name>
     <url>http://wso2.org</url>
@@ -40,7 +40,7 @@
     <dependencies>
         <dependency>
             <groupId>org.wso2.carbon.identity</groupId>
-            <artifactId>org.wso2.carbon.user.mgt.workflow.ui</artifactId>
+            <artifactId>org.wso2.carbon.identity.user.mgt.workflow.ui</artifactId>
         </dependency>
     </dependencies>
 
@@ -58,7 +58,7 @@
                             <goal>p2-feature-gen</goal>
                         </goals>
                         <configuration>
-                            <id>org.wso2.carbon.user.mgt.workflow.ui</id>
+                            <id>org.wso2.carbon.identity.user.mgt.workflow.ui</id>
                             <propertiesFile>../../etc/feature.properties</propertiesFile>
                             <adviceFile>
                                 <properties>
@@ -67,7 +67,7 @@
                                 </properties>
                             </adviceFile>
                             <bundles>
-                                <bundleDef>org.wso2.carbon.identity:org.wso2.carbon.user.mgt.workflow.ui</bundleDef>
+                                <bundleDef>org.wso2.carbon.identity:org.wso2.carbon.identity.user.mgt.workflow.ui</bundleDef>
                             </bundles>
                             <importFeatures>
                                 <importFeatureDef>org.wso2.carbon.core.ui:${carbon.kernel.version}</importFeatureDef>

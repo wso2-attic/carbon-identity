@@ -31,9 +31,9 @@ import org.wso2.carbon.identity.application.common.model.xsd.RequestPathAuthenti
 import org.wso2.carbon.identity.application.common.model.xsd.ServiceProvider;
 import org.wso2.carbon.identity.application.mgt.stub.IdentityApplicationManagementServiceIdentityApplicationManagementException;
 import org.wso2.carbon.identity.application.mgt.stub.IdentityApplicationManagementServiceStub;
-import org.wso2.carbon.user.mgt.stub.UserAdminStub;
-import org.wso2.carbon.user.mgt.stub.UserAdminUserAdminException;
-import org.wso2.carbon.user.mgt.stub.types.carbon.UserStoreInfo;
+import org.wso2.carbon.identity.user.mgt.stub.UserAdminStub;
+import org.wso2.carbon.identity.user.mgt.stub.UserAdminUserAdminException;
+import org.wso2.carbon.identity.user.mgt.stub.types.carbon.UserStoreInfo;
 
 import java.rmi.RemoteException;
 import java.util.ArrayList;

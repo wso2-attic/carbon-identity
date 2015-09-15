@@ -29,9 +29,9 @@
 <%@ page import="org.wso2.carbon.security.ui.client.SecurityAdminClient" %>
 <%@page import="org.wso2.carbon.ui.CarbonUIMessage" %>
 <%@page import="org.wso2.carbon.ui.CarbonUIUtil" %>
-<%@page import="org.wso2.carbon.user.mgt.stub.types.carbon.FlaggedName" %>
-<%@ page import="org.wso2.carbon.user.mgt.stub.types.carbon.UserRealmInfo" %>
-<%@page import="org.wso2.carbon.user.mgt.ui.UserAdminClient" %>
+<%@page import="org.wso2.carbon.identity.user.mgt.stub.types.carbon.FlaggedName" %>
+<%@ page import="org.wso2.carbon.identity.user.mgt.stub.types.carbon.UserRealmInfo" %>
+<%@page import="org.wso2.carbon.identity.user.mgt.ui.UserAdminClient" %>
 
 
 <%@page import="org.wso2.carbon.utils.ServerConstants" %>

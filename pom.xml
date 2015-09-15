@@ -359,38 +359,38 @@
 
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
-                <artifactId>org.wso2.carbon.user.mgt.common</artifactId>
+                <artifactId>org.wso2.carbon.identity.user.mgt.common</artifactId>
                 <version>${carbon.identity.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
-                <artifactId>org.wso2.carbon.user.mgt</artifactId>
+                <artifactId>org.wso2.carbon.identity.user.mgt</artifactId>
                 <version>${carbon.identity.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
-                <artifactId>org.wso2.carbon.user.mgt.stub</artifactId>
+                <artifactId>org.wso2.carbon.identity.user.mgt.stub</artifactId>
                 <version>${carbon.identity.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
-                <artifactId>org.wso2.carbon.user.mgt.ui</artifactId>
+                <artifactId>org.wso2.carbon.identity.user.mgt.ui</artifactId>
                 <version>${carbon.identity.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
-                <artifactId>org.wso2.carbon.user.mgt.server.feature</artifactId>
+                <artifactId>org.wso2.carbon.identity.user.mgt.server.feature</artifactId>
                 <version>${carbon.identity.version}</version>
                 <type>zip</type>
             </dependency>
 
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
-                <artifactId>org.wso2.carbon.user.mgt.ui.feature</artifactId>
+                <artifactId>org.wso2.carbon.identity.user.mgt.ui.feature</artifactId>
                 <version>${carbon.identity.version}</version>
                 <type>zip</type>
             </dependency>
@@ -1652,23 +1652,23 @@
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
-                <artifactId>org.wso2.carbon.user.mgt.workflow</artifactId>
+                <artifactId>org.wso2.carbon.identity.user.mgt.workflow</artifactId>
                 <version>${carbon.identity.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
-                <artifactId>org.wso2.carbon.user.mgt.workflow.ui</artifactId>
+                <artifactId>org.wso2.carbon.identity.user.mgt.workflow.ui</artifactId>
                 <version>${carbon.identity.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
-                <artifactId>org.wso2.carbon.user.mgt.workflow.server.feature</artifactId>
+                <artifactId>org.wso2.carbon.identity.user.mgt.workflow.server.feature</artifactId>
                 <version>${carbon.identity.version}</version>
                 <type>zip</type>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
-                <artifactId>org.wso2.carbon.user.mgt.workflow.ui.feature</artifactId>
+                <artifactId>org.wso2.carbon.identity.user.mgt.workflow.ui.feature</artifactId>
                 <version>${carbon.identity.version}</version>
                 <type>zip</type>
             </dependency>
@@ -1739,7 +1739,7 @@
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
-                <artifactId>org.wso2.carbon.user.mgt.workflow.stub</artifactId>
+                <artifactId>org.wso2.carbon.identity.user.mgt.workflow.stub</artifactId>
                 <version>${carbon.identity.version}</version>
             </dependency>
 
