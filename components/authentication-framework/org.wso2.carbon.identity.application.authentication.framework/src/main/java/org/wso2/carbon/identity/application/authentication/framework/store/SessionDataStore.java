@@ -76,6 +76,8 @@ public class SessionDataStore {
 
     private static int maxPoolSize = 100;
     private long operationCleanUpPeriod = 720;
+    private String defaultCleanUpEnabled ="true";
+    private String defaultOperationCleanUpEnabled ="false";
     private static BlockingDeque<SessionContextDO> sessionContextQueue = new LinkedBlockingDeque();
     private static volatile SessionDataStore instance;
     private JDBCPersistenceManager jdbcPersistenceManager;
@@ -172,10 +174,10 @@ public class SessionDataStore {
         String operationCleanUpPeriodVal = IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataOperations.CleanUp.CleanUpPeriod");
 
         if (StringUtils.isBlank(isCleanUpEnabledVal)) {
-            isCleanUpEnabledVal = "true";
+            isCleanUpEnabledVal = defaultCleanUpEnabled;
         }
         if (StringUtils.isBlank(isOperationCleanUpEnabledVal)) {
-            isOperationCleanUpEnabledVal = "true";
+            isOperationCleanUpEnabledVal = defaultOperationCleanUpEnabled;
         }
         if (!StringUtils.isBlank(operationCleanUpPeriodVal)) {
             operationCleanUpPeriod = Long.parseLong(operationCleanUpPeriodVal);

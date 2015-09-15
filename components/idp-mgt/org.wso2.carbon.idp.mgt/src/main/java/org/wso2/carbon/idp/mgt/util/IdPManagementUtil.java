@@ -115,19 +115,20 @@ public class IdPManagementUtil {
     /**
      * Tenant specific clean up timeout can be configured. From this method can get the maximum timeout configured
      * Ex this can be used for clean up tasks.
+     *
      * @return
      */
-    public static int getMaxCleanUpTimeout(){
+    public static int getMaxCleanUpTimeout() {
 
         int timeout = Integer.parseInt(IdentityApplicationConstants.Authenticator.IDPProperties.CLEAN_UP_TIMEOUT_DEFAULT);
 
         try {
-            Tenant [] tenants = IdPManagementServiceComponent.getRealmService().getTenantManager().getAllTenants();
-            for (Tenant tenant : tenants){
-                int tenantCleanupTimeout = IdPManagementUtil.getTimeoutProperty(IdentityApplicationConstants.Authenticator.IDPProperties.CLEAN_UP_TIMEOUT,
-                                                     tenant.getDomain(), timeout);
-                if(tenantCleanupTimeout > timeout){
-                  timeout = tenantCleanupTimeout;
+            Tenant[] allTenants = IdPManagementServiceComponent.getRealmService().getTenantManager().getAllTenants();
+            for (Tenant tenant : allTenants) {
+                int tenantCleanupTimeout = IdPManagementUtil.getTimeoutProperty(
+                        IdentityApplicationConstants.Authenticator.IDPProperties.CLEAN_UP_TIMEOUT, tenant.getDomain(), timeout);
+                if (tenantCleanupTimeout > timeout) {
+                    timeout = tenantCleanupTimeout;
                 }
             }
         } catch (UserStoreException e) {
