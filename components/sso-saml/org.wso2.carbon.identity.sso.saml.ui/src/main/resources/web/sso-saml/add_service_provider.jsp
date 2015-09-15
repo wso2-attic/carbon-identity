@@ -893,17 +893,6 @@ function clearAll() {
 <%		}
 	}%>
 
-<tr>
-    <td colspan="2">
-        <input type="checkbox" name="enableResponseSignature" value="true"
-               onclick="disableResponseSignature(this);"
-                <%=(isEditSP && provider.getDoSignResponse() ? "checked=\"checked\"" : "")%> />
-            <%--<input type="hidden" name="enableResponseSignature" value="true"/>--%>
-        <fmt:message key="do.response.signature"/>
-    </td>
-</tr>
-
-<input type="hidden" name="enableAssertionSignature" value="true"/>
 <!--selectResponseSignAlgo-->
 <tr id="defaultSigningAlgorithmRow">
     <td>
@@ -937,6 +926,19 @@ function clearAll() {
         </select>
     </td>
 </tr>
+    
+<tr>
+    <td colspan="2">
+        <input type="checkbox" name="enableResponseSignature" value="true"
+               onclick="disableResponseSignature(this);"
+                <%=(isEditSP && provider.getDoSignResponse() ? "checked=\"checked\"" : "")%> />
+            <%--<input type="hidden" name="enableResponseSignature" value="true"/>--%>
+        <fmt:message key="do.response.signature"/>
+    </td>
+</tr>
+
+<input type="hidden" name="enableAssertionSignature" value="true"/>
+
 <!-- enableSigValidation -->
 <%
     if (isEditSP && provider.isDoValidateSignatureInRequestsSpecified() && provider.getDoValidateSignatureInRequests()) {
