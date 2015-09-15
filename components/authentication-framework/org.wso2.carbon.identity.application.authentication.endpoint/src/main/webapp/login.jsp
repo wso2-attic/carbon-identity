@@ -24,9 +24,7 @@
 <%@ page import="java.util.Map" %>
 <%@ page import="org.wso2.carbon.base.ServerConfiguration" %>
 
-<%!
-    private static final String WEB_CONTEXT_ROOT = "WebContextRoot";
-%><fmt:bundle basename="org.wso2.carbon.identity.application.authentication.endpoint.i18n.Resources">
+<fmt:bundle basename="org.wso2.carbon.identity.application.authentication.endpoint.i18n.Resources">
 
     <html lang="en">
     <head>
