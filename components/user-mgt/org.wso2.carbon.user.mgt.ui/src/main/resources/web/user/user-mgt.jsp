@@ -29,7 +29,6 @@
 <%@ page import="org.wso2.carbon.user.mgt.ui.UserAdminClient" %>
 <%@ page import="org.wso2.carbon.user.mgt.ui.UserAdminUIConstants" %>
 <%@ page import="org.wso2.carbon.user.mgt.ui.Util" %>
-<%@ page import="org.wso2.carbon.user.mgt.workflow.ui.UserManagementWorkflowServiceClient" %>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@ page import="java.text.MessageFormat" %>
 <%@ page import="java.util.ArrayList" %>
@@ -41,8 +40,10 @@
 <%@ page import="java.util.Map" %>
 <%@ page import="java.util.ResourceBundle" %>
 <%@ page import="java.util.Set" %>
+<%@ page import="org.wso2.carbon.user.mgt.ui.UserManagementWorkflowServiceClient" %>
 <script type="text/javascript" src="../userstore/extensions/js/vui.js"></script>
 <script type="text/javascript" src="../admin/js/main.js"></script>
+<script type="text/javascript" src="../identity/validation/js/identity-validate.js"></script>
 
 <jsp:include page="../dialog/display_messages.jsp"/>
 <title>WSO2 Carbon - Security Configuration</title>
@@ -314,6 +315,13 @@
             CARBON.showConfirmationDialog("<fmt:message key="confirm.delete.user"/> \'" + user + "\'?", doDelete, null);
         }
 
+        $(document).ready(function () {
+            debugger;
+            $('form[name=filterForm]').submit(function(){
+                return doValidateForm(this, '<fmt:message key="error.input.validation.msg"/>');
+            })
+        });
+
         <%if (showFilterMessage == true) {%>
         jQuery(document).ready(function () {
             CARBON.showInfoDialog('<fmt:message key="no.users.filtered"/>', null, null);
@@ -370,7 +378,8 @@
                                 key="list.users"/></td>
                         <td>
                             <input type="text" name="<%=UserAdminUIConstants.USER_LIST_FILTER%>"
-                                   value="<%=Encode.forHtmlAttribute(filter)%>"/>
+                                   value="<%=Encode.forHtmlAttribute(filter)%>" label="<fmt:message key="list.users"/>"
+                                   black-list-patterns="xml-meta-exists"/>
 
                             <input class="button" type="submit"
                                    value="<fmt:message key="user.search"/>"/>
