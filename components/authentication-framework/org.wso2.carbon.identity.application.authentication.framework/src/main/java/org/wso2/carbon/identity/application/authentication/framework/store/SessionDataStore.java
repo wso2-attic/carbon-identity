@@ -50,8 +50,6 @@ import java.util.concurrent.LinkedBlockingDeque;
  * Data will be persisted or stored date will be removed from the store. These two events are considered as STORE operation
  * and DELETE operations.
  * And these events are stored with unique sessionId, operation type and operation initiated timestamp.
- * After a DELETE operation is stored, STORE operations related to same sessionId and prior to initiated timestamp will
- * be removed from the store.
  * Expired DELETE operations and related STORE operations will be deleted by a OperationCleanUpService task.
  * All expired operations will be deleted by SessionCleanUpService task.
  *
@@ -124,8 +122,6 @@ public class SessionDataStore {
                     .getProperty("JDBCPersistenceManager.SessionDataPersist.SQL.InsertSTORE");
             String insertDELETESQL = IdentityUtil
                     .getProperty("JDBCPersistenceManager.SessionDataPersist.SQL.InsertDELETE");
-            String deleteSTOREOnDELETESQL = IdentityUtil
-                    .getProperty("JDBCPersistenceManager.SessionDataPersist.SQL.DeleteSTOREOnDELETE");
             String deleteSTORETaskSQL = IdentityUtil
                     .getProperty("JDBCPersistenceManager.SessionDataPersist.SQL.DeleteSTORETask");
             String deleteDELETETaskSQL = IdentityUtil
