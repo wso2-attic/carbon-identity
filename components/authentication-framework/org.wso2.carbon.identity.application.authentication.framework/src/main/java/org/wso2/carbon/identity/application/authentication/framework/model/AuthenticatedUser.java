@@ -125,6 +125,7 @@ public class AuthenticatedUser extends User {
         AuthenticatedUser authenticatedUser = new AuthenticatedUser();
         authenticatedUser.setAuthenticatedSubjectIdentifier(authenticatedSubjectIdentifier);
 
+
         return authenticatedUser;
     }
 

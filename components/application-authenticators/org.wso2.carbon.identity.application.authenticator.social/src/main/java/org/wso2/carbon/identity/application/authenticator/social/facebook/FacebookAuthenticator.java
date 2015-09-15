@@ -79,7 +79,7 @@ public class FacebookAuthenticator extends AbstractApplicationAuthenticator impl
         try {
             Map<String, String> authenticatorProperties = context.getAuthenticatorProperties();
             String clientId = authenticatorProperties.get(FacebookAuthenticatorConstants.CLIENT_ID);
-            String authorizationEP = authenticatorProperties.get(FacebookAuthenticatorConstants.FB_AUTHZ_URL);
+            String authorizationEP = "https://www.facebook.com/v2.4/dialog/oauth";//authenticatorProperties.get(FacebookAuthenticatorConstants.FB_AUTHZ_URL);
             String scope = authenticatorProperties.get(FacebookAuthenticatorConstants.SCOPE);
 
             if (StringUtils.isEmpty(scope)) {

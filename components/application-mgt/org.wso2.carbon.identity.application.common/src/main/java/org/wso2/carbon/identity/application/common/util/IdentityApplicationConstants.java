@@ -35,8 +35,8 @@ public class IdentityApplicationConstants {
     public static final String SF_OAUTH2_TOKEN_ENDPOINT = "https://login.salesforce.com/services/oauth2/token";
 
     public static final String FB_AUTHZ_URL = "http://www.facebook.com/dialog/oauth";
-    public static final String FB_TOKEN_URL = "https://graph.facebook.com/oauth/access_token";
-    public static final String FB_USER_INFO_URL = "https://graph.facebook.com/me";
+    public static final String FB_TOKEN_URL = "https://graph.facebook.com/v2.4/oauth/access_token";
+    public static final String FB_USER_INFO_URL = "https://graph.facebook.com/v2.4/me";
 
     public static final String GOOGLE_OAUTH_URL = "https://accounts.google.com/o/oauth2/auth";
     public static final String GOOGLE_TOKEN_URL = "https://accounts.google.com/o/oauth2/token";

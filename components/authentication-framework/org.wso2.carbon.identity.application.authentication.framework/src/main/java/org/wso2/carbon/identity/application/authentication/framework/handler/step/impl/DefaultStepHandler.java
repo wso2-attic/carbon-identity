@@ -37,6 +37,7 @@ import org.wso2.carbon.identity.application.authentication.framework.model.Authe
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticatedUser;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkConstants;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkUtils;
+import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -422,6 +423,7 @@ public class DefaultStepHandler implements StepHandler {
 
             // store authenticated user
             AuthenticatedUser authenticatedUser = context.getSubject();
+          //  authenticatedUser.setUserName(MultitenantUtils.getTenantAwareUsername(authenticatedUser.getAuthenticatedSubjectIdentifier()));
             stepConfig.setAuthenticatedUser(authenticatedUser);
             authenticatedIdPData.setUser(authenticatedUser);
 
