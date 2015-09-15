@@ -29,6 +29,8 @@ public class Constants {
     public static final String IDP_AUTHENTICATOR_MAP = "idpAuthenticatorMap";
     public static final String RESIDENT_IDP_RESERVED_NAME = "LOCAL";
 
+    public static final String WEB_CONTEXT_ROOT="WebContextRoot";
+
     private Constants() {
     }
 

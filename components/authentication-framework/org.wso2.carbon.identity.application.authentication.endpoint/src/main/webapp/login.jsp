@@ -24,7 +24,9 @@
 <%@ page import="java.util.Map" %>
 <%@ page import="org.wso2.carbon.base.ServerConfiguration" %>
 
-<fmt:bundle basename="org.wso2.carbon.identity.application.authentication.endpoint.i18n.Resources">
+<%!
+    private static final String WEB_CONTEXT_ROOT = "WebContextRoot";
+%><fmt:bundle basename="org.wso2.carbon.identity.application.authentication.endpoint.i18n.Resources">
 
     <html lang="en">
     <head>
@@ -145,7 +147,7 @@
         </div>
         <% } %>
 
-        <% String webContextRoot = ServerConfiguration.getInstance().getFirstProperty("WebContextRoot");
+        <% String webContextRoot = ServerConfiguration.getInstance().getFirstProperty(Constants.WEB_CONTEXT_ROOT);
             if (StringUtils.isNotBlank(webContextRoot)) { %>
         <form action="../<%=webContextRoot%>/commonauth" method="post" id="loginForm" class="form-horizontal">
                     <% }else{%>
