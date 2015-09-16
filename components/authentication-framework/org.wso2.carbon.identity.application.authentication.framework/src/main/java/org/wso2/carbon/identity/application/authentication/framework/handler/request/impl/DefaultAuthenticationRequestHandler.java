@@ -36,6 +36,8 @@ import org.wso2.carbon.identity.application.authentication.framework.model.Authe
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticationResult;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkConstants;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkUtils;
+import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
+import org.wso2.carbon.identity.user.profile.mgt.util.Constants;
 import org.wso2.carbon.idp.mgt.util.IdPManagementUtil;
 import org.wso2.carbon.registry.core.utils.UUIDGenerator;
 
@@ -384,7 +386,17 @@ public class DefaultAuthenticationRequestHandler implements AuthenticationReques
 
         // redirect to the caller
         String webContextRoot = ServerConfiguration.getInstance().getFirstProperty(FrameworkConstants.WEB_CONTEXT_ROOT);
-        String redirectURL;
+        if (StringUtils.isNotBlank(webContextRoot)) {
+            if (webContextRoot.charAt(0) == '/') {
+                if (webContextRoot.length() <= 1) {
+                    webContextRoot = "";
+                }
+            }
+            else{
+                webContextRoot = "/" + webContextRoot;
+            }
+        }
+        String redirectURL=null;
         if (StringUtils.isNotBlank(webContextRoot)) {
             redirectURL = webContextRoot + context.getCallerPath() + "?sessionDataKey="
                     + context.getCallerSessionKey() + rememberMeParam;
