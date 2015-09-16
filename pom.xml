@@ -1577,12 +1577,12 @@
 
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
-                <artifactId>org.wso2.carbon.ldap.server</artifactId>
+                <artifactId>org.wso2.carbon.identity.ldap.server</artifactId>
                 <version>${carbon.identity.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
-                <artifactId>org.wso2.carbon.ldap.server.server.feature</artifactId>
+                <artifactId>org.wso2.carbon.identity.ldap.server.server.feature</artifactId>
                 <version>${carbon.identity.version}</version>
                 <type>zip</type>
             </dependency>

@@ -37,8 +37,8 @@
         <module>org.wso2.carbon.identity.um.ws.service.server.feature</module>
         <module>org.wso2.carbon.identity.um.ws.service.client.feature</module>
         <module>org.wso2.carbon.identity.um.ws.service.feature</module>
-        <module>org.wso2.carbon.ldap.server.feature</module>
-        <module>org.wso2.carbon.ldap.server.server.feature</module>
+        <module>org.wso2.carbon.identity.ldap.server.feature</module>
+        <module>org.wso2.carbon.identity.ldap.server.server.feature</module>
         <module>org.wso2.carbon.identity.user.profile.ui.feature</module>
         <module>org.wso2.carbon.identity.user.profile.server.feature</module>
         <module>org.wso2.carbon.identity.user.profile.feature</module>
