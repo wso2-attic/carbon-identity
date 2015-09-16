@@ -118,8 +118,8 @@
                             org.apache.axiom.*; version="${axiom.osgi.version.range}",
                         </Import-Package>
                         <Export-Package>
-           org.wso2.carbon.identity.stsrg.wso2.carbon.sts.internal,
- org.wso2.carbon.identity.sts        org.wso2.carbon.sts.*; version="${carbon.identity.package.export.version}",
+                            !org.wso2.carbon.identity.sts.internal,
+                            org.wso2.carbon.identity.sts.*; version="${carbon.identity.package.export.version}",
                         </Export-Package>
                     </instructions>
                 </configuration>

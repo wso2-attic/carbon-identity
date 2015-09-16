@@ -66,7 +66,7 @@
                                     <pathelement location="${settings.localRepository}/org/apache/axis2/wso2/axis2/${axis2.wso2.version}/axis2-${axis2.wso2.version}.jar" />
                                 </path>
                                 <java classname="org.apache.axis2.wsdl.WSDL2Java" fork="true">
-                                    <arg line="-uri src/main/resources/ClaimManagementService.wsdl -u -uw -o target/generated-code -p org.wso2.carbon.identity.claim.mgt.stub -ns2p http://mgt.claim.carbon.wso2.org=org.wso2.carbon.identity.claim.mgt.stub,http://dto.mgt.claim.carbon.wso2.org/xsd=org.wso2.carbon.identity.claim.mgt.stub.dto,http://org.apache.axis2/xsd=org.wso2.carbon.identity.claim.mgt.stub.types.axis2,http://claim.core.user.carbon.wso2.org/xsd=org.wso2.carbon.identity.claim.mgt.stub.types" />
+                                    <arg line="-uri src/main/resources/ClaimManagementService.wsdl -u -uw -o target/generated-code -p org.wso2.carbon.identity.claim.mgt.stub -ns2p http://mgt.claim.identity.carbon.wso2.org=org.wso2.carbon.identity.claim.mgt.stub,http://dto.mgt.claim.identity.carbon.wso2.org/xsd=org.wso2.carbon.identity.claim.mgt.stub.dto,http://org.apache.axis2/xsd=org.wso2.carbon.identity.claim.mgt.stub.types.axis2,http://claim.core.user.carbon.wso2.org/xsd=org.wso2.carbon.identity.claim.mgt.stub.types" />
                                     <classpath refid="wsdl2java.classpath" />
                                 </java>
                             </tasks>

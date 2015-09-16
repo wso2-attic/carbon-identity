@@ -1,8 +1,8 @@
 
-<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:ns="http://service.ws.um.carbon.wso2.org" xmlns:ax2588="http://core.user.carbon.wso2.org/xsd" xmlns:ax2589="http://api.user.carbon.wso2.org/xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ax2592="http://common.mgt.user.carbon.wso2.org/xsd" xmlns:ax2594="http://dao.service.ws.um.carbon.wso2.org/xsd" xmlns:ax2596="http://tenant.core.user.carbon.wso2.org/xsd" xmlns:ns1="http://org.apache.axis2/xsd" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://service.ws.um.carbon.wso2.org">
+<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:ns="http://service.ws.um.identity.carbon.wso2.org" xmlns:ax2588="http://core.user.carbon.wso2.org/xsd" xmlns:ax2589="http://api.user.carbon.wso2.org/xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ax2592="http://common.mgt.user.identity.carbon.wso2.org/xsd" xmlns:ax2594="http://dao.service.ws.um.identity.carbon.wso2.org/xsd" xmlns:ax2596="http://tenant.core.user.carbon.wso2.org/xsd" xmlns:ns1="http://org.apache.axis2/xsd" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://service.ws.um.identity.carbon.wso2.org">
     <wsdl:documentation>RemoteUserStoreManagerService</wsdl:documentation>
     <wsdl:types>
-        <xs:schema attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://dao.service.ws.um.carbon.wso2.org/xsd">
+        <xs:schema attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://dao.service.ws.um.identity.carbon.wso2.org/xsd">
             <xs:complexType name="ClaimDTO">
                 <xs:sequence>
                     <xs:element minOccurs="0" name="claimUri" nillable="true" type="xs:string"></xs:element>
@@ -65,7 +65,7 @@
                 </xs:sequence>
             </xs:complexType>
         </xs:schema>
-        <xs:schema attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://common.mgt.user.carbon.wso2.org/xsd">
+        <xs:schema attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://common.mgt.user.identity.carbon.wso2.org/xsd">
             <xs:complexType name="ClaimValue">
                 <xs:sequence>
                     <xs:element minOccurs="0" name="claimURI" nillable="true" type="xs:string"></xs:element>
@@ -73,10 +73,10 @@
                 </xs:sequence>
             </xs:complexType>
         </xs:schema>
-        <xs:schema xmlns:ax2598="http://tenant.core.user.carbon.wso2.org/xsd" xmlns:ax2591="http://core.user.carbon.wso2.org/xsd" xmlns:ax2593="http://common.mgt.user.carbon.wso2.org/xsd" xmlns:ax2595="http://dao.service.ws.um.carbon.wso2.org/xsd" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://service.ws.um.carbon.wso2.org">
+        <xs:schema xmlns:ax2598="http://tenant.core.user.carbon.wso2.org/xsd" xmlns:ax2591="http://core.user.carbon.wso2.org/xsd" xmlns:ax2593="http://common.mgt.user.identity.carbon.wso2.org/xsd" xmlns:ax2595="http://dao.service.ws.um.identity.carbon.wso2.org/xsd" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://service.ws.um.identity.carbon.wso2.org">
             <xs:import namespace="http://core.user.carbon.wso2.org/xsd"></xs:import>
-            <xs:import namespace="http://common.mgt.user.carbon.wso2.org/xsd"></xs:import>
-            <xs:import namespace="http://dao.service.ws.um.carbon.wso2.org/xsd"></xs:import>
+            <xs:import namespace="http://common.mgt.user.identity.carbon.wso2.org/xsd"></xs:import>
+            <xs:import namespace="http://dao.service.ws.um.identity.carbon.wso2.org/xsd"></xs:import>
             <xs:import namespace="http://tenant.core.user.carbon.wso2.org/xsd"></xs:import>
             <xs:element name="RemoteUserStoreManagerServiceUserStoreException">
                 <xs:complexType>

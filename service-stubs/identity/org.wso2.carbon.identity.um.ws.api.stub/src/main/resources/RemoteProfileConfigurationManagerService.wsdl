@@ -15,10 +15,10 @@
  ~ specific language governing permissions and limitations
  ~ under the License.
  -->
-<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:ns1="http://org.apache.axis2/xsd" xmlns:ns="http://service.ws.um.carbon.wso2.org" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:ax2310="http://profile.core.user.carbon.wso2.org/xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ax2307="http://core.user.carbon.wso2.org/xsd" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://service.ws.um.carbon.wso2.org">
+<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:ns1="http://org.apache.axis2/xsd" xmlns:ns="http://service.ws.um.identity.carbon.wso2.org" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:ax2310="http://profile.core.user.carbon.wso2.org/xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ax2307="http://core.user.carbon.wso2.org/xsd" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://service.ws.um.identity.carbon.wso2.org">
     <wsdl:documentation>RemoteProfileConfigurationManagerService</wsdl:documentation>
     <wsdl:types>
-        <xs:schema xmlns:ax2311="http://profile.core.user.carbon.wso2.org/xsd" xmlns:ax2309="http://core.user.carbon.wso2.org/xsd" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://service.ws.um.carbon.wso2.org">
+        <xs:schema xmlns:ax2311="http://profile.core.user.carbon.wso2.org/xsd" xmlns:ax2309="http://core.user.carbon.wso2.org/xsd" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://service.ws.um.identity.carbon.wso2.org">
             <xs:import namespace="http://core.user.carbon.wso2.org/xsd" />
             <xs:import namespace="http://profile.core.user.carbon.wso2.org/xsd" />
             <xs:complexType name="Exception">
@@ -76,8 +76,8 @@
                 </xs:complexType>
             </xs:element>
         </xs:schema>
-        <xs:schema xmlns:ax2308="http://service.ws.um.carbon.wso2.org" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://core.user.carbon.wso2.org/xsd">
-            <xs:import namespace="http://service.ws.um.carbon.wso2.org" />
+        <xs:schema xmlns:ax2308="http://service.ws.um.identity.carbon.wso2.org" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://core.user.carbon.wso2.org/xsd">
+            <xs:import namespace="http://service.ws.um.identity.carbon.wso2.org" />
             <xs:complexType name="UserStoreException">
                 <xs:complexContent>
                     <xs:extension base="ns:Exception">

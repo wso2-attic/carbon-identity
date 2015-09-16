@@ -18,13 +18,13 @@
 
 
 <wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:ns1="http://org.apache.axis2/xsd"
-                  xmlns:ns="http://workflow.mgt.user.carbon.wso2.org"
+                  xmlns:ns="http://workflow.mgt.user.identity.carbon.wso2.org"
                   xmlns:ax2627="http://exception.mgt.workflow.identity.carbon.wso2.org/xsd"
                   xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl"
                   xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
                   xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/"
                   xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/"
-                  targetNamespace="http://workflow.mgt.user.carbon.wso2.org">
+                  targetNamespace="http://workflow.mgt.user.identity.carbon.wso2.org">
     <wsdl:documentation>UserManagementWorkflowService</wsdl:documentation>
     <wsdl:types>
         <xs:schema attributeFormDefault="qualified" elementFormDefault="qualified"
@@ -35,7 +35,7 @@
         </xs:schema>
         <xs:schema xmlns:ax2628="http://exception.mgt.workflow.identity.carbon.wso2.org/xsd"
                    attributeFormDefault="qualified" elementFormDefault="qualified"
-                   targetNamespace="http://workflow.mgt.user.carbon.wso2.org">
+                   targetNamespace="http://workflow.mgt.user.identity.carbon.wso2.org">
             <xs:import namespace="http://exception.mgt.workflow.identity.carbon.wso2.org/xsd"/>
             <xs:element name="UserManagementWorkflowServiceWorkflowException">
                 <xs:complexType>
