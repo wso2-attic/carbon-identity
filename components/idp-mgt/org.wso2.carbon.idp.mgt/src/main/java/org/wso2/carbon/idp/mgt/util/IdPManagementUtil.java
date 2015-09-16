@@ -20,13 +20,13 @@ package org.wso2.carbon.idp.mgt.util;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
 import org.wso2.carbon.identity.application.common.model.FederatedAuthenticatorConfig;
 import org.wso2.carbon.identity.application.common.model.IdentityProvider;
 import org.wso2.carbon.identity.application.common.model.Property;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
+import org.wso2.carbon.idp.mgt.IdentityProviderManagementException;
 import org.wso2.carbon.idp.mgt.IdentityProviderManager;
 import org.wso2.carbon.idp.mgt.internal.IdPManagementServiceComponent;
 import org.wso2.carbon.user.api.TenantManager;
@@ -105,7 +105,7 @@ public class IdPManagementUtil {
             Property property = IdentityApplicationManagementUtil.getProperty(federatedAuthenticatorConfig.getProperties()
                     , timeOutPropertyName);
             timeout = Integer.parseInt(property.getValue()) * 60;
-        } catch (IdentityApplicationManagementException e) {
+        } catch (IdentityProviderManagementException e) {
             log.error("Error when accessing the IdentityProviderManager for tenant : " +tenantDomain, e);
         }
         return timeout;
