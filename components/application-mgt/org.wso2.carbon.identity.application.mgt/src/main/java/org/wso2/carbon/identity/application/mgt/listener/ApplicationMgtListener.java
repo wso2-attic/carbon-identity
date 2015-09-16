@@ -23,16 +23,16 @@ import org.wso2.carbon.identity.application.common.model.ServiceProvider;
 
 public interface ApplicationMgtListener {
 
-    public boolean doPreCreateApplication(ServiceProvider serviceProvider) throws IdentityApplicationManagementException;
+    public boolean doPreCreateApplication(ServiceProvider serviceProvider, String tenantDomain, String userName) throws IdentityApplicationManagementException;
 
-    public boolean doPostCreateApplication(ServiceProvider serviceProvider) throws IdentityApplicationManagementException;
+    public boolean doPostCreateApplication(ServiceProvider serviceProvider, String tenantDomain, String userName) throws IdentityApplicationManagementException;
 
-    public boolean doPreUpdateApplication(ServiceProvider serviceProvider) throws IdentityApplicationManagementException;
+    public boolean doPreUpdateApplication(ServiceProvider serviceProvider, String tenantDomain, String userName) throws IdentityApplicationManagementException;
 
-    public boolean doPostUpdateApplication(ServiceProvider serviceProvider) throws IdentityApplicationManagementException;
+    public boolean doPostUpdateApplication(ServiceProvider serviceProvider, String tenantDomain, String userName) throws IdentityApplicationManagementException;
 
-    public boolean doPreDeleteApplication(String applicationName) throws IdentityApplicationManagementException;
+    public boolean doPreDeleteApplication(String applicationName, String tenantDomain, String userName) throws IdentityApplicationManagementException;
 
-    public boolean doPostDeleteApplication(String applicationName) throws IdentityApplicationManagementException;
+    public boolean doPostDeleteApplication(String applicationName, String tenantDomain, String userName) throws IdentityApplicationManagementException;
 
 }

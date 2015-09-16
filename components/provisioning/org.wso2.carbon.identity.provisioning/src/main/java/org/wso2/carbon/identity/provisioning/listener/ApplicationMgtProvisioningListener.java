@@ -24,7 +24,6 @@ import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
 import org.wso2.carbon.identity.application.common.model.ServiceProvider;
 import org.wso2.carbon.identity.application.mgt.listener.AbstractAppAndIdpOperationEventListener;
-import org.wso2.carbon.identity.application.mgt.listener.ApplicationMgtListener;
 import org.wso2.carbon.identity.provisioning.cache.ServiceProviderProvisioningConnectorCache;
 import org.wso2.carbon.identity.provisioning.cache.ServiceProviderProvisioningConnectorCacheEntry;
 import org.wso2.carbon.identity.provisioning.cache.ServiceProviderProvisioningConnectorCacheKey;
@@ -35,8 +34,8 @@ public class ApplicationMgtProvisioningListener extends AbstractAppAndIdpOperati
     private static Log log = LogFactory.getLog(ApplicationMgtProvisioningListener.class);
 
     @Override
-    public boolean doPreUpdateApplication(ServiceProvider serviceProvider) throws IdentityApplicationManagementException {
-        String tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+    public boolean doPreUpdateApplication(ServiceProvider serviceProvider, String tenantDomain, String userName)
+            throws IdentityApplicationManagementException {
         if(log.isDebugEnabled()){
             log.debug("Clearing cache entry for " + serviceProvider.getApplicationName());
         }
@@ -45,8 +44,8 @@ public class ApplicationMgtProvisioningListener extends AbstractAppAndIdpOperati
     }
 
     @Override
-    public boolean doPreDeleteApplication(String applicationName) throws IdentityApplicationManagementException {
-        String tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+    public boolean doPreDeleteApplication(String applicationName, String tenantDomain, String userName)
+            throws IdentityApplicationManagementException {
         if(log.isDebugEnabled()){
             log.debug("Clearing cache entry for " + applicationName);
         }
