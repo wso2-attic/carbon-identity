@@ -49,7 +49,7 @@
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon.identity</groupId>
-            <artifactId>org.wso2.carbon.security.mgt</artifactId>
+            <artifactId>org.wso2.carbon.identity.security.mgt</artifactId>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
@@ -111,8 +111,8 @@
                             org.wso2.carbon.registry.core.*;version="${carbon.kernel.registry.imp.pkg.version}",
                             org.wso2.carbon.registry.api;version="${carbon.kernel.registry.imp.pkg.version}",
 
-                            org.wso2.carbon.security.util; version="${carbon.identity.package.import.version.range}",
-                            org.wso2.carbon.security.keystore.*;
+                            org.wso2.carbon.identity.security.util; version="${carbon.identity.package.import.version.range}",
+                            org.wso2.carbon.identity.security.keystore.*;
                             version="${carbon.identity.package.import.version.range}",
                             org.apache.neethi; version="${neethi.osgi.version.range}",
                             org.apache.axiom.*; version="${axiom.osgi.version.range}",

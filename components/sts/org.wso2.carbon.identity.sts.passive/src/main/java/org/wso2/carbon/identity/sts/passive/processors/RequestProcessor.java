@@ -43,10 +43,10 @@ import org.wso2.carbon.identity.sts.passive.internal.IdentityPassiveSTSServiceCo
 import org.wso2.carbon.registry.core.Resource;
 import org.wso2.carbon.registry.core.session.UserRegistry;
 import org.wso2.carbon.registry.core.utils.RegistryUtils;
-import org.wso2.carbon.security.keystore.KeyStoreAdmin;
-import org.wso2.carbon.security.keystore.service.KeyStoreData;
-import org.wso2.carbon.security.util.RampartConfigUtil;
-import org.wso2.carbon.security.util.ServerCrypto;
+import org.wso2.carbon.identity.security.keystore.KeyStoreAdmin;
+import org.wso2.carbon.identity.security.keystore.service.KeyStoreData;
+import org.wso2.carbon.identity.security.util.RampartConfigUtil;
+import org.wso2.carbon.identity.security.util.ServerCrypto;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.utils.ServerConstants;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;

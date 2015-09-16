@@ -28,14 +28,14 @@ import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.registry.core.service.RegistryService;
 import org.wso2.carbon.registry.core.service.TenantRegistryLoader;
-import org.wso2.carbon.security.config.SecurityConfigAdmin;
+import org.wso2.carbon.identity.security.config.SecurityConfigAdmin;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.ConfigurationContextService;
 
 /**
  * @scr.component name="identity.core.component" immediate="true"
  * @scr.reference name="security.config.service"
- * interface="org.wso2.carbon.security.config.SecurityConfigAdmin" cardinality="1..1"
+ * interface="org.wso2.carbon.identity.security.config.SecurityConfigAdmin" cardinality="1..1"
  * policy="dynamic" bind="setSecurityConfigAdminService"
  * unbind="unsetSecurityConfigAdminService"
  * @scr.reference name="config.context.service"

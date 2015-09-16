@@ -60,8 +60,8 @@ import org.wso2.carbon.registry.api.RegistryException;
 import org.wso2.carbon.registry.core.Registry;
 import org.wso2.carbon.registry.core.RegistryConstants;
 import org.wso2.carbon.registry.core.Resource;
-import org.wso2.carbon.security.SecurityConfigException;
-import org.wso2.carbon.security.config.SecurityServiceAdmin;
+import org.wso2.carbon.identity.security.SecurityConfigException;
+import org.wso2.carbon.identity.security.config.SecurityServiceAdmin;
 import org.wso2.carbon.user.api.ClaimMapping;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.utils.ServerConstants;
@@ -746,7 +746,7 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
      * @param groupName      Group name
      * @param serviceName    Service name
      * @param trustedService Trusted service name
-     * @throws org.wso2.carbon.security.SecurityConfigException
+     * @throws org.wso2.carbon.identity.security.SecurityConfigException
      */
     private void removeTrustedService(String groupName, String serviceName, String trustedService)
             throws SecurityConfigException {

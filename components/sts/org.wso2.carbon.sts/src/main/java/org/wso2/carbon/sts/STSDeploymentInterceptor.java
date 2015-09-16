@@ -48,10 +48,10 @@ import org.wso2.carbon.registry.core.Collection;
 import org.wso2.carbon.registry.core.Registry;
 import org.wso2.carbon.registry.core.Resource;
 import org.wso2.carbon.registry.core.utils.RegistryUtils;
-import org.wso2.carbon.security.keystore.KeyStoreAdmin;
-import org.wso2.carbon.security.keystore.service.KeyStoreData;
-import org.wso2.carbon.security.util.RampartConfigUtil;
-import org.wso2.carbon.security.util.ServerCrypto;
+import org.wso2.carbon.identity.security.keystore.KeyStoreAdmin;
+import org.wso2.carbon.identity.security.keystore.service.KeyStoreData;
+import org.wso2.carbon.identity.security.util.RampartConfigUtil;
+import org.wso2.carbon.identity.security.util.ServerCrypto;
 import org.wso2.carbon.sts.internal.STSServiceDataHolder;
 import org.wso2.carbon.utils.ServerConstants;
 

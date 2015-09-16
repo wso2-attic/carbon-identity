@@ -26,7 +26,7 @@
 <%@ page import="org.wso2.carbon.identity.sso.saml.ui.SAMLSSOUIConstants" %>
 <%@ page import="org.wso2.carbon.identity.sso.saml.ui.client.SAMLSSOConfigServiceClient" %>
 <%@ page
-        import="org.wso2.carbon.security.keystore.service.CertData" %>
+        import="org.wso2.carbon.identity.security.keystore.service.CertData" %>
 <%@ page
         import="org.wso2.carbon.ui.CarbonUIUtil" %>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>

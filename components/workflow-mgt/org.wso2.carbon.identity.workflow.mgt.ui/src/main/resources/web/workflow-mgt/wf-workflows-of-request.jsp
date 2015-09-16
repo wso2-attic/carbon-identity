@@ -119,7 +119,7 @@
                               numberOfPages="<%=numberOfPages%>"
                               page="wf-workflows-of-request.jsp"
                               pageNumberParameterName="<%=WorkflowUIConstants.PARAM_PAGE_NUMBER%>"
-                              resourceBundle="org.wso2.carbon.security.ui.i18n.Resources"
+                              resourceBundle="org.wso2.carbon.identity.security.ui.i18n.Resources"
                               parameters="<%=paginationValue%>"
                               prevKey="prev" nextKey="next"/>
             <br/>

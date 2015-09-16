@@ -33,11 +33,11 @@ import org.wso2.carbon.registry.core.Resource;
 import org.wso2.carbon.registry.core.ResourceImpl;
 import org.wso2.carbon.registry.core.jdbc.utils.Transaction;
 import org.wso2.carbon.registry.core.service.RegistryService;
-import org.wso2.carbon.security.SecurityConstants;
-import org.wso2.carbon.security.SecurityScenario;
-import org.wso2.carbon.security.SecurityScenarioDatabase;
-import org.wso2.carbon.security.config.SecurityConfigAdmin;
-import org.wso2.carbon.security.util.XmlConfiguration;
+import org.wso2.carbon.identity.security.SecurityConstants;
+import org.wso2.carbon.identity.security.SecurityScenario;
+import org.wso2.carbon.identity.security.SecurityScenarioDatabase;
+import org.wso2.carbon.identity.security.config.SecurityConfigAdmin;
+import org.wso2.carbon.identity.security.util.XmlConfiguration;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.Axis2ConfigurationContextObserver;
 import org.wso2.carbon.utils.ConfigurationContextService;
@@ -63,7 +63,7 @@ import java.util.Iterator;
  * interface="org.wso2.carbon.user.core.service.RealmService" cardinality="1..1"
  * policy="dynamic" bind="setRealmService" unbind="unsetRealmService"
  * @scr.reference name="security.config.service"
- * interface="org.wso2.carbon.security.config.SecurityConfigAdmin" cardinality="1..1"
+ * interface="org.wso2.carbon.identity.security.config.SecurityConfigAdmin" cardinality="1..1"
  * policy="dynamic" bind="setSecurityConfigAdminService"
  * unbind="unsetSecurityConfigAdminService"
  */

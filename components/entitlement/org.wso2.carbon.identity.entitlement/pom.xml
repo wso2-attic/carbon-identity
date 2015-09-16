@@ -168,7 +168,7 @@
                             version="${carbon.identity.package.import.version.range}",
                             org.wso2.carbon.identity.thrift.authentication;
                             version="${carbon.identity.package.import.version.range}",
-                            org.wso2.carbon.security.*; version="${carbon.identity.package.import.version.range}",
+                            org.wso2.carbon.identity.security.*; version="${carbon.identity.package.import.version.range}",
                         </Import-Package>
                         <Export-Package>
                             !org.wso2.carbon.identity.entitlement.common.*,

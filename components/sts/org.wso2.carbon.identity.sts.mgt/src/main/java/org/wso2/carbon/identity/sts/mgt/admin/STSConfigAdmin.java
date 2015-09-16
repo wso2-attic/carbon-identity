@@ -38,8 +38,8 @@ import org.wso2.carbon.identity.sts.mgt.IPPasswordCallbackHandler;
 import org.wso2.carbon.identity.sts.mgt.STSMgtConstants;
 import org.wso2.carbon.identity.sts.mgt.internal.IdentitySTSMgtServiceComponent;
 import org.wso2.carbon.registry.core.Registry;
-import org.wso2.carbon.security.config.SecurityConfigAdmin;
-import org.wso2.carbon.security.config.SecurityServiceAdmin;
+import org.wso2.carbon.identity.security.config.SecurityConfigAdmin;
+import org.wso2.carbon.identity.security.config.SecurityServiceAdmin;
 import org.wso2.carbon.utils.ServerConstants;
 import org.wso2.carbon.utils.ServerException;
 

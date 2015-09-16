@@ -59,7 +59,7 @@
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon.identity</groupId>
-            <artifactId>org.wso2.carbon.security.mgt</artifactId>
+            <artifactId>org.wso2.carbon.identity.security.mgt</artifactId>
         </dependency>
         <dependency>
             <groupId>opensaml.wso2</groupId>

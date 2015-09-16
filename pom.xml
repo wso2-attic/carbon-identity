@@ -402,29 +402,29 @@
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
-                <artifactId>org.wso2.carbon.security.mgt</artifactId>
+                <artifactId>org.wso2.carbon.identity.security.mgt</artifactId>
                 <version>${carbon.identity.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
-                <artifactId>org.wso2.carbon.security.mgt.ui</artifactId>
+                <artifactId>org.wso2.carbon.identity.security.mgt.ui</artifactId>
                 <version>${carbon.identity.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
-                <artifactId>org.wso2.carbon.security.mgt.feature</artifactId>
-                <version>${carbon.identity.version}</version>
-                <type>zip</type>
-            </dependency>
-            <dependency>
-                <groupId>org.wso2.carbon.identity</groupId>
-                <artifactId>org.wso2.carbon.security.mgt.server.feature</artifactId>
+                <artifactId>org.wso2.carbon.identity.security.mgt.feature</artifactId>
                 <version>${carbon.identity.version}</version>
                 <type>zip</type>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
-                <artifactId>org.wso2.carbon.security.mgt.ui.feature</artifactId>
+                <artifactId>org.wso2.carbon.identity.security.mgt.server.feature</artifactId>
+                <version>${carbon.identity.version}</version>
+                <type>zip</type>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.identity</groupId>
+                <artifactId>org.wso2.carbon.identity.security.mgt.ui.feature</artifactId>
                 <version>${carbon.identity.version}</version>
                 <type>zip</type>
             </dependency>
@@ -530,7 +530,7 @@
 
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
-                <artifactId>org.wso2.carbon.security.mgt.stub</artifactId>
+                <artifactId>org.wso2.carbon.identity.security.mgt.stub</artifactId>
                 <version>${carbon.identity.version}</version>
             </dependency>
             <dependency>

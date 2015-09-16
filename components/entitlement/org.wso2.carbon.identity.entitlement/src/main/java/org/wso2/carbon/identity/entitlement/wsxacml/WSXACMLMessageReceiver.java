@@ -79,8 +79,8 @@ import org.wso2.carbon.core.util.KeyStoreManager;
 import org.wso2.carbon.identity.entitlement.EntitlementException;
 import org.wso2.carbon.identity.entitlement.util.CarbonEntityResolver;
 import org.wso2.carbon.registry.core.Registry;
-import org.wso2.carbon.security.SecurityConfigException;
-import org.wso2.carbon.security.keystore.KeyStoreAdmin;
+import org.wso2.carbon.identity.security.SecurityConfigException;
+import org.wso2.carbon.identity.security.keystore.KeyStoreAdmin;
 
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;

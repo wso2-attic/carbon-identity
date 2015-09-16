@@ -115,7 +115,7 @@
                             <importFeatures>
                                 <importFeatureDef>org.wso2.carbon.core:${carbon.kernel.version}</importFeatureDef>
                                 <importFeatureDef>org.wso2.carbon.identity.core:${carbon.identity.version}</importFeatureDef>
-                                <importFeatureDef>org.wso2.carbon.security.mgt.server:${carbon.identity.version}</importFeatureDef>
+                                <importFeatureDef>org.wso2.carbon.identity.security.mgt.server:${carbon.identity.version}</importFeatureDef>
                                 <importFeatureDef>org.wso2.carbon.identity.notification.mgt.server:${carbon.identity.version}</importFeatureDef>
                             </importFeatures>
                         </configuration>
