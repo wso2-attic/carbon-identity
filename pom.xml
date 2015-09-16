@@ -1379,13 +1379,13 @@
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
-                <artifactId>org.wso2.carbon.directory.service.mgr.server.feature</artifactId>
+                <artifactId>org.wso2.carbon.identity.directory.service.mgr.server.feature</artifactId>
                 <version>${carbon.identity.version}</version>
                 <type>zip</type>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
-                <artifactId>org.wso2.carbon.directory.service.mgr.ui.feature</artifactId>
+                <artifactId>org.wso2.carbon.identity.directory.service.mgr.ui.feature</artifactId>
                 <version>${carbon.identity.version}</version>
                 <type>zip</type>
             </dependency>

@@ -32,9 +32,9 @@
     <url>http://wso2.org</url>
 
     <modules>
-        <module>org.wso2.carbon.directory.service.mgr.server.feature</module>
-        <module>org.wso2.carbon.directory.service.mgr.ui.feature</module>
-        <module>org.wso2.carbon.directory.service.mgr.feature</module>
+        <module>org.wso2.carbon.identity.directory.service.mgr.server.feature</module>
+        <module>org.wso2.carbon.identity.directory.service.mgr.ui.feature</module>
+        <module>org.wso2.carbon.identity.directory.service.mgr.feature</module>
     </modules>
 
 </project>
