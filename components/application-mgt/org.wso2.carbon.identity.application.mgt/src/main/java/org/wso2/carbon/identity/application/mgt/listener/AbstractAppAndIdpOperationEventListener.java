@@ -26,27 +26,27 @@ import org.wso2.carbon.idp.mgt.listener.IdentityProviderMgtListener;
 
 public class AbstractAppAndIdpOperationEventListener implements ApplicationMgtListener, IdentityProviderMgtListener {
 
-    public boolean doPreCreateApplication(ServiceProvider serviceProvider) throws IdentityApplicationManagementException {
+    public boolean doPreCreateApplication(ServiceProvider serviceProvider, String tenantDomain, String userName) throws IdentityApplicationManagementException {
         return true;
     }
 
-    public boolean doPostCreateApplication(ServiceProvider serviceProvider) throws IdentityApplicationManagementException {
+    public boolean doPostCreateApplication(ServiceProvider serviceProvider, String tenantDomain, String userName) throws IdentityApplicationManagementException {
         return true;
     }
 
-    public boolean doPreUpdateApplication(ServiceProvider serviceProvider) throws IdentityApplicationManagementException {
+    public boolean doPreUpdateApplication(ServiceProvider serviceProvider, String tenantDomain, String userName) throws IdentityApplicationManagementException {
         return true;
     }
 
-    public boolean doPostUpdateApplication(ServiceProvider serviceProvider) throws IdentityApplicationManagementException {
+    public boolean doPostUpdateApplication(ServiceProvider serviceProvider, String tenantDomain, String userName) throws IdentityApplicationManagementException {
         return true;
     }
 
-    public boolean doPreDeleteApplication(String applicationName) throws IdentityApplicationManagementException {
+    public boolean doPreDeleteApplication(String applicationName, String tenantDomain, String userName) throws IdentityApplicationManagementException {
         return true;
     }
 
-    public boolean doPostDeleteApplication(String applicationName) throws IdentityApplicationManagementException {
+    public boolean doPostDeleteApplication(String applicationName, String tenantDomain, String userName) throws IdentityApplicationManagementException {
         return true;
     }
 

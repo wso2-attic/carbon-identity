@@ -108,16 +108,16 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
     public void createApplication(ServiceProvider serviceProvider, String tenantDomain, String userName)
             throws IdentityApplicationManagementException {
 
-        startTenantFlow(tenantDomain, userName);
-
         // invoking the listeners
         List<ApplicationMgtListener> listeners = ApplicationMgtListenerServiceComponent.getListners();
 
         for (ApplicationMgtListener listener : listeners) {
-            if (!listener.doPreCreateApplication(serviceProvider)) {
+            if (!listener.doPreCreateApplication(serviceProvider,tenantDomain, userName )) {
                 return;
             }
         }
+
+        startTenantFlow(tenantDomain, userName);
 
         try {
             // first we need to create a role with the application name.
@@ -146,7 +146,7 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
         }
 
         for (ApplicationMgtListener listener : listeners) {
-            if (!listener.doPostCreateApplication(serviceProvider)) {
+            if (!listener.doPostCreateApplication(serviceProvider, tenantDomain, userName)) {
                 return;
             }
         }
@@ -191,6 +191,15 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
     @Override
     public void updateApplication(ServiceProvider serviceProvider, String tenantDomain, String userName)
             throws IdentityApplicationManagementException {
+
+        // invoking the listeners
+        List<ApplicationMgtListener> listeners = ApplicationMgtListenerServiceComponent.getListners();
+        for (ApplicationMgtListener listener : listeners) {
+            if (!listener.doPreUpdateApplication(serviceProvider, tenantDomain, userName)) {
+                return;
+            }
+        }
+
         try {
             startTenantFlow(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
 
@@ -213,14 +222,6 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
                     " does not have access to the application " +
                     serviceProvider.getApplicationName());
             throw new IdentityApplicationManagementException("User not authorized");
-        }
-
-        // invoking the listeners
-        List<ApplicationMgtListener> listeners = ApplicationMgtListenerServiceComponent.getListners();
-        for (ApplicationMgtListener listener : listeners) {
-            if (!listener.doPreUpdateApplication(serviceProvider)) {
-                return;
-            }
         }
 
         try {
@@ -251,7 +252,7 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
         }
 
         for (ApplicationMgtListener listener : listeners) {
-            if (!listener.doPostUpdateApplication(serviceProvider)) {
+            if (!listener.doPostUpdateApplication(serviceProvider, tenantDomain, userName)) {
                 return;
             }
         }
@@ -294,14 +295,15 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
     public void deleteApplication(String applicationName, String tenantDomain, String userName)
             throws IdentityApplicationManagementException {
 
-        startTenantFlow(tenantDomain, userName);
         // invoking the listeners
         List<ApplicationMgtListener> listeners = ApplicationMgtListenerServiceComponent.getListners();
         for (ApplicationMgtListener listener : listeners) {
-            if (!listener.doPreDeleteApplication(applicationName)) {
+            if (!listener.doPreDeleteApplication(applicationName, tenantDomain, userName)) {
                 return;
             }
         }
+
+        startTenantFlow(tenantDomain, userName);
 
         if (!ApplicationMgtUtil.isUserAuthorized(applicationName)) {
             log.warn("Illegal Access! User " + CarbonContext.getThreadLocalCarbonContext().getUsername() +
@@ -381,7 +383,7 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
         }
 
         for (ApplicationMgtListener listener : listeners) {
-            if (!listener.doPostDeleteApplication(applicationName)) {
+            if (!listener.doPostDeleteApplication(applicationName, tenantDomain, userName)) {
                 return;
             }
         }
