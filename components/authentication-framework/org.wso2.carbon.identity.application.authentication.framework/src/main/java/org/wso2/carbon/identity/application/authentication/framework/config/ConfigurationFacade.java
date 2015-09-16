@@ -99,7 +99,8 @@ public class ConfigurationFacade {
         return externalIdPConfig;
     }
 
-    public ExternalIdPConfig getIdPConfigByRealm(String realm, String tenantDomain) {
+    public ExternalIdPConfig getIdPConfigByRealm(String realm, String tenantDomain)
+            throws IdentityProviderManagementException {
 
         ExternalIdPConfig externalIdPConfig = null;
         IdentityProvider idpDO = null;
@@ -126,7 +127,7 @@ public class ConfigurationFacade {
                 }
             }
         } catch (IdentityProviderManagementException e) {
-            log.error("Exception while getting IdP by realm", e);
+            throw new IdentityProviderManagementException("Exception while getting IdP by realm", e);
         }
 
         return externalIdPConfig;
