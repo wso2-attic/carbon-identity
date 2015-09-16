@@ -1,0 +1,6 @@
+<Status>
+<StatusCode Value="samlp:Responder"/>
+<StatusMessage>
+$errorMessage
+</StatusMessage>
+</Status>
