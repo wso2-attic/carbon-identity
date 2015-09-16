@@ -44,7 +44,7 @@ import org.wso2.carbon.utils.ConfigurationContextService;
  * @scr.reference name="user.realmservice.default" interface="org.wso2.carbon.user.core.service.RealmService"
  * cardinality="1..1" policy="dynamic" bind="setRealmService"
  * unbind="unsetRealmService"
- * @scr.reference name="workflowservice.default" interface="org.wso2.carbon.identity.workflow.mgt.WorkflowService"
+ * @scr.reference name="workflowservice.default" interface="org.wso2.carbon.identity.workflow.mgt.WorkflowManagementService"
  * cardinality="1..1" policy="dynamic" bind="setWorkflowService"
  * unbind="unsetWorkflowService"
  * @scr.reference name="config.context.service"

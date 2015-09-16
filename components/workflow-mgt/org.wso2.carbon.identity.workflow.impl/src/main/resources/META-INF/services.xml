@@ -18,7 +18,7 @@
 
 <serviceGroup>
 
-    <service name="WorkflowBPELAdminService" scope="transportsession">
+    <service name="WorkflowImplAdminService" scope="transportsession">
         <transports>
             <transport>https</transport>
         </transports>

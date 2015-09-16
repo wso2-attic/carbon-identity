@@ -25,7 +25,6 @@ import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
 import org.wso2.carbon.identity.workflow.impl.WorkflowImplException;
 import org.wso2.carbon.identity.workflow.impl.bean.BPSProfile;
 import org.wso2.carbon.identity.workflow.impl.internal.WorkflowImplServiceDataHolder;
-import org.wso2.carbon.identity.workflow.mgt.internal.WorkflowServiceDataHolder;
 import org.wso2.carbon.identity.workflow.mgt.util.WFConstant;
 import org.wso2.carbon.stratos.common.beans.TenantInfoBean;
 import org.wso2.carbon.stratos.common.exception.StratosException;
@@ -45,9 +44,9 @@ public class WorkflowImplTenantMgtListener implements TenantMgtListener {
         BPSProfile bpsProfileDTO = new BPSProfile();
         String hostName = ServerConfiguration.getInstance().getFirstProperty(IdentityCoreConstants.HOST_NAME);
         String offset = ServerConfiguration.getInstance().getFirstProperty(IdentityCoreConstants.PORTS_OFFSET);
-        String userName = WorkflowServiceDataHolder.getInstance().getRealmService().getBootstrapRealmConfiguration()
+        String userName = WorkflowImplServiceDataHolder.getInstance().getRealmService().getBootstrapRealmConfiguration()
                 .getAdminUserName();
-        String password = WorkflowServiceDataHolder.getInstance().getRealmService().getBootstrapRealmConfiguration()
+        String password = WorkflowImplServiceDataHolder.getInstance().getRealmService().getBootstrapRealmConfiguration()
                 .getAdminPassword();
         try {
             if (hostName == null) {

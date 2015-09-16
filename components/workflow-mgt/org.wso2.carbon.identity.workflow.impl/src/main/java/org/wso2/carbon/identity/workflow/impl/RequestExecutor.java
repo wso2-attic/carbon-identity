@@ -36,7 +36,6 @@ import org.wso2.carbon.identity.workflow.mgt.bean.Parameter;
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkFlowRequest;
 import org.wso2.carbon.identity.workflow.mgt.exception.InternalWorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
-import org.wso2.carbon.identity.workflow.mgt.internal.WorkflowServiceDataHolder;
 import org.wso2.carbon.identity.workflow.mgt.util.WFConstant;
 import org.wso2.carbon.identity.workflow.mgt.workflow.WorkFlowExecutor;
 
@@ -128,7 +127,7 @@ public class RequestExecutor implements WorkFlowExecutor {
 
     private void callService(OMElement messagePayload) throws AxisFault {
 
-        ServiceClient client = new ServiceClient(WorkflowServiceDataHolder.getInstance()
+        ServiceClient client = new ServiceClient(WorkflowImplServiceDataHolder.getInstance()
                                                          .getConfigurationContextService()
                                                          .getClientConfigContext(), null);
         Options options = new Options();

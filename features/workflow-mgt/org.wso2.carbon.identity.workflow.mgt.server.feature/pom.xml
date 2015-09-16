@@ -78,6 +78,8 @@
                             <bundles>
                                 <bundleDef>org.wso2.carbon.identity:org.wso2.carbon.identity.workflow.mgt.bps.stub</bundleDef>
                                 <bundleDef>org.wso2.carbon.identity:org.wso2.carbon.identity.workflow.mgt</bundleDef>
+                                <bundleDef>org.wso2.carbon.identity:org.wso2.carbon.identity.workflow.template</bundleDef>
+                                <bundleDef>org.wso2.carbon.identity:org.wso2.carbon.identity.workflow.impl</bundleDef>
                             </bundles>
                             <importFeatures>
                                 <importFeatureDef>org.wso2.carbon.identity.core.server</importFeatureDef>

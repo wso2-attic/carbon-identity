@@ -33,11 +33,12 @@ import org.wso2.carbon.identity.workflow.impl.ApprovalWorkflow;
 import org.wso2.carbon.identity.workflow.impl.listener.WorkflowImplTenantMgtListener;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowRuntimeException;
-import org.wso2.carbon.identity.workflow.mgt.internal.WorkflowServiceDataHolder;
 import org.wso2.carbon.identity.workflow.mgt.util.WFConstant;
 import org.wso2.carbon.identity.workflow.mgt.util.WorkflowManagementUtil;
 import org.wso2.carbon.identity.workflow.mgt.workflow.AbstractWorkflow;
 import org.wso2.carbon.stratos.common.listeners.TenantMgtListener;
+import org.wso2.carbon.user.core.service.RealmService;
+import org.wso2.carbon.utils.ConfigurationContextService;
 import org.wso2.carbon.utils.NetworkUtils;
 
 import java.io.IOException;
@@ -46,11 +47,29 @@ import java.net.URISyntaxException;
 
 /**
  * @scr.component name="identity.workflow.bpel" immediate="true"
+ * @scr.reference name="user.realmservice.default" interface="org.wso2.carbon.user.core.service.RealmService"
+ * cardinality="1..1" policy="dynamic" bind="setRealmService"
+ * unbind="unsetRealmService"
  */
 public class WorkflowImplServiceComponent {
 
     private static Log log = LogFactory.getLog(WorkflowImplServiceComponent.class);
 
+
+    protected void setRealmService(RealmService realmService) {
+
+        WorkflowImplServiceDataHolder.getInstance().setRealmService(realmService);
+    }
+
+    protected void unsetRealmService(RealmService realmService) {
+
+        WorkflowImplServiceDataHolder.getInstance().setRealmService(null);
+    }
+
+    protected void unsetConfigurationContextService(ConfigurationContextService contextService) {
+
+        WorkflowImplServiceDataHolder.getInstance().setConfigurationContextService(null);
+    }
 
     protected void activate(ComponentContext context) {
 
@@ -79,9 +98,9 @@ public class WorkflowImplServiceComponent {
         BPSProfile bpsProfileDTO = new BPSProfile();
         String hostName = ServerConfiguration.getInstance().getFirstProperty(IdentityCoreConstants.HOST_NAME);
         String offset = ServerConfiguration.getInstance().getFirstProperty(IdentityCoreConstants.PORTS_OFFSET);
-        String userName = WorkflowServiceDataHolder.getInstance().getRealmService().getBootstrapRealmConfiguration()
+        String userName = WorkflowImplServiceDataHolder.getInstance().getRealmService().getBootstrapRealmConfiguration()
                 .getAdminUserName();
-        String password = WorkflowServiceDataHolder.getInstance().getRealmService().getBootstrapRealmConfiguration()
+        String password = WorkflowImplServiceDataHolder.getInstance().getRealmService().getBootstrapRealmConfiguration()
                 .getAdminPassword();
         try {
             if (hostName == null) {

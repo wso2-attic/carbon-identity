@@ -64,6 +64,16 @@ public class WorkflowMgtServiceComponent {
         WorkflowServiceDataHolder.getInstance().setRealmService(realmService);
     }
 
+    protected void unsetRealmService(RealmService realmService) {
+
+        WorkflowServiceDataHolder.getInstance().setRealmService(null);
+    }
+
+    protected void unsetConfigurationContextService(ConfigurationContextService contextService) {
+
+        WorkflowServiceDataHolder.getInstance().setConfigurationContextService(null);
+    }
+
     protected void setConfigurationContextService(ConfigurationContextService contextService) {
 
         WorkflowServiceDataHolder.getInstance().setConfigurationContextService(contextService);
@@ -83,15 +93,7 @@ public class WorkflowMgtServiceComponent {
 
     }
 
-    protected void unsetRealmService(RealmService realmService) {
 
-        WorkflowServiceDataHolder.getInstance().setRealmService(null);
-    }
-
-    protected void unsetConfigurationContextService(ConfigurationContextService contextService) {
-
-        WorkflowServiceDataHolder.getInstance().setConfigurationContextService(null);
-    }
 
     protected void setWorkflowRequestHandler(WorkflowRequestHandler workflowRequestHandler) {
 
