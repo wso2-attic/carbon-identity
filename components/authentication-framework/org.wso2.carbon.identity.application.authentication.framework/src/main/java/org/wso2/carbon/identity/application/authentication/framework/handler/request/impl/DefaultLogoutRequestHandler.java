@@ -154,14 +154,13 @@ public class DefaultLogoutRequestHandler implements LogoutRequestHandler {
         request.setAttribute(FrameworkConstants.ResponseParams.LOGGED_OUT, isLoggedOut);
 
         String redirectURL;
-        String webContextRoot= ServerConfiguration.getInstance().getFirstProperty(FrameworkConstants.WEB_CONTEXT_ROOT);
+        String webContextRoot = ServerConfiguration.getInstance().getFirstProperty(FrameworkConstants.WEB_CONTEXT_ROOT);
         if (StringUtils.isNotBlank(webContextRoot)) {
             if (webContextRoot.charAt(0) == '/') {
                 if (webContextRoot.length() <= 1) {
                     webContextRoot = "";
                 }
-            }
-            else{
+            } else {
                 webContextRoot = "/" + webContextRoot;
             }
         }

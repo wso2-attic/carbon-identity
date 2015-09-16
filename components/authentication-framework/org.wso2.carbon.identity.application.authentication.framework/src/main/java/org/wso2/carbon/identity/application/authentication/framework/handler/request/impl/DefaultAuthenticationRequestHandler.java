@@ -391,12 +391,11 @@ public class DefaultAuthenticationRequestHandler implements AuthenticationReques
                 if (webContextRoot.length() <= 1) {
                     webContextRoot = "";
                 }
-            }
-            else{
+            } else {
                 webContextRoot = "/" + webContextRoot;
             }
         }
-        String redirectURL=null;
+        String redirectURL;
         if (StringUtils.isNotBlank(webContextRoot)) {
             redirectURL = webContextRoot + context.getCallerPath() + "?sessionDataKey="
                     + context.getCallerSessionKey() + rememberMeParam;
