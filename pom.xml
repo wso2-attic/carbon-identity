@@ -397,7 +397,7 @@
 
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
-                <artifactId>org.wso2.carbon.sts</artifactId>
+                <artifactId>org.wso2.carbon.identity.sts</artifactId>
                 <version>${carbon.identity.version}</version>
             </dependency>
             <dependency>
@@ -1490,13 +1490,13 @@
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
-                <artifactId>org.wso2.carbon.sts.server.feature</artifactId>
+                <artifactId>org.wso2.carbon.identity.sts.server.feature</artifactId>
                 <version>${carbon.identity.version}</version>
                 <type>zip</type>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
-                <artifactId>org.wso2.carbon.sts.ui.feature</artifactId>
+                <artifactId>org.wso2.carbon.identity.sts.ui.feature</artifactId>
                 <version>${carbon.identity.version}</version>
                 <type>zip</type>
             </dependency>
@@ -1642,12 +1642,12 @@
 
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
-                <artifactId>org.wso2.carbon.sts.ui</artifactId>
+                <artifactId>org.wso2.carbon.identity.sts.ui</artifactId>
                 <version>${carbon.identity.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
-                <artifactId>org.wso2.carbon.sts.stub</artifactId>
+                <artifactId>org.wso2.carbon.identity.sts.stub</artifactId>
                 <version>${carbon.identity.version}</version>
             </dependency>
             <dependency>

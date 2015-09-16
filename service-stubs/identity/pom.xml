@@ -52,7 +52,7 @@
         <module>org.wso2.carbon.identity.user.registration.stub</module>
         <module>org.wso2.carbon.identity.user.store.configuration.stub</module>
         <module>org.wso2.carbon.identity.idp.mgt.stub</module>
-        <module>org.wso2.carbon.sts.stub</module>
+        <module>org.wso2.carbon.identity.sts.stub</module>
         <module>org.wso2.carbon.identity.um.ws.api.stub</module>
         <module>org.wso2.carbon.identity.directory.server.manager.stub</module>
         <module>org.wso2.carbon.identity.tools.saml.validator.stub</module>
