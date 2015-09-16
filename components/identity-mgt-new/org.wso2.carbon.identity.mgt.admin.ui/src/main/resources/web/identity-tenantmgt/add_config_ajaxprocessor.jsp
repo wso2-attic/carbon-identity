@@ -37,12 +37,9 @@
     ResourceBundle resourceBundle = ResourceBundle.getBundle(BUNDLE, request.getLocale());
     String forwardTo = null;
     try {
-        String cookie = (String) session
-                .getAttribute(ServerConstants.ADMIN_SERVICE_COOKIE);
-        String backendServerURL = CarbonUIUtil.getServerURL(config.getServletContext(),
-                session);
-        ConfigurationContext configContext = (ConfigurationContext) config
-                .getServletContext()
+        String cookie = (String) session.getAttribute(ServerConstants.ADMIN_SERVICE_COOKIE);
+        String backendServerURL = CarbonUIUtil.getServerURL(config.getServletContext(), session);
+        ConfigurationContext configContext = (ConfigurationContext) config.getServletContext()
                 .getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
 
         ArrayList<String> configNames = new ArrayList<String>() {{

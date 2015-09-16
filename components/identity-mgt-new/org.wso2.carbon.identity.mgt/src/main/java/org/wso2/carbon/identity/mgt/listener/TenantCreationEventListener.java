@@ -33,7 +33,7 @@ public class TenantCreationEventListener implements TenantMgtListener {
         try {
             identityMgtService.addConfiguration(tenantInfoBean.getTenantId());
         } catch (IdentityMgtException e) {
-            throw new StratosException("Error when adding configuration details.");
+            throw new StratosException("Error when adding configuration details.", e);
         }
     }
 

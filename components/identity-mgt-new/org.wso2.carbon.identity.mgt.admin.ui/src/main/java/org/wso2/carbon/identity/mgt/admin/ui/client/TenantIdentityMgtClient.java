@@ -42,13 +42,14 @@ public class TenantIdentityMgtClient {
                                    ConfigurationContext configContext)
             throws Exception {
         try {
-            stub = new UserIdentityManagementAdminServiceStub(configContext, backendServerURL + "UserIdentityManagementAdminService");
+            stub = new UserIdentityManagementAdminServiceStub(configContext, backendServerURL +
+                    IdentityMgtAdminUIConstants.IDENTITY_MGT_ADMIN_SERVICE_URL);
             ServiceClient client = stub._getServiceClient();
             Options option = client.getOptions();
             option.setManageSession(true);
             option.setProperty(org.apache.axis2.transport.http.HTTPConstants.COOKIE_STRING, cookie);
         } catch (Exception e) {
-            throw new Exception("Error occurred while creating TenantIdentityMgtClient Object");
+            throw new Exception("Error occurred while creating TenantIdentityMgtClient Object", e);
         }
     }
 
@@ -71,7 +72,7 @@ public class TenantIdentityMgtClient {
 
             stub.updateConfiguration(tenantConfigDTOs);
         } catch (RemoteException e) {
-            log.error("Error occurred when updating configuration details");
+            log.error("Error occurred when updating configuration details", e);
         }
     }
 
@@ -88,7 +89,7 @@ public class TenantIdentityMgtClient {
             }
 
         } catch (RemoteException e) {
-            log.error("Error occurred when retrieving configuration details");
+            log.error("Error occurred when retrieving configuration details", e);
         }
 
         return configMap;

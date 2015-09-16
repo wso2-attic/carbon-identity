@@ -30,17 +30,13 @@
 
 <%
 
-    String cookie = (String) session
-            .getAttribute(ServerConstants.ADMIN_SERVICE_COOKIE);
-    String backendServerURL = CarbonUIUtil.getServerURL(config.getServletContext(),
-            session);
-    ConfigurationContext configContext = (ConfigurationContext) config
-            .getServletContext()
+    String cookie = (String) session.getAttribute(ServerConstants.ADMIN_SERVICE_COOKIE);
+    String backendServerURL = CarbonUIUtil.getServerURL(config.getServletContext(), session);
+    ConfigurationContext configContext = (ConfigurationContext) config.getServletContext()
             .getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
 
-    Map<String, String> configMap = new HashMap<String, String>();
-    TenantIdentityMgtClient client =
-            new TenantIdentityMgtClient(cookie, backendServerURL, configContext);
+    Map<String, String> configMap = new HashMap<>();
+    TenantIdentityMgtClient client = new TenantIdentityMgtClient(cookie, backendServerURL, configContext);
     configMap = client.getAllConfigurations();
 
 %>
@@ -108,7 +104,7 @@
     <td colspan="2" name="Account.Lock.Enable" id="Account.Lock.Enable" style="width:410px">
         <%
             for (String value : values) {
-                if (configurations.get("tenantConfiguration" + i).equals(value)) {
+                if (value.equals(configurations.get("tenantConfiguration" + i))) {
         %>
         <input type="radio" name="Account.Lock.Enable"
                value="<%=value%>" checked="checked"><%=value%>
@@ -137,7 +133,7 @@
     <td colspan="2" name="Account.Unlock.Enable" id="Account.Unlock.Enable" style="width:410px">
         <%
             for (String value : values) {
-                if (configurations.get("tenantConfiguration" + i).equals(value)) {
+                if (value.equals(configurations.get("tenantConfiguration" + i))) {
         %>
         <input type="radio" name="Account.Unlock.Enable"
                value="<%=value%>" checked="checked"><%=value%>
@@ -165,7 +161,7 @@
     <td colspan="2" name="Account.Max.Attempt.Enable" id="Account.Max.Attempt.Enable" style="width:410px">
         <%
             for (String value : values) {
-                if (configurations.get("tenantConfiguration" + i).equals(value)) {
+                if (value.equals(configurations.get("tenantConfiguration" + i))) {
         %>
         <input type="radio" name="Account.Max.Attempt.Enable"
                value="<%=value%>" checked="checked"><%=value%>
@@ -196,7 +192,7 @@
     <td colspan="2" name="Account.OneTime.Password.Enable" id="Account.OneTime.Password.Enable" style="width:410px">
         <%
             for (String value : values) {
-                if (configurations.get("tenantConfiguration" + i).equals(value)) {
+                if (value.equals(configurations.get("tenantConfiguration" + i))) {
         %>
         <input type="radio" name="Account.OneTime.Password.Enable"
                value="<%=value%>" checked="checked"><%=value%>
@@ -225,7 +221,7 @@
     <td colspan="2" name="Account.Password.Reuse.Enable" id="Account.Password.Reuse.Enable" style="width:410px">
         <%
             for (String value : values) {
-                if (configurations.get("tenantConfiguration" + i).equals(value)) {
+                if (value.equals(configurations.get("tenantConfiguration" + i))) {
         %>
         <input type="radio" name="Account.Password.Reuse.Enable"
                value="<%=value%>" checked="checked"><%=value%>
@@ -256,7 +252,7 @@
     <td colspan="2" name="Account.Password.Expire.Enable" id="Account.Password.Expire.Enable" style="width:410px">
         <%
             for (String value : values) {
-                if (configurations.get("tenantConfiguration" + i).equals(value)) {
+                if (value.equals(configurations.get("tenantConfiguration" + i))) {
         %>
         <input type="radio" name="Account.Password.Expire.Enable"
                value="<%=value%>" checked="checked"><%=value%>
@@ -287,7 +283,7 @@
     <td colspan="2" name="Notification.Sending.Enable" id="Notification.Sending.Enable" style="width:410px">
         <%
             for (String value : values) {
-                if (configurations.get("tenantConfiguration" + i).equals(value)) {
+                if (value.equals(configurations.get("tenantConfiguration" + i))) {{
         %>
         <input type="radio" name="Notification.Sending.Enable"
                value="<%=value%>" checked="checked"><%=value%>
@@ -426,7 +422,7 @@
         style="width:410px">
         <%
             for (String value : values) {
-                if (configurations.get("tenantConfiguration" + i).equals(value)) {
+                if (value.equals(configurations.get("tenantConfiguration" + i))) {
         %>
         <input type="radio" name="Authentication.Policy.Check.Password.Expire"
                value="<%=value%>" checked="checked"><%=value%>
@@ -484,7 +480,7 @@
         id="Authentication.Policy.Account.Lock.On.Failure" style="width:410px">
         <%
             for (String value : values) {
-                if (configurations.get("tenantConfiguration" + i).equals(value)) {
+                if (value.equals(configurations.get("tenantConfiguration" + i))) {
         %>
         <input type="radio" name="Authentication.Policy.Account.Lock.On.Failure"
                value="<%=value%>" checked="checked"><%=value%>
@@ -529,7 +525,7 @@
         style="width:410px">
         <%
             for (String value : values) {
-                if (configurations.get("tenantConfiguration" + i).equals(value)) {
+                if (value.equals(configurations.get("tenantConfiguration" + i))) {
         %>
         <input type="radio" name="Authentication.Policy.Check.Password.Reuse"
                value="<%=value%>" checked="checked"><%=value%>
@@ -602,7 +598,7 @@
                 style="width:410px">
                 <%
                     for (String value : values) {
-                        if (configurations.get("tenantConfiguration" + i).equals(value)) {
+                        if (value.equals(configurations.get("tenantConfiguration" + i))) {
                 %>
                 <input type="radio" name="Captcha.Verification.Internally.Managed"
                        value="<%=value%>" checked="checked"><%=value%>
@@ -647,7 +643,7 @@
                 id="Authentication.Policy.Check.Account.Lock" style="width:410px">
                 <%
                     for (String value : values) {
-                        if (configurations.get("tenantConfiguration" + i).equals(value)) {
+                        if (value.equals(configurations.get("tenantConfiguration" + i))) {
                 %>
                 <input type="radio" name="Authentication.Policy.Check.Account.Lock"
                        value="<%=value%>" checked="checked"><%=value%>
@@ -745,7 +741,7 @@
                 id="Authentication.Policy.Check.OneTime.Password" style="width:410px">
                 <%
                     for (String value : values) {
-                        if (configurations.get("tenantConfiguration" + i).equals(value)) {
+                        if (value.equals(configurations.get("tenantConfiguration" + i))) {
                 %>
                 <input type="radio" name="Authentication.Policy.Check.OneTime.Password"
                        value="<%=value%>" checked="checked"><%=value%>
@@ -788,7 +784,7 @@
                 style="width:410px">
                 <%
                     for (String value : values) {
-                        if (configurations.get("tenantConfiguration" + i).equals(value)) {
+                        if (value.equals(configurations.get("tenantConfiguration" + i))) {
                 %>
                 <input type="radio" name="UserAccount.Verification.Enable"
                        value="<%=value%>" checked="checked"><%=value%>
@@ -818,7 +814,7 @@
             <td colspan="2" name="Temporary.Password.Enable" id="Temporary.Password.Enable" style="width:410px">
                 <%
                     for (String value : values) {
-                        if (configurations.get("tenantConfiguration" + i).equals(value)) {
+                        if (value.equals(configurations.get("tenantConfiguration" + i))) {
                 %>
                 <input type="radio" name="Temporary.Password.Enable"
                        value="<%=value%>" checked="checked"><%=value%>
@@ -864,7 +860,7 @@
                 id="Authentication.Policy.Account.Lock.On.Creation" style="width:410px">
                 <%
                     for (String value : values) {
-                        if (configurations.get("tenantConfiguration" + i).equals(value)) {
+                        if (value.equals(configurations.get("tenantConfiguration" + i))) {
                 %>
                 <input type="radio" name="Authentication.Policy.Account.Lock.On.Creation"
                        value="<%=value%>" checked="checked"><%=value%>

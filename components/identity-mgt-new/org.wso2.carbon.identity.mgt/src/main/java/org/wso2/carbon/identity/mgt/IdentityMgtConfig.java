@@ -49,9 +49,7 @@ public class IdentityMgtConfig {
         try {
             properties = identityMgtService.addConfiguration(tenantId);
         } catch (IdentityMgtException ex) {
-            String msg = "Error when adding configurations";
-            log.error(msg);
-            throw new IdentityMgtException(msg,ex);
+            throw new IdentityMgtException("Error when adding configurations", ex);
         }
         return properties;
     }
@@ -63,15 +61,12 @@ public class IdentityMgtConfig {
         try {
             configMap = identityMgtService.getConfiguration(tenantId);
         } catch (IdentityMgtException ex) {
-            String msg = "Error when retrieving configurations";
-            log.error(msg);
-            throw new IdentityMgtException(msg,ex);
+            throw new IdentityMgtException("Error when retrieving configurations", ex);
         }
         Iterator<Map.Entry<String, String>> iterator = configMap.entrySet().iterator();
         while (iterator.hasNext()) {
             Map.Entry<String, String> pair = iterator.next();
             properties.setProperty(pair.getKey(), pair.getValue());
-            System.out.println(pair.getKey() + " = " + pair.getValue());
         }
         return properties;
 

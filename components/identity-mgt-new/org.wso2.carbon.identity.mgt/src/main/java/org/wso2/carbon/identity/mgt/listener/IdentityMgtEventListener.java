@@ -97,7 +97,7 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
         try {
             identityMgtService.handleEvent(identityMgtEvent);
         } catch (IdentityMgtException e) {
-            throw new UserStoreException("Error when authenticating user");
+            throw new UserStoreException("Error when authenticating user", e);
         }
 
         return true;
@@ -113,7 +113,7 @@ public class IdentityMgtEventListener extends AbstractUserOperationEventListener
             Properties properties = identityMgtConfig.getConfiguration(tenantId);
             identityMgtConfig.setConfiguration(properties);
         } catch (IdentityMgtException ex) {
-            log.error("Error when retrieving configurations of tenant: " + tenantId);
+            log.error("Error when retrieving configurations of tenant: " + tenantId, ex);
         }
         return identityMgtConfig;
     }

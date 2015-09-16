@@ -45,7 +45,7 @@ import java.util.List;
 
 public class IdentityMgtServiceImpl implements IdentityMgtService {
 
-    Log log = LogFactory.getLog(IdentityMgtServiceImpl.class);
+    private static final Log log = LogFactory.getLog(IdentityMgtServiceImpl.class);
 
     /**
      * Add configurations in identity-mgt.properties file into database and cache
