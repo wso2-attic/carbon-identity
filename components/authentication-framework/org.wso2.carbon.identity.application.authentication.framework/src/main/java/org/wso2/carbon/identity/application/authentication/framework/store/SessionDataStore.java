@@ -27,7 +27,7 @@ import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.persistence.JDBCPersistenceManager;
 import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
-import org.wso2.carbon.idp.mgt.util.IdPManagementUtil;
+import org.wso2.carbon.identity.idp.mgt.util.IdPManagementUtil;
 import org.wso2.carbon.user.core.util.DatabaseUtil;
 
 import java.io.ByteArrayInputStream;

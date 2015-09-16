@@ -43,7 +43,7 @@ import org.wso2.carbon.identity.sts.passive.ui.cache.SessionDataCacheEntry;
 import org.wso2.carbon.identity.sts.passive.ui.cache.SessionDataCacheKey;
 import org.wso2.carbon.identity.sts.passive.ui.client.IdentityPassiveSTSClient;
 import org.wso2.carbon.identity.sts.passive.ui.dto.SessionDTO;
-import org.wso2.carbon.idp.mgt.util.IdPManagementUtil;
+import org.wso2.carbon.identity.idp.mgt.util.IdPManagementUtil;
 import org.wso2.carbon.registry.core.utils.UUIDGenerator;
 import org.wso2.carbon.ui.CarbonUIUtil;
 import org.wso2.carbon.utils.CarbonUtils;

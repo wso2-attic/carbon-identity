@@ -27,7 +27,7 @@ import org.wso2.carbon.identity.application.authentication.framework.config.mode
 import org.wso2.carbon.identity.application.authentication.framework.exception.FrameworkException;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
 import org.wso2.carbon.identity.application.common.model.IdentityProvider;
-import org.wso2.carbon.idp.mgt.IdentityProviderManager;
+import org.wso2.carbon.identity.idp.mgt.IdentityProviderManager;
 
 import java.util.List;
 import java.util.Map;

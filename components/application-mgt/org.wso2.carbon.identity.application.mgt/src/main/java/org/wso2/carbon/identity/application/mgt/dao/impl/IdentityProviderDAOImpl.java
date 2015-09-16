@@ -28,7 +28,7 @@ import org.wso2.carbon.identity.application.common.model.LocalAuthenticatorConfi
 import org.wso2.carbon.identity.application.common.model.ProvisioningConnectorConfig;
 import org.wso2.carbon.identity.application.common.model.RequestPathAuthenticatorConfig;
 import org.wso2.carbon.identity.application.mgt.dao.IdentityProviderDAO;
-import org.wso2.carbon.idp.mgt.IdentityProviderManager;
+import org.wso2.carbon.identity.idp.mgt.IdentityProviderManager;
 
 import java.util.ArrayList;
 import java.util.List;

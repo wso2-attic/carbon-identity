@@ -35,8 +35,8 @@
     <url>http://wso2.org</url>
 
     <modules>
-        <module>org.wso2.carbon.idp.mgt</module>
-        <module>org.wso2.carbon.idp.mgt.ui</module>
+        <module>org.wso2.carbon.identity.idp.mgt</module>
+        <module>org.wso2.carbon.identity.idp.mgt.ui</module>
     </modules>
 
 </project>

@@ -648,7 +648,7 @@
 
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
-                <artifactId>org.wso2.carbon.idp.mgt</artifactId>
+                <artifactId>org.wso2.carbon.identity.idp.mgt</artifactId>
                 <version>${carbon.identity.version}</version>
             </dependency>
             <dependency>
@@ -1061,7 +1061,7 @@
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
-                <artifactId>org.wso2.carbon.idp.mgt.stub</artifactId>
+                <artifactId>org.wso2.carbon.identity.idp.mgt.stub</artifactId>
                 <version>${carbon.identity.version}</version>
             </dependency>
             <dependency>
@@ -1549,18 +1549,18 @@
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
-                <artifactId>org.wso2.carbon.idp.mgt.ui</artifactId>
+                <artifactId>org.wso2.carbon.identity.idp.mgt.ui</artifactId>
                 <version>${carbon.identity.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
-                <artifactId>org.wso2.carbon.idp.mgt.server.feature</artifactId>
+                <artifactId>org.wso2.carbon.identity.idp.mgt.server.feature</artifactId>
                 <version>${carbon.identity.version}</version>
                 <type>zip</type>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
-                <artifactId>org.wso2.carbon.idp.mgt.ui.feature</artifactId>
+                <artifactId>org.wso2.carbon.identity.idp.mgt.ui.feature</artifactId>
                 <version>${carbon.identity.version}</version>
                 <type>zip</type>
             </dependency>

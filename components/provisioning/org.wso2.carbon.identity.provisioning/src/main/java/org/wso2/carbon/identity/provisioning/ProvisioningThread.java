@@ -21,7 +21,7 @@ package org.wso2.carbon.identity.provisioning;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
 import org.wso2.carbon.identity.provisioning.dao.CacheBackedProvisioningMgtDAO;
-import org.wso2.carbon.idp.mgt.util.IdPManagementUtil;
+import org.wso2.carbon.identity.idp.mgt.util.IdPManagementUtil;
 import org.wso2.carbon.user.api.UserStoreException;
 
 import java.util.UUID;

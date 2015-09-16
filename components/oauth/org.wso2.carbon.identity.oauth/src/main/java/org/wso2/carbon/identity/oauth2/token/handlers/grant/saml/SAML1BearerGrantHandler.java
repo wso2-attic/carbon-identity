@@ -54,7 +54,7 @@ import org.wso2.carbon.identity.oauth2.token.OAuthTokenReqMessageContext;
 import org.wso2.carbon.identity.oauth2.token.handlers.grant.AbstractAuthorizationGrantHandler;
 import org.wso2.carbon.identity.oauth2.util.OAuth2Util;
 import org.wso2.carbon.identity.oauth2.util.X509CredentialImpl;
-import org.wso2.carbon.idp.mgt.IdentityProviderManager;
+import org.wso2.carbon.identity.idp.mgt.IdentityProviderManager;
 
 import java.io.IOException;
 import java.io.InputStream;

@@ -29,7 +29,7 @@ import org.wso2.carbon.identity.provisioning.AbstractProvisioningConnectorFactor
 import org.wso2.carbon.identity.provisioning.listener.ApplicationMgtProvisioningListener;
 import org.wso2.carbon.identity.provisioning.listener.DefaultInboundUserProvisioningListener;
 import org.wso2.carbon.identity.provisioning.listener.IdentityProviderMgtProvisioningListener;
-import org.wso2.carbon.idp.mgt.listener.IdentityProviderMgtLister;
+import org.wso2.carbon.identity.idp.mgt.listener.IdentityProviderMgtLister;
 import org.wso2.carbon.registry.core.service.RegistryService;
 import org.wso2.carbon.user.core.listener.UserOperationEventListener;
 import org.wso2.carbon.user.core.service.RealmService;

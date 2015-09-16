@@ -28,7 +28,7 @@ import org.wso2.carbon.identity.core.persistence.JDBCPersistenceManager;
 import org.wso2.carbon.identity.provisioning.IdentityProvisioningConstants;
 import org.wso2.carbon.identity.provisioning.ProvisionedIdentifier;
 import org.wso2.carbon.identity.provisioning.ProvisioningEntity;
-import org.wso2.carbon.idp.mgt.util.IdPManagementConstants;
+import org.wso2.carbon.identity.idp.mgt.util.IdPManagementConstants;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 
 import java.io.ByteArrayInputStream;
