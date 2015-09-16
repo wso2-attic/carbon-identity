@@ -270,8 +270,13 @@ public class DefaultStepHandler implements StepHandler {
         }
 
         // try to find an IdP with the retrieved realm
-        ExternalIdPConfig externalIdPConfig = ConfigurationFacade.getInstance()
+        ExternalIdPConfig externalIdPConfig = null;
+        try {
+             externalIdPConfig = ConfigurationFacade.getInstance()
                 .getIdPConfigByRealm(homeRealm, context.getTenantDomain());
+        } catch (IdentityProviderManagementException e) {
+            log.error("Exception while getting IdP by realm", e);
+        }
         // if an IdP exists
         if (externalIdPConfig != null) {
             String idpName = externalIdPConfig.getIdPName();
