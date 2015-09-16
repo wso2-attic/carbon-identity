@@ -216,24 +216,4 @@ public class IdentityMgtConstants {
         }
 
     }
-
-    public class UserClaimProperty {
-
-        public static final String USER_IDENTITY_DTO = "userIdentityDTO";
-        public static final String IDENTITY_MGT_CONFIG = "identityMgtConfig";
-        public static final String CREDENTIAL = "credential";
-        public static final String USERNAME = "userName";
-        public static final String USER_STORE_MANAGER = "userStoreManager";
-        public static final String MODULE = "module";
-        public static final String AUTHENTICATED = "authenticated";
-        public static final String USER_OTP_ENABLED = "userOTPEnabled";
-
-    }
-
-    public class Event {
-
-        public static final String POST_AUTHENTICATION = "POST_AUTHENTICATION";
-        public static final String PRE_UPDATE_CREDENTIAL = "PRE_UPDATE_CREDENTIAL";
-
-    }
 }

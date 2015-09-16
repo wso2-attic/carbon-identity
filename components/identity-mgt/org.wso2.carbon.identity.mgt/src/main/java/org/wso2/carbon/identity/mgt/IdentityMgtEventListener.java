@@ -57,6 +57,7 @@ import org.wso2.carbon.user.core.util.UserCoreUtil;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -64,6 +65,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 
 /**
@@ -360,11 +362,33 @@ public class IdentityMgtEventListener extends AbstractIdentityUserOperationEvent
 
                 // Password expire check. Not for OTP enabled users.
                 if (authenticated && config.isAuthPolicyExpirePasswordCheck() && !userOTPEnabled && (!userStoreManager.isReadOnly())) {
-                    // TODO - password expire impl
-                    // Refactor adduser and change password api to stamp the time
-                    // Check user's expire time in the claim
-                    // if expired redirect to change password
-                    // else pass through
+
+                    long expireTimeConfiguration = TimeUnit.DAYS.toMillis(config.getPasswordExpireTime());
+                    long lastPasswordChangeTime = userIdentityDTO.getPasswordTimeStamp();
+                    long currentTime = Calendar.getInstance().getTimeInMillis();
+
+
+                    int expireFrequencyConfiguration = config.getPasswordExpireFrequency();
+                    int noOfTimePasswordIsUsed = userIdentityDTO.getPasswordUseFrequency();
+
+                    // Password Expire based on time
+                    if (lastPasswordChangeTime > 0 && ((currentTime - lastPasswordChangeTime) > expireTimeConfiguration)) {
+                        if (log.isDebugEnabled()) {
+                            log.debug("Same password is used for maximum duration, has to change the password");
+                        }
+                        throw new UserStoreException(
+                                "Password is expired after using maximum duration :" + expireTimeConfiguration);
+                    }
+
+                    // Password Expire based on frequency
+                    else if (noOfTimePasswordIsUsed > expireFrequencyConfiguration) {
+                        if (log.isDebugEnabled()) {
+                            log.debug("Same password is used for maximum no of times, has to change the password");
+                        }
+                        throw new UserStoreException(
+                                "Password is expired after using : " + noOfTimePasswordIsUsed + " no of times");
+                    }
+
                 }
 
 
@@ -381,7 +405,7 @@ public class IdentityMgtEventListener extends AbstractIdentityUserOperationEvent
                         long lastFailAttemptTime = userIdentityDTO.getLastFailAttemptTime();
                         long timeGapBetweenFailAttempts = currentTime - lastFailAttemptTime;
 
-                        long failAttemptExpireTime = (config.getAuthPolicyLoginAttemptsExpireTime()) * 24 * 60 * 1000;
+                        long failAttemptExpireTime = TimeUnit.DAYS.toMillis(config.getAuthPolicyLoginAttemptsExpireTime());
 
                         if (lastFailAttemptTime != 0 && timeGapBetweenFailAttempts > failAttemptExpireTime) {
                             userIdentityDTO.setFailAttempts(0);
@@ -576,7 +600,7 @@ public class IdentityMgtEventListener extends AbstractIdentityUserOperationEvent
                 String encryptedPassword = null;
                 try {
                     encryptedPassword = Utils.encryptPassword((String) credential, saltValue, config);
-                } catch (UserStoreException e) {
+                } catch (org.wso2.carbon.user.api.UserStoreException e) {
                     throw new UserStoreException("Error in encrypting password.", e);
                 }
 
@@ -749,19 +773,65 @@ public class IdentityMgtEventListener extends AbstractIdentityUserOperationEvent
 
             if (config.isAuthPolicyReusePasswordCheck() && !userOTPEnabled && (!userStoreManager.isReadOnly())) {
 
-                String eventName = "PRE_UPDATE_CREDENTIAL";
+                boolean isPasswordReused = false;
 
-                Map<String, Object> properties = new HashMap<>();
-                properties.put("UserIdentityDTO", userIdentityDTO);
-                properties.put("IdentityMgtConfig", config);
-                properties.put("credential", encryptedPassword);
-                properties.put("userName", userName);
-                properties.put("userStoreManager", userStoreManager);
-                properties.put("module", module);
-                properties.put("currentTime", currentTime);
+                Map<Long, Object> usedPasswordMap = userIdentityDTO.getUsedPasswordMap();
 
-                IdentityMgtEvent identityMgtEvent = new IdentityMgtEvent(eventName, properties);
-                identityMgtService.handleEvent(identityMgtEvent);
+
+                // password reuse based on time
+                List<Long> keyList = new ArrayList<>(usedPasswordMap.keySet());
+                List<Object> valueList = new ArrayList<>(usedPasswordMap.values());
+                int iterateCount = keyList.size() - 1;
+
+                if (iterateCount != -1) {
+                    for (int i = iterateCount; i >= 0; i--) {
+
+                        long time = keyList.get(iterateCount);
+                        String password = (String) valueList.get(iterateCount);
+
+                        if ((currentTime - time) <= TimeUnit.DAYS.toMillis(config.getPasswordReuseTime())) {
+                            if (password.equals(newCredential)) {
+                                isPasswordReused = true;
+                                break;
+                            }
+                        } else {
+                            break;
+                        }
+
+                        --iterateCount;
+
+                    }
+                }
+
+
+                // password reuse based on frequency
+                int count = 1;
+                int iterateCount2 = valueList.size() - 1;
+
+                while (count <= config.getPasswordReuseFrequency()) {
+                    if (iterateCount2 != -1) {
+                        if (valueList.get(iterateCount2).equals(newCredential)) {
+                            isPasswordReused = true;
+                            break;
+                        } else {
+                            --iterateCount2;
+                            ++count;
+                        }
+                    } else {
+                        break;
+                    }
+
+                }
+
+                // check password is reused or not
+                // if reused throw an error message
+                if (isPasswordReused) {
+                    IdentityErrorMsgContext customErrorMessageContext = new IdentityErrorMsgContext(UserCoreConstants.ErrorCode.USER_IS_LOCKED,
+                            userIdentityDTO.getFailAttempts(), config.getAuthPolicyMaxLoginAttempts());
+                    IdentityUtil.setIdentityErrorMsg(customErrorMessageContext);
+                    String errorMsg = "Error in password change: Used same password used before. Please use another password. ";
+                    throw new UserStoreException(errorMsg);
+                }
             }
 
             userIdentityDTO.setPasswordTimeStamp(currentTime);

@@ -88,11 +88,11 @@ public class IdentityMgtConfig {
     private boolean authPolicyReusePasswordCheck;
     private int passwordReuseFrequency;
     private int passwordReuseTime;
-    private boolean accountPasswordReuseEnable;
+    // private boolean accountPasswordReuseEnable;
     private String encryptionAlgo;
     private int passwordExpireFrequency;
     private int passwordExpireTime;
-    private boolean accountPasswordExpireEnable;
+    // private boolean accountPasswordExpireEnable;
     private List<NotificationSendingModule> sendingModules =
             new ArrayList<NotificationSendingModule>();
     private List<String> notificationTypes = new ArrayList<String>();
@@ -371,11 +371,11 @@ public class IdentityMgtConfig {
                 this.passwordReuseFrequency = 10;
             }
 
-            String accountPasswordReuseEnable = properties.
+            /*String accountPasswordReuseEnable = properties.
                     getProperty(IdentityMgtConstants.PropertyConfig.ACCOUNT_PASSWORD_REUSE_ENABLE);
             if (accountPasswordReuseEnable != null) {
                 this.accountPasswordReuseEnable = Boolean.parseBoolean(accountPasswordReuseEnable.trim());
-            }
+            }*/
 
             String encryptionAlgo = properties.
                     getProperty(IdentityMgtConstants.PropertyConfig.ENCRYPTION_ALGO);
@@ -387,11 +387,11 @@ public class IdentityMgtConfig {
                 this.encryptionAlgo = "SHA-256";
             }
 
-            String accountPasswordExpireEnable = properties.
+            /*String accountPasswordExpireEnable = properties.
                     getProperty(IdentityMgtConstants.PropertyConfig.ACCOUNT_PASSWORD_EXPIRE_ENABLE);
             if (accountPasswordExpireEnable != null) {
                 this.accountPasswordExpireEnable = Boolean.parseBoolean(accountPasswordExpireEnable.trim());
-            }
+            }*/
 
             String passwordExpireTime = properties.
                     getProperty(IdentityMgtConstants.PropertyConfig.PASSWORD_EXPIRE_TIME);
@@ -641,9 +641,9 @@ public class IdentityMgtConfig {
         return passwordReuseFrequency;
     }
 
-    public boolean isAccountPasswordReuseEnable() {
+    /*public boolean isAccountPasswordReuseEnable() {
         return accountPasswordReuseEnable;
-    }
+    }*/
 
     public String getEncryptionAlgo() {
         return encryptionAlgo;
@@ -653,9 +653,9 @@ public class IdentityMgtConfig {
         this.encryptionAlgo = encryptionAlgo;
     }
 
-    public boolean isAccountPasswordExpireEnable() {
+/*    public boolean isAccountPasswordExpireEnable() {
         return accountPasswordExpireEnable;
-    }
+    }*/
 
     public int getPasswordExpireTime() {
         return passwordExpireTime;
