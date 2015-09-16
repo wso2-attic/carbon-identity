@@ -23,7 +23,11 @@ package org.wso2.carbon.identity.mgt;
  */
 public class IdentityMgtConstants {
 
+    private IdentityMgtConstants(){}
+
     public class PropertyConfig {
+
+        private PropertyConfig(){}
 
         public static final String CONFIG_FILE_NAME = "identity-mgt.properties";
         public static final String ACCOUNT_LOCK_ENABLE = "Account.Lock.Enable";
@@ -39,12 +43,16 @@ public class IdentityMgtConstants {
 
     public class Event {
 
+        private Event(){}
+
         public static final String PRE_AUTHENTICATION = "PRE_AUTHENTICATION";
 
     }
 
 
     public class EventProperty {
+
+        private EventProperty(){}
 
         public static final String MODULE = "module";
         public static final String USER_NAME = "userName";
@@ -55,6 +63,8 @@ public class IdentityMgtConstants {
 
     public class ErrorMessage {
 
+        private ErrorMessage(){}
+
         public static final String FAILURE = "Failure";
         public static final String FAILED_AUTHENTICATION = "Authentication Failed.";
         public static final String FAILED_ENCRYPTION = "Encryption Failed";
@@ -63,6 +73,8 @@ public class IdentityMgtConstants {
 
 
     public class Claim {
+
+        private Claim(){}
 
         public static final String FAIL_LOGIN_ATTEMPTS = "http://wso2.org/claims/identity/failedLoginAttempts";
         public static final String UNLOCKING_TIME = "http://wso2.org/claims/identity/unlockTime";
