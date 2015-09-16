@@ -35,5 +35,4 @@ public interface ApplicationMgtListener {
 
     public boolean doPostDeleteApplication(String applicationName) throws IdentityApplicationManagementException;
 
-
 }

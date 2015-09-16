@@ -34,9 +34,8 @@ import org.wso2.carbon.identity.application.mgt.ApplicationMgtSystemConfig;
 import org.wso2.carbon.identity.application.mgt.dao.IdentityProviderDAO;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.idp.mgt.IdentityProviderManagementException;
-import org.wso2.carbon.idp.mgt.listener.IdentityProviderMgtListener;
 
-public class IdentityProviderMgtApplicationListener implements IdentityProviderMgtListener {
+public class IdentityProviderMgtApplicationListener extends AbstractAppAndIdpOperationEventListener {
 
     private static final Log log = LogFactory.getLog(IdentityProviderMgtApplicationListener.class);
 
@@ -82,42 +81,6 @@ public class IdentityProviderMgtApplicationListener implements IdentityProviderM
         } catch (IdentityApplicationManagementException | IdentityException e) {
             throw new IdentityProviderManagementException("Error when updating default authenticator of service providers", e);
         }
-        return true;
-    }
-
-    @Override
-    public boolean doPostUpdateIdP(String oldIdPName, IdentityProvider identityProvider) throws IdentityProviderManagementException {
-        return true;
-    }
-
-    @Override
-    public boolean doPreUpdateResidentIdP(IdentityProvider identityProvider) throws IdentityProviderManagementException {
-        return true;
-
-    }
-
-    @Override
-    public boolean doPostUpdateResidentIdP(IdentityProvider identityProvider) throws IdentityProviderManagementException {
-        return true;
-    }
-
-    @Override
-    public boolean doPreAddIdP(IdentityProvider identityProvider) throws IdentityProviderManagementException {
-        return true;
-    }
-
-    @Override
-    public boolean doPostAddIdP(IdentityProvider identityProvider) throws IdentityProviderManagementException {
-        return true;
-    }
-
-    @Override
-    public boolean doPreDeleteIdP(String idPName) throws IdentityProviderManagementException {
-        return true;
-    }
-
-    @Override
-    public boolean doPostDeleteIdP(String idPName) throws IdentityProviderManagementException {
         return true;
     }
 }
