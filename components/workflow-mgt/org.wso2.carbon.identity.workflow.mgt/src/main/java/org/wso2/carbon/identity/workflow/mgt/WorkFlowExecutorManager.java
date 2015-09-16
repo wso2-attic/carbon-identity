@@ -28,9 +28,10 @@ import org.jaxen.JaxenException;
 import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
+import org.wso2.carbon.identity.workflow.mgt.bean.Parameter;
 import org.wso2.carbon.identity.workflow.mgt.dao.RequestEntityRelationshipDAO;
 import org.wso2.carbon.identity.workflow.mgt.dao.WorkflowRequestAssociationDAO;
-import org.wso2.carbon.identity.workflow.mgt.template.AbstractWorkflowTemplateImpl;
+import org.wso2.carbon.identity.workflow.mgt.workflow.AbstractWorkflow;
 import org.wso2.carbon.identity.workflow.mgt.extension.WorkflowRequestHandler;
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkFlowRequest;
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowAssociationBean;
@@ -42,9 +43,7 @@ import org.wso2.carbon.identity.workflow.mgt.internal.WorkflowServiceDataHolder;
 import org.wso2.carbon.identity.workflow.mgt.util.WorkflowRequestBuilder;
 import org.wso2.carbon.identity.workflow.mgt.util.WorkflowRequestStatus;
 import org.wso2.carbon.user.api.UserStoreException;
-import org.wso2.carbon.user.core.util.UserCoreUtil;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -96,10 +95,10 @@ public class WorkFlowExecutorManager {
                     String relationshipId = UUID.randomUUID().toString();
                     WorkFlowRequest requestToSend = workFlowRequest.clone();
                     requestToSend.setUuid(relationshipId);
-                    AbstractWorkflowTemplateImpl templateImplementation = WorkflowServiceDataHolder.getInstance()
-                            .getTemplateImplementation(association.getTemplateId(), association.getImplId());
-                    Map<String, Object> workflowParams = workflowDAO.getWorkflowParams(association.getWorkflowId());
-                    templateImplementation.initializeExecutor(workflowParams);
+                    AbstractWorkflow templateImplementation = WorkflowServiceDataHolder.getInstance()
+                            .getWorkflowImpls().get(association.getImplId());
+                    List<Parameter> parameterList= workflowDAO.getWorkflowParams(association.getWorkflowId());
+                    templateImplementation.initializeExecutor(parameterList);
                     templateImplementation.execute(requestToSend);
                     workflowRequestAssociationDAO.addNewRelationship(relationshipId, association.getWorkflowId(),
                             workFlowRequest.getUuid(), WorkflowRequestStatus.PENDING.toString());

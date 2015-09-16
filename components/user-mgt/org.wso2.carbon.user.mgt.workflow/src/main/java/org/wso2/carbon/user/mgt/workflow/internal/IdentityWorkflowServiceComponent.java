@@ -21,7 +21,7 @@ package org.wso2.carbon.user.mgt.workflow.internal;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.ComponentContext;
-import org.wso2.carbon.identity.workflow.mgt.WorkflowService;
+import org.wso2.carbon.identity.workflow.mgt.WorkflowManagementService;
 import org.wso2.carbon.identity.workflow.mgt.extension.WorkflowRequestHandler;
 import org.wso2.carbon.user.core.listener.UserOperationEventListener;
 import org.wso2.carbon.user.core.service.RealmService;
@@ -64,7 +64,7 @@ public class IdentityWorkflowServiceComponent {
         IdentityWorkflowDataHolder.getInstance().setConfigurationContextService(contextService);
     }
 
-    protected void setWorkflowService(WorkflowService workflowService) {
+    protected void setWorkflowService(WorkflowManagementService workflowService) {
 
         IdentityWorkflowDataHolder.getInstance().setWorkflowService(workflowService);
     }
@@ -105,7 +105,7 @@ public class IdentityWorkflowServiceComponent {
         IdentityWorkflowDataHolder.getInstance().setConfigurationContextService(null);
     }
 
-    protected void unsetWorkflowService(WorkflowService workflowService) {
+    protected void unsetWorkflowService(WorkflowManagementService workflowService) {
 
         IdentityWorkflowDataHolder.getInstance().setWorkflowService(null);
     }

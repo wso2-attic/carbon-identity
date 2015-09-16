@@ -1,0 +1,22 @@
+package org.wso2.carbon.identity.workflow.impl;
+
+import org.wso2.carbon.identity.workflow.impl.bean.BPSProfile;
+
+import java.util.List;
+import java.util.Map;
+
+public interface WorkflowImplService {
+
+    void addBPSProfile(BPSProfile bpsProfileDTO, int tenantId)
+            throws WorkflowImplException;
+
+    List<BPSProfile> listBPSProfiles(int tenantId) throws WorkflowImplException;
+
+    void removeBPSProfile(String profileName) throws WorkflowImplException;
+
+    //Map<String, Object> getBPSProfileParams(String profileName) throws WorkflowImplException;
+
+    BPSProfile getBPSProfile(String profileName, int tenantId) throws WorkflowImplException;
+
+    void updateBPSProfile(BPSProfile bpsProfileDTO, int tenantId) throws WorkflowImplException;
+}

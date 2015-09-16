@@ -39,10 +39,13 @@ public class SQLConstants {
     public static final String CALLBACK_USER_COLUMN = "CALLBACK_USERNAME";
     public static final String CALLBACK_PASSWORD_COLUMN = "CALLBACK_PASSWORD";
 
+
     public static final String WORKFLOW_ID_COLUMN = "WORKFLOW_ID";
     public static final String EVENT_ID_COLUMN = "EVENT_ID";
     public static final String PARAM_NAME_COLUMN = "PARAM_NAME";
     public static final String PARAM_VALUE_COLUMN = "PARAM_VALUE";
+    public static final String PARAM_QNAME_COLUMN = "PARAM_QNAME";
+    public static final String PARAM_HOLDER_COLUMN = "PARAM_HOLDER";
     public static final String ASSOCIATION_NAME_COLUMN = "ASSOC_NAME";
     public static final String ENTITY_NAME_COLUMN = "ENTITY_NAME";
     public static final String ASSOCIATION_IS_ENABLED = "IS_ENABLED";
@@ -73,7 +76,7 @@ public class SQLConstants {
             "IMPL_ID, TENANT_ID) VALUES (?,?, ?, ?, ?, ?)";
 
     public static final String ADD_WORKFLOW_PARAMS_QUERY = "INSERT INTO WF_WORKFLOW_CONFIG_PARAM(WORKFLOW_ID, " +
-            "PARAM_NAME, PARAM_VALUE) VALUES(?, ?, ?)";
+            "PARAM_NAME, PARAM_VALUE, PARAM_QNAME, PARAM_HOLDER) VALUES(?, ?, ?, ?, ?)";
 
     public static final String GET_ASSOCIATIONS_FOR_EVENT_QUERY = "SELECT WF_WORKFLOW_ASSOCIATION.WORKFLOW_ID, " +
             "WF_WORKFLOW.TEMPLATE_ID, WF_WORKFLOW.IMPL_ID, WF_WORKFLOW_ASSOCIATION.ASSOC_CONDITION FROM WF_WORKFLOW, " +
@@ -109,7 +112,7 @@ public class SQLConstants {
             ".WORKFLOW_ID FROM WF_WORKFLOW, WF_WORKFLOW_ASSOCIATION WHERE WF_WORKFLOW_ASSOCIATION.ID = ? AND  " +
             "WF_WORKFLOW.ID = WF_WORKFLOW_ASSOCIATION.WORKFLOW_ID";
 
-    public static final String GET_WORKFLOW_PARAMS = "SELECT PARAM_NAME, PARAM_VALUE FROM WF_WORKFLOW_CONFIG_PARAM " +
+    public static final String GET_WORKFLOW_PARAMS = "SELECT WORKFLOW_ID, PARAM_NAME, PARAM_VALUE, PARAM_QNAME, PARAM_HOLDER FROM WF_WORKFLOW_CONFIG_PARAM " +
             "WHERE WORKFLOW_ID = ?";
 
     public static final String GET_WORKFLOW =
@@ -138,8 +141,8 @@ public class SQLConstants {
             "UPDATE WF_BPS_PROFILE SET HOST_URL=?, USERNAME=?, PASSWORD=?, CALLBACK_USERNAME=?, " +
             "CALLBACK_PASSWORD=? WHERE TENANT_ID=? AND PROFILE_NAME=?";
 
-    public static final String GET_BPS_PROFILE_QUERY = "SELECT HOST_URL, USERNAME, PASSWORD, " +
-            "CALLBACK_USERNAME, CALLBACK_PASSWORD FROM WF_BPS_PROFILE WHERE PROFILE_NAME = ?";
+    //public static final String GET_BPS_PROFILE_QUERY = "SELECT HOST_URL, USERNAME, PASSWORD, " +
+            //"CALLBACK_USERNAME, CALLBACK_PASSWORD FROM WF_BPS_PROFILE WHERE PROFILE_NAME = ?";
 
     public static final String GET_BPS_PROFILE_FOR_TENANT_QUERY = "SELECT HOST_URL, USERNAME,PASSWORD,  " +
                                                                   "CALLBACK_USERNAME, CALLBACK_PASSWORD FROM " +

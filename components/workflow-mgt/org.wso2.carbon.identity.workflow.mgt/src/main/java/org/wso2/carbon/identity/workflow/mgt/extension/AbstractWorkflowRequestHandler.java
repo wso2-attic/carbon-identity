@@ -24,7 +24,7 @@ import org.wso2.carbon.identity.workflow.mgt.bean.Entity;
 import org.wso2.carbon.identity.workflow.mgt.util.WorkflowDataType;
 import org.wso2.carbon.identity.workflow.mgt.bean.RequestParameter;
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkFlowRequest;
-import org.wso2.carbon.identity.workflow.mgt.exception.RuntimeWorkflowException;
+import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowRuntimeException;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 
 import java.util.ArrayList;
@@ -123,7 +123,7 @@ public abstract class AbstractWorkflowRequestHandler implements WorkflowRequestH
      * @return
      */
     protected RequestParameter getParameter(String name, Object value, boolean required)
-            throws RuntimeWorkflowException {
+            throws WorkflowRuntimeException {
 
         RequestParameter parameter = new RequestParameter();
         parameter.setName(name);
@@ -137,7 +137,7 @@ public abstract class AbstractWorkflowRequestHandler implements WorkflowRequestH
             if (isValueValid(name, value, valueType)) {
                 parameter.setValueType(valueType);
             } else {
-                throw new RuntimeWorkflowException("Invalid value for '" + name + "', Expected: '" + valueType + "', " +
+                throw new WorkflowRuntimeException("Invalid value for '" + name + "', Expected: '" + valueType + "', " +
                         "but was of " + value.getClass().getName());
             }
         }

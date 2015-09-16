@@ -1,0 +1,11 @@
+<ParametersMetaData>
+  <ParameterMetaData Name="BPSProfile" InputType="Select" Use="Required">
+    <DisplayName>BPS Profile</DisplayName>
+  </ParameterMetaData>
+  <ParameterMetaData Name="HTSubject" DataType="String" InputType="Text" Use="Required">
+    <DisplayName>Task Subject</DisplayName>
+  </ParameterMetaData>
+  <ParameterMetaData Name="HTSDescription" DataType="String" InputType="TextArea">
+    <DisplayName>Task Detail</DisplayName>
+  </ParameterMetaData>
+</ParametersMetaData>

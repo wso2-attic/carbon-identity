@@ -21,9 +21,10 @@ package org.wso2.carbon.identity.workflow.mgt.dao;
 import org.apache.commons.lang.StringUtils;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
-import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowDTO;
-import org.wso2.carbon.identity.workflow.mgt.template.AbstractWorkflowTemplate;
-import org.wso2.carbon.identity.workflow.mgt.template.AbstractWorkflowTemplateImpl;
+import org.wso2.carbon.identity.workflow.mgt.bean.Parameter;
+import org.wso2.carbon.identity.workflow.mgt.dto.Workflow;
+import org.wso2.carbon.identity.workflow.mgt.template.AbstractTemplate;
+import org.wso2.carbon.identity.workflow.mgt.workflow.AbstractWorkflow;
 import org.wso2.carbon.identity.workflow.mgt.bean.AssociationDTO;
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowAssociationBean;
 import org.wso2.carbon.identity.workflow.mgt.exception.InternalWorkflowException;
@@ -43,7 +44,7 @@ public class WorkflowDAO {
     /**
      * Stores Workflow executor service details
      */
-    public void addWorkflow(WorkflowDTO workflowDTO, int
+    public void addWorkflow(Workflow workflowDTO, int
             tenantId) throws InternalWorkflowException {
 
         Connection connection = null;
@@ -56,8 +57,8 @@ public class WorkflowDAO {
             prepStmt.setString(1, workflowDTO.getWorkflowId());
             prepStmt.setString(2, workflowDTO.getWorkflowName());
             prepStmt.setString(3, workflowDTO.getWorkflowDescription());
-            prepStmt.setString(4, workflowDTO.getTemplateName());
-            prepStmt.setString(5, workflowDTO.getImplementationName());
+            prepStmt.setString(4, workflowDTO.getTemplateId());
+            prepStmt.setString(5, workflowDTO.getWorkflowImplId());
             prepStmt.setInt(6, tenantId);
             prepStmt.executeUpdate();
             connection.commit();
@@ -70,7 +71,7 @@ public class WorkflowDAO {
         }
     }
 
-    public void addWorkflowParams(String workflowId, Map<String, Object> values) throws InternalWorkflowException {
+    public void addWorkflowParams(List<Parameter> parameterList) throws InternalWorkflowException {
 
         Connection connection = null;
         PreparedStatement prepStmt = null;
@@ -78,11 +79,14 @@ public class WorkflowDAO {
         String query = SQLConstants.ADD_WORKFLOW_PARAMS_QUERY;
         try {
             connection = IdentityDatabaseUtil.getDBConnection();
-            for (Map.Entry<String, Object> entry : values.entrySet()) {
+            for (Parameter parameter : parameterList){
                 prepStmt = connection.prepareStatement(query);
-                prepStmt.setString(1, workflowId);
-                prepStmt.setString(2, entry.getKey());
-                prepStmt.setString(3, (String) entry.getValue());    //The values should be string
+                prepStmt.setString(1, parameter.getWorkflowId());
+                prepStmt.setString(2, parameter.getParamName());
+                prepStmt.setString(3, parameter.getParamValue());
+                prepStmt.setString(4, parameter.getQName());
+                prepStmt.setString(4, parameter.getHolder());
+
                 prepStmt.executeUpdate();
             }
             connection.commit();
@@ -95,12 +99,12 @@ public class WorkflowDAO {
         }
     }
 
-    public Map<String, Object> getWorkflowParams(String workflowId) throws InternalWorkflowException {
+    public List<Parameter> getWorkflowParams(String workflowId) throws InternalWorkflowException {
 
         Connection connection = null;
         PreparedStatement prepStmt = null;
         ResultSet rs = null;
-        Map<String, Object> worlflowParams = new HashMap<>();
+        List<Parameter> parameterList = new ArrayList<>();
         String query = SQLConstants.GET_WORKFLOW_PARAMS;
         try {
             connection = IdentityDatabaseUtil.getDBConnection();
@@ -110,8 +114,11 @@ public class WorkflowDAO {
             while (rs.next()) {
                 String paramName = rs.getString(SQLConstants.PARAM_NAME_COLUMN);
                 String paramValue = rs.getString(SQLConstants.PARAM_VALUE_COLUMN);
+                String paramQName = rs.getString(SQLConstants.PARAM_QNAME_COLUMN);
+                String paramHolder = rs.getString(SQLConstants.PARAM_HOLDER_COLUMN);
                 if (StringUtils.isNotBlank(paramName)) {
-                    worlflowParams.put(paramName, paramValue);
+                    Parameter parameter = new Parameter(workflowId,paramName,paramValue,paramQName,paramHolder);
+                    parameterList.add(parameter);
                 }
             }
         } catch (IdentityException e) {
@@ -121,17 +128,17 @@ public class WorkflowDAO {
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
         }
-        return worlflowParams;
+        return parameterList;
     }
 
-    public WorkflowDTO getWorkflow(String workflowId) throws InternalWorkflowException {
+    public Workflow getWorkflow(String workflowId) throws InternalWorkflowException {
 
         Connection connection = null;
         PreparedStatement prepStmt = null;
         ResultSet rs = null;
         String query = SQLConstants.GET_WORKFLOW;
 
-        WorkflowDTO  workflowDTO = new WorkflowDTO();
+        Workflow workflowDTO = new Workflow();
 
         try {
             connection = IdentityDatabaseUtil.getDBConnection();
@@ -147,8 +154,8 @@ public class WorkflowDAO {
                 workflowDTO.setWorkflowId(workflowId);
                 workflowDTO.setWorkflowName(workflowName);
                 workflowDTO.setWorkflowDescription(description);
-                workflowDTO.setTemplateName(templateId);
-                workflowDTO.setImplementationName(implId);
+                workflowDTO.setTemplateId(templateId);
+                workflowDTO.setWorkflowImplId(implId);
 
                 break ;
             }
@@ -264,12 +271,12 @@ public class WorkflowDAO {
 
 //todo: updateWorkflow()
 
-    public List<WorkflowDTO> listWorkflows(int tenantId) throws InternalWorkflowException {
+    public List<Workflow> listWorkflows(int tenantId) throws InternalWorkflowException {
 
         Connection connection = null;
         PreparedStatement prepStmt = null;
         ResultSet rs = null;
-        List<WorkflowDTO> workflowList = new ArrayList<>();
+        List<Workflow> workflowList = new ArrayList<>();
         String query = SQLConstants.LIST_WORKFLOWS_QUERY;
         try {
             connection = IdentityDatabaseUtil.getDBConnection();
@@ -282,19 +289,16 @@ public class WorkflowDAO {
                 String description = rs.getString(SQLConstants.DESCRIPTION_COLUMN);
                 String templateId = rs.getString(SQLConstants.TEMPLATE_ID_COLUMN);
                 String templateImplId = rs.getString(SQLConstants.TEMPLATE_IMPL_ID_COLUMN);
-                WorkflowDTO workflowDTO = new WorkflowDTO();
+                Workflow workflowDTO = new Workflow();
                 workflowDTO.setWorkflowId(id);
                 workflowDTO.setWorkflowName(name);
                 workflowDTO.setWorkflowDescription(description);
-                AbstractWorkflowTemplate template = WorkflowServiceDataHolder.getInstance().getTemplate(templateId);
-                AbstractWorkflowTemplateImpl templateImplementation = WorkflowServiceDataHolder.getInstance()
-                        .getTemplateImplementation(templateId, templateImplId);
-                if (template != null && templateImplementation != null) {
-                    workflowDTO.setTemplateName(template.getFriendlyName());
-                    workflowDTO.setImplementationName(templateImplementation.getImplementationName());
-                } else {
-                    workflowDTO.setTemplateName("");
-                    workflowDTO.setImplementationName("");
+                AbstractTemplate template = WorkflowServiceDataHolder.getInstance().getTemplates().get(templateId);
+                AbstractWorkflow abstractWorkflow = WorkflowServiceDataHolder.getInstance()
+                        .getWorkflowImpls().get(templateImplId);
+                if (template != null && abstractWorkflow != null) {
+                    workflowDTO.setTemplateId(template.getTemplateId());
+                    workflowDTO.setWorkflowImplId(abstractWorkflow.getWorkflowImplId());
                 }
                 workflowList.add(workflowDTO);
             }

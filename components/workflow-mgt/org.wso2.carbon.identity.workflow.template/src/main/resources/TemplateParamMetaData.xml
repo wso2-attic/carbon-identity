@@ -1,0 +1,5 @@
+<ParametersMetaData>
+  <ParameterMetaData Name="UserAndRole" InputType="Multiple_Steps_User_Role" Use="Required">
+    <DisplayName>User and Role</DisplayName>
+  </ParameterMetaData>
+</ParametersMetaData>

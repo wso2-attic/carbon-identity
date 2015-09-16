@@ -36,7 +36,11 @@
 
     <modules>
         <module>org.wso2.carbon.identity.workflow.mgt</module>
+        <module>org.wso2.carbon.identity.workflow.template</module>
+        <module>org.wso2.carbon.identity.workflow.impl</module>
         <module>org.wso2.carbon.identity.workflow.mgt.ui</module>
+        <module>org.wso2.carbon.identity.workflow.impl.ui</module>
+
     </modules>
 
 </project>
