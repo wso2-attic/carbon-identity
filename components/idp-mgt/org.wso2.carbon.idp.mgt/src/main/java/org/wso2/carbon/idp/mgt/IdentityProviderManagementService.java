@@ -130,7 +130,7 @@ public class IdentityProviderManagementService extends AbstractAdmin {
      */
     public IdentityProvider getIdPByName(String idPName)
             throws IdentityProviderManagementException {
-        if (StringUtils.isEmpty(idPName)) {
+        if (StringUtils.isBlank(idPName)) {
             throw new IllegalArgumentException("Provided IdP name is empty");
         }
         String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();

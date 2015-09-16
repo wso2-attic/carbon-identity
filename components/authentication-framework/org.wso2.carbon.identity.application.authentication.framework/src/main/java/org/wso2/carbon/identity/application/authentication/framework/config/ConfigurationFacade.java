@@ -66,7 +66,8 @@ public class ConfigurationFacade {
                                                                      relyingParty, tenantDomain);
     }
 
-    public ExternalIdPConfig getIdPConfigByName(String idpName, String tenantDomain) {
+    public ExternalIdPConfig getIdPConfigByName(String idpName, String tenantDomain)
+            throws IdentityProviderManagementException {
 
         ExternalIdPConfig externalIdPConfig = null;
         IdentityProvider idpDO = null;
@@ -92,7 +93,7 @@ public class ConfigurationFacade {
                 }
             }
         } catch (IdentityProviderManagementException e) {
-            log.error("Exception while getting IdP by name", e);
+            throw new IdentityProviderManagementException("Exception while getting IdP by name", e);
         }
 
         return externalIdPConfig;

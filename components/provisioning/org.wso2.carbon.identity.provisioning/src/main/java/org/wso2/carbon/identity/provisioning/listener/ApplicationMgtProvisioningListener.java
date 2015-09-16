@@ -46,7 +46,9 @@ public class ApplicationMgtProvisioningListener implements ApplicationMgtListene
     @Override
     public boolean doPreUpdateApplication(ServiceProvider serviceProvider) throws IdentityApplicationManagementException {
         String tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-        log.debug("Clearing cache entry for " + serviceProvider.getApplicationName());
+        if(log.isDebugEnabled()){
+            log.debug("Clearing cache entry for " + serviceProvider.getApplicationName());
+        }
         destroySpProvConnectors(serviceProvider.getApplicationName(), tenantDomain);
         return true;
     }
@@ -59,7 +61,9 @@ public class ApplicationMgtProvisioningListener implements ApplicationMgtListene
     @Override
     public boolean doPreDeleteApplication(String applicationName) throws IdentityApplicationManagementException {
         String tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-        log.debug("Clearing cache entry for " + applicationName);
+        if(log.isDebugEnabled()){
+            log.debug("Clearing cache entry for " + applicationName);
+        }
         destroySpProvConnectors(applicationName, tenantDomain);
         return true;
     }

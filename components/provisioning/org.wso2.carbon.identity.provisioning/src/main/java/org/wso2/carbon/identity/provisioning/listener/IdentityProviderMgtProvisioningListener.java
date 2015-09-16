@@ -47,9 +47,6 @@ public class IdentityProviderMgtProvisioningListener implements IdentityProvider
 
     @Override
     public boolean doPreUpdateResidentIdP(IdentityProvider identityProvider) throws IdentityProviderManagementException {
-        if(log.isDebugEnabled()){
-            log.debug("update Resident Identity Provider event received");
-        }
         return true;
     }
 
@@ -60,7 +57,9 @@ public class IdentityProviderMgtProvisioningListener implements IdentityProvider
 
     @Override
     public boolean doPreAddIdP(IdentityProvider identityProvider) throws IdentityProviderManagementException {
-        log.debug("add new Identity Provider event received");
+        if(log.isDebugEnabled()){
+            log.debug("add new Identity Provider event received");
+        }
         return true;
     }
 
@@ -76,8 +75,7 @@ public class IdentityProviderMgtProvisioningListener implements IdentityProvider
         try {
             destroyConnector(idPName, tenantDomain);
         } catch (IdentityProvisioningException e) {
-            log.error("Error when provisioning IDP deletion", e);
-            throw new IdentityProviderManagementException("Error when provisioning IDP deletion",e);
+            throw new IdentityProviderManagementException("Error when provisioning IDP deletion", e);
         }
         return true;
     }
@@ -94,8 +92,7 @@ public class IdentityProviderMgtProvisioningListener implements IdentityProvider
         try {
             destroyConnector(oldIdPName, tenantDomain);
         } catch (IdentityProvisioningException e) {
-            log.error("Error when provisioning IDP update", e);
-            throw new IdentityProviderManagementException("Error when provisioning IDP update",e);
+            throw new IdentityProviderManagementException("Error when provisioning IDP update", e);
         }
         return true;
     }
@@ -143,8 +140,8 @@ public class IdentityProviderMgtProvisioningListener implements IdentityProvider
                 RealmService realmService = ProvisioningServiceDataHolder.getInstance().getRealmService();
                 tenantId = realmService.getTenantManager().getTenantId(tenantDomain);
             } catch (UserStoreException e) {
-                throw new IdentityProvisioningException("Error occurred while retrieving tenant id from tenant domain",
-                                                        e);
+                throw new IdentityProvisioningException
+                        ("Error occurred while retrieving tenant id from tenant domain", e);
             }
 
             try {
@@ -153,7 +150,8 @@ public class IdentityProviderMgtProvisioningListener implements IdentityProvider
 
                 for (String serviceProvider : serviceProviders) {
 
-                    ServiceProviderProvisioningConnectorCacheKey key = new ServiceProviderProvisioningConnectorCacheKey(serviceProvider, tenantDomain);
+                    ServiceProviderProvisioningConnectorCacheKey key = new ServiceProviderProvisioningConnectorCacheKey
+                            (serviceProvider, tenantDomain);
                     ServiceProviderProvisioningConnectorCacheEntry cacheEntry = (ServiceProviderProvisioningConnectorCacheEntry)
                             ServiceProviderProvisioningConnectorCache.getInstance().getValueFromCache(key);
 
@@ -161,11 +159,13 @@ public class IdentityProviderMgtProvisioningListener implements IdentityProvider
                         ServiceProviderProvisioningConnectorCache.getInstance().clearCacheEntry(key);
 
                         if (log.isDebugEnabled()) {
-                            log.debug("Service Provider '" + serviceProvider + "' Provisioning cached entry removed for idp " + identityProviderName);
+                            log.debug("Service Provider '" + serviceProvider +
+                                    "' Provisioning cached entry removed for idp " + identityProviderName);
                         }
                     } else {
                         if (log.isDebugEnabled()) {
-                            log.debug("Service Provider '" + serviceProvider + "' Provisioning cached entry not found for idp " + identityProviderName);
+                            log.debug("Service Provider '" + serviceProvider +
+                                    "' Provisioning cached entry not found for idp " + identityProviderName);
                         }
                     }
                 }
