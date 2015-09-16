@@ -35,18 +35,19 @@ import org.wso2.carbon.user.core.jdbc.JDBCRealmConstants;
 import org.wso2.carbon.user.core.multiplecredentials.Credential;
 
 import java.nio.charset.Charset;
+import java.security.SecureRandom;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Random;
 
 public class Util {
 
-    protected static Random random = new Random();
+    private static final String SHA_1_PRNG = "SHA1PRNG";
     private static final Log log = LogFactory.getLog(Util.class);
     private static RealmConfiguration realmConfig;
     private static Serializer<String> stringSerializer = StringSerializer.get();
 
-    private Util(){};
+    private Util() {
+    }
 
     public static RealmConfiguration getRealmConfig() {
         return realmConfig;
@@ -111,9 +112,16 @@ public class Util {
     public static String getSaltValue() {
         String saltValue = null;
         if ("true".equals(realmConfig.getUserStoreProperties().get(JDBCRealmConstants.STORE_SALTED_PASSWORDS))) {
-            byte[] bytes = new byte[16];
-            random.nextBytes(bytes);
-            saltValue = Base64.encode(bytes);
+            try {
+                SecureRandom secureRandom = SecureRandom.getInstance(SHA_1_PRNG);
+                byte[] bytes = new byte[16];
+                //secureRandom is automatically seeded by calling nextBytes
+                secureRandom.nextBytes(bytes);
+                saltValue = Base64.encode(bytes);
+            } catch (NoSuchAlgorithmException e) {
+                throw new RuntimeException("SHA1PRNG algorithm could not be found.");
+            }
+
         }
         return saltValue;
     }

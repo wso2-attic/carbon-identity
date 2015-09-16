@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.wso2.carbon.identity</groupId>
         <artifactId>user-mgt</artifactId>
-        <version>4.5.10-SNAPSHOT</version>
+        <version>4.6.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -69,7 +69,7 @@
 
                             org.xml.sax,
                             org.w3c.dom,
-
+                            org.apache.xerces.util; resolution:=optional,
                             org.apache.commons.logging; version="${commons-logging.osgi.version.range}",
 
                             org.osgi.service.component; version="${osgi.service.component.imp.pkg.version.range}",

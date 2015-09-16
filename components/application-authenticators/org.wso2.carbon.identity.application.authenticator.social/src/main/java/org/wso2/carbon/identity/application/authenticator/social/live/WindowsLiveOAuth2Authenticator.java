@@ -42,6 +42,7 @@ import java.util.Map;
 public class WindowsLiveOAuth2Authenticator extends OpenIDConnectAuthenticator {
 
     private static final long serialVersionUID = -4154255583070524018L;
+    public static final String ACCOUNT = "account";
 
     private static Map<String, String> claimMap;
 
@@ -138,11 +139,11 @@ public class WindowsLiveOAuth2Authenticator extends OpenIDConnectAuthenticator {
                         if (value != null && value.startsWith("{") && value.endsWith("}")) {
                             Map<String, Object> children = JSONUtils.parseJSON(value);
                             if (WindowsLiveOAuth2AuthenticatorConstants.EMAIL_ADD_CLAIM_URI.equals(key)) {
-                                value = (String) children.get("account");
+                                value = (String) children.get(ACCOUNT);
                             }
                         }
 
-                        if (key != null && value != null && value.trim().length() > 0) {
+                        if (key != null && StringUtils.isNotBlank(value)) {
                             claims.put(ClaimMapping.build(key, key, null, false), value);
                         }
                         if (log.isDebugEnabled()) {
