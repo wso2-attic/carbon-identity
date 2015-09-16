@@ -37,10 +37,10 @@
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar" prefix="carbon" %>
 <%@page import="org.apache.axis2.context.ConfigurationContext" %>
 <%@ page import="org.wso2.carbon.CarbonConstants" %>
-<%@ page import="org.wso2.carbon.claim.mgt.stub.dto.ClaimDialectDTO" %>
-<%@ page import="org.wso2.carbon.claim.mgt.stub.dto.ClaimMappingDTO" %>
+<%@ page import="org.wso2.carbon.identity.claim.mgt.stub.dto.ClaimDialectDTO" %>
+<%@ page import="org.wso2.carbon.identity.claim.mgt.stub.dto.ClaimMappingDTO" %>
 
-<%@page import="org.wso2.carbon.claim.mgt.ui.client.ClaimAdminClient" %>
+<%@page import="org.wso2.carbon.identity.claim.mgt.ui.client.ClaimAdminClient" %>
 
 <%@page import="org.wso2.carbon.identity.sts.passive.stub.types.ClaimDTO" %>
 <%@ page import="org.wso2.carbon.identity.sts.passive.ui.client.IdentityPassiveSTSClient" %>

@@ -21,7 +21,7 @@ package org.wso2.carbon.identity.oauth.endpoint.util;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.claim.mgt.ClaimManagerHandler;
+import org.wso2.carbon.identity.claim.mgt.ClaimManagerHandler;
 import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
 import org.wso2.carbon.identity.oauth.user.UserInfoEndpointException;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2TokenValidationResponseDTO;

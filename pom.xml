@@ -465,13 +465,13 @@
 
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
-                <artifactId>org.wso2.carbon.claim.mgt.server.feature</artifactId>
+                <artifactId>org.wso2.carbon.identity.claim.mgt.server.feature</artifactId>
                 <version>${carbon.identity.version}</version>
                 <type>zip</type>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
-                <artifactId>org.wso2.carbon.claim.mgt.ui.feature</artifactId>
+                <artifactId>org.wso2.carbon.identity.claim.mgt.ui.feature</artifactId>
                 <version>${carbon.identity.version}</version>
                 <type>zip</type>
             </dependency>
@@ -601,25 +601,25 @@
 
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
-                <artifactId>org.wso2.carbon.directory.server.manager.common</artifactId>
+                <artifactId>org.wso2.carbon.identity.directory.server.manager.common</artifactId>
                 <version>${carbon.identity.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
-                <artifactId>org.wso2.carbon.directory.server.manager</artifactId>
+                <artifactId>org.wso2.carbon.identity.directory.server.manager</artifactId>
                 <version>${carbon.identity.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
-                <artifactId>org.wso2.carbon.directory.server.manager.stub</artifactId>
+                <artifactId>org.wso2.carbon.identity.directory.server.manager.stub</artifactId>
                 <version>${carbon.identity.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
-                <artifactId>org.wso2.carbon.directory.server.manager.ui</artifactId>
+                <artifactId>org.wso2.carbon.identity.directory.server.manager.ui</artifactId>
                 <version>${carbon.identity.version}</version>
             </dependency>
 
@@ -1180,17 +1180,17 @@
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
-                <artifactId>org.wso2.carbon.claim.mgt</artifactId>
+                <artifactId>org.wso2.carbon.identity.claim.mgt</artifactId>
                 <version>${carbon.identity.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
-                <artifactId>org.wso2.carbon.claim.mgt.ui</artifactId>
+                <artifactId>org.wso2.carbon.identity.claim.mgt.ui</artifactId>
                 <version>${carbon.identity.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
-                <artifactId>org.wso2.carbon.claim.mgt.stub</artifactId>
+                <artifactId>org.wso2.carbon.identity.claim.mgt.stub</artifactId>
                 <version>${carbon.identity.version}</version>
             </dependency>
 

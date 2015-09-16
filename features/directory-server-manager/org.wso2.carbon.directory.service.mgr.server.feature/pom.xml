@@ -35,11 +35,11 @@
     <dependencies>
         <dependency>
             <groupId>org.wso2.carbon.identity</groupId>
-            <artifactId>org.wso2.carbon.directory.server.manager.common</artifactId>
+            <artifactId>org.wso2.carbon.identity.directory.server.manager.common</artifactId>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon.identity</groupId>
-            <artifactId>org.wso2.carbon.directory.server.manager</artifactId>
+            <artifactId>org.wso2.carbon.identity.directory.server.manager</artifactId>
         </dependency>
     </dependencies>
 
@@ -66,8 +66,8 @@
                                 </properties>
                             </adviceFile>
                             <bundles>
-                                <bundleDef>org.wso2.carbon.identity:org.wso2.carbon.directory.server.manager.common</bundleDef>
-                                <bundleDef>org.wso2.carbon.identity:org.wso2.carbon.directory.server.manager</bundleDef>
+                                <bundleDef>org.wso2.carbon.identity:org.wso2.carbon.identity.directory.server.manager.common</bundleDef>
+                                <bundleDef>org.wso2.carbon.identity:org.wso2.carbon.identity.directory.server.manager</bundleDef>
                             </bundles>
                             <importFeatures>
                                 <importFeatureDef>org.wso2.carbon.core:${carbon.kernel.version}</importFeatureDef>
