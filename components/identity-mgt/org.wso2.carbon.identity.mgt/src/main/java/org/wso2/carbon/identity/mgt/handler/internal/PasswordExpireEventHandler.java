@@ -43,7 +43,7 @@ public class PasswordExpireEventHandler extends AbstractEventHandler {
     public void init() {
 
         registeredEventList = new ArrayList<>() {{
-            add("POST_AUTHENTICATION");
+            add(IdentityMgtConstants.Event.POST_AUTHENTICATION);
         }};
     }
 
@@ -67,14 +67,13 @@ public class PasswordExpireEventHandler extends AbstractEventHandler {
 
     public boolean handleEvent(IdentityMgtEvent identityMgtEvent) throws UserStoreException {
 
-        String eventName = identityMgtEvent.getEventName();
         HashMap<String, Object> properties = identityMgtEvent.getEventProperties();
 
-        UserIdentityClaimsDO userIdentityDTO = (UserIdentityClaimsDO) properties.get("userIdentityDTO");
-        IdentityMgtConfig config = (IdentityMgtConfig) properties.get("identityMgtConfig");
-        boolean authenticated = (Boolean) properties.get("authenticated");
-        Boolean userOTPEnabled = (Boolean) properties.get("userOTPEnabled");
-        UserStoreManager userStoreManager = (UserStoreManager) properties.get("userStoreManager");
+        UserIdentityClaimsDO userIdentityDTO = (UserIdentityClaimsDO) properties.get(IdentityMgtConstants.UserClaimProperty.USER_IDENTITY_DTO);
+        IdentityMgtConfig config = (IdentityMgtConfig) properties.get(IdentityMgtConstants.UserClaimProperty.IDENTITY_MGT_CONFIG);
+        boolean authenticated = (Boolean) properties.get(IdentityMgtConstants.UserClaimProperty.AUTHENTICATED);
+        Boolean userOTPEnabled = (Boolean) properties.get(IdentityMgtConstants.UserClaimProperty.USER_OTP_ENABLED);
+        UserStoreManager userStoreManager = (UserStoreManager) properties.get(IdentityMgtConstants.UserClaimProperty.USER_STORE_MANAGER);
 
 
         // Password expire check. Not for OTP enabled users.
@@ -95,8 +94,6 @@ public class PasswordExpireEventHandler extends AbstractEventHandler {
                 }
                 throw new UserStoreException(
                         "Password is expired after using maximum duration :" + expireTimeConfiguration);
-
-
             }
 
             // Password Expire based on frequency
@@ -106,7 +103,6 @@ public class PasswordExpireEventHandler extends AbstractEventHandler {
                 }
                 throw new UserStoreException(
                         "Password is expired after using : " + noOfTimePasswordIsUsed + " no of times");
-
             }
 
         }

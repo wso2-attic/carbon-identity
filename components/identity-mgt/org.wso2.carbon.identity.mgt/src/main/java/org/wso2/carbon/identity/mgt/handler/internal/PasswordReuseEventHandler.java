@@ -51,7 +51,7 @@ public class PasswordReuseEventHandler extends AbstractEventHandler {
     public void init() {
 
         registeredEventList = new ArrayList<>() {{
-            add("PRE_UPDATE_CREDENTIAL");
+            add(IdentityMgtConstants.Event.PRE_UPDATE_CREDENTIAL);
         }};
     }
 
@@ -79,13 +79,9 @@ public class PasswordReuseEventHandler extends AbstractEventHandler {
         String eventName = identityMgtEvent.getEventName();
         HashMap<String, Object> properties = identityMgtEvent.getEventProperties();
 
-        UserIdentityClaimsDO userIdentityDTO = (UserIdentityClaimsDO) properties.get("userIdentityDTO");
-        IdentityMgtConfig config = (IdentityMgtConfig) properties.get("identityMgtConfig");
-        String credential = (String) properties.get("credential");
-        String userName = (String) properties.get("userName");
-        UserStoreManager userStoreManager = (UserStoreManager) properties.get("userStoreManager");
-        UserIdentityDataStore module = (UserIdentityDataStore) properties.get("module");
-
+        UserIdentityClaimsDO userIdentityDTO = (UserIdentityClaimsDO) properties.get(IdentityMgtConstants.UserClaimProperty.USER_IDENTITY_DTO);
+        IdentityMgtConfig config = (IdentityMgtConfig) properties.get(IdentityMgtConstants.UserClaimProperty.IDENTITY_MGT_CONFIG);
+        String credential = (String) properties.get(IdentityMgtConstants.UserClaimProperty.CREDENTIAL);
 
         long currentTime = Calendar.getInstance().getTimeInMillis();
 
