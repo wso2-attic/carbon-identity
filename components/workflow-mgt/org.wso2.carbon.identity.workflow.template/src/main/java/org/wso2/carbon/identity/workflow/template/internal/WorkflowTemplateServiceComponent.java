@@ -25,11 +25,14 @@ import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowRuntimeException;
 import org.wso2.carbon.identity.workflow.mgt.template.AbstractTemplate;
 import org.wso2.carbon.identity.workflow.mgt.util.WorkflowManagementUtil;
-import org.wso2.carbon.identity.workflow.template.Constant;
+import org.wso2.carbon.identity.workflow.template.TemplateConstant;
 import org.wso2.carbon.identity.workflow.template.MultiStepApprovalTemplate;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URISyntaxException;
+import java.net.URL;
 
 /**
  * @scr.component name="identity.workflow.bpel" immediate="true"
@@ -41,18 +44,25 @@ public class WorkflowTemplateServiceComponent {
 
     protected void activate(ComponentContext context) {
 
-        BundleContext bundleContext = context.getBundleContext();
+        try {
+            BundleContext bundleContext = context.getBundleContext();
 
-        String templateParamMetaDataXML = readTemplateParamMetaDataXML();
-        bundleContext.registerService(AbstractTemplate.class, new MultiStepApprovalTemplate(templateParamMetaDataXML), null);
-
+            String templateParamMetaDataXML = readTemplateParamMetaDataXML();
+            bundleContext
+                    .registerService(AbstractTemplate.class, new MultiStepApprovalTemplate(templateParamMetaDataXML),
+                                     null);
+        }catch(Exception e2){
+            e2.printStackTrace();
+        }
     }
 
 
     private String readTemplateParamMetaDataXML() throws WorkflowRuntimeException{
         String content = null ;
         try {
-            content = WorkflowManagementUtil.readFileFromResource(Constant.TEMPLATE_PARAMETER_METADATA_FILE_NAME);
+            InputStream resourceAsStream = this.getClass().getClassLoader()
+                    .getResourceAsStream(TemplateConstant.TEMPLATE_PARAMETER_METADATA_FILE_NAME);
+            content = WorkflowManagementUtil.readFileFromResource(resourceAsStream);
         } catch (URISyntaxException e) {
             String errorMsg = "Error occurred while reading file from class path, " + e.getMessage() ;
             log.error(errorMsg);

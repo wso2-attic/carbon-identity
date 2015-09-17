@@ -5,7 +5,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.identity.workflow.mgt.bean.Parameter;
+import org.wso2.carbon.identity.workflow.mgt.bean.metadata.ParametersMetaData;
+import org.wso2.carbon.identity.workflow.mgt.bean.metadata.ParametersMetaData;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
+import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowRuntimeException;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.UserCoreConstants;
 
@@ -13,12 +16,14 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.URISyntaxException;
@@ -77,8 +82,7 @@ public class WorkflowManagementUtil {
      * @throws JAXBException
      */
     public static <T> T unmarshalXML(String xmlString, Class<T> classType) throws JAXBException {
-
-        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(xmlString.getBytes());
+        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(xmlString.toString().getBytes());
         JAXBContext jaxbContext = JAXBContext.newInstance(classType);
         Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
         T t = (T) jaxbUnmarshaller.unmarshal(byteArrayInputStream);
@@ -89,22 +93,29 @@ public class WorkflowManagementUtil {
     /**
      * Reading File Content from the resource path
      *
-     * @param relativeFileName File Name to read the content
-     * @return File Content
+     * @param resourceAsStream
+     * @return
      * @throws URISyntaxException
      * @throws IOException
      */
-    public static String readFileFromResource(String relativeFileName) throws URISyntaxException, IOException {
-        URL url = WorkflowManagementUtil.class.getClassLoader().getResource(relativeFileName);
-        File file = new File(url.toURI());
-        BufferedReader bufferedReader = new BufferedReader(new FileReader(file));
-        StringBuilder fileContent = new StringBuilder();
-        String line = null ;
-        while((line=bufferedReader.readLine())!=null){
-            fileContent.append(line);
-            line = null ;
+    public static String readFileFromResource(InputStream resourceAsStream) throws URISyntaxException, IOException {
+        String content = null ;
+        try {
+            BufferedInputStream bufferedInputStream = new BufferedInputStream(resourceAsStream);
+            int c = -1 ;
+            StringBuilder resourceFile = new StringBuilder();
+            while((c=bufferedInputStream.read())!=-1){
+                char val = (char)c;
+                resourceFile.append(val);
+            }
+            content = resourceFile.toString();
+
+        }  catch (IOException e) {
+            String errorMsg = "Error occurred while reading file from class path, " + e.getMessage() ;
+            log.error(errorMsg);
+            throw new WorkflowRuntimeException(errorMsg,e);
         }
-        return fileContent.toString();
+        return content ;
     }
 
 

@@ -1,5 +1,5 @@
-<ParametersMetaData>
-  <ParameterMetaData Name="UserAndRole" InputType="Multiple_Steps_User_Role" Use="Required">
-    <DisplayName>User and Role</DisplayName>
-  </ParameterMetaData>
-</ParametersMetaData>
+<met:ParametersMetaData xmlns:met="http://metadata.bean.mgt.workflow.identity.carbon.wso2.org">
+    <met:ParameterMetaData Name="UserAndRole" InputType="Multiple_Steps_User_Role" Use="Required">
+        <met:DisplayName>User and Role</met:DisplayName>
+    </met:ParameterMetaData>
+</met:ParametersMetaData>

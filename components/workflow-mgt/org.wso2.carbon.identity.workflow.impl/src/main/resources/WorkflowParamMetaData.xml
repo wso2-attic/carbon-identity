@@ -1,11 +1,11 @@
-<ParametersMetaData>
-  <ParameterMetaData Name="BPSProfile" InputType="Select" Use="Required">
-    <DisplayName>BPS Profile</DisplayName>
-  </ParameterMetaData>
-  <ParameterMetaData Name="HTSubject" DataType="String" InputType="Text" Use="Required">
-    <DisplayName>Task Subject</DisplayName>
-  </ParameterMetaData>
-  <ParameterMetaData Name="HTSDescription" DataType="String" InputType="TextArea">
-    <DisplayName>Task Detail</DisplayName>
-  </ParameterMetaData>
-</ParametersMetaData>
+<met:ParametersMetaData xmlns:met="http://metadata.bean.mgt.workflow.identity.carbon.wso2.org">
+    <met:ParameterMetaData Name="UserAndRole" InputType="Select" Use="Required">
+        <met:DisplayName>BPS Profile</met:DisplayName>
+    </met:ParameterMetaData>
+    <met:ParameterMetaData Name="HTSubject" DataType="String" InputType="Text" Use="Required">
+        <met:DisplayName>Task Subject</met:DisplayName>
+    </met:ParameterMetaData>
+    <met:ParameterMetaData Name="HTSDescription" DataType="String" InputType="TextArea">
+        <met:DisplayName>Task Detail</met:DisplayName>
+    </met:ParameterMetaData>
+</met:ParametersMetaData>

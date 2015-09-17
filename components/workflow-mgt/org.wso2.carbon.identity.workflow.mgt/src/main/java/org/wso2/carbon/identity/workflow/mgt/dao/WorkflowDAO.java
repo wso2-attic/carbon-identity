@@ -84,7 +84,7 @@ public class WorkflowDAO {
                 prepStmt.setString(1, parameter.getWorkflowId());
                 prepStmt.setString(2, parameter.getParamName());
                 prepStmt.setString(3, parameter.getParamValue());
-                prepStmt.setString(4, parameter.getQName());
+                prepStmt.setString(4, parameter.getqName());
                 prepStmt.setString(4, parameter.getHolder());
 
                 prepStmt.executeUpdate();

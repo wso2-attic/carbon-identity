@@ -62,11 +62,11 @@ public class Parameter {
         this.workflowId = workflowId;
     }
 
-    public String getQName() {
+    public String getqName() {
         return qName;
     }
 
-    public void setQName(String qName) {
+    public void setqName(String qName) {
         this.qName = qName;
     }
 
@@ -80,7 +80,7 @@ public class Parameter {
 
     public static Parameter getParameter(List<Parameter> parameterList, String paramName, String qName, String holder){
         for (Parameter parameter:parameterList){
-            if(parameter.getParamName().equals(paramName) && parameter.getQName().equals(qName) &&
+            if(parameter.getParamName().equals(paramName) && parameter.getqName().equals(qName) &&
                parameter.getHolder().equals(holder)){
                 return parameter ;
             }
@@ -89,7 +89,7 @@ public class Parameter {
     }
     public static Parameter getParameter(List<Parameter> parameterList, String paramName, String holder){
         for (Parameter parameter:parameterList){
-            if(parameter.getParamName().equals(paramName) && parameter.getQName().equals(paramName) &&
+            if(parameter.getParamName().equals(paramName) && parameter.getqName().equals(paramName) &&
                parameter.getHolder().equals(holder)){
                 return parameter ;
             }

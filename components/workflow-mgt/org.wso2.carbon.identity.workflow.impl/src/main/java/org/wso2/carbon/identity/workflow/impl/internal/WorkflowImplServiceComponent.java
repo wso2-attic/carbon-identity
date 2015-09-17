@@ -41,9 +41,19 @@ import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.ConfigurationContextService;
 import org.wso2.carbon.utils.NetworkUtils;
 
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.Unmarshaller;
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.SocketException;
 import java.net.URISyntaxException;
+import java.net.URL;
 
 /**
  * @scr.component name="identity.workflow.bpel" immediate="true"
@@ -75,9 +85,12 @@ public class WorkflowImplServiceComponent {
 
         BundleContext bundleContext = context.getBundleContext();
 
-        String metaDataXML = readWorkflowImplParamMetaDataXML();
-        bundleContext.registerService(AbstractWorkflow.class, new ApprovalWorkflow(metaDataXML), null);
-
+        try{
+            String metaDataXML = readWorkflowImplParamMetaDataXML();
+            bundleContext.registerService(AbstractWorkflow.class, new ApprovalWorkflow(metaDataXML), null);
+        }catch(Exception e){
+            log.error("Error occurred while activating WorkflowImplServiceComponent bundle, " + e.getMessage());
+        }
 
         WorkflowImplTenantMgtListener workflowTenantMgtListener = new WorkflowImplTenantMgtListener();
         ServiceRegistration tenantMgtListenerSR = bundleContext.registerService(
@@ -140,12 +153,15 @@ public class WorkflowImplServiceComponent {
     private String readWorkflowImplParamMetaDataXML() throws WorkflowRuntimeException {
         String content = null ;
         try {
-            content = WorkflowManagementUtil.readFileFromResource(WFImplConstant.WORKFLOW_IMPL_PARAMETER_METADATA_FILE_NAME);
-        } catch (URISyntaxException e) {
+            InputStream resourceAsStream = this.getClass().getClassLoader()
+                    .getResourceAsStream(WFImplConstant.WORKFLOW_IMPL_PARAMETER_METADATA_FILE_NAME);
+            content = WorkflowManagementUtil.readFileFromResource(resourceAsStream);
+
+        }  catch (IOException e) {
             String errorMsg = "Error occurred while reading file from class path, " + e.getMessage() ;
             log.error(errorMsg);
             throw new WorkflowRuntimeException(errorMsg,e);
-        } catch (IOException e) {
+        } catch (URISyntaxException e) {
             String errorMsg = "Error occurred while reading file from class path, " + e.getMessage() ;
             log.error(errorMsg);
             throw new WorkflowRuntimeException(errorMsg,e);

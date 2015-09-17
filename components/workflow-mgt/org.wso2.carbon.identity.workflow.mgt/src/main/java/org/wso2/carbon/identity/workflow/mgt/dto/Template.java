@@ -27,6 +27,8 @@ public class Template {
 
     private ParametersMetaData parametersMetaData ;
 
+    private Workflow workflow ;
+
     public String getTemplateId() {
         return templateId;
     }
@@ -52,5 +54,13 @@ public class Template {
 
     public void setParametersMetaData(ParametersMetaData parametersMetaData) {
         this.parametersMetaData = parametersMetaData;
+    }
+
+    public Workflow getWorkflow() {
+        return workflow;
+    }
+
+    public void setWorkflow(Workflow workflow) {
+        this.workflow = workflow;
     }
 }
