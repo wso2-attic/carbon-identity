@@ -20,6 +20,7 @@ package org.wso2.carbon.identity.provisioning.connector.scim;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.application.common.model.Property;
@@ -32,6 +33,7 @@ import org.wso2.carbon.identity.provisioning.ProvisioningEntityType;
 import org.wso2.carbon.identity.provisioning.ProvisioningOperation;
 import org.wso2.carbon.identity.scim.common.impl.ProvisioningClient;
 import org.wso2.carbon.identity.scim.common.utils.AttributeMapper;
+import org.wso2.carbon.identity.scim.common.utils.SCIMCommonConstants;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.charon.core.config.SCIMConfigConstants;
 import org.wso2.charon.core.config.SCIMProvider;
@@ -111,7 +113,10 @@ public class SCIMProvisioningConnector extends AbstractOutboundProvisioningConne
                     createGroup(provisioningEntity);
                 } else if (provisioningEntity.getOperation() == ProvisioningOperation.PUT) {
                     updateGroup(provisioningEntity);
-                } else {
+                } else if (provisioningEntity.getOperation() == ProvisioningOperation.PATCH) {
+                    updateGroup(provisioningEntity);
+                }
+                else {
                     log.warn("Unsupported provisioning operation.");
                 }
             } else {
@@ -129,9 +134,7 @@ public class SCIMProvisioningConnector extends AbstractOutboundProvisioningConne
      */
     private void updateUser(ProvisioningEntity userEntity, ProvisioningOperation provisioningOperation) throws
             IdentityProvisioningException {
-
         try {
-
             List<String> userNames = getUserNames(userEntity.getAttributes());
             String userName = null;
 
@@ -331,11 +334,21 @@ public class SCIMProvisioningConnector extends AbstractOutboundProvisioningConne
                     group.setMember(members);
                 }
             }
-
-            ProvisioningClient scimProvsioningClient = new ProvisioningClient(scimProvider, group,
-                    httpMethod, null);
-            scimProvsioningClient.provisionUpdateGroup();
-
+            String oldGroupName = getOldGroupName(groupEntity);
+            ProvisioningClient scimProvsioningClient = null;
+            if (StringUtils.isEmpty(oldGroupName)) {
+                scimProvsioningClient = new ProvisioningClient(scimProvider, group, httpMethod, null);
+            } else {
+                Map<String, Object> additionalInformation = new HashMap();
+                additionalInformation.put(SCIMCommonConstants.IS_ROLE_NAME_CHANGED_ON_UPDATE, true);
+                additionalInformation.put(SCIMCommonConstants.OLD_GROUP_NAME, oldGroupName);
+                scimProvsioningClient = new ProvisioningClient(scimProvider, group, httpMethod, additionalInformation);
+            }
+            if (ProvisioningOperation.PUT.equals(ProvisioningOperation.PUT)) {
+                scimProvsioningClient.provisionUpdateGroup();
+            }else if(ProvisioningOperation.PATCH.equals(ProvisioningOperation.PATCH)){
+                scimProvsioningClient.provisionPatchGroup();
+            }
         } catch (Exception e) {
             throw new IdentityProvisioningException("Error while updating group.", e);
         }
@@ -368,6 +381,21 @@ public class SCIMProvisioningConnector extends AbstractOutboundProvisioningConne
 
     public boolean isEnabled() throws IdentityProvisioningException {
         return true;
+    }
+
+    private String getOldGroupName(ProvisioningEntity provisioningEntity) {
+        Map<org.wso2.carbon.identity.application.common.model.ClaimMapping, List<String>> attributeMap =
+                provisioningEntity.getAttributes();
+        if (attributeMap != null) {
+            List<String> oldUserNameAsList =
+                    attributeMap.get(org.wso2.carbon.identity.application.common.model.ClaimMapping
+                                             .build(IdentityProvisioningConstants.OLD_GROUP_NAME_CLAIM_URI,
+                                                    null, null, false));
+            if (!oldUserNameAsList.isEmpty()) {
+                return oldUserNameAsList.get(0);
+            }
+        }
+        return null;
     }
 
 }

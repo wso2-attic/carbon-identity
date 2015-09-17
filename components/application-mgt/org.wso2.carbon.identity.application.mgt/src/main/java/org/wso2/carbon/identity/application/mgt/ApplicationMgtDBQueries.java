@@ -27,9 +27,9 @@ public class ApplicationMgtDBQueries {
 
     // STORE Queries
     public static final String STORE_BASIC_APPINFO = "INSERT INTO SP_APP (TENANT_ID, APP_NAME, USER_STORE, USERNAME, " +
-            "DESCRIPTION, AUTH_TYPE) VALUES (?,?,?,?,?,?)";
+            "DESCRIPTION, AUTH_TYPE, IS_DUMB_MODE) VALUES (?,?,?,?,?,?,?)";
     public static final String UPDATE_BASIC_APPINFO = "UPDATE SP_APP SET APP_NAME=?, DESCRIPTION=?, IS_SAAS_APP=? " +
-            "WHERE TENANT_ID= ? AND ID = ?";
+            ", IS_DUMB_MODE=? WHERE TENANT_ID= ? AND ID = ?";
     public static final String UPDATE_BASIC_APPINFO_WITH_ROLE_CLAIM = "UPDATE SP_APP SET ROLE_CLAIM=? WHERE TENANT_ID" +
             "= ? AND ID = ?";
     public static final String UPDATE_BASIC_APPINFO_WITH_CLAIM_DIALEECT = "UPDATE SP_APP SET IS_LOCAL_CLAIM_DIALECT=? "+

@@ -20,10 +20,13 @@ package org.wso2.carbon.identity.provisioning;
 
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
+import org.wso2.carbon.identity.application.common.model.ClaimMapping;
 import org.wso2.carbon.identity.provisioning.dao.CacheBackedProvisioningMgtDAO;
 import org.wso2.carbon.idp.mgt.util.IdPManagementUtil;
 import org.wso2.carbon.user.api.UserStoreException;
 
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 
@@ -78,6 +81,16 @@ public class ProvisioningThread implements Callable<Boolean> {
                 // store provisioned identifier for future reference.
                 storeProvisionedEntityIdentifier(idPName, connectorType, provisioningEntity,
                         tenantDomainName);
+            } else if (provisioningEntity.getEntityType() == ProvisioningEntityType.GROUP &&
+                       provisioningEntity.getOperation() == ProvisioningOperation.PUT && getNewGroupName(provisioningEntity) != null) {
+                deleteProvisionedEntityIdentifier(idPName, connectorType, provisioningEntity,
+                                                  tenantDomainName);
+                ProvisioningEntity newProvisioningEntity = new ProvisioningEntity(
+                        ProvisioningEntityType.GROUP, getNewGroupName(provisioningEntity), ProvisioningOperation.PUT,
+                        provisioningEntity.getAttributes());
+                newProvisioningEntity.setIdentifier(provisioningEntity.getIdentifier());
+                storeProvisionedEntityIdentifier(idPName, connectorType, newProvisioningEntity,
+                                                 tenantDomainName);
             }
 
             success = true;
@@ -136,6 +149,19 @@ public class ProvisioningThread implements Callable<Boolean> {
             throw new IdentityApplicationManagementException(
                     "Error while deleting provisioning identifier.", e);
         }
+    }
+
+    private String getNewGroupName(ProvisioningEntity provisioningEntity) {
+        Map<ClaimMapping, List<String>> attributeMap = provisioningEntity.getAttributes();
+        if (attributeMap != null && attributeMap
+                                            .get(ClaimMapping
+                                                         .build(IdentityProvisioningConstants.NEW_GROUP_NAME_CLAIM_URI,
+                                                                null, null, false)) != null) {
+            return attributeMap
+                    .get(ClaimMapping.build(IdentityProvisioningConstants.NEW_GROUP_NAME_CLAIM_URI, null, null, false))
+                    .get(0);
+        }
+        return null;
     }
 
 }
