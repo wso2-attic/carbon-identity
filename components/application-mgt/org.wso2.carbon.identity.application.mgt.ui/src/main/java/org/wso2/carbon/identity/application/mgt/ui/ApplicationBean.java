@@ -925,6 +925,7 @@ public class ApplicationBean {
     public void update(HttpServletRequest request) {
 
         // update basic info.
+        serviceProvider.setDumbMode(Boolean.parseBoolean(CharacterEncoder.getSafeText(request.getParameter("dumb"))));
         serviceProvider.setApplicationName(CharacterEncoder.getSafeText(request.getParameter("spName")));
         serviceProvider.setDescription(CharacterEncoder.getSafeText(request.getParameter("sp-description")));
         String isSasApp = CharacterEncoder.getSafeText(request.getParameter("isSaasApp"));
@@ -1296,6 +1297,7 @@ public class ApplicationBean {
     public void updateLocalSp(HttpServletRequest request) {
 
         // update basic info.
+        serviceProvider.setDumbMode(Boolean.parseBoolean(CharacterEncoder.getSafeText(request.getParameter("dumb"))));
         serviceProvider.setApplicationName(CharacterEncoder.getSafeText(request.getParameter("spName")));
         serviceProvider.setDescription(CharacterEncoder.getSafeText(request.getParameter("sp-description")));
 

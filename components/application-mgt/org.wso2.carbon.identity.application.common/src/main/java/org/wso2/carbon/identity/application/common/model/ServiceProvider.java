@@ -47,7 +47,15 @@ public class ServiceProvider implements Serializable {
     private ClaimConfig claimConfig;
     private PermissionsAndRoleConfig permissionAndRoleConfig;
     private boolean saasApp;
+    private boolean dumbMode = false;
 
+    public boolean isDumbMode() {
+        return dumbMode;
+    }
+
+    public void setDumbMode(boolean dumbMode) {
+        this.dumbMode = dumbMode;
+    }
     /*
      * <ServiceProvider> <ApplicationID></ApplicationID> <Description></Description>
      * <Owner>....</Owner>
