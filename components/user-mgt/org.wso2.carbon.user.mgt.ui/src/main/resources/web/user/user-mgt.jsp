@@ -50,7 +50,7 @@
     boolean showFilterMessage = false;
     boolean multipleUserStores = false;
     String forwardTo = "user-mgt.jsp";
-               
+
     FlaggedName[] datas = null;
     FlaggedName exceededDomains = null;
     String[] claimUris = null;
@@ -63,7 +63,7 @@
     Map<Integer, PaginatedNamesBean>  flaggedNameMap = null;
 
     String BUNDLE = "org.wso2.carbon.userstore.ui.i18n.Resources";
-    ResourceBundle resourceBundle = ResourceBundle.getBundle(BUNDLE, request.getLocale());    
+    ResourceBundle resourceBundle = ResourceBundle.getBundle(BUNDLE, request.getLocale());
 
     // remove session data
     session.removeAttribute("userBean");
@@ -147,7 +147,7 @@
     } catch (NumberFormatException ignored) {
         // page number format exception
     }
-    
+
     flaggedNameMap  = (Map<Integer, PaginatedNamesBean>) session.getAttribute(UserAdminUIConstants.USER_LIST_CACHE);
     if(flaggedNameMap != null){
         PaginatedNamesBean bean = flaggedNameMap.get(pageNumber);
@@ -220,7 +220,7 @@
                     session.setAttribute(UserAdminUIConstants.USER_LIST_CACHE, flaggedNameMap);
                 }
             }
-            
+
         } catch (Exception e) {
             String message =  MessageFormat.format(resourceBundle.getString("error.while.user.filtered"),
                     e.getMessage());
@@ -311,7 +311,7 @@
                         <td>
                             <input type="text" name="<%=UserAdminUIConstants.USER_LIST_FILTER%>"
                                    value="<%=filter%>"/>
-                      
+
                             <input class="button" type="submit"
                                    value="<fmt:message key="user.search"/>"/>
                         </td>
@@ -399,8 +399,8 @@
                         <a href="change-passwd.jsp?isUserChange=true&returnPath=user-mgt.jsp" class="icon-link"
                            style="background-image:url(../admin/images/edit.gif);"><fmt:message
                                 key="change.password"/></a>
-                                
-                        <% 
+
+                        <%
                             	}else{
                         %>
                         
