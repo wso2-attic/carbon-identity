@@ -61,75 +61,80 @@
         </xs:schema>
 
 
-        <xs:schema  targetNamespace="http://metadata.bean.mgt.workflow.identity.carbon.wso2.org/xsd" xmlns="http://metadata.bean.mgt.workflow.identity.carbon.wso2.org/xsd">
-            <xs:element name="ParametersMetaData" type="ParametersMetaData"></xs:element>
-            <xs:complexType name="ParametersMetaData">
-                <xs:sequence>
-                    <xs:element name="ParameterMetaData" maxOccurs="unbounded" minOccurs="0" type="ParameterMetaData"></xs:element>
-                </xs:sequence>
-            </xs:complexType>
-            <xs:complexType name="ParameterMetaData">
-                <xs:sequence>
-                    <xs:element name="DisplayName" type="xs:string" minOccurs="0"></xs:element>
-                    <xs:element name="DefaultValue" type="xs:string" minOccurs="0"></xs:element>
-                    <xs:element name="RegExForValidate" type="xs:string" minOccurs="0"></xs:element>
-                    <xs:element name="InputData" type="InputData" minOccurs="0"></xs:element>
-                </xs:sequence>
-                <xs:attribute name="Name" type="xs:string" use="required"></xs:attribute>
-                <xs:attribute name="DataType" use="optional" type="DataType"></xs:attribute>
-                <xs:attribute name="InputType" use="optional" type="InputType"></xs:attribute>
+	<xs:schema elementFormDefault="qualified" targetNamespace="http://metadata.bean.mgt.workflow.identity.carbon.wso2.org" xmlns="http://metadata.bean.mgt.workflow.identity.carbon.wso2.org">
+	    <xs:element name="ParametersMetaData">
+		<xs:complexType>
+		    <xs:sequence>
+		        <xs:element name="ParameterMetaData" maxOccurs="unbounded">
+		            <xs:complexType>
+		                <xs:sequence>
+		                    <xs:element name="DisplayName" type="xs:string"></xs:element>
+		                    <xs:element name="DefaultValue" type="xs:string" minOccurs="0"></xs:element>
+		                    <xs:element name="RegExForValidate" type="xs:string" minOccurs="0"></xs:element>
+		                    <xs:element name="InputData" minOccurs="0">
+		                        <xs:complexType>
+		                            <xs:choice>
+		                                <xs:element name="MapType" minOccurs="0">
+		                                    <xs:complexType>
+		                                        <xs:sequence>
+		                                            <xs:element name="Item" maxOccurs="unbounded">
+		                                                <xs:complexType>
+		                                                    <xs:sequence>
+		                                                        <xs:element name="Key" type="xs:string"></xs:element>
+		                                                        <xs:element name="Value" type="xs:string"></xs:element>
+		                                                    </xs:sequence>
+		                                                </xs:complexType>
+		                                            </xs:element>
+		                                        </xs:sequence>
+		                                    </xs:complexType>
+		                                </xs:element>
+		                            </xs:choice>
+		                        </xs:complexType>
+		                    </xs:element>
+		                </xs:sequence>
+		                <xs:attribute name="Name" type="xs:string" use="required"></xs:attribute>
+		                <xs:attribute name="DataType" use="optional" type="DataType"></xs:attribute>
+		                <xs:attribute name="InputType" use="optional" type="InputType"></xs:attribute>
 
-                <xs:attribute name="CustomInputType" use="optional" type="xs:string"></xs:attribute>
-                <xs:attribute name="Use" default="Optional" type="Use"></xs:attribute>
-                <xs:attribute name="Validate" type="xs:boolean" default="true"></xs:attribute>
-            </xs:complexType>
-            <xs:complexType name="InputData">
-                <xs:choice>
-                    <xs:element name="Map" minOccurs="0">
-                        <xs:complexType>
-                            <xs:sequence>
-                                <xs:element name="Item" maxOccurs="unbounded">
-                                    <xs:complexType>
-                                        <xs:sequence>
-                                            <xs:element name="Key" type="xs:string"></xs:element>
-                                            <xs:element name="Value" type="xs:string"></xs:element>
-                                        </xs:sequence>
-                                    </xs:complexType>
-                                </xs:element>
-                            </xs:sequence>
-                        </xs:complexType>
-                    </xs:element>
-                </xs:choice>
-            </xs:complexType>
-            <xs:simpleType name="InputType">
-                <xs:restriction base="xs:string">
-                    <xs:enumeration value="Select"></xs:enumeration>
-                    <xs:enumeration value="Multiple_Select"></xs:enumeration>
-                    <xs:enumeration value="Option"></xs:enumeration>
-                    <xs:enumeration value="Single_CheckBox"></xs:enumeration>
-                    <xs:enumeration value="Multiple_CheckBox"></xs:enumeration>
-                    <xs:enumeration value="TextArea"></xs:enumeration>
-                    <xs:enumeration value="Password"></xs:enumeration>
-                    <xs:enumeration value="Text"></xs:enumeration>
-                    <xs:enumeration value="Multiple_Steps_User_Role"></xs:enumeration>
-                </xs:restriction>
-            </xs:simpleType>
-            <xs:simpleType name="DataType">
-                <xs:restriction base="xs:string">
-                    <xs:enumeration value="String"></xs:enumeration>
-                    <xs:enumeration value="Double"></xs:enumeration>
-                    <xs:enumeration value="Integer"></xs:enumeration>
-                    <xs:enumeration value="Boolean"></xs:enumeration>
-                    <xs:enumeration value="DateTime"></xs:enumeration>
-                </xs:restriction>
-            </xs:simpleType>
-            <xs:simpleType name="Use">
-                <xs:restriction base="xs:string">
-                    <xs:enumeration value="Required"></xs:enumeration>
-                    <xs:enumeration value="Optional"></xs:enumeration>
-                </xs:restriction>
-            </xs:simpleType>
-        </xs:schema>
+		                <xs:attribute name="CustomInputType" use="optional" type="xs:string"></xs:attribute>
+		                <xs:attribute name="Use" default="Optional" type="Use"></xs:attribute>
+		                <xs:attribute name="Validate" type="xs:boolean" default="true"></xs:attribute>
+		            </xs:complexType>
+		        </xs:element>
+		    </xs:sequence>
+		</xs:complexType>
+	    </xs:element>
+
+
+	    <xs:simpleType name="InputType">
+		<xs:restriction base="xs:string">
+		    <xs:enumeration value="Select"></xs:enumeration>
+		    <xs:enumeration value="Multiple_Select"></xs:enumeration>
+		    <xs:enumeration value="Option"></xs:enumeration>
+		    <xs:enumeration value="Single_CheckBox"></xs:enumeration>
+		    <xs:enumeration value="Multiple_CheckBox"></xs:enumeration>
+		    <xs:enumeration value="TextArea"></xs:enumeration>
+		    <xs:enumeration value="Password"></xs:enumeration>
+		    <xs:enumeration value="Text"></xs:enumeration>
+		    <xs:enumeration value="Multiple_Steps_User_Role"></xs:enumeration>
+		</xs:restriction>
+	    </xs:simpleType>
+	    <xs:simpleType name="DataType">
+		<xs:restriction base="xs:string">
+		    <xs:enumeration value="String"></xs:enumeration>
+		    <xs:enumeration value="Double"></xs:enumeration>
+		    <xs:enumeration value="Integer"></xs:enumeration>
+		    <xs:enumeration value="Boolean"></xs:enumeration>
+		    <xs:enumeration value="DateTime"></xs:enumeration>
+		</xs:restriction>
+	    </xs:simpleType>
+	    <xs:simpleType name="Use">
+		<xs:restriction base="xs:string">
+		    <xs:enumeration value="Required"></xs:enumeration>
+		    <xs:enumeration value="Optional"></xs:enumeration>
+		</xs:restriction>
+	    </xs:simpleType>
+	</xs:schema>
 
         <xs:schema xmlns:ax2403="http://metadata.bean.mgt.workflow.identity.carbon.wso2.org/xsd" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://dto.mgt.workflow.identity.carbon.wso2.org/xsd">
             <xs:import namespace="http://metadata.bean.mgt.workflow.identity.carbon.wso2.org/xsd"/>
