@@ -34,8 +34,9 @@ import org.wso2.carbon.identity.application.mgt.ApplicationMgtSystemConfig;
 import org.wso2.carbon.identity.application.mgt.dao.IdentityProviderDAO;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.idp.mgt.IdentityProviderManagementException;
+import org.wso2.carbon.idp.mgt.listener.AbstractIdentityProviderMgtListener;
 
-public class IdentityProviderMgtApplicationListener extends AbstractAppAndIdpOperationEventListener {
+public class IdentityProviderMgtApplicationListener extends AbstractIdentityProviderMgtListener {
 
     private static final Log log = LogFactory.getLog(IdentityProviderMgtApplicationListener.class);
 

@@ -55,6 +55,7 @@ import org.wso2.carbon.identity.application.mgt.dao.impl.FileBasedApplicationDAO
 import org.wso2.carbon.identity.application.mgt.internal.ApplicationManagementServiceComponent;
 import org.wso2.carbon.identity.application.mgt.internal.ApplicationManagementServiceComponentHolder;
 import org.wso2.carbon.identity.application.mgt.internal.ApplicationMgtListenerServiceComponent;
+import org.wso2.carbon.identity.application.mgt.listener.AbstractApplicationMgtListener;
 import org.wso2.carbon.identity.application.mgt.listener.ApplicationMgtListener;
 import org.wso2.carbon.registry.api.RegistryException;
 import org.wso2.carbon.registry.core.Registry;
@@ -69,6 +70,7 @@ import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -109,7 +111,7 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
             throws IdentityApplicationManagementException {
 
         // invoking the listeners
-        List<ApplicationMgtListener> listeners = ApplicationMgtListenerServiceComponent.getListners();
+        Collection<ApplicationMgtListener> listeners = ApplicationMgtListenerServiceComponent.getApplicationMgtListeners();
 
         for (ApplicationMgtListener listener : listeners) {
             if (!listener.doPreCreateApplication(serviceProvider,tenantDomain, userName )) {
@@ -193,7 +195,7 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
             throws IdentityApplicationManagementException {
 
         // invoking the listeners
-        List<ApplicationMgtListener> listeners = ApplicationMgtListenerServiceComponent.getListners();
+        Collection<ApplicationMgtListener> listeners = ApplicationMgtListenerServiceComponent.getApplicationMgtListeners();
         for (ApplicationMgtListener listener : listeners) {
             if (!listener.doPreUpdateApplication(serviceProvider, tenantDomain, userName)) {
                 return;
@@ -296,7 +298,7 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
             throws IdentityApplicationManagementException {
 
         // invoking the listeners
-        List<ApplicationMgtListener> listeners = ApplicationMgtListenerServiceComponent.getListners();
+        Collection<ApplicationMgtListener> listeners = ApplicationMgtListenerServiceComponent.getApplicationMgtListeners();
         for (ApplicationMgtListener listener : listeners) {
             if (!listener.doPreDeleteApplication(applicationName, tenantDomain, userName)) {
                 return;

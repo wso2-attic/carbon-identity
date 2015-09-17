@@ -18,13 +18,14 @@
 
 package org.wso2.carbon.identity.application.mgt.listener;
 
+import org.apache.commons.lang.StringUtils;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
 import org.wso2.carbon.identity.application.common.model.ServiceProvider;
-import org.wso2.carbon.identity.application.common.model.IdentityProvider;
-import org.wso2.carbon.idp.mgt.IdentityProviderManagementException;
-import org.wso2.carbon.idp.mgt.listener.IdentityProviderMgtListener;
+import org.wso2.carbon.identity.core.model.IdentityEventListener;
+import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 
-public class AbstractAppAndIdpOperationEventListener implements ApplicationMgtListener, IdentityProviderMgtListener {
+public class AbstractApplicationMgtListener implements ApplicationMgtListener {
 
     public boolean doPreCreateApplication(ServiceProvider serviceProvider, String tenantDomain, String userName) throws IdentityApplicationManagementException {
         return true;
@@ -50,36 +51,31 @@ public class AbstractAppAndIdpOperationEventListener implements ApplicationMgtLi
         return true;
     }
 
-    public boolean doPreUpdateResidentIdP(IdentityProvider identityProvider) throws IdentityProviderManagementException {
-        return true;
+    public boolean isEnable() {
+        IdentityEventListener identityEventListener = IdentityUtil.readEventListenerProperty
+                (ApplicationMgtListener.class.getName(), this.getClass().getName());
+        if (identityEventListener == null) {
+            return true;
+        }
+        if (StringUtils.isNotBlank(identityEventListener.getEnable())) {
+            return Boolean.parseBoolean(identityEventListener.getEnable());
+        } else {
+            return true;
+        }
     }
 
-    public boolean doPostUpdateResidentIdP(IdentityProvider identityProvider) throws IdentityProviderManagementException {
-        return true;
+    public int getExecutionOrderId() {
+        IdentityEventListener identityEventListener = IdentityUtil.readEventListenerProperty
+                (ApplicationMgtListener.class.getName(), this.getClass().getName());
+        int orderId;
+        if (identityEventListener == null) {
+            orderId = IdentityCoreConstants.EVENT_LISTENER_ORDER_ID;
+        } else {
+            orderId = identityEventListener.getOrder();
+        }
+        if (orderId != IdentityCoreConstants.EVENT_LISTENER_ORDER_ID) {
+            return orderId;
+        }
+        return 50;
     }
-
-    public boolean doPreAddIdP(IdentityProvider identityProvider) throws IdentityProviderManagementException {
-        return true;
-    }
-
-    public boolean doPostAddIdP(IdentityProvider identityProvider) throws IdentityProviderManagementException {
-        return true;
-    }
-
-    public boolean doPreDeleteIdP(String idPName) throws IdentityProviderManagementException {
-        return true;
-    }
-
-    public boolean doPostDeleteIdP(String idPName) throws IdentityProviderManagementException {
-        return true;
-    }
-
-    public boolean doPreUpdateIdP(String oldIdPName, IdentityProvider identityProvider) throws IdentityProviderManagementException {
-        return true;
-    }
-
-    public boolean doPostUpdateIdP(String oldIdPName, IdentityProvider identityProvider) throws IdentityProviderManagementException {
-        return true;
-    }
-
 }

@@ -23,19 +23,23 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
 import org.wso2.carbon.identity.application.common.model.ServiceProvider;
-import org.wso2.carbon.identity.application.mgt.listener.AbstractAppAndIdpOperationEventListener;
+import org.wso2.carbon.identity.application.mgt.listener.AbstractApplicationMgtListener;
+import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
 import org.wso2.carbon.identity.provisioning.cache.ServiceProviderProvisioningConnectorCache;
 import org.wso2.carbon.identity.provisioning.cache.ServiceProviderProvisioningConnectorCacheEntry;
 import org.wso2.carbon.identity.provisioning.cache.ServiceProviderProvisioningConnectorCacheKey;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
-public class ApplicationMgtProvisioningListener extends AbstractAppAndIdpOperationEventListener {
+public class ApplicationMgtProvisioningListener extends AbstractApplicationMgtListener {
 
     private static Log log = LogFactory.getLog(ApplicationMgtProvisioningListener.class);
 
     @Override
     public boolean doPreUpdateApplication(ServiceProvider serviceProvider, String tenantDomain, String userName)
             throws IdentityApplicationManagementException {
+        if (!isEnable()) {
+            return true;
+        }
         if(log.isDebugEnabled()){
             log.debug("Clearing cache entry for " + serviceProvider.getApplicationName());
         }
@@ -46,6 +50,9 @@ public class ApplicationMgtProvisioningListener extends AbstractAppAndIdpOperati
     @Override
     public boolean doPreDeleteApplication(String applicationName, String tenantDomain, String userName)
             throws IdentityApplicationManagementException {
+        if (!isEnable()) {
+            return true;
+        }
         if(log.isDebugEnabled()){
             log.debug("Clearing cache entry for " + applicationName);
         }
