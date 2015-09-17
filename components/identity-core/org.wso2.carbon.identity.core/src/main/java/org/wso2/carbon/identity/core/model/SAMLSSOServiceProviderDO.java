@@ -18,9 +18,6 @@ package org.wso2.carbon.identity.core.model;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
-import org.wso2.carbon.identity.base.IdentityConstants;
-import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
-import org.wso2.carbon.identity.core.util.IdentityUtil;
 
 import java.io.Serializable;
 import java.util.Arrays;
@@ -61,15 +58,6 @@ public class SAMLSSOServiceProviderDO implements Serializable {
     private boolean doValidateSignatureInRequests;
     private String signingAlgorithm;
 
-    public SAMLSSOServiceProviderDO() {
-        if (StringUtils.isNotBlank(IdentityUtil.getProperty(IdentityConstants.ServerConfig
-                .SSO_DEFAULT_SIGNING_ALGORITHM))) {
-            signingAlgorithm = IdentityUtil.getProperty(IdentityConstants.ServerConfig.SSO_DEFAULT_SIGNING_ALGORITHM)
-                    .trim();
-        } else {
-            signingAlgorithm = IdentityCoreConstants.XML_SIGNATURE_ALGORITHM_URI_RSA_SHA1;
-        }
-    }
     public String getNameIDFormat() {
         return nameIDFormat;
     }

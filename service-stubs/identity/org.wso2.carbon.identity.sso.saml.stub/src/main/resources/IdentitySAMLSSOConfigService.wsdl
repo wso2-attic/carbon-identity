@@ -35,6 +35,30 @@
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
+            <xs:element name="getSigningAlgorithms">
+                <xs:complexType>
+                    <xs:sequence/>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getSigningAlgorithmsResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getSigningAlgorithmByConfig">
+                <xs:complexType>
+                    <xs:sequence/>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getSigningAlgorithmByConfigResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
             <xs:element name="removeServiceProvider">
                 <xs:complexType>
                     <xs:sequence>
@@ -72,18 +96,6 @@
                 <xs:complexType>
                     <xs:sequence>
                         <xs:element minOccurs="0" name="return" type="xs:boolean"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="getSigningAlgorithms">
-                <xs:complexType>
-                    <xs:sequence/>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="getSigningAlgorithmsResponse">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="xs:string"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
@@ -159,6 +171,12 @@
     <wsdl:message name="getServiceProvidersResponse">
         <wsdl:part name="parameters" element="ns1:getServiceProvidersResponse"/>
     </wsdl:message>
+    <wsdl:message name="getSigningAlgorithmByConfigRequest">
+        <wsdl:part name="parameters" element="ns1:getSigningAlgorithmByConfig"/>
+    </wsdl:message>
+    <wsdl:message name="getSigningAlgorithmByConfigResponse">
+        <wsdl:part name="parameters" element="ns1:getSigningAlgorithmByConfigResponse"/>
+    </wsdl:message>
     <wsdl:message name="getSigningAlgorithmsRequest">
         <wsdl:part name="parameters" element="ns1:getSigningAlgorithms"/>
     </wsdl:message>
@@ -191,6 +209,10 @@
             <wsdl:input message="tns:getServiceProvidersRequest" wsaw:Action="urn:getServiceProviders"/>
             <wsdl:output message="tns:getServiceProvidersResponse" wsaw:Action="urn:getServiceProvidersResponse"/>
             <wsdl:fault message="tns:IdentitySAMLSSOConfigServiceIdentityException" name="IdentitySAMLSSOConfigServiceIdentityException" wsaw:Action="urn:getServiceProvidersIdentitySAMLSSOConfigServiceIdentityException"/>
+        </wsdl:operation>
+        <wsdl:operation name="getSigningAlgorithmByConfig">
+            <wsdl:input message="tns:getSigningAlgorithmByConfigRequest" wsaw:Action="urn:getSigningAlgorithmByConfig"/>
+            <wsdl:output message="tns:getSigningAlgorithmByConfigResponse" wsaw:Action="urn:getSigningAlgorithmByConfigResponse"/>
         </wsdl:operation>
         <wsdl:operation name="getSigningAlgorithms">
             <wsdl:input message="tns:getSigningAlgorithmsRequest" wsaw:Action="urn:getSigningAlgorithms"/>
@@ -251,6 +273,15 @@
             <wsdl:fault name="IdentitySAMLSSOConfigServiceIdentityException">
                 <soap:fault use="literal" name="IdentitySAMLSSOConfigServiceIdentityException"/>
             </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="getSigningAlgorithmByConfig">
+            <soap:operation soapAction="urn:getSigningAlgorithmByConfig" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
         </wsdl:operation>
         <wsdl:operation name="getSigningAlgorithms">
             <soap:operation soapAction="urn:getSigningAlgorithms" style="document"/>
@@ -324,6 +355,15 @@
                 <soap12:fault use="literal" name="IdentitySAMLSSOConfigServiceIdentityException"/>
             </wsdl:fault>
         </wsdl:operation>
+        <wsdl:operation name="getSigningAlgorithmByConfig">
+            <soap12:operation soapAction="urn:getSigningAlgorithmByConfig" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
         <wsdl:operation name="getSigningAlgorithms">
             <soap12:operation soapAction="urn:getSigningAlgorithms" style="document"/>
             <wsdl:input>
@@ -377,6 +417,15 @@
         </wsdl:operation>
         <wsdl:operation name="getServiceProviders">
             <http:operation location="getServiceProviders"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="getSigningAlgorithmByConfig">
+            <http:operation location="getSigningAlgorithmByConfig"/>
             <wsdl:input>
                 <mime:content type="text/xml" part="parameters"/>
             </wsdl:input>

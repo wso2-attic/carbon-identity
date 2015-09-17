@@ -149,6 +149,7 @@ public class SPInitSSOAuthnRequestProcessor {
                     spDO.setIdPInitSLOEnabled(authnReqDTO.isIdPInitSLOEnabled());
                     spDO.setAssertionConsumerUrls(authnReqDTO.getAssertionConsumerURLs());
                     spDO.setIdpInitSLOReturnToURLs(authnReqDTO.getIdpInitSLOReturnToURLs());
+                    spDO.setSigningAlgorithm(authnReqDTO.getSigningAlgorithm());
                     sessionPersistenceManager.persistSession(sessionIndexId,
                             authnReqDTO.getUser().getAuthenticatedSubjectIdentifier(),
                             spDO, authnReqDTO.getRpSessionId(),

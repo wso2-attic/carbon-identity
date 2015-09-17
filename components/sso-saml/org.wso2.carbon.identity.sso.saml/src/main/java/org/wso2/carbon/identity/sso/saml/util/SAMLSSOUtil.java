@@ -1259,11 +1259,4 @@ public class SAMLSSOUtil {
         }
     }
 
-    public static String getSigningAlgoByConfig(){
-        if (StringUtils.isNotBlank(IdentityUtil.getProperty(IdentityConstants.ServerConfig.SSO_DEFAULT_SIGNING_ALGORITHM))) {
-            return IdentityUtil.getProperty(IdentityConstants.ServerConfig.SSO_DEFAULT_SIGNING_ALGORITHM).trim();
-        } else {
-            return IdentityApplicationConstants.XML.SignatureAlgorithmURI.RSA_SHA1;
-        }
-    }
 }

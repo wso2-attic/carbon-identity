@@ -107,8 +107,9 @@ public class DefaultResponseBuilder implements ResponseBuilder {
         response.setIssueInstant(issueInstant);
         response.getAssertions().add(assertion);
         if (authReqDTO.isDoSignResponse()) {
-            SAMLSSOUtil.setSignature(response, authReqDTO.getSigningAlgorithm(),
-                    new SignKeyDataHolder(authReqDTO.getUser().getAuthenticatedSubjectIdentifier()));
+            SAMLSSOUtil.setSignature(response, IdentityApplicationManagementUtil.getXMLSignatureAlgorithms().get
+                    (authReqDTO.getSigningAlgorithm()), new SignKeyDataHolder(authReqDTO.getUser()
+                    .getAuthenticatedSubjectIdentifier()));
         }
         return response;
     }

@@ -138,4 +138,15 @@ public class SAMLSSOConfigServiceClient {
         }
         return  signingAlgorithms;
     }
+
+    public String getSigningAlgorithmByConfig() throws AxisFault{
+        String signingAlgo;
+        try{
+            signingAlgo = stub.getSigningAlgorithmByConfig();
+        }catch(RemoteException e){
+            log.error("Error when reading signing algorithm from config",e);
+            throw new AxisFault(e.getMessage(),e);
+        }
+        return signingAlgo;
+    }
 }

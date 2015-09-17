@@ -901,13 +901,15 @@ function clearAll() {
     </td>
     <td>
         <select id="signingAlgorithm" name="signingAlgorithm">
-            <option value="">---Select---</option>
             <%
                 if (spConfigClient.getSigningAlgorithms() != null) {
                     for (String signingAlgo : spConfigClient.getSigningAlgorithms()) {
                         String signAlgorithm = null;
                         if (provider != null) {
                             signAlgorithm = provider.getSigningAlgorithm();
+                        }
+                        else{
+                            signAlgorithm = spConfigClient.getSigningAlgorithmByConfig();
                         }
                         if (signAlgorithm != null && signingAlgo.equals(signAlgorithm)) {
             %>

@@ -114,6 +114,11 @@ public class SAMLSSOConfigService extends AbstractAdmin {
         Set<String> keySet = IdentityApplicationManagementUtil.getXMLSignatureAlgorithms().keySet();
         return keySet.toArray(new String[keySet.size()]);
     }
+
+    public String getSigningAlgorithmByConfig() {
+        return IdentityApplicationManagementUtil.getSigningAlgoByURI(IdentityApplicationManagementUtil
+                .getSigningAlgoURIByConfig());
+    }
     /**
      * @param issuer
      * @return

@@ -23,6 +23,7 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.IdentityRegistryResources;
 import org.wso2.carbon.identity.core.model.SAMLSSOServiceProviderDO;
+import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
 import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
 import org.wso2.carbon.registry.core.Registry;
 import org.wso2.carbon.registry.core.Resource;
@@ -49,8 +50,13 @@ public class SAMLSSOServiceProviderDAO extends AbstractDAO<SAMLSSOServiceProvide
                 IdentityRegistryResources.PROP_DEFAULT_SAML_SSO_ASSERTION_CONS_URL));
         serviceProviderDO.setCertAlias(resource
                 .getProperty(IdentityRegistryResources.PROP_SAML_SSO_ISSUER_CERT_ALIAS));
-        serviceProviderDO.setSigningAlgorithm(resource.getProperty(IdentityRegistryResources
-                .PROP_SAML_SSO_SIGNING_ALGORITHM));
+
+        if (resource.getProperty(IdentityRegistryResources.PROP_SAML_SSO_SIGNING_ALGORITHM) != null) {
+            serviceProviderDO.setSigningAlgorithm(resource.getProperty(IdentityRegistryResources
+                    .PROP_SAML_SSO_SIGNING_ALGORITHM));
+        } else {
+            serviceProviderDO.setSigningAlgorithm(IdentityCoreConstants.XML_SIGNATURE_ALGORITHM_RSA_SHA1);
+        }
 
         if (resource.getProperty(IdentityRegistryResources.PROP_SAML_SSO_DO_SINGLE_LOGOUT) != null) {
             serviceProviderDO.setDoSingleLogout(new Boolean(resource.getProperty(

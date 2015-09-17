@@ -37,6 +37,7 @@ import org.opensaml.saml2.core.impl.StatusBuilder;
 import org.opensaml.saml2.core.impl.StatusCodeBuilder;
 import org.opensaml.saml2.core.impl.StatusMessageBuilder;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
+import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.sso.saml.SAMLSSOConstants;
 import org.wso2.carbon.identity.sso.saml.util.SAMLSSOUtil;
@@ -99,7 +100,8 @@ public class SingleLogoutMessageBuilder {
             PrivilegedCarbonContext.startTenantFlow();
             PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
             PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantId(tenantId);
-            SAMLSSOUtil.setSignature(logoutReq, requestsigningAlgorithm, new SignKeyDataHolder(null));
+            SAMLSSOUtil.setSignature(logoutReq, IdentityApplicationManagementUtil.getXMLSignatureAlgorithms().get
+                    (requestsigningAlgorithm), new SignKeyDataHolder(null));
         } finally {
             PrivilegedCarbonContext.endTenantFlow();
         }
@@ -141,7 +143,8 @@ public class SingleLogoutMessageBuilder {
                 PrivilegedCarbonContext.startTenantFlow();
                 PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
                 PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantId(tenantId);
-                SAMLSSOUtil.setSignature(logoutResp, responseSigningAlgorithm, new SignKeyDataHolder(null));
+                SAMLSSOUtil.setSignature(logoutResp, IdentityApplicationManagementUtil.getXMLSignatureAlgorithms()
+                        .get(responseSigningAlgorithm), new SignKeyDataHolder(null));
             } finally {
                 PrivilegedCarbonContext.endTenantFlow();
             }
