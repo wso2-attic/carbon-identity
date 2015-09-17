@@ -1258,5 +1258,4 @@ public class SAMLSSOUtil {
             deflaterOutputStream.close();
         }
     }
-
 }
