@@ -31,15 +31,15 @@ import java.util.TreeMap;
  * @scr.reference name="idp.mgt.event.listener.service"
  * interface="org.wso2.carbon.idp.mgt.listener.IdentityProviderMgtListener"
  * cardinality="0..n" policy="dynamic"
- * bind="setIdentityProviderMgtListerService"
- * unbind="unsetIdentityProviderMgtListerService"
+ * bind="setIdentityProviderMgtListenerService"
+ * unbind="unsetIdentityProviderMgtListenerService"
  */
 public class IdpMgtListenerServiceComponent {
 
     private static Map<Integer, IdentityProviderMgtListener> idpMgtListeners;
     private static Collection<IdentityProviderMgtListener> idpMgtListenerCollection;
 
-    protected static synchronized void setApplicationMgtListenerService(
+    protected static synchronized void setIdentityProviderMgtListenerService(
             IdentityProviderMgtListener applicationMgtListenerService) {
         idpMgtListenerCollection = null;
         if (idpMgtListeners == null) {
@@ -49,7 +49,7 @@ public class IdpMgtListenerServiceComponent {
                 applicationMgtListenerService);
     }
 
-    protected static synchronized void unsetApplicationMgtListenerService(
+    protected static synchronized void unsetIdentityProviderMgtListenerService(
             IdentityProviderMgtListener applicationMgtListenerService) {
         if (applicationMgtListenerService != null &&
                 idpMgtListeners != null) {

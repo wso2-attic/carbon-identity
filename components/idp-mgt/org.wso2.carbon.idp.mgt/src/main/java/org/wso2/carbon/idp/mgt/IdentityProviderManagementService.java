@@ -34,6 +34,7 @@ import org.wso2.carbon.user.api.ClaimMapping;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 public class IdentityProviderManagementService extends AbstractAdmin {
@@ -67,7 +68,7 @@ public class IdentityProviderManagementService extends AbstractAdmin {
             throw new IllegalArgumentException("Identity provider is null");
         }
         // invoking the listeners
-        List<IdentityProviderMgtListener> listeners = IdpMgtListenerServiceComponent.getIdpMgtListeners();
+        Collection<IdentityProviderMgtListener> listeners = IdpMgtListenerServiceComponent.getIdpMgtListeners();
         for (IdentityProviderMgtListener listener : listeners) {
             if (!listener.doPreUpdateResidentIdP(identityProvider)) {
                 return;
@@ -154,7 +155,7 @@ public class IdentityProviderManagementService extends AbstractAdmin {
         }
 
         // invoking the listeners
-        List<IdentityProviderMgtListener> listeners = IdpMgtListenerServiceComponent.getIdpMgtListeners();
+        Collection<IdentityProviderMgtListener> listeners = IdpMgtListenerServiceComponent.getIdpMgtListeners();
         for (IdentityProviderMgtListener listener : listeners) {
             if (!listener.doPreAddIdP(identityProvider)) {
                 return;
@@ -182,7 +183,7 @@ public class IdentityProviderManagementService extends AbstractAdmin {
             throw new IllegalArgumentException("Provided IdP name is empty");
         }
         // invoking the listeners
-        List<IdentityProviderMgtListener> listeners = IdpMgtListenerServiceComponent.getIdpMgtListeners();
+        Collection<IdentityProviderMgtListener> listeners = IdpMgtListenerServiceComponent.getIdpMgtListeners();
         for (IdentityProviderMgtListener listener : listeners) {
             if (!listener.doPreDeleteIdP(idPName)) {
                 return;
@@ -248,7 +249,7 @@ public class IdentityProviderManagementService extends AbstractAdmin {
                     "New name: " + identityProvider.getIdentityProviderName() + ")");
         }
         // invoking the listeners
-        List<IdentityProviderMgtListener> listeners = IdpMgtListenerServiceComponent.getIdpMgtListeners();
+        Collection<IdentityProviderMgtListener> listeners = IdpMgtListenerServiceComponent.getIdpMgtListeners();
         for (IdentityProviderMgtListener listener : listeners) {
             if (!listener.doPreUpdateIdP(oldIdPName, identityProvider)) {
                 return;
