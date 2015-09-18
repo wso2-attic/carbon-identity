@@ -20,8 +20,9 @@ package org.wso2.carbon.identity.application.mgt.internal;
 
 import org.wso2.carbon.identity.application.mgt.listener.ApplicationMgtListener;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
+import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * @scr.component name="org.wso2.carbon.identity.application.mgt.listener"
@@ -30,27 +31,40 @@ import java.util.List;
  * interface="org.wso2.carbon.identity.application.mgt.listener.ApplicationMgtListener"
  * cardinality="0..n" policy="dynamic"
  * bind="setApplicationMgtListenerService"
- * unbind="unsetApplicationMgtListenerService" *
+ * unbind="unsetApplicationMgtListenerService"
  */
 public class ApplicationMgtListenerServiceComponent {
 
-    private static List<ApplicationMgtListener> listners = new ArrayList<ApplicationMgtListener>();
+    private static Map<Integer, ApplicationMgtListener> applicationMgtListeners;
+    private static Collection<ApplicationMgtListener> applicationMgtListenerCollection;
 
-
-    public static void setApplicationMgtListenerService(
-            ApplicationMgtListener identityProviderMgtListerService) {
-
-        listners.add(identityProviderMgtListerService);
+    protected static synchronized void setApplicationMgtListenerService(
+            ApplicationMgtListener applicationMgtListenerService) {
+        applicationMgtListenerCollection = null;
+        if (applicationMgtListeners == null) {
+            applicationMgtListeners = new TreeMap<>();
+        }
+        applicationMgtListeners.put(applicationMgtListenerService.getExecutionOrderId(),
+                applicationMgtListenerService);
     }
 
-    public static void unsetApplicationMgtListenerService(
-            ApplicationMgtListener identityProviderMgtListerService) {
-
-        listners.remove(identityProviderMgtListerService);
+    protected static synchronized void unsetApplicationMgtListenerService(
+            ApplicationMgtListener applicationMgtListenerService) {
+        if (applicationMgtListenerService != null &&
+                applicationMgtListeners != null) {
+            applicationMgtListenerCollection = null;
+        }
     }
 
-    public static List<ApplicationMgtListener> getListners() {
-        return listners;
+    public static synchronized Collection<ApplicationMgtListener> getApplicationMgtListeners() {
+        if (applicationMgtListeners == null) {
+            applicationMgtListeners = new TreeMap<>();
+        }
+        if (applicationMgtListenerCollection == null) {
+            applicationMgtListenerCollection =
+                    applicationMgtListeners.values();
+        }
+        return applicationMgtListenerCollection;
     }
 
 }

@@ -18,37 +18,53 @@
 
 package org.wso2.carbon.idp.mgt.internal;
 
-import org.wso2.carbon.idp.mgt.listener.IdentityProviderMgtLister;
+import org.wso2.carbon.idp.mgt.listener.IdentityProviderMgtListener;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * @scr.component name="org.wso2.carbon.idp.mgt.listener" immediate="true"
  * @scr.reference name="idp.mgt.event.listener.service"
- * interface="org.wso2.carbon.idp.mgt.listener.IdentityProviderMgtLister"
+ * interface="org.wso2.carbon.idp.mgt.listener.IdentityProviderMgtListener"
  * cardinality="0..n" policy="dynamic"
  * bind="setIdentityProviderMgtListerService"
- * unbind="unsetIdentityProviderMgtListerService" *
+ * unbind="unsetIdentityProviderMgtListerService"
  */
 public class IdpMgtListenerServiceComponent {
 
-    private static List<IdentityProviderMgtLister> listeners = new ArrayList<>();
+    private static Map<Integer, IdentityProviderMgtListener> idpMgtListeners;
+    private static Collection<IdentityProviderMgtListener> idpMgtListenerCollection;
 
-    public static void setIdentityProviderMgtListerService(
-            IdentityProviderMgtLister identityProviderMgtListerService) {
-
-        listeners.add(identityProviderMgtListerService);
+    protected static synchronized void setApplicationMgtListenerService(
+            IdentityProviderMgtListener applicationMgtListenerService) {
+        idpMgtListenerCollection = null;
+        if (idpMgtListeners == null) {
+            idpMgtListeners = new TreeMap<>();
+        }
+        idpMgtListeners.put(applicationMgtListenerService.getExecutionOrderId(),
+                applicationMgtListenerService);
     }
 
-    public static void unsetIdentityProviderMgtListerService(
-            IdentityProviderMgtLister identityProviderMgtListerService) {
-
-        listeners.remove(identityProviderMgtListerService);
+    protected static synchronized void unsetApplicationMgtListenerService(
+            IdentityProviderMgtListener applicationMgtListenerService) {
+        if (applicationMgtListenerService != null &&
+                idpMgtListeners != null) {
+            idpMgtListenerCollection = null;
+        }
     }
 
-    public static List<IdentityProviderMgtLister> getListners() {
-        return listeners;
+    public static synchronized Collection<IdentityProviderMgtListener> getIdpMgtListeners() {
+        if (idpMgtListeners == null) {
+            idpMgtListeners = new TreeMap<>();
+        }
+        if (idpMgtListenerCollection == null) {
+            idpMgtListenerCollection =
+                    idpMgtListeners.values();
+        }
+        return idpMgtListenerCollection;
     }
-
 }

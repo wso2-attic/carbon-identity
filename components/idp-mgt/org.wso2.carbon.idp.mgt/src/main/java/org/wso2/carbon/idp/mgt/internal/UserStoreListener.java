@@ -19,9 +19,9 @@
 package org.wso2.carbon.idp.mgt.internal;
 
 import org.wso2.carbon.context.CarbonContext;
-import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
 import org.wso2.carbon.identity.core.AbstractIdentityUserOperationEventListener;
 import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
+import org.wso2.carbon.idp.mgt.IdentityProviderManagementException;
 import org.wso2.carbon.idp.mgt.dao.CacheBackedIdPMgtDAO;
 import org.wso2.carbon.idp.mgt.dao.IdPManagementDAO;
 import org.wso2.carbon.user.core.UserStoreException;
@@ -49,7 +49,7 @@ public class UserStoreListener extends AbstractIdentityUserOperationEventListene
         String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
         try {
             dao.renameTenantRole(newRoleName, oldRoleName, tenantId, tenantDomain);
-        } catch (IdentityApplicationManagementException e) {
+        } catch (IdentityProviderManagementException e) {
             throw new UserStoreException(e.getMessage(), e);
         }
         return true;
@@ -64,7 +64,7 @@ public class UserStoreListener extends AbstractIdentityUserOperationEventListene
         String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
         try {
             dao.deleteTenantRole(tenantId, roleName, tenantDomain);
-        } catch (IdentityApplicationManagementException e) {
+        } catch (IdentityProviderManagementException e) {
             throw new UserStoreException(e.getMessage(), e);
         }
         return true;

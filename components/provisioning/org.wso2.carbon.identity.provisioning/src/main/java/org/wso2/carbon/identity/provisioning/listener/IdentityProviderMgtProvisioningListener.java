@@ -32,49 +32,49 @@ import org.wso2.carbon.identity.provisioning.cache.ServiceProviderProvisioningCo
 import org.wso2.carbon.identity.provisioning.cache.ServiceProviderProvisioningConnectorCacheKey;
 import org.wso2.carbon.identity.provisioning.dao.ProvisioningManagementDAO;
 import org.wso2.carbon.identity.provisioning.internal.ProvisioningServiceDataHolder;
-import org.wso2.carbon.idp.mgt.listener.IdentityProviderMgtLister;
+import org.wso2.carbon.idp.mgt.IdentityProviderManagementException;
+import org.wso2.carbon.idp.mgt.listener.AbstractIdentityProviderMgtListener;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 import java.util.List;
 
-public class IdentityProviderMgtProvisioningListener implements IdentityProviderMgtLister {
+public class IdentityProviderMgtProvisioningListener extends AbstractIdentityProviderMgtListener {
 
     private static final Log log = LogFactory.getLog(IdentityProviderMgtProvisioningListener.class);
     private static ProvisioningManagementDAO provisioningManagementDAO = new ProvisioningManagementDAO();
 
     @Override
-    public void updateResidentIdP(IdentityProvider identityProvider) {
-        log.debug("update Resident Identity Provider event received");
+    public boolean doPreAddIdP(IdentityProvider identityProvider) throws IdentityProviderManagementException {
+        if(log.isDebugEnabled()){
+            log.debug("add new Identity Provider event received");
+        }
+        return true;
     }
 
     @Override
-    public void addIdP(IdentityProvider identityProvider) {
-        log.debug("add new Identity Provider event received");
-    }
-
-    @Override
-    public void deleteIdP(String idPName) {
+    public boolean doPreDeleteIdP(String idPName) throws IdentityProviderManagementException {
         String tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext()
                 .getTenantDomain();
         try {
             destroyConnector(idPName, tenantDomain);
         } catch (IdentityProvisioningException e) {
-            log.error(e.getMessage(), e);
+            throw new IdentityProviderManagementException("Error when provisioning IDP deletion", e);
         }
-
+        return true;
     }
 
     @Override
-    public void updateIdP(String oldIdPName, IdentityProvider identityProvider) {
+    public boolean doPreUpdateIdP(String oldIdPName, IdentityProvider identityProvider) throws IdentityProviderManagementException {
         String tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext()
                 .getTenantDomain();
         try {
             destroyConnector(oldIdPName, tenantDomain);
         } catch (IdentityProvisioningException e) {
-            log.error(e.getMessage(), e);
+            throw new IdentityProviderManagementException("Error when provisioning IDP update", e);
         }
+        return true;
     }
 
     /**
@@ -115,8 +115,8 @@ public class IdentityProviderMgtProvisioningListener implements IdentityProvider
                 RealmService realmService = ProvisioningServiceDataHolder.getInstance().getRealmService();
                 tenantId = realmService.getTenantManager().getTenantId(tenantDomain);
             } catch (UserStoreException e) {
-                throw new IdentityProvisioningException("Error occurred while retrieving tenant id from tenant domain",
-                                                        e);
+                throw new IdentityProvisioningException
+                        ("Error occurred while retrieving tenant id from tenant domain", e);
             }
 
             try {
@@ -125,7 +125,8 @@ public class IdentityProviderMgtProvisioningListener implements IdentityProvider
 
                 for (String serviceProvider : serviceProviders) {
 
-                    ServiceProviderProvisioningConnectorCacheKey key = new ServiceProviderProvisioningConnectorCacheKey(serviceProvider, tenantDomain);
+                    ServiceProviderProvisioningConnectorCacheKey key = new ServiceProviderProvisioningConnectorCacheKey
+                            (serviceProvider, tenantDomain);
                     ServiceProviderProvisioningConnectorCacheEntry cacheEntry = (ServiceProviderProvisioningConnectorCacheEntry)
                             ServiceProviderProvisioningConnectorCache.getInstance().getValueFromCache(key);
 
@@ -133,11 +134,13 @@ public class IdentityProviderMgtProvisioningListener implements IdentityProvider
                         ServiceProviderProvisioningConnectorCache.getInstance().clearCacheEntry(key);
 
                         if (log.isDebugEnabled()) {
-                            log.debug("Service Provider '" + serviceProvider + "' Provisioning cached entry removed for idp " + identityProviderName);
+                            log.debug("Service Provider '" + serviceProvider +
+                                    "' Provisioning cached entry removed for idp " + identityProviderName);
                         }
                     } else {
                         if (log.isDebugEnabled()) {
-                            log.debug("Service Provider '" + serviceProvider + "' Provisioning cached entry not found for idp " + identityProviderName);
+                            log.debug("Service Provider '" + serviceProvider +
+                                    "' Provisioning cached entry not found for idp " + identityProviderName);
                         }
                     }
                 }
