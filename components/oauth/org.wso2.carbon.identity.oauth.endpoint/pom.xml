@@ -69,8 +69,8 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.apache.oltu.oauth2</groupId>
-            <artifactId>org.apache.oltu.oauth2.authzserver</artifactId>
+            <groupId>org.apache.oltu.oauth2.wso2</groupId>
+            <artifactId>oltu</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>
