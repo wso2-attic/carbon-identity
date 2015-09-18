@@ -22,7 +22,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.CarbonContext;
-import org.wso2.carbon.identity.workflow.mgt.bean.AssociationDTO;
+import org.wso2.carbon.identity.workflow.mgt.dto.Association;
 import org.wso2.carbon.identity.workflow.mgt.bean.Parameter;
 import org.wso2.carbon.identity.workflow.mgt.dto.Template;
 import org.wso2.carbon.identity.workflow.mgt.dto.WorkflowImpl;
@@ -37,9 +37,7 @@ import org.wso2.carbon.identity.workflow.mgt.internal.WorkflowServiceDataHolder;
 import org.wso2.carbon.identity.workflow.mgt.util.WorkflowRequestStatus;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 public class WorkflowManagementAdminService {
@@ -57,31 +55,31 @@ public class WorkflowManagementAdminService {
         return templates.toArray(new Template[templates.size()]);
     }
 
-    public Template getTemplateDTO(String templateName) {
+    public Template getTemplate(String templateName) {
 
         return WorkflowServiceDataHolder.getInstance().getWorkflowService().getTemplate(templateName);
     }
 
-    public WorkflowImpl getTemplateImplDTO(String templateId, String implementationId) {
+    public WorkflowImpl getTemplateImpl(String templateId, String implementationId) {
 
         return WorkflowServiceDataHolder.getInstance().getWorkflowService().getWorkflowImpl(implementationId);
     }
 
 
 
-    public void addWorkflow(Workflow workflowDTO, Parameter[] parameters) throws WorkflowException {
+    public void addWorkflow(Workflow workflow, Parameter[] parameters) throws WorkflowException {
 
         String id = UUID.randomUUID().toString();
         int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
         try {
-            workflowDTO.setWorkflowId(id);
-            WorkflowServiceDataHolder.getInstance().getWorkflowService().addWorkflow(workflowDTO, Arrays.asList(parameters) , tenantId);
+            workflow.setWorkflowId(id);
+            WorkflowServiceDataHolder.getInstance().getWorkflowService().addWorkflow(workflow, Arrays.asList(parameters) , tenantId);
 
         } catch (WorkflowRuntimeException e) {
-            log.error("Error when adding workflow " + workflowDTO.getWorkflowName(), e);
+            log.error("Error when adding workflow " + workflow.getWorkflowName(), e);
             throw new WorkflowException(e.getMessage());
         } catch (WorkflowException e) {
-            log.error("Server error when adding workflow " + workflowDTO.getWorkflowName(), e);
+            log.error("Server error when adding workflow " + workflow.getWorkflowName(), e);
             throw new WorkflowException("Server error occurred when adding the workflow");
         }
     }
@@ -151,9 +149,9 @@ public class WorkflowManagementAdminService {
         }
     }
 
-    public AssociationDTO[] listAssociationsForWorkflow(String workflowId) throws WorkflowException {
+    public Association[] listAssociations(String workflowId) throws WorkflowException {
 
-        List<AssociationDTO> associations;
+        List<Association> associations;
         try {
             associations = WorkflowServiceDataHolder.getInstance().getWorkflowService().getAssociationsForWorkflow(workflowId);
         } catch (InternalWorkflowException e) {
@@ -161,14 +159,14 @@ public class WorkflowManagementAdminService {
             throw new WorkflowException("Server error when listing associations");
         }
         if (CollectionUtils.isEmpty(associations)) {
-            return new AssociationDTO[0];
+            return new Association[0];
         }
-        return associations.toArray(new AssociationDTO[associations.size()]);
+        return associations.toArray(new Association[associations.size()]);
     }
 
-    public AssociationDTO[] listAllAssociations() throws WorkflowException {
+    public Association[] listAllAssociations() throws WorkflowException {
 
-        List<AssociationDTO> associations;
+        List<Association> associations;
         try {
             associations = WorkflowServiceDataHolder.getInstance().getWorkflowService().listAllAssociations();
         } catch (InternalWorkflowException e) {
@@ -176,10 +174,17 @@ public class WorkflowManagementAdminService {
             throw new WorkflowException("Server error when listing associations");
         }
         if (CollectionUtils.isEmpty(associations)) {
-            return new AssociationDTO[0];
+            return new Association[0];
         }
-        return associations.toArray(new AssociationDTO[associations.size()]);
+        return associations.toArray(new Association[associations.size()]);
     }
+
+
+
+
+
+    //TODO:Below method should refactor
+
 
     public WorkflowEventDTO getEvent(String eventId) {
 

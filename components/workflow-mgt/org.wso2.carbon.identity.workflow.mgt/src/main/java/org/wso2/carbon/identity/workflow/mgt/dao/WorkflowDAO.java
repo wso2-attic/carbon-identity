@@ -25,7 +25,7 @@ import org.wso2.carbon.identity.workflow.mgt.bean.Parameter;
 import org.wso2.carbon.identity.workflow.mgt.dto.Workflow;
 import org.wso2.carbon.identity.workflow.mgt.template.AbstractTemplate;
 import org.wso2.carbon.identity.workflow.mgt.workflow.AbstractWorkflow;
-import org.wso2.carbon.identity.workflow.mgt.bean.AssociationDTO;
+import org.wso2.carbon.identity.workflow.mgt.dto.Association;
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowAssociationBean;
 import org.wso2.carbon.identity.workflow.mgt.exception.InternalWorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.internal.WorkflowServiceDataHolder;
@@ -35,9 +35,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class WorkflowDAO {
 
@@ -198,7 +196,7 @@ public class WorkflowDAO {
     }
 
 
-    public void updateAssociation(AssociationDTO associationDTO)
+    public void updateAssociation(Association associationDTO)
             throws InternalWorkflowException {
 
         Connection connection = null;
@@ -348,13 +346,13 @@ public class WorkflowDAO {
         return associations;
     }
 
-    public List<AssociationDTO> listAssociationsForWorkflow(String workflowId)
+    public List<Association> listAssociationsForWorkflow(String workflowId)
             throws InternalWorkflowException {
 
         Connection connection = null;
         PreparedStatement prepStmt = null;
         ResultSet rs;
-        List<AssociationDTO> associations = new ArrayList<>();
+        List<Association> associations = new ArrayList<>();
         String query = SQLConstants.GET_ASSOCIATIONS_FOR_WORKFLOW_QUERY;
         try {
             connection = IdentityDatabaseUtil.getDBConnection();
@@ -367,7 +365,7 @@ public class WorkflowDAO {
                 String associationId = String.valueOf(rs.getInt(SQLConstants.ID_COLUMN));
                 String associationName = rs.getString(SQLConstants.ASSOCIATION_NAME_COLUMN);
                 String workflowName = rs.getString(SQLConstants.WF_NAME_COLUMN);
-                AssociationDTO associationDTO = new AssociationDTO();
+                Association associationDTO = new Association();
                 associationDTO.setCondition(condition);
                 associationDTO.setAssociationId(associationId);
                 associationDTO.setEventId(eventId);
@@ -385,12 +383,12 @@ public class WorkflowDAO {
         return associations;
     }
 
-    public List<AssociationDTO> listAssociations() throws InternalWorkflowException {
+    public List<Association> listAssociations() throws InternalWorkflowException {
 
         Connection connection = null;
         PreparedStatement prepStmt = null;
         ResultSet rs;
-        List<AssociationDTO> associations = new ArrayList<>();
+        List<Association> associations = new ArrayList<>();
         String query = SQLConstants.GET_ALL_ASSOCIATIONS_QUERY;
         try {
             connection = IdentityDatabaseUtil.getDBConnection();
@@ -403,7 +401,7 @@ public class WorkflowDAO {
                 String associationName = rs.getString(SQLConstants.ASSOCIATION_NAME_COLUMN);
                 String workflowName = rs.getString(SQLConstants.WF_NAME_COLUMN);
                 String isEnable = rs.getString(SQLConstants.ASSOCIATION_IS_ENABLED);
-                AssociationDTO associationDTO = new AssociationDTO();
+                Association associationDTO = new Association();
                 associationDTO.setCondition(condition);
                 associationDTO.setAssociationId(associationId);
                 associationDTO.setEventId(eventId);
@@ -427,12 +425,12 @@ public class WorkflowDAO {
     }
 
 
-    public AssociationDTO getAssociation(String associationId) throws InternalWorkflowException {
+    public Association getAssociation(String associationId) throws InternalWorkflowException {
 
         Connection connection = null;
         PreparedStatement prepStmt = null;
         ResultSet rs;
-        AssociationDTO associationDTO = null ;
+        Association associationDTO = null ;
         String query = SQLConstants.GET_ASSOCIATION_FOR_ASSOC_ID_QUERY;
         try {
 
@@ -449,7 +447,7 @@ public class WorkflowDAO {
                 String workflowName = rs.getString(SQLConstants.WF_NAME_COLUMN);
                 String workflowId = rs.getString(SQLConstants.WORKFLOW_ID_COLUMN);
                 String isEnable = rs.getString(SQLConstants.ASSOCIATION_IS_ENABLED);
-                associationDTO = new AssociationDTO();
+                associationDTO = new Association();
                 associationDTO.setCondition(condition);
                 associationDTO.setAssociationId(associationId);
                 associationDTO.setEventId(eventId);

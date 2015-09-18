@@ -16,9 +16,9 @@
  * under the License.
  */
 
-package org.wso2.carbon.identity.workflow.mgt.bean;
+package org.wso2.carbon.identity.workflow.mgt.dto;
 
-public class AssociationDTO {
+public class Association {
 
     private String associationId;
     private String associationName;

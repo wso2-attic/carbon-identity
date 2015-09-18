@@ -19,8 +19,8 @@
 <%@ page import="org.apache.axis2.context.ConfigurationContext" %>
 <%@ page import="org.wso2.carbon.CarbonConstants" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.WorkflowAdminServiceWorkflowException" %>
-<%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.WorkflowAdminServiceClient" %>
-<%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.WorkflowUIConstants" %>
+<%@ page import="org.wso2.carbon.identity.workflow.impl.ui.WorkflowImplAdminServiceClient" %>
+<%@ page import="org.wso2.carbon.identity.workflow.impl.ui.WorkflowUIConstants" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
 
@@ -31,14 +31,14 @@
 <%
     String action = request.getParameter(WorkflowUIConstants.PARAM_ACTION);
 
-    WorkflowAdminServiceClient client = null;
+    WorkflowImplAdminServiceClient client = null;
 
     String cookie = (String) session.getAttribute(ServerConstants.ADMIN_SERVICE_COOKIE);
     String backendServerURL = CarbonUIUtil.getServerURL(config.getServletContext(), session);
     ConfigurationContext configContext =
             (ConfigurationContext) config.getServletContext()
                     .getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
-    client = new WorkflowAdminServiceClient(cookie, backendServerURL, configContext);
+    client = new WorkflowImplAdminServiceClient(cookie, backendServerURL, configContext);
 
     String bundle = "org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources";
     ResourceBundle resourceBundle = ResourceBundle.getBundle(bundle, request.getLocale());

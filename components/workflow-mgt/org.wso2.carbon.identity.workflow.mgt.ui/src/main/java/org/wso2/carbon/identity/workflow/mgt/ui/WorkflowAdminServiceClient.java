@@ -24,22 +24,18 @@ import org.apache.axis2.client.ServiceClient;
 import org.apache.axis2.context.ConfigurationContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.identity.workflow.mgt.dto.xsd.Association;
+import org.wso2.carbon.identity.workflow.mgt.dto.xsd.Template;
+import org.wso2.carbon.identity.workflow.mgt.dto.xsd.Workflow;
+import org.wso2.carbon.identity.workflow.mgt.dto.xsd.WorkflowImpl;
+import org.wso2.carbon.identity.workflow.mgt.stub.bean.Parameter;
 import org.wso2.carbon.identity.workflow.mgt.stub.bean.WorkflowRequestAssociationDTO;
 import org.wso2.carbon.identity.workflow.mgt.stub.bean.WorkflowRequestDTO;
 import org.wso2.carbon.identity.workflow.mgt.stub.WorkflowAdminServiceStub;
 import org.wso2.carbon.identity.workflow.mgt.stub.WorkflowAdminServiceWorkflowException;
-import org.wso2.carbon.identity.workflow.mgt.stub.bean.AssociationDTO;
-import org.wso2.carbon.identity.workflow.mgt.stub.bean.BPSProfileDTO;
-import org.wso2.carbon.identity.workflow.mgt.stub.bean.ParameterDTO;
-import org.wso2.carbon.identity.workflow.mgt.stub.bean.TemplateBean;
-import org.wso2.carbon.identity.workflow.mgt.stub.bean.TemplateDTO;
-import org.wso2.carbon.identity.workflow.mgt.stub.bean.TemplateImplDTO;
-import org.wso2.carbon.identity.workflow.mgt.stub.bean.TemplateParameterDef;
-import org.wso2.carbon.identity.workflow.mgt.stub.bean.WorkflowDTO;
 import org.wso2.carbon.identity.workflow.mgt.stub.bean.WorkflowEventDTO;
 
 import java.rmi.RemoteException;
-import java.util.List;
 
 public class WorkflowAdminServiceClient {
 
@@ -73,121 +69,41 @@ public class WorkflowAdminServiceClient {
         return workflowEvents;
     }
 
-    public TemplateBean[] listTemplates() throws RemoteException {
+    public Template[] listTemplates() throws RemoteException {
 
-        TemplateBean[] templates = stub.listWorkflowTemplates();
+        Template[] templates = stub.listWorkflowTemplates();
         if (templates == null) {
-            templates = new TemplateBean[0];
+            templates = new Template[0];
         }
         return templates;
     }
 
-    public TemplateDTO getTemplate(String templateName) throws RemoteException {
+    public Template getTemplate(String templateName) throws RemoteException {
 
-        TemplateDTO templateDTO = stub.getTemplateDTO(templateName);
-        if (templateDTO != null) {
-            if (templateDTO.getParameters() == null) {
-                templateDTO.setParameters(new TemplateParameterDef[0]);
-            }
-            if (templateDTO.getImplementations() == null) {
-                templateDTO.setImplementations(new TemplateImplDTO[0]);
-            }
-        }
-        return templateDTO;
+        Template template = stub.getTemplate(templateName);
+        return template;
     }
 
-    public TemplateImplDTO getTemplateImpDTO(String template, String implName) throws RemoteException {
+    public WorkflowImpl getWorkflowImp(String template, String implName) throws RemoteException {
 
-        TemplateImplDTO templateImplDTO = stub.getTemplateImplDTO(template, implName);
-        if (templateImplDTO != null) {
-            if (templateImplDTO.getImplementationParams() == null) {
-                templateImplDTO.setImplementationParams(new TemplateParameterDef[0]);
-            }
-        }
-        return templateImplDTO;
+        WorkflowImpl workflowImpl = stub.getTemplateImpl(template, implName);
+        return workflowImpl;
     }
 
     /**
      * Add new workflow
      *
-     * @param workflowDTO
-     * @param templateParams
-     * @param templateImplParams
      * @throws RemoteException
      * @throws WorkflowAdminServiceWorkflowException
      */
-    public void addWorkflow(WorkflowDTO workflowDTO, List<ParameterDTO> templateParams,
-                            List<ParameterDTO> templateImplParams)
+    public void addWorkflow(Workflow workflow, Parameter[] parameters)
             throws RemoteException, WorkflowAdminServiceWorkflowException {
 
-        stub.addWorkflow(workflowDTO, templateParams.toArray(new
-                                                                     ParameterDTO[templateParams.size()]),
-                         templateImplParams.toArray(new ParameterDTO[templateImplParams.size()]));
+        stub.addWorkflow(workflow, parameters);
 
     }
 
-    /**
-     * Add new BPS profile
-     *
-     * @param bpsProfileDTO
-     * @throws RemoteException
-     * @throws WorkflowAdminServiceWorkflowException
-     */
-    public void addBPSProfile(BPSProfileDTO bpsProfileDTO)
-            throws RemoteException, WorkflowAdminServiceWorkflowException {
 
-        stub.addBPSProfile(bpsProfileDTO);
-    }
-
-
-    /**
-     * Retrieve BPS Profiles
-     *
-     * @return
-     * @throws RemoteException
-     * @throws WorkflowAdminServiceWorkflowException
-     */
-    public BPSProfileDTO[] listBPSProfiles() throws RemoteException, WorkflowAdminServiceWorkflowException {
-
-        BPSProfileDTO[] bpsProfiles = stub.listBPSProfiles();
-        if (bpsProfiles == null) {
-            bpsProfiles = new BPSProfileDTO[0];
-        }
-        return bpsProfiles;
-    }
-
-    /**
-     * Get BPS Profile detail for given profile name
-     *
-     * @param profileName
-     * @return
-     * @throws RemoteException
-     * @throws WorkflowAdminServiceWorkflowException
-     */
-    public BPSProfileDTO getBPSProfiles(String profileName)
-            throws RemoteException, WorkflowAdminServiceWorkflowException {
-
-        BPSProfileDTO bpsProfile = stub.getBPSProfile(profileName);
-        return bpsProfile;
-    }
-
-    /**
-     * Update BPS Profile
-     *
-     * @param bpsProfileDTO
-     * @throws RemoteException
-     * @throws WorkflowAdminServiceWorkflowException
-     */
-    public void updateBPSProfile(BPSProfileDTO bpsProfileDTO)
-            throws RemoteException, WorkflowAdminServiceWorkflowException {
-
-        stub.updateBPSProfile(bpsProfileDTO);
-    }
-
-    public void deleteBPSProfile(String profileName) throws RemoteException, WorkflowAdminServiceWorkflowException {
-
-        stub.removeBPSProfile(profileName);
-    }
 
     /**
      * Retrieve Workflows
@@ -196,11 +112,11 @@ public class WorkflowAdminServiceClient {
      * @throws RemoteException
      * @throws WorkflowAdminServiceWorkflowException
      */
-    public WorkflowDTO[] listWorkflows() throws RemoteException, WorkflowAdminServiceWorkflowException {
+    public Workflow[] listWorkflows() throws RemoteException, WorkflowAdminServiceWorkflowException {
 
-        WorkflowDTO[] workflows = stub.listWorkflows();
+        Workflow[] workflows = stub.listWorkflows();
         if (workflows == null) {
-            workflows = new WorkflowDTO[0];
+            workflows = new Workflow[0];
         }
         return workflows;
     }
@@ -210,21 +126,20 @@ public class WorkflowAdminServiceClient {
         stub.removeWorkflow(workflowId);
     }
 
-    public AssociationDTO[] listAssociationsForWorkflow(String workflowId)
+    public Association[] listAssociationsForWorkflow(String workflowId)
             throws RemoteException, WorkflowAdminServiceWorkflowException {
-
-        AssociationDTO[] associationsForWorkflow = stub.listAssociationsForWorkflow(workflowId);
+        Association[] associationsForWorkflow = stub.listAssociations(workflowId);
         if (associationsForWorkflow == null) {
-            associationsForWorkflow = new AssociationDTO[0];
+            associationsForWorkflow = new Association[0];
         }
         return associationsForWorkflow;
     }
 
-    public AssociationDTO[] listAllAssociations() throws RemoteException, WorkflowAdminServiceWorkflowException {
+    public Association[] listAllAssociations() throws RemoteException, WorkflowAdminServiceWorkflowException {
 
-        AssociationDTO[] associations = stub.listAllAssociations();
+        Association[] associations = stub.listAllAssociations();
         if (associations == null) {
-            associations = new AssociationDTO[0];
+            associations = new Association[0];
         }
         return associations;
     }

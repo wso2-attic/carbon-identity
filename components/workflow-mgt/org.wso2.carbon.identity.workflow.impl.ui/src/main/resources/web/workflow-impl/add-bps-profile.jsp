@@ -19,41 +19,10 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar"
            prefix="carbon" %>
-<%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.WorkflowUIConstants" %>
-<%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.WorkflowAdminServiceClient" %>
-<%@ page import="org.wso2.carbon.utils.ServerConstants" %>
-<%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
-<%@ page import="org.apache.axis2.context.ConfigurationContext" %>
-<%@ page import="org.wso2.carbon.CarbonConstants" %>
-<%@ page import="java.util.ResourceBundle" %>
-
-<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.BPSProfileDTO" %>
+<%@ page import="org.wso2.carbon.identity.workflow.impl.ui.WorkflowUIConstants" %>
 <script type="text/javascript" src="extensions/js/vui.js"></script>
 <script type="text/javascript" src="../extensions/core/js/vui.js"></script>
 <script type="text/javascript" src="../admin/js/main.js"></script>
-
-<%
-    WorkflowAdminServiceClient client = null;
-
-    String cookie = (String) session.getAttribute(ServerConstants.ADMIN_SERVICE_COOKIE);
-    String backendServerURL = CarbonUIUtil.getServerURL(config.getServletContext(), session);
-    ConfigurationContext configContext =
-            (ConfigurationContext) config.getServletContext()
-                    .getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
-    client = new WorkflowAdminServiceClient(cookie, backendServerURL, configContext);
-
-    String bundle = "org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources";
-    ResourceBundle resourceBundle = ResourceBundle.getBundle(bundle, request.getLocale());
-    String forwardTo = "update-bps-profile-finish.jsp";
-
-    String profileName = request.getParameter(WorkflowUIConstants.PARAM_BPS_PROFILE_NAME);
-
-    BPSProfileDTO bpsProfileDTO = client.getBPSProfiles(profileName);
-
-
-
-%>
-
 
 <fmt:bundle basename="org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources">
     <carbon:breadcrumb
@@ -69,24 +38,6 @@
         function doCancel(){
             window.location = "list-bps-profiles.jsp";
         }
-        function editBPSAuthPassword(){
-            var passwordField = document.getElementById("id_<%=WorkflowUIConstants.PARAM_BPS_AUTH_PASSWORD%>");
-            if(document.getElementById('chkbox_<%=WorkflowUIConstants.PARAM_BPS_AUTH_PASSWORD%>').checked){
-                passwordField.disabled=false;
-            }else{
-                passwordField.disabled=true;
-                passwordField.value="" ;
-            }
-        }
-        function editCarbonAuthPassword(){
-            var passwordField = document.getElementById("id_<%=WorkflowUIConstants.PARAM_CARBON_AUTH_PASSWORD%>");
-            if(document.getElementById('chkbox_<%=WorkflowUIConstants.PARAM_CARBON_AUTH_PASSWORD%>').checked){
-                passwordField.disabled=false;
-            }else{
-                passwordField.disabled=true;
-                passwordField.value="" ;
-            }
-        }
     </script>
 
     <div id="middle">
@@ -95,7 +46,7 @@
         <div id="workArea">
             <form method="post" name="serviceAdd" action="update-bps-profile-finish.jsp">
                 <input type="hidden" name="<%=WorkflowUIConstants.PARAM_ACTION%>"
-                       value="<%=WorkflowUIConstants.ACTION_VALUE_UPDATE%>">
+                       value="<%=WorkflowUIConstants.ACTION_VALUE_ADD%>">
                 <table class="styledLeft noBorders">
                     <thead>
                     <tr>
@@ -105,7 +56,7 @@
                     <tbody>
                     <tr>
                         <td width="30%"><fmt:message key='workflow.bps.profile.name'/></td>
-                        <td><input readonly type="text" name="<%=WorkflowUIConstants.PARAM_BPS_PROFILE_NAME%>" value="<%=bpsProfileDTO.getProfileName()%>"/></td>
+                        <td><input type="text" name="<%=WorkflowUIConstants.PARAM_BPS_PROFILE_NAME%>"/></td>
                     </tr>
                     </tbody>
                 </table>
@@ -118,17 +69,15 @@
                     <tbody>
                     <tr>
                         <td width="30%"><fmt:message key='workflow.bps.profile.host'/></td>
-                        <td><input type="text" name="<%=WorkflowUIConstants.PARAM_BPS_HOST%>" value="<%=bpsProfileDTO.getHost()%>"/></td>
+                        <td><input type="text" name="<%=WorkflowUIConstants.PARAM_BPS_HOST%>"/></td>
                     </tr>
                     <tr>
                         <td width="30%"><fmt:message key='workflow.bps.profile.auth.user'/></td>
-                        <td><input type="text" name="<%=WorkflowUIConstants.PARAM_BPS_AUTH_USER%>" value="<%=bpsProfileDTO.getUsername()%>"/></td>
+                        <td><input type="text" name="<%=WorkflowUIConstants.PARAM_BPS_AUTH_USER%>"/></td>
                     </tr>
                     <tr>
                         <td width="30%"><fmt:message key='workflow.bps.profile.auth.password'/></td>
-                        <td>
-                            <input disabled type="password" id="id_<%=WorkflowUIConstants.PARAM_BPS_AUTH_PASSWORD%>" name="<%=WorkflowUIConstants.PARAM_BPS_AUTH_PASSWORD%>" value=""/>
-                            <input onclick="editBPSAuthPassword();" type="checkbox" id="chkbox_<%=WorkflowUIConstants.PARAM_BPS_AUTH_PASSWORD%>" />
+                        <td><input type="password" name="<%=WorkflowUIConstants.PARAM_BPS_AUTH_PASSWORD%>"/>
                         </td>
                     </tr>
                     </tbody>
@@ -142,13 +91,11 @@
                     <tbody>
                     <tr>
                         <td width="30%"><fmt:message key='workflow.bps.profile.callback.auth.user'/></td>
-                        <td><input type="text" name="<%=WorkflowUIConstants.PARAM_CARBON_AUTH_USER%>" value="<%=bpsProfileDTO.getCallbackUser()%>"/></td>
+                        <td><input type="text" name="<%=WorkflowUIConstants.PARAM_CARBON_AUTH_USER%>"/></td>
                     </tr>
                     <tr>
                         <td width="30%"><fmt:message key='workflow.bps.profile.callback.auth.password'/></td>
-                        <td>
-                            <input disabled type="password" id="id_<%=WorkflowUIConstants.PARAM_CARBON_AUTH_PASSWORD%>" name="<%=WorkflowUIConstants.PARAM_CARBON_AUTH_PASSWORD%>" value=""/>
-                            <input onclick="editCarbonAuthPassword();" type="checkbox" id="chkbox_<%=WorkflowUIConstants.PARAM_CARBON_AUTH_PASSWORD%>" />
+                        <td><input type="password" name="<%=WorkflowUIConstants.PARAM_CARBON_AUTH_PASSWORD%>"/>
                         </td>
                     </tr>
                     </tbody>
@@ -156,7 +103,7 @@
                 <table style="margin-top: 10px">
                     <tr>
                         <td class="buttonRow">
-                            <input class="button" value="<fmt:message key="update"/>" type="submit"/>
+                            <input class="button" value="<fmt:message key="add"/>" type="submit"/>
                             <input class="button" value="<fmt:message key="cancel"/>" type="button"
                                    onclick="doCancel();"/>
                         </td>

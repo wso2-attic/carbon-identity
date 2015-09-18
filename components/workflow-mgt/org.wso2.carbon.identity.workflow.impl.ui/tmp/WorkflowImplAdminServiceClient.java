@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.carbon.identity.workflow.mgt.ui;
+package org.wso2.carbon.identity.workflow.impl.ui;
 
 import org.apache.axis2.AxisFault;
 import org.apache.axis2.client.Options;
@@ -32,7 +32,7 @@ import java.rmi.RemoteException;
 
 public class WorkflowImplAdminServiceClient {
 
-    private WorkflowAdminServiceStub stub;
+    private WorkflowImplAdminServiceStub stub;
     private static final Log log = LogFactory.getLog(WorkflowImplAdminServiceClient.class);
 
     /**

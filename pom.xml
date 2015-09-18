@@ -1754,6 +1754,11 @@
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
+                <artifactId>org.wso2.carbon.identity.workflow.impl.stub</artifactId>
+                <version>${carbon.identity.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.user.mgt.workflow.stub</artifactId>
                 <version>${carbon.identity.version}</version>
             </dependency>

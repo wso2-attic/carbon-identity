@@ -28,7 +28,7 @@ import org.wso2.carbon.identity.workflow.mgt.dto.Workflow;
 import org.wso2.carbon.identity.workflow.mgt.template.AbstractTemplate;
 import org.wso2.carbon.identity.workflow.mgt.workflow.AbstractWorkflow;
 import org.wso2.carbon.identity.workflow.mgt.extension.WorkflowRequestHandler;
-import org.wso2.carbon.identity.workflow.mgt.bean.AssociationDTO;
+import org.wso2.carbon.identity.workflow.mgt.dto.Association;
 import org.wso2.carbon.identity.workflow.mgt.bean.Entity;
 import org.wso2.carbon.identity.workflow.mgt.dto.Template;
 import org.wso2.carbon.identity.workflow.mgt.dto.WorkflowImpl;
@@ -257,11 +257,11 @@ public class WorkflowManagementServiceImpl implements WorkflowManagementService 
 
 
     @Override
-    public List<AssociationDTO> getAssociationsForWorkflow(String workflowId) throws WorkflowException {
+    public List<Association> getAssociationsForWorkflow(String workflowId) throws WorkflowException {
 
-        List<AssociationDTO> associations = workflowDAO.listAssociationsForWorkflow(workflowId);
-        for (Iterator<AssociationDTO> iterator = associations.iterator(); iterator.hasNext(); ) {
-            AssociationDTO association = iterator.next();
+        List<Association> associations = workflowDAO.listAssociationsForWorkflow(workflowId);
+        for (Iterator<Association> iterator = associations.iterator(); iterator.hasNext(); ) {
+            Association association = iterator.next();
             WorkflowRequestHandler requestHandler =
                     WorkflowServiceDataHolder.getInstance().getRequestHandler(association.getEventId());
             if (requestHandler != null) {
@@ -275,11 +275,11 @@ public class WorkflowManagementServiceImpl implements WorkflowManagementService 
     }
 
     @Override
-    public List<AssociationDTO> listAllAssociations() throws WorkflowException {
+    public List<Association> listAllAssociations() throws WorkflowException {
 
-        List<AssociationDTO> associations = workflowDAO.listAssociations();
-        for (Iterator<AssociationDTO> iterator = associations.iterator(); iterator.hasNext(); ) {
-            AssociationDTO association = iterator.next();
+        List<Association> associations = workflowDAO.listAssociations();
+        for (Iterator<Association> iterator = associations.iterator(); iterator.hasNext(); ) {
+            Association association = iterator.next();
             WorkflowRequestHandler requestHandler =
                     WorkflowServiceDataHolder.getInstance().getRequestHandler(association.getEventId());
             if (requestHandler != null) {
@@ -295,7 +295,7 @@ public class WorkflowManagementServiceImpl implements WorkflowManagementService 
     @Override
     public void changeAssociationState(String associationId, boolean isEnable) throws WorkflowException {
 
-        AssociationDTO association = workflowDAO.getAssociation(associationId);
+        Association association = workflowDAO.getAssociation(associationId);
         association.setEnabled(isEnable);
         workflowDAO.updateAssociation(association);
     }

@@ -43,7 +43,7 @@
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon.identity</groupId>
-            <artifactId>org.wso2.carbon.identity.workflow.mgt.stub</artifactId>
+            <artifactId>org.wso2.carbon.identity.workflow.impl.stub</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.ws.commons.axiom.wso2</groupId>
@@ -82,8 +82,8 @@
                             org.apache.commons.io; version="${commons.io.wso2.osgi.version.range}",
                             org.apache.commons.lang; version="${commons-lang.wso2.osgi.version.range}",
                             org.apache.commons.logging; version="${commons-logging.osgi.version.range}",
-                            org.wso2.carbon.identity.workflow.mgt.stub; version="${carbon.identity.package.import.version.range}",
-                            org.wso2.carbon.identity.workflow.mgt.stub.bean; version="${carbon.identity.package.import.version.range}",
+                            org.wso2.carbon.identity.workflow.impl.stub; version="${carbon.identity.package.import.version.range}",
+                            org.wso2.carbon.identity.workflow.impl.stub.bean; version="${carbon.identity.package.import.version.range}",
                             org.wso2.carbon.bpel.stub.upload; version="${carbon.identity.package.import.version.range}",
                             org.wso2.carbon.bpel.stub.upload.types; version="${carbon.identity.package.import.version.range}",
                             org.wso2.carbon.humantask.stub.upload; version="${carbon.identity.package.import.version.range}",

@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.carbon.identity.workflow.mgt.ui;
+package org.wso2.carbon.identity.workflow.impl.ui;
 
 import java.util.HashMap;
 import java.util.Map;

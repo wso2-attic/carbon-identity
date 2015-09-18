@@ -2,14 +2,14 @@
 <%@ taglib prefix="carbon" uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar" %>
 <%@ page import="org.apache.axis2.context.ConfigurationContext" %>
 <%@ page import="org.wso2.carbon.CarbonConstants" %>
-<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.BPSProfileDTO" %>
-<%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.WorkflowImplAdminServiceClient" %>
-<%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.WorkflowUIConstants" %>
+<%@ page import="org.wso2.carbon.identity.workflow.impl.ui.WorkflowImplAdminServiceClient" %>
+<%@ page import="org.wso2.carbon.identity.workflow.impl.ui.WorkflowUIConstants" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
 
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@ page import="java.util.ResourceBundle" %>
+<%@ page import="org.wso2.carbon.identity.workflow.impl.stub.bean.BPSProfile" %>
 <%--
   ~ Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
   ~
@@ -40,13 +40,13 @@
     String forwardTo = null;
     int pageNumberInt = 0;
     int numberOfPages = 0;
-    BPSProfileDTO[] profilesToDisplay = new BPSProfileDTO[0];
+    BPSProfile[] profilesToDisplay = new BPSProfile[0];
 
     try {
         WorkflowImplAdminServiceClient client = new WorkflowImplAdminServiceClient(cookie, backendServerURL, configContext);
-        BPSProfileDTO[] bpsProfiles = client.listBPSProfiles();
+        BPSProfile[] bpsProfiles = client.listBPSProfiles();
         if (bpsProfiles == null) {
-            bpsProfiles = new BPSProfileDTO[0];
+            bpsProfiles = new BPSProfile[0];
         }
         String serviceAlias = null;
         paginationValue = "region=region1&item=workflow_services_list_menu";
@@ -64,7 +64,7 @@
         int startIndex = pageNumberInt * WorkflowUIConstants.RESULTS_PER_PAGE;
         int endIndex = (pageNumberInt + 1) * WorkflowUIConstants.RESULTS_PER_PAGE;
 
-        profilesToDisplay = new BPSProfileDTO[WorkflowUIConstants.RESULTS_PER_PAGE];
+        profilesToDisplay = new BPSProfile[WorkflowUIConstants.RESULTS_PER_PAGE];
 
         for (int i = startIndex, j = 0; i < endIndex && i < bpsProfiles.length; i++, j++) {
             profilesToDisplay[j] = bpsProfiles[i];
@@ -138,7 +138,7 @@
                 </thead>
                 <tbody>
                 <%
-                    for (BPSProfileDTO profile : profilesToDisplay) {
+                    for (BPSProfile profile : profilesToDisplay) {
                         if (profile != null) {
 
                 %>

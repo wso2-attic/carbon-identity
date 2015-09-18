@@ -45,7 +45,7 @@ import org.wso2.carbon.utils.ConfigurationContextService;
  * cardinality="0..n" policy="dynamic"
  * bind="setTemplate"
  * unbind="unsetTemplate"
- * @scr.reference name="workflow.template.impl.service"
+ * @scr.reference name="workflow.impl.service"
  * interface="org.wso2.carbon.identity.workflow.mgt.workflow.AbstractWorkflow"
  * cardinality="0..n" policy="dynamic"
  * bind="setWorkflowImplementation"

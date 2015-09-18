@@ -22,7 +22,7 @@
         <transports>
             <transport>https</transport>
         </transports>
-        <schema schemaNamespace="http://bpel.workflow.identity.carbon.wso2.org/xsd"
+        <schema schemaNamespace="http://impl.workflow.identity.carbon.wso2.org/xsd"
                 elementFormDefaultQualified="true"/>
         <description>
             Admin Service for BPEL

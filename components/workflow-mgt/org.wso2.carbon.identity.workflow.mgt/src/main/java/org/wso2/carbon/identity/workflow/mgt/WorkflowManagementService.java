@@ -17,7 +17,7 @@
  */
 package org.wso2.carbon.identity.workflow.mgt;
 
-import org.wso2.carbon.identity.workflow.mgt.bean.AssociationDTO;
+import org.wso2.carbon.identity.workflow.mgt.dto.Association;
 import org.wso2.carbon.identity.workflow.mgt.bean.Entity;
 import org.wso2.carbon.identity.workflow.mgt.bean.Parameter;
 import org.wso2.carbon.identity.workflow.mgt.dto.Template;
@@ -30,7 +30,6 @@ import org.wso2.carbon.identity.workflow.mgt.exception.InternalWorkflowException
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 
 import java.util.List;
-import java.util.Map;
 
 
 public interface WorkflowManagementService {
@@ -57,9 +56,9 @@ public interface WorkflowManagementService {
 
 
 
-    List<AssociationDTO> getAssociationsForWorkflow(String workflowId) throws WorkflowException;
+    List<Association> getAssociationsForWorkflow(String workflowId) throws WorkflowException;
 
-    List<AssociationDTO> listAllAssociations() throws WorkflowException;
+    List<Association> listAllAssociations() throws WorkflowException;
 
     void changeAssociationState(String associationId, boolean isEnable) throws WorkflowException;
 
