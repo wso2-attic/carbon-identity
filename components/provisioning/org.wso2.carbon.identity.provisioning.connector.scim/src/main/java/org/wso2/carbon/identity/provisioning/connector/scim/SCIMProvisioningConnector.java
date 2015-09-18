@@ -346,9 +346,9 @@ public class SCIMProvisioningConnector extends AbstractOutboundProvisioningConne
                 additionalInformation.put(SCIMCommonConstants.OLD_GROUP_NAME, oldGroupName);
                 scimProvsioningClient = new ProvisioningClient(scimProvider, group, httpMethod, additionalInformation);
             }
-            if (ProvisioningOperation.PUT.equals(ProvisioningOperation.PUT)) {
+            if (ProvisioningOperation.PUT.equals(groupEntity.getOperation())) {
                 scimProvsioningClient.provisionUpdateGroup();
-            }else if(ProvisioningOperation.PATCH.equals(ProvisioningOperation.PATCH)){
+            }else if(ProvisioningOperation.PATCH.equals(groupEntity.getOperation())){
                 scimProvsioningClient.provisionPatchGroup();
             }
         } catch (Exception e) {
