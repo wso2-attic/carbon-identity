@@ -17,15 +17,15 @@
  */
 package org.wso2.carbon.identity.workflow.mgt;
 
+import org.wso2.carbon.identity.workflow.mgt.bean.Workflow;
 import org.wso2.carbon.identity.workflow.mgt.dto.Association;
 import org.wso2.carbon.identity.workflow.mgt.bean.Entity;
 import org.wso2.carbon.identity.workflow.mgt.bean.Parameter;
 import org.wso2.carbon.identity.workflow.mgt.dto.Template;
 import org.wso2.carbon.identity.workflow.mgt.dto.WorkflowImpl;
-import org.wso2.carbon.identity.workflow.mgt.dto.Workflow;
-import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowEventDTO;
-import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowRequestAssociationDTO;
-import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowRequestDTO;
+import org.wso2.carbon.identity.workflow.mgt.dto.WorkflowEvent;
+import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowRequestAssociation;
+import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowRequest;
 import org.wso2.carbon.identity.workflow.mgt.exception.InternalWorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 
@@ -34,9 +34,9 @@ import java.util.List;
 
 public interface WorkflowManagementService {
 
-    List<WorkflowEventDTO> listWorkflowEvents();
+    List<WorkflowEvent> listWorkflowEvents();
 
-    WorkflowEventDTO getEvent(String id);
+    WorkflowEvent getEvent(String id);
     List<Template> listTemplates();
     Template getTemplate(String templateId);
 
@@ -44,6 +44,8 @@ public interface WorkflowManagementService {
 
     void addWorkflow(Workflow workflowDTO,
                      List<Parameter> parameterList, int tenantId) throws WorkflowException;
+    public Workflow getWorkflow(String workflowId) throws WorkflowException ;
+    public List<Parameter> getWorkflowParameters(String workflowId) throws WorkflowException ;
 
     void addAssociation(String associationName, String workflowId, String eventId, String condition) throws
                                                                                                      WorkflowException;
@@ -74,13 +76,13 @@ public interface WorkflowManagementService {
 
     boolean eventEngagedWithWorkflows(String eventType) throws InternalWorkflowException;
 
-    WorkflowRequestDTO[] getRequestsCreatedByUser(String user, int tenantId) throws WorkflowException;
+    WorkflowRequest[] getRequestsCreatedByUser(String user, int tenantId) throws WorkflowException;
 
-    WorkflowRequestAssociationDTO[] getWorkflowsOfRequest(String requestId) throws WorkflowException;
+    WorkflowRequestAssociation[] getWorkflowsOfRequest(String requestId) throws WorkflowException;
 
     void updateStatusOfRequest(String requestId, String newState) throws WorkflowException;
 
-    WorkflowRequestDTO[] getRequestsFromFilter(String user, String beginDate, String endDate, String
+    WorkflowRequest[] getRequestsFromFilter(String user, String beginDate, String endDate, String
             dateCategory, int tenantId) throws WorkflowException;
 
     List<String> listEntityNames(String wfOperationType, String wfStatus, String entityType, int tenantID) throws

@@ -23,7 +23,7 @@ import org.wso2.carbon.identity.workflow.mgt.WorkFlowExecutorManager;
 import org.wso2.carbon.identity.workflow.mgt.bean.Entity;
 import org.wso2.carbon.identity.workflow.mgt.util.WorkflowDataType;
 import org.wso2.carbon.identity.workflow.mgt.bean.RequestParameter;
-import org.wso2.carbon.identity.workflow.mgt.bean.WorkFlowRequest;
+import org.wso2.carbon.identity.workflow.mgt.dto.WorkflowRequest;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowRuntimeException;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 
@@ -76,7 +76,7 @@ public abstract class AbstractWorkflowRequestHandler implements WorkflowRequestH
         if (isWorkflowCompleted()) {
             return true;
         }
-        WorkFlowRequest workFlowRequest = new WorkFlowRequest();
+        WorkflowRequest workFlowRequest = new WorkflowRequest();
         List<RequestParameter> parameters = new ArrayList<RequestParameter>(wfParams.size() + nonWfParams.size());
         for (Map.Entry<String, Object> paramEntry : wfParams.entrySet()) {
             parameters.add(getParameter(paramEntry.getKey(), paramEntry.getValue(), true));
@@ -145,14 +145,14 @@ public abstract class AbstractWorkflowRequestHandler implements WorkflowRequestH
     }
 
     @Override
-    public void engageWorkflow(WorkFlowRequest workFlowRequest) throws WorkflowException {
+    public void engageWorkflow(WorkflowRequest workFlowRequest) throws WorkflowException {
 
         workFlowRequest.setEventType(getEventId());
         WorkFlowExecutorManager.getInstance().executeWorkflow(workFlowRequest);
     }
 
     @Override
-    public void onWorkflowCompletion(String status, WorkFlowRequest originalRequest, Map<String, Object>
+    public void onWorkflowCompletion(String status, WorkflowRequest originalRequest, Map<String, Object>
             responseParams) throws WorkflowException {
 
         Map<String, Object> requestParams = new HashMap<String, Object>();

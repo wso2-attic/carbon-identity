@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.identity.workflow.mgt.dto;
 
+import org.wso2.carbon.identity.workflow.mgt.bean.Workflow;
 import org.wso2.carbon.identity.workflow.mgt.bean.metadata.ParametersMetaData;
 
 public class Template {
@@ -27,7 +28,6 @@ public class Template {
 
     private ParametersMetaData parametersMetaData ;
 
-    private Workflow workflow ;
 
     public String getTemplateId() {
         return templateId;
@@ -56,11 +56,4 @@ public class Template {
         this.parametersMetaData = parametersMetaData;
     }
 
-    public Workflow getWorkflow() {
-        return workflow;
-    }
-
-    public void setWorkflow(Workflow workflow) {
-        this.workflow = workflow;
-    }
 }

@@ -22,8 +22,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
-import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowRequestAssociationDTO;
+import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowRequestAssociation;
 import org.wso2.carbon.identity.workflow.mgt.exception.InternalWorkflowException;
+import org.wso2.carbon.identity.workflow.mgt.util.SQLConstants;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -204,7 +205,7 @@ public class WorkflowRequestAssociationDAO {
      * @return
      * @throws InternalWorkflowException
      */
-    public WorkflowRequestAssociationDTO[] getWorkflowsOfRequest(String requestId) throws InternalWorkflowException {
+    public WorkflowRequestAssociation[] getWorkflowsOfRequest(String requestId) throws InternalWorkflowException {
 
         Connection connection = null;
         PreparedStatement prepStmt = null;
@@ -215,9 +216,9 @@ public class WorkflowRequestAssociationDAO {
             prepStmt = connection.prepareStatement(query);
             prepStmt.setString(1, requestId);
             resultSet = prepStmt.executeQuery();
-            ArrayList<WorkflowRequestAssociationDTO> workflowDTOs = new ArrayList<>();
+            ArrayList<WorkflowRequestAssociation> workflowDTOs = new ArrayList<>();
             while (resultSet.next()) {
-                WorkflowRequestAssociationDTO workflowDTO = new WorkflowRequestAssociationDTO();
+                WorkflowRequestAssociation workflowDTO = new WorkflowRequestAssociation();
                 workflowDTO.setWorkflowId(resultSet.getString(SQLConstants.ID_COLUMN));
                 workflowDTO.setWorkflowName(resultSet.getString(SQLConstants.WF_NAME_COLUMN));
                 workflowDTO.setLastUpdatedTime(resultSet.getTimestamp(SQLConstants.REQUEST_UPDATED_AT_COLUMN)
@@ -225,7 +226,7 @@ public class WorkflowRequestAssociationDAO {
                 workflowDTO.setStatus(resultSet.getString(SQLConstants.REQUEST_STATUS_COLUMN));
                 workflowDTOs.add(workflowDTO);
             }
-            WorkflowRequestAssociationDTO[] requestArray = new WorkflowRequestAssociationDTO[workflowDTOs.size()];
+            WorkflowRequestAssociation[] requestArray = new WorkflowRequestAssociation[workflowDTOs.size()];
             for (int i = 0; i < workflowDTOs.size(); i++) {
                 requestArray[i] = workflowDTOs.get(i);
             }

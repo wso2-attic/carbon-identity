@@ -33,17 +33,14 @@ import org.wso2.carbon.identity.workflow.impl.bean.BPSProfile;
 import org.wso2.carbon.identity.workflow.impl.internal.WorkflowImplServiceDataHolder;
 import org.wso2.carbon.identity.workflow.impl.util.WorkflowRequestBuilder;
 import org.wso2.carbon.identity.workflow.mgt.bean.Parameter;
-import org.wso2.carbon.identity.workflow.mgt.bean.WorkFlowRequest;
+import org.wso2.carbon.identity.workflow.mgt.dto.WorkflowRequest;
 import org.wso2.carbon.identity.workflow.mgt.exception.InternalWorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.util.WFConstant;
 import org.wso2.carbon.identity.workflow.mgt.workflow.WorkFlowExecutor;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 public class RequestExecutor implements WorkFlowExecutor {
 
@@ -64,7 +61,7 @@ public class RequestExecutor implements WorkFlowExecutor {
     private BPSProfile bpsProfile ;
 
     @Override
-    public boolean canHandle(WorkFlowRequest workFlowRequest) {
+    public boolean canHandle(WorkflowRequest workFlowRequest) {
         //Since this is handled by manager level
         return true;
     }
@@ -92,7 +89,7 @@ public class RequestExecutor implements WorkFlowExecutor {
     }
 
     @Override
-    public void execute(WorkFlowRequest workFlowRequest) throws WorkflowException {
+    public void execute(WorkflowRequest workFlowRequest) throws WorkflowException {
 
         validateExecutionParams();
         OMElement requestBody = WorkflowRequestBuilder.buildXMLRequest(workFlowRequest, this.parameterList);

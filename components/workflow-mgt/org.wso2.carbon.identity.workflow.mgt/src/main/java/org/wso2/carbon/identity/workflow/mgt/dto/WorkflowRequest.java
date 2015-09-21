@@ -16,12 +16,14 @@
  * under the License.
  */
 
-package org.wso2.carbon.identity.workflow.mgt.bean;
+package org.wso2.carbon.identity.workflow.mgt.dto;
+
+import org.wso2.carbon.identity.workflow.mgt.bean.RequestParameter;
 
 import java.io.Serializable;
 import java.util.List;
 
-public class WorkFlowRequest implements Serializable, Cloneable {
+public class WorkflowRequest implements Serializable, Cloneable {
     public static final String CREDENTIAL = "Credential";
     private String uuid;
     private String eventType;
@@ -87,8 +89,8 @@ public class WorkFlowRequest implements Serializable, Cloneable {
     }
 
     @Override
-    public WorkFlowRequest clone() throws CloneNotSupportedException {
+    public WorkflowRequest clone() throws CloneNotSupportedException {
 
-        return (WorkFlowRequest) (super.clone());
+        return (WorkflowRequest) (super.clone());
     }
 }

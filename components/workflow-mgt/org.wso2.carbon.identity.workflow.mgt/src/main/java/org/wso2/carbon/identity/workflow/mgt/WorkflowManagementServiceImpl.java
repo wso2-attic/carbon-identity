@@ -23,8 +23,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.identity.workflow.mgt.bean.Parameter;
-import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowAssociationBean;
-import org.wso2.carbon.identity.workflow.mgt.dto.Workflow;
+import org.wso2.carbon.identity.workflow.mgt.bean.Workflow;
+import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowAssociation;
 import org.wso2.carbon.identity.workflow.mgt.template.AbstractTemplate;
 import org.wso2.carbon.identity.workflow.mgt.workflow.AbstractWorkflow;
 import org.wso2.carbon.identity.workflow.mgt.extension.WorkflowRequestHandler;
@@ -32,12 +32,12 @@ import org.wso2.carbon.identity.workflow.mgt.dto.Association;
 import org.wso2.carbon.identity.workflow.mgt.bean.Entity;
 import org.wso2.carbon.identity.workflow.mgt.dto.Template;
 import org.wso2.carbon.identity.workflow.mgt.dto.WorkflowImpl;
-import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowEventDTO;
-import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowRequestAssociationDTO;
+import org.wso2.carbon.identity.workflow.mgt.dto.WorkflowEvent;
+import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowRequestAssociation;
 import org.wso2.carbon.identity.workflow.mgt.dao.RequestEntityRelationshipDAO;
 import org.wso2.carbon.identity.workflow.mgt.dao.WorkflowRequestAssociationDAO;
 import org.wso2.carbon.identity.workflow.mgt.dao.WorkflowRequestDAO;
-import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowRequestDTO;
+import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowRequest;
 import org.wso2.carbon.identity.workflow.mgt.dao.WorkflowDAO;
 import org.wso2.carbon.identity.workflow.mgt.exception.InternalWorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowRuntimeException;
@@ -68,19 +68,34 @@ public class WorkflowManagementServiceImpl implements WorkflowManagementService 
     private static Log log = LogFactory.getLog(WorkflowManagementServiceImpl.class);
 
     private WorkflowDAO workflowDAO = new WorkflowDAO();
+
+
+    @Override
+    public Workflow getWorkflow(String workflowId) throws WorkflowException {
+        Workflow workflowBean = workflowDAO.getWorkflow(workflowId);
+        return workflowBean ;
+    }
+
+    @Override
+    public List<Parameter> getWorkflowParameters(String workflowId) throws WorkflowException {
+        List<Parameter> workflowParams = workflowDAO.getWorkflowParams(workflowId);
+        return workflowParams ;
+    }
+
+
     private RequestEntityRelationshipDAO requestEntityRelationshipDAO = new RequestEntityRelationshipDAO();
     private WorkflowRequestDAO workflowRequestDAO = new WorkflowRequestDAO();
     private WorkflowRequestAssociationDAO workflowRequestAssociationDAO = new WorkflowRequestAssociationDAO();
 
     @Override
-    public List<WorkflowEventDTO> listWorkflowEvents() {
+    public List<WorkflowEvent> listWorkflowEvents() {
 
         List<WorkflowRequestHandler> workflowRequestHandlers =
                 WorkflowServiceDataHolder.getInstance().listRequestHandlers();
-        List<WorkflowEventDTO> eventList = new ArrayList<>();
+        List<WorkflowEvent> eventList = new ArrayList<>();
         if (workflowRequestHandlers != null) {
             for (WorkflowRequestHandler requestHandler : workflowRequestHandlers) {
-                WorkflowEventDTO eventDTO = new WorkflowEventDTO();
+                WorkflowEvent eventDTO = new WorkflowEvent();
                 eventDTO.setEventId(requestHandler.getEventId());
                 eventDTO.setEventFriendlyName(requestHandler.getFriendlyName());
                 eventDTO.setEventDescription(requestHandler.getDescription());
@@ -96,7 +111,7 @@ public class WorkflowManagementServiceImpl implements WorkflowManagementService 
                         parameterDTOs[i] = parameterDTO;
                         i++;
                     }
-                    eventDTO.setParameterDTOs(parameterDTOs);
+                    eventDTO.setParameters(parameterDTOs);
                 }
                 eventList.add(eventDTO);
             }
@@ -105,11 +120,11 @@ public class WorkflowManagementServiceImpl implements WorkflowManagementService 
     }
 
     @Override
-    public WorkflowEventDTO getEvent(String id) {
+    public WorkflowEvent getEvent(String id) {
 
         WorkflowRequestHandler requestHandler = WorkflowServiceDataHolder.getInstance().getRequestHandler(id);
         if (requestHandler != null) {
-            WorkflowEventDTO eventDTO = new WorkflowEventDTO();
+            WorkflowEvent eventDTO = new WorkflowEvent();
             eventDTO.setEventId(requestHandler.getEventId());
             eventDTO.setEventFriendlyName(requestHandler.getFriendlyName());
             eventDTO.setEventDescription(requestHandler.getDescription());
@@ -124,7 +139,7 @@ public class WorkflowManagementServiceImpl implements WorkflowManagementService 
                     parameters[i] = parameter;
                     i++;
                 }
-                eventDTO.setParameterDTOs(parameters);
+                eventDTO.setParameters(parameters);
             }
             return eventDTO;
         }
@@ -366,7 +381,7 @@ public class WorkflowManagementServiceImpl implements WorkflowManagementService 
     @Override
     public boolean eventEngagedWithWorkflows(String eventType) throws InternalWorkflowException {
 
-        List<WorkflowAssociationBean> associations = workflowDAO.getWorkflowAssociationsForRequest(eventType, CarbonContext
+        List<WorkflowAssociation> associations = workflowDAO.getWorkflowAssociationsForRequest(eventType, CarbonContext
                 .getThreadLocalCarbonContext().getTenantId());
         if (associations.size() > 0) {
             return true;
@@ -385,7 +400,7 @@ public class WorkflowManagementServiceImpl implements WorkflowManagementService 
      * @throws WorkflowException
      */
     @Override
-    public WorkflowRequestDTO[] getRequestsCreatedByUser(String user, int tenantId) throws WorkflowException {
+    public WorkflowRequest[] getRequestsCreatedByUser(String user, int tenantId) throws WorkflowException {
 
         return workflowRequestDAO.getRequestsOfUser(user, tenantId);
     }
@@ -398,7 +413,7 @@ public class WorkflowManagementServiceImpl implements WorkflowManagementService 
      * @throws WorkflowException
      */
     @Override
-    public WorkflowRequestAssociationDTO[] getWorkflowsOfRequest(String requestId) throws WorkflowException {
+    public WorkflowRequestAssociation[] getWorkflowsOfRequest(String requestId) throws WorkflowException {
 
         return workflowRequestAssociationDAO.getWorkflowsOfRequest(requestId);
     }
@@ -434,7 +449,7 @@ public class WorkflowManagementServiceImpl implements WorkflowManagementService 
      * @throws WorkflowException
      */
     @Override
-    public WorkflowRequestDTO[] getRequestsFromFilter(String user, String beginDate, String endDate, String
+    public WorkflowRequest[] getRequestsFromFilter(String user, String beginDate, String endDate, String
             dateCategory, int tenantId) throws WorkflowException {
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");

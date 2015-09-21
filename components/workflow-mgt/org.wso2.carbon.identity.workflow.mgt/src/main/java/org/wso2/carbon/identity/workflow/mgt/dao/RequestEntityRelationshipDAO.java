@@ -22,6 +22,7 @@ import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
 import org.wso2.carbon.identity.workflow.mgt.bean.Entity;
 import org.wso2.carbon.identity.workflow.mgt.exception.InternalWorkflowException;
+import org.wso2.carbon.identity.workflow.mgt.util.SQLConstants;
 import org.wso2.carbon.identity.workflow.mgt.util.WorkflowRequestStatus;
 
 import java.sql.Connection;

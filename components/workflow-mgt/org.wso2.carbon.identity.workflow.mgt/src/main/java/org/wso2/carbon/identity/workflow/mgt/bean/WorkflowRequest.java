@@ -18,7 +18,7 @@
 
 package org.wso2.carbon.identity.workflow.mgt.bean;
 
-public class WorkflowRequestDTO {
+public class WorkflowRequest {
 
     private String requestId;
     private String eventType;

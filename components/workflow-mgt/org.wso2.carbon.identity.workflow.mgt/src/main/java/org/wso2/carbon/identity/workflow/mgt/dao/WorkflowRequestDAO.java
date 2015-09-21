@@ -22,11 +22,11 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
-import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowRequestDTO;
 import org.wso2.carbon.identity.workflow.mgt.exception.InternalWorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
+import org.wso2.carbon.identity.workflow.mgt.util.SQLConstants;
 import org.wso2.carbon.identity.workflow.mgt.util.WorkflowRequestStatus;
-import org.wso2.carbon.identity.workflow.mgt.bean.WorkFlowRequest;
+import org.wso2.carbon.identity.workflow.mgt.dto.WorkflowRequest;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -52,7 +52,7 @@ public class WorkflowRequestDAO {
      * @param tenantId Tenant ID of the currently Logged user.
      * @throws WorkflowException
      */
-    public void addWorkflowEntry(WorkFlowRequest workflow, String currentUser, int tenantId) throws WorkflowException {
+    public void addWorkflowEntry(WorkflowRequest workflow, String currentUser, int tenantId) throws WorkflowException {
         Connection connection = null;
         PreparedStatement prepStmt = null;
         String query = SQLConstants.ADD_WORKFLOW_REQUEST_QUERY;
@@ -88,7 +88,7 @@ public class WorkflowRequestDAO {
      * @return
      * @throws IOException
      */
-    private byte[] serializeWorkflowRequest(WorkFlowRequest workFlowRequest) throws IOException {
+    private byte[] serializeWorkflowRequest(WorkflowRequest workFlowRequest) throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ObjectOutputStream oos = new ObjectOutputStream(baos);
         oos.writeObject(workFlowRequest);
@@ -103,7 +103,7 @@ public class WorkflowRequestDAO {
      * @return
      * @throws WorkflowException
      */
-    public WorkFlowRequest retrieveWorkflow(String uuid) throws InternalWorkflowException {
+    public WorkflowRequest retrieveWorkflow(String uuid) throws InternalWorkflowException {
         Connection connection = null;
         PreparedStatement prepStmt = null;
         ResultSet rs = null;
@@ -201,13 +201,13 @@ public class WorkflowRequestDAO {
      * @throws IOException
      * @throws ClassNotFoundException
      */
-    private WorkFlowRequest deserializeWorkflowRequest(byte[] serializedData) throws IOException,
+    private WorkflowRequest deserializeWorkflowRequest(byte[] serializedData) throws IOException,
             ClassNotFoundException {
         ByteArrayInputStream bais = new ByteArrayInputStream(serializedData);
         ObjectInputStream ois = new ObjectInputStream(bais);
         Object objectRead = ois.readObject();
-        if (objectRead != null && objectRead instanceof WorkFlowRequest) {
-            return (WorkFlowRequest) objectRead;
+        if (objectRead != null && objectRead instanceof WorkflowRequest) {
+            return (WorkflowRequest) objectRead;
         }
         return null;
     }
@@ -249,7 +249,7 @@ public class WorkflowRequestDAO {
      * @return
      * @throws InternalWorkflowException
      */
-    public WorkflowRequestDTO[] getRequestsOfUser(String userName, int tenantId) throws InternalWorkflowException {
+    public org.wso2.carbon.identity.workflow.mgt.bean.WorkflowRequest[] getRequestsOfUser(String userName, int tenantId) throws InternalWorkflowException {
 
         Connection connection = null;
         PreparedStatement prepStmt = null;
@@ -261,9 +261,10 @@ public class WorkflowRequestDAO {
             prepStmt.setString(1, userName);
             prepStmt.setInt(2, tenantId);
             resultSet = prepStmt.executeQuery();
-            ArrayList<WorkflowRequestDTO> requestDTOs = new ArrayList<>();
+            ArrayList<org.wso2.carbon.identity.workflow.mgt.bean.WorkflowRequest> requestDTOs = new ArrayList<>();
             while (resultSet.next()) {
-                WorkflowRequestDTO requestDTO = new WorkflowRequestDTO();
+                org.wso2.carbon.identity.workflow.mgt.bean.WorkflowRequest
+                        requestDTO = new org.wso2.carbon.identity.workflow.mgt.bean.WorkflowRequest();
                 requestDTO.setRequestId(resultSet.getString(SQLConstants.REQUEST_UUID_COLUMN));
                 requestDTO.setEventType(resultSet.getString(SQLConstants.REQUEST_OPERATION_TYPE_COLUMN));
                 requestDTO.setCreatedAt(resultSet.getTimestamp(SQLConstants.REQUEST_CREATED_AT_COLUMN).toString());
@@ -274,7 +275,7 @@ public class WorkflowRequestDAO {
                 requestDTO.setCreatedBy(resultSet.getString(SQLConstants.CREATED_BY_COLUMN));
                 requestDTOs.add(requestDTO);
             }
-            WorkflowRequestDTO[] requestArray = new WorkflowRequestDTO[requestDTOs.size()];
+            org.wso2.carbon.identity.workflow.mgt.bean.WorkflowRequest[] requestArray = new org.wso2.carbon.identity.workflow.mgt.bean.WorkflowRequest[requestDTOs.size()];
             for (int i = 0; i < requestDTOs.size(); i++) {
                 requestArray[i] = requestDTOs.get(i);
             }
@@ -301,7 +302,7 @@ public class WorkflowRequestDAO {
     * @return
     * @throws InternalWorkflowException
     */
-    public WorkflowRequestDTO[] getRequestsOfUserFilteredByTime(String userName, Timestamp beginTime, Timestamp
+    public org.wso2.carbon.identity.workflow.mgt.bean.WorkflowRequest[] getRequestsOfUserFilteredByTime(String userName, Timestamp beginTime, Timestamp
             endTime, String timeCategory, int tenantId) throws
             InternalWorkflowException {
 
@@ -323,9 +324,10 @@ public class WorkflowRequestDAO {
             prepStmt.setInt(4, tenantId);
             prepStmt.setInt(5, SQLConstants.maxResultsPerRequest);
             resultSet = prepStmt.executeQuery();
-            ArrayList<WorkflowRequestDTO> requestDTOs = new ArrayList<>();
+            ArrayList<org.wso2.carbon.identity.workflow.mgt.bean.WorkflowRequest> requestDTOs = new ArrayList<>();
             while (resultSet.next()) {
-                WorkflowRequestDTO requestDTO = new WorkflowRequestDTO();
+                org.wso2.carbon.identity.workflow.mgt.bean.WorkflowRequest
+                        requestDTO = new org.wso2.carbon.identity.workflow.mgt.bean.WorkflowRequest();
                 requestDTO.setRequestId(resultSet.getString(SQLConstants.REQUEST_UUID_COLUMN));
                 requestDTO.setEventType(resultSet.getString(SQLConstants.REQUEST_OPERATION_TYPE_COLUMN));
                 requestDTO.setCreatedAt(resultSet.getTimestamp(SQLConstants.REQUEST_CREATED_AT_COLUMN).toString());
@@ -336,7 +338,7 @@ public class WorkflowRequestDAO {
                 requestDTO.setCreatedBy(resultSet.getString(SQLConstants.CREATED_BY_COLUMN));
                 requestDTOs.add(requestDTO);
             }
-            WorkflowRequestDTO[] requestArray = new WorkflowRequestDTO[requestDTOs.size()];
+            org.wso2.carbon.identity.workflow.mgt.bean.WorkflowRequest[] requestArray = new org.wso2.carbon.identity.workflow.mgt.bean.WorkflowRequest[requestDTOs.size()];
             for (int i = 0; i < requestDTOs.size(); i++) {
                 requestArray[i] = requestDTOs.get(i);
             }
@@ -362,7 +364,7 @@ public class WorkflowRequestDAO {
      * @return
      * @throws InternalWorkflowException
      */
-    public WorkflowRequestDTO[] getRequestsFilteredByTime(Timestamp beginTime, Timestamp
+    public org.wso2.carbon.identity.workflow.mgt.bean.WorkflowRequest[] getRequestsFilteredByTime(Timestamp beginTime, Timestamp
             endTime, String timeCategory, int tenant) throws
             InternalWorkflowException {
 
@@ -383,9 +385,10 @@ public class WorkflowRequestDAO {
             prepStmt.setInt(3, tenant);
             prepStmt.setInt(4, SQLConstants.maxResultsPerRequest);
             resultSet = prepStmt.executeQuery();
-            ArrayList<WorkflowRequestDTO> requestDTOs = new ArrayList<>();
+            ArrayList<org.wso2.carbon.identity.workflow.mgt.bean.WorkflowRequest> requestDTOs = new ArrayList<>();
             while (resultSet.next()) {
-                WorkflowRequestDTO requestDTO = new WorkflowRequestDTO();
+                org.wso2.carbon.identity.workflow.mgt.bean.WorkflowRequest
+                        requestDTO = new org.wso2.carbon.identity.workflow.mgt.bean.WorkflowRequest();
                 requestDTO.setRequestId(resultSet.getString(SQLConstants.REQUEST_UUID_COLUMN));
                 requestDTO.setEventType(resultSet.getString(SQLConstants.REQUEST_OPERATION_TYPE_COLUMN));
                 requestDTO.setCreatedAt(resultSet.getTimestamp(SQLConstants.REQUEST_CREATED_AT_COLUMN).toString());
@@ -396,7 +399,7 @@ public class WorkflowRequestDAO {
                 requestDTO.setCreatedBy(resultSet.getString(SQLConstants.CREATED_BY_COLUMN));
                 requestDTOs.add(requestDTO);
             }
-            WorkflowRequestDTO[] requestArray = new WorkflowRequestDTO[requestDTOs.size()];
+            org.wso2.carbon.identity.workflow.mgt.bean.WorkflowRequest[] requestArray = new org.wso2.carbon.identity.workflow.mgt.bean.WorkflowRequest[requestDTOs.size()];
             for (int i = 0; i < requestDTOs.size(); i++) {
                 requestArray[i] = requestDTOs.get(i);
             }

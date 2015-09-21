@@ -19,22 +19,21 @@
 package org.wso2.carbon.identity.workflow.mgt.workflow;
 
 import org.wso2.carbon.identity.workflow.mgt.bean.Parameter;
-import org.wso2.carbon.identity.workflow.mgt.bean.WorkFlowRequest;
+import org.wso2.carbon.identity.workflow.mgt.dto.WorkflowRequest;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 
 import java.util.List;
-import java.util.Map;
 
 public interface WorkFlowExecutor {
 
     /**
      * Returns whether this executor can execute the request.
-     * {@link #execute(WorkFlowRequest)} will be called only when this return true
+     * {@link #execute(WorkflowRequest)} will be called only when this return true
      *
      * @param workFlowRequest The request that need to be checked
      * @return
      */
-    boolean canHandle(WorkFlowRequest workFlowRequest) throws WorkflowException;
+    boolean canHandle(WorkflowRequest workFlowRequest) throws WorkflowException;
 //todo: return a code, detail to decide whether retry?,...
 
     void initialize(List<Parameter> parameterList) throws WorkflowException;
@@ -45,7 +44,7 @@ public interface WorkFlowExecutor {
      * @param workFlowRequest
      * @throws WorkflowException
      */
-    void execute(WorkFlowRequest workFlowRequest) throws WorkflowException;
+    void execute(WorkflowRequest workFlowRequest) throws WorkflowException;
 //todo: return a code, detail to decide whether retry?,...
 
     /**

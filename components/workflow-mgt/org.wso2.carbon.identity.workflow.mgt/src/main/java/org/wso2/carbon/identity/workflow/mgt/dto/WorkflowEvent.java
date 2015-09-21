@@ -16,15 +16,17 @@
  * under the License.
  */
 
-package org.wso2.carbon.identity.workflow.mgt.bean;
+package org.wso2.carbon.identity.workflow.mgt.dto;
 
-public class WorkflowEventDTO {
+import org.wso2.carbon.identity.workflow.mgt.bean.Parameter;
+
+public class WorkflowEvent {
 
     private String eventId;
     private String eventFriendlyName;
     private String eventDescription;
     private String eventCategory;
-    private Parameter[] parameterDTOs;
+    private Parameter[] parameters;
 
     public String getEventId() {
         return eventId;
@@ -50,12 +52,12 @@ public class WorkflowEventDTO {
         this.eventCategory = eventCategory;
     }
 
-    public Parameter[] getParameterDTOs() {
-        return parameterDTOs;
+    public Parameter[] getParameters() {
+        return parameters;
     }
 
-    public void setParameterDTOs(Parameter[] parameterDTOs) {
-        this.parameterDTOs = parameterDTOs;
+    public void setParameters(Parameter[] parameters) {
+        this.parameters = parameters;
     }
 
     public String getEventDescription() {

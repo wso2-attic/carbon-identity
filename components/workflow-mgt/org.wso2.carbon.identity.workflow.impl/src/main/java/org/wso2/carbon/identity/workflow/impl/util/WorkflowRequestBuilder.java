@@ -27,7 +27,7 @@ import org.apache.commons.lang.StringUtils;
 import org.wso2.carbon.identity.workflow.impl.WFImplConstant;
 import org.wso2.carbon.identity.workflow.mgt.bean.Parameter;
 import org.wso2.carbon.identity.workflow.mgt.bean.RequestParameter;
-import org.wso2.carbon.identity.workflow.mgt.bean.WorkFlowRequest;
+import org.wso2.carbon.identity.workflow.mgt.dto.WorkflowRequest;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.util.WFConstant;
 import org.wso2.carbon.identity.workflow.mgt.util.WorkflowDataType;
@@ -89,7 +89,7 @@ public class WorkflowRequestBuilder {
     private Map<String, Map<String, Object>> mapTypeParams;
     private List<Parameter> parameterList ;
 
-    public static OMElement buildXMLRequest(WorkFlowRequest workFlowRequest) throws WorkflowException {
+    public static OMElement buildXMLRequest(WorkflowRequest workFlowRequest) throws WorkflowException {
 
         WorkflowRequestBuilder requestBuilder = new WorkflowRequestBuilder(workFlowRequest.getUuid(),
                                                                            workFlowRequest.getEventType());
@@ -119,7 +119,7 @@ public class WorkflowRequestBuilder {
         return requestBuilder.buildRequest();
     }
 
-    public static OMElement buildXMLRequest(WorkFlowRequest workFlowRequest, List<Parameter> parameterList) throws WorkflowException {
+    public static OMElement buildXMLRequest(WorkflowRequest workFlowRequest, List<Parameter> parameterList) throws WorkflowException {
 
         WorkflowRequestBuilder requestBuilder = new WorkflowRequestBuilder(workFlowRequest.getUuid(),
                 workFlowRequest.getEventType());

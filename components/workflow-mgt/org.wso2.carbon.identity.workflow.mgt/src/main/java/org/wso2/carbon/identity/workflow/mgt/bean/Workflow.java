@@ -16,23 +16,19 @@
  * under the License.
  */
 
-package org.wso2.carbon.identity.workflow.mgt.dto;
+package org.wso2.carbon.identity.workflow.mgt.bean;
 
 import org.wso2.carbon.identity.workflow.mgt.bean.Parameter;
+import org.wso2.carbon.identity.workflow.mgt.dto.*;
 
 public class Workflow {
 
     private String workflowId;
     private String workflowName;
     private String workflowDescription;
+
     private String templateId;
     private String workflowImplId;
-
-    private Template template ;
-    private WorkflowImpl workflow;
-
-    private Parameter[] templateParameters ;
-    private Parameter[] workflowImplParameters ;
 
     public String getWorkflowId() {
         return workflowId;
@@ -58,13 +54,6 @@ public class Workflow {
         this.workflowDescription = workflowDescription;
     }
 
-    public String getTemplateId() {
-        return templateId;
-    }
-
-    public void setTemplateId(String templateId) {
-        this.templateId = templateId;
-    }
 
     public String getWorkflowImplId() {
         return workflowImplId;
@@ -74,35 +63,11 @@ public class Workflow {
         this.workflowImplId = workflowImplId;
     }
 
-    public Template getTemplate() {
-        return template;
+    public String getTemplateId() {
+        return templateId;
     }
 
-    public void setTemplate(Template template) {
-        this.template = template;
-    }
-
-    public WorkflowImpl getWorkflow() {
-        return workflow;
-    }
-
-    public void setWorkflow(WorkflowImpl workflow) {
-        this.workflow = workflow;
-    }
-
-    public Parameter[] getTemplateParameters() {
-        return templateParameters;
-    }
-
-    public void setTemplateParameters(Parameter[] templateParameters) {
-        this.templateParameters = templateParameters;
-    }
-
-    public Parameter[] getWorkflowImplParameters() {
-        return workflowImplParameters;
-    }
-
-    public void setWorkflowImplParameters(Parameter[] workflowImplParameters) {
-        this.workflowImplParameters = workflowImplParameters;
+    public void setTemplateId(String templateId) {
+        this.templateId = templateId;
     }
 }

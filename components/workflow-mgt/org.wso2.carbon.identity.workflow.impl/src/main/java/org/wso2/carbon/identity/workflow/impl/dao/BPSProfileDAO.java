@@ -18,17 +18,12 @@
 
 package org.wso2.carbon.identity.workflow.impl.dao;
 
-import org.wso2.carbon.core.util.CryptoException;
-import org.wso2.carbon.core.util.CryptoUtil;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
 import org.wso2.carbon.identity.workflow.impl.WorkflowImplException;
 import org.wso2.carbon.identity.workflow.impl.bean.BPSProfile;
-import org.wso2.carbon.identity.workflow.mgt.dao.SQLConstants;
-import org.wso2.carbon.identity.workflow.mgt.util.WFConstant;
+import org.wso2.carbon.identity.workflow.mgt.util.SQLConstants;
 
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.Charset;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

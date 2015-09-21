@@ -18,12 +18,10 @@
 
 package org.wso2.carbon.identity.workflow.mgt.workflow;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.workflow.mgt.bean.Parameter;
-import org.wso2.carbon.identity.workflow.mgt.bean.TemplateParameterDef;
-import org.wso2.carbon.identity.workflow.mgt.bean.WorkFlowRequest;
+import org.wso2.carbon.identity.workflow.mgt.dto.WorkflowRequest;
 import org.wso2.carbon.identity.workflow.mgt.bean.metadata.ParametersMetaData;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowRuntimeException;
@@ -31,7 +29,6 @@ import org.wso2.carbon.identity.workflow.mgt.util.WorkflowManagementUtil;
 
 import javax.xml.bind.JAXBException;
 import java.util.List;
-import java.util.Map;
 
 public abstract class AbstractWorkflow {
 
@@ -81,7 +78,7 @@ public abstract class AbstractWorkflow {
         }
     }
 
-    public void execute(WorkFlowRequest workFlowRequest) throws WorkflowException {
+    public void execute(WorkflowRequest workFlowRequest) throws WorkflowException {
 
         WorkFlowExecutor executor = getExecutor();
         if (executor != null) {

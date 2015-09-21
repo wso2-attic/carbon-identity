@@ -25,7 +25,7 @@ import org.apache.axiom.om.OMFactory;
 import org.apache.axiom.om.OMNamespace;
 import org.apache.commons.lang.StringUtils;
 import org.wso2.carbon.identity.workflow.mgt.bean.RequestParameter;
-import org.wso2.carbon.identity.workflow.mgt.bean.WorkFlowRequest;
+import org.wso2.carbon.identity.workflow.mgt.dto.WorkflowRequest;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowRuntimeException;
 
 import java.util.Arrays;
@@ -84,7 +84,7 @@ public class WorkflowRequestBuilder {
     private Map<String, Map<String, Object>> mapTypeParams;
     private Map<String, Object> initParams ;
 
-    public static OMElement buildXMLRequest(WorkFlowRequest workFlowRequest) throws WorkflowRuntimeException {
+    public static OMElement buildXMLRequest(WorkflowRequest workFlowRequest) throws WorkflowRuntimeException {
 
         WorkflowRequestBuilder requestBuilder = new WorkflowRequestBuilder(workFlowRequest.getUuid(),
                                                                            workFlowRequest.getEventType());
@@ -114,7 +114,7 @@ public class WorkflowRequestBuilder {
         return requestBuilder.buildRequest();
     }
 
-    public static OMElement buildXMLRequest(WorkFlowRequest workFlowRequest, Map<String, Object> initParams) throws
+    public static OMElement buildXMLRequest(WorkflowRequest workFlowRequest, Map<String, Object> initParams) throws
                                                                                                              WorkflowRuntimeException {
 
         WorkflowRequestBuilder requestBuilder = new WorkflowRequestBuilder(workFlowRequest.getUuid(),
