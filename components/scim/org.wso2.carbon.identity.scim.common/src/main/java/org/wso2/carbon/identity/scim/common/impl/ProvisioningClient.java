@@ -899,7 +899,7 @@ public class ProvisioningClient implements Runnable {
                 logger.error(exception.getDescription());
             }
         } catch (CharonException | IOException | BadRequestException e) {
-            throw new IdentitySCIMException("Error in provisioning 'delete group' operation for user :" + userName, e);
+            throw new IdentitySCIMException("Error in provisioning 'delete group' operation for user : " + userName, e);
         }
     }
 

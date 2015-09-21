@@ -25,6 +25,7 @@ import org.wso2.carbon.identity.application.common.model.IdentityProvider;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.persistence.JDBCPersistenceManager;
+import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
 import org.wso2.carbon.identity.provisioning.IdentityProvisioningConstants;
 import org.wso2.carbon.identity.provisioning.ProvisionedIdentifier;
 import org.wso2.carbon.identity.provisioning.ProvisioningEntity;
@@ -524,9 +525,7 @@ public class ProvisioningManagementDAO {
             throw new IdentityApplicationManagementException(
                     "Error occurred while loading Provisioned Entity Name from DB", e);
         } finally {
-            IdentityApplicationManagementUtil.closeResultSet(rs);
-            IdentityApplicationManagementUtil.closeStatement(prepStmt);
-            IdentityApplicationManagementUtil.closeConnection(dbConnection);
+            IdentityDatabaseUtil.closeAllConnections(dbConnection, rs, prepStmt);
         }
     }
 }

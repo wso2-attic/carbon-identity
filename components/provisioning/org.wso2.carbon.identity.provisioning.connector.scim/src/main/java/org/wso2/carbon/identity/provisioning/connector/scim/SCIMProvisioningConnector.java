@@ -115,8 +115,7 @@ public class SCIMProvisioningConnector extends AbstractOutboundProvisioningConne
                     updateGroup(provisioningEntity);
                 } else if (provisioningEntity.getOperation() == ProvisioningOperation.PATCH) {
                     updateGroup(provisioningEntity);
-                }
-                else {
+                }else {
                     log.warn("Unsupported provisioning operation.");
                 }
             } else {

@@ -82,15 +82,14 @@ public class ProvisioningThread implements Callable<Boolean> {
                 storeProvisionedEntityIdentifier(idPName, connectorType, provisioningEntity,
                         tenantDomainName);
             } else if (provisioningEntity.getEntityType() == ProvisioningEntityType.GROUP &&
-                       provisioningEntity.getOperation() == ProvisioningOperation.PUT && getNewGroupName(provisioningEntity) != null) {
-                deleteProvisionedEntityIdentifier(idPName, connectorType, provisioningEntity,
-                                                  tenantDomainName);
-                ProvisioningEntity newProvisioningEntity = new ProvisioningEntity(
-                        ProvisioningEntityType.GROUP, getNewGroupName(provisioningEntity), ProvisioningOperation.PUT,
-                        provisioningEntity.getAttributes());
+                       provisioningEntity.getOperation() == ProvisioningOperation.PUT &&
+                       getNewGroupName(provisioningEntity) != null) {
+                deleteProvisionedEntityIdentifier(idPName, connectorType, provisioningEntity, tenantDomainName);
+                ProvisioningEntity newProvisioningEntity =
+                        new ProvisioningEntity(ProvisioningEntityType.GROUP, getNewGroupName(provisioningEntity),
+                                               ProvisioningOperation.PUT, provisioningEntity.getAttributes());
                 newProvisioningEntity.setIdentifier(provisioningEntity.getIdentifier());
-                storeProvisionedEntityIdentifier(idPName, connectorType, newProvisioningEntity,
-                                                 tenantDomainName);
+                storeProvisionedEntityIdentifier(idPName, connectorType, newProvisioningEntity, tenantDomainName);
             }
 
             success = true;
