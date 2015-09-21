@@ -18,7 +18,7 @@
 
 <%@ page import="org.apache.axis2.context.ConfigurationContext" %>
 <%@ page import="org.wso2.carbon.CarbonConstants" %>
-<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.WorkflowAdminServiceWorkflowException" %>
+<%@ page import="org.wso2.carbon.identity.workflow.impl.stub.WorkflowImplAdminServiceWorkflowImplException" %>
 <%@ page import="org.wso2.carbon.identity.workflow.impl.ui.WorkflowImplAdminServiceClient" %>
 <%@ page import="org.wso2.carbon.identity.workflow.impl.ui.WorkflowUIConstants" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
@@ -26,7 +26,7 @@
 
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@ page import="java.util.ResourceBundle" %>
-<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.BPSProfileDTO" %>
+<%@ page import="org.wso2.carbon.identity.workflow.impl.stub.bean.BPSProfile" %>
 
 <%
     String action = request.getParameter(WorkflowUIConstants.PARAM_ACTION);
@@ -54,16 +54,16 @@
         String callbackUser = request.getParameter(WorkflowUIConstants.PARAM_CARBON_AUTH_USER);
         String callbackPassword = request.getParameter(WorkflowUIConstants.PARAM_CARBON_AUTH_PASSWORD);
         try {
-            BPSProfileDTO bpsProfileDTO = new BPSProfileDTO();
-            bpsProfileDTO.setProfileName(profileName);
-            bpsProfileDTO.setHost(host);
-            bpsProfileDTO.setUsername(username);
-            bpsProfileDTO.setPassword(password);
-            bpsProfileDTO.setCallbackUser(username);
-            bpsProfileDTO.setCallbackPassword(callbackPassword);
-            client.addBPSProfile(bpsProfileDTO);
+            BPSProfile bpsProfile = new BPSProfile();
+            bpsProfile.setProfileName(profileName);
+            bpsProfile.setHost(host);
+            bpsProfile.setUsername(username);
+            bpsProfile.setPassword(password);
+            bpsProfile.setCallbackUser(username);
+            bpsProfile.setCallbackPassword(callbackPassword);
+            client.addBPSProfile(bpsProfile);
 
-        } catch (WorkflowAdminServiceWorkflowException e) {
+        } catch (WorkflowImplAdminServiceWorkflowImplException e) {
             String message = resourceBundle.getString("workflow.error.bps.profile.add");
             CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
             forwardTo = "../admin/error.jsp";
@@ -75,22 +75,22 @@
         String callbackUser = request.getParameter(WorkflowUIConstants.PARAM_CARBON_AUTH_USER);
         String callbackPassword = request.getParameter(WorkflowUIConstants.PARAM_CARBON_AUTH_PASSWORD);
         try {
-            BPSProfileDTO bpsProfileDTO = new BPSProfileDTO();
-            bpsProfileDTO.setProfileName(profileName);
-            bpsProfileDTO.setHost(host);
-            bpsProfileDTO.setUsername(username);
-            bpsProfileDTO.setCallbackUser(callbackUser);
+            BPSProfile bpsProfile = new BPSProfile();
+            bpsProfile.setProfileName(profileName);
+            bpsProfile.setHost(host);
+            bpsProfile.setUsername(username);
+            bpsProfile.setCallbackUser(callbackUser);
 
             if(password!=null && !password.isEmpty()) {
-                bpsProfileDTO.setPassword(password);
+                bpsProfile.setPassword(password);
             }
             if(callbackPassword!=null && !callbackPassword.isEmpty()) {
-                bpsProfileDTO.setCallbackPassword(callbackPassword);
+                bpsProfile.setCallbackPassword(callbackPassword);
             }
 
-            client.updateBPSProfile(bpsProfileDTO);
+            client.updateBPSProfile(bpsProfile);
 
-        } catch (WorkflowAdminServiceWorkflowException e) {
+        } catch (WorkflowImplAdminServiceWorkflowImplException e) {
             String message = resourceBundle.getString("workflow.error.bps.profile.add");
             CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
             forwardTo = "../admin/error.jsp";

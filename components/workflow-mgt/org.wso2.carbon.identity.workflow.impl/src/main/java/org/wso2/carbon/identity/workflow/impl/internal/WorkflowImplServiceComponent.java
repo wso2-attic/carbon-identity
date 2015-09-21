@@ -25,12 +25,15 @@ import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.base.ServerConfiguration;
+import org.wso2.carbon.base.api.ServerConfigurationService;
 import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
+import org.wso2.carbon.identity.workflow.impl.ApprovalWorkflow;
 import org.wso2.carbon.identity.workflow.impl.WFImplConstant;
 import org.wso2.carbon.identity.workflow.impl.WorkflowImplService;
+import org.wso2.carbon.identity.workflow.impl.WorkflowImplServiceImpl;
 import org.wso2.carbon.identity.workflow.impl.bean.BPSProfile;
-import org.wso2.carbon.identity.workflow.impl.ApprovalWorkflow;
 import org.wso2.carbon.identity.workflow.impl.listener.WorkflowImplTenantMgtListener;
+import org.wso2.carbon.identity.workflow.mgt.WorkflowManagementService;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowRuntimeException;
 import org.wso2.carbon.identity.workflow.mgt.util.WFConstant;
@@ -41,29 +44,36 @@ import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.ConfigurationContextService;
 import org.wso2.carbon.utils.NetworkUtils;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Unmarshaller;
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.SocketException;
 import java.net.URISyntaxException;
-import java.net.URL;
 
 /**
- * @scr.component name="identity.workflow.bpel" immediate="true"
+ * @scr.component name="identity.workflow.impl" immediate="true"
  * @scr.reference name="user.realmservice.default" interface="org.wso2.carbon.user.core.service.RealmService"
  * cardinality="1..1" policy="dynamic" bind="setRealmService"
  * unbind="unsetRealmService"
+ * @scr.reference name="workflow.service"
+ * interface="org.wso2.carbon.identity.workflow.mgt.WorkflowManagementService"
+ * cardinality="0..n" policy="dynamic" bind="setWorkflowManagementService"
+ * unbind="unsetWorkflowManagementService"
+ *
  */
 public class WorkflowImplServiceComponent {
 
     private static Log log = LogFactory.getLog(WorkflowImplServiceComponent.class);
+
+
+    protected void setWorkflowManagementService(WorkflowManagementService workflowManagementService) {
+
+        WorkflowImplServiceDataHolder.getInstance().setWorkflowManagementService(workflowManagementService);
+    }
+
+    protected void unsetWorkflowManagementService(WorkflowManagementService workflowManagementService) {
+
+        WorkflowImplServiceDataHolder.getInstance().setWorkflowManagementService(null);
+    }
 
 
     protected void setRealmService(RealmService realmService) {
@@ -85,53 +95,65 @@ public class WorkflowImplServiceComponent {
 
         BundleContext bundleContext = context.getBundleContext();
 
-        try{
+        try {
             String metaDataXML = readWorkflowImplParamMetaDataXML();
             bundleContext.registerService(AbstractWorkflow.class, new ApprovalWorkflow(metaDataXML), null);
-        }catch(Exception e){
+
+            WorkflowImplServiceDataHolder.getInstance().setWorkflowImplService(new WorkflowImplServiceImpl());
+
+
+            WorkflowImplTenantMgtListener workflowTenantMgtListener = new WorkflowImplTenantMgtListener();
+            ServiceRegistration tenantMgtListenerSR = bundleContext.registerService(
+                    TenantMgtListener.class.getName(), workflowTenantMgtListener, null);
+            if (tenantMgtListenerSR != null) {
+                log.debug("Workflow Management - WorkflowTenantMgtListener registered");
+            } else {
+                log.error("Workflow Management - WorkflowTenantMgtListener could not be registered");
+            }
+
+            this.addDefaultBPSProfile();
+        } catch (Throwable e) {
             log.error("Error occurred while activating WorkflowImplServiceComponent bundle, " + e.getMessage());
         }
-
-        WorkflowImplTenantMgtListener workflowTenantMgtListener = new WorkflowImplTenantMgtListener();
-        ServiceRegistration tenantMgtListenerSR = bundleContext.registerService(
-                TenantMgtListener.class.getName(), workflowTenantMgtListener, null);
-        if (tenantMgtListenerSR != null) {
-            log.debug("Workflow Management - WorkflowTenantMgtListener registered");
-        } else {
-            log.error("Workflow Management - WorkflowTenantMgtListener could not be registered");
-        }
-
-        this.addDefaultBPSProfile();
 
     }
 
 
     private void addDefaultBPSProfile() {
 
-        BPSProfile bpsProfileDTO = new BPSProfile();
-        String hostName = ServerConfiguration.getInstance().getFirstProperty(IdentityCoreConstants.HOST_NAME);
-        String offset = ServerConfiguration.getInstance().getFirstProperty(IdentityCoreConstants.PORTS_OFFSET);
-        String userName = WorkflowImplServiceDataHolder.getInstance().getRealmService().getBootstrapRealmConfiguration()
-                .getAdminUserName();
-        String password = WorkflowImplServiceDataHolder.getInstance().getRealmService().getBootstrapRealmConfiguration()
-                .getAdminPassword();
         try {
-            if (hostName == null) {
-                hostName = NetworkUtils.getLocalHostname();
-            }
-            String url = "https://" + hostName + ":" + (9443 + Integer.parseInt(offset));
-
-            bpsProfileDTO.setHost(url);
-            bpsProfileDTO.setUsername(userName);
-            bpsProfileDTO.setPassword(password);
-            bpsProfileDTO.setCallbackUser(userName);
-            bpsProfileDTO.setCallbackPassword(password);
-            bpsProfileDTO.setProfileName(WFConstant.DEFAULT_BPS_PROFILE);
-
-            WorkflowImplService workflowImplService = WorkflowImplServiceDataHolder.getInstance().getWorkflowImplService();
+            WorkflowImplService workflowImplService =
+                    WorkflowImplServiceDataHolder.getInstance().getWorkflowImplService();
             BPSProfile currentBpsProfile = workflowImplService.getBPSProfile(WFConstant.DEFAULT_BPS_PROFILE,
-                                                                        MultitenantConstants.SUPER_TENANT_ID);
+                                                                             MultitenantConstants.SUPER_TENANT_ID);
+
             if (currentBpsProfile == null) {
+                BPSProfile bpsProfileDTO = new BPSProfile();
+                //String hostName = WorkflowImplServiceDataHolder.getInstance().getServerConfigurationService().getFirstProperty(IdentityCoreConstants.HOST_NAME);
+                //String offset = WorkflowImplServiceDataHolder.getInstance().getServerConfigurationService().getFirstProperty(IdentityCoreConstants.PORTS_OFFSET);
+                String hostName = ServerConfiguration.getInstance().getFirstProperty(IdentityCoreConstants.HOST_NAME);
+                String offset = ServerConfiguration.getInstance().getFirstProperty(IdentityCoreConstants.PORTS_OFFSET);
+
+
+                String userName =
+                        WorkflowImplServiceDataHolder.getInstance().getRealmService().getBootstrapRealmConfiguration()
+                                .getAdminUserName();
+                String password =
+                        WorkflowImplServiceDataHolder.getInstance().getRealmService().getBootstrapRealmConfiguration()
+                                .getAdminPassword();
+
+                if (hostName == null) {
+                    hostName = NetworkUtils.getLocalHostname();
+                }
+                String url = "https://" + hostName + ":" + (9443 + Integer.parseInt(offset));
+
+                bpsProfileDTO.setHost(url);
+                bpsProfileDTO.setUsername(userName);
+                bpsProfileDTO.setPassword(password);
+                bpsProfileDTO.setCallbackUser(userName);
+                bpsProfileDTO.setCallbackPassword(password);
+                bpsProfileDTO.setProfileName(WFConstant.DEFAULT_BPS_PROFILE);
+
                 workflowImplService.addBPSProfile(bpsProfileDTO, MultitenantConstants.SUPER_TENANT_ID);
                 if (log.isDebugEnabled()) {
                     log.info("Default BPS profile added to the DB");

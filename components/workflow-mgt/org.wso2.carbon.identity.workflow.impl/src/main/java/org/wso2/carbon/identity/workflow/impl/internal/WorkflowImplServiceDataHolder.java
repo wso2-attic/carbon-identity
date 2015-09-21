@@ -21,7 +21,9 @@ package org.wso2.carbon.identity.workflow.impl.internal;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
+import org.wso2.carbon.base.api.ServerConfigurationService;
 import org.wso2.carbon.identity.workflow.impl.WorkflowImplService;
+import org.wso2.carbon.identity.workflow.mgt.WorkflowManagementService;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.ConfigurationContextService;
 
@@ -35,6 +37,27 @@ public class WorkflowImplServiceDataHolder {
     private ConfigurationContextService configurationContextService;
     private BundleContext bundleContext;
 
+    private ServerConfigurationService serverConfigurationService;
+
+    public ServerConfigurationService getServerConfigurationService() {
+        return serverConfigurationService;
+    }
+
+    public void setServerConfigurationService(
+            ServerConfigurationService serverConfigurationService) {
+        this.serverConfigurationService = serverConfigurationService;
+    }
+
+    private WorkflowManagementService workflowManagementService ;
+
+    public WorkflowManagementService getWorkflowManagementService() {
+        return workflowManagementService;
+    }
+
+    public void setWorkflowManagementService(
+            WorkflowManagementService workflowManagementService) {
+        this.workflowManagementService = workflowManagementService;
+    }
 
     private WorkflowImplService workflowImplService = null;
 

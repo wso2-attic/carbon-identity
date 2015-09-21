@@ -35,7 +35,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 
 /**
- * @scr.component name="identity.workflow.bpel" immediate="true"
+ * @scr.component name="identity.workflow.template" immediate="true"
  */
 public class WorkflowTemplateServiceComponent {
 
@@ -51,7 +51,7 @@ public class WorkflowTemplateServiceComponent {
             bundleContext
                     .registerService(AbstractTemplate.class, new MultiStepApprovalTemplate(templateParamMetaDataXML),
                                      null);
-        }catch(Exception e2){
+        }catch(Throwable e2){
             e2.printStackTrace();
         }
     }

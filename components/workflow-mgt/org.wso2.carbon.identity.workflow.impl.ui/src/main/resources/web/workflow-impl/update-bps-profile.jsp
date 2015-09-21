@@ -27,7 +27,7 @@
 <%@ page import="org.wso2.carbon.CarbonConstants" %>
 <%@ page import="java.util.ResourceBundle" %>
 
-<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.BPSProfileDTO" %>
+<%@ page import="org.wso2.carbon.identity.workflow.impl.stub.bean.BPSProfile" %>
 <script type="text/javascript" src="extensions/js/vui.js"></script>
 <script type="text/javascript" src="../extensions/core/js/vui.js"></script>
 <script type="text/javascript" src="../admin/js/main.js"></script>
@@ -48,7 +48,7 @@
 
     String profileName = request.getParameter(WorkflowUIConstants.PARAM_BPS_PROFILE_NAME);
 
-    BPSProfileDTO bpsProfileDTO = client.getBPSProfiles(profileName);
+    BPSProfile bpsProfile = client.getBPSProfiles(profileName);
 
 
 
@@ -105,7 +105,7 @@
                     <tbody>
                     <tr>
                         <td width="30%"><fmt:message key='workflow.bps.profile.name'/></td>
-                        <td><input readonly type="text" name="<%=WorkflowUIConstants.PARAM_BPS_PROFILE_NAME%>" value="<%=bpsProfileDTO.getProfileName()%>"/></td>
+                        <td><input readonly type="text" name="<%=WorkflowUIConstants.PARAM_BPS_PROFILE_NAME%>" value="<%=bpsProfile.getProfileName()%>"/></td>
                     </tr>
                     </tbody>
                 </table>
@@ -118,11 +118,11 @@
                     <tbody>
                     <tr>
                         <td width="30%"><fmt:message key='workflow.bps.profile.host'/></td>
-                        <td><input type="text" name="<%=WorkflowUIConstants.PARAM_BPS_HOST%>" value="<%=bpsProfileDTO.getHost()%>"/></td>
+                        <td><input type="text" name="<%=WorkflowUIConstants.PARAM_BPS_HOST%>" value="<%=bpsProfile.getHost()%>"/></td>
                     </tr>
                     <tr>
                         <td width="30%"><fmt:message key='workflow.bps.profile.auth.user'/></td>
-                        <td><input type="text" name="<%=WorkflowUIConstants.PARAM_BPS_AUTH_USER%>" value="<%=bpsProfileDTO.getUsername()%>"/></td>
+                        <td><input type="text" name="<%=WorkflowUIConstants.PARAM_BPS_AUTH_USER%>" value="<%=bpsProfile.getUsername()%>"/></td>
                     </tr>
                     <tr>
                         <td width="30%"><fmt:message key='workflow.bps.profile.auth.password'/></td>
@@ -142,7 +142,7 @@
                     <tbody>
                     <tr>
                         <td width="30%"><fmt:message key='workflow.bps.profile.callback.auth.user'/></td>
-                        <td><input type="text" name="<%=WorkflowUIConstants.PARAM_CARBON_AUTH_USER%>" value="<%=bpsProfileDTO.getCallbackUser()%>"/></td>
+                        <td><input type="text" name="<%=WorkflowUIConstants.PARAM_CARBON_AUTH_USER%>" value="<%=bpsProfile.getCallbackUser()%>"/></td>
                     </tr>
                     <tr>
                         <td width="30%"><fmt:message key='workflow.bps.profile.callback.auth.password'/></td>

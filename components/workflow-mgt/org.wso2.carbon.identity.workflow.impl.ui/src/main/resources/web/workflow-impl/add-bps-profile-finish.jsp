@@ -18,7 +18,7 @@
 
 <%@ page import="org.apache.axis2.context.ConfigurationContext" %>
 <%@ page import="org.wso2.carbon.CarbonConstants" %>
-<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.WorkflowAdminServiceWorkflowException" %>
+<%@ page import="org.wso2.carbon.identity.workflow.impl.stub.WorkflowImplAdminServiceWorkflowImplException" %>
 <%@ page import="org.wso2.carbon.identity.workflow.impl.ui.WorkflowImplAdminServiceClient" %>
 <%@ page import="org.wso2.carbon.identity.workflow.impl.ui.WorkflowUIConstants" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
@@ -26,7 +26,7 @@
 
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@ page import="java.util.ResourceBundle" %>
-<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.BPSProfileDTO" %>
+<%@ page import="org.wso2.carbon.identity.workflow.impl.stub.bean.BPSProfile" %>
 
 <%
     String bundle = "org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources";
@@ -48,15 +48,15 @@
                     .getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
     WorkflowImplAdminServiceClient client = new WorkflowImplAdminServiceClient(cookie, backendServerURL, configContext);
     try {
-        BPSProfileDTO bpsProfileDTO = new BPSProfileDTO();
-        bpsProfileDTO.setProfileName(profileName);
-        bpsProfileDTO.setHost(host);
-        bpsProfileDTO.setUsername(username);
-        bpsProfileDTO.setPassword(password);
-        bpsProfileDTO.setCallbackUser(username);
-        bpsProfileDTO.setCallbackPassword(callbackPassword);
-        client.addBPSProfile(bpsProfileDTO);
-    } catch (WorkflowAdminServiceWorkflowException e) {
+        BPSProfile bpsProfile = new BPSProfile();
+        bpsProfile.setProfileName(profileName);
+        bpsProfile.setHost(host);
+        bpsProfile.setUsername(username);
+        bpsProfile.setPassword(password);
+        bpsProfile.setCallbackUser(username);
+        bpsProfile.setCallbackPassword(callbackPassword);
+        client.addBPSProfile(bpsProfile);
+    } catch (WorkflowImplAdminServiceWorkflowImplException e) {
         String message = resourceBundle.getString("workflow.error.bps.profile.add");
         CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
         forwardTo = "../admin/error.jsp";
