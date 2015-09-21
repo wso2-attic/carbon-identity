@@ -128,7 +128,7 @@
         if (Boolean.parseBoolean(request.getParameter(SAMLSSOUIConstants.ENABLE_ATTRIBUTE_PROFILE))) {
 
             String claimsCountParameter = SAMLSSOUIUtil.getSafeInput(request, "claimPropertyCounter");
-            if (claimsCountParameter != null && !"".equals(claimsCountParameter)) {
+            if (claimsCountParameter != null && !claimsCountParameter.isEmpty()) {
                 try {
                     int claimsCount = Integer.parseInt(claimsCountParameter);
                     for (int i = 0; i < claimsCount; i++) {
