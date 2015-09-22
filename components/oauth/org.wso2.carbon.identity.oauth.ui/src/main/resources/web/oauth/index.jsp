@@ -17,6 +17,7 @@
 -->
 
 <%@ page import="org.apache.axis2.context.ConfigurationContext" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 <%@ page import="org.wso2.carbon.CarbonConstants" %>
 <%@ page import="org.wso2.carbon.identity.oauth.common.OAuthConstants" %>
 <%@ page import="org.wso2.carbon.identity.oauth.stub.dto.OAuthConsumerAppDTO" %>
@@ -172,7 +173,7 @@
                                       numberOfPages="<%=numberOfPages%>"
                                       page="index.jsp"
                                       pageNumberParameterName="pageNumber"
-                                      parameters="<%=paginationValue%>"
+                                      parameters="<%=Encode.forHtmlAttribute(paginationValue)%>"
                                       resourceBundle="org.wso2.carbon.identity.oauth.ui.i18n.Resources"
                                       prevKey="prev" nextKey="next"/>
 
