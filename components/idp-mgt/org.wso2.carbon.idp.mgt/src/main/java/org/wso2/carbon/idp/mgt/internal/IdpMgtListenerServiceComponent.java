@@ -20,10 +20,8 @@ package org.wso2.carbon.idp.mgt.internal;
 
 import org.wso2.carbon.idp.mgt.listener.IdentityProviderMgtListener;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -44,7 +42,7 @@ public class IdpMgtListenerServiceComponent {
             IdentityProviderMgtListener applicationMgtListenerService) {
         idpMgtListenerCollection = null;
         if (idpMgtListeners == null) {
-            idpMgtListeners = new TreeMap<>(new AppMgtListenerComparator());
+            idpMgtListeners = new TreeMap<>(new IdpMgtListenerComparator());
         }
         idpMgtListeners.put(applicationMgtListenerService.getExecutionOrderId(),
                 applicationMgtListenerService);
@@ -60,7 +58,7 @@ public class IdpMgtListenerServiceComponent {
 
     public static synchronized Collection<IdentityProviderMgtListener> getIdpMgtListeners() {
         if (idpMgtListeners == null) {
-            idpMgtListeners = new TreeMap<>(new AppMgtListenerComparator());
+            idpMgtListeners = new TreeMap<>(new IdpMgtListenerComparator());
         }
         if (idpMgtListenerCollection == null) {
             idpMgtListenerCollection =
@@ -71,7 +69,7 @@ public class IdpMgtListenerServiceComponent {
 }
 
 // Use to sort the IdpMgtListeners based on the execution order id
-class AppMgtListenerComparator implements Comparator<Integer> {
+class IdpMgtListenerComparator implements Comparator<Integer> {
 
     /**
      * {@inheritDoc}
