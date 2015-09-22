@@ -24,6 +24,7 @@
 <%@ page import="org.wso2.carbon.identity.application.common.model.xsd.LocalAuthenticatorConfig" %>
 <%@ page import="java.util.HashMap" %>
 <%@ page import="java.util.Map" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 <link href="css/idpmgt.css" rel="stylesheet" type="text/css" media="all"/>
 <jsp:useBean id="appBean" class="org.wso2.carbon.identity.application.mgt.ui.ApplicationBean" scope="session"/>
 <carbon:breadcrumb label="breadcrumb.advanced.auth.step.config" resourceBundle="org.wso2.carbon.identity.application.mgt.ui.i18n.Resources"
@@ -145,7 +146,7 @@ var authMap = {};
 <script>
 var stepOrder = 0;
 <%if(steps != null){%>
-var stepOrder = <%=steps.length%>;
+var stepOrder = <%=Encode.forJavaScriptBlock(steps.length)%>;
 <%} else {%>
 var stepOrder = 0;
 var img = "";
@@ -178,7 +179,7 @@ var img = "";
         })
         jQuery('#stepsAddLink').click(function(){
         	stepOrder++;
-        	jQuery('#stepsConfRow').append(jQuery('<h2 id="step_head_'+stepOrder+'" class="sectionSeperator trigger active step_heads" style="background-color: beige; clear: both;"><input type="hidden" value="'+stepOrder+'" name="auth_step" id="auth_step"><a class="step_order_header" href="#">Step '+stepOrder+'</a><a onclick="deleteStep(this);return false;" href="#" class="icon-link" style="background-image: url(images/delete.gif);float:right;width: 9px;"></a></h2><div class="toggle_container sectionSub step_contents" style="margin-bottom:10px;" id="step_dev_'+stepOrder+'"> <div style="padding-bottom: 5px"><table class="carbonFormTable"><tr><td><input type="checkbox" style="vertical-align: middle;" id="subject_step_'+stepOrder+'" name="subject_step_'+stepOrder+'" class="subject_steps" onclick="setSubjectStep(this)"><label for="subject_step_'+stepOrder+'" style="cursor: pointer;">Use subject identifier from this step</label></td></tr><tr><td><input type="checkbox" style="vertical-align: middle;" id="attribute_step_'+stepOrder+'" name="attribute_step_'+stepOrder+'" class="attribute_steps" onclick="setAttributeStep(this)" ><label for="attribute_step_'+stepOrder+'" style="cursor: pointer;">Use attributes from this step</label></td></tr></table></div><h2 id="local_auth_head_'+stepOrder+'" class="sectionSeperator trigger active" style="background-color: floralwhite;"><a href="#">Local Authenticators</a></h2><div class="toggle_container sectionSub" style="margin-bottom:10px;" id="local_auth_head_dev_'+stepOrder+'"><table class="styledLeft" width="100%" id="local_auth_table_'+stepOrder+'"><thead><tr><td><select name="step_'+stepOrder+'_local_oauth_select" style="float: left; min-width: 150px;font-size:13px;"><%=localAuthTypes.toString()%></select><a id="claimMappingAddLinkss" onclick="addLocalRow(this,'+stepOrder+');return false;" class="icon-link claimMappingAddLinkssLocal" style="background-image:url(images/add.gif);">Add Authenticator</a></td></tr></thead></table> </div><%if (enabledIdpType.length() > 0) { %> <h2 id="fed_auth_head_'+stepOrder+'" class="sectionSeperator trigger active" style="background-color: floralwhite;"><a href="#">Federated Authenticators</a></h2><div class="toggle_container sectionSub" style="margin-bottom:10px;" id="fed_auth_head_dev_'+stepOrder+'"><table class="styledLeft" width="100%" id="fed_auth_table_'+stepOrder+'"><thead> <tr><td><select name="idpAuthType_'+stepOrder+'" style="float: left; min-width: 150px;font-size:13px;"><%=enabledIdpType.toString()%></select><a id="claimMappingAddLinkss" onclick="addIDPRow(this,'+stepOrder+');return false;" class="icon-link claimMappingAddLinkssIdp" style="background-image:url(images/add.gif);">Add Authenticator</a></td></tr></thead></table></div><%}%></div>'));
+        	jQuery('#stepsConfRow').append(jQuery('<h2 id="step_head_'+stepOrder+'" class="sectionSeperator trigger active step_heads" style="background-color: beige; clear: both;"><input type="hidden" value="'+stepOrder+'" name="auth_step" id="auth_step"><a class="step_order_header" href="#">Step '+stepOrder+'</a><a onclick="deleteStep(this);return false;" href="#" class="icon-link" style="background-image: url(images/delete.gif);float:right;width: 9px;"></a></h2><div class="toggle_container sectionSub step_contents" style="margin-bottom:10px;" id="step_dev_'+stepOrder+'"> <div style="padding-bottom: 5px"><table class="carbonFormTable"><tr><td><input type="checkbox" style="vertical-align: middle;" id="subject_step_'+stepOrder+'" name="subject_step_'+stepOrder+'" class="subject_steps" onclick="setSubjectStep(this)"><label for="subject_step_'+stepOrder+'" style="cursor: pointer;">Use subject identifier from this step</label></td></tr><tr><td><input type="checkbox" style="vertical-align: middle;" id="attribute_step_'+stepOrder+'" name="attribute_step_'+stepOrder+'" class="attribute_steps" onclick="setAttributeStep(this)" ><label for="attribute_step_'+stepOrder+'" style="cursor: pointer;">Use attributes from this step</label></td></tr></table></div><h2 id="local_auth_head_'+stepOrder+'" class="sectionSeperator trigger active" style="background-color: floralwhite;"><a href="#">Local Authenticators</a></h2><div class="toggle_container sectionSub" style="margin-bottom:10px;" id="local_auth_head_dev_'+stepOrder+'"><table class="styledLeft" width="100%" id="local_auth_table_'+stepOrder+'"><thead><tr><td><select name="step_'+stepOrder+'_local_oauth_select" style="float: left; min-width: 150px;font-size:13px;"><%=localAuthTypes.toString()%></select><a id="claimMappingAddLinkss" onclick="addLocalRow(this,'+stepOrder+');return false;" class="icon-link claimMappingAddLinkssLocal" style="background-image:url(images/add.gif);">Add Authenticator</a></td></tr></thead></table> </div><%if (enabledIdpType.length() > 0) { %> <h2 id="fed_auth_head_'+stepOrder+'" class="sectionSeperator trigger active" style="background-color: floralwhite;"><a href="#">Federated Authenticators</a></h2><div class="toggle_container sectionSub" style="margin-bottom:10px;" id="fed_auth_head_dev_'+stepOrder+'"><table class="styledLeft" width="100%" id="fed_auth_table_'+stepOrder+'"><thead> <tr><td><select name="idpAuthType_'+stepOrder+'" style="float: left; min-width: 150px;font-size:13px;"><%=Encode.forJavaScriptAttribute(enabledIdpType.toString())%></select><a id="claimMappingAddLinkss" onclick="addIDPRow(this,'+stepOrder+');return false;" class="icon-link claimMappingAddLinkssIdp" style="background-image:url(images/add.gif);">Add Authenticator</a></td></tr></thead></table></div><%}%></div>'));
         	if(!$('#stepsConfRow').is(":visible")){
                 $(jQuery('#stepsConfRow')).toggle();
             }
@@ -315,7 +316,7 @@ var img = "";
 				.parent()
 				.parent()
 				.append(
-						jQuery('<tr><td><input name="step_'+ stepId +'_local_auth" id="" type="hidden" value="' + selectedAuthenticatorName + '" />'+selectedAuthenticatorDisplayName +'</td><td class="leftCol-small" ><a onclick="deleteLocalAuthRow(this);return false;" href="#" class="icon-link" style="background-image: url(images/delete.gif)"> Delete </a></td></tr>'));	}	
+						jQuery('<tr><td><input name="step_'+ stepId +'_local_auth" id="" type="hidden" value="' + Encode.forHtmlAttribute(selectedAuthenticatorName) + '" />'+Encode.forHtmlContent(selectedAuthenticatorDisplayName) +'</td><td class="leftCol-small" ><a onclick="deleteLocalAuthRow(this);return false;" href="#" class="icon-link" style="background-image: url(images/delete.gif)"> Delete </a></td></tr>'));	}
 	
     
     
@@ -379,7 +380,7 @@ var img = "";
 <fmt:bundle basename="org.wso2.carbon.identity.application.mgt.ui.i18n.Resources">
     <div id="middle">
         <h2>
-            <fmt:message key='breadcrumb.advanced.auth.step.config.for'/><%=spName%>
+            <fmt:message key='breadcrumb.advanced.auth.step.config.for'/><%=Encode.forHtmlContent(spName)%>
         </h2>
         <div id="workArea">
             <form id="configure-auth-flow-form" method="post" name="configure-auth-flow-form" method="post" action="configure-authentication-flow-finish.jsp" >        
@@ -404,7 +405,7 @@ var img = "";
 							%>
 							
 							<h2 id="step_head_<%=step.getStepOrder()%>" class="sectionSeperator trigger active step_heads" style="background-color: beige; clear: both;">
-								<input type="hidden" value="<%=step.getStepOrder()%>" name="auth_step" id="auth_step" />
+								<input type="hidden" value="<%=Encode.forHtmlAttribute(step.getStepOrder())%>" name="auth_step" id="auth_step" />
 							    <a class="step_order_header" href="#">Step <%=step.getStepOrder()%></a>
 								<a onclick="deleteStep(this);return false;" href="#" class="icon-link" style="background-image: url(images/delete.gif);float:right;width: 9px;"></a>       
 							</h2>
@@ -412,10 +413,10 @@ var img = "";
 								<div style="padding-bottom: 5px">
 									<table class="carbonFormTable">
 										<tr>
-											<td><input type="checkbox" style="vertical-align: middle;" id="subject_step_<%=step.getStepOrder()%>" name="subject_step_<%=step.getStepOrder()%>" class="subject_steps" onclick="setSubjectStep(this)" <%=step.getSubjectStep() ? "checked" : "" %>><label for="subject_step_<%=step.getStepOrder()%>" style="cursor: pointer;">Use subject identifier from this step</label></td>
+											<td><input type="checkbox" style="vertical-align: middle;" id="subject_step_<%=step.getStepOrder()%>" name="subject_step_<%=step.getStepOrder()%>" class="subject_steps" onclick="setSubjectStep(this)" <%=Encode.forHtmlAttribute(step.getSubjectStep()) ? "checked" : "" %>><label for="subject_step_<%=step.getStepOrder()%>" style="cursor: pointer;">Use subject identifier from this step</label></td>
 										</tr>
 										<tr>
-											<td><input type="checkbox" style="vertical-align: middle;" id="attribute_step_<%=step.getStepOrder()%>" name="attribute_step_<%=step.getStepOrder()%>" class="attribute_steps" onclick="setAttributeStep(this)" <%=step.getAttributeStep() ? "checked" : "" %>><label for="attribute_step_<%=step.getStepOrder()%>" style="cursor: pointer;">Use attributes from this step</label></td>
+											<td><input type="checkbox" style="vertical-align: middle;" id="attribute_step_<%=step.getStepOrder()%>" name="attribute_step_<%=step.getStepOrder()%>" class="attribute_steps" onclick="setAttributeStep(this)" <%=Encode.forHtmlAttribute(step.getAttributeStep()) ? "checked" : "" %>><label for="attribute_step_<%=step.getStepOrder()%>" style="cursor: pointer;">Use attributes from this step</label></td>
 										</tr>
 									</table>
 								</div>
@@ -423,14 +424,14 @@ var img = "";
 							                <a href="#">Local Authenticators</a>
 							           </h2>
 							      <div class="toggle_container sectionSub" style="margin-bottom:10px;" id="local_auth_head_dev_<%=step.getStepOrder()%>">
-							                <table class="styledLeft" width="100%" id="local_auth_table_<%=step.getStepOrder()%>">	             
+							                <table class="styledLeft" width="100%" id="local_auth_table_<%=step.getStepOrder()%>">
 							                <thead>
 							             	<tr>
 							             		<td>
 							             			<select name="step_<%=step.getStepOrder()%>_local_oauth_select"  style="float: left; min-width: 150px;font-size:13px;">
-							             				<%=localAuthTypes.toString()%>
+							             				<%=Encode.forHtmlAttribute(localAuthTypes.toString())%>
 							             			</select>
-							             			<a id="claimMappingAddLinkss" onclick="addLocalRow(this,'<%=step.getStepOrder()%>');return false;" class="icon-link claimMappingAddLinkssLocal" style="background-image:url(images/add.gif);">Add Authenticator
+							             			<a id="claimMappingAddLinkss" onclick="addLocalRow(this,'<%=Encode.forHtmlAttribute(step.getStepOrder())%>');return false;" class="icon-link claimMappingAddLinkssLocal" style="background-image:url(images/add.gif);">Add Authenticator
 							             			</a>
 							             		</td>
 							             	</tr>
@@ -445,8 +446,8 @@ var img = "";
 							             		
 							             		<tr>
 							             	        <td>
-							             	        	<input name="step_<%=step.getStepOrder()%>_local_auth" id="" type="hidden" value="<%=lclAuthenticator.getName()%>" />
-							             	        		<%=lclAuthenticator.getDisplayName()%>
+							             	        	<input name="step_<%=step.getStepOrder()%>_local_auth" id="" type="hidden" value="<%=Encode.forHtmlAttribute(lclAuthenticator.getName())%>" />
+							             	        		<%=Encode.forHtmlAttribute(lclAuthenticator.getDisplayName())%>
 							             	        </td>
 							             	        <td class="leftCol-small" >
 							             	            <a onclick="deleteLocalAuthRow(this);return false;" href="#" class="icon-link" style="background-image: url(images/delete.gif)"> Delete </a>
@@ -471,9 +472,9 @@ var img = "";
 							             	 <tr style="<%=enabledIdpType.length() > 0 ? "" : "display:none"%>" >
 							             	  <td>							             	  
 							             		<select name="idpAuthType_<%=step.getStepOrder()%>" style="float: left; min-width: 150px;font-size:13px;">
-							             			<%=enabledIdpType.toString()%>
+							             			<%=Encode.forHtmlAttribute(enabledIdpType.toString())%>
 							             		</select>
-							             		<a id="claimMappingAddLinkss" onclick="addIDPRow(this,'<%=step.getStepOrder()%>');return false;" class="icon-link claimMappingAddLinkssIdp" style="background-image:url(images/add.gif);">Add Authenticator</a>
+							             		<a id="claimMappingAddLinkss" onclick="addIDPRow(this,'<%=Encode.forHtmlAttribute(step.getStepOrder())%>');return false;" class="icon-link claimMappingAddLinkssIdp" style="background-image:url(images/add.gif);">Add Authenticator</a>
 							             	  </td>
 							                 </tr>
 							                </thead>
@@ -488,11 +489,11 @@ var img = "";
 							      
 							      	       <tr>
 							      	      	   <td>
-							      	      		<input name="step_<%=step.getStepOrder()%>_fed_auth" id="" type="hidden" value="<%=idp.getIdentityProviderName()%>" />
-							      	      			<%=idp.getIdentityProviderName() + (idpEnableStatus.get(idp.getIdentityProviderName()) != null && idpEnableStatus.get(idp.getIdentityProviderName()) ? "" : disbleText) %>
+							      	      		<input name="step_<%=step.getStepOrder()%>_fed_auth" id="" type="hidden" value="<%=Encode.forHtmlAttribute(idp.getIdentityProviderName())%>" />
+							      	      			<%=Encode.forHtmlAttribute(idp.getIdentityProviderName()) + Encode.forHtmlAttribute((idpEnableStatus.get(idp.getIdentityProviderName())) != null && Encode.forHtmlAttribute(idpEnableStatus.get(idp.getIdentityProviderName())) ? "" : disbleText) %>
 							      	      		</td>
 							      	      		<td> 
-							      	      			<select   name="step_<%=step.getStepOrder()%>_idp_<%=idp.getIdentityProviderName()%>_fed_authenticator" style="float: left; min-width: 150px;font-size:13px;"><%=stepIdpAuthenticators.get(step.getStepOrder() +"_"+ idp.getIdentityProviderName())%></select>
+							      	      			<select   name="step_<%=step.getStepOrder()%>_idp_<%=idp.getIdentityProviderName()%>_fed_authenticator" style="float: left; min-width: 150px;font-size:13px;"><%=Encode.forHtmlAttribute(stepIdpAuthenticators.get(step.getStepOrder()) +"_"+ Encode.forHtmlAttribute(idp.getIdentityProviderName()))%></select>
 							      	      		</td>
 							      	      		<td class="leftCol-small" >
 							      	      		<a onclick="deleteIDPRow(this);return false;" href="#" class="icon-link" style="background-image: url(images/delete.gif)"> Delete </a>

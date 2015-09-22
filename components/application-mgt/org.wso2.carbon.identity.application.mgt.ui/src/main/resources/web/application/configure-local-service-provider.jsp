@@ -27,6 +27,7 @@
 <%@ taglib prefix="carbon" uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar"%>
 <%@ page import="java.util.HashMap" %>
 <%@ page import="java.util.Map" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 <link href="css/idpmgt.css" rel="stylesheet" type="text/css" media="all"/>
 <jsp:useBean id="appBean" class="org.wso2.carbon.identity.application.mgt.ui.ApplicationBean" scope="session"/>
 <carbon:breadcrumb label="breadcrumb.service.provider" resourceBundle="org.wso2.carbon.identity.application.mgt.ui.i18n.Resources"
@@ -44,7 +45,7 @@
 	StringBuffer localAuthTypes = new StringBuffer();
 	String startOption = "<option value=\"";
 	String middleOption = "\">";
-	String endOPtion = "</option>";	
+	String endOPtion = "</option>";
 	String disbleText = " (Disabled)";
     
 	IdentityProvider[] federatedIdPs = appBean.getFederatedIdentityProviders();
@@ -214,7 +215,7 @@
         <div id="workArea">
             <form id="configure-sp-form" method="post" name="configure-sp-form" method="post" action="configure-service-provider-finish.jsp" >
             <input type="hidden" value="wso2carbon-local-sp" name="spName">
-            <input type="hidden" value="<%=appBean.getServiceProvider().getDescription() %>" name="sp-description">
+            <input type="hidden" value="<%=Encode.forHtmlAttribute(appBean.getServiceProvider().getDescription())%>" name="sp-description">
             
             
             <h2 id="inbound_provisioning_head" class="sectionSeperator trigger active">
@@ -241,11 +242,11 @@
                                                 	&& appBean.getServiceProvider().getInboundProvisioningConfig().getProvisioningUserStore()!=null
                                                     && userStoreDomain.equals(appBean.getServiceProvider().getInboundProvisioningConfig().getProvisioningUserStore())) {
                                     %>
-                                          			<option selected="selected" value="<%=userStoreDomain%>"><%=userStoreDomain%></option>
+                                          			<option selected="selected" value="<%=Encode.forHtmlAttribute(userStoreDomain)%>"><%=Encode.forHtmlContent(userStoreDomain)%></option>
                                     <%
                                       			} else {
                                     %>
-                                           			<option value="<%=userStoreDomain%>"><%=userStoreDomain%></option>
+                                           			<option value="<%=Encode.forHtmlAttribute(userStoreDomain)%>"><%=Encode.forHtmlContent(userStoreDomain)%></option>
                                     <%
                                                 }
                                               }
@@ -276,7 +277,7 @@
 					<tr>
 						<td>				             	  
 							 <select name="provisioning_idps" style="float: left; min-width: 150px;font-size:13px;">
-							             			<%=idpType.toString()%>
+							             			<%=Encode.forHtmlContent(idpType.toString())%>
 							 </select>
 						     <a id="provisioningIdpAdd" onclick="addIDPRow(this);return false;" class="icon-link" style="background-image:url(images/add.gif);"></a>
 						</td>
@@ -311,17 +312,17 @@
 							      
 							      	       <tr>
 							      	      	   <td>
-							      	      		<input name="provisioning_idp" id="" type="hidden" value="<%=idp.getIdentityProviderName()%>" />
-							      	      			<%=idp.getIdentityProviderName() + (idpStatus.get(idp.getIdentityProviderName()) != null && idpStatus.get(idp.getIdentityProviderName()) ? "" : disbleText)%>
+							      	      		<input name="provisioning_idp" id="" type="hidden" value="<%=Encode.forHtmlAttribute(idp.getIdentityProviderName())%>" />
+							      	      			<%=Encode.forHtmlContent(idp.getIdentityProviderName()) + Encode.forHtmlContent((idpStatus.get(idp.getIdentityProviderName())) != null && Encode.forHtmlContent(idpStatus.get(idp.getIdentityProviderName())) ? "" : disbleText)%>
 							      	      		</td>
 							      	      		<td> 
 							      	      			<% if(selectedProIdpConnectors.get(idp.getIdentityProviderName()) != null) { %>
-							      	      				<select name="provisioning_con_idp_<%=idp.getIdentityProviderName()%>" style="float: left; min-width: 150px;font-size:13px;"><%=selectedProIdpConnectors.get(idp.getIdentityProviderName())%></select>
+							      	      				<select name="provisioning_con_idp_<%=idp.getIdentityProviderName()%>" style="float: left; min-width: 150px;font-size:13px;"><%=Encode.forHtmlContent(selectedProIdpConnectors.get(idp.getIdentityProviderName()))%></select>
 							      	      			<% } %>
 							      	      		</td>
 							      	      		 <td>
                             						<div class="sectionCheckbox">
-                                						<input type="checkbox" id="blocking_prov_<%=idp.getIdentityProviderName()%>" name="blocking_prov_<%=idp.getIdentityProviderName()%>" <%=blocking ? "checked" : "" %>>Blocking
+                                						<input type="checkbox" id="blocking_prov_<%=idp.getIdentityProviderName()%>" name="blocking_prov_<%=idp.getIdentityProviderName()%>" <%=Encode.forHtmlAttribute(blocking) ? "checked" : "" %>>Blocking
                    									</div>
                         						</td>
 							      	      		 <td>
