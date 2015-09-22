@@ -313,7 +313,7 @@
 							      	       <tr>
 							      	      	   <td>
 							      	      		<input name="provisioning_idp" id="" type="hidden" value="<%=Encode.forHtmlAttribute(idp.getIdentityProviderName())%>" />
-							      	      			<%=Encode.forHtmlContent(idp.getIdentityProviderName()) + Encode.forHtmlContent((idpStatus.get(idp.getIdentityProviderName())) != null && Encode.forHtmlContent(idpStatus.get(idp.getIdentityProviderName())) ? "" : disbleText)%>
+							      	      			<%=Encode.forHtmlContent(idp.getIdentityProviderName()) + idpStatus.get(Encode.forHtmlContent(idp.getIdentityProviderName())) != null && idpStatus.get(Encode.forHtmlContent(idp.getIdentityProviderName())) ? "" : disbleText)%>
 							      	      		</td>
 							      	      		<td> 
 							      	      			<% if(selectedProIdpConnectors.get(idp.getIdentityProviderName()) != null) { %>
@@ -322,7 +322,7 @@
 							      	      		</td>
 							      	      		 <td>
                             						<div class="sectionCheckbox">
-                                						<input type="checkbox" id="blocking_prov_<%=idp.getIdentityProviderName()%>" name="blocking_prov_<%=idp.getIdentityProviderName()%>" <%=Encode.forHtmlAttribute(blocking) ? "checked" : "" %>>Blocking
+                                						<input type="checkbox" id="blocking_prov_<%=idp.getIdentityProviderName()%>" name="blocking_prov_<%=idp.getIdentityProviderName()%>" <%=blocking ? "checked" : "" %>>Blocking
                    									</div>
                         						</td>
 							      	      		 <td>
