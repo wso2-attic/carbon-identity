@@ -43,7 +43,7 @@
             <artifactId>org.wso2.carbon.identity.application.authentication.framework</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.openid4java.wso2</groupId>
+            <groupId>org.wso2.orbit.org.openid4java</groupId>
             <artifactId>openid4java</artifactId>
         </dependency>
     </dependencies>
@@ -68,7 +68,7 @@
                                 <bundleDef>
                                     org.wso2.carbon.identity:org.wso2.carbon.identity.application.authenticator.openid
                                 </bundleDef>
-                                <bundleDef>org.openid4java.wso2:openid4java</bundleDef>
+                                <bundleDef>org.wso2.orbit.org.openid4java:openid4java</bundleDef>
                             </bundles>
                             <importFeatures>
                                 <importFeatureDef>org.wso2.carbon.core:${carbon.kernel.version}</importFeatureDef>
