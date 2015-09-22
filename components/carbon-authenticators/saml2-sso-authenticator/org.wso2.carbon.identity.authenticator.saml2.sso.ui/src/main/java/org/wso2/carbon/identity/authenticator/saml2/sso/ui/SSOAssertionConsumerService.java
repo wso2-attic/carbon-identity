@@ -266,6 +266,10 @@ public class SSOAssertionConsumerService extends HttpServlet {
                 url += "&" + SAML2SSOAuthenticatorConstants.IDP_SESSION_INDEX + "=" + URLEncoder.encode(sessionIndex, "UTF-8");
             }
 
+            if(log.isDebugEnabled()) {
+                log.debug("Forwarding to path : " + url);
+            }
+
             RequestDispatcher reqDispatcher = req.getRequestDispatcher(url);
             req.getSession().setAttribute("CarbonAuthenticator", new SAML2SSOUIAuthenticator());
             reqDispatcher.forward(req, resp);
