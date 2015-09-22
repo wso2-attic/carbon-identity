@@ -133,6 +133,36 @@ public class WorkflowRequestAssociationDAO {
     }
 
     /**
+     * Update state of workflow of a request
+     *
+     * @param requestId requestId to update relationships of.
+     * @throws InternalWorkflowException
+     */
+    public void updateStatusOfRelationshipsOfRequest(String requestId, String status) throws
+            InternalWorkflowException {
+
+        Connection connection = null;
+        PreparedStatement prepStmt = null;
+        String query = SQLConstants.UPDATE_STATUS_OF_RELATIONSHIPS_OF_REQUEST;
+        try {
+            Timestamp updatedDateStamp = new Timestamp(System.currentTimeMillis());
+            connection = IdentityDatabaseUtil.getDBConnection();
+            prepStmt = connection.prepareStatement(query);
+            prepStmt.setString(1, status);
+            prepStmt.setTimestamp(2, updatedDateStamp);
+            prepStmt.setString(3, requestId);
+            prepStmt.execute();
+            connection.commit();
+        } catch (IdentityException e) {
+            throw new InternalWorkflowException("Error when connecting to the Identity Database.", e);
+        } catch (SQLException e) {
+            throw new InternalWorkflowException("Error when executing the sql query:" + query, e);
+        } finally {
+            IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
+        }
+    }
+
+    /**
      * Get list of states of workflows of a request
      *
      * @param requestId

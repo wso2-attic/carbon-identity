@@ -27,6 +27,8 @@ import org.wso2.carbon.identity.workflow.mgt.util.WorkFlowConstants;
 import org.wso2.carbon.identity.workflow.mgt.exception.InternalWorkflowException;
 
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.nio.charset.Charset;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -245,20 +247,46 @@ public class BPSProfileDAO {
         ResultSet rs;
         List<BPSProfileDTO> profiles = new ArrayList<>();
         String query = SQLConstants.LIST_BPS_PROFILES_QUERY;
+        String decryptPassword;
+        String decryptCallBackPassword;
+        CryptoUtil cryptoUtil = CryptoUtil.getDefaultCryptoUtil();
         try {
+            Object classCheckresult = null;
+            try {
+                classCheckresult = Class.forName("org.wso2.carbon.humantask.deployer.HumanTaskDeployer");
+            } catch (ClassNotFoundException e) {
+
+            }
             connection = IdentityDatabaseUtil.getDBConnection();
             prepStmt = connection.prepareStatement(query);
             prepStmt.setInt(1, tenantId);
             rs = prepStmt.executeQuery();
             while (rs.next()) {
                 String name = rs.getString(SQLConstants.PROFILE_NAME_COLUMN);
+                if (classCheckresult == null && name.equals("embeded_bps")){
+                    continue;
+                }
                 String hostName = rs.getString(SQLConstants.HOST_URL_COLUMN);
                 String user = rs.getString(SQLConstants.USERNAME_COLUMN);
                 String callbackUser = rs.getString(SQLConstants.CALLBACK_USER_COLUMN);
+                String password = rs.getString(SQLConstants.PASSWORD_COLUMN);
+                String callbackPassword = rs.getString(SQLConstants.CALLBACK_PASSWORD_COLUMN);
+                try {
+                    byte[] decryptedPasswordBytes = cryptoUtil.base64DecodeAndDecrypt(password);
+                    decryptPassword = new String(decryptedPasswordBytes, "UTF-8");
+                    byte[] decryptedCallBackPasswordBytes = cryptoUtil.base64DecodeAndDecrypt(callbackPassword);
+                    decryptCallBackPassword = new String(decryptedCallBackPasswordBytes, "UTF-8");
+
+                } catch (CryptoException | UnsupportedEncodingException e) {
+                    throw new InternalWorkflowException("Error while decrypting the password for BPEL Profile" + " " +
+                            name, e);
+                }
                 BPSProfileDTO profileBean = new BPSProfileDTO();
                 profileBean.setHost(hostName);
                 profileBean.setProfileName(name);
                 profileBean.setUsername(user);
+                profileBean.setPassword(decryptPassword);
+                profileBean.setCallbackPassword(decryptCallBackPassword);
                 profileBean.setCallbackUser(callbackUser);
                 profiles.add(profileBean);
             }

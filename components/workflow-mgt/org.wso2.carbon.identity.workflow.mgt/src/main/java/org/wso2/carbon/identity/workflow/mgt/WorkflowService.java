@@ -18,21 +18,32 @@
 
 package org.wso2.carbon.identity.workflow.mgt;
 
+import org.apache.axiom.om.OMAttribute;
+import org.apache.axiom.om.OMElement;
+import org.apache.axiom.om.impl.builder.StAXOMBuilder;
+import org.apache.axiom.om.impl.llom.OMElementImpl;
+import org.apache.axis2.client.Options;
+import org.apache.axis2.client.ServiceClient;
+import org.apache.axis2.databinding.types.NCName;
+import org.apache.axis2.transport.http.HttpTransportProperties;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.CarbonConstants;
-import org.wso2.carbon.base.CarbonBaseUtils;
-import org.wso2.carbon.base.MultitenantConstants;
-import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.context.CarbonContext;
-import org.wso2.carbon.identity.base.IdentityRuntimeException;
-import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
+import org.wso2.carbon.humantask.stub.types.TTaskSimpleQueryResultRow;
+import org.wso2.carbon.humantask.stub.ui.task.client.api.HumanTaskClientAPIAdminStub;
+import org.wso2.carbon.humantask.stub.ui.task.client.api.IllegalAccessFault;
+import org.wso2.carbon.humantask.stub.ui.task.client.api.IllegalArgumentFault;
+import org.wso2.carbon.humantask.stub.ui.task.client.api.IllegalOperationFault;
+import org.wso2.carbon.humantask.stub.ui.task.client.api.IllegalStateFault;
 import org.wso2.carbon.identity.workflow.mgt.bean.BPSProfileDTO;
-import org.wso2.carbon.identity.workflow.mgt.bean.ParameterDTO;
-import org.wso2.carbon.identity.workflow.mgt.bean.WorkFlowRequest;
+import org.wso2.carbon.identity.workflow.mgt.bean.ParameterDTO;;
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowAssociationBean;
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowDTO;
+import org.wso2.carbon.humantask.stub.types.TSimpleQueryCategory;
+import org.wso2.carbon.humantask.stub.types.TSimpleQueryInput;
+import org.wso2.carbon.humantask.stub.types.TStatus;
+import org.wso2.carbon.humantask.stub.types.TTaskSimpleQueryResultSet;
 import org.wso2.carbon.identity.workflow.mgt.template.AbstractWorkflowTemplate;
 import org.wso2.carbon.identity.workflow.mgt.template.AbstractWorkflowTemplateImpl;
 import org.wso2.carbon.identity.workflow.mgt.extension.WorkflowRequestHandler;
@@ -48,9 +59,6 @@ import org.wso2.carbon.identity.workflow.mgt.dao.RequestEntityRelationshipDAO;
 import org.wso2.carbon.identity.workflow.mgt.dao.WorkflowRequestAssociationDAO;
 import org.wso2.carbon.identity.workflow.mgt.dao.WorkflowRequestDAO;
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowRequestDTO;
-import org.wso2.carbon.identity.workflow.mgt.template.AbstractWorkflowTemplate;
-import org.wso2.carbon.identity.workflow.mgt.template.AbstractWorkflowTemplateImpl;
-import org.wso2.carbon.identity.workflow.mgt.extension.WorkflowRequestHandler;
 import org.wso2.carbon.identity.workflow.mgt.dao.BPSProfileDAO;
 import org.wso2.carbon.identity.workflow.mgt.dao.WorkflowDAO;
 import org.wso2.carbon.identity.workflow.mgt.exception.InternalWorkflowException;
@@ -60,15 +68,17 @@ import org.wso2.carbon.identity.workflow.mgt.internal.WorkflowServiceDataHolder;
 import org.wso2.carbon.identity.workflow.mgt.util.WorkFlowConstants;
 import org.wso2.carbon.identity.workflow.mgt.util.WorkflowManagementUtil;
 import org.wso2.carbon.identity.workflow.mgt.util.WorkflowRequestStatus;
-import org.wso2.carbon.user.api.RealmConfiguration;
-import org.wso2.carbon.user.core.UserStoreManager;
-import org.wso2.carbon.utils.CarbonUtils;
-import org.wso2.carbon.utils.NetworkUtils;
 
+import javax.xml.stream.XMLStreamException;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
-import java.net.SocketException;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.rmi.RemoteException;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -81,6 +91,11 @@ import java.util.Map;
 
 public class WorkflowService {
 
+    public static final String DATE_FORMAT_FOR_FILTERING = "MM/dd/yyyy";
+    public static final String HT_SERVICES_URL = "services/HumanTaskClientAPIAdmin";
+    public static final String HT_PARAMETER_LIST_ELEMENT = "parametersList";
+    public static final String HT_ITEM_NAME_ATTRIBUTE = "itemName";
+    public static final String HT_REQUEST_ID_ATTRIBUTE_VALUE = "REQUEST ID";
     private static Log log = LogFactory.getLog(WorkflowService.class);
 
     WorkflowDAO workflowDAO = new WorkflowDAO();
@@ -465,7 +480,10 @@ public class WorkflowService {
             if (!loggedUser.equals(workflowRequestDAO.retrieveCreatedUserOfRequest(requestId))) {
                 throw  new WorkflowException("User not authorized to delete this request");
             }
+            deleteHumanTasks(requestId);
             workflowRequestDAO.updateStatusOfRequest(requestId, newState);
+            workflowRequestAssociationDAO.updateStatusOfRelationshipsOfRequest(requestId, WorkFlowConstants
+                    .HT_STATE_SKIPPED);
         }
         requestEntityRelationshipDAO.deleteRelationshipsOfRequest(requestId);
     }
@@ -482,9 +500,9 @@ public class WorkflowService {
      * @throws WorkflowException
      */
     public WorkflowRequestDTO[] getRequestsFromFilter(String user, String beginDate, String endDate, String
-            dateCategory, int tenantId) throws WorkflowException {
+            dateCategory, int tenantId, String status) throws WorkflowException {
 
-        SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
+        SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT_FOR_FILTERING);
         Timestamp beginTime;
         Timestamp endTime;
 
@@ -504,9 +522,10 @@ public class WorkflowService {
             endTime = new java.sql.Timestamp(parsedEndDate.getTime());
         }
         if (StringUtils.isBlank(user)) {
-            return workflowRequestDAO.getRequestsFilteredByTime(beginTime, endTime, dateCategory, tenantId);
+            return workflowRequestDAO.getRequestsFilteredByTime(beginTime, endTime, dateCategory, tenantId, status);
         } else {
-            return workflowRequestDAO.getRequestsOfUserFilteredByTime(user, beginTime, endTime, dateCategory, tenantId);
+            return workflowRequestDAO.getRequestsOfUserFilteredByTime(user, beginTime, endTime, dateCategory,
+                    tenantId, status);
         }
 
     }
@@ -524,5 +543,114 @@ public class WorkflowService {
     public List<String> listEntityNames(String wfOperationType, String wfStatus, String entityType, int tenantID) throws
             InternalWorkflowException {
         return requestEntityRelationshipDAO.getEntityNamesOfRequest(wfOperationType, wfStatus, entityType, tenantID);
+    }
+
+    /**
+     * Delete human tasks associated with a given request
+     *
+     * @param requestId request id of the request to delete human tasks of
+     * @throws WorkflowException
+     */
+    private void deleteHumanTasks(String requestId) throws WorkflowException {
+
+        try {
+            int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
+            List<BPSProfileDTO> bpsProfiles = bpsProfileDAO.listBPSProfiles(tenantId);
+            HumanTaskClientAPIAdminStub stub = null;
+            TSimpleQueryInput input = new TSimpleQueryInput();
+            TStatus reservedState = new TStatus();
+            reservedState.setTStatus(WorkFlowConstants.HT_STATE_RESERVED);
+            input.addStatus(reservedState);
+            TStatus readyState = new TStatus();
+            readyState.setTStatus(WorkFlowConstants.HT_STATE_READY);
+            input.addStatus(readyState);
+            input.setPageSize(100000);
+            input.setPageNumber(0);
+            input.setSimpleQueryCategory(TSimpleQueryCategory.ALL_TASKS);
+            for (int i = 0; i < bpsProfiles.size(); i++) {
+                String host = bpsProfiles.get(i).getHost();
+                URL servicesUrl = new URL(new URL(host), HT_SERVICES_URL);
+                stub = new HumanTaskClientAPIAdminStub(servicesUrl.toString());
+                ServiceClient client = stub._getServiceClient();
+                authenticate(client, bpsProfiles.get(i).getUsername(), bpsProfiles.get(i).getPassword());
+                TTaskSimpleQueryResultSet results = stub.simpleQuery(input);
+                TTaskSimpleQueryResultRow[] arr = results.getRow();
+                for (int j = 0; j < arr.length; j++) {
+                    Object task = stub.getInput(arr[j].getId(),new NCName(""));
+                    InputStream stream = new ByteArrayInputStream(task.toString().getBytes(StandardCharsets.UTF_8));
+                    OMElement taskXML = new StAXOMBuilder(stream).getDocumentElement();
+                    Iterator<OMElementImpl> iterator = taskXML.getChildElements();
+                    while (iterator.hasNext()) {
+                        OMElementImpl child = iterator.next();
+                        checkMatchingTaskAndDelete(requestId, stub, arr, j, child);
+                    }
+
+                }
+            }
+        } catch (MalformedURLException | XMLStreamException | IllegalOperationFault | IllegalAccessFault |
+                RemoteException | IllegalStateFault | IllegalArgumentFault e) {
+            throw new WorkflowException("Error while deleting the human tasks of the request.");
+        }
+
+    }
+
+    /**
+     *
+     *
+     * @param requestId Id of the deleting request
+     * @param stub stub to call HumanTaskClientAPIAdmin
+     * @param resultsList task list in the current human task engine
+     * @param resultIndex index of the currently considering rask
+     * @param taskElement currently considering task
+     * @throws RemoteException
+     * @throws IllegalStateFault
+     * @throws IllegalOperationFault
+     * @throws IllegalArgumentFault
+     * @throws IllegalAccessFault
+     */
+    private void checkMatchingTaskAndDelete(String requestId, HumanTaskClientAPIAdminStub stub,
+                                            TTaskSimpleQueryResultRow[] resultsList, int resultIndex, OMElementImpl
+                                                    taskElement) throws RemoteException, IllegalStateFault,
+            IllegalOperationFault, IllegalArgumentFault, IllegalAccessFault {
+        if (taskElement.getLocalName().equals(HT_PARAMETER_LIST_ELEMENT)) {
+            Iterator<OMElementImpl> parameters = taskElement.getChildElements();
+            while (parameters.hasNext()) {
+                OMElementImpl parameter = parameters.next();
+                Iterator<OMAttribute> attributes = parameter.getAllAttributes();
+                while (attributes.hasNext()) {
+                    OMAttribute currentAttribute = attributes.next();
+                    if (currentAttribute.getLocalName().equals(HT_ITEM_NAME_ATTRIBUTE) && currentAttribute
+                            .getAttributeValue().equals(HT_REQUEST_ID_ATTRIBUTE_VALUE)) {
+                        Iterator<OMElementImpl> itemValues = parameter.getChildElements();
+                        if (itemValues.hasNext()) {
+                            String taskRequestId = itemValues.next().getText();
+                            if (taskRequestId.contains(",")) {
+                                taskRequestId = taskRequestId.replaceAll(",", "");
+                            }
+                            if (taskRequestId.equals(requestId)) {
+                                //stub.skip(resultsList[resultIndex].getId());
+                            }
+                        }
+
+                    }
+                }
+            }
+        }
+    }
+
+    private void authenticate(ServiceClient client, String accessUsername, String accessPassword) throws WorkflowException {
+
+        if (accessUsername != null && accessPassword != null) {
+            Options option = client.getOptions();
+            HttpTransportProperties.Authenticator auth = new HttpTransportProperties.Authenticator();
+            auth.setUsername(accessUsername);
+            auth.setPassword(accessPassword);
+            auth.setPreemptiveAuthentication(true);
+            option.setProperty(org.apache.axis2.transport.http.HTTPConstants.AUTHENTICATE, auth);
+            option.setManageSession(true);
+
+        } else {
+            throw new WorkflowException("Authentication username or password not set");
+        }
     }
 }

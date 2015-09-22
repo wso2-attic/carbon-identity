@@ -97,9 +97,10 @@
 
 
         if (taskTypeFilter.equals("allTasks")) {
-            requestList = client.getAllRequests(lowerBound, upperBound, timeFilterCategory);
+            requestList = client.getAllRequests(lowerBound, upperBound, timeFilterCategory, statusToFilter);
         } else {
-            requestList = client.getRequestsCreatedByUser(loggedUser, lowerBound, upperBound, timeFilterCategory);
+            requestList = client.getRequestsCreatedByUser(loggedUser, lowerBound, upperBound, timeFilterCategory,
+                    statusToFilter);
         }
 
         if (requestList == null) {
