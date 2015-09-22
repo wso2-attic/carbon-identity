@@ -283,7 +283,7 @@
             pageNumber = "0";
         }
 
-        if (doValidateForm($("#id_search"), '<fmt:message key="error.input.validation.msg"/>')) {
+        if (doValidateForm($("#id_search")[0], '<fmt:message key="error.input.validation.msg"/>')) {
             var category = $("input[name=radio_user_role]:checked").val();
             $.ajax({
                 url: "/userandrolemgtservice?category=" + category + "&pageNumber=" + pageNumber,
