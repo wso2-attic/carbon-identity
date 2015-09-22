@@ -137,7 +137,7 @@ public class OAuth2Parameters implements Serializable {
     /**
      * @return the id_token_hint
      */
-    public String getIDTtokenHint() {
+    public String getIDTokenHint() {
         return id_token_hint;
     }
 

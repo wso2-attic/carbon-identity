@@ -17,19 +17,18 @@
  */
 package org.wso2.carbon.identity.application.authenticator.oidc;
 
-import org.apache.amber.oauth2.client.OAuthClient;
-import org.apache.amber.oauth2.client.URLConnectionClient;
-import org.apache.amber.oauth2.client.request.OAuthClientRequest;
-import org.apache.amber.oauth2.client.response.OAuthAuthzResponse;
-import org.apache.amber.oauth2.client.response.OAuthClientResponse;
-import org.apache.amber.oauth2.common.exception.OAuthProblemException;
-import org.apache.amber.oauth2.common.exception.OAuthSystemException;
-import org.apache.amber.oauth2.common.message.types.GrantType;
-import org.apache.amber.oauth2.common.utils.JSONUtils;
+import org.apache.oltu.oauth2.client.OAuthClient;
+import org.apache.oltu.oauth2.client.URLConnectionClient;
+import org.apache.oltu.oauth2.client.request.OAuthClientRequest;
+import org.apache.oltu.oauth2.client.response.OAuthAuthzResponse;
+import org.apache.oltu.oauth2.client.response.OAuthClientResponse;
+import org.apache.oltu.oauth2.common.exception.OAuthProblemException;
+import org.apache.oltu.oauth2.common.exception.OAuthSystemException;
+import org.apache.oltu.oauth2.common.message.types.GrantType;
+import org.apache.oltu.oauth2.common.utils.JSONUtils;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.codehaus.jettison.json.JSONException;
 import org.wso2.carbon.identity.application.authentication.framework.AbstractApplicationAuthenticator;
 import org.wso2.carbon.identity.application.authentication.framework.FederatedApplicationAuthenticator;
 import org.wso2.carbon.identity.application.authentication.framework.context.AuthenticationContext;
@@ -360,9 +359,6 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
                 throw new AuthenticationFailedException("Authentication Failed");
             }
         } catch (OAuthProblemException e) {
-            log.error(e.getMessage(), e);
-            throw new AuthenticationFailedException(e.getMessage(), e);
-        } catch (JSONException e) {
             log.error(e.getMessage(), e);
             throw new AuthenticationFailedException(e.getMessage(), e);
         }
