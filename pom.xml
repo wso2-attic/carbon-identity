@@ -929,7 +929,7 @@
                 <version>${openid4java.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.openid4java.wso2</groupId>
+                <groupId>org.wso2.orbit.org.openid4java</groupId>
                 <artifactId>openid4java</artifactId>
                 <version>${openid4java.wso2.version}</version>
             </dependency>
