@@ -45,7 +45,7 @@ public class IdentityProvisioningConstants {
     public static class SQLQueries {
 
         public static final String ADD_PROVISIONING_ENTITY_SQL = "INSERT INTO IDP_PROVISIONING_ENTITY (PROVISIONING_CONFIG_ID, ENTITY_TYPE, "
-                + "ENTITY_LOCAL_USERSTORE, ENTITY_NAME, ENTITY_VALUE, TENANT_ID, LOCAL_ID) VALUES (?, ?, ?, ?, ?, ?,?)";
+                + "ENTITY_LOCAL_USERSTORE, ENTITY_NAME, ENTITY_VALUE, TENANT_ID, ENTITY_LOCAL_ID) VALUES (?, ?, ?, ?, ?, ?,?)";
 
         public static final String DELETE_PROVISIONING_ENTITY_SQL = "DELETE FROM IDP_PROVISIONING_ENTITY WHERE (PROVISIONING_CONFIG_ID=? "
                 + "AND ENTITY_TYPE=? AND ENTITY_LOCAL_USERSTORE=? AND ENTITY_NAME=? AND TENANT_ID=?)";
@@ -56,7 +56,7 @@ public class IdentityProvisioningConstants {
 
         public static final String GET_IDP_PROVISIONING_CONFIG_ID_SQL = "SELECT ID FROM IDP_PROVISIONING_CONFIG WHERE IDP_ID=? AND PROVISIONING_CONNECTOR_TYPE=?";
 
-        public static final String GET_PROVISIONED_ENTITY_NAME_SQL = "SELECT ENTITY_NAME FROM IDP_PROVISIONING_ENTITY WHERE LOCAL_ID=?";
+        public static final String GET_PROVISIONED_ENTITY_NAME_SQL = "SELECT ENTITY_NAME FROM IDP_PROVISIONING_ENTITY WHERE ENTITY_LOCAL_ID=?";
 
         public static final String GET_SP_NAMES_OF_PROVISIONING_CONNECTORS_BY_IDP = "SELECT DISTINCT(APP.APP_NAME) " +
                                                                                     "FROM SP_PROVISIONING_CONNECTOR " +

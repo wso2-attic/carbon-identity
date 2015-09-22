@@ -78,14 +78,13 @@ public class SCIMUserManager implements UserManager {
     private UserStoreManager carbonUM = null;
     private ClaimManager carbonClaimManager = null;
     private String consumerName;
-    private ProvisioningManagementDAO provisioningManagementDAO = null;
+
 
     public SCIMUserManager(UserStoreManager carbonUserStoreManager, String userName,
                            ClaimManager claimManager) {
         carbonUM = carbonUserStoreManager;
         consumerName = userName;
         carbonClaimManager = claimManager;
-        provisioningManagementDAO = new ProvisioningManagementDAO();
     }
 
     @Override
@@ -1313,35 +1312,36 @@ public class SCIMUserManager implements UserManager {
                     new HashMap();
 
             ProvisioningEntity provisioningEntity = null;
+            ProvisioningEntityBuilder provisioningEntityBuilder = ProvisioningEntityBuilder.getInstance();
             if (provisioningObject instanceof User) {
                 User user = (User)provisioningObject;
                 if (ProvisioningOperation.POST.equals(provisioningMethod)) {
                     provisioningEntity =
-                            getProvisioningEntityForUserAdd(provisioningObject, outboundAttributes, domainName);
+                            provisioningEntityBuilder.getProvisioningEntityForUserAdd(provisioningObject, outboundAttributes, domainName);
                 }else if(ProvisioningOperation.DELETE.equals(provisioningMethod)){
-                    provisioningEntity = getProvisioningEntityForUserDelete(provisioningObject, outboundAttributes,
+                    provisioningEntity = provisioningEntityBuilder.getProvisioningEntityForUserDelete(provisioningObject, outboundAttributes,
                                                                             domainName);
                 }else if(ProvisioningOperation.PUT.equals(provisioningMethod)){
-                    provisioningEntity = getProvisioningEntityForUserUpdate(provisioningObject, outboundAttributes,
+                    provisioningEntity = provisioningEntityBuilder.getProvisioningEntityForUserUpdate(provisioningObject, outboundAttributes,
                                                                             domainName);
                 }else if(ProvisioningOperation.PATCH.equals(provisioningMethod)){
-                    provisioningEntity = getProvisioningEntityForUserPatch(provisioningObject, outboundAttributes,
+                    provisioningEntity = provisioningEntityBuilder.getProvisioningEntityForUserPatch(provisioningObject, outboundAttributes,
                                                                            domainName);
                 }
             } else if(provisioningObject instanceof Group) {
                 Group group = (Group) provisioningObject;
                 if (ProvisioningOperation.POST.equals(provisioningMethod)) {
-                    provisioningEntity = getProvisioningEntityForGroupAdd(provisioningObject, outboundAttributes,
+                    provisioningEntity = provisioningEntityBuilder.getProvisioningEntityForGroupAdd(provisioningObject, outboundAttributes,
                                                                           domainName);
                 } else if (ProvisioningOperation.DELETE.equals(provisioningMethod)) {
-                    provisioningEntity = getProvisioningEntityForGroupDelete(provisioningObject, outboundAttributes,
+                    provisioningEntity = provisioningEntityBuilder.getProvisioningEntityForGroupDelete(provisioningObject, outboundAttributes,
                                                                              domainName);
                 } else if (ProvisioningOperation.PUT.equals(provisioningMethod)) {
-                    provisioningEntity = getProvisioningEntityForGroupUpdate(provisioningObject, outboundAttributes,
+                    provisioningEntity = provisioningEntityBuilder.getProvisioningEntityForGroupUpdate(provisioningObject, outboundAttributes,
                                                                              domainName);
                 } else if (ProvisioningOperation.PATCH.equals(provisioningMethod)) {
                     provisioningEntity =
-                            getProvisioningEntityForGroupPatch(provisioningObject, outboundAttributes, domainName);
+                            provisioningEntityBuilder.getProvisioningEntityForGroupPatch(provisioningObject, outboundAttributes, domainName);
                 }
             }
 
@@ -1449,214 +1449,7 @@ public class SCIMUserManager implements UserManager {
         return userMembers;
     }
 
-    private ProvisioningEntity getProvisioningEntityForUserAdd(SCIMObject provisioningObject,
-        Map<org.wso2.carbon.identity.application.common.model.ClaimMapping, List<String>> outboundAttributes,
-            String domainName) throws CharonException {
-        User user = (User)provisioningObject;
-        if (user.getPassword() != null) {
-            outboundAttributes.put(org.wso2.carbon.identity.application.common.model.ClaimMapping.build(
-                                           IdentityProvisioningConstants.PASSWORD_CLAIM_URI, null, null, false),
-                                   Arrays.asList(new String[] { user.getPassword() }));
-        }
 
-        if (user.getUserName() != null) {
-            outboundAttributes.put(org.wso2.carbon.identity.application.common.model.ClaimMapping
-                                           .build(IdentityProvisioningConstants.USERNAME_CLAIM_URI, null, null, false),
-                                   Arrays.asList(new String[] { user.getUserName() }));
-        }
-
-        outboundAttributes.put(org.wso2.carbon.identity.application.common.model.ClaimMapping.build(
-                                       IdentityProvisioningConstants.ID_CLAIM_URI, null, null, false),
-                               Arrays.asList(new String[] { user.getId() }));
-
-        String domainAwareName =
-                UserCoreUtil.addDomainToName(user.getUserName(), domainName);
-        ProvisioningEntity provisioningEntity =
-                new ProvisioningEntity(ProvisioningEntityType.USER, domainAwareName, ProvisioningOperation.POST,
-                                       outboundAttributes);
-        Map<String, String> inboundAttributes =
-                AttributeMapper.getClaimsMap((AbstractSCIMObject) provisioningObject);
-        provisioningEntity.setInboundAttributes(inboundAttributes);
-
-        return provisioningEntity;
-    }
-
-    private ProvisioningEntity getProvisioningEntityForUserDelete(SCIMObject provisioningObject,
-        Map<org.wso2.carbon.identity.application.common.model.ClaimMapping, List<String>> outboundAttributes,
-            String domainName) throws CharonException, IdentityApplicationManagementException {
-        User user = (User) provisioningObject;
-        String username = provisioningManagementDAO.getProvisionedEntityNameByLocalId(user.getId());
-        outboundAttributes.put(org.wso2.carbon.identity.application.common.model.ClaimMapping.build(
-                IdentityProvisioningConstants.USERNAME_CLAIM_URI, null, null, false), Arrays
-                                       .asList(new String[] { username }));
-        if (log.isDebugEnabled()) {
-            log.debug("Adding domain name : " + domainName + " to user SCIM ID : " + user.getId());
-        }
-        String domainAwareName = UserCoreUtil.addDomainToName(user.getId(), domainName);
-
-        ProvisioningEntity provisioningEntity = new ProvisioningEntity(
-                ProvisioningEntityType.USER, domainAwareName, ProvisioningOperation.DELETE,
-                outboundAttributes);
-        return provisioningEntity;
-    }
-
-    private ProvisioningEntity getProvisioningEntityForUserUpdate(SCIMObject provisioningObject,
-        Map<org.wso2.carbon.identity.application.common.model.ClaimMapping, List<String>> outboundAttributes,
-            String domainName) throws CharonException, IdentityApplicationManagementException {
-        User user = (User) provisioningObject;
-        if (user.getUserName() != null) {
-            outboundAttributes.put(org.wso2.carbon.identity.application.common.model.ClaimMapping.build(
-                                           IdentityProvisioningConstants.USERNAME_CLAIM_URI, null, null,
-                                           false),
-                                   Arrays.asList(new String[] { user.getUserName() }));
-        }
-
-        String domainAwareName =
-                UserCoreUtil.addDomainToName(user.getUserName(), domainName);
-        ProvisioningEntity provisioningEntity =
-                new ProvisioningEntity(ProvisioningEntityType.USER, domainAwareName, ProvisioningOperation.PUT,
-                                       outboundAttributes);
-        Map<String, String> inboundAttributes =
-                AttributeMapper.getClaimsMap((AbstractSCIMObject) provisioningObject);
-        provisioningEntity.setInboundAttributes(inboundAttributes);
-        return provisioningEntity;
-    }
-
-    private ProvisioningEntity getProvisioningEntityForUserPatch(SCIMObject provisioningObject,
-        Map<org.wso2.carbon.identity.application.common.model.ClaimMapping, List<String>> outboundAttributes,
-            String domainName) throws CharonException, IdentityApplicationManagementException {
-        User user = (User) provisioningObject;
-        if (user.getUserName() == null) {
-            user.setDisplayName(provisioningManagementDAO.getProvisionedEntityNameByLocalId(user.getId()));
-        }
-
-        if (user.getUserName() != null) {
-            outboundAttributes.put(org.wso2.carbon.identity.application.common.model.ClaimMapping.build(
-                                           IdentityProvisioningConstants.USERNAME_CLAIM_URI, null, null,false),
-                                                Arrays.asList(new String[] { user.getUserName() }));
-        }
-
-        outboundAttributes.put(org.wso2.carbon.identity.application.common.model.ClaimMapping.build(
-                                       IdentityProvisioningConstants.ID_CLAIM_URI, null, null, false),
-                               Arrays.asList(new String[] { user.getId() }));
-
-        String domainAwareName =
-                UserCoreUtil.addDomainToName(user.getUserName(), domainName);
-        ProvisioningEntity provisioningEntity =
-                new ProvisioningEntity(ProvisioningEntityType.USER, domainAwareName, ProvisioningOperation.PATCH,
-                                       outboundAttributes);
-        Map<String, String> inboundAttributes = AttributeMapper.getClaimsMap((AbstractSCIMObject) provisioningObject);
-        provisioningEntity.setInboundAttributes(inboundAttributes);
-        return provisioningEntity;
-    }
-
-    private ProvisioningEntity getProvisioningEntityForGroupAdd(SCIMObject provisioningObject,
-        Map<org.wso2.carbon.identity.application.common.model.ClaimMapping, List<String>> outboundAttributes,
-            String domainName) throws CharonException, IdentityApplicationManagementException, NotFoundException {
-        Group group = (Group) provisioningObject;
-        if (provisioningObject.getAttribute("displayName") != null) {
-            outboundAttributes.put(org.wso2.carbon.identity.application.common.model.ClaimMapping.build(
-                    IdentityProvisioningConstants.GROUP_CLAIM_URI, null, null, false), Arrays.asList(
-                    new String[] { ((SimpleAttribute) provisioningObject.getAttribute("displayName"))
-                                           .getStringValue() }));
-        }
-        List<String> userList = group.getMembersWithDisplayName();
-
-        if (!userList.isEmpty()) {
-            outboundAttributes.put(org.wso2.carbon.identity.application.common.model.ClaimMapping.build(
-                    IdentityProvisioningConstants.USERNAME_CLAIM_URI, null, null, false), userList);
-        }
-
-        outboundAttributes.put(org.wso2.carbon.identity.application.common.model.ClaimMapping.build(
-                IdentityProvisioningConstants.ID_CLAIM_URI, null, null, false),
-                               Arrays.asList(new String[] { group.getId() }));
-
-        if (log.isDebugEnabled()) {
-            log.debug("Adding domain name : " + domainName + " to role : " + group.getDisplayName());
-        }
-        String domainAwareName = UserCoreUtil.addDomainToName(group.getDisplayName(), domainName);
-
-        ProvisioningEntity provisioningEntity = new ProvisioningEntity(
-                ProvisioningEntityType.GROUP, domainAwareName, ProvisioningOperation.POST,
-                outboundAttributes);
-        return provisioningEntity;
-    }
-
-    private ProvisioningEntity getProvisioningEntityForGroupDelete(SCIMObject provisioningObject,
-        Map<org.wso2.carbon.identity.application.common.model.ClaimMapping, List<String>> outboundAttributes,
-            String domainName) throws CharonException, IdentityApplicationManagementException, NotFoundException {
-        Group group = (Group) provisioningObject;
-        String roleName = provisioningManagementDAO.getProvisionedEntityNameByLocalId(group.getId());
-        if (roleName != null) {
-            outboundAttributes.put(org.wso2.carbon.identity.application.common.model.ClaimMapping.build(
-                    IdentityProvisioningConstants.GROUP_CLAIM_URI, null, null, false), Arrays
-                                           .asList(new String[] { roleName }));
-        }
-        String domainAwareName = UserCoreUtil.addDomainToName(roleName, domainName);
-        ProvisioningEntity provisioningEntity = new ProvisioningEntity(
-                ProvisioningEntityType.GROUP, domainAwareName, ProvisioningOperation.DELETE, outboundAttributes);
-        return provisioningEntity;
-    }
-
-    private ProvisioningEntity getProvisioningEntityForGroupUpdate(SCIMObject provisioningObject,
-        Map<org.wso2.carbon.identity.application.common.model.ClaimMapping, List<String>> outboundAttributes,
-            String domainName) throws CharonException, IdentityApplicationManagementException, NotFoundException {
-        Group group = (Group) provisioningObject;
-        outboundAttributes.put(org.wso2.carbon.identity.application.common.model.ClaimMapping.build(
-                IdentityProvisioningConstants.GROUP_CLAIM_URI, null, null, false), Arrays
-                                       .asList(new String[] { group.getDisplayName() }));
-
-        outboundAttributes.put(org.wso2.carbon.identity.application.common.model.ClaimMapping
-                                       .build(IdentityProvisioningConstants.USERNAME_CLAIM_URI,
-                                              null, null, false), group.getMembersWithDisplayName());
-
-        String domainAwareName = UserCoreUtil.addDomainToName(group.getDisplayName(), domainName);
-
-        String oldGroupName = provisioningManagementDAO.getProvisionedEntityNameByLocalId(group.getId());
-
-        ProvisioningEntity provisioningEntity = null;
-        if (!oldGroupName.equals(group.getDisplayName())) {
-            outboundAttributes.put(org.wso2.carbon.identity.application.common.model.ClaimMapping
-                                           .build(IdentityProvisioningConstants.OLD_GROUP_NAME_CLAIM_URI,
-                                                  null, null, false), Arrays.asList(new String[] { oldGroupName }));
-            outboundAttributes.put(org.wso2.carbon.identity.application.common.model.ClaimMapping
-                                           .build(IdentityProvisioningConstants.NEW_GROUP_NAME_CLAIM_URI,
-                                                  null, null, false), Arrays.asList(new String[] { domainAwareName }));
-            outboundAttributes.put(org.wso2.carbon.identity.application.common.model.ClaimMapping.build(
-                                           IdentityProvisioningConstants.ID_CLAIM_URI, null, null, false),
-                                   Arrays.asList(new String[] { group.getId() }));
-            domainAwareName = UserCoreUtil.addDomainToName(oldGroupName, domainName);
-            provisioningEntity = new ProvisioningEntity(
-                    ProvisioningEntityType.GROUP, domainAwareName, ProvisioningOperation.PUT, outboundAttributes);
-        } else {
-            provisioningEntity = new ProvisioningEntity(
-                    ProvisioningEntityType.GROUP, domainAwareName, ProvisioningOperation.PUT, outboundAttributes);
-        }
-        return provisioningEntity;
-    }
-
-    private ProvisioningEntity getProvisioningEntityForGroupPatch(SCIMObject provisioningObject,
-        Map<org.wso2.carbon.identity.application.common.model.ClaimMapping, List<String>> outboundAttributes,
-            String domainName) throws CharonException, IdentityApplicationManagementException, NotFoundException {
-        Group group = (Group) provisioningObject;
-        if (group.getDisplayName() == null) {
-            group.setDisplayName(provisioningManagementDAO.getProvisionedEntityNameByLocalId(group.getId()));
-        }
-        outboundAttributes.put(org.wso2.carbon.identity.application.common.model.ClaimMapping
-                                       .build(IdentityProvisioningConstants.GROUP_CLAIM_URI, null, null, false),
-                               Arrays.asList(new String[] { group.getDisplayName() }));
-
-        outboundAttributes.put(org.wso2.carbon.identity.application.common.model.ClaimMapping.build(
-                IdentityProvisioningConstants.USERNAME_CLAIM_URI, null, null, false),
-                               group.getMembersWithDisplayName());
-
-        String domainAwareName = UserCoreUtil.addDomainToName(group.getDisplayName(), domainName);
-
-        ProvisioningEntity provisioningEntity =
-                new ProvisioningEntity(ProvisioningEntityType.GROUP, domainAwareName, ProvisioningOperation.PUT,
-                                       outboundAttributes);
-        return provisioningEntity;
-    }
 
     private ServiceProvider getServiceProvider(boolean isBulkUserAdd) throws CharonException {
 
