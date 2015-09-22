@@ -24,6 +24,7 @@
 <%@ page import="org.wso2.carbon.identity.mgt.stub.dto.UserChallengesDTO" %>
 <%@ page import="org.wso2.carbon.identity.mgt.ui.IdentityManagementClient" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar" prefix="carbon" %>
 
@@ -86,12 +87,12 @@
         <tbody>
         <tr>
             <td><fmt:message key="secret.question"/></td>
-            <td><%=currentChallenge.getQuestion()%></td>
+            <td><%=Encode.forHtmlContent(currentChallenge.getQuestion())%></td>
         </tr>
         <tr>
             <td>
                 <input type="hidden" tabindex="2" name="question" id="question"
-                                                    value="<%=currentChallenge.getQuestion()%>"/>
+                                                    value="<%=Encode.forHtmlAttribute(currentChallenge.getQuestion())%>"/>
             </td>
         </tr>
         <tr>
@@ -102,9 +103,9 @@
         </tr>
         <tr>
             <td><input type="hidden"  name="userName" id="userName"
-                       value="<%=userName%>" /></td>
+                       value="<%=Encode.forHtmlAttribute(userName)%>" /></td>
             <td><input type="hidden"  name="userKey" id="userKey"
-                       value="<%=userKey%>" /></td>
+                       value="<%=Encode.forHtmlAttribute(userKey)%>" /></td>
         </tr>
         <tr>
             <td>
