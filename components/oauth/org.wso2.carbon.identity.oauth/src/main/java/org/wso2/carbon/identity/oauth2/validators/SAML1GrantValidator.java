@@ -18,14 +18,16 @@
 
 package org.wso2.carbon.identity.oauth2.validators;
 
-import org.apache.amber.oauth2.common.validators.AbstractValidator;
+import org.apache.oltu.oauth2.common.OAuth;
+import org.apache.oltu.oauth2.common.validators.AbstractValidator;
 
 import javax.servlet.http.HttpServletRequest;
 
 public class SAML1GrantValidator extends AbstractValidator<HttpServletRequest> {
 
     public SAML1GrantValidator(){
-        requiredParams.add("assertion");
+        requiredParams.add(OAuth.OAUTH_GRANT_TYPE);
+        requiredParams.add(OAuth.OAUTH_ASSERTION);
     }
 
 }
