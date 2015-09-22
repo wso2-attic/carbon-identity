@@ -17,20 +17,19 @@
  */
 package org.wso2.carbon.identity.application.authenticator.social.google;
 
-import org.apache.amber.oauth2.client.OAuthClient;
-import org.apache.amber.oauth2.client.URLConnectionClient;
-import org.apache.amber.oauth2.client.request.OAuthClientRequest;
-import org.apache.amber.oauth2.client.response.OAuthAuthzResponse;
-import org.apache.amber.oauth2.client.response.OAuthClientResponse;
-import org.apache.amber.oauth2.common.exception.OAuthProblemException;
-import org.apache.amber.oauth2.common.exception.OAuthSystemException;
-import org.apache.amber.oauth2.common.message.types.GrantType;
-import org.apache.amber.oauth2.common.utils.JSONUtils;
+import org.apache.oltu.oauth2.client.OAuthClient;
+import org.apache.oltu.oauth2.client.URLConnectionClient;
+import org.apache.oltu.oauth2.client.request.OAuthClientRequest;
+import org.apache.oltu.oauth2.client.response.OAuthAuthzResponse;
+import org.apache.oltu.oauth2.client.response.OAuthClientResponse;
+import org.apache.oltu.oauth2.common.exception.OAuthProblemException;
+import org.apache.oltu.oauth2.common.exception.OAuthSystemException;
+import org.apache.oltu.oauth2.common.message.types.GrantType;
+import org.apache.oltu.oauth2.common.utils.JSONUtils;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.codehaus.jettison.json.JSONException;
 import org.wso2.carbon.identity.application.authentication.framework.context.AuthenticationContext;
 import org.wso2.carbon.identity.application.authentication.framework.exception.AuthenticationFailedException;
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticatedUser;
@@ -393,8 +392,6 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
             }
         } catch (OAuthProblemException e) {
             throw new AuthenticationFailedException("Error occurred while acquiring access token", e);
-        } catch (JSONException e) {
-            throw new AuthenticationFailedException("Error occurred while parsing json object", e);
         }
     }
 

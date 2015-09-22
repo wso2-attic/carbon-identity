@@ -84,7 +84,7 @@ public class DeviceStoreDAO {
 
         try {
             preparedStatement = connection.prepareStatement(FIDOAuthenticatorConstants.SQLQueries.ADD_DEVICE_REGISTRATION_QUERY);
-            preparedStatement.setInt(1, IdentityTenantUtil.getTenantID(tenantDomain));
+            preparedStatement.setInt(1, IdentityTenantUtil.getTenantId(tenantDomain));
             preparedStatement.setString(2, userStoreDomain);
             preparedStatement.setString(3, username);
             preparedStatement.setTimestamp(4, timestamp, Calendar.getInstance(TimeZone.getTimeZone(IdentityCoreConstants.UTC)));
@@ -124,7 +124,7 @@ public class DeviceStoreDAO {
 
         try {
             preparedStatement = connection.prepareStatement(FIDOAuthenticatorConstants.SQLQueries.GET_DEVICE_REGISTRATION_QUERY);
-            preparedStatement.setInt(1, IdentityTenantUtil.getTenantID(tenantDomain));
+            preparedStatement.setInt(1, IdentityTenantUtil.getTenantId(tenantDomain));
             preparedStatement.setString(2, userStoreDomain);
             preparedStatement.setString(3, username);
             resultSet = preparedStatement.executeQuery();
@@ -167,7 +167,7 @@ public class DeviceStoreDAO {
 
         try {
             preparedStatement = connection.prepareStatement(FIDOAuthenticatorConstants.SQLQueries.GET_DEVICE_REGISTRATION_QUERY);
-            preparedStatement.setInt(1, IdentityTenantUtil.getTenantID(tenantDomain));
+            preparedStatement.setInt(1, IdentityTenantUtil.getTenantId(tenantDomain));
             preparedStatement.setString(2, userStoreDomain);
             preparedStatement.setString(3, username);
             resultSet = preparedStatement.executeQuery();
@@ -206,7 +206,7 @@ public class DeviceStoreDAO {
 
         try {
             preparedStatement = connection.prepareStatement(FIDOAuthenticatorConstants.SQLQueries.REMOVE_ALL_REGISTRATION_QUERY);
-            preparedStatement.setInt(1, IdentityTenantUtil.getTenantID(tenantDomain));
+            preparedStatement.setInt(1, IdentityTenantUtil.getTenantId(tenantDomain));
             preparedStatement.setString(2, userStoreDomain);
             preparedStatement.setString(3, username);
             preparedStatement.executeUpdate();
@@ -244,7 +244,7 @@ public class DeviceStoreDAO {
 
         try {
             preparedStatement = connection.prepareStatement(FIDOAuthenticatorConstants.SQLQueries.REMOVE_REGISTRATION_QUERY);
-            preparedStatement.setInt(1, IdentityTenantUtil.getTenantID(tenantDomain));
+            preparedStatement.setInt(1, IdentityTenantUtil.getTenantId(tenantDomain));
             preparedStatement.setString(2, userStoreDomain);
             preparedStatement.setString(3, username);
             preparedStatement.setTimestamp(4,timestamp);
@@ -347,7 +347,7 @@ public class DeviceStoreDAO {
 
         try {
             preparedStatement = connection.prepareStatement(FIDOAuthenticatorConstants.SQLQueries.GET_DEVICE_REGISTRATION_QUERY);
-            preparedStatement.setInt(1, IdentityTenantUtil.getTenantID(tenantDomain));
+            preparedStatement.setInt(1, IdentityTenantUtil.getTenantId(tenantDomain));
             preparedStatement.setString(2, userStoreDomain);
             preparedStatement.setString(3, username);
             resultSet = preparedStatement.executeQuery();

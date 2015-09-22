@@ -17,7 +17,7 @@
  */
 package org.wso2.carbon.identity.oauth.endpoint.util;
 
-import org.apache.amber.oauth2.common.exception.OAuthSystemException;
+import org.apache.oltu.oauth2.common.exception.OAuthSystemException;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.model.OpenIDUserRPDO;
 import org.wso2.carbon.identity.provider.openid.dao.OpenIDUserRPDAO;

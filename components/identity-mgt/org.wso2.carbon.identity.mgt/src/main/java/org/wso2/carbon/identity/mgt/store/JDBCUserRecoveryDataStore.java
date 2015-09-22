@@ -21,7 +21,7 @@ package org.wso2.carbon.identity.mgt.store;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.persistence.JDBCPersistenceManager;
 import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
-import org.wso2.carbon.identity.core.util.IdentityUtil;
+import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
 import org.wso2.carbon.identity.mgt.dto.UserRecoveryDataDO;
 
 import java.sql.Connection;
@@ -168,7 +168,7 @@ public class JDBCUserRecoveryDataStore implements UserRecoveryDataStore {
         try {
             prepStmt = connection.prepareStatement(SQLQuery.LOAD_USER_METADATA);
             prepStmt.setString(1, userName);
-            prepStmt.setInt(2, IdentityUtil.getTenantIdOFUser(userName));
+            prepStmt.setInt(2, IdentityTenantUtil.getTenantIdOfUser(userName));
 
             results = prepStmt.executeQuery();
             List<UserRecoveryDataDO> metada = new ArrayList<UserRecoveryDataDO>();
