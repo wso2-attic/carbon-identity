@@ -264,7 +264,7 @@
                     </tr>
                     <tr>
                         <td>
-                            <input type="checkbox" name="dumb" id="dumb" value="false" onclick ="disable()" <%=appBean.getServiceProvider().getDumbMode() ? "checked" : "" %>>Enable Dumb Mode<br>
+                            <input type="checkbox" name="dumb" id="dumb" value="false" <%=appBean.getServiceProvider().getDumbMode() ? "checked" : "" %>>Enable Dumb Mode for SCIM<br>
                         </td>
                     </tr>
                     </table>
