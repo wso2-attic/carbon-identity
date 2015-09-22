@@ -23,7 +23,7 @@ import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.model.OpenIDRememberMeDO;
 import org.wso2.carbon.identity.core.persistence.JDBCPersistenceManager;
 import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
-import org.wso2.carbon.identity.core.util.IdentityUtil;
+import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
 import org.wso2.carbon.identity.provider.IdentityProviderException;
 
 import java.sql.Connection;
@@ -53,11 +53,14 @@ public class OpenIDRememberMeTokenDAO {
 
         try {
             connection = JDBCPersistenceManager.getInstance().getDBConnection();
-
+        } catch (IdentityException e) {
+            throw new IdentityProviderException("Error occurred while getting connection to database", e);
+        }
+        try {
             if (isTokenExist(connection, rememberMe)) {
                 prepStmt = connection.prepareStatement(OpenIDSQLQueries.UPDATE_REMEMBER_ME_TOKEN);
                 prepStmt.setString(2, rememberMe.getUserName());
-                prepStmt.setInt(3, IdentityUtil.getTenantIdOFUser(rememberMe.getUserName()));
+                prepStmt.setInt(3, IdentityTenantUtil.getTenantIdOfUser(rememberMe.getUserName()));
                 prepStmt.setString(1, rememberMe.getToken());
                 prepStmt.execute();
                 connection.commit();
@@ -65,14 +68,14 @@ public class OpenIDRememberMeTokenDAO {
             } else {
                 prepStmt = connection.prepareStatement(OpenIDSQLQueries.STORE_REMEMBER_ME_TOKEN);
                 prepStmt.setString(1, rememberMe.getUserName());
-                prepStmt.setInt(2, IdentityUtil.getTenantIdOFUser(rememberMe.getUserName()));
+                prepStmt.setInt(2, IdentityTenantUtil.getTenantIdOfUser(rememberMe.getUserName()));
                 prepStmt.setString(3, rememberMe.getToken());
                 prepStmt.execute();
                 connection.commit();
                 log.debug("RememberMe token of " + rememberMe.getUserName() + " successfully stored in the database.");
             }
 
-        } catch (SQLException | IdentityException e) {
+        } catch (SQLException e) {
             log.error("Unable to update the token for " + rememberMe.getUserName() +
                     " Error while accessing the database", e);
             throw new IdentityProviderException("Error while accessing the database");
@@ -90,23 +93,24 @@ public class OpenIDRememberMeTokenDAO {
      * @throws IdentityProviderException
      */
     public OpenIDRememberMeDO getTokenData(OpenIDRememberMeDO rememberMe) throws IdentityProviderException {
+
         Connection connection = null;
         PreparedStatement prepStmt = null;
 
         try {
             connection = JDBCPersistenceManager.getInstance().getDBConnection();
+        } catch (IdentityException e) {
+            throw new IdentityProviderException("Error occurred while trying to get connection to database", e);
+        }
+        try {
             prepStmt = connection.prepareStatement(OpenIDSQLQueries.LOAD_REMEMBER_ME_TOKEN);
             prepStmt.setString(1, rememberMe.getUserName());
-            prepStmt.setInt(2, IdentityUtil.getTenantIdOFUser(rememberMe.getUserName()));
-
-            OpenIDRememberMeDO openIDRememberMeDO = buildRememberMeDO(prepStmt.executeQuery()
-                    , rememberMe.getUserName());
+            prepStmt.setInt(2, IdentityTenantUtil.getTenantIdOfUser(rememberMe.getUserName()));
+            OpenIDRememberMeDO openIDRememberMeDO = buildRememberMeDO(prepStmt.executeQuery(), rememberMe.getUserName());
             connection.commit();
             return openIDRememberMeDO;
-        } catch (SQLException | IdentityException e) {
-            log.error("Unable to load RememberMe token for " + rememberMe.getUserName() +
-                      " Error while accessing the database", e);
-            throw new IdentityProviderException("Error while accessing database");
+        } catch (SQLException e) {
+            throw new IdentityProviderException("Unable to load RememberMe token for " + rememberMe.getUserName(), e);
         } finally {
             IdentityDatabaseUtil.closeStatement(prepStmt);
             IdentityDatabaseUtil.closeConnection(connection);
@@ -122,8 +126,7 @@ public class OpenIDRememberMeTokenDAO {
      * @throws SQLException
      * @throws IdentityException
      */
-    private boolean isTokenExist(Connection connection, OpenIDRememberMeDO rememberMe)
-            throws IdentityException {
+    private boolean isTokenExist(Connection connection, OpenIDRememberMeDO rememberMe) {
 
         PreparedStatement prepStmt = null;
         ResultSet results = null;
@@ -132,15 +135,14 @@ public class OpenIDRememberMeTokenDAO {
         try {
             prepStmt = connection.prepareStatement(OpenIDSQLQueries.CHECK_REMEMBER_ME_TOKEN_EXIST);
             prepStmt.setString(1, rememberMe.getUserName());
-            prepStmt.setInt(2, IdentityUtil.getTenantIdOFUser(rememberMe.getUserName()));
+            prepStmt.setInt(2, IdentityTenantUtil.getTenantIdOfUser(rememberMe.getUserName()));
             results = prepStmt.executeQuery();
 
             if (results.next()) {
                 result = true;
             }
         } catch (SQLException e) {
-            log.error("Failed to load the RememberME token data for " + rememberMe.getUserName() +
-                      ". Error while accessing the database", e);
+            log.error("Failed to load the RememberME token data for " + rememberMe.getUserName(), e);
         } finally {
             IdentityDatabaseUtil.closeResultSet(results);
             IdentityDatabaseUtil.closeStatement(prepStmt);
