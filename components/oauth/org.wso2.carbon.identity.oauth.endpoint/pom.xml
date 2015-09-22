@@ -69,7 +69,7 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.apache.oltu.oauth2.wso2</groupId>
+            <groupId>org.wso2.orbit.org.apache.oltu.oauth2</groupId>
             <artifactId>oltu</artifactId>
             <scope>provided</scope>
         </dependency>

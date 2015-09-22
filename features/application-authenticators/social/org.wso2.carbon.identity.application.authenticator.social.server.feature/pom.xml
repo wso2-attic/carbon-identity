@@ -39,7 +39,7 @@
             <artifactId>org.wso2.carbon.identity.application.authenticator.social</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.oltu.oauth2.wso2</groupId>
+            <groupId>org.wso2.orbit.org.apache.oltu.oauth2</groupId>
             <artifactId>oltu</artifactId>
         </dependency>
         <dependency>
@@ -68,7 +68,7 @@
                                 <bundleDef>
                                     org.wso2.carbon.identity:org.wso2.carbon.identity.application.authenticator.social
                                 </bundleDef>
-                                <bundleDef>org.apache.oltu.oauth2.wso2:oltu</bundleDef>
+                                <bundleDef>org.wso2.orbit.org.apache.oltu.oauth2:oltu</bundleDef>
                                 <bundleDef>org.json.wso2:json</bundleDef>
                             </bundles>
                             <importFeatures>
