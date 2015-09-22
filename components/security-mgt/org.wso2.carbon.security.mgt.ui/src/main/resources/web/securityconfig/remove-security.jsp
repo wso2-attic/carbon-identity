@@ -49,9 +49,10 @@
 <%@page import="org.wso2.carbon.utils.ServerConstants"%>
 <%@page import="java.text.MessageFormat"%>
 <%@ page import="java.util.ResourceBundle" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 <script type="text/javascript">
     function forward() {
-        location.href = "<%=forwardTo%>";
+        location.href = "<%=Encode.forJavaScriptBlock(forwardTo)%>";
     }
 </script>
 

@@ -27,6 +27,7 @@
 <%@page import="org.wso2.carbon.security.ui.client.KeyStoreAdminClient" %>
 <%@page import="org.wso2.carbon.ui.CarbonUIUtil" %>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 <script type="text/javascript" src="../extensions/core/js/vui.js"></script>
 <script type="text/javascript" src="../admin/js/main.js"></script>
 
@@ -99,7 +100,7 @@
 %>
 <strong>An error occurred!</strong>
 
-<p>Error message is : <%=e.getMessage()%>
+<p>Error message is : <%=Encode.forHtmlContent(e.getMessage())%>
 </p>
 <%
 
@@ -146,19 +147,19 @@
 	                    CertData cdata = keyStoreData.getKey();
 	            %>
 	            <tr>
-	                <td><%=cdata.getAlias()%>
+	                <td><%=Encode.forHtmlContent(cdata.getAlias())%>
 	                </td>
-	                <td><%=cdata.getIssuerDN()%>
+	                <td><%=Encode.forHtmlContent(cdata.getIssuerDN())%>
 	                </td>
-	                <td><%=cdata.getNotAfter()%>
+	                <td><%=Encode.forHtmlContent(cdata.getNotAfter())%>
 	                </td>
-	                <td><%=cdata.getNotBefore()%>
+	                <td><%=Encode.forHtmlContent(cdata.getNotBefore())%>
 	                </td>
-	                <td><%=cdata.getSerialNumber()%>
+	                <td><%=Encode.forHtmlContent(cdata.getSerialNumber())%>
 	                </td>
-	                <td><%=cdata.getSubjectDN()%>
+	                <td><%=Encode.forHtmlContent(cdata.getSubjectDN())%>
 	                </td>
-	                <td colspan="2"><%=cdata.getVersion()%>
+	                <td colspan="2"><%=Encode.forHtmlContent(cdata.getVersion())%>
 	                </td>
 	            </tr>
 	            <%
@@ -169,7 +170,8 @@
 	                    <form>
 	                        <input value="<fmt:message key="import.cert"/>" type="button"
 	                               class="button"
-	                               onclick="location.href ='import-cert.jsp?keyStore=<%=keyStore%>'"/>
+	                               onclick="location.href
+                                           ='import-cert.jsp?keyStore=<%=Encode.forJavaScriptAttribute(keyStore)%>'"/>
 	                        <input value="<fmt:message key="finish"/>" type="button" class="button"
 	                               onclick="location.href ='keystore-mgt.jsp?region=region1&item=keystores_menu'"/>
 	                    </form>
@@ -192,7 +194,7 @@
                              key="filter.keystore.cert.label"/></td>
                      <td>
                          <input type="text" name="<%=SecurityUIConstants.KEYSTORE_CERT_LIST_FILTER%>"
-                                value="<%=filter%>"/>
+                                value="<%=Encode.forHtmlAttribute(filter)%>"/>
  
                          <input class="button" type="submit"
                                 value="<fmt:message key="filter.keystore.cert.search"/>"/>
@@ -222,22 +224,23 @@
 				            if (cert != null) {
 				%>
 				<tr>
-				    <td><%=cert.getAlias()%>
+				    <td><%=Encode.forHtmlContent(cert.getAlias())%>
 				    </td>
-				    <td><%=cert.getIssuerDN()%>
+				    <td><%=Encode.forHtmlContent(cert.getIssuerDN())%>
 				    </td>
-				    <td><%=cert.getNotAfter()%>
+				    <td><%=Encode.forHtmlContent(cert.getNotAfter())%>
 				    </td>
-				    <td><%=cert.getNotBefore()%>
+				    <td><%=Encode.forHtmlContent(cert.getNotBefore())%>
 				    </td>
-				    <td><%=cert.getSerialNumber()%>
+				    <td><%=Encode.forHtmlContent(cert.getSerialNumber())%>
 				    </td>
-				    <td><%=cert.getSubjectDN()%>
+				    <td><%=Encode.forHtmlContent(cert.getSubjectDN())%>
 				    </td>
-				    <td><%=cert.getVersion()%>
+				    <td><%=Encode.forHtmlContent(cert.getVersion())%>
 				    </td>
 				    <td><a href="#"
-				           onclick="deleteCert('<%=cert.getAlias()%>', '<%=keyStoreData.getKeyStoreName()%>')"
+				           onclick="deleteCert('<%=Encode.forJavaScriptAttribute(cert.getAlias())%>',
+                                   '<%=Encode.forJavaScriptAttribute(keyStoreData.getKeyStoreName())%>')"
 				           class="icon-link"
 				           style="background-image:url(images/delete.gif);">Delete</a>
 				    </td>

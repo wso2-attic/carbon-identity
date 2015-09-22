@@ -28,6 +28,7 @@
 <%@page import="java.text.MessageFormat" %>
 <%@page import="java.util.List" %>
 <%@ page import="java.util.ResourceBundle" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 
 <%
     String forwardTo = null;
@@ -72,7 +73,7 @@
 
 <script type="text/javascript">
     function forward() {
-        location.href = "<%=forwardTo%>";
+        location.href = "<%=Encode.forJavaScriptBlock(forwardTo)%>";
     }
 </script>
 

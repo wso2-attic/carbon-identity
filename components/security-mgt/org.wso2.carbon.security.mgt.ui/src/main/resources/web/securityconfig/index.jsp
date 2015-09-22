@@ -30,6 +30,7 @@
 
 
 <%@page import="java.util.ResourceBundle"%>
+<%@ page import="org.owasp.encoder.Encode" %>
 
 <jsp:include page="../resources/resources-i18n-ajaxprocessor.jsp"/>
 
@@ -207,7 +208,7 @@
     <h2><fmt:message key="security.for.the.service"/></h2>
 
     <div id="workArea">
-        <p><%=info%></p>
+        <p><%=Encode.forHtmlContent(info)%></p>
 
         <p>&nbsp;</p>
 
@@ -223,7 +224,8 @@
                         <%
                             for (int optionOder : optionsOrder) {
                         %>
-                        <option value="<%=options[optionOder]%>"><%=optionsValues[optionOder]%>
+                        <option value="<%=Encode.forHtmlAttribute(options[optionOder])%>">
+                            <%=Encode.forHtmlContent(optionsValues[optionOder])%>
                         </option>
                         <%
                             }
@@ -245,7 +247,7 @@
            <p>&nbsp;</p>
        </div>
 
-        <div id="securityConfiguration" style="<%=displayStyle%>">
+        <div id="securityConfiguration" style="<%=Encode.forCssString(displayStyle)%>">
             <form id="secConfigForm" name="securityForm" method="post" action="ut-ks-advance.jsp?serviceName=<%=serviceName%>"
                   onsubmit="return doValidation();">    
                   
@@ -277,22 +279,28 @@
                                 int helpId = scenarioIdDisplay - 1;
                                 if (currentScenario != null && "".equals(policyPath) &&
                                     currentScenario.getScenarioId().equals(id)) {
-                            %><input type="radio" name="scenarioId" id="option_<%=id%>" value="<%=id%>"
+                            %><input type="radio" name="scenarioId" id="option_<%=Encode.forHtmlAttribute(id)%>"
+                                     value="<%=Encode.forHtmlAttribute(id)%>"
                                      onclick="disablePolicyPath();" checked="checked"/><%
                         } else {
-                        %><input type="radio" name="scenarioId"  id="option_<%=id%>" value="<%=id%>" onclick="disablePolicyPath();"/><%
+                        %><input type="radio" name="scenarioId"  id="option_<%=Encode.forHtmlAttribute(id)%>"
+                                 value="<%=Encode.forHtmlAttribute(id)%>"
+                                 onclick="disablePolicyPath();"/><%
                             }
                         %>
                         </td>
                         <td>
-                            <label for="option_<%=id%>"><%= scenario.getSummary() %></label>
+                            <label for="option_<%=Encode.forHtmlAttribute(id)%>">
+                                <%= Encode.forHtmlContent(scenario.getSummary()) %></label>
                         </td>
                         <td>
                             <a onmouseover="showTooltip(this,'View scenario <%=helpId%> in detail')" class='icon-link'
-                               target="_blank" href="view-scenario-detail_ajaxprocessor.jsp?scenarioId=<%=helpId%>&scenarioSummary=<%=scenario.getSummary()%>"
+                               target="_blank"
+                               href="view-scenario-detail_ajaxprocessor.jsp?scenarioId=<%=helpId%>&scenarioSummary
+                               =<%=Encode.forUriComponent(scenario.getSummary())%>"
                                style='background-image:url(images/view.png);float:none;'></a>
                         </td>
-                        <td><%=scenario.getDescription()%>
+                        <td><%=Encode.forHtmlContent(scenario.getDescription())%>
                         </td>
                     </tr>
                     <%
@@ -320,21 +328,27 @@
                                 int helpId = scenarioIdDisplay - 1;
                                 if (currentScenario != null && "".equals(policyPath) &&
                                     currentScenario.getScenarioId().equals(id)) {
-                            %><input type="radio" name="scenarioId"  id="option_<%=id%>" value="<%=id%>"
+                            %><input type="radio" name="scenarioId"  id="option_<%=Encode.forHtmlAttribute(id)%>"
+                                     value="<%=Encode.forHtmlAttribute(id)%>"
                                      onclick="disablePolicyPath();" checked="checked"/><%
                         } else {
-                        %><input type="radio" name="scenarioId" id="option_<%=id%>" value="<%=id%>" onclick="disablePolicyPath();"/><%
+                        %><input type="radio" name="scenarioId" id="option_<%=Encode.forHtmlAttribute(id)%>"
+                                 value="<%=Encode.forHtmlAttribute(id)%>"
+                                 onclick="disablePolicyPath();"/><%
                             }
                         %>
                         </td>
-                        <td><label for="option_<%=id%>"><%=scenario.getSummary()%></label>
+                        <td><label
+                                for="option_<%=Encode.forHtmlAttribute(id)%>">
+                            <%=Encode.forHtmlContent(scenario.getSummary())%></label>
                         </td>
                         <td>
                             <a onmouseover="showTooltip(this,'View scenario <%=helpId%> in detail')" class='icon-link'
-                               target="_blank" href="view-scenario-detail_ajaxprocessor.jsp?scenarioId=<%=helpId%>&scenarioSummary=<%=scenario.getSummary()%>"
+                               target="_blank"
+                               href="view-scenario-detail_ajaxprocessor.jsp?scenarioId=<%=helpId%>&scenarioSummary=<%=Encode.forUriComponent(scenario.getSummary())%>"
                                style='background-image:url(images/view.png);float:none;'></a>
                         </td>
-                        <td><%=scenario.getDescription()%>
+                        <td><%=Encode.forHtmlContent(scenario.getDescription())%>
                         </td>
                     </tr>
                     <%
