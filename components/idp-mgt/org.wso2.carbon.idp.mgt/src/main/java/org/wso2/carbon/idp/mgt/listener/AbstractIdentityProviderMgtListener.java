@@ -25,7 +25,7 @@ import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.idp.mgt.IdentityProviderManagementException;
 
-public class AbstractIdentityProviderMgtListener implements IdentityProviderMgtListener {
+public abstract class AbstractIdentityProviderMgtListener implements IdentityProviderMgtListener {
 
     public boolean doPreUpdateResidentIdP(IdentityProvider identityProvider) throws IdentityProviderManagementException {
         return true;
@@ -70,20 +70,5 @@ public class AbstractIdentityProviderMgtListener implements IdentityProviderMgtL
         } else {
             return true;
         }
-    }
-
-    public int getExecutionOrderId() {
-        IdentityEventListener identityEventListener = IdentityUtil.readEventListenerProperty
-                (IdentityProviderMgtListener.class.getName(), this.getClass().getName());
-        int orderId;
-        if (identityEventListener == null) {
-            orderId = IdentityCoreConstants.EVENT_LISTENER_ORDER_ID;
-        } else {
-            orderId = identityEventListener.getOrder();
-        }
-        if (orderId != IdentityCoreConstants.EVENT_LISTENER_ORDER_ID) {
-            return orderId;
-        }
-        return 50;
     }
 }

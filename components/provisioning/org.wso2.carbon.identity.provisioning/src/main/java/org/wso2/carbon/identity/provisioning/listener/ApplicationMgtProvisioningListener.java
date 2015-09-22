@@ -24,7 +24,10 @@ import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
 import org.wso2.carbon.identity.application.common.model.ServiceProvider;
 import org.wso2.carbon.identity.application.mgt.listener.AbstractApplicationMgtListener;
+import org.wso2.carbon.identity.application.mgt.listener.ApplicationMgtListener;
+import org.wso2.carbon.identity.core.model.IdentityEventListener;
 import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.provisioning.cache.ServiceProviderProvisioningConnectorCache;
 import org.wso2.carbon.identity.provisioning.cache.ServiceProviderProvisioningConnectorCacheEntry;
 import org.wso2.carbon.identity.provisioning.cache.ServiceProviderProvisioningConnectorCacheKey;
@@ -95,4 +98,18 @@ public class ApplicationMgtProvisioningListener extends AbstractApplicationMgtLi
 
     }
 
+    public int getExecutionOrderId() {
+        IdentityEventListener identityEventListener = IdentityUtil.readEventListenerProperty
+                (ApplicationMgtListener.class.getName(), this.getClass().getName());
+        int orderId;
+        if (identityEventListener == null) {
+            orderId = IdentityCoreConstants.EVENT_LISTENER_ORDER_ID;
+        } else {
+            orderId = identityEventListener.getOrder();
+        }
+        if (orderId != IdentityCoreConstants.EVENT_LISTENER_ORDER_ID) {
+            return orderId;
+        }
+        return 10;
+    }
 }

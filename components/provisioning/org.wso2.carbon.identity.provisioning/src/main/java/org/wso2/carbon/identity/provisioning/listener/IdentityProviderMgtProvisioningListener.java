@@ -23,6 +23,9 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
 import org.wso2.carbon.identity.application.common.model.IdentityProvider;
+import org.wso2.carbon.identity.core.model.IdentityEventListener;
+import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.provisioning.IdentityProvisioningException;
 import org.wso2.carbon.identity.provisioning.cache.ProvisioningConnectorCache;
 import org.wso2.carbon.identity.provisioning.cache.ProvisioningConnectorCacheEntry;
@@ -34,6 +37,7 @@ import org.wso2.carbon.identity.provisioning.dao.ProvisioningManagementDAO;
 import org.wso2.carbon.identity.provisioning.internal.ProvisioningServiceDataHolder;
 import org.wso2.carbon.idp.mgt.IdentityProviderManagementException;
 import org.wso2.carbon.idp.mgt.listener.AbstractIdentityProviderMgtListener;
+import org.wso2.carbon.idp.mgt.listener.IdentityProviderMgtListener;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
@@ -47,7 +51,7 @@ public class IdentityProviderMgtProvisioningListener extends AbstractIdentityPro
 
     @Override
     public boolean doPreAddIdP(IdentityProvider identityProvider) throws IdentityProviderManagementException {
-        if(log.isDebugEnabled()){
+        if (log.isDebugEnabled()) {
             log.debug("add new Identity Provider event received");
         }
         return true;
@@ -153,4 +157,18 @@ public class IdentityProviderMgtProvisioningListener extends AbstractIdentityPro
         }
     }
 
+    public int getExecutionOrderId() {
+        IdentityEventListener identityEventListener = IdentityUtil.readEventListenerProperty
+                (IdentityProviderMgtListener.class.getName(), this.getClass().getName());
+        int orderId;
+        if (identityEventListener == null) {
+            orderId = IdentityCoreConstants.EVENT_LISTENER_ORDER_ID;
+        } else {
+            orderId = identityEventListener.getOrder();
+        }
+        if (orderId != IdentityCoreConstants.EVENT_LISTENER_ORDER_ID) {
+            return orderId;
+        }
+        return 20;
+    }
 }

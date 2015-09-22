@@ -33,8 +33,12 @@ import org.wso2.carbon.identity.application.mgt.ApplicationConstants;
 import org.wso2.carbon.identity.application.mgt.ApplicationMgtSystemConfig;
 import org.wso2.carbon.identity.application.mgt.dao.IdentityProviderDAO;
 import org.wso2.carbon.identity.base.IdentityException;
+import org.wso2.carbon.identity.core.model.IdentityEventListener;
+import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.idp.mgt.IdentityProviderManagementException;
 import org.wso2.carbon.idp.mgt.listener.AbstractIdentityProviderMgtListener;
+import org.wso2.carbon.idp.mgt.listener.IdentityProviderMgtListener;
 
 public class IdentityProviderMgtApplicationListener extends AbstractIdentityProviderMgtListener {
 
@@ -48,7 +52,7 @@ public class IdentityProviderMgtApplicationListener extends AbstractIdentityProv
                     .getApplicationDAO().getAllApplicationBasicInfo();
             String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
 
-            for (ApplicationBasicInfo applicationBasicInfo : applicationBasicInfos){
+            for (ApplicationBasicInfo applicationBasicInfo : applicationBasicInfos) {
                 ServiceProvider serviceProvider = ApplicationMgtSystemConfig.getInstance().getApplicationDAO()
                         .getApplication(applicationBasicInfo.getApplicationName(), tenantDomain);
                 LocalAndOutboundAuthenticationConfig localAndOutboundAuthConfig = serviceProvider
@@ -83,5 +87,20 @@ public class IdentityProviderMgtApplicationListener extends AbstractIdentityProv
             throw new IdentityProviderManagementException("Error when updating default authenticator of service providers", e);
         }
         return true;
+    }
+
+    public int getExecutionOrderId() {
+        IdentityEventListener identityEventListener = IdentityUtil.readEventListenerProperty
+                (IdentityProviderMgtListener.class.getName(), this.getClass().getName());
+        int orderId;
+        if (identityEventListener == null) {
+            orderId = IdentityCoreConstants.EVENT_LISTENER_ORDER_ID;
+        } else {
+            orderId = identityEventListener.getOrder();
+        }
+        if (orderId != IdentityCoreConstants.EVENT_LISTENER_ORDER_ID) {
+            return orderId;
+        }
+        return 10;
     }
 }

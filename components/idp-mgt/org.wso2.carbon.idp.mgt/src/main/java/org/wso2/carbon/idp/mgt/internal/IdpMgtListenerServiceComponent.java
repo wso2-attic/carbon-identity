@@ -22,6 +22,7 @@ import org.wso2.carbon.idp.mgt.listener.IdentityProviderMgtListener;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -43,7 +44,7 @@ public class IdpMgtListenerServiceComponent {
             IdentityProviderMgtListener applicationMgtListenerService) {
         idpMgtListenerCollection = null;
         if (idpMgtListeners == null) {
-            idpMgtListeners = new TreeMap<>();
+            idpMgtListeners = new TreeMap<>(new AppMgtListenerComparator());
         }
         idpMgtListeners.put(applicationMgtListenerService.getExecutionOrderId(),
                 applicationMgtListenerService);
@@ -59,12 +60,30 @@ public class IdpMgtListenerServiceComponent {
 
     public static synchronized Collection<IdentityProviderMgtListener> getIdpMgtListeners() {
         if (idpMgtListeners == null) {
-            idpMgtListeners = new TreeMap<>();
+            idpMgtListeners = new TreeMap<>(new AppMgtListenerComparator());
         }
         if (idpMgtListenerCollection == null) {
             idpMgtListenerCollection =
                     idpMgtListeners.values();
         }
         return idpMgtListenerCollection;
+    }
+}
+
+// Use to sort the IdpMgtListeners based on the execution order id
+class AppMgtListenerComparator implements Comparator<Integer> {
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int compare(Integer orderId1, Integer orderId2) {
+        if (orderId1 > orderId2) {
+            return 1;
+        } else if (orderId1 < orderId2) {
+            return -1;
+        } else {
+            return 0;
+        }
     }
 }

@@ -25,7 +25,7 @@ import org.wso2.carbon.identity.core.model.IdentityEventListener;
 import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 
-public class AbstractApplicationMgtListener implements ApplicationMgtListener {
+public abstract class AbstractApplicationMgtListener implements ApplicationMgtListener {
 
     public boolean doPreCreateApplication(ServiceProvider serviceProvider, String tenantDomain, String userName) throws IdentityApplicationManagementException {
         return true;
@@ -62,20 +62,5 @@ public class AbstractApplicationMgtListener implements ApplicationMgtListener {
         } else {
             return true;
         }
-    }
-
-    public int getExecutionOrderId() {
-        IdentityEventListener identityEventListener = IdentityUtil.readEventListenerProperty
-                (ApplicationMgtListener.class.getName(), this.getClass().getName());
-        int orderId;
-        if (identityEventListener == null) {
-            orderId = IdentityCoreConstants.EVENT_LISTENER_ORDER_ID;
-        } else {
-            orderId = identityEventListener.getOrder();
-        }
-        if (orderId != IdentityCoreConstants.EVENT_LISTENER_ORDER_ID) {
-            return orderId;
-        }
-        return 50;
     }
 }
