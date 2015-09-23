@@ -29,6 +29,7 @@
 <%@ page import="org.wso2.carbon.CarbonConstants" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.WorkflowRequestAssociationDTO" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 
 <jsp:include page="../dialog/display_messages.jsp"/>
 
@@ -101,13 +102,13 @@
                     for (WorkflowRequestAssociationDTO workflow : workflowRequestAssociationDTOs) {
                 %>
                 <tr>
-                    <td><%=workflow.getWorkflowId()%>
+                    <td><%=Encode.forHtml(workflow.getWorkflowId())%>
                     </td>
-                    <td><%=workflow.getWorkflowName()%>
+                    <td><%=Encode.forHtml(workflow.getWorkflowName())%>
                     </td>
-                    <td><%=workflow.getLastUpdatedTime()%>
+                    <td><%=Encode.forHtml(workflow.getLastUpdatedTime())%>
                     </td>
-                    <td><%=workflow.getStatus()%>
+                    <td><%=Encode.forHtml(workflow.getStatus())%>
                     </td>
                 </tr>
                 <%

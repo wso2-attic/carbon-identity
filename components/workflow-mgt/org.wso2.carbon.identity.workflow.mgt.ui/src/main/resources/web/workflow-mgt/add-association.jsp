@@ -38,6 +38,7 @@
 <%@ page import="java.util.List" %>
 <%@ page import="java.util.Map" %>
 <%@ page import="java.util.ResourceBundle" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 
 <script type="text/javascript" src="extensions/js/vui.js"></script>
 <script type="text/javascript" src="../extensions/core/js/vui.js"></script>
@@ -110,7 +111,7 @@
     <script type="text/javascript">
 
         function forward() {
-            location.href = "<%=forwardTo%>";
+            location.href = "<%=Encode.forJavaScriptBlock(forwardTo)%>";
         }
         forward();
 
@@ -137,10 +138,11 @@
                 for (WorkflowEventDTO event : eventCategory.getValue()) {
         %>
                     var eventObj = {};
-                    eventObj.displayName = "<%=event.getEventFriendlyName()%>";
-                    eventObj.value = "<%=event.getEventId()%>";
-                    eventObj.title = "<%=event.getEventDescription()!=null?event.getEventDescription():""%>";
-                    eventsObj["<%=eventCategory.getKey()%>"].push(eventObj);
+                    eventObj.displayName = "<%=Encode.forJavaScriptBlock(event.getEventFriendlyName())%>";
+                    eventObj.value = "<%=Encode.forJavaScriptBlock(event.getEventId())%>";
+                    eventObj.title = "<%=Encode.forJavaScriptBlock(event.getEventDescription())!=null?
+                    Encode.forJavaScriptBlock(event.getEventDescription()):""%>";
+                    eventsObj["<%=Encode.forJavaScriptBlock(eventCategory.getKey())%>"].push(eventObj);
         <%
                 }
             }
@@ -410,7 +412,7 @@
                                 <%
                                     if(associationDTO != null && associationDTO.getAssociationName() != null && !associationDTO.getAssociationName().isEmpty()){
                                 %>
-                                        <input type="text" name="<%=WorkflowUIConstants.PARAM_ASSOCIATION_NAME%>" id="id_<%=WorkflowUIConstants.PARAM_ASSOCIATION_NAME%>" style="min-width: 30%;" value="<%=associationDTO.getAssociationName()%>">
+                                        <input type="text" name="<%=WorkflowUIConstants.PARAM_ASSOCIATION_NAME%>" id="id_<%=WorkflowUIConstants.PARAM_ASSOCIATION_NAME%>" style="min-width: 30%;" value="<%=Encode.forHtmlAttribute(associationDTO.getAssociationName())%>">
                                 <%
                                     }else{
                                 %>
@@ -430,12 +432,12 @@
                                         for (String key : events.keySet()) {
                                             if(key.equals(associationDTO.getEventCategory())){
                                     %>
-                                                <option selected value="<%=key%>"><%=key%>
+                                                <option selected value="<%=Encode.forHtmlAttribute(key)%>"><%=Encode.forHtml(key)%>
                                                 </option>
                                     <%
                                             }else{
                                     %>
-                                                <option  value="<%=key%>"><%=key%>
+                                                <option  value="<%=Encode.forHtmlAttribute(key)%>"><%=Encode.forHtml(key)%>
                                                 </option>
                                     <%
                                             }
@@ -458,11 +460,12 @@
                                                     for (WorkflowEventDTO event : eventCategory.getValue()) {
                                                         if(event.getEventId().equals(associationDTO.getEventName())){
                                     %>
-                                                            <option selected value="<%=event.getEventId()%>"><%=event.getEventId()%>
+                                    <option selected
+                                            value="<%=Encode.forHtmlAttribute(event.getEventId())%>"><%=Encode.forHtml(event.getEventId())%>
                                     <%
                                                         }else{
                                     %>
-                                                            <option value="<%=event.getEventId()%>"><%=event.getEventId()%>
+                                    <option value="<%=Encode.forHtmlAttribute(event.getEventId())%>"><%=Encode.forHtml(event.getEventId())%>
                                     <%
                                                         }
                                                     }
@@ -509,14 +512,13 @@
                                                     select = true;
                                                 }
                                     %>
-                                    <option value="<%=workflowBean.getWorkflowId()%>" <%=select ? "selected" : ""%>
-                                            title="<%=workflowBean.getWorkflowDescription()%>">
-                                        <%=workflowBean.getWorkflowName()%>
+                                    <option value="<%=Encode.forHtmlAttribute(workflowBean.getWorkflowId())%>" <%=select ? "selected" : ""%>
+                                            title="<%=Encode.forHtmlAttribute(workflowBean.getWorkflowDescription())%>">
+                                        <%=Encode.forHtml(workflowBean.getWorkflowName())%>
                                     </option>
                                     <%
                                             }
                                         }
-
                                     %>
                                 </select>
                             </td>
