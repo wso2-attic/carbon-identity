@@ -462,7 +462,7 @@ public class UserRealmProxy {
                 }
                 FlaggedName fName = new FlaggedName();
                 fName.setItemName(hybridRole);
-                if (hybridRole.startsWith(UserCoreConstants.INTERNAL_DOMAIN)) {
+                if (hybridRole.toLowerCase().startsWith(UserCoreConstants.INTERNAL_DOMAIN.toLowerCase())) {
                     fName.setRoleType(UserMgtConstants.INTERNAL_ROLE);
                 } else {
                     fName.setRoleType(UserMgtConstants.APPLICATION_DOMAIN);
