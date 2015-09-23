@@ -20,7 +20,6 @@ package org.wso2.carbon.identity.sso.saml.builders.assertion;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.xml.security.signature.XMLSignature;
 import org.joda.time.DateTime;
 import org.opensaml.Configuration;
 import org.opensaml.common.SAMLVersion;
@@ -54,6 +53,7 @@ import org.opensaml.saml2.core.impl.SubjectConfirmationBuilder;
 import org.opensaml.saml2.core.impl.SubjectConfirmationDataBuilder;
 import org.opensaml.xml.schema.XSString;
 import org.opensaml.xml.schema.impl.XSStringBuilder;
+import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
 import org.wso2.carbon.identity.sso.saml.SAMLSSOConstants;
@@ -172,7 +172,8 @@ public class DefaultSAMLAssertionBuilder implements SAMLAssertionBuilder {
             samlAssertion.setConditions(conditions);
 
             if (authReqDTO.getDoSignAssertions()) {
-                SAMLSSOUtil.setSignature(samlAssertion, XMLSignature.ALGO_ID_SIGNATURE_RSA,
+                SAMLSSOUtil.setSignature(samlAssertion, IdentityApplicationManagementUtil.getXMLSignatureAlgorithms()
+                                .get(authReqDTO.getSigningAlgorithm()),
                         new SignKeyDataHolder(authReqDTO.getUser().getAuthenticatedSubjectIdentifier()));
             }
 

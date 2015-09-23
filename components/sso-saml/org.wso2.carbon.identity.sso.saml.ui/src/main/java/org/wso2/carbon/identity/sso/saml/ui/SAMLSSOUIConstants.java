@@ -42,7 +42,7 @@ public class SAMLSSOUIConstants {
     public static final String ENABLE_IDP_INIT_SLO= "enableIdPInitSLO";
     public static final String ENABLE_ENC_ASSERTION= "enableEncAssertion";
     public static final String ENABLE_SIG_VALIDATION= "enableSigValidation";
-
+    public static final String SAML_SSO_SIGNING_ALGORITHM = "signingAlgorithm";
 
     private SAMLSSOUIConstants() {
     }

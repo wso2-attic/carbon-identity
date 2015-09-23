@@ -17,6 +17,7 @@
  */
 package org.wso2.carbon.identity.sso.saml.dto;
 
+import org.apache.commons.lang.StringUtils;
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticatedUser;
 
 import java.io.Serializable;
@@ -59,6 +60,17 @@ public class SAMLSSOAuthnReqDTO implements Serializable {
     private Map<String, String> claimMapping = null;
     private String tenantDomain;
     private String certAlias;
+    private String signingAlgorithm;
+
+    public String getSigningAlgorithm() {
+        return signingAlgorithm;
+    }
+
+    public void setSigningAlgorithm(String signingAlgorithm) {
+        if (StringUtils.isNotBlank(signingAlgorithm)) {
+            this.signingAlgorithm = signingAlgorithm;
+        }
+    }
 
     public String getNameIdClaimUri() {
         return nameIdClaimUri;

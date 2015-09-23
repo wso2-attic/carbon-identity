@@ -27,6 +27,7 @@ import org.wso2.carbon.identity.sso.saml.stub.IdentitySAMLSSOConfigServiceStub;
 import org.wso2.carbon.identity.sso.saml.stub.types.SAMLSSOServiceProviderDTO;
 import org.wso2.carbon.identity.sso.saml.stub.types.SAMLSSOServiceProviderInfoDTO;
 
+import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -125,5 +126,27 @@ public class SAMLSSOConfigServiceClient {
             throw new AxisFault(e.getMessage(), e);
         }
         return claimUris;
+    }
+
+    public String[] getSigningAlgorithms() throws AxisFault{
+        String[] signingAlgorithms;
+        try {
+            signingAlgorithms = stub.getSigningAlgorithms();
+        } catch (RemoteException e) {
+            log.error("Error when reading signing algorithms",e);
+            throw new AxisFault(e.getMessage(),e);
+        }
+        return  signingAlgorithms;
+    }
+
+    public String getSigningAlgorithmByConfig() throws AxisFault{
+        String signingAlgo;
+        try{
+            signingAlgo = stub.getSigningAlgorithmByConfig();
+        }catch(RemoteException e){
+            log.error("Error when reading signing algorithm from config",e);
+            throw new AxisFault(e.getMessage(),e);
+        }
+        return signingAlgo;
     }
 }
