@@ -149,7 +149,7 @@ public class EndpointUtil {
                 return userNamePassword.split(":");
             }
         }
-        String errMsg = "Error decoding authorization header. Could not retrieve client id and client secret.";
+        String errMsg = "Error decoding authorization header. Space delimited \"<authMethod> <base64Hash>\" format violated.";
         throw new OAuthClientException(errMsg);
     }
 
