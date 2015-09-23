@@ -1177,7 +1177,7 @@ if (isEditSP && show) {
 <%} %>
 <tr>
     <td>
-        <table id="claimTableId" style="<%=Encode.forCssString(claimTableStyle)%>" class="styledInner">
+        <table id="claimTableId" style="<%=claimTableStyle%>" class="styledInner">
             <tbody id="claimTableTbody">
             <%
                 int i = 0;
