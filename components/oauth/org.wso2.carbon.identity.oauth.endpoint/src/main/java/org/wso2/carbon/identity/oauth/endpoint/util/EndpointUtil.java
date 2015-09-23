@@ -143,14 +143,7 @@ public class EndpointUtil {
             throws OAuthClientException {
         String[] splitValues = authorizationHeader.trim().split(" ");
         if(splitValues.length > 1) {
-            String initialAuthHeaderValue = splitValues[1].trim();
-
-            // Comma denotes multiple header values, only consider first value
-            if (initialAuthHeaderValue.contains(",")) {
-                initialAuthHeaderValue = initialAuthHeaderValue.split(",")[0].trim();
-            }
-
-            byte[] decodedBytes = Base64Utils.decode(initialAuthHeaderValue);
+            byte[] decodedBytes = Base64Utils.decode(splitValues[1].trim());
             if (decodedBytes != null) {
                 String userNamePassword = new String(decodedBytes, Charsets.UTF_8);
                 return userNamePassword.split(":");
