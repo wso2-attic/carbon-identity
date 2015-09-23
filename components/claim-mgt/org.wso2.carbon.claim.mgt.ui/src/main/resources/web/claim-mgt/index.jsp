@@ -111,7 +111,7 @@
                             href="claim-view.jsp?store=<%=Encode.forUriComponent(UserCoreConstants.INTERNAL_USERSTORE)%>&dialect=<%=Encode.forUriComponent(claimDialectDTO[i].getDialectURI())%>"><%=Encode.forHtmlContent(claimDialectDTO[i].getDialectURI())%>
                     </a></td>
                     <td width="50%"><a title="<fmt:message key='remove.claim.dialect'/>"
-                                       onclick="removeItem('<%=UserCoreConstants.INTERNAL_USERSTORE%>','<%=claimDialectDTO[i].getDialectURI()%>','<%=UserCoreConstants.DEFAULT_CARBON_DIALECT%>');return false;"
+                                       onclick="removeItem('<%=Encode.forHtmlAttribute(UserCoreConstants.INTERNAL_USERSTORE)%>','<%=Encode.forHtmlAttribute(claimDialectDTO[i].getDialectURI())%>','<%=Encode.forHtmlAttribute(UserCoreConstants.DEFAULT_CARBON_DIALECT)%>');return false;"
                                        href="#" style="background-image: url(images/delete.gif);"
                                        class="icon-link"><fmt:message key='delete'/></a></td>
                 </tr>
