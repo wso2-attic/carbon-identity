@@ -1,3 +1,4 @@
+<%@ page import="org.owasp.encoder.Encode" %>
 <%--
   ~ Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
   ~
@@ -16,12 +17,11 @@
   ~ under the License.
   --%>
 
-<%@ page import="org.wso2.carbon.identity.application.authentication.endpoint.util.CharacterEncoder" %>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 
 <%
-    String errorCode = CharacterEncoder.getSafeText(request.getParameter("oauthErrorCode"));
-    String errorMsg = CharacterEncoder.getSafeText(request.getParameter("oauthErrorMsg"));
+    String errorCode = request.getParameter("oauthErrorCode");
+    String errorMsg = request.getParameter("oauthErrorMsg");
 %>
 <!DOCTYPE html>
 <html lang="en">
@@ -79,11 +79,11 @@
                                 if (errorCode != null && errorMsg != null) {
                             %>
                             <tr>
-                                <td><b><%=errorCode%>
+                                <td><b><%=Encode.forHtmlContent(errorCode)%>
                                 </b></td>
                             </tr>
                             <tr>
-                                <td><%=errorMsg%>
+                                <td><%=Encode.forHtmlContent(errorMsg)%>
                                 </td>
                             </tr>
                             <%
