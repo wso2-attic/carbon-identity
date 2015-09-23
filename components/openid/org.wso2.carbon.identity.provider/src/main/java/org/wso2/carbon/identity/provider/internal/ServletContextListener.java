@@ -22,8 +22,8 @@ import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceEvent;
 import org.osgi.framework.ServiceListener;
-import org.wso2.carbon.identity.provider.openid.servlets.OpenIDProviderServlet;
-import org.wso2.carbon.identity.provider.openid.servlets.OpenIDUserServlet;
+import org.wso2.carbon.identity.provider.openid.OpenIDProviderServlet;
+import org.wso2.carbon.identity.provider.openid.OpenIDUserServlet;
 
 import javax.servlet.Servlet;
 import java.util.Dictionary;
