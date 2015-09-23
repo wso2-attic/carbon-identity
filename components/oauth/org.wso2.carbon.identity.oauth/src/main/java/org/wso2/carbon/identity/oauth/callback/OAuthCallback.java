@@ -18,8 +18,8 @@
 
 package org.wso2.carbon.identity.oauth.callback;
 
-import org.apache.amber.oauth2.common.message.types.GrantType;
-import org.apache.amber.oauth2.common.message.types.ResponseType;
+import org.apache.oltu.oauth2.common.message.types.GrantType;
+import org.apache.oltu.oauth2.common.message.types.ResponseType;
 import org.wso2.carbon.identity.oauth.common.OAuthConstants;
 
 import javax.security.auth.callback.Callback;
