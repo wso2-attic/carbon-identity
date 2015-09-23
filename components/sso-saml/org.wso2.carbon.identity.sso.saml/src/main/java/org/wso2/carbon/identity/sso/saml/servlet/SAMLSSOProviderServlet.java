@@ -20,6 +20,7 @@ package org.wso2.carbon.identity.sso.saml.servlet;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.owasp.encoder.Encode;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationRequestCacheEntry;
@@ -570,7 +571,7 @@ public class SAMLSSOProviderServlet extends HttpServlet {
             }
 
             PrintWriter out = resp.getWriter();
-            out.print(finalPage);
+            out.print(Encode.forHtml(finalPage));
 
             if (log.isDebugEnabled()) {
                 log.debug("samlsso_response.html " + finalPage);
@@ -581,18 +582,19 @@ public class SAMLSSOProviderServlet extends HttpServlet {
             PrintWriter out = resp.getWriter();
             out.println("<html>");
             out.println("<body>");
-            out.println("<p>You are now redirected back to " + acUrl);
+            out.println("<p>You are now redirected back to " + Encode.forHtml(acUrl));
             out.println(" If the redirection fails, please click the post button.</p>");
-            out.println("<form method='post' action='" + acUrl + "'>");
+            out.println("<form method='post' action='" + Encode.forHtmlAttribute(acUrl) + "'>");
             out.println("<p>");
-            out.println("<input type='hidden' name='SAMLResponse' value='" + response + "'>");
+            out.println("<input type='hidden' name='SAMLResponse' value='" + Encode.forHtmlAttribute(response) + "'>");
 
             if(relayState != null) {
-                out.println("<input type='hidden' name='RelayState' value='" + relayState + "'>");
+                out.println("<input type='hidden' name='RelayState' value='" + Encode.forHtmlAttribute(relayState) + "'>");
             }
 
             if (authenticatedIdPs != null && !authenticatedIdPs.isEmpty()) {
-                out.println("<input type='hidden' name='AuthenticatedIdPs' value='" + authenticatedIdPs + "'>");
+                out.println("<input type='hidden' name='AuthenticatedIdPs' value='" +
+                        Encode.forHtmlAttribute(authenticatedIdPs) + "'>");
             }
 
             out.println("<button type='submit'>POST</button>");
