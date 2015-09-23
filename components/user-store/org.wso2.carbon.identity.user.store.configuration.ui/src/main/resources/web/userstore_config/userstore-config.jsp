@@ -17,6 +17,7 @@
 -->
 
 <%@page import="org.apache.axis2.context.ConfigurationContext"%>
+<%@ page import="org.owasp.encoder.Encode" %>
 <%@page import="org.wso2.carbon.CarbonConstants"%>
 <%@ page import="org.wso2.carbon.identity.user.store.configuration.stub.api.Properties" %>
 <%@ page import="org.wso2.carbon.identity.user.store.configuration.stub.api.Property" %>
@@ -316,7 +317,7 @@
 
     function doValidateUpdate() {
         var value = document.getElementsByName("domainId")[0].value.toUpperCase();
-        var domain = "<%=domain.toUpperCase()%>";
+        var domain = "<%=Encode.forJavaScriptBlock(domain.toUpperCase())%>";
         if (value.localeCompare(domain)) {
             return false;
         }
@@ -355,12 +356,13 @@
                         for (String classApply : classApplies) {
                             if (selectedClassApplied != null && classApply.equals(selectedClassApplied)) {
                     %>
-                    <option value="<%=classApply%>" selected="selected"><%=classApply%>
+                    <option value="<%=Encode.forHtmlAttribute(classApply)%>"
+                    selected="selected"><%=Encode.forHtmlContent(classApply)%>
                     </option>
                     <%
                     } else {
                     %>
-                    <option value="<%=classApply%>"><%=classApply%>
+                    <option value="<%=Encode.forHtmlAttribute(classApply)%>"><%=Encode.forHtmlContent(classApply)%>
                     </option>
                     <%
                             }
@@ -379,8 +381,10 @@
             <%
                 if (domain != null && domain.trim().length() > 0 && !domain.equals("0")) {
             %>
-            <td><input type="text" name="domainId" id="domainId" width="" value="<%=domain%>"/></td>
-            <td><input type="hidden" name="previousDomainId" id="previousDomainId" value="<%=domain%>"/></td>
+            <td><input type="text" name="domainId" id="domainId" width=""
+            value="<%=Encode.forHtmlAttribute(domain)%>"/></td>
+            <td><input type="hidden" name="previousDomainId" id="previousDomainId"
+            value="<%=Encode.forHtmlAttribute(domain)%>"/></td>
             <%
             } else {
             %>
@@ -416,7 +420,7 @@
     <%--START properties--%>
     <%--**********************--%>
     <%--**********************--%>
-<div class="sectionSeperator" id="userStoreTypeSub"><%="Define Properties For "%><strong></strong></div>
+<div class="sectionSeperator" id="userStoreTypeSub"><%="Define Properties For"%><strong></strong></div>
 <div class="sectionSub">
         <%--MandatoryProperties--%>
     <%if (mandatories != null && mandatories[0] != null) {%>
@@ -480,9 +484,11 @@
                             if (propertyName != null && propertyName.trim().length() > 0) {
 
                         %>
-                        <td class="leftCol-med" width="50%" style="text-align:left;"><%=propertyName%><span
-                                class="required">*</span></td>
-                        <input type="hidden" name=<%=name%> id=<%=name%> value="<%=mandatories[j].getName()%>"/>
+                        <td class="leftCol-med" width="50%" style="text-align:left;"><%=Encode.forHtml(propertyName)%>
+                        <span class="required">*</span></td>
+                        <input type="hidden" name=<%=Encode.forHtmlAttribute(name)%>
+                        id=<%=Encode.forHtmlAttribute(name)%>
+                        value="<%=Encode.forHtmlAttribute(mandatories[j].getName())%>"/>
 
                         <%
                         } else {
@@ -497,21 +503,25 @@
                                 if (propertyValue != null) {
 
                                     if (isBoolean == 1) { %>
-                            <input type="checkbox" name=<%=value%> id=<%=value%>
+                            <input type="checkbox" name=<%=Encode.forHtmlAttribute(value)%>
+                            id=<%=Encode.forHtmlAttribute(value)%>
                                    class="checkbox" checked/>
                             <%
                             } else if (isBoolean == 0) { %>
-                            <input type="checkbox" name=<%=value%> id=<%=value%>
+                            <input type="checkbox" name=<%=Encode.forHtmlAttribute(value)%>
+                            id=<%=Encode.forHtmlAttribute(value)%>
                                    class="checkbox"/>
                             <%
                             } else if (propertyName.endsWith("password") || propertyName.endsWith("Password")) { %>
-                            <input type="password" name=<%=value%> id=<%=value%> style="width:95%"
-                                   value="<%=propertyValue%>"/>
+                            <input type="password" name=<%=Encode.forHtmlAttribute(value)%>
+                            id=<%=Encode.forHtmlAttribute(value)%> style="width:95%"
+                                   value="<%=Encode.forHtmlAttribute(propertyValue)%>"/>
                             <%
                             } else {
                             %>
-                            <input type="text" name=<%=value%> id=<%=value%> style="width:95%"
-                                   value="<%=propertyValue%>"/>
+                            <input type="text" name=<%=Encode.forHtmlAttribute(value)%>
+                            id=<%=Encode.forHtmlAttribute(value)%> style="width:95%"
+                                   value="<%=Encode.forHtmlAttribute(propertyValue)%>"/>
                             <%
                                 }
                             %>
@@ -632,27 +642,32 @@
 
                                 if( !("UniqueID".equalsIgnoreCase(propertyName) ) ){
                         %>
-                        <td class="leftCol-med" width="50%" style="text-align:left;" id="<%=name%>"><%=propertyName%>
+                        <td class="leftCol-med" width="50%" style="text-align:left;"
+                        id="<%=Encode.forHtmlAttribute(name)%>"><%=propertyName%>
                         </td>
-                        <input type="hidden" name=<%=name%> id=<%=name%> value="<%=optionals[x].getName()%>"/>
+                        <input type="hidden" name=<%=Encode.forHtmlAttribute(name)%>
+                        id=<%=Encode.forHtmlAttribute(name)%>
+                        value="<%=Encode.forHtmlAttribute(optionals[x].getName())%>"/>
                         </td>
                         <td style="width:30%" style="text-align:left;">
                             <%
                                 if (propertyValue != null) {
                                     if (isBoolean == 1) { %>
-                            <input type="checkbox" name=<%=value%> id=<%=value%>
+                            <input type="checkbox" name=<%=Encode.forHtmlAttribute(value)%>
+                            id=<%=Encode.forHtmlAttribute(value)%>
                                    class="checkbox" checked/>
 
                             <%
                             } else if (isBoolean == 0) { %>
-                            <input type="checkbox" name=<%=value%> id=<%=value%>
-                                   class="checkbox"/>
+                            <input type="checkbox" name=<%=Encode.forHtmlAttribute(value)%>
+                            id=<%=Encode.forHtmlAttribute(value)%> class="checkbox"/>
                             <%
 
                             } else {
                             %>
-                            <input type="text" name=<%=value%> id=<%=value%> style="width:95%"
-                                   value="<%=propertyValue%>"/>
+                            <input type="text" name=<%=Encode.forHtmlAttribute(value)%>
+                            id=<%=Encode.forHtmlAttribute(value)%> style="width:95%"
+                                   value="<%=Encode.forHtmlAttribute(propertyValue)%>"/>
                             <%
                                     }
                                 } else {
@@ -661,25 +676,28 @@
                             %>
                         </td>
                         <td class="sectionHelp" width="50%" style="text-align:left; !important">
-                            <%=description%>
+                            <%=Encode.forHtml(description)%>
                         </td>
 
                     </tr>
                     <%
                                 }else{
                                     %>
-                                   <td class="leftCol-med" width="50%" style="display:none;" id="<%=name%>"><%=propertyName%>
+                                   <td class="leftCol-med" width="50%" style="display:none;" id="<%=Encode.forHtmlAttribute(name)%>"><%=Encode.forHtml(propertyName)%>
                                     </td>
-                                    <input type="hidden" name=<%=name%> id=<%=name%> value="<%=optionals[x].getName()%>"/>
+                                    <input type="hidden" name=<%=Encode.forHtmlAttribute(name)%>
+                                    id=<%=Encode.forHtmlAttribute(name)%>
+                                    value="<%=Encode.forHtmlAttribute(optionals[x].getName())%>"/>
                                     </td>
                                     <td style="width:30%" style="display:none;">
-                                        <input type="hidden" name=<%=value%> id=<%=value%>
+                                        <input type="hidden" name=<%=Encode.forHtmlAttribute(value)%>
+                                        id=<%=Encode.forHtmlAttribute(value)%>
                                         style="width:95%"
-                                               value="<%=propertyValue%>"/>
+                                               value="<%=Encode.forHtmlAttribute(propertyValue)%>"/>
 
                                     </td>
                                     <td class="sectionHelp" width="50%" style="display:none;">
-                                        <%=description%>
+                                        <%=Encode.forHtml(description)%>
                                     </td>
                                     <%
                                 }
@@ -760,27 +778,31 @@
                             if (propertyName != null && propertyName.trim().length() > 0) {
 
                         %>
-                        <td class="leftCol-med" width="50%" style="text-align:left;" id="<%=name%>"><%=propertyName%>
+                        <td class="leftCol-med" width="50%" style="text-align:left;"
+                        id="<%=Encode.forHtmlAttribute(name)%>"><%=Encode.forHtml(propertyName)%>
                         </td>
-                        <input type="hidden" name=<%=name%> id=<%=name%> value="<%=advancedProperties[x].getName()%>"/>
+                        <input type="hidden" name=<%=Encode.forHtmlAttribute(name)%>
+                        id=<%=Encode.forHtmlAttribute(name)%>
+                        value="<%=Encode.forHtmlAttribute(advancedProperties[x].getName())%>"/>
                         </td>
                         <td style="width:30%" style="text-align:left;">
                             <%
                                 if (propertyValue != null) {
                                     if (isBoolean == 1) { %>
-                            <input type="checkbox" name=<%=value%> id=<%=value%>
-                                   class="checkbox" checked/>
+                            <input type="checkbox" name=<%=Encode.forHtmlAttribute(value)%>
+                            id=<%=Encode.forHtmlAttribute(value)%> class="checkbox" checked/>
 
                             <%
                             } else if (isBoolean == 0) { %>
-                            <input type="checkbox" name=<%=value%> id=<%=value%>
-                                   class="checkbox"/>
+                            <input type="checkbox" name=<%=Encode.forHtmlAttribute(value)%>
+                            id=<%=Encode.forHtmlAttribute(value)%> class="checkbox"/>
                             <%
 
                             } else {
                             %>
-                            <input type="text" name=<%=value%> id=<%=value%> style="width:95%"
-                                   value="<%=propertyValue%>"/>
+                            <input type="text" name=<%=Encode.forHtmlAttribute(value)%>
+                            id=<%=Encode.forHtmlAttribute(value)%> style="width:95%"
+                                   value="<%=Encode.forHtmlAttribute(propertyValue)%>"/>
                             <%
                                     }
                                 } else {
@@ -806,7 +828,7 @@
             //no advanced properties
         }
     %>
-    <input type="hidden" name="defaultProperties" id="defaultProperties" value=<%=i%>/>
+    <input type="hidden" name="defaultProperties" id="defaultProperties" value=<%=Encode.forHtmlAttribute(i)%>/>
 
 </div>
 
