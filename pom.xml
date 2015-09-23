@@ -64,6 +64,7 @@
         <module>components/security-mgt</module>
         <module>components/sts</module>
         <module>components/workflow-mgt</module>
+        <module>components/identity-i18n-mgt</module>
         <module>features/security-mgt</module>
         <module>features/carbon-authenticators</module>
         <module>features/claim-mgt</module>
@@ -924,6 +925,11 @@
                 <version>${carbon.identity.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.wso2.carbon.identity</groupId>
+                <artifactId>org.wso2.carbon.i18n.mgt.stub</artifactId>
+                <version>${carbon.identity.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.openid4java.wso2</groupId>
                 <artifactId>openid4java-nodeps</artifactId>
                 <version>${openid4java.wso2.version}</version>
@@ -1456,6 +1462,11 @@
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
+                <artifactId> org.wso2.carbon.i18n.mgt</artifactId>
+                <version>${carbon.identity.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.identity.mgt.server.feature</artifactId>
                 <version>${carbon.identity.version}</version>
                 <type>zip</type>
@@ -1481,6 +1492,11 @@
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.identity.mgt.ui</artifactId>
+                <version>${carbon.identity.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.identity</groupId>
+                <artifactId>org.wso2.carbon.i18n.mgt.ui</artifactId>
                 <version>${carbon.identity.version}</version>
             </dependency>
             <dependency>

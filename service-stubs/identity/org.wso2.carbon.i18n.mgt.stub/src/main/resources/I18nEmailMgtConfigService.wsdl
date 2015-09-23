@@ -1,0 +1,214 @@
+<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:ax2116="http://dto.mgt.i18n.carbon.wso2.org/xsd"
+                  xmlns:ns1="http://org.apache.axis2/xsd" xmlns:ns="http://mgt.i18n.carbon.wso2.org"
+                  xmlns:ax2114="http://exceptions.mgt.i18n.carbon.wso2.org/xsd"
+                  xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl"
+                  xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+                  xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/"
+                  xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/"
+                  targetNamespace="http://mgt.i18n.carbon.wso2.org">
+    <wsdl:documentation>I18nEmailMgtConfigService</wsdl:documentation>
+    <wsdl:types>
+        <xs:schema attributeFormDefault="qualified" elementFormDefault="qualified"
+                   targetNamespace="http://dto.mgt.i18n.carbon.wso2.org/xsd">
+            <xs:complexType name="EmailTemplateDTO">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="body" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="displayName" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="footer" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="locale" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="name" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="subject" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+        </xs:schema>
+        <xs:schema attributeFormDefault="qualified" elementFormDefault="qualified"
+                   targetNamespace="http://exceptions.mgt.i18n.carbon.wso2.org/xsd">
+            <xs:complexType name="I18nMgtServiceException">
+                <xs:sequence/>
+            </xs:complexType>
+        </xs:schema>
+        <xs:schema xmlns:ax2115="http://exceptions.mgt.i18n.carbon.wso2.org/xsd"
+                   xmlns:ax2117="http://dto.mgt.i18n.carbon.wso2.org/xsd" attributeFormDefault="qualified"
+                   elementFormDefault="qualified" targetNamespace="http://mgt.i18n.carbon.wso2.org">
+            <xs:import namespace="http://exceptions.mgt.i18n.carbon.wso2.org/xsd"/>
+            <xs:import namespace="http://dto.mgt.i18n.carbon.wso2.org/xsd"/>
+            <xs:element name="I18nEmailMgtConfigServiceI18nMgtServiceException">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="I18nMgtServiceException" nillable="true"
+                                    type="ax2115:I18nMgtServiceException"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="addEmailConfig">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="emailTemplate" nillable="true" type="ax2116:EmailTemplateDTO"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getEmailConfig">
+                <xs:complexType>
+                    <xs:sequence/>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getEmailConfigResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true"
+                                    type="ax2116:EmailTemplateDTO"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="saveEmailConfig">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="emailTemplate" nillable="true" type="ax2116:EmailTemplateDTO"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+        </xs:schema>
+    </wsdl:types>
+    <wsdl:message name="saveEmailConfigRequest">
+        <wsdl:part name="parameters" element="ns:saveEmailConfig"/>
+    </wsdl:message>
+    <wsdl:message name="I18nEmailMgtConfigServiceI18nMgtServiceException">
+        <wsdl:part name="parameters" element="ns:I18nEmailMgtConfigServiceI18nMgtServiceException"/>
+    </wsdl:message>
+    <wsdl:message name="addEmailConfigRequest">
+        <wsdl:part name="parameters" element="ns:addEmailConfig"/>
+    </wsdl:message>
+    <wsdl:message name="getEmailConfigRequest">
+        <wsdl:part name="parameters" element="ns:getEmailConfig"/>
+    </wsdl:message>
+    <wsdl:message name="getEmailConfigResponse">
+        <wsdl:part name="parameters" element="ns:getEmailConfigResponse"/>
+    </wsdl:message>
+    <wsdl:portType name="I18nEmailMgtConfigServicePortType">
+        <wsdl:operation name="saveEmailConfig">
+            <wsdl:input message="ns:saveEmailConfigRequest" wsaw:Action="urn:saveEmailConfig"/>
+            <wsdl:fault message="ns:I18nEmailMgtConfigServiceI18nMgtServiceException"
+                        name="I18nEmailMgtConfigServiceI18nMgtServiceException"
+                        wsaw:Action="urn:saveEmailConfigI18nEmailMgtConfigServiceI18nMgtServiceException"/>
+        </wsdl:operation>
+        <wsdl:operation name="addEmailConfig">
+            <wsdl:input message="ns:addEmailConfigRequest" wsaw:Action="urn:addEmailConfig"/>
+            <wsdl:fault message="ns:I18nEmailMgtConfigServiceI18nMgtServiceException"
+                        name="I18nEmailMgtConfigServiceI18nMgtServiceException"
+                        wsaw:Action="urn:addEmailConfigI18nEmailMgtConfigServiceI18nMgtServiceException"/>
+        </wsdl:operation>
+        <wsdl:operation name="getEmailConfig">
+            <wsdl:input message="ns:getEmailConfigRequest" wsaw:Action="urn:getEmailConfig"/>
+            <wsdl:output message="ns:getEmailConfigResponse" wsaw:Action="urn:getEmailConfigResponse"/>
+            <wsdl:fault message="ns:I18nEmailMgtConfigServiceI18nMgtServiceException"
+                        name="I18nEmailMgtConfigServiceI18nMgtServiceException"
+                        wsaw:Action="urn:getEmailConfigI18nEmailMgtConfigServiceI18nMgtServiceException"/>
+        </wsdl:operation>
+    </wsdl:portType>
+    <wsdl:binding name="I18nEmailMgtConfigServiceSoap11Binding" type="ns:I18nEmailMgtConfigServicePortType">
+        <soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
+        <wsdl:operation name="saveEmailConfig">
+            <soap:operation soapAction="urn:saveEmailConfig" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:fault name="I18nEmailMgtConfigServiceI18nMgtServiceException">
+                <soap:fault use="literal" name="I18nEmailMgtConfigServiceI18nMgtServiceException"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="addEmailConfig">
+            <soap:operation soapAction="urn:addEmailConfig" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:fault name="I18nEmailMgtConfigServiceI18nMgtServiceException">
+                <soap:fault use="literal" name="I18nEmailMgtConfigServiceI18nMgtServiceException"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="getEmailConfig">
+            <soap:operation soapAction="urn:getEmailConfig" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="I18nEmailMgtConfigServiceI18nMgtServiceException">
+                <soap:fault use="literal" name="I18nEmailMgtConfigServiceI18nMgtServiceException"/>
+            </wsdl:fault>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:binding name="I18nEmailMgtConfigServiceSoap12Binding" type="ns:I18nEmailMgtConfigServicePortType">
+        <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
+        <wsdl:operation name="saveEmailConfig">
+            <soap12:operation soapAction="urn:saveEmailConfig" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:fault name="I18nEmailMgtConfigServiceI18nMgtServiceException">
+                <soap12:fault use="literal" name="I18nEmailMgtConfigServiceI18nMgtServiceException"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="addEmailConfig">
+            <soap12:operation soapAction="urn:addEmailConfig" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:fault name="I18nEmailMgtConfigServiceI18nMgtServiceException">
+                <soap12:fault use="literal" name="I18nEmailMgtConfigServiceI18nMgtServiceException"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="getEmailConfig">
+            <soap12:operation soapAction="urn:getEmailConfig" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="I18nEmailMgtConfigServiceI18nMgtServiceException">
+                <soap12:fault use="literal" name="I18nEmailMgtConfigServiceI18nMgtServiceException"/>
+            </wsdl:fault>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:binding name="I18nEmailMgtConfigServiceHttpBinding" type="ns:I18nEmailMgtConfigServicePortType">
+        <http:binding verb="POST"/>
+        <wsdl:operation name="saveEmailConfig">
+            <http:operation location="saveEmailConfig"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:input>
+        </wsdl:operation>
+        <wsdl:operation name="addEmailConfig">
+            <http:operation location="addEmailConfig"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:input>
+        </wsdl:operation>
+        <wsdl:operation name="getEmailConfig">
+            <http:operation location="getEmailConfig"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:output>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:service name="I18nEmailMgtConfigService">
+        <wsdl:port name="I18nEmailMgtConfigServiceHttpsSoap11Endpoint"
+                   binding="ns:I18nEmailMgtConfigServiceSoap11Binding">
+            <soap:address
+                    location="https://localhost:9443/services/I18nEmailMgtConfigService.I18nEmailMgtConfigServiceHttpsSoap11Endpoint/"/>
+        </wsdl:port>
+        <wsdl:port name="I18nEmailMgtConfigServiceHttpsSoap12Endpoint"
+                   binding="ns:I18nEmailMgtConfigServiceSoap12Binding">
+            <soap12:address
+                    location="https://localhost:9443/services/I18nEmailMgtConfigService.I18nEmailMgtConfigServiceHttpsSoap12Endpoint/"/>
+        </wsdl:port>
+        <wsdl:port name="I18nEmailMgtConfigServiceHttpsEndpoint" binding="ns:I18nEmailMgtConfigServiceHttpBinding">
+            <http:address
+                    location="https://localhost:9443/services/I18nEmailMgtConfigService.I18nEmailMgtConfigServiceHttpsEndpoint/"/>
+        </wsdl:port>
+    </wsdl:service>
+</wsdl:definitions>
