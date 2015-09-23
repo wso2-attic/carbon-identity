@@ -482,7 +482,7 @@ public class WorkflowService {
             }
             deleteHumanTasks(requestId);
             workflowRequestDAO.updateStatusOfRequest(requestId, newState);
-            workflowRequestAssociationDAO.updateStatusOfRelationshipsOfRequest(requestId, WorkFlowConstants
+            workflowRequestAssociationDAO.updateStatusOfRelationshipsOfPendingRequest(requestId, WorkFlowConstants
                     .HT_STATE_SKIPPED);
         }
         requestEntityRelationshipDAO.deleteRelationshipsOfRequest(requestId);
@@ -628,7 +628,7 @@ public class WorkflowService {
                                 taskRequestId = taskRequestId.replaceAll(",", "");
                             }
                             if (taskRequestId.equals(requestId)) {
-                                //stub.skip(resultsList[resultIndex].getId());
+                                stub.skip(resultsList[resultIndex].getId());
                             }
                         }
 

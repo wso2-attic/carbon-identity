@@ -283,8 +283,7 @@ public class WorkflowAdminServiceClient {
     }
 
     public WorkflowRequestDTO[] getAllRequests(String beginDate, String endDate, String dateCategory, String status)
-            throws
-            RemoteException, WorkflowAdminServiceWorkflowException {
+            throws RemoteException, WorkflowAdminServiceWorkflowException {
 
         WorkflowRequestDTO[] requestDTOs = stub.getRequestsInFilter(beginDate, endDate, dateCategory, status);
         if (requestDTOs == null) {

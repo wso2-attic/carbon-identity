@@ -24,6 +24,7 @@ import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowRequestAssociationDTO;
 import org.wso2.carbon.identity.workflow.mgt.exception.InternalWorkflowException;
+import org.wso2.carbon.identity.workflow.mgt.util.WorkFlowConstants;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -138,7 +139,7 @@ public class WorkflowRequestAssociationDAO {
      * @param requestId requestId to update relationships of.
      * @throws InternalWorkflowException
      */
-    public void updateStatusOfRelationshipsOfRequest(String requestId, String status) throws
+    public void updateStatusOfRelationshipsOfPendingRequest(String requestId, String status) throws
             InternalWorkflowException {
 
         Connection connection = null;
@@ -151,6 +152,7 @@ public class WorkflowRequestAssociationDAO {
             prepStmt.setString(1, status);
             prepStmt.setTimestamp(2, updatedDateStamp);
             prepStmt.setString(3, requestId);
+            prepStmt.setString(4, WorkFlowConstants.HT_STATE_PENDING);
             prepStmt.execute();
             connection.commit();
         } catch (IdentityException e) {

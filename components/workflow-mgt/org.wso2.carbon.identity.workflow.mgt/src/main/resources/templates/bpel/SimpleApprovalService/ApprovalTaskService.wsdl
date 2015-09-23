@@ -37,6 +37,7 @@
                     <xsd:element name="taskSubject" type="xsd:string"/>
                     <xsd:element name="taskDescription" type="xsd:string"/>
                     <xsd:element name="priority" type="xsd:int"/>
+                    <xsd:element name="htInitiator" type="xsd:string"></xsd:element>
                     <xsd:element name="parametersList" type="tns:htParameters" maxOccurs="1" minOccurs="0"></xsd:element>
      				<xsd:element name="assignees" type="htd:tLiteral"></xsd:element>
                 </xsd:sequence>
