@@ -1,4 +1,3 @@
-<%@ page import="org.owasp.encoder.Encode" %>
 <%--
   ~ Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
   ~
@@ -16,7 +15,7 @@
   ~ specific language governing permissions and limitations
   ~ under the License.
   --%>
-
+<%@ page import="org.owasp.encoder.Encode" %>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 
 <%
@@ -79,7 +78,7 @@
                                 if (errorCode != null && errorMsg != null) {
                             %>
                             <tr>
-                                <td><b><%=Encode.forHtmlContent(errorCode)%>
+                            <td><b><%=Encode.forHtmlContent(errorCode)%>
                                 </b></td>
                             </tr>
                             <tr>

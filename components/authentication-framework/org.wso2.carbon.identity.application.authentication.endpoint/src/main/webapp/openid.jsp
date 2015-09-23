@@ -15,7 +15,7 @@
   ~ specific language governing permissions and limitations
   ~ under the License.
   --%>
-
+<%@ page import="org.owasp.encoder.Encode" %>
 <div id="loginTable1" class="identity-box">
     <%
         loginFailed = request.getParameter("loginFailed");

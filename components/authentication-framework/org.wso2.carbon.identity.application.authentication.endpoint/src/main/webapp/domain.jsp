@@ -1,4 +1,3 @@
-<%@ page import="org.owasp.encoder.Encode" %>
 <%--
   ~ Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
   ~
@@ -16,7 +15,7 @@
   ~ specific language governing permissions and limitations
   ~ under the License.
   --%>
-
+<%@ page import="org.owasp.encoder.Encode" %>
 <%
     String errorMessage = "Authentication Failed";
     boolean loginFailed = false;
