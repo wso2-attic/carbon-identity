@@ -1278,7 +1278,8 @@ if (isEditSP && show) {
             <tr id="audienceRow<%=j%>">
                 <td style="padding-left: 40px ! important; color: rgb(119, 119, 119); font-style: italic;">
                     <input type="hidden" name="audiencePropertyName<%=j%>"
-                           id="audiencePropertyName<%=j%>" value="<%=Encode.forHtmlAttribute(audience)%>"/><%=Encode.forHtml(audience)%>
+                           id="audiencePropertyName<%=j%>" value="<%=Encode.forHtmlAttribute(audience)%>"/>
+                    <%=Encode.forHtml(audience)%>
                 </td>
                 <td>
                     <a onclick="removeAudience('<%=j%>');return false;"
