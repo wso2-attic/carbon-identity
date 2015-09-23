@@ -379,9 +379,13 @@
                                         <tr>
                                             <td class="nopadding" style="border:none !important">
                                                 <% if (!"".equals(policyPath)) { %>
-                                                    <input type="text" name="secPolicyRegText" id="secPolicyRegText" value="<%= policyPath%>" size="60" readonly="readonly"/>
+                                                    <input type="text" name="secPolicyRegText" id="secPolicyRegText"
+                                                           value="<%= Encode.forHtmlAttribute(policyPath)%>" size="60"
+                                                           readonly="readonly"/>
                                                 <% } else { %>
-                                                    <input type="text" name="secPolicyRegText" id="secPolicyRegText" value="<%= policyPath%>" size="60" readonly="readonly" disabled="disabled"/>
+                                                    <input type="text" name="secPolicyRegText" id="secPolicyRegText"
+                                                           value="<%= Encode.forHtmlAttribute(policyPath)%>" size="60"
+                                                           readonly="readonly" disabled="disabled"/>
                                                 <% } %>
                                             </td>
                                             <td class="nopadding" style="border:none !important">
@@ -411,7 +415,8 @@
 
                     <tr>
                         <td class="buttonRow" colspan="5">
-                            <input type="button" class="button" value="< <fmt:message key="back"/>" onclick="location.href = '<%=backLink%>'">
+                            <input type="button" class="button" value="< <fmt:message key="back"/>"
+                                   onclick="location.href = '<%= Encode.forJavaScriptAttribute(backLink)%>'">
                             <input class="button" type="submit"
                                    value="<fmt:message key="next"/> >"/>
                         </td>
@@ -421,7 +426,8 @@
             </form>
         </div>
         <div id="divDeleteSecurity" style="display: none">
-            <form name="deleteSecurity" action="remove-security.jsp?serviceName=<%=serviceName%>">
+            <form name="deleteSecurity" action="remove-security.jsp?serviceName=<%=
+            Encode.forUriComponent(serviceName)%>">
                 <input type="submit" value="<fmt:message key="delete"/>"/>
             </form>
         </div>

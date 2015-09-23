@@ -155,11 +155,11 @@
 	                </td>
 	                <td><%=Encode.forHtmlContent(cdata.getNotBefore())%>
 	                </td>
-	                <td><%=Encode.forHtmlContent(cdata.getSerialNumber())%>
+	                <td><%=cdata.getSerialNumber()%>
 	                </td>
 	                <td><%=Encode.forHtmlContent(cdata.getSubjectDN())%>
 	                </td>
-	                <td colspan="2"><%=Encode.forHtmlContent(cdata.getVersion())%>
+	                <td colspan="2"><%=cdata.getVersion()%>
 	                </td>
 	            </tr>
 	            <%
@@ -232,11 +232,11 @@
 				    </td>
 				    <td><%=Encode.forHtmlContent(cert.getNotBefore())%>
 				    </td>
-				    <td><%=Encode.forHtmlContent(cert.getSerialNumber())%>
+				    <td><%=cert.getSerialNumber()%>
 				    </td>
 				    <td><%=Encode.forHtmlContent(cert.getSubjectDN())%>
 				    </td>
-				    <td><%=Encode.forHtmlContent(cert.getVersion())%>
+				    <td><%=cert.getVersion()%>
 				    </td>
 				    <td><a href="#"
 				           onclick="deleteCert('<%=Encode.forJavaScriptAttribute(cert.getAlias())%>',
