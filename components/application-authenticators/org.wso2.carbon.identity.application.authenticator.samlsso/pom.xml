@@ -66,6 +66,12 @@
             <groupId>org.wso2.carbon.identity</groupId>
             <artifactId>org.wso2.carbon.identity.application.common</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.wso2.orbit.org.owasp.encoder</groupId>
+            <artifactId>encoder</artifactId>
+            <version>1.2.0.wso2v1</version>
+        </dependency>
+
     </dependencies>
     <build>
         <plugins>
