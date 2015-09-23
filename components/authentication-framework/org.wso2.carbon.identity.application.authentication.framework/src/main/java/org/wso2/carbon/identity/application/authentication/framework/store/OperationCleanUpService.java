@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -18,12 +18,8 @@
 
 package org.wso2.carbon.identity.application.authentication.framework.store;
 
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.context.CarbonContext;
-import org.wso2.carbon.idp.mgt.util.IdPManagementUtil;
-
 import java.sql.Timestamp;
 import java.util.Date;
 import java.util.concurrent.Executors;
@@ -32,52 +28,48 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Database cleanup. Timer task is running for pre-defined period to clear the
- * invalid sessions
+ * DELETE operations and related STORE operations
  */
-public final class SessionCleanUpService {
+public final class OperationCleanUpService {
 
     private static final int NUM_THREADS = 1;
-    private static final Log log = LogFactory.getLog(SessionCleanUpService.class);
+    private static final Log log = LogFactory.getLog(OperationCleanUpService.class);
     private final ScheduledExecutorService scheduler;
     private final long initialDelay;
     private final long delayBetweenRuns;
+
+    // Time skew in minute
+    private static final int defaultTimeSkew = 60;
 
     /**
      * @param initialDelay
      * @param delayBetweenRuns
      */
-    public SessionCleanUpService(long initialDelay, long delayBetweenRuns) {
+    public OperationCleanUpService(long initialDelay, long delayBetweenRuns) {
         this.initialDelay = initialDelay;
         this.delayBetweenRuns = delayBetweenRuns;
         this.scheduler = Executors.newScheduledThreadPool(NUM_THREADS);
     }
 
-    /**
-     *
-     */
     public void activateCleanUp() {
-        Runnable databaseCleanUpTask = new DatabaseCleanUpTask();
+        Runnable databaseCleanUpTask = new DatabaseOperationCleanUpTask();
         scheduler.scheduleWithFixedDelay(databaseCleanUpTask, initialDelay, delayBetweenRuns,
                                          TimeUnit.MINUTES);
-
     }
 
-    /**
-     *
-     *
-     */
-    private static final class DatabaseCleanUpTask implements Runnable {
+    private static final class DatabaseOperationCleanUpTask implements Runnable {
 
         @Override
         public void run() {
 
-            log.debug("Start running the Session Data cleanup task.");
+            log.debug("Start running the Session Operation Data cleanup task.");
+
             Date date = new Date();
-            int sessionTimeout = IdPManagementUtil.getMaxCleanUpTimeout();
-            Timestamp timestamp = new Timestamp((date.getTime() - (sessionTimeout * 60 * 1000)));
-            SessionDataStore.getInstance().removeExpiredSessionData(timestamp);
-            log.debug("Stop running the Session Data cleanup task.");
-            log.info("Session Data cleanup task is running successfully for removing expired Data");
+            // Convert defaultTimeSkew (minutes) to milliseconds
+            Timestamp timestamp = new Timestamp((date.getTime() - (defaultTimeSkew * 60 * 1000)));
+            SessionDataStore.getInstance().removeExpiredOperationData(timestamp);
+            log.debug("Stop running the Operation Data cleanup task.");
+            log.info("Session Operation Data cleanup task is running successfully for removing expired Operation Data");
         }
     }
 }
