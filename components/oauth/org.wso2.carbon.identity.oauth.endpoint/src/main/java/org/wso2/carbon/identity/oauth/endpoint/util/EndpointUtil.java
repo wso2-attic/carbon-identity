@@ -142,7 +142,7 @@ public class EndpointUtil {
     public static String[] extractCredentialsFromAuthzHeader(String authorizationHeader)
             throws OAuthClientException {
         String[] splitValues = authorizationHeader.trim().split(" ");
-        if(splitValues.length > 1) {
+        if(splitValues.length == 2) {
             byte[] decodedBytes = Base64Utils.decode(splitValues[1].trim());
             if (decodedBytes != null) {
                 String userNamePassword = new String(decodedBytes, Charsets.UTF_8);
