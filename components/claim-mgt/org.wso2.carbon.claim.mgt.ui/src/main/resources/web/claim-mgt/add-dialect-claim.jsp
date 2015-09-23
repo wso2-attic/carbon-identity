@@ -27,6 +27,7 @@
 
 <%@page import="org.wso2.carbon.ui.CarbonUIUtil" %>
 <%@page import="org.wso2.carbon.utils.ServerConstants" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 
 <%
     String serverURL = CarbonUIUtil.getServerURL(config
@@ -82,9 +83,9 @@
                         CARBON.showWarningDialog('<fmt:message key="cannot.remove.default.carbon.dialect"/>', null, null);
                         return;
                     }
-                    CARBON.showConfirmationDialog('<fmt:message key="remove.message1"/>' + dialect + '<fmt:message key="remove.message2"/>',
+                    CARBON.showConfirmationDialog('<fmt:message key="remove.message1"/>' + Encode.forJavaScriptAttribute(dialect) + '<fmt:message key="remove.message2"/>',
                             function () {
-                                location.href = "remove-dialect.jsp?store=" + store + "&dialect=" + dialect;
+                                location.href = "remove-dialect.jsp?store=" + Encode.forJavaScriptAttribute(store) + "&dialect=" + Encode.forJavaScriptAttribute(dialect);
                             }, null);
                 }
 
@@ -95,7 +96,7 @@
                 <tr class="tableOddRow">
                     <td style="width: 30px;">
                         <div style="height:30px;">
-                            <a href="javascript:document.location.href='add-dialect.jsp?extuser=<%=haveExternalUserStore%>'"
+                            <a href="javascript:document.location.href='add-dialect.jsp?extuser=<%=Encode.forUriComponent(haveExternalUserStore)%>'"
                                class="icon-link"
                                style="background-image:url(../admin/images/add.gif);"><fmt:message
                                     key='add.new.claim.dialect'/></a>

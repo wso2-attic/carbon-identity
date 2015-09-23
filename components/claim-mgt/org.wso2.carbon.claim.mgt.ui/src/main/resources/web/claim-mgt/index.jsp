@@ -27,6 +27,7 @@
 
 <%@page import="org.wso2.carbon.ui.CarbonUIUtil" %>
 <%@page import="org.wso2.carbon.user.core.UserCoreConstants" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 
 <%
     String serverURL = CarbonUIUtil.getServerURL(config
@@ -87,9 +88,9 @@
                         CARBON.showWarningDialog('<fmt:message key="cannot.remove.default.carbon.dialect"/>', null, null);
                         return;
                     }
-                    CARBON.showConfirmationDialog('<fmt:message key="remove.message1"/>' + dialect + '<fmt:message key="remove.message2"/>',
+                    CARBON.showConfirmationDialog('<fmt:message key="remove.message1"/>' + Encode.forJavaScriptAttribute(dialect) + '<fmt:message key="remove.message2"/>',
                             function () {
-                                location.href = "remove-dialect.jsp?store=" + store + "&dialect=" + dialect;
+                                location.href = "remove-dialect.jsp?store=" + Encode.forJavaScriptAttribute(store) + "&dialect=" + Encode.forJavaScriptAttribute(dialect);
                             }, null);
                 }
             </script>
@@ -107,10 +108,10 @@
                 %>
                 <tr>
                     <td width="50%"><a
-                            href="claim-view.jsp?store=<%=UserCoreConstants.INTERNAL_USERSTORE%>&dialect=<%=claimDialectDTO[i].getDialectURI()%>"><%=claimDialectDTO[i].getDialectURI()%>
+                            href="claim-view.jsp?store=<%=Encode.forUriComponent(UserCoreConstants.INTERNAL_USERSTORE)%>&dialect=<%=Encode.forUriComponent(claimDialectDTO[i].getDialectURI())%>"><%=Encode.forHtmlContent(claimDialectDTO[i].getDialectURI())%>
                     </a></td>
                     <td width="50%"><a title="<fmt:message key='remove.claim.dialect'/>"
-                                       onclick="removeItem('<%=UserCoreConstants.INTERNAL_USERSTORE%>','<%=claimDialectDTO[i].getDialectURI()%>','<%=UserCoreConstants.DEFAULT_CARBON_DIALECT%>');return false;"
+                                       onclick="removeItem('<%=Encode.forHtmlContent(UserCoreConstants.INTERNAL_USERSTORE)%>','<%=Encode.forHtmlContent(claimDialectDTO[i].getDialectURI())%>','<%=Encode.forHtmlContent(UserCoreConstants.DEFAULT_CARBON_DIALECT)%>');return false;"
                                        href="#" style="background-image: url(images/delete.gif);"
                                        class="icon-link"><fmt:message key='delete'/></a></td>
                 </tr>
