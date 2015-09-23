@@ -704,14 +704,13 @@ public class UserRealmProxy {
      * @return Primary domain added username
      */
     private final String addPrimaryDomainIfNotExists(String userName) {
-
+        
         if ((userName.indexOf(UserCoreConstants.DOMAIN_SEPARATOR)) < 0) {
             StringBuilder builder = new StringBuilder();
             builder.append(UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME).append(CarbonConstants.DOMAIN_SEPARATOR)
                     .append(userName);
             userName = builder.toString();
         }
-
         return userName;
     }
 
