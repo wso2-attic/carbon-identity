@@ -98,14 +98,14 @@
             jQuery("a.trigger-title").click(triggerHandler);
         });
         function removeItem(dialect, claim, length) {
-            var defaultDialect = "<%=Encode.encodeForJavaScript(UserCoreConstants.DEFAULT_CARBON_DIALECT)%>";
+            var defaultDialect = "<%=Encode.forJavaScriptBlock(UserCoreConstants.DEFAULT_CARBON_DIALECT)%>";
             if ((dialect == defaultDialect) && (length < 2 )) {
                 CARBON.showWarningDialog('<fmt:message key="cannot.remove.default.carbon.dialect.all.claims"/>');
                 return false;
             } else {
-                CARBON.showConfirmationDialog('<fmt:message key="remove.message1"/>' + Encode.forJavaScriptAttribute(claim) + '<fmt:message key="remove.message2"/>',
+                CARBON.showConfirmationDialog('<fmt:message key="remove.message1"/>' + claim + '<fmt:message key="remove.message2"/>',
                         function () {
-                            location.href = "remove-claim.jsp?dialect=" + Encode.forJavaScriptAttribute(dialect) + "&claimUri=" + Encode.forJavaScriptAttribute(claim);
+                            location.href = "remove-claim.jsp?dialect=" + dialect + "&claimUri=" + claim;
                         }, null);
             }
         }
@@ -227,7 +227,7 @@
                 <a href="update-claim.jsp?dialect=<%=Encode.forUriComponent(dialectUri)%>&claimUri=<%=Encode.forUriComponent(claims[j].getClaim().getClaimUri())%>"
                    class="editLink icon-link">Edit</a>
                 <a href="#" class="icon-link deleteLink" style="background-image:url(../claim-mgt/images/delete.gif);"
-                   onclick="removeItem('<%=Encode.forHtmlAttribute(dialectUri)%>','<%=Encode.forHtmlAttribute(claims[j].getClaim().getClaimUri())%>','<%=claims.length%>'  );return false;"><fmt:message
+                   onclick="removeItem('<%=dialectUri%>','<%=claims[j].getClaim().getClaimUri()%>','<%=claims.length%>'  );return false;"><fmt:message
                         key='remove.claim.mapping'/></a>
 
                 <div style="clear:both"></div>
@@ -297,7 +297,7 @@
                     </tr>
                     <tr>
                         <td class="leftCol-small"><fmt:message key='display.order'/></td>
-                        <td class="leftCol-big"><%=Encode.forHtmlContent(claims[j].getClaim().getDisplayOrder())%>
+                        <td class="leftCol-big"><%=Encode.forHtmlContent(String.valueOf(claims[j].getClaim().getDisplayOrder()))%>
                         </td>
                     </tr>
                     <tr>

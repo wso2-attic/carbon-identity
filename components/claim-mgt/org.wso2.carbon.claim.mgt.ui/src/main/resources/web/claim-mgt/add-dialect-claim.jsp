@@ -96,7 +96,7 @@
                 <tr class="tableOddRow">
                     <td style="width: 30px;">
                         <div style="height:30px;">
-                            <a href="javascript:document.location.href='add-dialect.jsp?extuser=<%=Encode.forUriComponent(haveExternalUserStore)%>'"
+                            <a href="javascript:document.location.href='add-dialect.jsp?extuser=<%=Encode.forUriComponent(String.valueOf(haveExternalUserStore))%>'"
                                class="icon-link"
                                style="background-image:url(../admin/images/add.gif);"><fmt:message
                                     key='add.new.claim.dialect'/></a>

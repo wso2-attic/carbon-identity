@@ -85,7 +85,7 @@
                     }
                 }
                 function removeItem(dialect, claim, length) {
-                    var defaultDialect = "<%=Encode.encodeForJavaScript(UserCoreConstants.DEFAULT_CARBON_DIALECT)%>";
+                    var defaultDialect = "<%=Encode.forJavaScriptBlock(UserCoreConstants.DEFAULT_CARBON_DIALECT)%>";
                     if ((dialect == defaultDialect) && (length < 2 )) {
                         CARBON.showWarningDialog('<fmt:message key="cannot.remove.default.carbon.dialect.all.claims"/>');
                         return false;
@@ -182,7 +182,7 @@
                             ClaimMappingDTO[] claims = claimMappping[i].getClaimMappings();
                 %>
                 <a href="#" class="icon-link" style="background-image:url(../claim-mgt/images/delete.gif);"
-                   onclick="removeItem('<%=Encode.forHtmlContent(dialectUri)%>','<%=Encode.forHtmlContent(claimUri)%>','<%=Encode.forHtmlContent(claims.length)%>'  );return false;"><fmt:message
+                   onclick="removeItem('<%=dialectUri%>','<%=claimUri%>','<%=claims.length%>'  );return false;"><fmt:message
                         key='remove.claim.mapping'/></a>
             </div>
 
@@ -247,7 +247,7 @@
                                 <tr>
                                     <td class="leftCol-small"><fmt:message key='display.order'/></td>
                                     <td><input type="text" name="displayOrder" id="displayOrder"
-                                               value="<%=Encode.forHtmlAttribute(claims[j].getClaim().getDisplayOrder())%>"/></td>
+                                               value="<%=Encode.forHtmlAttribute(String.valueOf(claims[j].getClaim().getDisplayOrder()))%>"/></td>
                                 </tr>
                                 <tr>
                                     <td class="leftCol-small"><fmt:message key='supported.by.default'/></td>

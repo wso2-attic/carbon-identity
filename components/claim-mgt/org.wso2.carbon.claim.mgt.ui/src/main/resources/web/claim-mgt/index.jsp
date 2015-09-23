@@ -88,9 +88,9 @@
                         CARBON.showWarningDialog('<fmt:message key="cannot.remove.default.carbon.dialect"/>', null, null);
                         return;
                     }
-                    CARBON.showConfirmationDialog('<fmt:message key="remove.message1"/>' + Encode.forJavaScriptAttribute(dialect) + '<fmt:message key="remove.message2"/>',
+                    CARBON.showConfirmationDialog('<fmt:message key="remove.message1"/>' + dialect + '<fmt:message key="remove.message2"/>',
                             function () {
-                                location.href = "remove-dialect.jsp?store=" + Encode.forJavaScriptAttribute(store) + "&dialect=" + Encode.forJavaScriptAttribute(dialect);
+                                location.href = "remove-dialect.jsp?store=" + store + "&dialect=" + dialect;
                             }, null);
                 }
             </script>
@@ -111,7 +111,7 @@
                             href="claim-view.jsp?store=<%=Encode.forUriComponent(UserCoreConstants.INTERNAL_USERSTORE)%>&dialect=<%=Encode.forUriComponent(claimDialectDTO[i].getDialectURI())%>"><%=Encode.forHtmlContent(claimDialectDTO[i].getDialectURI())%>
                     </a></td>
                     <td width="50%"><a title="<fmt:message key='remove.claim.dialect'/>"
-                                       onclick="removeItem('<%=Encode.forHtmlContent(UserCoreConstants.INTERNAL_USERSTORE)%>','<%=Encode.forHtmlContent(claimDialectDTO[i].getDialectURI())%>','<%=Encode.forHtmlContent(UserCoreConstants.DEFAULT_CARBON_DIALECT)%>');return false;"
+                                       onclick="removeItem('<%=UserCoreConstants.INTERNAL_USERSTORE%>','<%=claimDialectDTO[i].getDialectURI()%>','<%=UserCoreConstants.DEFAULT_CARBON_DIALECT%>');return false;"
                                        href="#" style="background-image: url(images/delete.gif);"
                                        class="icon-link"><fmt:message key='delete'/></a></td>
                 </tr>
