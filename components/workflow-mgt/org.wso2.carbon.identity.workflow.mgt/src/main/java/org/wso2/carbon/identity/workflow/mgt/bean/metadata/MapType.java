@@ -13,21 +13,20 @@ import java.util.List;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
 
 /**
- * <p>Java class for anonymous complex type.
+ * <p>Java class for MapType complex type.
  * 
  * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
- * &lt;complexType&gt;
+ * &lt;complexType name="MapType"&gt;
  *   &lt;complexContent&gt;
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
  *       &lt;sequence&gt;
- *         &lt;element name="ParameterMetaData" type="{http://metadata.bean.mgt.workflow.identity.carbon.wso2.org}ParameterMetaData" maxOccurs="unbounded"/&gt;
+ *         &lt;element name="Item" type="{http://metadata.bean.mgt.workflow.identity.carbon.wso2.org}Item" maxOccurs="unbounded"/&gt;
  *       &lt;/sequence&gt;
  *     &lt;/restriction&gt;
  *   &lt;/complexContent&gt;
@@ -37,21 +36,19 @@ import javax.xml.bind.annotation.XmlType;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "", propOrder = {
-    "parameterMetaData"
+@XmlType(name = "MapType", propOrder = {
+    "item"
 })
-@XmlRootElement(name = "ParametersMetaData")
-public class ParametersMetaData {
+public class MapType {
 
-    @XmlElement(name = "ParameterMetaData", required = true)
-    protected ParameterMetaData[] parameterMetaData;
+    @XmlElement(name = "Item", required = true)
+    protected Item[] item;
 
-    public ParameterMetaData[] getParameterMetaData() {
-        return parameterMetaData;
+    public Item[] getItem() {
+        return item;
     }
 
-    public void setParameterMetaData(
-            ParameterMetaData[] parameterMetaData) {
-        this.parameterMetaData = parameterMetaData;
+    public void setItem(Item[] item) {
+        this.item = item;
     }
 }

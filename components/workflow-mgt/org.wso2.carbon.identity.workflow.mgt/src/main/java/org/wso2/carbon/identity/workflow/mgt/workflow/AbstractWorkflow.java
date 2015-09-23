@@ -21,6 +21,8 @@ package org.wso2.carbon.identity.workflow.mgt.workflow;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.workflow.mgt.bean.Parameter;
+import org.wso2.carbon.identity.workflow.mgt.bean.metadata.InputData;
+import org.wso2.carbon.identity.workflow.mgt.bean.metadata.ParameterMetaData;
 import org.wso2.carbon.identity.workflow.mgt.dto.WorkflowRequest;
 import org.wso2.carbon.identity.workflow.mgt.bean.metadata.ParametersMetaData;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
@@ -36,13 +38,15 @@ public abstract class AbstractWorkflow {
 
     private ParametersMetaData parametersMetaData = null ;
     private String templateId ;
+
+    protected abstract InputData getInputData(String parameterName)  throws WorkflowException;
     /**
      *
      *
      * @param metaDataXML Parameter Metadata XML string
      * @throws WorkflowRuntimeException
      */
-    public AbstractWorkflow(String metaDataXML) throws WorkflowRuntimeException {
+    public AbstractWorkflow(String templateId, String metaDataXML) throws WorkflowRuntimeException {
         try {
             this.parametersMetaData = WorkflowManagementUtil.unmarshalXML(metaDataXML, ParametersMetaData.class);
         } catch (JAXBException e) {
@@ -50,6 +54,7 @@ public abstract class AbstractWorkflow {
             log.error(errorMsg);
             throw new WorkflowRuntimeException(errorMsg, e);
         }
+        this.templateId = templateId ;
     }
 
 
@@ -86,7 +91,16 @@ public abstract class AbstractWorkflow {
         }
     }
 
-    public ParametersMetaData getParametersMetaData() {
+    public ParametersMetaData getParametersMetaData() throws WorkflowException{
+        if(parametersMetaData != null){
+            ParameterMetaData[] parameterMetaData  = parametersMetaData.getParameterMetaData();
+            for(ParameterMetaData metaData: parameterMetaData){
+                if(metaData.isIsInputDataRequired()){
+                    InputData inputData = getInputData(metaData.getName());
+                    metaData.setInputData(inputData);
+                }
+            }
+        }
         return parametersMetaData;
     }
 

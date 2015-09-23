@@ -8,27 +8,24 @@
 
 package org.wso2.carbon.identity.workflow.mgt.bean.metadata;
 
-import java.util.ArrayList;
-import java.util.List;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
 
 /**
- * <p>Java class for anonymous complex type.
+ * <p>Java class for InputData complex type.
  * 
  * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
- * &lt;complexType&gt;
+ * &lt;complexType name="InputData"&gt;
  *   &lt;complexContent&gt;
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
- *       &lt;sequence&gt;
- *         &lt;element name="ParameterMetaData" type="{http://metadata.bean.mgt.workflow.identity.carbon.wso2.org}ParameterMetaData" maxOccurs="unbounded"/&gt;
- *       &lt;/sequence&gt;
+ *       &lt;choice&gt;
+ *         &lt;element name="MapType" type="{http://metadata.bean.mgt.workflow.identity.carbon.wso2.org}MapType" minOccurs="0"/&gt;
+ *       &lt;/choice&gt;
  *     &lt;/restriction&gt;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
@@ -37,21 +34,36 @@ import javax.xml.bind.annotation.XmlType;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "", propOrder = {
-    "parameterMetaData"
+@XmlType(name = "InputData", propOrder = {
+    "mapType"
 })
-@XmlRootElement(name = "ParametersMetaData")
-public class ParametersMetaData {
+public class InputData {
 
-    @XmlElement(name = "ParameterMetaData", required = true)
-    protected ParameterMetaData[] parameterMetaData;
+    @XmlElement(name = "MapType")
+    protected MapType mapType;
 
-    public ParameterMetaData[] getParameterMetaData() {
-        return parameterMetaData;
+    /**
+     * Gets the value of the mapType property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link MapType }
+     *     
+     */
+    public MapType getMapType() {
+        return mapType;
     }
 
-    public void setParameterMetaData(
-            ParameterMetaData[] parameterMetaData) {
-        this.parameterMetaData = parameterMetaData;
+    /**
+     * Sets the value of the mapType property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link MapType }
+     *     
+     */
+    public void setMapType(MapType value) {
+        this.mapType = value;
     }
+
 }

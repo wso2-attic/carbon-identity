@@ -48,7 +48,7 @@
 
 
 
-    String template = request.getParameter(WorkflowUIConstants.PARAM_WORKFLOW_TEMPLATE);
+    String template = request.getParameter(WorkflowUIConstants.PARAM_TEMPLATE_ID);
     Map<String, String> templateParams = new HashMap<String, String>();
 
     Map<String, String> attribMap = new HashMap<String, String>() ;
@@ -58,7 +58,7 @@
         attribMap = (Map<String, String>) session.getAttribute(WorkflowUIConstants.ATTRIB_WORKFLOW_WIZARD);
         //setting params from previous page
         if (template == null) {
-            template = attribMap.get(WorkflowUIConstants.PARAM_WORKFLOW_TEMPLATE);
+            template = attribMap.get(WorkflowUIConstants.PARAM_TEMPLATE_ID);
         }
         for (Map.Entry<String, String> entry : attribMap.entrySet()) {
             if (entry.getKey().startsWith("p-")) {
@@ -105,7 +105,7 @@
         }
 
         if(template != null) {
-            attribMap.put(WorkflowUIConstants.PARAM_WORKFLOW_TEMPLATE, template);
+            attribMap.put(WorkflowUIConstants.PARAM_TEMPLATE_ID, template);
             templateDTO = client.getTemplate(template);
             bpsProfiles = client.listBPSProfiles();
         }
@@ -342,7 +342,7 @@
                     <tr>
                         <td width="60px"><fmt:message key='workflow.template'/></td>
                         <td>
-                            <select onchange="selectTemplate();" id="id_template" name="<%=WorkflowUIConstants.PARAM_WORKFLOW_TEMPLATE%>"
+                            <select onchange="selectTemplate();" id="id_template" name="<%=WorkflowUIConstants.PARAM_TEMPLATE_ID%>"
                                     style="min-width: 30%">
                                     <option value="" selected><fmt:message key="select"/></option>
                                 <%

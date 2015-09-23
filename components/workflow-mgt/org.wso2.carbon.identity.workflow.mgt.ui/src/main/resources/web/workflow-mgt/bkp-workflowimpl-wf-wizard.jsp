@@ -22,9 +22,6 @@
 <%@ page import="org.apache.axis2.context.ConfigurationContext" %>
 <%@ page import="org.apache.commons.lang.StringUtils" %>
 <%@ page import="org.wso2.carbon.CarbonConstants" %>
-<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.BPSProfileDTO" %>
-<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.TemplateImplDTO" %>
-<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.TemplateParameterDef" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.WorkflowAdminServiceClient" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.WorkflowUIConstants" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
@@ -34,8 +31,9 @@
 <%@ page import="java.util.Iterator" %>
 <%@ page import="java.util.Map" %>
 <%@ page import="java.util.ResourceBundle" %>
-<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.TemplateDTO" %>
 <%@ page import="java.util.HashMap" %>
+<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.metadata.WorkflowImpl" %>
+<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.metadata.Template" %>
 
 
 <%
@@ -49,7 +47,7 @@
     }
 
     String template = null ;
-    String templateImpl = request.getParameter(WorkflowUIConstants.PARAM_TEMPLATE_IMPL);
+    String templateImpl = request.getParameter(WorkflowUIConstants.PARAM_WORKFLOW_IMPL);
 
 
     WorkflowAdminServiceClient client;
@@ -57,8 +55,8 @@
     ResourceBundle resourceBundle = ResourceBundle.getBundle(bundle, request.getLocale());
 
     String forwardTo = null;
-    TemplateImplDTO templateImplDTO = null;
-    TemplateDTO templateDTO = null;
+    WorkflowImpl templateImplWorkflow = null;
+    Template templateDTO = null;
 
     Map<String, String> attribMap = new HashMap<String,String>();
 
@@ -68,9 +66,9 @@
         attribMap =
                 (Map<String, String>) session.getAttribute(WorkflowUIConstants.ATTRIB_WORKFLOW_WIZARD);
 
-        template = attribMap.get(WorkflowUIConstants.PARAM_WORKFLOW_TEMPLATE);
+        template = attribMap.get(WorkflowUIConstants.PARAM_TEMPLATE_ID);
 
-        if(!isSelf){
+        if (!isSelf) {
 
             //removing existing session params
             for (Iterator<Map.Entry<String, String>> iterator = attribMap.entrySet().iterator(); iterator.hasNext(); ) {
@@ -89,10 +87,10 @@
                 }
             }
         }
-
     }
 
-    BPSProfileDTO[] bpsProfiles = new BPSProfileDTO[0];
+
+
     try {
         String cookie = (String) session.getAttribute(ServerConstants.ADMIN_SERVICE_COOKIE);
         String backendServerURL = CarbonUIUtil.getServerURL(config.getServletContext(), session);
@@ -102,17 +100,20 @@
         client = new WorkflowAdminServiceClient(cookie, backendServerURL, configContext);
 
         templateDTO = client.getTemplate(template);
+        /*
         if(templateDTO != null && templateDTO.getImplementations() != null  && templateDTO.getImplementations().length == 1 ){
             templateImpl = templateDTO.getImplementations()[0].getImplementationId() ;
         }
 
         if(templateImpl != null) {
 
-            attribMap.put(WorkflowUIConstants.PARAM_TEMPLATE_IMPL,templateImpl);
+            attribMap.put(WorkflowUIConstants.PARAM_WORKFLOW_IMPL,templateImpl);
 
             templateImplDTO = client.getTemplateImpDTO(template, templateImpl);
             bpsProfiles = client.listBPSProfiles();
         }
+        */
+
     } catch (AxisFault e) {
         String message = resourceBundle.getString("workflow.error.when.initiating.service.client");
         CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
@@ -184,10 +185,10 @@
                     <tr>
                         <td><fmt:message key='workflow.deployment.type'/></td>
                         <td>
-                            <select onchange="selectTemplate();" name="<%=WorkflowUIConstants.PARAM_TEMPLATE_IMPL%>">
+                            <select onchange="selectTemplate();" name="<%=WorkflowUIConstants.PARAM_WORKFLOW_IMPL%>">
                                 <option value="" disabled selected><fmt:message key="select"/></option>
                                 <%
-                                    for (TemplateImplDTO impl : templateDTO.getImplementations()) {
+                                    for (WorkflowImpl impl : template.getImplementations()) {
                                 %>
                                 <option value="<%=impl.getImplementationId()%>"
                                         <%=impl.getImplementationId().equals(templateImpl) ? "selected" :""%>>

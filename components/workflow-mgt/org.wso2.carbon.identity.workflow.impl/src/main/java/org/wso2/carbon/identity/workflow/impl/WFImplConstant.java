@@ -21,15 +21,14 @@ public class WFImplConstant {
 
     public static final String WORKFLOW_IMPL_PARAMETER_METADATA_FILE_NAME = "WorkflowParamMetaData.xml" ;
     public static class ParameterName {
-        //Template specific parameters
-        public static final String USER_AND_ROLE = "UserAndRole";
-
         //Workflow Implementation specific parameters
         public static final String BPS_PROFILE = "BPSProfile";
         public static final String HT_SUBJECT = "HTSubject";
         public static final String HT_DESCRIPTION = "HTDescription";
 
     }
+    public static final String WORKFLOW_TEMPLATE_ID = "MultiStepApprovalTemplate" ;
+
 
     public static final String WORKFLOW_IMPL_NAME = "ApprovalWorkflow";
     public static final String WORKFLOW_IMPL_ID = "ApprovalWorkflow";

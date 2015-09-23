@@ -61,8 +61,8 @@
         workflowName =
                 attribMap.get(WorkflowUIConstants.PARAM_WORKFLOW_NAME);
         String description = attribMap.get(WorkflowUIConstants.PARAM_WORKFLOW_DESCRIPTION);
-        String templateName = attribMap.get(WorkflowUIConstants.PARAM_WORKFLOW_TEMPLATE);
-        String templateImplName = attribMap.get(WorkflowUIConstants.PARAM_TEMPLATE_IMPL);
+        String templateName = attribMap.get(WorkflowUIConstants.PARAM_TEMPLATE_ID);
+        String templateImplName = attribMap.get(WorkflowUIConstants.PARAM_WORKFLOW_IMPL);
 
         Map<String, String[]> parameterMap = request.getParameterMap();
         List<ParameterDTO> templateParams = new ArrayList<ParameterDTO>();

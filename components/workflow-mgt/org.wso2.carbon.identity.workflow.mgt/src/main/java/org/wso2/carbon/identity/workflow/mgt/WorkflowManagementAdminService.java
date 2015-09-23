@@ -25,7 +25,7 @@ import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.identity.workflow.mgt.bean.Parameter;
 import org.wso2.carbon.identity.workflow.mgt.dto.Association;
 import org.wso2.carbon.identity.workflow.mgt.dto.Template;
-import org.wso2.carbon.identity.workflow.mgt.dto.Workflow;
+import org.wso2.carbon.identity.workflow.mgt.dto.WorkflowWizard;
 import org.wso2.carbon.identity.workflow.mgt.dto.WorkflowImpl;
 import org.wso2.carbon.identity.workflow.mgt.dto.WorkflowEvent;
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowRequestAssociation;
@@ -50,16 +50,16 @@ public class WorkflowManagementAdminService {
 
 
 
-    public Workflow getWorkflow(String workflowId) throws WorkflowException {
+    public WorkflowWizard getWorkflow(String workflowId) throws WorkflowException {
 
 
         try {
             org.wso2.carbon.identity.workflow.mgt.bean.Workflow workflowBean = WorkflowServiceDataHolder.getInstance().getWorkflowService().getWorkflow(workflowId);
-            Workflow workflow = null;
+            WorkflowWizard workflow = null;
 
             if (workflowBean != null) {
 
-                workflow = new Workflow();
+                workflow = new WorkflowWizard();
 
                 workflow.setWorkflowId(workflowBean.getWorkflowId());
                 workflow.setWorkflowName(workflowBean.getWorkflowName());
@@ -75,21 +75,21 @@ public class WorkflowManagementAdminService {
                 template.setName(abstractTemplate.getName());
                 template.setDescription(abstractTemplate.getDescription());
 
-                template.setParametersMetaData(abstractTemplate.getParameterMetaDatas());
+                template.setParametersMetaData(abstractTemplate.getParametersMetaData());
 
                 workflow.setTemplate(template);
 
 
                 AbstractWorkflow abstractWorkflow =
                         WorkflowServiceDataHolder.getInstance().getWorkflowImpls()
-                                .get(workflowBean.getWorkflowImplId());
+                                .get(workflowBean.getTemplateId()).get(workflowBean.getWorkflowImplId());
 
                 WorkflowImpl workflowimpl = new WorkflowImpl();
                 workflowimpl.setWorkflowImplName(abstractWorkflow.getWorkflowImplName());
                 workflowimpl.setTemplateId(abstractWorkflow.getTemplateId());
                 workflowimpl.setParametersMetaData(abstractWorkflow.getParametersMetaData());
 
-                workflow.setWorkflow(workflowimpl);
+                workflow.setWorkflowImpl(workflowimpl);
 
                 List<Parameter> workflowParams = WorkflowServiceDataHolder.getInstance().getWorkflowService().getWorkflowParameters(workflowId);
                 List<Parameter> templateParams = new ArrayList<>();
@@ -125,24 +125,29 @@ public class WorkflowManagementAdminService {
         return events.toArray(new WorkflowEvent[events.size()]);
     }
 
-    public Template[] listWorkflowTemplates() {
+    public Template[] listTemplates() throws WorkflowException {
         List<Template> templates = WorkflowServiceDataHolder.getInstance().getWorkflowService().listTemplates();
         return templates.toArray(new Template[templates.size()]);
     }
 
-    public Template getTemplate(String templateName) {
-
-        return WorkflowServiceDataHolder.getInstance().getWorkflowService().getTemplate(templateName);
+    public Template getTemplate(String templateId) throws WorkflowException {
+        return WorkflowServiceDataHolder.getInstance().getWorkflowService().getTemplate(templateId);
     }
 
-    public WorkflowImpl getTemplateImpl(String templateId, String implementationId) {
+    public WorkflowImpl getWorkflowImpl(String templateId, String implementationId) throws WorkflowException {
+        return WorkflowServiceDataHolder.getInstance().getWorkflowService().getWorkflowImpl(templateId,
+                                                                                            implementationId);
+    }
 
-        return WorkflowServiceDataHolder.getInstance().getWorkflowService().getWorkflowImpl(implementationId);
+    public WorkflowImpl[] listWorkflowImpls(String templateId) throws WorkflowException {
+        List<WorkflowImpl> workflowList =
+                WorkflowServiceDataHolder.getInstance().getWorkflowService().listWorkflowImpls(templateId);
+        return workflowList.toArray(new WorkflowImpl[workflowList.size()]);
     }
 
 
 
-    public void addWorkflow(Workflow workflow) throws WorkflowException {
+    public void addWorkflow(WorkflowWizard workflow) throws WorkflowException {
 
         String id = UUID.randomUUID().toString();
         int tenantId = CarbonContext.getThreadLocalCarbonContext() .getTenantId();
@@ -201,18 +206,26 @@ public class WorkflowManagementAdminService {
     }
 
 
-    public org.wso2.carbon.identity.workflow.mgt.bean.Workflow[] listWorkflows() throws WorkflowException {
+    public WorkflowWizard[] listWorkflows() throws WorkflowException {
 
+        List<WorkflowWizard> workflow = new ArrayList<>();
         List<org.wso2.carbon.identity.workflow.mgt.bean.Workflow> workflowBeans = new ArrayList<>();
         int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
         try {
             workflowBeans = WorkflowServiceDataHolder.getInstance().getWorkflowService().listWorkflows(tenantId);
+            for (org.wso2.carbon.identity.workflow.mgt.bean.Workflow  aWorkflowBean: workflowBeans){
+                WorkflowWizard workflowTmp = new WorkflowWizard();
+                workflowTmp.setWorkflowId(aWorkflowBean.getWorkflowId());
+                workflowTmp.setWorkflowName(aWorkflowBean.getWorkflowName());
+                workflowTmp.setWorkflowDescription(aWorkflowBean.getWorkflowDescription());
+                workflow.add(workflowTmp);
+            }
         } catch (InternalWorkflowException e) {
             log.error("Server error when listing workflows", e);
             throw new WorkflowException("Server error occurred when listing workflows");
         }
 
-        return workflowBeans.toArray(new org.wso2.carbon.identity.workflow.mgt.bean.Workflow[workflowBeans.size()]);
+        return workflow.toArray(new WorkflowWizard[workflowBeans.size()]);
     }
 
     public void removeWorkflow(String id) throws WorkflowException {

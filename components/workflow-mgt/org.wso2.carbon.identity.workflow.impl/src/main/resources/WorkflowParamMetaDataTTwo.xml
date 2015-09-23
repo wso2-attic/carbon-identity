@@ -1,0 +1,8 @@
+<met:ParametersMetaData xmlns:met="http://metadata.bean.mgt.workflow.identity.carbon.wso2.org">
+
+    <met:ParameterMetaData Name="HTSXXXXubject" DataType="String" InputType="Text" isRequired="true">
+        <met:DisplayName>XXXXX</met:DisplayName>
+    </met:ParameterMetaData>
+
+</met:ParametersMetaData>
+

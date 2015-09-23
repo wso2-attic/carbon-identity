@@ -51,7 +51,7 @@ public class WorkflowServiceDataHolder {
 
 
     private Map<String, AbstractTemplate> templates = new HashMap<String, AbstractTemplate>();
-    private Map<String, AbstractWorkflow> workflowImpls = new HashMap<String, AbstractWorkflow>();
+    private Map<String, Map<String,AbstractWorkflow>> workflowImpls = new HashMap<String, Map<String,AbstractWorkflow>>();
 
     private WorkflowManagementService workflowService = null ;
 
@@ -110,12 +110,17 @@ public class WorkflowServiceDataHolder {
         return templates;
     }
 
-    public Map<String, AbstractWorkflow> getWorkflowImpls() {
+    public Map<String, Map<String,AbstractWorkflow>> getWorkflowImpls() {
         return workflowImpls;
     }
 
     public void addWorkflowImplementation(AbstractWorkflow abstractWorkflow) {
-        workflowImpls.put(abstractWorkflow.getWorkflowImplId(),abstractWorkflow);
+        Map<String, AbstractWorkflow> abstractWorkflowMap = workflowImpls.get(abstractWorkflow.getTemplateId());
+        if(abstractWorkflowMap == null){
+            abstractWorkflowMap = new HashMap<>();
+            workflowImpls.put(abstractWorkflow.getTemplateId(),abstractWorkflowMap);
+        }
+        abstractWorkflowMap.put(abstractWorkflow.getWorkflowImplId(),abstractWorkflow);
     }
 
     public void removeWorkflowImplementation(AbstractWorkflow abstractWorkflow) {

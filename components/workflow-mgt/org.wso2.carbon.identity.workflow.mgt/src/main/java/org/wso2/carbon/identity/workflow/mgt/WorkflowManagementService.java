@@ -36,11 +36,13 @@ public interface WorkflowManagementService {
 
     List<WorkflowEvent> listWorkflowEvents();
 
-    WorkflowEvent getEvent(String id);
-    List<Template> listTemplates();
-    Template getTemplate(String templateId);
+    public List<WorkflowImpl> listWorkflowImpls(String templateId) throws WorkflowException;
 
-    WorkflowImpl getWorkflowImpl(String workflowImplId);
+    WorkflowEvent getEvent(String id);
+    List<Template> listTemplates() throws WorkflowException;
+    Template getTemplate(String templateId) throws WorkflowException;
+
+    public WorkflowImpl getWorkflowImpl(String templateId, String workflowImplId) throws WorkflowException;
 
     void addWorkflow(Workflow workflowDTO,
                      List<Parameter> parameterList, int tenantId) throws WorkflowException;

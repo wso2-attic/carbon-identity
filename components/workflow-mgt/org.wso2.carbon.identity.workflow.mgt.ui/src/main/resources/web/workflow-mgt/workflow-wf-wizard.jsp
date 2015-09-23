@@ -22,6 +22,17 @@
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.WorkflowUIConstants" %>
 <%@ page import="java.util.HashMap" %>
 <%@ page import="java.util.Map" %>
+<%@ page import="org.apache.commons.lang.StringUtils" %>
+<%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.WorkflowAdminServiceClient" %>
+<%@ page import="java.util.ResourceBundle" %>
+<%@ page import="org.wso2.carbon.utils.ServerConstants" %>
+<%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
+<%@ page import="org.apache.axis2.context.ConfigurationContext" %>
+<%@ page import="org.wso2.carbon.CarbonConstants" %>
+<%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
+<%@ page import="java.util.UUID" %>
+<%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.util.WorkflowUIUtil" %>
+<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.metadata.WorkflowWizard" %>
 
 
 <script type="text/javascript" src="extensions/js/vui.js"></script>
@@ -29,28 +40,74 @@
 <script type="text/javascript" src="../admin/js/main.js"></script>
 
 <%
+
+    WorkflowAdminServiceClient client;
+    String bundle = "org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources";
+    ResourceBundle resourceBundle = ResourceBundle.getBundle(bundle, request.getLocale());
+    String forwardTo = null;
+
+
     String requestPath = "list-workflows";
     //'path' parameter to use to track parent wizard path if this wizard trigger by another wizard
-    if(request.getParameter("path") != null && !request.getParameter("path").isEmpty()){
-        requestPath = request.getParameter("path");
+    if(request.getParameter(WorkflowUIConstants.PARAM_REQUEST_PATH) != null &&
+       !request.getParameter(WorkflowUIConstants.PARAM_REQUEST_PATH).isEmpty()){
+        requestPath = request.getParameter(WorkflowUIConstants.PARAM_REQUEST_PATH);
     }
 
-    String workflowName = null;
-    String workflowDescription = null;
 
-    String action =  request.getParameter(WorkflowUIConstants.PARAM_ACTION);
+    String workflowId = request.getParameter(WorkflowUIConstants.PARAM_WORKFLOW_ID);
+    String requestToken = request.getParameter(WorkflowUIConstants.PARAM_PAGE_REQUEST_TOKEN);
 
-    if (session.getAttribute(WorkflowUIConstants.ATTRIB_WORKFLOW_WIZARD) != null &&
-        session.getAttribute(WorkflowUIConstants.ATTRIB_WORKFLOW_WIZARD) instanceof Map &&
-        WorkflowUIConstants.ACTION_VALUE_BACK.equals(action)) {
-        Map<String, String> attribMap =
-                (Map<String, String>) session.getAttribute(WorkflowUIConstants.ATTRIB_WORKFLOW_WIZARD);
-        workflowName = attribMap.get(WorkflowUIConstants.PARAM_WORKFLOW_NAME);
-        workflowDescription = attribMap.get(WorkflowUIConstants.PARAM_WORKFLOW_DESCRIPTION);
-    } else {
-        session.setAttribute(WorkflowUIConstants.ATTRIB_WORKFLOW_WIZARD, new HashMap<String, String>());
+
+
+
+    WorkflowWizard workflowWizard = null ;
+
+    try {
+        String cookie = (String) session.getAttribute(ServerConstants.ADMIN_SERVICE_COOKIE);
+        String backendServerURL = CarbonUIUtil.getServerURL(config.getServletContext(), session);
+        ConfigurationContext configContext =
+                (ConfigurationContext) config.getServletContext()
+                        .getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
+        client = new WorkflowAdminServiceClient(cookie, backendServerURL, configContext);
+
+        if(StringUtils.isNotBlank(requestToken)){
+            workflowWizard = (WorkflowWizard)session.getAttribute(requestToken);
+        }else{
+            requestToken = UUID.randomUUID().toString();
+            if(StringUtils.isNotBlank(workflowId)){
+                workflowWizard = client.getWorkflow(workflowId);
+            }else{
+                workflowWizard = new WorkflowWizard();
+            }
+            session.setAttribute(requestToken,workflowWizard);
+        }
+    } catch (Exception e) {
+        String message = resourceBundle.getString("workflow.error.when.initiating.service.client");
+        CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
+        forwardTo = "../admin/error.jsp";
     }
 %>
+
+
+<%
+    if (forwardTo != null) {
+%>
+<script type="text/javascript">
+    function forward() {
+        location.href = "<%=forwardTo%>";
+    }
+</script>
+
+<script type="text/javascript">
+    forward();
+</script>
+<%
+        return;
+    }
+%>
+
+
 
 
 
@@ -88,8 +145,9 @@
         <h2><fmt:message key='workflow.add'/></h2>
 
         <div id="workArea">
-            <form id="id_workflow" method="post" name="serviceAdd" action="template-params.jsp">
-                <input type="hidden" name="path" value="<%=requestPath%>"/>
+            <form id="id_workflow" method="post" name="serviceAdd" action="template-wf-wizard.jsp">
+                <input type="hidden" name="<%=WorkflowUIConstants.PARAM_PAGE_REQUEST_TOKEN%>" value="<%=requestToken%>"/>
+                <input type="hidden" name="<%=WorkflowUIConstants.PARAM_REQUEST_PATH%>" value="<%=requestPath%>"/>
                 <table class="styledLeft">
                     <thead>
                     <tr>
@@ -102,13 +160,13 @@
                                 <tr>
                                     <td width="130px"><fmt:message key='workflow.name'/></td>
                                     <td>
-                                        <input size="30" id="id_workflow_name" type="text" name="<%=WorkflowUIConstants.PARAM_WORKFLOW_NAME%>" value="<%=workflowName != null ? workflowName : ""%>" style="min-width: 30%"/>
+                                        <input size="30" id="id_workflow_name" type="text" name="<%=WorkflowUIConstants.PARAM_WORKFLOW_NAME%>" value="<%=(workflowWizard != null && workflowWizard.getWorkflowName() != null) ? workflowWizard.getWorkflowName() : ""%>" style="min-width: 30%"/>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td><fmt:message key='workflow.description'/></td>
                                     <td>
-                                        <textarea name="<%=WorkflowUIConstants.PARAM_WORKFLOW_DESCRIPTION%>" cols="60" rows="4"><%=workflowDescription != null ? workflowDescription : ""%></textarea>
+                                        <textarea name="<%=WorkflowUIConstants.PARAM_WORKFLOW_DESCRIPTION%>" cols="60" rows="4"><%=(workflowWizard != null && workflowWizard.getWorkflowDescription() != null) ? workflowWizard.getWorkflowDescription() : ""%></textarea>
                                     </td>
                                 </tr>
                             </table>

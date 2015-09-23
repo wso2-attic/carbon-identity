@@ -1,0 +1,21 @@
+<xsd:ParametersMetaData xmlns:xsd="http://xsd.metadata.bean.mgt.workflow.identity.carbon.wso2.org">
+  <!--1 or more repetitions:-->
+  <xsd:ParameterMetaData Name="string" DataType="String" InputType="Multiple_Select" CustomInputType="string" Use="Optional" Validate="true">
+    <xsd:DisplayName>string</xsd:DisplayName>
+    <!--Optional:-->
+    <xsd:DefaultValue>string</xsd:DefaultValue>
+    <!--Optional:-->
+    <xsd:RegExForValidate>string</xsd:RegExForValidate>
+    <!--Optional:-->
+    <xsd:InputData>
+      <!--Optional:-->
+      <xsd:MapType>
+        <!--1 or more repetitions:-->
+        <xsd:Item>
+          <xsd:Key>string</xsd:Key>
+          <xsd:Value>string</xsd:Value>
+        </xsd:Item>
+      </xsd:MapType>
+    </xsd:InputData>
+  </xsd:ParameterMetaData>
+</xsd:ParametersMetaData>

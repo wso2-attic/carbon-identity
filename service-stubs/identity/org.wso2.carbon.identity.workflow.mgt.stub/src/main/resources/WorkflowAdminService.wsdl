@@ -1,5 +1,5 @@
 
-<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:ns="http://mgt.workflow.identity.carbon.wso2.org/xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ax2400="http://metadata.bean.mgt.workflow.identity.carbon.wso2.org/xsd" xmlns:ax2403="http://exception.mgt.workflow.identity.carbon.wso2.org/xsd" xmlns:ns1="http://org.apache.axis2/xsd" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:ax2397="http://bean.mgt.workflow.identity.carbon.wso2.org/xsd" xmlns:tns="http://mgt.workflow.identity.carbon.wso2.org" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:ax2399="http://dto.mgt.workflow.identity.carbon.wso2.org/xsd" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://mgt.workflow.identity.carbon.wso2.org">
+<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:ns="http://mgt.workflow.identity.carbon.wso2.org/xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ax2401="http://metadata.bean.mgt.workflow.identity.carbon.wso2.org/xsd" xmlns:ns1="http://org.apache.axis2/xsd" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:ax2397="http://bean.mgt.workflow.identity.carbon.wso2.org/xsd" xmlns:tns="http://mgt.workflow.identity.carbon.wso2.org" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:ax2395="http://exception.mgt.workflow.identity.carbon.wso2.org/xsd" xmlns:ax2399="http://dto.mgt.workflow.identity.carbon.wso2.org/xsd" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://mgt.workflow.identity.carbon.wso2.org">
     <wsdl:documentation>WorkflowAdminService</wsdl:documentation>
     <wsdl:types>
         <xs:schema attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://exception.mgt.workflow.identity.carbon.wso2.org/xsd">
@@ -8,13 +8,15 @@
             </xs:complexType>
         </xs:schema>
         <xs:schema attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://bean.mgt.workflow.identity.carbon.wso2.org/xsd">
-            <xs:complexType name="WorkflowEventDTO">
+            <xs:complexType name="WorkflowRequest">
                 <xs:sequence>
-                    <xs:element minOccurs="0" name="eventCategory" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="eventDescription" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="eventFriendlyName" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="eventId" nillable="true" type="xs:string"/>
-                    <xs:element maxOccurs="unbounded" minOccurs="0" name="parameterDTOs" nillable="true" type="ax2397:Parameter"/>
+                    <xs:element minOccurs="0" name="createdAt" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="createdBy" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="eventType" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="requestId" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="requestParams" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="status" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="updatedAt" nillable="true" type="xs:string"/>
                 </xs:sequence>
             </xs:complexType>
             <xs:complexType name="Parameter">
@@ -26,18 +28,7 @@
                     <xs:element minOccurs="0" name="workflowId" nillable="true" type="xs:string"/>
                 </xs:sequence>
             </xs:complexType>
-            <xs:complexType name="WorkflowRequestDTO">
-                <xs:sequence>
-                    <xs:element minOccurs="0" name="createdAt" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="createdBy" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="eventType" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="requestId" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="requestParams" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="status" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="updatedAt" nillable="true" type="xs:string"/>
-                </xs:sequence>
-            </xs:complexType>
-            <xs:complexType name="WorkflowRequestAssociationDTO">
+            <xs:complexType name="WorkflowRequestAssociation">
                 <xs:sequence>
                     <xs:element minOccurs="0" name="lastUpdatedTime" nillable="true" type="xs:string"/>
                     <xs:element minOccurs="0" name="status" nillable="true" type="xs:string"/>
@@ -46,108 +37,47 @@
                 </xs:sequence>
             </xs:complexType>
         </xs:schema>
-        <xs:schema elementFormDefault="qualified" targetNamespace="http://metadata.bean.mgt.workflow.identity.carbon.wso2.org/xsd" xmlns="http://metadata.bean.mgt.workflow.identity.carbon.wso2.org/xsd">
-	    <xs:element name="ParametersMetaData">
-		<xs:complexType>
-		    <xs:sequence>
-		        <xs:element name="ParameterMetaData" maxOccurs="unbounded">
-		            <xs:complexType>
-		                <xs:sequence>
-		                    <xs:element name="DisplayName" type="xs:string"></xs:element>
-		                    <xs:element name="DefaultValue" type="xs:string" minOccurs="0"></xs:element>
-		                    <xs:element name="RegExForValidate" type="xs:string" minOccurs="0"></xs:element>
-		                    <xs:element name="InputData" minOccurs="0">
-		                        <xs:complexType>
-		                            <xs:choice>
-		                                <xs:element name="MapType" minOccurs="0">
-		                                    <xs:complexType>
-		                                        <xs:sequence>
-		                                            <xs:element name="Item" maxOccurs="unbounded">
-		                                                <xs:complexType>
-		                                                    <xs:sequence>
-		                                                        <xs:element name="Key" type="xs:string"></xs:element>
-		                                                        <xs:element name="Value" type="xs:string"></xs:element>
-		                                                    </xs:sequence>
-		                                                </xs:complexType>
-		                                            </xs:element>
-		                                        </xs:sequence>
-		                                    </xs:complexType>
-		                                </xs:element>
-		                            </xs:choice>
-		                        </xs:complexType>
-		                    </xs:element>
-		                </xs:sequence>
-		                <xs:attribute name="Name" type="xs:string" use="required"></xs:attribute>
-		                <xs:attribute name="DataType" use="optional" type="DataType"></xs:attribute>
-		                <xs:attribute name="InputType" use="optional" type="InputType"></xs:attribute>
-
-		                <xs:attribute name="CustomInputType" use="optional" type="xs:string"></xs:attribute>
-		                <xs:attribute name="Use" default="Optional" type="Use"></xs:attribute>
-		                <xs:attribute name="Validate" type="xs:boolean" default="true"></xs:attribute>
-		            </xs:complexType>
-		        </xs:element>
-		    </xs:sequence>
-		</xs:complexType>
-	    </xs:element>
-
-
-	    <xs:simpleType name="InputType">
-		<xs:restriction base="xs:string">
-		    <xs:enumeration value="Select"></xs:enumeration>
-		    <xs:enumeration value="Multiple_Select"></xs:enumeration>
-		    <xs:enumeration value="Option"></xs:enumeration>
-		    <xs:enumeration value="Single_CheckBox"></xs:enumeration>
-		    <xs:enumeration value="Multiple_CheckBox"></xs:enumeration>
-		    <xs:enumeration value="TextArea"></xs:enumeration>
-		    <xs:enumeration value="Password"></xs:enumeration>
-		    <xs:enumeration value="Text"></xs:enumeration>
-		    <xs:enumeration value="Multiple_Steps_User_Role"></xs:enumeration>
-		</xs:restriction>
-	    </xs:simpleType>
-	    <xs:simpleType name="DataType">
-		<xs:restriction base="xs:string">
-		    <xs:enumeration value="String"></xs:enumeration>
-		    <xs:enumeration value="Double"></xs:enumeration>
-		    <xs:enumeration value="Integer"></xs:enumeration>
-		    <xs:enumeration value="Boolean"></xs:enumeration>
-		    <xs:enumeration value="DateTime"></xs:enumeration>
-		</xs:restriction>
-	    </xs:simpleType>
-	    <xs:simpleType name="Use">
-		<xs:restriction base="xs:string">
-		    <xs:enumeration value="Required"></xs:enumeration>
-		    <xs:enumeration value="Optional"></xs:enumeration>
-		</xs:restriction>
-	    </xs:simpleType>
-	</xs:schema>
-        <xs:schema xmlns:ax2401="http://metadata.bean.mgt.workflow.identity.carbon.wso2.org/xsd" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://dto.mgt.workflow.identity.carbon.wso2.org/xsd">
-            <xs:import namespace="http://metadata.bean.mgt.workflow.identity.carbon.wso2.org/xsd"/>
-            <xs:complexType name="Template">
+        <xs:schema attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://metadata.bean.mgt.workflow.identity.carbon.wso2.org/xsd">
+            <xs:complexType name="ParametersMetaData">
                 <xs:sequence>
-                    <xs:element minOccurs="0" name="description" nillable="true" type="xs:string"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="parameterMetaData" nillable="true" type="ax2401:ParameterMetaData"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="ParameterMetaData">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="customInputType" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="dataType" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="defaultValue" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="displayName" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="inputData" nillable="true" type="ax2401:InputData"/>
+                    <xs:element minOccurs="0" name="inputType" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="isInputDataRequired" type="xs:boolean"/>
+                    <xs:element minOccurs="0" name="isRequired" type="xs:boolean"/>
                     <xs:element minOccurs="0" name="name" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="parametersMetaData" nillable="true" type="ax2401:ParametersMetaData"/>
-                    <xs:element minOccurs="0" name="templateId" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="workflow" nillable="true" type="ax2399:Workflow"/>
+                    <xs:element minOccurs="0" name="regExForValidate" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="validate" type="xs:boolean"/>
                 </xs:sequence>
             </xs:complexType>
-            <xs:complexType name="Workflow">
+            <xs:complexType name="InputData">
                 <xs:sequence>
-                    <xs:element minOccurs="0" name="templateId" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="workflowDescription" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="workflowId" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="workflowImplId" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="workflowName" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="mapType" nillable="true" type="ax2401:MapType"/>
                 </xs:sequence>
             </xs:complexType>
-            <xs:complexType name="WorkflowImpl">
+            <xs:complexType name="MapType">
                 <xs:sequence>
-                    <xs:element minOccurs="0" name="parametersMetaData" nillable="true" type="ax2401:ParametersMetaData"/>
-                    <xs:element minOccurs="0" name="templateId" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="workflowImplId" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="workflowImplName" nillable="true" type="xs:string"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="item" nillable="true" type="ax2401:Item"/>
                 </xs:sequence>
             </xs:complexType>
+            <xs:complexType name="Item">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="key" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="value" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+        </xs:schema>
+        <xs:schema xmlns:ax2402="http://metadata.bean.mgt.workflow.identity.carbon.wso2.org/xsd" xmlns:ax2403="http://bean.mgt.workflow.identity.carbon.wso2.org/xsd" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://dto.mgt.workflow.identity.carbon.wso2.org/xsd">
+            <xs:import namespace="http://metadata.bean.mgt.workflow.identity.carbon.wso2.org/xsd"/>
+            <xs:import namespace="http://bean.mgt.workflow.identity.carbon.wso2.org/xsd"/>
             <xs:complexType name="Association">
                 <xs:sequence>
                     <xs:element minOccurs="0" name="associationId" nillable="true" type="xs:string"/>
@@ -161,81 +91,93 @@
                     <xs:element minOccurs="0" name="workflowName" nillable="true" type="xs:string"/>
                 </xs:sequence>
             </xs:complexType>
+            <xs:complexType name="Template">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="description" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="name" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="parametersMetaData" nillable="true" type="ax2402:ParametersMetaData"/>
+                    <xs:element minOccurs="0" name="templateId" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="WorkflowImpl">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="parametersMetaData" nillable="true" type="ax2402:ParametersMetaData"/>
+                    <xs:element minOccurs="0" name="templateId" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="workflowImplId" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="workflowImplName" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="WorkflowEvent">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="eventCategory" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="eventDescription" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="eventFriendlyName" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="eventId" nillable="true" type="xs:string"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="parameters" nillable="true" type="ax2397:Parameter"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="WorkflowWizard">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="template" nillable="true" type="ax2399:Template"/>
+                    <xs:element minOccurs="0" name="templateId" nillable="true" type="xs:string"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="templateParameters" nillable="true" type="ax2397:Parameter"/>
+                    <xs:element minOccurs="0" name="workflowDescription" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="workflowId" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="workflowImpl" nillable="true" type="ax2399:WorkflowImpl"/>
+                    <xs:element minOccurs="0" name="workflowImplId" nillable="true" type="xs:string"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="workflowImplParameters" nillable="true" type="ax2397:Parameter"/>
+                    <xs:element minOccurs="0" name="workflowName" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
         </xs:schema>
-        <xs:schema xmlns:ax2402="http://dto.mgt.workflow.identity.carbon.wso2.org/xsd" xmlns:ax2398="http://bean.mgt.workflow.identity.carbon.wso2.org/xsd" xmlns:ax2404="http://exception.mgt.workflow.identity.carbon.wso2.org/xsd" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://mgt.workflow.identity.carbon.wso2.org/xsd">
+        <xs:schema xmlns:ax2400="http://dto.mgt.workflow.identity.carbon.wso2.org/xsd" xmlns:ax2398="http://bean.mgt.workflow.identity.carbon.wso2.org/xsd" xmlns:ax2396="http://exception.mgt.workflow.identity.carbon.wso2.org/xsd" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://mgt.workflow.identity.carbon.wso2.org/xsd">
+            <xs:import namespace="http://exception.mgt.workflow.identity.carbon.wso2.org/xsd"/>
             <xs:import namespace="http://bean.mgt.workflow.identity.carbon.wso2.org/xsd"/>
             <xs:import namespace="http://dto.mgt.workflow.identity.carbon.wso2.org/xsd"/>
-            <xs:import namespace="http://exception.mgt.workflow.identity.carbon.wso2.org/xsd"/>
-            <xs:element name="listWorkflowEvents">
-                <xs:complexType>
-                    <xs:sequence/>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="listWorkflowEventsResponse">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="ax2397:WorkflowEventDTO"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="listWorkflowTemplates">
-                <xs:complexType>
-                    <xs:sequence/>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="listWorkflowTemplatesResponse">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="ax2402:Template"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="getTemplateImpl">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="templateId" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="implementationId" nillable="true" type="xs:string"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="getTemplateImplResponse">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="return" nillable="true" type="ax2402:WorkflowImpl"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
             <xs:element name="WorkflowAdminServiceWorkflowException">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element minOccurs="0" name="WorkflowException" nillable="true" type="ax2404:WorkflowException"/>
+                        <xs:element minOccurs="0" name="WorkflowException" nillable="true" type="ax2395:WorkflowException"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
-            <xs:element name="changeAssociationState">
+            <xs:element name="removeAssociation">
                 <xs:complexType>
                     <xs:sequence>
                         <xs:element minOccurs="0" name="associationId" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="isEnable" type="xs:boolean"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
-            <xs:element name="listWorkflows">
-                <xs:complexType>
-                    <xs:sequence/>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="listWorkflowsResponse">
+            <xs:element name="addAssociation">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="ax2402:Workflow"/>
+                        <xs:element minOccurs="0" name="associationName" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="workflowId" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="eventId" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="condition" nillable="true" type="xs:string"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
-            <xs:element name="removeWorkflow">
+            <xs:element name="getRequestsInFilter">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element minOccurs="0" name="id" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="beginDate" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="endDate" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="dateCategory" nillable="true" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getRequestsInFilterResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="ax2397:WorkflowRequest"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="deleteWorkflowRequest">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="requestId" nillable="true" type="xs:string"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
@@ -249,7 +191,128 @@
             <xs:element name="listAssociationsResponse">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="ax2402:Association"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="ax2400:Association"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getTemplate">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="templateId" nillable="true" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getTemplateResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ax2400:Template"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="listWorkflowImpls">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="templateId" nillable="true" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="listWorkflowImplsResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="ax2400:WorkflowImpl"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="listTemplates">
+                <xs:complexType>
+                    <xs:sequence/>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="listTemplatesResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="ax2400:Template"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="listWorkflowEvents">
+                <xs:complexType>
+                    <xs:sequence/>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="listWorkflowEventsResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="ax2400:WorkflowEvent"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getWorkflowImpl">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="templateId" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="implementationId" nillable="true" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getWorkflowImplResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ax2400:WorkflowImpl"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="addWorkflow">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="workflow" nillable="true" type="ax2400:WorkflowWizard"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getWorkflow">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="workflowId" nillable="true" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getWorkflowResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ax2400:WorkflowWizard"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getEvent">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="eventId" nillable="true" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getEventResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ax2400:WorkflowEvent"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="listWorkflows">
+                <xs:complexType>
+                    <xs:sequence/>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="listWorkflowsResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="ax2400:WorkflowWizard"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="removeWorkflow">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="id" nillable="true" type="xs:string"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
@@ -261,7 +324,15 @@
             <xs:element name="listAllAssociationsResponse">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="ax2402:Association"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="ax2400:Association"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="changeAssociationState">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="associationId" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="isEnable" type="xs:boolean"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
@@ -278,30 +349,7 @@
             <xs:element name="getRequestsCreatedByUserResponse">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="ax2397:WorkflowRequestDTO"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="getRequestsInFilter">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="beginDate" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="endDate" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="dateCategory" nillable="true" type="xs:string"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="getRequestsInFilterResponse">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="ax2397:WorkflowRequestDTO"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="deleteWorkflowRequest">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="requestId" nillable="true" type="xs:string"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="ax2397:WorkflowRequest"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
@@ -315,60 +363,7 @@
             <xs:element name="getWorkflowsOfRequestResponse">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="ax2397:WorkflowRequestAssociationDTO"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="addWorkflow">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="workflow" nillable="true" type="ax2402:Workflow"/>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="parameters" nillable="true" type="ax2397:Parameter"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="addAssociation">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="associationName" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="workflowId" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="eventId" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="condition" nillable="true" type="xs:string"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="removeAssociation">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="associationId" nillable="true" type="xs:string"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="getTemplate">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="templateName" nillable="true" type="xs:string"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="getTemplateResponse">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="return" nillable="true" type="ax2402:Template"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="getEvent">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="eventId" nillable="true" type="xs:string"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="getEventResponse">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="return" nillable="true" type="ax2397:WorkflowEventDTO"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="ax2397:WorkflowRequestAssociation"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
@@ -392,17 +387,17 @@
     <wsdl:message name="getRequestsCreatedByUserResponse">
         <wsdl:part name="parameters" element="ns:getRequestsCreatedByUserResponse"/>
     </wsdl:message>
-    <wsdl:message name="getTemplateImplRequest">
-        <wsdl:part name="parameters" element="ns:getTemplateImpl"/>
-    </wsdl:message>
-    <wsdl:message name="getTemplateImplResponse">
-        <wsdl:part name="parameters" element="ns:getTemplateImplResponse"/>
-    </wsdl:message>
     <wsdl:message name="getRequestsInFilterRequest">
         <wsdl:part name="parameters" element="ns:getRequestsInFilter"/>
     </wsdl:message>
     <wsdl:message name="getRequestsInFilterResponse">
         <wsdl:part name="parameters" element="ns:getRequestsInFilterResponse"/>
+    </wsdl:message>
+    <wsdl:message name="getWorkflowImplRequest">
+        <wsdl:part name="parameters" element="ns:getWorkflowImpl"/>
+    </wsdl:message>
+    <wsdl:message name="getWorkflowImplResponse">
+        <wsdl:part name="parameters" element="ns:getWorkflowImplResponse"/>
     </wsdl:message>
     <wsdl:message name="listAllAssociationsRequest">
         <wsdl:part name="parameters" element="ns:listAllAssociations"/>
@@ -419,6 +414,12 @@
     <wsdl:message name="addAssociationRequest">
         <wsdl:part name="parameters" element="ns:addAssociation"/>
     </wsdl:message>
+    <wsdl:message name="listTemplatesRequest">
+        <wsdl:part name="parameters" element="ns:listTemplates"/>
+    </wsdl:message>
+    <wsdl:message name="listTemplatesResponse">
+        <wsdl:part name="parameters" element="ns:listTemplatesResponse"/>
+    </wsdl:message>
     <wsdl:message name="listWorkflowsRequest">
         <wsdl:part name="parameters" element="ns:listWorkflows"/>
     </wsdl:message>
@@ -427,12 +428,6 @@
     </wsdl:message>
     <wsdl:message name="addWorkflowRequest">
         <wsdl:part name="parameters" element="ns:addWorkflow"/>
-    </wsdl:message>
-    <wsdl:message name="listWorkflowTemplatesRequest">
-        <wsdl:part name="parameters" element="ns:listWorkflowTemplates"/>
-    </wsdl:message>
-    <wsdl:message name="listWorkflowTemplatesResponse">
-        <wsdl:part name="parameters" element="ns:listWorkflowTemplatesResponse"/>
     </wsdl:message>
     <wsdl:message name="changeAssociationStateRequest">
         <wsdl:part name="parameters" element="ns:changeAssociationState"/>
@@ -443,8 +438,11 @@
     <wsdl:message name="getTemplateResponse">
         <wsdl:part name="parameters" element="ns:getTemplateResponse"/>
     </wsdl:message>
-    <wsdl:message name="removeAssociationRequest">
-        <wsdl:part name="parameters" element="ns:removeAssociation"/>
+    <wsdl:message name="listWorkflowImplsRequest">
+        <wsdl:part name="parameters" element="ns:listWorkflowImpls"/>
+    </wsdl:message>
+    <wsdl:message name="listWorkflowImplsResponse">
+        <wsdl:part name="parameters" element="ns:listWorkflowImplsResponse"/>
     </wsdl:message>
     <wsdl:message name="getEventRequest">
         <wsdl:part name="parameters" element="ns:getEvent"/>
@@ -452,11 +450,20 @@
     <wsdl:message name="getEventResponse">
         <wsdl:part name="parameters" element="ns:getEventResponse"/>
     </wsdl:message>
+    <wsdl:message name="removeAssociationRequest">
+        <wsdl:part name="parameters" element="ns:removeAssociation"/>
+    </wsdl:message>
     <wsdl:message name="listWorkflowEventsRequest">
         <wsdl:part name="parameters" element="ns:listWorkflowEvents"/>
     </wsdl:message>
     <wsdl:message name="listWorkflowEventsResponse">
         <wsdl:part name="parameters" element="ns:listWorkflowEventsResponse"/>
+    </wsdl:message>
+    <wsdl:message name="getWorkflowRequest">
+        <wsdl:part name="parameters" element="ns:getWorkflow"/>
+    </wsdl:message>
+    <wsdl:message name="getWorkflowResponse">
+        <wsdl:part name="parameters" element="ns:getWorkflowResponse"/>
     </wsdl:message>
     <wsdl:message name="removeWorkflowRequest">
         <wsdl:part name="parameters" element="ns:removeWorkflow"/>
@@ -476,14 +483,15 @@
             <wsdl:output message="tns:getRequestsCreatedByUserResponse" wsaw:Action="urn:getRequestsCreatedByUserResponse"/>
             <wsdl:fault message="tns:WorkflowAdminServiceWorkflowException" name="WorkflowAdminServiceWorkflowException" wsaw:Action="urn:getRequestsCreatedByUserWorkflowAdminServiceWorkflowException"/>
         </wsdl:operation>
-        <wsdl:operation name="getTemplateImpl">
-            <wsdl:input message="tns:getTemplateImplRequest" wsaw:Action="urn:getTemplateImpl"/>
-            <wsdl:output message="tns:getTemplateImplResponse" wsaw:Action="urn:getTemplateImplResponse"/>
-        </wsdl:operation>
         <wsdl:operation name="getRequestsInFilter">
             <wsdl:input message="tns:getRequestsInFilterRequest" wsaw:Action="urn:getRequestsInFilter"/>
             <wsdl:output message="tns:getRequestsInFilterResponse" wsaw:Action="urn:getRequestsInFilterResponse"/>
             <wsdl:fault message="tns:WorkflowAdminServiceWorkflowException" name="WorkflowAdminServiceWorkflowException" wsaw:Action="urn:getRequestsInFilterWorkflowAdminServiceWorkflowException"/>
+        </wsdl:operation>
+        <wsdl:operation name="getWorkflowImpl">
+            <wsdl:input message="tns:getWorkflowImplRequest" wsaw:Action="urn:getWorkflowImpl"/>
+            <wsdl:output message="tns:getWorkflowImplResponse" wsaw:Action="urn:getWorkflowImplResponse"/>
+            <wsdl:fault message="tns:WorkflowAdminServiceWorkflowException" name="WorkflowAdminServiceWorkflowException" wsaw:Action="urn:getWorkflowImplWorkflowAdminServiceWorkflowException"/>
         </wsdl:operation>
         <wsdl:operation name="listAllAssociations">
             <wsdl:input message="tns:listAllAssociationsRequest" wsaw:Action="urn:listAllAssociations"/>
@@ -499,6 +507,11 @@
             <wsdl:input message="tns:addAssociationRequest" wsaw:Action="urn:addAssociation"/>
             <wsdl:fault message="tns:WorkflowAdminServiceWorkflowException" name="WorkflowAdminServiceWorkflowException" wsaw:Action="urn:addAssociationWorkflowAdminServiceWorkflowException"/>
         </wsdl:operation>
+        <wsdl:operation name="listTemplates">
+            <wsdl:input message="tns:listTemplatesRequest" wsaw:Action="urn:listTemplates"/>
+            <wsdl:output message="tns:listTemplatesResponse" wsaw:Action="urn:listTemplatesResponse"/>
+            <wsdl:fault message="tns:WorkflowAdminServiceWorkflowException" name="WorkflowAdminServiceWorkflowException" wsaw:Action="urn:listTemplatesWorkflowAdminServiceWorkflowException"/>
+        </wsdl:operation>
         <wsdl:operation name="listWorkflows">
             <wsdl:input message="tns:listWorkflowsRequest" wsaw:Action="urn:listWorkflows"/>
             <wsdl:output message="tns:listWorkflowsResponse" wsaw:Action="urn:listWorkflowsResponse"/>
@@ -508,10 +521,6 @@
             <wsdl:input message="tns:addWorkflowRequest" wsaw:Action="urn:addWorkflow"/>
             <wsdl:fault message="tns:WorkflowAdminServiceWorkflowException" name="WorkflowAdminServiceWorkflowException" wsaw:Action="urn:addWorkflowWorkflowAdminServiceWorkflowException"/>
         </wsdl:operation>
-        <wsdl:operation name="listWorkflowTemplates">
-            <wsdl:input message="tns:listWorkflowTemplatesRequest" wsaw:Action="urn:listWorkflowTemplates"/>
-            <wsdl:output message="tns:listWorkflowTemplatesResponse" wsaw:Action="urn:listWorkflowTemplatesResponse"/>
-        </wsdl:operation>
         <wsdl:operation name="changeAssociationState">
             <wsdl:input message="tns:changeAssociationStateRequest" wsaw:Action="urn:changeAssociationState"/>
             <wsdl:fault message="tns:WorkflowAdminServiceWorkflowException" name="WorkflowAdminServiceWorkflowException" wsaw:Action="urn:changeAssociationStateWorkflowAdminServiceWorkflowException"/>
@@ -519,18 +528,29 @@
         <wsdl:operation name="getTemplate">
             <wsdl:input message="tns:getTemplateRequest" wsaw:Action="urn:getTemplate"/>
             <wsdl:output message="tns:getTemplateResponse" wsaw:Action="urn:getTemplateResponse"/>
+            <wsdl:fault message="tns:WorkflowAdminServiceWorkflowException" name="WorkflowAdminServiceWorkflowException" wsaw:Action="urn:getTemplateWorkflowAdminServiceWorkflowException"/>
         </wsdl:operation>
-        <wsdl:operation name="removeAssociation">
-            <wsdl:input message="tns:removeAssociationRequest" wsaw:Action="urn:removeAssociation"/>
-            <wsdl:fault message="tns:WorkflowAdminServiceWorkflowException" name="WorkflowAdminServiceWorkflowException" wsaw:Action="urn:removeAssociationWorkflowAdminServiceWorkflowException"/>
+        <wsdl:operation name="listWorkflowImpls">
+            <wsdl:input message="tns:listWorkflowImplsRequest" wsaw:Action="urn:listWorkflowImpls"/>
+            <wsdl:output message="tns:listWorkflowImplsResponse" wsaw:Action="urn:listWorkflowImplsResponse"/>
+            <wsdl:fault message="tns:WorkflowAdminServiceWorkflowException" name="WorkflowAdminServiceWorkflowException" wsaw:Action="urn:listWorkflowImplsWorkflowAdminServiceWorkflowException"/>
         </wsdl:operation>
         <wsdl:operation name="getEvent">
             <wsdl:input message="tns:getEventRequest" wsaw:Action="urn:getEvent"/>
             <wsdl:output message="tns:getEventResponse" wsaw:Action="urn:getEventResponse"/>
         </wsdl:operation>
+        <wsdl:operation name="removeAssociation">
+            <wsdl:input message="tns:removeAssociationRequest" wsaw:Action="urn:removeAssociation"/>
+            <wsdl:fault message="tns:WorkflowAdminServiceWorkflowException" name="WorkflowAdminServiceWorkflowException" wsaw:Action="urn:removeAssociationWorkflowAdminServiceWorkflowException"/>
+        </wsdl:operation>
         <wsdl:operation name="listWorkflowEvents">
             <wsdl:input message="tns:listWorkflowEventsRequest" wsaw:Action="urn:listWorkflowEvents"/>
             <wsdl:output message="tns:listWorkflowEventsResponse" wsaw:Action="urn:listWorkflowEventsResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="getWorkflow">
+            <wsdl:input message="tns:getWorkflowRequest" wsaw:Action="urn:getWorkflow"/>
+            <wsdl:output message="tns:getWorkflowResponse" wsaw:Action="urn:getWorkflowResponse"/>
+            <wsdl:fault message="tns:WorkflowAdminServiceWorkflowException" name="WorkflowAdminServiceWorkflowException" wsaw:Action="urn:getWorkflowWorkflowAdminServiceWorkflowException"/>
         </wsdl:operation>
         <wsdl:operation name="removeWorkflow">
             <wsdl:input message="tns:removeWorkflowRequest" wsaw:Action="urn:removeWorkflow"/>
@@ -572,17 +592,20 @@
                 <soap:fault use="literal" name="WorkflowAdminServiceWorkflowException"/>
             </wsdl:fault>
         </wsdl:operation>
-        <wsdl:operation name="getTemplateImpl">
-            <soap:operation soapAction="urn:getTemplateImpl" style="document"/>
+        <wsdl:operation name="getRequestsInFilter">
+            <soap:operation soapAction="urn:getRequestsInFilter" style="document"/>
             <wsdl:input>
                 <soap:body use="literal"/>
             </wsdl:input>
             <wsdl:output>
                 <soap:body use="literal"/>
             </wsdl:output>
+            <wsdl:fault name="WorkflowAdminServiceWorkflowException">
+                <soap:fault use="literal" name="WorkflowAdminServiceWorkflowException"/>
+            </wsdl:fault>
         </wsdl:operation>
-        <wsdl:operation name="getRequestsInFilter">
-            <soap:operation soapAction="urn:getRequestsInFilter" style="document"/>
+        <wsdl:operation name="getWorkflowImpl">
+            <soap:operation soapAction="urn:getWorkflowImpl" style="document"/>
             <wsdl:input>
                 <soap:body use="literal"/>
             </wsdl:input>
@@ -626,6 +649,18 @@
                 <soap:fault use="literal" name="WorkflowAdminServiceWorkflowException"/>
             </wsdl:fault>
         </wsdl:operation>
+        <wsdl:operation name="listTemplates">
+            <soap:operation soapAction="urn:listTemplates" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="WorkflowAdminServiceWorkflowException">
+                <soap:fault use="literal" name="WorkflowAdminServiceWorkflowException"/>
+            </wsdl:fault>
+        </wsdl:operation>
         <wsdl:operation name="listWorkflows">
             <soap:operation soapAction="urn:listWorkflows" style="document"/>
             <wsdl:input>
@@ -647,15 +682,6 @@
                 <soap:fault use="literal" name="WorkflowAdminServiceWorkflowException"/>
             </wsdl:fault>
         </wsdl:operation>
-        <wsdl:operation name="listWorkflowTemplates">
-            <soap:operation soapAction="urn:listWorkflowTemplates" style="document"/>
-            <wsdl:input>
-                <soap:body use="literal"/>
-            </wsdl:input>
-            <wsdl:output>
-                <soap:body use="literal"/>
-            </wsdl:output>
-        </wsdl:operation>
         <wsdl:operation name="changeAssociationState">
             <soap:operation soapAction="urn:changeAssociationState" style="document"/>
             <wsdl:input>
@@ -665,11 +691,14 @@
                 <soap:fault use="literal" name="WorkflowAdminServiceWorkflowException"/>
             </wsdl:fault>
         </wsdl:operation>
-        <wsdl:operation name="removeAssociation">
-            <soap:operation soapAction="urn:removeAssociation" style="document"/>
+        <wsdl:operation name="listWorkflowImpls">
+            <soap:operation soapAction="urn:listWorkflowImpls" style="document"/>
             <wsdl:input>
                 <soap:body use="literal"/>
             </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
             <wsdl:fault name="WorkflowAdminServiceWorkflowException">
                 <soap:fault use="literal" name="WorkflowAdminServiceWorkflowException"/>
             </wsdl:fault>
@@ -682,6 +711,9 @@
             <wsdl:output>
                 <soap:body use="literal"/>
             </wsdl:output>
+            <wsdl:fault name="WorkflowAdminServiceWorkflowException">
+                <soap:fault use="literal" name="WorkflowAdminServiceWorkflowException"/>
+            </wsdl:fault>
         </wsdl:operation>
         <wsdl:operation name="getEvent">
             <soap:operation soapAction="urn:getEvent" style="document"/>
@@ -692,6 +724,15 @@
                 <soap:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
+        <wsdl:operation name="removeAssociation">
+            <soap:operation soapAction="urn:removeAssociation" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:fault name="WorkflowAdminServiceWorkflowException">
+                <soap:fault use="literal" name="WorkflowAdminServiceWorkflowException"/>
+            </wsdl:fault>
+        </wsdl:operation>
         <wsdl:operation name="listWorkflowEvents">
             <soap:operation soapAction="urn:listWorkflowEvents" style="document"/>
             <wsdl:input>
@@ -700,6 +741,18 @@
             <wsdl:output>
                 <soap:body use="literal"/>
             </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="getWorkflow">
+            <soap:operation soapAction="urn:getWorkflow" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="WorkflowAdminServiceWorkflowException">
+                <soap:fault use="literal" name="WorkflowAdminServiceWorkflowException"/>
+            </wsdl:fault>
         </wsdl:operation>
         <wsdl:operation name="removeWorkflow">
             <soap:operation soapAction="urn:removeWorkflow" style="document"/>
@@ -746,17 +799,20 @@
                 <soap12:fault use="literal" name="WorkflowAdminServiceWorkflowException"/>
             </wsdl:fault>
         </wsdl:operation>
-        <wsdl:operation name="getTemplateImpl">
-            <soap12:operation soapAction="urn:getTemplateImpl" style="document"/>
+        <wsdl:operation name="getRequestsInFilter">
+            <soap12:operation soapAction="urn:getRequestsInFilter" style="document"/>
             <wsdl:input>
                 <soap12:body use="literal"/>
             </wsdl:input>
             <wsdl:output>
                 <soap12:body use="literal"/>
             </wsdl:output>
+            <wsdl:fault name="WorkflowAdminServiceWorkflowException">
+                <soap12:fault use="literal" name="WorkflowAdminServiceWorkflowException"/>
+            </wsdl:fault>
         </wsdl:operation>
-        <wsdl:operation name="getRequestsInFilter">
-            <soap12:operation soapAction="urn:getRequestsInFilter" style="document"/>
+        <wsdl:operation name="getWorkflowImpl">
+            <soap12:operation soapAction="urn:getWorkflowImpl" style="document"/>
             <wsdl:input>
                 <soap12:body use="literal"/>
             </wsdl:input>
@@ -800,6 +856,18 @@
                 <soap12:fault use="literal" name="WorkflowAdminServiceWorkflowException"/>
             </wsdl:fault>
         </wsdl:operation>
+        <wsdl:operation name="listTemplates">
+            <soap12:operation soapAction="urn:listTemplates" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="WorkflowAdminServiceWorkflowException">
+                <soap12:fault use="literal" name="WorkflowAdminServiceWorkflowException"/>
+            </wsdl:fault>
+        </wsdl:operation>
         <wsdl:operation name="listWorkflows">
             <soap12:operation soapAction="urn:listWorkflows" style="document"/>
             <wsdl:input>
@@ -821,15 +889,6 @@
                 <soap12:fault use="literal" name="WorkflowAdminServiceWorkflowException"/>
             </wsdl:fault>
         </wsdl:operation>
-        <wsdl:operation name="listWorkflowTemplates">
-            <soap12:operation soapAction="urn:listWorkflowTemplates" style="document"/>
-            <wsdl:input>
-                <soap12:body use="literal"/>
-            </wsdl:input>
-            <wsdl:output>
-                <soap12:body use="literal"/>
-            </wsdl:output>
-        </wsdl:operation>
         <wsdl:operation name="changeAssociationState">
             <soap12:operation soapAction="urn:changeAssociationState" style="document"/>
             <wsdl:input>
@@ -839,11 +898,14 @@
                 <soap12:fault use="literal" name="WorkflowAdminServiceWorkflowException"/>
             </wsdl:fault>
         </wsdl:operation>
-        <wsdl:operation name="removeAssociation">
-            <soap12:operation soapAction="urn:removeAssociation" style="document"/>
+        <wsdl:operation name="listWorkflowImpls">
+            <soap12:operation soapAction="urn:listWorkflowImpls" style="document"/>
             <wsdl:input>
                 <soap12:body use="literal"/>
             </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
             <wsdl:fault name="WorkflowAdminServiceWorkflowException">
                 <soap12:fault use="literal" name="WorkflowAdminServiceWorkflowException"/>
             </wsdl:fault>
@@ -856,6 +918,9 @@
             <wsdl:output>
                 <soap12:body use="literal"/>
             </wsdl:output>
+            <wsdl:fault name="WorkflowAdminServiceWorkflowException">
+                <soap12:fault use="literal" name="WorkflowAdminServiceWorkflowException"/>
+            </wsdl:fault>
         </wsdl:operation>
         <wsdl:operation name="getEvent">
             <soap12:operation soapAction="urn:getEvent" style="document"/>
@@ -866,6 +931,15 @@
                 <soap12:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
+        <wsdl:operation name="removeAssociation">
+            <soap12:operation soapAction="urn:removeAssociation" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:fault name="WorkflowAdminServiceWorkflowException">
+                <soap12:fault use="literal" name="WorkflowAdminServiceWorkflowException"/>
+            </wsdl:fault>
+        </wsdl:operation>
         <wsdl:operation name="listWorkflowEvents">
             <soap12:operation soapAction="urn:listWorkflowEvents" style="document"/>
             <wsdl:input>
@@ -874,6 +948,18 @@
             <wsdl:output>
                 <soap12:body use="literal"/>
             </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="getWorkflow">
+            <soap12:operation soapAction="urn:getWorkflow" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="WorkflowAdminServiceWorkflowException">
+                <soap12:fault use="literal" name="WorkflowAdminServiceWorkflowException"/>
+            </wsdl:fault>
         </wsdl:operation>
         <wsdl:operation name="removeWorkflow">
             <soap12:operation soapAction="urn:removeWorkflow" style="document"/>
@@ -911,8 +997,8 @@
                 <mime:content type="text/xml" part="parameters"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="getTemplateImpl">
-            <http:operation location="getTemplateImpl"/>
+        <wsdl:operation name="getRequestsInFilter">
+            <http:operation location="getRequestsInFilter"/>
             <wsdl:input>
                 <mime:content type="text/xml" part="parameters"/>
             </wsdl:input>
@@ -920,8 +1006,8 @@
                 <mime:content type="text/xml" part="parameters"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="getRequestsInFilter">
-            <http:operation location="getRequestsInFilter"/>
+        <wsdl:operation name="getWorkflowImpl">
+            <http:operation location="getWorkflowImpl"/>
             <wsdl:input>
                 <mime:content type="text/xml" part="parameters"/>
             </wsdl:input>
@@ -953,6 +1039,15 @@
                 <mime:content type="text/xml" part="parameters"/>
             </wsdl:input>
         </wsdl:operation>
+        <wsdl:operation name="listTemplates">
+            <http:operation location="listTemplates"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:output>
+        </wsdl:operation>
         <wsdl:operation name="listWorkflows">
             <http:operation location="listWorkflows"/>
             <wsdl:input>
@@ -968,26 +1063,20 @@
                 <mime:content type="text/xml" part="parameters"/>
             </wsdl:input>
         </wsdl:operation>
-        <wsdl:operation name="listWorkflowTemplates">
-            <http:operation location="listWorkflowTemplates"/>
-            <wsdl:input>
-                <mime:content type="text/xml" part="parameters"/>
-            </wsdl:input>
-            <wsdl:output>
-                <mime:content type="text/xml" part="parameters"/>
-            </wsdl:output>
-        </wsdl:operation>
         <wsdl:operation name="changeAssociationState">
             <http:operation location="changeAssociationState"/>
             <wsdl:input>
                 <mime:content type="text/xml" part="parameters"/>
             </wsdl:input>
         </wsdl:operation>
-        <wsdl:operation name="removeAssociation">
-            <http:operation location="removeAssociation"/>
+        <wsdl:operation name="listWorkflowImpls">
+            <http:operation location="listWorkflowImpls"/>
             <wsdl:input>
                 <mime:content type="text/xml" part="parameters"/>
             </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:output>
         </wsdl:operation>
         <wsdl:operation name="getTemplate">
             <http:operation location="getTemplate"/>
@@ -1007,8 +1096,23 @@
                 <mime:content type="text/xml" part="parameters"/>
             </wsdl:output>
         </wsdl:operation>
+        <wsdl:operation name="removeAssociation">
+            <http:operation location="removeAssociation"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:input>
+        </wsdl:operation>
         <wsdl:operation name="listWorkflowEvents">
             <http:operation location="listWorkflowEvents"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="getWorkflow">
+            <http:operation location="getWorkflow"/>
             <wsdl:input>
                 <mime:content type="text/xml" part="parameters"/>
             </wsdl:input>

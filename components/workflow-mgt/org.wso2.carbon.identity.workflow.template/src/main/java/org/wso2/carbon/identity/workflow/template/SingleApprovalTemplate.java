@@ -22,14 +22,13 @@ import org.wso2.carbon.identity.workflow.mgt.bean.metadata.InputData;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowRuntimeException;
 import org.wso2.carbon.identity.workflow.mgt.template.AbstractTemplate;
-import org.wso2.carbon.identity.workflow.mgt.util.WFConstant;
 
-public class MultiStepApprovalTemplate extends AbstractTemplate {
+public class SingleApprovalTemplate extends AbstractTemplate {
 
     private static final String DESCRIPTION = "The operation should be approved by an authorized person with given " +
             "role, to complete.";
-    private static final String APPROVAL_TEMPLATE_NAME = "Multi-Step User/Role Approval";
-    private static final String TEMPLATE_ID = "MultiStepApprovalTemplate";
+    private static final String APPROVAL_TEMPLATE_NAME = "Single Approval";
+    private static final String TEMPLATE_ID = "SingleApprovalTemplate";
 
 
     static {
@@ -44,12 +43,10 @@ public class MultiStepApprovalTemplate extends AbstractTemplate {
 
     @Override
     protected InputData getInputData(String parameterName) throws WorkflowException {
-        InputData inputData = null;
-
-        return inputData;
+        return null;
     }
 
-    public MultiStepApprovalTemplate(String metaDataXML) throws WorkflowRuntimeException {
+    public SingleApprovalTemplate(String metaDataXML) throws WorkflowRuntimeException {
         super(metaDataXML);
     }
 

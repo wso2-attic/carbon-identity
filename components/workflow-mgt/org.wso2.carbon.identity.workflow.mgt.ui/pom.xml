@@ -61,10 +61,17 @@
             <groupId>commons-lang.wso2</groupId>
             <artifactId>commons-lang</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-xjc-plugin</artifactId>
+            <version>3.0.5</version>
+        </dependency>
+
     </dependencies>
 
     <build>
         <plugins>
+
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
@@ -82,18 +89,54 @@
                             org.apache.commons.io; version="${commons.io.wso2.osgi.version.range}",
                             org.apache.commons.lang; version="${commons-lang.wso2.osgi.version.range}",
                             org.apache.commons.logging; version="${commons-logging.osgi.version.range}",
-                            org.wso2.carbon.identity.workflow.mgt.stub; version="${carbon.identity.package.import.version.range}",
-                            org.wso2.carbon.identity.workflow.mgt.stub.bean; version="${carbon.identity.package.import.version.range}",
+                            org.wso2.carbon.identity.workflow.mgt.stub;
+                            version="${carbon.identity.package.import.version.range}",
+                            org.wso2.carbon.identity.workflow.mgt.stub.bean;
+                            version="${carbon.identity.package.import.version.range}",
+                            org.wso2.carbon.identity.workflow.mgt.dto.xsd.*;version="${carbon.identity.package.import.version.range}",
+                            org.wso2.carbon.identity.workflow.mgt.bean.metadata.xsd.*;version="${carbon.identity.package.import.version.range}",
+                            org.wso2.carbon.identity.workflow.mgt.xsd.*;version="${carbon.identity.package.import.version.range}",
                             org.wso2.carbon.bpel.stub.upload; version="${carbon.identity.package.import.version.range}",
-                            org.wso2.carbon.bpel.stub.upload.types; version="${carbon.identity.package.import.version.range}",
-                            org.wso2.carbon.humantask.stub.upload; version="${carbon.identity.package.import.version.range}",
-                            org.wso2.carbon.humantask.stub.upload.types; version="${carbon.identity.package.import.version.range}"
+                            org.wso2.carbon.bpel.stub.upload.types;
+                            version="${carbon.identity.package.import.version.range}",
+                            org.wso2.carbon.humantask.stub.upload;
+                            version="${carbon.identity.package.import.version.range}",
+                            org.wso2.carbon.humantask.stub.upload.types;
+                            version="${carbon.identity.package.import.version.range}"
                         </Import-Package>
                         <Export-Package>
-                            org.wso2.carbon.identity.workflow.mgt.ui.*; version="${carbon.identity.package.export.version}"
+                            org.wso2.carbon.identity.workflow.mgt.ui.*;
+                            version="${carbon.identity.package.export.version}"
                         </Export-Package>
                         <Carbon-Component>UIBundle</Carbon-Component>
                     </instructions>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.cxf</groupId>
+                <artifactId>cxf-xjc-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>xsdtojava</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <sourceRoot>${basedir}/src/main/java/</sourceRoot>
+                    <xsdOptions>
+                        <xsdOption>
+                            <extension>true</extension>
+                            <xsd>${basedir}/src/main/resources/MetaDataType.xsd</xsd>
+                            <!--xsd>${basedir}/src/main/resources/ParameterMetaData.xsd</xsd-->
+                            <extensionArgs>
+                                <arg>-Xdv</arg>
+                            </extensionArgs>
+                        </xsdOption>
+                    </xsdOptions>
+                    <extensions>
+                        <extension>org.apache.cxf.xjcplugins:cxf-xjc-dv:2.3.0</extension>
+                    </extensions>
                 </configuration>
             </plugin>
         </plugins>

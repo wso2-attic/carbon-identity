@@ -96,7 +96,7 @@ public class WorkFlowExecutorManager {
                     WorkflowRequest requestToSend = workFlowRequest.clone();
                     requestToSend.setUuid(relationshipId);
                     AbstractWorkflow templateImplementation = WorkflowServiceDataHolder.getInstance()
-                            .getWorkflowImpls().get(association.getImplId());
+                            .getWorkflowImpls().get(association.getTemplateId()).get(association.getImplId());
                     List<Parameter> parameterList= workflowDAO.getWorkflowParams(association.getWorkflowId());
                     templateImplementation.initializeExecutor(parameterList);
                     templateImplementation.execute(requestToSend);

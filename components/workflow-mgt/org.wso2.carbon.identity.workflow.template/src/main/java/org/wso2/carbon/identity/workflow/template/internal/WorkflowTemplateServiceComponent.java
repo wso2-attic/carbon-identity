@@ -25,6 +25,7 @@ import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowRuntimeException;
 import org.wso2.carbon.identity.workflow.mgt.template.AbstractTemplate;
 import org.wso2.carbon.identity.workflow.mgt.util.WorkflowManagementUtil;
+import org.wso2.carbon.identity.workflow.template.SingleApprovalTemplate;
 import org.wso2.carbon.identity.workflow.template.TemplateConstant;
 import org.wso2.carbon.identity.workflow.template.MultiStepApprovalTemplate;
 
@@ -47,21 +48,28 @@ public class WorkflowTemplateServiceComponent {
         try {
             BundleContext bundleContext = context.getBundleContext();
 
-            String templateParamMetaDataXML = readTemplateParamMetaDataXML();
+            String templateParamMetaDataXML = readTemplateParamMetaDataXML(TemplateConstant
+                                                                                   .TEMPLATE_PARAMETER_METADATA_FILE_NAME);
             bundleContext
                     .registerService(AbstractTemplate.class, new MultiStepApprovalTemplate(templateParamMetaDataXML),
                                      null);
+
+            String templateParamMetaDataXMLTwo = readTemplateParamMetaDataXML("TemplateParamMetaDataTwo.xml");
+            bundleContext
+                    .registerService(AbstractTemplate.class, new SingleApprovalTemplate(templateParamMetaDataXMLTwo),
+                                     null);
+
         }catch(Throwable e2){
             e2.printStackTrace();
         }
     }
 
 
-    private String readTemplateParamMetaDataXML() throws WorkflowRuntimeException{
+    private String readTemplateParamMetaDataXML(String fileName) throws WorkflowRuntimeException{
         String content = null ;
         try {
             InputStream resourceAsStream = this.getClass().getClassLoader()
-                    .getResourceAsStream(TemplateConstant.TEMPLATE_PARAMETER_METADATA_FILE_NAME);
+                    .getResourceAsStream(fileName);
             content = WorkflowManagementUtil.readFileFromResource(resourceAsStream);
         } catch (URISyntaxException e) {
             String errorMsg = "Error occurred while reading file from class path, " + e.getMessage() ;

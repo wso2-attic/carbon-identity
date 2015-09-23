@@ -294,7 +294,7 @@ public class WorkflowDAO {
                 workflowDTO.setWorkflowDescription(description);
                 AbstractTemplate template = WorkflowServiceDataHolder.getInstance().getTemplates().get(templateId);
                 AbstractWorkflow abstractWorkflow = WorkflowServiceDataHolder.getInstance()
-                        .getWorkflowImpls().get(templateImplId);
+                        .getWorkflowImpls().get(templateId).get(templateImplId);
                 if (template != null && abstractWorkflow != null) {
                     workflowDTO.setTemplateId(template.getTemplateId());
                     workflowDTO.setWorkflowImplId(abstractWorkflow.getWorkflowImplId());

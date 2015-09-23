@@ -21,7 +21,9 @@ package org.wso2.carbon.identity.workflow.mgt.bean;
 import org.wso2.carbon.identity.workflow.mgt.bean.Parameter;
 import org.wso2.carbon.identity.workflow.mgt.dto.*;
 
-public class Workflow {
+import java.io.Serializable;
+
+public class Workflow implements Serializable{
 
     private String workflowId;
     private String workflowName;

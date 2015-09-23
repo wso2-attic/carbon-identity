@@ -28,17 +28,15 @@ import org.wso2.carbon.identity.workflow.mgt.bean.metadata.InputData;
 import org.wso2.carbon.identity.workflow.mgt.bean.metadata.Item;
 import org.wso2.carbon.identity.workflow.mgt.bean.metadata.MapType;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
-import org.wso2.carbon.identity.workflow.mgt.util.WFConstant;
 import org.wso2.carbon.identity.workflow.mgt.workflow.AbstractWorkflow;
 import org.wso2.carbon.identity.workflow.mgt.workflow.TemplateInitializer;
 import org.wso2.carbon.identity.workflow.mgt.workflow.WorkFlowExecutor;
 
 import java.util.List;
-import java.util.Map;
 
-public class ApprovalWorkflow extends AbstractWorkflow {
+public class ApprovalWorkflowTwo extends AbstractWorkflow {
 
-    private static Log log = LogFactory.getLog(ApprovalWorkflow.class);
+    private static Log log = LogFactory.getLog(ApprovalWorkflowTwo.class);
 
     static {
         /*
@@ -102,7 +100,7 @@ public class ApprovalWorkflow extends AbstractWorkflow {
         return inputData;
     }
 
-    public ApprovalWorkflow(String templateId, String metaDataXML) {
+    public ApprovalWorkflowTwo(String templateId, String metaDataXML) {
         super(templateId,metaDataXML);
         setExecutor(new RequestExecutor());
     }
@@ -153,11 +151,11 @@ public class ApprovalWorkflow extends AbstractWorkflow {
 
     @Override
     public String getWorkflowImplId() {
-        return WFImplConstant.WORKFLOW_IMPL_ID;
+        return "ABC2222";
     }
 
     @Override
     public String getWorkflowImplName() {
-        return WFImplConstant.WORKFLOW_IMPL_NAME;
+        return "ddsdsdsdsd";
     }
 }

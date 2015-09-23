@@ -66,7 +66,7 @@
         associationDTO.setEventCategory(operationCategory);
 
         session.setAttribute("add-association", associationDTO);
-        forwardTo = "add-workflow.jsp?path=add-association" ;
+        forwardTo = "add-edit-workflow.jsp?path=add-association" ;
 
     }else if("finish".equals(wizard)){
         associationDTO = (AssociationDTO)session.getAttribute("add-association");

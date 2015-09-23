@@ -95,11 +95,11 @@ public class WorkflowManagementServiceImpl implements WorkflowManagementService 
         List<WorkflowEvent> eventList = new ArrayList<>();
         if (workflowRequestHandlers != null) {
             for (WorkflowRequestHandler requestHandler : workflowRequestHandlers) {
-                WorkflowEvent eventDTO = new WorkflowEvent();
-                eventDTO.setEventId(requestHandler.getEventId());
-                eventDTO.setEventFriendlyName(requestHandler.getFriendlyName());
-                eventDTO.setEventDescription(requestHandler.getDescription());
-                eventDTO.setEventCategory(requestHandler.getCategory());
+                WorkflowEvent event = new WorkflowEvent();
+                event.setEventId(requestHandler.getEventId());
+                event.setEventFriendlyName(requestHandler.getFriendlyName());
+                event.setEventDescription(requestHandler.getDescription());
+                event.setEventCategory(requestHandler.getCategory());
                 //note: parameters are not set at here in list operation. It's set only at get operation
                 if (requestHandler.getParamDefinitions() != null) {
                     Parameter[] parameterDTOs = new Parameter[requestHandler.getParamDefinitions().size()];
@@ -111,9 +111,9 @@ public class WorkflowManagementServiceImpl implements WorkflowManagementService 
                         parameterDTOs[i] = parameterDTO;
                         i++;
                     }
-                    eventDTO.setParameters(parameterDTOs);
+                    event.setParameters(parameterDTOs);
                 }
-                eventList.add(eventDTO);
+                eventList.add(event);
             }
         }
         return eventList;
@@ -124,11 +124,11 @@ public class WorkflowManagementServiceImpl implements WorkflowManagementService 
 
         WorkflowRequestHandler requestHandler = WorkflowServiceDataHolder.getInstance().getRequestHandler(id);
         if (requestHandler != null) {
-            WorkflowEvent eventDTO = new WorkflowEvent();
-            eventDTO.setEventId(requestHandler.getEventId());
-            eventDTO.setEventFriendlyName(requestHandler.getFriendlyName());
-            eventDTO.setEventDescription(requestHandler.getDescription());
-            eventDTO.setEventCategory(requestHandler.getCategory());
+            WorkflowEvent event = new WorkflowEvent();
+            event.setEventId(requestHandler.getEventId());
+            event.setEventFriendlyName(requestHandler.getFriendlyName());
+            event.setEventDescription(requestHandler.getDescription());
+            event.setEventCategory(requestHandler.getCategory());
             if (requestHandler.getParamDefinitions() != null) {
                 Parameter[] parameters = new Parameter[requestHandler.getParamDefinitions().size()];
                 int i = 0;
@@ -139,83 +139,107 @@ public class WorkflowManagementServiceImpl implements WorkflowManagementService 
                     parameters[i] = parameter;
                     i++;
                 }
-                eventDTO.setParameters(parameters);
+                event.setParameters(parameters);
             }
-            return eventDTO;
+            return event;
         }
         return null;
     }
 
     @Override
-    public List<Template> listTemplates() {
-        Map<String, AbstractTemplate> templates = WorkflowServiceDataHolder.getInstance().getTemplates();
-        List<AbstractTemplate> templateList = new ArrayList<>(templates.values());
-        List<Template> templateDTOs = new ArrayList<Template>();
+    public List<Template> listTemplates() throws WorkflowException {
+        Map<String, AbstractTemplate> templateMap = WorkflowServiceDataHolder.getInstance().getTemplates();
+        List<AbstractTemplate> templateList = new ArrayList<>(templateMap.values());
+        List<Template> templates = new ArrayList<Template>();
         if (templateList != null) {
-            for (AbstractTemplate template : templateList) {
-                Template templateDTO = new Template();
-                templateDTO.setTemplateId(template.getTemplateId());
-                templateDTO.setName(template.getName());
-                templateDTO.setDescription(template.getDescription());
-                templateDTOs.add(templateDTO);
+            for (AbstractTemplate abstractTemplate : templateList) {
+                Template template = new Template();
+                template.setTemplateId(abstractTemplate.getTemplateId());
+                template.setName(abstractTemplate.getName());
+                template.setDescription(abstractTemplate.getDescription());
+                template.setParametersMetaData(abstractTemplate.getParametersMetaData());
+                templates.add(template);
             }
         }
-        return templateDTOs;
+        return templates;
     }
 
     @Override
-    public Template getTemplate(String templateId) {
-        AbstractTemplate template = WorkflowServiceDataHolder.getInstance().getTemplates().get(templateId);
-        Template templateDTO = null ;
-        if(template != null) {
-            templateDTO = new Template();
-            templateDTO.setTemplateId(template.getTemplateId());
-            templateDTO.setName(template.getName());
-            templateDTO.setDescription(template.getDescription());
-            templateDTO.setParametersMetaData(template.getParameterMetaDatas());
-        }
-        return templateDTO;
-    }
-
-    @Override
-    public WorkflowImpl getWorkflowImpl(String workflowImplId) {
-
-        AbstractWorkflow abstractWorkflow = WorkflowServiceDataHolder.getInstance().getWorkflowImpls().get(workflowImplId);
-        WorkflowImpl workflowImplDTO = null ;
-        if (abstractWorkflow != null) {
-                workflowImplDTO = new WorkflowImpl();
-                workflowImplDTO.setWorkflowImplId(abstractWorkflow.getWorkflowImplId());
-                workflowImplDTO.setWorkflowImplName(abstractWorkflow.getWorkflowImplName());
-                workflowImplDTO.setParametersMetaData(abstractWorkflow.getParametersMetaData());
-                workflowImplDTO.setTemplateId(abstractWorkflow.getTemplateId());
+    public List<WorkflowImpl> listWorkflowImpls(String templateId) throws WorkflowException {
+        Map<String, AbstractWorkflow> abstractWorkflowMap = WorkflowServiceDataHolder.getInstance().getWorkflowImpls().get(templateId);
+        List<AbstractWorkflow> abstractWorkflowList = new ArrayList<>(abstractWorkflowMap.values());
+        List<WorkflowImpl> workflowList = new ArrayList<WorkflowImpl>();
+        if (workflowList != null) {
+            for (AbstractWorkflow abstractWorkflow : abstractWorkflowList) {
+                WorkflowImpl workflow = new WorkflowImpl();
+                workflow.setWorkflowImplId(abstractWorkflow.getWorkflowImplId());
+                workflow.setWorkflowImplName(abstractWorkflow.getWorkflowImplName());
+                workflow.setParametersMetaData(abstractWorkflow.getParametersMetaData());
+                workflow.setTemplateId(abstractWorkflow.getTemplateId());
+                workflowList.add(workflow);
             }
-        return workflowImplDTO;
+        }
+        return workflowList;
+    }
+
+    @Override
+    public Template getTemplate(String templateId) throws WorkflowException {
+        AbstractTemplate abstractTemplate = WorkflowServiceDataHolder.getInstance().getTemplates().get(templateId);
+        Template template = null ;
+        if(abstractTemplate != null) {
+            template = new Template();
+            template.setTemplateId(abstractTemplate.getTemplateId());
+            template.setName(abstractTemplate.getName());
+            template.setDescription(abstractTemplate.getDescription());
+            template.setParametersMetaData(abstractTemplate.getParametersMetaData());
+        }
+        return template;
+    }
+
+
+    @Override
+    public WorkflowImpl getWorkflowImpl(String templateId, String workflowImplId) throws WorkflowException {
+
+        WorkflowImpl workflowImpl = null ;
+        Map<String, AbstractWorkflow> abstractWorkflowMap =
+                WorkflowServiceDataHolder.getInstance().getWorkflowImpls().get(templateId);
+        if (abstractWorkflowMap != null) {
+            AbstractWorkflow tmp = abstractWorkflowMap.get(workflowImplId);
+            if (tmp != null) {
+                workflowImpl = new WorkflowImpl();
+                workflowImpl.setWorkflowImplId(tmp.getWorkflowImplId());
+                workflowImpl.setWorkflowImplName(tmp.getWorkflowImplName());
+                workflowImpl.setParametersMetaData(tmp.getParametersMetaData());
+                workflowImpl.setTemplateId(tmp.getTemplateId());
+            }
+        }
+        return workflowImpl;
     }
 
 
 
     @Override
-    public void addWorkflow(Workflow workflowDTO,
+    public void addWorkflow(Workflow workflow,
                             List< Parameter> parameterList, int tenantId) throws WorkflowException {
 
         //TODO:Workspace Name may contain spaces , so we need to remove spaces and prepare process for that
-        Parameter workflowNameParameter = new Parameter(workflowDTO.getWorkflowId(), WFConstant.ParameterName.WORKFLOW_NAME,
-                                              workflowDTO.getWorkflowName(), WFConstant.ParameterName.WORKFLOW_NAME,
+        Parameter workflowNameParameter = new Parameter(workflow.getWorkflowId(), WFConstant.ParameterName.WORKFLOW_NAME,
+                                                        workflow.getWorkflowName(), WFConstant.ParameterName.WORKFLOW_NAME,
                                                     WFConstant.ParameterHolder.WORKFLOW_IMPL);
         parameterList.add(workflowNameParameter);
 
         AbstractWorkflow abstractWorkflow =
-                WorkflowServiceDataHolder.getInstance().getWorkflowImpls().get(workflowDTO.getWorkflowImplId());
+                WorkflowServiceDataHolder.getInstance().getWorkflowImpls().get(workflow.getTemplateId()).get(workflow.getWorkflowImplId());
         //deploying the template
         abstractWorkflow.deploy(parameterList);
 
         //add workflow to the database
-        workflowDAO.addWorkflow(workflowDTO, tenantId);
+        workflowDAO.addWorkflow(workflow, tenantId);
 
         workflowDAO.addWorkflowParams(parameterList);
 
         //Creating a role for the workflow
-        WorkflowManagementUtil.createAppRole(workflowDTO.getWorkflowName());
+        WorkflowManagementUtil.createAppRole(workflow.getWorkflowName());
     }
 
     @Override

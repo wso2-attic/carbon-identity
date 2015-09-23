@@ -20,7 +20,10 @@ package org.wso2.carbon.identity.workflow.mgt.template;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.identity.workflow.mgt.bean.metadata.InputData;
+import org.wso2.carbon.identity.workflow.mgt.bean.metadata.ParameterMetaData;
 import org.wso2.carbon.identity.workflow.mgt.bean.metadata.ParametersMetaData;
+import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowRuntimeException;
 import org.wso2.carbon.identity.workflow.mgt.util.WorkflowManagementUtil;
 
@@ -34,7 +37,9 @@ import javax.xml.bind.JAXBException;
 public abstract class AbstractTemplate {
 
     private Log log = LogFactory.getLog(AbstractTemplate.class);
-    private ParametersMetaData parameterMetaDatas = null ;
+    private ParametersMetaData parametersMetaData = null ;
+
+    protected abstract InputData getInputData(String parameterName) throws WorkflowException;
 
     /**
      * AbstractTemplate Constructor with metadata xml string parameter
@@ -44,7 +49,7 @@ public abstract class AbstractTemplate {
      */
     public AbstractTemplate(String metaDataXML) throws WorkflowRuntimeException {
         try {
-            this.parameterMetaDatas = WorkflowManagementUtil.unmarshalXML(metaDataXML, ParametersMetaData.class);
+            this.parametersMetaData = WorkflowManagementUtil.unmarshalXML(metaDataXML, ParametersMetaData.class);
         } catch (JAXBException e) {
             String errorMsg = "Error occured while converting template parameter data to object : " + e.getMessage();
             log.error(errorMsg);
@@ -57,8 +62,22 @@ public abstract class AbstractTemplate {
      *
      * @return ParametersMetaData object that is contain all the template specific parameter metadata.
      */
-    public ParametersMetaData getParameterMetaDatas() {
-        return parameterMetaDatas;
+    public ParametersMetaData getParametersMetaData() throws WorkflowException{
+        if(parametersMetaData != null){
+            ParameterMetaData[] parameterMetaData  = parametersMetaData.getParameterMetaData();
+            for(ParameterMetaData metaData: parameterMetaData){
+                if(metaData.isIsInputDataRequired()){
+                    InputData inputData = getInputData(metaData.getName());
+                    metaData.setInputData(inputData);
+                }
+            }
+        }
+        return parametersMetaData;
+    }
+
+    public void setParametersMetaData(
+            ParametersMetaData parametersMetaData) {
+        this.parametersMetaData = parametersMetaData;
     }
 
     /**

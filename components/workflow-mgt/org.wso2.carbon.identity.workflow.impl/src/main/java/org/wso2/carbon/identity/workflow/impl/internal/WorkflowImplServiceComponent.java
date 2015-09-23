@@ -28,6 +28,7 @@ import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.base.api.ServerConfigurationService;
 import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
 import org.wso2.carbon.identity.workflow.impl.ApprovalWorkflow;
+import org.wso2.carbon.identity.workflow.impl.ApprovalWorkflowTwo;
 import org.wso2.carbon.identity.workflow.impl.WFImplConstant;
 import org.wso2.carbon.identity.workflow.impl.WorkflowImplService;
 import org.wso2.carbon.identity.workflow.impl.WorkflowImplServiceImpl;
@@ -96,8 +97,11 @@ public class WorkflowImplServiceComponent {
         BundleContext bundleContext = context.getBundleContext();
 
         try {
-            String metaDataXML = readWorkflowImplParamMetaDataXML();
-            bundleContext.registerService(AbstractWorkflow.class, new ApprovalWorkflow(metaDataXML), null);
+            String metaDataXML = readWorkflowImplParamMetaDataXML(WFImplConstant.WORKFLOW_IMPL_PARAMETER_METADATA_FILE_NAME);
+            bundleContext.registerService(AbstractWorkflow.class, new ApprovalWorkflow(WFImplConstant.WORKFLOW_TEMPLATE_ID, metaDataXML), null);
+
+            String metaDataXMLTwo = readWorkflowImplParamMetaDataXML("WorkflowParamMetaDataTTwo.xml");
+            bundleContext.registerService(AbstractWorkflow.class, new ApprovalWorkflowTwo(WFImplConstant.WORKFLOW_TEMPLATE_ID,metaDataXMLTwo), null);
 
             WorkflowImplServiceDataHolder.getInstance().setWorkflowImplService(new WorkflowImplServiceImpl());
 
@@ -172,11 +176,11 @@ public class WorkflowImplServiceComponent {
         }
     }
 
-    private String readWorkflowImplParamMetaDataXML() throws WorkflowRuntimeException {
+    private String readWorkflowImplParamMetaDataXML(String fileName) throws WorkflowRuntimeException {
         String content = null ;
         try {
             InputStream resourceAsStream = this.getClass().getClassLoader()
-                    .getResourceAsStream(WFImplConstant.WORKFLOW_IMPL_PARAMETER_METADATA_FILE_NAME);
+                    .getResourceAsStream(fileName);
             content = WorkflowManagementUtil.readFileFromResource(resourceAsStream);
 
         }  catch (IOException e) {
