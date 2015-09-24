@@ -39,10 +39,8 @@ import java.util.Map;
 
 public class OAuthRequestPathAuthenticator extends AbstractApplicationAuthenticator implements RequestPathApplicationAuthenticator {
 
-    /**
-     *
-     */
-    private static final long serialVersionUID = 1L;
+
+    private static final long serialVersionUID = 634910519658720780L;
     private static final String AUTHORIZATION_HEADER_NAME = "Authorization";
     private static final String BEARER_SCHEMA = "Bearer";
     private static final String AUTHENTICATOR_NAME = "OAuthRequestPathAuthenticator";
