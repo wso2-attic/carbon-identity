@@ -38,6 +38,7 @@
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@ page import="java.net.URLEncoder" %>
 <%@ page import="java.util.ResourceBundle" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 
 <%
     boolean readOnlyUserStore = false;
@@ -57,7 +58,7 @@
     
     if (fromUserMgt==null) fromUserMgt = "false";
     
-    String addAction = "add.jsp?username="+URLEncoder.encode(username)+"&fromUserMgt="+ fromUserMgt;
+    String addAction = "add.jsp?username="+Encode.forUriComponent(username)+"&fromUserMgt="+ Encode.forUriComponent(fromUserMgt);
 
     UserProfileDTO[] profiles = new UserProfileDTO[0];
     String BUNDLE = "org.wso2.carbon.identity.user.profile.ui.i18n.Resources";
@@ -161,7 +162,7 @@
         <%
         	if ("true".equals(fromUserMgt)) {
         %>
-       		<h2><fmt:message key='user.profiles1'/><%=username%></h2>
+       		<h2><fmt:message key='user.profiles1'/><%=Encode.forHtmlContent(username)%></h2>
         <%
         	} else {
         %>
@@ -178,7 +179,7 @@
                  }
         	     CARBON.showConfirmationDialog("<fmt:message key='remove.message1'/>"+ profile +"<fmt:message key='remove.message2'/>",
                     function() {
-              	       location.href ="remove-profile.jsp?username="+URLEncoder.encode(username)+"&profile="+profile+"&fromUserMgt=<%=fromUserMgt%>";
+              	       location.href ="remove-profile.jsp?username="+URLEncoder.encode(username)+"&profile="+profile+"&fromUserMgt=<%=Encode.forUriComponent(fromUserMgt)%>";
                      }, null);
                  }
             </script>
@@ -204,13 +205,13 @@
            				String profileName = CharacterEncoder.getSafeText(profiles[i].getProfileName());
            %>		
 			<tr>
-				<td width="50%"><a href="edit.jsp?username=<%=URLEncoder.encode(username)%>&profile=<%=profileName%>&fromUserMgt=<%=fromUserMgt%>"><%=profileName%></a></td>
+				<td width="50%"><a href="edit.jsp?username=<%=Encode.forUriComponent(username)%>&profile=<%=Encode.forUriComponent(profileName)%>&fromUserMgt=<%=Encode.forUriComponent(fromUserMgt)%>"><%=Encode.forUriComponent(profileName)%></a></td>
 				<td width="50%">
 				<%
                     if (readOnlyUserStore == false && !"default".equals(profileName)) {
                 %>
 				<a title="<fmt:message key='remove.profile'/>"
-                                   onclick="removeProfile('<%=username%>','<%=profileName%>');return false;"
+                                   onclick="removeProfile('<%=Encode.forHtmlContent(username)%>','<%=Encode.forHtmlContent(profileName)%>');return false;"
                                    href="#" style="background-image: url(../userprofile/images/delete.gif);" class="icon-link">
                                     <fmt:message key='delete'/></a>
                 <%
