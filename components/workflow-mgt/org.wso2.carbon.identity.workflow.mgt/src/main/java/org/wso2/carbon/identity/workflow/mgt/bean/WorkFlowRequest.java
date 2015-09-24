@@ -27,6 +27,7 @@ public class WorkFlowRequest implements Serializable, Cloneable {
     private String eventType;
     private int tenantId;
     private List<RequestParameter> requestParameters;
+    private static final long serialVersionUID = -684287450983377460L;
 
     public String getUuid() {
         return uuid;

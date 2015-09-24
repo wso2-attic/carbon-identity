@@ -23,6 +23,7 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowRequestAssociationDTO;
 import org.wso2.carbon.identity.workflow.mgt.exception.InternalWorkflowException;
+import org.wso2.carbon.identity.workflow.mgt.util.WorkFlowConstants;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -113,6 +114,34 @@ public class WorkflowRequestAssociationDAO {
             prepStmt.setString(1, status);
             prepStmt.setTimestamp(2, updatedDateStamp);
             prepStmt.setString(3, relationshipId);
+            prepStmt.execute();
+            connection.commit();
+        } catch (SQLException e) {
+            throw new InternalWorkflowException("Error when executing the sql query:" + query, e);
+        } finally {
+            IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
+        }
+    }
+
+    /**
+     * Update state of workflow of a request
+     *
+     * @param requestId requestId to update relationships of.
+     * @throws InternalWorkflowException
+     */
+    public void updateStatusOfRelationshipsOfPendingRequest(String requestId, String status) throws
+            InternalWorkflowException {
+
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
+        PreparedStatement prepStmt = null;
+        String query = SQLConstants.UPDATE_STATUS_OF_RELATIONSHIPS_OF_REQUEST;
+        try {
+            Timestamp updatedDateStamp = new Timestamp(System.currentTimeMillis());
+            prepStmt = connection.prepareStatement(query);
+            prepStmt.setString(1, status);
+            prepStmt.setTimestamp(2, updatedDateStamp);
+            prepStmt.setString(3, requestId);
+            prepStmt.setString(4, WorkFlowConstants.HT_STATE_PENDING);
             prepStmt.execute();
             connection.commit();
         } catch (SQLException e) {

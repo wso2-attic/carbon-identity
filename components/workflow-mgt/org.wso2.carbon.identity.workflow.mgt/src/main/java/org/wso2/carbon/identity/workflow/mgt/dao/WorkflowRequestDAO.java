@@ -41,6 +41,8 @@ import java.util.ArrayList;
 
 public class WorkflowRequestDAO {
 
+    public static final String UPDATED_AT_FILTER = "updatedAt";
+    public static final String ALL_TASKS_FILTER = "allTasks";
     private static Log log = LogFactory.getLog(WorkflowRequestDAO.class);
 
     /**
@@ -283,25 +285,41 @@ public class WorkflowRequestDAO {
     * @throws InternalWorkflowException
     */
     public WorkflowRequestDTO[] getRequestsOfUserFilteredByTime(String userName, Timestamp beginTime, Timestamp
-            endTime, String timeCategory, int tenantId) throws
+            endTime, String timeCategory, int tenantId, String status) throws
             InternalWorkflowException {
 
         Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
-        String query;
-        if (timeCategory == "updatedAt") {
-            query = SQLConstants.GET_REQUESTS_OF_USER_FILTER_FROM_UPDATED_TIME;
-        } else {
-            query = SQLConstants.GET_REQUESTS_OF_USER_FILTER_FROM_CREATED_TIME;
-        }
+        String query = "";
+
         ResultSet resultSet = null;
         try {
+            connection = IdentityDatabaseUtil.getDBConnection();
+            if (timeCategory == UPDATED_AT_FILTER) {
+                if (status.equals(ALL_TASKS_FILTER) || status.equals("")) {
+                    query = SQLConstants.GET_REQUESTS_OF_USER_FILTER_FROM_UPDATED_TIME;
+                } else {
+                    query = SQLConstants.GET_REQUESTS_OF_USER_FILTER_FROM_UPDATED_TIME_AND_STATUS;
+                }
+            } else {
+                if (status.equals(ALL_TASKS_FILTER) || status.equals("")) {
+                    query = SQLConstants.GET_REQUESTS_OF_USER_FILTER_FROM_CREATED_TIME;
+                } else {
+                    query = SQLConstants.GET_REQUESTS_OF_USER_FILTER_FROM_CREATED_TIME_AND_STATUS;
+                }
+            }
             prepStmt = connection.prepareStatement(query);
             prepStmt.setString(1, userName);
             prepStmt.setTimestamp(2, beginTime);
             prepStmt.setTimestamp(3, endTime);
             prepStmt.setInt(4, tenantId);
-            prepStmt.setInt(5, SQLConstants.maxResultsPerRequest);
+            if (status.equals(ALL_TASKS_FILTER) || status.equals("")) {
+
+                prepStmt.setInt(5, SQLConstants.maxResultsPerRequest);
+            } else {
+                prepStmt.setString(5, status);
+                prepStmt.setInt(6, SQLConstants.maxResultsPerRequest);
+            }
             resultSet = prepStmt.executeQuery();
             ArrayList<WorkflowRequestDTO> requestDTOs = new ArrayList<>();
             while (resultSet.next()) {
@@ -341,24 +359,39 @@ public class WorkflowRequestDAO {
      * @throws InternalWorkflowException
      */
     public WorkflowRequestDTO[] getRequestsFilteredByTime(Timestamp beginTime, Timestamp
-            endTime, String timeCategory, int tenant) throws
+            endTime, String timeCategory, int tenant, String status) throws
             InternalWorkflowException {
 
         Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
-        String query;
-        if (timeCategory == "updatedAt") {
-            query = SQLConstants.GET_REQUESTS_FILTER_FROM_UPDATED_TIME;
-        } else {
-            query = SQLConstants.GET_REQUESTS_FILTER_FROM_CREATED_TIME;
-        }
+        String query = "";
+
         ResultSet resultSet = null;
         try {
+            if (timeCategory == UPDATED_AT_FILTER) {
+                if (status.equals(ALL_TASKS_FILTER) || status.equals("")) {
+                    query = SQLConstants.GET_REQUESTS_FILTER_FROM_UPDATED_TIME;
+                } else {
+                    query = SQLConstants.GET_REQUESTS_FILTER_FROM_UPDATED_TIME_AND_STATUS;
+                }
+            } else {
+                if (status.equals(ALL_TASKS_FILTER) || status.equals("")) {
+                    query = SQLConstants.GET_REQUESTS_FILTER_FROM_CREATED_TIME;
+                } else {
+                    query = SQLConstants.GET_REQUESTS_FILTER_FROM_CREATED_TIME_AND_STATUS;
+                }
+            }
             prepStmt = connection.prepareStatement(query);
             prepStmt.setTimestamp(1, beginTime);
             prepStmt.setTimestamp(2, endTime);
             prepStmt.setInt(3, tenant);
-            prepStmt.setInt(4, SQLConstants.maxResultsPerRequest);
+            if (status.equals(ALL_TASKS_FILTER) || status.equals("")) {
+
+                prepStmt.setInt(4, SQLConstants.maxResultsPerRequest);
+            } else {
+                prepStmt.setString(4, status);
+                prepStmt.setInt(5, SQLConstants.maxResultsPerRequest);
+            }
             resultSet = prepStmt.executeQuery();
             ArrayList<WorkflowRequestDTO> requestDTOs = new ArrayList<>();
             while (resultSet.next()) {
