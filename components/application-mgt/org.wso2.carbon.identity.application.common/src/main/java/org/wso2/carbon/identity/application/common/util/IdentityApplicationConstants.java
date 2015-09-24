@@ -56,7 +56,7 @@ public class IdentityApplicationConstants {
         public static final String PROPERTY_TYPE_STRING = "STRING";
         public static final String PROPERTY_TYPE_BLOB = "BLOB";
 
-        private ConfigElements(){
+        private ConfigElements() {
         }
 
     }
@@ -70,7 +70,7 @@ public class IdentityApplicationConstants {
             public static final String OPEN_ID_URL = "OpenIdUrl";
             public static final String IS_USER_ID_IN_CLAIMS = "IsUserIdInClaims";
 
-            private OpenID(){
+            private OpenID() {
             }
         }
 
@@ -103,7 +103,7 @@ public class IdentityApplicationConstants {
             public static final String AUTHENTICATION_CONTEXT_COMPARISON_LEVEL = "AuthnContextComparisonLevel";
             public static final String ATTRIBUTE_CONSUMING_SERVICE_INDEX = "AttributeConsumingServiceIndex";
 
-            private SAML2SSO(){
+            private SAML2SSO() {
             }
 
         }
@@ -122,7 +122,7 @@ public class IdentityApplicationConstants {
             public static final String IDENTITY_PROVIDER_URL = "IdentityProviderUrl";
             public static final String IS_USER_ID_IN_CLAIMS = "IsUserIdInClaims";
 
-            private PassiveSTS(){
+            private PassiveSTS() {
             }
         }
 
@@ -136,14 +136,14 @@ public class IdentityApplicationConstants {
             public static final String AUTH_ENDPOINT = "AuthnEndpoint";
             public static final String AUTH_TOKEN_ENDPOINT = "AuthTokenEndpoint";
             public static final String USER_INFO_ENDPOINT = "UserInfoEndpoint";
-            private Facebook(){
+            private Facebook() {
             }
         }
 
         public static class WSTrust {
             public static final String NAME = "wstrust";
             public static final String IDENTITY_PROVIDER_URL = "IDENTITY_PROVIDER_URL";
-            private WSTrust(){
+            private WSTrust() {
             }
         }
 
@@ -158,8 +158,7 @@ public class IdentityApplicationConstants {
             public static final String CLEAN_UP_PERIOD = "CleanUpPeriod";
             public static final String CLEAN_UP_PERIOD_DEFAULT = "1140";
             public static final String TIME_CONFIG = "TimeConfig";
-            private IDPProperties(){
-
+            private IDPProperties() {
             }
         }
 
@@ -174,7 +173,7 @@ public class IdentityApplicationConstants {
         public static final String OAUTH1_AUTHORIZE_URL = "OAuth1AuthorizeUrl";
         public static final String OAUTH1_ACCESS_TOKEN_URL = "OAuth1AccessTokenUrl";
 
-        private OAuth10A(){
+        private OAuth10A() {
         }
     }
 
@@ -187,7 +186,7 @@ public class IdentityApplicationConstants {
         public static final String OAUTH2_TOKEN_URL = "OAuth2TokenEPUrl";
         public static final String OAUTH2_USER_INFO_EP_URL = "OAuth2UserInfoEPUrl";
 
-        private OAuth2(){
+        private OAuth2() {
         }
     }
 
