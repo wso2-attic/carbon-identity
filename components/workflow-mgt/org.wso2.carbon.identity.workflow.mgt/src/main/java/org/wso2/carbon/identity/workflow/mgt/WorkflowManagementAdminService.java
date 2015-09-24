@@ -64,8 +64,8 @@ public class WorkflowManagementAdminService {
                 workflow.setWorkflowId(workflowBean.getWorkflowId());
                 workflow.setWorkflowName(workflowBean.getWorkflowName());
                 workflow.setWorkflowDescription(workflowBean.getWorkflowDescription());
-                workflow.setTemplateId(workflowBean.getTemplateId());
-                workflow.setWorkflowImplId(workflowBean.getWorkflowImplId());
+                //workflow.setTemplateId(workflowBean.getTemplateId());
+                //workflow.setWorkflowImplId(workflowBean.getWorkflowImplId());
 
                 AbstractTemplate abstractTemplate =
                         WorkflowServiceDataHolder.getInstance().getTemplates().get(workflowBean.getTemplateId());
@@ -159,8 +159,8 @@ public class WorkflowManagementAdminService {
             workflowBean.setWorkflowName(workflow.getWorkflowName());
             workflowBean.setWorkflowDescription(workflow.getWorkflowDescription());
 
-            workflowBean.setTemplateId(workflow.getTemplateId());
-            workflowBean.setWorkflowImplId(workflow.getWorkflowImplId());
+            workflowBean.setTemplateId(workflow.getTemplate().getTemplateId());
+            workflowBean.setWorkflowImplId(workflow.getWorkflowImpl().getWorkflowImplId());
 
             List<Parameter> parameterList = new ArrayList<>();
             parameterList.addAll(Arrays.asList(workflow.getTemplateParameters()));

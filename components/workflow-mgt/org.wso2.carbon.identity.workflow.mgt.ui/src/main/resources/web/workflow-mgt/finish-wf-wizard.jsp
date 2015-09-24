@@ -20,18 +20,15 @@
 <%@ page import="org.apache.commons.lang.StringUtils" %>
 <%@ page import="org.wso2.carbon.CarbonConstants" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.WorkflowAdminServiceWorkflowException" %>
-<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.ParameterDTO" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.WorkflowAdminServiceClient" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.WorkflowUIConstants" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
 
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
-<%@ page import="java.util.ArrayList" %>
-<%@ page import="java.util.List" %>
-<%@ page import="java.util.Map" %>
 <%@ page import="java.util.ResourceBundle" %>
-<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.WorkflowDTO" %>
+<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.metadata.WorkflowWizard" %>
+<%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.util.WorkflowUIUtil" %>
 
 
 <%
@@ -45,59 +42,23 @@
             (ConfigurationContext) config.getServletContext()
                     .getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
     WorkflowAdminServiceClient client = new WorkflowAdminServiceClient(cookie, backendServerURL, configContext);
-    String workflowName = request.getParameter(WorkflowUIConstants.PARAM_WORKFLOW_NAME);
+
+    String requestToken = request.getParameter(WorkflowUIConstants.PARAM_PAGE_REQUEST_TOKEN);
+    if(StringUtils.isBlank(requestToken) || session.getAttribute(requestToken)==null){
+        throw new WorkflowAdminServiceWorkflowException("This page is expired or can not access from this URL");
+    }
+
 
     String forwardTo = "list-workflows.jsp";
 
-    if(request.getParameter("path") != null && !request.getParameter("path").isEmpty()){
-        forwardTo = request.getParameter("path") + ".jsp?wizard=finish&" + WorkflowUIConstants.PARAM_WORKFLOW_NAME + "=" + workflowName;
-    }
-
     if (WorkflowUIConstants.ACTION_VALUE_ADD.equals(action)) {
-
-        Map<String, String> attribMap =
-                (Map<String, String>) session.getAttribute(WorkflowUIConstants.ATTRIB_WORKFLOW_WIZARD);
-
-        workflowName =
-                attribMap.get(WorkflowUIConstants.PARAM_WORKFLOW_NAME);
-        String description = attribMap.get(WorkflowUIConstants.PARAM_WORKFLOW_DESCRIPTION);
-        String templateName = attribMap.get(WorkflowUIConstants.PARAM_TEMPLATE_ID);
-        String templateImplName = attribMap.get(WorkflowUIConstants.PARAM_WORKFLOW_IMPL);
-
-        Map<String, String[]> parameterMap = request.getParameterMap();
-        List<ParameterDTO> templateParams = new ArrayList<ParameterDTO>();
-        List<ParameterDTO> templateImplParams = new ArrayList<ParameterDTO>();
-        for (Map.Entry<String, String[]> paramEntry : parameterMap.entrySet()) {
-
-            if (paramEntry.getKey() != null && paramEntry.getValue().length > 0) {
-                if (paramEntry.getKey().startsWith("imp-")) {
-                    ParameterDTO parameter = new ParameterDTO();
-                    parameter.setParamName(paramEntry.getKey().substring(4));   //length of "imp-"
-                    parameter.setParamValue(paramEntry.getValue()[0]);
-                    templateImplParams.add(parameter);
-                }
-            }
+        WorkflowWizard workflowWizard = (WorkflowWizard)session.getAttribute(requestToken);
+        WorkflowUIUtil.loadWorkflowImplParameters(request.getParameterMap(),workflowWizard);
+        if(request.getParameter(WorkflowUIConstants.PARAM_REQUEST_PATH) != null && !request.getParameter(WorkflowUIConstants.PARAM_REQUEST_PATH).isEmpty()){
+            forwardTo = request.getParameter(WorkflowUIConstants.PARAM_REQUEST_PATH)+".jsp?wizard=finish&" + WorkflowUIConstants.PARAM_WORKFLOW_NAME + "=" +workflowWizard.getWorkflowName() ;
         }
-        for (Map.Entry<String, String> paramEntry : attribMap.entrySet()) {
-
-            if (paramEntry.getKey() != null && paramEntry.getValue()!=null) {
-                if (paramEntry.getKey().startsWith("p-")) {
-                    ParameterDTO parameter = new ParameterDTO();
-                    parameter.setParamName(paramEntry.getKey().substring(2));   //length of "p-"
-                    parameter.setParamValue(paramEntry.getValue());
-                    templateParams.add(parameter);
-                }
-            }
-        }
-
         try {
-            WorkflowDTO workflowDTO = new WorkflowDTO();
-            workflowDTO.setWorkflowName(workflowName);
-            workflowDTO.setWorkflowDescription(description);
-            workflowDTO.setTemplateName(templateName);
-            workflowDTO.setImplementationName(templateImplName);
-            client.addWorkflow(workflowDTO, templateParams,templateImplParams);
-
+            client.addWorkflow(workflowWizard);
         } catch (Exception e) {
             String message = resourceBundle.getString("workflow.error.when.adding.workflow");
             CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);

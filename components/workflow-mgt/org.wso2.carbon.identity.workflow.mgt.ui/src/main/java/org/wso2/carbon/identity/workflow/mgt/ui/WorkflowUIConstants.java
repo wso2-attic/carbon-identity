@@ -57,6 +57,7 @@ public class WorkflowUIConstants {
     public static final String PARAM_WORKFLOW_NAME = "workflow-name";
     public static final String PARAM_WORKFLOW_ID = "workflow-id";
     public static final String PARAM_REQUEST_PATH = "request-path";
+    public static final String PARAM_BACK = "back";
     public static final String PARAM_PAGE_REQUEST_TOKEN = "page-request-token";
     public static final String PARAM_ASSOCIATION_ID = "associationId";
     public static final String PARAM_ASSOCIATION_NAME = "associationName";
@@ -99,5 +100,10 @@ public class WorkflowUIConstants {
         public static final String USER_NAME = "USER_NAME";
         public static final String BPS_PROFILE = "BPS_PROFILE";
         public static final String USER_NAME_OR_USER_ROLE = "USER_NAME_OR_USER_ROLE";
+    }
+
+    public static class ParameterHolder {
+        public static final String TEMPLATE = "Template" ;
+        public static final String  WORKFLOW_IMPL = "WorkflowImpl" ;
     }
 }

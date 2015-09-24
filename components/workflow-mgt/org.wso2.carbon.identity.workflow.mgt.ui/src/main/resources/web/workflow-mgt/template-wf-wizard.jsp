@@ -55,6 +55,11 @@
         requestPath = request.getParameter(WorkflowUIConstants.PARAM_REQUEST_PATH);
     }
 
+    boolean isBack = false ;
+    if(StringUtils.isNotBlank(request.getParameter(WorkflowUIConstants.PARAM_BACK)) && request
+            .getParameter(WorkflowUIConstants.PARAM_BACK).equals("true")){
+        isBack =  true ;
+    }
 
     boolean isSelectTemplate = false;
     if(StringUtils.isNotBlank(request.getParameter(WorkflowUIConstants.PARAM_SELECT_ITEM)) && request
@@ -90,25 +95,39 @@
         client = new WorkflowAdminServiceClient(cookie, backendServerURL, configContext);
 
         workflowWizard = (WorkflowWizard)session.getAttribute(requestToken);
-
+        WorkflowUIUtil.test("A",workflowWizard);
         //If there are no any template registered in OSGi, it is not possible to continue from here.
         templateList = client.listTemplates();
         if (templateList == null || templateList.length == 0) {
             throw new WorkflowAdminServiceWorkflowException("There is no any registered templates.");
         }
 
+        if(!isBack) {
 
-
-        if(workflowWizard.getTemplate() == null){
-            if(templateList.length == 1){
-                template = templateList[0] ;
-            }else if(StringUtils.isNotBlank(templateId)){
-                template = client.getTemplate(templateId);
+            if (workflowWizard.getTemplate() == null) {
+                if (templateList.length == 1) {
+                    template = templateList[0];
+                } else if (StringUtils.isNotBlank(templateId)) {
+                    template = client.getTemplate(templateId);
+                }
+                workflowWizard.setTemplate(template);
+            } else {
+                if (StringUtils.isNotBlank(templateId) &&
+                    !workflowWizard.getTemplate().getTemplateId().equals(templateId)) {
+                    template = client.getTemplate(templateId);
+                    workflowWizard.setTemplate(template);
+                    workflowWizard.setWorkflowImpl(null);
+                }else{
+                    template = workflowWizard.getTemplate();
+                }
             }
-            workflowWizard.setTemplate(template);
-        }else if(!workflowWizard.getTemplate().getTemplateId().equals(templateId)){
-            template = client.getTemplate(templateId);
-            workflowWizard.setTemplate(template);
+
+            if(!isSelectTemplate) {
+                workflowWizard.setWorkflowName(workflowName);
+                workflowWizard.setWorkflowDescription(description);
+            }
+        }else{
+            template = workflowWizard.getTemplate();
         }
 
         //This data will be come when this is in edit mode only.
@@ -120,10 +139,6 @@
         }
 
         //Workflow name and description update to the wizard only first call to this page
-        if(!isSelectTemplate) {
-            workflowWizard.setWorkflowName(workflowName);
-            workflowWizard.setWorkflowDescription(description);
-        }
 
     } catch (Exception e) {
         String message = resourceBundle.getString("workflow.error.when.initiating.service.client") + e.getMessage();
@@ -272,7 +287,7 @@
     <script type="text/javascript">
 
         function goBack() {
-            location.href = "workflow-wf-wizard.jsp?<%=WorkflowUIConstants.PARAM_PAGE_REQUEST_TOKEN%>=<%=requestToken%>";
+            location.href = "workflow-wf-wizard.jsp?<%=WorkflowUIConstants.PARAM_BACK%>=true&<%=WorkflowUIConstants.PARAM_PAGE_REQUEST_TOKEN%>=<%=requestToken%>";
         }
 
         function doCancel() {
@@ -332,9 +347,12 @@
                                     System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>3");
                                     for (Template templateTmp : templateList) {
                                         System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>4");
+                                        String selected = "" ;
+                                        if(template!=null && templateTmp.getTemplateId().equals(template.getTemplateId())){
+                                            selected = "selected" ;
+                                        }
                                 %>
-                                    <option value="<%=templateTmp.getTemplateId()%>"
-                                            <%=templateTmp.getTemplateId().equals(templateId) ? "selected" : ""%>>
+                                    <option value="<%=templateTmp.getTemplateId()%>" <%=selected%>>
                                         <%=templateTmp.getName()%>
                                     </option>
                                 <%
@@ -353,7 +371,7 @@
             </br>
 
             <%
-                if(templateId != null ){
+                if(template != null ){
             %>
             <form method="post" name="serviceAdd" id="id_nextwizard" action="workflowimpl-wf-wizard.jsp">
                 <input type="hidden" name="<%=WorkflowUIConstants.PARAM_PAGE_REQUEST_TOKEN%>" value="<%=requestToken%>"/>
@@ -462,7 +480,7 @@
                                                                    '<tr id="id_step_roles_'+stepOrder+'" style="display:none;">' +
                                                                    '<td style="width:100%;">' +
                                                                    '<table  style="width:100%;">' +
-                                                                   '<tr><td width="40px">Roles</td><td onclick="moveSearchController(\''+stepOrder+'\',\'roles\', false);"><input readonly  name="p-step-'+stepOrder+'-roles" id="p-step-'+stepOrder+'-roles"  type="text" class="tokenizer_'+stepOrder+'"/></td></tr>' +
+                                                                   '<tr><td width="40px">Roles</td><td onclick="moveSearchController(\''+stepOrder+'\',\'roles\', false);"><input readonly  name="<%=metaData.getName()%>-step-'+stepOrder+'-roles" id="p-step-'+stepOrder+'-roles"  type="text" class="tokenizer_'+stepOrder+'"/></td></tr>' +
                                                                    '</table>' +
                                                                    '</td>' +
                                                                    '</tr>' +

@@ -54,6 +54,13 @@
         requestPath = request.getParameter(WorkflowUIConstants.PARAM_REQUEST_PATH);
     }
 
+    boolean isBack = false ;
+    if(StringUtils.isNotBlank(request.getParameter(WorkflowUIConstants.PARAM_BACK)) && request
+            .getParameter(WorkflowUIConstants.PARAM_BACK).equals("true")){
+        isBack =  true ;
+    }
+
+
 
     String workflowId = request.getParameter(WorkflowUIConstants.PARAM_WORKFLOW_ID);
     String requestToken = request.getParameter(WorkflowUIConstants.PARAM_PAGE_REQUEST_TOKEN);

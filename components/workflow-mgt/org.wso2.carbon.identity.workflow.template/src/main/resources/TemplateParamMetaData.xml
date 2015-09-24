@@ -2,4 +2,7 @@
     <met:ParameterMetaData Name="UserAndRole" InputType="Multiple_Steps_User_Role" isRequired="true">
         <met:DisplayName>User and Role</met:DisplayName>
     </met:ParameterMetaData>
+    <met:ParameterMetaData Name="MyName" InputType="Text" isRequired="true">
+        <met:DisplayName>Test</met:DisplayName>
+    </met:ParameterMetaData>
 </met:ParametersMetaData>

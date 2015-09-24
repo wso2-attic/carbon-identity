@@ -40,6 +40,9 @@
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.metadata.WorkflowImpl" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.metadata.WorkflowWizard" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.WorkflowAdminServiceWorkflowException" %>
+<%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.util.WorkflowUIUtil" %>
+<%@ page import="java.util.Set" %>
+<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.metadata.bean.ParametersMetaData" %>
 
 
 <%
@@ -96,12 +99,22 @@
             if(workflowImplList.length == 1){
                 workflowImpl = workflowImplList[0] ;
             }else if(StringUtils.isNotBlank(workflowImplId)){
-                workflowImpl = client.getWorkflowImp(workflowWizard.getTemplateId(),workflowImplId);
+                workflowImpl = client.getWorkflowImp(workflowWizard.getTemplate().getTemplateId(),workflowImplId);
             }
             workflowWizard.setWorkflowImpl(workflowImpl);
-        }else if(!workflowWizard.getWorkflowImpl().getWorkflowImplId().equals(workflowImplId)){
-            workflowImpl = client.getWorkflowImp(workflowWizard.getTemplateId(), workflowImplId);
-            workflowWizard.setWorkflowImpl(workflowImpl);
+        }else {
+            if(StringUtils.isNotBlank(workflowImplId) && !workflowWizard.getWorkflowImpl().getWorkflowImplId().equals(workflowImplId)){
+                workflowImpl = client.getWorkflowImp(workflowWizard.getTemplate().getTemplateId(), workflowImplId);
+                workflowWizard.setWorkflowImpl(workflowImpl);
+            }else{
+                workflowImpl = workflowWizard.getWorkflowImpl();
+            }
+        }
+
+        if(!isSelectTemplate){
+
+            WorkflowUIUtil.loadTemplateParameters(request.getParameterMap(), workflowWizard);
+
         }
 
         Parameter[] workflowParameters = workflowWizard.getWorkflowImplParameters();
@@ -110,7 +123,6 @@
                 workflowImplParameterValues.put(parameter.getHolder() + "_" + parameter.getParamName() + "_" + parameter.getQName(),parameter.getParamValue());
             }
         }
-
 
     } catch (Exception e) {
         String message = resourceBundle.getString("workflow.error.when.initiating.service.client") + e.getMessage();
@@ -259,7 +271,7 @@
     <script type="text/javascript">
 
         function goBack() {
-            location.href = "template-wf-wizard.jsp?<%=WorkflowUIConstants.PARAM_PAGE_REQUEST_TOKEN%>=<%=requestToken%>";
+            location.href = "template-wf-wizard.jsp?<%=WorkflowUIConstants.PARAM_BACK%>=true&<%=WorkflowUIConstants.PARAM_PAGE_REQUEST_TOKEN%>=<%=requestToken%>";
         }
 
         function doCancel() {
@@ -274,13 +286,19 @@
             workflowForm.submit();
         }
 
-        function nextWizard(){
+        var stepOrder = 0;
 
-            for(var currentStep=1;currentStep<=stepOrder ; currentStep++){
-                var newValues = $("#p-step-" + currentStep + "-users" ).tokenizer('get');
-                $("#p-step-" + currentStep + "-users").val(newValues);
-                newValues = $("#p-step-" + currentStep + "-roles" ).tokenizer('get');
-                $("#p-step-" + currentStep + "-roles").val(newValues);
+        function nextWizard(){
+            alert("ddddd");
+            try {
+                for (var currentStep = 1; currentStep <= stepOrder; currentStep++) {
+                    var newValues = $("#p-step-" + currentStep + "-users").tokenizer('get');
+                    $("#p-step-" + currentStep + "-users").val(newValues);
+                    newValues = $("#p-step-" + currentStep + "-roles").tokenizer('get');
+                    $("#p-step-" + currentStep + "-roles").val(newValues);
+                }
+            }catch(e){
+                alert(e);
             }
 
             var nextWizardForm = document.getElementById("id_nextwizard");
@@ -314,10 +332,14 @@
                                 <%
                                     System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>3");
                                     for (WorkflowImpl workflowImplTmp : workflowImplList) {
-                                        System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>4");
+                                        String selected = "" ;
+                                        System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>4 " + workflowImplTmp);
+                                        if(workflowImpl!=null && workflowImplTmp.getWorkflowImplId().equals(workflowImpl.getWorkflowImplId())){
+                                            System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>ccccc " + workflowImplTmp);
+                                            selected = "selected" ;
+                                        }
                                 %>
-                                    <option value="<%=workflowImplTmp.getWorkflowImplId()%>"
-                                            <%=workflowImplTmp.getWorkflowImplId().equals(workflowImplId) ? "selected" : ""%>>
+                                    <option value="<%=workflowImplTmp.getWorkflowImplId()%>"  <%=selected%> >
                                         <%=workflowImplTmp.getWorkflowImplName()%>
                                     </option>
                                 <%
@@ -330,17 +352,21 @@
             </form>
 
             <%
+                    System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>4 >>  XXXX ");
                 }
             %>
 
             </br>
 
             <%
-                if(workflowImplId != null ){
+                System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>4 >>  yyyy ");
+                if(workflowImpl!=null && workflowImpl.getWorkflowImplId() != null ){
+                    System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>4 >>  PPP ");
             %>
-            <form method="post" name="serviceAdd" id="id_nextwizard" action="workflowimpl-wf-wizard.jsp">
+            <form method="post" name="serviceAdd" id="id_nextwizard" action="finish-wf-wizard.jsp">
                 <input type="hidden" name="<%=WorkflowUIConstants.PARAM_PAGE_REQUEST_TOKEN%>" value="<%=requestToken%>"/>
                 <input type="hidden" name="<%=WorkflowUIConstants.PARAM_REQUEST_PATH%>" value="<%=requestPath%>"/>
+                <input type="hidden" name="<%=WorkflowUIConstants.PARAM_ACTION%>" value="<%=WorkflowUIConstants.ACTION_VALUE_ADD%>">
 
                 <table class="styledLeft">
                     <thead>
@@ -376,7 +402,7 @@
                                         System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>10 " + metaData.getInputType() + "    "  + InputType.TEXT.value());
                                         if(metaData.getInputType().equals(InputType.TEXT.value())){
                                             System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>11 " + metaData.getInputType() + "    "  + InputType.TEXT.value());
-                                            String  textTypeValue = workflowImplParameterValues.get(workflowImplId + "_" + metaData.getName() + "_" + metaData.getName());
+                                            String  textTypeValue = workflowImplParameterValues.get(workflowImpl.getWorkflowImplId() + "_" + metaData.getName() + "_" + metaData.getName());
                                             System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>12 " + textTypeValue);
 
                                     %>
@@ -387,7 +413,7 @@
                                     <%
                                     } else if(metaData.getInputType().equals(InputType.TEXT_AREA.value())){
                                         System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>13 " );
-                                        String  textAreaTypeValue = workflowImplParameterValues.get(workflowImplId + "_" + metaData.getName() + "_" + metaData.getName());
+                                        String  textAreaTypeValue = workflowImplParameterValues.get(workflowImpl.getWorkflowImplId() + "_" + metaData.getName() + "_" + metaData.getName());
                                     %>
                                     <td><textarea name="<%=metaData.getName()%>" title="<%=metaData.getDisplayName()%>" style="min-width: 30%">
                                         <%= textAreaTypeValue%></textarea>
@@ -396,7 +422,7 @@
                                     } else if(metaData.getInputType().equals(InputType.SELECT.value())){
                                         System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>14 " );
                                         String  selectedValue = workflowImplParameterValues.get(
-                                                workflowImplId + "_" + metaData.getName() + "_" + metaData.getName());
+                                                workflowImpl.getWorkflowImplId() + "_" + metaData.getName() + "_" + metaData.getName());
                                         System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>15 " + selectedValue);
                                         InputData inputData = metaData.getInputData();
                                         System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>16 " + inputData);
@@ -435,7 +461,7 @@
 
 
 
-                                        var stepOrder = 0;
+
                                         jQuery(document).ready(function(){
 
                                             jQuery('h2.trigger').click(function(){
