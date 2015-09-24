@@ -216,30 +216,6 @@ public class IdentityUtil {
     }
 
     /**
-     * Get the tenant id of the given user.
-     *
-     * @param username Username
-     * @return Tenant Id of domain user belongs to.
-     * @throws IdentityException Error when getting an instance of Tenant Manger
-     */
-    public static int getTenantIdOFUser(String username) throws IdentityException {
-        int tenantId = 0;
-        String domainName = MultitenantUtils.getTenantDomain(username);
-        if (domainName != null) {
-            try {
-                TenantManager tenantManager = IdentityTenantUtil.getRealmService().getTenantManager();
-                tenantId = tenantManager.getTenantId(domainName);
-            } catch (UserStoreException e) {
-                String errorMsg = "Error when getting the tenant id from the tenant domain : " +
-                        domainName;
-                log.error(errorMsg, e);
-                throw new IdentityException(errorMsg, e);
-            }
-        }
-        return tenantId;
-    }
-
-    /**
      * Generates a random number using two UUIDs and HMAC-SHA1
      *
      * @return Random Number generated.
