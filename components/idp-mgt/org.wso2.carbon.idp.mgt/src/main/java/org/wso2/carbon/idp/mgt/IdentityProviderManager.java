@@ -25,7 +25,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
-import org.wso2.carbon.base.ServerConfigurationException;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.core.util.KeyStoreManager;
 import org.wso2.carbon.identity.application.common.ApplicationAuthenticatorService;
@@ -137,72 +136,68 @@ public class IdentityProviderManager {
         String scimUserEndpoint = null;
         String scimGroupsEndpoint = null;
 
-        try {
-            OMElement elem = IdentityConfigParser.getInstance().
-                    getConfigElement("OpenID.OpenIDServerUrl");
-            if(elem != null){
-                openIdUrl = elem.getText();
-            }
-            elem = IdentityConfigParser.getInstance().
-                    getConfigElement("SSOService.IdentityProviderURL");
-            if(elem != null){
-                samlSSOUrl = elem.getText();
-                samlLogoutUrl = samlSSOUrl;
-            }
-            elem = IdentityConfigParser.getInstance().
-                    getConfigElement("OAuth.OAuth1RequestTokenUrl");
-            if(elem != null){
-                oauth1RequestTokenUrl = elem.getText();
-            }
-            elem = IdentityConfigParser.getInstance().
-                    getConfigElement("OAuth.OAuth1AuthorizeUrl");
-            if(elem != null){
-                oauth1AuthorizeUrl = elem.getText();
-            }
-            elem = IdentityConfigParser.getInstance().
-                    getConfigElement("OAuth.OAuth1AccessTokenUrl");
-            if(elem != null){
-                oauth1AccessTokenUrl = elem.getText();
-            }
-            elem = IdentityConfigParser.getInstance().
-                    getConfigElement("OAuth.OAuth2AuthzEPUrl");
-            if(elem != null){
-                oauth2AuthzEPUrl = elem.getText();
-            }
-            elem = IdentityConfigParser.getInstance().
-                    getConfigElement("OAuth.OAuth2TokenEPUrl");
-            if(elem != null){
-                oauth2TokenEPUrl = elem.getText();
-            }
-            elem = IdentityConfigParser.getInstance().
-                    getConfigElement("OAuth.OAuth2UserInfoEPUrl");
-            if(elem != null){
-                oauth2UserInfoEPUrl = elem.getText();
-            }
-            elem = IdentityConfigParser.getInstance().
-                    getConfigElement("PassiveSTS.IdentityProviderURL");
-            if(elem != null){
-                passiveStsUrl = elem.getText();
-            }
-            elem = IdentityConfigParser.getInstance().
-                    getConfigElement("SecurityTokenService.IdentityProviderURL");
-            if(elem != null){
-                stsUrl = elem.getText();
-            }
-            elem = IdentityConfigParser.getInstance().
-                    getConfigElement("SCIM.UserEPUrl");
-            if(elem != null){
-                scimUserEndpoint = elem.getText();
-            }
-            elem = IdentityConfigParser.getInstance().
-                    getConfigElement("SCIM.GroupEPUrl");
-            if(elem != null){
-                scimGroupsEndpoint = elem.getText();
-            }
-        } catch (ServerConfigurationException e) {
-            log.error("Error occurred while reading OAuth URL configurations from identity.xml. Continuing with " +
-                    "default values.", e);
+        OMElement elem = IdentityConfigParser.getInstance().
+                getConfigElement("OpenID.OpenIDServerUrl");
+        if(elem != null){
+            openIdUrl = elem.getText();
         }
+        elem = IdentityConfigParser.getInstance().
+                getConfigElement("SSOService.IdentityProviderURL");
+        if(elem != null){
+            samlSSOUrl = elem.getText();
+            samlLogoutUrl = samlSSOUrl;
+        }
+        elem = IdentityConfigParser.getInstance().
+                getConfigElement("OAuth.OAuth1RequestTokenUrl");
+        if(elem != null){
+            oauth1RequestTokenUrl = elem.getText();
+        }
+        elem = IdentityConfigParser.getInstance().
+                getConfigElement("OAuth.OAuth1AuthorizeUrl");
+        if(elem != null){
+            oauth1AuthorizeUrl = elem.getText();
+        }
+        elem = IdentityConfigParser.getInstance().
+                getConfigElement("OAuth.OAuth1AccessTokenUrl");
+        if(elem != null){
+            oauth1AccessTokenUrl = elem.getText();
+        }
+        elem = IdentityConfigParser.getInstance().
+                getConfigElement("OAuth.OAuth2AuthzEPUrl");
+        if(elem != null){
+            oauth2AuthzEPUrl = elem.getText();
+        }
+        elem = IdentityConfigParser.getInstance().
+                getConfigElement("OAuth.OAuth2TokenEPUrl");
+        if(elem != null){
+            oauth2TokenEPUrl = elem.getText();
+        }
+        elem = IdentityConfigParser.getInstance().
+                getConfigElement("OAuth.OAuth2UserInfoEPUrl");
+        if(elem != null){
+            oauth2UserInfoEPUrl = elem.getText();
+        }
+        elem = IdentityConfigParser.getInstance().
+                getConfigElement("PassiveSTS.IdentityProviderURL");
+        if(elem != null){
+            passiveStsUrl = elem.getText();
+        }
+        elem = IdentityConfigParser.getInstance().
+                getConfigElement("SecurityTokenService.IdentityProviderURL");
+        if(elem != null){
+            stsUrl = elem.getText();
+        }
+        elem = IdentityConfigParser.getInstance().
+                getConfigElement("SCIM.UserEPUrl");
+        if(elem != null){
+            scimUserEndpoint = elem.getText();
+        }
+        elem = IdentityConfigParser.getInstance().
+                getConfigElement("SCIM.GroupEPUrl");
+        if(elem != null){
+            scimGroupsEndpoint = elem.getText();
+        }
+
         if(StringUtils.isBlank(openIdUrl)){
             openIdUrl = serverUrl + "openid";
         }

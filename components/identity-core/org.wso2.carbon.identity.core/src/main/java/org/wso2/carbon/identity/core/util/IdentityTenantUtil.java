@@ -34,12 +34,14 @@ import org.wso2.carbon.registry.core.Registry;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
 import org.wso2.carbon.registry.core.service.RegistryService;
 import org.wso2.carbon.registry.core.service.TenantRegistryLoader;
+import org.wso2.carbon.user.api.TenantManager;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.AuthenticationObserver;
 import org.wso2.carbon.utils.ServerConstants;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
+import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -223,9 +225,9 @@ public class IdentityTenantUtil {
         }
     }
 
-    public static int getTenantID(String tenantDomain) throws IdentityRuntimeException {
+    public static int getTenantId(String tenantDomain) throws IdentityRuntimeException {
 
-        int tenantId;
+        int tenantId = MultitenantConstants.INVALID_TENANT_ID;
         try {
             tenantId = realmService.getTenantManager().getTenantId(tenantDomain);
         } catch (UserStoreException e) {
@@ -236,6 +238,59 @@ public class IdentityTenantUtil {
             throw new IdentityRuntimeException("Error occurred while retrieving tenantId for tenantDomain: " +
                     tenantDomain + e.getMessage(), e);
         }
-        return tenantId;
+        if(tenantId == MultitenantConstants.INVALID_TENANT_ID){
+            throw new IdentityRuntimeException("Invalid tenant domain " + tenantDomain);
+        } else {
+            return tenantId;
+        }
+
+    }
+
+    public static String getTenantDomain(int tenantId) throws IdentityRuntimeException {
+
+        String tenantDomain = null;
+        try {
+            tenantDomain = realmService.getTenantManager().getDomain(tenantId);
+        } catch (UserStoreException e) {
+            // Ideally user.core should be throwing an unchecked exception, in which case no need to wrap at this
+            // level once more without adding any valuable contextual information. Because we don't have exception
+            // enrichment properly implemented, we are appending the error message from the UserStoreException to the
+            // new message
+            throw new IdentityRuntimeException("Error occurred while retrieving tenantDomain for tenantId: " +
+                    tenantId + e.getMessage(), e);
+        }
+        if(tenantDomain == null){
+            throw new IdentityRuntimeException("Invalid tenant domain " + tenantDomain);
+        } else {
+            return tenantDomain;
+        }
+
+    }
+
+    /**
+     * Get the tenant id of the given user.
+     *
+     * @param username Username
+     * @return Tenant Id of domain user belongs to.
+     * @throws IdentityRuntimeException Error when getting the tenant Id from tenant domain
+     */
+    public static int getTenantIdOfUser(String username) throws IdentityRuntimeException {
+
+        int tenantId = MultitenantConstants.INVALID_TENANT_ID;
+        String domainName = MultitenantUtils.getTenantDomain(username);
+        if (domainName != null) {
+            try {
+                TenantManager tenantManager = IdentityTenantUtil.getRealmService().getTenantManager();
+                tenantId = tenantManager.getTenantId(domainName);
+            } catch (UserStoreException e) {
+                String errorMsg = "Error when getting the tenant id from the tenant domain : " + domainName;
+                throw new IdentityRuntimeException(errorMsg, e);
+            }
+        }
+        if(tenantId == MultitenantConstants.INVALID_TENANT_ID){
+            throw new IdentityRuntimeException("Invalid tenant domain of user " + username);
+        } else {
+            return tenantId;
+        }
     }
 }

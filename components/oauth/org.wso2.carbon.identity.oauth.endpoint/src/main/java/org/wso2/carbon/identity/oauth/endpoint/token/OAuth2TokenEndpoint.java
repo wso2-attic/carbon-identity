@@ -18,16 +18,15 @@
 
 package org.wso2.carbon.identity.oauth.endpoint.token;
 
-import org.apache.amber.oauth2.as.response.OAuthASResponse;
-import org.apache.amber.oauth2.as.response.OAuthASResponse.OAuthTokenResponseBuilder;
-import org.apache.amber.oauth2.common.OAuth;
-import org.apache.amber.oauth2.common.exception.OAuthProblemException;
-import org.apache.amber.oauth2.common.exception.OAuthSystemException;
-import org.apache.amber.oauth2.common.message.OAuthResponse;
-import org.apache.amber.oauth2.common.message.types.GrantType;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.oltu.openidconnect.as.OIDC;
+import org.apache.oltu.oauth2.as.response.OAuthASResponse;
+import org.apache.oltu.oauth2.as.response.OAuthASResponse.OAuthTokenResponseBuilder;
+import org.apache.oltu.oauth2.common.OAuth;
+import org.apache.oltu.oauth2.common.exception.OAuthProblemException;
+import org.apache.oltu.oauth2.common.exception.OAuthSystemException;
+import org.apache.oltu.oauth2.common.message.OAuthResponse;
+import org.apache.oltu.oauth2.common.message.types.GrantType;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.oauth.common.OAuth2ErrorCodes;
 import org.wso2.carbon.identity.oauth.common.OAuthConstants;
@@ -152,7 +151,8 @@ public class OAuth2TokenEndpoint {
 
                     // OpenID Connect ID token
                     if (oauth2AccessTokenResp.getIDToken() != null) {
-                        oAuthRespBuilder.setParam(OIDC.Response.ID_TOKEN, oauth2AccessTokenResp.getIDToken());
+                        oAuthRespBuilder.setParam(OAuthConstants.ID_TOKEN,
+                                oauth2AccessTokenResp.getIDToken());
                     }
                     OAuthResponse response = oAuthRespBuilder.buildJSONMessage();
                     ResponseHeader[] headers = oauth2AccessTokenResp.getResponseHeaders();

@@ -83,8 +83,8 @@
             <artifactId>org.wso2.carbon.identity.core</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.amber.wso2</groupId>
-            <artifactId>amber</artifactId>
+            <groupId>org.wso2.orbit.org.apache.oltu.oauth2</groupId>
+            <artifactId>oltu</artifactId>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon.identity</groupId>
@@ -174,9 +174,7 @@
 
                             org.apache.juli.logging; resolution:=optional,
 
-                            org.apache.amber.oauth2.as.*; version="${amber.package.import.version.range}",
-                            org.apache.amber.oauth2.common.*; version="${amber.package.import.version.range}",
-                            org.apache.oltu.openidconnect.as.*; version="${amber.package.import.version.range}",
+                            org.apache.oltu.*; version="${oltu.package.import.version.range}",
 
                             org.apache.axiom.om; version="${axiom.osgi.version.range}",
                             org.apache.axiom.util.base64; version="${axiom.osgi.version.range}",

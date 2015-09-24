@@ -20,7 +20,6 @@ package org.wso2.carbon.identity.workflow.mgt.dao;
 
 import org.wso2.carbon.core.util.CryptoException;
 import org.wso2.carbon.core.util.CryptoUtil;
-import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
 import org.wso2.carbon.identity.workflow.mgt.bean.BPSProfileDTO;
 import org.wso2.carbon.identity.workflow.mgt.util.WorkFlowConstants;
@@ -42,7 +41,7 @@ public class BPSProfileDAO {
     public void addProfile(BPSProfileDTO bpsProfileDTO, int tenantId)
             throws InternalWorkflowException {
 
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
         String query = SQLConstants.ADD_BPS_PROFILE_QUERY;
         String password = bpsProfileDTO.getPassword();
@@ -63,7 +62,6 @@ public class BPSProfileDAO {
         }
 
         try {
-            connection = IdentityDatabaseUtil.getDBConnection();
             prepStmt = connection.prepareStatement(query);
             prepStmt.setString(1, bpsProfileDTO.getProfileName());
             prepStmt.setString(2, bpsProfileDTO.getHost());
@@ -74,8 +72,6 @@ public class BPSProfileDAO {
             prepStmt.setInt(7, tenantId);
             prepStmt.executeUpdate();
             connection.commit();
-        } catch (IdentityException e) {
-            throw new InternalWorkflowException("Error when connecting to the Identity Database.", e);
         } catch (SQLException e) {
             throw new InternalWorkflowException("Error when executing the sql query", e);
         } finally {
@@ -86,7 +82,7 @@ public class BPSProfileDAO {
     public void updateProfile(BPSProfileDTO bpsProfile, int tenantId)
             throws InternalWorkflowException {
 
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
         String query = SQLConstants.UPDATE_BPS_PROFILE_QUERY;
         String password = bpsProfile.getPassword();
@@ -107,7 +103,6 @@ public class BPSProfileDAO {
         }
 
         try {
-            connection = IdentityDatabaseUtil.getDBConnection();
             prepStmt = connection.prepareStatement(query);
             prepStmt.setString(1, bpsProfile.getHost());
             prepStmt.setString(2, bpsProfile.getUsername());
@@ -119,8 +114,6 @@ public class BPSProfileDAO {
 
             prepStmt.executeUpdate();
             connection.commit();
-        } catch (IdentityException e) {
-            throw new InternalWorkflowException("Error when connecting to the Identity Database.", e);
         } catch (SQLException e) {
             throw new InternalWorkflowException("Error when executing the sql query", e);
         } finally {
@@ -132,7 +125,7 @@ public class BPSProfileDAO {
 
         BPSProfileDTO bpsProfileDTO = null ;
         
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
         ResultSet rs;
         Map<String, Object> profileParams = new HashMap<>();
@@ -141,7 +134,6 @@ public class BPSProfileDAO {
         String decryptCallBackPassword;
 
         try {
-            connection = IdentityDatabaseUtil.getDBConnection();
             prepStmt = connection.prepareStatement(query);
             prepStmt.setString(1, profileName);
             prepStmt.setInt(2, tenantId);
@@ -178,8 +170,6 @@ public class BPSProfileDAO {
                 }
 
             }
-        } catch (IdentityException e) {
-            throw new InternalWorkflowException("Error when connecting to the Identity Database.", e);
         } catch (SQLException e) {
             throw new InternalWorkflowException("Error when executing the sql.", e);
         } finally {
@@ -190,7 +180,7 @@ public class BPSProfileDAO {
 
     public Map<String, Object> getBPELProfileParams(String profileName) throws InternalWorkflowException {
 
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
         ResultSet rs;
         Map<String, Object> profileParams = new HashMap<>();
@@ -199,7 +189,6 @@ public class BPSProfileDAO {
         String decryptCallBackPassword;
 
         try {
-            connection = IdentityDatabaseUtil.getDBConnection();
             prepStmt = connection.prepareStatement(query);
             prepStmt.setString(1, profileName);
             rs = prepStmt.executeQuery();
@@ -228,8 +217,6 @@ public class BPSProfileDAO {
                 profileParams.put(WorkFlowConstants.TemplateConstants.CALLBACK_USER, callbackUser);
                 profileParams.put(WorkFlowConstants.TemplateConstants.CALLBACK_USER_PASSWORD, decryptCallBackPassword);
             }
-        } catch (IdentityException e) {
-            throw new InternalWorkflowException("Error when connecting to the Identity Database.", e);
         } catch (SQLException e) {
             throw new InternalWorkflowException("Error when executing the sql.", e);
         } finally {
@@ -240,13 +227,12 @@ public class BPSProfileDAO {
 
     public List<BPSProfileDTO> listBPSProfiles(int tenantId) throws InternalWorkflowException {
 
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
         ResultSet rs;
         List<BPSProfileDTO> profiles = new ArrayList<>();
         String query = SQLConstants.LIST_BPS_PROFILES_QUERY;
         try {
-            connection = IdentityDatabaseUtil.getDBConnection();
             prepStmt = connection.prepareStatement(query);
             prepStmt.setInt(1, tenantId);
             rs = prepStmt.executeQuery();
@@ -262,8 +248,6 @@ public class BPSProfileDAO {
                 profileBean.setCallbackUser(callbackUser);
                 profiles.add(profileBean);
             }
-        } catch (IdentityException e) {
-            throw new InternalWorkflowException("Error when connecting to the Identity Database.", e);
         } catch (SQLException e) {
             throw new InternalWorkflowException("Error when executing the sql.", e);
         } finally {
@@ -274,17 +258,14 @@ public class BPSProfileDAO {
 
     public void removeBPSProfile(String profileName) throws InternalWorkflowException {
 
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
         String query = SQLConstants.DELETE_BPS_PROFILES_QUERY;
         try {
-            connection = IdentityDatabaseUtil.getDBConnection();
             prepStmt = connection.prepareStatement(query);
             prepStmt.setString(1, profileName);
             prepStmt.executeUpdate();
             connection.commit();
-        } catch (IdentityException e) {
-            throw new InternalWorkflowException("Error when connecting to the Identity Database.", e);
         } catch (SQLException e) {
             throw new InternalWorkflowException("Error when executing the sql.", e);
         } finally {

@@ -57,6 +57,7 @@ import org.wso2.carbon.identity.application.mgt.dao.ApplicationDAO;
 import org.wso2.carbon.identity.application.mgt.dao.IdentityProviderDAO;
 import org.wso2.carbon.identity.application.mgt.internal.ApplicationManagementServiceComponent;
 import org.wso2.carbon.identity.application.mgt.internal.ApplicationManagementServiceComponentHolder;
+import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.persistence.JDBCPersistenceManager;
 import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
@@ -141,12 +142,11 @@ public class ApplicationDAOImpl implements ApplicationDAO {
             log.debug("Creating Application " + applicationName + " for user " + qualifiedUsername);
         }
 
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement storeAppPrepStmt = null;
         ResultSet results = null;
 
         try {
-            connection = JDBCPersistenceManager.getInstance().getDBConnection();
             String dbProductName = connection.getMetaData().getDatabaseProductName();
             storeAppPrepStmt = connection.prepareStatement(
                     ApplicationMgtDBQueries.STORE_BASIC_APPINFO, new String[]{
@@ -187,7 +187,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
 
             return applicationId;
 
-        } catch (SQLException | IdentityException e) {
+        } catch (SQLException e) {
             try {
                 if (connection != null) {
                     connection.rollback();
@@ -212,11 +212,10 @@ public class ApplicationDAOImpl implements ApplicationDAO {
     public void updateApplication(ServiceProvider serviceProvider)
             throws IdentityApplicationManagementException {
 
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         int applicationId = serviceProvider.getApplicationID();
 
         try {
-            connection = IdentityApplicationManagementUtil.getDBConnection();
             if (ApplicationManagementServiceComponent.getFileBasedSPs().containsKey(
                     serviceProvider.getApplicationName())) {
                 throw new IdentityApplicationManagementException(
@@ -265,7 +264,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
             if (!connection.getAutoCommit()) {
                 connection.commit();
             }
-        } catch (IdentityException | SQLException | UserStoreException e) {
+        } catch (SQLException | UserStoreException e) {
             try {
                 if (connection != null) {
                     connection.rollback();
@@ -1091,9 +1090,8 @@ public class ApplicationDAOImpl implements ApplicationDAO {
             }
         }
 
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         try {
-            connection = IdentityApplicationManagementUtil.getDBConnection();
 
             // Load basic application data
             ServiceProvider serviceProvider = getBasicApplicationData(applicationName, connection,
@@ -1143,7 +1141,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
             serviceProvider.setRequestPathAuthenticatorConfigs(requestPathAuthenticators);
             return serviceProvider;
 
-        } catch (SQLException | IdentityException e) {
+        } catch (SQLException e) {
             throw new IdentityApplicationManagementException("Failed to update service provider "
                     + applicationId, e);
         } finally {
@@ -1301,11 +1299,10 @@ public class ApplicationDAOImpl implements ApplicationDAO {
         String applicationName = null;
 
         // Reading application name from the database
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement storeAppPrepStmt = null;
         ResultSet appNameResult = null;
         try {
-            connection = JDBCPersistenceManager.getInstance().getDBConnection();
             storeAppPrepStmt = connection
                     .prepareStatement(ApplicationMgtDBQueries.LOAD_APPLICATION_NAME_BY_CLIENT_ID_AND_TYPE);
             storeAppPrepStmt.setString(1, CharacterEncoder.getSafeText(clientId));
@@ -1317,9 +1314,8 @@ public class ApplicationDAOImpl implements ApplicationDAO {
                 applicationName = appNameResult.getString(1);
             }
 
-        } catch (SQLException | IdentityException e) {
-            log.error(e.getMessage(), e);
-            throw new IdentityApplicationManagementException("Error while reading application");
+        } catch (SQLException e) {
+            throw new IdentityApplicationManagementException("Error while reading application", e);
         } finally {
             IdentityApplicationManagementUtil.closeResultSet(appNameResult);
             IdentityApplicationManagementUtil.closeStatement(storeAppPrepStmt);
@@ -1337,11 +1333,10 @@ public class ApplicationDAOImpl implements ApplicationDAO {
     @Override
     public String getApplicationName(int applicationID)
             throws IdentityApplicationManagementException {
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         try {
-            connection = IdentityApplicationManagementUtil.getDBConnection();
             return getApplicationName(applicationID, connection);
-        } catch (SQLException | IdentityException e) {
+        } catch (SQLException e) {
             throw new IdentityApplicationManagementException("Failed loading the application with "
                     + applicationID, e);
         } finally {
@@ -2058,14 +2053,13 @@ public class ApplicationDAOImpl implements ApplicationDAO {
             log.debug("Reading all Applications of Tenant " + tenantID);
         }
 
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement getAppNamesStmt = null;
         ResultSet appNameResultSet = null;
 
         ArrayList<ApplicationBasicInfo> appInfo = new ArrayList<ApplicationBasicInfo>();
 
         try {
-            connection = JDBCPersistenceManager.getInstance().getDBConnection();
             getAppNamesStmt = connection
                     .prepareStatement(ApplicationMgtDBQueries.LOAD_APP_NAMES_BY_TENANT);
             getAppNamesStmt.setInt(1, tenantID);
@@ -2087,7 +2081,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
                 }
             }
             connection.commit();
-        } catch (SQLException | IdentityException e) {
+        } catch (SQLException e) {
             throw new IdentityApplicationManagementException("Error while Reading all Applications");
         } finally {
             IdentityApplicationManagementUtil.closeStatement(getAppNamesStmt);
@@ -2108,7 +2102,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
     public void deleteApplication(String appName) throws IdentityApplicationManagementException {
 
         int tenantID = CarbonContext.getThreadLocalCarbonContext().getTenantId();
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
 
         if (debugMode) {
             log.debug("Deleting Application " + appName);
@@ -2117,7 +2111,6 @@ public class ApplicationDAOImpl implements ApplicationDAO {
         // Now, delete the application
         PreparedStatement deleteClientPrepStmt = null;
         try {
-            connection = JDBCPersistenceManager.getInstance().getDBConnection();
             // First, delete all the clients of the application
             int applicationID = getApplicationIDByName(appName, tenantID, connection);
             InboundAuthenticationConfig clients = getInboundAuthenticationConfig(applicationID,
@@ -2137,9 +2130,8 @@ public class ApplicationDAOImpl implements ApplicationDAO {
                 connection.commit();
             }
 
-        } catch (SQLException | IdentityException e) {
-            log.error(e.getMessage(), e);
-            throw new IdentityApplicationManagementException("Error deleting application");
+        } catch (SQLException e) {
+            throw new IdentityApplicationManagementException("Error deleting application", e);
         } finally {
             IdentityApplicationManagementUtil.closeStatement(deleteClientPrepStmt);
             IdentityApplicationManagementUtil.closeConnection(connection);
@@ -2423,11 +2415,10 @@ public class ApplicationDAOImpl implements ApplicationDAO {
         String applicationName = null;
 
         // Reading application name from the database
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement storeAppPrepStmt = null;
         ResultSet appNameResult = null;
         try {
-            connection = JDBCPersistenceManager.getInstance().getDBConnection();
             storeAppPrepStmt = connection
                     .prepareStatement(ApplicationMgtDBQueries.LOAD_APPLICATION_NAME_BY_CLIENT_ID_AND_TYPE);
             storeAppPrepStmt.setString(1, CharacterEncoder.getSafeText(clientId));
@@ -2439,8 +2430,8 @@ public class ApplicationDAOImpl implements ApplicationDAO {
                 applicationName = appNameResult.getString(1);
             }
             connection.commit();
-        } catch (SQLException | IdentityException e) {
-            throw new IdentityApplicationManagementException("Error while reading application");
+        } catch (SQLException e) {
+            throw new IdentityApplicationManagementException("Error while reading application", e);
         } finally {
             IdentityApplicationManagementUtil.closeResultSet(appNameResult);
             IdentityApplicationManagementUtil.closeStatement(storeAppPrepStmt);
@@ -2479,10 +2470,9 @@ public class ApplicationDAOImpl implements ApplicationDAO {
 
         PreparedStatement getClaimPreStmt = null;
         ResultSet resultSet = null;
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         try {
 
-            connection = JDBCPersistenceManager.getInstance().getDBConnection();
             getClaimPreStmt = connection
                     .prepareStatement(ApplicationMgtDBQueries.LOAD_CLAIM_MAPPING_BY_APP_NAME);
             // IDP_CLAIM, SP_CLAIM, IS_REQUESTED
@@ -2498,8 +2488,6 @@ public class ApplicationDAOImpl implements ApplicationDAO {
                 }
             }
             connection.commit();
-        } catch (IdentityException e) {
-            throw new IdentityApplicationManagementException("Error while reading claim mappings.", e);
         } finally {
             IdentityApplicationManagementUtil.closeStatement(getClaimPreStmt);
             IdentityApplicationManagementUtil.closeResultSet(resultSet);
@@ -2552,10 +2540,8 @@ public class ApplicationDAOImpl implements ApplicationDAO {
 
         PreparedStatement getClaimPreStmt = null;
         ResultSet resultSet = null;
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         try {
-
-            connection = JDBCPersistenceManager.getInstance().getDBConnection();
 
             getClaimPreStmt = connection
                     .prepareStatement(ApplicationMgtDBQueries.LOAD_CLAIM_MAPPING_BY_APP_NAME);
@@ -2570,7 +2556,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
                 }
             }
             connection.commit();
-        } catch (SQLException | IdentityException e) {
+        } catch (SQLException e) {
             throw new IdentityApplicationManagementException(
                     "Error while retrieving requested claims", e);
         } finally {
