@@ -25,13 +25,12 @@
 <%@ page import="org.wso2.carbon.identity.user.profile.ui.client.UserProfileCient"%>
 <%@ page import="org.wso2.carbon.ui.CarbonUIMessage"%>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil"%>
-<%@ page import="org.wso2.carbon.ui.util.CharacterEncoder"%>
 <%@ page import="org.wso2.carbon.user.core.UserCoreConstants"%>
 <%@ page import="org.wso2.carbon.user.mgt.ui.Util"%>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
-<%@ page import="java.net.URLEncoder"%>
 <%@ page import="java.text.MessageFormat" %>
 <%@ page import="java.util.ResourceBundle" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 <jsp:include page="../dialog/display_messages.jsp" />
 <script type="text/javascript" src="extensions/js/vui.js"></script>
 <script type="text/javascript" src="../extensions/core/js/vui.js"></script>
@@ -40,9 +39,9 @@
 <%
     String BUNDLE = "org.wso2.carbon.identity.user.profile.ui.i18n.Resources";
     ResourceBundle resourceBundle = ResourceBundle.getBundle(BUNDLE, request.getLocale());
-    String username = CharacterEncoder.getSafeText(request.getParameter("username"));
-	String profile = CharacterEncoder.getSafeText(request.getParameter("profile"));
-    String profileConfiguration = CharacterEncoder.getSafeText(request.getParameter("profileConfiguration"));
+    String username = request.getParameter("username");
+	String profile = request.getParameter("profile");
+    String profileConfiguration = request.getParameter("profileConfiguration");
     String fromUserMgt = request.getParameter("fromUserMgt");
 	UserFieldDTO[] fieldDTOs = null;
 	UserProfileDTO profileDTO = null;
@@ -73,10 +72,10 @@
             if (UserCoreConstants.DEFAULT_PROFILE.equals(profile)||profileDTO!=null && profileDTO.getProfileName()!=null) {
                 String message = resourceBundle.getString("user.profile.with.given.name.exists");
                 CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.INFO, request);
-                forwardTo ="add.jsp?username="+URLEncoder.encode(username);
+                forwardTo ="add.jsp?username="+ Encode.forUriComponent(username);
 %>
                 <script type="text/javascript">
-                    location.href = "<%=forwardTo%>";
+                    location.href = "<%=Encode.forJavaScriptBlock(forwardTo)%>";
                 </script>
 <%			    return;
         	}
@@ -116,7 +115,7 @@
 
 <script type="text/javascript">
     function forward() {
-        location.href = "<%=forwardTo%>";
+        location.href = "<%=Encode.forJavaScriptBlock(forwardTo)%>";
     }
 </script>
 
