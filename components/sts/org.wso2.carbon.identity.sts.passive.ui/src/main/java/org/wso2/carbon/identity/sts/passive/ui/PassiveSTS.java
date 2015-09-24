@@ -196,7 +196,7 @@ public class PassiveSTS extends HttpServlet {
         } else {
             finalPage = pageWithReplyActionResultContext.replace("<!--$additionalParams-->",
                     "<input type='hidden' name='AuthenticatedIdPs' value='" +
-                            URLEncoder.encode(authenticatedIdPs, "UTF-8") + "'>");
+                            Encode.forHtmlAttribute(authenticatedIdPs) + "'>");
         }
 
         PrintWriter out = httpResp.getWriter();
