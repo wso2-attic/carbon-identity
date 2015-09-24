@@ -59,7 +59,7 @@ public class DefaultInboundUserProvisioningListener extends AbstractIdentityUser
 
     @Override
     public int getExecutionOrderId() {
-        int orderId = getOrderId(DefaultInboundUserProvisioningListener.class.getName());
+        int orderId = getOrderId();
         if (orderId != IdentityCoreConstants.EVENT_LISTENER_ORDER_ID) {
             return orderId;
         }
@@ -73,7 +73,7 @@ public class DefaultInboundUserProvisioningListener extends AbstractIdentityUser
     public boolean doPreAddUser(String userName, Object credential, String[] roleList,
                                 Map<String, String> inboundAttributes, String profile, UserStoreManager userStoreManager)
             throws UserStoreException {
-        if (!isEnable(this.getClass().getName())) {
+        if (!isEnable()) {
             return true;
         }
 
@@ -164,7 +164,7 @@ public class DefaultInboundUserProvisioningListener extends AbstractIdentityUser
     public boolean doPreSetUserClaimValues(String userName, Map<String, String> inboundAttributes,
                                            String profileName, UserStoreManager userStoreManager) throws UserStoreException {
 
-        if (!isEnable(this.getClass().getName())) {
+        if (!isEnable()) {
             return true;
         }
 
@@ -235,7 +235,7 @@ public class DefaultInboundUserProvisioningListener extends AbstractIdentityUser
      */
     public boolean doPreDeleteUser(String userName, UserStoreManager userStoreManager)
             throws UserStoreException {
-        if (!isEnable(this.getClass().getName())) {
+        if (!isEnable()) {
             return true;
         }
 
@@ -300,7 +300,7 @@ public class DefaultInboundUserProvisioningListener extends AbstractIdentityUser
     public boolean doPostUpdateUserListOfRole(String roleName, String[] deletedUsers,
                                               String[] newUsers, UserStoreManager userStoreManager) throws UserStoreException {
 
-        if (!isEnable(this.getClass().getName())) {
+        if (!isEnable()) {
             return true;
         }
 
@@ -378,7 +378,7 @@ public class DefaultInboundUserProvisioningListener extends AbstractIdentityUser
      */
     public boolean doPostUpdateRoleListOfUser(String userName, String[] deletedRoles,
                                               String[] newRoles, UserStoreManager userStoreManager) throws UserStoreException {
-        if (!isEnable(this.getClass().getName())) {
+        if (!isEnable()) {
             return true;
         }
         try {
@@ -475,7 +475,7 @@ public class DefaultInboundUserProvisioningListener extends AbstractIdentityUser
     public boolean doPreAddRole(String roleName, String[] userList, Permission[] permissions,
                                 UserStoreManager userStoreManager) throws UserStoreException {
 
-        if (!isEnable(this.getClass().getName())) {
+        if (!isEnable()) {
             return true;
         }
         try {
@@ -548,7 +548,7 @@ public class DefaultInboundUserProvisioningListener extends AbstractIdentityUser
     public boolean doPreDeleteRole(String roleName, UserStoreManager userStoreManager)
             throws UserStoreException {
 
-        if (!isEnable(this.getClass().getName())) {
+        if (!isEnable()) {
             return true;
         }
 
