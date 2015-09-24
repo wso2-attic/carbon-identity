@@ -190,7 +190,7 @@
 
             <form method="post" name="updateProfileform"
                   action="edit-finish.jsp?profile=<%=Encode.forUriComponent(userProfile.getProfileName())%>
-                  &fromUserMgt=<%=Encode.forHtmlAttribute(fromUserMgt)%>&noOfProfiles=<%=Encode.forHtmlAttribute(noOfProfiles)%>"
+                  &fromUserMgt=<%=Encode.forUriComponent(fromUserMgt)%>&noOfProfiles=<%=Encode.forUriComponent(noOfProfiles)%>"
                   target="_self">
                 <input type="hidden" name="username" value="<%=Encode.forHtmlAttribute(username)%>"/>
                 <table style="width: 100%" class="styledLeft">

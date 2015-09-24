@@ -25,9 +25,9 @@
 <%@ page import="org.wso2.carbon.identity.user.profile.stub.types.UserProfileDTO"%>
 <%@ page import="org.wso2.carbon.identity.user.profile.ui.client.UserProfileCient"%>
 <%@ page import="org.wso2.carbon.ui.CarbonUIMessage"%>
-<%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
-<%@ page import="org.wso2.carbon.user.mgt.ui.Util"%><script type="text/javascript" src="extensions/js/vui.js"></script>
-<%@ page import="org.wso2.carbon.utils.ServerConstants" %>
+<%@ page import="org.wso2.carbon.ui.CarbonUIUtil"%>
+<%@ page import="org.wso2.carbon.user.mgt.ui.Util" %>
+<%@ page import="org.wso2.carbon.utils.ServerConstants"%><script type="text/javascript" src="extensions/js/vui.js"></script>
 <%@ page import="java.text.MessageFormat" %>
 <%@ page import="java.util.ResourceBundle" %>
 <jsp:include page="../dialog/display_messages.jsp" />
