@@ -27,6 +27,7 @@
 <%@ page import="java.text.MessageFormat" %>
 <%@ page import="java.util.List" %>
 <%@ page import="java.util.ResourceBundle" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 
 <%
     String BUNDLE = "org.wso2.carbon.idp.mgt.ui.i18n.Resources";
@@ -50,7 +51,7 @@
     }
 %>
 <script type="text/javascript">
-    location.href = "<%=callback%>";
+    location.href = "<%=Encode.forJavaScriptBlock(callback)%>";
 </script>
 
 

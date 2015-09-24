@@ -1,4 +1,3 @@
-
 <!--
 ~ Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 ~
@@ -19,6 +18,7 @@
 
 <%@ page import="org.wso2.carbon.identity.application.common.model.idp.xsd.IdentityProvider" %>
 <%@ page import="java.util.List" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="carbon" uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar"%>
@@ -87,8 +87,8 @@
                          }
                          %>
                             <tr>
-                                <td><%=identityProvidersList.get(i).getIdentityProviderName()%></td>
-                                <td><%=description%></td>
+                                <td><%=Encode.forHtmlContent(identityProvidersList.get(i).getIdentityProviderName())%></td>
+                                <td><%=Encode.forHtmlContent(description)%></td>
                                 <td>
                                  	<% if (enable) { %>
                     						<a title="<fmt:message key='disable.policy'/>"
