@@ -127,12 +127,12 @@
 
         if (Boolean.parseBoolean(request.getParameter(SAMLSSOUIConstants.ENABLE_ATTRIBUTE_PROFILE))) {
 
-            String claimsCountParameter = SAMLSSOUIUtil.getSafeInput(request, "claimPropertyCounter");
+            String claimsCountParameter = SAMLSSOUIUtil.getSafeInput(request, SAMLSSOUIConstants.CLAIM_PROPERTY_COUNTER);
             if (claimsCountParameter != null && !"".equals(claimsCountParameter)) {
                 try {
                     int claimsCount = Integer.parseInt(claimsCountParameter);
                     for (int i = 0; i < claimsCount; i++) {
-                        String claim = SAMLSSOUIUtil.getSafeInput(request, "claimPropertyName" + i);
+                        String claim = SAMLSSOUIUtil.getSafeInput(request, SAMLSSOUIConstants.CLAIM_PROPERTY_NAME + i);
                         if (claim != null && !"".equals(claim) && !"null".equals(claim)) {
                             String[] currentClaims = serviceProviderDTO.getRequestedClaims();
                             boolean isClaimAlreadyAdded = false;
@@ -156,12 +156,12 @@
 
         if (Boolean.parseBoolean(request.getParameter(SAMLSSOUIConstants.ENABLE_AUDIENCE_RESTRICTION))) {
 
-            String audiencesCountParameter = SAMLSSOUIUtil.getSafeInput(request, "audiencePropertyCounter");
+            String audiencesCountParameter = SAMLSSOUIUtil.getSafeInput(request, SAMLSSOUIConstants.AUDIENCE_PROPERTY_COUNTER);
             if (StringUtils.isNotEmpty(audiencesCountParameter)) {
                 try {
                     int audiencesCount = Integer.parseInt(audiencesCountParameter);
                     for (int i = 0; i < audiencesCount; i++) {
-                        String audience = SAMLSSOUIUtil.getSafeInput(request, "audiencePropertyName" + i);
+                        String audience = SAMLSSOUIUtil.getSafeInput(request, SAMLSSOUIConstants.AUDIENCE_PROPERTY_NAME + i);
                         if (StringUtils.isNotEmpty(audience) && !"null".equals(audience)) {
                             String[] currentAudiences = serviceProviderDTO.getRequestedAudiences();
                             boolean isAudienceAlreadyAdded = false;
@@ -185,12 +185,12 @@
 
         if (Boolean.parseBoolean(request.getParameter(SAMLSSOUIConstants.ENABLE_RECIPIENTS))) {
 
-            String recipientCountParameter = SAMLSSOUIUtil.getSafeInput(request, "recipientPropertyCounter");
+            String recipientCountParameter = SAMLSSOUIUtil.getSafeInput(request, SAMLSSOUIConstants.RECIPIENT_PROPERTY_COUNTER);
             if (StringUtils.isNotEmpty(recipientCountParameter)) {
                 try {
                     int recipientCount = Integer.parseInt(recipientCountParameter);
                     for (int i = 0; i < recipientCount; i++) {
-                        String recipient = SAMLSSOUIUtil.getSafeInput(request, "recipientPropertyName" + i);
+                        String recipient = SAMLSSOUIUtil.getSafeInput(request, SAMLSSOUIConstants.RECIPIENT_PROPERTY_NAME + i);
                         if (StringUtils.isNotEmpty(recipient) && !"null".equals(recipient)) {
                             String[] currentRecipients = serviceProviderDTO.getRequestedRecipients();
                             boolean isRecipientAlreadyAdded = false;

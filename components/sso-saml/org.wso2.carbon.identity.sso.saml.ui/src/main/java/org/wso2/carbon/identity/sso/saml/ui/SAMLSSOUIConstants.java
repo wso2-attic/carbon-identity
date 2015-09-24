@@ -42,6 +42,12 @@ public class SAMLSSOUIConstants {
     public static final String ENABLE_IDP_INIT_SLO= "enableIdPInitSLO";
     public static final String ENABLE_ENC_ASSERTION= "enableEncAssertion";
     public static final String ENABLE_SIG_VALIDATION= "enableSigValidation";
+    public static final String CLAIM_PROPERTY_COUNTER = "claimPropertyCounter";
+    public static final String CLAIM_PROPERTY_NAME = "claimPropertyName";
+    public static final String AUDIENCE_PROPERTY_COUNTER = "audiencePropertyCounter";
+    public static final String AUDIENCE_PROPERTY_NAME = "audiencePropertyName";
+    public static final String RECIPIENT_PROPERTY_COUNTER = "recipientPropertyCounter";
+    public static final String RECIPIENT_PROPERTY_NAME = "recipientPropertyName";
 
 
     private SAMLSSOUIConstants() {
