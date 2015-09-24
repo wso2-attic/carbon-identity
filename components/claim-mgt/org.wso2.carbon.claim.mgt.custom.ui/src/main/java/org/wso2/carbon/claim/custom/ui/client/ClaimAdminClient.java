@@ -88,40 +88,7 @@ public class ClaimAdminClient {
         }
         return null;
     }
-
-    /**
-     * We need to treat http://wso2.org/claims/role claim differently.
-     * Should not be set to supporrtedByDefaut to true.
-     *
-     * @param dialect
-     * @return
-     * @throws AxisFault
-     */
-    public ClaimDialectDTO getAllClaimMappingsByDialectWithRole(String dialect)
-            throws AxisFault {
-        try {
-            ClaimDialectDTO claims = stub.getClaimMappingByDialect(dialect);
-            ClaimMappingDTO[] oldClaims = claims.getClaimMappings();
-            ClaimMappingDTO[] newClaims = new ClaimMappingDTO[claims
-                    .getClaimMappings().length + 1];
-            int i = 0;
-            for (; i < oldClaims.length; i++) {
-                newClaims[i] = oldClaims[i];
-            }
-            ClaimMappingDTO mapping = new ClaimMappingDTO();
-            ClaimDTO role = new ClaimDTO();
-            role.setClaimUri("http://wso2.org/claims/role");
-            mapping.setClaim(role);
-            newClaims[i] = mapping;
-            claims.setClaimMappings(newClaims);
-            return claims;
-        } catch (Exception e) {
-            handleException("Error while reading claim mappings by dialect", e);
-        }
-
-        return null;
-    }
-
+    
     /**
      * @param dialect
      * @throws AxisFault
