@@ -37,9 +37,9 @@
 
 <%
     boolean readOnlyUserStore = false;
-    String username = (String) request.getParameter("username");
-    String profile = (String) request.getParameter("profile");
-    String fromUserMgt = (String) request.getParameter("fromUserMgt");
+    String username = request.getParameter("username");
+    String profile = request.getParameter("profile");
+    String fromUserMgt = request.getParameter("fromUserMgt");
     String noOfProfiles = request.getParameter("noOfProfiles");
     if (noOfProfiles == null) {
         noOfProfiles = "0";

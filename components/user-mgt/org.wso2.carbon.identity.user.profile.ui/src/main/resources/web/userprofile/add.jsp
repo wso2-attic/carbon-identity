@@ -33,8 +33,8 @@
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 
 <%
-    String username = (String) request.getParameter("username");
-    String fromUserMgt = (String) request.getParameter("fromUserMgt");
+    String username =  request.getParameter("username");
+    String fromUserMgt =  request.getParameter("fromUserMgt");
     UserFieldDTO[] userFields = null;
     UserProfileDTO profile = null;
     String forwardTo = null;
