@@ -18,18 +18,18 @@
 
 package org.wso2.carbon.identity.oauth.config;
 
-import org.apache.amber.oauth2.as.validator.AuthorizationCodeValidator;
-import org.apache.amber.oauth2.as.validator.ClientCredentialValidator;
-import org.apache.amber.oauth2.as.validator.PasswordValidator;
-import org.apache.amber.oauth2.as.validator.RefreshTokenValidator;
-import org.apache.amber.oauth2.common.message.types.GrantType;
-import org.apache.amber.oauth2.common.message.types.ResponseType;
-import org.apache.amber.oauth2.common.validators.OAuthValidator;
 import org.apache.axiom.om.OMElement;
 import org.apache.axis2.util.JavaUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.oltu.oauth2.as.validator.AuthorizationCodeValidator;
+import org.apache.oltu.oauth2.as.validator.ClientCredentialValidator;
+import org.apache.oltu.oauth2.as.validator.PasswordValidator;
+import org.apache.oltu.oauth2.as.validator.RefreshTokenValidator;
+import org.apache.oltu.oauth2.common.message.types.GrantType;
+import org.apache.oltu.oauth2.common.message.types.ResponseType;
+import org.apache.oltu.oauth2.common.validators.OAuthValidator;
 import org.wso2.carbon.identity.core.util.IdentityConfigParser;
 import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
 import org.wso2.carbon.identity.oauth.common.OAuthConstants;
