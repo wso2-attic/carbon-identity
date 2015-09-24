@@ -20,6 +20,7 @@ package org.wso2.carbon.user.mgt;
 
 
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
@@ -705,7 +706,7 @@ public class UserRealmProxy {
      */
     private final String addPrimaryDomainIfNotExists(String userName) {
 
-        if ((userName.indexOf(UserCoreConstants.DOMAIN_SEPARATOR)) < 0) {
+        if (StringUtils.isNotEmpty(userName) && (!userName.contains(UserCoreConstants.DOMAIN_SEPARATOR))) {
             StringBuilder builder = new StringBuilder();
             builder.append(UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME).append(CarbonConstants.DOMAIN_SEPARATOR)
                     .append(userName);
