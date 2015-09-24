@@ -159,6 +159,7 @@ public class IdentityApplicationConstants {
             public static final String CLEAN_UP_PERIOD_DEFAULT = "1140";
             public static final String TIME_CONFIG = "TimeConfig";
             private IDPProperties() {
+                throw new AssertionError("Must not initiate an element of IDPProperties class");
             }
         }
 
