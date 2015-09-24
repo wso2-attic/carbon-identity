@@ -21,6 +21,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openid4java.message.DirectError;
 import org.openid4java.message.ParameterList;
+import org.owasp.encoder.Encode;
 import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationRequestCacheEntry;
 import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationResultCache;
 import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationResultCacheEntry;
@@ -689,19 +690,19 @@ public class OpenIDHandler {
         Map<ClaimMapping, String> userAttributes = authnResult.getSubject().getUserAttributes();
 
         out.println("<input type='hidden' name='openid.identity' value='" +
-                    session.getAttribute(OpenIDConstants.SessionAttribute.AUTHENTICATED_OPENID) + "'>");
+                session.getAttribute(OpenIDConstants.SessionAttribute.AUTHENTICATED_OPENID) + "'>");
         out.println("<input type='hidden' name='openid.return_to' value='" +
-                    ((ParameterList) session.getAttribute(OpenId.PARAM_LIST)).getParameterValue(OpenId.ATTR_RETURN_TO) +
-                    "'>");
+                ((ParameterList) session.getAttribute(OpenId.PARAM_LIST)).getParameterValue(OpenId.ATTR_RETURN_TO) +
+                "'>");
 
         if (userAttributes != null) {
             for (ClaimMapping claimMapping : userAttributes.keySet()) {
                 String value = userAttributes.get(claimMapping);
                 if (value != null) {
                     out.println("<input type='hidden' name='claimTag' value='" +
-                                claimMapping.getLocalClaim().getClaimUri() + "'>");
+                            Encode.forHtmlAttribute(claimMapping.getLocalClaim().getClaimUri()) + "'>");
                     out.println(
-                            "<input type='hidden' name='claimValue' value='" + userAttributes.get(claimMapping) + "'>");
+                            "<input type='hidden' name='claimValue' value='" + Encode.forHtmlAttribute(userAttributes.get(claimMapping)) + "'>");
                 }
             }
         }
