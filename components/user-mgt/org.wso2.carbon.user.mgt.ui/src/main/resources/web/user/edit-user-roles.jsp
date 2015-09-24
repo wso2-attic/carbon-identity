@@ -120,9 +120,9 @@
     UserRealmInfo userRealmInfo = (UserRealmInfo) session.getAttribute(UserAdminUIConstants.USER_STORE_INFO);
     String userName = request.getParameter("username");
     String disPlayName = request.getParameter("disPlayName");
-    if (StringUtils.isNotBlank(disPlayName)) {
+    if (StringUtils.isBlank(disPlayName)) {
         disPlayName = (String) session.getAttribute(UserAdminUIConstants.USER_DISPLAY_NAME);
-        if (StringUtils.isNotBlank(disPlayName)) {
+        if (StringUtils.isBlank(disPlayName)) {
             disPlayName = userName;
         }
     } else {
