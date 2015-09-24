@@ -24,12 +24,13 @@
 <%@page import="org.wso2.carbon.identity.user.profile.stub.types.UserProfileDTO" %>
 <%@page import="org.wso2.carbon.identity.user.profile.ui.client.UserProfileCient" %>
 <%@page import="org.wso2.carbon.ui.CarbonUIMessage" %>
-<%@page import="org.wso2.carbon.ui.CarbonUIUtil"%><script type="text/javascript" src="extensions/js/vui.js"></script>
+<%@page import="org.wso2.carbon.ui.CarbonUIUtil" %>
+<%@page import="org.wso2.carbon.user.core.UserCoreConstants"%><script type="text/javascript" src="extensions/js/vui.js"></script>
 <script type="text/javascript" src="../extensions/core/js/vui.js"></script>
 <script type="text/javascript" src="../admin/js/main.js"></script>
 
 <jsp:include page="../dialog/display_messages.jsp"/>
-<%@ page import="org.wso2.carbon.user.core.UserCoreConstants" %>
+<%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 
 <%
     String username = (String) request.getParameter("username");
@@ -90,8 +91,7 @@ function validateTextForIllegal(fld,fldName) {
 %>
 
 
-<%@page import="org.wso2.carbon.utils.ServerConstants" %>
-<%@ page import="java.net.URLEncoder" %>
+
 <%@ page import="java.util.ResourceBundle" %>
 <fmt:bundle
         basename="org.wso2.carbon.identity.user.profile.ui.i18n.Resources">
@@ -227,13 +227,15 @@ function validateTextForIllegal(fld,fldName) {
                                 %>
 		                        <td><input class="text-box-big"
 		                                   id="<%=Encode.forHtmlAttribute(userFields[i].getClaimUri())%>"
-		                                   name="<%=Encode.forHtmlAttribute(userFields[i].getClaimUri())%>" type="text"></td>
+		                                   name="<%=Encode.forHtmlAttribute(userFields[i].getClaimUri())%>" type="text">
+                                </td>
                                 <%
                                     } else {
                                 %>
                                 <td><input class="text-box-big"
 		                                   id="<%=Encode.forHtmlAttribute(userFields[i].getClaimUri())%>"
-		                                   name="<%=Encode.forHtmlAttribute(userFields[i].getClaimUri())%>" type="text" readonly="true"></td>
+		                                   name="<%=Encode.forHtmlAttribute(userFields[i].getClaimUri())%>" type="text"
+                                           readonly="true"></td>
                                 <%
                                     }
                                 %>
@@ -252,7 +254,8 @@ function validateTextForIllegal(fld,fldName) {
                             <input name="addprofile" type="button" class="button" value="<fmt:message key='add'/>" onclick="validate();"/>
                             <input type="button" class="button"
                                   <%if ("true".equals(fromUserMgt)) {%>
-                                   onclick="javascript:location.href='index.jsp?username=<%=Encode.forUriComponent(username)%>&fromUserMgt=true'"
+                                   onclick="javascript:location.href='index.jsp?username='+
+                                           '<%=Encode.forJavaScript(Encode.forUriComponent(username))%>&fromUserMgt=true'"
                                   <%}else{%>
                                    onclick="javascript:location.href='index.jsp?region=region5&item=userprofiles_menu&ordinal=0'"
                                   <%}%>
