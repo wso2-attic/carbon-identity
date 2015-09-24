@@ -17,15 +17,12 @@
  */
 package org.wso2.carbon.identity.provider.openid.cache;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openid4java.association.Association;
 import org.wso2.carbon.identity.base.IdentityRuntimeException;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 
-import javax.crypto.SecretKey;
-import java.security.InvalidAlgorithmParameterException;
 import java.security.Key;
 import java.util.Date;
 

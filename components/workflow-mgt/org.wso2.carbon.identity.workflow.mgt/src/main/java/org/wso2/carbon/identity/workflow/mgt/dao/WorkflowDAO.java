@@ -19,7 +19,6 @@
 package org.wso2.carbon.identity.workflow.mgt.dao;
 
 import org.apache.commons.lang.StringUtils;
-import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowDTO;
 import org.wso2.carbon.identity.workflow.mgt.template.AbstractWorkflowTemplate;
@@ -46,12 +45,11 @@ public class WorkflowDAO {
     public void addWorkflow(WorkflowDTO workflowDTO, int
             tenantId) throws InternalWorkflowException {
 
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
 
         String query = SQLConstants.ADD_WORKFLOW_QUERY;
         try {
-            connection = IdentityDatabaseUtil.getDBConnection();
             prepStmt = connection.prepareStatement(query);
             prepStmt.setString(1, workflowDTO.getWorkflowId());
             prepStmt.setString(2, workflowDTO.getWorkflowName());
@@ -61,8 +59,6 @@ public class WorkflowDAO {
             prepStmt.setInt(6, tenantId);
             prepStmt.executeUpdate();
             connection.commit();
-        } catch (IdentityException e) {
-            throw new InternalWorkflowException("Error when connecting to the Identity Database.", e);
         } catch (SQLException e) {
             throw new InternalWorkflowException("Error when executing the sql query", e);
         } finally {
@@ -72,12 +68,11 @@ public class WorkflowDAO {
 
     public void addWorkflowParams(String workflowId, Map<String, Object> values) throws InternalWorkflowException {
 
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
 
         String query = SQLConstants.ADD_WORKFLOW_PARAMS_QUERY;
         try {
-            connection = IdentityDatabaseUtil.getDBConnection();
             for (Map.Entry<String, Object> entry : values.entrySet()) {
                 prepStmt = connection.prepareStatement(query);
                 prepStmt.setString(1, workflowId);
@@ -86,8 +81,6 @@ public class WorkflowDAO {
                 prepStmt.executeUpdate();
             }
             connection.commit();
-        } catch (IdentityException e) {
-            throw new InternalWorkflowException("Error when connecting to the Identity Database.", e);
         } catch (SQLException e) {
             throw new InternalWorkflowException("Error when executing the sql query", e);
         } finally {
@@ -97,13 +90,12 @@ public class WorkflowDAO {
 
     public Map<String, Object> getWorkflowParams(String workflowId) throws InternalWorkflowException {
 
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
         ResultSet rs = null;
         Map<String, Object> worlflowParams = new HashMap<>();
         String query = SQLConstants.GET_WORKFLOW_PARAMS;
         try {
-            connection = IdentityDatabaseUtil.getDBConnection();
             prepStmt = connection.prepareStatement(query);
             prepStmt.setString(1, workflowId);
             rs = prepStmt.executeQuery();
@@ -114,8 +106,6 @@ public class WorkflowDAO {
                     worlflowParams.put(paramName, paramValue);
                 }
             }
-        } catch (IdentityException e) {
-            throw new InternalWorkflowException("Error when connecting to the Identity Database.", e);
         } catch (SQLException e) {
             throw new InternalWorkflowException("Error when executing the sql.", e);
         } finally {
@@ -126,7 +116,7 @@ public class WorkflowDAO {
 
     public WorkflowDTO getWorkflow(String workflowId) throws InternalWorkflowException {
 
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
         ResultSet rs = null;
         String query = SQLConstants.GET_WORKFLOW;
@@ -134,7 +124,6 @@ public class WorkflowDAO {
         WorkflowDTO  workflowDTO = new WorkflowDTO();
 
         try {
-            connection = IdentityDatabaseUtil.getDBConnection();
             prepStmt = connection.prepareStatement(query);
             prepStmt.setString(1, workflowId);
             rs = prepStmt.executeQuery();
@@ -152,8 +141,6 @@ public class WorkflowDAO {
 
                 break ;
             }
-        } catch (IdentityException e) {
-            throw new InternalWorkflowException("Error when connecting to the Identity Database.", e);
         } catch (SQLException e) {
             throw new InternalWorkflowException("Error when executing the sql.", e);
         } finally {
@@ -168,12 +155,11 @@ public class WorkflowDAO {
     public void addAssociation(String associationName, String workflowId, String eventId, String condition)
             throws InternalWorkflowException {
 
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
 
         String query = SQLConstants.ASSOCIATE_WF_TO_EVENT;
         try {
-            connection = IdentityDatabaseUtil.getDBConnection();
             prepStmt = connection.prepareStatement(query);
             prepStmt.setString(1, eventId);
             prepStmt.setString(2, associationName);
@@ -181,8 +167,6 @@ public class WorkflowDAO {
             prepStmt.setString(4, workflowId);
             prepStmt.executeUpdate();
             connection.commit();
-        } catch (IdentityException e) {
-            throw new InternalWorkflowException("Error when connecting to the Identity Database.", e);
         } catch (SQLException e) {
             throw new InternalWorkflowException("Error when executing the sql query", e);
         } finally {
@@ -194,12 +178,11 @@ public class WorkflowDAO {
     public void updateAssociation(AssociationDTO associationDTO)
             throws InternalWorkflowException {
 
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
 
         String query = SQLConstants.UPDATE_ASSOCIATE_WF_TO_EVENT;
         try {
-            connection = IdentityDatabaseUtil.getDBConnection();
             prepStmt = connection.prepareStatement(query);
             prepStmt.setString(1, associationDTO.getEventId());
             prepStmt.setString(2, associationDTO.getAssociationName());
@@ -213,8 +196,6 @@ public class WorkflowDAO {
             prepStmt.setString(6, associationDTO.getAssociationId());
             prepStmt.executeUpdate();
             connection.commit();
-        } catch (IdentityException e) {
-            throw new InternalWorkflowException("Error when connecting to the Identity Database.", e);
         } catch (SQLException e) {
             throw new InternalWorkflowException("Error when executing the sql query", e);
         } finally {
@@ -224,17 +205,14 @@ public class WorkflowDAO {
 
     public void removeAssociation(int id) throws InternalWorkflowException {
 
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
         String query = SQLConstants.DELETE_ASSOCIATION_QUERY;
         try {
-            connection = IdentityDatabaseUtil.getDBConnection();
             prepStmt = connection.prepareStatement(query);
             prepStmt.setInt(1, id);
             prepStmt.executeUpdate();
             connection.commit();
-        } catch (IdentityException e) {
-            throw new InternalWorkflowException("Error when connecting to the Identity Database.", e);
         } catch (SQLException e) {
             throw new InternalWorkflowException("Error when executing the sql.", e);
         } finally {
@@ -244,17 +222,14 @@ public class WorkflowDAO {
 
     public void removeWorkflow(String id) throws InternalWorkflowException {
 
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
         String query = SQLConstants.DELETE_WORKFLOW_QUERY;
         try {
-            connection = IdentityDatabaseUtil.getDBConnection();
             prepStmt = connection.prepareStatement(query);
             prepStmt.setString(1, id);
             prepStmt.executeUpdate();
             connection.commit();
-        } catch (IdentityException e) {
-            throw new InternalWorkflowException("Error when connecting to the Identity Database.", e);
         } catch (SQLException e) {
             throw new InternalWorkflowException("Error when executing the sql.", e);
         } finally {
@@ -266,13 +241,12 @@ public class WorkflowDAO {
 
     public List<WorkflowDTO> listWorkflows(int tenantId) throws InternalWorkflowException {
 
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
         ResultSet rs = null;
         List<WorkflowDTO> workflowList = new ArrayList<>();
         String query = SQLConstants.LIST_WORKFLOWS_QUERY;
         try {
-            connection = IdentityDatabaseUtil.getDBConnection();
             prepStmt = connection.prepareStatement(query);
             prepStmt.setInt(1, tenantId);
             rs = prepStmt.executeQuery();
@@ -298,8 +272,6 @@ public class WorkflowDAO {
                 }
                 workflowList.add(workflowDTO);
             }
-        } catch (IdentityException e) {
-            throw new InternalWorkflowException("Error when connecting to the Identity Database.", e);
         } catch (SQLException e) {
             throw new InternalWorkflowException("Error when executing the sql.", e);
         } finally {
@@ -311,13 +283,12 @@ public class WorkflowDAO {
     public List<WorkflowAssociationBean> getWorkflowAssociationsForRequest(String eventId, int tenantId)
             throws InternalWorkflowException {
 
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
         ResultSet rs;
         List<WorkflowAssociationBean> associations = new ArrayList<>();
         String query = SQLConstants.GET_ASSOCIATIONS_FOR_EVENT_QUERY;
         try {
-            connection = IdentityDatabaseUtil.getDBConnection();
             prepStmt = connection.prepareStatement(query);
             prepStmt.setString(1, eventId);
             prepStmt.setInt(2, tenantId);
@@ -334,8 +305,6 @@ public class WorkflowDAO {
                 association.setImplId(templateImplId);
                 associations.add(association);
             }
-        } catch (IdentityException e) {
-            throw new InternalWorkflowException("Error when connecting to the Identity Database.", e);
         } catch (SQLException e) {
             throw new InternalWorkflowException("Error when executing the sql.", e);
         } finally {
@@ -347,13 +316,12 @@ public class WorkflowDAO {
     public List<AssociationDTO> listAssociationsForWorkflow(String workflowId)
             throws InternalWorkflowException {
 
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
         ResultSet rs;
         List<AssociationDTO> associations = new ArrayList<>();
         String query = SQLConstants.GET_ASSOCIATIONS_FOR_WORKFLOW_QUERY;
         try {
-            connection = IdentityDatabaseUtil.getDBConnection();
             prepStmt = connection.prepareStatement(query);
             prepStmt.setString(1, workflowId);
             rs = prepStmt.executeQuery();
@@ -371,8 +339,6 @@ public class WorkflowDAO {
                 associationDTO.setWorkflowName(workflowName);
                 associations.add(associationDTO);
             }
-        } catch (IdentityException e) {
-            throw new InternalWorkflowException("Error when connecting to the Identity Database.", e);
         } catch (SQLException e) {
             throw new InternalWorkflowException("Error when executing the sql.", e);
         } finally {
@@ -383,13 +349,12 @@ public class WorkflowDAO {
 
     public List<AssociationDTO> listAssociations() throws InternalWorkflowException {
 
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
         ResultSet rs;
         List<AssociationDTO> associations = new ArrayList<>();
         String query = SQLConstants.GET_ALL_ASSOCIATIONS_QUERY;
         try {
-            connection = IdentityDatabaseUtil.getDBConnection();
             prepStmt = connection.prepareStatement(query);
             rs = prepStmt.executeQuery();
             while (rs.next()) {
@@ -412,8 +377,6 @@ public class WorkflowDAO {
                     associationDTO.setEnabled(false);
                 }
             }
-        } catch (IdentityException e) {
-            throw new InternalWorkflowException("Error when connecting to the Identity Database.", e);
         } catch (SQLException e) {
             throw new InternalWorkflowException("Error when executing the sql.", e);
         } finally {
@@ -425,14 +388,12 @@ public class WorkflowDAO {
 
     public AssociationDTO getAssociation(String associationId) throws InternalWorkflowException {
 
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
         ResultSet rs;
         AssociationDTO associationDTO = null ;
         String query = SQLConstants.GET_ASSOCIATION_FOR_ASSOC_ID_QUERY;
         try {
-
-            connection = IdentityDatabaseUtil.getDBConnection();
             prepStmt = connection.prepareStatement(query);
             prepStmt.setString(1, associationId);
 
@@ -461,8 +422,6 @@ public class WorkflowDAO {
             }
 
 
-        } catch (IdentityException e) {
-            throw new InternalWorkflowException("Error when connecting to the Identity Database.", e);
         } catch (SQLException e) {
             throw new InternalWorkflowException("Error when executing the sql.", e);
         } finally {
