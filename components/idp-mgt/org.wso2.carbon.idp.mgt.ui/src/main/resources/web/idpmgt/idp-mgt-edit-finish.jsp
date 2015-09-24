@@ -43,7 +43,7 @@
         
       	if (request.getParameter("idPName") != null	&& request.getParameter("idPName").length() != 0 && request.getParameter("enable") != null) {
 
-			identityProvider = client.getIdPByName(CharacterEncoder.getSafeText(request.getParameter("idPName")));
+			identityProvider = client.getIdPByName(request.getParameter("idPName"));
 
     		if (request.getParameter("enable").equals("1")) {
     			identityProvider.setEnable(true);
@@ -51,7 +51,7 @@
     			identityProvider.setEnable(false);
     		}
     		
-			oldIdpName = CharacterEncoder.getSafeText(request.getParameter("idPName"));
+			oldIdpName = request.getParameter("idPName");
 		} else {
 	        identityProvider = IdPManagementUIUtil.buildeFederatedIdentityProvider(request);
 	        oldIdpName = ((IdentityProvider) session.getAttribute("identityProvider")).getIdentityProviderName();

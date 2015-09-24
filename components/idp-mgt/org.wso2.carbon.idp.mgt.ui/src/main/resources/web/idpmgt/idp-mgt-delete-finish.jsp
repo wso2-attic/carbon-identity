@@ -21,7 +21,6 @@
 <%@ page import="org.wso2.carbon.idp.mgt.ui.client.IdentityProviderMgtServiceClient" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
-<%@ page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@ page import="java.text.MessageFormat" %>
 <%@ page import="java.util.ResourceBundle" %>
@@ -35,7 +34,7 @@
         ConfigurationContext configContext =
                 (ConfigurationContext) config.getServletContext().getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
         IdentityProviderMgtServiceClient client = new IdentityProviderMgtServiceClient(cookie, backendServerURL, configContext);
-        String idPName = CharacterEncoder.getSafeText(request.getParameter("idPName"));
+        String idPName = request.getParameter("idPName");
         if(idPName != null && !idPName.isEmpty()){
             client.deleteIdP(idPName);
             String message = MessageFormat.format(resourceBundle.getString("success.deleting.idp"),null);
