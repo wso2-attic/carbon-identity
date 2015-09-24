@@ -29,7 +29,6 @@ import org.wso2.carbon.identity.provider.openid.client.OpenIDAdminClient;
 import org.wso2.carbon.identity.provider.openid.util.OpenIDUtil;
 import org.wso2.carbon.registry.core.RegistryConstants;
 import org.wso2.carbon.ui.CarbonUIUtil;
-import org.wso2.carbon.ui.util.CharacterEncoder;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 import javax.servlet.ServletException;
