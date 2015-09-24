@@ -403,14 +403,14 @@
                                     continue;
                                 }
                                 String roleName = data.getItemName();
-                                String disPlayName = data.getItemDisplayName();
-                                if (disPlayName == null) {
-                                    disPlayName = roleName;
+                                String displayName = data.getItemDisplayName();
+                                if (displayName == null) {
+                                    displayName = roleName;
                                 }
                                 if (workFlowAddPendingRolesList.contains(roleName)) {
                 %>
                 <tr>
-                    <td><%=Encode.forHtmlContent(disPlayName)%>
+                    <td><%=Encode.forHtmlContent(displayName)%>
                         <%if (!data.getEditable()) { %> <%="(Read-Only)"%> <% } %>
                         <img src="images/workflow_pending_add.gif" title="Workflow-pending-user-add"
                              alt="Workflow-pending-user-add" height="15" width="15">
@@ -440,7 +440,7 @@
                         </td>
                     <%}%>--%>
                 <tr>
-                    <td><%=Encode.forHtmlContent(disPlayName)%>
+                    <td><%=Encode.forHtmlContent(displayName)%>
                         <%if (!data.getEditable()) { %> <%="(Read-Only)"%> <% } %>
                         <img src="images/workflow_pending_remove.gif" title="Workflow-pending-user-delete"
                              alt="Workflow-pending-user-delete" height="15" width="15">
@@ -472,7 +472,7 @@
                 } else {
                 %>
                 <tr>
-                    <td><%=Encode.forHtmlContent(disPlayName)%>
+                    <td><%=Encode.forHtmlContent(displayName)%>
                         <%if (!data.getEditable()) { %> <%="(Read-Only)"%> <% } %>
                     </td>
                         <%-- <%if(hasMultipleUserStores){%>

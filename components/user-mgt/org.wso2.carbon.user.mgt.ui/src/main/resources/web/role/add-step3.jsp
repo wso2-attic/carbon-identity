@@ -306,9 +306,9 @@
                                         for (FlaggedName user : users) {
                                             if (user != null) {
                                                 String userName = user.getItemName();
-                                                String disPlayName = user.getItemDisplayName();
-                                                if (disPlayName == null || disPlayName.trim().length() == 0) {
-                                                    disPlayName = userName;
+                                                String displayName = user.getItemDisplayName();
+                                                if (displayName == null || displayName.trim().length() == 0) {
+                                                    displayName = userName;
                                                 }
 
                                                 String doCheck = "";
@@ -333,7 +333,7 @@
                                     <td>
                                         <input type="checkbox" name="roleUsers"
                                                value="<%=Encode.forHtmlAttribute(userName)%>" <%=doEdit%>
-                                                <%=doCheck%>/><%=Encode.forHtml(disPlayName)%>
+                                                <%=doCheck%>/><%=Encode.forHtml(displayName)%>
                                         <%if (!user.getEditable()) { %> <%="(Read-Only)"%> <% } %>
                                     </td>
 
