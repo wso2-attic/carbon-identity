@@ -18,9 +18,13 @@
 
 package org.wso2.carbon.identity.mgt.util;
 
+import org.apache.commons.lang.StringUtils;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.identity.base.IdentityException;
+import org.wso2.carbon.identity.core.model.IdentityEventListener;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.mgt.IdentityMgtConfig;
+import org.wso2.carbon.identity.mgt.IdentityMgtEventListener;
 import org.wso2.carbon.identity.mgt.IdentityMgtServiceException;
 import org.wso2.carbon.identity.mgt.beans.UserIdentityMgtBean;
 import org.wso2.carbon.identity.mgt.dto.UserIdentityClaimDTO;
@@ -34,6 +38,7 @@ import org.wso2.carbon.user.api.Claim;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.api.UserStoreManager;
 import org.wso2.carbon.user.core.UserCoreConstants;
+import org.wso2.carbon.user.core.listener.UserOperationEventListener;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 
@@ -80,6 +85,10 @@ public class UserIdentityManagementUtil {
      */
     public static void lockUserAccount(String userName, UserStoreManager userStoreManager)
             throws IdentityException {
+        if (!isIdentityMgtListenerEnable()) {
+            throw new IdentityException("Cannot lock account, identityMgtEventListener is not enabled.");
+        }
+
         UserIdentityDataStore store = IdentityMgtConfig.getInstance().getIdentityDataStore();
         UserIdentityClaimsDO userIdentityDO = store.load(UserCoreUtil.removeDomainFromName(userName), userStoreManager);
         if (userIdentityDO != null) {
@@ -88,6 +97,20 @@ public class UserIdentityManagementUtil {
             store.store(userIdentityDO, userStoreManager);
         } else {
             throw new IdentityException("No user account found for user " + userName);
+        }
+    }
+
+    private static boolean isIdentityMgtListenerEnable() {
+        IdentityEventListener identityEventListener = IdentityUtil.readEventListenerProperty
+                (UserOperationEventListener.class.getName(), IdentityMgtEventListener.class.getName());
+        if (identityEventListener == null) {
+            return true;
+        }
+
+        if (StringUtils.isNotBlank(identityEventListener.getEnable())) {
+            return Boolean.parseBoolean(identityEventListener.getEnable());
+        } else {
+            return true;
         }
     }
 
@@ -100,6 +123,10 @@ public class UserIdentityManagementUtil {
      */
     public static void unlockUserAccount(String userName, UserStoreManager userStoreManager)
             throws IdentityException {
+
+        if (!isIdentityMgtListenerEnable()) {
+            throw new IdentityException("Cannot unlock account, identityMgtEventListener is not enabled.");
+        }
         UserIdentityDataStore store = IdentityMgtConfig.getInstance().getIdentityDataStore();
         UserIdentityClaimsDO userIdentityDO = store.load(UserCoreUtil.removeDomainFromName(userName), userStoreManager);
         if (userIdentityDO != null) {
