@@ -33,7 +33,7 @@ import org.wso2.carbon.idp.mgt.util.IdPManagementUtil;
 import java.sql.Timestamp;
 import java.util.concurrent.TimeUnit;
 
-public class SessionContextCache extends BaseCache<String, SessionContextCacheEntry> {
+public class SessionContextCache extends BaseCache<SessionContextCacheKey, SessionContextCacheEntry> {
 
     private static final String SESSION_CONTEXT_CACHE_NAME = "AppAuthFrameworkSessionContextCache";
     private static final Log log = LogFactory.getLog(SessionContextCache.class);
@@ -73,26 +73,24 @@ public class SessionContextCache extends BaseCache<String, SessionContextCacheEn
         return instance;
     }
 
-    public void addToCache(CacheKey key, SessionContextCacheEntry entry) {
+    public void addToCache(SessionContextCacheKey key, SessionContextCacheEntry entry) {
         entry.setAccessedTime();
 
         if (useCache) {
-            super.addToCache(((SessionContextCacheKey) key).getContextId(), entry);
+            super.addToCache(key, entry);
         }
-        String keyValue = ((SessionContextCacheKey) key).getContextId();
-        SessionDataStore.getInstance().storeSessionData(keyValue, SESSION_CONTEXT_CACHE_NAME, entry);
+        SessionDataStore.getInstance().storeSessionData(key.getContextId(), SESSION_CONTEXT_CACHE_NAME, entry);
     }
 
-    public SessionContextCacheEntry getValueFromCache(CacheKey key) {
+    public SessionContextCacheEntry getValueFromCache(SessionContextCacheKey key) {
         SessionContextCacheEntry cacheEntry = null;
         if (useCache) {
-            cacheEntry = super.getValueFromCache(((SessionContextCacheKey) key).getContextId());
+            cacheEntry = super.getValueFromCache(key);
         }
 
         if (cacheEntry == null) {
-            String keyValue = ((SessionContextCacheKey) key).getContextId();
             SessionContextDO sessionContextDO = SessionDataStore.getInstance().
-                    getSessionContextData(keyValue, SESSION_CONTEXT_CACHE_NAME);
+                    getSessionContextData(key.getContextId(), SESSION_CONTEXT_CACHE_NAME);
 
             cacheEntry = new SessionContextCacheEntry(sessionContextDO);
         }
@@ -106,12 +104,11 @@ public class SessionContextCache extends BaseCache<String, SessionContextCacheEn
 
     }
 
-    public void clearCacheEntry(CacheKey key) {
+    public void clearCacheEntry(SessionContextCacheKey key) {
         if (useCache) {
-            super.clearCacheEntry(((SessionContextCacheKey) key).getContextId());
+            super.clearCacheEntry(key);
         }
-        String keyValue = ((SessionContextCacheKey) key).getContextId();
-        SessionDataStore.getInstance().clearSessionData(keyValue, SESSION_CONTEXT_CACHE_NAME);
+        SessionDataStore.getInstance().clearSessionData(key.getContextId(), SESSION_CONTEXT_CACHE_NAME);
     }
 
     /**
@@ -121,8 +118,8 @@ public class SessionContextCache extends BaseCache<String, SessionContextCacheEn
      * @param cacheEntry SessionContextCacheEntry
      * @return true if the session context is NOT restricted as per idle session configs; false otherwise
      */
-    private boolean isValidIdleSession(CacheKey key, SessionContextCacheEntry cacheEntry) {
-        String contextId = ((SessionContextCacheKey) key).getContextId();
+    private boolean isValidIdleSession(SessionContextCacheKey key, SessionContextCacheEntry cacheEntry) {
+        String contextId = key.getContextId();
 
         if (cacheEntry == null) {
             return true;
@@ -156,8 +153,8 @@ public class SessionContextCache extends BaseCache<String, SessionContextCacheEn
      * @param cacheEntry SessionContextCacheEntry
      * @return true if the session context is NOT restricted as per remember me session configs; false otherwise
      */
-    private boolean isValidRememberMeSession(CacheKey key, SessionContextCacheEntry cacheEntry) {
-        String contextId = ((SessionContextCacheKey) key).getContextId();
+    private boolean isValidRememberMeSession(SessionContextCacheKey key, SessionContextCacheEntry cacheEntry) {
+        String contextId = key.getContextId();
 
         if (cacheEntry == null) {
             return true;
