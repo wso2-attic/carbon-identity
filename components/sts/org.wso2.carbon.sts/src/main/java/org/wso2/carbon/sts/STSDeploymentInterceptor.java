@@ -19,7 +19,10 @@ package org.wso2.carbon.sts;
 
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.impl.builder.StAXOMBuilder;
+import org.apache.axiom.om.util.UUIDGenerator;
 import org.apache.axis2.AxisFault;
+import org.apache.axis2.description.AxisBinding;
+import org.apache.axis2.description.AxisEndpoint;
 import org.apache.axis2.description.AxisModule;
 import org.apache.axis2.description.AxisService;
 import org.apache.axis2.description.AxisServiceGroup;
@@ -36,25 +39,44 @@ import org.apache.neethi.PolicyEngine;
 import org.apache.rahas.impl.AbstractIssuerConfig;
 import org.apache.rahas.impl.SAMLTokenIssuerConfig;
 import org.apache.rahas.impl.TokenIssuerUtil;
+import org.apache.ws.security.handler.WSHandlerConstants;
 import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.context.CarbonContext;
+import org.wso2.carbon.context.PrivilegedCarbonContext;
+import org.wso2.carbon.context.RegistryType;
 import org.wso2.carbon.core.RegistryResources;
 import org.wso2.carbon.core.deployment.DeploymentInterceptor;
+import org.wso2.carbon.core.persistence.PersistenceUtils;
 import org.wso2.carbon.core.util.KeyStoreManager;
 import org.wso2.carbon.core.util.KeyStoreUtil;
 import org.wso2.carbon.registry.api.RegistryException;
 import org.wso2.carbon.registry.core.Collection;
 import org.wso2.carbon.registry.core.Registry;
 import org.wso2.carbon.registry.core.Resource;
+import org.wso2.carbon.registry.core.session.UserRegistry;
 import org.wso2.carbon.registry.core.utils.RegistryUtils;
+import org.wso2.carbon.security.SecurityConfigException;
+import org.wso2.carbon.security.SecurityConstants;
+import org.wso2.carbon.security.SecurityScenario;
+import org.wso2.carbon.security.SecurityScenarioDatabase;
+import org.wso2.carbon.security.config.SecurityServiceAdmin;
 import org.wso2.carbon.security.keystore.KeyStoreAdmin;
 import org.wso2.carbon.security.keystore.service.KeyStoreData;
+import org.wso2.carbon.security.pox.POXSecurityHandler;
 import org.wso2.carbon.security.util.RampartConfigUtil;
 import org.wso2.carbon.security.util.ServerCrypto;
+import org.wso2.carbon.security.util.ServicePasswordCallbackHandler;
 import org.wso2.carbon.sts.internal.STSServiceDataHolder;
+import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.utils.ServerConstants;
+import org.wso2.carbon.utils.ServerException;
+import org.wso2.carbon.utils.deployment.GhostDeployerUtils;
 
+import javax.cache.Cache;
+import javax.cache.CacheManager;
+import javax.cache.Caching;
+import javax.security.auth.callback.CallbackHandler;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
@@ -291,7 +313,7 @@ public class STSDeploymentInterceptor implements AxisObserver {
         }
     }
 
-    private void applyPolicy(AxisService service) {
+    private void applyPolicy(AxisService service) throws SecurityConfigException {
         try {
             int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
             Registry configRegistry = STSServiceDataHolder.getInstance().getRegistryService()
@@ -304,7 +326,9 @@ public class STSDeploymentInterceptor implements AxisObserver {
                     for (String policyPath : ((Collection) resource).getChildren()) {
                         Resource res = configRegistry.get(policyPath);
                         Policy policy = loadPolicy(res);
-                        service.getPolicySubject().attachPolicy(policy);
+                        applyPolicy(service,policy);
+                        //addSecurityPolicyToAllBindings(service,policy);
+                        //service.getPolicySubject().attachPolicy(policy);
                     }
                 }
             }
@@ -410,4 +434,148 @@ public class STSDeploymentInterceptor implements AxisObserver {
     public void removeParameter(Parameter arg0) throws AxisFault {
         // Nothing to implement
     }
+
+    public void addSecurityPolicyToAllBindings(AxisService axisService, Policy policy)
+            throws ServerException {
+        try {
+            if (policy.getId() == null) {
+                // Generate an ID
+                policy.setId(UUIDGenerator.getUUID());
+            }
+            Map endPointMap = axisService.getEndpoints();
+            for (Object o : endPointMap.entrySet()) {
+                Map.Entry entry = (Map.Entry) o;
+                AxisEndpoint point = (AxisEndpoint) entry.getValue();
+                AxisBinding binding = point.getBinding();
+                String bindingName = binding.getName().getLocalPart();
+
+                //only UTOverTransport is allowed for HTTP
+                if (bindingName.endsWith("HttpBinding") &&
+                        (!policy.getAttributes().containsValue("UTOverTransport"))) {
+                    continue;
+                }
+                binding.getPolicySubject().attachPolicy(policy);
+                // Add the new policy to the registry
+            }
+        } catch (Exception e) {
+            log.error("Error in adding security policy to all bindings", e);
+            throw new ServerException("addPoliciesToService", e);
+        }
+    }
+
+    private void applyPolicy (AxisService service, Policy policy) throws SecurityConfigException {
+
+        if(service == null || policy == null){
+            throw new SecurityConfigException("Error while applying policy to service. Service and policy must be " +
+                    "present to apply policy");
+        }
+
+        UserRealm userRealm = (UserRealm) PrivilegedCarbonContext.getThreadLocalCarbonContext()
+                .getUserRealm();
+
+        UserRegistry govRegistry = (UserRegistry) PrivilegedCarbonContext
+                .getThreadLocalCarbonContext().getRegistry(RegistryType.SYSTEM_GOVERNANCE);
+        String policyId = policy.getId();
+        SecurityScenario securityScenario = SecurityScenarioDatabase.getByWsuId(policyId);
+        //this.disableSecurityOnService(service.getName());
+        disableRESTCalls(service, service.getName(), securityScenario.getScenarioId());
+
+        if (GhostDeployerUtils.isGhostService(service)) {
+            try {
+                service = GhostDeployerUtils.deployActualService(service.getAxisConfiguration(), service);
+            } catch (AxisFault axisFault) {
+                log.error("Error while loading actual service from Ghost", axisFault);
+            }
+        }
+        // Engage required modules.
+        engageModules(securityScenario.getScenarioId(), service.getName(), service);
+
+        try {
+            String serviceGroupId = service.getAxisServiceGroup().getServiceGroupName();
+            CallbackHandler handler;
+            // This will break kerberos from management console UI
+             handler = new ServicePasswordCallbackHandler(null, serviceGroupId, service.getName(),govRegistry, userRealm);
+            Parameter param = new Parameter();
+            param.setName(WSHandlerConstants.PW_CALLBACK_REF);
+            param.setValue(handler);
+            service.addParameter(param);
+
+            this.getPOXCache().remove(service.getName());
+            Cache<String, String> cache = getPOXCache();
+            if (cache != null) {
+                cache.remove(service.getName());
+            }
+
+            //Adding the security scenario ID parameter to the axisService
+            //This parameter can be used to get the applied security scenario
+            //without reading the service meta data file.
+            try {
+                Parameter params = new Parameter();
+                params.setName(SecurityConstants.SCENARIO_ID_PARAM_NAME);
+                params.setValue(securityScenario.getScenarioId());
+                service.addParameter(params);
+            } catch (AxisFault axisFault) {
+                log.error("Error while adding Scenario ID parameter", axisFault);
+            }
+
+            addSecurityPolicyToAllBindings(service, policy);
+        } catch (org.wso2.carbon.registry.core.exceptions.RegistryException e) {
+            throw new SecurityConfigException("Error occurred while creating callback handler", e);
+        } catch (AxisFault e) {
+            throw new SecurityConfigException("Error occurred while adding callback parameter", e);
+        } catch (ServerException e) {
+            throw new SecurityConfigException("Error while adding policy to bindings", e);
+        }
+    }
+
+    protected void disableRESTCalls(AxisService service, String serviceName, String scenrioId)
+            throws SecurityConfigException {
+
+        if (scenrioId.equals(SecurityConstants.USERNAME_TOKEN_SCENARIO_ID)) {
+            return;
+        }
+        try {
+            if (service == null) {
+                throw new SecurityConfigException("nullService");
+            }
+
+            Parameter param = new Parameter();
+            param.setName("disableREST"); // TODO Find the constant
+            param.setValue(Boolean.TRUE.toString());
+            service.addParameter(param);
+
+        } catch (AxisFault e) {
+            log.error(e);
+            throw new SecurityConfigException("disablingREST", e);
+        }
+
+    }
+
+    protected void engageModules(String scenarioId, String serviceName, AxisService axisService)
+            throws SecurityConfigException {
+        SecurityScenario securityScenario = SecurityScenarioDatabase.get(scenarioId);
+        String[] moduleNames = (String[]) securityScenario.getModules()
+                .toArray(new String[securityScenario.getModules().size()]);
+        // handle each module required
+        try {
+
+            for (String modName : moduleNames) {
+                AxisModule module = axisService.getAxisConfiguration().getModule(modName);
+                // engage at axis2
+                axisService.disengageModule(module);
+                axisService.engageModule(module);
+            }
+
+        } catch (AxisFault e) {
+            log.error(e);
+            throw new SecurityConfigException("Error in engaging modules", e);
+        }
+    }
+
+    private Cache<String, String> getPOXCache() {
+        CacheManager manager = Caching.getCacheManagerFactory().getCacheManager(POXSecurityHandler.POX_CACHE_MANAGER);
+        Cache<String, String> cache = manager.getCache(POXSecurityHandler.POX_ENABLED);
+        return cache;
+    }
+
 }
