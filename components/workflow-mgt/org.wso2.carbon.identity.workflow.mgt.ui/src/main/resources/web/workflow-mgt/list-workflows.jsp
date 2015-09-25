@@ -49,6 +49,7 @@
     String pageNumber = request.getParameter(WorkflowUIConstants.PARAM_PAGE_NUMBER);
     int pageNumberInt = 0;
     int numberOfPages = 0;
+    WorkflowWizard[] workflows = null;
 
     //clear any unnecessary session data
     if (session.getAttribute(WorkflowUIConstants.ATTRIB_WORKFLOW_WIZARD) != null) {
@@ -70,7 +71,7 @@
                         .getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
         client = new WorkflowAdminServiceClient(cookie, backendServerURL, configContext);
 
-        WorkflowWizard[] workflows = client.listWorkflows();
+        workflows = client.listWorkflows();
         numberOfPages = (int) Math.ceil((double) workflows.length / WorkflowUIConstants.RESULTS_PER_PAGE);
 
         int startIndex = pageNumberInt * WorkflowUIConstants.RESULTS_PER_PAGE;
@@ -147,10 +148,10 @@
                 </thead>
                 <tbody>
                 <%
-                    for (WorkflowWizard workflow : workflowsToDisplay) {
-                        if (workflow != null) {
-                            System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>> 1" );
-                            WorkflowUIUtil.test("A",workflow);
+                    if (workflows != null && workflows.length > 0) {
+                        for (WorkflowWizard workflow : workflowsToDisplay) {
+                            if (workflow != null) {
+
                 %>
                 <tr>
                     <td>
@@ -178,8 +179,13 @@
                     </td>
                 </tr>
                 <%
+                            }
                         }
-                    }
+                    } else {%>
+                <tr>
+                    <td colspan="5"><i>No workflows found.</i></td>
+                </tr>
+                <% }
                 %>
                 </tbody>
             </table>

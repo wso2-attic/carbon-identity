@@ -297,11 +297,11 @@ public class WorkflowManagementAdminService {
      * @throws WorkflowException
      */
     public WorkflowRequest[] getRequestsCreatedByUser(String user, String beginDate, String endDate, String
-            dateCategory) throws WorkflowException {
+            dateCategory, String status) throws WorkflowException {
 
 
         int tenant = CarbonContext.getThreadLocalCarbonContext().getTenantId();
-        return WorkflowServiceDataHolder.getInstance().getWorkflowService().getRequestsFromFilter(user, beginDate, endDate, dateCategory, tenant);
+        return WorkflowServiceDataHolder.getInstance().getWorkflowService().getRequestsFromFilter(user, beginDate, endDate, dateCategory, tenant, status);
     }
 
     /**
@@ -314,10 +314,10 @@ public class WorkflowManagementAdminService {
      * @throws WorkflowException
      */
     public WorkflowRequest[] getRequestsInFilter(String beginDate, String endDate, String
-            dateCategory) throws WorkflowException {
+            dateCategory, String status) throws WorkflowException {
 
         int tenant = CarbonContext.getThreadLocalCarbonContext().getTenantId();
-        return WorkflowServiceDataHolder.getInstance().getWorkflowService().getRequestsFromFilter("", beginDate, endDate, dateCategory, tenant);
+        return WorkflowServiceDataHolder.getInstance().getWorkflowService().getRequestsFromFilter("", beginDate, endDate, dateCategory, tenant, status);
     }
 
     /**

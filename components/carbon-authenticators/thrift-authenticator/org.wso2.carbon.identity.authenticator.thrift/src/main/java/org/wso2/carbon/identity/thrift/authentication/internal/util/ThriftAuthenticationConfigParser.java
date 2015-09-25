@@ -21,7 +21,7 @@ import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.impl.builder.StAXOMBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.base.ServerConfigurationException;
+import org.wso2.carbon.identity.base.IdentityRuntimeException;
 import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.utils.ServerConstants;
 import org.wso2.securevault.SecretResolver;
@@ -44,7 +44,7 @@ import java.util.Stack;
 public class ThriftAuthenticationConfigParser {
 
     public static final String IDENTITY_DEFAULT_NAMESPACE = "http://wso2.org/projects/carbon/carbon.xml";
-    private static final String IDENTITY_CONFIG = "thrift-authentication.xml";
+    private static final String THRIFT_AUTHENTICATION_XML = "thrift-authentication.xml";
     private static Map<String, Object> configuration = new HashMap<String, Object>();
     private static ThriftAuthenticationConfigParser parser;
     private static SecretResolver secretResolver;
@@ -55,16 +55,11 @@ public class ThriftAuthenticationConfigParser {
 
     private OMElement rootElement;
 
-    private ThriftAuthenticationConfigParser() throws ServerConfigurationException {
-        try {
-            buildConfiguration();
-        } catch (Exception e) {
-            log.error("Error while loading Thrift Authentication Configurations", e);
-            throw new ServerConfigurationException("Error while loading Identity Configurations", e);
-        }
+    private ThriftAuthenticationConfigParser() {
+        buildConfiguration();
     }
 
-    public static ThriftAuthenticationConfigParser getInstance() throws ServerConfigurationException {
+    public static ThriftAuthenticationConfigParser getInstance() {
         if (parser == null) {
             synchronized (lock) {
                 if (parser == null) {
@@ -75,8 +70,7 @@ public class ThriftAuthenticationConfigParser {
         return parser;
     }
 
-    public static ThriftAuthenticationConfigParser getInstance(String filePath)
-            throws ServerConfigurationException {
+    public static ThriftAuthenticationConfigParser getInstance(String filePath) {
         configFilePath = filePath;
         return getInstance();
     }
@@ -90,7 +84,7 @@ public class ThriftAuthenticationConfigParser {
      * @throws javax.xml.stream.XMLStreamException
      * @throws java.io.IOException
      */
-    private void buildConfiguration() throws XMLStreamException, IOException {
+    private void buildConfiguration() {
         InputStream inStream = null;
         StAXOMBuilder builder = null;
 
@@ -104,7 +98,7 @@ public class ThriftAuthenticationConfigParser {
             } else {
 
                 File identityConfigXml = new File(CarbonUtils.getCarbonConfigDirPath() + File.separator + "identity" +
-                        File.separator + IDENTITY_CONFIG);
+                        File.separator + THRIFT_AUTHENTICATION_XML);
                 if (identityConfigXml.exists()) {
                     inStream = new FileInputStream(identityConfigXml);
                 }
@@ -123,13 +117,15 @@ public class ThriftAuthenticationConfigParser {
             secretResolver = SecretResolverFactory.create(rootElement, true);
             readChildElements(rootElement, nameStack);
 
+        } catch (FileNotFoundException|XMLStreamException e){
+            throw new IdentityRuntimeException("Error occurred while reading " + THRIFT_AUTHENTICATION_XML, e);
         } finally {
             try {
                 if (inStream != null) {
                     inStream.close();
                 }
             } catch (IOException e) {
-                log.warn("Error closing the input stream.", e);
+                log.error("Error closing the input stream after reading " + THRIFT_AUTHENTICATION_XML, e);
             }
         }
     }

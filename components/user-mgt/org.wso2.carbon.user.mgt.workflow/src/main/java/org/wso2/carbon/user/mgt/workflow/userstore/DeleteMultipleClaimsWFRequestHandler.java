@@ -134,8 +134,8 @@ public class DeleteMultipleClaimsWFRequestHandler extends AbstractWorkflowReques
                 userRealm.getUserStoreManager().deleteUserClaimValues(userName,
                         claims.toArray(new String[claims.size()]), profile);
             } catch (UserStoreException e) {
-                throw new WorkflowException("Error when re-requesting deleteUserClaimValues operation for " + userName,
-                        e);
+                // Sending e.getMessage() since it is required to give error message to end user.
+                throw new WorkflowException(e.getMessage(), e);
             }
         } else {
             if (retryNeedAtCallback()) {

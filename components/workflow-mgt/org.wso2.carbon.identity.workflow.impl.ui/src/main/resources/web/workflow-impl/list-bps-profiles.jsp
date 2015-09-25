@@ -41,10 +41,11 @@
     int pageNumberInt = 0;
     int numberOfPages = 0;
     BPSProfile[] profilesToDisplay = new BPSProfile[0];
+    BPSProfile[] bpsProfiles = null;
 
     try {
         WorkflowImplAdminServiceClient client = new WorkflowImplAdminServiceClient(cookie, backendServerURL, configContext);
-        BPSProfile[] bpsProfiles = client.listBPSProfiles();
+        bpsProfiles = client.listBPSProfiles();
         if (bpsProfiles == null) {
             bpsProfiles = new BPSProfile[0];
         }
@@ -138,8 +139,9 @@
                 </thead>
                 <tbody>
                 <%
-                    for (BPSProfile profile : profilesToDisplay) {
-                        if (profile != null) {
+                    if (bpsProfiles != null && bpsProfiles.length > 0) {
+                        for (BPSProfile profile : profilesToDisplay) {
+                            if (profile != null) {
 
                 %>
                 <tr>
@@ -153,24 +155,29 @@
                     </td>
                     <td>
                         <%
-                            if(!WorkflowUIConstants.DEFAULT_BPS_PROFILE.equals(profile.getProfileName())){
+                            if (!WorkflowUIConstants.DEFAULT_BPS_PROFILE.equals(profile.getProfileName())) {
                         %>
-                            <a title="<fmt:message key='workflow.bps.profile.edit.title'/>"
-                               onclick="editProfile('<%=profile.getProfileName()%>');return false;"
-                               href="#" style="background-image: url(images/edit.gif);"
-                               class="icon-link"><fmt:message key='edit'/></a>
-                            <a title="<fmt:message key='workflow.bps.profile.delete.title'/>"
-                               onclick="removeProfile('<%=profile.getProfileName()%>');return false;"
-                               href="#" style="background-image: url(images/delete.gif);"
-                               class="icon-link"><fmt:message key='delete'/></a>
+                        <a title="<fmt:message key='workflow.bps.profile.edit.title'/>"
+                           onclick="editProfile('<%=profile.getProfileName()%>');return false;"
+                           href="#" style="background-image: url(images/edit.gif);"
+                           class="icon-link"><fmt:message key='edit'/></a>
+                        <a title="<fmt:message key='workflow.bps.profile.delete.title'/>"
+                           onclick="removeProfile('<%=profile.getProfileName()%>');return false;"
+                           href="#" style="background-image: url(images/delete.gif);"
+                           class="icon-link"><fmt:message key='delete'/></a>
                         <%
                             }
                         %>
                     </td>
                 </tr>
                 <%
+                            }
                         }
-                    }
+                    } else {%>
+                <tr>
+                    <td colspan="5"><i>No profiles found.</i></td>
+                </tr>
+                <%}
                 %>
                 </tbody>
             </table>

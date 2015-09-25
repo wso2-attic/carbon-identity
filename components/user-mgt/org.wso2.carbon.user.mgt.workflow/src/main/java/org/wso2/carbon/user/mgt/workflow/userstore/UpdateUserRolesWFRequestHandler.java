@@ -181,8 +181,8 @@ public class UpdateUserRolesWFRequestHandler extends AbstractWorkflowRequestHand
                 UserRealm userRealm = realmService.getTenantUserRealm(tenantId);
                 userRealm.getUserStoreManager().updateRoleListOfUser(userName, deletedRoles, newRoles);
             } catch (UserStoreException e) {
-                throw new WorkflowException("Error when re-requesting updateRoleListOfUser operation for " + userName,
-                        e);
+                // Sending e.getMessage() since it is required to give error message to end user.
+                throw new WorkflowException(e.getMessage(), e);
             }
         } else {
             if (retryNeedAtCallback()) {
@@ -190,9 +190,8 @@ public class UpdateUserRolesWFRequestHandler extends AbstractWorkflowRequestHand
                 unsetWorkFlowCompleted();
             }
             if (log.isDebugEnabled()) {
-                log.debug(
-                        "Updating user roles is aborted for user '" + userName + "', Reason: Workflow response was " +
-                                status);
+                log.debug("Updating user roles is aborted for user '" + userName + "', Reason: Workflow response was " +
+                        status);
             }
         }
     }

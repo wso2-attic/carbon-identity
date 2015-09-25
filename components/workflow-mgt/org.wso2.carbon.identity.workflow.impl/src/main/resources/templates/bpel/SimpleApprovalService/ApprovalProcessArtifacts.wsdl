@@ -35,6 +35,7 @@
                     <sequence>
                         <element name="uuid" type="string"/>
                         <element name="eventType" type="string"/>
+                        <element name="taskInitiator" type="string"></element>
                         <element name="parameters" type="tns:parameterList"></element>
                         <element name="configuration" type="tns:stepList"></element>
                     </sequence>

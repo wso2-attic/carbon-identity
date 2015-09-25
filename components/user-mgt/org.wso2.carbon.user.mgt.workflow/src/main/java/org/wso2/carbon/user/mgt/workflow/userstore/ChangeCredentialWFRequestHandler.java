@@ -92,7 +92,8 @@ public class ChangeCredentialWFRequestHandler extends AbstractWorkflowRequestHan
                 UserRealm userRealm = realmService.getTenantUserRealm(tenantId);
                 userRealm.getUserStoreManager().updateCredential(userName, newCredential, oldCredential);
             } catch (UserStoreException e) {
-                throw new WorkflowException("Error when re-requesting update credentials operation for " + userName, e);
+                // Sending e.getMessage() since it is required to give error message to end user.
+                throw new WorkflowException(e.getMessage(), e);
             }
         } else {
             if (retryNeedAtCallback()) {

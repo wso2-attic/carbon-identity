@@ -28,22 +28,20 @@ import org.wso2.carbon.identity.application.authentication.framework.exception.A
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticatedUser;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkUtils;
 import org.wso2.carbon.identity.application.authenticator.requestpath.basicauth.internal.BasicAuthRequestPathAuthenticatorServiceComponent;
-import org.wso2.carbon.identity.core.util.IdentityUtil;
+import org.wso2.carbon.identity.base.IdentityRuntimeException;
+import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
 import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 
 public class BasicAuthRequestPathAuthenticator extends AbstractApplicationAuthenticator implements RequestPathApplicationAuthenticator {
 
-    /**
-     *
-     */
-    private static final long serialVersionUID = 1L;
+
+    private static final long serialVersionUID = -3707836631281782935L;
     private static final String AUTHORIZATION_HEADER_NAME = "Authorization";
     private static final String BASIC_AUTH_SCHEMA = "Basic";
     private static final String AUTHENTICATOR_NAME = "BasicAuthRequestPathAuthenticator";
@@ -85,17 +83,19 @@ public class BasicAuthRequestPathAuthenticator extends AbstractApplicationAuthen
             credential = request.getParameter("sectoken");
         }
 
-        try {
-            String credentials = new String(Base64.decode(credential));
-            String username = credentials.substring(0, credentials.indexOf(":"));
-            String password = credentials.substring(credentials.indexOf(":") + 1);
-            if (StringUtils.isBlank(username) || StringUtils.isBlank(password)) {
-                throw new AuthenticationFailedException("username and password cannot be empty");
-            }
-            int tenantId = IdentityUtil.getTenantIdOFUser(username);
-            UserStoreManager userStoreManager = (UserStoreManager) BasicAuthRequestPathAuthenticatorServiceComponent.getRealmService().getTenantUserRealm(tenantId).getUserStoreManager();
-            boolean isAuthenticated = userStoreManager.authenticate(MultitenantUtils.getTenantAwareUsername(username), password);
+        String credentials = new String(Base64.decode(credential));
+        String username = credentials.substring(0, credentials.indexOf(":"));
+        String password = credentials.substring(credentials.indexOf(":") + 1);
+        if (StringUtils.isBlank(username) || StringUtils.isBlank(password)) {
+            throw new AuthenticationFailedException("username and password cannot be empty");
+        }
 
+        try {
+            int tenantId = IdentityTenantUtil.getTenantIdOfUser(username);
+            UserStoreManager userStoreManager = (UserStoreManager) BasicAuthRequestPathAuthenticatorServiceComponent.
+                    getRealmService().getTenantUserRealm(tenantId).getUserStoreManager();
+            boolean isAuthenticated = userStoreManager.authenticate(
+                    MultitenantUtils.getTenantAwareUsername(username), password);
             if (!isAuthenticated) {
                 throw new AuthenticationFailedException("Authentication Failed");
             }
@@ -117,6 +117,11 @@ public class BasicAuthRequestPathAuthenticator extends AbstractApplicationAuthen
 
             context.setSubject(AuthenticatedUser.createLocalAuthenticatedUserFromSubjectIdentifier(
                     FrameworkUtils.prependUserStoreDomainToName(username)));
+        } catch (IdentityRuntimeException e) {
+            if(log.isDebugEnabled()){
+                log.debug("BasicAuthentication failed while trying to get the tenant ID of the user " + username, e);
+            }
+            throw new AuthenticationFailedException(e.getMessage(), e);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw new AuthenticationFailedException("Authentication Failed");

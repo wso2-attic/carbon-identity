@@ -28,7 +28,6 @@
 <%@ page import="org.apache.axis2.context.ConfigurationContext" %>
 <%@ page import="org.wso2.carbon.CarbonConstants" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
-<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.WorkflowRequestAssociationDTO" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.WorkflowRequestAssociation" %>
 
 <jsp:include page="../dialog/display_messages.jsp"/>
