@@ -17,14 +17,14 @@
  */
 package org.wso2.carbon.identity.openidconnect;
 
+import com.nimbusds.jwt.JWTClaimsSet;
 import net.minidev.json.JSONArray;
-import org.apache.amber.oauth2.common.exception.OAuthSystemException;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.oltu.openidconnect.as.messages.IDTokenBuilder;
+import org.apache.oltu.oauth2.common.exception.OAuthSystemException;
 import org.opensaml.saml2.core.Assertion;
 import org.opensaml.saml2.core.Attribute;
 import org.opensaml.saml2.core.AttributeStatement;
@@ -36,6 +36,7 @@ import org.wso2.carbon.identity.application.common.model.ClaimMapping;
 import org.wso2.carbon.identity.application.common.model.ServiceProvider;
 import org.wso2.carbon.identity.application.mgt.ApplicationManagementService;
 import org.wso2.carbon.identity.base.IdentityException;
+import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
 import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
 import org.wso2.carbon.identity.oauth.cache.AuthorizationGrantCache;
 import org.wso2.carbon.identity.oauth.cache.AuthorizationGrantCacheEntry;
@@ -67,12 +68,11 @@ public class SAMLAssertionClaimsCallback implements CustomClaimsCallbackHandler 
     private final static Log log = LogFactory.getLog(SAMLAssertionClaimsCallback.class);
     private final static String INBOUND_AUTH2_TYPE = "oauth2";
     private final static String SP_DIALECT = "http://wso2.org/oidc/claim";
-    private final static String MULTI_ATTRIBUTE_SEPARATOR = "MultiAttributeSeparator";
 
-    private String userAttributeSeparator = ",";
+    private String userAttributeSeparator = IdentityCoreConstants.MULTI_ATTRIBUTE_SEPARATOR_DEFAULT;
 
     @Override
-    public void handleCustomClaims(IDTokenBuilder builder, OAuthTokenReqMessageContext requestMsgCtx) {
+    public void handleCustomClaims(JWTClaimsSet jwtClaimsSet, OAuthTokenReqMessageContext requestMsgCtx) {
         // reading the token set in the same grant
         Assertion assertion = (Assertion) requestMsgCtx.getProperty(OAuthConstants.OAUTH_SAML2_ASSERTION);
 
@@ -84,7 +84,7 @@ public class SAMLAssertionClaimsCallback implements CustomClaimsCallbackHandler 
                 while (attributeIterator.hasNext()) {
                     Attribute attribute = attributeIterator.next();
                     String value = attribute.getAttributeValues().get(0).getDOM().getTextContent();
-                    builder.setClaim(attribute.getName(), value);
+                    jwtClaimsSet.setClaim(attribute.getName(), value);
                     if (log.isDebugEnabled()) {
                         log.debug("Attribute: " + attribute.getName() + ", Value: " + value);
                     }
@@ -99,10 +99,13 @@ public class SAMLAssertionClaimsCallback implements CustomClaimsCallbackHandler 
             try {
                 JSONArray values;
                 Map<String, Object> claims = getResponse(requestMsgCtx);
-                Object claimSeparator = claims.get(MULTI_ATTRIBUTE_SEPARATOR);
+                Object claimSeparator = claims.get(IdentityCoreConstants.MULTI_ATTRIBUTE_SEPARATOR);
                 if (claimSeparator != null) {
-                    userAttributeSeparator = (String) claimSeparator;
-                    claims.remove(MULTI_ATTRIBUTE_SEPARATOR);
+                    String claimSeparatorString = (String) claimSeparator;
+                    if(StringUtils.isNotBlank(claimSeparatorString)) {
+                        userAttributeSeparator = (String) claimSeparator;
+                    }
+                    claims.remove(IdentityCoreConstants.MULTI_ATTRIBUTE_SEPARATOR);
                 }
 
                 for (Map.Entry<String, Object> entry : claims.entrySet()) {
@@ -119,7 +122,7 @@ public class SAMLAssertionClaimsCallback implements CustomClaimsCallbackHandler 
                     } else {
                         values.add(value);
                     }
-                    builder.setClaim(entry.getKey(), values.toJSONString());
+                    jwtClaimsSet.setClaim(entry.getKey(), values.toJSONString());
                 }
             } catch (OAuthSystemException e) {
                 log.error("Error occurred while adding claims of " + requestMsgCtx.getAuthorizedUser() +
@@ -259,9 +262,10 @@ public class SAMLAssertionClaimsCallback implements CustomClaimsCallbackHandler 
             RealmConfiguration realmConfiguration = userStoreManager.getSecondaryUserStoreManager(domain)
                     .getRealmConfiguration();
 
-            String claimSeparator = realmConfiguration.getUserStoreProperty(MULTI_ATTRIBUTE_SEPARATOR);
-            if (claimSeparator != null && !claimSeparator.trim().isEmpty()) {
-                mappedAppClaims.put(MULTI_ATTRIBUTE_SEPARATOR, claimSeparator);
+            String claimSeparator = realmConfiguration.getUserStoreProperty(
+                    IdentityCoreConstants.MULTI_ATTRIBUTE_SEPARATOR);
+            if (StringUtils.isNotBlank(claimSeparator)) {
+                mappedAppClaims.put(IdentityCoreConstants.MULTI_ATTRIBUTE_SEPARATOR, claimSeparator);
             }
         }
         return mappedAppClaims;

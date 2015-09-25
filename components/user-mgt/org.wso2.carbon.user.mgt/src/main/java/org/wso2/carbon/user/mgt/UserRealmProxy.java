@@ -19,10 +19,13 @@
 package org.wso2.carbon.user.mgt;
 
 
+import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.context.CarbonContext;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.registry.api.Registry;
 import org.wso2.carbon.registry.api.RegistryException;
 import org.wso2.carbon.registry.api.Resource;
@@ -460,7 +463,7 @@ public class UserRealmProxy {
                 }
                 FlaggedName fName = new FlaggedName();
                 fName.setItemName(hybridRole);
-                if (hybridRole.startsWith(UserCoreConstants.INTERNAL_DOMAIN)) {
+                if (hybridRole.toLowerCase().startsWith(UserCoreConstants.INTERNAL_DOMAIN.toLowerCase())) {
                     fName.setRoleType(UserMgtConstants.INTERNAL_ROLE);
                 } else {
                     fName.setRoleType(UserMgtConstants.APPLICATION_DOMAIN);
@@ -543,7 +546,9 @@ public class UserRealmProxy {
                 userRealmInfo.setEveryOneRole(realmConfig.getEveryOneRoleName());
                 ClaimMapping[] defaultClaims = realm.getClaimManager().
                         getAllClaimMappings(UserCoreConstants.DEFAULT_CARBON_DIALECT);
-
+                if (ArrayUtils.isNotEmpty(defaultClaims)) {
+                    Arrays.sort(defaultClaims, new ClaimMappingsComparator());
+                }
                 List<String> fullClaimList = new ArrayList<String>();
                 List<String> requiredClaimsList = new ArrayList<String>();
                 List<String> defaultClaimList = new ArrayList<String>();
@@ -665,6 +670,9 @@ public class UserRealmProxy {
             info.setBulkImportSupported(this.isBulkImportSupported());
             info.setDomainName(realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME));
 
+            boolean caseSensitiveUsername = IdentityUtil.isUserStoreCaseSensitive(manager);
+
+            info.setCaseSensitiveUsername(caseSensitiveUsername);
             return info;
         } catch (UserStoreException e) {
             // previously logged so logging not needed
@@ -698,7 +706,7 @@ public class UserRealmProxy {
      */
     private final String addPrimaryDomainIfNotExists(String userName) {
 
-        if ((userName.indexOf(UserCoreConstants.DOMAIN_SEPARATOR)) < 0) {
+        if (StringUtils.isNotEmpty(userName) && (!userName.contains(UserCoreConstants.DOMAIN_SEPARATOR))) {
             StringBuilder builder = new StringBuilder();
             builder.append(UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME).append(CarbonConstants.DOMAIN_SEPARATOR)
                     .append(userName);
@@ -2268,5 +2276,13 @@ public class UserRealmProxy {
         System.arraycopy(o2, 0, ret, o1.length, o2.length);
 
         return ret;
+    }
+
+    private class ClaimMappingsComparator implements Comparator<ClaimMapping> {
+
+        @Override
+        public int compare(ClaimMapping o1, ClaimMapping o2) {
+            return o1.getClaim().getClaimUri().compareTo(o2.getClaim().getClaimUri());
+        }
     }
 }

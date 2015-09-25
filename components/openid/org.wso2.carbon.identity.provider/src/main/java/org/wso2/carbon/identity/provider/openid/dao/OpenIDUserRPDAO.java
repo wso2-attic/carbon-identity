@@ -19,11 +19,9 @@ package org.wso2.carbon.identity.provider.openid.dao;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.model.OpenIDUserRPDO;
-import org.wso2.carbon.identity.core.persistence.JDBCPersistenceManager;
 import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
-import org.wso2.carbon.identity.core.util.IdentityUtil;
+import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -42,25 +40,23 @@ public class OpenIDUserRPDAO {
      * If the entry exist, then update with the new data
      *
      * @param rpdo
-     * @throws IdentityException
      */
-    public void createOrUpdate(OpenIDUserRPDO rpdo) throws IdentityException {
+    public void createOrUpdate(OpenIDUserRPDO rpdo) {
 
         // first we try to get DO from the database. Return null if no data
         OpenIDUserRPDO existingdo = getOpenIDUserRP(rpdo.getUserName(), rpdo.getRpUrl());
 
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
 
         try {
-            connection = JDBCPersistenceManager.getInstance().getDBConnection();
 
             if (existingdo != null) { // data found in the database
                 // we should update the entry
                 prepStmt = connection.prepareStatement(OpenIDSQLQueries.UPDATE_USER_RP);
 
                 prepStmt.setString(5, rpdo.getUserName());
-                prepStmt.setInt(6, IdentityUtil.getTenantIdOFUser(rpdo.getUserName()));
+                prepStmt.setInt(6, IdentityTenantUtil.getTenantIdOfUser(rpdo.getUserName()));
                 prepStmt.setString(7, rpdo.getRpUrl());
                 prepStmt.setString(1, rpdo.isTrustedAlways() ? "TRUE" : "FALSE");
 
@@ -78,7 +74,7 @@ public class OpenIDUserRPDAO {
                 prepStmt = connection.prepareStatement(OpenIDSQLQueries.STORE_USER_RP);
 
                 prepStmt.setString(1, rpdo.getUserName());
-                prepStmt.setInt(2, IdentityUtil.getTenantIdOFUser(rpdo.getUserName()));
+                prepStmt.setInt(2, IdentityTenantUtil.getTenantIdOfUser(rpdo.getUserName()));
                 prepStmt.setString(3, rpdo.getRpUrl());
                 prepStmt.setString(4, rpdo.isTrustedAlways() ? "TRUE" : "FALSE");
 
@@ -106,34 +102,32 @@ public class OpenIDUserRPDAO {
      * Party
      *
      * @param rpdo
-     * @throws IdentityException
      */
-    public void update(OpenIDUserRPDO rpdo) throws IdentityException {
+    public void update(OpenIDUserRPDO rpdo) {
 
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
 
         try {
-            connection = JDBCPersistenceManager.getInstance().getDBConnection();
-
             if (isUserRPExist(connection, rpdo)) {
                 // we should update the entry
                 prepStmt = connection.prepareStatement(OpenIDSQLQueries.UPDATE_USER_RP);
 
                 prepStmt.setString(1, rpdo.getUserName());
-                prepStmt.setInt(2, IdentityUtil.getTenantIdOFUser(rpdo.getUserName()));
+                prepStmt.setInt(2, IdentityTenantUtil.getTenantIdOfUser(rpdo.getUserName()));
                 prepStmt.setString(3, rpdo.getRpUrl());
                 prepStmt.setString(4, rpdo.isTrustedAlways() ? "TRUE" : "FALSE");
                 prepStmt.setDate(5, new java.sql.Date(rpdo.getLastVisit().getTime()));
                 prepStmt.setInt(6, rpdo.getVisitCount() + 1);
                 prepStmt.setString(7, rpdo.getDefaultProfileName());
-
                 prepStmt.execute();
                 connection.commit();
             } else {
                 // we should create the entry
-                log.debug("Failed to update RP: " + rpdo.getRpUrl() + " for user: " +
-                          rpdo.getUserName() + " Entry does not exist in the databse.");
+                if(log.isDebugEnabled()) {
+                    log.debug("Failed to update RP: " + rpdo.getRpUrl() + " for user: " + rpdo.getUserName() + ". " +
+                            "Entry does not exist in the database.");
+                }
             }
         } catch (SQLException e) {
             log.error("Failed to update RP:  " + rpdo.getRpUrl() + " for user: " +
@@ -148,28 +142,25 @@ public class OpenIDUserRPDAO {
      * Remove the entry from the database.
      *
      * @param opdo
-     * @throws IdentityException
      */
-    public void delete(OpenIDUserRPDO opdo) throws IdentityException {
+    public void delete(OpenIDUserRPDO opdo) {
 
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
 
         try {
-            connection = JDBCPersistenceManager.getInstance().getDBConnection();
 
             if (isUserRPExist(connection, opdo)) {
                 prepStmt = connection.prepareStatement(OpenIDSQLQueries.REMOVE_USER_RP);
                 prepStmt.setString(1, opdo.getUserName());
-                prepStmt.setInt(2, IdentityUtil.getTenantIdOFUser(opdo.getUserName()));
+                prepStmt.setInt(2, IdentityTenantUtil.getTenantIdOfUser(opdo.getUserName()));
                 prepStmt.setString(3, opdo.getRpUrl());
                 prepStmt.execute();
                 connection.commit();
             }
 
         } catch (SQLException e) {
-            log.error("Failed to remove RP: " + opdo.getRpUrl() + " of user: " +
-                      opdo.getUserName() + ". Error while accessing the database.", e);
+            log.error("Failed to remove RP: " + opdo.getRpUrl() + " of user: " + opdo.getUserName(), e);
         } finally {
             IdentityDatabaseUtil.closeStatement(prepStmt);
             IdentityDatabaseUtil.closeConnection(connection);
@@ -183,33 +174,31 @@ public class OpenIDUserRPDAO {
      * @param rpUrl    Relying party urlupdateOpenIDUserRPInfo
      * @return A set of OpenIDUserRPDO, corresponding to the provided user name
      * and RP url.
-     * @throws IdentityException
      */
-    public OpenIDUserRPDO getOpenIDUserRP(String userName, String rpUrl) throws IdentityException {
+    public OpenIDUserRPDO getOpenIDUserRP(String userName, String rpUrl) {
 
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
         OpenIDUserRPDO rpdo = new OpenIDUserRPDO();
         rpdo.setUserName(userName);
         rpdo.setRpUrl(rpUrl);
 
         try {
-            connection = JDBCPersistenceManager.getInstance().getDBConnection();
-
             if (isUserRPExist(connection, rpdo)) {
                 prepStmt = connection.prepareStatement(OpenIDSQLQueries.LOAD_USER_RP);
                 prepStmt.setString(1, userName);
-                prepStmt.setInt(2, IdentityUtil.getTenantIdOFUser(userName));
+                prepStmt.setInt(2, IdentityTenantUtil.getTenantIdOfUser(userName));
                 prepStmt.setString(3, rpUrl);
                 OpenIDUserRPDO openIDUserRPDO = buildUserRPDO(prepStmt.executeQuery(), userName);
                 connection.commit();
                 return openIDUserRPDO;
             } else {
-                log.debug("RP: " + rpUrl + " of user: " + userName + " not found in the database");
+                if(log.isDebugEnabled()) {
+                    log.debug("RP: " + rpUrl + " of user: " + userName + " not found in the database");
+                }
             }
         } catch (SQLException e) {
-            log.error("Failed to load RP: " + rpUrl + " for user: " + userName +
-                      ". Error while accessing the database.", e);
+            log.error("Failed to load RP: " + rpUrl + " for user: " + userName, e);
         } finally {
             IdentityDatabaseUtil.closeStatement(prepStmt);
             IdentityDatabaseUtil.closeConnection(connection);
@@ -221,17 +210,15 @@ public class OpenIDUserRPDAO {
      * Returns all registered relying parties
      *
      * @return
-     * @throws IdentityException
      */
-    public OpenIDUserRPDO[] getAllOpenIDUserRP() throws IdentityException {
-        Connection connection = null;
+    public OpenIDUserRPDO[] getAllOpenIDUserRP() {
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
         ResultSet results = null;
         OpenIDUserRPDO[] rpDOs = null;
         List<OpenIDUserRPDO> rpdos = new ArrayList<>();
 
         try {
-            connection = JDBCPersistenceManager.getInstance().getDBConnection();
             prepStmt = connection.prepareStatement(OpenIDSQLQueries.LOAD_ALL_USER_RPS);
             results = prepStmt.executeQuery();
 
@@ -265,21 +252,19 @@ public class OpenIDUserRPDAO {
      * @param userName Unique user name
      * @return OpenIDUserRPDO, corresponding to the provided user name and RP
      * url.
-     * @throws IdentityException
      */
-    public OpenIDUserRPDO[] getOpenIDUserRPs(String userName) throws IdentityException {
+    public OpenIDUserRPDO[] getOpenIDUserRPs(String userName) {
 
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
         ResultSet results = null;
         OpenIDUserRPDO[] rpDOs = null;
         List<OpenIDUserRPDO> rpdos = new ArrayList<>();
 
         try {
-            connection = JDBCPersistenceManager.getInstance().getDBConnection();
             prepStmt = connection.prepareStatement(OpenIDSQLQueries.LOAD_USER_RPS);
             prepStmt.setString(1, userName);
-            prepStmt.setInt(2, IdentityUtil.getTenantIdOFUser(userName));
+            prepStmt.setInt(2, IdentityTenantUtil.getTenantIdOfUser(userName));
             results = prepStmt.executeQuery();
 
             while (results.next()) {
@@ -297,7 +282,7 @@ public class OpenIDUserRPDAO {
             rpDOs = rpdos.toArray(rpDOs);
 
         } catch (SQLException e) {
-            log.error("Error while accessing the database to load RPs.", e);
+            log.error("Error while accessing the database to load RPs", e);
         } finally {
             IdentityDatabaseUtil.closeResultSet(results);
             IdentityDatabaseUtil.closeStatement(prepStmt);
@@ -313,11 +298,10 @@ public class OpenIDUserRPDAO {
      * @param userName Unique user name
      * @param rpUrl    Relying party URL
      * @return Default user profile
-     * @throws IdentityException
      */
-    public String getOpenIDDefaultUserProfile(String userName, String rpUrl)
-            throws IdentityException {
-        Connection connection = null;
+    public String getOpenIDDefaultUserProfile(String userName, String rpUrl) {
+
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
 
         OpenIDUserRPDO rpdo = new OpenIDUserRPDO();
@@ -325,22 +309,20 @@ public class OpenIDUserRPDAO {
         rpdo.setRpUrl(rpUrl);
 
         try {
-            connection = JDBCPersistenceManager.getInstance().getDBConnection();
 
             if (isUserRPExist(connection, rpdo)) {
-                prepStmt =
-                        connection.prepareStatement(OpenIDSQLQueries.LOAD_USER_RP_DEFAULT_PROFILE);
+                prepStmt = connection.prepareStatement(OpenIDSQLQueries.LOAD_USER_RP_DEFAULT_PROFILE);
                 prepStmt.setString(1, userName);
-                prepStmt.setInt(2, IdentityUtil.getTenantIdOFUser(userName));
+                prepStmt.setInt(2, IdentityTenantUtil.getTenantIdOfUser(userName));
                 prepStmt.setString(3, rpUrl);
                 return prepStmt.executeQuery().getString(7);
-
             } else {
-                log.debug("RP: " + rpUrl + " of user: " + userName + " not found in the database");
+                if(log.isDebugEnabled()) {
+                    log.debug("RP: " + rpUrl + " of user: " + userName + " not found in the database");
+                }
             }
         } catch (SQLException e) {
-            log.error("Failed to load RP: " + rpUrl + " for user: " + userName +
-                      ". Error while accessing the database.", e);
+            log.error("Failed to load RP: " + rpUrl + " for user: " + userName, e);
         } finally {
             IdentityDatabaseUtil.closeStatement(prepStmt);
             IdentityDatabaseUtil.closeConnection(connection);
@@ -355,10 +337,8 @@ public class OpenIDUserRPDAO {
      * @param rpDo
      * @return
      * @throws SQLException
-     * @throws IdentityException
      */
-    private boolean isUserRPExist(Connection connection, OpenIDUserRPDO rpDo)
-            throws IdentityException {
+    private boolean isUserRPExist(Connection connection, OpenIDUserRPDO rpDo) throws SQLException {
 
         PreparedStatement prepStmt = null;
         ResultSet results = null;
@@ -367,7 +347,7 @@ public class OpenIDUserRPDAO {
         try {
             prepStmt = connection.prepareStatement(OpenIDSQLQueries.CHECK_USER_RP_EXIST);
             prepStmt.setString(1, rpDo.getUserName());
-            prepStmt.setInt(2, IdentityUtil.getTenantIdOFUser(rpDo.getUserName()));
+            prepStmt.setInt(2, IdentityTenantUtil.getTenantIdOfUser(rpDo.getUserName()));
             prepStmt.setString(3, rpDo.getRpUrl());
             results = prepStmt.executeQuery();
 
@@ -375,11 +355,6 @@ public class OpenIDUserRPDAO {
                 result = true;
             }
 
-        } catch (SQLException e) {
-            log.error("Failed to load RP: " + rpDo.getRpUrl() + " for user: " + rpDo.getUserName() +
-                      ". Error while accessing the databse", e);
-        } catch (RuntimeException e) {
-            log.error("Error while trying to load RP : Username = " + rpDo.getUserName(), e);
         } finally {
             IdentityDatabaseUtil.closeResultSet(results);
             IdentityDatabaseUtil.closeStatement(prepStmt);

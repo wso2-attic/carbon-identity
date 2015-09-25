@@ -88,10 +88,9 @@ public class WorkFlowExecutorManager {
                     workflowEngaged = true;
                     if (!requestSaved) {
                         WorkflowRequestDAO requestDAO = new WorkflowRequestDAO();
-                        String tenant = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-                        String currentUser = CarbonContext.getThreadLocalCarbonContext().getUsername();
-                        String fullyQualifiedName = UserCoreUtil.addTenantDomainToEntry(currentUser, tenant);
-                        requestDAO.addWorkflowEntry(workFlowRequest, fullyQualifiedName);
+                        int tenant = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantId();
+                        String currentUser = PrivilegedCarbonContext.getThreadLocalCarbonContext().getUsername();
+                        requestDAO.addWorkflowEntry(workFlowRequest, currentUser, tenant);
                         requestSaved = true;
                     }
                     String relationshipId = UUID.randomUUID().toString();
@@ -127,13 +126,13 @@ public class WorkFlowExecutorManager {
         if (request != null) {
             WorkflowRequestDAO workflowRequestDAO = new WorkflowRequestDAO();
             String requestId = request.getUuid();
+            workflowRequestAssociationDAO.updateStatusOfRelationship(requestWorkflowId, status);
+            workflowRequestDAO.updateLastUpdatedTimeOfRequest(requestId);
             if (StringUtils.isNotBlank(requestWorkflowId) && workflowRequestDAO.retrieveStatusOfWorkflow(request
                     .getUuid()).equals(WorkflowRequestStatus.DELETED.toString())) {
                 log.info("Callback received for request " + requestId + " which is already deleted by user. ");
                 return;
             }
-            workflowRequestAssociationDAO.updateStatusOfRelationship(requestWorkflowId, status);
-            workflowRequestDAO.updateLastUpdatedTimeOfRequest(requestId);
             if (status.equals(WorkflowRequestStatus.APPROVED.toString()) && !isAllWorkflowsCompleted
                     (workflowRequestAssociationDAO, requestId)) {
                 return;

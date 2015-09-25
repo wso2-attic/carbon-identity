@@ -22,10 +22,12 @@ import java.io.Serializable;
 import java.util.List;
 
 public class WorkFlowRequest implements Serializable, Cloneable {
+    public static final String CREDENTIAL = "Credential";
     private String uuid;
     private String eventType;
     private int tenantId;
     private List<RequestParameter> requestParameters;
+    private static final long serialVersionUID = -684287450983377460L;
 
     public String getUuid() {
         return uuid;
@@ -73,10 +75,12 @@ public class WorkFlowRequest implements Serializable, Cloneable {
 
         String requestParametersString = "{";
         for (int i = 0; i < requestParameters.size(); i++) {
-            requestParametersString = requestParametersString + requestParameters.get(i).getName() + " : " +
-                    requestParameters.get(i).getValue();
-            if (i != requestParameters.size() - 1) {
-                requestParametersString = requestParametersString + ", \n";
+            if(!requestParameters.get(i).getName().equals(CREDENTIAL)) {
+                requestParametersString = requestParametersString + requestParameters.get(i).getName() + " : " +
+                        requestParameters.get(i).getValue();
+                if (i != requestParameters.size() - 1) {
+                    requestParametersString = requestParametersString + ", \n";
+                }
             }
         }
         requestParametersString = requestParametersString + "}";

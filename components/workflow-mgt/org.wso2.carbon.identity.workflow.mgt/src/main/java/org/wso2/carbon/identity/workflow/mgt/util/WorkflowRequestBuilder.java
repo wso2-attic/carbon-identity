@@ -24,6 +24,7 @@ import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMFactory;
 import org.apache.axiom.om.OMNamespace;
 import org.apache.commons.lang.StringUtils;
+import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.identity.workflow.mgt.bean.RequestParameter;
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkFlowRequest;
 import org.wso2.carbon.identity.workflow.mgt.exception.RuntimeWorkflowException;
@@ -43,6 +44,7 @@ public class WorkflowRequestBuilder {
     private static final String WF_REQ_ROOT_ELEM = "ProcessRequest";
     private static final String WF_REQ_UUID_ELEM = "uuid";
     private static final String WF_REQ_ACTION_ELEM = "eventType";
+    private static final String WF_REQ_TASK_INITIATOR_ELEM = "taskInitiator";
 
     private static final String WF_REQ_CONFIG_ELEM = "configuration";
     private static final String WF_REQ_APPROVAL_STEP_ELEM = "approvalStep";
@@ -271,12 +273,15 @@ public class WorkflowRequestBuilder {
         OMNamespace omNs = omFactory.createOMNamespace(WF_NS, WF_NS_PREFIX);
         OMElement rootElement = omFactory.createOMElement(WF_REQ_ROOT_ELEM, omNs);
         OMElement uuidElement = omFactory.createOMElement(WF_REQ_UUID_ELEM, omNs);
+        OMElement reqIdElement = omFactory.createOMElement(WF_REQ_ACTION_ELEM, omNs);
+        OMElement taskInitiatorElement = omFactory.createOMElement(WF_REQ_TASK_INITIATOR_ELEM, omNs);
         OMElement configElement = omFactory.createOMElement(WF_REQ_CONFIG_ELEM, omNs);
         uuidElement.setText(uuid);
         rootElement.addChild(uuidElement);
-        OMElement reqIdElement = omFactory.createOMElement(WF_REQ_ACTION_ELEM, omNs);
         reqIdElement.setText(event);
         rootElement.addChild(reqIdElement);
+        taskInitiatorElement.setText(CarbonContext.getThreadLocalCarbonContext().getUsername());
+        rootElement.addChild(taskInitiatorElement);
         OMElement paramsElement = omFactory.createOMElement(WF_REQ_PARAMS_ELEM, omNs);
 
         for (Map.Entry<String, Object> entry : singleValuedParams.entrySet()) {
@@ -335,6 +340,14 @@ public class WorkflowRequestBuilder {
         }
         rootElement.addChild(paramsElement);
 
+        /*
+        {WorkFlowConstants.TemplateConstants.HT_SUBJECT, "Approval Request Subject",
+                WorkflowTemplateParamType.STRING, "Approval required", true},
+        {WorkFlowConstants.TemplateConstants.HT_DESCRIPTION,
+
+*/
+        String ht  = (String)this.initParams.get(WorkFlowConstants.TemplateConstants.HT_SUBJECT);
+        String htDesc  = (String)this.initParams.get(WorkFlowConstants.TemplateConstants.HT_DESCRIPTION);
 
         final Map<String, Map<String, List<String>>> approvalStepMap = getApprovalStepMap();
 
@@ -349,9 +362,9 @@ public class WorkflowRequestBuilder {
 
             OMElement humanTaskElement = omFactory.createOMElement(WF_REQ_HUMAN_TASK_ELEM, omNs);
             OMElement humanTaskSubjectElement = omFactory.createOMElement(WF_REQ_HUMAN_TASK_SUBJECT_ELEM, omNs);
-            humanTaskSubjectElement.setText("ht");
+            humanTaskSubjectElement.setText(ht);
             OMElement humanTaskDescElement = omFactory.createOMElement(WF_REQ_HUMAN_TASK_DESC_ELEM, omNs);
-            humanTaskDescElement.setText("htdesc");
+            humanTaskDescElement.setText(htDesc);
             humanTaskElement.addChild(humanTaskSubjectElement);
             humanTaskElement.addChild(humanTaskDescElement);
 

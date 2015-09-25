@@ -20,7 +20,6 @@ package org.wso2.carbon.identity.workflow.mgt.dao;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowRequestDTO;
 import org.wso2.carbon.identity.workflow.mgt.exception.InternalWorkflowException;
@@ -42,22 +41,24 @@ import java.util.ArrayList;
 
 public class WorkflowRequestDAO {
 
+    public static final String UPDATED_AT_FILTER = "updatedAt";
+    public static final String ALL_TASKS_FILTER = "allTasks";
     private static Log log = LogFactory.getLog(WorkflowRequestDAO.class);
 
     /**
      * Persists WorkflowRequest to be used when workflow is completed
      *
-     * @param workflow    The workflow object to be persisted
-     * @param currentUser Currently logged in user's fully qualified username
+     * @param workflow The workflow object to be persisted
+     * @param currentUser Currently logged in user
+     * @param tenantId Tenant ID of the currently Logged user.
      * @throws WorkflowException
      */
-    public void addWorkflowEntry(WorkFlowRequest workflow, String currentUser) throws WorkflowException {
-        Connection connection = null;
+    public void addWorkflowEntry(WorkFlowRequest workflow, String currentUser, int tenantId) throws WorkflowException {
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
         String query = SQLConstants.ADD_WORKFLOW_REQUEST_QUERY;
         try {
             Timestamp createdDateStamp = new Timestamp(System.currentTimeMillis());
-            connection = IdentityDatabaseUtil.getDBConnection();
             prepStmt = connection.prepareStatement(query);
             prepStmt.setString(1, workflow.getUuid());
             prepStmt.setString(2, currentUser);
@@ -66,10 +67,9 @@ public class WorkflowRequestDAO {
             prepStmt.setTimestamp(5, createdDateStamp);
             prepStmt.setBytes(6, serializeWorkflowRequest(workflow));
             prepStmt.setString(7, WorkflowRequestStatus.PENDING.toString());
+            prepStmt.setInt(8, tenantId);
             prepStmt.executeUpdate();
             connection.commit();
-        } catch (IdentityException e) {
-            throw new InternalWorkflowException("Error when connecting to the Identity Database.", e);
         } catch (SQLException e) {
             throw new InternalWorkflowException("Error when executing the sql query:" + query, e);
         } catch (IOException e) {
@@ -102,13 +102,12 @@ public class WorkflowRequestDAO {
      * @throws WorkflowException
      */
     public WorkFlowRequest retrieveWorkflow(String uuid) throws InternalWorkflowException {
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
         ResultSet rs = null;
 
         String query = SQLConstants.GET_WORKFLOW_REQUEST_QUERY;
         try {
-            connection = IdentityDatabaseUtil.getDBConnection();
             prepStmt = connection.prepareStatement(query);
             prepStmt.setString(1, uuid);
             rs = prepStmt.executeQuery();
@@ -116,8 +115,6 @@ public class WorkflowRequestDAO {
                 byte[] requestBytes = rs.getBytes(SQLConstants.REQUEST_COLUMN);
                 return deserializeWorkflowRequest(requestBytes);
             }
-        } catch (IdentityException e) {
-            throw new InternalWorkflowException("Error when connecting to the Identity Database.", e);
         } catch (SQLException e) {
             throw new InternalWorkflowException("Error when executing the sql query:" + query, e);
         } catch (ClassNotFoundException | IOException e) {
@@ -136,13 +133,12 @@ public class WorkflowRequestDAO {
      * @throws InternalWorkflowException
      */
     public String retrieveStatusOfWorkflow(String uuid) throws InternalWorkflowException {
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
         ResultSet resultSet = null;
 
         String query = SQLConstants.GET_WORKFLOW_REQUEST_QUERY;
         try {
-            connection = IdentityDatabaseUtil.getDBConnection();
             prepStmt = connection.prepareStatement(query);
             prepStmt.setString(1, uuid);
             resultSet = prepStmt.executeQuery();
@@ -150,8 +146,34 @@ public class WorkflowRequestDAO {
                 String status = resultSet.getString(SQLConstants.REQUEST_STATUS_COLUMN);
                 return status;
             }
-        } catch (IdentityException e) {
-            throw new InternalWorkflowException("Error when connecting to the Identity Database.", e);
+        } catch (SQLException e) {
+            throw new InternalWorkflowException("Error when executing the sql query:" + query, e);
+        } finally {
+            IdentityDatabaseUtil.closeAllConnections(connection, resultSet, prepStmt);
+        }
+        return "";
+    }
+
+    /**
+     * Get user who created the request.
+     *
+     * @param uuid
+     * @return
+     * @throws InternalWorkflowException
+     */
+    public String retrieveCreatedUserOfRequest(String uuid) throws InternalWorkflowException {
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
+        PreparedStatement prepStmt = null;
+        ResultSet resultSet = null;
+
+        String query = SQLConstants.GET_WORKFLOW_REQUEST_QUERY;
+        try {
+            prepStmt = connection.prepareStatement(query);
+            prepStmt.setString(1, uuid);
+            resultSet = prepStmt.executeQuery();
+            if (resultSet.next()) {
+                return resultSet.getString(SQLConstants.CREATED_BY_COLUMN);
+            }
         } catch (SQLException e) {
             throw new InternalWorkflowException("Error when executing the sql query:" + query, e);
         } finally {
@@ -188,19 +210,16 @@ public class WorkflowRequestDAO {
      */
     public void updateStatusOfRequest(String requestId, String newState) throws InternalWorkflowException {
 
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
         String query = SQLConstants.UPDATE_STATUS_OF_REQUEST;
         try {
-            connection = IdentityDatabaseUtil.getDBConnection();
             prepStmt = connection.prepareStatement(query);
             prepStmt.setString(1, newState);
             prepStmt.setTimestamp(2, new Timestamp(System.currentTimeMillis()));
             prepStmt.setString(3, requestId);
             prepStmt.execute();
             connection.commit();
-        } catch (IdentityException e) {
-            throw new InternalWorkflowException("Error when connecting to the Identity Database.", e);
         } catch (SQLException e) {
             throw new InternalWorkflowException("Error when executing the sql query:" + query, e);
         } finally {
@@ -211,20 +230,21 @@ public class WorkflowRequestDAO {
     /**
      * Get requests of a given user.
      *
-     * @param userName
+     * @param userName user name of user to get requests
+     * @param tenantId user's tenant id
      * @return
      * @throws InternalWorkflowException
      */
-    public WorkflowRequestDTO[] getRequestsOfUser(String userName) throws InternalWorkflowException {
+    public WorkflowRequestDTO[] getRequestsOfUser(String userName, int tenantId) throws InternalWorkflowException {
 
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
         String query = SQLConstants.GET_REQUESTS_OF_USER;
         ResultSet resultSet = null;
         try {
-            connection = IdentityDatabaseUtil.getDBConnection();
             prepStmt = connection.prepareStatement(query);
             prepStmt.setString(1, userName);
+            prepStmt.setInt(2, tenantId);
             resultSet = prepStmt.executeQuery();
             ArrayList<WorkflowRequestDTO> requestDTOs = new ArrayList<>();
             while (resultSet.next()) {
@@ -236,6 +256,7 @@ public class WorkflowRequestDAO {
                 requestDTO.setStatus(resultSet.getString(SQLConstants.REQUEST_STATUS_COLUMN));
                 requestDTO.setRequestParams((deserializeWorkflowRequest(resultSet.getBytes(SQLConstants
                         .REQUEST_COLUMN))).getRequestParameterAsString());
+                requestDTO.setCreatedBy(resultSet.getString(SQLConstants.CREATED_BY_COLUMN));
                 requestDTOs.add(requestDTO);
             }
             WorkflowRequestDTO[] requestArray = new WorkflowRequestDTO[requestDTOs.size()];
@@ -243,8 +264,6 @@ public class WorkflowRequestDAO {
                 requestArray[i] = requestDTOs.get(i);
             }
             return requestArray;
-        } catch (IdentityException e) {
-            throw new InternalWorkflowException("Error when connecting to the Identity Database.", e);
         } catch (SQLException e) {
             throw new InternalWorkflowException("Error when executing the sql query:" + query, e);
         } catch (ClassNotFoundException | IOException e) {
@@ -254,36 +273,53 @@ public class WorkflowRequestDAO {
         }
     }
 
-    /**
-     * Get requests of a user created/updated in given time period
-     *
-     * @param userName
-     * @param beginTime
-     * @param endTime
-     * @param timeCategory
-     * @return
-     * @throws InternalWorkflowException
-     */
+   /**
+    * Get requests of a user created/updated in given time period
+    *
+    * @param userName User to get requests of, empty String to retrieve requests of all users
+    * @param beginTime lower limit of date range to filter
+    * @param endTime upper limit of date range to filter
+    * @param timeCategory filter by created time or last updated time ?
+    * @param tenantId tenant id of currently logged in user
+    * @return
+    * @throws InternalWorkflowException
+    */
     public WorkflowRequestDTO[] getRequestsOfUserFilteredByTime(String userName, Timestamp beginTime, Timestamp
-            endTime, String timeCategory) throws
+            endTime, String timeCategory, int tenantId, String status) throws
             InternalWorkflowException {
 
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
-        String query;
-        if (timeCategory == "updatedAt") {
-            query = SQLConstants.GET_REQUESTS_OF_USER_FILTER_FROM_UPDATED_TIME;
-        } else {
-            query = SQLConstants.GET_REQUESTS_OF_USER_FILTER_FROM_CREATED_TIME;
-        }
+        String query = "";
+
         ResultSet resultSet = null;
         try {
             connection = IdentityDatabaseUtil.getDBConnection();
+            if (timeCategory == UPDATED_AT_FILTER) {
+                if (status.equals(ALL_TASKS_FILTER) || status.equals("")) {
+                    query = SQLConstants.GET_REQUESTS_OF_USER_FILTER_FROM_UPDATED_TIME;
+                } else {
+                    query = SQLConstants.GET_REQUESTS_OF_USER_FILTER_FROM_UPDATED_TIME_AND_STATUS;
+                }
+            } else {
+                if (status.equals(ALL_TASKS_FILTER) || status.equals("")) {
+                    query = SQLConstants.GET_REQUESTS_OF_USER_FILTER_FROM_CREATED_TIME;
+                } else {
+                    query = SQLConstants.GET_REQUESTS_OF_USER_FILTER_FROM_CREATED_TIME_AND_STATUS;
+                }
+            }
             prepStmt = connection.prepareStatement(query);
             prepStmt.setString(1, userName);
             prepStmt.setTimestamp(2, beginTime);
             prepStmt.setTimestamp(3, endTime);
-            prepStmt.setInt(4, SQLConstants.maxResultsPerRequest);
+            prepStmt.setInt(4, tenantId);
+            if (status.equals(ALL_TASKS_FILTER) || status.equals("")) {
+
+                prepStmt.setInt(5, SQLConstants.maxResultsPerRequest);
+            } else {
+                prepStmt.setString(5, status);
+                prepStmt.setInt(6, SQLConstants.maxResultsPerRequest);
+            }
             resultSet = prepStmt.executeQuery();
             ArrayList<WorkflowRequestDTO> requestDTOs = new ArrayList<>();
             while (resultSet.next()) {
@@ -295,6 +331,7 @@ public class WorkflowRequestDAO {
                 requestDTO.setStatus(resultSet.getString(SQLConstants.REQUEST_STATUS_COLUMN));
                 requestDTO.setRequestParams((deserializeWorkflowRequest(resultSet.getBytes(SQLConstants
                         .REQUEST_COLUMN))).getRequestParameterAsString());
+                requestDTO.setCreatedBy(resultSet.getString(SQLConstants.CREATED_BY_COLUMN));
                 requestDTOs.add(requestDTO);
             }
             WorkflowRequestDTO[] requestArray = new WorkflowRequestDTO[requestDTOs.size()];
@@ -302,8 +339,6 @@ public class WorkflowRequestDAO {
                 requestArray[i] = requestDTOs.get(i);
             }
             return requestArray;
-        } catch (IdentityException e) {
-            throw new InternalWorkflowException("Error when connecting to the Identity Database.", e);
         } catch (SQLException e) {
             throw new InternalWorkflowException("Error when executing the sql query:" + query, e);
         } catch (ClassNotFoundException | IOException e) {
@@ -316,31 +351,47 @@ public class WorkflowRequestDAO {
     /**
      * Get requests created/updated in given time period
      *
-     * @param beginTime
-     * @param endTime
-     * @param timeCategory
+     * @param beginTime lower limit of date range to filter
+     * @param endTime upper limit of date range to filter
+     * @param timeCategory filter by created time or last updated time ?
+     * @param tenant tenant id of currently logged in user
      * @return
      * @throws InternalWorkflowException
      */
     public WorkflowRequestDTO[] getRequestsFilteredByTime(Timestamp beginTime, Timestamp
-            endTime, String timeCategory) throws
+            endTime, String timeCategory, int tenant, String status) throws
             InternalWorkflowException {
 
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
-        String query;
-        if (timeCategory == "updatedAt") {
-            query = SQLConstants.GET_REQUESTS_FILTER_FROM_UPDATED_TIME;
-        } else {
-            query = SQLConstants.GET_REQUESTS_FILTER_FROM_CREATED_TIME;
-        }
+        String query = "";
+
         ResultSet resultSet = null;
         try {
-            connection = IdentityDatabaseUtil.getDBConnection();
+            if (timeCategory == UPDATED_AT_FILTER) {
+                if (status.equals(ALL_TASKS_FILTER) || status.equals("")) {
+                    query = SQLConstants.GET_REQUESTS_FILTER_FROM_UPDATED_TIME;
+                } else {
+                    query = SQLConstants.GET_REQUESTS_FILTER_FROM_UPDATED_TIME_AND_STATUS;
+                }
+            } else {
+                if (status.equals(ALL_TASKS_FILTER) || status.equals("")) {
+                    query = SQLConstants.GET_REQUESTS_FILTER_FROM_CREATED_TIME;
+                } else {
+                    query = SQLConstants.GET_REQUESTS_FILTER_FROM_CREATED_TIME_AND_STATUS;
+                }
+            }
             prepStmt = connection.prepareStatement(query);
             prepStmt.setTimestamp(1, beginTime);
             prepStmt.setTimestamp(2, endTime);
-            prepStmt.setInt(3, SQLConstants.maxResultsPerRequest);
+            prepStmt.setInt(3, tenant);
+            if (status.equals(ALL_TASKS_FILTER) || status.equals("")) {
+
+                prepStmt.setInt(4, SQLConstants.maxResultsPerRequest);
+            } else {
+                prepStmt.setString(4, status);
+                prepStmt.setInt(5, SQLConstants.maxResultsPerRequest);
+            }
             resultSet = prepStmt.executeQuery();
             ArrayList<WorkflowRequestDTO> requestDTOs = new ArrayList<>();
             while (resultSet.next()) {
@@ -352,6 +403,7 @@ public class WorkflowRequestDAO {
                 requestDTO.setStatus(resultSet.getString(SQLConstants.REQUEST_STATUS_COLUMN));
                 requestDTO.setRequestParams((deserializeWorkflowRequest(resultSet.getBytes(SQLConstants
                         .REQUEST_COLUMN))).getRequestParameterAsString());
+                requestDTO.setCreatedBy(resultSet.getString(SQLConstants.CREATED_BY_COLUMN));
                 requestDTOs.add(requestDTO);
             }
             WorkflowRequestDTO[] requestArray = new WorkflowRequestDTO[requestDTOs.size()];
@@ -359,8 +411,6 @@ public class WorkflowRequestDAO {
                 requestArray[i] = requestDTOs.get(i);
             }
             return requestArray;
-        } catch (IdentityException e) {
-            throw new InternalWorkflowException("Error when connecting to the Identity Database.", e);
         } catch (SQLException e) {
             throw new InternalWorkflowException("Error when executing the sql query:" + query, e);
         } catch (ClassNotFoundException | IOException e) {
@@ -378,18 +428,15 @@ public class WorkflowRequestDAO {
      */
     public void updateLastUpdatedTimeOfRequest(String requestId) throws InternalWorkflowException {
 
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
         String query = SQLConstants.UPDATE_UPDATED_AT_OF_REQUEST;
         try {
-            connection = IdentityDatabaseUtil.getDBConnection();
             prepStmt = connection.prepareStatement(query);
             prepStmt.setTimestamp(1, new Timestamp(System.currentTimeMillis()));
             prepStmt.setString(2, requestId);
             prepStmt.execute();
             connection.commit();
-        } catch (IdentityException e) {
-            throw new InternalWorkflowException("Error when connecting to the Identity Database.", e);
         } catch (SQLException e) {
             throw new InternalWorkflowException("Error when executing the sql query:" + query, e);
         } finally {

@@ -47,6 +47,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.Enumeration;
 
 /**
  * encapsulates recovery config data
@@ -677,14 +678,19 @@ public class IdentityMgtConfig {
         int count = 1;
         String className = null;
         int size = 0;
-        if (properties != null) {
-            size = properties.size();
+        Enumeration<String> keyValues = (Enumeration<String>) properties.propertyNames();
+        while (keyValues.hasMoreElements()) {
+            String currentProp = keyValues.nextElement();
+            if (currentProp.contains(extensionType)) {
+                size++;
+            }
         }
+        //setting the number of extensionTypes as the upper bound as there can be many extension policy numbers,
+        //eg: Password.policy.extensions.1, Password.policy.extensions.4, Password.policy.extensions.15
         while (size > 0) {
             className = properties.getProperty(extensionType + "." + count);
             if (className == null) {
                 count++;
-                size--;
                 continue;
             }
             try {

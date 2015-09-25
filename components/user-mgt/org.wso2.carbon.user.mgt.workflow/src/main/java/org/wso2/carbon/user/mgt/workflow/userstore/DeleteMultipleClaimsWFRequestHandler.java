@@ -59,7 +59,7 @@ public class DeleteMultipleClaimsWFRequestHandler extends AbstractWorkflowReques
         PARAM_DEFINITION = new LinkedHashMap<>();
         PARAM_DEFINITION.put(USERNAME, WorkflowDataType.STRING_TYPE);
         PARAM_DEFINITION.put(USER_STORE_DOMAIN, WorkflowDataType.STRING_TYPE);
-        PARAM_DEFINITION.put(CLAIMS, WorkflowDataType.STRING_STRING_MAP_TYPE);
+        PARAM_DEFINITION.put(CLAIMS, WorkflowDataType.STRING_LIST_TYPE);
         PARAM_DEFINITION.put(PROFILE_NAME, WorkflowDataType.STRING_TYPE);
     }
 
@@ -134,8 +134,8 @@ public class DeleteMultipleClaimsWFRequestHandler extends AbstractWorkflowReques
                 userRealm.getUserStoreManager().deleteUserClaimValues(userName,
                         claims.toArray(new String[claims.size()]), profile);
             } catch (UserStoreException e) {
-                throw new WorkflowException("Error when re-requesting deleteUserClaimValues operation for " + userName,
-                        e);
+                // Sending e.getMessage() since it is required to give error message to end user.
+                throw new WorkflowException(e.getMessage(), e);
             }
         } else {
             if (retryNeedAtCallback()) {

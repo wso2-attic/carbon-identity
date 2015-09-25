@@ -43,6 +43,7 @@ import org.wso2.carbon.identity.core.model.OpenIDRememberMeDO;
 import org.wso2.carbon.identity.core.model.OpenIDUserRPDO;
 import org.wso2.carbon.identity.core.model.XMPPSettingsDO;
 import org.wso2.carbon.identity.core.persistence.IdentityPersistenceManager;
+import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
 import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.provider.dto.OpenIDAuthRequestDTO;
@@ -88,8 +89,7 @@ import java.util.StringTokenizer;
 public class OpenIDProviderService {
 
     private static final Log log = LogFactory.getLog(OpenIDProviderService.class);
-    private static final String MULTI_ATTRIBUTE_SEPARATOR = "MultiAttributeSeparator";
-    private String userAttributeSeparator = ",";
+    private String userAttributeSeparator = IdentityCoreConstants.MULTI_ATTRIBUTE_SEPARATOR_DEFAULT;
 
     public static int getOpenIDSessionTimeout() {
         if (StringUtils.isNotBlank(IdentityUtil.getProperty(IdentityConstants.ServerConfig.OPENID_SESSION_TIMEOUT))) {
@@ -679,7 +679,7 @@ public class OpenIDProviderService {
             rpdo.setUuid(new String(Hex.encodeHex(digest)));
 
             dao.createOrUpdate(rpdo);
-        } catch (IdentityException | NoSuchAlgorithmException e) {
+        } catch (NoSuchAlgorithmException e) {
             throw new IdentityProviderException("Error while updating DAO for " + domainName, e);
         }
 
@@ -703,15 +703,10 @@ public class OpenIDProviderService {
         String domainName = MultitenantUtils.getDomainNameFromOpenId(openID);
 
         OpenIDUserRPDO[] rpdos = null;
-        OpenIDUserRPDAO dao;
-        try {
-            dao = new OpenIDUserRPDAO();
-            rpdos = dao.getOpenIDUserRPs(username);
-            if (rpdos == null) {
-                return new OpenIDUserRPDTO[0];
-            }
-        } catch (IdentityException e) {
-            throw new IdentityProviderException("Error while using DAO for " + domainName, e);
+        OpenIDUserRPDAO dao = new OpenIDUserRPDAO();
+        rpdos = dao.getOpenIDUserRPs(username);
+        if (rpdos == null) {
+            return new OpenIDUserRPDTO[0];
         }
 
         OpenIDUserRPDTO[] rpdto = new OpenIDUserRPDTO[rpdos.length];
@@ -742,15 +737,10 @@ public class OpenIDProviderService {
         String domainName = MultitenantUtils.getTenantDomain(userName);
 
         OpenIDUserRPDO rpdo = null;
-        OpenIDUserRPDAO dao;
-        try {
-            dao = new OpenIDUserRPDAO();
-            rpdo = dao.getOpenIDUserRP(userName, rpUrl);
-            if (rpdo == null) {
-                return null;
-            }
-        } catch (IdentityException e) {
-            throw new IdentityProviderException("Error while using DAO for " + domainName, e);
+        OpenIDUserRPDAO dao = new OpenIDUserRPDAO();
+        rpdo = dao.getOpenIDUserRP(userName, rpUrl);
+        if (rpdo == null) {
+            return null;
         }
         return new OpenIDUserRPDTO(rpdo);
     }
@@ -803,11 +793,11 @@ public class OpenIDProviderService {
             throw new IdentityProviderException("Failed to get claims of user " + tenantUser, e);
         }
 
-        String claimSeparator = claimValues.get(MULTI_ATTRIBUTE_SEPARATOR);
-        if (claimSeparator != null) {
+        String claimSeparator = claimValues.get(IdentityCoreConstants.MULTI_ATTRIBUTE_SEPARATOR);
+        if (StringUtils.isNotBlank(claimSeparator)) {
             userAttributeSeparator = claimSeparator;
-            claimValues.remove(MULTI_ATTRIBUTE_SEPARATOR);
         }
+        claimValues.remove(IdentityCoreConstants.MULTI_ATTRIBUTE_SEPARATOR);
 
         int i = 0;
         JSONArray values;

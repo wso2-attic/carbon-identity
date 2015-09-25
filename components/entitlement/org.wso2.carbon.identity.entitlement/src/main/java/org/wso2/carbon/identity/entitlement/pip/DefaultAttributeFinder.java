@@ -18,17 +18,21 @@
 
 package org.wso2.carbon.identity.entitlement.pip;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.CarbonContext;
+import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
 import org.wso2.carbon.user.api.ClaimManager;
 import org.wso2.carbon.user.api.ClaimMapping;
+import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
+import java.util.StringTokenizer;
 
 /**
  * DefaultAttributeFinder talks to the underlying user store to read user attributes.
@@ -84,16 +88,39 @@ public class DefaultAttributeFinder extends AbstractPIPAttributeFinder {
                 }
             }
         } else {
-            String claimValues = CarbonContext.getThreadLocalCarbonContext().getUserRealm().
-                    getUserStoreManager().getUserClaimValue(subjectId, attributeId, null);
-            if (claimValues == null && log.isDebugEnabled()) {
+            String claimValue = null;
+            try {
+                claimValue = CarbonContext.getThreadLocalCarbonContext().getUserRealm().
+                        getUserStoreManager().getUserClaimValue(subjectId, attributeId, null);
+            } catch (UserStoreException e) {
+                if(e.getMessage().startsWith(IdentityCoreConstants.USER_NOT_FOUND)){
+                    if(log.isDebugEnabled()){
+                        log.debug("User: " + subjectId + " not found");
+                    }
+                } else {
+                    throw e;
+                }
+            }
+            if (claimValue == null && log.isDebugEnabled()) {
                 log.debug(String.format("Request attribute %1$s not found", attributeId));
             }
             // Fix for multiple claim values
-            if (claimValues != null) {
-                String[] claimsArray = claimValues.split(",");
-                for (String claim : claimsArray) {
-                    values.add(claim);
+            if (claimValue != null) {
+                String claimSeparator = CarbonContext.getThreadLocalCarbonContext().getUserRealm().
+                        getRealmConfiguration().getUserStoreProperty(IdentityCoreConstants.MULTI_ATTRIBUTE_SEPARATOR);
+                if (StringUtils.isBlank(claimSeparator)) {
+                    claimSeparator = IdentityCoreConstants.MULTI_ATTRIBUTE_SEPARATOR_DEFAULT;
+                }
+                if (claimValue.contains(claimSeparator)) {
+                    StringTokenizer st = new StringTokenizer(claimValue, claimSeparator);
+                    while (st.hasMoreElements()) {
+                        String attributeValue = st.nextElement().toString();
+                        if (StringUtils.isNotBlank(attributeValue)) {
+                            values.add(attributeValue);
+                        }
+                    }
+                } else {
+                    values.add(claimValue);
                 }
             }
         }

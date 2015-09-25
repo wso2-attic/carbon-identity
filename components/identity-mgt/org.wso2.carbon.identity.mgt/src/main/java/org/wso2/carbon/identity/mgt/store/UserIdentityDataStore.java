@@ -37,6 +37,7 @@ public abstract class UserIdentityDataStore {
     public static final String UNLOCKING_TIME = "http://wso2.org/claims/identity/unlockTime";
     public static final String PASSWORD_TIME_STAMP = "http://wso2.org/claims/identity/passwordTimestamp";
     public static final String ACCOUNT_LOCK = "http://wso2.org/claims/identity/accountLocked";
+    public static final String PASSWORD_USE_FREQUENCY = "http://wso2.org/claims/identity/passwordUseFrequency";
 
     /**
      * Get all claim types that is need to persist in the store
@@ -47,7 +48,7 @@ public abstract class UserIdentityDataStore {
 
         return new String[]{ONE_TIME_PASSWORD, PASSWORD_CHANGE_REQUIRED, TEMPORARY_LOCK,
                 LAST_FAILED_LOGIN_ATTEMPT_TIME, FAIL_LOGIN_ATTEMPTS, LAST_LOGON_TIME,
-                UNLOCKING_TIME, PASSWORD_TIME_STAMP, ACCOUNT_LOCK,
+                UNLOCKING_TIME, PASSWORD_TIME_STAMP, ACCOUNT_LOCK, PASSWORD_USE_FREQUENCY,
                 UserCoreConstants.ClaimTypeURIs.CHALLENGE_QUESTION_URI};
 
     }

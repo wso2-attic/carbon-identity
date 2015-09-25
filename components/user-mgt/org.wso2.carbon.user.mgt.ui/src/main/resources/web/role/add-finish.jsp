@@ -20,7 +20,6 @@
 <%@ page import="org.wso2.carbon.CarbonConstants" %>
 <%@page import="org.wso2.carbon.ui.CarbonUIMessage" %>
 <%@page import="org.wso2.carbon.ui.CarbonUIUtil" %>
-<%@page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
 <%@page import="org.wso2.carbon.user.core.UserCoreConstants" %>
 <%@ page import="org.wso2.carbon.user.core.util.UserCoreUtil" %>
 <%@ page import="org.wso2.carbon.user.mgt.ui.UserAdminClient" %>
@@ -40,11 +39,11 @@
     String BUNDLE = "org.wso2.carbon.userstore.ui.i18n.Resources";
     ResourceBundle resourceBundle = ResourceBundle.getBundle(BUNDLE, request.getLocale());
     try {
-        roleName = CharacterEncoder.getSafeText(roleBean.getRoleName());
+        roleName = roleBean.getRoleName();
         roleType = roleBean.getRoleType();
         if ((roleType == null || "null".equals(roleType)) &&
-                UserCoreConstants.INTERNAL_USERSTORE.equalsIgnoreCase(UserCoreUtil.extractDomainFromName(roleName))) {
-            roleType = UserCoreConstants.INTERNAL_USERSTORE;
+                UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(UserCoreUtil.extractDomainFromName(roleName))) {
+            roleType = UserCoreConstants.INTERNAL_DOMAIN;
         }
         boolean isSharedRole = roleBean.getSharedRole() != null && !roleBean.getSharedRole().isEmpty(); 
         String cookie = (String) session.getAttribute(ServerConstants.ADMIN_SERVICE_COOKIE);
@@ -75,7 +74,7 @@
         String message = MessageFormat.format(resourceBundle.getString("role.cannot.add"),
                 new Object[] { roleName, e.getMessage() });
         CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
-        if(UserAdminUIConstants.INTERNAL_ROLE.equals(roleType)){
+        if(UserAdminUIConstants.INTERNAL_ROLE.equalsIgnoreCase(roleType)){
             forwardTo = "add-step1.jsp?roleType=" + UserAdminUIConstants.INTERNAL_ROLE ; 
         } else {
             forwardTo = "add-step1.jsp";

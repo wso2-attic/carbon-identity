@@ -24,6 +24,19 @@ import java.util.Set;
 public class WorkFlowConstants {
 
     public static final String WF_STATUS_NO_MATCHING_EXECUTORS = "NO_MATCHING_EXECUTOR";
+    public static final String DEFAULT_BPS_PROFILE = "embeded_bps";
+    public static final String PROFILE = "profile";
+    public static final String DEFAULT_CARBON_PROFILE = "default";
+    public static final String WORKFLOW_PROFILE = "workflow" ;
+
+    public static final String WORKFLOW_DOMAIN = "Workflow";
+
+    public static final String REQUEST_ID = "REQUEST ID";
+
+    public static final String HT_STATE_RESERVED = "RESERVED";
+    public static final String HT_STATE_READY = "READY";
+    public static final String HT_STATE_SKIPPED = "SKIPPED";
+    public static final String HT_STATE_PENDING = "PENDING";
 
     public static final Set<Class> NUMERIC_CLASSES;
 

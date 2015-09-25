@@ -21,6 +21,7 @@ package org.wso2.carbon.identity.workflow.mgt.extension;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.identity.workflow.mgt.WorkFlowExecutorManager;
 import org.wso2.carbon.identity.workflow.mgt.bean.Entity;
+import org.wso2.carbon.identity.workflow.mgt.util.WorkFlowConstants;
 import org.wso2.carbon.identity.workflow.mgt.util.WorkflowDataType;
 import org.wso2.carbon.identity.workflow.mgt.bean.RequestParameter;
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkFlowRequest;
@@ -77,13 +78,19 @@ public abstract class AbstractWorkflowRequestHandler implements WorkflowRequestH
             return true;
         }
         WorkFlowRequest workFlowRequest = new WorkFlowRequest();
-        List<RequestParameter> parameters = new ArrayList<RequestParameter>(wfParams.size() + nonWfParams.size());
+        List<RequestParameter> parameters = new ArrayList<RequestParameter>(wfParams.size() + nonWfParams.size() + 1);
         for (Map.Entry<String, Object> paramEntry : wfParams.entrySet()) {
             parameters.add(getParameter(paramEntry.getKey(), paramEntry.getValue(), true));
         }
         for (Map.Entry<String, Object> paramEntry : nonWfParams.entrySet()) {
             parameters.add(getParameter(paramEntry.getKey(), paramEntry.getValue(), false));
         }
+        RequestParameter uuidParameter = new RequestParameter();
+        uuidParameter.setName(WorkFlowConstants.REQUEST_ID);
+        uuidParameter.setValue(uuid);
+        uuidParameter.setRequiredInWorkflow(true);
+        uuidParameter.setValueType(WorkflowDataType.STRING_TYPE);
+        parameters.add(uuidParameter);
         workFlowRequest.setRequestParameters(parameters);
         workFlowRequest.setTenantId(CarbonContext.getThreadLocalCarbonContext().getTenantId());
         workFlowRequest.setUuid(uuid);
