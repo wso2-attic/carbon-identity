@@ -99,6 +99,7 @@ public class DefaultRequestCoordinator implements RequestCoordinator {
                 // if there is a cache entry, wrap the original request with params in cache entry
                 if (authRequest != null) {
                     request = FrameworkUtils.getCommonAuthReqWithParams(request, authRequest);
+                    FrameworkUtils.removeAuthenticationRequestFromCache(sessionDataKey);
                 }
                 context = initializeFlow(request, response);
             } else {

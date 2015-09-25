@@ -126,14 +126,8 @@ public class FrameworkUtils {
      */
     public static AuthenticationRequestCacheEntry getAuthenticationRequestFromCache(String key) {
 
-        AuthenticationRequestCacheEntry authRequest = null;
         AuthenticationRequestCacheKey cacheKey = new AuthenticationRequestCacheKey(key);
-        Object cacheEntryObj = AuthenticationRequestCache.getInstance().getValueFromCache(cacheKey);
-
-        if (cacheEntryObj != null) {
-            authRequest = (AuthenticationRequestCacheEntry) cacheEntryObj;
-        }
-
+        AuthenticationRequestCacheEntry authRequest = AuthenticationRequestCache.getInstance().getValueFromCache(cacheKey);
         return authRequest;
     }
 
