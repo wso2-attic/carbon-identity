@@ -21,6 +21,9 @@ public class WFImplConstant {
 
     public static final String WORKFLOW_IMPL_PARAMETER_METADATA_FILE_NAME = "WorkflowParamMetaData.xml" ;
     public static class ParameterName {
+        //Template Parameter List
+        public static final String STEPS_USER_AND_ROLE = "UserAndRole" ;
+
         //Workflow Implementation specific parameters
         public static final String BPS_PROFILE = "BPSProfile";
         public static final String HT_SUBJECT = "HTSubject";

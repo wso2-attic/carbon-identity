@@ -80,7 +80,7 @@
             <i18n-key>add</i18n-key>
             <i18n-bundle>org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources</i18n-bundle>
             <parent-menu>configure_workflow_menu</parent-menu>
-            <link>../workflow-mgt/workflow-wf-wizard.jsp</link>
+            <link>../workflow-mgt/add-wf-wizard.jsp</link>
             <icon>../workflow-mgt/images/add.png</icon>
             <region>region1</region>
             <order>1</order>

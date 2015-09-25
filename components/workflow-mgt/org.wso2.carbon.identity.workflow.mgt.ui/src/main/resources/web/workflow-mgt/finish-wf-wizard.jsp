@@ -43,15 +43,17 @@
                     .getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
     WorkflowAdminServiceClient client = new WorkflowAdminServiceClient(cookie, backendServerURL, configContext);
 
-    String requestToken = request.getParameter(WorkflowUIConstants.PARAM_PAGE_REQUEST_TOKEN);
-    if(StringUtils.isBlank(requestToken) || session.getAttribute(requestToken)==null){
-        throw new WorkflowAdminServiceWorkflowException("This page is expired or can not access from this URL");
-    }
+
 
 
     String forwardTo = "list-workflows.jsp";
 
     if (WorkflowUIConstants.ACTION_VALUE_ADD.equals(action)) {
+        String requestToken = request.getParameter(WorkflowUIConstants.PARAM_PAGE_REQUEST_TOKEN);
+        if(StringUtils.isBlank(requestToken) || session.getAttribute(requestToken)==null){
+            throw new WorkflowAdminServiceWorkflowException("This page is expired or can not access from this URL");
+        }
+
         WorkflowWizard workflowWizard = (WorkflowWizard)session.getAttribute(requestToken);
         WorkflowUIUtil.loadWorkflowImplParameters(request.getParameterMap(),workflowWizard);
         if(request.getParameter(WorkflowUIConstants.PARAM_REQUEST_PATH) != null && !request.getParameter(WorkflowUIConstants.PARAM_REQUEST_PATH).isEmpty()){
@@ -70,7 +72,7 @@
         if (StringUtils.isNotBlank(workflowId)) {
             try {
                 client.deleteWorkflow(workflowId);
-            } catch (WorkflowAdminServiceWorkflowException e) {
+            } catch (Exception e) {
                 String message = resourceBundle.getString("workflow.error.when.deleting.workflow");
                 CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
                 forwardTo = "../admin/error.jsp";
@@ -82,7 +84,7 @@
         try {
             client.deleteAssociation(associationId);
             forwardTo = "view-workflow.jsp?" + WorkflowUIConstants.PARAM_WORKFLOW_ID + "=" + workflowId;
-        } catch (WorkflowAdminServiceWorkflowException e) {
+        } catch (Exception e) {
             String message = resourceBundle.getString("workflow.error.when.deleting.association");
             CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
             forwardTo = "../admin/error.jsp";

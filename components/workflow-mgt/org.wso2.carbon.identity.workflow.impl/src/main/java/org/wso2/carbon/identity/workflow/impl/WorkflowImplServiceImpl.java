@@ -41,7 +41,7 @@ public class WorkflowImplServiceImpl implements WorkflowImplService {
     @Override
     public BPSProfile getBPSProfile(String profileName, int tenantId) throws WorkflowImplException {
 
-        return bpsProfileDAO.getBPSProfile(profileName, tenantId, false);
+        return bpsProfileDAO.getBPSProfile(profileName, tenantId, true);
     }
 
     @Override

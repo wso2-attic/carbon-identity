@@ -70,7 +70,7 @@ public class WorkflowDAO {
         }
     }
 
-    public void addWorkflowParams(List<Parameter> parameterList) throws InternalWorkflowException {
+    public void addWorkflowParams(List<Parameter> parameterList, String workflowId) throws InternalWorkflowException {
 
         Connection connection = null;
         PreparedStatement prepStmt = null;
@@ -80,11 +80,11 @@ public class WorkflowDAO {
             connection = IdentityDatabaseUtil.getDBConnection();
             for (Parameter parameter : parameterList){
                 prepStmt = connection.prepareStatement(query);
-                prepStmt.setString(1, parameter.getWorkflowId());
+                prepStmt.setString(1, workflowId);
                 prepStmt.setString(2, parameter.getParamName());
                 prepStmt.setString(3, parameter.getParamValue());
                 prepStmt.setString(4, parameter.getqName());
-                prepStmt.setString(4, parameter.getHolder());
+                prepStmt.setString(5, parameter.getHolder());
 
                 prepStmt.executeUpdate();
             }
@@ -292,13 +292,8 @@ public class WorkflowDAO {
                 workflowDTO.setWorkflowId(id);
                 workflowDTO.setWorkflowName(name);
                 workflowDTO.setWorkflowDescription(description);
-                AbstractTemplate template = WorkflowServiceDataHolder.getInstance().getTemplates().get(templateId);
-                AbstractWorkflow abstractWorkflow = WorkflowServiceDataHolder.getInstance()
-                        .getWorkflowImpls().get(templateId).get(templateImplId);
-                if (template != null && abstractWorkflow != null) {
-                    workflowDTO.setTemplateId(template.getTemplateId());
-                    workflowDTO.setWorkflowImplId(abstractWorkflow.getWorkflowImplId());
-                }
+                workflowDTO.setTemplateId(templateId);
+                workflowDTO.setWorkflowImplId(templateImplId);
                 workflowList.add(workflowDTO);
             }
         } catch (IdentityException e) {

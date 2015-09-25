@@ -352,7 +352,7 @@ public class WorkflowRequestBuilder {
         }
         Parameter htDescParameter = Parameter.getParameter(parameterList,WFImplConstant.ParameterName.HT_DESCRIPTION,WFConstant.ParameterHolder.WORKFLOW_IMPL);
         String htDesc  = "";
-        if(htParameter!=null){
+        if(htDescParameter!=null){
             htDesc = htDescParameter.getParamValue();
         }
         final Map<String, Map<String, List<String>>> approvalStepMap = getApprovalStepMap();
@@ -404,28 +404,28 @@ public class WorkflowRequestBuilder {
     private Map<String,Map<String,List<String>>> getApprovalStepMap(){
         Map<String,Map<String,List<String>>> map = new HashMap<String,Map<String,List<String>>>();
         for (Parameter parameter:this.parameterList) {
-            if(parameter.getParamName().startsWith("step-")){
-                String []key = parameter.getParamName().split("-");
-                String step = key[1] ;
+            if(parameter.getParamName().equals(WFImplConstant.ParameterName.STEPS_USER_AND_ROLE)){
+                String []key = parameter.getqName().split("-");
+                String step = key[2] ;
                 Map<String,List<String>> valueMap =map.get(step);
                 if(valueMap==null){
                     valueMap = new HashMap<String,List<String>>();
                     map.put(step,valueMap);
                 }
 
-                String value = (String)parameter.getParamValue();
+                String value = parameter.getParamValue();
                 String []values = null ;
                 if(StringUtils.isNotBlank(value)){
                     values =  value.split(",");
                 }
                 if(values!=null) {
                     List<String> userList = Arrays.asList(values);
-                    String stepName = "step-" + step + "-users";
-                    if (stepName.equals(parameter.getParamName())) {
+                    String stepName = WFImplConstant.ParameterName.STEPS_USER_AND_ROLE + "-step-" + step + "-users";
+                    if (stepName.equals(parameter.getqName())) {
                         valueMap.put("users", userList);
                     }
-                    stepName = "step-" + step + "-roles";
-                    if (stepName.equals(parameter.getParamName())) {
+                    stepName = WFImplConstant.ParameterName.STEPS_USER_AND_ROLE + "-step-" + step + "-roles";
+                    if (stepName.equals(parameter.getqName())) {
                         valueMap.put("roles", userList);
 
                     }

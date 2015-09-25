@@ -23,6 +23,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.identity.workflow.mgt.bean.Parameter;
+import org.wso2.carbon.identity.workflow.mgt.bean.Workflow;
 import org.wso2.carbon.identity.workflow.mgt.dto.Association;
 import org.wso2.carbon.identity.workflow.mgt.dto.Template;
 import org.wso2.carbon.identity.workflow.mgt.dto.WorkflowWizard;
@@ -49,12 +50,9 @@ public class WorkflowManagementAdminService {
     private static Log log = LogFactory.getLog(WorkflowManagementAdminService.class);
 
 
-
-    public WorkflowWizard getWorkflow(String workflowId) throws WorkflowException {
-
-
+    private WorkflowWizard getWorkflow(org.wso2.carbon.identity.workflow.mgt.bean.Workflow workflowBean) throws WorkflowException {
         try {
-            org.wso2.carbon.identity.workflow.mgt.bean.Workflow workflowBean = WorkflowServiceDataHolder.getInstance().getWorkflowService().getWorkflow(workflowId);
+
             WorkflowWizard workflow = null;
 
             if (workflowBean != null) {
@@ -91,7 +89,7 @@ public class WorkflowManagementAdminService {
 
                 workflow.setWorkflowImpl(workflowimpl);
 
-                List<Parameter> workflowParams = WorkflowServiceDataHolder.getInstance().getWorkflowService().getWorkflowParameters(workflowId);
+                List<Parameter> workflowParams = WorkflowServiceDataHolder.getInstance().getWorkflowService().getWorkflowParameters(workflowBean.getWorkflowId());
                 List<Parameter> templateParams = new ArrayList<>();
                 List<Parameter> workflowImplParams = new ArrayList<>();
                 for (Parameter parameter : workflowParams) {
@@ -113,7 +111,11 @@ public class WorkflowManagementAdminService {
             throw new WorkflowException(errorMsg,e);
         }
 
+    }
 
+    public WorkflowWizard getWorkflow(String workflowId) throws WorkflowException {
+        org.wso2.carbon.identity.workflow.mgt.bean.Workflow workflowBean = WorkflowServiceDataHolder.getInstance().getWorkflowService().getWorkflow(workflowId);
+        return getWorkflow(workflowBean);
     }
 
 
@@ -155,10 +157,8 @@ public class WorkflowManagementAdminService {
             org.wso2.carbon.identity.workflow.mgt.bean.Workflow workflowBean = new org.wso2.carbon.identity.workflow
                     .mgt.bean.Workflow();
             workflowBean.setWorkflowId(id);
-            workflowBean.setWorkflowId(workflow.getWorkflowId());
             workflowBean.setWorkflowName(workflow.getWorkflowName());
             workflowBean.setWorkflowDescription(workflow.getWorkflowDescription());
-
             workflowBean.setTemplateId(workflow.getTemplate().getTemplateId());
             workflowBean.setWorkflowImplId(workflow.getWorkflowImpl().getWorkflowImplId());
 
@@ -208,24 +208,20 @@ public class WorkflowManagementAdminService {
 
     public WorkflowWizard[] listWorkflows() throws WorkflowException {
 
-        List<WorkflowWizard> workflow = new ArrayList<>();
-        List<org.wso2.carbon.identity.workflow.mgt.bean.Workflow> workflowBeans = new ArrayList<>();
+        List<WorkflowWizard> workflowWizards = new ArrayList<>();
+        List<Workflow> workflowBeans = null;
         int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
         try {
             workflowBeans = WorkflowServiceDataHolder.getInstance().getWorkflowService().listWorkflows(tenantId);
-            for (org.wso2.carbon.identity.workflow.mgt.bean.Workflow  aWorkflowBean: workflowBeans){
-                WorkflowWizard workflowTmp = new WorkflowWizard();
-                workflowTmp.setWorkflowId(aWorkflowBean.getWorkflowId());
-                workflowTmp.setWorkflowName(aWorkflowBean.getWorkflowName());
-                workflowTmp.setWorkflowDescription(aWorkflowBean.getWorkflowDescription());
-                workflow.add(workflowTmp);
+            for(Workflow workflow:workflowBeans){
+                WorkflowWizard workflowTmp = getWorkflow(workflow);
+                workflowWizards.add(workflowTmp);
             }
         } catch (InternalWorkflowException e) {
             log.error("Server error when listing workflows", e);
             throw new WorkflowException("Server error occurred when listing workflows");
         }
-
-        return workflow.toArray(new WorkflowWizard[workflowBeans.size()]);
+        return workflowWizards.toArray(new WorkflowWizard[workflowWizards.size()]);
     }
 
     public void removeWorkflow(String id) throws WorkflowException {

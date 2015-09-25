@@ -248,6 +248,7 @@
             $("#id_search_controller").show();
             $("#currentstep").val(step);
 
+            //Calling function in included JSP
             loadCategory(category, init);
         }
 

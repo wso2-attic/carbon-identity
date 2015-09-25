@@ -5,7 +5,7 @@
     <met:ParameterMetaData Name="HTSubject" DataType="String" InputType="Text" isRequired="true">
         <met:DisplayName>Task Subject</met:DisplayName>
     </met:ParameterMetaData>
-    <met:ParameterMetaData Name="HTSDescription" DataType="String" InputType="TextArea">
+    <met:ParameterMetaData Name="HTDescription" DataType="String" InputType="TextArea">
         <met:DisplayName>Task Detail</met:DisplayName>
     </met:ParameterMetaData>
 </met:ParametersMetaData>

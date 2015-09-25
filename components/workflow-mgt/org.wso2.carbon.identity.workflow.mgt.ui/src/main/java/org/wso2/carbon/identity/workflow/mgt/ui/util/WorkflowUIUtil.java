@@ -25,6 +25,23 @@ public class WorkflowUIUtil {
             e.printStackTrace();
         }
     }
+    public static Map<String,Map<String,String>> test2(Map<String,Parameter> stringParameterMap){
+        Map<String,Map<String,String>> stepMap = new HashMap<String,Map<String,String>>();
+        if(stringParameterMap !=null ) {
+            Set<String> keys = stringParameterMap.keySet();
+            for (String key : keys) {
+                String[] split = key.split("-");
+                Map<String, String> stringStringMap = stepMap.get(split[2]);
+                if (stringStringMap == null) {
+                    stringStringMap = new HashMap<String, String>();
+                    stepMap.put(split[2], stringStringMap);
+                }
+                stringStringMap
+                        .put(split[3], stringParameterMap.get(key).getParamValue());
+            }
+        }
+        return stepMap ;
+    }
 
     public static  void loadTemplateParameters(Map<String, String[]> requestParameterMap, WorkflowWizard workflowWizard){
         Set<String> keys = requestParameterMap.keySet();

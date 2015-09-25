@@ -172,11 +172,10 @@ public class BPELDeployer implements TemplateInitializer {
         Map<String, String> placeHolderValues = new HashMap<>();
         placeHolderValues.put(BPELDeployer.Constants.BPEL_PROCESS_NAME, processName);
         placeHolderValues.put(BPELDeployer.Constants.HT_SERVICE_NAME, htName);
-        placeHolderValues.put(BPELDeployer.Constants.BPS_HOST_NAME, bpsProfile.getHost());
+        placeHolderValues.put(BPELDeployer.Constants.BPS_HOST_NAME, (bpsProfile.getHost()!=null ? bpsProfile.getHost(): ""));
         placeHolderValues.put(BPELDeployer.Constants.CARBON_HOST_NAME, BPELDeployer.Constants.CARBON_HOST_URL);
-        placeHolderValues.put(BPELDeployer.Constants.CARBON_CALLBACK_AUTH_USER, bpsProfile.getCallbackUser());
-        placeHolderValues.put(BPELDeployer.Constants.CARBON_CALLBACK_AUTH_PASSWORD, bpsProfile.getCallbackPassword());
-
+        placeHolderValues.put(BPELDeployer.Constants.CARBON_CALLBACK_AUTH_USER, (bpsProfile.getCallbackUser()!=null ? bpsProfile.getCallbackUser(): ""));
+        placeHolderValues.put(BPELDeployer.Constants.CARBON_CALLBACK_AUTH_PASSWORD, (bpsProfile.getCallbackPassword()!=null ? bpsProfile.getCallbackPassword(): ""));
         placeHolderValues.put(BPELDeployer.Constants.HT_OWNER_ROLE, role);
         placeHolderValues.put(BPELDeployer.Constants.HT_ADMIN_ROLE, role);
         return placeHolderValues;

@@ -25,7 +25,6 @@ import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.base.ServerConfiguration;
-import org.wso2.carbon.base.api.ServerConfigurationService;
 import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
 import org.wso2.carbon.identity.workflow.impl.ApprovalWorkflow;
 import org.wso2.carbon.identity.workflow.impl.ApprovalWorkflowTwo;
@@ -59,6 +58,10 @@ import java.net.URISyntaxException;
  * interface="org.wso2.carbon.identity.workflow.mgt.WorkflowManagementService"
  * cardinality="0..n" policy="dynamic" bind="setWorkflowManagementService"
  * unbind="unsetWorkflowManagementService"
+ * @scr.reference name="config.context.service"
+ * interface="org.wso2.carbon.utils.ConfigurationContextService"
+ * cardinality="1..1" policy="dynamic"  bind="setConfigurationContextService"
+ * unbind="unsetConfigurationContextService"
  *
  */
 public class WorkflowImplServiceComponent {
@@ -90,6 +93,11 @@ public class WorkflowImplServiceComponent {
     protected void unsetConfigurationContextService(ConfigurationContextService contextService) {
 
         WorkflowImplServiceDataHolder.getInstance().setConfigurationContextService(null);
+    }
+
+    protected void setConfigurationContextService(ConfigurationContextService contextService) {
+
+        WorkflowImplServiceDataHolder.getInstance().setConfigurationContextService(contextService);
     }
 
     protected void activate(ComponentContext context) {

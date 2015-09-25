@@ -40,6 +40,7 @@
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.bean.metadata.type.InputType" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.metadata.WorkflowWizard" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.WorkflowAdminServiceWorkflowException" %>
+<%@ page import="java.util.Set" %>
 
 
 <%
@@ -78,7 +79,7 @@
     Template template = null ;
 
     Template[] templateList = null;
-    Map<String,String> templateParameterValues = new HashMap<String,String>();
+    Map<String,Map<String,Parameter>> parameterValues = new HashMap<String,Map<String,Parameter>>();
 
     try {
 
@@ -130,15 +131,20 @@
             template = workflowWizard.getTemplate();
         }
 
-        //This data will be come when this is in edit mode only.
-        Parameter[] templateParameters = workflowWizard.getTemplateParameters();
-        if(templateParameters != null && templateParameters.length > 0){
-            for (Parameter parameter: templateParameters){
-                templateParameterValues.put(parameter.getHolder() + "_" + parameter.getParamName() + "_" + parameter.getQName(),parameter.getParamValue());
+
+        Parameter[] wfParameters = workflowWizard.getTemplateParameters();
+        if(wfParameters != null && wfParameters.length > 0){
+            for (Parameter parameter: wfParameters){
+                Map<String, Parameter> stringParameterMap = parameterValues.get(parameter.getParamName());
+                if(stringParameterMap == null){
+                    stringParameterMap = new HashMap<String, Parameter>();
+                    parameterValues.put(parameter.getParamName(),stringParameterMap);
+                }
+                stringParameterMap.put(parameter.getQName(),parameter);
+
             }
         }
 
-        //Workflow name and description update to the wizard only first call to this page
 
     } catch (Exception e) {
         String message = resourceBundle.getString("workflow.error.when.initiating.service.client") + e.getMessage();
@@ -164,91 +170,6 @@
         return;
     }
 %>
-
-
-
-<%
-    /*
-    if(request.getParameter("path") != null && !request.getParameter("path").isEmpty()){
-        requestPath = request.getParameter("path")  ;
-    }
-    boolean isSelf = false;
-    if(StringUtils.isNotBlank(request.getParameter("self")) && request.getParameter("self").equals("true")){
-        isSelf =  true ;
-    }
-
-
-
-    String template = request.getParameter(WorkflowUIConstants.PARAM_TEMPLATE_ID);
-    Map<String, String> templateParams = new HashMap<String, String>();
-
-    Map<String, String> attribMap = new HashMap<String, String>() ;
-
-    if (session.getAttribute(WorkflowUIConstants.ATTRIB_WORKFLOW_WIZARD) != null &&
-            session.getAttribute(WorkflowUIConstants.ATTRIB_WORKFLOW_WIZARD) instanceof Map) {
-        attribMap = (Map<String, String>) session.getAttribute(WorkflowUIConstants.ATTRIB_WORKFLOW_WIZARD);
-
-        if (template == null) {
-            template = attribMap.get(WorkflowUIConstants.PARAM_TEMPLATE_ID);
-        }
-        for (Map.Entry<String, String> entry : attribMap.entrySet()) {
-            if (entry.getKey().startsWith("p-")) {
-                templateParams.put(entry.getKey(), entry.getValue());
-            }
-        }
-    }else{
-        session.setAttribute(WorkflowUIConstants.ATTRIB_WORKFLOW_WIZARD, attribMap);
-    }
-
-    if (!isSelf) {
-        String workflowName = request.getParameter(WorkflowUIConstants.PARAM_WORKFLOW_NAME);
-        String description = request.getParameter(WorkflowUIConstants.PARAM_WORKFLOW_DESCRIPTION);
-        if (workflowName != null) {
-            attribMap.put(WorkflowUIConstants.PARAM_WORKFLOW_NAME, workflowName);
-        }
-        if (description != null) {
-            attribMap.put(WorkflowUIConstants.PARAM_WORKFLOW_DESCRIPTION, description);
-        }
-    }
-
-    WorkflowAdminServiceClient client;
-    String bundle = "org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources";
-    ResourceBundle resourceBundle = ResourceBundle.getBundle(bundle, request.getLocale());
-    String forwardTo = null;
-
-    TemplateBean[] templateList = null;
-    TemplateDTO templateDTO = null;
-    BPSProfileDTO[] bpsProfiles = new BPSProfileDTO[0];
-
-    try {
-        String cookie = (String) session.getAttribute(ServerConstants.ADMIN_SERVICE_COOKIE);
-        String backendServerURL = CarbonUIUtil.getServerURL(config.getServletContext(), session);
-        ConfigurationContext configContext =
-                (ConfigurationContext) config.getServletContext()
-                        .getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
-        client = new WorkflowAdminServiceClient(cookie, backendServerURL, configContext);
-
-        templateList = client.listTemplates();
-        if (templateList == null) {
-            templateList = new TemplateBean[0];
-        }else if(templateList.length == 1 && template == null){
-            template = templateList[0].getId();
-        }
-
-        if(template != null) {
-            attribMap.put(WorkflowUIConstants.PARAM_TEMPLATE_ID, template);
-            templateDTO = client.getTemplate(template);
-            bpsProfiles = client.listBPSProfiles();
-        }
-
-    } catch (Exception e) {
-        String message = resourceBundle.getString("workflow.error.when.initiating.service.client");
-        CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
-        forwardTo = "../admin/error.jsp";
-    }
-    */
-%>
-
 
 
 
@@ -287,7 +208,7 @@
     <script type="text/javascript">
 
         function goBack() {
-            location.href = "workflow-wf-wizard.jsp?<%=WorkflowUIConstants.PARAM_BACK%>=true&<%=WorkflowUIConstants.PARAM_PAGE_REQUEST_TOKEN%>=<%=requestToken%>";
+            location.href = "add-wf-wizard.jsp?<%=WorkflowUIConstants.PARAM_BACK%>=true&<%=WorkflowUIConstants.PARAM_PAGE_REQUEST_TOKEN%>=<%=requestToken%>";
         }
 
         function doCancel() {
@@ -306,13 +227,18 @@
             workflowForm.submit();
         }
 
+        var stepOrder = 0;
         function nextWizard(){
 
-            for(var currentStep=1;currentStep<=stepOrder ; currentStep++){
-                var newValues = $("#p-step-" + currentStep + "-users" ).tokenizer('get');
-                $("#p-step-" + currentStep + "-users").val(newValues);
-                newValues = $("#p-step-" + currentStep + "-roles" ).tokenizer('get');
-                $("#p-step-" + currentStep + "-roles").val(newValues);
+            try {
+                for (var currentStep = 1; currentStep <= stepOrder; currentStep++) {
+                    var newValues = $("#p-step-" + currentStep + "-users").tokenizer('get');
+                    $("#p-step-" + currentStep + "-users").val(newValues);
+                    newValues = $("#p-step-" + currentStep + "-roles").tokenizer('get');
+                    $("#p-step-" + currentStep + "-roles").val(newValues);
+                }
+            }catch(e){
+
             }
 
             var nextWizardForm = document.getElementById("id_nextwizard");
@@ -410,7 +336,10 @@
                                         //Text
                                         System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>10 " + metaData.getInputType() + "    "  + InputType.TEXT.value());
                                         if(metaData.getInputType().equals(InputType.TEXT.value())){
-                                            String  textTypeValue = templateParameterValues.get(template.getTemplateId() + "_" + metaData.getName() + "_" + metaData.getName());
+                                            String textTypeValue = "" ;
+                                            if(parameterValues.get(metaData.getName()) != null && parameterValues.get(metaData.getName()).get(metaData.getName()) != null){
+                                                textTypeValue = parameterValues.get(metaData.getName()).get(metaData.getName()).getParamValue();
+                                            }
                                     %>
                                     <td>
                                         <input name="<%=metaData.getName()%>"
@@ -418,14 +347,20 @@
                                     </td>
                                     <%
                                     } else if(metaData.getInputType().equals(InputType.TEXT_AREA.value())){
-                                        String  textAreaTypeValue = templateParameterValues.get(template.getTemplateId() + "_" + metaData.getName() + "_" + metaData.getName());
+                                        String textAreaTypeValue = "" ;
+                                        if(parameterValues.get(metaData.getName()) != null && parameterValues.get(metaData.getName()).get(metaData.getName()) != null){
+                                            textAreaTypeValue = parameterValues.get(metaData.getName()).get(metaData.getName()).getParamValue();
+                                        }
                                     %>
                                     <td><textarea name="<%=metaData.getName()%>" title="<%=metaData.getDisplayName()%>" style="min-width: 30%">
                                         <%= textAreaTypeValue%></textarea>
                                     </td>
                                     <%
                                     } else if(metaData.getInputType().equals(InputType.SELECT.value())){
-                                        String  selectedValue = templateParameterValues.get(template.getTemplateId() + "_" + metaData.getName() + "_" + metaData.getName());
+                                        String selectedValue = "" ;
+                                        if(parameterValues.get(metaData.getName()) != null && parameterValues.get(metaData.getName()).get(metaData.getName()) != null){
+                                            selectedValue = parameterValues.get(metaData.getName()).get(metaData.getName()).getParamValue();
+                                        }
                                         InputData inputData = metaData.getInputData();
                                         MapType mapType = inputData.getMapType();
                                         Item[] items = mapType.getItem();
@@ -446,14 +381,40 @@
                                     </td>
                                     <%
                                     } else if (metaData.getInputType().equals(InputType.MULTIPLE_STEPS_USER_ROLE.value())) {
+                                        Map<String, Parameter> stringParameterMap =  parameterValues.get(metaData.getName());
                                     %>
 
 
                                     <script>
 
 
+                                        <%
 
-                                        var stepOrder = 0;
+                                        System.out.println("==============================================    1  ");
+                                        Map<String,Map<String,String>> stepMap = new HashMap<String,Map<String,String>>();
+                                        System.out.println("==============================================    3  ");
+                                        if(stringParameterMap !=null ) {
+                                            System.out.println("==============================================    4  ");
+                                            Set<String> keys = stringParameterMap.keySet();
+                                            System.out.println("==============================================    5  ");
+                                            for (String key : keys) {
+                                                String[] split = key.split("-");
+                                                Map<String, String> stringStringMap = stepMap.get(split[2]);
+                                                if (stringStringMap == null) {
+                                                    stringStringMap = new HashMap<String, String>();
+                                                    stepMap.put(split[2], stringStringMap);
+                                                }
+                                                stringStringMap
+                                                        .put(split[3], stringParameterMap.get(key).getParamValue());
+                                            }
+                                        }
+                                        WorkflowUIUtil.test("S",stepMap);
+                                        System.out.println("==============================================    6  ");
+                                        %>
+
+
+
+
                                         jQuery(document).ready(function(){
 
                                             jQuery('h2.trigger').click(function(){
@@ -467,48 +428,86 @@
                                             });
 
                                             jQuery('#stepsAddLink').click(function(){
-                                                stepOrder++;
 
-                                                var stepHtml = '<div class="toggle_container sectionSub" id="div_step_head_'+stepOrder+'" style="border:solid 1px #ccc;padding: 10px;margin-bottom:10px;" >' +
-                                                                   '<h2 id="step_head_'+stepOrder+'" class="trigger active step_heads" style="background-color: beige; clear: both;">' +
-                                                                   '<input type="hidden" value="'+stepOrder+'" name="approve_step" id="approve_step">' +
-                                                                   '<a class="step_order_header" href="#">Step '+stepOrder+'</a>' +
-                                                                   '<a onclick="deleteStep(this);return false;" href="#" class="icon-link" style="background-image: url(images/delete.gif);float:right;width: 9px;"></a>' +
-                                                                   '</h2>' +
-                                                                   '<table style="width:100%;">' +
-                                                                   '<tr><td id="search_step_head_'+stepOrder+'"></td></tr>' +
-                                                                   '<tr id="id_step_roles_'+stepOrder+'" style="display:none;">' +
-                                                                   '<td style="width:100%;">' +
-                                                                   '<table  style="width:100%;">' +
-                                                                   '<tr><td width="40px">Roles</td><td onclick="moveSearchController(\''+stepOrder+'\',\'roles\', false);"><input readonly  name="<%=metaData.getName()%>-step-'+stepOrder+'-roles" id="p-step-'+stepOrder+'-roles"  type="text" class="tokenizer_'+stepOrder+'"/></td></tr>' +
-                                                                   '</table>' +
-                                                                   '</td>' +
-                                                                   '</tr>' +
-                                                                   '<tr id="id_step_users_'+stepOrder+'" style="width:100%;display:none;">' +
-                                                                   '<td style="width:100%;">' +
-                                                                   '<table style="width:100%;">' +
-                                                                   '<tr><td width="40px">Users</td><td onclick="moveSearchController(\''+stepOrder+'\',\'users\', false);"><input readonly  name= "<%=metaData.getName()%>-step-'+stepOrder+'-users" id="p-step-'+stepOrder+'-users" type="text" class="tokenizer_'+stepOrder+'"/></td></tr>' +
-                                                                   '</table>' +
-                                                                   '</td>' +
-                                                                   '</tr>' +
-                                                                   '</table>' +
-                                                               '</div>' ;
-
-                                                jQuery('#stepsConfRow').append(jQuery(stepHtml));
-
-                                                //Move search component to selected step
-                                                moveSearchController(stepOrder, "roles", true)
-
-                                                //Init tokanizer for users and roles inputs in given step.
-                                                initInputs("p-step-"+stepOrder+"-roles");
-                                                initInputs("p-step-"+stepOrder+"-users");
-
-
+                                                addStep("","");
 
                                             });
 
+                                            <%
+
+                                               for(int a =0 ; a<stepMap.size();a++) {
+                                                   System.out.println("==============================================    7  ");
+                                                   Map<String, String> stringStringMap = stepMap.get((a + 1) + "");
+                                                   System.out.println("==============================================    8  ");
+                                                   String users = stringStringMap.get("users");
+                                                   String roles = stringStringMap.get("roles");
+                                                   System.out.println("==============================================    9  ");
+
+                                            %>
+
+                                                try {
+                                                    addStep("<%=users%>", "<%=roles%>");
+                                                }catch(e){
+
+                                                }
+
+
+
+                                            <%
+
+
+                                                }
+
+                                            %>
 
                                         });
+
+
+                                        function addStep(users,roles){
+
+                                            stepOrder++;
+
+                                            var stepHtml = '<div class="toggle_container sectionSub" id="div_step_head_'+stepOrder+'" style="border:solid 1px #ccc;padding: 10px;margin-bottom:10px;" >' +
+                                                           '<h2 id="step_head_'+stepOrder+'" class="trigger active step_heads" style="background-color: beige; clear: both;">' +
+                                                           '<input type="hidden" value="'+stepOrder+'" name="approve_step" id="approve_step">' +
+                                                           '<a class="step_order_header" href="#">Step '+stepOrder+'</a>' +
+                                                           '<a onclick="deleteStep(this);return false;" href="#" class="icon-link" style="background-image: url(images/delete.gif);float:right;width: 9px;"></a>' +
+                                                           '</h2>' +
+                                                           '<table style="width:100%;">' +
+                                                           '<tr><td id="search_step_head_'+stepOrder+'"></td></tr>' +
+                                                           '<tr id="id_step_roles_'+stepOrder+'" style="display:none;">' +
+                                                           '<td style="width:100%;">' +
+                                                           '<table  style="width:100%;">' +
+                                                           '<tr><td width="40px">Roles</td><td onclick="moveSearchController(\''+stepOrder+'\',\'roles\', false);"><input readonly  name="<%=metaData.getName()%>-step-'+stepOrder+'-roles" id="p-step-'+stepOrder+'-roles"  type="text"  class="tokenizer_'+stepOrder+'"/></td></tr>' +
+                                                           '</table>' +
+                                                           '</td>' +
+                                                           '</tr>' +
+                                                           '<tr id="id_step_users_'+stepOrder+'" style="width:100%;display:none;">' +
+                                                           '<td style="width:100%;">' +
+                                                           '<table style="width:100%;">' +
+                                                           '<tr><td width="40px">Users</td><td onclick="moveSearchController(\''+stepOrder+'\',\'users\', false);"><input readonly  name="<%=metaData.getName()%>-step-'+stepOrder+'-users" id="p-step-'+stepOrder+'-users" type="text" class="tokenizer_'+stepOrder+'"/></td></tr>' +
+                                                           '</table>' +
+                                                           '</td>' +
+                                                           '</tr>' +
+                                                           '</table>' +
+                                                           '</div>' ;
+
+                                            jQuery('#stepsConfRow').append(jQuery(stepHtml));
+
+                                            //Move search component to selected step
+                                            moveSearchController(stepOrder, "roles", true)
+
+                                            //Init tokanizer for users and roles inputs in given step.
+                                            initInputs("p-step-"+stepOrder+"-roles");
+                                            initInputs("p-step-"+stepOrder+"-users");
+
+                                            if(users !=null && users!="") {
+                                                getSelectedItems(users.split(","), "users");
+                                            }
+                                            if(roles !=null && roles!="") {
+                                                getSelectedItems(roles.split(","), "roles");
+                                            }
+                                        }
 
                                         function initInputs(id){
                                             $("#" + id).tokenizer({
@@ -578,24 +577,14 @@
 
 
                                         }
-
-
-
-
-
-
-
                                     </script>
-
-
-
                                     <td>
                                         <a id="stepsAddLink" class="icon-link" style="background-image:url(images/add.png);margin-left:0"><fmt:message key='workflow.template.button.add.step'/></a>
-                                       <div style="margin-bottom:10px;width: 100%" id="stepsConfRow"></div>
+                                       <div style="margin-bottom:10px;width: 100%" id="stepsConfRow">
+                                       </div>
                                     </td>
                                     <%
                                     } else {
-
                                     %>
                                         <%--Appending 'p-' to differentiate dynamic params--%>
                                     <td>

@@ -236,7 +236,7 @@ public class WorkflowManagementServiceImpl implements WorkflowManagementService 
         //add workflow to the database
         workflowDAO.addWorkflow(workflow, tenantId);
 
-        workflowDAO.addWorkflowParams(parameterList);
+        workflowDAO.addWorkflowParams(parameterList, workflow.getWorkflowId());
 
         //Creating a role for the workflow
         WorkflowManagementUtil.createAppRole(workflow.getWorkflowName());
