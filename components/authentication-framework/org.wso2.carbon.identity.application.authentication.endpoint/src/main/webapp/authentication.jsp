@@ -31,7 +31,7 @@
 
     <script type="text/javascript">
         function talkToDevice(){
-            var authRequest = '<%=authRequest%>';
+            var authRequest = '<%=Encode.forJavaScript(authRequest)%>';
             var jsonAuthRequest = JSON.parse(authRequest);
             setTimeout(function() {
                 u2f.sign(jsonAuthRequest.authenticateRequests,
