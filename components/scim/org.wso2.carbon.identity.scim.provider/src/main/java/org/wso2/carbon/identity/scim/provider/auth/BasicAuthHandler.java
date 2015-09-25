@@ -23,6 +23,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.cxf.jaxrs.model.ClassResourceInfo;
 import org.apache.cxf.message.Message;
+import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.application.common.model.ThreadLocalProvisioningServiceProvider;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
@@ -142,6 +143,11 @@ public class BasicAuthHandler implements SCIMAuthenticationHandler {
                             // authentication success. set the username for authorization header and
                             // proceed the REST call
                             authzHeaders.set(0, userName);
+                            PrivilegedCarbonContext.startTenantFlow();
+                            PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
+                            carbonContext.setUsername(userName);
+                            carbonContext.setTenantId(tenantId);
+                            carbonContext.setTenantDomain(tenantDomain);
                             return true;
                         } else {
                             UnauthorizedException unauthorizedException = new UnauthorizedException(
