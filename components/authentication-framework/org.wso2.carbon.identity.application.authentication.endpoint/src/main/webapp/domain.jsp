@@ -19,18 +19,17 @@
 <%
     String errorMessage = "Authentication Failed";
     boolean loginFailed = false;
-    
-    if (request.getParameter("authFailure") != null && "true"
-    .equals(request.getParameter("authFailure"))) {
-	    loginFailed = true;
-	    
-	    if(request.getParameter("authFailureMsg") != null){
-	        errorMessage = request.getParameter("authFailureMsg");
-	        
-	        if (errorMessage.equalsIgnoreCase("domain.unknown")) {
-	        	errorMessage = "Domain cannot be identified! Please retry.";
-	        }
-	    }
+
+    if (Boolean.parseBoolean(request.getParameter("authFailure"))) {
+        loginFailed = true;
+
+        if (request.getParameter("authFailureMsg") != null) {
+            errorMessage = request.getParameter("authFailureMsg");
+
+            if (errorMessage.equalsIgnoreCase("domain.unknown")) {
+                errorMessage = "Domain cannot be identified! Please retry.";
+            }
+        }
     }
 %>
 
@@ -104,7 +103,7 @@
 					<div class="control-group">
 					   <% if (loginFailed) { %>
                           <div class="alert alert-error">
-                              <%=Encode.forHtmlContent(errorMessage)%>
+                              <%=Encode.forHtml(errorMessage)%>
                           </div>  
                        <% } %>
 						<label class="control-label" for="fidp">Domain:</label>

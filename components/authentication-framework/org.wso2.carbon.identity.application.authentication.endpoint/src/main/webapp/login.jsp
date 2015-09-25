@@ -96,8 +96,7 @@
         String errorMessage = "Authentication Failed! Please Retry";
         String loginFailed = "false";
 
-        if (request.getParameter(Constants.AUTH_FAILURE) != null &&
-                "true".equals(request.getParameter(Constants.AUTH_FAILURE))) {
+        if (Boolean.parseBoolean(request.getParameter(Constants.AUTH_FAILURE))) {
             loginFailed = "true";
 
             if (request.getParameter(Constants.AUTH_FAILURE_MSG) != null) {
@@ -138,7 +137,7 @@
 
         <% if ("true".equals(loginFailed)) { %>
         <div class="alert alert-error">
-            <%=Encode.forHtmlContent(errorMessage)%>
+            <%=Encode.forHtml(errorMessage)%>
         </div>
         <% } %>
 

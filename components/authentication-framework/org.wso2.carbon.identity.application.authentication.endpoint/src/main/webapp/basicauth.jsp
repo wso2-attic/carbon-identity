@@ -25,12 +25,11 @@
 
     %>
     <div class="alert alert-error">
-        <fmt:message key='<%=request.getParameter("errorMessage")%>'/>
+        <fmt:message key='<%=Encode.forHtml(request.getParameter("errorMessage"))%>'/>
     </div>
     <% } %>
 
-    <% if (request.getParameter("username") == null || "".equals
-            (request.getParameter("username"))) { %>
+    <% if (StringUtils.isBlank(request.getParameter("username"))) { %>
 
     <!-- Username -->
     <div class="control-group">

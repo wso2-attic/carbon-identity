@@ -23,7 +23,7 @@
 
     %>
     <div class="alert alert-error">
-        <fmt:message key='<%=request.getParameter("errorMessage")%>'/>
+        <fmt:message key='<%=Encode.forHtml(request.getParameter("errorMessage"))%>'/>
     </div>
     <% } %>
 
