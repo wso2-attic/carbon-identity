@@ -536,6 +536,27 @@ public class FrameworkUtils {
         AuthenticationResultCache.getInstance().addToCache(cacheKey, cacheEntry);
     }
 
+    /**
+     * To get authentication cache result from cache
+     * @param key
+     * @return
+     */
+    public static AuthenticationResultCacheEntry getAuthenticationResultFromCache(String key) {
+        AuthenticationResultCacheKey cacheKey = new AuthenticationResultCacheKey(key);
+        AuthenticationResultCacheEntry authResult = AuthenticationResultCache.getInstance().getValueFromCache(cacheKey);
+        return authResult;
+    }
+
+    /**
+     *  Removes authentication result from cache.
+     * @param autheticationResultId
+     */
+    public static void removeAuthenticationResultFromCache(String autheticationResultId) {
+        if (autheticationResultId != null) {
+            AuthenticationResultCacheKey cacheKey = new AuthenticationResultCacheKey(autheticationResultId);
+            AuthenticationResultCache.getInstance().clearCacheEntry(cacheKey);
+        }
+    }
 
     /**
      * @param key

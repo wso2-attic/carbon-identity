@@ -848,13 +848,9 @@ public class SAMLSSOProviderServlet extends HttpServlet {
     }
 
     private AuthenticationResult getAuthenticationResultFromCache(String sessionDataKey) {
-
-        AuthenticationResultCacheKey authResultCacheKey = new AuthenticationResultCacheKey(sessionDataKey);
-        CacheEntry cacheEntry = AuthenticationResultCache.getInstance(0).getValueFromCache(authResultCacheKey);
         AuthenticationResult authResult = null;
-
-        if (cacheEntry != null) {
-            AuthenticationResultCacheEntry authResultCacheEntry = (AuthenticationResultCacheEntry) cacheEntry;
+        AuthenticationResultCacheEntry authResultCacheEntry = FrameworkUtils.getAuthenticationResultFromCache(sessionDataKey);
+        if (authResultCacheEntry != null) {
             authResult = authResultCacheEntry.getResult();
         } else {
             log.error("Cannot find AuthenticationResult from the cache");
@@ -868,8 +864,7 @@ public class SAMLSSOProviderServlet extends HttpServlet {
      */
     private void removeAuthenticationResultFromCache(String sessionDataKey) {
         if (sessionDataKey != null) {
-            AuthenticationResultCacheKey cacheKey = new AuthenticationResultCacheKey(sessionDataKey);
-            AuthenticationResultCache.getInstance(0).clearCacheEntry(cacheKey);
+            FrameworkUtils.removeAuthenticationResultFromCache(sessionDataKey);
         }
     }
 

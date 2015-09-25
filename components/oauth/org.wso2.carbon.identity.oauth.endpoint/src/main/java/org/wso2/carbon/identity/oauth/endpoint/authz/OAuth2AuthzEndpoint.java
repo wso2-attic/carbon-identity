@@ -30,12 +30,10 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.oltu.openidconnect.as.OIDC;
 import org.apache.oltu.openidconnect.as.util.OIDCAuthzServerUtil;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
-import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationResultCache;
 import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationResultCacheEntry;
-import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationResultCacheKey;
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticatedUser;
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticationResult;
-import org.wso2.carbon.identity.application.common.cache.CacheEntry;
+import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkUtils;
 import org.wso2.carbon.identity.application.common.model.ClaimMapping;
 import org.wso2.carbon.identity.oauth.cache.AuthorizationGrantCache;
 import org.wso2.carbon.identity.oauth.cache.AuthorizationGrantCacheEntry;
@@ -172,8 +170,7 @@ public class OAuth2AuthzEndpoint {
                 OAuth2Parameters oauth2Params = sessionDataCacheEntry.getoAuth2Parameters();
                 AuthenticationResult authnResult = getAuthenticationResultFromCache(sessionDataKeyFromLogin);
                 if (authnResult != null) {
-                    AuthenticationResultCache.getInstance(0).
-                            clearCacheEntry(new AuthenticationResultCacheKey(sessionDataKeyFromLogin));
+                    FrameworkUtils.removeAuthenticationResultFromCache(sessionDataKeyFromLogin);
 
                     String redirectURL = null;
                     if (authnResult.isAuthenticated()) {
@@ -680,13 +677,9 @@ public class OAuth2AuthzEndpoint {
     }
 
     private AuthenticationResult getAuthenticationResultFromCache(String sessionDataKey) {
-
-        AuthenticationResultCacheKey authResultCacheKey = new AuthenticationResultCacheKey(sessionDataKey);
-        CacheEntry cacheEntry = AuthenticationResultCache.getInstance(0).getValueFromCache(authResultCacheKey);
         AuthenticationResult authResult = null;
-
-        if (cacheEntry != null) {
-            AuthenticationResultCacheEntry authResultCacheEntry = (AuthenticationResultCacheEntry) cacheEntry;
+        AuthenticationResultCacheEntry authResultCacheEntry = FrameworkUtils.getAuthenticationResultFromCache(sessionDataKey);
+        if (authResultCacheEntry != null) {
             authResult = authResultCacheEntry.getResult();
         } else {
             log.error("Cannot find AuthenticationResult from the cache");
