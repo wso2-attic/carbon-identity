@@ -23,6 +23,7 @@
 <%@ page import="org.wso2.carbon.identity.entitlement.common.PolicyEditorException" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
 <%@ page import="java.util.ResourceBundle" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 <%
     String BUNDLE = "org.wso2.carbon.identity.entitlement.ui.i18n.Resources";
     ResourceBundle resourceBundle = ResourceBundle.getBundle(BUNDLE, request.getLocale());
@@ -33,7 +34,7 @@
             String message = resourceBundle.getString("policy.editor.config.update");
             %>
             <script type="text/javascript">
-                CARBON.showInfoDialog('<%=message%>', null, null);
+                CARBON.showInfoDialog('<%=Encode.forJavaScriptAttribute(message)%>', null, null);
             </script>
             <%
         } catch (PolicyEditorException e) {
@@ -43,7 +44,7 @@
             %>
             <script type="text/javascript">
                 function forward() {
-                    location.href = "policy-editor-config-view.jsp?type=" + <%=type%>;
+                    location.href = "policy-editor-config-view.jsp?type=" + <%=Encode.forUriComponent(type)%>;
                 }
             </script>
             <script type="text/javascript">

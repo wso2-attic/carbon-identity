@@ -65,6 +65,10 @@
             <groupId>org.wso2.balana</groupId>
             <artifactId>org.wso2.balana.utils</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.wso2.orbit.org.owasp.encoder</groupId>
+            <artifactId>encoder</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
