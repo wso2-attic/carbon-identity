@@ -59,7 +59,7 @@ public class DefaultInboundUserProvisioningListener extends AbstractIdentityUser
 
     @Override
     public int getExecutionOrderId() {
-        int orderId = getOrderId(DefaultInboundUserProvisioningListener.class.getName());
+        int orderId = getOrderId();
         if (orderId != IdentityCoreConstants.EVENT_LISTENER_ORDER_ID) {
             return orderId;
         }
@@ -67,13 +67,10 @@ public class DefaultInboundUserProvisioningListener extends AbstractIdentityUser
     }
 
     @Override
-    /**
-     *
-     */
     public boolean doPreAddUser(String userName, Object credential, String[] roleList,
                                 Map<String, String> inboundAttributes, String profile, UserStoreManager userStoreManager)
             throws UserStoreException {
-        if (!isEnable(this.getClass().getName())) {
+        if (!isEnable()) {
             return true;
         }
 
@@ -127,7 +124,7 @@ public class DefaultInboundUserProvisioningListener extends AbstractIdentityUser
                         serviceProvider = ApplicationManagementService.getInstance()
                                 .getServiceProviderNameByClientId(
                                         threadLocalServiceProvider.getServiceProviderName(),
-                                        "oauth2", tenantDomainName);
+                                        IdentityProvisioningConstants.SP_OAUTH2_TYPE, tenantDomainName);
                     } catch (IdentityApplicationManagementException e) {
                         log.error("Error while provisioning", e);
                         return true;
@@ -158,13 +155,10 @@ public class DefaultInboundUserProvisioningListener extends AbstractIdentityUser
     }
 
     @Override
-    /**
-     *
-     */
     public boolean doPreSetUserClaimValues(String userName, Map<String, String> inboundAttributes,
                                            String profileName, UserStoreManager userStoreManager) throws UserStoreException {
 
-        if (!isEnable(this.getClass().getName())) {
+        if (!isEnable()) {
             return true;
         }
 
@@ -205,7 +199,7 @@ public class DefaultInboundUserProvisioningListener extends AbstractIdentityUser
                         serviceProvider = ApplicationManagementService.getInstance()
                                 .getServiceProviderNameByClientId(
                                         threadLocalServiceProvider.getServiceProviderName(),
-                                        "oauth2", tenantDomainName);
+                                        IdentityProvisioningConstants.SP_OAUTH2_TYPE, tenantDomainName);
                     } catch (IdentityApplicationManagementException e) {
                         log.error("Error while provisioning", e);
                         return true;
@@ -230,12 +224,157 @@ public class DefaultInboundUserProvisioningListener extends AbstractIdentityUser
     }
 
     @Override
-    /**
-     *
-     */
+    public boolean doPreDeleteUserClaimValues(String userName, String[] attributesToDelete,
+                                              String profileName, UserStoreManager userStoreManager) throws UserStoreException {
+        try {
+            Map<ClaimMapping, List<String>> outboundAttributes = new HashMap<>();
+
+            if (userName != null) {
+                outboundAttributes.put(ClaimMapping.build(
+                        IdentityProvisioningConstants.USERNAME_CLAIM_URI, null, null, false),
+                        Arrays.asList(new String[]{userName}));
+            }
+
+            String domainName = UserCoreUtil.getDomainName(userStoreManager.getRealmConfiguration());
+            if (log.isDebugEnabled()) {
+                log.debug("Adding domain name : " + domainName + " to user : " + userName);
+            }
+            String domainAwareName = UserCoreUtil.addDomainToName(userName, domainName);
+
+            ProvisioningEntity provisioningEntity = new ProvisioningEntity(
+                    ProvisioningEntityType.USER, domainAwareName, ProvisioningOperation.PATCH,
+                    outboundAttributes);
+
+            Map<String, String> inboundAttributes = new HashMap<>();
+            for(int i =0; i<attributesToDelete.length;i++){
+                inboundAttributes.put(attributesToDelete[i],"");
+            }
+            ;
+            // set the in-bound attribute list.
+            provisioningEntity.setInboundAttributes(inboundAttributes);
+
+            String tenantDomainName = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+
+            ThreadLocalProvisioningServiceProvider threadLocalServiceProvider;
+            threadLocalServiceProvider = IdentityApplicationManagementUtil
+                    .getThreadLocalProvisioningServiceProvider();
+
+            if (threadLocalServiceProvider != null) {
+
+                String serviceProvider = threadLocalServiceProvider.getServiceProviderName();
+                tenantDomainName = threadLocalServiceProvider.getTenantDomain();
+                if (threadLocalServiceProvider.getServiceProviderType() == ProvisioningServiceProviderType.OAUTH) {
+                    try {
+                        serviceProvider = ApplicationManagementService.getInstance()
+                                .getServiceProviderNameByClientId(
+                                        threadLocalServiceProvider.getServiceProviderName(),
+                                        IdentityProvisioningConstants.SP_OAUTH2_TYPE, tenantDomainName);
+                    } catch (IdentityApplicationManagementException e) {
+                        log.error("Error while provisioning", e);
+                        return true;
+                    }
+                }
+
+                // call framework method to provision the user.
+                OutboundProvisioningManager.getInstance().provision(provisioningEntity,
+                        serviceProvider, threadLocalServiceProvider.getClaimDialect(),
+                        tenantDomainName, threadLocalServiceProvider.isJustInTimeProvisioning());
+            } else {
+                // call framework method to provision the user.
+                OutboundProvisioningManager.getInstance()
+                        .provision(provisioningEntity, ApplicationConstants.LOCAL_SP,
+                                IdentityProvisioningConstants.WSO2_CARBON_DIALECT, tenantDomainName, false);
+            }
+
+            return true;
+        } finally {
+            IdentityApplicationManagementUtil.resetThreadLocalProvisioningServiceProvider();
+        }
+    }
+
+    @Override
+    public boolean doPostDeleteUserClaimValues(String userName, UserStoreManager userStoreManager)
+            throws UserStoreException {
+        return true;
+    }
+
+    @Override
+    public boolean doPreDeleteUserClaimValue(String userName, String attributeToDelete, String profileName,
+                                             UserStoreManager userStoreManager) throws UserStoreException {
+        try {
+            Map<ClaimMapping, List<String>> outboundAttributes = new HashMap<>();
+
+            if (userName != null) {
+                outboundAttributes.put(ClaimMapping.build(
+                        IdentityProvisioningConstants.USERNAME_CLAIM_URI, null, null, false),
+                        Arrays.asList(new String[]{userName}));
+            }
+
+            String domainName = UserCoreUtil.getDomainName(userStoreManager.getRealmConfiguration());
+            if (log.isDebugEnabled()) {
+                log.debug("Adding domain name : " + domainName + " to user : " + userName);
+            }
+            String domainAwareName = UserCoreUtil.addDomainToName(userName, domainName);
+
+            ProvisioningEntity provisioningEntity = new ProvisioningEntity(
+                    ProvisioningEntityType.USER, domainAwareName, ProvisioningOperation.PATCH,
+                    outboundAttributes);
+
+            Map<String, String> inboundAttributes = new HashMap<>();
+            inboundAttributes.put(attributeToDelete,"");
+
+            // set the in-bound attribute list.
+            provisioningEntity.setInboundAttributes(inboundAttributes);
+
+            String tenantDomainName = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+
+            ThreadLocalProvisioningServiceProvider threadLocalServiceProvider;
+            threadLocalServiceProvider = IdentityApplicationManagementUtil
+                    .getThreadLocalProvisioningServiceProvider();
+
+            if (threadLocalServiceProvider != null) {
+
+                String serviceProvider = threadLocalServiceProvider.getServiceProviderName();
+                tenantDomainName = threadLocalServiceProvider.getTenantDomain();
+                if (threadLocalServiceProvider.getServiceProviderType() == ProvisioningServiceProviderType.OAUTH) {
+                    try {
+                        serviceProvider = ApplicationManagementService.getInstance()
+                                .getServiceProviderNameByClientId(
+                                        threadLocalServiceProvider.getServiceProviderName(),
+                                        IdentityProvisioningConstants.SP_OAUTH2_TYPE, tenantDomainName);
+                    } catch (IdentityApplicationManagementException e) {
+                        log.error("Error while provisioning", e);
+                        return true;
+                    }
+                }
+
+                // call framework method to provision the user.
+                OutboundProvisioningManager.getInstance().provision(provisioningEntity,
+                        serviceProvider, threadLocalServiceProvider.getClaimDialect(),
+                        tenantDomainName, threadLocalServiceProvider.isJustInTimeProvisioning());
+            } else {
+                // call framework method to provision the user.
+                OutboundProvisioningManager.getInstance()
+                        .provision(provisioningEntity, ApplicationConstants.LOCAL_SP,
+                                IdentityProvisioningConstants.WSO2_CARBON_DIALECT, tenantDomainName, false);
+            }
+
+            return true;
+        } finally {
+            IdentityApplicationManagementUtil.resetThreadLocalProvisioningServiceProvider();
+        }
+    }
+
+    @Override
+    public boolean doPostDeleteUserClaimValue(String userName, UserStoreManager userStoreManager)
+            throws UserStoreException {
+        return true;
+    }
+
+    @Override
     public boolean doPreDeleteUser(String userName, UserStoreManager userStoreManager)
             throws UserStoreException {
-        if (!isEnable(this.getClass().getName())) {
+        if (!isEnable()) {
             return true;
         }
 
@@ -270,7 +409,7 @@ public class DefaultInboundUserProvisioningListener extends AbstractIdentityUser
                         serviceProvider = ApplicationManagementService.getInstance()
                                 .getServiceProviderNameByClientId(
                                         threadLocalServiceProvider.getServiceProviderName(),
-                                        "oauth2", tenantDomainName);
+                                        IdentityProvisioningConstants.SP_OAUTH2_TYPE, tenantDomainName);
                     } catch (IdentityApplicationManagementException e) {
                         log.error("Error while provisioning", e);
                         return true;
@@ -294,13 +433,10 @@ public class DefaultInboundUserProvisioningListener extends AbstractIdentityUser
     }
 
     @Override
-    /**
-     *
-     */
     public boolean doPostUpdateUserListOfRole(String roleName, String[] deletedUsers,
                                               String[] newUsers, UserStoreManager userStoreManager) throws UserStoreException {
 
-        if (!isEnable(this.getClass().getName())) {
+        if (!isEnable()) {
             return true;
         }
 
@@ -348,7 +484,7 @@ public class DefaultInboundUserProvisioningListener extends AbstractIdentityUser
                         serviceProvider = ApplicationManagementService.getInstance()
                                 .getServiceProviderNameByClientId(
                                         threadLocalServiceProvider.getServiceProviderName(),
-                                        "oauth2", tenantDomainName);
+                                        IdentityProvisioningConstants.SP_OAUTH2_TYPE, tenantDomainName);
                     } catch (IdentityApplicationManagementException e) {
                         log.error("Error while provisioning", e);
                         return true;
@@ -373,12 +509,9 @@ public class DefaultInboundUserProvisioningListener extends AbstractIdentityUser
     }
 
     @Override
-    /**
-     *
-     */
     public boolean doPostUpdateRoleListOfUser(String userName, String[] deletedRoles,
                                               String[] newRoles, UserStoreManager userStoreManager) throws UserStoreException {
-        if (!isEnable(this.getClass().getName())) {
+        if (!isEnable()) {
             return true;
         }
         try {
@@ -444,7 +577,7 @@ public class DefaultInboundUserProvisioningListener extends AbstractIdentityUser
                         serviceProvider = ApplicationManagementService.getInstance()
                                 .getServiceProviderNameByClientId(
                                         threadLocalServiceProvider.getServiceProviderName(),
-                                        "oauth2", tenantDomainName);
+                                        IdentityProvisioningConstants.SP_OAUTH2_TYPE, tenantDomainName);
                     } catch (IdentityApplicationManagementException e) {
                         log.error("Error while provisioning", e);
                         return true;
@@ -469,13 +602,10 @@ public class DefaultInboundUserProvisioningListener extends AbstractIdentityUser
     }
 
     @Override
-    /**
-     *
-     */
     public boolean doPreAddRole(String roleName, String[] userList, Permission[] permissions,
                                 UserStoreManager userStoreManager) throws UserStoreException {
 
-        if (!isEnable(this.getClass().getName())) {
+        if (!isEnable()) {
             return true;
         }
         try {
@@ -517,7 +647,7 @@ public class DefaultInboundUserProvisioningListener extends AbstractIdentityUser
                         serviceProvider = ApplicationManagementService.getInstance()
                                 .getServiceProviderNameByClientId(
                                         threadLocalServiceProvider.getServiceProviderName(),
-                                        "oauth2", tenantDomainName);
+                                        IdentityProvisioningConstants.SP_OAUTH2_TYPE, tenantDomainName);
                     } catch (IdentityApplicationManagementException e) {
                         log.error("Error while provisioning", e);
                         return true;
@@ -542,13 +672,10 @@ public class DefaultInboundUserProvisioningListener extends AbstractIdentityUser
     }
 
     @Override
-    /**
-     *
-     */
     public boolean doPreDeleteRole(String roleName, UserStoreManager userStoreManager)
             throws UserStoreException {
 
-        if (!isEnable(this.getClass().getName())) {
+        if (!isEnable()) {
             return true;
         }
 
@@ -586,7 +713,7 @@ public class DefaultInboundUserProvisioningListener extends AbstractIdentityUser
                         serviceProvider = ApplicationManagementService.getInstance()
                                 .getServiceProviderNameByClientId(
                                         threadLocalServiceProvider.getServiceProviderName(),
-                                        "oauth2", tenantDomainName);
+                                        IdentityProvisioningConstants.SP_OAUTH2_TYPE, tenantDomainName);
                     } catch (IdentityApplicationManagementException e) {
                         log.error("Error while provisioning", e);
                         return true;
