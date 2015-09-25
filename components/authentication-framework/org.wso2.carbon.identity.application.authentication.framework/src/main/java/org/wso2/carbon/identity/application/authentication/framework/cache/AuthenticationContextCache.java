@@ -31,19 +31,19 @@ public class AuthenticationContextCache extends BaseCache<String, CacheEntry> {
     private boolean useCache = true;
     private boolean enableRequestScopeCache = false;
 
-    private AuthenticationContextCache(String cacheName, int timeout) {
-        super(cacheName, timeout);
+    private AuthenticationContextCache(String cacheName) {
+        super(cacheName);
         useCache = !Boolean.parseBoolean(IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.Only"));
         if (IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.Temporary") != null) {
             enableRequestScopeCache = Boolean.parseBoolean(IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.Temporary"));
         }
     }
 
-    public static AuthenticationContextCache getInstance(int timeout) {
+    public static AuthenticationContextCache getInstance() {
         if (instance == null) {
             synchronized (AuthenticationContextCache.class) {
                 if (instance == null) {
-                    instance = new AuthenticationContextCache(AUTHENTICATION_CONTEXT_CACHE_NAME, timeout);
+                    instance = new AuthenticationContextCache(AUTHENTICATION_CONTEXT_CACHE_NAME);
                 }
             }
         }

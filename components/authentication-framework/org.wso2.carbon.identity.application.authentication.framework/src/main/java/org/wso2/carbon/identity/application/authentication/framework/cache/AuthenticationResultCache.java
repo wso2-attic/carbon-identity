@@ -46,12 +46,12 @@ public class AuthenticationResultCache extends BaseCache<String, CacheEntry> {
         }
     }
 
-    public static AuthenticationResultCache getInstance(int timeout) {
+    public static AuthenticationResultCache getInstance() {
 
         if (instance == null) {
             synchronized (AuthenticationResultCache.class) {
                 if (instance == null) {
-                    instance = new AuthenticationResultCache(CACHE_NAME, timeout);
+                    instance = new AuthenticationResultCache(CACHE_NAME);
                 }
             }
         }

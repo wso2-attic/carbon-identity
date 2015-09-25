@@ -108,28 +108,12 @@ public class FrameworkUtils {
     }
 
     /**
-     * To add authentication request cache entry to cache, with timeout
-     *
-     * @param key          cache entry key
-     * @param authReqEntry AuthenticationReqCache Entry.
-     * @param cacheTimeout Cache timeout
-     */
-    public static void addAuthenticationRequestToCache(
-            String key, AuthenticationRequestCacheEntry authReqEntry, int cacheTimeout) {
-
-        AuthenticationRequestCacheKey cacheKey = new AuthenticationRequestCacheKey(key);
-        AuthenticationRequestCache.getInstance(cacheTimeout).addToCache(cacheKey, authReqEntry);
-    }
-
-    /**
-     * To add authentication request cache entry to the cache without timout
+     * To add authentication request cache entry to cache
      *
      * @param key          cache entry key
      * @param authReqEntry AuthenticationReqCache Entry.
      */
-    public static void addAuthenticationRequestToCache(
-            String key, AuthenticationRequestCacheEntry authReqEntry) {
-
+    public static void addAuthenticationRequestToCache(String key, AuthenticationRequestCacheEntry authReqEntry) {
         AuthenticationRequestCacheKey cacheKey = new AuthenticationRequestCacheKey(key);
         AuthenticationRequestCache.getInstance().addToCache(cacheKey, authReqEntry);
     }
@@ -144,7 +128,7 @@ public class FrameworkUtils {
 
         AuthenticationRequestCacheEntry authRequest = null;
         AuthenticationRequestCacheKey cacheKey = new AuthenticationRequestCacheKey(key);
-        Object cacheEntryObj = AuthenticationRequestCache.getInstance(0).getValueFromCache(cacheKey);
+        Object cacheEntryObj = AuthenticationRequestCache.getInstance().getValueFromCache(cacheKey);
 
         if (cacheEntryObj != null) {
             authRequest = (AuthenticationRequestCacheEntry) cacheEntryObj;
@@ -162,7 +146,7 @@ public class FrameworkUtils {
 
         if (key != null) {
             AuthenticationRequestCacheKey cacheKey = new AuthenticationRequestCacheKey(key);
-            AuthenticationRequestCache.getInstance(0).clearCacheEntry(cacheKey);
+            AuthenticationRequestCache.getInstance().clearCacheEntry(cacheKey);
         }
     }
 
@@ -538,38 +522,33 @@ public class FrameworkUtils {
     /**
      * @param key
      * @param context
-     * @param cacheTimeout
      */
-    public static void addAuthenticationContextToCache(String key, AuthenticationContext context,
-                                                       int cacheTimeout) {
+    public static void addAuthenticationContextToCache(String key, AuthenticationContext context) {
 
         AuthenticationContextCacheKey cacheKey = new AuthenticationContextCacheKey(key);
         AuthenticationContextCacheEntry cacheEntry = new AuthenticationContextCacheEntry();
         cacheEntry.setContext(context);
-        AuthenticationContextCache.getInstance(cacheTimeout).addToCache(cacheKey, cacheEntry);
+        AuthenticationContextCache.getInstance().addToCache(cacheKey, cacheEntry);
     }
 
     /**
      * @param key
      * @param authenticationResult
-     * @param cacheTimeout
      */
-    public static void addAuthenticationResultToCache(String key,
-                                                      AuthenticationResult authenticationResult, int cacheTimeout) {
+    public static void addAuthenticationResultToCache(String key, AuthenticationResult authenticationResult) {
 
         AuthenticationResultCacheKey cacheKey = new AuthenticationResultCacheKey(key);
         AuthenticationResultCacheEntry cacheEntry = new AuthenticationResultCacheEntry();
         cacheEntry.setResult(authenticationResult);
-        AuthenticationResultCache.getInstance(cacheTimeout).addToCache(cacheKey, cacheEntry);
+        AuthenticationResultCache.getInstance().addToCache(cacheKey, cacheEntry);
     }
 
 
     /**
      * @param key
      * @param sessionContext
-     * @param cacheTimeout
      */
-    public static void addSessionContextToCache(String key, SessionContext sessionContext, int cacheTimeout) {
+    public static void addSessionContextToCache(String key, SessionContext sessionContext) {
         SessionContextCacheKey cacheKey = new SessionContextCacheKey(key);
         SessionContextCacheEntry cacheEntry = new SessionContextCacheEntry();
 
@@ -583,7 +562,7 @@ public class FrameworkUtils {
         }
 
         cacheEntry.setContext(sessionContext);
-        SessionContextCache.getInstance(cacheTimeout).addToCache(cacheKey, cacheEntry);
+        SessionContextCache.getInstance().addToCache(cacheKey, cacheEntry);
     }
 
     /**
@@ -594,7 +573,7 @@ public class FrameworkUtils {
 
         SessionContext sessionContext = null;
         SessionContextCacheKey cacheKey = new SessionContextCacheKey(key);
-        Object cacheEntryObj = SessionContextCache.getInstance(0).getValueFromCache(cacheKey);
+        Object cacheEntryObj = SessionContextCache.getInstance().getValueFromCache(cacheKey);
 
         if (cacheEntryObj != null) {
             sessionContext = ((SessionContextCacheEntry) cacheEntryObj).getContext();
@@ -610,7 +589,7 @@ public class FrameworkUtils {
 
         if (key != null) {
             SessionContextCacheKey cacheKey = new SessionContextCacheKey(key);
-            SessionContextCache.getInstance(0).clearCacheEntry(cacheKey);
+            SessionContextCache.getInstance().clearCacheEntry(cacheKey);
         }
     }
 
@@ -621,7 +600,7 @@ public class FrameworkUtils {
 
         if (key != null) {
             AuthenticationContextCacheKey cacheKey = new AuthenticationContextCacheKey(key);
-            AuthenticationContextCache.getInstance(0).clearCacheEntry(cacheKey);
+            AuthenticationContextCache.getInstance().clearCacheEntry(cacheKey);
         }
     }
 
@@ -633,8 +612,7 @@ public class FrameworkUtils {
 
         AuthenticationContext authnContext = null;
         AuthenticationContextCacheKey cacheKey = new AuthenticationContextCacheKey(contextId);
-        Object cacheEntryObj = AuthenticationContextCache.getInstance(0)
-                .getValueFromCache(cacheKey);
+        Object cacheEntryObj = AuthenticationContextCache.getInstance().getValueFromCache(cacheKey);
 
         if (cacheEntryObj != null) {
             authnContext = ((AuthenticationContextCacheEntry) cacheEntryObj).getContext();

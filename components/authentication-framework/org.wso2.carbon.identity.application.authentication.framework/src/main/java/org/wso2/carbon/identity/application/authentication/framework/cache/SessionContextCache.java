@@ -41,8 +41,8 @@ public class SessionContextCache extends BaseCache<String, SessionContextCacheEn
     private static volatile SessionContextCache instance;
     private boolean useCache = true;
 
-    private SessionContextCache(String cacheName, int timeout, int capacity) {
-        super(cacheName, timeout, capacity);
+    private SessionContextCache(String cacheName, int capacity) {
+        super(cacheName, 0, capacity);
         useCache = !Boolean.parseBoolean(IdentityUtil.getProperty(
                 "JDBCPersistenceManager.SessionDataPersist.Only"));
         if (IdentityUtil.getProperty("SessionContextCache.Enable") != null) {
@@ -50,7 +50,7 @@ public class SessionContextCache extends BaseCache<String, SessionContextCacheEn
         }
     }
 
-    public static SessionContextCache getInstance(int timeout) {
+    public static SessionContextCache getInstance() {
         if (instance == null) {
             synchronized (SessionContextCache.class) {
                 if (instance == null) {
@@ -66,7 +66,7 @@ public class SessionContextCache extends BaseCache<String, SessionContextCacheEn
                         }
                         log.warn("Session context cache capacity size is not configured. Using default value.");
                     }
-                    instance = new SessionContextCache(SESSION_CONTEXT_CACHE_NAME, timeout, capacity);
+                    instance = new SessionContextCache(SESSION_CONTEXT_CACHE_NAME, capacity);
                 }
             }
         }
