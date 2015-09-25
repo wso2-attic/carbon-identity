@@ -26,6 +26,7 @@
 
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@ page import="java.util.ResourceBundle" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 
 <%
     String bundle = "org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources";
@@ -78,7 +79,7 @@
 %>
 <script type="text/javascript">
     function forward() {
-        location.href = "<%=forwardTo%>";
+        location.href = "<%=Encode.forJavaScriptBlock(forwardTo)%>";
     }
 </script>
 
