@@ -520,14 +520,13 @@ public class FrameworkUtils {
     }
 
     /**
-     * @param key
+     * @param contextId
      * @param context
      */
-    public static void addAuthenticationContextToCache(String key, AuthenticationContext context) {
+    public static void addAuthenticationContextToCache(String contextId, AuthenticationContext context) {
 
-        AuthenticationContextCacheKey cacheKey = new AuthenticationContextCacheKey(key);
-        AuthenticationContextCacheEntry cacheEntry = new AuthenticationContextCacheEntry();
-        cacheEntry.setContext(context);
+        AuthenticationContextCacheKey cacheKey = new AuthenticationContextCacheKey(contextId);
+        AuthenticationContextCacheEntry cacheEntry = new AuthenticationContextCacheEntry(context);
         AuthenticationContextCache.getInstance().addToCache(cacheKey, cacheEntry);
     }
 
@@ -594,12 +593,12 @@ public class FrameworkUtils {
     }
 
     /**
-     * @param key
+     * @param contextId
      */
-    public static void removeAuthenticationContextFromCache(String key) {
+    public static void removeAuthenticationContextFromCache(String contextId) {
 
-        if (key != null) {
-            AuthenticationContextCacheKey cacheKey = new AuthenticationContextCacheKey(key);
+        if (contextId != null) {
+            AuthenticationContextCacheKey cacheKey = new AuthenticationContextCacheKey(contextId);
             AuthenticationContextCache.getInstance().clearCacheEntry(cacheKey);
         }
     }
@@ -610,19 +609,20 @@ public class FrameworkUtils {
      */
     public static AuthenticationContext getAuthenticationContextFromCache(String contextId) {
 
-        AuthenticationContext authnContext = null;
+        AuthenticationContext authenticationContext = null;
         AuthenticationContextCacheKey cacheKey = new AuthenticationContextCacheKey(contextId);
-        Object cacheEntryObj = AuthenticationContextCache.getInstance().getValueFromCache(cacheKey);
+        AuthenticationContextCacheEntry authenticationContextCacheEntry = AuthenticationContextCache.getInstance().
+                getValueFromCache(cacheKey);
 
-        if (cacheEntryObj != null) {
-            authnContext = ((AuthenticationContextCacheEntry) cacheEntryObj).getContext();
+        if (authenticationContextCacheEntry != null) {
+            authenticationContext = authenticationContextCacheEntry.getContext();
         }
 
-        if (log.isDebugEnabled() && authnContext == null) {
+        if (log.isDebugEnabled() && authenticationContext == null) {
             log.debug("Authentication Context is null");
         }
 
-        return authnContext;
+        return authenticationContext;
     }
 
     /**
