@@ -88,8 +88,8 @@ public class WorkFlowExecutorManager {
                     workflowEngaged = true;
                     if (!requestSaved) {
                         WorkflowRequestDAO requestDAO = new WorkflowRequestDAO();
-                        int tenant = CarbonContext.getThreadLocalCarbonContext().getTenantId();
-                        String currentUser = CarbonContext.getThreadLocalCarbonContext().getUsername();
+                        int tenant = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantId();
+                        String currentUser = PrivilegedCarbonContext.getThreadLocalCarbonContext().getUsername();
                         requestDAO.addWorkflowEntry(workFlowRequest, currentUser, tenant);
                         requestSaved = true;
                     }
