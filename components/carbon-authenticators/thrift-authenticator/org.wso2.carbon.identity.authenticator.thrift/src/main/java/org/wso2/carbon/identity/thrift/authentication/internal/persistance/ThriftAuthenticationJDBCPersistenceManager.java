@@ -17,7 +17,6 @@ package org.wso2.carbon.identity.thrift.authentication.internal.persistance;
 import org.apache.axiom.om.OMElement;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.base.ServerConfigurationException;
 import org.wso2.carbon.identity.thrift.authentication.internal.generatedCode.AuthenticationException;
 import org.wso2.carbon.identity.thrift.authentication.internal.util.ThriftAuthenticationConfigParser;
 
@@ -66,10 +65,10 @@ public class ThriftAuthenticationJDBCPersistenceManager {
     }
 
     private void initDataSource() throws AuthenticationException {
-        try {
-            OMElement persistenceManagerConfigElem = ThriftAuthenticationConfigParser.getInstance()
-                    .getConfigElement("JDBCPersistenceManager");
 
+        OMElement persistenceManagerConfigElem = ThriftAuthenticationConfigParser.getInstance()
+                .getConfigElement("JDBCPersistenceManager");
+        try {
             if (persistenceManagerConfigElem == null) {
                 String errorMsg = "Thrift Authentication Persistence Manager configuration is not available in " +
                         "thrift-authentication.xml file. Terminating the JDBC Persistence Manager " +
@@ -97,10 +96,6 @@ public class ThriftAuthenticationJDBCPersistenceManager {
                 Context ctx = new InitialContext();
                 dataSource = (DataSource) ctx.lookup(dataSourceName);
             }
-        } catch (ServerConfigurationException e) {
-            String errorMsg = "Error when reading the JDBC Configuration from the file.";
-            log.error(errorMsg, e);
-            throw new AuthenticationException(errorMsg);
         } catch (NamingException e) {
             String errorMsg = "Error when looking up the Thrift Authentication Data Source.";
             log.error(errorMsg, e);
