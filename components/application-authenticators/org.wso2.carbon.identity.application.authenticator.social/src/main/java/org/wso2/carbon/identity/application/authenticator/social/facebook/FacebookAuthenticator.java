@@ -53,7 +53,7 @@ import java.util.Map;
 public class FacebookAuthenticator extends AbstractApplicationAuthenticator implements
         FederatedApplicationAuthenticator {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -4844100162196896194L;
     private static final Log log = LogFactory.getLog(FacebookAuthenticator.class);
 
     @Override
