@@ -50,6 +50,7 @@ public class SAMLSSOUIConstants {
     public static final String RECIPIENT_PROPERTY_NAME="recipientPropertyName";
 
     public static final String SAML_SSO_SIGNING_ALGORITHM = "signingAlgorithm";
+    public static final String SAML_SSO_DIGEST_ALGORITHM = "digestAlgorithm";
 
     private SAMLSSOUIConstants() {
     }

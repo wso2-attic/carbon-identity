@@ -93,6 +93,11 @@ function doValidation() {
         return false;
     }
 
+    var digestAlgorithm = $('#digestAlgorithm').val();
+    if(digestAlgorithm == null || digestAlgorithm == ''){
+        CARBON.showWarningDialog("<fmt:message key='sp.enter.default.digestAlgorithm'/>", null, null);
+        return false;
+    }
 
     var fld3 = document.getElementsByName("logoutURL")[0];
     var value = fld3.value;
@@ -929,6 +934,40 @@ function clearAll() {
     </td>
 </tr>
 
+<!--digestAlgorithmRow-->
+<tr id="digestAlgorithmRow">
+    <td>
+        <fmt:message key="sp.digestAlgorithm"/>
+        <font color="red">*</font>
+    </td>
+    <td>
+        <select id="digestAlgorithm" name="digestAlgorithm">
+            <%
+                if (spConfigClient.getDigestAlgorithms() != null) {
+                    for (String digestAlgo : spConfigClient.getDigestAlgorithms()) {
+                        String digestAlgorithm = null;
+                        if (provider != null) {
+                            digestAlgorithm = provider.getDigestAlgorithm();
+                        } else {
+                            digestAlgorithm = spConfigClient.getDigestAlgorithmByConfig();
+                        }
+                        if (digestAlgorithm != null && digestAlgo.equals(digestAlgorithm)) {
+            %>
+            <option value="<%=digestAlgo%>" selected><%=digestAlgo%>
+            </option>
+            <%
+            } else {
+            %>
+            <option value="<%=digestAlgo%>"><%=digestAlgo%>
+            </option>
+            <%
+                        }
+                    }
+                }
+            %>
+        </select>
+    </td>
+</tr>
 <tr>
     <td colspan="2">
         <input type="checkbox" name="enableResponseSignature" value="true"

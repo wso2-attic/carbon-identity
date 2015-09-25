@@ -57,6 +57,7 @@ public class SAMLSSOServiceProviderDO implements Serializable {
     private boolean doEnableEncryptedAssertion;
     private boolean doValidateSignatureInRequests;
     private String signingAlgorithm;
+    private String digestAlgorithm;
 
     public String getNameIDFormat() {
         return nameIDFormat;
@@ -154,6 +155,14 @@ public class SAMLSSOServiceProviderDO implements Serializable {
 
     public void setAttributeConsumingServiceIndex(String attributeConsumingServiceIndex) {
         this.attributeConsumingServiceIndex = attributeConsumingServiceIndex;
+    }
+
+    public String getDigestAlgorithm() {
+        return digestAlgorithm;
+    }
+
+    public void setDigestAlgorithm(String digestAlgorithm) {
+        this.digestAlgorithm = digestAlgorithm;
     }
 
     public String getSigningAlgorithm() {

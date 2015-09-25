@@ -11,6 +11,20 @@
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
+            <xs:element name="addRPServiceProvider">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="spDto" nillable="true" type="ax2358:SAMLSSOServiceProviderDTO"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="addRPServiceProviderResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" type="xs:boolean"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
             <xs:element name="getServiceProviders">
                 <xs:complexType>
                     <xs:sequence/>
@@ -59,6 +73,30 @@
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
+            <xs:element name="getDigestAlgorithms">
+                <xs:complexType>
+                    <xs:sequence/>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getDigestAlgorithmsResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getDigestAlgorithmByConfig">
+                <xs:complexType>
+                    <xs:sequence/>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getDigestAlgorithmByConfigResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
             <xs:element name="removeServiceProvider">
                 <xs:complexType>
                     <xs:sequence>
@@ -85,29 +123,8 @@
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
-            <xs:element name="addRPServiceProvider">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="spDto" nillable="true" type="ax2358:SAMLSSOServiceProviderDTO"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="addRPServiceProviderResponse">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="return" type="xs:boolean"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
         </xs:schema>
         <xs:schema attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://dto.saml.sso.identity.carbon.wso2.org/xsd">
-            <xs:complexType name="SAMLSSOServiceProviderInfoDTO">
-                <xs:sequence>
-                    <xs:element minOccurs="0" name="pubCertFilePath" nillable="true" type="xs:string"/>
-                    <xs:element maxOccurs="unbounded" minOccurs="0" name="serviceProviders" nillable="true" type="ax2357:SAMLSSOServiceProviderDTO"/>
-                    <xs:element minOccurs="0" name="tenantZero" type="xs:boolean"/>
-                </xs:sequence>
-            </xs:complexType>
             <xs:complexType name="SAMLSSOServiceProviderDTO">
                 <xs:sequence>
                     <xs:element minOccurs="0" name="assertionConsumerUrl" nillable="true" type="xs:string"/>
@@ -115,6 +132,7 @@
                     <xs:element minOccurs="0" name="attributeConsumingServiceIndex" nillable="true" type="xs:string"/>
                     <xs:element minOccurs="0" name="certAlias" nillable="true" type="xs:string"/>
                     <xs:element minOccurs="0" name="defaultAssertionConsumerUrl" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="digestAlgorithm" nillable="true" type="xs:string"/>
                     <xs:element minOccurs="0" name="doEnableEncryptedAssertion" type="xs:boolean"/>
                     <xs:element minOccurs="0" name="doSignAssertions" type="xs:boolean"/>
                     <xs:element minOccurs="0" name="doSignResponse" type="xs:boolean"/>
@@ -137,6 +155,13 @@
                     <xs:element minOccurs="0" name="sloResponseURL" nillable="true" type="xs:string"/>
                 </xs:sequence>
             </xs:complexType>
+            <xs:complexType name="SAMLSSOServiceProviderInfoDTO">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="pubCertFilePath" nillable="true" type="xs:string"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="serviceProviders" nillable="true" type="ax2357:SAMLSSOServiceProviderDTO"/>
+                    <xs:element minOccurs="0" name="tenantZero" type="xs:boolean"/>
+                </xs:sequence>
+            </xs:complexType>
         </xs:schema>
         <xs:schema attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://base.identity.carbon.wso2.org/xsd">
             <xs:complexType name="IdentityException">
@@ -144,6 +169,12 @@
             </xs:complexType>
         </xs:schema>
     </wsdl:types>
+    <wsdl:message name="getDigestAlgorithmsRequest">
+        <wsdl:part name="parameters" element="ns1:getDigestAlgorithms"/>
+    </wsdl:message>
+    <wsdl:message name="getDigestAlgorithmsResponse">
+        <wsdl:part name="parameters" element="ns1:getDigestAlgorithmsResponse"/>
+    </wsdl:message>
     <wsdl:message name="removeServiceProviderRequest">
         <wsdl:part name="parameters" element="ns1:removeServiceProvider"/>
     </wsdl:message>
@@ -164,6 +195,12 @@
     </wsdl:message>
     <wsdl:message name="getClaimURIsResponse">
         <wsdl:part name="parameters" element="ns1:getClaimURIsResponse"/>
+    </wsdl:message>
+    <wsdl:message name="getDigestAlgorithmByConfigRequest">
+        <wsdl:part name="parameters" element="ns1:getDigestAlgorithmByConfig"/>
+    </wsdl:message>
+    <wsdl:message name="getDigestAlgorithmByConfigResponse">
+        <wsdl:part name="parameters" element="ns1:getDigestAlgorithmByConfigResponse"/>
     </wsdl:message>
     <wsdl:message name="getServiceProvidersRequest">
         <wsdl:part name="parameters" element="ns1:getServiceProviders"/>
@@ -190,6 +227,10 @@
         <wsdl:part name="parameters" element="ns1:addRPServiceProviderResponse"/>
     </wsdl:message>
     <wsdl:portType name="IdentitySAMLSSOConfigServicePortType">
+        <wsdl:operation name="getDigestAlgorithms">
+            <wsdl:input message="tns:getDigestAlgorithmsRequest" wsaw:Action="urn:getDigestAlgorithms"/>
+            <wsdl:output message="tns:getDigestAlgorithmsResponse" wsaw:Action="urn:getDigestAlgorithmsResponse"/>
+        </wsdl:operation>
         <wsdl:operation name="removeServiceProvider">
             <wsdl:input message="tns:removeServiceProviderRequest" wsaw:Action="urn:removeServiceProvider"/>
             <wsdl:output message="tns:removeServiceProviderResponse" wsaw:Action="urn:removeServiceProviderResponse"/>
@@ -204,6 +245,10 @@
             <wsdl:input message="tns:getClaimURIsRequest" wsaw:Action="urn:getClaimURIs"/>
             <wsdl:output message="tns:getClaimURIsResponse" wsaw:Action="urn:getClaimURIsResponse"/>
             <wsdl:fault message="tns:IdentitySAMLSSOConfigServiceIdentityException" name="IdentitySAMLSSOConfigServiceIdentityException" wsaw:Action="urn:getClaimURIsIdentitySAMLSSOConfigServiceIdentityException"/>
+        </wsdl:operation>
+        <wsdl:operation name="getDigestAlgorithmByConfig">
+            <wsdl:input message="tns:getDigestAlgorithmByConfigRequest" wsaw:Action="urn:getDigestAlgorithmByConfig"/>
+            <wsdl:output message="tns:getDigestAlgorithmByConfigResponse" wsaw:Action="urn:getDigestAlgorithmByConfigResponse"/>
         </wsdl:operation>
         <wsdl:operation name="getServiceProviders">
             <wsdl:input message="tns:getServiceProvidersRequest" wsaw:Action="urn:getServiceProviders"/>
@@ -226,6 +271,15 @@
     </wsdl:portType>
     <wsdl:binding name="IdentitySAMLSSOConfigServiceSoap11Binding" type="tns:IdentitySAMLSSOConfigServicePortType">
         <soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
+        <wsdl:operation name="getDigestAlgorithms">
+            <soap:operation soapAction="urn:getDigestAlgorithms" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
         <wsdl:operation name="removeServiceProvider">
             <soap:operation soapAction="urn:removeServiceProvider" style="document"/>
             <wsdl:input>
@@ -261,6 +315,15 @@
             <wsdl:fault name="IdentitySAMLSSOConfigServiceIdentityException">
                 <soap:fault use="literal" name="IdentitySAMLSSOConfigServiceIdentityException"/>
             </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="getDigestAlgorithmByConfig">
+            <soap:operation soapAction="urn:getDigestAlgorithmByConfig" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
         </wsdl:operation>
         <wsdl:operation name="getServiceProviders">
             <soap:operation soapAction="urn:getServiceProviders" style="document"/>
@@ -307,6 +370,15 @@
     </wsdl:binding>
     <wsdl:binding name="IdentitySAMLSSOConfigServiceSoap12Binding" type="tns:IdentitySAMLSSOConfigServicePortType">
         <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
+        <wsdl:operation name="getDigestAlgorithms">
+            <soap12:operation soapAction="urn:getDigestAlgorithms" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
         <wsdl:operation name="removeServiceProvider">
             <soap12:operation soapAction="urn:removeServiceProvider" style="document"/>
             <wsdl:input>
@@ -342,6 +414,15 @@
             <wsdl:fault name="IdentitySAMLSSOConfigServiceIdentityException">
                 <soap12:fault use="literal" name="IdentitySAMLSSOConfigServiceIdentityException"/>
             </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="getDigestAlgorithmByConfig">
+            <soap12:operation soapAction="urn:getDigestAlgorithmByConfig" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
         </wsdl:operation>
         <wsdl:operation name="getServiceProviders">
             <soap12:operation soapAction="urn:getServiceProviders" style="document"/>
@@ -388,6 +469,15 @@
     </wsdl:binding>
     <wsdl:binding name="IdentitySAMLSSOConfigServiceHttpBinding" type="tns:IdentitySAMLSSOConfigServicePortType">
         <http:binding verb="POST"/>
+        <wsdl:operation name="getDigestAlgorithms">
+            <http:operation location="getDigestAlgorithms"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:output>
+        </wsdl:operation>
         <wsdl:operation name="removeServiceProvider">
             <http:operation location="removeServiceProvider"/>
             <wsdl:input>
@@ -408,6 +498,15 @@
         </wsdl:operation>
         <wsdl:operation name="getClaimURIs">
             <http:operation location="getClaimURIs"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="getDigestAlgorithmByConfig">
+            <http:operation location="getDigestAlgorithmByConfig"/>
             <wsdl:input>
                 <mime:content type="text/xml" part="parameters"/>
             </wsdl:input>

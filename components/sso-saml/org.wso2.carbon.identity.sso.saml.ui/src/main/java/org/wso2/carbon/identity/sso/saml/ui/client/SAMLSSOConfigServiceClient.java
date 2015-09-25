@@ -149,4 +149,26 @@ public class SAMLSSOConfigServiceClient {
         }
         return signingAlgo;
     }
+
+    public String[] getDigestAlgorithms() throws AxisFault{
+        String[] digestAlgorithms;
+        try{
+            digestAlgorithms = stub.getDigestAlgorithms();
+        }catch (RemoteException e){
+            log.error("Error when reading digest algorithms",e);
+            throw new AxisFault(e.getMessage(),e);
+        }
+        return digestAlgorithms;
+    }
+
+    public String getDigestAlgorithmByConfig() throws AxisFault{
+        String digestAlgo;
+        try {
+            digestAlgo = stub.getDigestAlgorithmByConfig();
+        } catch (RemoteException e) {
+            log.error("Error when reading digest algorithm from config",e);
+            throw new AxisFault(e.getMessage(),e);
+        }
+        return digestAlgo;
+    }
 }
