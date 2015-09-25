@@ -40,10 +40,8 @@ import java.util.Map;
 
 public class BasicAuthRequestPathAuthenticator extends AbstractApplicationAuthenticator implements RequestPathApplicationAuthenticator {
 
-    /**
-     *
-     */
-    private static final long serialVersionUID = 1L;
+
+    private static final long serialVersionUID = -3707836631281782935L;
     private static final String AUTHORIZATION_HEADER_NAME = "Authorization";
     private static final String BASIC_AUTH_SCHEMA = "Basic";
     private static final String AUTHENTICATOR_NAME = "BasicAuthRequestPathAuthenticator";

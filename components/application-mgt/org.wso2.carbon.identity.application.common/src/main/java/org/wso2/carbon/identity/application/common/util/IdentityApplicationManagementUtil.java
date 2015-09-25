@@ -38,6 +38,7 @@ import org.wso2.carbon.identity.base.IdentityConstants;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.persistence.JDBCPersistenceManager;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
+import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -274,17 +275,7 @@ public class IdentityApplicationManagementUtil {
      */
     public static void closeConnection(Connection dbConnection) {
 
-        if (dbConnection != null) {
-            try {
-                dbConnection.close();
-            } catch (SQLException e) {
-                log.error("Database error. Could not close connection - " + e.getMessage(), e);
-            }
-        } else {
-            String errorMsg = "Invalid Connection: \'NULL\'";
-            log.debug(errorMsg);
-            throw new IllegalArgumentException(errorMsg);
-        }
+        IdentityDatabaseUtil.closeConnection(dbConnection);
     }
 
     /**
@@ -294,17 +285,7 @@ public class IdentityApplicationManagementUtil {
      */
     public static void rollBack(Connection dbConnection) {
 
-        if (dbConnection != null) {
-            try {
-                dbConnection.rollback();
-            } catch (SQLException e) {
-                log.error("Database error. Could not rollback transaction  - " + e.getMessage(), e);
-            }
-        } else {
-            String errorMsg = "Invalid Connection: \'NULL\'";
-            log.debug(errorMsg);
-            throw new IllegalArgumentException(errorMsg);
-        }
+        IdentityDatabaseUtil.rollBack(dbConnection);
     }
 
     /**
@@ -508,36 +489,14 @@ public class IdentityApplicationManagementUtil {
     }
 
     /**
-     * @return
-     * @throws IdentityException
-     */
-    public static Connection getDBConnection() throws IdentityException {
-        return JDBCPersistenceManager.getInstance().getDBConnection();
-    }
-
-    /**
      * @param rs
      */
     public static void closeResultSet(ResultSet rs) {
-        if (rs != null) {
-            try {
-                rs.close();
-            } catch (SQLException e) {
-                log.error("Database error. Could not close result set  - " + e.getMessage(), e);
-            }
-        }
-
+        IdentityDatabaseUtil.closeResultSet(rs);
     }
 
     public static void closeStatement(PreparedStatement preparedStatement) {
-        if (preparedStatement != null) {
-            try {
-                preparedStatement.close();
-            } catch (SQLException e) {
-                log.error("Database error. Could not close statement. Continuing with others - "
-                        + e.getMessage(), e);
-            }
-        }
+        IdentityDatabaseUtil.closeStatement(preparedStatement);
     }
 
     /**
