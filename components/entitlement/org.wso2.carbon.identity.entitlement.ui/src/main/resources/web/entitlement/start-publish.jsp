@@ -17,6 +17,7 @@
 -->
 <%@ page
         import="org.apache.axis2.context.ConfigurationContext" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 <%@ page import="org.wso2.carbon.CarbonConstants" %>
 <%@ page import="org.wso2.carbon.identity.entitlement.common.EntitlementConstants" %>
 <%@ page import="org.wso2.carbon.identity.entitlement.ui.client.EntitlementPolicyAdminServiceClient" %>
@@ -678,7 +679,7 @@
                           action="post"
                           page="start-publish.jsp"
                           pageNumberParameterName="pageNumber"
-                          parameters="<%=paginationValue%>"
+                          parameters="<%=Encode.forHtmlAttribute(paginationValue)%>"
                           resourceBundle="org.wso2.carbon.identity.entitlement.ui.i18n.Resources"
                           prevKey="prev" nextKey="next"/>
 

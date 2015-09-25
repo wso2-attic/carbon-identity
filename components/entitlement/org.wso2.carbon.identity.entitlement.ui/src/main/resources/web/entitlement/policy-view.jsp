@@ -15,6 +15,7 @@
  ~ specific language governing permissions and limitations
  ~ under the License.
  -->
+ <%@ page import="org.owasp.encoder.Encode" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar"
 	prefix="carbon"%>
@@ -82,7 +83,7 @@
         <textarea id="txtPolicy" rows="50" cols="50"><%=policy%>
         </textarea>
         <input type="hidden" name="callbackURL"
-               value="../entitlement/update-policy-submit.jsp?forwardTo=<%=forwardTo%>&policyid=<%=policyId%>"/>
+               value="../entitlement/update-policy-submit.jsp?forwardTo=<%=Encode.forUriComponent(forwardTo)%>&policyid=<%=Encode.forUriComponent(policyId)%>"/>
        </form>
     </div> 
     
@@ -101,6 +102,6 @@
     }
     else
     {
-        location.href = '<%=request.getHeader("Referer")%>';
+        location.href = '<%=Encode.forJavaScriptBlock(request.getHeader("Referer"))%>';
     }
 </script>
