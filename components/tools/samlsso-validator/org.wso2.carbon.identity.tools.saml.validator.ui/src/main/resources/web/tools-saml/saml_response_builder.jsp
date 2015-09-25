@@ -59,7 +59,7 @@
 	ConfigurationContext configContext;
 	String cookie;
 	SAMLSSOValidatorServiceClient client;
-	String buildResponse = SAMLSSOUIUtil.getSafeInput(request, "buildResponse");
+	String buildResponse = request.getParameter("buildResponse");
 	String[] issuers = null;
 	GeneratedResponseDTO responseDTO = null;
 	boolean isBuildResponse = false;
@@ -80,8 +80,8 @@
 		client = new SAMLSSOValidatorServiceClient(cookie, backendServerURL, configContext);
 		issuers = client.getIssuersOfSAMLServiceProviders();
 		if (isBuildResponse) {
-			issuer = SAMLSSOUIUtil.getSafeInput(request, "issuer");
-			userName = SAMLSSOUIUtil.getSafeInput(request, "userName");
+			issuer = request.getParameter("issuer");
+			userName = request.getParameter("userName");
 			responseDTO = client.buildResponse(issuer, userName);
 		}
 	} catch (Exception e) {
@@ -108,7 +108,7 @@
 							<div style="width: 100%;">
 								<div style="width: 100%;"><textarea type="text"
 								name="samlResponse" id="samlResponse" class="text-box-big"
-								style="width: 99%; height: 250px; background: #FFFFFF;" autocomplete="off" readonly><%=Encode.forHtml(responseDTO.getXmlResponse())%></textarea></div>
+								style="width: 99%; height: 250px; background: #FFFFFF;" autocomplete="off" readonly><%=Encode.forHtmlContent(responseDTO.getXmlResponse())%></textarea></div>
 							</div>
 						</div>
 					<h2 style="padding-top: 20px" >Encoded SAML Response</h2>
@@ -116,7 +116,7 @@
 							<div style="width: 100%;">
 								<div style="width: 100%;"><textarea type="text"
 								name="samlResponse" id="samlResponse" class="text-box-big"
-								style="width: 99%; height: 250px; background: #FFFFFF;" autocomplete="off" readonly><%=Encode.forHtml(responseDTO.getEncodedResponse())%></textarea></div>
+								style="width: 99%; height: 250px; background: #FFFFFF;" autocomplete="off" readonly><%=Encode.forHtmlContent(responseDTO.getEncodedResponse())%></textarea></div>
 							</div>
 						</div>
 			<%
@@ -155,7 +155,7 @@
 					</tr>
 					<tr>
 						<td class="leftCol-small">User Name <span class="required">*</span></td>
-						<td><input type="text" id="userName" name="userName" value="<%=userName != null ? Encode.forHtml(userName) : ""%>"></td>
+						<td><input type="text" id="userName" name="userName" value="<%=userName != null ? Encode.forHtmlAttribute(userName) : ""%>"></td>
 					</tr>
 					<tr>
 						<td class="buttonRow" colspan="2"><input class="button"

@@ -92,7 +92,7 @@
 			client =
 			         new SAMLSSOValidatorServiceClient(cookie, backendServerURL,
 			                                           configContext);
-			samlRequest = SAMLSSOUIUtil.getSafeInput(request, "samlReqest");
+			samlRequest = request.getParameter("samlReqest");
 			String isPostStr = SAMLSSOUIUtil.getSafeInput(request, "isPost");
 			isPost = isPostStr != null ? Boolean.parseBoolean(isPostStr) : false;
 			validatedItems = client.validate(samlRequest, isPost);
@@ -142,7 +142,7 @@
 							Request <span class="required">*</span></td>
 						<td style="height: 200px;"><textarea type="text"
 								name="samlReqest" id="samlReqest" class="text-box-big"
-								style="width: 50%; min-height: 180px;" autocomplete="off"><%=(isDoValidate && samlRequest != null) ? Encode.forHtml(samlRequest): ""%></textarea>
+								style="width: 50%; min-height: 180px;" autocomplete="off"><%=(isDoValidate && samlRequest != null) ? Encode.forHtmlContent(samlRequest): ""%></textarea>
 								<div id="helpReqFormat" class="sectionHelp" style="display: none;">SAML Request should be in similar format to 'https://localhost:9443/samlsso?SAMLRequest=jZJdj6owEIb%2FCum9CGIUG9Gg%...'</div>
 								</td>
 					</tr>
