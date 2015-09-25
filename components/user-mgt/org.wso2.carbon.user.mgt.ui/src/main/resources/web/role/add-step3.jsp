@@ -118,7 +118,7 @@
 
             if (filter.length() > 0) {
                 FlaggedName[] datas;
-                if (UserAdminUIConstants.INTERNAL_ROLE.equals(roleType)) {
+                if (UserAdminUIConstants.INTERNAL_ROLE.equalsIgnoreCase(roleType)) {
                     datas = client.listAllUsers(filter, -1);
                 } else {
                     datas = client.getUsersOfRole(roleName, filter, -1);
@@ -217,7 +217,7 @@
 
 
     <div id="middle">
-        <%if (UserAdminUIConstants.INTERNAL_ROLE.equals(roleType)) {%>
+        <%if (UserAdminUIConstants.INTERNAL_ROLE.equalsIgnoreCase(roleType)) {%>
         <h2><fmt:message key="add.internal.user.role"/></h2>
         <%} else { %>
         <h2><fmt:message key="add.user.role"/></h2>
@@ -315,7 +315,7 @@
                                                 String doEdit = "";
                                                 if (CarbonConstants.REGISTRY_ANONNYMOUS_USERNAME.equals(userName)) {
                                                     continue;
-                                                } else if (!UserAdminUIConstants.INTERNAL_ROLE.equals(roleType) &&
+                                                } else if (!UserAdminUIConstants.INTERNAL_ROLE.equalsIgnoreCase(roleType) &&
                                                            !user.getEditable()) {
                                                     doEdit = "disabled=\"disabled\"";
                                                 } else if (session.getAttribute("checkedUsersMap") != null &&

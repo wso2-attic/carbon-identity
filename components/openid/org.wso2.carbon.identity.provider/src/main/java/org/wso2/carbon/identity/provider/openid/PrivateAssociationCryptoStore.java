@@ -23,12 +23,9 @@ import org.apache.commons.logging.LogFactory;
 import org.openid4java.association.Association;
 import org.openid4java.association.AssociationException;
 import org.openid4java.server.InMemoryServerAssociationStore;
-import org.openid4java.util.OpenID4JavaUtils;
 import org.wso2.carbon.identity.base.IdentityConstants;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
 import java.util.Date;
 import java.util.Random;
 

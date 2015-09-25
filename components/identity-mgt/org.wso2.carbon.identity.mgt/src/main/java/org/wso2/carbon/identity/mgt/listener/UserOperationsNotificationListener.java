@@ -47,7 +47,7 @@ public class UserOperationsNotificationListener extends AbstractIdentityUserOper
 
     @Override
     public int getExecutionOrderId() {
-        int orderId = getOrderId(UserOperationsNotificationListener.class.getName());
+        int orderId = getOrderId();
         if (orderId != IdentityCoreConstants.EVENT_LISTENER_ORDER_ID) {
             return orderId;
         }
@@ -67,7 +67,7 @@ public class UserOperationsNotificationListener extends AbstractIdentityUserOper
     @Override
     public boolean doPostDeleteUser(String username, UserStoreManager userStoreManager)
             throws UserStoreException {
-        if (!isEnable(this.getClass().getName())) {
+        if (!isEnable()) {
             return true;
         }
 
@@ -93,7 +93,7 @@ public class UserOperationsNotificationListener extends AbstractIdentityUserOper
     public boolean doPostDeleteUserClaimValues(String username, UserStoreManager userStoreManager)
             throws UserStoreException {
 
-        if (!isEnable(this.getClass().getName())) {
+        if (!isEnable()) {
             return true;
         }
 
@@ -120,7 +120,7 @@ public class UserOperationsNotificationListener extends AbstractIdentityUserOper
     public boolean doPostDeleteUserClaimValue(String username, UserStoreManager userStoreManager)
             throws UserStoreException {
 
-        if (!isEnable(this.getClass().getName())) {
+        if (!isEnable()) {
             return true;
         }
 
@@ -147,7 +147,7 @@ public class UserOperationsNotificationListener extends AbstractIdentityUserOper
                                               String[] deletedRoles, String[] newRoles,
                                               UserStoreManager userStoreManager)
             throws UserStoreException {
-        if (!isEnable(this.getClass().getName())) {
+        if (!isEnable()) {
             return true;
         }
 
@@ -175,7 +175,7 @@ public class UserOperationsNotificationListener extends AbstractIdentityUserOper
                                             Map<String, String> claims, String profileName,
                                             UserStoreManager userStoreManager)
             throws UserStoreException {
-        if (!isEnable(this.getClass().getName())) {
+        if (!isEnable()) {
             return true;
         }
 

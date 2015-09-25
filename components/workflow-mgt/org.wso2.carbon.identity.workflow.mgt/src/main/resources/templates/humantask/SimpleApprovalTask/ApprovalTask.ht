@@ -70,6 +70,16 @@
                         htd:getInput("ApprovalRequest")//assignees
                     </htd:from>
                 </htd:potentialOwners>
+                <htd:taskInitiator>
+                  <htd:from>
+                    <htd:literal>
+                      <htt:organizationalEntity>
+                        <htt:group>admin</htt:group>
+                        <htt:user>htd:getInput("ApprovalRequest")//htInitiator</htt:user>
+                      </htt:organizationalEntity>
+                    </htd:literal>
+                  </htd:from>
+                </htd:taskInitiator>
                 <htd:businessAdministrators>
                     <htd:from logicalPeopleGroup="taskAdmin">
                         <htd:argument name="role">

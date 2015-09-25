@@ -118,7 +118,8 @@ public class DeleteUserWFRequestHandler extends AbstractWorkflowRequestHandler {
                 UserRealm userRealm = realmService.getTenantUserRealm(tenantId);
                 userRealm.getUserStoreManager().deleteUser(userName);
             } catch (UserStoreException e) {
-                throw new WorkflowException("Error when re-requesting addUser operation for " + userName, e);
+                // Sending e.getMessage() since it is required to give error message to end user.
+                throw new WorkflowException(e.getMessage(), e);
             }
         } else {
             if (retryNeedAtCallback()) {
