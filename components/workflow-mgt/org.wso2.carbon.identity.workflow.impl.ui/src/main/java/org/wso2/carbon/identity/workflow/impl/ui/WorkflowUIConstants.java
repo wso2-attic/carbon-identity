@@ -50,7 +50,8 @@ public class WorkflowUIConstants {
     public static final String PARAM_OPERATION_CATEGORY = "opertaionCategory";
 
     public static final String PARAM_BPS_PROFILE_NAME = "bpsProfileName";
-    public static final String PARAM_BPS_HOST = "bpsHost";
+    public static final String PARAM_BPS_MANAGER_HOST = "bpsWorkerHost";
+    public static final String PARAM_BPS_WORKER_HOST = "bpsManagerHost";
     public static final String PARAM_BPS_AUTH_USER = "bpsUser";
     public static final String PARAM_BPS_AUTH_PASSWORD = "bpsPassword";
     public static final String PARAM_SERVICE_ACTION = "serviceAction";

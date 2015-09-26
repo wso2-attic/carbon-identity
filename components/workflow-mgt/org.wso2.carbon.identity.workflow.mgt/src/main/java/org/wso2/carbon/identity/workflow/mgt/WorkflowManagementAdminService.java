@@ -159,14 +159,26 @@ public class WorkflowManagementAdminService {
             workflowBean.setWorkflowId(id);
             workflowBean.setWorkflowName(workflow.getWorkflowName());
             workflowBean.setWorkflowDescription(workflow.getWorkflowDescription());
-            workflowBean.setTemplateId(workflow.getTemplate().getTemplateId());
-            workflowBean.setWorkflowImplId(workflow.getWorkflowImpl().getWorkflowImplId());
+            String templateId = workflow.getTemplateId()==null ? workflow.getTemplate().getTemplateId():workflow.getTemplateId();
+            if(templateId == null){
+                throw new WorkflowException("template id can't be empty");
+            }
+            workflowBean.setTemplateId(templateId);
+            String workflowImplId = workflow.getWorkflowImplId()==null ? workflow.getWorkflowImpl().getWorkflowImplId():workflow.getWorkflowImplId();
+            if(workflowImplId == null){
+                throw new WorkflowException("workflowimpl id can't be empty");
+            }
+            workflowBean.setWorkflowImplId(workflowImplId);
 
             List<Parameter> parameterList = new ArrayList<>();
-            parameterList.addAll(Arrays.asList(workflow.getTemplateParameters()));
-            parameterList.addAll(Arrays.asList(workflow.getWorkflowImplParameters()));
+            if(workflow.getTemplateParameters()!=null) {
+                parameterList.addAll(Arrays.asList(workflow.getTemplateParameters()));
+            }
+            if(workflow.getWorkflowImplParameters()!=null) {
+                parameterList.addAll(Arrays.asList(workflow.getWorkflowImplParameters()));
+            }
 
-            WorkflowServiceDataHolder.getInstance().getWorkflowService().addWorkflow(workflowBean, parameterList , tenantId);
+            WorkflowServiceDataHolder.getInstance().getWorkflowService().addWorkflow(workflowBean, parameterList, tenantId);
 
         } catch (WorkflowRuntimeException e) {
             log.error("Error when adding workflow " + workflow.getWorkflowName(), e);

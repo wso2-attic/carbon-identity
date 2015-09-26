@@ -25,8 +25,8 @@ public class WorkflowWizard {
     private String workflowId;
     private String workflowName;
     private String workflowDescription;
-    //private String templateId;
-    //private String workflowImplId;
+    private String templateId;
+    private String workflowImplId;
 
     private Template template ;
     private WorkflowImpl workflowImpl;
@@ -59,7 +59,7 @@ public class WorkflowWizard {
     }
 
 
-    /*
+
     public String getTemplateId() {
         return templateId;
     }
@@ -77,7 +77,7 @@ public class WorkflowWizard {
     }
 
 
-    */
+
 
     public Template getTemplate() {
         return template;

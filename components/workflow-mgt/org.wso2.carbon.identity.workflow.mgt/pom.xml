@@ -78,6 +78,33 @@
                 <artifactId>maven-scr-plugin</artifactId>
             </plugin>
             <plugin>
+                <groupId>org.apache.cxf</groupId>
+                <artifactId>cxf-xjc-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>xsdtojava</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <sourceRoot>${basedir}/src/main/java/</sourceRoot>
+                    <xsdOptions>
+                        <xsdOption>
+                            <extension>true</extension>
+                            <xsd>${basedir}/src/main/resources/MetaDataType.xsd</xsd>
+                            <!--xsd>${basedir}/src/main/resources/MetaData.xsd</xsd-->
+                            <extensionArgs>
+                                <arg>-Xdv</arg>
+                            </extensionArgs>
+                        </xsdOption>
+                    </xsdOptions>
+                    <extensions>
+                        <extension>org.apache.cxf.xjcplugins:cxf-xjc-dv:2.3.0</extension>
+                    </extensions>
+                </configuration>
+            </plugin>
+            <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
                 <extensions>true</extensions>
@@ -131,33 +158,7 @@
                     </instructions>
                 </configuration>
             </plugin>
-            <plugin>
-                <groupId>org.apache.cxf</groupId>
-                <artifactId>cxf-xjc-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>xsdtojava</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <sourceRoot>${basedir}/src/main/java/</sourceRoot>
-                    <xsdOptions>
-                        <xsdOption>
-                            <extension>true</extension>
-                            <xsd>${basedir}/src/main/resources/MetaDataType.xsd</xsd>
-                            <!--xsd>${basedir}/src/main/resources/ParameterMetaData.xsd</xsd-->
-                            <extensionArgs>
-                                <arg>-Xdv</arg>
-                            </extensionArgs>
-                        </xsdOption>
-                    </xsdOptions>
-                    <extensions>
-                        <extension>org.apache.cxf.xjcplugins:cxf-xjc-dv:2.3.0</extension>
-                    </extensions>
-                </configuration>
-            </plugin>
+
         </plugins>
     </build>
 </project>

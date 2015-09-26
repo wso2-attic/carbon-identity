@@ -67,12 +67,13 @@ public class BPSProfileDAO {
         try {
             prepStmt = connection.prepareStatement(query);
             prepStmt.setString(1, bpsProfileDTO.getProfileName());
-            prepStmt.setString(2, bpsProfileDTO.getHost());
-            prepStmt.setString(3, bpsProfileDTO.getUsername());
-            prepStmt.setString(4, encryptPassword);
-            prepStmt.setString(5, bpsProfileDTO.getCallbackUser());
-            prepStmt.setString(6, encryptCallBackPassword);
-            prepStmt.setInt(7, tenantId);
+            prepStmt.setString(2, bpsProfileDTO.getManagerHostURL());
+            prepStmt.setString(3, bpsProfileDTO.getWorkerHostURL());
+            prepStmt.setString(4, bpsProfileDTO.getUsername());
+            prepStmt.setString(5, encryptPassword);
+            prepStmt.setString(6, bpsProfileDTO.getCallbackUser());
+            prepStmt.setString(7, encryptCallBackPassword);
+            prepStmt.setInt(8, tenantId);
             prepStmt.executeUpdate();
             connection.commit();
         } catch (SQLException e) {
@@ -107,13 +108,14 @@ public class BPSProfileDAO {
 
         try {
             prepStmt = connection.prepareStatement(query);
-            prepStmt.setString(1, bpsProfile.getHost());
-            prepStmt.setString(2, bpsProfile.getUsername());
-            prepStmt.setString(3, encryptPassword);
-            prepStmt.setString(4, bpsProfile.getCallbackUser());
-            prepStmt.setString(5, encryptCallBackPassword);
-            prepStmt.setInt(6, tenantId);
-            prepStmt.setString(7, bpsProfile.getProfileName());
+            prepStmt.setString(1, bpsProfile.getManagerHostURL());
+            prepStmt.setString(2, bpsProfile.getWorkerHostURL());
+            prepStmt.setString(3, bpsProfile.getUsername());
+            prepStmt.setString(4, encryptPassword);
+            prepStmt.setString(5, bpsProfile.getCallbackUser());
+            prepStmt.setString(6, encryptCallBackPassword);
+            prepStmt.setInt(7, tenantId);
+            prepStmt.setString(8, bpsProfile.getProfileName());
 
             prepStmt.executeUpdate();
             connection.commit();
@@ -144,13 +146,15 @@ public class BPSProfileDAO {
             rs = prepStmt.executeQuery();
 
             if (rs.next()) {
-                String hostName = rs.getString(SQLConstants.HOST_URL_COLUMN);
+                String managerHostName = rs.getString(SQLConstants.HOST_URL_MANAGER_COLUMN);
+                String workerHostName = rs.getString(SQLConstants.HOST_URL_WORKER_COLUMN);
                 String user = rs.getString(SQLConstants.USERNAME_COLUMN);
                 String callbackUser = rs.getString(SQLConstants.CALLBACK_USER_COLUMN);
 
                 bpsProfileDTO = new BPSProfile();
                 bpsProfileDTO.setProfileName(profileName);
-                bpsProfileDTO.setHost(hostName);
+                bpsProfileDTO.setManagerHostURL(managerHostName);
+                bpsProfileDTO.setWorkerHostURL(workerHostName);
                 bpsProfileDTO.setUsername(user);
                 bpsProfileDTO.setCallbackUser(callbackUser);
 
@@ -254,7 +258,8 @@ public class BPSProfileDAO {
                 if (classCheckresult == null && name.equals("embeded_bps")){
                     continue;
                 }
-                String hostName = rs.getString(SQLConstants.HOST_URL_COLUMN);
+                String managerHostName = rs.getString(SQLConstants.HOST_URL_MANAGER_COLUMN);
+                String workerHostName = rs.getString(SQLConstants.HOST_URL_WORKER_COLUMN);
                 String user = rs.getString(SQLConstants.USERNAME_COLUMN);
                 String callbackUser = rs.getString(SQLConstants.CALLBACK_USER_COLUMN);
                 String password = rs.getString(SQLConstants.PASSWORD_COLUMN);
@@ -270,7 +275,8 @@ public class BPSProfileDAO {
                             name, e);
                 }
                 BPSProfile profileBean = new BPSProfile();
-                profileBean.setHost(hostName);
+                profileBean.setManagerHostURL(managerHostName);
+                profileBean.setWorkerHostURL(workerHostName);
                 profileBean.setProfileName(name);
                 profileBean.setUsername(user);
                 profileBean.setPassword(decryptPassword);

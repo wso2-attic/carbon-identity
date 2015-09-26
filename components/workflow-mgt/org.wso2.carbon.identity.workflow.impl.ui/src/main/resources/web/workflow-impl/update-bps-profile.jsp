@@ -117,8 +117,12 @@
                     </thead>
                     <tbody>
                     <tr>
-                        <td width="30%"><fmt:message key='workflow.bps.profile.host'/></td>
-                        <td><input type="text" name="<%=WorkflowUIConstants.PARAM_BPS_HOST%>" value="<%=bpsProfile.getHost()%>"/></td>
+                        <td width="30%"><fmt:message key='workflow.bps.profile.manager.host'/></td>
+                        <td><input type="text" name="<%=WorkflowUIConstants.PARAM_BPS_MANAGER_HOST%>" value="<%=bpsProfile.getManagerHostURL()%>"/></td>
+                    </tr>
+                    <tr>
+                        <td width="30%"><fmt:message key='workflow.bps.profile.worker.host'/></td>
+                        <td><input type="text" name="<%=WorkflowUIConstants.PARAM_BPS_WORKER_HOST%>" value="<%=bpsProfile.getWorkerHostURL()%>"/></td>
                     </tr>
                     <tr>
                         <td width="30%"><fmt:message key='workflow.bps.profile.auth.user'/></td>

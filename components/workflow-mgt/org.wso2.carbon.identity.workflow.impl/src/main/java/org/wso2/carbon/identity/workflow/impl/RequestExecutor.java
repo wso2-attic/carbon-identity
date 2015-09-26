@@ -130,7 +130,7 @@ public class RequestExecutor implements WorkFlowExecutor {
         Options options = new Options();
         options.setAction(WFImplConstant.DEFAULT_APPROVAL_BPEL_SOAP_ACTION);
 
-        String host = bpsProfile.getHost();
+        String host = bpsProfile.getWorkerHostURL();
         String serviceName = Parameter.getParameter(parameterList,WFConstant.ParameterName.WORKFLOW_NAME,WFConstant.ParameterHolder.WORKFLOW_IMPL).getParamValue();
 
         String endpoint;

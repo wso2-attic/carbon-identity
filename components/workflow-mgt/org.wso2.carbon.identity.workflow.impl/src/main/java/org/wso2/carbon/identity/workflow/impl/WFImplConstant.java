@@ -19,7 +19,7 @@ package org.wso2.carbon.identity.workflow.impl;
 
 public class WFImplConstant {
 
-    public static final String WORKFLOW_IMPL_PARAMETER_METADATA_FILE_NAME = "WorkflowParamMetaData.xml" ;
+    public static final String WORKFLOW_IMPL_PARAMETER_METADATA_FILE_NAME = "WorkflowImplMetaData.xml" ;
     public static class ParameterName {
         //Template Parameter List
         public static final String STEPS_USER_AND_ROLE = "UserAndRole" ;

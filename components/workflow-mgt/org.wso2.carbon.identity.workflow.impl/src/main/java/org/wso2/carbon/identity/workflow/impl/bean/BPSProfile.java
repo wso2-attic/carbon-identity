@@ -23,7 +23,8 @@ package org.wso2.carbon.identity.workflow.impl.bean;
  */
 public class BPSProfile {
     private String profileName;
-    private String host;
+    private String managerHostURL;
+    private String workerHostURL;
     private String username;
     private String password;
     private String callbackUser;
@@ -35,14 +36,6 @@ public class BPSProfile {
 
     public void setProfileName(String profileName) {
         this.profileName = profileName;
-    }
-
-    public String getHost() {
-        return host;
-    }
-
-    public void setHost(String host) {
-        this.host = host;
     }
 
     public String getUsername() {
@@ -77,5 +70,21 @@ public class BPSProfile {
 
     public void setCallbackPassword(String callbackPassword) {
         this.callbackPassword = callbackPassword;
+    }
+
+    public String getManagerHostURL() {
+        return managerHostURL;
+    }
+
+    public void setManagerHostURL(String managerHostURL) {
+        this.managerHostURL = managerHostURL;
+    }
+
+    public String getWorkerHostURL() {
+        return workerHostURL;
+    }
+
+    public void setWorkerHostURL(String workerHostURL) {
+        this.workerHostURL = workerHostURL;
     }
 }

@@ -54,7 +54,8 @@ public class WorkflowImplTenantMgtListener implements TenantMgtListener {
             }
             String url = "https://" + hostName + ":" + (9443 + Integer.parseInt(offset));
 
-            bpsProfileDTO.setHost(url);
+            bpsProfileDTO.setManagerHostURL(url);
+            bpsProfileDTO.setWorkerHostURL(url);
             bpsProfileDTO.setUsername(tenantInfoBean.getAdmin());
             bpsProfileDTO.setPassword(tenantInfoBean.getAdminPassword());
             bpsProfileDTO.setCallbackUser(tenantInfoBean.getAdmin());

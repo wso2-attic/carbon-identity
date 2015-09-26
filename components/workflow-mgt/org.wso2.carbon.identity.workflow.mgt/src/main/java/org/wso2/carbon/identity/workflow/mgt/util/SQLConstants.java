@@ -33,7 +33,8 @@ public class SQLConstants {
     public static final String TENANT_ID_COLUMN = "TENANT_ID";
     public static final String CONDITION_COLUMN = "ASSOC_CONDITION";
     public static final String PROFILE_NAME_COLUMN = "PROFILE_NAME";
-    public static final String HOST_URL_COLUMN = "HOST_URL";
+    public static final String HOST_URL_MANAGER_COLUMN = "HOST_URL_MANAGER";
+    public static final String HOST_URL_WORKER_COLUMN = "HOST_URL_WORKER";
     public static final String USERNAME_COLUMN = "USERNAME";
     public static final String PASSWORD_COLUMN = "PASSWORD";
     public static final String CALLBACK_USER_COLUMN = "CALLBACK_USERNAME";
@@ -134,23 +135,23 @@ public class SQLConstants {
 
     //queries for BPS profiles
     public static final String ADD_BPS_PROFILE_QUERY =
-            "INSERT INTO WF_BPS_PROFILE(PROFILE_NAME, HOST_URL, USERNAME, PASSWORD, CALLBACK_USERNAME," +
-                    " CALLBACK_PASSWORD, TENANT_ID) VALUES (?, ?, ?, ?, ?, ?, ?)";
+            "INSERT INTO WF_BPS_PROFILE(PROFILE_NAME, HOST_URL_MANAGER, HOST_URL_WORKER, USERNAME, PASSWORD, CALLBACK_USERNAME," +
+                    " CALLBACK_PASSWORD, TENANT_ID) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
     public static final String UPDATE_BPS_PROFILE_QUERY =
-            "UPDATE WF_BPS_PROFILE SET HOST_URL=?, USERNAME=?, PASSWORD=?, CALLBACK_USERNAME=?, " +
+            "UPDATE WF_BPS_PROFILE SET HOST_URL_MANAGER=?, HOST_URL_WORKER=?, USERNAME=?, PASSWORD=?, CALLBACK_USERNAME=?, " +
             "CALLBACK_PASSWORD=? WHERE TENANT_ID=? AND PROFILE_NAME=?";
 
     //public static final String GET_BPS_PROFILE_QUERY = "SELECT HOST_URL, USERNAME, PASSWORD, " +
             //"CALLBACK_USERNAME, CALLBACK_PASSWORD FROM WF_BPS_PROFILE WHERE PROFILE_NAME = ?";
 
-    public static final String GET_BPS_PROFILE_FOR_TENANT_QUERY = "SELECT HOST_URL, USERNAME,PASSWORD,  " +
+    public static final String GET_BPS_PROFILE_FOR_TENANT_QUERY = "SELECT HOST_URL_MANAGER, HOST_URL_WORKER, USERNAME,PASSWORD,  " +
                                                                   "CALLBACK_USERNAME, CALLBACK_PASSWORD FROM " +
                                                                   "WF_BPS_PROFILE WHERE PROFILE_NAME = ? AND " +
                                                                   "TENANT_ID = ? ";
 
     public static final String LIST_BPS_PROFILES_QUERY =
-            "SELECT PROFILE_NAME, HOST_URL, USERNAME, PASSWORD, CALLBACK_USERNAME, CALLBACK_PASSWORD FROM " +
+            "SELECT PROFILE_NAME, HOST_URL_MANAGER, HOST_URL_WORKER, USERNAME, PASSWORD, CALLBACK_USERNAME, CALLBACK_PASSWORD FROM " +
                     "WF_BPS_PROFILE WHERE TENANT_ID = ?";
 
     public static final String DELETE_BPS_PROFILES_QUERY = "DELETE FROM WF_BPS_PROFILE WHERE PROFILE_NAME = ?";

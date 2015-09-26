@@ -22,6 +22,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.workflow.mgt.bean.Parameter;
 import org.wso2.carbon.identity.workflow.mgt.bean.metadata.InputData;
+import org.wso2.carbon.identity.workflow.mgt.bean.metadata.MetaData;
 import org.wso2.carbon.identity.workflow.mgt.bean.metadata.ParameterMetaData;
 import org.wso2.carbon.identity.workflow.mgt.dto.WorkflowRequest;
 import org.wso2.carbon.identity.workflow.mgt.bean.metadata.ParametersMetaData;
@@ -36,8 +37,8 @@ public abstract class AbstractWorkflow {
 
     private Log log = LogFactory.getLog(AbstractWorkflow.class);
 
+    private MetaData metaData = null;
     private ParametersMetaData parametersMetaData = null ;
-    private String templateId ;
 
     protected abstract InputData getInputData(String parameterName)  throws WorkflowException;
     /**
@@ -46,15 +47,18 @@ public abstract class AbstractWorkflow {
      * @param metaDataXML Parameter Metadata XML string
      * @throws WorkflowRuntimeException
      */
-    public AbstractWorkflow(String templateId, String metaDataXML) throws WorkflowRuntimeException {
+    public AbstractWorkflow(String metaDataXML) throws WorkflowRuntimeException {
         try {
-            this.parametersMetaData = WorkflowManagementUtil.unmarshalXML(metaDataXML, ParametersMetaData.class);
+            this.metaData = WorkflowManagementUtil.unmarshalXML(metaDataXML, MetaData.class);
+            if(this.metaData == null || this.metaData.getWorkflowImpl() == null ){
+                throw new WorkflowRuntimeException("Error occurred while Loading WorkflowImpl Meta Data");
+            }
+            this.parametersMetaData = this.metaData.getWorkflowImpl().getParametersMetaData();
         } catch (JAXBException e) {
-            String errorMsg = "Error occured while converting workflow parameter data to object : " + e.getMessage();
+            String errorMsg = "Error occurred while converting workflow parameter data to object : " + e.getMessage();
             log.error(errorMsg);
             throw new WorkflowRuntimeException(errorMsg, e);
         }
-        this.templateId = templateId ;
     }
 
 
@@ -104,46 +108,28 @@ public abstract class AbstractWorkflow {
         return parametersMetaData;
     }
 
-    public void setParametersMetaData(ParametersMetaData parametersMetaData) {
-        this.parametersMetaData = parametersMetaData;
-    }
-/*
-    @Override
-    public boolean equals(Object o) {
-
-        if (this == o) {
-            return true;
-        }
-        if (o == null || !(o instanceof AbstractWorkflow)) {
-            return false;
-        }
-        AbstractWorkflow that = (AbstractWorkflow) o;
-        return StringUtils.equals(getTemplateId(), that.getTemplateId()) &&
-                StringUtils.equals(getImplementationId(), that
-                        .getImplementationId());
-
-    }
-
-    @Override
-    public int hashCode() {
-
-        int result = getTemplateId() != null ? getTemplateId().hashCode() : 0;
-        result = 31 * result + (getImplementationId() != null ? getImplementationId().hashCode() : 0);
-        return result;
-    }
-*/
-
     public String getTemplateId() {
-        return templateId;
+        return this.metaData.getWorkflowImpl().getTemplateId();
     }
 
     public void setTemplateId(String templateId) {
-        this.templateId = templateId;
+        this.metaData.getWorkflowImpl().setTemplateId(templateId);
     }
+
+
+
+    public  String getWorkflowImplId(){
+        return this.metaData.getWorkflowImpl().getWorkflowImplId();
+    }
+    public  String getWorkflowImplName(){
+        return this.metaData.getWorkflowImpl().getWorkflowImplName();
+    }
+
+    public String getDescription(){
+        return this.metaData.getWorkflowImpl().getWorkflowImplDescription();
+    }
+
 
     protected abstract TemplateInitializer getInitializer();
     protected abstract WorkFlowExecutor getExecutor();
-
-    public abstract String getWorkflowImplId();
-    public abstract String getWorkflowImplName();
 }

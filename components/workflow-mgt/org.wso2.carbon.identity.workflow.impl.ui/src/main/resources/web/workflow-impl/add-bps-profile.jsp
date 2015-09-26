@@ -68,8 +68,12 @@
                     </thead>
                     <tbody>
                     <tr>
-                        <td width="30%"><fmt:message key='workflow.bps.profile.host'/></td>
-                        <td><input type="text" name="<%=WorkflowUIConstants.PARAM_BPS_HOST%>"/></td>
+                        <td width="30%"><fmt:message key='workflow.bps.profile.manager.host'/></td>
+                        <td><input type="text" name="<%=WorkflowUIConstants.PARAM_BPS_MANAGER_HOST%>"/></td>
+                    </tr>
+                    <tr>
+                        <td width="30%"><fmt:message key='workflow.bps.profile.worker.host'/></td>
+                        <td><input type="text" name="<%=WorkflowUIConstants.PARAM_BPS_WORKER_HOST%>"/></td>
                     </tr>
                     <tr>
                         <td width="30%"><fmt:message key='workflow.bps.profile.auth.user'/></td>

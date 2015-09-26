@@ -21,6 +21,7 @@ package org.wso2.carbon.identity.workflow.mgt.template;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.workflow.mgt.bean.metadata.InputData;
+import org.wso2.carbon.identity.workflow.mgt.bean.metadata.MetaData;
 import org.wso2.carbon.identity.workflow.mgt.bean.metadata.ParameterMetaData;
 import org.wso2.carbon.identity.workflow.mgt.bean.metadata.ParametersMetaData;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
@@ -38,6 +39,7 @@ public abstract class AbstractTemplate {
 
     private Log log = LogFactory.getLog(AbstractTemplate.class);
     private ParametersMetaData parametersMetaData = null ;
+    private MetaData metaData ;
 
     protected abstract InputData getInputData(String parameterName) throws WorkflowException;
 
@@ -49,7 +51,11 @@ public abstract class AbstractTemplate {
      */
     public AbstractTemplate(String metaDataXML) throws WorkflowRuntimeException {
         try {
-            this.parametersMetaData = WorkflowManagementUtil.unmarshalXML(metaDataXML, ParametersMetaData.class);
+            this.metaData = WorkflowManagementUtil.unmarshalXML(metaDataXML, MetaData.class);
+            if(this.metaData == null || this.metaData.getTemplate() == null ){
+                throw new WorkflowRuntimeException("Error occurred while Loading Template Meta Data");
+            }
+            this.parametersMetaData = this.metaData.getTemplate().getParametersMetaData();
         } catch (JAXBException e) {
             String errorMsg = "Error occured while converting template parameter data to object : " + e.getMessage();
             log.error(errorMsg);
@@ -84,18 +90,24 @@ public abstract class AbstractTemplate {
      * Template Id is unique representation of the template
      * @return String templateId
      */
-    public abstract String getTemplateId();
+    public String getTemplateId(){
+        return this.metaData.getTemplate().getTemplateId();
+    }
 
     /**
      * Template Name
      * @return String Template Name
      */
-    public abstract String getName();
+    public String getName(){
+        return this.metaData.getTemplate().getTemplateName();
+    }
 
     /**
      * Template Description
      *
      * @return String description
      */
-    public abstract String getDescription();
+    public String getDescription(){
+        return this.metaData.getTemplate().getTemplateDescription();
+    }
 }

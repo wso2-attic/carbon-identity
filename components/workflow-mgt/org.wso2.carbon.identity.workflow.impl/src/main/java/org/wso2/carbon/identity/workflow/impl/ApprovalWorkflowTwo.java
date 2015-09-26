@@ -100,8 +100,8 @@ public class ApprovalWorkflowTwo extends AbstractWorkflow {
         return inputData;
     }
 
-    public ApprovalWorkflowTwo(String templateId, String metaDataXML) {
-        super(templateId,metaDataXML);
+    public ApprovalWorkflowTwo(String metaDataXML) {
+        super(metaDataXML);
         setExecutor(new RequestExecutor());
     }
 
@@ -149,13 +149,4 @@ public class ApprovalWorkflowTwo extends AbstractWorkflow {
         super.initializeExecutor(parameterList);
     }
 
-    @Override
-    public String getWorkflowImplId() {
-        return "ABC2222";
-    }
-
-    @Override
-    public String getWorkflowImplName() {
-        return "ddsdsdsdsd";
-    }
 }

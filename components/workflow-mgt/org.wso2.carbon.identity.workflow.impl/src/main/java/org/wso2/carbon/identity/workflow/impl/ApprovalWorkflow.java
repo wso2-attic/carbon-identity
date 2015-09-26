@@ -102,8 +102,8 @@ public class ApprovalWorkflow extends AbstractWorkflow {
         return inputData;
     }
 
-    public ApprovalWorkflow(String templateId, String metaDataXML) {
-        super(templateId,metaDataXML);
+    public ApprovalWorkflow(String metaDataXML) {
+        super(metaDataXML);
         setExecutor(new RequestExecutor());
     }
 

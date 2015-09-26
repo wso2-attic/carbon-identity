@@ -129,7 +129,7 @@ public class BPELDeployer implements TemplateInitializer {
         String bpelArchiveName = processName + BPELDeployer.Constants.ZIP_EXT;
         String archiveHome = System.getProperty(BPELDeployer.Constants.TEMP_DIR_PROPERTY) + File.separator;
         DataSource bpelDataSource = new FileDataSource(archiveHome + bpelArchiveName);
-        WorkflowDeployerClient workflowDeployerClient = new WorkflowDeployerClient(bpsProfile.getHost(),
+        WorkflowDeployerClient workflowDeployerClient = new WorkflowDeployerClient(bpsProfile.getManagerHostURL(),
                                                                                    bpsProfile.getUsername(), bpsProfile.getPassword().toCharArray());
         workflowDeployerClient.uploadBPEL(getBPELUploadedFileItem(new DataHandler(bpelDataSource),
                                                                   bpelArchiveName, BPELDeployer.Constants.ZIP_TYPE));
@@ -172,7 +172,7 @@ public class BPELDeployer implements TemplateInitializer {
         Map<String, String> placeHolderValues = new HashMap<>();
         placeHolderValues.put(BPELDeployer.Constants.BPEL_PROCESS_NAME, processName);
         placeHolderValues.put(BPELDeployer.Constants.HT_SERVICE_NAME, htName);
-        placeHolderValues.put(BPELDeployer.Constants.BPS_HOST_NAME, (bpsProfile.getHost()!=null ? bpsProfile.getHost(): ""));
+        placeHolderValues.put(BPELDeployer.Constants.BPS_HOST_NAME, (bpsProfile.getWorkerHostURL()!=null ? bpsProfile.getWorkerHostURL(): ""));
         placeHolderValues.put(BPELDeployer.Constants.CARBON_HOST_NAME, BPELDeployer.Constants.CARBON_HOST_URL);
         placeHolderValues.put(BPELDeployer.Constants.CARBON_CALLBACK_AUTH_USER, (bpsProfile.getCallbackUser()!=null ? bpsProfile.getCallbackUser(): ""));
         placeHolderValues.put(BPELDeployer.Constants.CARBON_CALLBACK_AUTH_PASSWORD, (bpsProfile.getCallbackPassword()!=null ? bpsProfile.getCallbackPassword(): ""));

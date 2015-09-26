@@ -19,7 +19,7 @@ package org.wso2.carbon.identity.workflow.template;
 
 
 public class TemplateConstant {
-    public static final String TEMPLATE_PARAMETER_METADATA_FILE_NAME = "TemplateParamMetaData.xml" ;
+    public static final String TEMPLATE_PARAMETER_METADATA_FILE_NAME = "TemplateMetaData.xml" ;
 
 
 }

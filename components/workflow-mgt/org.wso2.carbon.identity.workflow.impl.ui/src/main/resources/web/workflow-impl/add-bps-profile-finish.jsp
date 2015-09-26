@@ -33,7 +33,8 @@
     ResourceBundle resourceBundle = ResourceBundle.getBundle(bundle, request.getLocale());
 
     String profileName = request.getParameter(WorkflowUIConstants.PARAM_BPS_PROFILE_NAME);
-    String host = request.getParameter(WorkflowUIConstants.PARAM_BPS_HOST);
+    String managerHost = request.getParameter(WorkflowUIConstants.PARAM_BPS_MANAGER_HOST);
+    String workerHost = request.getParameter(WorkflowUIConstants.PARAM_BPS_WORKER_HOST);
     String username = request.getParameter(WorkflowUIConstants.PARAM_BPS_AUTH_USER);
     String password = request.getParameter(WorkflowUIConstants.PARAM_BPS_AUTH_PASSWORD);
     String callbackUser = request.getParameter(WorkflowUIConstants.PARAM_CARBON_AUTH_USER);
@@ -50,7 +51,8 @@
     try {
         BPSProfile bpsProfile = new BPSProfile();
         bpsProfile.setProfileName(profileName);
-        bpsProfile.setHost(host);
+        bpsProfile.setManagerHostURL(managerHost);
+        bpsProfile.setWorkerHostURL(workerHost);
         bpsProfile.setUsername(username);
         bpsProfile.setPassword(password);
         bpsProfile.setCallbackUser(username);

@@ -106,10 +106,10 @@ public class WorkflowImplServiceComponent {
 
         try {
             String metaDataXML = readWorkflowImplParamMetaDataXML(WFImplConstant.WORKFLOW_IMPL_PARAMETER_METADATA_FILE_NAME);
-            bundleContext.registerService(AbstractWorkflow.class, new ApprovalWorkflow(WFImplConstant.WORKFLOW_TEMPLATE_ID, metaDataXML), null);
+            bundleContext.registerService(AbstractWorkflow.class, new ApprovalWorkflow(metaDataXML), null);
 
             String metaDataXMLTwo = readWorkflowImplParamMetaDataXML("WorkflowParamMetaDataTTwo.xml");
-            bundleContext.registerService(AbstractWorkflow.class, new ApprovalWorkflowTwo(WFImplConstant.WORKFLOW_TEMPLATE_ID,metaDataXMLTwo), null);
+            bundleContext.registerService(AbstractWorkflow.class, new ApprovalWorkflowTwo(metaDataXMLTwo), null);
 
             WorkflowImplServiceDataHolder.getInstance().setWorkflowImplService(new WorkflowImplServiceImpl());
 
@@ -159,7 +159,8 @@ public class WorkflowImplServiceComponent {
                 }
                 String url = "https://" + hostName + ":" + (9443 + Integer.parseInt(offset));
 
-                bpsProfileDTO.setHost(url);
+                bpsProfileDTO.setManagerHostURL(url);
+                bpsProfileDTO.setWorkerHostURL(url);
                 bpsProfileDTO.setUsername(userName);
                 bpsProfileDTO.setPassword(password);
                 bpsProfileDTO.setCallbackUser(userName);
