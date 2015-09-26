@@ -24,6 +24,7 @@ import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMFactory;
 import org.apache.axiom.om.OMNamespace;
 import org.apache.commons.lang.StringUtils;
+import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.identity.workflow.impl.WFImplConstant;
 import org.wso2.carbon.identity.workflow.mgt.bean.Parameter;
 import org.wso2.carbon.identity.workflow.mgt.bean.RequestParameter;
@@ -47,6 +48,7 @@ public class WorkflowRequestBuilder {
     private static final String WF_REQ_ROOT_ELEM = "ProcessRequest";
     private static final String WF_REQ_UUID_ELEM = "uuid";
     private static final String WF_REQ_ACTION_ELEM = "eventType";
+    private static final String WF_REQ_TASK_INITIATOR_ELEM = "taskInitiator";
 
     private static final String WF_REQ_CONFIG_ELEM = "configuration";
     private static final String WF_REQ_APPROVAL_STEP_ELEM = "approvalStep";
@@ -275,12 +277,15 @@ public class WorkflowRequestBuilder {
         OMNamespace omNs = omFactory.createOMNamespace(WF_NS, WF_NS_PREFIX);
         OMElement rootElement = omFactory.createOMElement(WF_REQ_ROOT_ELEM, omNs);
         OMElement uuidElement = omFactory.createOMElement(WF_REQ_UUID_ELEM, omNs);
+        OMElement reqIdElement = omFactory.createOMElement(WF_REQ_ACTION_ELEM, omNs);
+        OMElement taskInitiatorElement = omFactory.createOMElement(WF_REQ_TASK_INITIATOR_ELEM, omNs);
         OMElement configElement = omFactory.createOMElement(WF_REQ_CONFIG_ELEM, omNs);
         uuidElement.setText(uuid);
         rootElement.addChild(uuidElement);
-        OMElement reqIdElement = omFactory.createOMElement(WF_REQ_ACTION_ELEM, omNs);
         reqIdElement.setText(event);
         rootElement.addChild(reqIdElement);
+        taskInitiatorElement.setText(CarbonContext.getThreadLocalCarbonContext().getUsername());
+        rootElement.addChild(taskInitiatorElement);
         OMElement paramsElement = omFactory.createOMElement(WF_REQ_PARAMS_ELEM, omNs);
 
         for (Map.Entry<String, Object> entry : singleValuedParams.entrySet()) {

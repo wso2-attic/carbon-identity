@@ -21,7 +21,7 @@
         <menu>
             <id>bps_profiles_menu</id>
             <i18n-key>workflow.bps.profiles</i18n-key>
-            <i18n-bundle>org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources</i18n-bundle>
+            <i18n-bundle>org.wso2.carbon.identity.workflow.impl.ui.i18n.Resources</i18n-bundle>
             <parent-menu>configure_menu</parent-menu>
             <link>#</link>
             <icon>../workflow-impl/images/workflow.gif</icon>
@@ -34,7 +34,7 @@
         <menu>
             <id>bps_profiles_add_menu</id>
             <i18n-key>add</i18n-key>
-            <i18n-bundle>org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources</i18n-bundle>
+            <i18n-bundle>org.wso2.carbon.identity.workflow.impl.i18n.Resources</i18n-bundle>
             <parent-menu>bps_profiles_menu</parent-menu>
             <link>../workflow-impl/add-bps-profile.jsp</link>
             <icon>../workflow-impl/images/add.png</icon>
@@ -48,7 +48,7 @@
         <menu>
             <id>bps_profiles_list_menu</id>
             <i18n-key>list</i18n-key>
-            <i18n-bundle>org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources</i18n-bundle>
+            <i18n-bundle>org.wso2.carbon.identity.workflow.impl.ui.i18n.Resources</i18n-bundle>
             <parent-menu>bps_profiles_menu</parent-menu>
             <link>../workflow-impl/list-bps-profiles.jsp</link>
             <icon>../workflow-impl/images/list.png</icon>
