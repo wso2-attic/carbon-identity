@@ -138,21 +138,21 @@ public class SAMLSSOProviderServlet extends HttpServlet {
             log.debug("Query string : " + queryString);
         }
         // if an openid authentication or password authentication
-        String authMode = CharacterEncoder.getSafeText(req.getParameter("authMode"));
+        String authMode = req.getParameter("authMode");
         if (!SAMLSSOConstants.AuthnModes.OPENID.equals(authMode)) {
             authMode = SAMLSSOConstants.AuthnModes.USERNAME_PASSWORD;
         }
-        String relayState = CharacterEncoder.getSafeText(req.getParameter(SAMLSSOConstants.RELAY_STATE));
-        String spEntityID = CharacterEncoder.getSafeText(req.getParameter(SAMLSSOConstants.QueryParameter
-                                                                                  .SP_ENTITY_ID.toString()));
-        String samlRequest = CharacterEncoder.getSafeText(req.getParameter("SAMLRequest"));
-        String sessionDataKey = CharacterEncoder.getSafeText(req.getParameter("sessionDataKey"));
-        String slo = CharacterEncoder.getSafeText(req.getParameter(SAMLSSOConstants.QueryParameter.SLO.toString()));
+        String relayState = req.getParameter(SAMLSSOConstants.RELAY_STATE);
+        String spEntityID = req.getParameter(SAMLSSOConstants.QueryParameter
+                .SP_ENTITY_ID.toString());
+        String samlRequest = req.getParameter("SAMLRequest");
+        String sessionDataKey = req.getParameter("sessionDataKey");
+        String slo = req.getParameter(SAMLSSOConstants.QueryParameter.SLO.toString());
 
         boolean isExpFired = false;
         try {
 
-            String tenantDomain = CharacterEncoder.getSafeText(req.getParameter("tenantDomain"));
+            String tenantDomain = req.getParameter("tenantDomain");
             SAMLSSOUtil.setTenantDomainInThreadLocal(tenantDomain);
 
             if (sessionDataKey != null) { //Response from common authentication framework.
@@ -261,7 +261,7 @@ public class SAMLSSOProviderServlet extends HttpServlet {
                                   boolean isPost, boolean isLogout) throws UserStoreException, IdentityException,
                                                                       IOException, ServletException {
 
-        String rpSessionId = CharacterEncoder.getSafeText(req.getParameter(MultitenantConstants.SSO_AUTH_SESSION_ID));
+        String rpSessionId = req.getParameter(MultitenantConstants.SSO_AUTH_SESSION_ID);
         SAMLSSOService samlSSOService = new SAMLSSOService();
 
         SAMLSSOReqValidationResponseDTO signInRespDTO = samlSSOService.validateIdPInitSSORequest(
@@ -324,7 +324,7 @@ public class SAMLSSOProviderServlet extends HttpServlet {
                                  String samlRequest, String sessionId, boolean isPost)
             throws UserStoreException, IdentityException, IOException, ServletException {
 
-        String rpSessionId = CharacterEncoder.getSafeText(req.getParameter(MultitenantConstants.SSO_AUTH_SESSION_ID));
+        String rpSessionId = req.getParameter(MultitenantConstants.SSO_AUTH_SESSION_ID);
         SAMLSSOService samlSSOService = new SAMLSSOService();
 
         SAMLSSOReqValidationResponseDTO signInRespDTO = samlSSOService.validateSPInitSSORequest(
@@ -531,10 +531,6 @@ public class SAMLSSOProviderServlet extends HttpServlet {
                               String tenantDomain)
             throws ServletException, IOException, IdentityException {
 
-        if (relayState != null) {
-            relayState = URLEncoder.encode(relayState,"UTF-8");
-        }
-
         acUrl = getACSUrlWithTenantPartitioning(acUrl, tenantDomain);
 
         if (acUrl == null || acUrl.trim().length() == 0) {
@@ -554,11 +550,11 @@ public class SAMLSSOProviderServlet extends HttpServlet {
             String finalPage = null;
             String htmlPage = IdentitySAMLSSOServiceComponent.getSsoRedirectHtml();
             String pageWithAcs = htmlPage.replace("$acUrl", acUrl);
-            String pageWithAcsResponse = pageWithAcs.replace("<!--$params-->", "<!--$params-->\n" + "<input type='hidden' name='SAMLResponse' value='" + response + "'>");
+            String pageWithAcsResponse = pageWithAcs.replace("<!--$params-->", "<!--$params-->\n" + "<input type='hidden' name='SAMLResponse' value='" + Encode.forHtmlAttribute(response) + "'>");
             String pageWithAcsResponseRelay = pageWithAcsResponse;
 
             if(relayState != null) {
-                pageWithAcsResponseRelay = pageWithAcsResponse.replace("<!--$params-->", "<!--$params-->\n" + "<input type='hidden' name='RelayState' value='" + relayState + "'>");
+                pageWithAcsResponseRelay = pageWithAcsResponse.replace("<!--$params-->", "<!--$params-->\n" + "<input type='hidden' name='RelayState' value='" + Encode.forHtmlAttribute(relayState)+ "'>");
             }
 
             if (authenticatedIdPs == null || authenticatedIdPs.isEmpty()) {
@@ -567,11 +563,11 @@ public class SAMLSSOProviderServlet extends HttpServlet {
                 finalPage = pageWithAcsResponseRelay.replace(
                         "<!--$additionalParams-->",
                         "<input type='hidden' name='AuthenticatedIdPs' value='"
-                                + URLEncoder.encode(authenticatedIdPs, "UTF-8") + "'>");
+                                + Encode.forHtmlAttribute(authenticatedIdPs) + "'>");
             }
 
             PrintWriter out = resp.getWriter();
-            out.print(Encode.forHtml(finalPage));
+            out.print(finalPage);
 
             if (log.isDebugEnabled()) {
                 log.debug("samlsso_response.html " + finalPage);
@@ -582,7 +578,7 @@ public class SAMLSSOProviderServlet extends HttpServlet {
             PrintWriter out = resp.getWriter();
             out.println("<html>");
             out.println("<body>");
-            out.println("<p>You are now redirected back to " + Encode.forHtml(acUrl));
+            out.println("<p>You are now redirected back to " + acUrl);
             out.println(" If the redirection fails, please click the post button.</p>");
             out.println("<form method='post' action='" + Encode.forHtmlAttribute(acUrl) + "'>");
             out.println("<p>");
@@ -624,7 +620,7 @@ public class SAMLSSOProviderServlet extends HttpServlet {
                                                           String sessionId, SAMLSSOSessionDTO sessionDTO)
             throws UserStoreException, IdentityException, IOException, ServletException {
 
-        String sessionDataKey = CharacterEncoder.getSafeText(req.getParameter("sessionDataKey"));
+        String sessionDataKey = req.getParameter("sessionDataKey");
         AuthenticationResult authResult = getAuthenticationResultFromCache(sessionDataKey);
 
         if (log.isDebugEnabled() && authResult == null) {
@@ -694,7 +690,7 @@ public class SAMLSSOProviderServlet extends HttpServlet {
             if (authRespDTO.isSessionEstablished()) { // authenticated
 
                 storeTokenIdCookie(sessionId, req, resp, authnReqDTO.getTenantDomain());
-                removeSessionDataFromCache(CharacterEncoder.getSafeText(req.getParameter("sessionDataKey")));
+                removeSessionDataFromCache(req.getParameter("sessionDataKey"));
 
                 sendResponse(req, resp, relayState, authRespDTO.getRespString(),
                         authRespDTO.getAssertionConsumerURL(), authRespDTO.getSubject().getAuthenticatedSubjectIdentifier(),
@@ -718,7 +714,7 @@ public class SAMLSSOProviderServlet extends HttpServlet {
             // sending LogoutRequests to other session participants
             LogoutRequestSender.getInstance().sendLogoutRequests(validationResponseDTO.getLogoutRespDTO());
             SAMLSSOUtil.removeSession(sessionDTO.getSessionId(), validationResponseDTO.getIssuer());
-            removeSessionDataFromCache(CharacterEncoder.getSafeText(request.getParameter("sessionDataKey")));
+            removeSessionDataFromCache(request.getParameter("sessionDataKey"));
 
             if (validationResponseDTO.isIdPInitSLO()) {
                 // redirecting to the return URL or IS logout page
@@ -911,8 +907,8 @@ public class SAMLSSOProviderServlet extends HttpServlet {
 
         List<QueryParamDTO> queryParamDTOs =  new ArrayList<>();
         for(SAMLSSOConstants.QueryParameter queryParameter : SAMLSSOConstants.QueryParameter.values()) {
-            queryParamDTOs.add(new QueryParamDTO(queryParameter.toString(), CharacterEncoder.getSafeText(
-                    request.getParameter(queryParameter.toString()))));
+            queryParamDTOs.add(new QueryParamDTO(queryParameter.toString(),
+                    request.getParameter(queryParameter.toString())));
         }
 
         return queryParamDTOs.toArray(new QueryParamDTO[queryParamDTOs.size()]);
