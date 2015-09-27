@@ -179,14 +179,14 @@ public class PassiveSTS extends HttpServlet {
         String htmlPage = stsRedirectPage;
         String pageWithReply = htmlPage.replace("$url", String.valueOf(respToken.getReplyTo()));
 
-        String pageWithReplyAction = pageWithReply.replace("$action", String.valueOf(action));
+        String pageWithReplyAction = pageWithReply.replace("$action", Encode.forHtml(String.valueOf(action)));
         String pageWithReplyActionResult = pageWithReplyAction.replace("$result",
-                StringEscapeUtils.escapeHtml(String.valueOf(respToken.getResults())));
+                StringEscapeUtils.escapeHtml(Encode.forHtml(String.valueOf(respToken.getResults()))));
         String pageWithReplyActionResultContext;
         if(respToken.getContext() !=null) {
             pageWithReplyActionResultContext = pageWithReplyActionResult.replace(
                     "<!--$additionalParams-->", "<!--$additionalParams-->" + "<input type='hidden' name='wctx' value='"
-                            +respToken.getContext() + "'>");
+                            + Encode.forHtmlAttribute(respToken.getContext())+ "'>");
         } else {
             pageWithReplyActionResultContext = pageWithReplyActionResult;
         }
@@ -200,7 +200,7 @@ public class PassiveSTS extends HttpServlet {
         }
 
         PrintWriter out = httpResp.getWriter();
-        out.print(Encode.forHtml(finalPage));
+        out.print(finalPage);
 
         if (log.isDebugEnabled()) {
             log.debug("sts_response.html : " + finalPage);
