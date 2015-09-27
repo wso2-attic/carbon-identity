@@ -26,6 +26,7 @@ import org.apache.axis2.client.Options;
 import org.apache.axis2.client.ServiceClient;
 import org.apache.axis2.transport.http.HTTPConstants;
 import org.apache.axis2.transport.http.HttpTransportProperties;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.CarbonContext;
@@ -132,6 +133,7 @@ public class RequestExecutor implements WorkFlowExecutor {
 
         String host = bpsProfile.getWorkerHostURL();
         String serviceName = Parameter.getParameter(parameterList,WFConstant.ParameterName.WORKFLOW_NAME,WFConstant.ParameterHolder.WORKFLOW_IMPL).getParamValue();
+        serviceName = StringUtils.deleteWhitespace(serviceName);
 
         String endpoint;
         if (host.endsWith("/")) {

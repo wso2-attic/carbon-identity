@@ -246,11 +246,21 @@ public class WorkflowManagementServiceImpl implements WorkflowManagementService 
     public void addWorkflow(Workflow workflow,
                             List< Parameter> parameterList, int tenantId) throws WorkflowException {
 
+
         //TODO:Workspace Name may contain spaces , so we need to remove spaces and prepare process for that
         Parameter workflowNameParameter = new Parameter(workflow.getWorkflowId(), WFConstant.ParameterName.WORKFLOW_NAME,
                                                         workflow.getWorkflowName(), WFConstant.ParameterName.WORKFLOW_NAME,
                                                     WFConstant.ParameterHolder.WORKFLOW_IMPL);
-        parameterList.add(workflowNameParameter);
+
+        if(!parameterList.contains(workflowNameParameter)) {
+            parameterList.add(workflowNameParameter);
+        }else{
+            workflowNameParameter = parameterList.get(parameterList.indexOf(workflowNameParameter));
+        }
+        if(!workflowNameParameter.getParamValue().equals(workflow.getWorkflowName())) {
+            workflowNameParameter.setParamValue(workflow.getWorkflowName());
+            //TODO:Since the user has changed the workflow name, we have to undeploy bpel package that is already deployed using previous workflow name.
+        }
 
         AbstractWorkflow abstractWorkflow =
                 WorkflowServiceDataHolder.getInstance().getWorkflowImpls().get(workflow.getTemplateId()).get(workflow.getWorkflowImplId());
@@ -258,12 +268,16 @@ public class WorkflowManagementServiceImpl implements WorkflowManagementService 
         abstractWorkflow.deploy(parameterList);
 
         //add workflow to the database
-        workflowDAO.addWorkflow(workflow, tenantId);
-
+        if(workflowDAO.getWorkflow(workflow.getWorkflowId())==null) {
+            workflowDAO.addWorkflow(workflow, tenantId);
+            WorkflowManagementUtil.createAppRole(workflow.getWorkflowName());
+        }else{
+            workflowDAO.removeWorkflowParams(workflow.getWorkflowId());
+            workflowDAO.updateWorkflow(workflow);
+        }
         workflowDAO.addWorkflowParams(parameterList, workflow.getWorkflowId());
 
-        //Creating a role for the workflow
-        WorkflowManagementUtil.createAppRole(workflow.getWorkflowName());
+
     }
 
     @Override
@@ -304,11 +318,14 @@ public class WorkflowManagementServiceImpl implements WorkflowManagementService 
     }
 
     @Override
-    public void removeWorkflow(String id) throws WorkflowException {
-        Workflow workflow = workflowDAO.getWorkflow(id);
+    public void removeWorkflow(String workflowId) throws WorkflowException {
+        Workflow workflow = workflowDAO.getWorkflow(workflowId);
         //Deleting the role that is created for per workflow
-        WorkflowManagementUtil.deleteWorkflowRole(workflow.getWorkflowName());
-        workflowDAO.removeWorkflow(id);
+        if(workflow!=null) {
+            WorkflowManagementUtil.deleteWorkflowRole(workflow.getWorkflowName());
+            workflowDAO.removeWorkflowParams(workflowId);
+            workflowDAO.removeWorkflow(workflowId);
+        }
     }
 
     @Override

@@ -76,8 +76,17 @@ public class SQLConstants {
     public static final String ADD_WORKFLOW_QUERY = "INSERT INTO WF_WORKFLOW(ID, WF_NAME, DESCRIPTION, TEMPLATE_ID, " +
             "IMPL_ID, TENANT_ID) VALUES (?,?, ?, ?, ?, ?)";
 
+    public static final String UPDATE_WORKFLOW_QUERY = "UPDATE WF_WORKFLOW SET DESCRIPTION=?, TEMPLATE_ID=?, " +
+                                                    "IMPL_ID=?  WHERE ID=? ";
+
+
     public static final String ADD_WORKFLOW_PARAMS_QUERY = "INSERT INTO WF_WORKFLOW_CONFIG_PARAM(WORKFLOW_ID, " +
             "PARAM_NAME, PARAM_VALUE, PARAM_QNAME, PARAM_HOLDER) VALUES(?, ?, ?, ?, ?)";
+
+    public static final String UPDATE_WORKFLOW_PARAMS_QUERY = "UPDATE WF_WORKFLOW_CONFIG_PARAM SET " +
+                                                           "PARAM_NAME=?, PARAM_VALUE=?, PARAM_QNAME=?, PARAM_HOLDER=? WHERE WORKFLOW_ID=?";
+
+    public static final String DELETE_WORKFLOW_PARAMS_QUERY = "DELETE FROM WF_WORKFLOW_CONFIG_PARAM WHERE WORKFLOW_ID = ?";
 
     public static final String GET_ASSOCIATIONS_FOR_EVENT_QUERY = "SELECT WF_WORKFLOW_ASSOCIATION.WORKFLOW_ID, " +
             "WF_WORKFLOW.TEMPLATE_ID, WF_WORKFLOW.IMPL_ID, WF_WORKFLOW_ASSOCIATION.ASSOC_CONDITION FROM WF_WORKFLOW, " +

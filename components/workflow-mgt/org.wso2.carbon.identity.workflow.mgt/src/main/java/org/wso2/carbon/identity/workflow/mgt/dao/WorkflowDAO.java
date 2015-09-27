@@ -42,7 +42,7 @@ public class WorkflowDAO {
     /**
      * Stores Workflow executor service details
      */
-    public void addWorkflow(Workflow workflowDTO, int
+    public void addWorkflow(Workflow workflow, int
             tenantId) throws InternalWorkflowException {
 
         Connection connection = IdentityDatabaseUtil.getDBConnection();
@@ -51,16 +51,80 @@ public class WorkflowDAO {
         String query = SQLConstants.ADD_WORKFLOW_QUERY;
         try {
             prepStmt = connection.prepareStatement(query);
-            prepStmt.setString(1, workflowDTO.getWorkflowId());
-            prepStmt.setString(2, workflowDTO.getWorkflowName());
-            prepStmt.setString(3, workflowDTO.getWorkflowDescription());
-            prepStmt.setString(4, workflowDTO.getTemplateId());
-            prepStmt.setString(5, workflowDTO.getWorkflowImplId());
+            prepStmt.setString(1, workflow.getWorkflowId());
+            prepStmt.setString(2, workflow.getWorkflowName());
+            prepStmt.setString(3, workflow.getWorkflowDescription());
+            prepStmt.setString(4, workflow.getTemplateId());
+            prepStmt.setString(5, workflow.getWorkflowImplId());
             prepStmt.setInt(6, tenantId);
             prepStmt.executeUpdate();
             connection.commit();
         } catch (SQLException e) {
             throw new InternalWorkflowException("Error when executing the sql query", e);
+        } finally {
+            IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
+        }
+    }
+
+    public void updateWorkflow(Workflow workflow)
+            throws InternalWorkflowException {
+
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
+        PreparedStatement prepStmt = null;
+
+        String query = SQLConstants.UPDATE_WORKFLOW_QUERY;
+        try {
+            prepStmt = connection.prepareStatement(query);
+            prepStmt.setString(1, workflow.getWorkflowDescription());
+            prepStmt.setString(2, workflow.getTemplateId());
+            prepStmt.setString(3, workflow.getWorkflowImplId());
+            prepStmt.setString(4, workflow.getWorkflowId());
+            prepStmt.executeUpdate();
+            connection.commit();
+        } catch (SQLException e) {
+            throw new InternalWorkflowException("Error when executing the sql query", e);
+        } finally {
+            IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
+        }
+    }
+
+    public void updateWorkflowParams(List<Parameter> parameterList, String workflowId)throws InternalWorkflowException {
+
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
+        PreparedStatement prepStmt = null;
+
+        String query = SQLConstants.UPDATE_WORKFLOW_PARAMS_QUERY;
+        try {
+            prepStmt = connection.prepareStatement(query);
+            for (Parameter parameter : parameterList){
+                prepStmt = connection.prepareStatement(query);
+                prepStmt.setString(1, parameter.getParamName());
+                prepStmt.setString(2, parameter.getParamValue());
+                prepStmt.setString(3, parameter.getqName());
+                prepStmt.setString(4, parameter.getHolder());
+                prepStmt.setString(5, workflowId);
+
+                prepStmt.executeUpdate();
+            }
+            connection.commit();
+        } catch (SQLException e) {
+            throw new InternalWorkflowException("Error when executing the sql query", e);
+        } finally {
+            IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
+        }
+    }
+    public void removeWorkflowParams(String workflowId) throws InternalWorkflowException {
+
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
+        PreparedStatement prepStmt = null;
+        String query = SQLConstants.DELETE_WORKFLOW_PARAMS_QUERY;
+        try {
+            prepStmt = connection.prepareStatement(query);
+            prepStmt.setString(1, workflowId);
+            prepStmt.executeUpdate();
+            connection.commit();
+        } catch (SQLException e) {
+            throw new InternalWorkflowException("Error when executing the sql.", e);
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
         }
@@ -127,7 +191,7 @@ public class WorkflowDAO {
         ResultSet rs = null;
         String query = SQLConstants.GET_WORKFLOW;
 
-        Workflow workflow = new Workflow();
+        Workflow workflow = null ;
 
         try {
             prepStmt = connection.prepareStatement(query);
@@ -138,7 +202,7 @@ public class WorkflowDAO {
                 String description = rs.getString(SQLConstants.DESCRIPTION_COLUMN);
                 String templateId = rs.getString(SQLConstants.TEMPLATE_ID_COLUMN);
                 String implId = rs.getString(SQLConstants.TEMPLATE_IMPL_ID_COLUMN);
-
+                workflow = new Workflow();
                 workflow.setWorkflowId(workflowId);
                 workflow.setWorkflowName(workflowName);
                 workflow.setWorkflowDescription(description);

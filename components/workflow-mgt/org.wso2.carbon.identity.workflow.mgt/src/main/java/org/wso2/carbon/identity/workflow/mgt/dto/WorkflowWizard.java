@@ -19,8 +19,9 @@
 package org.wso2.carbon.identity.workflow.mgt.dto;
 
 import org.wso2.carbon.identity.workflow.mgt.bean.Parameter;
+import org.wso2.carbon.identity.workflow.mgt.bean.Workflow;
 
-public class WorkflowWizard {
+public class WorkflowWizard{
 
     private String workflowId;
     private String workflowName;
@@ -75,8 +76,6 @@ public class WorkflowWizard {
     public void setWorkflowImplId(String workflowImplId) {
         this.workflowImplId = workflowImplId;
     }
-
-
 
 
     public Template getTemplate() {

@@ -96,7 +96,7 @@
         client = new WorkflowAdminServiceClient(cookie, backendServerURL, configContext);
 
         workflowWizard = (WorkflowWizard)session.getAttribute(requestToken);
-        WorkflowUIUtil.test("A",workflowWizard);
+
         //If there are no any template registered in OSGi, it is not possible to continue from here.
         templateList = client.listTemplates();
         if (templateList == null || templateList.length == 0) {

@@ -19,6 +19,7 @@
 package org.wso2.carbon.identity.workflow.mgt;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.CarbonContext;
@@ -83,6 +84,7 @@ public class WorkflowManagementAdminService {
                                 .get(workflowBean.getTemplateId()).get(workflowBean.getWorkflowImplId());
 
                 WorkflowImpl workflowimpl = new WorkflowImpl();
+                workflowimpl.setWorkflowImplId(abstractWorkflow.getWorkflowImplId());
                 workflowimpl.setWorkflowImplName(abstractWorkflow.getWorkflowImplName());
                 workflowimpl.setTemplateId(abstractWorkflow.getTemplateId());
                 workflowimpl.setParametersMetaData(abstractWorkflow.getParametersMetaData());
@@ -151,7 +153,10 @@ public class WorkflowManagementAdminService {
 
     public void addWorkflow(WorkflowWizard workflow) throws WorkflowException {
 
-        String id = UUID.randomUUID().toString();
+        String id = workflow.getWorkflowId();
+        if(StringUtils.isBlank(id)){
+            id = UUID.randomUUID().toString();
+        }
         int tenantId = CarbonContext.getThreadLocalCarbonContext() .getTenantId();
         try {
             org.wso2.carbon.identity.workflow.mgt.bean.Workflow workflowBean = new org.wso2.carbon.identity.workflow

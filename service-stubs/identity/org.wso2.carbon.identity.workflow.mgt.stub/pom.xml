@@ -90,9 +90,10 @@
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
                         <Export-Package>
                             org.wso2.carbon.identity.workflow.mgt.stub.*;version="${carbon.identity.package.export.version}",
-                            org.wso2.carbon.identity.workflow.mgt.dto.xsd.*;version="${carbon.identity.package.export.version}",
-                            org.wso2.carbon.identity.workflow.mgt.bean.metadata.xsd.*;version="${carbon.identity.package.export.version}",
-                            org.wso2.carbon.identity.workflow.mgt.xsd.*;version="${carbon.identity.package.export.version}"
+                            org.wso2.carbon.identity.workflow.mgt.stub.bean.*;version="${carbon.identity.package.export.version}",
+                            org.wso2.carbon.identity.workflow.mgt.stub.metadata.*;version="${carbon.identity.package.export.version}",
+                            org.wso2.carbon.identity.workflow.mgt.stub.metadata.bean.*;version="${carbon.identity.package.export.version}",
+                            org.wso2.carbon.identity.workflow.mgt.stub.mgt.*;version="${carbon.identity.package.export.version}"
                         </Export-Package>
                         <Import-Package>
                             javax.activation; version="${javax.activation.import.pkg.version}",

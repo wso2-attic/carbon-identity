@@ -94,27 +94,32 @@
         if (workflowImplList == null || workflowImplList.length == 0) {
             throw new WorkflowAdminServiceWorkflowException("There is no any registered workflow implementation for the template :" + workflowWizard.getTemplate().getName());
         }
-
+        System.out.println("||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||| 1");
         if(workflowWizard.getWorkflowImpl() == null){
             if(workflowImplList.length == 1){
+                System.out.println("||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||| 2");
                 workflowImpl = workflowImplList[0] ;
             }else if(StringUtils.isNotBlank(workflowImplId)){
+                System.out.println("||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||| 3");
                 workflowImpl = client.getWorkflowImp(workflowWizard.getTemplate().getTemplateId(),workflowImplId);
             }
+            System.out.println("||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||| 4");
             workflowWizard.setWorkflowImpl(workflowImpl);
         }else {
+            System.out.println("||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||| 5");
             if(StringUtils.isNotBlank(workflowImplId) && !workflowWizard.getWorkflowImpl().getWorkflowImplId().equals(workflowImplId)){
+                System.out.println("||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||| 6");
                 workflowImpl = client.getWorkflowImp(workflowWizard.getTemplate().getTemplateId(), workflowImplId);
                 workflowWizard.setWorkflowImpl(workflowImpl);
+                System.out.println("||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||| 7");
             }else{
+                System.out.println("||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||| 8");
                 workflowImpl = workflowWizard.getWorkflowImpl();
             }
         }
 
         if(!isSelectTemplate){
-
             WorkflowUIUtil.loadTemplateParameters(request.getParameterMap(), workflowWizard);
-
         }
 
 
@@ -241,6 +246,7 @@
             <%
                 System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>2");
                 if(workflowImplList != null && workflowImplList.length > 1){
+                    System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>2XXXX");
             %>
 
             <form id="id_workflow_workflowimpl" method="post" name="serviceAdd" action="workflowimpl-wf-wizard.jsp">
@@ -284,7 +290,10 @@
             </br>
 
              <%
+                 System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>4 >>  PPPP2 " + workflowImpl );
+                 System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>4 >>  PPPP3 " + workflowImpl.getWorkflowImplId() );
                 if(workflowImpl!=null && workflowImpl.getWorkflowImplId() != null ){
+                    System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>4 >>  NNNN ");
             %>
                 <form method="post" name="serviceAdd" id="id_nextwizard" action="finish-wf-wizard.jsp">
                     <input type="hidden" name="<%=WorkflowUIConstants.PARAM_PAGE_REQUEST_TOKEN%>" value="<%=requestToken%>"/>
@@ -325,8 +334,10 @@
                                             System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>10 " + metaData.getInputType() + "    "  + InputType.TEXT.value());
                                             if(metaData.getInputType().equals(InputType.TEXT.value())){
                                                 String textTypeValue = "" ;
+                                                System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>aaaaaaaaaaaa");
                                                 if(parameterValues.get(metaData.getName()) != null && parameterValues.get(metaData.getName()).get(metaData.getName()) != null){
                                                     textTypeValue = parameterValues.get(metaData.getName()).get(metaData.getName()).getParamValue();
+                                                    System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>ffff " + textTypeValue );
                                                 }
                                         %>
                                         <td>
@@ -334,10 +345,13 @@
                                                    title="<%=metaData.getDisplayName()%>" style="min-width: 30%" value="<%=textTypeValue%>"/>
                                         </td>
                                         <%
+                                            System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>dfdfdfdfdf " );
                                         } else if(metaData.getInputType().equals(InputType.TEXT_AREA.value())){
+                                                System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>area "  );
                                             String textAreaTypeValue = "" ;
                                             if(parameterValues.get(metaData.getName()) != null && parameterValues.get(metaData.getName()).get(metaData.getName()) != null){
                                                 textAreaTypeValue = parameterValues.get(metaData.getName()).get(metaData.getName()).getParamValue();
+                                                System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>textAreaTypeValue " + textAreaTypeValue );
                                             }
                                         %>
                                         <td><textarea name="<%=metaData.getName()%>" title="<%=metaData.getDisplayName()%>" style="min-width: 30%">

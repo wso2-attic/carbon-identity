@@ -18,9 +18,10 @@
 
 package org.wso2.carbon.identity.workflow.mgt.bean;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class Parameter {
+public class Parameter implements Serializable{
 
     private String workflowId;
     private String paramName;
@@ -95,5 +96,28 @@ public class Parameter {
             }
         }
         return null ;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Parameter parameter = (Parameter) o;
+
+        if (!workflowId.equals(parameter.workflowId)) return false;
+        if (!paramName.equals(parameter.paramName)) return false;
+        if (!qName.equals(parameter.qName)) return false;
+        return holder.equals(parameter.holder);
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = workflowId.hashCode();
+        result = 31 * result + paramName.hashCode();
+        result = 31 * result + qName.hashCode();
+        result = 31 * result + holder.hashCode();
+        return result;
     }
 }
