@@ -580,7 +580,7 @@ public class SAMLSSOProviderServlet extends HttpServlet {
             out.println("<body>");
             out.println("<p>You are now redirected back to " + acUrl);
             out.println(" If the redirection fails, please click the post button.</p>");
-            out.println("<form method='post' action='" + Encode.forHtmlAttribute(acUrl) + "'>");
+            out.println("<form method='post' action='" + acUrl + "'>");
             out.println("<p>");
             out.println("<input type='hidden' name='SAMLResponse' value='" + Encode.forHtmlAttribute(response) + "'>");
 
