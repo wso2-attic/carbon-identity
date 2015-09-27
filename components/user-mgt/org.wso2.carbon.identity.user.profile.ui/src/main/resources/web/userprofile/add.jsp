@@ -25,6 +25,7 @@
 <%@page import="org.wso2.carbon.ui.CarbonUIMessage" %>
 <%@page import="org.wso2.carbon.ui.CarbonUIUtil" %>
 <%@page import="org.wso2.carbon.ui.util.CharacterEncoder"%>
+<%@ page import="org.owasp.encoder.Encode" %>
 <%@page import="org.wso2.carbon.user.core.UserCoreConstants"%><script type="text/javascript" src="extensions/js/vui.js"></script>
 <script type="text/javascript" src="../extensions/core/js/vui.js"></script>
 <script type="text/javascript" src="../admin/js/main.js"></script>
@@ -33,7 +34,7 @@
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 
 <%
-    String username = CharacterEncoder.getSafeText((String) request.getParameter("username"));
+    String username = (String) request.getParameter("username");
     String fromUserMgt = (String) request.getParameter("fromUserMgt");
     UserFieldDTO[] userFields = null;
     UserProfileDTO profile = null;
@@ -105,7 +106,7 @@ function validateTextForIllegal(fld,fldName) {
 
     <div id="middle">
         <%if ("true".equals(fromUserMgt)) {%>
-        <h2><fmt:message key='add.new.profile1'/><%=username%></h2>
+        <h2><fmt:message key='add.new.profile1'/><%=Encode.forHtmlContent(username)%></h2>
         <%} else {%>
         <h2><fmt:message key='add.new.profile2'/></h2>
         <%}%>
@@ -138,27 +139,27 @@ function validateTextForIllegal(fld,fldName) {
 
                 <%if (userFields!=null) {
                     for (int i=0; i< userFields.length;i++) { %>
-                    var value = document.getElementsByName("<%=userFields[i].getClaimUri()%>")[0].value;
+                    var value = document.getElementsByName("<%=Encode.forJavaScript(Encode.forHtml(userFields[i].getClaimUri()))%>")[0].value;
 
                     // JS injection validation for name fields
-                    if(!validateTextForIllegal(document.getElementsByName("<%=userFields[i].getClaimUri()%>")[0],"profilefiled")) {
+                    if(!validateTextForIllegal(document.getElementsByName("<%=Encode.forJavaScript(Encode.forHtml(userFields[i].getClaimUri()))%>")[0],"profilefiled")) {
                         CARBON.showWarningDialog(org_wso2_carbon_registry_common_ui_jsi18n["the"] + " "+ "profile content"+" " + org_wso2_carbon_registry_common_ui_jsi18n["contains.illegal.chars"]);
                         return false;
                     }
 
                 <% if (userFields[i].getRequired()&& userFields[i].getDisplayName()!=null) {%>
-                    if (validateEmpty("<%=userFields[i].getClaimUri()%>").length > 0) {
-                        CARBON.showWarningDialog("<%=userFields[i].getDisplayName()%>" + " <fmt:message key='is.required'/>");
+                    if (validateEmpty("<%=Encode.forJavaScript(Encode.forHtml(userFields[i].getClaimUri()))%>").length > 0) {
+                        CARBON.showWarningDialog("<%=Encode.forJavaScript(Encode.forHtml(userFields[i].getDisplayName()))%>" + " <fmt:message key='is.required'/>");
                         return false;
                     }
                 <%}
 
                 if(userFields[i].getRegEx() != null){
                 %>
-                    var reg = new RegExp("<%=userFields[i].getRegEx() %>");
+                    var reg = new RegExp("<%=Encode.forJavaScriptBlock(userFields[i].getRegEx()) %>");
                     var valid = reg.test(value);
                     if (value != '' && !valid) {
-                        CARBON.showWarningDialog("<%=userFields[i].getDisplayName()%>" + " <fmt:message key='is.not.valid'/>");
+                        CARBON.showWarningDialog("<%=Encode.forJavaScript(Encode.forHtml(userFields[i].getDisplayName()))%>" + " <fmt:message key='is.not.valid'/>");
                         return false;
                     }
                 <%}
@@ -169,9 +170,9 @@ function validateTextForIllegal(fld,fldName) {
                 }
             </script>
 
-            <form method="post" name="addProfileform" action="set-finish.jsp?fromUserMgt=<%=fromUserMgt%>"
+            <form method="post" name="addProfileform" action="set-finish.jsp?fromUserMgt=<%=Encode.forUriComponent(fromUserMgt)%>"
                   target="_self">
-                <input type="hidden" name="username" value="<%=username%>"/>
+                <input type="hidden" name="username" value="<%=Encode.forHtmlAttribute(username)%>"/>
                 <table style="width: 100%" class="styledLeft">
                     <thead>
                     <tr>
@@ -194,10 +195,10 @@ function validateTextForIllegal(fld,fldName) {
 		                            <select name="profileConfiguration">
 		                                <%for (int i = 0; i < profileConfigs.length; i++) { %>
 		                                <%if (UserCoreConstants.DEFAULT_PROFILE_CONFIGURATION.equals(profileConfigs[i])) { %>
-		                                <option value="<%=profileConfigs[i]%>" selected="selected"><%=profileConfigs[i] %>
+		                                <option value="<%=Encode.forHtmlAttribute(profileConfigs[i])%>" selected="selected"><%=Encode.forHtmlContent(profileConfigs[i]) %>
 		                                </option>
 		                                <%} else { %>
-		                                <option value="<%=profileConfigs[i]%>"><%=profileConfigs[i]%>
+		                                <option value="<%=Encode.forHtmlAttribute(profileConfigs[i])%>"><%=Encode.forHtmlContent(profileConfigs[i])%>
 		                                </option>
 		                                <%
 		                                        }
@@ -213,7 +214,7 @@ function validateTextForIllegal(fld,fldName) {
 		                    <%if (userFields[i].getDisplayName() != null) {%>
 		                    <tr>
 		                        <td class="leftCol-small">
-		                            <%=CharacterEncoder.getSafeText(userFields[i].getDisplayName())%> 
+		                            <%=Encode.forHtmlContent(userFields[i].getDisplayName())%>
 		                               <% if (userFields[i].getRequired()) {%>
 		                                        <font class="required">*</font> 
 		                               <%}%>
@@ -222,14 +223,14 @@ function validateTextForIllegal(fld,fldName) {
                                     if(!userFields[i].getReadOnly()) {
                                 %>
 		                        <td><input class="text-box-big"
-		                                   id="<%=userFields[i].getClaimUri()%>"
-		                                   name="<%=userFields[i].getClaimUri()%>" type="text"></td>
+		                                   id="<%=Encode.forHtmlAttribute(userFields[i].getClaimUri())%>"
+		                                   name="<%=Encode.forHtmlAttribute(userFields[i].getClaimUri())%>" type="text"></td>
                                 <%
                                     } else {
                                 %>
                                 <td><input class="text-box-big"
-		                                   id="<%=userFields[i].getClaimUri()%>"
-		                                   name="<%=userFields[i].getClaimUri()%>" type="text" readonly="true"></td>
+		                                   id="<%=Encode.forHtmlAttribute(userFields[i].getClaimUri())%>"
+		                                   name="<%=Encode.forHtmlAttribute(userFields[i].getClaimUri())%>" type="text" readonly="true"></td>
                                 <%
                                     }
                                 %>
@@ -248,7 +249,7 @@ function validateTextForIllegal(fld,fldName) {
                             <input name="addprofile" type="button" class="button" value="<fmt:message key='add'/>" onclick="validate();"/>
                             <input type="button" class="button"
                                   <%if ("true".equals(fromUserMgt)) {%>
-                                   onclick="javascript:location.href='index.jsp?username=<%=URLEncoder.encode(username, "UTF-8")%>&fromUserMgt=true'"
+                                   onclick="javascript:location.href='index.jsp?username=<%=Encode.forUriComponent(username)%>&fromUserMgt=true'"
                                   <%}else{%>
                                    onclick="javascript:location.href='index.jsp?region=region5&item=userprofiles_menu&ordinal=0'"
                                   <%}%>

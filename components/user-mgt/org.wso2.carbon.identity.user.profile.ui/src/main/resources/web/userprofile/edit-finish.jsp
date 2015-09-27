@@ -31,6 +31,7 @@
 <%@ page import="java.net.URLEncoder"%>
 <%@ page import="java.text.MessageFormat" %>
 <%@ page import="java.util.ResourceBundle" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 <jsp:include page="../dialog/display_messages.jsp" />
 <script type="text/javascript" src="../extensions/core/js/vui.js"></script>
 <script type="text/javascript" src="../admin/js/main.js"></script>
@@ -94,7 +95,7 @@
             if ((!client.isAddProfileEnabled()) && ((Integer.parseInt(noOfProfiles)) == 1)) {
                 forwardTo = "../user/user-mgt.jsp?ordinal=1";
             } else {
-                forwardTo ="index.jsp?username="+ URLEncoder.encode(username)+"&fromUserMgt="+fromUserMgt;
+                forwardTo ="index.jsp?username="+ Encode.forUriComponent(username)+"&fromUserMgt="+Encode.forUriComponent(fromUserMgt);
             }
         } else {
         	forwardTo ="index.jsp?region=region5&item=userprofiles_menu&ordinal=0";        	
@@ -104,7 +105,7 @@
         String message = MessageFormat.format(resourceBundle.getString("error.while.updating.profile.user"),
                 Util.decodeHTMLCharacters(username), e.getMessage());
     	CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
-        forwardTo = "edit.jsp?username=" + URLEncoder.encode(username) + "&profile=" + profile + "&fromUserMgt=true&noOfProfiles=" + noOfProfiles;
+        forwardTo = "edit.jsp?username=" + Encode.forUriComponent(username) + "&profile=" + Encode.forUriComponent(profile) + "&fromUserMgt=true&noOfProfiles=" + Encode.forUriComponent(noOfProfiles);
     }
 %>
 
