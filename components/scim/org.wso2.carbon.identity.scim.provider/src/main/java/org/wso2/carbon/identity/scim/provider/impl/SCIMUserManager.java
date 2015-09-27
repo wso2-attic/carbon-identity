@@ -32,13 +32,10 @@ import org.wso2.carbon.identity.application.common.model.ThreadLocalProvisioning
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
 import org.wso2.carbon.identity.application.mgt.ApplicationConstants;
 import org.wso2.carbon.identity.application.mgt.ApplicationManagementService;
-import org.wso2.carbon.identity.provisioning.IdentityProvisioningConstants;
 import org.wso2.carbon.identity.provisioning.IdentityProvisioningException;
 import org.wso2.carbon.identity.provisioning.OutboundProvisioningManager;
 import org.wso2.carbon.identity.provisioning.ProvisioningEntity;
-import org.wso2.carbon.identity.provisioning.ProvisioningEntityType;
 import org.wso2.carbon.identity.provisioning.ProvisioningOperation;
-import org.wso2.carbon.identity.provisioning.dao.ProvisioningManagementDAO;
 import org.wso2.carbon.identity.provisioning.listener.DefaultInboundUserProvisioningListener;
 import org.wso2.carbon.identity.scim.common.group.SCIMGroupHandler;
 import org.wso2.carbon.identity.scim.common.utils.AttributeMapper;
@@ -53,12 +50,10 @@ import org.wso2.carbon.user.core.claim.ClaimManager;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 import org.wso2.charon.core.attributes.Attribute;
-import org.wso2.charon.core.attributes.SimpleAttribute;
 import org.wso2.charon.core.exceptions.CharonException;
 import org.wso2.charon.core.exceptions.DuplicateResourceException;
 import org.wso2.charon.core.exceptions.NotFoundException;
 import org.wso2.charon.core.extensions.UserManager;
-import org.wso2.charon.core.objects.AbstractSCIMObject;
 import org.wso2.charon.core.objects.Group;
 import org.wso2.charon.core.objects.SCIMObject;
 import org.wso2.charon.core.objects.User;
@@ -78,6 +73,7 @@ public class SCIMUserManager implements UserManager {
     private UserStoreManager carbonUM = null;
     private ClaimManager carbonClaimManager = null;
     private String consumerName;
+    private boolean BULK_USER_ADD_FLAG = false;
 
 
     public SCIMUserManager(UserStoreManager carbonUserStoreManager, String userName,
@@ -177,7 +173,7 @@ public class SCIMUserManager implements UserManager {
         if (log.isDebugEnabled()) {
             log.debug("Retrieving user: " + userId);
         }
-        if (getServiceProvider(false).isDumbMode()) {
+        if (getServiceProvider(BULK_USER_ADD_FLAG).isDumbMode()) {
             if (log.isDebugEnabled()) {
                 log.debug("This instance is operating in dumb mode. Hence, do not retrieve users from user store");
             }
@@ -327,7 +323,7 @@ public class SCIMUserManager implements UserManager {
 
     @Override
     public User updateUser(User user) throws CharonException {
-        if (getServiceProvider(false).isDumbMode()) {
+        if (getServiceProvider(BULK_USER_ADD_FLAG).isDumbMode()) {
             if (log.isDebugEnabled()) {
                 log.debug("This instance is operating in dumb mode. " +
                           "Hence, operation is not persisted, it will only be provisioned.");
@@ -419,7 +415,7 @@ public class SCIMUserManager implements UserManager {
     @Override
     public User patchUser(User newUser, User oldUser, String[] attributesToDelete) throws CharonException {
 
-        if (getServiceProvider(false).isDumbMode()) {
+        if (getServiceProvider(BULK_USER_ADD_FLAG).isDumbMode()) {
             if (log.isDebugEnabled()) {
                 log.debug("This instance is operating in dumb mode. " +
                           "Hence, operation is not persisted, it will only be provisioned.");
@@ -495,7 +491,7 @@ public class SCIMUserManager implements UserManager {
 
     @Override
     public void deleteUser(String userId) throws NotFoundException, CharonException {
-        if (getServiceProvider(false).isDumbMode()) {
+        if (getServiceProvider(BULK_USER_ADD_FLAG).isDumbMode()) {
             if (log.isDebugEnabled()) {
                 log.debug("This instance is operating in dumb mode. " +
                           "Hence, operation is not persisted, it will only be provisioned.");
@@ -548,7 +544,7 @@ public class SCIMUserManager implements UserManager {
 
     @Override
     public Group createGroup(Group group) throws CharonException, DuplicateResourceException {
-        if (getServiceProvider(false).isDumbMode()) {
+        if (getServiceProvider(BULK_USER_ADD_FLAG).isDumbMode()) {
             if (log.isDebugEnabled()) {
                 log.debug("This instance is operating in dumb mode. " +
                           "Hence, operation is not persisted, it will only be provisioned.");
@@ -670,7 +666,7 @@ public class SCIMUserManager implements UserManager {
         if (log.isDebugEnabled()) {
             log.debug("Retrieving group with id: " + id);
         }
-        if (getServiceProvider(false).isDumbMode()) {
+        if (getServiceProvider(BULK_USER_ADD_FLAG).isDumbMode()) {
             if (log.isDebugEnabled()) {
                 log.debug("This instance is operating in dumb mode. Hence, do not retrieve users from user store");
             }
@@ -785,7 +781,7 @@ public class SCIMUserManager implements UserManager {
     public Group updateGroup(Group oldGroup, Group newGroup) throws CharonException {
 
         //if operating in dumb mode, do not persist the operation, only provision to providers
-        if (getServiceProvider(false).isDumbMode()) {
+        if (getServiceProvider(BULK_USER_ADD_FLAG).isDumbMode()) {
             if (log.isDebugEnabled()) {
                 log.debug("This instance is operating in dumb mode. " +
                           "Hence, operation is not persisted, it will only be provisioned.");
@@ -958,7 +954,7 @@ public class SCIMUserManager implements UserManager {
     public Group patchGroup(Group oldGroup, Group newGroup) throws CharonException {
 
         //if operating in dumb mode, do not persist the operation, only provision to providers
-        if (getServiceProvider(false).isDumbMode()) {
+        if (getServiceProvider(BULK_USER_ADD_FLAG).isDumbMode()) {
             if (log.isDebugEnabled()) {
                 log.debug("This instance is operating in dumb mode. " +
                           "Hence, operation is not persisted, it will only be provisioned.");
@@ -1137,7 +1133,7 @@ public class SCIMUserManager implements UserManager {
     public void deleteGroup(String groupId) throws NotFoundException, CharonException {
 
         //if operating in dumb mode, do not persist the operation, only provision to providers
-        if (getServiceProvider(false).isDumbMode()) {
+        if (getServiceProvider(BULK_USER_ADD_FLAG).isDumbMode()) {
             if (log.isDebugEnabled()) {
                 log.debug("This instance is operating in dumb mode. " +
                           "Hence, operation is not persisted, it will only be provisioned.");
@@ -1302,6 +1298,13 @@ public class SCIMUserManager implements UserManager {
         return groupHandler.getGroupWithAttributes(group, groupName);
     }
 
+    /**
+     * SCIM dumb mode provisioning flaw start from this method
+     *
+     * @param provisioningMethod
+     * @param provisioningObject
+     * @throws CharonException
+     */
     private void provision(ProvisioningOperation provisioningMethod, SCIMObject provisioningObject)
             throws CharonException {
 
@@ -1314,34 +1317,44 @@ public class SCIMUserManager implements UserManager {
             ProvisioningEntity provisioningEntity = null;
             ProvisioningEntityBuilder provisioningEntityBuilder = ProvisioningEntityBuilder.getInstance();
             if (provisioningObject instanceof User) {
-                User user = (User)provisioningObject;
+                User user = (User) provisioningObject;
                 if (ProvisioningOperation.POST.equals(provisioningMethod)) {
                     provisioningEntity =
-                            provisioningEntityBuilder.getProvisioningEntityForUserAdd(provisioningObject, outboundAttributes, domainName);
-                }else if(ProvisioningOperation.DELETE.equals(provisioningMethod)){
-                    provisioningEntity = provisioningEntityBuilder.getProvisioningEntityForUserDelete(provisioningObject, outboundAttributes,
-                                                                            domainName);
-                }else if(ProvisioningOperation.PUT.equals(provisioningMethod)){
-                    provisioningEntity = provisioningEntityBuilder.getProvisioningEntityForUserUpdate(provisioningObject, outboundAttributes,
-                                                                            domainName);
-                }else if(ProvisioningOperation.PATCH.equals(provisioningMethod)){
-                    provisioningEntity = provisioningEntityBuilder.getProvisioningEntityForUserPatch(provisioningObject, outboundAttributes,
-                                                                           domainName);
+                            provisioningEntityBuilder
+                                    .getProvisioningEntityForUserAdd(provisioningObject, outboundAttributes,
+                                                                     domainName);
+                } else if (ProvisioningOperation.DELETE.equals(provisioningMethod)) {
+                    provisioningEntity = provisioningEntityBuilder
+                            .getProvisioningEntityForUserDelete(provisioningObject, outboundAttributes,
+                                                                domainName);
+                } else if (ProvisioningOperation.PUT.equals(provisioningMethod)) {
+                    provisioningEntity = provisioningEntityBuilder
+                            .getProvisioningEntityForUserUpdate(provisioningObject, outboundAttributes,
+                                                                domainName);
+                } else if (ProvisioningOperation.PATCH.equals(provisioningMethod)) {
+                    provisioningEntity = provisioningEntityBuilder
+                            .getProvisioningEntityForUserPatch(provisioningObject, outboundAttributes,
+                                                               domainName);
                 }
-            } else if(provisioningObject instanceof Group) {
+            } else if (provisioningObject instanceof Group) {
                 Group group = (Group) provisioningObject;
                 if (ProvisioningOperation.POST.equals(provisioningMethod)) {
-                    provisioningEntity = provisioningEntityBuilder.getProvisioningEntityForGroupAdd(provisioningObject, outboundAttributes,
-                                                                          domainName);
+                    provisioningEntity = provisioningEntityBuilder
+                            .getProvisioningEntityForGroupAdd(provisioningObject, outboundAttributes,
+                                                              domainName);
                 } else if (ProvisioningOperation.DELETE.equals(provisioningMethod)) {
-                    provisioningEntity = provisioningEntityBuilder.getProvisioningEntityForGroupDelete(provisioningObject, outboundAttributes,
-                                                                             domainName);
+                    provisioningEntity = provisioningEntityBuilder
+                            .getProvisioningEntityForGroupDelete(provisioningObject, outboundAttributes,
+                                                                 domainName);
                 } else if (ProvisioningOperation.PUT.equals(provisioningMethod)) {
-                    provisioningEntity = provisioningEntityBuilder.getProvisioningEntityForGroupUpdate(provisioningObject, outboundAttributes,
-                                                                             domainName);
+                    provisioningEntity = provisioningEntityBuilder
+                            .getProvisioningEntityForGroupUpdate(provisioningObject, outboundAttributes,
+                                                                 domainName);
                 } else if (ProvisioningOperation.PATCH.equals(provisioningMethod)) {
                     provisioningEntity =
-                            provisioningEntityBuilder.getProvisioningEntityForGroupPatch(provisioningObject, outboundAttributes, domainName);
+                            provisioningEntityBuilder
+                                    .getProvisioningEntityForGroupPatch(provisioningObject, outboundAttributes,
+                                                                        domainName);
                 }
             }
 
@@ -1358,9 +1371,10 @@ public class SCIMUserManager implements UserManager {
                 if (threadLocalServiceProvider.getServiceProviderType() == ProvisioningServiceProviderType.OAUTH) {
                     try {
                         serviceProvider = ApplicationManagementService.getInstance()
-                                .getServiceProviderNameByClientId(
-                                        threadLocalServiceProvider.getServiceProviderName(),
-                                        "oauth2", tenantDomainName);
+                                                                      .getServiceProviderNameByClientId(
+                                                                              threadLocalServiceProvider
+                                                                                      .getServiceProviderName(),
+                                                                              "oauth2", tenantDomainName);
                     } catch (IdentityApplicationManagementException e) {
                         log.error("Error while provisioning", e);
                         return;
@@ -1369,20 +1383,23 @@ public class SCIMUserManager implements UserManager {
 
                 // call framework method to provision the user.
                 OutboundProvisioningManager.getInstance().provision(provisioningEntity,
-                        serviceProvider, threadLocalServiceProvider.getClaimDialect(),
-                        tenantDomainName, threadLocalServiceProvider.isJustInTimeProvisioning());
+                                                                    serviceProvider,
+                                                                    threadLocalServiceProvider.getClaimDialect(),
+                                                                    tenantDomainName, threadLocalServiceProvider
+                        .isJustInTimeProvisioning());
             } else {
                 // call framework method to provision the user.
                 OutboundProvisioningManager.getInstance()
-                        .provision(provisioningEntity, ApplicationConstants.LOCAL_SP,
-                                DefaultInboundUserProvisioningListener.WSO2_CARBON_DIALECT, tenantDomainName, false);
+                                           .provision(provisioningEntity, ApplicationConstants.LOCAL_SP,
+                                                      DefaultInboundUserProvisioningListener.WSO2_CARBON_DIALECT,
+                                                      tenantDomainName, false);
             }
 
         } catch (NotFoundException e) {
             throw new CharonException("Failed to find resource in external user store.", e);
         } catch (IdentityProvisioningException e) {
             throw new CharonException("Error while provisioning to externaluser store in dumb mode.", e);
-        }catch (IdentityApplicationManagementException e) {
+        } catch (IdentityApplicationManagementException e) {
             throw new CharonException("Could not find dumb mode provisioned entity in DB.", e);
         }
     }

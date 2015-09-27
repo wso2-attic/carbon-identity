@@ -29,6 +29,7 @@ import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
 import org.wso2.carbon.identity.provisioning.IdentityProvisioningConstants;
 import org.wso2.carbon.identity.provisioning.ProvisionedIdentifier;
 import org.wso2.carbon.identity.provisioning.ProvisioningEntity;
+import org.wso2.carbon.identity.provisioning.ProvisioningUtil;
 import org.wso2.carbon.idp.mgt.util.IdPManagementConstants;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 
@@ -504,6 +505,12 @@ public class ProvisioningManagementDAO {
         return null;
     }
 
+    /**
+     * Get provisioned entity name by providing SCIM ID (ENTITY_LOCAL_ID)
+     * @param localId
+     * @return
+     * @throws IdentityApplicationManagementException
+     */
     public String getProvisionedEntityNameByLocalId(String localId) throws IdentityApplicationManagementException {
         Connection dbConnection = null;
         String sqlStmt = null;
@@ -528,4 +535,45 @@ public class ProvisioningManagementDAO {
             IdentityDatabaseUtil.closeAllConnections(dbConnection, rs, prepStmt);
         }
     }
+
+    /**
+     * Applicable for only group name update
+     *
+     * @param provisioningEntity
+     * @throws IdentityApplicationManagementException
+     */
+    public void updateProvisioningEntityName(ProvisioningEntity provisioningEntity) throws
+                                                                                    IdentityApplicationManagementException {
+
+        Connection dbConnection = null;
+        String provisioningEntityName = null;
+        String entityLocalID = null;
+        try {
+            dbConnection = JDBCPersistenceManager.getInstance().getDBConnection();
+
+            PreparedStatement prepStmt = null;
+
+            String sqlStmt = IdentityProvisioningConstants.SQLQueries.UPDATE_PROVISIONED_ENTITY_NAME_SQL;
+            prepStmt = dbConnection.prepareStatement(sqlStmt);
+
+            provisioningEntityName = ProvisioningUtil.getAttributeValue(provisioningEntity,
+                                                                        IdentityProvisioningConstants.NEW_GROUP_NAME_CLAIM_URI);
+            entityLocalID = ProvisioningUtil.getAttributeValue(provisioningEntity,
+                                                               IdentityProvisioningConstants.ID_CLAIM_URI);
+
+            prepStmt.setString(1, provisioningEntityName);
+            prepStmt.setString(2, entityLocalID);
+
+            prepStmt.execute();
+            dbConnection.commit();
+        } catch (SQLException | IdentityException e) {
+            IdentityApplicationManagementUtil.rollBack(dbConnection);
+            String msg = "Error occurred while Updating Provisioning entity name to " + provisioningEntityName +
+                         " for Entity Local Id :" + entityLocalID;
+            throw new IdentityApplicationManagementException(msg, e);
+        } finally {
+            IdentityApplicationManagementUtil.closeConnection(dbConnection);
+        }
+    }
+
 }

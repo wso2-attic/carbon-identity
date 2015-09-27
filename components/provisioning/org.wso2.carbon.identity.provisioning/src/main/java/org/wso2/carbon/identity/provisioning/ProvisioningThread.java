@@ -82,14 +82,15 @@ public class ProvisioningThread implements Callable<Boolean> {
                 storeProvisionedEntityIdentifier(idPName, connectorType, provisioningEntity,
                         tenantDomainName);
             } else if (provisioningEntity.getEntityType() == ProvisioningEntityType.GROUP &&
-                       provisioningEntity.getOperation() == ProvisioningOperation.PUT &&
-                       getNewGroupName(provisioningEntity) != null) {
-                deleteProvisionedEntityIdentifier(idPName, connectorType, provisioningEntity, tenantDomainName);
-                ProvisioningEntity newProvisioningEntity =
-                        new ProvisioningEntity(ProvisioningEntityType.GROUP, getNewGroupName(provisioningEntity),
-                                               ProvisioningOperation.PUT, provisioningEntity.getAttributes());
-                newProvisioningEntity.setIdentifier(provisioningEntity.getIdentifier());
-                storeProvisionedEntityIdentifier(idPName, connectorType, newProvisioningEntity, tenantDomainName);
+                       provisioningEntity.getOperation() == ProvisioningOperation.PUT) {
+
+                String newGroupName = ProvisioningUtil.getAttributeValue(provisioningEntity,
+                                                                IdentityProvisioningConstants.NEW_GROUP_NAME_CLAIM_URI);
+                if(newGroupName != null){
+                    // update provisioned entity name for future reference. this is applicable for only
+                    // group name update
+                    dao.updateProvisionedEntityName(provisioningEntity);
+                }
             }
 
             success = true;
@@ -148,19 +149,6 @@ public class ProvisioningThread implements Callable<Boolean> {
             throw new IdentityApplicationManagementException(
                     "Error while deleting provisioning identifier.", e);
         }
-    }
-
-    private String getNewGroupName(ProvisioningEntity provisioningEntity) {
-        Map<ClaimMapping, List<String>> attributeMap = provisioningEntity.getAttributes();
-        if (attributeMap != null && attributeMap
-                                            .get(ClaimMapping
-                                                         .build(IdentityProvisioningConstants.NEW_GROUP_NAME_CLAIM_URI,
-                                                                null, null, false)) != null) {
-            return attributeMap
-                    .get(ClaimMapping.build(IdentityProvisioningConstants.NEW_GROUP_NAME_CLAIM_URI, null, null, false))
-                    .get(0);
-        }
-        return null;
     }
 
 }
