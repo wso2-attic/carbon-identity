@@ -943,13 +943,13 @@ function clearAll() {
     <td>
         <select id="digestAlgorithm" name="digestAlgorithm">
             <%
-                if (spConfigClient.getDigestAlgorithms() != null) {
-                    for (String digestAlgo : spConfigClient.getDigestAlgorithms()) {
+                if (spConfigClient.getDigestAlgorithmURIs() != null) {
+                    for (String digestAlgo : spConfigClient.getDigestAlgorithmURIs()) {
                         String digestAlgorithm = null;
                         if (provider != null) {
                             digestAlgorithm = provider.getDigestAlgorithm();
                         } else {
-                            digestAlgorithm = spConfigClient.getDigestAlgorithmByConfig();
+                            digestAlgorithm = spConfigClient.getDigestAlgorithmURIByConfig();
                         }
                         if (digestAlgorithm != null && digestAlgo.equals(digestAlgorithm)) {
             %>

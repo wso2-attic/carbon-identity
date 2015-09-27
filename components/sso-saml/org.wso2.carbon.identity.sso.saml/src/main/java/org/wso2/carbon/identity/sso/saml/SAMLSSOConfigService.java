@@ -41,6 +41,7 @@ import org.wso2.carbon.user.api.ClaimMapping;
 import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
+import java.util.Collection;
 import java.util.Set;
 
 public class SAMLSSOConfigService extends AbstractAdmin {
@@ -120,14 +121,13 @@ public class SAMLSSOConfigService extends AbstractAdmin {
                 .getSigningAlgoURIByConfig());
     }
 
-    public String[] getDigestAlgorithms() {
-        Set<String> digestKeySet = IdentityApplicationManagementUtil.getXMLDigestAlgorithms().keySet();
-        return digestKeySet.toArray(new String[digestKeySet.size()]);
+    public String[] getDigestAlgorithmURIs() {
+        Collection<String> digestAlgoUris = IdentityApplicationManagementUtil.getXMLDigestAlgorithms().values();
+        return digestAlgoUris.toArray(new String[digestAlgoUris.size()]);
     }
 
-    public String getDigestAlgorithmByConfig() {
-        return IdentityApplicationManagementUtil.getDigestAlgoByURI(IdentityApplicationManagementUtil
-                .getDigestAlgoURIByConfig());
+    public String getDigestAlgorithmURIByConfig() {
+        return IdentityApplicationManagementUtil.getDigestAlgoURIByConfig();
     }
     /**
      * @param issuer

@@ -23,6 +23,7 @@ import org.apache.axis2.client.ServiceClient;
 import org.apache.axis2.context.ConfigurationContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.identity.base.IdentityRuntimeException;
 import org.wso2.carbon.identity.sso.saml.stub.IdentitySAMLSSOConfigServiceStub;
 import org.wso2.carbon.identity.sso.saml.stub.types.SAMLSSOServiceProviderDTO;
 import org.wso2.carbon.identity.sso.saml.stub.types.SAMLSSOServiceProviderInfoDTO;
@@ -150,24 +151,22 @@ public class SAMLSSOConfigServiceClient {
         return signingAlgo;
     }
 
-    public String[] getDigestAlgorithms() throws AxisFault{
+    public String[] getDigestAlgorithmURIs() throws IdentityRuntimeException{
         String[] digestAlgorithms;
         try{
             digestAlgorithms = stub.getDigestAlgorithms();
         }catch (RemoteException e){
-            log.error("Error when reading digest algorithms",e);
-            throw new AxisFault(e.getMessage(),e);
+            throw new IdentityRuntimeException(e.getMessage(),e);
         }
         return digestAlgorithms;
     }
 
-    public String getDigestAlgorithmByConfig() throws AxisFault{
+    public String getDigestAlgorithmURIByConfig() throws IdentityRuntimeException{
         String digestAlgo;
         try {
             digestAlgo = stub.getDigestAlgorithmByConfig();
         } catch (RemoteException e) {
-            log.error("Error when reading digest algorithm from config",e);
-            throw new AxisFault(e.getMessage(),e);
+            throw new IdentityRuntimeException(e.getMessage(),e);
         }
         return digestAlgo;
     }
