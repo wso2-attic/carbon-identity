@@ -30,6 +30,7 @@
 
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@ page import="java.util.ResourceBundle" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 
 <script type="text/javascript" src="extensions/js/vui.js"></script>
 <script type="text/javascript" src="../extensions/core/js/vui.js"></script>
@@ -87,7 +88,7 @@
 %>
 <script type="text/javascript">
     function forward() {
-        location.href = "<%=forwardTo%>";
+        location.href = "<%=Encode.forJavaScriptBlock(forwardTo)%>";
     }
 </script>
 
@@ -160,26 +161,26 @@
                             if (association != null) {
                 %>
                 <td>
-                    <%=association.getAssociationName()%>
+                    <%=Encode.forHtmlContent(association.getAssociationName())%>
                 </td>
-                <td><%=association.getEventName()%>
+                <td><%=Encode.forHtmlContent(association.getEventName())%>
                 </td>
-                <td><%=association.getWorkflowName()%>
+                <td><%=Encode.forHtml(association.getWorkflowName())%>
                 </td>
                 <td>
                     <% if (association.getEnabled()) { %>
 
                     <a title="<fmt:message key='workflow.service.association.state.disable'/>"
-                       onclick="changeState('<%=association.getAssociationId()%>',
-                               '<%=association.getAssociationName()%>','<%=WorkflowUIConstants.ACTION_VALUE_DISABLE%>');return false;"
+                       onclick="changeState('<%=Encode.forJavaScriptAttribute(association.getAssociationId())%>',
+                               '<%=Encode.forJavaScriptAttribute(association.getAssociationName())%>','<%=WorkflowUIConstants.ACTION_VALUE_DISABLE%>');return false;"
                        class="icon-link" href="#" style="background-image: url(images/disable.gif);"><fmt:message
                             key='disable'/></a>
 
                     <% } else { %>
 
                     <a title="<fmt:message key='workflow.service.association.state.enable'/>"
-                       onclick="changeState('<%=association.getAssociationId()%>',
-                               '<%=association.getAssociationName()%>','<%=WorkflowUIConstants.ACTION_VALUE_ENABLE%>');return false;"
+                       onclick="changeState('<%=Encode.forJavaScriptAttribute(association.getAssociationId())%>',
+                               '<%=Encode.forJavaScriptAttribute(association.getAssociationName())%>','<%=WorkflowUIConstants.ACTION_VALUE_ENABLE%>');return false;"
                        class="icon-link" href="#" style="background-image: url(images/enable.gif);"><fmt:message
                             key='enable'/></a>
 
@@ -187,8 +188,8 @@
                         }
                     %>
                     <a title="<fmt:message key='workflow.service.association.delete.title'/>"
-                       onclick="removeAssociation('<%=association.getAssociationId()%>',
-                               '<%=association.getAssociationName()%>');return false;"
+                       onclick="removeAssociation('<%=Encode.forJavaScriptAttribute(association.getAssociationId())%>',
+                               '<%=Encode.forJavaScriptAttribute(association.getAssociationName())%>');return false;"
                        href="#" style="background-image: url(images/delete.gif);"
                        class="icon-link"><fmt:message key='delete'/></a>
                 </td>
