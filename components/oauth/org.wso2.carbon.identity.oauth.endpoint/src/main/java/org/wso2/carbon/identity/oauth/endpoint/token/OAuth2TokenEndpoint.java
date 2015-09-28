@@ -118,6 +118,14 @@ public class OAuth2TokenEndpoint {
                     // if there is an auth failure, HTTP 401 Status Code should be sent back to the client.
                     if (OAuth2ErrorCodes.INVALID_CLIENT.equals(oauth2AccessTokenResp.getErrorCode())) {
                         return handleBasicAuthFailure();
+                    }
+                    // if there is an internal server error, send the server error message
+                    if (OAuth2ErrorCodes.SERVER_ERROR.equals(oauth2AccessTokenResp.getErrorCode())) {
+                        return handleServerError();
+                    }
+                    // if specific SQL error, send Bad Gateway, so that client shall try again
+                    if ("sql_error".equals(oauth2AccessTokenResp.getErrorCode())) {
+                        return handleSQLError();
                     } else {
                         // Otherwise send back HTTP 400 Status Code
                         OAuthResponse.OAuthErrorResponseBuilder oAuthErrorResponseBuilder = OAuthASResponse
@@ -188,6 +196,24 @@ public class OAuth2TokenEndpoint {
 
     }
 
+    private Response handleServerError() throws OAuthSystemException {
+        OAuthResponse response = OAuthASResponse.errorResponse(HttpServletResponse.SC_INTERNAL_SERVER_ERROR)
+                .setError(OAuth2ErrorCodes.SERVER_ERROR)
+                .setErrorDescription("Server error occurred.").buildJSONMessage();
+        return Response.status(response.getResponseStatus())
+                .header(OAuthConstants.HTTP_RESP_HEADER_AUTHENTICATE, EndpointUtil.getRealmInfo())
+                .entity(response.getBody()).build();
+    }
+
+    private Response handleSQLError() throws OAuthSystemException {
+        OAuthResponse response = OAuthASResponse.errorResponse(HttpServletResponse.SC_BAD_GATEWAY)
+                .setError(OAuth2ErrorCodes.SERVER_ERROR)
+                .setErrorDescription("Server error occurred.").buildJSONMessage();
+        return Response.status(response.getResponseStatus())
+                .header(OAuthConstants.HTTP_RESP_HEADER_AUTHENTICATE, EndpointUtil.getRealmInfo())
+                .entity(response.getBody()).build();
+    }
+
     private Response handleBasicAuthFailure() throws OAuthSystemException {
         OAuthResponse response = OAuthASResponse.errorResponse(HttpServletResponse.SC_UNAUTHORIZED)
                 .setError(OAuth2ErrorCodes.INVALID_CLIENT)
@@ -199,7 +225,7 @@ public class OAuth2TokenEndpoint {
 
     private void logAccessTokenRequest(HttpServletRequest request) {
 
-        if (log.isDebugEnabled()){
+        if (log.isDebugEnabled()) {
             log.debug("Received a request : " + request.getRequestURI());
             // log the headers.
             log.debug("----------logging request headers.----------");
