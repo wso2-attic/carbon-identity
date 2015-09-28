@@ -52,10 +52,10 @@ public class SAMLSSOServiceProviderDAO extends AbstractDAO<SAMLSSOServiceProvide
                 .getProperty(IdentityRegistryResources.PROP_SAML_SSO_ISSUER_CERT_ALIAS));
 
         if (resource.getProperty(IdentityRegistryResources.PROP_SAML_SSO_SIGNING_ALGORITHM) != null) {
-            serviceProviderDO.setSigningAlgorithm(resource.getProperty(IdentityRegistryResources
+            serviceProviderDO.setSigningAlgorithmUri(resource.getProperty(IdentityRegistryResources
                     .PROP_SAML_SSO_SIGNING_ALGORITHM));
         } else {
-            serviceProviderDO.setSigningAlgorithm(IdentityCoreConstants.XML_SIGNATURE_ALGORITHM_RSA_SHA1);
+            serviceProviderDO.setSigningAlgorithmUri(IdentityCoreConstants.XML_SIGNATURE_ALGORITHM_RSA_SHA1_URI);
         }
 
         if (resource.getProperty(IdentityRegistryResources.PROP_SAML_SSO_DO_SINGLE_LOGOUT) != null) {
@@ -189,7 +189,7 @@ public class SAMLSSOServiceProviderDAO extends AbstractDAO<SAMLSSOServiceProvide
                     IdentityRegistryResources.PROP_SAML_SSO_NAMEID_FORMAT,
                     serviceProviderDO.getNameIDFormat());
             resource.addProperty(IdentityRegistryResources.PROP_SAML_SSO_SIGNING_ALGORITHM, serviceProviderDO
-                    .getSigningAlgorithm());
+                    .getSigningAlgorithmUri());
             if (serviceProviderDO.getNameIdClaimUri() != null
                     && serviceProviderDO.getNameIdClaimUri().trim().length() > 0) {
                 resource.addProperty(

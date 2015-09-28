@@ -31,7 +31,6 @@ import org.opensaml.saml2.core.impl.StatusBuilder;
 import org.opensaml.saml2.core.impl.StatusCodeBuilder;
 import org.opensaml.saml2.core.impl.StatusMessageBuilder;
 import org.opensaml.xml.encryption.EncryptionConstants;
-import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.sso.saml.SAMLSSOConstants;
 import org.wso2.carbon.identity.sso.saml.dto.SAMLSSOAuthnReqDTO;
@@ -82,9 +81,8 @@ public class DefaultResponseBuilder implements ResponseBuilder {
         }
 
         if (authReqDTO.isDoSignResponse()) {
-            SAMLSSOUtil.setSignature(response, IdentityApplicationManagementUtil.getXMLSignatureAlgorithms().get
-                            (authReqDTO.getSigningAlgorithm()),
-                    new SignKeyDataHolder(authReqDTO.getUser().getAuthenticatedSubjectIdentifier()));
+            SAMLSSOUtil.setSignature(response, authReqDTO.getSigningAlgorithmUri(), new SignKeyDataHolder(authReqDTO
+                    .getUser().getAuthenticatedSubjectIdentifier()));
         }
         return response;
     }
@@ -107,9 +105,8 @@ public class DefaultResponseBuilder implements ResponseBuilder {
         response.setIssueInstant(issueInstant);
         response.getAssertions().add(assertion);
         if (authReqDTO.isDoSignResponse()) {
-            SAMLSSOUtil.setSignature(response, IdentityApplicationManagementUtil.getXMLSignatureAlgorithms().get
-                    (authReqDTO.getSigningAlgorithm()), new SignKeyDataHolder(authReqDTO.getUser()
-                    .getAuthenticatedSubjectIdentifier()));
+            SAMLSSOUtil.setSignature(response, authReqDTO.getSigningAlgorithmUri(), new SignKeyDataHolder(authReqDTO
+                    .getUser().getAuthenticatedSubjectIdentifier()));
         }
         return response;
     }

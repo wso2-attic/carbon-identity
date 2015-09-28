@@ -44,15 +44,15 @@ public class SAMLSSOReqValidationResponseDTO implements Serializable {
     private boolean logoutFromAuthFramework;
     private boolean isIdPInitSLO;
     private String returnToURL;
-    private String signingAlgorithm;
+    private String signingAlgorithmUri;
 
-    public String getSigningAlgorithm() {
-        return signingAlgorithm;
+    public String getSigningAlgorithmUri() {
+        return signingAlgorithmUri;
     }
 
-    public void setSigningAlgorithm(String signingAlgorithm) {
-        if (StringUtils.isNotBlank(signingAlgorithm)) {
-            this.signingAlgorithm = signingAlgorithm;
+    public void setSigningAlgorithmUri(String signingAlgorithmUri) {
+        if (StringUtils.isNotBlank(signingAlgorithmUri)) {
+            this.signingAlgorithmUri = signingAlgorithmUri;
         }
     }
 

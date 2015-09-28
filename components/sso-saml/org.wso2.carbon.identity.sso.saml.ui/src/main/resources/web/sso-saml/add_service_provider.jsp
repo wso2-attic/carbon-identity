@@ -902,8 +902,8 @@ function clearAll() {
     <td>
         <select id="signingAlgorithm" name="signingAlgorithm">
             <%
-                if (spConfigClient.getSigningAlgorithms() != null) {
-                    for (String signingAlgo : spConfigClient.getSigningAlgorithms()) {
+                if (spConfigClient.getSigningAlgorithmUris() != null) {
+                    for (String signingAlgo : spConfigClient.getSigningAlgorithmUris()) {
                         String signAlgorithm = null;
                         if (provider != null) {
                             signAlgorithm = provider.getSigningAlgorithm();

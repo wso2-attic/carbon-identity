@@ -37,7 +37,6 @@ public class IdentityCoreConstants {
     public final static String MULTI_ATTRIBUTE_SEPARATOR_DEFAULT = ",,,";
 
     public static final String XML_SIGNATURE_ALGORITHM_RSA_SHA1_URI = "http://www.w3.org/2000/09/xmldsig#rsa-sha1";
-    public static final String XML_SIGNATURE_ALGORITHM_RSA_SHA1 = "RSA with SHA1";
 
     private IdentityCoreConstants(){
     }

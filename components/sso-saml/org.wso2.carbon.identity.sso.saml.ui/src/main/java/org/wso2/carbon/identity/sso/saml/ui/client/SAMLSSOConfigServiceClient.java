@@ -23,11 +23,11 @@ import org.apache.axis2.client.ServiceClient;
 import org.apache.axis2.context.ConfigurationContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.identity.base.IdentityRuntimeException;
 import org.wso2.carbon.identity.sso.saml.stub.IdentitySAMLSSOConfigServiceStub;
 import org.wso2.carbon.identity.sso.saml.stub.types.SAMLSSOServiceProviderDTO;
 import org.wso2.carbon.identity.sso.saml.stub.types.SAMLSSOServiceProviderInfoDTO;
 
-import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -128,25 +128,23 @@ public class SAMLSSOConfigServiceClient {
         return claimUris;
     }
 
-    public String[] getSigningAlgorithms() throws AxisFault{
-        String[] signingAlgorithms;
-        try {
-            signingAlgorithms = stub.getSigningAlgorithms();
-        } catch (RemoteException e) {
-            log.error("Error when reading signing algorithms",e);
-            throw new AxisFault(e.getMessage(),e);
-        }
-        return  signingAlgorithms;
+    public String[] getSigningAlgorithmUris() throws IdentityRuntimeException {
+        String[] signingAlgorithmUris = null;
+//        try {
+//            signingAlgorithmUris = stub.getSigningAlgorithmUris();
+//        } catch (RemoteException e) {
+//            throw new IdentityRuntimeException(e.getMessage(), e);
+//        }
+        return signingAlgorithmUris;
     }
 
-    public String getSigningAlgorithmByConfig() throws AxisFault{
-        String signingAlgo;
-        try{
-            signingAlgo = stub.getSigningAlgorithmByConfig();
-        }catch(RemoteException e){
-            log.error("Error when reading signing algorithm from config",e);
-            throw new AxisFault(e.getMessage(),e);
-        }
+    public String getSigningAlgorithmByConfig() throws IdentityRuntimeException {
+        String signingAlgo = null;
+//        try {
+//            signingAlgo = stub.getSigningAlgorithmUriByConfig();
+//        } catch (RemoteException e) {
+//            throw new IdentityRuntimeException(e.getMessage(), e);
+//        }
         return signingAlgo;
     }
 }
