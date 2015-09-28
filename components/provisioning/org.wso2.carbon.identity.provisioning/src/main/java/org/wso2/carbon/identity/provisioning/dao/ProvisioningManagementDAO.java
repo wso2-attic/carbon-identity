@@ -31,6 +31,7 @@ import org.wso2.carbon.identity.provisioning.ProvisionedIdentifier;
 import org.wso2.carbon.identity.provisioning.ProvisioningEntity;
 import org.wso2.carbon.identity.provisioning.ProvisioningUtil;
 import org.wso2.carbon.idp.mgt.util.IdPManagementConstants;
+import org.wso2.carbon.user.core.util.DatabaseUtil;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 
 import java.io.ByteArrayInputStream;
@@ -548,10 +549,9 @@ public class ProvisioningManagementDAO {
         Connection dbConnection = null;
         String provisioningEntityName = null;
         String entityLocalID = null;
+        PreparedStatement prepStmt = null;
         try {
             dbConnection = JDBCPersistenceManager.getInstance().getDBConnection();
-
-            PreparedStatement prepStmt = null;
 
             String sqlStmt = IdentityProvisioningConstants.SQLQueries.UPDATE_PROVISIONED_ENTITY_NAME_SQL;
             prepStmt = dbConnection.prepareStatement(sqlStmt);
@@ -572,7 +572,7 @@ public class ProvisioningManagementDAO {
                          " for Entity Local Id :" + entityLocalID;
             throw new IdentityApplicationManagementException(msg, e);
         } finally {
-            IdentityApplicationManagementUtil.closeConnection(dbConnection);
+            DatabaseUtil.closeAllConnections(dbConnection, prepStmt);
         }
     }
 
