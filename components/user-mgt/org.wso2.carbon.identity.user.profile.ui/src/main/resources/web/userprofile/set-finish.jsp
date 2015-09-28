@@ -102,7 +102,7 @@
         String message = resourceBundle.getString("user.profile.added.successfully");
         CarbonUIMessage.sendCarbonUIMessage(message,CarbonUIMessage.INFO, request);
         if ("true".equals(fromUserMgt)) {
-        	forwardTo ="index.jsp?username="+username;
+        	forwardTo ="index.jsp?username="+username + "&fromUserMgt=" + fromUserMgt;
         }else{
         	forwardTo ="index.jsp?region=region5&item=userprofiles_menu&ordinal=0";        	
         }
