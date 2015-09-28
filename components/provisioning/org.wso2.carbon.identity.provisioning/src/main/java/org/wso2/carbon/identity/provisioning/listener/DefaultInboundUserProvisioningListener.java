@@ -25,6 +25,7 @@ import org.wso2.carbon.identity.application.common.IdentityApplicationManagement
 import org.wso2.carbon.identity.application.common.model.ClaimMapping;
 import org.wso2.carbon.identity.application.common.model.ProvisioningServiceProviderType;
 import org.wso2.carbon.identity.application.common.model.ThreadLocalProvisioningServiceProvider;
+import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
 import org.wso2.carbon.identity.application.mgt.ApplicationConstants;
 import org.wso2.carbon.identity.application.mgt.ApplicationManagementService;
@@ -124,7 +125,7 @@ public class DefaultInboundUserProvisioningListener extends AbstractIdentityUser
                         serviceProvider = ApplicationManagementService.getInstance()
                                 .getServiceProviderNameByClientId(
                                         threadLocalServiceProvider.getServiceProviderName(),
-                                        IdentityProvisioningConstants.SP_OAUTH2_TYPE, tenantDomainName);
+                                       IdentityApplicationConstants.OAuth2.NAME, tenantDomainName);
                     } catch (IdentityApplicationManagementException e) {
                         log.error("Error while provisioning", e);
                         return true;
@@ -199,7 +200,7 @@ public class DefaultInboundUserProvisioningListener extends AbstractIdentityUser
                         serviceProvider = ApplicationManagementService.getInstance()
                                 .getServiceProviderNameByClientId(
                                         threadLocalServiceProvider.getServiceProviderName(),
-                                        IdentityProvisioningConstants.SP_OAUTH2_TYPE, tenantDomainName);
+                                       IdentityApplicationConstants.OAuth2.NAME, tenantDomainName);
                     } catch (IdentityApplicationManagementException e) {
                         log.error("Error while provisioning", e);
                         return true;
@@ -268,7 +269,7 @@ public class DefaultInboundUserProvisioningListener extends AbstractIdentityUser
                         serviceProvider = ApplicationManagementService.getInstance()
                                 .getServiceProviderNameByClientId(
                                         threadLocalServiceProvider.getServiceProviderName(),
-                                        IdentityProvisioningConstants.SP_OAUTH2_TYPE, tenantDomainName);
+                                       IdentityApplicationConstants.OAuth2.NAME, tenantDomainName);
                     } catch (IdentityApplicationManagementException e) {
                         log.error("Error while provisioning", e);
                         return true;
@@ -290,12 +291,6 @@ public class DefaultInboundUserProvisioningListener extends AbstractIdentityUser
         } finally {
             IdentityApplicationManagementUtil.resetThreadLocalProvisioningServiceProvider();
         }
-    }
-
-    @Override
-    public boolean doPostDeleteUserClaimValues(String userName, UserStoreManager userStoreManager)
-            throws UserStoreException {
-        return true;
     }
 
     @Override
@@ -341,7 +336,7 @@ public class DefaultInboundUserProvisioningListener extends AbstractIdentityUser
                         serviceProvider = ApplicationManagementService.getInstance()
                                 .getServiceProviderNameByClientId(
                                         threadLocalServiceProvider.getServiceProviderName(),
-                                        IdentityProvisioningConstants.SP_OAUTH2_TYPE, tenantDomainName);
+                                        IdentityApplicationConstants.OAuth2.NAME, tenantDomainName);
                     } catch (IdentityApplicationManagementException e) {
                         log.error("Error while provisioning", e);
                         return true;
@@ -363,12 +358,6 @@ public class DefaultInboundUserProvisioningListener extends AbstractIdentityUser
         } finally {
             IdentityApplicationManagementUtil.resetThreadLocalProvisioningServiceProvider();
         }
-    }
-
-    @Override
-    public boolean doPostDeleteUserClaimValue(String userName, UserStoreManager userStoreManager)
-            throws UserStoreException {
-        return true;
     }
 
     @Override
@@ -409,7 +398,7 @@ public class DefaultInboundUserProvisioningListener extends AbstractIdentityUser
                         serviceProvider = ApplicationManagementService.getInstance()
                                 .getServiceProviderNameByClientId(
                                         threadLocalServiceProvider.getServiceProviderName(),
-                                        IdentityProvisioningConstants.SP_OAUTH2_TYPE, tenantDomainName);
+                                        IdentityApplicationConstants.OAuth2.NAME, tenantDomainName);
                     } catch (IdentityApplicationManagementException e) {
                         log.error("Error while provisioning", e);
                         return true;
@@ -484,7 +473,7 @@ public class DefaultInboundUserProvisioningListener extends AbstractIdentityUser
                         serviceProvider = ApplicationManagementService.getInstance()
                                 .getServiceProviderNameByClientId(
                                         threadLocalServiceProvider.getServiceProviderName(),
-                                        IdentityProvisioningConstants.SP_OAUTH2_TYPE, tenantDomainName);
+                                        IdentityApplicationConstants.OAuth2.NAME, tenantDomainName);
                     } catch (IdentityApplicationManagementException e) {
                         log.error("Error while provisioning", e);
                         return true;
@@ -577,7 +566,7 @@ public class DefaultInboundUserProvisioningListener extends AbstractIdentityUser
                         serviceProvider = ApplicationManagementService.getInstance()
                                 .getServiceProviderNameByClientId(
                                         threadLocalServiceProvider.getServiceProviderName(),
-                                        IdentityProvisioningConstants.SP_OAUTH2_TYPE, tenantDomainName);
+                                        IdentityApplicationConstants.OAuth2.NAME, tenantDomainName);
                     } catch (IdentityApplicationManagementException e) {
                         log.error("Error while provisioning", e);
                         return true;
@@ -647,7 +636,7 @@ public class DefaultInboundUserProvisioningListener extends AbstractIdentityUser
                         serviceProvider = ApplicationManagementService.getInstance()
                                 .getServiceProviderNameByClientId(
                                         threadLocalServiceProvider.getServiceProviderName(),
-                                        IdentityProvisioningConstants.SP_OAUTH2_TYPE, tenantDomainName);
+                                        IdentityApplicationConstants.OAuth2.NAME, tenantDomainName);
                     } catch (IdentityApplicationManagementException e) {
                         log.error("Error while provisioning", e);
                         return true;
@@ -713,7 +702,7 @@ public class DefaultInboundUserProvisioningListener extends AbstractIdentityUser
                         serviceProvider = ApplicationManagementService.getInstance()
                                 .getServiceProviderNameByClientId(
                                         threadLocalServiceProvider.getServiceProviderName(),
-                                        IdentityProvisioningConstants.SP_OAUTH2_TYPE, tenantDomainName);
+                                        IdentityApplicationConstants.OAuth2.NAME, tenantDomainName);
                     } catch (IdentityApplicationManagementException e) {
                         log.error("Error while provisioning", e);
                         return true;

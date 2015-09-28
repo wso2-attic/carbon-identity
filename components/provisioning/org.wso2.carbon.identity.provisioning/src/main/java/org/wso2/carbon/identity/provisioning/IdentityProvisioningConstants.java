@@ -37,7 +37,6 @@ public class IdentityProvisioningConstants {
     public static final String LOCAL_SP = ApplicationConstants.LOCAL_SP;
     public static final String JIT_PROVISIONING_ENABLED = "jitProvisioningEnabled";
     public static final String PARAM_ENABLE_DEFAULT_INBOUND_PROV_LISTENER = "Provisioning.EnableDefaultInboundUserProvisioningListener";
-    public static final String SP_OAUTH2_TYPE=  "oauth2";
 
     public static class SQLQueries {
 
