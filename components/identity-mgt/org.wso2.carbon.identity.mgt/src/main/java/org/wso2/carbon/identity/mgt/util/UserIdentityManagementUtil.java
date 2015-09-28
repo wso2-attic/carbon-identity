@@ -19,6 +19,8 @@
 package org.wso2.carbon.identity.mgt.util;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.model.IdentityEventListener;
@@ -27,6 +29,7 @@ import org.wso2.carbon.identity.mgt.IdentityMgtConfig;
 import org.wso2.carbon.identity.mgt.IdentityMgtEventListener;
 import org.wso2.carbon.identity.mgt.IdentityMgtServiceException;
 import org.wso2.carbon.identity.mgt.beans.UserIdentityMgtBean;
+import org.wso2.carbon.identity.mgt.beans.VerificationBean;
 import org.wso2.carbon.identity.mgt.dto.UserIdentityClaimDTO;
 import org.wso2.carbon.identity.mgt.dto.UserIdentityClaimsDO;
 import org.wso2.carbon.identity.mgt.dto.UserRecoveryDTO;
@@ -52,6 +55,24 @@ import java.util.List;
  * @author sga
  */
 public class UserIdentityManagementUtil {
+    private static final String EXISTING_USER = "UserAlreadyExisting";
+    private static final String INVALID_CLAIM_URL = "InvalidClaimUrl";
+    private static final String INVALID_USER_NAME = "InvalidUserName";
+    private static final String EXISTING_ROLE = "RoleExisting";
+    private static final String READ_ONLY_STORE = "ReadOnlyUserStoreManager";
+    private static final String READ_ONLY_PRIMARY_STORE = "ReadOnlyPrimaryUserStoreManager";
+    private static final String INVALID_ROLE = "InvalidRole";
+    private static final String ANONYMOUS_USER = "AnonymousUser";
+    private static final String INVALID_OPERATION = "InvalidOperation";
+    private static final String NO_READ_WRITE_PERMISSIONS = "NoReadWritePermission";
+    private static final String PASSWORD_INVALID = "PasswordInvalid";
+    private static final String SHARED_USER_ROLES = "SharedUserRoles";
+    private static final String REMOVE_ADMIN_USER = "RemoveAdminUser";
+    private static final String LOGGED_IN_USER = "LoggedInUser";
+    private static final String ADMIN_USER = "AdminUser";
+
+    private static VerificationBean vBean = new VerificationBean();
+    private static Log log = LogFactory.getLog(UserIdentityManagementUtil.class);
 
     private UserIdentityManagementUtil() {
     }
@@ -496,5 +517,89 @@ public class UserIdentityManagementUtil {
             String msg = "Unable to retrieve the claim for the given tenant";
             throw new IdentityMgtServiceException(msg, e);
         }
+    }
+
+    public static VerificationBean getCustomErrorMessages(Exception e, String userName) {
+        if (e.getMessage().contains(PASSWORD_INVALID)) {
+            vBean = handleError(VerificationBean.ERROR_CODE_UNEXPECTED +
+                    " Credential not valid. Credential must be a non null for the user : " + userName, e);
+            return vBean;
+        } else if (e.getMessage().contains(EXISTING_USER)) {
+            vBean = handleError(VerificationBean.ERROR_CODE_UNEXPECTED +
+                    " Username '" + userName
+                    + "' already exists in the system. Please pick another username.", e);
+            return vBean;
+        } else if (e.getMessage().contains(INVALID_CLAIM_URL)) {
+            vBean = handleError(VerificationBean.ERROR_CODE_UNEXPECTED +
+                    " Invalid claim uri has been provided.", e);
+            return vBean;
+        } else if (e.getMessage().contains(INVALID_USER_NAME)) {
+            vBean = handleError(VerificationBean.ERROR_CODE_UNEXPECTED +
+                    " Username " + userName + " is not valid. User name must be a non null", e);
+            return vBean;
+        } else if (e.getMessage().contains(READ_ONLY_STORE)) {
+            vBean = handleError(VerificationBean.ERROR_CODE_UNEXPECTED +
+                    " Read-only UserStoreManager. Roles cannot be added or modified.", e);
+            return vBean;
+        } else if (e.getMessage().contains(READ_ONLY_PRIMARY_STORE)) {
+            vBean = handleError(VerificationBean.ERROR_CODE_UNEXPECTED +
+                    " Cannot add role to Read Only user store unless it is primary.", e);
+            return vBean;
+        } else if (e.getMessage().contains(INVALID_ROLE)) {
+            vBean = handleError(VerificationBean.ERROR_CODE_UNEXPECTED +
+                    " Role name not valid. Role name must be a non null string.", e);
+            return vBean;
+        } else if (e.getMessage().contains(NO_READ_WRITE_PERMISSIONS)) {
+            vBean = handleError(VerificationBean.ERROR_CODE_UNEXPECTED +
+                    " Role cannot be added. User store is read only or cannot write groups.", e);
+            return vBean;
+        } else if (e.getMessage().contains(EXISTING_ROLE)) {
+            vBean = handleError(VerificationBean.ERROR_CODE_UNEXPECTED +
+                    " Role alreary exists in the system. Please pick another role name.", e);
+            return vBean;
+        } else if (e.getMessage().contains(SHARED_USER_ROLES)) {
+            vBean = handleError(VerificationBean.ERROR_CODE_UNEXPECTED +
+                    " User store doesn't support shared user roles functionality.", e);
+            return vBean;
+        } else if (e.getMessage().contains(REMOVE_ADMIN_USER)) {
+            vBean = handleError(VerificationBean.ERROR_CODE_UNEXPECTED +
+                    " Cannot remove Admin user from Admin role.", e);
+            return vBean;
+        } else if (e.getMessage().contains(LOGGED_IN_USER)) {
+            vBean = handleError(VerificationBean.ERROR_CODE_UNEXPECTED +
+                    " Cannot remove Admin user from Admin role.", e);
+            return vBean;
+        } else if (e.getMessage().contains(ADMIN_USER)) {
+            vBean = handleError(VerificationBean.ERROR_CODE_UNEXPECTED +
+                    " Cannot remove Admin user from Admin role.", e);
+            return vBean;
+        } else if (e.getMessage().contains(ANONYMOUS_USER)) {
+            vBean = handleError(VerificationBean.ERROR_CODE_UNEXPECTED +
+                    " Cannot delete anonymous user.", e);
+            return vBean;
+        } else if (e.getMessage().contains(INVALID_OPERATION)) {
+            vBean = handleError(VerificationBean.ERROR_CODE_UNEXPECTED +
+                    " Invalid operation. User store is read only.", e);
+            return vBean;
+        } else {
+            vBean = handleError(
+                    VerificationBean.ERROR_CODE_UNEXPECTED + " Error occurred while adding user : " + userName, e);
+            return vBean;
+        }
+    }
+
+    private static VerificationBean handleError(String error, Exception e) {
+
+        VerificationBean bean = new VerificationBean();
+
+        bean.setVerified(false);
+        if (error != null) {
+            bean.setError(error);
+            log.error(error, e);
+        } else {
+            bean.setError(e.getMessage());
+            log.error(e);
+        }
+        return bean;
     }
 }
