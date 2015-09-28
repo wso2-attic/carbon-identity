@@ -478,9 +478,6 @@ public class OAuth2AuthzEndpoint {
             params.setACRValues(list);
         }
         String prompt = oauthRequest.getParam(OAuthConstants.OAuth20Params.PROMPT);
-        if (StringUtils.isBlank(prompt)) {
-            prompt = "consent";
-        }
         params.setPrompt(prompt);
 
         /**
@@ -516,10 +513,13 @@ public class OAuth2AuthzEndpoint {
         boolean forceAuthenticate = false;
         boolean checkAuthentication = false;
 
-            // values {none, login, consent, select_profile}
-            String[] prompts = prompt.trim().split("\\s");
-            boolean containsNone = prompt.contains(OAuthConstants.Prompt.NONE);
-            if (prompts.length > 1 && containsNone) {
+        // values {none, login, consent, select_profile}
+        boolean contains_none = (OAuthConstants.Prompt.NONE).equals(prompt);
+        String[] prompts = null;
+        if (StringUtils.isNotBlank(prompt)) {
+            prompts = prompt.trim().split("\\s");
+            contains_none = prompt.contains(OAuthConstants.Prompt.NONE);
+            if (prompts.length > 1 && contains_none) {
                 if (log.isDebugEnabled()) {
                     log.debug("Invalid prompt variable combination. The value 'none' cannot be used with others " +
                             "prompts. Prompt: " + prompt);
@@ -530,11 +530,12 @@ public class OAuth2AuthzEndpoint {
                                 "with others prompts.").location(params.getRedirectURI())
                         .setState(params.getState()).buildQueryMessage().getLocationUri();
             }
+        }
 
         if (prompt.contains(OAuthConstants.Prompt.LOGIN)) { // prompt for authentication
             checkAuthentication = false;
             forceAuthenticate = true;
-        } else if (containsNone) {
+        } else if (contains_none) {
             checkAuthentication = true;
             forceAuthenticate = false;
         } else if (prompt.contains(OAuthConstants.Prompt.CONSENT)) {
@@ -625,24 +626,29 @@ public class OAuth2AuthzEndpoint {
                 OAuth2Util.isOIDCAuthzRequest(oauth2Params.getScopes()) ? true : false);
 
         //Skip the consent page if User has provided approve always or skip consent from file
-        if (oauth2Params.getPrompt().contains(OAuthConstants.Prompt.CONSENT) ||
-                oauth2Params.getPrompt().contains(OAuthConstants.Prompt.LOGIN)) {
+        if ((OAuthConstants.Prompt.CONSENT).equals(oauth2Params.getPrompt())) {
             return consentUrl;
 
-        } else if (oauth2Params.getPrompt().contains(OAuthConstants.Prompt.NONE)) {
+        } else if ((OAuthConstants.Prompt.NONE).equals(oauth2Params.getPrompt())) {
             //Returning error if the user has not previous session
             if (sessionDataCacheEntry.getLoggedInUser() == null) {
                 return errorResponse;
             } else {
                 if (skipConsent || hasUserApproved) {
-                    return handleUserConsent(request, OAuthConstants.Consent.APPROVE, oauth2Params, sessionDataCacheEntry);
+                    return handleUserConsent(request, APPROVE, oauth2Params, sessionDataCacheEntry);
                 } else {
                     return errorResponse;
                 }
             }
 
+        } else if (((OAuthConstants.Prompt.LOGIN).equals(oauth2Params.getPrompt()) || StringUtils.isBlank(oauth2Params.getPrompt()))) {
+            if (skipConsent || hasUserApproved) {
+                return handleUserConsent(request, APPROVE, oauth2Params, sessionDataCacheEntry);
+            } else {
+                return consentUrl;
+            }
         } else {
-            return consentUrl;
+            return StringUtils.EMPTY;
         }
 
     }
