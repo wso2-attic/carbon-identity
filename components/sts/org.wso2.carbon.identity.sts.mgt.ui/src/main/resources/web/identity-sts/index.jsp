@@ -87,7 +87,7 @@ try {
 	                  </tr>
 	                  <tr>
 	                      <td><fmt:message key='valid.period'/></td>
-	                      <td><%=Encode.forHtml(String.valueOf(cardIssuer.getValidPeriodInDays()))%></td>
+	                      <td><%=Encode.forHtmlContent(String.valueOf(cardIssuer.getValidPeriodInDays()))%></td>
 	                  </tr>
 	                    <tr>
 	                      <td><fmt:message key='supporting.token.types'/></td>
