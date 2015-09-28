@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.identity.application.authentication.framework.util;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
@@ -102,6 +103,8 @@ public class FrameworkUtils {
     public static final String SESSION_DATA_KEY = "sessionDataKey";
     public static final String UTF_8 = "UTF-8";
     private static final Log log = LogFactory.getLog(FrameworkUtils.class);
+    private static final String EMAIL = "email";
+
     private static int maxInactiveInterval;
 
     private FrameworkUtils() {
@@ -706,7 +709,7 @@ public class FrameworkUtils {
                 continue;
             }
             claimMap.put(ClaimMapping.build(entry.getKey(), entry.getKey(), null, false),
-                         entry.getValue());
+                    entry.getValue());
         }
 
         return claimMap;
@@ -1036,6 +1039,9 @@ public class FrameworkUtils {
                                                        Map<ClaimMapping, String> claimMappings) {
 
         String userIdClaimURI = identityProvider.getClaimConfig().getUserClaimURI();
+        if (StringUtils.isBlank(userIdClaimURI)) {
+            userIdClaimURI = EMAIL;
+        }
         ClaimMapping claimMapping = new ClaimMapping();
         Claim claim = new Claim();
         claim.setClaimUri(userIdClaimURI);

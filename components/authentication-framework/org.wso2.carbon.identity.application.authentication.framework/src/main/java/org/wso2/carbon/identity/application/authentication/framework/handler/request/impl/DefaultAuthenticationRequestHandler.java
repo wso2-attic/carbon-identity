@@ -18,9 +18,11 @@
 
 package org.wso2.carbon.identity.application.authentication.framework.handler.request.impl;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
+import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.application.authentication.framework.config.model.ApplicationConfig;
@@ -381,8 +383,15 @@ public class DefaultAuthenticationRequestHandler implements AuthenticationReques
         }
 
         // redirect to the caller
-        String redirectURL = context.getCallerPath() + "?sessionDataKey="
-                             + context.getCallerSessionKey() + rememberMeParam;
+        String webContextRoot = ServerConfiguration.getInstance().getFirstProperty(FrameworkConstants.WEB_CONTEXT_ROOT);
+        String redirectURL;
+        if (StringUtils.isNotBlank(webContextRoot)) {
+            redirectURL = webContextRoot + context.getCallerPath() + "?sessionDataKey="
+                    + context.getCallerSessionKey() + rememberMeParam;
+        } else {
+            redirectURL = context.getCallerPath() + "?sessionDataKey="
+                    + context.getCallerSessionKey() + rememberMeParam;
+        }
         try {
             response.sendRedirect(redirectURL);
         } catch (IOException e) {

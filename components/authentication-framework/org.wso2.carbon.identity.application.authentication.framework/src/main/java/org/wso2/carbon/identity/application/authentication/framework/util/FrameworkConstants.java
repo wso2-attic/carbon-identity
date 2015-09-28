@@ -56,6 +56,8 @@ public abstract class FrameworkConstants {
     public static final String AUDIT_SUCCESS = "Success";
     public static final String AUDIT_FAILED = "Failed";
 
+    public static final String WEB_CONTEXT_ROOT="WebContextRoot";
+
     private FrameworkConstants() {
 
     }

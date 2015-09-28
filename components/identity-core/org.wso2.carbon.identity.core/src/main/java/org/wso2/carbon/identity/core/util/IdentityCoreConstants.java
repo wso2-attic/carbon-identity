@@ -36,6 +36,8 @@ public class IdentityCoreConstants {
     public final static String MULTI_ATTRIBUTE_SEPARATOR = "MultiAttributeSeparator";
     public final static String MULTI_ATTRIBUTE_SEPARATOR_DEFAULT = ",,,";
 
+    public final static String WEB_CONTEXT_ROOT="WebContextRoot";
+
     private IdentityCoreConstants(){
     }
 }
