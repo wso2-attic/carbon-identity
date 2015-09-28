@@ -31,8 +31,9 @@ import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.idp.mgt.util.IdPManagementUtil;
 
 import java.sql.Timestamp;
+import java.util.concurrent.TimeUnit;
 
-public class SessionContextCache extends BaseCache<String, CacheEntry> {
+public class SessionContextCache extends BaseCache<String, SessionContextCacheEntry> {
 
     private static final String SESSION_CONTEXT_CACHE_NAME = "AppAuthFrameworkSessionContextCache";
     private static final Log log = LogFactory.getLog(SessionContextCache.class);
@@ -72,7 +73,9 @@ public class SessionContextCache extends BaseCache<String, CacheEntry> {
         return instance;
     }
 
-    public void addToCache(CacheKey key, CacheEntry entry) {
+    public void addToCache(CacheKey key, SessionContextCacheEntry entry) {
+        entry.setAccessedTime();
+
         if (useCache) {
             super.addToCache(((SessionContextCacheKey) key).getContextId(), entry);
         }
@@ -80,26 +83,26 @@ public class SessionContextCache extends BaseCache<String, CacheEntry> {
         SessionDataStore.getInstance().storeSessionData(keyValue, SESSION_CONTEXT_CACHE_NAME, entry);
     }
 
-    public CacheEntry getValueFromCache(CacheKey key) {
-        CacheEntry cacheEntry = null;
+    public SessionContextCacheEntry getValueFromCache(CacheKey key) {
+        SessionContextCacheEntry cacheEntry = null;
         if (useCache) {
             cacheEntry = super.getValueFromCache(((SessionContextCacheKey) key).getContextId());
         }
+
         if (cacheEntry == null) {
             String keyValue = ((SessionContextCacheKey) key).getContextId();
             SessionContextDO sessionContextDO = SessionDataStore.getInstance().
                     getSessionContextData(keyValue, SESSION_CONTEXT_CACHE_NAME);
 
-            SessionContextCacheEntry sessionEntry = (SessionContextCacheEntry) sessionContextDO.getEntry();
-            Timestamp currentTimestamp = new java.sql.Timestamp(new java.util.Date().getTime());
-            if (sessionEntry != null && sessionEntry.getContext().isRememberMe() &&
-                        (currentTimestamp.getTime() - sessionContextDO.getTimestamp().getTime() <=
-                            IdPManagementUtil.getRememberMeTimeout(CarbonContext.getThreadLocalCarbonContext()
-                                    .getTenantDomain())*60*1000)) {
-                cacheEntry = sessionEntry;
-            }
+            cacheEntry = new SessionContextCacheEntry(sessionContextDO);
         }
-        return cacheEntry;
+
+        if (isValidIdleSession(key, cacheEntry) || isValidRememberMeSession(key, cacheEntry)) {
+            return cacheEntry;
+        } else {
+            clearCacheEntry(key);
+            return null;
+        }
 
     }
 
@@ -109,5 +112,79 @@ public class SessionContextCache extends BaseCache<String, CacheEntry> {
         }
         String keyValue = ((SessionContextCacheKey) key).getContextId();
         SessionDataStore.getInstance().clearSessionData(keyValue, SESSION_CONTEXT_CACHE_NAME);
+    }
+
+    /**
+     * Check whether the given session context is valid according to idle session timeout restrictions.
+     *
+     * @param key        SessionContextCacheKey
+     * @param cacheEntry SessionContextCacheEntry
+     * @return true if the session context is NOT restricted as per idle session configs; false otherwise
+     */
+    private boolean isValidIdleSession(CacheKey key, SessionContextCacheEntry cacheEntry) {
+        String contextId = ((SessionContextCacheKey) key).getContextId();
+
+        if (cacheEntry == null) {
+            return true;
+        }
+
+        String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+        long idleSessionTimeOut = TimeUnit.SECONDS.toMillis(IdPManagementUtil.getIdleSessionTimeOut(tenantDomain));
+
+        long currentTime = System.currentTimeMillis();
+        long lastAccessedTime = cacheEntry.getAccessedTime();
+
+        if (log.isDebugEnabled()) {
+            log.debug("Context ID : " + contextId + " :: idleSessionTimeOut : " + idleSessionTimeOut
+                    + ", currentTime : " + currentTime + ", lastAccessedTime : " + lastAccessedTime);
+        }
+
+        if (currentTime - lastAccessedTime > idleSessionTimeOut) {
+            if (log.isDebugEnabled()) {
+                log.debug("Context ID : " + contextId + " :: Idle session expiry");
+            }
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Check whether the given session context is valid according to remember me session timeout restrictions.
+     *
+     * @param key        SessionContextCacheKey
+     * @param cacheEntry SessionContextCacheEntry
+     * @return true if the session context is NOT restricted as per remember me session configs; false otherwise
+     */
+    private boolean isValidRememberMeSession(CacheKey key, SessionContextCacheEntry cacheEntry) {
+        String contextId = ((SessionContextCacheKey) key).getContextId();
+
+        if (cacheEntry == null) {
+            return true;
+        }
+
+        if (!cacheEntry.getContext().isRememberMe()) {
+            return false;
+        }
+
+        String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+        long rememberMeSessionTimeOut = TimeUnit.SECONDS.toMillis(IdPManagementUtil.getRememberMeTimeout(tenantDomain));
+
+        long currentTime = System.currentTimeMillis();
+        long lastAccessedTime = cacheEntry.getAccessedTime();
+
+        if (log.isDebugEnabled()) {
+            log.debug("Context ID : " + contextId + " :: rememberMeSessionTimeOut : " + rememberMeSessionTimeOut
+                    + ", currentTime : " + currentTime + ", lastAccessedTime : " + lastAccessedTime);
+        }
+
+        if (currentTime - lastAccessedTime > rememberMeSessionTimeOut) {
+            if (log.isDebugEnabled()) {
+                log.debug("Context ID : " + contextId + " :: Remember me session expiry");
+            }
+            return false;
+        }
+
+        return true;
     }
 }
