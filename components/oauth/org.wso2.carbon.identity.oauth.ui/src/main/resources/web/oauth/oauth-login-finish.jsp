@@ -25,7 +25,6 @@
 <%@ page import="org.wso2.carbon.identity.oauth.ui.client.OAuthServiceClient"%>
 <%@ page import="org.wso2.carbon.ui.CarbonUIMessage"%>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil"%>
-<%@ page import="org.wso2.carbon.ui.util.CharacterEncoder"%>
 
 <%@ page import="org.wso2.carbon.utils.ServerConstants"%>
 <%@ page import="java.util.ResourceBundle" %>
@@ -40,7 +39,7 @@
 <jsp:include page="../dialog/display_messages.jsp" />
 
 <%
-	String oauthUserName = request.getParameter("oauth_user_name");
+    String oauthUserName = request.getParameter("oauth_user_name");
     String oauthUserPassword = request.getParameter("oauth_user_password");
 	String forwardTo = "index.jsp";
     String BUNDLE = "org.wso2.carbon.identity.oauth.ui.i18n.Resources";

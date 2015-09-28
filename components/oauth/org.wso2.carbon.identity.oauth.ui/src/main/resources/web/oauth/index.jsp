@@ -147,10 +147,10 @@
                 %>
                 <tr>
                     <td width="50%"><a
-                            href="edit.jsp?consumerkey=<%=apps[i].getOauthConsumerKey()%>"><%=apps[i].getApplicationName()%>
+                            href="edit.jsp?consumerkey=<%=Encode.forUriComponent(apps[i].getOauthConsumerKey())%>"><%=Encode.forHtml(apps[i].getApplicationName())%>
                     </a></td>
                     <td width="50%"><a title="<fmt:message key='remove.app'/>"
-                                       onclick="itemRemove('<%=apps[i].getOauthConsumerKey()%>','<%=apps[i].getApplicationName()%>');return false;"
+                                       onclick="itemRemove('<%=Encode.forJavaScriptAttribute(apps[i].getOauthConsumerKey())%>','<%=Encode.forJavaScriptAttribute(apps[i].getApplicationName())%>');return false;"
                                        href="#"
                                        style="background-image: url(../oauth/images/delete.gif);"
                                        class="icon-link">

@@ -24,7 +24,6 @@
 <%@ page import="org.wso2.carbon.identity.oauth.ui.util.OAuthUIUtil" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil"%>
-<%@ page import="org.wso2.carbon.ui.util.CharacterEncoder"%>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 
 <%@ page import="java.util.ArrayList" %>
@@ -43,7 +42,7 @@
 
 <%
 
-	String consumerkey = request.getParameter("consumerkey");
+    String consumerkey = request.getParameter("consumerkey");
     String appName = request.getParameter("appName");
 
     OAuthConsumerAppDTO app = null;
@@ -192,7 +191,7 @@
 				<table class="normal" cellspacing="0">
                             <tr>
                                 <td class="leftCol-small"><fmt:message key='oauth.version'/></td>
-                                <td><%=app.getOAuthVersion()%><input id="oauthVersion" name="oauthVersion"
+                                <td><%=Encode.forHtml(app.getOAuthVersion())%><input id="oauthVersion" name="oauthVersion"
                                                                         type="hidden" value="<%=Encode.forHtmlAttribute(app.getOAuthVersion())%>" /></td>
                             </tr>
                             <%if (applicationSPName ==null) { %>

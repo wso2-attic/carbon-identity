@@ -23,7 +23,6 @@
 <%@ page import="org.wso2.carbon.identity.oauth.ui.client.OAuthAdminClient" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
-<%@ page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 
 <%@ page import="java.util.ResourceBundle" %>

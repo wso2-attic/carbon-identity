@@ -16,7 +16,6 @@
  ~ under the License.
  -->
 
-<%@ page import="org.wso2.carbon.ui.util.CharacterEncoder"%>
 <%@ page import="java.net.URLDecoder" %>
 <%@ page import="java.net.URLEncoder" %>
 <%@ page import="org.owasp.encoder.Encode" %>
@@ -55,7 +54,7 @@
           media="all"/>
     <link href="../dialog/css/dialog.css" rel="stylesheet" type="text/css" media="all"/>
 
-    <link href="<%=cssLocation%>" rel="stylesheet" type="text/css"
+    <link href="<%=Encode.forUriComponent(cssLocation)%>" rel="stylesheet" type="text/css"
           media="all"/>
 
     <link rel="icon" href="../admin/images/favicon.ico" type="image/x-icon"/>
@@ -134,7 +133,7 @@
                      <table style="border:none !important;width: 100%" class="styledLeft">
                    
                     <tr>
-                        <td><b><%=(String)session.getAttribute("oauth_app_name") + " "%><fmt:message key='oauth.signin.message'/><%=(String)session.getAttribute("oauth_scope")%>
+                        <td><b><%=Encode.forHtml((String)session.getAttribute("oauth_app_name")) + " "%><fmt:message key='oauth.signin.message'/><%=Encode.forHtml((String)session.getAttribute("oauth_scope"))%>
 					</b></td>
                     </tr>
                    

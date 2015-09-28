@@ -39,7 +39,7 @@
 <jsp:include page="../dialog/display_messages.jsp" />
 
 <%
-	String consumerkey = request.getParameter("consumerkey");
+    String consumerkey = request.getParameter("consumerkey");
     String callback = request.getParameter("callback");
     String applicationName = request.getParameter("application");
     String consumersecret = request.getParameter("consumersecret");

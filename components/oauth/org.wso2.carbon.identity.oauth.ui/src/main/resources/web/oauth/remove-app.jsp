@@ -45,7 +45,7 @@
 	
 	boolean qpplicationComponentFound = CarbonUIUtil.isContextRegistered(config, "/application/");
 	if (qpplicationComponentFound) {
-		forwardTo = "../application/configure-service-provider.jsp?action=delete&spName="+ Encode.forUriComponent(spName)+"&oauthapp="+ Encode.forUriComponent(consumerkey);
+        forwardTo = "../application/configure-service-provider.jsp?action=delete&spName="+ Encode.forUriComponent(spName)+"&oauthapp="+ Encode.forUriComponent(consumerkey);
 	}
 	
     String BUNDLE = "org.wso2.carbon.identity.oauth.ui.i18n.Resources";
