@@ -54,6 +54,10 @@
             <groupId>com.google.guice.wso2</groupId>
             <artifactId>guice</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.wso2.orbit.org.opensaml</groupId>
+            <artifactId>opensaml</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -111,6 +115,7 @@
                                 <bundleDef>org.wso2.carbon.identity:org.wso2.carbon.identity.provider</bundleDef>
                                 <bundleDef>org.wso2.orbit.org.openid4java:openid4java</bundleDef>
                                 <bundleDef>org.igniterealtime.smack.wso2:smack</bundleDef>
+                                <bundleDef>org.wso2.orbit.org.opensaml:opensaml</bundleDef>
                             </bundles>
                             <importBundles>
                                 <importBundleDef>com.google.step2.wso2:step2</importBundleDef>
