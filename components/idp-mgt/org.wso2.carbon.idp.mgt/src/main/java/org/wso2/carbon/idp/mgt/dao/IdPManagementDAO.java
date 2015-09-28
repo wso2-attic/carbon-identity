@@ -128,7 +128,7 @@ public class IdPManagementDAO {
             }
             dbConnection.commit();
             return idps;
-        } catch (SQLException | IdentityException e) {
+        } catch (SQLException e) {
             IdentityApplicationManagementUtil.rollBack(dbConnection);
             throw new IdentityProviderManagementException("Error occurred while retrieving registered Identity " +
                     "Provider Entity IDs " + "for tenant " + tenantDomain, e);
@@ -1399,7 +1399,7 @@ public class IdPManagementDAO {
             dbConnection.commit();
         } catch (IOException e) {
             throw new IdentityProviderManagementException("An error occurred while processing content stream.", e);
-        } catch (SQLException | IdentityException e) {
+        } catch (SQLException e) {
             IdentityApplicationManagementUtil.rollBack(dbConnection);
             throw new IdentityProviderManagementException("Error occurred while adding Identity Provider for tenant " + tenantId, e);
         } finally {
@@ -1572,7 +1572,7 @@ public class IdPManagementDAO {
             dbConnection.commit();
         } catch (IOException e) {
             throw new IdentityProviderManagementException("An error occurred while processing content stream.", e);
-        } catch (SQLException | IdentityException e) {
+        } catch (SQLException e) {
             IdentityApplicationManagementUtil.rollBack(dbConnection);
             throw new IdentityProviderManagementException("Error occurred while updating Identity Provider " +
                     "information  for tenant " + tenantId, e);
