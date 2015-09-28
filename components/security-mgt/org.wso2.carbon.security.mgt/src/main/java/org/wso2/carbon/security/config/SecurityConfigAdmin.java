@@ -276,11 +276,6 @@ public class SecurityConfigAdmin {
             if (scenarioIDParam != null) {
                 service.removeParameter(scenarioIDParam);
             }
-
-            Parameter pathParam = service.getParameter(SecurityConstants.SECURITY_POLICY_PATH);
-            if (pathParam != null) {
-                service.removeParameter(pathParam);
-            }
         } catch (AxisFault axisFault) {
             throw new SecurityConfigException("Error while removing parameters from service on disable security ",
                     axisFault);
