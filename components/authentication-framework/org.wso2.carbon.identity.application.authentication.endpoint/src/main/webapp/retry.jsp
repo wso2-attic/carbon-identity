@@ -43,7 +43,7 @@
 
     <div id="workArea">
         <div class="info-box">
-            <%=Encode.forHtmlContent(stat)%>
+            <%=Encode.forHtml(stat)%>
         </div>
         <table class="styledLeft">
             <tbody>
