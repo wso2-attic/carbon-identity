@@ -25,7 +25,7 @@
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.WorkflowUIConstants" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
-<%@ page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
+
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="java.util.List" %>
@@ -38,16 +38,14 @@
     String bundle = "org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources";
     ResourceBundle resourceBundle = ResourceBundle.getBundle(bundle, request.getLocale());
 
-    String action = CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_ACTION));
+    String action = request.getParameter(WorkflowUIConstants.PARAM_ACTION);
     String cookie = (String) session.getAttribute(ServerConstants.ADMIN_SERVICE_COOKIE);
     String backendServerURL = CarbonUIUtil.getServerURL(config.getServletContext(), session);
     ConfigurationContext configContext =
             (ConfigurationContext) config.getServletContext()
                     .getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
     WorkflowAdminServiceClient client = new WorkflowAdminServiceClient(cookie, backendServerURL, configContext);
-
-    String workflowName =
-            CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_WORKFLOW_NAME));
+    String workflowName = request.getParameter(WorkflowUIConstants.PARAM_WORKFLOW_NAME);
 
     String forwardTo = "list-workflows.jsp";
 
@@ -55,21 +53,16 @@
         forwardTo = request.getParameter("path") + ".jsp?wizard=finish&" + WorkflowUIConstants.PARAM_WORKFLOW_NAME + "=" + workflowName;
     }
 
-
     if (WorkflowUIConstants.ACTION_VALUE_ADD.equals(action)) {
-
 
         Map<String, String> attribMap =
                 (Map<String, String>) session.getAttribute(WorkflowUIConstants.ATTRIB_WORKFLOW_WIZARD);
 
         workflowName =
-                CharacterEncoder.getSafeText(attribMap.get(WorkflowUIConstants.PARAM_WORKFLOW_NAME));
-        String description =
-                CharacterEncoder.getSafeText(attribMap.get(WorkflowUIConstants.PARAM_WORKFLOW_DESCRIPTION));
-        String templateName =
-                CharacterEncoder.getSafeText(attribMap.get(WorkflowUIConstants.PARAM_WORKFLOW_TEMPLATE));
-        String templateImplName =
-                CharacterEncoder.getSafeText(attribMap.get(WorkflowUIConstants.PARAM_TEMPLATE_IMPL));
+                attribMap.get(WorkflowUIConstants.PARAM_WORKFLOW_NAME);
+        String description = attribMap.get(WorkflowUIConstants.PARAM_WORKFLOW_DESCRIPTION);
+        String templateName = attribMap.get(WorkflowUIConstants.PARAM_WORKFLOW_TEMPLATE);
+        String templateImplName = attribMap.get(WorkflowUIConstants.PARAM_TEMPLATE_IMPL);
 
         Map<String, String[]> parameterMap = request.getParameterMap();
         List<ParameterDTO> templateParams = new ArrayList<ParameterDTO>();
@@ -105,14 +98,14 @@
             workflowDTO.setImplementationName(templateImplName);
             client.addWorkflow(workflowDTO, templateParams,templateImplParams);
 
-        } catch (WorkflowAdminServiceWorkflowException e) {
+        } catch (Exception e) {
             String message = resourceBundle.getString("workflow.error.when.adding.workflow");
             CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
             forwardTo = "../admin/error.jsp";
         }
 
     } else if (WorkflowUIConstants.ACTION_VALUE_DELETE.equals(action)) {
-        String workflowId = CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_WORKFLOW_ID));
+        String workflowId = request.getParameter(WorkflowUIConstants.PARAM_WORKFLOW_ID);
         if (StringUtils.isNotBlank(workflowId)) {
             try {
                 client.deleteWorkflow(workflowId);
@@ -123,9 +116,8 @@
             }
         }
     } else if (WorkflowUIConstants.ACTION_VALUE_DELETE_ASSOCIATION.equals(action)) {
-        String associationId =
-                CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_ASSOCIATION_ID));
-        String workflowId = CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_WORKFLOW_ID));
+        String associationId = request.getParameter(WorkflowUIConstants.PARAM_ASSOCIATION_ID);
+        String workflowId = request.getParameter(WorkflowUIConstants.PARAM_WORKFLOW_ID);
         try {
             client.deleteAssociation(associationId);
             forwardTo = "view-workflow.jsp?" + WorkflowUIConstants.PARAM_WORKFLOW_ID + "=" + workflowId;

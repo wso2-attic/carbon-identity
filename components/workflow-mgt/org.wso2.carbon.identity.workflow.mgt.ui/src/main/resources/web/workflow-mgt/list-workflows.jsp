@@ -28,7 +28,7 @@
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.WorkflowUIConstants" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
-<%@ page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
+
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@ page import="java.util.ResourceBundle" %>
 
@@ -37,7 +37,6 @@
 <script type="text/javascript" src="../admin/js/main.js"></script>
 
 <%
-    //    String username = CharacterEncoder.getSafeText(request.getParameter("username"));
 
     String bundle = "org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources";
     ResourceBundle resourceBundle = ResourceBundle.getBundle(bundle, request.getLocale());
@@ -46,9 +45,10 @@
     WorkflowDTO[] workflowsToDisplay = new WorkflowDTO[0];
     String paginationValue = "region=region1&item=workflow_services_list_menu";
 
-    String pageNumber = CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_PAGE_NUMBER));
+    String pageNumber = request.getParameter(WorkflowUIConstants.PARAM_PAGE_NUMBER);
     int pageNumberInt = 0;
     int numberOfPages = 0;
+    WorkflowDTO[] workflows = null;
 
     //clear any unnecessary session data
     if (session.getAttribute(WorkflowUIConstants.ATTRIB_WORKFLOW_WIZARD) != null) {
@@ -70,7 +70,7 @@
                         .getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
         client = new WorkflowAdminServiceClient(cookie, backendServerURL, configContext);
 
-        WorkflowDTO[] workflows = client.listWorkflows();
+        workflows = client.listWorkflows();
         if (workflows == null) {
             workflows = new WorkflowDTO[0];
         }
@@ -151,8 +151,9 @@
                 </thead>
                 <tbody>
                 <%
-                    for (WorkflowDTO workflow : workflowsToDisplay) {
-                        if (workflow != null) {
+                    if (workflows != null && workflows.length > 0) {
+                        for (WorkflowDTO workflow : workflowsToDisplay) {
+                            if (workflow != null) {
 
                 %>
                 <tr>
@@ -179,8 +180,13 @@
                     </td>
                 </tr>
                 <%
+                            }
                         }
-                    }
+                    } else {%>
+                <tr>
+                    <td colspan="5"><i>No workflows found.</i></td>
+                </tr>
+                <% }
                 %>
                 </tbody>
             </table>

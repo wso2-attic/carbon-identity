@@ -31,6 +31,13 @@ public class SSOConstants {
     public static final String POST = "POST";
     public static final String REDIRECT = "REDIRECT";
 
+	public static final String SERVLET_REQ_ATTR_AUTHENTICATION_CONTEXT = "authenticationContext";
+
+    public static final String SP_NAME_QUALIFIER = "spNameQualifier";
+    public static final String NAME_QUALIFIER = "nameQualifier";
+    public static final String LOGOUT_USERNAME = "logoutUsername";
+    public static final String LOGOUT_SESSION_INDEX = "logoutSessionIndex";
+
     public class StatusCodes {
         private StatusCodes() {
 

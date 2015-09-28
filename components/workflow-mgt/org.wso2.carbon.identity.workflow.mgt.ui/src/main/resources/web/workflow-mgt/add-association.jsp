@@ -31,7 +31,7 @@
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.WorkflowUIConstants" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
-<%@ page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
+
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="java.util.HashMap" %>
@@ -44,24 +44,21 @@
 <script type="text/javascript" src="../admin/js/main.js"></script>
 
 <%
-    //    String username = CharacterEncoder.getSafeText(request.getParameter("username"));
-
     String wizard = request.getParameter("wizard");
     String forwardTo = null;
     AssociationDTO associationDTO = new AssociationDTO();
     String workflowName = "" ;
 
-    String workflowId = CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_WORKFLOW_ID));
+    String workflowId = request.getParameter(WorkflowUIConstants.PARAM_WORKFLOW_ID);
 
     if("start".equals(wizard)){
 
 
-        String name = CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_ASSOCIATION_NAME));
-        String operation = CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_OPERATION));
+        String name = request.getParameter(WorkflowUIConstants.PARAM_ASSOCIATION_NAME);
+        String operation = request.getParameter(WorkflowUIConstants.PARAM_OPERATION);
         String operationCategory =
-                CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_OPERATION_CATEGORY));
-        String condition =
-                CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_ASSOCIATION_CONDITION));
+                request.getParameter(WorkflowUIConstants.PARAM_OPERATION_CATEGORY);
+        String condition = request.getParameter(WorkflowUIConstants.PARAM_ASSOCIATION_CONDITION);
         associationDTO = new AssociationDTO();
         associationDTO.setAssociationName(name);
         associationDTO.setEventName(operation);
@@ -73,9 +70,7 @@
 
     }else if("finish".equals(wizard)){
         associationDTO = (AssociationDTO)session.getAttribute("add-association");
-        workflowName = CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_WORKFLOW_NAME));
-    }else{
-
+        workflowName = request.getParameter(WorkflowUIConstants.PARAM_WORKFLOW_NAME);
     }
 
     String bundle = "org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources";
@@ -112,25 +107,21 @@
 <%
     if (forwardTo != null) {
 %>
-<script type="text/javascript">
-    function forward() {
-        location.href = "<%=forwardTo%>";
-    }
-</script>
+    <script type="text/javascript">
 
-<script type="text/javascript">
-    forward();
-</script>
+        function forward() {
+            location.href = "<%=forwardTo%>";
+        }
+        forward();
+
+    </script>
 <%
         return;
     }
 %>
 
-
 <fmt:bundle basename="org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources">
-    <carbon:breadcrumb label="workflow.mgt"
-                       resourceBundle="org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources"
-                       topPage="true" request="<%=request%>"/>
+    <carbon:breadcrumb label="workflow.mgt" resourceBundle="org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources" topPage="true" request="<%=request%>"/>
     <script type="text/javascript" src="../carbon/admin/js/breadcrumbs.js"></script>
     <script type="text/javascript" src="../carbon/admin/js/cookies.js"></script>
     <script type="text/javascript" src="../carbon/admin/js/main.js"></script>
@@ -140,18 +131,18 @@
 
         <%
             for (Map.Entry<String,List<WorkflowEventDTO>> eventCategory : events.entrySet()) {
-            %>
-        eventsObj["<%=eventCategory.getKey()%>"] = [];
+        %>
+                eventsObj["<%=eventCategory.getKey()%>"] = [];
         <%
-            for (WorkflowEventDTO event : eventCategory.getValue()) {
-                %>
-        var eventObj = {};
-        eventObj.displayName = "<%=event.getEventFriendlyName()%>";
-        eventObj.value = "<%=event.getEventId()%>";
-        eventObj.title = "<%=event.getEventDescription()!=null?event.getEventDescription():""%>";
-        eventsObj["<%=eventCategory.getKey()%>"].push(eventObj);
+                for (WorkflowEventDTO event : eventCategory.getValue()) {
+        %>
+                    var eventObj = {};
+                    eventObj.displayName = "<%=event.getEventFriendlyName()%>";
+                    eventObj.value = "<%=event.getEventId()%>";
+                    eventObj.title = "<%=event.getEventDescription()!=null?event.getEventDescription():""%>";
+                    eventsObj["<%=eventCategory.getKey()%>"].push(eventObj);
         <%
-                    }
+                }
             }
         %>
 

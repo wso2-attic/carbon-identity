@@ -17,16 +17,19 @@
  */
 package org.wso2.carbon.identity.application.authenticator.samlsso.util;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.xml.security.c14n.Canonicalizer;
 import org.apache.xml.security.signature.XMLSignature;
 import org.opensaml.saml2.core.AuthnRequest;
 import org.opensaml.saml2.core.LogoutRequest;
+import org.opensaml.saml2.core.RequestAbstractType;
 import org.opensaml.xml.XMLObject;
 import org.opensaml.xml.XMLObjectBuilder;
 import org.opensaml.xml.io.Marshaller;
 import org.opensaml.xml.io.MarshallerFactory;
+import org.opensaml.xml.security.SigningUtil;
 import org.opensaml.xml.security.x509.X509Credential;
 import org.opensaml.xml.signature.KeyInfo;
 import org.opensaml.xml.signature.Signature;
@@ -41,6 +44,7 @@ import org.w3c.dom.ls.LSSerializer;
 import org.wso2.carbon.identity.application.authenticator.samlsso.exception.SAMLSSOException;
 import org.wso2.carbon.identity.application.authenticator.samlsso.manager.X509CredentialImpl;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
+import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
 
 import javax.xml.namespace.QName;
 import java.io.ByteArrayInputStream;
@@ -57,6 +61,11 @@ import java.util.Random;
 import java.util.zip.DataFormatException;
 import java.util.zip.Inflater;
 import java.util.zip.InflaterInputStream;
+import org.opensaml.xml.io.MarshallingException;
+import org.opensaml.xml.signature.SignatureException;
+
+import org.opensaml.common.impl.SAMLObjectContentReference;
+import java.io.UnsupportedEncodingException;
 
 public class SSOUtils {
     private SSOUtils() {
@@ -92,137 +101,110 @@ public class SSOUtils {
     }
 
     /**
-     * Sign the SAML AuthnRequest message
-     *
-     * @param authnRequest
+     * Sign the SAML Request message
+     * 
+     * @param request
      * @param signatureAlgorithm
-     * @param cred
+     * @param digestAlgorithm
+     * @param includeCert
+     * @param credential
      * @return
-     * @throws org.wso2.carbon.identity.application.authenticator.samlsso.exception.SAMLSSOException
+     * @throws SAMLSSOException
      */
-    public static AuthnRequest setSignature(AuthnRequest authnRequest, String signatureAlgorithm,
-                                            X509Credential cred) throws SAMLSSOException {
-        try {
-            Signature signature = (Signature) buildXMLObject(Signature.DEFAULT_ELEMENT_NAME);
-            signature.setSigningCredential(cred);
-            signature.setSignatureAlgorithm(signatureAlgorithm);
-            signature.setCanonicalizationAlgorithm(Canonicalizer.ALGO_ID_C14N_EXCL_OMIT_COMMENTS);
+    public static void setSignature(RequestAbstractType request, String signatureAlgorithm,
+            String digestAlgorithm, boolean includeCert, X509Credential x509Credential)
+            throws SAMLSSOException {
+        
+        if (request == null) {
+            throw new IllegalArgumentException("Request cannot be null");
+        }
+        if (x509Credential == null) {
+            throw new IllegalArgumentException("X509Credential cannot be null");
+        }
+        if (x509Credential.getEntityCertificate() == null) {
+            throw new SAMLSSOException(
+                    "IdP certificate is needed for AuthnRequest signing in POST binding");
+        }
+        //TODO use StringUtils.isBlank
+        if (StringUtils.isEmpty(signatureAlgorithm)) {
+            signatureAlgorithm = IdentityApplicationManagementUtil.getXMLSignatureAlgorithms().get(
+                    IdentityApplicationConstants.XML.SignatureAlgorithm.RSA_SHA1);
+        }
+        if (StringUtils.isEmpty(digestAlgorithm)) {
+            digestAlgorithm = IdentityApplicationManagementUtil.getXMLDigestAlgorithms().get(
+                    IdentityApplicationConstants.XML.DigestAlgorithm.SHA1);
+        }
+        
+        Signature signature = (Signature) buildXMLObject(Signature.DEFAULT_ELEMENT_NAME);
+        signature.setSigningCredential(x509Credential);
+        signature.setSignatureAlgorithm(signatureAlgorithm);
+        signature.setCanonicalizationAlgorithm(Canonicalizer.ALGO_ID_C14N_EXCL_OMIT_COMMENTS);
 
-            try {
+        if (includeCert) {
                 KeyInfo keyInfo = (KeyInfo) buildXMLObject(KeyInfo.DEFAULT_ELEMENT_NAME);
                 X509Data data = (X509Data) buildXMLObject(X509Data.DEFAULT_ELEMENT_NAME);
-                org.opensaml.xml.signature.X509Certificate cert =
-                        (org.opensaml.xml.signature.X509Certificate) buildXMLObject(org.opensaml.xml.signature.X509Certificate.DEFAULT_ELEMENT_NAME);
-                String value =
-                        org.apache.xml.security.utils.Base64.encode(cred.getEntityCertificate().getEncoded());
+                org.opensaml.xml.signature.X509Certificate cert = (org.opensaml.xml.signature.X509Certificate) buildXMLObject(org.opensaml.xml.signature.X509Certificate.DEFAULT_ELEMENT_NAME);
+                String value = null;
+                try {
+                    value = org.apache.xml.security.utils.Base64.encode(x509Credential
+                            .getEntityCertificate().getEncoded());
+                } catch (CertificateEncodingException e) {
+                    throw new SAMLSSOException("Error getting the certificate to include in the signature", e);
+                }
                 cert.setValue(value);
                 data.getX509Certificates().add(cert);
                 keyInfo.getX509Datas().add(data);
                 signature.setKeyInfo(keyInfo);
-            } catch (CertificateEncodingException e) {
-                throw new SAMLSSOException("Error getting certificate", e);
-            }
+        }
 
-            authnRequest.setSignature(signature);
+        request.setSignature(signature);
+        ((SAMLObjectContentReference)signature.getContentReferences().get(0))
+              .setDigestAlgorithm(digestAlgorithm);
+        
+        List<Signature> signatureList = new ArrayList<Signature>();
+        signatureList.add(signature);
 
-            List<Signature> signatureList = new ArrayList<Signature>();
-            signatureList.add(signature);
+        // Marshall and Sign
+        MarshallerFactory marshallerFactory =
+                org.opensaml.xml.Configuration.getMarshallerFactory();
+        Marshaller marshaller = marshallerFactory.getMarshaller(request);
+        try {
+            marshaller.marshall(request);
+        } catch (MarshallingException e) {
+            throw new SAMLSSOException("Error while marshalling the SAML Request for signing", e);
+        }
 
-            // Marshall and Sign
-            MarshallerFactory marshallerFactory =
-                    org.opensaml.xml.Configuration.getMarshallerFactory();
-            Marshaller marshaller = marshallerFactory.getMarshaller(authnRequest);
-
-            marshaller.marshall(authnRequest);
-
-            org.apache.xml.security.Init.init();
+        org.apache.xml.security.Init.init();
+        try {
             Signer.signObjects(signatureList);
-            return authnRequest;
-
-        } catch (Exception e) {
-            throw new SAMLSSOException("Error while signing the SAML Request message", e);
+        } catch (SignatureException e) {
+            throw new SAMLSSOException("Error while signing the SAML Request", e);
         }
     }
 
-    /**
-     * Sign the SAML AuthnRequest message
-     *
-     * @param logoutRequest
-     * @param signatureAlgorithm
-     * @param cred
-     * @return
-     * @throws SAMLSSOException
-     */
-    public static LogoutRequest setSignature(LogoutRequest logoutRequest, String signatureAlgorithm,
-                                             X509Credential cred) throws SAMLSSOException {
+  public static void addSignatureToHTTPQueryString(StringBuilder httpQueryString,
+            String signatureAlgorithmURI, X509Credential credential) throws SAMLSSOException {
         try {
-            Signature signature = (Signature) buildXMLObject(Signature.DEFAULT_ELEMENT_NAME);
-            signature.setSigningCredential(cred);
-            signature.setSignatureAlgorithm(signatureAlgorithm);
-            signature.setCanonicalizationAlgorithm(Canonicalizer.ALGO_ID_C14N_EXCL_OMIT_COMMENTS);
-
-            try {
-                KeyInfo keyInfo = (KeyInfo) buildXMLObject(KeyInfo.DEFAULT_ELEMENT_NAME);
-                X509Data data = (X509Data) buildXMLObject(X509Data.DEFAULT_ELEMENT_NAME);
-                org.opensaml.xml.signature.X509Certificate cert =
-                        (org.opensaml.xml.signature.X509Certificate) buildXMLObject(org.opensaml.xml.signature.X509Certificate.DEFAULT_ELEMENT_NAME);
-                String value =
-                        org.apache.xml.security.utils.Base64.encode(cred.getEntityCertificate().getEncoded());
-                cert.setValue(value);
-                data.getX509Certificates().add(cert);
-                keyInfo.getX509Datas().add(data);
-                signature.setKeyInfo(keyInfo);
-            } catch (CertificateEncodingException e) {
-                throw new SAMLSSOException("Error getting certificate", e);
-            }
-
-            logoutRequest.setSignature(signature);
-
-            List<Signature> signatureList = new ArrayList<Signature>();
-            signatureList.add(signature);
-
-            // Marshall and Sign
-            MarshallerFactory marshallerFactory =
-                    org.opensaml.xml.Configuration.getMarshallerFactory();
-            Marshaller marshaller = marshallerFactory.getMarshaller(logoutRequest);
-
-            marshaller.marshall(logoutRequest);
-
-            org.apache.xml.security.Init.init();
-            Signer.signObjects(signatureList);
-            return logoutRequest;
-
-        } catch (Exception e) {
-            throw new SAMLSSOException("Error while signing the Logout Request message", e);
-        }
-    }
-
-    /**
-     * Appends the RSA-SHA1 signature to the query string
-     *
-     * @param tenantDomain    tenant domain
-     * @param httpQueryString http query string to append the signature
-     * @throws SAMLSSOException
-     */
-    public static void addSignatureToHTTPQueryString(String tenantDomain, StringBuilder
-            httpQueryString) throws SAMLSSOException {
-        try {
-            httpQueryString.append("&SigAlg=");
+			httpQueryString.append("&SigAlg=");
             httpQueryString
-                    .append(URLEncoder.encode(XMLSignature.ALGO_ID_SIGNATURE_RSA, "UTF-8").trim());
+                    .append(URLEncoder.encode(signatureAlgorithmURI, "UTF-8").trim());
 
-            X509Credential credential = new X509CredentialImpl(tenantDomain, null);
-            java.security.Signature signature = java.security.Signature.getInstance("SHA1withRSA");
-            signature.initSign(credential.getPrivateKey());
-            signature.update(httpQueryString.toString().getBytes());
+            byte[] rawSignature = SigningUtil.signWithURI(credential, signatureAlgorithmURI,
+                    httpQueryString.toString().getBytes("UTF-8"));
 
-            byte[] signatureByteArray = signature.sign();
-            String signatureBase64encodedString = Base64.encodeBytes(signatureByteArray,
-                    Base64.DONT_BREAK_LINES);
-            httpQueryString.append("&Signature=");
-            httpQueryString.append(URLEncoder.encode(signatureBase64encodedString, "UTF-8").trim());
-        } catch (Exception e) {
-            throw new SAMLSSOException("Error while applying SAML2 Redirect Binding signature", e);
+            String base64Signature = Base64.encodeBytes(rawSignature, Base64.DONT_BREAK_LINES);
+
+            if (log.isDebugEnabled()) {
+                log.debug("Generated digital signature value (base64-encoded) {} " + base64Signature);
+            }
+
+            httpQueryString.append("&Signature=" + URLEncoder.encode(base64Signature, "UTF-8").trim());
+
+        } catch (org.opensaml.xml.security.SecurityException e) {
+            throw new SAMLSSOException("Unable to sign query string", e);
+        } catch (UnsupportedEncodingException e) {
+            // UTF-8 encoding is required to be supported by all JVMs
+            throw new SAMLSSOException("Error while adding signature to HTTP query string", e);
         }
     }
 
@@ -253,6 +235,9 @@ public class SSOUtils {
      */
     public static String decode(String encodedStr) throws SAMLSSOException {
         try {
+            if(log.isDebugEnabled()){
+                log.debug(" >> encoded string in the SSOUtils/decode : " + encodedStr);
+            }
             org.apache.commons.codec.binary.Base64 base64Decoder =
                     new org.apache.commons.codec.binary.Base64();
             byte[] xmlBytes = encodedStr.getBytes("UTF-8");

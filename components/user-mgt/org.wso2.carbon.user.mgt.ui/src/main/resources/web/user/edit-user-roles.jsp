@@ -37,8 +37,15 @@
 <%@ page import="java.util.List" %>
 <%@ page import="java.util.Map" %>
 <%@ page import="java.util.ResourceBundle" %>
+<%@ page import="java.util.LinkedHashSet" %>
+<%@ page import="java.util.Set" %>
+<%@ page import="org.apache.commons.lang.ArrayUtils" %>
+<%@ page import="org.apache.commons.lang.StringUtils" %>
+<%@ page import="org.apache.commons.collections.CollectionUtils" %>
+<%@ page import="org.wso2.carbon.user.mgt.ui.UserManagementWorkflowServiceClient" %>
 <script type="text/javascript" src="../userstore/extensions/js/vui.js"></script>
 <script type="text/javascript" src="../admin/js/main.js"></script>
+<script type="text/javascript" src="../identity/validation/js/identity-validate.js"></script>
 <jsp:include page="../dialog/display_messages.jsp"/>
 <jsp:include page="../userstore/display-messages.jsp"/>
 
@@ -57,6 +64,8 @@
     int cachePages = 3;
     int noOfPageLinksToDisplay = 5;
     int numberOfPages = 0;
+    Set<String> workFlowDeletePendingRoles = null;
+
     Map<Integer, PaginatedNamesBean> flaggedNameMap = null;
     if (request.getParameter("pageNumber") == null) {
         session.removeAttribute("checkedRolesMap");
@@ -69,12 +78,12 @@
     session.removeAttribute(UserAdminUIConstants.ROLE_LIST_ASSIGNED_USER_CACHE);
     session.removeAttribute(UserAdminUIConstants.ROLE_LIST_ASSIGNED_USER_CACHE_EXCEEDED);
     session.removeAttribute(UserAdminUIConstants.ROLE_LIST_VIEW_USER_FILTER);
-
+    
     // search filter
     String filter = request.getParameter(UserAdminUIConstants.USER_LIST_UNASSIGNED_ROLE_FILTER);
-    if (filter == null || filter.trim().length() == 0) {
+    if (StringUtils.isBlank(filter)) {
         filter = (java.lang.String) session.getAttribute(UserAdminUIConstants.USER_LIST_UNASSIGNED_ROLE_FILTER);
-        if (filter == null || filter.trim().length() == 0) {
+        if (StringUtils.isBlank(filter)) {
             filter = "*";
         }
     } else {
@@ -82,28 +91,26 @@
     }
     filter = filter.trim();
     session.setAttribute(UserAdminUIConstants.USER_LIST_UNASSIGNED_ROLE_FILTER, filter);
-
+    
     // System.out.println(filter);
 
     // check page number
-    String pageNumberStr = request.getParameter("pageNumber");
-    if (pageNumberStr == null) {
-        pageNumberStr = "0";
-    }
-
     try {
-        pageNumber = Integer.parseInt(pageNumberStr);
+
+        pageNumber = Integer.parseInt(request.getParameter("pageNumber"));
+
     } catch (NumberFormatException ignored) {
         // page number format exception
+        pageNumber = 0;
     }
 
-    flaggedNameMap = (Map<Integer, PaginatedNamesBean>) session.getAttribute(
-            UserAdminUIConstants.USER_LIST_UNASSIGNED_ROLE_CACHE);
+    flaggedNameMap = (Map<Integer, PaginatedNamesBean>) session.
+            getAttribute(UserAdminUIConstants.USER_LIST_UNASSIGNED_ROLE_CACHE);
     if (flaggedNameMap != null) {
         PaginatedNamesBean bean = flaggedNameMap.get(pageNumber);
         if (bean != null) {
             roles = bean.getNames();
-            if (roles != null && roles.length > 0) {
+            if (ArrayUtils.isNotEmpty(roles)) {
                 numberOfPages = bean.getNumberOfPages();
                 doUserList = false;
             }
@@ -112,14 +119,14 @@
 
     UserRealmInfo userRealmInfo = (UserRealmInfo) session.getAttribute(UserAdminUIConstants.USER_STORE_INFO);
     String userName = request.getParameter("username");
-    String disPlayName = request.getParameter("disPlayName");
-    if (disPlayName == null || disPlayName.trim().length() == 0) {
-        disPlayName = (String) session.getAttribute(UserAdminUIConstants.USER_DISPLAY_NAME);
-        if (disPlayName == null || disPlayName.trim().length() == 0) {
-            disPlayName = userName;
+    String displayName = request.getParameter("displayName");
+    if (StringUtils.isBlank(displayName)) {
+        displayName = (String) session.getAttribute(UserAdminUIConstants.USER_DISPLAY_NAME);
+        if (StringUtils.isBlank(displayName)) {
+            displayName = userName;
         }
     } else {
-        session.setAttribute(UserAdminUIConstants.USER_DISPLAY_NAME, disPlayName);
+        session.setAttribute(UserAdminUIConstants.USER_DISPLAY_NAME, displayName);
     }
     exceededDomains = (FlaggedName) session.getAttribute(UserAdminUIConstants.USER_LIST_UNASSIGNED_ROLE_CACHE_EXCEEDED);
 
@@ -128,11 +135,29 @@
             String cookie = (String) session.getAttribute(ServerConstants.ADMIN_SERVICE_COOKIE);
             String backendServerURL = CarbonUIUtil.getServerURL(config.getServletContext(), session);
             ConfigurationContext configContext =
-                    (ConfigurationContext) config.getServletContext()
-                                                 .getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
+                    (ConfigurationContext) config.getServletContext().getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
             UserAdminClient client = new UserAdminClient(cookie, backendServerURL, configContext);
+            UserManagementWorkflowServiceClient UserMgtClient = new
+                    UserManagementWorkflowServiceClient(cookie, backendServerURL, configContext);
             if (filter.length() > 0 && userName != null) {
                 FlaggedName[] data = client.getRolesOfUser(Util.decodeHTMLCharacters(userName), filter, -1);
+                if (CarbonUIUtil.isContextRegistered(config, "/usermgt-workflow/")) {
+                    String[] DeletePendingRolesList = UserMgtClient.
+                            listAllEntityNames("DELETE_ROLE", "PENDING", "ROLE");
+                    workFlowDeletePendingRoles = new LinkedHashSet<String>(Arrays.asList(DeletePendingRolesList));
+                    String pendingStatus = "[Pending Role for Delete]";
+
+                    if (data != null) {
+                        for (int i = 0; i < data.length; i++) {
+                            String updatedStatus = null;
+                            if (workFlowDeletePendingRoles.contains(data[i].getItemName())) {
+                                updatedStatus = data[i].getItemName() + " " + pendingStatus;
+                                data[i].setItemDisplayName(data[i].getItemName());
+                                data[i].setItemName(updatedStatus);
+                            }
+                        }
+                    }
+                }
                 List<FlaggedName> dataList = new ArrayList<FlaggedName>(Arrays.asList(data));
                 exceededDomains = dataList.remove(dataList.size() - 1);
                 session.setAttribute(UserAdminUIConstants.USER_LIST_UNASSIGNED_ROLE_CACHE_EXCEEDED, exceededDomains);
@@ -146,7 +171,7 @@
                     dataList = nameList;
                 }
 
-                if (dataList != null && dataList.size() > 0) {
+                if (CollectionUtils.isNotEmpty(dataList)) {
                     flaggedNameMap = new HashMap<Integer, PaginatedNamesBean>();
                     int max = pageNumber + cachePages;
                     for (int i = (pageNumber - cachePages); i < max; i++) {
@@ -154,7 +179,8 @@
                             max++;
                             continue;
                         }
-                        PaginatedNamesBean bean = Util.retrievePaginatedFlaggedName(i, dataList);
+                        PaginatedNamesBean bean = Util.
+                                retrievePaginatedFlaggedName(i, dataList);
                         flaggedNameMap.put(i, bean);
                         if (bean.getNumberOfPages() == i + 1) {
                             break;
@@ -175,11 +201,11 @@
             }
         } catch (Exception e) {
             String message = MessageFormat.format(resourceBundle.getString("error.while.loading.roles"),
-                                                  e.getMessage());
+                    e.getMessage());
 %>
 <script type="text/javascript">
     jQuery(document).ready(function () {
-        CARBON.showErrorDialog('<%=message%>', function () {
+        CARBON.showErrorDialog('<%=Encode.forJavaScript(Encode.forHtml(message))%>', function () {
             location.href = "user-mgt.jsp";
         });
     });
@@ -187,8 +213,8 @@
 <%
         }
     }
-    Util.updateCheckboxStateMap((Map<String, Boolean>) session.getAttribute("checkedRolesMap"), flaggedNameMap,
-                                request.getParameter("selectedRoles"), request.getParameter("unselectedRoles"), ":");
+    Util.updateCheckboxStateMap((Map<String,Boolean>)session.getAttribute("checkedRolesMap"),flaggedNameMap,
+            request.getParameter("selectedRoles"),request.getParameter("unselectedRoles"),":");
 %>
 <fmt:bundle basename="org.wso2.carbon.userstore.ui.i18n.Resources">
     <carbon:breadcrumb label="users.in.the.role"
@@ -289,11 +315,17 @@
             form.submit();
         }
 
+        $(document).ready(function () {
+            $('form[name=filterForm]').submit(function(){
+                return doValidateForm(this, '<fmt:message key="error.input.validation.msg"/>');
+            })
+        });
+
     </script>
 
 
     <div id="middle">
-        <h2><fmt:message key="roles.list.in.user"/> <%=Encode.forHtml(disPlayName)%>
+        <h2><fmt:message key="roles.list.in.user"/> <%=Encode.forHtml(displayName)%>
         </h2>
 
         <script type="text/javascript">
@@ -317,7 +349,8 @@
                         <td><fmt:message key="list.roles"/></td>
                         <td>
                             <input type="text" name="<%=UserAdminUIConstants.USER_LIST_UNASSIGNED_ROLE_FILTER%>"
-                                   value="<%=Encode.forHtmlAttribute(filter)%>"/>
+                                   value="<%=Encode.forHtmlAttribute(filter)%>" label="<fmt:message key="list.roles"/>"
+                                   black-list-patterns="xml-meta-exists"/>
                         </td>
                         <td>
                             <input class="button" type="submit"
@@ -354,7 +387,7 @@
                                               page="edit-user-roles.jsp" pageNumberParameterName="pageNumber"
                                               parameters="<%="username=" + Encode.forHtmlAttribute(userName)%>"/>
                             <%
-                                if (roles != null && roles.length > 0) {
+                                if (ArrayUtils.isNotEmpty(roles)) {
                             %>
                             <div style="padding:5px 5px 10px 10px">
                                 <!-- td><fmt:message key="users"/></td -->
@@ -395,18 +428,12 @@
                                             if (name != null) {
                                                 String doEdit = "";
                                                 String doCheck = "";
-                                                if (name.getItemName()
-                                                        .equals(CarbonConstants.REGISTRY_ANONNYMOUS_ROLE_NAME)) {
+                                                if (name.getItemName().equals(CarbonConstants.REGISTRY_ANONNYMOUS_ROLE_NAME)) {
                                                     continue;
                                                 } else if (!name.getEditable()) {
                                                     doEdit = "disabled=\"disabled\"";
                                                 } else if (session.getAttribute("checkedRolesMap") != null &&
-                                                           ((Map<String, Boolean>) session
-                                                                   .getAttribute("checkedRolesMap"))
-                                                                   .get(name.getItemName()) != null &&
-                                                           ((Map<String, Boolean>) session
-                                                                   .getAttribute("checkedRolesMap"))
-                                                                   .get(name.getItemName()) == true) {
+                                                        Boolean.TRUE.equals(((Map<String, Boolean>) session.getAttribute("checkedRolesMap")).get(name.getItemName()))) {
                                                     doCheck = "checked=\"checked\"";
                                                 }
 
@@ -416,8 +443,20 @@
                                         <label>
                                             <input type="checkbox" name="selectedRoles"
                                                    value="<%=Encode.forHtmlAttribute(name.getItemName())%>" <%=doEdit%> <%=doCheck%>/>
+                                            <%
+                                                if ((name.getItemName()).contains("[Pending Role for Delete]")) {
+                                            %>
+                                            <%=Encode.forHtmlContent(name.getItemDisplayName())%>
+                                            <img src="images/workflow_pending_remove.gif"
+                                                 title="Workflow-pending-user-delete"
+                                                 alt="Workflow-pending-user-delete" height="15" width="15">
+                                            <%
+                                            } else {
+                                            %>
                                             <%=Encode.forHtmlContent(name.getItemName())%>
-                                            <%if (!name.getEditable()) { %> <%="(Read-Only)"%> <% } %>
+                                            <%if (!name.getEditable()) { %> <%="(Read-Only)"%> <% }
+                                        }
+                                        %>
                                             <input type="hidden" name="shownRoles"
                                                    value="<%=Encode.forHtmlAttribute(name.getItemName())%>"/>
                                         </label>
@@ -426,14 +465,14 @@
                                         <% if (!userRealmInfo.getAdminRole().equals(name.getItemName())) {%>
                                         <a style="background-image:url(images/edit.gif);"
                                            class="icon-link"
-                                           href="../role/edit-permissions.jsp?roleName=<%=Encode.forUriComponent(name.getItemName())%>&prevPage=edit&prevUser=<%=Encode.forUriComponent(userName)%>&prevPageNumber=<%=pageNumber%>"><fmt:message
+                                           href="../role/edit-permissions.jsp?roleName=<%=Encode.forUriComponent(name.getItemName())%>&prevPage=edit&prevUser=<%=Encode.forUriComponent(name.getItemName())%>&prevPageNumber=<%=pageNumber%>"><fmt:message
                                                 key="edit.permissions"/>
                                         </a>
                                         <% } %>
                                         <% if (!userRealmInfo.getEveryOneRole().equals(name.getItemName())) {%>
                                         <a style="background-image:url(images/view.gif);"
                                            class="icon-link"
-                                           href="../role/view-users.jsp?roleName=<%=Encode.forUriComponent(name.getItemName())%>&prevPage=edit&prevUser=<%=Encode.forUriComponent(userName)%>&prevPageNumber=<%=pageNumber%>&<%=UserAdminUIConstants.ROLE_READ_ONLY%>=<%if (!name.getEditable()) { %>true<% }else{ %>false<% } %>"><fmt:message
+                                           href="../role/view-users.jsp?roleName=<%=Encode.forUriComponent(name.getItemName())%>&prevPage=edit&prevUser=<%=Encode.forUriComponent(name.getItemName())%>&prevPageNumber=<%=pageNumber%>&<%=UserAdminUIConstants.ROLE_READ_ONLY%>=<%if (!name.getEditable()) { %>true<% }else{ %>false<% } %>"><fmt:message
                                                 key="view.users"/>
                                         </a>
                                         <% } %>
@@ -450,16 +489,13 @@
                                               numberOfPages="<%=numberOfPages%>"
                                               noOfPageLinksToDisplay="<%=noOfPageLinksToDisplay%>"
                                               page="edit-user-roles.jsp" pageNumberParameterName="pageNumber"
-                                              parameters="<%="username=" + Encode.forHtmlAttribute(userName)%>"/>
+                                              parameters="<%="username="+Encode.forHtmlAttribute(userName)%>"/>
                             <%
-                                if (roles != null && roles.length > 0 && exceededDomains != null) {
-                                    if (exceededDomains.getItemName() != null ||
-                                        exceededDomains.getItemDisplayName() != null) {
+                                if (ArrayUtils.isNotEmpty(roles) && exceededDomains != null) {
+                                    if (exceededDomains.getItemName() != null || exceededDomains.getItemDisplayName() != null) {
                                         String message = null;
-                                        if (exceededDomains.getItemName() != null &&
-                                            exceededDomains.getItemName().equals("true")) {
-                                            if (exceededDomains.getItemDisplayName() != null &&
-                                                !exceededDomains.getItemDisplayName().equals("")) {
+                                        if (Boolean.parseBoolean(exceededDomains.getItemName())) {
+                                            if (StringUtils.isNotBlank(exceededDomains.getItemDisplayName())) {
                                                 String arg = "";
                                                 String[] domains = exceededDomains.getItemDisplayName().split(":");
                                                 for (int i = 0; i < domains.length; i++) {
@@ -470,8 +506,7 @@
                                                         arg += " and ";
                                                     }
                                                 }
-                                                message = resourceBundle.getString("more.roles.others")
-                                                                        .replace("{0}", arg);
+                                                message = resourceBundle.getString("more.roles.others").replace("{0}", arg);
                                             } else {
                                                 message = resourceBundle.getString("more.roles.primary");
                                             }
@@ -479,8 +514,7 @@
                             <strong><%=Encode.forHtml(message)%>
                             </strong>
                             <%
-                            } else if (exceededDomains.getItemDisplayName() != null &&
-                                       !exceededDomains.getItemDisplayName().equals("")) {
+                            } else if (StringUtils.isNotBlank(exceededDomains.getItemDisplayName())) {
                                 String[] domains = exceededDomains.getItemDisplayName().split(":");
                                 String arg = "";
                                 for (int i = 0; i < domains.length; i++) {
@@ -517,8 +551,8 @@
                                    onclick="doCancel()"/>
                         </td>
                     </tr>
-                </table>
-            </form>
-        </div>
+            </table>
+        </form>
     </div>
+</div>
 </fmt:bundle>

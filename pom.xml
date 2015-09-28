@@ -21,7 +21,7 @@
     <groupId>org.wso2.carbon.identity</groupId>
     <artifactId>carbon-identity</artifactId>
     <packaging>pom</packaging>
-    <version>4.5.6-SNAPSHOT</version>
+    <version>4.6.0-SNAPSHOT</version>
     <name>WSO2 Carbon - Platform Aggregator Pom</name>
     <url>http://wso2.org</url>
 
@@ -924,11 +924,15 @@
                 <version>${carbon.identity.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.openid4java.wso2</groupId>
-                <artifactId>openid4java-nodeps</artifactId>
+                <groupId>org.openid4java</groupId>
+                <artifactId>openid4java</artifactId>
+                <version>${openid4java.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.orbit.org.openid4java</groupId>
+                <artifactId>openid4java</artifactId>
                 <version>${openid4java.wso2.version}</version>
             </dependency>
-
             <dependency>
                 <groupId>com.google.step2.wso2</groupId>
                 <artifactId>step2</artifactId>
@@ -971,20 +975,9 @@
                 <type>zip</type>
             </dependency>
             <dependency>
-                <groupId>org.openid4java</groupId>
-                <artifactId>openid4java-consumer</artifactId>
-                <version>${openid4java.version}</version>
-                <type>pom</type>
-            </dependency>
-            <dependency>
                 <groupId>javax.servlet</groupId>
                 <artifactId>javax.servlet-api</artifactId>
                 <version>${javax.servlet-api.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.amber</groupId>
-                <artifactId>amber-oauth2-client</artifactId>
-                <version>${amber-oauth2-client.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.google.code.gson</groupId>
@@ -1009,9 +1002,9 @@
                 <version>${carbon.identity.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.apache.amber.wso2</groupId>
-                <artifactId>amber</artifactId>
-                <version>${amber.version}</version>
+                <groupId>org.wso2.orbit.org.apache.oltu.oauth2</groupId>
+                <artifactId>oltu</artifactId>
+                <version>${oltu.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.thetransactioncompany.wso2</groupId>
@@ -1085,11 +1078,6 @@
                 <groupId>org.hectorclient.wso2</groupId>
                 <artifactId>hector-core</artifactId>
                 <version>${hector-core.wso2.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.amber</groupId>
-                <artifactId>openidconnect-authzserver</artifactId>
-                <version>${openidconnect-authzserver.amber.version}</version>
             </dependency>
 
             <dependency>
@@ -1196,7 +1184,7 @@
 
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
-                <artifactId>org.wso2.carbon.identity.menu.ui</artifactId>
+                <artifactId>org.wso2.carbon.identity.core.ui</artifactId>
                 <version>${carbon.identity.version}</version>
             </dependency>
             <dependency>
@@ -1828,6 +1816,11 @@
                 <artifactId>org.wso2.carbon.identity.application.authenticator.fido</artifactId>
                 <version>${carbon.identity.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.apache.oltu.oauth2</groupId>
+                <artifactId>org.apache.oltu.oauth2.client</artifactId>
+                <version>${org.apache.oltu.oauth2.client.version}</version>
+            </dependency>
         </dependencies>
 
     </dependencyManagement>
@@ -1846,13 +1839,13 @@
         <osgi.util.tracker.imp.pkg.version.range>[1.5.1, 1.6.0)</osgi.util.tracker.imp.pkg.version.range>
 
         <!--Carbon commons version-->
-        <carbon.commons.version>4.4.4</carbon.commons.version>
+        <carbon.commons.version>4.4.7</carbon.commons.version>
         <carbon.commons.imp.pkg.version>[4.4.0, 4.5.0)</carbon.commons.imp.pkg.version>
 
         <!--Carbon identity version-->
-        <carbon.identity.version>4.5.6-SNAPSHOT</carbon.identity.version>
+        <carbon.identity.version>4.6.0-SNAPSHOT</carbon.identity.version>
         <carbon.identity.package.export.version>${carbon.identity.version}</carbon.identity.package.export.version>
-        <carbon.identity.package.import.version.range>[4.5.0, 4.6.0)</carbon.identity.package.import.version.range>
+        <carbon.identity.package.import.version.range>[4.6.0, 4.7.0)</carbon.identity.package.import.version.range>
 
         <!--Carbon component version-->
         <carbon.user.api.imp.pkg.version.range>[1.0.1, 1.1.0)</carbon.user.api.imp.pkg.version.range>
@@ -1894,13 +1887,12 @@
         <google.guava.wso2.version>12.0.0.wso2v1</google.guava.wso2.version>
         <google.guava.version>15.0</google.guava.version>
         <carbon.p2.plugin.version>1.5.3</carbon.p2.plugin.version>
-        <version.solr>1.4.1.wso2v1</version.solr>
         <derby.version>10.4.2.0</derby.version>
         <activation.version>1.1</activation.version>
         <javamail.version>1.4</javamail.version>
-        <wss4j.version>1.5.11.wso2v10</wss4j.version>
+        <wss4j.version>1.5.11.wso2v11</wss4j.version>
         <wss4j.xml.security.imp.pkg.version.range>[1.4.2.patched,1.5.0)</wss4j.xml.security.imp.pkg.version.range>
-        <wss4j.ws.security.imp.pkg.version.range>[1.5.11.wso2v9,1.6.0)</wss4j.ws.security.imp.pkg.version.range>
+        <wss4j.ws.security.imp.pkg.version.range>[1.5.11.wso2v11,1.6.0)</wss4j.ws.security.imp.pkg.version.range>
         <wsdl4j.wso2.version>1.6.2.wso2v4</wsdl4j.wso2.version>
         <jetty.version>6.1.5</jetty.version>
         <xml-apis.version>1.3.04</xml-apis.version>
@@ -1914,10 +1906,9 @@
         <juddi.wso2.version>3.0.3.wso2v2</juddi.wso2.version>
         <junit.version>4.11</junit.version>
         <version.javax.servlet>3.0.0.v201112011016</version.javax.servlet>
-        <amber.version>0.22.1358727.wso2v8</amber.version>
-        <amber-oauth2-client.version>0.22-incubating</amber-oauth2-client.version>
-        <openidconnect-authzserver.amber.version>0.22.1358727-wso2v7</openidconnect-authzserver.amber.version>
-        <amber.package.import.version.range>[0.22.1358727.wso2v8, 0.23)</amber.package.import.version.range>
+        <oltu.version>1.0.0.wso2v1</oltu.version>
+        <org.apache.oltu.oauth2.client.version>1.0.0</org.apache.oltu.oauth2.client.version>
+        <oltu.package.import.version.range>[1.0.0, 1.1.0)</oltu.package.import.version.range>
         <apacheds.core.version>1.5.7</apacheds.core.version>
         <apacheds.imp.pkg.version.range>[1.5.7,1.6.0)</apacheds.imp.pkg.version.range>
         <nimbusds.version>2.26.1.wso2v3</nimbusds.version>
@@ -1945,9 +1936,9 @@
         <orbit.version.maven-scm>1.7.0.wso2v1</orbit.version.maven-scm>
 
         <!-- Rampart -->
-        <rampart.wso2.version>1.6.1.wso2v15</rampart.wso2.version>
+        <rampart.wso2.version>1.6.1.wso2v16</rampart.wso2.version>
         <rampart.wso2.osgi.version.range>[1.6.1,1.7.0)</rampart.wso2.osgi.version.range>
-        <rampart.mar.version>1.6.1.wso2v15</rampart.mar.version>
+        <rampart.mar.version>1.6.1.wso2v16</rampart.mar.version>
 
         <!-- Equinox -->
         <version.equinox.osgi.services>3.3.100.v20130513-1956</version.equinox.osgi.services>
@@ -2001,9 +1992,9 @@
         <google.guice.imp.pkg.version.range>[1.3.0,1.4.0)</google.guice.imp.pkg.version.range>
         <charon.wso2.version.identity>2.0.1</charon.wso2.version.identity>
         <charon.core.imp.pkg.version.range>[2.0.1,2.1.0)</charon.core.imp.pkg.version.range>
-        <openid4java.version>0.9.6</openid4java.version>
-        <openid4java.wso2.version>0.9.6.wso2v5</openid4java.wso2.version>
-        <openid4java.wso2.osgi.version.range>[0.9.6.wso2v5,0.10)</openid4java.wso2.osgi.version.range>
+        <openid4java.version>1.0.0</openid4java.version>
+        <openid4java.wso2.version>1.0.0.wso2v1</openid4java.wso2.version>
+        <openid4java.wso2.osgi.version.range>[1.0.0,1.1.0)</openid4java.wso2.osgi.version.range>
         <opensaml2.version>2.4.1.wso2v1</opensaml2.version>
         <opensaml.wso2.version>1.1.0.wso2v1</opensaml.wso2.version>
         <balana.version>1.0.1</balana.version>
@@ -2020,7 +2011,6 @@
         <org.wso2.securevault.version>1.0.0-wso2v2</org.wso2.securevault.version>
         <hector-core.wso2.version>1.1.4.wso2v1</hector-core.wso2.version>
         <hector-core.imp.pkg.version.range>[1.1.4.wso2v1,1.2.0)</hector-core.imp.pkg.version.range>
-        <codehaus.jettison.import.version.range>[0.0.0, 0.1.0)</codehaus.jettison.import.version.range>
         <waffle.imp.pkg.version.range>[1.6.wso2v2, 1.7)</waffle.imp.pkg.version.range>
         <waffle-jna.wso2.version>1.6.wso2v2</waffle-jna.wso2.version>
         <waffle-jna.imp.pkg.version.range>[1.6.wso2v1, 1.7)</waffle-jna.imp.pkg.version.range>
@@ -2030,6 +2020,7 @@
         <version.commons.logging>1.1.1</version.commons.logging>
         <kaptcha.wso2.version>2.3.0.wso2v1</kaptcha.wso2.version>
         <json.wso2.version>2.0.0.wso2v1</json.wso2.version>
+        <json.wso2.version.range>[2.0.0.wso2v1, 2.1.0)</json.wso2.version.range>
         <com.fasterxml.jackson.version>2.1.3</com.fasterxml.jackson.version>
         <com.fasterxml.jackson.annotation.version>2.5.0</com.fasterxml.jackson.annotation.version>
         <apache.wink.version>1.1.3-incubating</apache.wink.version>

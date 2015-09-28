@@ -23,7 +23,7 @@
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.WorkflowUIConstants" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
-<%@ page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
+
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@ page import="java.util.ResourceBundle" %>
 
@@ -31,7 +31,7 @@
     String bundle = "org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources";
     ResourceBundle resourceBundle = ResourceBundle.getBundle(bundle, request.getLocale());
 
-    String action = CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_ACTION));
+    String action = request.getParameter(WorkflowUIConstants.PARAM_ACTION);
     String cookie = (String) session.getAttribute(ServerConstants.ADMIN_SERVICE_COOKIE);
     String backendServerURL = CarbonUIUtil.getServerURL(config.getServletContext(), session);
     ConfigurationContext configContext =
@@ -41,9 +41,9 @@
     String forwardTo = "list-associations.jsp";
 
     if (WorkflowUIConstants.ACTION_VALUE_ADD.equals(action)) {
-        String workflowId = CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_WORKFLOW_ID));
-        String name = CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_ASSOCIATION_NAME));
-        String operation = CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_OPERATION));
+        String workflowId = request.getParameter(WorkflowUIConstants.PARAM_WORKFLOW_ID);
+        String name = request.getParameter(WorkflowUIConstants.PARAM_ASSOCIATION_NAME);
+        String operation = request.getParameter(WorkflowUIConstants.PARAM_OPERATION);
         String condition = request.getParameter(WorkflowUIConstants.PARAM_ASSOCIATION_CONDITION);
         try {
             client.addAssociation(workflowId, name, operation, condition);
@@ -53,8 +53,7 @@
             forwardTo = "../admin/error.jsp";
         }
     } else if (WorkflowUIConstants.ACTION_VALUE_DELETE.equals(action)) {
-        String associationId =
-                CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_ASSOCIATION_ID));
+        String associationId = request.getParameter(WorkflowUIConstants.PARAM_ASSOCIATION_ID);
         try {
             client.deleteAssociation(associationId);
         } catch (WorkflowAdminServiceWorkflowException e) {
@@ -63,8 +62,7 @@
             forwardTo = "../admin/error.jsp";
         }
     }else if (WorkflowUIConstants.ACTION_VALUE_ENABLE.equals(action) || WorkflowUIConstants.ACTION_VALUE_DISABLE.equals(action)) {
-        String associationId =
-                CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_ASSOCIATION_ID));
+        String associationId = request.getParameter(WorkflowUIConstants.PARAM_ASSOCIATION_ID);
         try {
             if(WorkflowUIConstants.ACTION_VALUE_ENABLE.equals(action)){
                 client.enableAssociation(associationId);

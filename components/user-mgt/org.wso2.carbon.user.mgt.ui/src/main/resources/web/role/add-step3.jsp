@@ -37,6 +37,7 @@
 <%@ page import="java.util.ResourceBundle" %>
 <script type="text/javascript" src="../userstore/extensions/js/vui.js"></script>
 <script type="text/javascript" src="../admin/js/main.js"></script>
+<script type="text/javascript" src="../identity/validation/js/identity-validate.js"></script>
 <jsp:useBean id="roleBean" type="org.wso2.carbon.user.mgt.ui.RoleBean" scope="session"/>
 <jsp:setProperty name="roleBean" property="*"/>
 
@@ -117,7 +118,7 @@
 
             if (filter.length() > 0) {
                 FlaggedName[] datas;
-                if (UserAdminUIConstants.INTERNAL_ROLE.equals(roleType)) {
+                if (UserAdminUIConstants.INTERNAL_ROLE.equalsIgnoreCase(roleType)) {
                     datas = client.listAllUsers(filter, -1);
                 } else {
                     datas = client.getUsersOfRole(roleName, filter, -1);
@@ -172,9 +173,6 @@
                        topPage="false" request="<%=request%>"/>
 
     <script type="text/javascript">
-        function doValidation() {
-            return true;
-        }
 
         function doCancel() {
             location.href = 'role-mgt.jsp?ordinal=1';
@@ -219,7 +217,7 @@
 
 
     <div id="middle">
-        <%if (UserAdminUIConstants.INTERNAL_ROLE.equals(roleType)) {%>
+        <%if (UserAdminUIConstants.INTERNAL_ROLE.equalsIgnoreCase(roleType)) {%>
         <h2><fmt:message key="add.internal.user.role"/></h2>
         <%} else { %>
         <h2><fmt:message key="add.user.role"/></h2>
@@ -241,7 +239,8 @@
                         <td><fmt:message key="list.users"/></td>
                         <td>
                             <input type="text" name="<%=UserAdminUIConstants.ROLE_LIST_ASSIGN_USER_FILTER%>"
-                                   value="<%=Encode.forHtmlAttribute(filter)%>"/>
+                                   value="<%=Encode.forHtmlAttribute(filter)%>"
+                                   label="<fmt:message key="list.users"/>" black-list-patterns="xml-meta-exists"/>
                         </td>
                         <td>
                             <input class="button" type="submit" value="<fmt:message key="user.search"/>"/>
@@ -307,16 +306,16 @@
                                         for (FlaggedName user : users) {
                                             if (user != null) {
                                                 String userName = user.getItemName();
-                                                String disPlayName = user.getItemDisplayName();
-                                                if (disPlayName == null || disPlayName.trim().length() == 0) {
-                                                    disPlayName = userName;
+                                                String displayName = user.getItemDisplayName();
+                                                if (displayName == null || displayName.trim().length() == 0) {
+                                                    displayName = userName;
                                                 }
 
                                                 String doCheck = "";
                                                 String doEdit = "";
                                                 if (CarbonConstants.REGISTRY_ANONNYMOUS_USERNAME.equals(userName)) {
                                                     continue;
-                                                } else if (!UserAdminUIConstants.INTERNAL_ROLE.equals(roleType) &&
+                                                } else if (!UserAdminUIConstants.INTERNAL_ROLE.equalsIgnoreCase(roleType) &&
                                                            !user.getEditable()) {
                                                     doEdit = "disabled=\"disabled\"";
                                                 } else if (session.getAttribute("checkedUsersMap") != null &&
@@ -334,7 +333,7 @@
                                     <td>
                                         <input type="checkbox" name="roleUsers"
                                                value="<%=Encode.forHtmlAttribute(userName)%>" <%=doEdit%>
-                                                <%=doCheck%>/><%=Encode.forHtml(disPlayName)%>
+                                                <%=doCheck%>/><%=Encode.forHtml(displayName)%>
                                         <%if (!user.getEditable()) { %> <%="(Read-Only)"%> <% } %>
                                     </td>
 
@@ -414,7 +413,6 @@
             </form>
         </div>
     </div>
-</fmt:bundle>
 
 <script type="text/javascript">
 
@@ -445,4 +443,12 @@
         form.submit();
     }
 
+    $(document).ready(function () {
+        $('form[name=filterForm]').submit(function(){
+            return doValidateForm(this, '<fmt:message key="error.input.validation.msg"/>');
+        })
+    });
+
 </script>
+
+</fmt:bundle>

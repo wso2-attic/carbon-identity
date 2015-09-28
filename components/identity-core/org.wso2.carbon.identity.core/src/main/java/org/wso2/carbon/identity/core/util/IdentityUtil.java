@@ -36,7 +36,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.wso2.carbon.base.ServerConfiguration;
-import org.wso2.carbon.base.ServerConfigurationException;
 import org.wso2.carbon.identity.base.CarbonEntityResolver;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.base.IdentityRuntimeException;
@@ -45,7 +44,6 @@ import org.wso2.carbon.identity.core.model.IdentityErrorMsgContext;
 import org.wso2.carbon.identity.core.model.IdentityEventListener;
 import org.wso2.carbon.identity.core.model.IdentityEventListenerConfigKey;
 import org.wso2.carbon.registry.core.utils.UUIDGenerator;
-import org.wso2.carbon.user.api.TenantManager;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
@@ -135,7 +133,7 @@ public class IdentityUtil {
         return identityEventListener;
     }
 
-    public static void populateProperties() throws ServerConfigurationException {
+    public static void populateProperties() {
         configuration = IdentityConfigParser.getInstance().getConfiguration();
         eventListenerConfiguration = IdentityConfigParser.getInstance().getEventListenerConfiguration();
     }
@@ -213,30 +211,6 @@ public class IdentityUtil {
         } catch (NoSuchAlgorithmException e) {
             throw new Exception("Failed to generate UUID ", e);
         }
-    }
-
-    /**
-     * Get the tenant id of the given user.
-     *
-     * @param username Username
-     * @return Tenant Id of domain user belongs to.
-     * @throws IdentityException Error when getting an instance of Tenant Manger
-     */
-    public static int getTenantIdOFUser(String username) throws IdentityException {
-        int tenantId = 0;
-        String domainName = MultitenantUtils.getTenantDomain(username);
-        if (domainName != null) {
-            try {
-                TenantManager tenantManager = IdentityTenantUtil.getRealmService().getTenantManager();
-                tenantId = tenantManager.getTenantId(domainName);
-            } catch (UserStoreException e) {
-                String errorMsg = "Error when getting the tenant id from the tenant domain : " +
-                        domainName;
-                log.error(errorMsg, e);
-                throw new IdentityException(errorMsg, e);
-            }
-        }
-        return tenantId;
     }
 
     /**
@@ -432,5 +406,21 @@ public class IdentityUtil {
                     ".");
         }
         return !Boolean.parseBoolean(caseInsensitiveUsername);
+    }
+
+    public static boolean isNotBlank(String input){
+        if(StringUtils.isNotBlank(input) && !"null".equals(input.trim())){
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public static boolean isBlank(String input){
+        if(StringUtils.isBlank(input) || "null".equals(input.trim())){
+            return true;
+        } else {
+            return false;
+        }
     }
 }

@@ -27,7 +27,7 @@
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.WorkflowUIConstants" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
-<%@ page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
+
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@ page import="java.util.ResourceBundle" %>
 
@@ -36,7 +36,6 @@
 <script type="text/javascript" src="../admin/js/main.js"></script>
 
 <%
-    //    String username = CharacterEncoder.getSafeText(request.getParameter("username"));
 
     String bundle = "org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources";
     ResourceBundle resourceBundle = ResourceBundle.getBundle(bundle, request.getLocale());
@@ -45,9 +44,10 @@
     AssociationDTO[] associationsToDisplay = new AssociationDTO[0];
     String paginationValue = "region=region1&item=association_list_menu";
 
-    String pageNumber = CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_PAGE_NUMBER));
+    String pageNumber = request.getParameter(WorkflowUIConstants.PARAM_PAGE_NUMBER);
     int pageNumberInt = 0;
     int numberOfPages = 0;
+    AssociationDTO[] associations = null;
 
     if (pageNumber != null) {
         try {
@@ -64,7 +64,7 @@
                         .getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
         client = new WorkflowAdminServiceClient(cookie, backendServerURL, configContext);
 
-        AssociationDTO[] associations = client.listAllAssociations();
+        associations = client.listAllAssociations();
         if (associations != null) {
             numberOfPages = (int) Math.ceil((double) associations.length / WorkflowUIConstants.RESULTS_PER_PAGE);
             int startIndex = pageNumberInt * WorkflowUIConstants.RESULTS_PER_PAGE;
@@ -151,51 +151,56 @@
                     <th width="30%"><fmt:message key="workflow.service.associate.event"/></th>
                     <th width="15%"><fmt:message key="workflow.name"/></th>
                     <th><fmt:message key="actions"/></th>
-                    <th></th>
                 </tr>
                 </thead>
                 <tbody>
                 <%
-                    for (AssociationDTO association : associationsToDisplay) {
-                        if (association != null) {
+                    if (associations != null && associations.length > 0) {
+                        for (AssociationDTO association : associationsToDisplay) {
+                            if (association != null) {
                 %>
-                    <td>
-                        <%=association.getAssociationName()%>
-                    </td>
-                    <td><%=association.getEventName()%>
-                    </td>
-                    <td><%=association.getWorkflowName()%>
-                    </td>
-                    <td>
-                        <a title="<fmt:message key='workflow.service.association.delete.title'/>"
-                           onclick="removeAssociation('<%=association.getAssociationId()%>',
-                                   '<%=association.getAssociationName()%>');return false;"
-                           href="#" style="background-image: url(images/delete.gif);"
-                           class="icon-link"><fmt:message key='delete'/></a>
-                    </td>
-                    <td>
-                        <% if(association.getEnabled()){ %>
+                <td>
+                    <%=association.getAssociationName()%>
+                </td>
+                <td><%=association.getEventName()%>
+                </td>
+                <td><%=association.getWorkflowName()%>
+                </td>
+                <td>
+                    <% if (association.getEnabled()) { %>
 
-                        <a title="<fmt:message key='workflow.service.association.state.disable'/>"
-                           onclick="changeState('<%=association.getAssociationId()%>',
-                                   '<%=association.getAssociationName()%>','<%=WorkflowUIConstants.ACTION_VALUE_DISABLE%>');return false;"
-                           class="icon-link" href="#" style="background-image: url(images/disable.gif);"><fmt:message key='disable'/></a>
+                    <a title="<fmt:message key='workflow.service.association.state.disable'/>"
+                       onclick="changeState('<%=association.getAssociationId()%>',
+                               '<%=association.getAssociationName()%>','<%=WorkflowUIConstants.ACTION_VALUE_DISABLE%>');return false;"
+                       class="icon-link" href="#" style="background-image: url(images/disable.gif);"><fmt:message
+                            key='disable'/></a>
 
-                        <% }else{ %>
+                    <% } else { %>
 
-                        <a title="<fmt:message key='workflow.service.association.state.enable'/>"
-                           onclick="changeState('<%=association.getAssociationId()%>',
-                                   '<%=association.getAssociationName()%>','<%=WorkflowUIConstants.ACTION_VALUE_ENABLE%>');return false;"
-                           class="icon-link" href="#" style="background-image: url(images/enable.gif);"><fmt:message key='enable'/></a>
+                    <a title="<fmt:message key='workflow.service.association.state.enable'/>"
+                       onclick="changeState('<%=association.getAssociationId()%>',
+                               '<%=association.getAssociationName()%>','<%=WorkflowUIConstants.ACTION_VALUE_ENABLE%>');return false;"
+                       class="icon-link" href="#" style="background-image: url(images/enable.gif);"><fmt:message
+                            key='enable'/></a>
 
-                        <%
-                            }
-                        %>
-                    </td>
+                    <%
+                        }
+                    %>
+                    <a title="<fmt:message key='workflow.service.association.delete.title'/>"
+                       onclick="removeAssociation('<%=association.getAssociationId()%>',
+                               '<%=association.getAssociationName()%>');return false;"
+                       href="#" style="background-image: url(images/delete.gif);"
+                       class="icon-link"><fmt:message key='delete'/></a>
+                </td>
                 </tr>
                 <%
+                            }
                         }
-                    }
+                    } else {%>
+                <tr>
+                    <td colspan="4"><i>No associations found.</i></td>
+                </tr>
+                <% }
                 %>
                 </tbody>
             </table>

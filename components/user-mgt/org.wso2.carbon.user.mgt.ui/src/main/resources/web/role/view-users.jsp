@@ -36,8 +36,15 @@
 <%@ page import="java.util.List" %>
 <%@ page import="java.util.Map" %>
 <%@ page import="java.util.ResourceBundle" %>
+<%@ page import="java.util.Set" %>
+<%@ page import="java.util.LinkedHashSet" %>
+<%@ page import="org.apache.commons.lang.ArrayUtils" %>
+<%@ page import="org.apache.commons.lang.StringUtils" %>
+<%@ page import="org.apache.commons.collections.CollectionUtils" %>
+<%@ page import="org.wso2.carbon.user.mgt.ui.UserManagementWorkflowServiceClient" %>
 <script type="text/javascript" src="../userstore/extensions/js/vui.js"></script>
 <script type="text/javascript" src="../admin/js/main.js"></script>
+<script type="text/javascript" src="../identity/validation/js/identity-validate.js"></script>
 <jsp:include page="../dialog/display_messages.jsp"/>
 <jsp:include page="../userstore/display-messages.jsp"/>
 
@@ -57,6 +64,8 @@
     int noOfPageLinksToDisplay = 5;
     int numberOfPages = 0;
     Map<Integer, PaginatedNamesBean> flaggedNameMap = null;
+    Set<String> workFlowDeletePendingUsers = null;
+
     if (request.getParameter("pageNumber") == null) {
         session.removeAttribute("checkedUsersMap");
     }
@@ -70,14 +79,15 @@
     String prevPageNumber = request.getParameter("prevPageNumber");
     String prevString = null;
 
-    if (prevPage != null && prevPage.trim().length() > 0 && prevUser != null && prevUser.trim().length() > 0) {
+
+    if (StringUtils.isNotBlank(prevPage) && StringUtils.isNotBlank(prevUser)) {
         showUpdate = false;
         if ("view".equals(prevPage)) {
             prevString = "../user/view-roles.jsp?username=" + Encode.forUriComponent(prevUser) + "&pageNumber=" +
-                         Encode.forUriComponent(prevPageNumber);
+                    Encode.forUriComponent(prevPageNumber);
         } else if ("edit".equals(prevPage)) {
             prevString = "../user/edit-user-roles.jsp?username=" + Encode.forUriComponent(prevUser) + "&pageNumber=" +
-                         Encode.forUriComponent(prevPageNumber);
+                    Encode.forUriComponent(prevPageNumber);
         }
         session.setAttribute("prevString", prevString);
     } else {
@@ -99,17 +109,17 @@
     }
 </script>
 <%
-    // search filter
+	// search filter
     String filter = request.getParameter(UserAdminUIConstants.ROLE_LIST_VIEW_USER_FILTER);
-    if (filter == null || filter.trim().length() == 0) {
+    if (StringUtils.isEmpty(filter)) {
         filter = (java.lang.String) session.getAttribute(UserAdminUIConstants.ROLE_LIST_VIEW_USER_FILTER);
-        if (filter == null || filter.trim().length() == 0) {
+        if (StringUtils.isEmpty(filter)) {
             filter = "*";
         }
     } else {
         newFilter = true;
     }
-
+    
     filter = filter.trim();
     session.setAttribute(UserAdminUIConstants.ROLE_LIST_VIEW_USER_FILTER, filter);
 
@@ -119,7 +129,7 @@
 
     boolean useCache = false;
 
-    if (prevRole != null && prevRole.equals(roleName)) {
+    if (StringUtils.equals(roleName, prevRole)) {
         useCache = true;
     } else if (prevRole != null) {
         session.setAttribute("previousRole", roleName);
@@ -130,7 +140,7 @@
         readOnlyRoleString =
                 (String) session.getAttribute(UserAdminUIConstants.ROLE_READ_ONLY);
     }
-    if ("true".equals(readOnlyRoleString)) {
+    if (Boolean.parseBoolean(readOnlyRoleString)) {
         readOnlyRole = true;
     }
 
@@ -138,22 +148,19 @@
             (FlaggedName) session.getAttribute(UserAdminUIConstants.ROLE_LIST_ASSIGNED_USER_CACHE_EXCEEDED);
 
     // check page number
-    String pageNumberStr = request.getParameter("pageNumber");
-    if (pageNumberStr == null) {
-        pageNumberStr = "0";
-    }
-
     try {
-        pageNumber = Integer.parseInt(pageNumberStr);
+
+        pageNumber = Integer.parseInt(request.getParameter("pageNumber"));
+
     } catch (NumberFormatException ignored) {
         // page number format exception
+        pageNumber = 0;
     }
 
     if (useCache) {
 
         flaggedNameMap =
-                (Map<Integer, PaginatedNamesBean>) session
-                        .getAttribute(UserAdminUIConstants.ROLE_LIST_ASSIGNED_USER_CACHE);
+                (Map<Integer, PaginatedNamesBean>) session.getAttribute(UserAdminUIConstants.ROLE_LIST_ASSIGNED_USER_CACHE);
         if (flaggedNameMap != null) {
             PaginatedNamesBean bean = flaggedNameMap.get(pageNumber);
             if (bean != null) {
@@ -171,20 +178,38 @@
                     (String) session.getAttribute(ServerConstants.ADMIN_SERVICE_COOKIE);
             String backendServerURL =
                     CarbonUIUtil.getServerURL(config.getServletContext(),
-                                              session);
+                            session);
             ConfigurationContext configContext =
                     (ConfigurationContext) config.getServletContext()
-                                                 .getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
+                            .getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
             UserAdminClient client =
                     new UserAdminClient(cookie, backendServerURL,
-                                        configContext);
+                            configContext);
+            UserManagementWorkflowServiceClient UserMgtClient = new
+                    UserManagementWorkflowServiceClient(cookie, backendServerURL, configContext);
             if (filter.length() > 0) {
                 FlaggedName[] data = client.getUsersOfRole(roleName, filter, 0);
+                if (CarbonUIUtil.isContextRegistered(config, "/usermgt-workflow/")) {
+                    String[] DeletePendingRolesList = UserMgtClient.
+                            listAllEntityNames("DELETE_USER", "PENDING", "USER");
+                    workFlowDeletePendingUsers = new LinkedHashSet<String>(Arrays.asList(DeletePendingRolesList));
+                    String pendingStatus = "[Pending User for Delete]";
+                    if (data != null) {
+                        for (int i = 0; i < data.length; i++) {
+                            String updatedStatus = null;
+                            if (workFlowDeletePendingUsers.contains(data[i].getItemName())) {
+                                updatedStatus = data[i].getItemName() + " " + pendingStatus;
+                                data[i].setItemDisplayName(data[i].getItemName());
+                                data[i].setItemName(updatedStatus);
+                            }
+                        }
+                    }
+                }
                 dataList = new ArrayList<FlaggedName>(Arrays.asList(data));
                 exceededDomains = dataList.remove(dataList.size() - 1);
                 session.setAttribute(UserAdminUIConstants.ROLE_LIST_ASSIGNED_USER_CACHE_EXCEEDED,
-                                     exceededDomains);
-                if (dataList != null && dataList.size() > 0) {
+                        exceededDomains);
+                if (CollectionUtils.isNotEmpty(dataList)) {
                     flaggedNameMap = new HashMap<Integer, PaginatedNamesBean>();
                     int max = pageNumber + cachePages;
                     for (int i = (pageNumber - cachePages); i < max; i++) {
@@ -194,7 +219,7 @@
                         }
                         PaginatedNamesBean bean =
                                 Util.retrievePaginatedFlaggedName(i,
-                                                                  dataList);
+                                        dataList);
                         flaggedNameMap.put(i, bean);
                         if (bean.getNumberOfPages() == i + 1) {
                             break;
@@ -203,19 +228,19 @@
                     users = flaggedNameMap.get(pageNumber).getNames();
                     numberOfPages = flaggedNameMap.get(pageNumber).getNumberOfPages();
                     session.setAttribute(UserAdminUIConstants.ROLE_LIST_ASSIGNED_USER_CACHE,
-                                         flaggedNameMap);
+                            flaggedNameMap);
                 } else {
                     session.removeAttribute(UserAdminUIConstants.ROLE_LIST_VIEW_USER_FILTER);
                     showFilterMessage = true;
                 }
             }
         } catch (Exception e) {
-            String message = MessageFormat
-                    .format(resourceBundle.getString("error.while.loading.users.of"), roleName, e.getMessage());
+            String message = MessageFormat.format(resourceBundle.getString("error.while.loading.users.of"),
+                    roleName, e.getMessage());
 %>
 <script type="text/javascript">
     jQuery(document).ready(function () {
-        CARBON.showErrorDialog('<%=message%>', function () {
+        CARBON.showErrorDialog('<%=Encode.forJavaScript(Encode.forHtml(message))%>', function () {
             location.href = "role-mgt.jsp";
         });
     });
@@ -224,7 +249,7 @@
         }
     }
     Util.updateCheckboxStateMap((Map<String, Boolean>) session.getAttribute("checkedUsersMap"), flaggedNameMap,
-                                request.getParameter("selectedUsers"), request.getParameter("unselectedUsers"), ":");
+            request.getParameter("selectedUsers"), request.getParameter("unselectedUsers"), ":");
 %>
 <fmt:bundle basename="org.wso2.carbon.userstore.ui.i18n.Resources">
     <carbon:breadcrumb label="users.in.the.role"
@@ -310,6 +335,12 @@
             form.submit();
         }
 
+        $(document).ready(function () {
+            $('form[name=filterForm]').submit(function(){
+                return doValidateForm(this, '<fmt:message key="error.input.validation.msg"/>');
+            })
+        });
+
     </script>
 
 
@@ -332,7 +363,9 @@
                         <td><fmt:message key="list.users"/></td>
                         <td>
                             <input type="text" name="<%=UserAdminUIConstants.ROLE_LIST_VIEW_USER_FILTER%>"
-                                   value="<%=Encode.forHtmlAttribute(filter)%>"/>
+                                   value="<%=Encode.forHtmlAttribute(filter)%>" label="<fmt:message
+                                   key="list.users"/>"
+                                   black-list-patterns="xml-meta-exists"/>
                         </td>
                         <td>
                             <input class="button" type="submit"
@@ -365,7 +398,7 @@
                     </thead>
 
                     <tbody>
-                    <%if (users != null && users.length > 0 && showUpdate) {%>
+                    <%if (ArrayUtils.isNotEmpty(users) && showUpdate) {%>
                     <tr>
                         <td colspan="4">
 
@@ -403,16 +436,12 @@
                                         if (user != null) {
                                             String doCheck = "checked=\"checked\"";
                                             String doEdit = "";
-                                            if (user.getItemName()
-                                                    .equals(CarbonConstants.REGISTRY_ANONNYMOUS_USERNAME)) {
+                                            if (user.getItemName().equals(CarbonConstants.REGISTRY_ANONNYMOUS_USERNAME)) {
                                                 continue;
                                             } else if (readOnlyRole && !user.getEditable()) {
                                                 doEdit = "disabled=\"disabled\"";
                                             } else if (session.getAttribute("checkedUsersMap") != null &&
-                                                       ((Map<String, Boolean>) session.getAttribute("checkedUsersMap"))
-                                                               .get(user.getItemName()) != null &&
-                                                       ((Map<String, Boolean>) session.getAttribute("checkedUsersMap"))
-                                                               .get(user.getItemName()) == false) {
+                                                    Boolean.FALSE.equals(((Map<String, Boolean>) session.getAttribute("checkedUsersMap")).get(user.getItemName()))) {
                                                 doCheck = "";
                                             }
 
@@ -422,12 +451,24 @@
                                                 displayName = userName;
                                             }
                             %>
-
                             <% if (showUpdate) {%>
                             <input type="checkbox" name="selectedUsers"
-                                   value="<%=Encode.forHtmlAttribute(userName)%>" <%=doCheck%><%=doEdit%> />
+                                   value="<%=Encode.forHtmlAttribute(userName)%>" <%=doCheck%> <%=doEdit%> />
                             <% } %>
+                            <%
+                                if (userName.contains("[Pending User for Delete]")) {
+                            %>
+                            <%=Encode.forHtml(user.getItemDisplayName())%>
+                            <img src="images/workflow_pending_remove.gif"
+                                 title="Workflow-pending-user-delete"
+                                 alt="Workflow-pending-user-delete" height="15" width="15">
+                            <%
+                            } else {
+                            %>
                             <%=Encode.forHtml(displayName)%>
+                            <%
+                                }
+                            %>
                             <input type="hidden" name="shownUsers" value="<%=Encode.forHtmlAttribute(userName)%>"/><br/>
                             <%
                                         }
@@ -444,14 +485,13 @@
                                   numberOfPages="<%=numberOfPages%>"
                                   noOfPageLinksToDisplay="<%=noOfPageLinksToDisplay%>"
                                   page="view-users.jsp" pageNumberParameterName="pageNumber"
-                                  parameters="<%="roleName=" + Encode.forHtmlAttribute(roleName)%>"/>
+                                  parameters="<%="roleName="+Encode.forHtmlAttribute(roleName)%>"/>
                 <%
-                    if (users != null && users.length > 0 && exceededDomains != null) {
+                    if (ArrayUtils.isNotEmpty(users) && exceededDomains != null) {
                         if (exceededDomains.getItemName() != null || exceededDomains.getItemDisplayName() != null) {
                             String message = null;
-                            if (exceededDomains.getItemName() != null && exceededDomains.getItemName().equals("true")) {
-                                if (exceededDomains.getItemDisplayName() != null &&
-                                    !exceededDomains.getItemDisplayName().equals("")) {
+                            if (Boolean.parseBoolean(exceededDomains.getItemName())) {
+                                if (StringUtils.isNotBlank(exceededDomains.getItemDisplayName())) {
                                     String arg = "";
                                     String[] domains = exceededDomains.getItemDisplayName().split(":");
                                     for (int i = 0; i < domains.length; i++) {
@@ -470,8 +510,7 @@
                 <strong><%=Encode.forHtml(message)%>
                 </strong>
                 <%
-                } else if (exceededDomains.getItemDisplayName() != null &&
-                           !exceededDomains.getItemDisplayName().equals("")) {
+                } else if (StringUtils.isNotBlank(exceededDomains.getItemDisplayName())) {
                     String[] domains = exceededDomains.getItemDisplayName().split(":");
                     String arg = "";
                     for (int i = 0; i < domains.length; i++) {
@@ -505,7 +544,7 @@
                         <input class="button" type="button" value="<fmt:message key="cancel"/>" onclick="doCancel()"/>
                     </td>
                 </tr>
-            </form>
-        </div>
+        </form>
     </div>
+</div>
 </fmt:bundle>

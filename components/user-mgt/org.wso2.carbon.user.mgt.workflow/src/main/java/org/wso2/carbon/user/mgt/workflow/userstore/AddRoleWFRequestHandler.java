@@ -195,7 +195,8 @@ public class AddRoleWFRequestHandler extends AbstractWorkflowRequestHandler {
                 UserRealm userRealm = realmService.getTenantUserRealm(tenantId);
                 userRealm.getUserStoreManager().addRole(roleName, users, permissions);
             } catch (UserStoreException e) {
-                throw new WorkflowException("Error when re-requesting addRole operation for " + roleName, e);
+                // Sending e.getMessage() since it is required to give error message to end user.
+                throw new WorkflowException(e.getMessage(), e);
             }
         } else {
             if (retryNeedAtCallback()) {
@@ -220,6 +221,10 @@ public class AddRoleWFRequestHandler extends AbstractWorkflowRequestHandler {
                         workflowService.entityHasPendingWorkflowsOfType(entities[i], UserStoreWFConstants
                                 .UPDATE_ROLE_NAME_EVENT))) {
                     throw new WorkflowException("Rolename already exists in the system. Please pick another rolename.");
+                } else if (workflowService.eventEngagedWithWorkflows(UserStoreWFConstants.ADD_USER_EVENT) &&
+                        entities[i].getEntityType() == UserStoreWFConstants.ENTITY_TYPE_USER && workflowService
+                        .entityHasPendingWorkflowsOfType(entities[i], UserStoreWFConstants.DELETE_USER_EVENT)) {
+                    throw new WorkflowException("One or more assigned users are pending in delete workflow.");
                 }
             } catch (InternalWorkflowException e) {
                 throw new WorkflowException(e.getMessage(), e);

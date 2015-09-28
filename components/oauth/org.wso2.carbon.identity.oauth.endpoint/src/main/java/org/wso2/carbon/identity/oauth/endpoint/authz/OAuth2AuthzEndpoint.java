@@ -17,18 +17,16 @@
  */
 package org.wso2.carbon.identity.oauth.endpoint.authz;
 
-import org.apache.amber.oauth2.as.request.OAuthAuthzRequest;
-import org.apache.amber.oauth2.as.response.OAuthASResponse;
-import org.apache.amber.oauth2.common.OAuth;
-import org.apache.amber.oauth2.common.exception.OAuthProblemException;
-import org.apache.amber.oauth2.common.exception.OAuthSystemException;
-import org.apache.amber.oauth2.common.message.OAuthResponse;
-import org.apache.amber.oauth2.common.message.types.ResponseType;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.oltu.openidconnect.as.OIDC;
-import org.apache.oltu.openidconnect.as.util.OIDCAuthzServerUtil;
+import org.apache.oltu.oauth2.as.request.OAuthAuthzRequest;
+import org.apache.oltu.oauth2.as.response.OAuthASResponse;
+import org.apache.oltu.oauth2.common.OAuth;
+import org.apache.oltu.oauth2.common.exception.OAuthProblemException;
+import org.apache.oltu.oauth2.common.exception.OAuthSystemException;
+import org.apache.oltu.oauth2.common.message.OAuthResponse;
+import org.apache.oltu.oauth2.common.message.types.ResponseType;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationResultCache;
 import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationResultCacheEntry;
@@ -55,6 +53,7 @@ import org.wso2.carbon.identity.oauth2.dto.OAuth2AuthorizeReqDTO;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2AuthorizeRespDTO;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2ClientValidationResponseDTO;
 import org.wso2.carbon.identity.oauth2.model.OAuth2Parameters;
+import org.wso2.carbon.identity.oauth2.util.OAuth2Util;
 import org.wso2.carbon.registry.core.utils.UUIDGenerator;
 import org.wso2.carbon.ui.util.CharacterEncoder;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
@@ -83,6 +82,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class OAuth2AuthzEndpoint {
 
     private static final Log log = LogFactory.getLog(OAuth2AuthzEndpoint.class);
+    public static final String APPROVE = "approve";
 
     @GET
     @Path("/")
@@ -464,10 +464,10 @@ public class OAuth2AuthzEndpoint {
         params.setApplicationName(clientDTO.getApplicationName());
 
         // OpenID Connect specific request parameters
-        params.setNonce(oauthRequest.getParam(OIDC.AuthZRequest.NONCE));
-        params.setDisplay(oauthRequest.getParam(OIDC.AuthZRequest.DISPLAY));
-        params.setIDTokenHint(oauthRequest.getParam(OIDC.AuthZRequest.ID_TOKEN_HINT));
-        params.setLoginHint(oauthRequest.getParam(OIDC.AuthZRequest.LOGIN_HINT));
+        params.setNonce(oauthRequest.getParam(OAuthConstants.OAuth20Params.NONCE));
+        params.setDisplay(oauthRequest.getParam(OAuthConstants.OAuth20Params.DISPLAY));
+        params.setIDTokenHint(oauthRequest.getParam(OAuthConstants.OAuth20Params.ID_TOKEN_HINT));
+        params.setLoginHint(oauthRequest.getParam(OAuthConstants.OAuth20Params.LOGIN_HINT));
         if (StringUtils.isNotBlank(oauthRequest.getParam("acr_values")) && !"null".equals(oauthRequest.getParam
                 ("acr_values"))) {
             String[] acrValues = oauthRequest.getParam("acr_values").split(" ");
@@ -477,8 +477,8 @@ public class OAuth2AuthzEndpoint {
             }
             params.setACRValues(list);
         }
-        String prompt = oauthRequest.getParam(OIDC.AuthZRequest.PROMPT);
-        if (prompt == null) {
+        String prompt = oauthRequest.getParam(OAuthConstants.OAuth20Params.PROMPT);
+        if (StringUtils.isBlank(prompt)) {
             prompt = "consent";
         }
         params.setPrompt(prompt);
@@ -516,10 +516,9 @@ public class OAuth2AuthzEndpoint {
         boolean forceAuthenticate = false;
         boolean checkAuthentication = false;
 
-        if (prompt != null) {
             // values {none, login, consent, select_profile}
             String[] prompts = prompt.trim().split("\\s");
-            boolean containsNone = prompt.contains(OIDC.Prompt.NONE);
+            boolean containsNone = prompt.contains(OAuthConstants.Prompt.NONE);
             if (prompts.length > 1 && containsNone) {
                 if (log.isDebugEnabled()) {
                     log.debug("Invalid prompt variable combination. The value 'none' cannot be used with others " +
@@ -532,14 +531,15 @@ public class OAuth2AuthzEndpoint {
                         .setState(params.getState()).buildQueryMessage().getLocationUri();
             }
 
-            if (prompt.contains(OIDC.Prompt.LOGIN)) { // prompt for authentication
-                checkAuthentication = false;
-                forceAuthenticate = true;
-
-            } else if (containsNone || prompt.contains(OIDC.Prompt.CONSENT)) {
-                checkAuthentication = false;
-                forceAuthenticate = false;
-            }
+        if (prompt.contains(OAuthConstants.Prompt.LOGIN)) { // prompt for authentication
+            checkAuthentication = false;
+            forceAuthenticate = true;
+        } else if (containsNone) {
+            checkAuthentication = true;
+            forceAuthenticate = false;
+        } else if (prompt.contains(OAuthConstants.Prompt.CONSENT)) {
+            checkAuthentication = false;
+            forceAuthenticate = false;
         }
 
         String sessionDataKey = UUIDGenerator.generateUUID();
@@ -614,24 +614,35 @@ public class OAuth2AuthzEndpoint {
         // load the users approved applications to skip consent
         String appName = oauth2Params.getApplicationName();
         boolean hasUserApproved = OpenIDConnectUserRPStore.getInstance().hasUserApproved(loggedInUser, appName);
+        String consentUrl;
+        String errorResponse = OAuthASResponse.errorResponse(HttpServletResponse.SC_FOUND)
+                .setError(OAuth2ErrorCodes.ACCESS_DENIED)
+                .location(oauth2Params.getRedirectURI())
+                .setState(oauth2Params.getState()).buildQueryMessage()
+                .getLocationUri();
+
+        consentUrl = EndpointUtil.getUserConsentURL(oauth2Params, loggedInUser, sessionDataKey,
+                OAuth2Util.isOIDCAuthzRequest(oauth2Params.getScopes()) ? true : false);
 
         //Skip the consent page if User has provided approve always or skip consent from file
-        if (skipConsent || hasUserApproved) {
+        if (oauth2Params.getPrompt().contains(OAuthConstants.Prompt.CONSENT) ||
+                oauth2Params.getPrompt().contains(OAuthConstants.Prompt.LOGIN)) {
+            return consentUrl;
 
-            return handleUserConsent(request, "approveAlways", oauth2Params, sessionDataCacheEntry);
-
-        } else if (oauth2Params.getPrompt().contains(OIDC.Prompt.NONE)) {
-            // should not prompt for consent if approved always
-            // returning error
-            return OAuthASResponse.errorResponse(HttpServletResponse.SC_FOUND)
-                    .setError(OAuth2ErrorCodes.ACCESS_DENIED)
-                    .location(oauth2Params.getRedirectURI())
-                    .setState(oauth2Params.getState()).buildQueryMessage()
-                    .getLocationUri();
+        } else if (oauth2Params.getPrompt().contains(OAuthConstants.Prompt.NONE)) {
+            //Returning error if the user has not previous session
+            if (sessionDataCacheEntry.getLoggedInUser() == null) {
+                return errorResponse;
+            } else {
+                if (skipConsent || hasUserApproved) {
+                    return handleUserConsent(request, OAuthConstants.Consent.APPROVE, oauth2Params, sessionDataCacheEntry);
+                } else {
+                    return errorResponse;
+                }
+            }
 
         } else {
-            return EndpointUtil.getUserConsentURL(oauth2Params, loggedInUser, sessionDataKey, OIDCAuthzServerUtil
-                    .isOIDCAuthzRequest(oauth2Params.getScopes()) ? true : false);
+            return consentUrl;
         }
 
     }
