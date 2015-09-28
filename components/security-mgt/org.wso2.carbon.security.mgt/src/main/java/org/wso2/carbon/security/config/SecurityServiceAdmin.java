@@ -100,15 +100,18 @@ public class SecurityServiceAdmin {
 
     public void removeSecurityPolicyFromAllBindings(AxisService axisService, String uuid)
             throws ServerException {
-            Map endPointMap = axisService.getEndpoints();
-            for (Object o : endPointMap.entrySet()) {
-                Map.Entry entry = (Map.Entry) o;
-                AxisEndpoint point = (AxisEndpoint) entry.getValue();
-                AxisBinding binding = point.getBinding();
-                if (binding.getPolicySubject().getAttachedPolicyComponent(uuid) != null) {
-                    binding.getPolicySubject().detachPolicyComponent(uuid);
-                }
+        if (log.isDebugEnabled()) {
+            log.debug("Removing  security policy from all bindings.");
+        }
+        Map endPointMap = axisService.getEndpoints();
+        for (Object o : endPointMap.entrySet()) {
+            Map.Entry entry = (Map.Entry) o;
+            AxisEndpoint point = (AxisEndpoint) entry.getValue();
+            AxisBinding binding = point.getBinding();
+            if (binding.getPolicySubject().getAttachedPolicyComponent(uuid) != null) {
+                binding.getPolicySubject().detachPolicyComponent(uuid);
             }
+        }
     }
 
     public void setServiceParameterElement(String serviceName, Parameter parameter)

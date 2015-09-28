@@ -586,8 +586,6 @@ public class SecurityDeploymentInterceptor implements AxisObserver {
                     for (String policyPath : ((Collection) resource).getChildren()) {
                         Resource res = configRegistry.get(policyPath);
                         Policy policy = loadPolicy(res);
-                       // applyPolicy(service,policy);
-                        //addSecurityPolicyToAllBindings(service,policy);
                         service.getPolicySubject().attachPolicy(policy);
                     }
                 }
