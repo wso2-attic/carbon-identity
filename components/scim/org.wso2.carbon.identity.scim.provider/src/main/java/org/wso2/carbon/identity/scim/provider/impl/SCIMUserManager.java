@@ -611,6 +611,7 @@ public class SCIMUserManager implements UserManager {
                     SCIMGroupHandler scimGroupHandler = new SCIMGroupHandler(carbonUM.getTenantId());
                     scimGroupHandler.deleteGroupAttributes(group.getDisplayName());
                 } catch (UserStoreException | IdentitySCIMException ex) {
+                    log.error("Error occurred while doing rollback operation of the SCIM table entry for role: " + group.getDisplayName(), ex);
                     throw new CharonException("Error occurred while doing rollback operation of the SCIM table entry for role: " + group.getDisplayName(), e);
                 }
                 throw new CharonException("Error occurred while adding role : " + group.getDisplayName(), e);
