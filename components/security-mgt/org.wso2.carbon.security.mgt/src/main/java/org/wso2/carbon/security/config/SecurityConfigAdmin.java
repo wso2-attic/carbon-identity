@@ -65,6 +65,7 @@ import org.wso2.carbon.registry.core.Resource;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
 import org.wso2.carbon.registry.core.session.UserRegistry;
 import org.wso2.carbon.security.SecurityConfigException;
+import org.wso2.carbon.security.SecurityConfigParams;
 import org.wso2.carbon.security.SecurityConstants;
 import org.wso2.carbon.security.SecurityScenario;
 import org.wso2.carbon.security.SecurityScenarioDatabase;
@@ -74,6 +75,8 @@ import org.wso2.carbon.security.config.service.SecurityConfigData;
 import org.wso2.carbon.security.config.service.SecurityScenarioData;
 import org.wso2.carbon.security.internal.SecurityMgtServiceComponent;
 import org.wso2.carbon.security.pox.POXSecurityHandler;
+import org.wso2.carbon.security.util.RahasUtil;
+import org.wso2.carbon.security.util.SecurityConfigParamBuilder;
 import org.wso2.carbon.security.util.SecurityTokenStore;
 import org.wso2.carbon.security.util.ServerCrypto;
 import org.wso2.carbon.security.util.ServicePasswordCallbackHandler;
@@ -426,16 +429,16 @@ public class SecurityConfigAdmin {
         this.disableSecurityOnService(serviceName); //todo fix the method
 
         OMElement policyElement = loadPolicyAsXML(scenarioId, null);
-        addUserParameters(policyElement, null, null, null, kerberosConfigurations, false);
+        OMElement carbonSecConfigs = addUserParameters(policyElement, null, null, null, kerberosConfigurations, false);
 
         policyElement.addChild(buildRampartConfigXML(null, null, kerberosConfigurations));
         Policy policy = PolicyEngine.getPolicy(policyElement);
         //service.getPolicySubject().attachPolicy(policy);
         try {
             persistPolicy(service, policyElement, policy.getId());
-            applyPolicy(service , policy);
+            applyPolicy(service , policy, carbonSecConfigs);
             this.getPOXCache().remove(serviceName);
-        } catch (RegistryException e) {
+        } catch (Exception e) {
             throw new SecurityConfigException("Error while persisting policy in registry ",  e);
         }
 
@@ -447,6 +450,7 @@ public class SecurityConfigAdmin {
                               String[] userGroups) throws SecurityConfigException {
 
         AxisService service = axisConfig.getServiceForActivation(serviceName);
+        OMElement carbonSecConfigs = null;
         if (service == null) {
             throw new SecurityConfigException("Service not available.");
         }
@@ -466,7 +470,8 @@ public class SecurityConfigAdmin {
 
         if ((isTrustEnabled || (userGroups != null && userGroups
                 .length > 0)) && !SecurityConstants.POLICY_FROM_REG_SCENARIO.equals(scenarioId)) {
-            addUserParameters(policyElement, trustedStores, privateStore, userGroups, null, isTrustEnabled);
+            carbonSecConfigs = addUserParameters(policyElement, trustedStores, privateStore, userGroups, null,
+                    isTrustEnabled);
         }
         // If policy is taken from registry (custom policy) it needs to have rampartConfigs defined it.
         if (StringUtils.isNotBlank(policyPath) && !SecurityConstants.POLICY_FROM_REG_SCENARIO.equals(scenarioId)) {
@@ -476,7 +481,7 @@ public class SecurityConfigAdmin {
         //service.getPolicySubject().attachPolicy(policy);
         try {
             persistPolicy(service, policyElement, policy.getId());
-            applyPolicy(service, policy);
+            applyPolicy(service, policy, carbonSecConfigs);
 
                 String serviceGroupId = service.getAxisServiceGroup().getServiceGroupName();
                 if (userGroups != null) {
@@ -489,15 +494,13 @@ public class SecurityConfigAdmin {
                 }
 
 
-        } catch (RegistryException e) {
+        } catch (Exception e) {
             throw new SecurityConfigException("Error while persisting policy in registry", e);
-        } catch (UserStoreException e) {
-            throw new SecurityConfigException("Error authorizing roles", e);
         }
-
     }
 
-    private void applyPolicy (AxisService service, Policy policy) throws SecurityConfigException{
+    private void applyPolicy (AxisService service, Policy policy, OMElement carbonSecElement) throws
+            Exception {
 
         if(service == null || policy == null){
             throw new SecurityConfigException("Error while applying policy to service. Service and policy must be " +
@@ -516,7 +519,10 @@ public class SecurityConfigAdmin {
             }
         }
         // Engage required modules.
-        engageModules(securityScenario.getScenarioId(), service.getName(), service);
+        boolean isRahasEngaged = engageModules(securityScenario.getScenarioId(), service.getName(), service);
+        if(isRahasEngaged && carbonSecElement != null ){
+            setRahasParameters(service, carbonSecElement);
+        }
 
         try {
             String serviceGroupId = service.getAxisServiceGroup().getServiceGroupName();
@@ -617,7 +623,7 @@ public class SecurityConfigAdmin {
 
     }
 
-    private void addUserParameters(OMElement policyElement, String[] trustedStores, String privateStore,
+    private OMElement addUserParameters(OMElement policyElement, String[] trustedStores, String privateStore,
                                    String[] userGroups, KerberosConfigData kerberosConfigData, boolean isTrusEnabled
     ) throws SecurityConfigException {
 
@@ -720,6 +726,7 @@ public class SecurityConfigAdmin {
             carbonSecElement.addChild(kerberosElement);
         }
         policyElement.addChild(carbonSecElement);
+        return carbonSecElement;
     }
 
 
@@ -776,8 +783,10 @@ public class SecurityConfigAdmin {
     }
 
 
-    protected void engageModules(String scenarioId, String serviceName, AxisService axisService)
+    protected boolean engageModules(String scenarioId, String serviceName, AxisService axisService)
             throws SecurityConfigException {
+
+        boolean isRahasEngaged = false;
         SecurityScenario securityScenario = SecurityScenarioDatabase.get(scenarioId);
         String[] moduleNames = (String[]) securityScenario.getModules()
                 .toArray(new String[securityScenario.getModules().size()]);
@@ -789,7 +798,11 @@ public class SecurityConfigAdmin {
                 // engage at axis2
                 axisService.disengageModule(module);
                 axisService.engageModule(module);
+                if(SecurityConstants.TRUST_MODULE.equalsIgnoreCase(modName)){
+                    isRahasEngaged = true;
+                }
             }
+            return isRahasEngaged;
 
         } catch (AxisFault e) {
             log.error(e);
@@ -1329,4 +1342,23 @@ public class SecurityConfigAdmin {
         return null;
     }
 
+    private void setRahasParameters(AxisService service, OMElement carbonSecConfig)
+            throws Exception {
+        SecurityConfigParams configParams =
+                SecurityConfigParamBuilder.getSecurityParams(carbonSecConfig);
+
+        Properties cryptoProps = new Properties();
+        cryptoProps.setProperty(ServerCrypto.PROP_ID_PRIVATE_STORE,
+                configParams.getPrivateStore());
+        cryptoProps.setProperty(ServerCrypto.PROP_ID_DEFAULT_ALIAS,
+                configParams.getKeyAlias());
+        if (configParams.getTrustStores() != null) {
+            cryptoProps.setProperty(ServerCrypto.PROP_ID_TRUST_STORES,
+                    configParams.getTrustStores());
+        }
+            service.addParameter(RahasUtil.getSCTIssuerConfigParameter(
+                    ServerCrypto.class.getName(), cryptoProps, -1, null, true, true));
+            service.addParameter(RahasUtil.getTokenCancelerConfigParameter());
+
+    }
 }
