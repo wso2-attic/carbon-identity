@@ -794,8 +794,8 @@
 
                             <%
                             } else if (isBoolean == 0) { %>
-                            <input type="checkbox" name=<%=Encode.forHtmlAttribute(value)%>
-                            id=<%=Encode.forHtmlAttribute(value)%> class="checkbox"/>
+                            <input type="checkbox" name=<%=value%>
+                            id=<%=value%> class="checkbox"/>
                             <%
 
                             } else {
