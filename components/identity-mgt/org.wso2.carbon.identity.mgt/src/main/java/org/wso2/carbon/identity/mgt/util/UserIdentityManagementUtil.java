@@ -86,7 +86,7 @@ public class UserIdentityManagementUtil {
     public static void lockUserAccount(String userName, UserStoreManager userStoreManager)
             throws IdentityException {
         if (!isIdentityMgtListenerEnable()) {
-            throw new IdentityException("Cannot lock account, identityMgtEventListener is not enabled.");
+            throw new IdentityException("Cannot lock account, IdentityMgtEventListener is not enabled.");
         }
 
         UserIdentityDataStore store = IdentityMgtConfig.getInstance().getIdentityDataStore();
@@ -125,7 +125,7 @@ public class UserIdentityManagementUtil {
             throws IdentityException {
 
         if (!isIdentityMgtListenerEnable()) {
-            throw new IdentityException("Cannot unlock account, identityMgtEventListener is not enabled.");
+            throw new IdentityException("Cannot unlock account, IdentityMgtEventListener is not enabled.");
         }
         UserIdentityDataStore store = IdentityMgtConfig.getInstance().getIdentityDataStore();
         UserIdentityClaimsDO userIdentityDO = store.load(UserCoreUtil.removeDomainFromName(userName), userStoreManager);
