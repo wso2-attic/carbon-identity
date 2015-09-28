@@ -60,6 +60,13 @@
                                     <classpath refid="maven.compile.classpath"/>
                                     <classpath refid="maven.runtime.classpath"/>
                                 </java>
+                                <java classname="org.apache.axis2.wsdl.WSDL2Java" fork="true">
+                                    <arg
+                                            line="-uri src/main/resources/HumanTaskClientAPIAdmin.wsdl -u -uw -o target/generated-code -p org.wso2.carbon.humantask.stub.ui.task.client.api -ns2p http://docs.oasis-open.org/ns/bpel4people/ws-humantask/200803=org.wso2.carbon.humantask.stub.ui.task.client.api,http://docs.oasis-open.org/ns/bpel4people/ws-humantask/types/200803=org.wso2.carbon.humantask.stub.types,http://docs.oasis-open.org/ns/bpel4people/ws-humantask/api/200803=org.wso2.carbon.humantask.stub.api"/>
+                                    <classpath refid="maven.dependency.classpath"/>
+                                    <classpath refid="maven.compile.classpath"/>
+                                    <classpath refid="maven.runtime.classpath"/>
+                                </java>
                             </tasks>
                         </configuration>
                     </execution>
@@ -95,7 +102,8 @@
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
                         <Export-Package>
                             org.wso2.carbon.humantask.stub.*; version="${carbon.identity.package.export.version}",
-                            org.wso2.carbon.bpel.stub.*; version="${carbon.identity.package.export.version}"
+                            org.wso2.carbon.bpel.stub.*; version="${carbon.identity.package.export.version}",
+                            org.wso2.carbon.identity.workflow.mgt.bps.stub.*;version="${carbon.identity.package.import.version.range}"
                         </Export-Package>
                         <Import-Package>
                             javax.activation; version="${javax.activation.import.pkg.version}",

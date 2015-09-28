@@ -272,9 +272,9 @@ public class WorkflowAdminServiceClient {
     }
 
     public WorkflowRequestDTO[] getRequestsCreatedByUser(String user, String beginDate, String endDate, String
-            dateCategory) throws RemoteException, WorkflowAdminServiceWorkflowException {
+            dateCategory, String status) throws RemoteException, WorkflowAdminServiceWorkflowException {
 
-        WorkflowRequestDTO[] requestDTOs = stub.getRequestsCreatedByUser(user, beginDate, endDate, dateCategory);
+        WorkflowRequestDTO[] requestDTOs = stub.getRequestsCreatedByUser(user, beginDate, endDate, dateCategory,status);
         if (requestDTOs == null) {
             requestDTOs = new WorkflowRequestDTO[0];
         }
@@ -282,10 +282,10 @@ public class WorkflowAdminServiceClient {
 
     }
 
-    public WorkflowRequestDTO[] getAllRequests(String beginDate, String endDate, String dateCategory) throws
-            RemoteException, WorkflowAdminServiceWorkflowException {
+    public WorkflowRequestDTO[] getAllRequests(String beginDate, String endDate, String dateCategory, String status)
+            throws RemoteException, WorkflowAdminServiceWorkflowException {
 
-        WorkflowRequestDTO[] requestDTOs = stub.getRequestsInFilter(beginDate, endDate, dateCategory);
+        WorkflowRequestDTO[] requestDTOs = stub.getRequestsInFilter(beginDate, endDate, dateCategory, status);
         if (requestDTOs == null) {
             requestDTOs = new WorkflowRequestDTO[0];
         }

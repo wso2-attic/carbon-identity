@@ -31,6 +31,13 @@ public class WorkFlowConstants {
 
     public static final String WORKFLOW_DOMAIN = "Workflow";
 
+    public static final String REQUEST_ID = "REQUEST ID";
+
+    public static final String HT_STATE_RESERVED = "RESERVED";
+    public static final String HT_STATE_READY = "READY";
+    public static final String HT_STATE_SKIPPED = "SKIPPED";
+    public static final String HT_STATE_PENDING = "PENDING";
+
     public static final Set<Class> NUMERIC_CLASSES;
 
     static {
