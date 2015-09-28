@@ -410,7 +410,7 @@ public class SecurityConfigAdmin {
 
 
     public void applySecurity(String serviceName, String scenarioId, KerberosConfigData kerberosConfigurations)
-            throws SecurityConfigException {
+            throws SecurityConfigException{
 
         if (kerberosConfigurations == null) {
             log.error("Kerberos configurations provided are invalid.");
@@ -431,9 +431,14 @@ public class SecurityConfigAdmin {
         policyElement.addChild(buildRampartConfigXML(null, null, kerberosConfigurations));
         Policy policy = PolicyEngine.getPolicy(policyElement);
         //service.getPolicySubject().attachPolicy(policy);
-        persistPolicy(service, policyElement, policy.getId());
-        applyPolicy(service , policy);
-        this.getPOXCache().remove(serviceName);
+        try {
+            persistPolicy(service, policyElement, policy.getId());
+            applyPolicy(service , policy);
+            this.getPOXCache().remove(serviceName);
+        } catch (RegistryException e) {
+            throw new SecurityConfigException("Error while persisting policy in registry ",  e);
+        }
+
     }
 
 
@@ -469,22 +474,27 @@ public class SecurityConfigAdmin {
         }
         Policy policy = PolicyEngine.getPolicy(policyElement);
         //service.getPolicySubject().attachPolicy(policy);
-        persistPolicy(service, policyElement, policy.getId());
-        applyPolicy(service, policy);
         try {
-            String serviceGroupId = service.getAxisServiceGroup().getServiceGroupName();
-            if (userGroups != null) {
-                for (String value : userGroups) {
-                    AuthorizationManager acAdmin = realm.getAuthorizationManager();
+            persistPolicy(service, policyElement, policy.getId());
+            applyPolicy(service, policy);
 
-                    acAdmin.authorizeRole(value, serviceGroupId + "/" + service.getName(),
-                            UserCoreConstants.INVOKE_SERVICE_PERMISSION);
+                String serviceGroupId = service.getAxisServiceGroup().getServiceGroupName();
+                if (userGroups != null) {
+                    for (String value : userGroups) {
+                        AuthorizationManager acAdmin = realm.getAuthorizationManager();
+
+                        acAdmin.authorizeRole(value, serviceGroupId + "/" + service.getName(),
+                                UserCoreConstants.INVOKE_SERVICE_PERMISSION);
+                    }
                 }
-            }
 
+
+        } catch (RegistryException e) {
+            throw new SecurityConfigException("Error while persisting policy in registry", e);
         } catch (UserStoreException e) {
-            throw new SecurityConfigException("Error occurred while getting AuthorizationManager");
+            throw new SecurityConfigException("Error authorizing roles", e);
         }
+
     }
 
     private void applyPolicy (AxisService service, Policy policy) throws SecurityConfigException{
@@ -595,18 +605,16 @@ public class SecurityConfigAdmin {
         return rampartConfigElement;
     }
 
-    private void persistPolicy(AxisService service, OMElement policy, String policyID) {
+    private void persistPolicy(AxisService service, OMElement policy, String policyID) throws RegistryException {
 
         //        Registry registryToLoad = SecurityServiceHolder.getRegistryService().getConfigSystemRegistry();
-        try {
+
             Resource resource = registry.newResource();
             resource.setContent(policy.toString());
             String servicePath = getRegistryServicePath(service);
             String policyResourcePath = servicePath + RegistryResources.POLICIES + policyID;
             registry.put(policyResourcePath, resource);
-        } catch (RegistryException e) {
-            log.error("Error occurred while persisting policy", e);
-        }
+
     }
 
     private void addUserParameters(OMElement policyElement, String[] trustedStores, String privateStore,
