@@ -22,7 +22,6 @@
 <%@ page import="org.apache.axis2.AxisFault" %>
 <%@ page import="org.apache.axis2.context.ConfigurationContext" %>
 <%@ page import="org.wso2.carbon.CarbonConstants" %>
-<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.AssociationDTO" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.WorkflowAdminServiceClient" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.WorkflowUIConstants" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
@@ -30,6 +29,7 @@
 
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@ page import="java.util.ResourceBundle" %>
+<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.metadata.Association" %>
 
 <script type="text/javascript" src="extensions/js/vui.js"></script>
 <script type="text/javascript" src="../extensions/core/js/vui.js"></script>
@@ -41,13 +41,13 @@
     ResourceBundle resourceBundle = ResourceBundle.getBundle(bundle, request.getLocale());
     WorkflowAdminServiceClient client;
     String forwardTo = null;
-    AssociationDTO[] associationsToDisplay = new AssociationDTO[0];
+    Association[] associationsToDisplay = new Association[0];
     String paginationValue = "region=region1&item=association_list_menu";
 
     String pageNumber = request.getParameter(WorkflowUIConstants.PARAM_PAGE_NUMBER);
     int pageNumberInt = 0;
     int numberOfPages = 0;
-    AssociationDTO[] associations = null;
+    Association[] associations = null;
 
     if (pageNumber != null) {
         try {
@@ -69,7 +69,7 @@
             numberOfPages = (int) Math.ceil((double) associations.length / WorkflowUIConstants.RESULTS_PER_PAGE);
             int startIndex = pageNumberInt * WorkflowUIConstants.RESULTS_PER_PAGE;
             int endIndex = (pageNumberInt + 1) * WorkflowUIConstants.RESULTS_PER_PAGE;
-            associationsToDisplay = new AssociationDTO[WorkflowUIConstants.RESULTS_PER_PAGE];
+            associationsToDisplay = new Association[WorkflowUIConstants.RESULTS_PER_PAGE];
 
             for (int i = startIndex, j = 0; i < endIndex && i < associations.length; i++, j++) {
                 associationsToDisplay[j] = associations[i];
@@ -156,7 +156,7 @@
                 <tbody>
                 <%
                     if (associations != null && associations.length > 0) {
-                        for (AssociationDTO association : associationsToDisplay) {
+                        for (Association association : associationsToDisplay) {
                             if (association != null) {
                 %>
                 <td>

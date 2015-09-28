@@ -22,7 +22,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.CarbonContext;
-import org.wso2.carbon.identity.workflow.mgt.WorkflowService;
+import org.wso2.carbon.identity.workflow.mgt.WorkflowManagementService;
 import org.wso2.carbon.identity.workflow.mgt.bean.Entity;
 import org.wso2.carbon.identity.workflow.mgt.exception.InternalWorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
@@ -60,7 +60,7 @@ public class DeleteUserWFRequestHandler extends AbstractWorkflowRequestHandler {
 
     public boolean startDeleteUserFlow(String userStoreDomain, String userName) throws WorkflowException {
 
-        WorkflowService workflowService = IdentityWorkflowDataHolder.getInstance().getWorkflowService();
+        WorkflowManagementService workflowService = IdentityWorkflowDataHolder.getInstance().getWorkflowService();
 
         int tenant = CarbonContext.getThreadLocalCarbonContext().getTenantId();
         String fullyQualifiedName = UserCoreUtil.addDomainToName(userName, userStoreDomain);
@@ -166,7 +166,7 @@ public class DeleteUserWFRequestHandler extends AbstractWorkflowRequestHandler {
     @Override
     public boolean isValidOperation(Entity[] entities) throws WorkflowException {
 
-        WorkflowService workflowService = IdentityWorkflowDataHolder.getInstance().getWorkflowService();
+        WorkflowManagementService workflowService = IdentityWorkflowDataHolder.getInstance().getWorkflowService();
         for (int i = 0; i < entities.length; i++) {
             try {
                 if (entities[i].getEntityType() == UserStoreWFConstants.ENTITY_TYPE_USER && workflowService

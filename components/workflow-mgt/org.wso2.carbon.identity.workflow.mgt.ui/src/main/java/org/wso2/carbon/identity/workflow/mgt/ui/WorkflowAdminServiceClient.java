@@ -24,22 +24,17 @@ import org.apache.axis2.client.ServiceClient;
 import org.apache.axis2.context.ConfigurationContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.identity.workflow.mgt.stub.bean.WorkflowRequestAssociationDTO;
-import org.wso2.carbon.identity.workflow.mgt.stub.bean.WorkflowRequestDTO;
+import org.wso2.carbon.identity.workflow.mgt.stub.metadata.Association;
+import org.wso2.carbon.identity.workflow.mgt.stub.metadata.Template;
+import org.wso2.carbon.identity.workflow.mgt.stub.metadata.WorkflowWizard;
+import org.wso2.carbon.identity.workflow.mgt.stub.metadata.WorkflowEvent;
+import org.wso2.carbon.identity.workflow.mgt.stub.metadata.WorkflowImpl;
+import org.wso2.carbon.identity.workflow.mgt.stub.bean.WorkflowRequest;
+import org.wso2.carbon.identity.workflow.mgt.stub.bean.WorkflowRequestAssociation;
 import org.wso2.carbon.identity.workflow.mgt.stub.WorkflowAdminServiceStub;
 import org.wso2.carbon.identity.workflow.mgt.stub.WorkflowAdminServiceWorkflowException;
-import org.wso2.carbon.identity.workflow.mgt.stub.bean.AssociationDTO;
-import org.wso2.carbon.identity.workflow.mgt.stub.bean.BPSProfileDTO;
-import org.wso2.carbon.identity.workflow.mgt.stub.bean.ParameterDTO;
-import org.wso2.carbon.identity.workflow.mgt.stub.bean.TemplateBean;
-import org.wso2.carbon.identity.workflow.mgt.stub.bean.TemplateDTO;
-import org.wso2.carbon.identity.workflow.mgt.stub.bean.TemplateImplDTO;
-import org.wso2.carbon.identity.workflow.mgt.stub.bean.TemplateParameterDef;
-import org.wso2.carbon.identity.workflow.mgt.stub.bean.WorkflowDTO;
-import org.wso2.carbon.identity.workflow.mgt.stub.bean.WorkflowEventDTO;
 
 import java.rmi.RemoteException;
-import java.util.List;
 
 public class WorkflowAdminServiceClient {
 
@@ -64,130 +59,67 @@ public class WorkflowAdminServiceClient {
         option.setProperty(org.apache.axis2.transport.http.HTTPConstants.COOKIE_STRING, cookie);
     }
 
-    public WorkflowEventDTO[] listWorkflowEvents() throws RemoteException {
+    public WorkflowEvent[] listWorkflowEvents() throws RemoteException {
 
-        WorkflowEventDTO[] workflowEvents = stub.listWorkflowEvents();
+        WorkflowEvent[] workflowEvents = stub.listWorkflowEvents();
         if (workflowEvents == null) {
-            workflowEvents = new WorkflowEventDTO[0];
+            workflowEvents = new WorkflowEvent[0];
         }
         return workflowEvents;
     }
 
-    public TemplateBean[] listTemplates() throws RemoteException {
+    public Template[] listTemplates() throws RemoteException, WorkflowAdminServiceWorkflowException {
 
-        TemplateBean[] templates = stub.listWorkflowTemplates();
+        Template[] templates = stub.listTemplates();
         if (templates == null) {
-            templates = new TemplateBean[0];
+            templates = new Template[0];
         }
         return templates;
     }
 
-    public TemplateDTO getTemplate(String templateName) throws RemoteException {
+    public WorkflowImpl[] listWorkflowImpls(String templateId)
+            throws RemoteException, WorkflowAdminServiceWorkflowException {
 
-        TemplateDTO templateDTO = stub.getTemplateDTO(templateName);
-        if (templateDTO != null) {
-            if (templateDTO.getParameters() == null) {
-                templateDTO.setParameters(new TemplateParameterDef[0]);
-            }
-            if (templateDTO.getImplementations() == null) {
-                templateDTO.setImplementations(new TemplateImplDTO[0]);
-            }
+        WorkflowImpl[] workflows = stub.listWorkflowImpls(templateId);
+        if (workflows == null) {
+            workflows = new WorkflowImpl[0];
         }
-        return templateDTO;
+        return workflows;
     }
 
-    public TemplateImplDTO getTemplateImpDTO(String template, String implName) throws RemoteException {
+    public Template getTemplate(String templateName) throws RemoteException, WorkflowAdminServiceWorkflowException {
 
-        TemplateImplDTO templateImplDTO = stub.getTemplateImplDTO(template, implName);
-        if (templateImplDTO != null) {
-            if (templateImplDTO.getImplementationParams() == null) {
-                templateImplDTO.setImplementationParams(new TemplateParameterDef[0]);
-            }
-        }
-        return templateImplDTO;
+        Template template = stub.getTemplate(templateName);
+        return template;
+    }
+
+    public WorkflowImpl getWorkflowImp(String template, String implName)
+            throws RemoteException, WorkflowAdminServiceWorkflowException {
+
+        WorkflowImpl workflowImpl = stub.getWorkflowImpl(template, implName);
+        return workflowImpl;
     }
 
     /**
      * Add new workflow
      *
-     * @param workflowDTO
-     * @param templateParams
-     * @param templateImplParams
      * @throws RemoteException
      * @throws WorkflowAdminServiceWorkflowException
      */
-    public void addWorkflow(WorkflowDTO workflowDTO, List<ParameterDTO> templateParams,
-                            List<ParameterDTO> templateImplParams)
+    public void addWorkflow(WorkflowWizard workflowWizard)
             throws RemoteException, WorkflowAdminServiceWorkflowException {
 
-        stub.addWorkflow(workflowDTO, templateParams.toArray(new
-                                                                     ParameterDTO[templateParams.size()]),
-                         templateImplParams.toArray(new ParameterDTO[templateImplParams.size()]));
+        stub.addWorkflow(workflowWizard);
 
     }
 
-    /**
-     * Add new BPS profile
-     *
-     * @param bpsProfileDTO
-     * @throws RemoteException
-     * @throws WorkflowAdminServiceWorkflowException
-     */
-    public void addBPSProfile(BPSProfileDTO bpsProfileDTO)
+    public WorkflowWizard getWorkflow(String workflowId)
             throws RemoteException, WorkflowAdminServiceWorkflowException {
 
-        stub.addBPSProfile(bpsProfileDTO);
+        return stub.getWorkflow(workflowId);
     }
 
 
-    /**
-     * Retrieve BPS Profiles
-     *
-     * @return
-     * @throws RemoteException
-     * @throws WorkflowAdminServiceWorkflowException
-     */
-    public BPSProfileDTO[] listBPSProfiles() throws RemoteException, WorkflowAdminServiceWorkflowException {
-
-        BPSProfileDTO[] bpsProfiles = stub.listBPSProfiles();
-        if (bpsProfiles == null) {
-            bpsProfiles = new BPSProfileDTO[0];
-        }
-        return bpsProfiles;
-    }
-
-    /**
-     * Get BPS Profile detail for given profile name
-     *
-     * @param profileName
-     * @return
-     * @throws RemoteException
-     * @throws WorkflowAdminServiceWorkflowException
-     */
-    public BPSProfileDTO getBPSProfiles(String profileName)
-            throws RemoteException, WorkflowAdminServiceWorkflowException {
-
-        BPSProfileDTO bpsProfile = stub.getBPSProfile(profileName);
-        return bpsProfile;
-    }
-
-    /**
-     * Update BPS Profile
-     *
-     * @param bpsProfileDTO
-     * @throws RemoteException
-     * @throws WorkflowAdminServiceWorkflowException
-     */
-    public void updateBPSProfile(BPSProfileDTO bpsProfileDTO)
-            throws RemoteException, WorkflowAdminServiceWorkflowException {
-
-        stub.updateBPSProfile(bpsProfileDTO);
-    }
-
-    public void deleteBPSProfile(String profileName) throws RemoteException, WorkflowAdminServiceWorkflowException {
-
-        stub.removeBPSProfile(profileName);
-    }
 
     /**
      * Retrieve Workflows
@@ -196,11 +128,11 @@ public class WorkflowAdminServiceClient {
      * @throws RemoteException
      * @throws WorkflowAdminServiceWorkflowException
      */
-    public WorkflowDTO[] listWorkflows() throws RemoteException, WorkflowAdminServiceWorkflowException {
+    public WorkflowWizard[] listWorkflows() throws RemoteException, WorkflowAdminServiceWorkflowException {
 
-        WorkflowDTO[] workflows = stub.listWorkflows();
+        WorkflowWizard[] workflows = stub.listWorkflows();
         if (workflows == null) {
-            workflows = new WorkflowDTO[0];
+            workflows = new WorkflowWizard[0];
         }
         return workflows;
     }
@@ -210,21 +142,20 @@ public class WorkflowAdminServiceClient {
         stub.removeWorkflow(workflowId);
     }
 
-    public AssociationDTO[] listAssociationsForWorkflow(String workflowId)
+    public Association[] listAssociationsForWorkflow(String workflowId)
             throws RemoteException, WorkflowAdminServiceWorkflowException {
-
-        AssociationDTO[] associationsForWorkflow = stub.listAssociationsForWorkflow(workflowId);
+        Association[] associationsForWorkflow = stub.listAssociations(workflowId);
         if (associationsForWorkflow == null) {
-            associationsForWorkflow = new AssociationDTO[0];
+            associationsForWorkflow = new Association[0];
         }
         return associationsForWorkflow;
     }
 
-    public AssociationDTO[] listAllAssociations() throws RemoteException, WorkflowAdminServiceWorkflowException {
+    public Association[] listAllAssociations() throws RemoteException, WorkflowAdminServiceWorkflowException {
 
-        AssociationDTO[] associations = stub.listAllAssociations();
+        Association[] associations = stub.listAllAssociations();
         if (associations == null) {
-            associations = new AssociationDTO[0];
+            associations = new Association[0];
         }
         return associations;
     }
@@ -266,37 +197,38 @@ public class WorkflowAdminServiceClient {
         stub.changeAssociationState(associationId,false);
     }
 
-    public WorkflowEventDTO getEvent(String id) throws RemoteException {
+    public WorkflowEvent getEvent(String id) throws RemoteException {
 
         return stub.getEvent(id);
     }
 
-    public WorkflowRequestDTO[] getRequestsCreatedByUser(String user, String beginDate, String endDate, String
+    public WorkflowRequest[] getRequestsCreatedByUser(String user, String beginDate, String endDate, String
             dateCategory, String status) throws RemoteException, WorkflowAdminServiceWorkflowException {
-
-        WorkflowRequestDTO[] requestDTOs = stub.getRequestsCreatedByUser(user, beginDate, endDate, dateCategory,status);
-        if (requestDTOs == null) {
-            requestDTOs = new WorkflowRequestDTO[0];
+        //TODO ADD status as param
+        WorkflowRequest[] request = stub.getRequestsCreatedByUser(user, beginDate, endDate, dateCategory,status);
+        if (request == null) {
+            request = new WorkflowRequest[0];
         }
-        return requestDTOs;
+        return request;
 
     }
 
-    public WorkflowRequestDTO[] getAllRequests(String beginDate, String endDate, String dateCategory, String status)
-            throws RemoteException, WorkflowAdminServiceWorkflowException {
+    public WorkflowRequest[] getAllRequests(String beginDate, String endDate, String dateCategory, String status) throws
+            RemoteException, WorkflowAdminServiceWorkflowException {
 
-        WorkflowRequestDTO[] requestDTOs = stub.getRequestsInFilter(beginDate, endDate, dateCategory, status);
-        if (requestDTOs == null) {
-            requestDTOs = new WorkflowRequestDTO[0];
+        //TODO ADD status as param
+        WorkflowRequest[] requests = stub.getRequestsInFilter(beginDate, endDate, dateCategory,status);
+        if (requests == null) {
+            requests = new WorkflowRequest[0];
         }
-        return requestDTOs;
+        return requests;
     }
 
     public void deleteRequest(String requestId) throws WorkflowAdminServiceWorkflowException, RemoteException {
         stub.deleteWorkflowRequest(requestId);
     }
 
-    public WorkflowRequestAssociationDTO[] getWorkflowsOfRequest(String requestId) throws
+    public WorkflowRequestAssociation[] getWorkflowsOfRequest(String requestId) throws
             WorkflowAdminServiceWorkflowException, RemoteException {
 
         return stub.getWorkflowsOfRequest(requestId);
