@@ -32,6 +32,7 @@
 <%@ page import="java.net.URLEncoder"%>
 <%@ page import="java.text.MessageFormat" %>
 <%@ page import="java.util.ResourceBundle" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 <jsp:include page="../dialog/display_messages.jsp" />
 <script type="text/javascript" src="extensions/js/vui.js"></script>
 <script type="text/javascript" src="../extensions/core/js/vui.js"></script>
@@ -47,7 +48,7 @@
 	UserFieldDTO[] fieldDTOs = null;
 	UserProfileDTO profileDTO = null;
 	String forwardTo = null;
-    if(StringUtils.isBlank(username) || StringUtils.isBlank(profile) || StringUtils.isBlank(profileConfiguration)){
+    if(StringUtils.isBlank(username) || StringUtils.isBlank(profile)){
         String message = MessageFormat.format(resourceBundle.getString("error.while.updating.profile"), null);
         CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
 %>
@@ -102,7 +103,8 @@
         String message = resourceBundle.getString("user.profile.added.successfully");
         CarbonUIMessage.sendCarbonUIMessage(message,CarbonUIMessage.INFO, request);
         if ("true".equals(fromUserMgt)) {
-        	forwardTo ="index.jsp?username="+username;
+        	forwardTo = "index.jsp?username=" + Encode.forUriComponent(username) + "&fromUserMgt=" +
+                    Encode.forUriComponent(fromUserMgt);
         }else{
         	forwardTo ="index.jsp?region=region5&item=userprofiles_menu&ordinal=0";        	
         }

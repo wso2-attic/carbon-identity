@@ -22,7 +22,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.CarbonContext;
-import org.wso2.carbon.identity.workflow.mgt.WorkflowService;
+import org.wso2.carbon.identity.workflow.mgt.WorkflowManagementService;
 import org.wso2.carbon.identity.workflow.mgt.bean.Entity;
 import org.wso2.carbon.identity.workflow.mgt.exception.InternalWorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
@@ -70,7 +70,7 @@ public class AddRoleWFRequestHandler extends AbstractWorkflowRequestHandler {
     public boolean startAddRoleFlow(String userStoreDomain, String role, String[] userList, Permission[] permissions)
             throws WorkflowException {
 
-        WorkflowService workflowService = IdentityWorkflowDataHolder.getInstance().getWorkflowService();
+        WorkflowManagementService workflowService = IdentityWorkflowDataHolder.getInstance().getWorkflowService();
 
         if (permissions == null) {
             permissions = new Permission[0];
@@ -213,7 +213,7 @@ public class AddRoleWFRequestHandler extends AbstractWorkflowRequestHandler {
     @Override
     public boolean isValidOperation(Entity[] entities) throws WorkflowException {
 
-        WorkflowService workflowService = IdentityWorkflowDataHolder.getInstance().getWorkflowService();
+        WorkflowManagementService workflowService = IdentityWorkflowDataHolder.getInstance().getWorkflowService();
         for (int i = 0; i < entities.length; i++) {
             try {
                 if (entities[i].getEntityType() == UserStoreWFConstants.ENTITY_TYPE_ROLE && (workflowService

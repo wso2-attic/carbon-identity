@@ -577,7 +577,7 @@
 
 <style>
     .LargeHeader{
-        font-size: medium;
+        font-size: small;
     }
 
     h2.triggerIn {
