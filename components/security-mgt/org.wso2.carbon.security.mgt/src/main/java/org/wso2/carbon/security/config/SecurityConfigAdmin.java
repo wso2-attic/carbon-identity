@@ -53,12 +53,13 @@ import org.apache.ws.secpolicy.model.Token;
 import org.apache.ws.security.handler.WSHandlerConstants;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.base.ServerConfiguration;
+import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.core.RegistryResources;
-import org.wso2.carbon.core.Resources;
 import org.wso2.carbon.core.util.CryptoException;
 import org.wso2.carbon.core.util.CryptoUtil;
 import org.wso2.carbon.core.util.KeyStoreManager;
 import org.wso2.carbon.core.util.KeyStoreUtil;
+import org.wso2.carbon.registry.core.Collection;
 import org.wso2.carbon.registry.core.Registry;
 import org.wso2.carbon.registry.core.Resource;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
@@ -71,6 +72,7 @@ import org.wso2.carbon.security.SecurityServiceHolder;
 import org.wso2.carbon.security.config.service.KerberosConfigData;
 import org.wso2.carbon.security.config.service.SecurityConfigData;
 import org.wso2.carbon.security.config.service.SecurityScenarioData;
+import org.wso2.carbon.security.internal.SecurityMgtServiceComponent;
 import org.wso2.carbon.security.pox.POXSecurityHandler;
 import org.wso2.carbon.security.util.SecurityTokenStore;
 import org.wso2.carbon.security.util.ServerCrypto;
@@ -201,7 +203,6 @@ public class SecurityConfigAdmin {
             data.setScenarioId(scenario.getScenarioId());
             data.setSummary(scenario.getSummary());
         }
-
         return data;
     }
 
@@ -226,7 +227,7 @@ public class SecurityConfigAdmin {
         if (scenario == null) {
             return;
         }
-        removeSecurityPolicy(service, serviceName);
+        removeSecurityPolicy(service, scenario.getWsuId());
 
         String[] moduleNames = scenario.getModules().toArray(new String[scenario.getModules().size()]);
 
@@ -239,7 +240,6 @@ public class SecurityConfigAdmin {
                 throw new SecurityConfigException("Error while disengaging module :" + moduleName, axisFault);
             }
         }
-
 
         try {
             Parameter param = new Parameter();
@@ -280,16 +280,9 @@ public class SecurityConfigAdmin {
             throw new SecurityConfigException("Error while removing authorization roles ", e);
         }
 
-        SecurityServiceAdmin admin = new SecurityServiceAdmin(axisConfig, registry);
-        try {
-            admin.removeSecurityPolicyFromAllBindings(service, scenario.getWsuId());
-        } catch (ServerException e) {
-            throw new SecurityConfigException("Error while removing policy from all bindings", e);
-        }
-
     }
 
-    private void removeSecurityPolicy(AxisService service, String serviceName) throws SecurityConfigException {
+    private void removeSecurityPolicy(AxisService service, String scenarioWsId) throws SecurityConfigException {
 
         try {
             Registry configRegistry = registry;
@@ -307,10 +300,14 @@ public class SecurityConfigAdmin {
                 service.removeParameter(scenarioIDParam);
             }
 
-        } catch (RegistryException ex) {
-            throw new SecurityConfigException("Error occurred while removing security policy");
+            SecurityServiceAdmin admin = new SecurityServiceAdmin(axisConfig, registry);
+            admin.removeSecurityPolicyFromAllBindings(service, scenarioWsId);
+        } catch (RegistryException e) {
+            throw new SecurityConfigException("Error occurred while removing security policy", e);
         } catch (AxisFault axisFault) {
             throw new SecurityConfigException("Error while removing scenario ID from axis service", axisFault);
+        } catch (ServerException e) {
+            log.error("Error while removing policy from service bindings ", e);
         }
     }
 
@@ -353,23 +350,16 @@ public class SecurityConfigAdmin {
         return getProperties(trustElement);
     }
 
-    private OMElement getCarbonSecConfigs(AxisService service) {
-        java.util.Collection policies = service.getPolicySubject()
-                .getAttachedPolicyComponents();
-        Iterator policyComponents = policies.iterator();
-        while (policyComponents.hasNext()) {
-            PolicyComponent currentPolicyComponent = (PolicyComponent) policyComponents
-                    .next();
-            if (currentPolicyComponent instanceof Policy) {
-                Policy policy = ((Policy) currentPolicyComponent);
-                List it = (List) policy.getAlternatives().next();
-                for (Iterator iter = it.iterator(); iter.hasNext(); ) {
-                    Assertion assertion = (Assertion) iter.next();
-                    if (assertion instanceof XmlPrimtiveAssertion) {
-                        OMElement xmlPrimitiveAssertion = (((XmlPrimtiveAssertion) assertion).getValue());
-                        if (SecurityConstants.CARBON_SEC_CONFIG.equals(xmlPrimitiveAssertion.getLocalName())) {
-                            return (((XmlPrimtiveAssertion) assertion).getValue());
-                        }
+    private OMElement getCarbonSecConfigs(Policy policy) {
+
+        if(policy != null){
+            List it = (List) policy.getAlternatives().next();
+            for (Iterator iter = it.iterator(); iter.hasNext(); ) {
+                Assertion assertion = (Assertion) iter.next();
+                if (assertion instanceof XmlPrimtiveAssertion) {
+                    OMElement xmlPrimitiveAssertion = (((XmlPrimtiveAssertion) assertion).getValue());
+                    if (SecurityConstants.CARBON_SEC_CONFIG.equals(xmlPrimitiveAssertion.getLocalName())) {
+                        return (((XmlPrimtiveAssertion) assertion).getValue());
                     }
                 }
             }
@@ -377,24 +367,16 @@ public class SecurityConfigAdmin {
         return null;
     }
 
-    private RampartConfig getRampartConfigs(AxisService service) {
-        java.util.Collection policies = service.getPolicySubject()
-                .getAttachedPolicyComponents();
-        Iterator policyComponents = policies.iterator();
-        while (policyComponents.hasNext()) {
-            PolicyComponent currentPolicyComponent = (PolicyComponent) policyComponents
-                    .next();
-            if (currentPolicyComponent instanceof Policy) {
-                Policy policy = ((Policy) currentPolicyComponent);
-                List it = (List) policy.getAlternatives().next();
-                for (Iterator iter = it.iterator(); iter.hasNext(); ) {
-                    Assertion assertion = (Assertion) iter.next();
-                    if (assertion instanceof RampartConfig) {
-                        return (RampartConfig) assertion;
-                    }
-                }
-            }
-        }
+    private RampartConfig getRampartConfigs(Policy policy) {
+      if(policy != null){
+          List it = (List) policy.getAlternatives().next();
+          for (Iterator iter = it.iterator(); iter.hasNext(); ) {
+              Assertion assertion = (Assertion) iter.next();
+              if (assertion instanceof RampartConfig) {
+                  return (RampartConfig) assertion;
+              }
+          }
+      }
         return null;
     }
 
@@ -428,7 +410,7 @@ public class SecurityConfigAdmin {
 
 
     public void applySecurity(String serviceName, String scenarioId, KerberosConfigData kerberosConfigurations)
-            throws SecurityConfigException {
+            throws SecurityConfigException{
 
         if (kerberosConfigurations == null) {
             log.error("Kerberos configurations provided are invalid.");
@@ -440,8 +422,6 @@ public class SecurityConfigAdmin {
         if (service == null) {
             throw new SecurityConfigException("nullService");
         }
-
-        String serviceGroupId = service.getAxisServiceGroup().getServiceGroupName();
         // Disable security if already a policy is applied
         this.disableSecurityOnService(serviceName); //todo fix the method
 
@@ -450,57 +430,15 @@ public class SecurityConfigAdmin {
 
         policyElement.addChild(buildRampartConfigXML(null, null, kerberosConfigurations));
         Policy policy = PolicyEngine.getPolicy(policyElement);
-        removeSecurityPolicy(service, serviceName);
-        service.getPolicySubject().attachPolicy(policy);
-        persistPolicy(service, policyElement, policy.getId());
-
+        //service.getPolicySubject().attachPolicy(policy);
         try {
-            CallbackHandler handler = null;
-            if (callback == null) {
-                // This will break kerberos from management console UI
-                handler = new ServicePasswordCallbackHandler(null, serviceGroupId, service.getName(),
-                        registry, realm);
-            } else {
-                handler = this.callback;
-            }
-            Parameter param = new Parameter();
-            param.setName(WSHandlerConstants.PW_CALLBACK_REF);
-            param.setValue(handler);
-            service.addParameter(param);
-
+            persistPolicy(service, policyElement, policy.getId());
+            applyPolicy(service , policy);
             this.getPOXCache().remove(serviceName);
-            Cache<String, String> cache = getPOXCache();
-            if (cache != null) {
-                cache.remove(serviceName);
-            }
-            engageModules(scenarioId, serviceName, service);
-            SecurityServiceAdmin secAdmin = new SecurityServiceAdmin(axisConfig, registry);
-            try {
-                secAdmin.addSecurityPolicyToAllBindings(service, policy);
-            } catch (ServerException e) {
-                throw new SecurityConfigException("Error while applying policy to all bindings");
-            }
-
-            //Adding the security scenario ID parameter to the axisService
-            //This parameter can be used to get the applied security scenario
-            //without reading the service meta data file.
-            try {
-                Parameter params = new Parameter();
-                params.setName(SecurityConstants.SCENARIO_ID_PARAM_NAME);
-                params.setValue(scenarioId);
-                service.addParameter(params);
-            } catch (AxisFault axisFault) {
-                log.error("Error while adding Scenario ID parameter", axisFault);
-            }
-
-        } catch (RegistryException ex) {
-            throw new SecurityConfigException("Error occurred while creating callback handler");
-        } catch (AxisFault ex) {
-            throw new SecurityConfigException("Error occurred while adding callback parameter");
+        } catch (RegistryException e) {
+            throw new SecurityConfigException("Error while persisting policy in registry ",  e);
         }
 
-        disableRESTCalls(serviceName, scenarioId);
-        this.getPOXCache().remove(serviceName);
     }
 
 
@@ -522,14 +460,6 @@ public class SecurityConfigAdmin {
         }
         this.disableSecurityOnService(serviceName);
 
-        if (GhostDeployerUtils.isGhostService(service)) {
-            try {
-                service = GhostDeployerUtils.deployActualService(axisConfig, service);
-            } catch (AxisFault axisFault) {
-                log.error("Error while loading actual service from Ghost", axisFault);
-            }
-        }
-        disableRESTCalls(serviceName, scenarioId);
         OMElement policyElement = loadPolicyAsXML(scenarioId, policyPath);
         SecurityScenario scenario = SecurityScenarioDatabase.get(scenarioId);
         boolean isTrustEnabled = scenario.getModules().contains(SecurityConstants.TRUST_MODULE);
@@ -543,10 +473,51 @@ public class SecurityConfigAdmin {
             policyElement.addChild(buildRampartConfigXML(privateStore, trustedStores, null));
         }
         Policy policy = PolicyEngine.getPolicy(policyElement);
-        removeSecurityPolicy(service, serviceName);
-        service.getPolicySubject().attachPolicy(policy);
-        persistPolicy(service, policyElement, policy.getId());
-        engageModules(scenarioId, serviceName, service);
+        //service.getPolicySubject().attachPolicy(policy);
+        try {
+            persistPolicy(service, policyElement, policy.getId());
+            applyPolicy(service, policy);
+
+                String serviceGroupId = service.getAxisServiceGroup().getServiceGroupName();
+                if (userGroups != null) {
+                    for (String value : userGroups) {
+                        AuthorizationManager acAdmin = realm.getAuthorizationManager();
+
+                        acAdmin.authorizeRole(value, serviceGroupId + "/" + service.getName(),
+                                UserCoreConstants.INVOKE_SERVICE_PERMISSION);
+                    }
+                }
+
+
+        } catch (RegistryException e) {
+            throw new SecurityConfigException("Error while persisting policy in registry", e);
+        } catch (UserStoreException e) {
+            throw new SecurityConfigException("Error authorizing roles", e);
+        }
+
+    }
+
+    private void applyPolicy (AxisService service, Policy policy) throws SecurityConfigException{
+
+        if(service == null || policy == null){
+            throw new SecurityConfigException("Error while applying policy to service. Service and policy must be " +
+                    "present to apply policy");
+        }
+        String policyId = policy.getId();
+        SecurityScenario securityScenario = SecurityScenarioDatabase.getByWsuId(policyId);
+        //this.disableSecurityOnService(service.getName());
+        disableRESTCalls(service.getName(), securityScenario.getScenarioId());
+
+        if (GhostDeployerUtils.isGhostService(service)) {
+            try {
+                service = GhostDeployerUtils.deployActualService(axisConfig, service);
+            } catch (AxisFault axisFault) {
+                log.error("Error while loading actual service from Ghost", axisFault);
+            }
+        }
+        // Engage required modules.
+        engageModules(securityScenario.getScenarioId(), service.getName(), service);
+
         try {
             String serviceGroupId = service.getAxisServiceGroup().getServiceGroupName();
             CallbackHandler handler;
@@ -562,19 +533,10 @@ public class SecurityConfigAdmin {
             param.setValue(handler);
             service.addParameter(param);
 
-            if (userGroups != null) {
-                for (String value : userGroups) {
-                    AuthorizationManager acAdmin = realm.getAuthorizationManager();
-
-                    acAdmin.authorizeRole(value, serviceGroupId + "/" + service.getName(),
-                            UserCoreConstants.INVOKE_SERVICE_PERMISSION);
-                }
-            }
-
-            this.getPOXCache().remove(serviceName);
+            this.getPOXCache().remove(service.getName());
             Cache<String, String> cache = getPOXCache();
             if (cache != null) {
-                cache.remove(serviceName);
+                cache.remove(service.getName());
             }
 
             //Adding the security scenario ID parameter to the axisService
@@ -583,26 +545,21 @@ public class SecurityConfigAdmin {
             try {
                 Parameter params = new Parameter();
                 params.setName(SecurityConstants.SCENARIO_ID_PARAM_NAME);
-                params.setValue(scenarioId);
+                params.setValue(securityScenario.getScenarioId());
                 service.addParameter(params);
             } catch (AxisFault axisFault) {
                 log.error("Error while adding Scenario ID parameter", axisFault);
             }
-
-        } catch (RegistryException ex) {
-            throw new SecurityConfigException("Error occurred while creating callback handler");
-        } catch (AxisFault ex) {
-            throw new SecurityConfigException("Error occurred while adding callback parameter");
-        } catch (UserStoreException e) {
-            throw new SecurityConfigException("Error occurred while getting AuthorizationManager");
-        }
-
-        SecurityServiceAdmin admin = new SecurityServiceAdmin(axisConfig, registry);
-        try {
+            SecurityServiceAdmin admin = new SecurityServiceAdmin(axisConfig, registry);
             admin.addSecurityPolicyToAllBindings(service, policy);
+        } catch (RegistryException e) {
+            throw new SecurityConfigException("Error occurred while creating callback handler", e);
+        } catch (AxisFault e) {
+            throw new SecurityConfigException("Error occurred while adding callback parameter", e);
         } catch (ServerException e) {
-            throw new SecurityConfigException("Error while applying policy to all bindings");
+            throw new SecurityConfigException("Error while adding policy to bindings", e);
         }
+
     }
 
     private OMElement buildRampartConfigXML(String privateStore, String[] trustedStores,
@@ -628,7 +585,7 @@ public class SecurityConfigAdmin {
                 rampartConfigElement = AXIOMUtil.stringToOM(out.toString());
             }
         } catch (Exception e) {
-            throw new SecurityConfigException("Error while building rampart configs");
+            throw new SecurityConfigException("Error while building rampart configs", e);
         } finally {
             if (out != null) {
                 try {
@@ -648,18 +605,16 @@ public class SecurityConfigAdmin {
         return rampartConfigElement;
     }
 
-    private void persistPolicy(AxisService service, OMElement policy, String policyID) {
+    private void persistPolicy(AxisService service, OMElement policy, String policyID) throws RegistryException {
 
         //        Registry registryToLoad = SecurityServiceHolder.getRegistryService().getConfigSystemRegistry();
-        try {
+
             Resource resource = registry.newResource();
             resource.setContent(policy.toString());
             String servicePath = getRegistryServicePath(service);
             String policyResourcePath = servicePath + RegistryResources.POLICIES + policyID;
             registry.put(policyResourcePath, resource);
-        } catch (RegistryException e) {
-            log.error("Error occurred while persisting policy", e);
-        }
+
     }
 
     private void addUserParameters(OMElement policyElement, String[] trustedStores, String privateStore,
@@ -1117,11 +1072,15 @@ public class SecurityConfigAdmin {
                 }
             }
 
-            OMElement carbonSecConfig = getCarbonSecConfigs(service);
-            RampartConfig rampartConfigs = getRampartConfigs(service);
+            Policy policy = getCurrentPolicy(service);
+            OMElement carbonSecConfig = getCarbonSecConfigs(policy);
+            RampartConfig rampartConfigs = getRampartConfigs(policy);
             Map<String, String> trustProperties = getTrustProperties(carbonSecConfig);
+            KerberosConfigData kerberosData = this.readKerberosConfigurations(carbonSecConfig);
 
             data = new SecurityConfigData();
+
+            data.setKerberosConfigurations(kerberosData);
 
             //may be we don't need this in the new persistence model
             // String serviceXPath = PersistenceUtils.getResourcePath(service);
@@ -1332,4 +1291,42 @@ public class SecurityConfigAdmin {
         }
         return propertyValue;
     }
+
+    private Policy loadPolicy(Resource resource) throws org.wso2.carbon.registry.api.RegistryException,
+            XMLStreamException {
+
+        InputStream in = resource.getContentStream();
+        XMLStreamReader parser = XMLInputFactory.newInstance().createXMLStreamReader(in);
+        StAXOMBuilder builder = new StAXOMBuilder(parser);
+
+        OMElement policyElement = builder.getDocumentElement();
+        return PolicyEngine.getPolicy(policyElement);
+
+    }
+
+    private Policy getCurrentPolicy(AxisService service) throws SecurityConfigException{
+        try {
+            int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
+            Registry configRegistry = SecurityMgtServiceComponent.getRegistryService()
+                    .getConfigSystemRegistry(tenantId);
+            String servicePath = getRegistryServicePath(service);
+            String policyResourcePath = servicePath + RegistryResources.POLICIES;
+            if (configRegistry.resourceExists(policyResourcePath)) {
+                Resource resource = configRegistry.get(policyResourcePath);
+                if (resource instanceof Collection) {
+                    for (String policyPath : ((Collection) resource).getChildren()) {
+                        Resource res = configRegistry.get(policyPath);
+                        return loadPolicy(res);
+                    }
+                }
+            }
+        } catch (org.wso2.carbon.registry.api.RegistryException e) {
+            throw new SecurityConfigException( "Error while retrieving policy from registry for service " + service
+                    .getName(), e);
+        } catch (XMLStreamException e) {
+            throw new SecurityConfigException( "Error occurred while loading policy from registry resource", e);
+        }
+        return null;
+    }
+
 }
