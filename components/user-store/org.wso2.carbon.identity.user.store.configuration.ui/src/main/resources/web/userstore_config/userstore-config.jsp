@@ -503,24 +503,24 @@
                                 if (propertyValue != null) {
 
                                     if (isBoolean == 1) { %>
-                            <input type="checkbox" name=<%=Encode.forHtmlAttribute(value)%>
-                            id=<%=Encode.forHtmlAttribute(value)%>
+                            <input type="checkbox" name=<%=value%>
+                            id=<%=value%>
                                    class="checkbox" checked/>
                             <%
                             } else if (isBoolean == 0) { %>
-                            <input type="checkbox" name=<%=Encode.forHtmlAttribute(value)%>
-                            id=<%=Encode.forHtmlAttribute(value)%>
+                            <input type="checkbox" name=<%=value%>
+                            id=<%=value%>
                                    class="checkbox"/>
                             <%
                             } else if (propertyName.endsWith("password") || propertyName.endsWith("Password")) { %>
-                            <input type="password" name=<%=Encode.forHtmlAttribute(value)%>
-                            id=<%=Encode.forHtmlAttribute(value)%> style="width:95%"
+                            <input type="password" name=<%=value%>
+                            id=<%=value%> style="width:95%"
                                    value="<%=Encode.forHtmlAttribute(propertyValue)%>"/>
                             <%
                             } else {
                             %>
-                            <input type="text" name=<%=Encode.forHtmlAttribute(value)%>
-                            id=<%=Encode.forHtmlAttribute(value)%> style="width:95%"
+                            <input type="text" name=<%=value%>
+                            id=<%=value%> style="width:95%"
                                    value="<%=Encode.forHtmlAttribute(propertyValue)%>"/>
                             <%
                                 }
@@ -653,20 +653,20 @@
                             <%
                                 if (propertyValue != null) {
                                     if (isBoolean == 1) { %>
-                            <input type="checkbox" name=<%=Encode.forHtmlAttribute(value)%>
-                            id=<%=Encode.forHtmlAttribute(value)%>
+                            <input type="checkbox" name=<%=value%>
+                            id=<%=value%>
                                    class="checkbox" checked/>
 
                             <%
                             } else if (isBoolean == 0) { %>
-                            <input type="checkbox" name=<%=Encode.forHtmlAttribute(value)%>
-                            id=<%=Encode.forHtmlAttribute(value)%> class="checkbox"/>
+                            <input type="checkbox" name=<%=value%>
+                            id=<%=value%> class="checkbox"/>
                             <%
 
                             } else {
                             %>
-                            <input type="text" name=<%=Encode.forHtmlAttribute(value)%>
-                            id=<%=Encode.forHtmlAttribute(value)%> style="width:95%"
+                            <input type="text" name=<%=value%>
+                            id=<%=value%> style="width:95%"
                                    value="<%=Encode.forHtmlAttribute(propertyValue)%>"/>
                             <%
                                     }
@@ -690,8 +690,8 @@
                                     value="<%=Encode.forHtmlAttribute(optionals[x].getName())%>"/>
                                     </td>
                                     <td style="width:30%" style="display:none;">
-                                        <input type="hidden" name=<%=Encode.forHtmlAttribute(value)%>
-                                        id=<%=Encode.forHtmlAttribute(value)%>
+                                        <input type="hidden" name=<%=value%>
+                                        id=<%=value%>
                                         style="width:95%"
                                                value="<%=Encode.forHtmlAttribute(propertyValue)%>"/>
 
@@ -789,8 +789,8 @@
                             <%
                                 if (propertyValue != null) {
                                     if (isBoolean == 1) { %>
-                            <input type="checkbox" name=<%=Encode.forHtmlAttribute(value)%>
-                            id=<%=Encode.forHtmlAttribute(value)%> class="checkbox" checked/>
+                            <input type="checkbox" name=<%=value%>
+                            id=<%=value%> class="checkbox" checked/>
 
                             <%
                             } else if (isBoolean == 0) { %>
@@ -800,8 +800,8 @@
 
                             } else {
                             %>
-                            <input type="text" name=<%=Encode.forHtmlAttribute(value)%>
-                            id=<%=Encode.forHtmlAttribute(value)%> style="width:95%"
+                            <input type="text" name=<%=value%>
+                            id=<%=value%> style="width:95%"
                                    value="<%=Encode.forHtmlAttribute(propertyValue)%>"/>
                             <%
                                     }
