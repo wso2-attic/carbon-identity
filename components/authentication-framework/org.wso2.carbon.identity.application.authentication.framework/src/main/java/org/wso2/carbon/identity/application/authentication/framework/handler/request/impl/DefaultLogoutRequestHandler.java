@@ -117,9 +117,7 @@ public class DefaultLogoutRequestHandler implements LogoutRequestHandler {
                         continue;
                     }
                     // sends the logout request to the external IdP
-                    FrameworkUtils.addAuthenticationContextToCache(context.getContextIdentifier(),context
-                            , IdPManagementUtil.getIdleSessionTimeOut(CarbonContext.
-                                                  getThreadLocalCarbonContext().getTenantDomain()));
+                    FrameworkUtils.addAuthenticationContextToCache(context.getContextIdentifier(),context);
                     return;
                 } catch (AuthenticationFailedException | LogoutFailedException e) {
                     throw new FrameworkException(e.getMessage(), e);
@@ -165,8 +163,7 @@ public class DefaultLogoutRequestHandler implements LogoutRequestHandler {
             }
 
             // Put the result in the
-            FrameworkUtils.addAuthenticationResultToCache(context.getCallerSessionKey(), authenticationResult,
-                                                          FrameworkUtils.getMaxInactiveInterval());
+            FrameworkUtils.addAuthenticationResultToCache(context.getCallerSessionKey(), authenticationResult);
 
             redirectURL = context.getCallerPath() + "?sessionDataKey=" + context.getCallerSessionKey();
         } else {
