@@ -31,6 +31,13 @@ public interface ApplicationMgtListener {
     int getExecutionOrderId();
 
     /**
+     * Get the default order identifier for this listener.
+     *
+     * @return default order id
+     */
+    public int getDefaultOrderId();
+
+    /**
      * Check whether the listener is enabled or not
      *
      * @return true if enabled

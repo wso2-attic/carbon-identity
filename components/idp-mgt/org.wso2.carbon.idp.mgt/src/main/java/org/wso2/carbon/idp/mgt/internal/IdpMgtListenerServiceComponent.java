@@ -36,13 +36,27 @@ import java.util.TreeMap;
 public class IdpMgtListenerServiceComponent {
 
     private static Map<Integer, IdentityProviderMgtListener> idpMgtListeners;
-    private static Collection<IdentityProviderMgtListener> idpMgtListenerCollection;
+    private static Comparator<Integer> idpMgtListenerComparator = new Comparator<Integer>(){
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public int compare(Integer orderId1, Integer orderId2) {
+            if (orderId1 > orderId2) {
+                return 1;
+            } else if (orderId1 < orderId2) {
+                return -1;
+            } else {
+                return 0;
+            }
+        }
+    };
 
     protected static synchronized void setIdentityProviderMgtListenerService(
             IdentityProviderMgtListener applicationMgtListenerService) {
-        idpMgtListenerCollection = null;
         if (idpMgtListeners == null) {
-            idpMgtListeners = new TreeMap<>(new IdpMgtListenerComparator());
+            idpMgtListeners = new TreeMap<>(idpMgtListenerComparator);
         }
         idpMgtListeners.put(applicationMgtListenerService.getExecutionOrderId(),
                 applicationMgtListenerService);
@@ -52,36 +66,14 @@ public class IdpMgtListenerServiceComponent {
             IdentityProviderMgtListener applicationMgtListenerService) {
         if (applicationMgtListenerService != null &&
                 idpMgtListeners != null) {
-            idpMgtListenerCollection = null;
+            idpMgtListeners = null;
         }
     }
 
     public static synchronized Collection<IdentityProviderMgtListener> getIdpMgtListeners() {
         if (idpMgtListeners == null) {
-            idpMgtListeners = new TreeMap<>(new IdpMgtListenerComparator());
+            idpMgtListeners = new TreeMap<>(idpMgtListenerComparator);
         }
-        if (idpMgtListenerCollection == null) {
-            idpMgtListenerCollection =
-                    idpMgtListeners.values();
-        }
-        return idpMgtListenerCollection;
-    }
-}
-
-// Use to sort the IdpMgtListeners based on the execution order id
-class IdpMgtListenerComparator implements Comparator<Integer> {
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int compare(Integer orderId1, Integer orderId2) {
-        if (orderId1 > orderId2) {
-            return 1;
-        } else if (orderId1 < orderId2) {
-            return -1;
-        } else {
-            return 0;
-        }
+        return idpMgtListeners.values();
     }
 }

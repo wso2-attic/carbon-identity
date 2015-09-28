@@ -20,6 +20,7 @@ package org.wso2.carbon.identity.application.mgt.internal;
 
 import org.wso2.carbon.identity.application.mgt.listener.ApplicationMgtListener;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Map;
@@ -37,53 +38,43 @@ import java.util.TreeMap;
 public class ApplicationMgtListenerServiceComponent {
 
     private static Map<Integer, ApplicationMgtListener> applicationMgtListeners;
-    private static Collection<ApplicationMgtListener> applicationMgtListenerCollection;
+    private static Comparator<Integer> appMgtListenerComparator = new Comparator<Integer>(){
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public int compare(Integer orderId1, Integer orderId2) {
+            if (orderId1 > orderId2) {
+                return 1;
+            } else if (orderId1 < orderId2) {
+                return -1;
+            } else {
+                return 0;
+            }
+        }
+    };
 
     protected static synchronized void setApplicationMgtListenerService(
             ApplicationMgtListener applicationMgtListenerService) {
-        applicationMgtListenerCollection = null;
         if (applicationMgtListeners == null) {
-            applicationMgtListeners = new TreeMap<>(new AppMgtListenerComparator());
+            applicationMgtListeners = new TreeMap<>(appMgtListenerComparator);
         }
-        applicationMgtListeners.put(applicationMgtListenerService.getExecutionOrderId(),
-                applicationMgtListenerService);
+        applicationMgtListeners.put(applicationMgtListenerService.getExecutionOrderId(), applicationMgtListenerService);
     }
 
     protected static synchronized void unsetApplicationMgtListenerService(
             ApplicationMgtListener applicationMgtListenerService) {
         if (applicationMgtListenerService != null &&
                 applicationMgtListeners != null) {
-            applicationMgtListenerCollection = null;
+            applicationMgtListeners = null;
         }
     }
 
-    public static synchronized Collection<ApplicationMgtListener> getApplicationMgtListeners() {
+    public static synchronized Collection getApplicationMgtListeners() {
         if (applicationMgtListeners == null) {
-            applicationMgtListeners = new TreeMap<>(new AppMgtListenerComparator());
+            applicationMgtListeners = new TreeMap<>(appMgtListenerComparator);
         }
-        if (applicationMgtListenerCollection == null) {
-            applicationMgtListenerCollection =
-                    applicationMgtListeners.values();
-        }
-        return applicationMgtListenerCollection;
-    }
-
-}
-
-// Use to sort the IdpMgtListeners based on the execution order id
-class AppMgtListenerComparator implements Comparator<Integer> {
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int compare(Integer orderId1, Integer orderId2) {
-        if (orderId1 > orderId2) {
-            return 1;
-        } else if (orderId1 < orderId2) {
-            return -1;
-        } else {
-            return 0;
-        }
+        return applicationMgtListeners.values();
     }
 }

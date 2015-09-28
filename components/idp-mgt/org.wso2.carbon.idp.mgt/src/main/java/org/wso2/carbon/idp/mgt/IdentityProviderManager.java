@@ -85,27 +85,6 @@ public class IdentityProviderManager {
     }
 
     /**
-     * Get the tenant id of the given tenant domain.
-     *
-     * @param tenantDomain Tenant Domain
-     * @return Tenant Id of domain user belongs to.
-     * @throws IdentityProviderManagementException Error when getting tenant id from tenant
-     *                                                domain
-     */
-    private static int getTenantIdOfDomain(String tenantDomain)
-            throws IdentityProviderManagementException {
-
-        try {
-            return IdPManagementUtil.getTenantIdOfDomain(tenantDomain);
-        } catch (UserStoreException e) {
-            String msg = "Error occurred while getting Tenant Id from Tenant domain "
-                    + tenantDomain;
-            log.error(msg, e);
-            throw new IdentityProviderManagementException(msg, e);
-        }
-    }
-
-    /**
      * Retrieves resident Identity provider for a given tenant
      *
      * @param tenantDomain Tenant domain whose resident IdP is requested
@@ -240,7 +219,7 @@ public class IdentityProviderManager {
 
         IdentityProvider identityProvider = dao.getIdPByName(null,
                 IdentityApplicationConstants.RESIDENT_IDP_RESERVED_NAME,
-                getTenantIdOfDomain(tenantDomain), tenantDomain);
+                IdentityTenantUtil.getTenantId(tenantDomain), tenantDomain);
         if (identityProvider == null) {
             String message = "Could not find Resident Identity Provider for tenant " + tenantDomain;
             log.error(message);
@@ -634,7 +613,7 @@ public class IdentityProviderManager {
         identityProvider.setFederatedAuthenticatorConfigs(IdentityApplicationManagementUtil
                 .concatArrays(identityProvider.getFederatedAuthenticatorConfigs(), federatedAuthenticatorConfigs));
 
-        dao.addIdP(identityProvider, getTenantIdOfDomain(tenantDomain), tenantDomain);
+        dao.addIdP(identityProvider, IdentityTenantUtil.getTenantId(tenantDomain), tenantDomain);
     }
 
     /**
@@ -659,7 +638,7 @@ public class IdentityProviderManager {
         IdentityProvider currentIdP = IdentityProviderManager.getInstance().getIdPByName(
                 IdentityApplicationConstants.RESIDENT_IDP_RESERVED_NAME, tenantDomain, true);
 
-        int tenantId = getTenantIdOfDomain(tenantDomain);
+        int tenantId = IdentityTenantUtil.getTenantId(tenantDomain);
         validateUpdateOfIdPEntityId(currentIdP.getFederatedAuthenticatorConfigs(),
                 identityProvider.getFederatedAuthenticatorConfigs(), tenantId, tenantDomain);
 
@@ -677,7 +656,7 @@ public class IdentityProviderManager {
     public List<IdentityProvider> getIdPs(String tenantDomain)
             throws IdentityProviderManagementException {
 
-        int tenantId = getTenantIdOfDomain(tenantDomain);
+        int tenantId = IdentityTenantUtil.getTenantId(tenantDomain);
         return dao.getIdPs(null, tenantId, tenantDomain);
 
     }
@@ -714,7 +693,7 @@ public class IdentityProviderManager {
     public IdentityProvider getIdPByName(String idPName, String tenantDomain,
                                          boolean ignoreFileBasedIdps) throws IdentityProviderManagementException {
 
-        int tenantId = getTenantIdOfDomain(tenantDomain);
+        int tenantId = IdentityTenantUtil.getTenantId(tenantDomain);
         if (StringUtils.isEmpty(idPName)) {
             String msg = "Invalid argument: Identity Provider Name value is empty";
             log.error(msg);
@@ -781,7 +760,7 @@ public class IdentityProviderManager {
                                                                boolean ignoreFileBasedIdps)
             throws IdentityProviderManagementException {
 
-        int tenantId = getTenantIdOfDomain(tenantDomain);
+        int tenantId = IdentityTenantUtil.getTenantId(tenantDomain);
 
         if (StringUtils.isEmpty(property) || StringUtils.isEmpty(value)) {
             String msg = "Invalid argument: Authenticator property or property value is empty";
@@ -831,7 +810,7 @@ public class IdentityProviderManager {
     public IdentityProvider getIdPByRealmId(String realmId, String tenantDomain)
             throws IdentityProviderManagementException {
 
-        int tenantId = getTenantIdOfDomain(tenantDomain);
+        int tenantId = IdentityTenantUtil.getTenantId(tenantDomain);
         if (StringUtils.isEmpty(realmId)) {
             String msg = "Invalid argument: Identity Provider Home Realm Identifier value is empty";
             log.error(msg);
@@ -877,7 +856,7 @@ public class IdentityProviderManager {
                                                   List<String> idPClaimURIs) throws
             IdentityProviderManagementException {
 
-        int tenantId = getTenantIdOfDomain(tenantDomain);
+        int tenantId = IdentityTenantUtil.getTenantId(tenantDomain);
         if (StringUtils.isEmpty(idPName)) {
             String msg = "Invalid argument: Identity Provider Name value is empty";
             log.error(msg);
@@ -951,7 +930,7 @@ public class IdentityProviderManager {
                                                 List<String> localClaimURIs) throws
             IdentityProviderManagementException {
 
-        int tenantId = getTenantIdOfDomain(tenantDomain);
+        int tenantId = IdentityTenantUtil.getTenantId(tenantDomain);
         if (StringUtils.isEmpty(idPName)) {
             String msg = "Invalid argument: Identity Provider Name value is empty";
             log.error(msg);
@@ -1023,7 +1002,7 @@ public class IdentityProviderManager {
     public Set<RoleMapping> getMappedLocalRoles(String idPName, String tenantDomain,
                                                 String[] idPRoles) throws IdentityProviderManagementException {
 
-        int tenantId = getTenantIdOfDomain(tenantDomain);
+        int tenantId = IdentityTenantUtil.getTenantId(tenantDomain);
 
         if (StringUtils.isEmpty(idPName)) {
             String msg = "Invalid argument: Identity Provider Name value is empty";
@@ -1092,7 +1071,7 @@ public class IdentityProviderManager {
     public Set<RoleMapping> getMappedIdPRoles(String idPName, String tenantDomain,
                                               LocalRole[] localRoles) throws IdentityProviderManagementException {
 
-        int tenantId = getTenantIdOfDomain(tenantDomain);
+        int tenantId = IdentityTenantUtil.getTenantId(tenantDomain);
         if (StringUtils.isEmpty(idPName)) {
             String msg = "Invalid argument: Identity Provider Name value is empty";
             log.error(msg);
@@ -1161,7 +1140,7 @@ public class IdentityProviderManager {
     public IdentityProvider getPrimaryIdP(String tenantDomain)
             throws IdentityProviderManagementException {
 
-        int tenantId = getTenantIdOfDomain(tenantDomain);
+        int tenantId = IdentityTenantUtil.getTenantId(tenantDomain);
         IdentityProvider identityProvider = dao.getPrimaryIdP(null, tenantId, tenantDomain);
         if (identityProvider != null) {
             return identityProvider;
@@ -1182,7 +1161,7 @@ public class IdentityProviderManager {
     public void addIdP(IdentityProvider identityProvider, String tenantDomain)
             throws IdentityProviderManagementException {
 
-        int tenantId = getTenantIdOfDomain(tenantDomain);
+        int tenantId = IdentityTenantUtil.getTenantId(tenantDomain);
 
         if (StringUtils.isEmpty(identityProvider.getIdentityProviderName())) {
             String msg = "Invalid argument: Identity Provider Name value is empty";
@@ -1249,7 +1228,7 @@ public class IdentityProviderManager {
     public void deleteIdP(String idPName, String tenantDomain)
             throws IdentityProviderManagementException {
 
-        int tenantId = getTenantIdOfDomain(tenantDomain);
+        int tenantId = IdentityTenantUtil.getTenantId(tenantDomain);
         if (StringUtils.isEmpty(idPName)) {
             String msg = "Invalid argument: Identity Provider Name value is empty";
             log.error(msg);
@@ -1281,7 +1260,7 @@ public class IdentityProviderManager {
                     "Identity provider with the same name exists in the file system.");
         }
 
-        int tenantId = getTenantIdOfDomain(tenantDomain);
+        int tenantId = IdentityTenantUtil.getTenantId(tenantDomain);
 
         if (StringUtils.isEmpty(oldIdPName)) {
             String msg = "Invalid argument: Existing Identity Provider Name value is empty";

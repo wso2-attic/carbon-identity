@@ -89,18 +89,8 @@ public class IdentityProviderMgtApplicationListener extends AbstractIdentityProv
         return true;
     }
 
-    public int getExecutionOrderId() {
-        IdentityEventListener identityEventListener = IdentityUtil.readEventListenerProperty
-                (IdentityProviderMgtListener.class.getName(), this.getClass().getName());
-        int orderId;
-        if (identityEventListener == null) {
-            orderId = IdentityCoreConstants.EVENT_LISTENER_ORDER_ID;
-        } else {
-            orderId = identityEventListener.getOrder();
-        }
-        if (orderId != IdentityCoreConstants.EVENT_LISTENER_ORDER_ID) {
-            return orderId;
-        }
+    public int getDefaultOrderId(){
         return 10;
     }
 }
+

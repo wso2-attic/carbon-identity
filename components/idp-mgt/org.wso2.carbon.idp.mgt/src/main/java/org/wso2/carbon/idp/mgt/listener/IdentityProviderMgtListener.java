@@ -30,22 +30,92 @@ public interface IdentityProviderMgtListener {
      */
     int getExecutionOrderId();
 
+    /**
+     * Get the default order identifier for this listener.
+     *
+     * @return default order id
+     */
+    public int getDefaultOrderId();
+
+    /**
+     * Check whether the listener is enabled or not
+     *
+     * @return true if enabled
+     */
     public boolean isEnable();
 
+    /**
+     * Define any additional actions before updating resident idp
+     *
+     * @param identityProvider Created Resident Identity Provider
+     * @return Whether execution of this method of the underlying UserStoreManager must happen.
+     * @throws IdentityProviderManagementException
+     */
     public boolean doPreUpdateResidentIdP(IdentityProvider identityProvider) throws IdentityProviderManagementException;
 
+    /**
+     * Define any additional actions after updating resident idp
+     *
+     * @param identityProvider Created Resident Identity Provider
+     * @return Whether execution of this method of the underlying UserStoreManager must happen.
+     * @throws IdentityProviderManagementException
+     */
     public boolean doPostUpdateResidentIdP(IdentityProvider identityProvider) throws IdentityProviderManagementException;
 
+    /**
+     * Define any additional actions before adding idp
+     *
+     * @param identityProvider Created Identity Provider
+     * @return Whether execution of this method of the underlying UserStoreManager must happen.
+     * @throws IdentityProviderManagementException
+     */
     public boolean doPreAddIdP(IdentityProvider identityProvider) throws IdentityProviderManagementException;
 
+    /**
+     * Define any additional actions after adding idp
+     *
+     * @param identityProvider Created Identity Provider
+     * @return Whether execution of this method of the underlying UserStoreManager must happen.
+     * @throws IdentityProviderManagementException
+     */
     public boolean doPostAddIdP(IdentityProvider identityProvider) throws IdentityProviderManagementException;
 
+    /**
+     * Define any additional actions before deleting idp
+     *
+     * @param idPName Name of the idp
+     * @return Whether execution of this method of the underlying UserStoreManager must happen.
+     * @throws IdentityProviderManagementException
+     */
     public boolean doPreDeleteIdP(String idPName) throws IdentityProviderManagementException;
 
+    /**
+     * Define any additional actions after deleting idp
+     *
+     * @param idPName Name of the idp
+     * @return Whether execution of this method of the underlying UserStoreManager must happen.
+     * @throws IdentityProviderManagementException
+     */
     public boolean doPostDeleteIdP(String idPName) throws IdentityProviderManagementException;
 
+    /**
+     * Define any additional actions before updating idp
+     *
+     * @param oldIdPName Name of the old idp
+     * @param identityProvider Updated Identity Provider
+     * @return Whether execution of this method of the underlying UserStoreManager must happen.
+     * @throws IdentityProviderManagementException
+     */
     public boolean doPreUpdateIdP(String oldIdPName, IdentityProvider identityProvider) throws IdentityProviderManagementException;
 
+    /**
+     * Define any additional actions after updating idp
+     *
+     * @param oldIdPName Name of the old idp
+     * @param identityProvider Updated Identity Provider
+     * @return Whether execution of this method of the underlying UserStoreManager must happen.
+     * @throws IdentityProviderManagementException
+     */
     public boolean doPostUpdateIdP(String oldIdPName, IdentityProvider identityProvider) throws IdentityProviderManagementException;
 
 }
