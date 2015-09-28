@@ -60,13 +60,13 @@
             KeyStoreAdminClient client = new KeyStoreAdminClient(cookie, backendServerURL, configContext);
             client.importCertToStore(fileName, content, keyStore);
             String message = resourceBundle.getString("cert.import");
-            forwardTo = "view-keystore.jsp?keyStore=" + keyStore;
+            forwardTo = "view-keystore.jsp?keyStore=" + Encode.forUriComponent(keyStore);
             CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.INFO, request);
         }
     } catch (Exception e) {
         String message = MessageFormat.format(resourceBundle.getString("cert.cannot.import"),
                 new Object[]{e.getMessage()});
-        forwardTo = "import-cert.jsp?keyStore=" + keyStore;
+        forwardTo = "import-cert.jsp?keyStore=" + Encode.forUriComponent(keyStore);
         CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
     }
 %>

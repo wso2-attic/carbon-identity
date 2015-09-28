@@ -64,7 +64,7 @@
         forwardTo = "../service-mgt/service_info.jsp?serviceName=" + serviceName;
         
         if (specificPath!=null && specificPath.trim().length()>0){
-        	forwardTo = specificPath +"?serviceName=" + serviceName;
+        	forwardTo = specificPath +"?serviceName=" + Encode.forUriComponent(serviceName);
         	session.removeAttribute("returToPath");
         }
         
@@ -72,7 +72,7 @@
     } catch (Exception e) {
 	    String message = MessageFormat.format(resourceBundle.getString("security.cannot.add"),
                 new Object[]{e.getMessage()});
-        forwardTo = "index.jsp?ordinal=2&serviceName=" + serviceName;
+        forwardTo = "index.jsp?ordinal=2&serviceName=" + Encode.forUriComponent(serviceName);
         CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
     }
     

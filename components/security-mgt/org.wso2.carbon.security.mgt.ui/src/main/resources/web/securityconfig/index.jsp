@@ -100,10 +100,8 @@
     }
     
     if (backLink==null){
-    	backLink = "../service-mgt/service_info.jsp?serviceName="+ serviceName;
+    	backLink = "../service-mgt/service_info.jsp?serviceName="+ Encode.forUriComponent(serviceName);
     }
-    
-    
     
 	try {
         String cookie = (String) session.getAttribute(ServerConstants.ADMIN_SERVICE_COOKIE);
@@ -247,8 +245,8 @@
            <p>&nbsp;</p>
        </div>
 
-        <div id="securityConfiguration" style="<%=Encode.forCssString(displayStyle)%>">
-            <form id="secConfigForm" name="securityForm" method="post" action="ut-ks-advance.jsp?serviceName=<%=serviceName%>"
+        <div id="securityConfiguration" style="<%=displayStyle%>">
+            <form id="secConfigForm" name="securityForm" method="post" action="ut-ks-advance.jsp?serviceName=<%=Encode.forUriComponent(serviceName)%>"
                   onsubmit="return doValidation();">    
                   
                   <script type="text/javascript">
@@ -416,7 +414,7 @@
                     <tr>
                         <td class="buttonRow" colspan="5">
                             <input type="button" class="button" value="< <fmt:message key="back"/>"
-                                   onclick="location.href = '<%= Encode.forJavaScriptAttribute(backLink)%>'">
+                                   onclick="location.href = '<%= Encode.forJavaScriptBlock(backLink)%>'">
                             <input class="button" type="submit"
                                    value="<fmt:message key="next"/> >"/>
                         </td>

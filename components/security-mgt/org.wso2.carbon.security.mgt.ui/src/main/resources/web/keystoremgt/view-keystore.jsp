@@ -171,7 +171,7 @@
 	                        <input value="<fmt:message key="import.cert"/>" type="button"
 	                               class="button"
 	                               onclick="location.href
-                                           ='import-cert.jsp?keyStore=<%=Encode.forJavaScriptAttribute(keyStore)%>'"/>
+                                           ='import-cert.jsp?keyStore=<%=Encode.forUriComponent(keyStore)%>'"/>
 	                        <input value="<fmt:message key="finish"/>" type="button" class="button"
 	                               onclick="location.href ='keystore-mgt.jsp?region=region1&item=keystores_menu'"/>
 	                    </form>
@@ -241,7 +241,7 @@
 				    <td><a href="#"
 				           onclick="deleteCert('<%=Encode.forJavaScriptAttribute(cert.getAlias())%>',
                                    '<%=Encode.forJavaScriptAttribute(keyStoreData.getKeyStoreName())%>')"
-				           class="icon-link"
+                           class="icon-link"
 				           style="background-image:url(images/delete.gif);">Delete</a>
 				    </td>
 				</tr>

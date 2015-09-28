@@ -145,7 +145,7 @@
         <div id="workArea">
             <form method="post" action="add-keystore-finish.jsp" name="keystoreFinish">
                 <h3><fmt:message key="step.2.specify.private.key.password"/></h3>
-                <input type="hidden" name="keyStoreName" value="<%=fileName%>"/>
+                <input type="hidden" name="keyStoreName" value="<%=Encode.forHtmlAttribute(fileName)%>"/>
                 <input type="hidden" name="addKeystore" value="true"/>
                 <table class="styledLeft">
                     <thead>

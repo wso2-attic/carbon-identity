@@ -170,7 +170,7 @@
    onclick="deleteKeystore('<%=Encode.forJavaScriptAttribute(data.getKeyStoreName())%>')" class="icon-link"
    style="background-image:url(images/delete.gif);"><fmt:message key="delete"/></a>
                     <%if(data.getPubKeyFilePath() != null){ %>
-<a href="<%=Encode.forUriComponent(data.getPubKeyFilePath())%>" class="icon-link"
+<a href="<%=Encode.forHtmlAttribute(data.getPubKeyFilePath())%>" class="icon-link"
    style="background-image:url(images/view.gif);"><fmt:message key="download.pub.key"/></a>
                         <%}%>
                     </td>

@@ -28,7 +28,7 @@
 <fmt:bundle basename="org.wso2.carbon.security.ui.i18n.Resources">
 
 <div id="middle">
-    <h2><fmt:message key="scenario"/> <%=Encode.forHtmlContent(scenarioId)%> : <%=Encode.forHtmlContent(scenarioSummary)%></h2>
+    <h2><fmt:message key="scenario"/> <%=Encode.forHtml(scenarioId)%> : <%=Encode.forHtml(scenarioSummary)%></h2>
     <img src="images/<%=scenarioIdNumber%>.png" alt="security scenario description"/>
 </div>
 </fmt:bundle>

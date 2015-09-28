@@ -46,7 +46,7 @@
     } catch (Exception e) {
         String message = MessageFormat.format(resourceBundle.getString("cert.cannot.delete"),
                 new Object[]{e.getMessage()});
-        forwardTo = "view-keystore.jsp?keyStore="+keyStore;
+        forwardTo = "view-keystore.jsp?keyStore=" + Encode.forUriComponent(keyStore);
         CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
     }
 %>

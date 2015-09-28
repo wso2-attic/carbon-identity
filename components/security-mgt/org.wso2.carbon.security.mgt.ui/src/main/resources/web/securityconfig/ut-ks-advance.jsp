@@ -557,10 +557,10 @@
     <tr class="buttonRow">
         <td>
             <input class="button" type="button" value="< <fmt:message key="back"/>"
-                   onclick="location.href = 'index.jsp?serviceName=<%=Encode.forJavaScriptAttribute(serviceName)%>'"/>
+                   onclick="location.href = 'index.jsp?serviceName=<%=Encode.forUriComponent(serviceName)%>'"/>
             <input class="button" type="submit" value="<fmt:message key="finish"/>"/>
             <input class="button" type="button" value="<fmt:message key="cancel"/>"
-                   onclick="location.href = '<%=Encode.forJavaScriptAttribute(cancelLink)%>'"/>
+                   onclick="location.href = '<%=Encode.forJavaScriptBlock(cancelLink)%>'"/>
         </td>
     </tr>
 </table>
