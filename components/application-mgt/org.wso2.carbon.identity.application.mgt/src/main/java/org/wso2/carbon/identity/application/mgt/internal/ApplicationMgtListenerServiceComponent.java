@@ -20,7 +20,6 @@ package org.wso2.carbon.identity.application.mgt.internal;
 
 import org.wso2.carbon.identity.application.mgt.listener.ApplicationMgtListener;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Map;
