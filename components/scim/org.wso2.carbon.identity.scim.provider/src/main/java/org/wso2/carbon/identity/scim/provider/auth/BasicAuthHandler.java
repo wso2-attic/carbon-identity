@@ -142,6 +142,11 @@ public class BasicAuthHandler implements SCIMAuthenticationHandler {
                             // authentication success. set the username for authorization header and
                             // proceed the REST call
                             authzHeaders.set(0, userName);
+                            PrivilegedCarbonContext.startTenantFlow();
+                            PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
+                            carbonContext.setUsername(userName);
+                            carbonContext.setTenantId(tenantId);
+                            carbonContext.setTenantDomain(tenantDomain);
                             return true;
                         } else {
                             UnauthorizedException unauthorizedException = new UnauthorizedException(

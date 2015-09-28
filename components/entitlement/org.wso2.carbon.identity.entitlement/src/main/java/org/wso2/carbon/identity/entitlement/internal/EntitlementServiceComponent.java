@@ -397,11 +397,6 @@ public class EntitlementServiceComponent {
             String hostErrorMsg = "Error in obtaining host name";
             log.error(hostErrorMsg, e);
             throw new Exception(hostErrorMsg);
-        } catch (ServerConfigurationException e) {
-            String configError = "Error in reading configuration.";
-            log.error(configError, e);
-            throw new Exception(configError);
-
         }
 
 
