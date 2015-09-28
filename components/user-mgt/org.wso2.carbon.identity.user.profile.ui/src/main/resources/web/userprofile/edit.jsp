@@ -85,7 +85,7 @@
 %>
 <script type="text/javascript">
     function forward() {
-        location.href = "<%=Encode.forJavaScriptBlock(forwardTo)%>";
+        location.href = "<%=forwardTo%>";
     }
 </script>
 
@@ -155,17 +155,17 @@
                         var value = document.getElementsByName("<%=userFields[i].getClaimUri()%>")[0].value;
                         <%if (userFields[i].getRequired() && userFields[i].getDisplayName()!=null) {%>
                             if (validateEmpty("<%=userFields[i].getClaimUri()%>").length > 0) {
-                                CARBON.showWarningDialog("<%=Encode.forJavaScriptAttribute(userFields[i].getDisplayName())%>"
-                                        + " <fmt:message key='is.required'/>");
+                                CARBON.showWarningDialog("<%=Encode.forJavaScript(Encode.forHtml(userFields[i].
+                                                           getDisplayName()))%>" + " <fmt:message key='is.required'/>");
                                 return false;
                             }
                         <%} 
                           if(userFields[i].getRegEx() != null){ %>
-                            var reg = new RegExp("<%=userFields[i].getRegEx()%>");
+                            var reg = new RegExp("<%=Encode.forJavaScript(userFields[i].getRegEx())%>");
                             var valid = reg.test(value);
                             if (value != '' && !valid) {
-                                CARBON.showWarningDialog("<%=Encode.forJavaScriptAttribute(userFields[i].getDisplayName())%>"
-                                        + " <fmt:message key='is.not.valid'/>");
+                                CARBON.showWarningDialog("<%=Encode.forJavaScript(Encode.forHtml(userFields[i].
+                                                          getDisplayName()))%>" + " <fmt:message key='is.not.valid'/>");
                                 return false;
                             }
                         <%}

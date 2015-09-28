@@ -40,7 +40,7 @@
     String BUNDLE = "org.wso2.carbon.identity.user.profile.ui.i18n.Resources";
     ResourceBundle resourceBundle = ResourceBundle.getBundle(BUNDLE, request.getLocale());
     String username = request.getParameter("username");
-	String profile = request.getParameter("profile");
+    String profile = request.getParameter("profile");
     String profileConfiguration = request.getParameter("profileConfiguration");
     String fromUserMgt = request.getParameter("fromUserMgt");
 	UserFieldDTO[] fieldDTOs = null;

@@ -179,8 +179,8 @@
                  }
         	     CARBON.showConfirmationDialog("<fmt:message key='remove.message1'/>"+ profile +"<fmt:message key='remove.message2'/>",
                     function() {
-              	       location.href ="remove-profile.jsp?username="+username+"&profile="+profile+
-                               "&fromUserMgt=<%=Encode.forJavaScriptBlock(Encode.forUriComponent(fromUserMgt))%>";
+              	       location.href = "remove-profile.jsp?username=" + username + "&profile=" + profile +
+                                     "&fromUserMgt=<%=Encode.forUriComponent(fromUserMgt)%>";
                      }, null);
                  }
             </script>
@@ -209,7 +209,7 @@
                 <td width="50%">
                     <a href="edit.jsp?username=<%=Encode.forUriComponent(username)%>&profile=
 				        <%=Encode.forUriComponent(profileName)%>&fromUserMgt=<%=Encode.forUriComponent(fromUserMgt)%>">
-                    <%=Encode.forHtmlContent(profileName)%>
+                        <%=Encode.forHtmlContent(profileName)%>
                     </a>
                 </td>
 				<td width="50%">
