@@ -18,8 +18,6 @@
 package org.wso2.carbon.identity.sso.saml.dto;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang.StringUtils;
-import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
 
 import java.io.Serializable;
 
@@ -49,20 +47,6 @@ public class SAMLSSOServiceProviderDTO implements Serializable {
     private String[] idpInitSLOReturnToURLs;
     private boolean doEnableEncryptedAssertion;
     private boolean doValidateSignatureInRequests;
-    private String signingAlgorithmURI;
-
-    public SAMLSSOServiceProviderDTO() {
-        signingAlgorithmURI = IdentityApplicationManagementUtil.getSigningAlgoURIByConfig();
-    }
-    public String getSigningAlgorithmURI() {
-        return signingAlgorithmURI;
-    }
-
-    public void setSigningAlgorithmURI(String signingAlgorithmURI) {
-        if (StringUtils.isNotBlank(signingAlgorithmURI)) {
-            this.signingAlgorithmURI = signingAlgorithmURI;
-        }
-    }
 
     public String getNameIDFormat() {
         return nameIDFormat;
