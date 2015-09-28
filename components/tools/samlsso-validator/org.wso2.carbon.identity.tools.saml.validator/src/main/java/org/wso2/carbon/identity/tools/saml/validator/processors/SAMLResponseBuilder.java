@@ -117,7 +117,8 @@ public class SAMLResponseBuilder {
             response.getAssertions().add(assertion);
         }
         if (ssoIdPConfigs.isDoSignResponse()) {
-            SAMLSSOUtil.setSignature(response, ssoIdPConfigs.getSigningAlgorithmUri(), new SignKeyDataHolder(userName));
+            SAMLSSOUtil.setSignature(response, ssoIdPConfigs.getSigningAlgorithmUri(), ssoIdPConfigs
+                    .getDigestAlgorithmUri(), new SignKeyDataHolder(userName));
         }
         return response;
     }
@@ -211,8 +212,8 @@ public class SAMLResponseBuilder {
         samlAssertion.setConditions(conditions);
 
         if (ssoIdPConfigs.isDoSignAssertions()) {
-            SAMLSSOUtil.setSignature(samlAssertion, ssoIdPConfigs.getSigningAlgorithmUri(), new SignKeyDataHolder
-                    (userName));
+            SAMLSSOUtil.setSignature(samlAssertion, ssoIdPConfigs.getSigningAlgorithmUri(), ssoIdPConfigs
+                    .getDigestAlgorithmUri(), new SignKeyDataHolder(userName));
         }
 
         return samlAssertion;

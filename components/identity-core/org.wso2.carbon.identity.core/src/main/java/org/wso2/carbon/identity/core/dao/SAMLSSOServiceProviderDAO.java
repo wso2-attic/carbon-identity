@@ -59,10 +59,10 @@ public class SAMLSSOServiceProviderDAO extends AbstractDAO<SAMLSSOServiceProvide
         }
 
         if (resource.getProperty(IdentityRegistryResources.PROP_SAML_SSO_DIGEST_ALGORITHM) != null) {
-            serviceProviderDO.setDigestAlgorithm(resource.getProperty(IdentityRegistryResources
+            serviceProviderDO.setDigestAlgorithmUri(resource.getProperty(IdentityRegistryResources
                     .PROP_SAML_SSO_DIGEST_ALGORITHM));
         } else {
-            serviceProviderDO.setDigestAlgorithm(IdentityCoreConstants.XML_DIGEST_ALGORITHM_SHA1);
+            serviceProviderDO.setDigestAlgorithmUri(IdentityCoreConstants.XML_DIGEST_ALGORITHM_SHA1);
         }
 
         if (resource.getProperty(IdentityRegistryResources.PROP_SAML_SSO_DO_SINGLE_LOGOUT) != null) {
@@ -196,10 +196,9 @@ public class SAMLSSOServiceProviderDAO extends AbstractDAO<SAMLSSOServiceProvide
                     IdentityRegistryResources.PROP_SAML_SSO_NAMEID_FORMAT,
                     serviceProviderDO.getNameIDFormat());
             resource.addProperty(IdentityRegistryResources.PROP_SAML_SSO_SIGNING_ALGORITHM, serviceProviderDO
-                    .getSigningAlgorithm());
-            resource.addProperty(IdentityRegistryResources.PROP_SAML_SSO_DIGEST_ALGORITHM, serviceProviderDO
-                    .getDigestAlgorithm());
                     .getSigningAlgorithmUri());
+            resource.addProperty(IdentityRegistryResources.PROP_SAML_SSO_DIGEST_ALGORITHM, serviceProviderDO
+                    .getDigestAlgorithmUri());
             if (serviceProviderDO.getNameIdClaimUri() != null
                     && serviceProviderDO.getNameIdClaimUri().trim().length() > 0) {
                 resource.addProperty(

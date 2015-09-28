@@ -936,7 +936,7 @@ function clearAll() {
                     for (String digestAlgo : spConfigClient.getDigestAlgorithmURIs()) {
                         String digestAlgorithm = null;
                         if (provider != null) {
-                            digestAlgorithm = provider.getDigestAlgorithm();
+                            digestAlgorithm = provider.getDigestAlgorithmURI();
                         } else {
                             digestAlgorithm = spConfigClient.getDigestAlgorithmURIByConfig();
                         }

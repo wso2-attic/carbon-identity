@@ -45,6 +45,15 @@ public class SAMLSSOReqValidationResponseDTO implements Serializable {
     private boolean isIdPInitSLO;
     private String returnToURL;
     private String signingAlgorithmUri;
+    private String digestAlgorithmUri;
+
+    public String getDigestAlgorithmUri() {
+        return digestAlgorithmUri;
+    }
+
+    public void setDigestAlgorithmUri(String digestAlgorithmUri) {
+        this.digestAlgorithmUri = digestAlgorithmUri;
+    }
 
     public String getSigningAlgorithmUri() {
         return signingAlgorithmUri;

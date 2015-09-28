@@ -1134,4 +1134,12 @@ public class IdentityApplicationManagementUtil {
             return IdentityApplicationConstants.XML.SignatureAlgorithmURI.RSA_SHA1;
         }
     }
+    public static String getDigestAlgoURIByConfig() {
+        if (StringUtils.isNotBlank(IdentityUtil.getProperty(IdentityConstants.ServerConfig
+                .SSO_DEFAULT_DIGEST_ALGORITHM))) {
+            return IdentityUtil.getProperty(IdentityConstants.ServerConfig.SSO_DEFAULT_DIGEST_ALGORITHM).trim();
+        } else {
+            return IdentityApplicationConstants.XML.DigestAlgorithmURI.SHA1;
+        }
+    }
 }

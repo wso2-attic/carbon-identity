@@ -52,8 +52,9 @@ public class SingleLogoutMessageBuilder {
     }
 
     public LogoutRequest buildLogoutRequest(String subject, String sessionId, String reason, String destination,
-                                            String nameIDFormat, String tenantDomain, String requestsigningAlgorithmUri)
-            throws IdentityException {
+                                            String nameIDFormat, String tenantDomain, String
+                                                    requestsigningAlgorithmUri, String requestDigestAlgoUri) throws
+            IdentityException {
 
         LogoutRequest logoutReq = new LogoutRequestBuilder().buildObject();
 
@@ -99,7 +100,8 @@ public class SingleLogoutMessageBuilder {
             PrivilegedCarbonContext.startTenantFlow();
             PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
             PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantId(tenantId);
-            SAMLSSOUtil.setSignature(logoutReq, requestsigningAlgorithmUri, new SignKeyDataHolder(null));
+            SAMLSSOUtil.setSignature(logoutReq, requestsigningAlgorithmUri, requestDigestAlgoUri, new
+                    SignKeyDataHolder(null));
         } finally {
             PrivilegedCarbonContext.endTenantFlow();
         }
@@ -107,9 +109,8 @@ public class SingleLogoutMessageBuilder {
         return logoutReq;
     }
 
-    public LogoutResponse buildLogoutResponse(String id, String status, String statMsg, String destination,
-                                              String tenantDomain, String responseSigningAlgorithmUri) throws
-            IdentityException {
+    public LogoutResponse buildLogoutResponse(String id, String status, String statMsg, String destination, String
+            tenantDomain, String responseSigningAlgorithmUri, String responseDigestAlgoUri) throws IdentityException {
 
         LogoutResponse logoutResp = new LogoutResponseBuilder().buildObject();
         logoutResp.setID(SAMLSSOUtil.createID());
@@ -141,7 +142,8 @@ public class SingleLogoutMessageBuilder {
                 PrivilegedCarbonContext.startTenantFlow();
                 PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
                 PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantId(tenantId);
-                SAMLSSOUtil.setSignature(logoutResp, responseSigningAlgorithmUri, new SignKeyDataHolder(null));
+                SAMLSSOUtil.setSignature(logoutResp, responseSigningAlgorithmUri, responseDigestAlgoUri, new
+                        SignKeyDataHolder(null));
             } finally {
                 PrivilegedCarbonContext.endTenantFlow();
             }

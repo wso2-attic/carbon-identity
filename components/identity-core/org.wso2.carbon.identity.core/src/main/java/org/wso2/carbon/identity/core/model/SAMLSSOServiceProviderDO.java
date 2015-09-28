@@ -56,8 +56,8 @@ public class SAMLSSOServiceProviderDO implements Serializable {
     private List<String> idpInitSLOReturnToURLList;
     private boolean doEnableEncryptedAssertion;
     private boolean doValidateSignatureInRequests;
-    private String signingAlgorithm;
-    private String digestAlgorithm;
+    private String signingAlgorithmUri;
+    private String digestAlgorithmUri;
 
     public String getNameIDFormat() {
         return nameIDFormat;
@@ -157,24 +157,23 @@ public class SAMLSSOServiceProviderDO implements Serializable {
         this.attributeConsumingServiceIndex = attributeConsumingServiceIndex;
     }
 
-    public String getDigestAlgorithm() {
-        return digestAlgorithm;
+    public String getSigningAlgorithmUri() {
+        return signingAlgorithmUri;
     }
 
-    public void setDigestAlgorithm(String digestAlgorithm) {
-        this.digestAlgorithm = digestAlgorithm;
-    }
-
-    public String getSigningAlgorithm() {
-        return signingAlgorithm;
-    }
-
-    public void setSigningAlgorithm(String signingAlgorithm) {
-        if (StringUtils.isNotEmpty(signingAlgorithm)) {
-            this.signingAlgorithm = signingAlgorithm;
+    public void setSigningAlgorithmUri(String signingAlgorithmUri) {
+        if (StringUtils.isNotEmpty(signingAlgorithmUri)) {
+            this.signingAlgorithmUri = signingAlgorithmUri;
         }
     }
 
+    public String getDigestAlgorithmUri() {
+        return digestAlgorithmUri;
+    }
+
+    public void setDigestAlgorithmUri(String digestAlgorithmUri) {
+        this.digestAlgorithmUri = digestAlgorithmUri;
+    }
     /**
      * @return the requestedClaims
      */
