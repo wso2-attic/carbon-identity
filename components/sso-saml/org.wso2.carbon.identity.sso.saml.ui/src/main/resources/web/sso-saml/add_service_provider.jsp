@@ -1495,7 +1495,6 @@ if (isEditSP && show) {
 </tbody>
 </table>
 <input type="hidden" id="attributeConsumingServiceIndex" name="attributeConsumingServiceIndex" value="<%=Encode.forHtmlAttribute(attributeConsumingServiceIndex)%>"/>
-<input type="hidden" id="attributeConsumingServiceIndex" name="attributeConsumingServiceIndex" value="<%=Encode.forHtmlAttribute(attributeConsumingServiceIndex)%>"/>
 </form>
 </div>
 </div>

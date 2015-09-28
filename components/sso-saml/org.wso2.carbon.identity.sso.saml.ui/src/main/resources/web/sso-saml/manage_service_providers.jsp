@@ -218,11 +218,12 @@
                                              ? ""
                                              : Encode.forHtml(sp.getAttributeConsumingServiceIndex())%>
                     </td>
-                    <td style="width:200px;white-space:nowrap;"><a title="Edit Service Providers"
-                                                                   onclick="edit('<%=Encode.forJavaScriptAttribute(sp.getIssuer())%>');return false;"
-                                                                   href="#"
-                                                                   class="icon-link"
-                                                                   style="background-image: url(../admin/images/edit.gif)">Edit</a>
+                    <td style="width:200px;white-space:nowrap;">
+                        <a title="Edit Service Providers"
+                           onclick="edit('<%=Encode.forJavaScriptAttribute(Encode.forUri(sp.getIssuer()))%>');return false;"
+                           href="#"
+                           class="icon-link"
+                           style="background-image: url(../admin/images/edit.gif)">Edit</a>
 
                         <a title="Remove Service Providers"
                            onclick="removeItem('<%=Encode.forJavaScriptAttribute(sp.getIssuer())%>');return false;" href="#"
