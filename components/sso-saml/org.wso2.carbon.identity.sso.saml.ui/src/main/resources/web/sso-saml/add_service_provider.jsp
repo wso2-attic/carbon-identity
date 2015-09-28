@@ -87,12 +87,6 @@ function doValidation() {
         return false;
     }
 
-    var signingAlgorithm = $('#signingAlgorithm').val();
-    if (signingAlgorithm == null || signingAlgorithm == '') {
-        CARBON.showWarningDialog("<fmt:message key='sp.enter.default.signingAlgorithm'/>", null, null);
-        return false;
-    }
-
 
     var fld3 = document.getElementsByName("logoutURL")[0];
     var value = fld3.value;
@@ -906,10 +900,10 @@ function clearAll() {
                     for (String signingAlgo : spConfigClient.getSigningAlgorithmUris()) {
                         String signAlgorithm = null;
                         if (provider != null) {
-                            signAlgorithm = provider.getSigningAlgorithm();
+                            signAlgorithm = provider.getSigningAlgorithmURI();
                         }
                         else{
-                            signAlgorithm = spConfigClient.getSigningAlgorithmByConfig();
+                            signAlgorithm = spConfigClient.getSigningAlgorithmUriByConfig();
                         }
                         if (signAlgorithm != null && signingAlgo.equals(signAlgorithm)) {
             %>

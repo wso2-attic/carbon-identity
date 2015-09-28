@@ -28,6 +28,7 @@ import org.wso2.carbon.identity.sso.saml.stub.IdentitySAMLSSOConfigServiceStub;
 import org.wso2.carbon.identity.sso.saml.stub.types.SAMLSSOServiceProviderDTO;
 import org.wso2.carbon.identity.sso.saml.stub.types.SAMLSSOServiceProviderInfoDTO;
 
+import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -129,22 +130,22 @@ public class SAMLSSOConfigServiceClient {
     }
 
     public String[] getSigningAlgorithmUris() throws IdentityRuntimeException {
-        String[] signingAlgorithmUris = null;
-//        try {
-//            signingAlgorithmUris = stub.getSigningAlgorithmUris();
-//        } catch (RemoteException e) {
-//            throw new IdentityRuntimeException(e.getMessage(), e);
-//        }
+        String[] signingAlgorithmUris;
+        try {
+            signingAlgorithmUris = stub.getSigningAlgorithmUris();
+        } catch (RemoteException e) {
+            throw new IdentityRuntimeException(e.getMessage(), e);
+        }
         return signingAlgorithmUris;
     }
 
-    public String getSigningAlgorithmByConfig() throws IdentityRuntimeException {
-        String signingAlgo = null;
-//        try {
-//            signingAlgo = stub.getSigningAlgorithmUriByConfig();
-//        } catch (RemoteException e) {
-//            throw new IdentityRuntimeException(e.getMessage(), e);
-//        }
+    public String getSigningAlgorithmUriByConfig() throws IdentityRuntimeException {
+        String signingAlgo;
+        try {
+            signingAlgo = stub.getSigningAlgorithmUriByConfig();
+        } catch (RemoteException e) {
+            throw new IdentityRuntimeException(e.getMessage(), e);
+        }
         return signingAlgo;
     }
 }
