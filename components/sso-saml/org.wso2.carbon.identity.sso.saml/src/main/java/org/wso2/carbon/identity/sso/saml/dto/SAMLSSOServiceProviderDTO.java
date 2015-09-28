@@ -49,24 +49,21 @@ public class SAMLSSOServiceProviderDTO implements Serializable {
     private String[] idpInitSLOReturnToURLs;
     private boolean doEnableEncryptedAssertion;
     private boolean doValidateSignatureInRequests;
-    private String signingAlgorithm;
+    private String signingAlgorithmURI;
     private String digestAlgorithm;
 
-
-
     public SAMLSSOServiceProviderDTO() {
-        signingAlgorithm = IdentityApplicationManagementUtil.getSigningAlgoByURI(IdentityApplicationManagementUtil
-                .getSigningAlgoURIByConfig());
+        signingAlgorithmURI = IdentityApplicationManagementUtil.getSigningAlgoURIByConfig();
         digestAlgorithm = IdentityApplicationManagementUtil.getDigestAlgoByURI(IdentityApplicationManagementUtil
                 .getDigestAlgoURIByConfig());
     }
-    public String getSigningAlgorithm() {
-        return signingAlgorithm;
+    public String getSigningAlgorithmURI() {
+        return signingAlgorithmURI;
     }
 
-    public void setSigningAlgorithm(String signingAlgorithm) {
-        if (StringUtils.isNotBlank(signingAlgorithm)) {
-            this.signingAlgorithm = signingAlgorithm;
+    public void setSigningAlgorithmURI(String signingAlgorithmURI) {
+        if (StringUtils.isNotBlank(signingAlgorithmURI)) {
+            this.signingAlgorithmURI = signingAlgorithmURI;
         }
     }
     public String getDigestAlgorithm() {

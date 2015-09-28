@@ -42,7 +42,6 @@ import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import java.util.Collection;
-import java.util.Set;
 
 public class SAMLSSOConfigService extends AbstractAdmin {
 
@@ -111,14 +110,13 @@ public class SAMLSSOConfigService extends AbstractAdmin {
         throw new IdentityException("Primary Keystore cannot be found.");
     }
 
-    public String[] getSigningAlgorithms() {
-        Set<String> keySet = IdentityApplicationManagementUtil.getXMLSignatureAlgorithms().keySet();
-        return keySet.toArray(new String[keySet.size()]);
+    public String[] getSigningAlgorithmUris() {
+        Collection<String> uris = IdentityApplicationManagementUtil.getXMLSignatureAlgorithms().values();
+        return uris.toArray(new String[uris.size()]);
     }
 
-    public String getSigningAlgorithmByConfig() {
-        return IdentityApplicationManagementUtil.getSigningAlgoByURI(IdentityApplicationManagementUtil
-                .getSigningAlgoURIByConfig());
+    public String getSigningAlgorithmUriByConfig() {
+        return IdentityApplicationManagementUtil.getSigningAlgoURIByConfig();
     }
 
     public String[] getDigestAlgorithmURIs() {

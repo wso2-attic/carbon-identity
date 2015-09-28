@@ -1134,31 +1134,4 @@ public class IdentityApplicationManagementUtil {
             return IdentityApplicationConstants.XML.SignatureAlgorithmURI.RSA_SHA1;
         }
     }
-
-    public static String getSigningAlgoByURI(String uri) {
-        for (String key : xmlSignatureAlgorithms.keySet()) {
-            if (xmlSignatureAlgorithms.get(key).equals(uri)) {
-                return key;
-            }
-        }
-        return IdentityApplicationConstants.XML.SignatureAlgorithm.RSA_SHA1;
-    }
-
-    public static String getDigestAlgoURIByConfig() {
-        String configDigestAlgo = IdentityUtil.getProperty(IdentityConstants.ServerConfig.SSO_DEFAULT_DIGEST_ALGORITHM);
-        if (StringUtils.isNotBlank(configDigestAlgo)) {
-            return configDigestAlgo.trim();
-        } else {
-            return IdentityApplicationConstants.XML.DigestAlgorithmURI.SHA1;
-        }
-    }
-
-    public static String getDigestAlgoByURI(String uri) {
-        for (String key : xmlDigestAlgorithms.keySet()) {
-            if (xmlDigestAlgorithms.get(key).equals(uri)) {
-                return key;
-            }
-        }
-        return IdentityApplicationConstants.XML.DigestAlgorithm.SHA1;
-    }
 }

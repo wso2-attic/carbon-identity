@@ -87,18 +87,7 @@ function doValidation() {
         return false;
     }
 
-    var signingAlgorithm = $('#signingAlgorithm').val();
-    if (signingAlgorithm == null || signingAlgorithm == '') {
-        CARBON.showWarningDialog("<fmt:message key='sp.enter.default.signingAlgorithm'/>", null, null);
-        return false;
-    }
-
-    var digestAlgorithm = $('#digestAlgorithm').val();
-    if(digestAlgorithm == null || digestAlgorithm == ''){
-        CARBON.showWarningDialog("<fmt:message key='sp.enter.default.digestAlgorithm'/>", null, null);
-        return false;
-    }
-
+    
     var fld3 = document.getElementsByName("logoutURL")[0];
     var value = fld3.value;
     var regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/
@@ -907,14 +896,14 @@ function clearAll() {
     <td>
         <select id="signingAlgorithm" name="signingAlgorithm">
             <%
-                if (spConfigClient.getSigningAlgorithms() != null) {
-                    for (String signingAlgo : spConfigClient.getSigningAlgorithms()) {
+                if (spConfigClient.getSigningAlgorithmUris() != null) {
+                    for (String signingAlgo : spConfigClient.getSigningAlgorithmUris()) {
                         String signAlgorithm = null;
                         if (provider != null) {
-                            signAlgorithm = provider.getSigningAlgorithm();
+                            signAlgorithm = provider.getSigningAlgorithmURI();
                         }
                         else{
-                            signAlgorithm = spConfigClient.getSigningAlgorithmByConfig();
+                            signAlgorithm = spConfigClient.getSigningAlgorithmUriByConfig();
                         }
                         if (signAlgorithm != null && signingAlgo.equals(signAlgorithm)) {
             %>

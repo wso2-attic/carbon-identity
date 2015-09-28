@@ -127,7 +127,7 @@ public class IdPInitSSOAuthnRequestProcessor {
                     spDO.setIdPInitSLOEnabled(authnReqDTO.isIdPInitSLOEnabled());
                     spDO.setAssertionConsumerUrls(authnReqDTO.getAssertionConsumerURLs());
                     spDO.setIdpInitSLOReturnToURLs(authnReqDTO.getIdpInitSLOReturnToURLs());
-                    spDO.setSigningAlgorithm(authnReqDTO.getSigningAlgorithm());
+                    spDO.setSigningAlgorithmUri(authnReqDTO.getSigningAlgorithmUri());
                     sessionPersistenceManager.persistSession(sessionIndexId,
                             authnReqDTO.getUser().getAuthenticatedSubjectIdentifier(), spDO,
                             authnReqDTO.getRpSessionId(), authnReqDTO.getIssuer(),
@@ -231,7 +231,7 @@ public class IdPInitSSOAuthnRequestProcessor {
         authnReqDTO.setIdPInitSLOEnabled(ssoIdpConfigs.isIdPInitSLOEnabled());
         authnReqDTO.setAssertionConsumerURLs(ssoIdpConfigs.getAssertionConsumerUrls());
         authnReqDTO.setIdpInitSLOReturnToURLs(ssoIdpConfigs.getIdpInitSLOReturnToURLs());
-        authnReqDTO.setSigningAlgorithm(ssoIdpConfigs.getSigningAlgorithm());
+        authnReqDTO.setSigningAlgorithmUri(ssoIdpConfigs.getSigningAlgorithmUri());
     }
 
     /**

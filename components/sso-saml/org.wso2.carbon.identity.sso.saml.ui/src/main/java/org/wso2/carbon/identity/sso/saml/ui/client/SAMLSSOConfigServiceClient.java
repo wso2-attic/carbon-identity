@@ -129,24 +129,22 @@ public class SAMLSSOConfigServiceClient {
         return claimUris;
     }
 
-    public String[] getSigningAlgorithms() throws AxisFault{
-        String[] signingAlgorithms;
+    public String[] getSigningAlgorithmUris() throws IdentityRuntimeException {
+        String[] signingAlgorithmUris;
         try {
-            signingAlgorithms = stub.getSigningAlgorithms();
+            signingAlgorithmUris = stub.getSigningAlgorithmUris();
         } catch (RemoteException e) {
-            log.error("Error when reading signing algorithms",e);
-            throw new AxisFault(e.getMessage(),e);
+            throw new IdentityRuntimeException(e.getMessage(), e);
         }
-        return  signingAlgorithms;
+        return signingAlgorithmUris;
     }
 
-    public String getSigningAlgorithmByConfig() throws AxisFault{
+    public String getSigningAlgorithmUriByConfig() throws IdentityRuntimeException {
         String signingAlgo;
-        try{
-            signingAlgo = stub.getSigningAlgorithmByConfig();
-        }catch(RemoteException e){
-            log.error("Error when reading signing algorithm from config",e);
-            throw new AxisFault(e.getMessage(),e);
+        try {
+            signingAlgo = stub.getSigningAlgorithmUriByConfig();
+        } catch (RemoteException e) {
+            throw new IdentityRuntimeException(e.getMessage(), e);
         }
         return signingAlgo;
     }

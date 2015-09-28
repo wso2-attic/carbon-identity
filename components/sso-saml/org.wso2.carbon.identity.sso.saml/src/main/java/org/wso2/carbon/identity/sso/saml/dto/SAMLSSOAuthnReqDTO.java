@@ -60,15 +60,15 @@ public class SAMLSSOAuthnReqDTO implements Serializable {
     private Map<String, String> claimMapping = null;
     private String tenantDomain;
     private String certAlias;
-    private String signingAlgorithm;
+    private String signingAlgorithmUri;
 
-    public String getSigningAlgorithm() {
-        return signingAlgorithm;
+    public String getSigningAlgorithmUri() {
+        return signingAlgorithmUri;
     }
 
-    public void setSigningAlgorithm(String signingAlgorithm) {
-        if (StringUtils.isNotBlank(signingAlgorithm)) {
-            this.signingAlgorithm = signingAlgorithm;
+    public void setSigningAlgorithmUri(String signingAlgorithmUri) {
+        if (StringUtils.isNotBlank(signingAlgorithmUri)) {
+            this.signingAlgorithmUri = signingAlgorithmUri;
         }
     }
 
