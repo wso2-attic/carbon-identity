@@ -120,6 +120,7 @@
 
                             org.apache.commons.codec.binary; version="${commons-codec.wso2.osgi.version.range}",
                             org.apache.commons.httpclient.*; version="${commons-httpclient.wso2.osgi.version}",
+                            org.apache.commons.lang; version="${commons-lang.wso2.osgi.version.range}",
                             org.apache.commons.logging; version="${commons-logging.osgi.version.range}",
 
                             org.osgi.service.http; version="${osgi.service.http.imp.pkg.version.range}",
