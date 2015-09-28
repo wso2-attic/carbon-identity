@@ -139,7 +139,7 @@
             	if (qpplicationComponentFound) {
 %> 
 <script>
-   location.href = '../application/configure-service-provider.jsp?action=update&display=serviceName&spName=<%=Encode.forJavaScriptBlock(spName)%>&serviceName=<%=Encode.forJavaScriptBlock(address)%>';
+   location.href = '../application/configure-service-provider.jsp?action=update&display=serviceName&spName=<%=Encode.forUriComponent(spName)%>&serviceName=<%=Encode.forUriComponent(address)%>';
 </script>
 <% 
             }
@@ -187,9 +187,9 @@
                 </td>
                 <td>
                     <div style="height:30px;">
-                        <a href="javascript:document.location.href='<%=Encode.forHtmlAttribute(serverUrl)+"?wsdl"%>'"
+                        <a href="javascript:document.location.href='<%=serverUrl+"?wsdl"%>'"
                            class="icon-link"
-                           style="background-image:url(images/sts.gif);"><%=Encode.forHtmlContent(serverUrl)%>
+                           style="background-image:url(images/sts.gif);"><%=serverUrl%>
                         </a>
                     </div>
                 </td>

@@ -56,7 +56,7 @@
 boolean qpplicationComponentFound = CarbonUIUtil.isContextRegistered(config, "/application/");
 if (qpplicationComponentFound) {
 %>
-    location.href = '../application/configure-service-provider.jsp?spName=<%=Encode.forJavaScriptBlock(spName)%>&action=<%=Encode.forJavaScriptBlock(action)%>&serviceName=<%=Encode.forJavaScriptBlock(address)%>';
+    location.href = '../application/configure-service-provider.jsp?spName=<%=Encode.forUriComponent(spName)%>&action=<%=Encode.forUriComponent(action)%>&serviceName=<%=Encode.forUriComponent(address)%>';
 <% } else { %>
     location.href = 'sts.jsp';
 <% } %>

@@ -123,7 +123,7 @@ try {
 	                  </tr>
 	                  <tr>
 	                      <td><fmt:message key='valid.period'/><font class="required">*</font> </td>  
-	                      <td><input type="text" name="validPeriod" id="validPeriod" value="<%=cardIssuer.getValidPeriodInDays()%>" /></td>
+	                      <td><input type="text" name="validPeriod" id="validPeriod" value="<%=Encode.forHtmlAttribute(String.valueOf(cardIssuer.getValidPeriodInDays()))%>" /></td>
 	                  </tr>
 	                    <tr>
 	                      <td><fmt:message key='supporting.token.types'/><font class="required">*</font></td>
@@ -133,7 +133,7 @@ try {
 	                       %> 
 	                       <div>
 	                          <input type="hidden" name='<%=Encode.forHtmlAttribute(cardIssuer.getSupportedTokenTypes()[i].getTokenType()) + "hidden"%>' id='<%=Encode.forHtmlAttribute(cardIssuer.getSupportedTokenTypes()[i].getTokenType()) + "hidden"%>' value="true"/>
-	                          <input type='checkbox' name='<%=Encode.forHtmlAttribute(cardIssuer.getSupportedTokenTypes()[i].getTokenType())%>' id='<%=Encode.forHtmlAttribute(cardIssuer.getSupportedTokenTypes()[i].getTokenType())%>' checked='checked' onclick="setValue('<%=Encode.forJavaScriptAttribute(cardIssuer.getSupportedTokenTypes()[i].getTokenType())%>','<%=Encode.forHtmlAttribute(cardIssuer.getSupportedTokenTypes()[i].getTokenType())+"hidden"%>')" /> <%=Encode.forHtmlContent(cardIssuer.getSupportedTokenTypes()[i].getTokenType())%> &nbsp;
+	                          <input type='checkbox' name='<%=Encode.forHtmlAttribute(cardIssuer.getSupportedTokenTypes()[i].getTokenType())%>' id='<%=Encode.forHtmlAttribute(cardIssuer.getSupportedTokenTypes()[i].getTokenType())%>' checked='checked' onclick="setValue('<%=Encode.forJavaScriptAttribute(cardIssuer.getSupportedTokenTypes()[i].getTokenType())%>','<%=Encode.forJavaScriptAttribute(cardIssuer.getSupportedTokenTypes()[i].getTokenType())+"hidden"%>')" /> <%=Encode.forHtmlContent(cardIssuer.getSupportedTokenTypes()[i].getTokenType())%> &nbsp;
 	                       </div>
 	                       <% } else { %>
 	                       <div>
