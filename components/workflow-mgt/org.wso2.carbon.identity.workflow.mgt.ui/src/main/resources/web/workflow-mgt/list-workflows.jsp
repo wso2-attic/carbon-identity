@@ -48,6 +48,7 @@
     String pageNumber = request.getParameter(WorkflowUIConstants.PARAM_PAGE_NUMBER);
     int pageNumberInt = 0;
     int numberOfPages = 0;
+    WorkflowDTO[] workflows = null;
 
     //clear any unnecessary session data
     if (session.getAttribute(WorkflowUIConstants.ATTRIB_WORKFLOW_WIZARD) != null) {
@@ -69,7 +70,7 @@
                         .getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
         client = new WorkflowAdminServiceClient(cookie, backendServerURL, configContext);
 
-        WorkflowDTO[] workflows = client.listWorkflows();
+        workflows = client.listWorkflows();
         if (workflows == null) {
             workflows = new WorkflowDTO[0];
         }
@@ -150,8 +151,9 @@
                 </thead>
                 <tbody>
                 <%
-                    for (WorkflowDTO workflow : workflowsToDisplay) {
-                        if (workflow != null) {
+                    if (workflows != null && workflows.length > 0) {
+                        for (WorkflowDTO workflow : workflowsToDisplay) {
+                            if (workflow != null) {
 
                 %>
                 <tr>
@@ -178,8 +180,13 @@
                     </td>
                 </tr>
                 <%
+                            }
                         }
-                    }
+                    } else {%>
+                <tr>
+                    <td colspan="5"><i>No workflows found.</i></td>
+                </tr>
+                <% }
                 %>
                 </tbody>
             </table>

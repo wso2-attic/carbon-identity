@@ -18,7 +18,7 @@
 
 package org.wso2.carbon.identity.oauth.endpoint.revoke;
 
-import org.apache.amber.oauth2.common.message.OAuthResponse;
+import org.apache.oltu.oauth2.common.message.OAuthResponse;
 
 public class CarbonOAuthASResponse extends OAuthResponse {
 

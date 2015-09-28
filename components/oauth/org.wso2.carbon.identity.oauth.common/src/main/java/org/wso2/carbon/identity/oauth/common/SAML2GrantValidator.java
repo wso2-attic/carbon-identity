@@ -17,8 +17,8 @@
  */
 package org.wso2.carbon.identity.oauth.common;
 
-import org.apache.amber.oauth2.common.OAuth;
-import org.apache.amber.oauth2.common.validators.AbstractValidator;
+import org.apache.oltu.oauth2.common.OAuth;
+import org.apache.oltu.oauth2.common.validators.AbstractValidator;
 
 import javax.servlet.http.HttpServletRequest;
 

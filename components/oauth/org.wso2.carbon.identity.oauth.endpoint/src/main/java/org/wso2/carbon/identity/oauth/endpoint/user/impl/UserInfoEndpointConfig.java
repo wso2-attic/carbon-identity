@@ -17,9 +17,9 @@
  */
 package org.wso2.carbon.identity.oauth.endpoint.user.impl;
 
-import org.apache.amber.oauth2.common.exception.OAuthSystemException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.oltu.oauth2.common.exception.OAuthSystemException;
 import org.wso2.carbon.identity.oauth.endpoint.util.EndpointUtil;
 import org.wso2.carbon.identity.oauth.user.UserInfoAccessTokenValidator;
 import org.wso2.carbon.identity.oauth.user.UserInfoClaimRetriever;

@@ -36,7 +36,6 @@ import org.wso2.carbon.identity.application.common.model.RoleMapping;
 import org.wso2.carbon.identity.application.common.util.CharacterEncoder;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
-import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
 import org.wso2.carbon.idp.mgt.IdentityProviderManagementException;
 import org.wso2.carbon.idp.mgt.util.IdPManagementConstants;
@@ -77,12 +76,13 @@ public class IdPManagementDAO {
         PreparedStatement prepStmt = null;
         ResultSet rs = null;
         List<IdentityProvider> idps = new ArrayList<IdentityProvider>();
+        if (dbConnection == null) {
+            dbConnection = IdentityDatabaseUtil.getDBConnection();
+        } else {
+            dbConnInitialized = false;
+        }
         try {
-            if (dbConnection == null) {
-                dbConnection = IdentityDatabaseUtil.getDBConnection();
-            } else {
-                dbConnInitialized = false;
-            }
+
             String sqlStmt = IdPManagementConstants.SQLQueries.GET_IDPS_SQL;
             prepStmt = dbConnection.prepareStatement(sqlStmt);
             prepStmt.setInt(1, tenantId);
@@ -907,13 +907,13 @@ public class IdPManagementDAO {
         ResultSet rs = null;
         IdentityProvider federatedIdp = null;
         boolean dbConnectionInitialized = true;
-        try {
-            if (dbConnection == null) {
-                dbConnection = IdentityDatabaseUtil.getDBConnection();
-            } else {
-                dbConnectionInitialized = false;
-            }
+        if (dbConnection == null) {
+            dbConnection = IdentityDatabaseUtil.getDBConnection();
+        } else {
+            dbConnectionInitialized = false;
+        }
 
+        try {
             // SP_IDP_ID, SP_IDP_PRIMARY, SP_IDP_HOME_REALM_ID,SP_IDP_CERTIFICATE,
             // SP_IDP_TOKEN_EP_ALIAS,
             // SP_IDP_INBOUND_PROVISIONING_ENABLED,SP_IDP_INBOUND_PROVISIONING_USER_STORE_ID,
@@ -1024,7 +1024,7 @@ public class IdPManagementDAO {
             }
             dbConnection.commit();
             return federatedIdp;
-        } catch (SQLException | IdentityException e) {
+        } catch (SQLException e) {
             IdentityApplicationManagementUtil.rollBack(dbConnection);
             throw new IdentityProviderManagementException("Error occurred while retrieving Identity Provider " +
                     "information for tenant : " + tenantDomain + " and Identity Provider name : " + idPName, e);
@@ -1053,13 +1053,12 @@ public class IdPManagementDAO {
         ResultSet rs = null;
         IdentityProvider federatedIdp = null;
         boolean dbConnectionInitialized = true;
+        if (dbConnection == null) {
+            dbConnection = IdentityDatabaseUtil.getDBConnection();
+        } else {
+            dbConnectionInitialized = false;
+        }
         try {
-            if (dbConnection == null) {
-                dbConnection = IdentityDatabaseUtil.getDBConnection();
-            } else {
-                dbConnectionInitialized = false;
-            }
-
             // SP_IDP_ID, SP_IDP_NAME, SP_IDP_PRIMARY, SP_IDP_HOME_REALM_ID,SP_IDP_CERTIFICATE,
             // SP_IDP_TOKEN_EP_ALIAS,
             // SP_IDP_INBOUND_PROVISIONING_ENABLED,SP_IDP_INBOUND_PROVISIONING_USER_STORE_ID,
@@ -1173,7 +1172,7 @@ public class IdPManagementDAO {
             }
             dbConnection.commit();
             return federatedIdp;
-        } catch (SQLException | IdentityException e) {
+        } catch (SQLException e) {
             IdentityApplicationManagementUtil.rollBack(dbConnection);
             throw new IdentityProviderManagementException("Error occurred while retrieving Identity Provider " +
                     "information for Authenticator Property : " + property + " and value : " + value, e);
@@ -1195,13 +1194,12 @@ public class IdPManagementDAO {
     public IdentityProvider getIdPByRealmId(String realmId, int tenantId, String tenantDomain)
             throws IdentityProviderManagementException {
 
-        Connection dbConnection = null;
+        Connection dbConnection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
         ResultSet rs = null;
         String idPName = null;
 
         try {
-            dbConnection = IdentityDatabaseUtil.getDBConnection();
             String sqlStmt = IdPManagementConstants.SQLQueries.GET_IDP_NAME_BY_REALM_ID_SQL;
             prepStmt = dbConnection.prepareStatement(sqlStmt);
             prepStmt.setInt(1, tenantId);
@@ -1217,7 +1215,7 @@ public class IdPManagementDAO {
 
             dbConnection.commit();
             return getIdPByName(dbConnection, idPName, tenantId, tenantDomain);
-        } catch (SQLException | IdentityException e) {
+        } catch (SQLException e) {
             throw new IdentityProviderManagementException("Error while retreiving Identity Provider by realm " +
                     realmId, e);
         } finally {
@@ -1236,10 +1234,8 @@ public class IdPManagementDAO {
     public void addIdP(IdentityProvider identityProvider, int tenantId)
             throws IdentityProviderManagementException {
 
-        Connection dbConnection = null;
+        Connection dbConnection = IdentityDatabaseUtil.getDBConnection();;
         try {
-            dbConnection = IdentityDatabaseUtil.getDBConnection();
-
             if (identityProvider.isPrimary()) {
                 // this is going to be the primary. Switch off any other primary set up in the
                 // system.
@@ -1421,11 +1417,9 @@ public class IdPManagementDAO {
                           IdentityProvider currentIdentityProvider, int tenantId)
             throws IdentityProviderManagementException {
 
-        Connection dbConnection = null;
+        Connection dbConnection = IdentityDatabaseUtil.getDBConnection();
 
         try {
-
-            dbConnection = IdentityDatabaseUtil.getDBConnection();
 
             int idPId = getIdentityProviderIdByName(dbConnection,
                     currentIdentityProvider.getIdentityProviderName(), tenantId);
@@ -1590,14 +1584,13 @@ public class IdPManagementDAO {
     public boolean isIdpReferredBySP(String idPName, int tenantId)
             throws IdentityProviderManagementException {
         boolean isReffered = false;
-        Connection dbConnection = null;
+        Connection dbConnection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmtFedIdp = null;
         ResultSet rsFedIdp = null;
         PreparedStatement prepStmtProvIdp = null;
         ResultSet rsProvIdp = null;
 
         try {
-            dbConnection = IdentityDatabaseUtil.getDBConnection();
             String sqlStmt = IdPManagementConstants.SQLQueries.GET_SP_FEDERATED_IDP_REFS;
             prepStmtFedIdp = dbConnection.prepareStatement(sqlStmt);
             prepStmtFedIdp.setInt(1, tenantId);
@@ -1618,7 +1611,7 @@ public class IdPManagementDAO {
                 }
             }
             dbConnection.commit();
-        } catch (SQLException | IdentityException e) {
+        } catch (SQLException e) {
             throw new IdentityProviderManagementException("Error occurred while searching for IDP references in SP ", e);
         } finally {
             IdentityApplicationManagementUtil.closeStatement(prepStmtFedIdp);
@@ -1643,9 +1636,8 @@ public class IdPManagementDAO {
     public void deleteIdP(String idPName, int tenantId, String tenantDomain)
             throws IdentityProviderManagementException {
 
-        Connection dbConnection = null;
+        Connection dbConnection = IdentityDatabaseUtil.getDBConnection();
         try {
-            dbConnection = IdentityDatabaseUtil.getDBConnection();
             IdentityProvider identityProvider = getIdPByName(dbConnection, idPName, tenantId,
                     tenantDomain);
             if (identityProvider == null) {
@@ -1668,7 +1660,7 @@ public class IdPManagementDAO {
             }
 
             dbConnection.commit();
-        } catch (SQLException | IdentityException e) {
+        } catch (SQLException e) {
             IdentityApplicationManagementUtil.rollBack(dbConnection);
             throw new IdentityProviderManagementException("Error occurred while deleting Identity Provider of tenant "
                     + tenantDomain, e);
@@ -1682,12 +1674,13 @@ public class IdPManagementDAO {
 
         boolean dbConnInitialized = true;
         PreparedStatement prepStmt = null;
+        if (dbConnection == null) {
+            dbConnection = IdentityDatabaseUtil.getDBConnection();
+        } else {
+            dbConnInitialized = false;
+        }
         try {
-            if (dbConnection == null) {
-                dbConnection = IdentityDatabaseUtil.getDBConnection();
-            } else {
-                dbConnInitialized = false;
-            }
+
             String sqlStmt = IdPManagementConstants.SQLQueries.GET_PRIMARY_IDP_SQL;
             prepStmt = dbConnection.prepareStatement(sqlStmt);
             prepStmt.setInt(1, tenantId);
@@ -1718,7 +1711,7 @@ public class IdPManagementDAO {
 
                 return identityProviderDO;
             }
-        } catch (SQLException | IdentityException e) {
+        } catch (SQLException e) {
             IdentityApplicationManagementUtil.rollBack(dbConnection);
             throw new IdentityProviderManagementException("Error occurred while retrieving primary Identity " +
                     "Provider for tenant " + tenantDomain, e);
@@ -1733,17 +1726,16 @@ public class IdPManagementDAO {
     public void deleteTenantRole(int tenantId, String role, String tenantDomain)
             throws IdentityProviderManagementException {
 
-        Connection dbConnection = null;
+        Connection dbConnection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
         try {
-            dbConnection = IdentityDatabaseUtil.getDBConnection();
             String sqlStmt = IdPManagementConstants.SQLQueries.DELETE_ROLE_LISTENER_SQL;
             prepStmt = dbConnection.prepareStatement(sqlStmt);
             prepStmt.setInt(1, tenantId);
             prepStmt.setString(2, role);
             prepStmt.executeUpdate();
             dbConnection.commit();
-        } catch (SQLException | IdentityException e) {
+        } catch (SQLException e) {
             IdentityApplicationManagementUtil.rollBack(dbConnection);
             throw new IdentityProviderManagementException("Error occurred while deleting tenant role " + role +
                     " of tenant " + tenantDomain, e);
@@ -1755,10 +1747,9 @@ public class IdPManagementDAO {
     public void renameTenantRole(String newRoleName, String oldRoleName, int tenantId,
                                  String tenantDomain) throws IdentityProviderManagementException {
 
-        Connection dbConnection = null;
+        Connection dbConnection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt;
         try {
-            dbConnection = IdentityDatabaseUtil.getDBConnection();
             String sqlStmt = IdPManagementConstants.SQLQueries.RENAME_ROLE_LISTENER_SQL;
             prepStmt = dbConnection.prepareStatement(sqlStmt);
             prepStmt.setString(1, CharacterEncoder.getSafeText(newRoleName));
@@ -1766,7 +1757,7 @@ public class IdPManagementDAO {
             prepStmt.setString(3, CharacterEncoder.getSafeText(oldRoleName));
             prepStmt.executeUpdate();
             dbConnection.commit();
-        } catch (SQLException | IdentityException e) {
+        } catch (SQLException e) {
             IdentityApplicationManagementUtil.rollBack(dbConnection);
             throw new IdentityProviderManagementException("Error occurred while renaming tenant role " + oldRoleName + " to "
                     + newRoleName + " of tenant " + tenantDomain, e);
@@ -1851,10 +1842,9 @@ public class IdPManagementDAO {
     public void renameClaimURI(String newClaimURI, String oldClaimURI, int tenantId,
                                String tenantDomain) throws IdentityProviderManagementException {
 
-        Connection dbConnection = null;
+        Connection dbConnection = IdentityDatabaseUtil.getDBConnection();;
         PreparedStatement prepStmt = null;
         try {
-            dbConnection = IdentityDatabaseUtil.getDBConnection();
             String sqlStmt = IdPManagementConstants.SQLQueries.RENAME_CLAIM_SQL;
             prepStmt = dbConnection.prepareStatement(sqlStmt);
             prepStmt.setString(1, CharacterEncoder.getSafeText(newClaimURI));
@@ -1862,7 +1852,7 @@ public class IdPManagementDAO {
             prepStmt.setString(3, CharacterEncoder.getSafeText(oldClaimURI));
             prepStmt.executeUpdate();
             dbConnection.commit();
-        } catch (SQLException | IdentityException e) {
+        } catch (SQLException e) {
             throw new IdentityProviderManagementException("Error occurred while renaming tenant role " + oldClaimURI + " to "
                     + newClaimURI + " of tenant " + tenantDomain, e);
         } finally {
@@ -2375,12 +2365,13 @@ public class IdPManagementDAO {
         boolean dbConnInitialized = true;
         PreparedStatement prepStmt = null;
         ResultSet rs = null;
+        if (dbConnection == null) {
+            dbConnection = IdentityDatabaseUtil.getDBConnection();
+        } else {
+            dbConnInitialized = false;
+        }
         try {
-            if (dbConnection == null) {
-                dbConnection = IdentityDatabaseUtil.getDBConnection();
-            } else {
-                dbConnInitialized = false;
-            }
+
             String sqlStmt = IdPManagementConstants.SQLQueries.GET_IDP_ROW_ID_SQL;
             prepStmt = dbConnection.prepareStatement(sqlStmt);
             prepStmt.setInt(1, tenantId);
@@ -2390,9 +2381,6 @@ public class IdPManagementDAO {
             if (rs.next()) {
                 return rs.getInt(1);
             }
-        } catch (IdentityException e) {
-            throw new IdentityProviderManagementException("Error occurred while reading Identity Provider by name" +
-                    ".", e);
         } finally {
             IdentityApplicationManagementUtil.closeStatement(prepStmt);
             IdentityApplicationManagementUtil.closeResultSet(rs);
@@ -2477,12 +2465,11 @@ public class IdPManagementDAO {
     public boolean isSimilarIdPEntityIdsAvailble(String idPEntityId, int tenantId)
             throws IdentityProviderManagementException {
         boolean isAvailable = false;
-        Connection dbConnection = null;
+        Connection dbConnection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
         ResultSet rs = null;
 
         try {
-            dbConnection = IdentityDatabaseUtil.getDBConnection();
             String sqlStmt = IdPManagementConstants.SQLQueries.GET_SIMILAR_IDP_ENTITIY_IDS;
             prepStmt = dbConnection.prepareStatement(sqlStmt);
             prepStmt.setString(1, "IdPEntityId");
@@ -2493,7 +2480,7 @@ public class IdPManagementDAO {
                 isAvailable = rs.getInt(1) > 0;
             }
             dbConnection.commit();
-        } catch (SQLException | IdentityException e) {
+        } catch (SQLException e) {
             throw new IdentityProviderManagementException("Error occurred while searching for similar IdP EntityIds", e);
         } finally {
             if (prepStmt != null) {

@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.carbon.identity.provider.openid.servlets;
+package org.wso2.carbon.identity.provider.openid;
 
 import org.apache.axis2.context.ConfigurationContext;
 import org.apache.commons.logging.Log;

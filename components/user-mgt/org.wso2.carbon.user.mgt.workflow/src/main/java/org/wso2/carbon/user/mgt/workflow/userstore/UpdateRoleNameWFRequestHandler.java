@@ -126,8 +126,8 @@ public class UpdateRoleNameWFRequestHandler extends AbstractWorkflowRequestHandl
                 UserRealm userRealm = realmService.getTenantUserRealm(tenantId);
                 userRealm.getUserStoreManager().updateRoleName(roleName, newRoleName);
             } catch (UserStoreException e) {
-                log.error("Error when re-requesting updateRoleName operation for " + roleName, e);
-                throw new WorkflowException(e);
+                // Sending e.getMessage() since it is required to give error message to end user.
+                throw new WorkflowException(e.getMessage(), e);
             }
         } else {
             if (retryNeedAtCallback()) {

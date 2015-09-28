@@ -32,7 +32,7 @@ public class UserStoreListener extends AbstractIdentityUserOperationEventListene
     private CacheBackedIdPMgtDAO dao = new CacheBackedIdPMgtDAO(new IdPManagementDAO());
 
     public int getExecutionOrderId() {
-        int orderId = getOrderId(UserStoreListener.class.getName());
+        int orderId = getOrderId();
         if (orderId != IdentityCoreConstants.EVENT_LISTENER_ORDER_ID) {
             return orderId;
         }
@@ -42,7 +42,7 @@ public class UserStoreListener extends AbstractIdentityUserOperationEventListene
     @Override
     public boolean doPostUpdateRoleName(String newRoleName, String oldRoleName, UserStoreManager um) throws
             UserStoreException {
-        if (!isEnable(UserStoreListener.class.getName())) {
+        if (!isEnable()) {
             return true;
         }
         int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
@@ -57,7 +57,7 @@ public class UserStoreListener extends AbstractIdentityUserOperationEventListene
 
     @Override
     public boolean doPostDeleteRole(String roleName, UserStoreManager userStoreManager) throws UserStoreException {
-        if (!isEnable(UserStoreListener.class.getName())) {
+        if (!isEnable()) {
             return true;
         }
         int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();

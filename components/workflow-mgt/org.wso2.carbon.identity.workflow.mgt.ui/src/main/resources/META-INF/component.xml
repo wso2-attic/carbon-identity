@@ -105,8 +105,8 @@
         </menu>
 
         <menu>
-            <id>bps_profiles_menu</id>
-            <i18n-key>workflow.bps.profiles</i18n-key>
+            <id>workflow_engines_menu</id>
+            <i18n-key>workflow.engines</i18n-key>
             <i18n-bundle>org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources</i18n-bundle>
             <parent-menu>configure_menu</parent-menu>
             <link>#</link>
@@ -118,10 +118,10 @@
             <require-permission>/permission/admin/configure/security</require-permission>
         </menu>
         <menu>
-            <id>bps_profiles_add_menu</id>
+            <id>workflow_engines_add_menu</id>
             <i18n-key>add</i18n-key>
             <i18n-bundle>org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources</i18n-bundle>
-            <parent-menu>bps_profiles_menu</parent-menu>
+            <parent-menu>workflow_engines_menu</parent-menu>
             <link>../workflow-mgt/add-bps-profile.jsp</link>
             <icon>../workflow-mgt/images/add.png</icon>
             <region>region1</region>
@@ -132,10 +132,10 @@
             <require-permission>/permission/admin/configure/security</require-permission>
         </menu>
         <menu>
-            <id>bps_profiles_list_menu</id>
+            <id>workflow_engines_list_menu</id>
             <i18n-key>list</i18n-key>
             <i18n-bundle>org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources</i18n-bundle>
-            <parent-menu>bps_profiles_menu</parent-menu>
+            <parent-menu>workflow_engines_menu</parent-menu>
             <link>../workflow-mgt/list-bps-profiles.jsp</link>
             <icon>../workflow-mgt/images/list.png</icon>
             <region>region1</region>
