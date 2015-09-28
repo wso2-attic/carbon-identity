@@ -492,8 +492,7 @@ public class OpenIDHandler {
         }
 
         AuthenticationRequestCacheEntry authRequest = new AuthenticationRequestCacheEntry(authenticationRequest);
-        FrameworkUtils.addAuthenticationRequestToCache(sessionDataKey, authRequest,
-                                                       request.getSession().getMaxInactiveInterval());
+        FrameworkUtils.addAuthenticationRequestToCache(sessionDataKey, authRequest);
         StringBuilder queryStringBuilder = new StringBuilder();
         queryStringBuilder.append(commonAuthURL).
                 append("?").
