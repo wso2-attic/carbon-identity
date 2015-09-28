@@ -47,7 +47,7 @@
 	UserFieldDTO[] fieldDTOs = null;
 	UserProfileDTO profileDTO = null;
 	String forwardTo = null;
-    if(StringUtils.isBlank(username) || StringUtils.isBlank(profile) || StringUtils.isBlank(profileConfiguration)){
+    if(StringUtils.isBlank(username) || StringUtils.isBlank(profile)){
         String message = MessageFormat.format(resourceBundle.getString("error.while.updating.profile"), null);
         CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
 %>
