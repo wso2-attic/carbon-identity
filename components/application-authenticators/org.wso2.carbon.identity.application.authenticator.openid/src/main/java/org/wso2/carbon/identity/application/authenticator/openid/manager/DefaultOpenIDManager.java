@@ -162,6 +162,7 @@ public class DefaultOpenIDManager implements OpenIDManager {
 
                     String[] attrArray = attributesRequestor.getRequestedAttributes(authSuccess.getIdentity());
                     FetchResponse fetchResp = (FetchResponse) authSuccess.getExtension(AxMessage.OPENID_NS_AX);
+                    fetchResp = new YahooFetchResponse(fetchResp);
 
                     for (String attr : attrArray) {
                         String claimUri = attributesRequestor.getTypeURI(authSuccess.getIdentity(), attr);

@@ -18,8 +18,7 @@
 package org.wso2.carbon.identity.user.profile.mgt.dao;
 
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
-import org.wso2.carbon.identity.base.IdentityException;
-import org.wso2.carbon.identity.core.persistence.JDBCPersistenceManager;
+import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
 import org.wso2.carbon.identity.user.profile.mgt.UserProfileException;
 import org.wso2.carbon.identity.user.profile.mgt.util.Constants;
 
@@ -40,11 +39,10 @@ public class UserProfileMgtDAO {
     public void updateDomainNameOfAssociations(int tenantId, String currentDomainName, String newDomainName) throws
                                                                                                              UserProfileException {
 
-        Connection dbConnection = null;
+        Connection dbConnection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement preparedStatement = null;
 
         try {
-            dbConnection = JDBCPersistenceManager.getInstance().getDBConnection();
             preparedStatement = dbConnection.prepareStatement(Constants.SQLQueries.UPDATE_USER_DOMAIN_NAME);
 
             preparedStatement.setString(1, newDomainName);
@@ -58,8 +56,6 @@ public class UserProfileMgtDAO {
         } catch (SQLException e) {
             throw new UserProfileException(String.format("Database error occurred while updating user domain of " +
                                                          "associated ids with domain '%s'", currentDomainName), e);
-        } catch (IdentityException e) {
-            throw new UserProfileException("Error occurred while getting the database connection", e);
         } finally {
             IdentityApplicationManagementUtil.closeStatement(preparedStatement);
             IdentityApplicationManagementUtil.closeConnection(dbConnection);
@@ -69,11 +65,10 @@ public class UserProfileMgtDAO {
     public void deleteAssociationsFromDomain(int tenantId, String domainName) throws
                                                                               UserProfileException {
 
-        Connection dbConnection = null;
+        Connection dbConnection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement preparedStatement = null;
 
         try {
-            dbConnection = JDBCPersistenceManager.getInstance().getDBConnection();
             preparedStatement = dbConnection.prepareStatement(Constants.SQLQueries.DELETE_ASSOCIATED_ID_FROM_DOMAIN);
             preparedStatement.setInt(1, tenantId);
             preparedStatement.setString(2, domainName);
@@ -85,8 +80,6 @@ public class UserProfileMgtDAO {
         } catch (SQLException e) {
             throw new UserProfileException(String.format("Database error occurred while deleting associated ids with " +
                                                          "domain '%s'", domainName), e);
-        } catch (IdentityException e) {
-            throw new UserProfileException("Error occurred while getting the database connection", e);
         } finally {
             IdentityApplicationManagementUtil.closeStatement(preparedStatement);
             IdentityApplicationManagementUtil.closeConnection(dbConnection);

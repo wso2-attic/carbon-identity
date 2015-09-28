@@ -18,7 +18,7 @@
 
 package org.wso2.carbon.identity.oauth2.authz;
 
-import org.apache.amber.oauth2.common.message.types.ResponseType;
+import org.apache.oltu.oauth2.common.message.types.ResponseType;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2AuthorizeReqDTO;
 
 public class OAuthAuthzReqMessageContext {

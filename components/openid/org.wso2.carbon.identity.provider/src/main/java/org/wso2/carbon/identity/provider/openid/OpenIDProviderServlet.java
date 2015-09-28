@@ -15,11 +15,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.carbon.identity.provider.openid.servlets;
+package org.wso2.carbon.identity.provider.openid;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.openid4java.util.OpenID4JavaUtils;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.provider.openid.handlers.OpenIDHandler;
@@ -62,7 +61,7 @@ public class OpenIDProviderServlet extends HttpServlet {
             }
         } finally {
             // clear thread local
-            OpenID4JavaUtils.clearThreadLocalAssociation();
+            OpenIDServerManager.clearThreadLocalAssociation();
         }
     }
 

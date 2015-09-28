@@ -17,15 +17,16 @@
 */
 package org.wso2.carbon.identity.oauth.common;
 
-import org.apache.amber.oauth2.common.OAuth;
-import org.apache.amber.oauth2.common.validators.AbstractValidator;
+import org.apache.oltu.oauth2.common.OAuth;
+import org.apache.oltu.oauth2.common.validators.AbstractValidator;
 
 import javax.servlet.http.HttpServletRequest;
 
 public class NTLMAuthenticationValidator extends AbstractValidator<HttpServletRequest> {
+
     public NTLMAuthenticationValidator() {
         requiredParams.add(OAuth.OAUTH_GRANT_TYPE);
-        requiredParams.add(OAuth.OAUTH_WINDOWS_TOKEN);
+        requiredParams.add(OAuthConstants.WINDOWS_TOKEN);
     }
 
 }

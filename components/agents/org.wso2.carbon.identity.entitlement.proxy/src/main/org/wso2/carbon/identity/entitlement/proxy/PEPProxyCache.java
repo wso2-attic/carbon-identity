@@ -108,7 +108,7 @@ class PEPProxyCache {
 
     private class SimpleCache<K, V> extends LinkedHashMap<K, V> {
 
-        private static final long serialVersionUID = 1L;
+        private static final long serialVersionUID = -6958380913702000534L;
 
         private int maxEntries;
 
