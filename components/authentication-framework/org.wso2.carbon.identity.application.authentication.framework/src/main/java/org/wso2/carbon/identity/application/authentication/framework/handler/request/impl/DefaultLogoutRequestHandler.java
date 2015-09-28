@@ -18,8 +18,10 @@
 
 package org.wso2.carbon.identity.application.authentication.framework.handler.request.impl;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.identity.application.authentication.framework.ApplicationAuthenticator;
 import org.wso2.carbon.identity.application.authentication.framework.AuthenticatorFlowStatus;
@@ -152,6 +154,16 @@ public class DefaultLogoutRequestHandler implements LogoutRequestHandler {
         request.setAttribute(FrameworkConstants.ResponseParams.LOGGED_OUT, isLoggedOut);
 
         String redirectURL;
+        String webContextRoot = ServerConfiguration.getInstance().getFirstProperty(FrameworkConstants.WEB_CONTEXT_ROOT);
+        if (StringUtils.isNotBlank(webContextRoot)) {
+            if (webContextRoot.charAt(0) == '/') {
+                if (webContextRoot.length() <= 1) {
+                    webContextRoot = "";
+                }
+            } else {
+                webContextRoot = "/" + webContextRoot;
+            }
+        }
 
         if(context.getCallerSessionKey() != null) {
             request.setAttribute(FrameworkConstants.SESSION_DATA_KEY, context.getCallerSessionKey());
@@ -168,9 +180,18 @@ public class DefaultLogoutRequestHandler implements LogoutRequestHandler {
             FrameworkUtils.addAuthenticationResultToCache(context.getCallerSessionKey(), authenticationResult,
                                                           FrameworkUtils.getMaxInactiveInterval());
 
-            redirectURL = context.getCallerPath() + "?sessionDataKey=" + context.getCallerSessionKey();
+            if (StringUtils.isNotBlank(webContextRoot)) {
+                redirectURL = webContextRoot + context.getCallerPath() + "?sessionDataKey=" + context.getCallerSessionKey();
+            } else {
+                redirectURL = context.getCallerPath() + "?sessionDataKey=" + context.getCallerSessionKey();
+            }
+
         } else {
-            redirectURL = context.getCallerPath();
+            if (StringUtils.isNotBlank(webContextRoot)) {
+                redirectURL = webContextRoot + context.getCallerPath();
+            } else {
+                redirectURL = context.getCallerPath();
+            }
         }
         
         /*

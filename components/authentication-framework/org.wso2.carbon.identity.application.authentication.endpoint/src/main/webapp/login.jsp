@@ -22,6 +22,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ page import="java.util.Map" %>
+<%@ page import="org.wso2.carbon.base.ServerConfiguration" %>
 
 <fmt:bundle basename="org.wso2.carbon.identity.application.authentication.endpoint.i18n.Resources">
 
@@ -144,8 +145,13 @@
         </div>
         <% } %>
 
-        <form action="../commonauth" method="post" id="loginForm" class="form-horizontal">
-                    <%
+        <% String webContextRoot = ServerConfiguration.getInstance().getFirstProperty(Constants.WEB_CONTEXT_ROOT);
+            if (StringUtils.isNotBlank(webContextRoot)) { %>
+        <form action="../<%=webContextRoot%>/commonauth" method="post" id="loginForm" class="form-horizontal">
+                    <% }else{%>
+            <form action="../commonauth" method="post" id="loginForm" class="form-horizontal">
+                        <%}%>
+                        <%
                 if(localAuthenticatorNames.size()>0) {
 
                     if(localAuthenticatorNames.size()>0 && localAuthenticatorNames.contains("OpenIDAuthenticator")){

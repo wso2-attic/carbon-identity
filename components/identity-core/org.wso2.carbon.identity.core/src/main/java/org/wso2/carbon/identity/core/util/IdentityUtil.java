@@ -283,6 +283,7 @@ public class IdentityUtil {
         if (mgtTransportPort != IdentityCoreConstants.DEFAULT_HTTPS_PORT) {
             serverUrl += ":" + mgtTransportPort;
         }
+
         // If ProxyContextPath is defined then append it
         String proxyContextPath = ServerConfiguration.getInstance().getFirstProperty(IdentityCoreConstants.PROXY_CONTEXT_PATH);
         if (proxyContextPath != null && !proxyContextPath.trim().isEmpty()) {
@@ -290,6 +291,16 @@ public class IdentityUtil {
                 serverUrl += proxyContextPath;
             } else {
                 serverUrl += "/" + proxyContextPath;
+            }
+        }
+
+        // If webContextRoot is defined then append it
+        String webContextRoot = ServerConfiguration.getInstance().getFirstProperty(IdentityCoreConstants.WEB_CONTEXT_ROOT);
+        if (StringUtils.isNotBlank(webContextRoot)) {
+            if (webContextRoot.charAt(0) == '/') {
+                serverUrl += webContextRoot;
+            } else {
+                serverUrl += "/" + webContextRoot;
             }
         }
 
